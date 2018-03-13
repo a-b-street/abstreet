@@ -1,0 +1,7 @@
+/Cargo.lock
+/target/
+*.swp
+
+editor/editor_state
+data/*.abst
+data/input/*
