@@ -12,13 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod classification;
-pub mod floodfill;
-pub mod search;
-pub mod selection;
-pub mod sim_controls;
-pub mod snake;
-pub mod steep;
-pub mod stop_sign_editor;
-pub mod traffic_signal_editor;
-pub mod turn_colors;
+extern crate control;
+extern crate dimensioned;
+extern crate ezgui;
+extern crate geom;
+extern crate graphics;
+extern crate map_model;
+extern crate multimap;
+extern crate ordered_float;
+extern crate rand;
+#[macro_use]
+extern crate serde_derive;
+extern crate vecmath;
+
+pub mod common;
+mod straw_intersections;
+pub mod straw_model;
+
+pub use common::CarID;

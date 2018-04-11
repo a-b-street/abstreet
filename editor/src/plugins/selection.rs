@@ -15,78 +15,42 @@
 use animation;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
+use geom;
 use graphics::types::Color;
 use map_model;
 use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};
 use control::ControlMap;
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
-use render::ColorChooser;
-
-const TURN_CYCLE_DUR_S: f64 = 1.5;
+use sim::CarID;
+use sim::straw_model::Sim;
 
 // TODO only used for mouseover, which happens in order anyway...
 pub enum ID {
     Road(RoadID),
-    RoadIcon(RoadID),
     Intersection(IntersectionID),
     Turn(TurnID),
     Building(BuildingID),
+    Car(CarID),
     //Parcel(ParcelID),
 }
 
 pub enum SelectionState {
     Empty,
-    // Second param is the cycle index
-    // TODO maybe have a separate state for stop sign and traffic signal intersections
-    SelectedIntersection(IntersectionID, animation::TimeLerp, usize),
+    SelectedIntersection(IntersectionID),
     // Second param is the current_turn_index
     SelectedRoad(RoadID, Option<usize>),
     TooltipRoad(RoadID),
-    SelectedRoadIcon(RoadID),
     SelectedBuilding(BuildingID),
     SelectedTurn(TurnID),
-}
-
-impl ColorChooser for SelectionState {
-    fn color_r(&self, r: &map_model::Road) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedRoad(id, _) if r.id == id => Some(render::SELECTED_COLOR),
-            SelectionState::TooltipRoad(id) if r.id == id => Some(render::SELECTED_COLOR),
-            _ => None,
-        }
-    }
-    fn color_i(&self, i: &map_model::Intersection) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedIntersection(id, _, _) if i.id == id => {
-                Some(render::SELECTED_COLOR)
-            }
-            _ => None,
-        }
-    }
-    fn color_t(&self, t: &map_model::Turn) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedTurn(id) if t.id == id => Some(render::SELECTED_COLOR),
-            _ => None,
-        }
-    }
-    fn color_b(&self, b: &map_model::Building) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedBuilding(id) if b.id == id => Some(render::SELECTED_COLOR),
-            _ => None,
-        }
-    }
+    SelectedCar(CarID),
 }
 
 impl SelectionState {
     // TODO shouldnt these two consume self?
     pub fn handle_mouseover(&self, some_id: &Option<ID>) -> SelectionState {
         match *some_id {
-            Some(ID::Intersection(id)) => SelectionState::SelectedIntersection(
-                id,
-                animation::TimeLerp::with_dur_s(TURN_CYCLE_DUR_S),
-                0,
-            ),
+            Some(ID::Intersection(id)) => SelectionState::SelectedIntersection(id),
             Some(ID::Road(id)) => {
                 match *self {
                     // Don't break out of the tooltip state
@@ -94,35 +58,26 @@ impl SelectionState {
                     _ => SelectionState::SelectedRoad(id, None),
                 }
             }
-            Some(ID::RoadIcon(id)) => SelectionState::SelectedRoadIcon(id),
             Some(ID::Building(id)) => SelectionState::SelectedBuilding(id),
             Some(ID::Turn(id)) => SelectionState::SelectedTurn(id),
+            Some(ID::Car(id)) => SelectionState::SelectedCar(id),
             None => SelectionState::Empty,
         }
     }
 
     // TODO consume self
-    pub fn event(&self, input: &mut UserInput) -> (SelectionState, animation::EventLoopMode) {
+    pub fn event(
+        &self,
+        input: &mut UserInput,
+        sim: &mut Sim,
+    ) -> (SelectionState, animation::EventLoopMode) {
         // TODO simplify the way this is written
         match *self {
             SelectionState::Empty => (SelectionState::Empty, animation::EventLoopMode::InputOnly),
-            SelectionState::SelectedIntersection(id, ref time, cycle_idx) => {
-                if time.is_done() {
-                    (
-                        SelectionState::SelectedIntersection(
-                            id,
-                            animation::TimeLerp::with_dur_s(TURN_CYCLE_DUR_S),
-                            cycle_idx + 1,
-                        ),
-                        animation::EventLoopMode::Animation,
-                    )
-                } else {
-                    (
-                        SelectionState::SelectedIntersection(id, time.clone(), cycle_idx),
-                        animation::EventLoopMode::Animation,
-                    )
-                }
-            }
+            SelectionState::SelectedIntersection(id) => (
+                SelectionState::SelectedIntersection(id),
+                animation::EventLoopMode::InputOnly,
+            ),
             SelectionState::SelectedRoad(id, current_turn_index) => {
                 if input.key_pressed(
                     Key::LCtrl,
@@ -165,10 +120,6 @@ impl SelectionState {
                     )
                 }
             }
-            SelectionState::SelectedRoadIcon(id) => (
-                SelectionState::SelectedRoadIcon(id),
-                animation::EventLoopMode::InputOnly,
-            ),
             SelectionState::SelectedBuilding(id) => (
                 SelectionState::SelectedBuilding(id),
                 animation::EventLoopMode::InputOnly,
@@ -177,6 +128,18 @@ impl SelectionState {
                 SelectionState::SelectedTurn(id),
                 animation::EventLoopMode::InputOnly,
             ),
+            SelectionState::SelectedCar(id) => {
+                // TODO not sure if we should debug like this (pushing the bit down to all the
+                // layers representing an entity) or by using some scary global mutable singleton
+                if input.unimportant_key_pressed(Key::D, "press D to debug") {
+                    sim.toggle_debug(id);
+                }
+
+                (
+                    SelectionState::SelectedCar(id),
+                    animation::EventLoopMode::InputOnly,
+                )
+            }
         }
     }
 
@@ -184,17 +147,17 @@ impl SelectionState {
         &self,
         map: &Map,
         canvas: &Canvas,
+        geom_map: &geom::GeomMap,
         draw_map: &render::DrawMap,
         control_map: &ControlMap,
+        sim: &Sim,
         g: &mut GfxCtx,
     ) {
         match *self {
-            SelectionState::Empty
-            | SelectionState::SelectedRoadIcon(_)
-            | SelectionState::SelectedTurn(_) => {}
-            SelectionState::SelectedIntersection(id, _, cycle_idx) => {
+            SelectionState::Empty | SelectionState::SelectedTurn(_) => {}
+            SelectionState::SelectedIntersection(id) => {
                 if let Some(ref signal) = control_map.traffic_signals.get(&id) {
-                    let cycle = &signal.cycles[cycle_idx % signal.cycles.len()];
+                    let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time);
                     for t in &cycle.turns {
                         draw_map.get_t(*t).draw_full(g, render::TURN_COLOR);
                     }
@@ -207,12 +170,15 @@ impl SelectionState {
                 match current_turn_index {
                     Some(idx) => {
                         let turn = draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
+                        let geom_turn =
+                            geom_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
                         turn.draw_full(g, render::TURN_COLOR);
                         for map_t in all_turns {
-                            let t = draw_map.get_t(map_t.id);
-                            if t.conflicts_with(turn) {
+                            let draw_t = draw_map.get_t(map_t.id);
+                            let geom_t = geom_map.get_t(map_t.id);
+                            if geom_t.conflicts_with(geom_turn) {
                                 // TODO should we instead change color_t?
-                                t.draw_icon(g, render::CONFLICTING_TURN_COLOR);
+                                draw_t.draw_icon(g, render::CONFLICTING_TURN_COLOR);
                             }
                         }
                     }
@@ -222,17 +188,48 @@ impl SelectionState {
                 }
             }
             SelectionState::TooltipRoad(id) => {
-                canvas.draw_mouse_tooltip(g, &draw_map.get_r(id).tooltip_lines(map));
+                canvas.draw_mouse_tooltip(g, &draw_map.get_r(id).tooltip_lines(map, geom_map));
             }
             SelectionState::SelectedBuilding(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_b(id).tooltip_lines(map));
             }
+            SelectionState::SelectedCar(id) => {
+                canvas.draw_mouse_tooltip(g, &sim.car_tooltip(id));
+            }
         }
     }
 
-    pub fn color_road_icon(&self, r: &map_model::Road) -> Option<Color> {
+    // TODO instead, since color logic is complicated anyway, just have a way to ask "are we
+    // selecting this generic ID?"
+
+    pub fn color_r(&self, r: &map_model::Road) -> Option<Color> {
         match *self {
-            SelectionState::SelectedRoadIcon(id) if r.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedRoad(id, _) if r.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::TooltipRoad(id) if r.id == id => Some(render::SELECTED_COLOR),
+            _ => None,
+        }
+    }
+    pub fn color_i(&self, i: &map_model::Intersection) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedIntersection(id) if i.id == id => Some(render::SELECTED_COLOR),
+            _ => None,
+        }
+    }
+    pub fn color_t(&self, t: &map_model::Turn) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedTurn(id) if t.id == id => Some(render::SELECTED_COLOR),
+            _ => None,
+        }
+    }
+    pub fn color_b(&self, b: &map_model::Building) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedBuilding(id) if b.id == id => Some(render::SELECTED_COLOR),
+            _ => None,
+        }
+    }
+    pub fn color_c(&self, c: CarID) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedCar(id) if c == id => Some(render::SELECTED_COLOR),
             _ => None,
         }
     }

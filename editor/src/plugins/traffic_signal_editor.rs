@@ -17,12 +17,12 @@
 extern crate map_model;
 
 use ezgui::canvas;
+use geom::GeomMap;
 use map_model::Map;
 use graphics::types::Color;
 use plugins::selection::SelectionState;
 use control::ControlMap;
 use map_model::{IntersectionID, Turn};
-use render::DrawMap;
 use ezgui::input::UserInput;
 use piston::input::Key;
 
@@ -43,7 +43,7 @@ impl TrafficSignalEditor {
         &mut self,
         input: &mut UserInput,
         map: &Map,
-        draw_map: &DrawMap,
+        geom_map: &GeomMap,
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
@@ -80,7 +80,7 @@ impl TrafficSignalEditor {
                     ) {
                         cycle.remove(id);
                     }
-                } else if !cycle.conflicts_with(id, &draw_map.turns) {
+                } else if !cycle.conflicts_with(id, geom_map) {
                     if input.key_pressed(Key::Space, "Press Space to add this turn to this cycle") {
                         cycle.add(id);
                     }
@@ -91,8 +91,7 @@ impl TrafficSignalEditor {
         false
     }
 
-    // TODO needs control_map, so it isn't ColorChooser
-    pub fn color_t(&self, t: &Turn, draw_map: &DrawMap, control_map: &ControlMap) -> Option<Color> {
+    pub fn color_t(&self, t: &Turn, geom_map: &GeomMap, control_map: &ControlMap) -> Option<Color> {
         if t.parent != self.i {
             return Some(canvas::DARK_GREY);
         }
@@ -101,7 +100,7 @@ impl TrafficSignalEditor {
 
         if cycle.contains(t.id) {
             Some(canvas::GREEN)
-        } else if !cycle.conflicts_with(t.id, &draw_map.turns) {
+        } else if !cycle.conflicts_with(t.id, geom_map) {
             Some([0.0, 1.0, 0.0, 0.2])
         } else {
             Some(canvas::RED)

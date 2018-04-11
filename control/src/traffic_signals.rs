@@ -12,22 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use CycleState;
+use ModifiedTrafficSignal;
+
+use dimensioned::si;
+use geom::GeomMap;
 use map_model::{IntersectionID, Map, TurnID};
-use render::DrawTurn;
-use savestate;
+
+use std;
+const CYCLE_DURATION: si::Second<f64> = si::Second {
+    value_unsafe: 15.0,
+    _marker: std::marker::PhantomData,
+};
 
 #[derive(Debug)]
-pub struct TrafficSignal {
+pub struct ControlTrafficSignal {
     intersection: IntersectionID,
     pub cycles: Vec<Cycle>,
 }
 
-impl TrafficSignal {
-    pub fn new(map: &Map, intersection: IntersectionID, turns: &[DrawTurn]) -> TrafficSignal {
+impl ControlTrafficSignal {
+    pub fn new(
+        map: &Map,
+        intersection: IntersectionID,
+        geom_map: &GeomMap,
+    ) -> ControlTrafficSignal {
         assert!(map.get_i(intersection).has_traffic_signal);
-        TrafficSignal {
+        ControlTrafficSignal {
             intersection,
-            cycles: TrafficSignal::greedy_assignment(map, intersection, turns),
+            cycles: ControlTrafficSignal::greedy_assignment(map, intersection, geom_map),
         }
     }
 
@@ -35,35 +48,47 @@ impl TrafficSignal {
         self.cycles.iter().find(|c| c.changed).is_some()
     }
 
-    pub fn get_savestate(&self) -> Option<savestate::ModifiedTrafficSignal> {
+    pub fn get_savestate(&self) -> Option<ModifiedTrafficSignal> {
         if !self.changed() {
             return None;
         }
-        Some(savestate::ModifiedTrafficSignal {
+        Some(ModifiedTrafficSignal {
             cycles: self.cycles
                 .iter()
-                .map(|c| savestate::CycleState {
+                .map(|c| CycleState {
                     turns: c.turns.clone(),
                 })
                 .collect(),
         })
     }
 
-    pub fn load_savestate(&mut self, state: &savestate::ModifiedTrafficSignal) {
+    pub fn load_savestate(&mut self, state: &ModifiedTrafficSignal) {
         self.cycles = state
             .cycles
             .iter()
             .map(|c| Cycle {
                 turns: c.turns.clone(),
                 changed: true,
+                duration: CYCLE_DURATION,
             })
             .collect();
+    }
+
+    pub fn current_cycle_and_remaining_time(
+        &self,
+        time: si::Second<f64>,
+    ) -> (&Cycle, si::Second<f64>) {
+        let cycle_idx = (time / CYCLE_DURATION).floor() as usize;
+        let cycle = &self.cycles[cycle_idx % self.cycles.len()];
+        let next_cycle_time = (cycle_idx + 1) as f64 * CYCLE_DURATION;
+        let remaining_cycle_time = next_cycle_time - time;
+        (cycle, remaining_cycle_time)
     }
 
     fn greedy_assignment(
         map: &Map,
         intersection: IntersectionID,
-        turns: &[DrawTurn],
+        geom_map: &GeomMap,
     ) -> Vec<Cycle> {
         let mut cycles = Vec::new();
 
@@ -75,11 +100,12 @@ impl TrafficSignal {
         let mut current_cycle = Cycle {
             turns: Vec::new(),
             changed: false,
+            duration: CYCLE_DURATION,
         };
         while !remaining_turns.is_empty() {
             let add_turn = remaining_turns
                 .iter()
-                .position(|&t| !current_cycle.conflicts_with(t, turns));
+                .position(|&t| !current_cycle.conflicts_with(t, geom_map));
             match add_turn {
                 Some(idx) => {
                     current_cycle.turns.push(remaining_turns[idx]);
@@ -105,14 +131,15 @@ impl TrafficSignal {
 #[derive(Clone, Debug)]
 pub struct Cycle {
     pub turns: Vec<TurnID>,
-    // in the future, the cycle time, what pedestrian crossings this cycle includes, etc
+    // in the future, what pedestrian crossings this cycle includes, etc
     changed: bool,
+    duration: si::Second<f64>,
 }
 
 impl Cycle {
-    pub fn conflicts_with(&self, t1: TurnID, turns: &[DrawTurn]) -> bool {
+    pub fn conflicts_with(&self, t1: TurnID, geom_map: &GeomMap) -> bool {
         for t2 in &self.turns {
-            if turns[t1.0].conflicts_with(&turns[t2.0]) {
+            if geom_map.get_t(t1).conflicts_with(geom_map.get_t(*t2)) {
                 return true;
             }
         }

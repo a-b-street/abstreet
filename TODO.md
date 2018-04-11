@@ -2,23 +2,23 @@
 
 ## mvp strawman sim
 
-- stop signs
+- cars seemingly whiz past the queue at stop signs (possibly also signals)
+
 - traffic signals
-- mouseover cars
-- draw next intended turn (and accepted or not state) as blinky arrow
-- draw moving / blocked colors (gradually more red as they wait)
+	- parse kml
+- draw moving / blocked colors (gradually more red as they wait longer)
 - draw stop buffer in front/behind of cars
 - cars with different speeds
 - clean up code
-	- make a headless sim mode, forcing some crate splits
-	- split render/ into geom/ too...
 	- line type
 	- ditch vec2d / settle on types
 	- split out UI stuff
-	- typesafe seconds, distances, angles, etc
 	- easier way to define magic tuneable constants
-	- reuse CarIDs...
-	- proper timestep handling (https://gafferongames.com/post/fix_your_timestep/)
+
+## if ever stuck
+
+- parked cars
+- sidewalks and pedestrians
 
 ## editor mode
 
@@ -51,6 +51,7 @@
 - run clippy everywhere
 - extract common crates
 - ask about mut vs returning new version of self (and what that requires of all the contained stuff)
+	- https://stackoverflow.com/questions/28385339/mutable-self-while-reading-from-owner-object
 - break editor up into more crates
 - minimize heap usage -- look into profiling and smallvec
 

@@ -22,6 +22,7 @@ mod road;
 mod turn;
 
 use ezgui::canvas;
+use geom;
 use graphics::types::Color;
 pub use render::map::DrawMap;
 pub use render::road::DrawRoad;
@@ -30,15 +31,11 @@ use std::f64;
 
 // These are all in meters
 const PARCEL_BOUNDARY_THICKNESS: f64 = 0.5;
-const LANE_THICKNESS: f64 = 2.5;
 
-const BIG_ARROW_THICKNESS: f64 = 0.5;
-const TURN_ICON_ARROW_THICKNESS: f64 = BIG_ARROW_THICKNESS / 3.0;
+const TURN_ICON_ARROW_THICKNESS: f64 = geom::BIG_ARROW_THICKNESS / 3.0;
 const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
-
-const TURN_DIST_FROM_INTERSECTION: f64 = 7.5;
 
 pub const DEBUG_COLOR: Color = canvas::PURPLE;
 pub const BRIGHT_DEBUG_COLOR: Color = [1.0, 0.1, 0.55, 1.0];
@@ -60,23 +57,3 @@ pub const QUEUED_COLOR: Color = canvas::RED;
 pub const NEXT_QUEUED_COLOR: Color = canvas::GREEN;
 const TURN_ICON_CIRCLE_COLOR: Color = canvas::DARK_GREY;
 pub const TURN_ICON_INACTIVE_COLOR: Color = canvas::LIGHT_GREY;
-
-// TODO I don't think this is a useful trait at all. The input here really just depends. All the
-// logic winds up happening in ui anyway.
-pub trait ColorChooser {
-    fn color_r(&self, _: &map_model::Road) -> Option<Color> {
-        None
-    }
-    fn color_i(&self, _: &map_model::Intersection) -> Option<Color> {
-        None
-    }
-    fn color_t(&self, _: &map_model::Turn) -> Option<Color> {
-        None
-    }
-    fn color_b(&self, _: &map_model::Building) -> Option<Color> {
-        None
-    }
-    fn color_p(&self, _: &map_model::Parcel) -> Option<Color> {
-        None
-    }
-}

@@ -12,4 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod straw_model;
+use dimensioned::si;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct CarID(pub usize);
+
+use std;
+pub const TIMESTEP: si::Second<f64> = si::Second {
+    value_unsafe: 0.1,
+    _marker: std::marker::PhantomData,
+};
+pub const SPEED_LIMIT: si::MeterPerSecond<f64> = si::MeterPerSecond {
+    value_unsafe: 8.9408,
+    _marker: std::marker::PhantomData,
+};

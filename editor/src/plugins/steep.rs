@@ -18,7 +18,6 @@ extern crate map_model;
 
 use graphics::types::Color;
 use map_model::{Map, Road};
-//use render::ColorChooser;
 use std::f64;
 
 pub struct SteepnessVisualizer {

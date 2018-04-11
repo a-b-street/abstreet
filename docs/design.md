@@ -16,6 +16,9 @@ Road has different representations:
 - "control" layer for editable policies
 - Queue of cars on the road
 
+It could be useful to bundle together a context-like object of Map, GeomMap,
+ControlMap, DrawMap, etc.
+
 Need to figure out how to handle reaping old IDs for transient objects like
 cars, but also things like modified roads. Slot maps?
 
@@ -24,3 +27,24 @@ cars, but also things like modified roads. Slot maps?
 Things organically wound up implementing this pattern. ui.rs is meant to just
 be the glue between all the plugins and things, but color logic particularly is
 leaking badly into there right now.
+
+## Strawman driving model
+
+- Show the FSM
+- Explain how the model is based on best-case bounds
+- Position is derived lazily from time
+- How accurate could it be? Based on inner-city speeds and timesteps
+
+## Stop sign editor
+
+Stop signs are FIFO, except that many intersections only have a stop sign for
+some sides. Going straight on the priority roads is immedite, and left turns
+from those priority roads also take precedence over the low-priority roads. So
+should the stop sign controller mark individual turns as priority/not, or
+individual roads, with implied semantics for left turns? There are really 3
+priorities if turns are considered...
+
+Figuring out nonconflicting roads seems tricky. For now, going to have a
+complicated UI and let individual turns be classified into 3 priority classes.
+First group can't conflict, second and third groups can conflict and are FIFO.
+Will probably have to revisit this later.

@@ -18,7 +18,7 @@ extern crate map_model;
 use aabb_quadtree::geom::Rect;
 use ezgui::canvas;
 use ezgui::canvas::GfxCtx;
-use geometry;
+use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;

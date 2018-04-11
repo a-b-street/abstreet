@@ -251,7 +251,9 @@ impl Map {
                 point: pt,
                 turns: Vec::new(),
                 elevation_meters: i.get_elevation_meters(),
-                has_traffic_signal: i.get_has_traffic_signal(),
+                // TODO use the data again!
+                //has_traffic_signal: i.get_has_traffic_signal(),
+                has_traffic_signal: idx % 2 == 0,
             });
             m.pt_to_intersection.insert(pt, id);
         }

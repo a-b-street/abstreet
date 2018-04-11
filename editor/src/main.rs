@@ -13,7 +13,9 @@
 // limitations under the License.
 
 extern crate aabb_quadtree;
+extern crate control;
 extern crate ezgui;
+extern crate geom;
 extern crate glutin_window;
 extern crate graphics;
 extern crate map_model;
@@ -24,6 +26,7 @@ extern crate piston;
 extern crate rand;
 #[macro_use]
 extern crate serde_derive;
+extern crate sim;
 #[macro_use]
 extern crate structopt;
 extern crate svg;
@@ -35,15 +38,13 @@ use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use ezgui::input::UserInput;
+use rand::SeedableRng;
 use structopt::StructOpt;
 
 mod animation;
-mod control;
-mod geometry;
 mod plugins;
 mod render;
 mod savestate;
-mod sim;
 mod ui;
 
 #[derive(StructOpt, Debug)]
@@ -56,6 +57,10 @@ struct Flags {
     /// Optional SVG to write
     #[structopt(long = "dump_svg")]
     svg_out: Option<String>,
+
+    /// Optional RNG seed
+    #[structopt(long = "rng_seed")]
+    rng_seed: Option<u32>,
 }
 
 fn main() {
@@ -80,7 +85,11 @@ fn main() {
         texture_settings,
     ).expect("Could not load font");
 
-    let mut ui = ui::UI::new(&flags.abst_input, &window.draw_size());
+    let mut rng = rand::weak_rng();
+    if let Some(seed) = flags.rng_seed {
+        rng.reseed([seed, seed + 1, seed + 2, seed + 3]);
+    }
+    let mut ui = ui::UI::new(&flags.abst_input, &window.draw_size(), rng);
     if let Some(path) = flags.svg_out {
         ui.save_svg(&path).expect("Saving SVG failed");
     }

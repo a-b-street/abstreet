@@ -26,17 +26,14 @@ pub enum SearchState {
     FilterOSM(String),
 }
 
-// TODO this isn't a generic widget because of this. problems?
-impl render::ColorChooser for SearchState {
-    fn color_r(&self, r: &map_model::Road) -> Option<Color> {
+impl SearchState {
+    pub fn color_r(&self, r: &map_model::Road) -> Option<Color> {
         self.choose_color(&r.osm_tags)
     }
-    fn color_b(&self, b: &map_model::Building) -> Option<Color> {
+    pub fn color_b(&self, b: &map_model::Building) -> Option<Color> {
         self.choose_color(&b.osm_tags)
     }
-}
 
-impl SearchState {
     fn choose_color(&self, osm_tags: &[String]) -> Option<Color> {
         if let SearchState::FilterOSM(ref filter) = *self {
             for tag in osm_tags {

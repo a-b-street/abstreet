@@ -77,32 +77,3 @@ impl LineLerp {
         Pt2D::new(x1 + i * (x2 - x1), y1 + i * (y2 - y1))
     }
 }
-
-// TODO this isn't right at all
-pub struct SimTime {
-    started_at: Option<Instant>,
-}
-
-impl SimTime {
-    pub fn new() -> SimTime {
-        SimTime { started_at: None }
-    }
-
-    pub fn get_dt_s(&mut self) -> f64 {
-        let dt = self.started_at
-            .expect("SimTime isn't active, can't get_dt_s()")
-            .elapsed();
-        let result = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
-        self.started_at = Some(Instant::now());
-        result
-    }
-
-    pub fn set_active(&mut self, active: bool) {
-        if self.started_at.is_some() && !active {
-            self.started_at = None;
-        }
-        if self.started_at.is_none() && active {
-            self.started_at = Some(Instant::now());
-        }
-    }
-}

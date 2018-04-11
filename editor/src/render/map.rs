@@ -17,7 +17,8 @@ extern crate map_model;
 
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
-use geometry;
+use geom::geometry;
+use geom::GeomMap;
 use map_model::{Bounds, BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
@@ -34,7 +35,6 @@ pub struct DrawMap {
     pub parcels: Vec<DrawParcel>,
 
     roads_quadtree: QuadTree<RoadID>,
-    road_icons_quadtree: QuadTree<RoadID>,
     intersections_quadtree: QuadTree<IntersectionID>,
     turn_icons_quadtree: QuadTree<TurnID>,
     buildings_quadtree: QuadTree<BuildingID>,
@@ -43,13 +43,12 @@ pub struct DrawMap {
 
 impl DrawMap {
     // Also returns the center of the map in map-space and the max pt in screen-space
-    pub fn new(map: &Map) -> (DrawMap, Bounds, Pt2D, Pt2D) {
+    pub fn new(map: &Map, geom_map: &GeomMap) -> (DrawMap, Bounds, Pt2D, Pt2D) {
         let bounds = map.get_gps_bounds();
 
         let mut roads: Vec<DrawRoad> = Vec::new();
         for r in map.all_roads() {
-            let leads_to_stop_sign = !map.get_destination_intersection(r.id).has_traffic_signal;
-            roads.push(DrawRoad::new(r, &bounds, leads_to_stop_sign));
+            roads.push(DrawRoad::new(r, &bounds));
         }
 
         let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -57,8 +56,8 @@ impl DrawMap {
             let mut turns = map.get_turns_from_road(r.id);
             // Sort the turn icons by angle.
             turns.sort_by_key(|t| {
-                let src_pt = roads[t.src.0].last_pt();
-                let dst_pt = roads[t.dst.0].first_pt();
+                let src_pt = geom_map.get_r(t.src).last_pt();
+                let dst_pt = geom_map.get_r(t.dst).first_pt();
                 let mut angle = (dst_pt[1] - src_pt[1])
                     .atan2(dst_pt[0] - src_pt[0])
                     .to_degrees();
@@ -75,14 +74,7 @@ impl DrawMap {
 
         let turns: Vec<DrawTurn> = map.all_turns()
             .iter()
-            .map(|t| {
-                DrawTurn::new(
-                    &roads,
-                    t,
-                    turn_to_road_offset[&t.id],
-                    !map.get_i(t.parent).has_traffic_signal,
-                )
-            })
+            .map(|t| DrawTurn::new(geom_map, t, turn_to_road_offset[&t.id]))
             .collect();
         let intersections: Vec<DrawIntersection> = map.all_intersections()
             .iter()
@@ -109,12 +101,8 @@ impl DrawMap {
         };
 
         let mut roads_quadtree = QuadTree::default(map_bbox);
-        let mut road_icons_quadtree = QuadTree::default(map_bbox);
         for r in &roads {
             roads_quadtree.insert_with_box(r.id, r.get_bbox_for_road());
-            if let Some(bbox) = r.get_bbox_for_icon() {
-                road_icons_quadtree.insert_with_box(r.id, bbox);
-            }
         }
         let mut intersections_quadtree = QuadTree::default(map_bbox);
         for i in &intersections {
@@ -142,7 +130,6 @@ impl DrawMap {
                 parcels,
 
                 roads_quadtree,
-                road_icons_quadtree,
                 intersections_quadtree,
                 turn_icons_quadtree,
                 buildings_quadtree,
@@ -178,14 +165,6 @@ impl DrawMap {
     pub fn get_roads_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawRoad> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.roads_quadtree.query(screen_bbox) {
-            v.push(self.get_r(*id));
-        }
-        v
-    }
-
-    pub fn get_road_icons_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawRoad> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.road_icons_quadtree.query(screen_bbox) {
             v.push(self.get_r(*id));
         }
         v

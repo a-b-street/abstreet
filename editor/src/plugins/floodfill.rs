@@ -87,10 +87,8 @@ impl Floodfiller {
         }
         false
     }
-}
 
-impl render::ColorChooser for Floodfiller {
-    fn color_r(&self, r: &Road) -> Option<Color> {
+    pub fn color_r(&self, r: &Road) -> Option<Color> {
         if self.visited.contains(&r.id) {
             return Some(render::VISITED_COLOR);
         }

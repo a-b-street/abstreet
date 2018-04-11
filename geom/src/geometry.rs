@@ -15,15 +15,38 @@
 extern crate aabb_quadtree;
 
 use aabb_quadtree::geom::{Point, Rect};
+use dimensioned::si;
 use graphics::math::Vec2d;
 use map_model::{Bounds, Pt2D};
 use std::f64;
 use vecmath;
 
+pub mod angles {
+    make_units! {
+        ANGLES;
+        ONE: Unitless;
+
+        base {
+            RAD: Radian, "rad";
+        }
+        derived {}
+        constants {}
+
+        fmt = true;
+    }
+    pub use self::f64consts::*;
+}
+
 // TODO there may be existing crates that help with this stuff
 
 // -1 for driving on the left
 const DRIVING_DIRECTION: f64 = 1.0;
+
+use std;
+pub const EPSILON_METERS: si::Meter<f64> = si::Meter {
+    value_unsafe: 0.00001,
+    _marker: std::marker::PhantomData,
+};
 
 pub enum ThickLine {
     // Both values represent the full width of the thick line
@@ -105,6 +128,19 @@ pub fn thick_line(style: &ThickLine, pt1: &Pt2D, pt2: &Pt2D) -> Vec<Vec2d> {
     vec![c1, c2, c4, c3, c1]
 }
 
+pub fn thick_line_from_angle(
+    thickness: f64,
+    line_length: f64,
+    pt: &Pt2D,
+    angle: angles::Radian<f64>,
+) -> Vec<Vec2d> {
+    let pt2 = Pt2D::new(
+        pt.x() + line_length * angle.value_unsafe.cos(),
+        pt.y() + line_length * angle.value_unsafe.sin(),
+    );
+    thick_line(&ThickLine::Centered(thickness), &pt, &pt2)
+}
+
 pub fn shift_line_perpendicularly_in_driving_direction(
     width: f64,
     pt1: &Pt2D,
@@ -156,8 +192,8 @@ pub fn point_in_circle(x: f64, y: f64, center: Vec2d, radius: f64) -> bool {
     return [x, y];
 }*/
 
-pub fn euclid_dist((pt1, pt2): (&Pt2D, &Pt2D)) -> f64 {
-    return ((pt1.x() - pt2.x()).powi(2) + (pt1.y() - pt2.y()).powi(2)).sqrt();
+pub fn euclid_dist((pt1, pt2): (&Pt2D, &Pt2D)) -> si::Meter<f64> {
+    return ((pt1.x() - pt2.x()).powi(2) + (pt1.y() - pt2.y()).powi(2)).sqrt() * si::M;
 }
 
 pub fn line_segments_intersect((pt1, pt2): (&Vec2d, &Vec2d), (pt3, pt4): (&Vec2d, &Vec2d)) -> bool {
@@ -177,13 +213,13 @@ pub fn dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {
 }
 
 // TODO rm the other one
-pub fn safe_dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {
+pub fn safe_dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: si::Meter<f64>) -> Vec2d {
     let len = euclid_dist((pt1, pt2));
-    if dist_along > len {
+    if dist_along > len + EPSILON_METERS {
         panic!("cant do {} along a line of length {}", dist_along, len);
     }
 
-    let percent = dist_along / len;
+    let percent = (dist_along / len).value_unsafe;
     [
         pt1.x() + percent * (pt2.x() - pt1.x()),
         pt1.y() + percent * (pt2.y() - pt1.y()),
@@ -250,4 +286,14 @@ pub fn circle_to_bbox(c: &[f64; 4]) -> Rect {
             y: (c[1] + c[3]) as f32,
         },
     }
+}
+
+pub fn angle(from: &Pt2D, to: &Pt2D) -> angles::Radian<f64> {
+    // DON'T invert y here
+    let mut theta = (to.y() - from.y()).atan2(to.x() - from.x());
+    // Normalize for easy output
+    if theta < 0.0 {
+        theta += 2.0 * f64::consts::PI;
+    }
+    theta * angles::RAD
 }

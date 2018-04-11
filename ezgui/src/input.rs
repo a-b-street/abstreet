@@ -26,6 +26,9 @@ pub struct UserInput {
     empty_event: Event,
 }
 
+// TODO it'd be nice to automatically detect cases where two callers are trying to check for the
+// same key in the same round. probably indicates a lack of exclusive editor-or-simulation checks
+
 impl UserInput {
     pub fn new(event: Event) -> UserInput {
         UserInput {
@@ -39,6 +42,10 @@ impl UserInput {
 
     pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
         assert!(num_options >= 1 && num_options <= 9);
+        if self.event_consumed {
+            return None;
+        }
+
         let num = if let Some(Button::Keyboard(key)) = self.event.press_args() {
             match key {
                 Key::D1 => Some(1),
@@ -56,7 +63,10 @@ impl UserInput {
             None
         };
         match num {
-            Some(n) if n <= num_options => Some(n),
+            Some(n) if n <= num_options => {
+                self.consume_event();
+                Some(n)
+            }
             _ => {
                 self.important_actions.push(String::from(action));
                 None
@@ -71,6 +81,7 @@ impl UserInput {
 
         if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
             if key == pressed {
+                self.consume_event();
                 return true;
             }
         }
@@ -85,6 +96,7 @@ impl UserInput {
 
         if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
             if key == pressed {
+                self.consume_event();
                 return true;
             }
         }
@@ -107,6 +119,7 @@ impl UserInput {
         &self.event
     }
 
+    // Should only be called publicly after using event directly
     pub fn consume_event(&mut self) {
         assert!(!self.event_consumed);
         self.event_consumed = true;
@@ -116,9 +129,4 @@ impl UserInput {
         // TODO have a way to toggle showing all actions!
         self.important_actions
     }
-
-    /*pub fn use_event_directly_for_unimportant_action(&mut self, action: &str) -> &Event {
-        self.unimportant_actions.push(String::from(action));
-        return &self.event;
-    }*/
 }

@@ -18,25 +18,28 @@ extern crate map_model;
 
 use animation;
 use ezgui::ToggleableLayer;
+use ezgui::canvas;
 use ezgui::canvas::{Canvas, GfxCtx};
+use geom;
 use graphics::types::Color;
 use control::ControlMap;
 use ezgui::input::UserInput;
-use piston::input::{Key, MouseCursorEvent, UpdateEvent};
+use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::floodfill::Floodfiller;
 use plugins::search::SearchState;
 use plugins::selection::{SelectionState, ID};
+use plugins::sim_controls::SimController;
 use plugins::snake::Snake;
 use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
+use rand::XorShiftRng;
 use render;
-use render::ColorChooser;
 use savestate;
-use sim::straw_model::Sim;
+use sim::CarID;
 use std::io;
 use std::process;
 use svg;
@@ -49,6 +52,7 @@ const MIN_ZOOM_FOR_ROAD_MARKERS: f64 = 5.0;
 
 pub struct UI {
     map: map_model::Map,
+    geom_map: geom::GeomMap,
     draw_map: render::DrawMap,
     control_map: ControlMap,
 
@@ -61,9 +65,6 @@ pub struct UI {
     steepness_active: ToggleableLayer,
     osm_classifier_active: ToggleableLayer,
     debug_mode: ToggleableLayer,
-    // TODO weird to be here...
-    sim_running: ToggleableLayer,
-    sim_time: animation::SimTime,
 
     current_selection_state: SelectionState,
     current_search_state: SearchState,
@@ -74,32 +75,34 @@ pub struct UI {
     turn_colors: TurnColors,
     traffic_signal_editor: Option<TrafficSignalEditor>,
     stop_sign_editor: Option<StopSignEditor>,
-    sim: Sim,
+    sim_ctrl: SimController,
 
     canvas: Canvas,
     max_screen_pt: map_model::Pt2D,
 }
 
 impl UI {
-    pub fn new(osm_path: &str, window_size: &Size) -> UI {
-        println!("Opening {}", osm_path);
-        let data = map_model::load_pb(osm_path).expect("Couldn't load pb");
+    pub fn new(abst_path: &str, window_size: &Size, rng: XorShiftRng) -> UI {
+        println!("Opening {}", abst_path);
+        let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
         let map = map_model::Map::new(&data);
-        let (draw_map, _, center_pt, max_screen_pt) = render::DrawMap::new(&map);
-        let control_map = ControlMap::new(&map, &draw_map);
+        let geom_map = geom::GeomMap::new(&map);
+        let (draw_map, _, center_pt, max_screen_pt) = render::DrawMap::new(&map, &geom_map);
+        let control_map = ControlMap::new(&map, &geom_map);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim = Sim::new(&map, &draw_map);
+        let sim_ctrl = SimController::new(&map, &geom_map, rng);
 
         let mut ui = UI {
             map,
+            geom_map,
             draw_map,
             control_map,
             steepness_viz,
             turn_colors,
             max_screen_pt,
-            sim,
+            sim_ctrl,
 
             show_roads: ToggleableLayer::new("roads", Key::D3, "3", Some(MIN_ZOOM_FOR_ROADS)),
             show_buildings: ToggleableLayer::new("buildings", Key::D1, "1", Some(0.0)),
@@ -111,16 +114,14 @@ impl UI {
             ),
             show_parcels: ToggleableLayer::new("parcels", Key::D4, "4", Some(MIN_ZOOM_FOR_PARCELS)),
             show_icons: ToggleableLayer::new(
-                "road and turn icons",
+                "turn icons",
                 Key::D7,
                 "7",
                 Some(MIN_ZOOM_FOR_ROAD_MARKERS),
             ),
             steepness_active: ToggleableLayer::new("steepness visualize", Key::D5, "5", None),
             osm_classifier_active: ToggleableLayer::new("OSM type classifier", Key::D6, "6", None),
-            debug_mode: ToggleableLayer::new("debug mode", Key::D, "D", None),
-            sim_running: ToggleableLayer::new("sim", Key::Space, "Space", None),
-            sim_time: animation::SimTime::new(),
+            debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
             current_selection_state: SelectionState::Empty,
             current_search_state: SearchState::Empty,
@@ -139,7 +140,8 @@ impl UI {
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
                 ui.canvas.cam_zoom = state.cam_zoom;
-                ui.control_map.load_savestate(&state);
+                ui.control_map
+                    .load_savestate(&state.traffic_signals, &state.stop_signs);
             }
             Err(_) => {
                 println!("Couldn't load editor_state, just centering initial view");
@@ -159,7 +161,6 @@ impl UI {
         ui.steepness_active.handle_zoom(old_zoom, new_zoom);
         ui.osm_classifier_active.handle_zoom(old_zoom, new_zoom);
         ui.debug_mode.handle_zoom(old_zoom, new_zoom);
-        ui.sim_running.handle_zoom(old_zoom, new_zoom);
 
         ui
     }
@@ -185,20 +186,14 @@ impl UI {
         }
 
         let mut event_loop_mode = animation::EventLoopMode::InputOnly;
-
-        if self.sim_running.is_enabled() {
-            if input.use_event_directly().update_args().is_some() {
-                self.sim
-                    .step(self.sim_time.get_dt_s(), &self.draw_map, &self.map);
-            }
-            event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
-        }
+        let mut edit_mode = false;
 
         if let Some(mut e) = self.traffic_signal_editor {
+            edit_mode = true;
             if e.event(
                 input,
                 &self.map,
-                &self.draw_map,
+                &self.geom_map,
                 &mut self.control_map,
                 &self.current_selection_state,
             ) {
@@ -209,10 +204,11 @@ impl UI {
         }
 
         if let Some(mut e) = self.stop_sign_editor {
+            edit_mode = true;
             if e.event(
                 input,
                 &self.map,
-                &self.draw_map,
+                &self.geom_map,
                 &mut self.control_map,
                 &self.current_selection_state,
             ) {
@@ -223,6 +219,13 @@ impl UI {
         }
 
         self.current_search_state = self.current_search_state.event(input);
+
+        if !edit_mode
+            && self.sim_ctrl
+                .event(input, &self.geom_map, &self.map, &self.control_map)
+        {
+            event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
+        }
 
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input.use_event_directly());
@@ -236,7 +239,6 @@ impl UI {
         self.steepness_active.handle_zoom(old_zoom, new_zoom);
         self.osm_classifier_active.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
-        self.sim_running.handle_zoom(old_zoom, new_zoom);
 
         if self.show_roads.handle_event(input) {
             if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
@@ -252,7 +254,7 @@ impl UI {
             }
         }
         if self.show_intersections.handle_event(input) {
-            if let SelectionState::SelectedIntersection(_, _, _) = self.current_selection_state {
+            if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
         }
@@ -261,9 +263,6 @@ impl UI {
         self.steepness_active.handle_event(input);
         self.osm_classifier_active.handle_event(input);
         self.debug_mode.handle_event(input);
-        self.sim_running.handle_event(input);
-        // TODO this feels like a hack
-        self.sim_time.set_active(self.sim_running.is_enabled());
 
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
             self.current_selection_state = SelectionState::Empty;
@@ -275,7 +274,8 @@ impl UI {
                 .handle_mouseover(&self.mouseover_something(window_size));
         }
         // TODO can't get this destructuring expressed right
-        let (new_selection_state, new_event_loop_mode) = self.current_selection_state.event(input);
+        let (new_selection_state, new_event_loop_mode) = self.current_selection_state
+            .event(input, &mut self.sim_ctrl.sim);
         event_loop_mode = event_loop_mode.merge(new_event_loop_mode);
         self.current_selection_state = new_selection_state;
         match self.current_selection_state {
@@ -295,13 +295,13 @@ impl UI {
                     }
                 }
 
-                if !self.sim_running.is_enabled() {
-                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                        self.sim.spawn_one_on_road(id);
+                if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
+                    if !self.sim_ctrl.sim.spawn_one_on_road(id) {
+                        println!("No room, sorry");
                     }
                 }
             }
-            SelectionState::SelectedIntersection(id, _, _) => {
+            SelectionState::SelectedIntersection(id) => {
                 if self.traffic_signal_editor.is_none()
                     && self.control_map.traffic_signals.contains_key(&id)
                 {
@@ -311,7 +311,7 @@ impl UI {
                 }
                 if self.stop_sign_editor.is_none() && self.control_map.stop_signs.contains_key(&id)
                 {
-                    if input.key_pressed(Key::E, "Press E to edit this stop sign ") {
+                    if input.key_pressed(Key::E, "Press E to edit this stop sign") {
                         self.stop_sign_editor = Some(StopSignEditor::new(id));
                     }
                 }
@@ -328,7 +328,7 @@ impl UI {
         }
 
         if input.unimportant_key_pressed(Key::S, "Spawn 100 cars in random places") {
-            self.sim.spawn_many_on_empty_roads(100);
+            self.sim_ctrl.spawn_many_on_empty_roads(100);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
@@ -356,23 +356,19 @@ impl UI {
             (0, 0, self.max_screen_pt.x(), self.max_screen_pt.y()),
         );
         for r in &self.draw_map.roads {
-            doc = r.to_svg(
-                doc,
-                self.color_road(self.map.get_r(r.id)),
-                self.color_road_icon(self.map.get_r(r.id)),
-            );
+            doc = r.to_svg(doc, self.color_road(r.id));
         }
         for i in &self.draw_map.intersections {
-            doc = i.to_svg(doc, self.color_intersection(self.map.get_i(i.id)));
+            doc = i.to_svg(doc, self.color_intersection(i.id));
         }
         for t in &self.draw_map.turns {
-            doc = t.to_svg(doc, self.color_turn_icon(self.map.get_t(t.id)));
+            doc = t.to_svg(doc, self.color_turn_icon(t.id));
         }
         for b in &self.draw_map.buildings {
-            doc = b.to_svg(doc, self.color_building(self.map.get_b(b.id)));
+            doc = b.to_svg(doc, self.color_building(b.id));
         }
         for p in &self.draw_map.parcels {
-            doc = p.to_svg(doc, self.color_parcel(self.map.get_p(p.id)));
+            doc = p.to_svg(doc, self.color_parcel(p.id));
         }
         println!("Dumping SVG to {}", path);
         svg::save(path, &doc)
@@ -383,52 +379,67 @@ impl UI {
 
         let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
 
-        if self.show_roads.is_enabled() {
-            for r in &self.draw_map.get_roads_onscreen(screen_bbox) {
-                r.draw(g, self.color_road(self.map.get_r(r.id)));
-                if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
-                    r.draw_detail(g);
-                }
-                if self.debug_mode.is_enabled() {
-                    r.draw_debug(g);
-                }
-                self.sim.draw_cars_on_road(r.id, &self.draw_map, g);
+        let roads_onscreen = if self.show_roads.is_enabled() {
+            self.draw_map.get_roads_onscreen(screen_bbox)
+        } else {
+            Vec::new()
+        };
+        for r in &roads_onscreen {
+            r.draw(g, self.color_road(r.id));
+            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
+                r.draw_detail(g);
+            }
+            if self.debug_mode.is_enabled() {
+                r.draw_debug(g, self.geom_map.get_r(r.id));
             }
         }
 
         if self.show_intersections.is_enabled() {
             for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
-                i.draw(g, self.color_intersection(self.map.get_i(i.id)));
+                i.draw(g, self.color_intersection(i.id));
             }
         }
 
         if self.show_icons.is_enabled() {
             for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
-                t.draw_icon(g, self.color_turn_icon(self.map.get_t(t.id)));
-                self.sim.draw_cars_on_turn(t.id, &self.draw_map, g);
+                t.draw_icon(g, self.color_turn_icon(t.id));
+                for c in &self.sim_ctrl
+                    .sim
+                    .get_draw_cars_on_turn(t.id, &self.geom_map)
+                {
+                    c.draw(g, self.color_car(c.id));
+                }
             }
-            for r in &self.draw_map.get_road_icons_onscreen(screen_bbox) {
-                r.draw_icon(g, self.color_road_icon(self.map.get_r(r.id)));
+        }
+
+        for r in &roads_onscreen {
+            for c in &self.sim_ctrl
+                .sim
+                .get_draw_cars_on_road(r.id, &self.geom_map)
+            {
+                c.draw(g, self.color_car(c.id));
             }
         }
 
         if self.show_parcels.is_enabled() {
             for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                p.draw(g, self.color_parcel(self.map.get_p(p.id)));
+                p.draw(g, self.color_parcel(p.id));
             }
         }
 
         if self.show_buildings.is_enabled() {
             for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
-                b.draw(g, self.color_building(self.map.get_b(b.id)));
+                b.draw(g, self.color_building(b.id));
             }
         }
 
         self.current_selection_state.draw(
             &self.map,
             &self.canvas,
+            &self.geom_map,
             &self.draw_map,
             &self.control_map,
+            &self.sim_ctrl.sim,
             g,
         );
 
@@ -438,7 +449,7 @@ impl UI {
             s.draw(&self.map, &self.canvas, &self.draw_map, g);
         }
 
-        self.sim.draw(&self.canvas, g);
+        self.sim_ctrl.draw(&self.canvas, g);
 
         self.canvas
             .draw_osd_notification(g, &input.get_possible_actions());
@@ -449,22 +460,40 @@ impl UI {
 
         let screen_bbox = self.canvas.get_screen_bbox(window_size);
 
+        let roads_onscreen = if self.show_roads.is_enabled() {
+            self.draw_map.get_roads_onscreen(screen_bbox)
+        } else {
+            Vec::new()
+        };
+        for r in &roads_onscreen {
+            for c in &self.sim_ctrl
+                .sim
+                .get_draw_cars_on_road(r.id, &self.geom_map)
+            {
+                if c.contains_pt(x, y) {
+                    return Some(ID::Car(c.id));
+                }
+            }
+        }
+
         if self.show_icons.is_enabled() {
             for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
                 if t.contains_pt(x, y) {
                     return Some(ID::Turn(t.id));
                 }
             }
-
-            for r in &self.draw_map.get_road_icons_onscreen(screen_bbox) {
-                if r.icon_contains_pt(x, y) {
-                    return Some(ID::RoadIcon(r.id));
-                }
-            }
         }
 
         if self.show_intersections.is_enabled() {
             for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
+                for t in &self.map.get_i(i.id).turns {
+                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.geom_map) {
+                        if c.contains_pt(x, y) {
+                            return Some(ID::Car(c.id));
+                        }
+                    }
+                }
+
                 if i.contains_pt(x, y) {
                     return Some(ID::Intersection(i.id));
                 }
@@ -472,7 +501,16 @@ impl UI {
         }
 
         if self.show_roads.is_enabled() {
-            for r in &self.draw_map.get_roads_onscreen(screen_bbox) {
+            for r in &roads_onscreen {
+                for c in &self.sim_ctrl
+                    .sim
+                    .get_draw_cars_on_road(r.id, &self.geom_map)
+                {
+                    if c.contains_pt(x, y) {
+                        return Some(ID::Car(c.id));
+                    }
+                }
+
                 if r.road_contains_pt(x, y) {
                     return Some(ID::Road(r.id));
                 }
@@ -490,7 +528,8 @@ impl UI {
         None
     }
 
-    fn color_road(&self, r: &map_model::Road) -> Color {
+    fn color_road(&self, id: map_model::RoadID) -> Color {
+        let r = self.map.get_r(id);
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
@@ -514,7 +553,8 @@ impl UI {
             .unwrap_or(render::ROAD_COLOR)
     }
 
-    fn color_intersection(&self, i: &map_model::Intersection) -> Color {
+    fn color_intersection(&self, id: map_model::IntersectionID) -> Color {
+        let i = self.map.get_i(id);
         // TODO weird to squeeze in some quick logic here?
         let default_color = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
             if s.changed() {
@@ -532,47 +572,33 @@ impl UI {
             render::NORMAL_INTERSECTION_COLOR
         };
 
-        self.current_selection_state.color_i(i).unwrap_or_else(|| {
-            self.current_search_state
-                .color_i(i)
-                .unwrap_or(default_color)
-        })
+        self.current_selection_state
+            .color_i(i)
+            .unwrap_or(default_color)
     }
 
-    fn color_turn_icon(&self, t: &map_model::Turn) -> Color {
+    fn color_turn_icon(&self, id: map_model::TurnID) -> Color {
+        let t = self.map.get_t(id);
         // TODO traffic signal selection logic maybe moves here
         self.current_selection_state.color_t(t).unwrap_or_else(|| {
-            self.traffic_signal_editor
+            self.stop_sign_editor
                 .as_ref()
-                .and_then(|e| e.color_t(t, &self.draw_map, &self.control_map))
+                .and_then(|e| e.color_t(t, &self.control_map))
                 .unwrap_or_else(|| {
-                    self.turn_colors
-                        .color_t(t)
-                        .unwrap_or(render::TURN_ICON_INACTIVE_COLOR)
+                    self.traffic_signal_editor
+                        .as_ref()
+                        .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map))
+                        .unwrap_or_else(|| {
+                            self.turn_colors
+                                .color_t(t)
+                                .unwrap_or(render::TURN_ICON_INACTIVE_COLOR)
+                        })
                 })
         })
     }
 
-    // TODO rename these stop signs yo
-    fn color_road_icon(&self, r: &map_model::Road) -> Color {
-        // TODO color logic is leaking everywhere :(
-        if let Some(c) = self.current_selection_state.color_road_icon(r) {
-            return c;
-        }
-        // TODO ask the editor
-        if let Some(s) = self.control_map
-            .stop_signs
-            .get(&self.map.get_destination_intersection(r.id).id)
-        {
-            if s.is_priority_road(r.id) {
-                return render::NEXT_QUEUED_COLOR;
-            }
-        }
-
-        render::QUEUED_COLOR
-    }
-
-    fn color_building(&self, b: &map_model::Building) -> Color {
+    fn color_building(&self, id: map_model::BuildingID) -> Color {
+        let b = self.map.get_b(id);
         vec![
             self.current_selection_state.color_b(b),
             self.current_search_state.color_b(b),
@@ -587,7 +613,19 @@ impl UI {
             .unwrap_or(render::BUILDING_COLOR)
     }
 
-    fn color_parcel(&self, _: &map_model::Parcel) -> Color {
+    fn color_parcel(&self, id: map_model::ParcelID) -> Color {
+        let _p = self.map.get_p(id);
         render::PARCEL_COLOR
+    }
+
+    fn color_car(&self, id: CarID) -> Color {
+        if let Some(c) = self.current_selection_state.color_c(id) {
+            return c;
+        }
+        if self.sim_ctrl.sim.is_moving(id) {
+            canvas::CYAN
+        } else {
+            canvas::RED
+        }
     }
 }

@@ -15,13 +15,12 @@
 use ezgui::canvas;
 use graphics::types::Color;
 use map_model;
-use render;
 
 // TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {}
 
-impl render::ColorChooser for OsmClassifier {
-    fn color_r(&self, r: &map_model::Road) -> Option<Color> {
+impl OsmClassifier {
+    pub fn color_r(&self, r: &map_model::Road) -> Option<Color> {
         for tag in &r.osm_tags {
             if tag == "highway=primary" || tag == "highway=secondary" || tag == "highway=tertiary" {
                 return Some(canvas::GREEN);
@@ -29,7 +28,7 @@ impl render::ColorChooser for OsmClassifier {
         }
         Some(canvas::ALMOST_INVISIBLE)
     }
-    fn color_b(&self, b: &map_model::Building) -> Option<Color> {
+    pub fn color_b(&self, b: &map_model::Building) -> Option<Color> {
         for tag in &b.osm_tags {
             if tag.contains("addr:housenumber") {
                 return Some(canvas::RED);

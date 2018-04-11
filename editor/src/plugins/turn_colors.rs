@@ -18,7 +18,6 @@ extern crate map_model;
 
 use graphics::types::Color;
 use map_model::{Turn, TurnID};
-use render::ColorChooser;
 use control::ControlMap;
 use std::collections::HashMap;
 
@@ -52,10 +51,8 @@ impl TurnColors {
             cycle_idx_per_turn: m,
         }
     }
-}
 
-impl ColorChooser for TurnColors {
-    fn color_t(&self, t: &Turn) -> Option<Color> {
+    pub fn color_t(&self, t: &Turn) -> Option<Color> {
         if let Some(cycle) = self.cycle_idx_per_turn.get(&t.id) {
             return Some(CYCLE_COLORS[*cycle]);
         }

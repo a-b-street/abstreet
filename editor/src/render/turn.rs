@@ -17,14 +17,15 @@ extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
 use ezgui::canvas::GfxCtx;
-use geometry;
+use geom;
+use geom::geometry;
+use geom::GeomMap;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model::{Pt2D, TurnID};
-use render::{BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
-             TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH, TURN_ICON_CIRCLE_COLOR};
-use render::road::DrawRoad;
+use map_model::TurnID;
+use render::{BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
+             TURN_ICON_ARROW_TIP_LENGTH, TURN_ICON_CIRCLE_COLOR};
 use std::f64;
 use svg;
 use vecmath;
@@ -39,24 +40,17 @@ pub struct DrawTurn {
 }
 
 impl DrawTurn {
-    pub fn new(
-        roads: &[DrawRoad],
-        turn: &map_model::Turn,
-        offset_along_road: usize,
-        stop_sign_intersection: bool,
-    ) -> DrawTurn {
+    pub fn new(geom_map: &GeomMap, turn: &map_model::Turn, offset_along_road: usize) -> DrawTurn {
         let offset_along_road = offset_along_road as f64;
-        let src_pt = roads[turn.src.0].last_pt();
-        let dst_pt = roads[turn.dst.0].first_pt();
+        let src_pt = geom_map.get_r(turn.src).last_pt();
+        let dst_pt = geom_map.get_r(turn.dst).first_pt();
         let slope = vecmath::vec2_normalized([dst_pt[0] - src_pt[0], dst_pt[1] - src_pt[1]]);
-        let last_line = roads[turn.src.0].last_line();
-
-        let offset_for_stop_sign = if stop_sign_intersection { 1.0 } else { 0.0 };
+        let last_line = geom_map.get_r(turn.src).last_line();
 
         let icon_center = geometry::dist_along_line(
             // Start the distance from the intersection
             (&last_line.1, &last_line.0),
-            (offset_along_road + 0.5 + offset_for_stop_sign) * TURN_ICON_ARROW_LENGTH,
+            (offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH,
         );
         let icon_src = [
             icon_center[0] - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
@@ -82,7 +76,7 @@ impl DrawTurn {
     }
 
     pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
-        let turn_line = graphics::Line::new_round(color, BIG_ARROW_THICKNESS);
+        let turn_line = graphics::Line::new_round(color, geom::BIG_ARROW_THICKNESS);
         turn_line.draw_arrow(
             [
                 self.src_pt[0],
@@ -111,19 +105,6 @@ impl DrawTurn {
         );
     }
 
-    pub fn conflicts_with(&self, other: &DrawTurn) -> bool {
-        if self.src_pt == other.src_pt {
-            return false;
-        }
-        if self.dst_pt == other.dst_pt {
-            return true;
-        }
-        geometry::line_segments_intersect(
-            (&self.src_pt, &self.dst_pt),
-            (&other.src_pt, &other.dst_pt),
-        )
-    }
-
     // the two below are for the icon
     pub fn get_bbox(&self) -> Rect {
         geometry::circle_to_bbox(&self.icon_circle)
@@ -141,20 +122,5 @@ impl DrawTurn {
 
     pub fn to_svg(&self, doc: svg::Document, _color: Color) -> svg::Document {
         doc
-    }
-
-    // TODO share impl with DrawRoad
-    pub fn dist_along(&self, dist_along: f64) -> (Pt2D, f64) {
-        let src = Pt2D::new(self.src_pt[0], self.src_pt[1]);
-        let dst = Pt2D::new(self.dst_pt[0], self.dst_pt[1]);
-        let vec = geometry::safe_dist_along_line((&src, &dst), dist_along);
-        let angle = (dst.y() - src.y()).atan2(dst.x() - src.x());
-        (Pt2D::new(vec[0], vec[1]), angle)
-    }
-
-    pub fn length(&self) -> f64 {
-        let src = Pt2D::new(self.src_pt[0], self.src_pt[1]);
-        let dst = Pt2D::new(self.dst_pt[0], self.dst_pt[1]);
-        geometry::euclid_dist((&src, &dst))
     }
 }

@@ -15,7 +15,8 @@
 extern crate serde;
 extern crate serde_json;
 
-use map_model::{IntersectionID, RoadID, TurnID};
+use control::{ModifiedStopSign, ModifiedTrafficSignal};
+use map_model::IntersectionID;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Error, Read, Write};
@@ -28,21 +29,6 @@ pub struct EditorState {
 
     pub traffic_signals: HashMap<IntersectionID, ModifiedTrafficSignal>,
     pub stop_signs: HashMap<IntersectionID, ModifiedStopSign>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ModifiedTrafficSignal {
-    pub cycles: Vec<CycleState>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CycleState {
-    pub turns: Vec<TurnID>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ModifiedStopSign {
-    pub priority_roads: Vec<RoadID>,
 }
 
 pub fn write(path: &str, state: EditorState) -> Result<(), Error> {

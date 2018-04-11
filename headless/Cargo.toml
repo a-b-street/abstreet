@@ -1,11 +1,12 @@
 [package]
-name = "convert_osm"
+name = "headless"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
-byteorder = "1.2.1"
-ordered-float = "0.5.0"
-osm-xml = "0.5.1"
+control = { path = "../control" }
+geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+rand = "0.4"
+sim = { path = "../sim" }
 structopt = "0.2"

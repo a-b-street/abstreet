@@ -110,10 +110,8 @@ impl Snake {
             .map(|t| t.id)
             .collect()
     }
-}
 
-impl render::ColorChooser for Snake {
-    fn color_r(&self, r: &Road) -> Option<Color> {
+    pub fn color_r(&self, r: &Road) -> Option<Color> {
         if self.current == r.id {
             return Some(render::NEXT_QUEUED_COLOR);
         }
