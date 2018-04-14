@@ -327,8 +327,8 @@ impl UI {
             }
         }
 
-        if input.unimportant_key_pressed(Key::S, "Spawn 100 cars in random places") {
-            self.sim_ctrl.spawn_many_on_empty_roads(100);
+        if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
+            self.sim_ctrl.spawn_many_on_empty_roads(1000);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {

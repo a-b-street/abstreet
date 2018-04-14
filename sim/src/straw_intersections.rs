@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use {deserialize_car_to_s_map, serialize_car_to_s_map};
+
 use common::{CarID, SPEED_LIMIT};
 use control::ControlMap;
 use control::stop_signs::{ControlStopSign, TurnPriority};
@@ -41,8 +43,11 @@ pub trait IntersectionPolicy {
     fn on_exit(&mut self, car: CarID);
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct StopSign {
     id: IntersectionID,
+    #[serde(serialize_with = "serialize_car_to_s_map",
+            deserialize_with = "deserialize_car_to_s_map")]
     started_waiting_at: HashMap<CarID, si::Second<f64>>,
     accepted: HashMap<CarID, TurnID>,
     waiting: HashMap<CarID, TurnID>,
@@ -135,6 +140,7 @@ impl IntersectionPolicy for StopSign {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct TrafficSignal {
     id: IntersectionID,
     accepted: HashMap<CarID, TurnID>,

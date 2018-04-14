@@ -3,6 +3,8 @@
 ## mvp strawman sim
 
 - cars seemingly whiz past the queue at stop signs (possibly also signals)
+- at signals, cars doing the same turn wont start it until the last car finishes it
+	- draw cars in slightly different colors, to distinguish them better
 
 - traffic signals
 	- parse kml
@@ -19,6 +21,7 @@
 
 - parked cars
 - sidewalks and pedestrians
+- reversible sim
 
 ## editor mode
 

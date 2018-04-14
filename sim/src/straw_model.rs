@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use {deserialize_s, serialize_s};
+
 use common::{CarID, SPEED_LIMIT, TIMESTEP};
 use control::ControlMap;
 use dimensioned::si;
@@ -81,7 +83,7 @@ impl DrawCar {
 }
 
 // TODO this name isn't quite right :)
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 enum On {
     Road(RoadID),
     Turn(TurnID),
@@ -117,11 +119,12 @@ impl On {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Car {
     id: CarID,
     on: On,
     // When did the car start the current On?
+    #[serde(serialize_with = "serialize_s", deserialize_with = "deserialize_s")]
     started_at: si::Second<f64>,
     // TODO ideally, something else would remember Goto was requested and not even call step()
     waiting_for: Option<On>,
@@ -189,6 +192,7 @@ impl Car {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 struct SimQueue {
     id: On,
     cars_queue: Vec<CarID>,
@@ -280,12 +284,15 @@ impl SimQueue {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Sim {
     // TODO investigate slot map-like structures for performance
     cars: HashMap<CarID, Car>,
     roads: Vec<SimQueue>,
     turns: Vec<SimQueue>,
-    intersections: Vec<Box<IntersectionPolicy>>,
+    // TODO figure this out
+    #[serde(skip_serializing, skip_deserializing)] intersections: Vec<Box<IntersectionPolicy>>,
+    #[serde(serialize_with = "serialize_s", deserialize_with = "deserialize_s")]
     pub time: si::Second<f64>,
     id_counter: usize,
     debug: Option<CarID>,
