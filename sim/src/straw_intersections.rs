@@ -28,19 +28,41 @@ const WAIT_AT_STOP_SIGN: si::Second<f64> = si::Second {
     _marker: std::marker::PhantomData,
 };
 
-pub trait IntersectionPolicy {
+// Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
+#[derive(Serialize, Deserialize)]
+pub enum IntersectionPolicy {
+    StopSignPolicy(StopSign),
+    TrafficSignalPolicy(TrafficSignal),
+}
+
+impl IntersectionPolicy {
     // This must only be called when the car is ready to enter the intersection.
-    fn can_do_turn(
+    pub fn can_do_turn(
         &mut self,
         car: CarID,
         turn: TurnID,
         time: si::Second<f64>,
         geom_map: &GeomMap,
         control_map: &ControlMap,
-    ) -> bool;
+    ) -> bool {
+        match *self {
+            IntersectionPolicy::StopSignPolicy(ref mut p) => p.can_do_turn(car, turn, time, geom_map, control_map),
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.can_do_turn(car, turn, time, geom_map, control_map),
+        }
+    }
 
-    fn on_enter(&self, car: CarID);
-    fn on_exit(&mut self, car: CarID);
+    pub fn on_enter(&self, car: CarID) {
+        match *self {
+            IntersectionPolicy::StopSignPolicy(ref p) => p.on_enter(car),
+            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.on_enter(car),
+        }
+    }
+    pub fn on_exit(&mut self, car: CarID) {
+        match *self {
+            IntersectionPolicy::StopSignPolicy(ref mut p) => p.on_exit(car),
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.on_exit(car),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -86,9 +108,7 @@ impl StopSign {
             })
             .is_some()
     }
-}
 
-impl IntersectionPolicy for StopSign {
     fn can_do_turn(
         &mut self,
         car: CarID,
@@ -153,9 +173,7 @@ impl TrafficSignal {
             accepted: HashMap::new(),
         }
     }
-}
 
-impl IntersectionPolicy for TrafficSignal {
     // TODO determine if cars are staying in the intersection past the cycle time.
 
     fn can_do_turn(

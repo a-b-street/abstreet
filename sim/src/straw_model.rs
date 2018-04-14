@@ -290,8 +290,7 @@ pub struct Sim {
     cars: HashMap<CarID, Car>,
     roads: Vec<SimQueue>,
     turns: Vec<SimQueue>,
-    // TODO figure this out
-    #[serde(skip_serializing, skip_deserializing)] intersections: Vec<Box<IntersectionPolicy>>,
+    intersections: Vec<IntersectionPolicy>,
     #[serde(serialize_with = "serialize_s", deserialize_with = "deserialize_s")]
     pub time: si::Second<f64>,
     id_counter: usize,
@@ -300,12 +299,12 @@ pub struct Sim {
 
 impl Sim {
     pub fn new(map: &Map, geom_map: &GeomMap) -> Sim {
-        let mut intersections: Vec<Box<IntersectionPolicy>> = Vec::new();
+        let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
             if i.has_traffic_signal {
-                intersections.push(Box::new(TrafficSignal::new(i.id)));
+                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(i.id)));
             } else {
-                intersections.push(Box::new(StopSign::new(i.id)));
+                intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
             }
         }
 
