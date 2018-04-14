@@ -3,5 +3,6 @@
 *.swp
 
 editor/editor_state
+editor/sim_state
 data/*.abst
 data/input/*

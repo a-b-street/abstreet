@@ -46,8 +46,12 @@ impl IntersectionPolicy {
         control_map: &ControlMap,
     ) -> bool {
         match *self {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => p.can_do_turn(car, turn, time, geom_map, control_map),
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.can_do_turn(car, turn, time, geom_map, control_map),
+            IntersectionPolicy::StopSignPolicy(ref mut p) => {
+                p.can_do_turn(car, turn, time, geom_map, control_map)
+            }
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+                p.can_do_turn(car, turn, time, geom_map, control_map)
+            }
         }
     }
 

@@ -62,6 +62,16 @@ impl SimController {
         if input.unimportant_key_pressed(Key::RightBracket, "Press ] to speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
+        if input.unimportant_key_pressed(Key::O, "Press O to save sim state") {
+            self.sim
+                .write_savestate("sim_state")
+                .expect("Writing sim state failed");
+            println!("Wrote sim_state");
+        }
+        if input.unimportant_key_pressed(Key::P, "Press P to load sim state") {
+            self.sim =
+                straw_model::Sim::load_savestate("sim_state").expect("Loading sim state failed");
+        }
         if self.last_step.is_some() {
             if input.unimportant_key_pressed(Key::Space, "Press space to pause sim") {
                 self.last_step = None;

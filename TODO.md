@@ -2,6 +2,8 @@
 
 ## mvp strawman sim
 
+- put the rng inside Sim and serde it
+
 - cars seemingly whiz past the queue at stop signs (possibly also signals)
 - at signals, cars doing the same turn wont start it until the last car finishes it
 - draw cars in intersections, even when slightly zoomed out
@@ -58,6 +60,7 @@
 	- https://stackoverflow.com/questions/28385339/mutable-self-while-reading-from-owner-object
 - break editor up into more crates
 - minimize heap usage -- look into profiling and smallvec
+- use some tool to enforce consistent style (import order, extern crate only in mod.rs or lib.rs)
 
 ## Conga line idea
 

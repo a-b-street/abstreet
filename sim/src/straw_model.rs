@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+extern crate serde_json;
+
 use {deserialize_s, serialize_s};
 
 use common::{CarID, SPEED_LIMIT, TIMESTEP};
@@ -28,6 +30,8 @@ use ordered_float::NotNaN;
 use rand::{Rng, XorShiftRng};
 use std::collections::{HashMap, HashSet};
 use std::f64;
+use std::fs::File;
+use std::io::{Error, Read, Write};
 use std::time::{Duration, Instant};
 use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 
@@ -302,7 +306,9 @@ impl Sim {
         let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
             if i.has_traffic_signal {
-                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(i.id)));
+                intersections.push(IntersectionPolicy::TrafficSignalPolicy(
+                    TrafficSignal::new(i.id),
+                ));
             } else {
                 intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
             }
@@ -555,6 +561,20 @@ impl Sim {
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
         speed.value_unsafe
+    }
+
+    pub fn write_savestate(&self, path: &str) -> Result<(), Error> {
+        let mut file = File::create(path)?;
+        file.write_all(serde_json::to_string_pretty(self).unwrap().as_bytes())?;
+        Ok(())
+    }
+
+    pub fn load_savestate(path: &str) -> Result<Sim, Error> {
+        let mut file = File::open(path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let sim: Sim = serde_json::from_str(&contents).unwrap();
+        Ok(sim)
     }
 }
 
