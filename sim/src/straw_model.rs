@@ -27,7 +27,7 @@ use graphics::math::Vec2d;
 use map_model::{Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use rand::{Rng, XorShiftRng};
+use rand::{NewRng, Rng, SeedableRng, XorShiftRng};
 use std::collections::{HashMap, HashSet};
 use std::f64;
 use std::fs::File;
@@ -290,6 +290,7 @@ impl SimQueue {
 
 #[derive(Serialize, Deserialize)]
 pub struct Sim {
+    rng: XorShiftRng,
     // TODO investigate slot map-like structures for performance
     cars: HashMap<CarID, Car>,
     roads: Vec<SimQueue>,
@@ -302,7 +303,12 @@ pub struct Sim {
 }
 
 impl Sim {
-    pub fn new(map: &Map, geom_map: &GeomMap) -> Sim {
+    pub fn new(map: &Map, geom_map: &GeomMap, rng_seed: Option<u8>) -> Sim {
+        let mut rng = XorShiftRng::new();
+        if let Some(seed) = rng_seed {
+            rng = XorShiftRng::from_seed([seed; 16]);
+        }
+
         let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
             if i.has_traffic_signal {
@@ -315,6 +321,7 @@ impl Sim {
         }
 
         Sim {
+            rng,
             intersections,
 
             cars: HashMap::new(),
@@ -355,7 +362,7 @@ impl Sim {
         true
     }
 
-    pub fn spawn_many_on_empty_roads(&mut self, num_cars: usize, rng: &mut XorShiftRng) {
+    pub fn spawn_many_on_empty_roads(&mut self, num_cars: usize) {
         let mut roads: Vec<RoadID> = self.roads
             .iter()
             .filter_map(|r| {
@@ -368,7 +375,7 @@ impl Sim {
             .collect();
         // Don't ruin determinism for silly reasons. :)
         if !roads.is_empty() {
-            rng.shuffle(&mut roads);
+            self.rng.shuffle(&mut roads);
         }
 
         let n = num_cars.min(roads.len());
@@ -378,13 +385,7 @@ impl Sim {
         println!("Spawned {}", n);
     }
 
-    pub fn step(
-        &mut self,
-        geom_map: &GeomMap,
-        map: &Map,
-        control_map: &ControlMap,
-        rng: &mut XorShiftRng,
-    ) {
+    pub fn step(&mut self, geom_map: &GeomMap, map: &Map, control_map: &ControlMap) {
         self.time += TIMESTEP;
 
         // Could be concurrent. Ask all cars for their move, reinterpreting Goto to see if there's
@@ -395,7 +396,7 @@ impl Sim {
         for c in self.cars.values() {
             requested_moves.push((
                 c.id,
-                match c.step(geom_map, map, self.time, rng) {
+                match c.step(geom_map, map, self.time, &mut self.rng) {
                     Action::Goto(on) => {
                         // This is a monotonic property in conjunction with
                         // new_car_entered_this_step. The last car won't go backwards.

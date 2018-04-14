@@ -18,7 +18,6 @@ use ezgui::input::UserInput;
 use geom::GeomMap;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
-use rand::XorShiftRng;
 use sim::common;
 use sim::straw_model;
 use std::time::{Duration, Instant};
@@ -32,14 +31,12 @@ pub struct SimController {
     last_step: Option<Instant>,
     benchmark: Option<straw_model::Benchmark>,
     sim_speed: String,
-    rng: XorShiftRng,
 }
 
 impl SimController {
-    pub fn new(map: &Map, geom_map: &GeomMap, rng: XorShiftRng) -> SimController {
+    pub fn new(map: &Map, geom_map: &GeomMap, rng_seed: Option<u8>) -> SimController {
         SimController {
-            rng,
-            sim: straw_model::Sim::new(map, geom_map),
+            sim: straw_model::Sim::new(map, geom_map, rng_seed),
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,
@@ -83,7 +80,7 @@ impl SimController {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(self.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, "press M to run one step") {
-                self.sim.step(geom_map, map, control_map, &mut self.rng);
+                self.sim.step(geom_map, map, control_map);
             }
         }
 
@@ -93,7 +90,7 @@ impl SimController {
                 let dt = tick.elapsed();
                 let dt_s = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
                 if dt_s >= common::TIMESTEP.value_unsafe / self.desired_speed {
-                    self.sim.step(geom_map, map, control_map, &mut self.rng);
+                    self.sim.step(geom_map, map, control_map);
                     self.last_step = Some(Instant::now());
                 }
 
@@ -110,10 +107,6 @@ impl SimController {
             }
         }
         self.last_step.is_some()
-    }
-
-    pub fn spawn_many_on_empty_roads(&mut self, num_cars: usize) {
-        self.sim.spawn_many_on_empty_roads(num_cars, &mut self.rng);
     }
 
     pub fn draw(&self, canvas: &canvas::Canvas, g: &mut canvas::GfxCtx) {

@@ -7,6 +7,5 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 control = { path = "../control" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-rand = "0.4"
 sim = { path = "../sim" }
 structopt = "0.2"

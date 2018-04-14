@@ -2,7 +2,8 @@
 
 ## mvp strawman sim
 
-- put the rng inside Sim and serde it
+- be able to deeply compare sim state
+	- start some tests of savestating + deterministic sim
 
 - cars seemingly whiz past the queue at stop signs (possibly also signals)
 - at signals, cars doing the same turn wont start it until the last car finishes it

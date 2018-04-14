@@ -36,7 +36,6 @@ use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
-use rand::XorShiftRng;
 use render;
 use savestate;
 use sim::CarID;
@@ -82,7 +81,7 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(abst_path: &str, window_size: &Size, rng: XorShiftRng) -> UI {
+    pub fn new(abst_path: &str, window_size: &Size, rng_seed: Option<u8>) -> UI {
         println!("Opening {}", abst_path);
         let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
         let map = map_model::Map::new(&data);
@@ -92,7 +91,7 @@ impl UI {
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim_ctrl = SimController::new(&map, &geom_map, rng);
+        let sim_ctrl = SimController::new(&map, &geom_map, rng_seed);
 
         let mut ui = UI {
             map,
@@ -328,7 +327,7 @@ impl UI {
         }
 
         if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
-            self.sim_ctrl.spawn_many_on_empty_roads(1000);
+            self.sim_ctrl.sim.spawn_many_on_empty_roads(1000);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {

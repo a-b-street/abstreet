@@ -23,7 +23,6 @@ extern crate multimap;
 extern crate opengl_graphics;
 extern crate ordered_float;
 extern crate piston;
-extern crate rand;
 #[macro_use]
 extern crate serde_derive;
 extern crate sim;
@@ -38,7 +37,6 @@ use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use ezgui::input::UserInput;
-use rand::SeedableRng;
 use structopt::StructOpt;
 
 mod animation;
@@ -60,7 +58,7 @@ struct Flags {
 
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
-    rng_seed: Option<u32>,
+    rng_seed: Option<u8>,
 }
 
 fn main() {
@@ -85,11 +83,7 @@ fn main() {
         texture_settings,
     ).expect("Could not load font");
 
-    let mut rng = rand::weak_rng();
-    if let Some(seed) = flags.rng_seed {
-        rng.reseed([seed, seed + 1, seed + 2, seed + 3]);
-    }
-    let mut ui = ui::UI::new(&flags.abst_input, &window.draw_size(), rng);
+    let mut ui = ui::UI::new(&flags.abst_input, &window.draw_size(), flags.rng_seed);
     if let Some(path) = flags.svg_out {
         ui.save_svg(&path).expect("Saving SVG failed");
     }
