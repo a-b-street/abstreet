@@ -5,12 +5,12 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
 control = { path = "../control" }
+derivative = "1.0.0"
 dimensioned = "0.6.0"
 geom = { path = "../geom" }
 ezgui = { path = "../ezgui" }
 map_model = { path = "../map_model" }
 multimap = "0.4.0"
-ordered-float = "0.5.0"
 piston2d-graphics = "*"
 rand = { version = "0.5.0-pre.0", features = ["serde-1"] }
 serde = "1.0"

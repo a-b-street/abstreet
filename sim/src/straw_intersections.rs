@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use {deserialize_car_to_s_map, serialize_car_to_s_map};
-
-use common::{CarID, SPEED_LIMIT};
+use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use dimensioned::si;
@@ -29,7 +27,7 @@ const WAIT_AT_STOP_SIGN: si::Second<f64> = si::Second {
 };
 
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum IntersectionPolicy {
     StopSignPolicy(StopSign),
     TrafficSignalPolicy(TrafficSignal),
@@ -41,7 +39,7 @@ impl IntersectionPolicy {
         &mut self,
         car: CarID,
         turn: TurnID,
-        time: si::Second<f64>,
+        time: Tick,
         geom_map: &GeomMap,
         control_map: &ControlMap,
     ) -> bool {
@@ -69,12 +67,10 @@ impl IntersectionPolicy {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct StopSign {
     id: IntersectionID,
-    #[serde(serialize_with = "serialize_car_to_s_map",
-            deserialize_with = "deserialize_car_to_s_map")]
-    started_waiting_at: HashMap<CarID, si::Second<f64>>,
+    started_waiting_at: HashMap<CarID, Tick>,
     accepted: HashMap<CarID, TurnID>,
     waiting: HashMap<CarID, TurnID>,
 }
@@ -117,7 +113,7 @@ impl StopSign {
         &mut self,
         car: CarID,
         turn: TurnID,
-        time: si::Second<f64>,
+        time: Tick,
         geom_map: &GeomMap,
         control_map: &ControlMap,
     ) -> bool {
@@ -142,7 +138,7 @@ impl StopSign {
             return false;
         }
         if ss.get_priority(turn) == TurnPriority::Stop
-            && time - self.started_waiting_at[&car] < WAIT_AT_STOP_SIGN
+            && (time - self.started_waiting_at[&car]).as_time() < WAIT_AT_STOP_SIGN
         {
             self.waiting.insert(car, turn);
             return false;
@@ -164,7 +160,7 @@ impl StopSign {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct TrafficSignal {
     id: IntersectionID,
     accepted: HashMap<CarID, TurnID>,
@@ -184,7 +180,7 @@ impl TrafficSignal {
         &mut self,
         car: CarID,
         turn: TurnID,
-        time: si::Second<f64>,
+        time: Tick,
         geom_map: &GeomMap,
         control_map: &ControlMap,
     ) -> bool {
@@ -195,7 +191,7 @@ impl TrafficSignal {
         }
 
         let signal = &control_map.traffic_signals[&self.id];
-        let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
+        let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
 
         if !cycle.contains(turn) {
             return false;

@@ -48,3 +48,11 @@ Figuring out nonconflicting roads seems tricky. For now, going to have a
 complicated UI and let individual turns be classified into 3 priority classes.
 First group can't conflict, second and third groups can conflict and are FIFO.
 Will probably have to revisit this later.
+
+## Sim state equality and f64's
+
+Currently using si::Second<f64> for time, which means comparing sim state by
+deriving Eq is a headache. Since the timestep size is fixed anyway, this should
+just become ticks. Was tempted to use usize, but arch dependence is weird, and
+with a 0.1s timestep, 2^32 - 1 ticks is about 13.5 years, which is quite a long
+timescale for a traffic simulation. :) So, let's switch to u32.

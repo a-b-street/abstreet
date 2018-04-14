@@ -14,9 +14,7 @@
 
 extern crate serde_json;
 
-use {deserialize_s, serialize_s};
-
-use common::{CarID, SPEED_LIMIT, TIMESTEP};
+use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
 use ezgui::canvas;
@@ -26,7 +24,6 @@ use graphics;
 use graphics::math::Vec2d;
 use map_model::{Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
-use ordered_float::NotNaN;
 use rand::{NewRng, Rng, SeedableRng, XorShiftRng};
 use std::collections::{HashMap, HashSet};
 use std::f64;
@@ -123,13 +120,12 @@ impl On {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 struct Car {
     id: CarID,
     on: On,
     // When did the car start the current On?
-    #[serde(serialize_with = "serialize_s", deserialize_with = "deserialize_s")]
-    started_at: si::Second<f64>,
+    started_at: Tick,
     // TODO ideally, something else would remember Goto was requested and not even call step()
     waiting_for: Option<On>,
     debug: bool,
@@ -151,18 +147,12 @@ impl Car {
         ]
     }
 
-    fn step(
-        &self,
-        geom_map: &GeomMap,
-        map: &Map,
-        time: si::Second<f64>,
-        rng: &mut XorShiftRng,
-    ) -> Action {
+    fn step(&self, geom_map: &GeomMap, map: &Map, time: Tick, rng: &mut XorShiftRng) -> Action {
         if let Some(on) = self.waiting_for {
             return Action::Goto(on);
         }
 
-        let dist = SPEED_LIMIT * (time - self.started_at);
+        let dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if dist < self.on.length(geom_map) {
             return Action::Continue;
         }
@@ -184,10 +174,10 @@ impl Car {
     // Returns the angle and the dist along the road/turn too
     fn get_best_case_pos(
         &self,
-        time: si::Second<f64>,
+        time: Tick,
         geom_map: &GeomMap,
     ) -> (Pt2D, Radian<f64>, si::Meter<f64>) {
-        let mut dist = SPEED_LIMIT * (time - self.started_at);
+        let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
             dist = self.on.length(geom_map);
         }
@@ -196,7 +186,7 @@ impl Car {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct SimQueue {
     id: On,
     cars_queue: Vec<CarID>,
@@ -215,7 +205,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    fn room_at_end(&self, time: si::Second<f64>, cars: &HashMap<CarID, Car>) -> bool {
+    fn room_at_end(&self, time: Tick, cars: &HashMap<CarID, Car>) -> bool {
         if self.cars_queue.is_empty() {
             return true;
         }
@@ -225,7 +215,8 @@ impl SimQueue {
         // Has the last car crossed at least FOLLOWING_DISTANCE? If so and the capacity
         // isn't filled, then we know for sure that there's room, because in this model, we assume
         // none of the cars just arbitrarily slow down or stop without reason.
-        time - cars[self.cars_queue.last().unwrap()].started_at >= FOLLOWING_DISTANCE / SPEED_LIMIT
+        (time - cars[self.cars_queue.last().unwrap()].started_at).as_time()
+            >= FOLLOWING_DISTANCE / SPEED_LIMIT
     }
 
     fn reset(&mut self, ids: &Vec<CarID>, cars: &HashMap<CarID, Car>) {
@@ -234,14 +225,13 @@ impl SimQueue {
         assert!(ids.len() <= self.capacity);
         self.cars_queue.clear();
         self.cars_queue.extend(ids);
-        self.cars_queue
-            .sort_by_key(|id| NotNaN::new(cars[id].started_at.value_unsafe).unwrap());
+        self.cars_queue.sort_by_key(|id| cars[id].started_at);
 
         // assert here we're not squished together too much
         let min_dt = FOLLOWING_DISTANCE / SPEED_LIMIT;
         for slice in self.cars_queue.windows(2) {
-            let c1 = cars[&slice[0]].started_at;
-            let c2 = cars[&slice[1]].started_at;
+            let c1 = cars[&slice[0]].started_at.as_time();
+            let c2 = cars[&slice[1]].started_at.as_time();
             if c2 - c1 < min_dt {
                 println!("uh oh! on {:?}, reset to {:?} broke. min dt is {}, but we have {} and {}. badness {}", self.id, self.cars_queue, min_dt, c2, c1, c2 - c1 - min_dt);
                 println!("  prev queue was {:?}", old_queue);
@@ -288,16 +278,18 @@ impl SimQueue {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Sim {
-    rng: XorShiftRng,
+    // This is slightly dangerous, but since we'll be using comparisons based on savestating (which
+    // captures the RNG), this should be OK for now.
+    #[derivative(PartialEq = "ignore")] rng: XorShiftRng,
     // TODO investigate slot map-like structures for performance
     cars: HashMap<CarID, Car>,
     roads: Vec<SimQueue>,
     turns: Vec<SimQueue>,
     intersections: Vec<IntersectionPolicy>,
-    #[serde(serialize_with = "serialize_s", deserialize_with = "deserialize_s")]
-    pub time: si::Second<f64>,
+    pub time: Tick,
     id_counter: usize,
     debug: Option<CarID>,
 }
@@ -333,7 +325,7 @@ impl Sim {
                 .iter()
                 .map(|t| SimQueue::new(On::Turn(t.id), geom_map))
                 .collect(),
-            time: 0.0 * si::S,
+            time: Tick::zero(),
             id_counter: 0,
             debug: None,
         }
@@ -386,7 +378,7 @@ impl Sim {
     }
 
     pub fn step(&mut self, geom_map: &GeomMap, map: &Map, control_map: &ControlMap) {
-        self.time += TIMESTEP;
+        self.time.increment();
 
         // Could be concurrent. Ask all cars for their move, reinterpreting Goto to see if there's
         // room now. It's important to query has_room_now here using the previous, fixed state of
@@ -558,7 +550,7 @@ impl Sim {
     pub fn measure_speed(&self, b: &mut Benchmark) -> f64 {
         let elapsed = b.last_real_time.elapsed();
         let dt = (elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9) * si::S;
-        let speed = (self.time - b.last_sim_time) / dt;
+        let speed = (self.time - b.last_sim_time).as_time() / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
         speed.value_unsafe
@@ -581,7 +573,7 @@ impl Sim {
 
 pub struct Benchmark {
     last_real_time: Instant,
-    last_sim_time: si::Second<f64>,
+    last_sim_time: Tick,
 }
 
 impl Benchmark {
