@@ -25,7 +25,7 @@ use graphics::math::Vec2d;
 use map_model::{Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{NewRng, Rng, SeedableRng, XorShiftRng};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::f64;
 use std::fs::File;
 use std::io::{Error, Read, Write};
@@ -205,7 +205,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    fn room_at_end(&self, time: Tick, cars: &HashMap<CarID, Car>) -> bool {
+    fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
         if self.cars_queue.is_empty() {
             return true;
         }
@@ -219,7 +219,7 @@ impl SimQueue {
             >= FOLLOWING_DISTANCE / SPEED_LIMIT
     }
 
-    fn reset(&mut self, ids: &Vec<CarID>, cars: &HashMap<CarID, Car>) {
+    fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
         let old_queue = self.cars_queue.clone();
 
         assert!(ids.len() <= self.capacity);
@@ -285,7 +285,9 @@ pub struct Sim {
     // captures the RNG), this should be OK for now.
     #[derivative(PartialEq = "ignore")] rng: XorShiftRng,
     // TODO investigate slot map-like structures for performance
-    cars: HashMap<CarID, Car>,
+    // Using BTreeMap instead of HashMap so iteration is deterministic. Should be able to relax
+    // this later after step() doesnt need a RNG.
+    cars: BTreeMap<CarID, Car>,
     roads: Vec<SimQueue>,
     turns: Vec<SimQueue>,
     intersections: Vec<IntersectionPolicy>,
@@ -316,7 +318,7 @@ impl Sim {
             rng,
             intersections,
 
-            cars: HashMap::new(),
+            cars: BTreeMap::new(),
             roads: map.all_roads()
                 .iter()
                 .map(|r| SimQueue::new(On::Road(r.id), geom_map))
@@ -384,6 +386,10 @@ impl Sim {
         // room now. It's important to query has_room_now here using the previous, fixed state of
         // the world. If we did it in the next loop, then order of updates would matter for more
         // than just conflict resolution.
+        //
+        // Note that since this uses RNG right now, it's only deterministic if iteration order is!
+        // So can't be concurrent and use RNG. Could have a RNG per car or something later if we
+        // really needed both.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
             requested_moves.push((
