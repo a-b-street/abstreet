@@ -2,8 +2,6 @@
 
 ## mvp strawman sim
 
-- start some tests of savestating + deterministic sim
-
 - cars seemingly whiz past the queue at stop signs (possibly also signals)
 - at signals, cars doing the same turn wont start it until the last car finishes it
 - draw cars in intersections, even when slightly zoomed out
