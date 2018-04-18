@@ -161,6 +161,9 @@ impl Car {
             // For now, just kill off cars that're stuck on disconnected bits of the map
             On::Road(id) if map.get_turns_from_road(id).is_empty() => Action::Vanish,
             // TODO cant try to go to next road unless we're the front car
+            // if we dont do this here, we wont be able to see what turns people are waiting for
+            // even if we wait till we're the front car, we might unravel the line of queued cars
+            // too quickly
             On::Road(id) => Action::Goto(On::Turn(self.choose_turn(id, map, rng))),
             On::Turn(id) => Action::Goto(On::Road(map.get_t(id).dst)),
         }
@@ -402,7 +405,11 @@ impl Sim {
                             On::Road(id) => self.roads[id.0].room_at_end(self.time, &self.cars),
                             On::Turn(id) => self.turns[id.0].room_at_end(self.time, &self.cars),
                         };
-                        if has_room_now {
+                        let is_lead_vehicle = match c.on {
+                            On::Road(id) => self.roads[id.0].cars_queue[0] == c.id,
+                            On::Turn(id) => self.turns[id.0].cars_queue[0] == c.id,
+                        };
+                        if has_room_now && is_lead_vehicle {
                             Action::Goto(on)
                         } else {
                             Action::WaitFor(on)

@@ -2,7 +2,11 @@
 
 ## mvp strawman sim
 
-- cars seemingly whiz past the queue at stop signs (possibly also signals)
+- straw model has some quirks with queueing
+	- after the lead vehicle starts the turn, the queue behind it magically warps to the front of the road
+	- the first vehicle in the turn jumps to a strange position based on the front/back rendering
+
+
 - at signals, cars doing the same turn wont start it until the last car finishes it
 - draw cars in intersections, even when slightly zoomed out
 	- draw cars in slightly different colors, to distinguish them better
