@@ -63,7 +63,6 @@ impl TrafficSignalEditor {
                     cycles.len()
                 ),
             ) {
-                input.consume_event();
                 self.current_cycle = n - 1;
             }
         }

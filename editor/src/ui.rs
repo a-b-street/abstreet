@@ -239,29 +239,31 @@ impl UI {
         self.osm_classifier_active.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
 
-        if self.show_roads.handle_event(input) {
-            if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+        if !edit_mode {
+            if self.show_roads.handle_event(input) {
+                if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+                if let SelectionState::TooltipRoad(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
             }
-            if let SelectionState::TooltipRoad(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if self.show_buildings.handle_event(input) {
+                if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
             }
+            if self.show_intersections.handle_event(input) {
+                if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+            }
+            self.show_parcels.handle_event(input);
+            self.show_icons.handle_event(input);
+            self.steepness_active.handle_event(input);
+            self.osm_classifier_active.handle_event(input);
+            self.debug_mode.handle_event(input);
         }
-        if self.show_buildings.handle_event(input) {
-            if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
-            }
-        }
-        if self.show_intersections.handle_event(input) {
-            if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
-            }
-        }
-        self.show_parcels.handle_event(input);
-        self.show_icons.handle_event(input);
-        self.steepness_active.handle_event(input);
-        self.osm_classifier_active.handle_event(input);
-        self.debug_mode.handle_event(input);
 
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
             self.current_selection_state = SelectionState::Empty;
