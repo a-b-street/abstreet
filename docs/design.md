@@ -35,6 +35,12 @@ leaking badly into there right now.
 - Position is derived lazily from time
 - How accurate could it be? Based on inner-city speeds and timesteps
 
+- problems
+	- straw model has some quirks with queueing
+		- after the lead vehicle starts the turn, the queue behind it magically warps to the front of the road
+		- the first vehicle in the turn jumps to a strange position based on the front/back rendering
+	- at signals, cars doing the same turn wont start it until the last car finishes it
+
 ## Stop sign editor
 
 Stop signs are FIFO, except that many intersections only have a stop sign for

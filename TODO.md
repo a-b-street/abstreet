@@ -1,94 +1,73 @@
 # TODO
 
-## mvp strawman sim
+## Map editor
 
-- straw model has some quirks with queueing
-	- after the lead vehicle starts the turn, the queue behind it magically warps to the front of the road
-	- the first vehicle in the turn jumps to a strange position based on the front/back rendering
+- common UI problems
+	- cycle selection crashes, fix ><
+	- press 1 or 2 in stop sign mode, layer toggling shouldnt happen
+	- textbox overlaps and is impossible to read
 
-
-- at signals, cars doing the same turn wont start it until the last car finishes it
-- draw cars in intersections, even when slightly zoomed out
-	- draw cars in slightly different colors, to distinguish them better
-
-- traffic signals
-	- parse kml
-- draw moving / blocked colors (gradually more red as they wait longer)
-- draw stop buffer in front/behind of cars
-- cars with different speeds
-- clean up code
-	- line type
-	- ditch vec2d / settle on types
-	- split out UI stuff
-	- easier way to define magic tuneable constants
-
-## if ever stuck
-
-- parked cars
-- sidewalks and pedestrians
-- reversible sim
-
-## editor mode
-
-- make editor mode for traffic signals
+- traffic signal editor
 	- button to reset intersection to original cycles
 	- turns can belong to multiple cycles; the colors become slightly meaningless
+	- support left turn yield
 
-- stop sign editor (start simple)
+- stop sign editor
 	- cant have no stop signs for two roads whose center line crosses
 		- infer default policy
 	- draw as red octogon with thin white trim, off to the right side of the road
-	- later feature: ban individual turns
+
+- better visualization
+	- why are some icons in the intersection?
+	- draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
+
+## Driving model
+
+- try to simplify straw_model step (less phases?)
+
+- make cars pathfind to their destination
+
+- better visualization
+	- draw moving / blocked colors (gradually more red as they wait longer)
+	- draw stop buffer in front/behind of cars
+	- draw cars in intersections, even when slightly zoomed out
+	- draw cars in slightly different colors, to distinguish them better
+
+- start implementing a second AORTAish driving model
+
+- reversible sim
+
+## Map model
 
 - more data
-	- shp parser for traffic signals
+	- parse shp, get traffic signals in the right places
 	- do need to mouseover shapefile things and see full data
-	- traffic signal description field says number of phases
-	- so many signs: https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
-		- all up north? :(
+	- grab number of phases from traffic signal shp
+	- look for current stop sign priorities
+		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
-- why are some icons in the intersection?
-- support left turn yield
-- draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
-- mark problem areas where road is too short!
-- manually fix OSM issues, like deleting a way completely
+- driving lanes
+- parking
+- sidewalks
+- bike lanes
 
-## cleanup
+## Code cleanup
+
+- clean up code
+	- master Map struct
+	- line type / ditch vec2d / settle on types
 
 - add/plan tests
+- document pieces that're stabilizing
 - run clippy everywhere
+	- presubmit script
+	- also enforce consistent style (import order, extern crate only in mod.rs or lib.rs, derive order)
 - extract common crates
 - ask about mut vs returning new version of self (and what that requires of all the contained stuff)
 	- https://stackoverflow.com/questions/28385339/mutable-self-while-reading-from-owner-object
-- break editor up into more crates
-- minimize heap usage -- look into profiling and smallvec
-- use some tool to enforce consistent style (import order, extern crate only in mod.rs or lib.rs, derive order)
 
-## Conga line idea
+## Example use cases
 
-- try constructive approach for snake idea
-	- with interactive mode?
-- try destructive approach for snake idea
-	- with interactive mode?
-- allow for manual tuning
-- serialize results
-
-## UI
-
-- support massive maps
-	- render to a bitmap and clip that in?
-	- drop events sometimes
-
-- draw water and greenery areas
-
-- more toggleable layers
-	- show road/bldg types by color
-		- can also use to interactively find osm filters to fix
-	- show where on-street parking probably is
-	- show where sidewalks probably are
-		- infer from roads and parcel data?
-	- draw benches, bike racks
-		- more generally, a way to display random GIS data from seattle site (kml)
-
-- 3D UI sharing the same structure as the 2D one
-- web version
+- montlake/520 turn restrictions with pedestrian scramble
+- close interior neighborhoods to most cars (except for src/dst), see how traffic restricted to arterials would work
+- create a bike network with minimal hills, dedicated roads, minimal crossings
