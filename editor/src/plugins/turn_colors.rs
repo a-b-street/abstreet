@@ -16,9 +16,9 @@
 
 extern crate map_model;
 
+use control::ControlMap;
 use graphics::types::Color;
 use map_model::{Turn, TurnID};
-use control::ControlMap;
 use std::collections::HashMap;
 
 const CYCLE_COLORS: [Color; 8] = [

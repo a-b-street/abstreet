@@ -17,8 +17,8 @@ extern crate map_model;
 
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
-use geom::geometry;
 use geom::GeomMap;
+use geom::geometry;
 use map_model::{Bounds, BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;

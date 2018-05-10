@@ -54,9 +54,9 @@ impl IntersectionPolicy {
     }
 
     pub fn on_enter(&self, car: CarID) {
-        match *self {
-            IntersectionPolicy::StopSignPolicy(ref p) => p.on_enter(car),
-            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.on_enter(car),
+        match self {
+            IntersectionPolicy::StopSignPolicy(p) => p.on_enter(car),
+            IntersectionPolicy::TrafficSignalPolicy(p) => p.on_enter(car),
         }
     }
     pub fn on_exit(&mut self, car: CarID) {

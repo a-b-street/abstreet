@@ -16,8 +16,8 @@ extern crate map_model;
 
 use animation;
 use ezgui::canvas::{Canvas, GfxCtx};
-use graphics::types::Color;
 use ezgui::input::UserInput;
+use graphics::types::Color;
 use map_model::{Map, Pt2D, Road, RoadID, TurnID};
 use piston::input::{Key, UpdateEvent};
 use piston::window::Size;

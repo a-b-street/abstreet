@@ -19,8 +19,8 @@ extern crate serde;
 extern crate serde_derive;
 
 use ordered_float::NotNaN;
-use protobuf::{CodedInputStream, CodedOutputStream, Message};
 use protobuf::error::ProtobufError;
+use protobuf::{CodedInputStream, CodedOutputStream, Message};
 use std::collections::HashMap;
 use std::f64;
 use std::fs::File;

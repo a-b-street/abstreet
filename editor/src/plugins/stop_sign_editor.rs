@@ -14,16 +14,16 @@
 
 extern crate map_model;
 
+use control::ControlMap;
 use control::stop_signs::TurnPriority;
 use ezgui::canvas;
+use ezgui::input::UserInput;
 use geom::GeomMap;
 use graphics::types::Color;
-use map_model::{Map, Turn};
-use plugins::selection::SelectionState;
-use control::ControlMap;
 use map_model::IntersectionID;
-use ezgui::input::UserInput;
+use map_model::{Map, Turn};
 use piston::input::Key;
+use plugins::selection::SelectionState;
 
 pub struct StopSignEditor {
     i: IntersectionID,

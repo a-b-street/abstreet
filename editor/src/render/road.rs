@@ -22,8 +22,8 @@ use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use render::{BRIGHT_DEBUG_COLOR, DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS, ROAD_ORIENTATION_COLOR};
 use map_model::{Bounds, Pt2D, RoadID};
+use render::{BRIGHT_DEBUG_COLOR, DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS, ROAD_ORIENTATION_COLOR};
 use std::f64;
 use svg;
 

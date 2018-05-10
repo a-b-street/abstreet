@@ -14,13 +14,13 @@
 
 use aabb_quadtree::geom::{Point, Rect};
 use graphics;
-use graphics::{Context, Image, Transformed};
 use graphics::character::CharacterCache;
 use graphics::types::Color;
+use graphics::{Context, Image, Transformed};
+use opengl_graphics::{GlGraphics, Texture};
 use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScrollEvent,
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
-use opengl_graphics::{GlGraphics, Texture};
 
 //pub const WHITE: Color = [1.0, 1.0, 1.0, 1.0];
 pub const BLACK: Color = [0.0, 0.0, 0.0, 1.0];

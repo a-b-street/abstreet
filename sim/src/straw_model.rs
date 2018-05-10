@@ -286,7 +286,8 @@ impl SimQueue {
 pub struct Sim {
     // This is slightly dangerous, but since we'll be using comparisons based on savestating (which
     // captures the RNG), this should be OK for now.
-    #[derivative(PartialEq = "ignore")] rng: XorShiftRng,
+    #[derivative(PartialEq = "ignore")]
+    rng: XorShiftRng,
     // TODO investigate slot map-like structures for performance
     // Using BTreeMap instead of HashMap so iteration is deterministic. Should be able to relax
     // this later after step() doesnt need a RNG.
@@ -309,9 +310,9 @@ impl Sim {
         let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
             if i.has_traffic_signal {
-                intersections.push(IntersectionPolicy::TrafficSignalPolicy(
-                    TrafficSignal::new(i.id),
-                ));
+                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(
+                    i.id,
+                )));
             } else {
                 intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
             }
@@ -427,7 +428,7 @@ impl Sim {
         // It might make more sense to push the conflict resolution down to SimQueue?
         // TODO should shuffle deterministically here, to be more fair
         let mut new_car_entered_this_step = HashSet::new();
-        for &(ref id, ref act) in &requested_moves {
+        for (id, act) in &requested_moves {
             match *act {
                 Action::Vanish => {
                     self.cars.remove(&id);

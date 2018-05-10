@@ -16,15 +16,15 @@
 
 extern crate map_model;
 
-use ezgui::canvas;
-use geom::GeomMap;
-use map_model::Map;
-use graphics::types::Color;
-use plugins::selection::SelectionState;
 use control::ControlMap;
-use map_model::{IntersectionID, Turn};
+use ezgui::canvas;
 use ezgui::input::UserInput;
+use geom::GeomMap;
+use graphics::types::Color;
+use map_model::Map;
+use map_model::{IntersectionID, Turn};
 use piston::input::Key;
+use plugins::selection::SelectionState;
 
 pub struct TrafficSignalEditor {
     i: IntersectionID,

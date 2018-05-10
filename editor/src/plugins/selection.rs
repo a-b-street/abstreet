@@ -13,13 +13,13 @@
 // limitations under the License.
 
 use animation;
+use control::ControlMap;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use geom;
 use graphics::types::Color;
 use map_model;
 use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};
-use control::ControlMap;
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
 use sim::CarID;
@@ -156,7 +156,7 @@ impl SelectionState {
         match *self {
             SelectionState::Empty | SelectionState::SelectedTurn(_) => {}
             SelectionState::SelectedIntersection(id) => {
-                if let Some(ref signal) = control_map.traffic_signals.get(&id) {
+                if let Some(signal) = control_map.traffic_signals.get(&id) {
                     let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
                     for t in &cycle.turns {
                         draw_map.get_t(*t).draw_full(g, render::TURN_COLOR);

@@ -35,7 +35,7 @@ impl SearchState {
     }
 
     fn choose_color(&self, osm_tags: &[String]) -> Option<Color> {
-        if let SearchState::FilterOSM(ref filter) = *self {
+        if let SearchState::FilterOSM(filter) = self {
             for tag in osm_tags {
                 if tag.contains(filter) {
                     return Some(render::SEARCH_RESULT_COLOR);
@@ -78,7 +78,7 @@ impl SearchState {
     }
 
     pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {
-        if let SearchState::EnteringSearch(ref text_box) = *self {
+        if let SearchState::EnteringSearch(text_box) = self {
             canvas.draw_osd_notification(g, &vec![text_box.line.clone()]);
             // TODO draw the cursor
         }

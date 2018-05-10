@@ -17,13 +17,13 @@
 extern crate map_model;
 
 use animation;
+use control::ControlMap;
 use ezgui::ToggleableLayer;
 use ezgui::canvas;
 use ezgui::canvas::{Canvas, GfxCtx};
+use ezgui::input::UserInput;
 use geom;
 use graphics::types::Color;
-use control::ControlMap;
-use ezgui::input::UserInput;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;

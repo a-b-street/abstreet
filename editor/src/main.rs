@@ -31,12 +31,12 @@ extern crate structopt;
 extern crate svg;
 extern crate vecmath;
 
+use ezgui::input::UserInput;
 use glutin_window::GlutinWindow;
+use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
-use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
-use ezgui::input::UserInput;
 use structopt::StructOpt;
 
 mod animation;
