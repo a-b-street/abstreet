@@ -288,7 +288,7 @@ impl UI {
                 }
 
                 if self.snake.is_none() {
-                    if input.key_pressed(Key::S, "Press S to start a game of Snake from this road")
+                    if input.key_pressed(Key::Q, "Press Q to start a game of Snake from this road")
                     {
                         self.snake = Some(Snake::new(id));
                         // TODO weird to reset other things here?

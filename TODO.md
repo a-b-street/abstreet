@@ -3,7 +3,6 @@
 ## Map editor
 
 - common UI problems
-	- press 1 or 2 in stop sign mode, layer toggling shouldnt happen
 	- textbox overlaps and is impossible to read
 
 - traffic signal editor

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
+use std::collections::HashMap;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -21,6 +22,9 @@ pub struct UserInput {
     event_consumed: bool,
     unimportant_actions: Vec<String>,
     important_actions: Vec<String>,
+
+    // If two different callers both expect the same key, there's likely an unintentional conflict.
+    reserved_keys: HashMap<Key, String>,
 
     // TODO hack :(
     empty_event: Event,
@@ -36,12 +40,43 @@ impl UserInput {
             event_consumed: false,
             unimportant_actions: Vec::new(),
             important_actions: Vec::new(),
+            reserved_keys: HashMap::new(),
             empty_event: Event::from(IdleArgs { dt: 0.0 }),
         }
     }
 
     pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
         assert!(num_options >= 1 && num_options <= 9);
+
+        // TODO less repetition, an array of keys probably
+        if num_options >= 1 {
+            self.reserve_key(Key::D1, action);
+        }
+        if num_options >= 2 {
+            self.reserve_key(Key::D2, action);
+        }
+        if num_options >= 3 {
+            self.reserve_key(Key::D3, action);
+        }
+        if num_options >= 4 {
+            self.reserve_key(Key::D4, action);
+        }
+        if num_options >= 5 {
+            self.reserve_key(Key::D5, action);
+        }
+        if num_options >= 6 {
+            self.reserve_key(Key::D6, action);
+        }
+        if num_options >= 7 {
+            self.reserve_key(Key::D7, action);
+        }
+        if num_options >= 8 {
+            self.reserve_key(Key::D8, action);
+        }
+        if num_options >= 9 {
+            self.reserve_key(Key::D9, action);
+        }
+
         if self.event_consumed {
             return None;
         }
@@ -75,6 +110,8 @@ impl UserInput {
     }
 
     pub fn key_pressed(&mut self, key: Key, action: &str) -> bool {
+        self.reserve_key(key, action);
+
         if self.event_consumed {
             return false;
         }
@@ -90,6 +127,8 @@ impl UserInput {
     }
 
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
+        self.reserve_key(key, action);
+
         if self.event_consumed {
             return false;
         }
@@ -128,5 +167,12 @@ impl UserInput {
     pub fn get_possible_actions(self) -> Vec<String> {
         // TODO have a way to toggle showing all actions!
         self.important_actions
+    }
+
+    fn reserve_key(&mut self, key: Key, action: &str) {
+        if let Some(prev_action) = self.reserved_keys.get(&key) {
+            panic!("both {} and {} read key {:?}", prev_action, action, key);
+        }
+        self.reserved_keys.insert(key, action.to_string());
     }
 }
