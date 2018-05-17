@@ -44,10 +44,18 @@
 	- look for current stop sign priorities
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
-- driving lanes
-- parking
-- sidewalks
-- bike lanes
+- roads -> lanes
+	- driving lanes
+	- parking
+	- sidewalks
+	- bike lanes
+
+	- in an experimental branch...
+		- make map_model create several "roads" per road proto
+		- add an enum type and an index-from-center
+		- plumb through in all layers
+		- rename these lanes
+		- only have cars on the driving lanes
 
 ## Code cleanup
 
