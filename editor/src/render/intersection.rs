@@ -16,7 +16,6 @@ extern crate aabb_quadtree;
 extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
-use ezgui::canvas;
 use ezgui::canvas::GfxCtx;
 use geom::geometry;
 use graphics;
@@ -25,7 +24,6 @@ use graphics::types::Color;
 use map_model::{Bounds, IntersectionID, Map};
 use render::DrawRoad;
 use std::f64;
-use svg;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -85,17 +83,5 @@ impl DrawIntersection {
 
     pub fn get_bbox(&self) -> Rect {
         geometry::get_bbox_for_polygons(&[self.polygon.clone()])
-    }
-
-    pub fn to_svg(&self, doc: svg::Document, color: Color) -> svg::Document {
-        let mut data = svg::node::element::path::Data::new();
-        data = data.move_to((self.polygon[0][0], self.polygon[0][1]));
-        for pt in self.polygon.iter().skip(1) {
-            data = data.line_to((pt[0], pt[1]));
-        }
-        let path = svg::node::element::Path::new()
-            .set("fill", canvas::color_to_svg(color))
-            .set("d", data);
-        doc.add(path)
     }
 }

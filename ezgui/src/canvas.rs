@@ -233,14 +233,3 @@ impl Canvas {
         }
     }
 }
-
-// TODO split a separate module
-pub fn color_to_svg(c: Color) -> String {
-    format!(
-        "rgba({}, {}, {}, {})",
-        255.0 * c[0],
-        255.0 * c[1],
-        255.0 * c[2],
-        255.0 * c[3]
-    )
-}

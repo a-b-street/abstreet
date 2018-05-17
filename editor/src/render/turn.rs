@@ -27,7 +27,6 @@ use map_model::TurnID;
 use render::{BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
              TURN_ICON_ARROW_TIP_LENGTH, TURN_ICON_CIRCLE_COLOR};
 use std::f64;
-use svg;
 use vecmath;
 
 #[derive(Debug)]
@@ -118,9 +117,5 @@ impl DrawTurn {
             [self.icon_circle[0] + radius, self.icon_circle[1] + radius],
             radius,
         )
-    }
-
-    pub fn to_svg(&self, doc: svg::Document, _color: Color) -> svg::Document {
-        doc
     }
 }

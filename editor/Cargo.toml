@@ -20,5 +20,4 @@ serde_derive = "1.0"
 serde_json = "1.0"
 sim = { path = "../sim" }
 structopt = "0.2"
-svg = "0.5.10"
 vecmath = "0.3.1"

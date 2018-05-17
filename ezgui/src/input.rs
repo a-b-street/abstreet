@@ -171,7 +171,7 @@ impl UserInput {
 
     fn reserve_key(&mut self, key: Key, action: &str) {
         if let Some(prev_action) = self.reserved_keys.get(&key) {
-            panic!("both {} and {} read key {:?}", prev_action, action, key);
+            println!("both {} and {} read key {:?}", prev_action, action, key);
         }
         self.reserved_keys.insert(key, action.to_string());
     }

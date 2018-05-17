@@ -28,7 +28,6 @@ extern crate serde_derive;
 extern crate sim;
 #[macro_use]
 extern crate structopt;
-extern crate svg;
 extern crate vecmath;
 
 use ezgui::input::UserInput;
@@ -51,10 +50,6 @@ struct Flags {
     /// ABST input to load
     #[structopt(name = "abst_input")]
     abst_input: String,
-
-    /// Optional SVG to write
-    #[structopt(long = "dump_svg")]
-    svg_out: Option<String>,
 
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
@@ -84,9 +79,6 @@ fn main() {
     ).expect("Could not load font");
 
     let mut ui = ui::UI::new(&flags.abst_input, &window.draw_size(), flags.rng_seed);
-    if let Some(path) = flags.svg_out {
-        ui.save_svg(&path).expect("Saving SVG failed");
-    }
     let mut last_event_mode = animation::EventLoopMode::InputOnly;
 
     while let Some(ev) = events.next(&mut window) {

@@ -42,8 +42,8 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    // Also returns the center of the map in map-space and the max pt in screen-space
-    pub fn new(map: &Map, geom_map: &GeomMap) -> (DrawMap, Bounds, Pt2D, Pt2D) {
+    // Also returns the center of the map in map-space
+    pub fn new(map: &Map, geom_map: &GeomMap) -> (DrawMap, Bounds, Pt2D) {
         let bounds = map.get_gps_bounds();
 
         let mut roads: Vec<DrawRoad> = Vec::new();
@@ -137,7 +137,6 @@ impl DrawMap {
             },
             bounds,
             Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
-            max_screen_pt,
         )
     }
 

@@ -39,9 +39,7 @@ use plugins::turn_colors::TurnColors;
 use render;
 use savestate;
 use sim::CarID;
-use std::io;
 use std::process;
-use svg;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_ROADS: f64 = 0.15;
@@ -77,7 +75,6 @@ pub struct UI {
     sim_ctrl: SimController,
 
     canvas: Canvas,
-    max_screen_pt: map_model::Pt2D,
 }
 
 impl UI {
@@ -86,7 +83,7 @@ impl UI {
         let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
         let map = map_model::Map::new(&data);
         let geom_map = geom::GeomMap::new(&map);
-        let (draw_map, _, center_pt, max_screen_pt) = render::DrawMap::new(&map, &geom_map);
+        let (draw_map, _, center_pt) = render::DrawMap::new(&map, &geom_map);
         let control_map = ControlMap::new(&map, &geom_map);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
@@ -100,7 +97,6 @@ impl UI {
             control_map,
             steepness_viz,
             turn_colors,
-            max_screen_pt,
             sim_ctrl,
 
             show_roads: ToggleableLayer::new("roads", Key::D3, "3", Some(MIN_ZOOM_FOR_ROADS)),
@@ -347,32 +343,6 @@ impl UI {
         }
 
         (self, event_loop_mode)
-    }
-
-    // TODO it'd be neat if all of the Draw*'s didn't have to know how to separately emit svg
-    pub fn save_svg(&self, path: &str) -> Result<(), io::Error> {
-        let mut doc = svg::Document::new();
-        doc = doc.set(
-            "viewBox",
-            (0, 0, self.max_screen_pt.x(), self.max_screen_pt.y()),
-        );
-        for r in &self.draw_map.roads {
-            doc = r.to_svg(doc, self.color_road(r.id));
-        }
-        for i in &self.draw_map.intersections {
-            doc = i.to_svg(doc, self.color_intersection(i.id));
-        }
-        for t in &self.draw_map.turns {
-            doc = t.to_svg(doc, self.color_turn_icon(t.id));
-        }
-        for b in &self.draw_map.buildings {
-            doc = b.to_svg(doc, self.color_building(b.id));
-        }
-        for p in &self.draw_map.parcels {
-            doc = p.to_svg(doc, self.color_parcel(p.id));
-        }
-        println!("Dumping SVG to {}", path);
-        svg::save(path, &doc)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, input: UserInput) {

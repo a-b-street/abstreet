@@ -25,7 +25,6 @@ use graphics::types::Color;
 use map_model::{Bounds, Pt2D, RoadID};
 use render::{BRIGHT_DEBUG_COLOR, DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS, ROAD_ORIENTATION_COLOR};
 use std::f64;
-use svg;
 
 #[derive(Debug)]
 pub struct DrawRoad {
@@ -155,9 +154,5 @@ impl DrawRoad {
         ];
         lines.extend(r.osm_tags.iter().cloned());
         lines
-    }
-
-    pub fn to_svg(&self, doc: svg::Document, _road_color: Color) -> svg::Document {
-        doc
     }
 }

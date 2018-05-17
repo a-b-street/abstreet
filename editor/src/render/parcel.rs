@@ -16,7 +16,6 @@ extern crate aabb_quadtree;
 extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
-use ezgui::canvas;
 use ezgui::canvas::GfxCtx;
 use geom::geometry;
 use graphics;
@@ -24,7 +23,6 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{Bounds, ParcelID, Pt2D};
 use render::PARCEL_BOUNDARY_THICKNESS;
-use svg;
 
 #[derive(Debug)]
 pub struct DrawParcel {
@@ -58,21 +56,5 @@ impl DrawParcel {
 
     pub fn get_bbox(&self) -> Rect {
         geometry::get_bbox_for_polygons(&self.polygons)
-    }
-
-    pub fn to_svg(&self, doc: svg::Document, color: Color) -> svg::Document {
-        let mut doc = doc;
-        for p in &self.polygons {
-            let mut data = svg::node::element::path::Data::new();
-            data = data.move_to((p[0][0], p[0][1]));
-            for pt in p.iter().skip(1) {
-                data = data.line_to((pt[0], pt[1]));
-            }
-            let path = svg::node::element::Path::new()
-                .set("fill", canvas::color_to_svg(color))
-                .set("d", data);
-            doc = doc.add(path)
-        }
-        doc
     }
 }
