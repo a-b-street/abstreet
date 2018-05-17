@@ -418,10 +418,12 @@ impl UI {
             s.draw(&self.map, &self.canvas, &self.draw_map, g);
         }
 
-        let mut osd_lines = Vec::new();
-        osd_lines.extend(self.sim_ctrl.get_osd_lines());
-        osd_lines.push(String::from(""));
-        osd_lines.extend(input.get_possible_actions());
+        let mut osd_lines = self.sim_ctrl.get_osd_lines();
+        let action_lines = input.get_possible_actions();
+        if !action_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(action_lines);
+        }
         let search_lines = self.current_search_state.get_osd_lines();
         if !search_lines.is_empty() {
             osd_lines.push(String::from(""));

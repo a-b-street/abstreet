@@ -2,7 +2,8 @@
 
 ## Map editor
 
-- hover over road, start a search, press F
+- still key overlap bugs with floodfilling
+	- master UI exclusive state -- one plugin at a time
 
 - traffic signal editor
 	- button to reset intersection to original cycles
