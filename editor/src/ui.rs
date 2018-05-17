@@ -444,16 +444,20 @@ impl UI {
             g,
         );
 
-        self.current_search_state.draw(&self.canvas, g);
-
         if let Some(ref s) = self.snake {
             s.draw(&self.map, &self.canvas, &self.draw_map, g);
         }
 
-        self.sim_ctrl.draw(&self.canvas, g);
-
-        self.canvas
-            .draw_osd_notification(g, &input.get_possible_actions());
+        let mut osd_lines = Vec::new();
+        osd_lines.extend(self.sim_ctrl.get_osd_lines());
+        osd_lines.push(String::from(""));
+        osd_lines.extend(input.get_possible_actions());
+        let search_lines = self.current_search_state.get_osd_lines();
+        if !search_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(search_lines);
+        }
+        self.canvas.draw_osd_notification(g, &osd_lines);
     }
 
     fn mouseover_something(&self, window_size: &Size) -> Option<ID> {

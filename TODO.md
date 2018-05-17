@@ -2,8 +2,7 @@
 
 ## Map editor
 
-- common UI problems
-	- textbox overlaps and is impossible to read
+- hover over road, start a search, press F
 
 - traffic signal editor
 	- button to reset intersection to original cycles

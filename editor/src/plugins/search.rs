@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
 use graphics::types::Color;
@@ -77,10 +76,11 @@ impl SearchState {
         }
     }
 
-    pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {
+    pub fn get_osd_lines(&self) -> Vec<String> {
+        // TODO draw the cursor
         if let SearchState::EnteringSearch(text_box) = self {
-            canvas.draw_osd_notification(g, &vec![text_box.line.clone()]);
-            // TODO draw the cursor
+            return vec![text_box.line.clone()];
         }
+        Vec::new()
     }
 }

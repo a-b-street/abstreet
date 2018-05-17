@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use control::ControlMap;
-use ezgui::canvas;
 use ezgui::input::UserInput;
 use geom::GeomMap;
 use map_model::Map;
@@ -109,16 +108,13 @@ impl SimController {
         self.last_step.is_some()
     }
 
-    pub fn draw(&self, canvas: &canvas::Canvas, g: &mut canvas::GfxCtx) {
-        canvas.draw_osd_notification(
-            g,
-            &vec![
-                self.sim.summary(),
-                format!(
-                    "Speed: {0} / desired {1:.2}x",
-                    self.sim_speed, self.desired_speed
-                ),
-            ],
-        );
+    pub fn get_osd_lines(&self) -> Vec<String> {
+        vec![
+            self.sim.summary(),
+            format!(
+                "Speed: {0} / desired {1:.2}x",
+                self.sim_speed, self.desired_speed
+            ),
+        ]
     }
 }
