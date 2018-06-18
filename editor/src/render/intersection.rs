@@ -29,16 +29,15 @@ impl DrawIntersection {
         bounds: &Bounds,
     ) -> DrawIntersection {
         let mut pts: Vec<Vec2d> = Vec::new();
-        // TODO this smashes encapsulation to bits :D
         for r in &map.get_roads_to_intersection(inter.id) {
-            let dr = &roads[r.id.0];
-            pts.push(dr.polygons.last().unwrap()[2]);
-            pts.push(dr.polygons.last().unwrap()[3]);
+            let (pt1, pt2) = roads[r.id.0].get_end_crossing();
+            pts.push(pt1);
+            pts.push(pt2);
         }
         for r in &map.get_roads_from_intersection(inter.id) {
-            let dr = &roads[r.id.0];
-            pts.push(dr.polygons[0][0]);
-            pts.push(dr.polygons[0][1]);
+            let (pt1, pt2) = roads[r.id.0].get_start_crossing();
+            pts.push(pt1);
+            pts.push(pt2);
         }
 
         let center = geometry::gps_to_screen_space(&inter.point, bounds);

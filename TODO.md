@@ -45,6 +45,14 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
+	- prep: get rid of other_side
+	- display + mouseover parking lane and sidewalk
+		- all roads have sidewalk on both sides, oneways only have parking lane on one side
+	- model bikes in driving lanes (as slow cars)
+	- add random bike lanes, figure out how turns would work
+	- be able to convert between parking and bike lanes, recompute the turns
+
+	- when rendering sidewalks, have an option for a grass buffer
 
 ## Code cleanup
 

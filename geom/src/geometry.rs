@@ -67,7 +67,8 @@ pub fn thick_multiline(style: &ThickLine, pts: &[Pt2D]) -> Vec<Vec<Vec2d>> {
         let quad2 = thick_line(style, pt2, pt3);
         // Of course, the original quad
         polygons.push(quad1.clone());
-        // Add some triangles to fill in the gaps.
+        // Add some triangles to fill in the gaps. Comment this out to see part of the polyline
+        // problem more clearly.
         polygons.push(vec![
             [pt2.x(), pt2.y()],
             quad1[3],

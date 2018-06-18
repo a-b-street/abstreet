@@ -151,11 +151,16 @@ pub struct Map {
 #[derive(Debug)]
 pub struct Road {
     pub id: RoadID,
-    // The orientation is implied by the order of these points
-    pub points: Vec<Pt2D>,
     pub osm_tags: Vec<String>,
     pub osm_way_id: i64,
+
+    // Ideally all of these would just become translated center points immediately, but this is
+    // hard due to the polyline problem.
+
+    // The orientation is implied by the order of these points
+    pub points: Vec<Pt2D>,
     pub other_side: Option<RoadID>,
+    //offset: u8,
 }
 
 impl PartialEq for Road {

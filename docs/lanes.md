@@ -34,3 +34,22 @@ Some modeling questions:
 	- maintaining directional sanity could be useful
 	- what's the UI for changing lane types?
 	- it's a bit arbitrary which lane should draw the yellow center lines
+
+
+
+Initial design:
+- "Road" becomes "Lane" with a type
+- don't need to know sibling lanes yet
+- arbitrarily, one lane might have extra bits/geometry for yellow center line markings
+- ideally, get rid of one-wayness and original center points, and plumb along pre-shifted lines
+	- but due to the polyline problem (affecting both geom center line layer that agents follow, and polygons for drawing), can't do this. encapsulate the messiness at least.
+	- so, store one way and orig points and index, but have an accessor
+	- as a compromise, dont interpet OSM points on a one-way road as the center, but as the edge.
+
+
+
+The polyline problem:
+- https://www.codeproject.com/Articles/226569/Drawing-polylines-by-tessellation
+- https://stackoverflow.com/questions/36475254/polylines-outline-construction-drawing-thick-polylines
+- Will lengths change? Is this a problem?
+- Drawing cars as rectangles is funky, because if their front is aligned to a new line segment, their back juts into the center of the road

@@ -129,4 +129,16 @@ impl DrawRoad {
         lines.extend(r.osm_tags.iter().cloned());
         lines
     }
+
+    // Get the line marking the end of the road, perpendicular to the direction of the road
+    pub(crate) fn get_end_crossing(&self) -> (Vec2d, Vec2d) {
+        (
+            self.polygons.last().unwrap()[2],
+            self.polygons.last().unwrap()[3],
+        )
+    }
+
+    pub(crate) fn get_start_crossing(&self) -> (Vec2d, Vec2d) {
+        (self.polygons[0][0], self.polygons[0][1])
+    }
 }
