@@ -44,18 +44,8 @@
 	- look for current stop sign priorities
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
-- roads -> lanes
-	- driving lanes
-	- parking
-	- sidewalks
-	- bike lanes
-
-	- in an experimental branch...
-		- make map_model create several "roads" per road proto
-		- add an enum type and an index-from-center
-		- plumb through in all layers
-		- rename these lanes
-		- only have cars on the driving lanes
+- multiple lanes
+	- prep: make DrawRoad depend on GeomRoad, dont percolate onewayness around as much
 
 ## Code cleanup
 
