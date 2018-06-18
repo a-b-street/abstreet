@@ -10,7 +10,7 @@ use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model::{Bounds, Pt2D, RoadID};
+use map_model::{Pt2D, RoadID};
 use render::{BRIGHT_DEBUG_COLOR, DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS, ROAD_ORIENTATION_COLOR};
 use std::f64;
 
@@ -24,22 +24,8 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(road: &map_model::Road, bounds: &Bounds) -> DrawRoad {
-        let mut pts: Vec<Pt2D> = road.points
-            .iter()
-            .map(|pt| geometry::gps_to_screen_space(pt, bounds))
-            .collect();
-        // Shove the lines away from the intersection so they don't overlap.
-        // TODO deal with tiny roads
-        let num_pts = pts.len();
-        let new_first_pt =
-            geometry::dist_along_line((&pts[0], &pts[1]), geom::TURN_DIST_FROM_INTERSECTION);
-        let new_last_pt = geometry::dist_along_line(
-            (&pts[num_pts - 1], &pts[num_pts - 2]),
-            geom::TURN_DIST_FROM_INTERSECTION,
-        );
-        pts[0] = Pt2D::from(new_first_pt);
-        pts[num_pts - 1] = Pt2D::from(new_last_pt);
+    pub fn new(road: &map_model::Road, geom_map: &geom::GeomMap) -> DrawRoad {
+        let geom_r = geom_map.get_r(road.id);
 
         let use_yellow_center_lines = if let Some(other) = road.other_side {
             road.id.0 < other.0
@@ -55,9 +41,9 @@ impl DrawRoad {
 
         DrawRoad {
             id: road.id,
-            polygons: geometry::thick_multiline(&thick_line, &pts),
+            polygons: geometry::thick_multiline(&thick_line, &geom_r.pts),
             yellow_center_lines: if use_yellow_center_lines {
-                pts
+                geom_r.pts.clone()
             } else {
                 Vec::new()
             },

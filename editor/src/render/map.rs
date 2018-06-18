@@ -36,7 +36,7 @@ impl DrawMap {
 
         let mut roads: Vec<DrawRoad> = Vec::new();
         for r in map.all_roads() {
-            roads.push(DrawRoad::new(r, &bounds));
+            roads.push(DrawRoad::new(r, geom_map));
         }
 
         let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();

@@ -18,6 +18,8 @@ pub struct GeomRoad {
     pub id: RoadID,
     // TODO need to settle on a proper Line type
     pub lane_center_lines: Vec<(Pt2D, Pt2D)>,
+    // unshifted center points. consider computing these twice or otherwise not storing them
+    pub pts: Vec<Pt2D>,
 }
 
 impl GeomRoad {
@@ -53,6 +55,7 @@ impl GeomRoad {
         } else {
             (LANE_THICKNESS / 2.0)
         };
+        // TODO when drawing cars along these lines, do we have the line overlap problem?
         let lane_center_lines: Vec<(Pt2D, Pt2D)> = pts.windows(2)
             .map(|pair| {
                 geometry::shift_line_perpendicularly_in_driving_direction(
@@ -65,6 +68,7 @@ impl GeomRoad {
 
         GeomRoad {
             lane_center_lines,
+            pts,
             id: road.id,
         }
     }

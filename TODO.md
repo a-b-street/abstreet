@@ -45,13 +45,13 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- prep: make DrawRoad depend on GeomRoad, dont percolate onewayness around as much
 
 ## Code cleanup
 
 - clean up code
 	- master Map struct
 	- line type / ditch vec2d / settle on types
+	- better layering: GeomParcel, GeomIntersection, etc, so that render layer doesn't need to know Bounds and use gps_to_screen
 
 - add/plan tests
 - document pieces that're stabilizing
