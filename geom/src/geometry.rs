@@ -43,17 +43,17 @@ pub enum ThickLine {
 }
 
 impl ThickLine {
-    // Returns width for the +pi/2 and -pi/2 directions
-    fn half_widths(&self) -> (f64, f64) {
+    // Returns a scaling factor to project away from a center line, left and right side.
+    fn project_away_lengths(&self) -> (f64, f64) {
         match *self {
             ThickLine::DrivingDirectionOnly(w) => {
                 if DRIVING_DIRECTION == 1.0 {
                     (w, 0.0)
                 } else {
-                    (0.0, w)
+                    (0.0, -1.0 * w)
                 }
             }
-            ThickLine::Centered(w) => (w / 2.0, w / 2.0),
+            ThickLine::Centered(w) => (w / -2.0, w / 2.0),
         }
     }
 }
@@ -94,25 +94,24 @@ pub fn thick_line(style: &ThickLine, pt1: &Pt2D, pt2: &Pt2D) -> Vec<Vec2d> {
     let y1 = pt1.y();
     let x2 = pt2.x();
     let y2 = pt2.y();
-    let angle = (y2 - y1).atan2(x2 - x1);
-    let half_pi = f64::consts::PI / 2.0;
+    let angle = (y2 - y1).atan2(x2 - x1) + (f64::consts::PI / 2.0);
     // Project away from (x1, y1) in both directions by some amount
-    let (pos_width, neg_width) = style.half_widths();
+    let (side1_width, side2_width) = style.project_away_lengths();
     let c1 = [
-        x1 + pos_width * (angle + half_pi).cos(),
-        y1 + pos_width * (angle + half_pi).sin(),
+        x1 + side1_width * angle.cos(),
+        y1 + side1_width * angle.sin(),
     ];
     let c2 = [
-        x1 + neg_width * (angle - half_pi).cos(),
-        y1 + neg_width * (angle - half_pi).sin(),
+        x1 + side2_width * angle.cos(),
+        y1 + side2_width * angle.sin(),
     ];
     let c3 = [
-        x2 + pos_width * (angle + half_pi).cos(),
-        y2 + pos_width * (angle + half_pi).sin(),
+        x2 + side1_width * angle.cos(),
+        y2 + side1_width * angle.sin(),
     ];
     let c4 = [
-        x2 + neg_width * (angle - half_pi).cos(),
-        y2 + neg_width * (angle - half_pi).sin(),
+        x2 + side2_width * angle.cos(),
+        y2 + side2_width * angle.sin(),
     ];
     vec![c1, c2, c4, c3, c1]
 }

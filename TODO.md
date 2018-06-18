@@ -46,6 +46,8 @@
 
 - multiple lanes
 	- prep: get rid of other_side
+		- when oneways use DrivingDirectionOnly as well, other geometry doesn't line up!
+
 	- display + mouseover parking lane and sidewalk
 		- all roads have sidewalk on both sides, oneways only have parking lane on one side
 	- model bikes in driving lanes (as slow cars)
