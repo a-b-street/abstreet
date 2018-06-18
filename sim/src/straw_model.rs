@@ -12,7 +12,7 @@ use graphics;
 use graphics::math::Vec2d;
 use map_model::{Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
-use rand::{NewRng, Rng, SeedableRng, XorShiftRng};
+use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::{BTreeMap, HashSet};
 use std::f64;
 use std::fs::File;
@@ -290,7 +290,7 @@ pub struct Sim {
 
 impl Sim {
     pub fn new(map: &Map, geom_map: &GeomMap, rng_seed: Option<u8>) -> Sim {
-        let mut rng = XorShiftRng::new();
+        let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
         }
