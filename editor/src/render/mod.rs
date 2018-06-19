@@ -38,7 +38,8 @@ pub const SELECTED_COLOR: Color = canvas::BLUE;
 pub const TURN_COLOR: Color = canvas::GREEN;
 pub const CONFLICTING_TURN_COLOR: Color = [1.0, 0.0, 0.0, 0.5];
 pub const BUILDING_COLOR: Color = canvas::LIGHT_GREY;
-pub const PARCEL_COLOR: Color = canvas::DARK_GREY;
+pub const PARCEL_BOUNDARY_COLOR: Color = canvas::DARK_GREY;
+pub const PARCEL_INTERIOR_COLOR: Color = canvas::LIGHT_BROWN;
 const ROAD_ORIENTATION_COLOR: Color = canvas::YELLOW;
 pub const SEARCH_RESULT_COLOR: Color = canvas::RED;
 // For interactive algorithms

@@ -15,7 +15,8 @@ use render::PARCEL_BOUNDARY_THICKNESS;
 #[derive(Debug)]
 pub struct DrawParcel {
     pub id: ParcelID,
-    polygons: Vec<Vec<Vec2d>>,
+    boundary_polygons: Vec<Vec<Vec2d>>,
+    fill_polygon: Vec<Vec2d>,
 }
 
 impl DrawParcel {
@@ -26,23 +27,31 @@ impl DrawParcel {
             .collect();
         DrawParcel {
             id: p.id,
-            polygons: geometry::thick_multiline(
+            boundary_polygons: geometry::thick_multiline(
                 &geometry::ThickLine::Centered(PARCEL_BOUNDARY_THICKNESS),
                 &pts,
             ),
+            fill_polygon: pts.iter().map(|pt| [pt.x(), pt.y()]).collect(),
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        let poly = graphics::Polygon::new(color);
-        for p in &self.polygons {
-            poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+    pub fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {
+        let boundary_poly = graphics::Polygon::new(boundary_color);
+        for p in &self.boundary_polygons {
+            boundary_poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
         }
+        let fill_poly = graphics::Polygon::new(fill_color);
+        fill_poly.draw(
+            &self.fill_polygon,
+            &g.ctx.draw_state,
+            g.ctx.transform,
+            g.gfx,
+        );
     }
 
     //pub fn contains_pt(&self, x: f64, y: f64) -> bool {}
 
     pub fn get_bbox(&self) -> Rect {
-        geometry::get_bbox_for_polygons(&self.polygons)
+        geometry::get_bbox_for_polygons(&vec![self.fill_polygon.clone()])
     }
 }

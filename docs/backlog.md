@@ -15,6 +15,7 @@
 - svg export some area, for manual mockups
 
 - web version
+	- ggez, quicksilver, unrust could work
 
 - easier way to define magic tuneable constants
 	- and maybe to recalculate fixedish things if they change?

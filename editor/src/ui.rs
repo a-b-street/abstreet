@@ -554,9 +554,10 @@ impl UI {
             .unwrap_or(render::BUILDING_COLOR)
     }
 
-    fn color_parcel(&self, id: map_model::ParcelID) -> Color {
+    // Returns (boundary, fill) color
+    fn color_parcel(&self, id: map_model::ParcelID) -> (Color, Color) {
         let _p = self.map.get_p(id);
-        render::PARCEL_COLOR
+        (render::PARCEL_BOUNDARY_COLOR, render::PARCEL_INTERIOR_COLOR)
     }
 
     fn color_car(&self, id: CarID) -> Color {
