@@ -27,12 +27,6 @@ impl DrawRoad {
     pub fn new(road: &map_model::Road, geom_map: &geom::GeomMap) -> DrawRoad {
         let geom_r = geom_map.get_r(road.id);
 
-        let use_yellow_center_lines = if let Some(other) = road.other_side {
-            road.id.0 < other.0
-        } else {
-            false
-        };
-
         let thick_line = if road.other_side.is_some() {
             geometry::ThickLine::DrivingDirectionOnly(geom::LANE_THICKNESS)
         } else {
@@ -42,7 +36,7 @@ impl DrawRoad {
         DrawRoad {
             id: road.id,
             polygons: geometry::thick_multiline(&thick_line, &geom_r.pts),
-            yellow_center_lines: if use_yellow_center_lines {
+            yellow_center_lines: if road.use_yellow_center_lines {
                 geom_r.pts.clone()
             } else {
                 Vec::new()

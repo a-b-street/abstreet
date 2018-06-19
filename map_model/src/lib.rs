@@ -148,19 +148,33 @@ pub struct Map {
     intersection_to_roads: HashMap<IntersectionID, Vec<RoadID>>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum LaneType {
+    Driving,
+    Parking,
+    Sidewalk,
+}
+
 #[derive(Debug)]
 pub struct Road {
     pub id: RoadID,
     pub osm_tags: Vec<String>,
     pub osm_way_id: i64,
+    lane_type: LaneType,
 
     // Ideally all of these would just become translated center points immediately, but this is
     // hard due to the polyline problem.
 
     // The orientation is implied by the order of these points
     pub points: Vec<Pt2D>,
+    // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
+    // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
+    pub use_yellow_center_lines: bool,
+
     pub other_side: Option<RoadID>,
-    //offset: u8,
+    // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
+    // the centermost lane on each side, then it counts up.
+    offset: u8,
 }
 
 impl PartialEq for Road {
@@ -253,9 +267,27 @@ impl Map {
 
         let mut counter = 0;
         for r in data.get_roads() {
+            let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
+
+            let orig_direction = true;
+            let reverse_direction = false;
+            let mut lanes = vec![
+                (LaneType::Driving, 0, orig_direction),
+                (LaneType::Parking, 1, orig_direction),
+                (LaneType::Sidewalk, 2, orig_direction),
+            ];
+            if oneway {
+                lanes.push((LaneType::Sidewalk, 0, reverse_direction));
+            } else {
+                lanes.extend(vec![
+                    (LaneType::Driving, 0, reverse_direction),
+                    (LaneType::Parking, 1, reverse_direction),
+                    (LaneType::Sidewalk, 2, reverse_direction),
+                ]);
+            }
+
             // TODO I made a second iter of cloned roads and tried to chain, but couldn't make the
             // types work :( so here's this hackier version
-            let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
             for &idx_offset in &vec![0, 1] {
                 if idx_offset == 1 && r.get_osm_tags().contains(&String::from("oneway=yes")) {
                     continue;
@@ -292,6 +324,14 @@ impl Map {
                     points: pts,
                     osm_tags: r.get_osm_tags().to_vec(),
                     osm_way_id: r.get_osm_way_id(),
+                    use_yellow_center_lines: if let Some(other) = other_side {
+                        id.0 < other.0
+                    } else {
+                        false
+                    },
+
+                    offset: 0,
+                    lane_type: LaneType::Driving,
                 });
             }
         }

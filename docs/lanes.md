@@ -44,7 +44,7 @@ Initial design:
 - ideally, get rid of one-wayness and original center points, and plumb along pre-shifted lines
 	- but due to the polyline problem (affecting both geom center line layer that agents follow, and polygons for drawing), can't do this. encapsulate the messiness at least.
 	- so, store one way and orig points and index, but have an accessor
-	- as a compromise, dont interpet OSM points on a one-way road as the center, but as the edge.
+	- as a compromise, dont interpet OSM points on a one-way road as the center, but as the edge? this is proving hard to do.
 
 
 

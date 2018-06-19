@@ -40,15 +40,9 @@ impl GeomRoad {
         pts[0] = Pt2D::from(new_first_pt);
         pts[num_pts - 1] = Pt2D::from(new_last_pt);
 
-        let use_yellow_center_lines = if let Some(other) = road.other_side {
-            road.id.0 < other.0
-        } else {
-            false
-        };
-
         let lane_center_shift = if road.other_side.is_none() {
             0.0
-        } else if use_yellow_center_lines {
+        } else if road.use_yellow_center_lines {
             // TODO I think this is unfair to one side, right? If we hover over the yellow line, it
             // shouldn't match either lane. Needs to be its own thing, or adjust the bbox.
             (LANE_THICKNESS / 2.0) + (BIG_ARROW_THICKNESS / 2.0)
