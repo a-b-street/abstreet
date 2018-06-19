@@ -46,6 +46,9 @@ Initial design:
 	- so, store one way and orig points and index, but have an accessor
 	- as a compromise, dont interpet OSM points on a one-way road as the center, but as the edge? this is proving hard to do.
 
+Thinking about a new design:
+- Much more general "Land" primitive that's just a nice polygon boundary for drawing/selection and one (or more, for sidewalks?) center lines for how to cross the space, with a notion of turns. It's what road is now, but way simpler data. Maybe the GeomRoad / DrawRoad split is a little confusing after all, since the layering just isn't perfect.
+
 
 
 The polyline problem:

@@ -37,8 +37,9 @@ pub const EPSILON_METERS: si::Meter<f64> = si::Meter {
 };
 
 pub enum ThickLine {
-    // Both values represent the full width of the thick line
-    DrivingDirectionOnly(f64),
+    // The f64's represent the full width of the thick line
+    // The u8 is the offset from center
+    DrivingDirectionOnly(f64, u8),
     Centered(f64),
 }
 
@@ -46,13 +47,15 @@ impl ThickLine {
     // Returns a scaling factor to project away from a center line, left and right side.
     fn project_away_lengths(&self) -> (f64, f64) {
         match *self {
-            ThickLine::DrivingDirectionOnly(w) => {
+            ThickLine::DrivingDirectionOnly(w, raw_offset) => {
+                let offset = raw_offset as f64;
                 if DRIVING_DIRECTION == 1.0 {
-                    (w, 0.0)
+                    (w * (offset + 1.0), w * offset)
                 } else {
-                    (0.0, -1.0 * w)
+                    (-1.0 * w * offset, -1.0 * w * (offset + 1.0))
                 }
             }
+            // TODO this case
             ThickLine::Centered(w) => (w / -2.0, w / 2.0),
         }
     }

@@ -160,14 +160,14 @@ pub struct Road {
     pub id: RoadID,
     pub osm_tags: Vec<String>,
     pub osm_way_id: i64,
-    lane_type: LaneType,
+    pub lane_type: LaneType,
 
     // Ideally all of these would just become translated center points immediately, but this is
     // hard due to the polyline problem.
 
     // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
     // the centermost lane on each side, then it counts up.
-    offset: u8,
+    pub offset: u8,
     // The orientation is implied by the order of these points
     pub points: Vec<Pt2D>,
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
@@ -279,17 +279,17 @@ impl Map {
                     LaneType::Driving,
                     0,
                     orig_direction,
-                    if oneway { None } else { Some(1) },
+                    if oneway { None } else { Some(2) },
                 ),
-                //(LaneType::Parking, 1, orig_direction, None),
+                (LaneType::Parking, 1, orig_direction, None),
                 //(LaneType::Sidewalk, 2, orig_direction, None),
             ];
             if oneway {
                 //lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
             } else {
                 lanes.extend(vec![
-                    (LaneType::Driving, 0, reverse_direction, Some(-1)),
-                    //(LaneType::Parking, 1, reverse_direction, None),
+                    (LaneType::Driving, 0, reverse_direction, Some(-2)),
+                    (LaneType::Parking, 1, reverse_direction, None),
                     //(LaneType::Sidewalk, 2, reverse_direction, None),
                 ]);
             }
@@ -346,9 +346,15 @@ impl Map {
                 if i.point != *src_r.points.last().unwrap() {
                     continue;
                 }
+                if src_r.lane_type != LaneType::Driving {
+                    continue;
+                }
                 for dst in incident_roads {
                     let dst_r = &m.roads[dst.0];
                     if i.point != dst_r.points[0] {
+                        continue;
+                    }
+                    if dst_r.lane_type != LaneType::Driving {
                         continue;
                     }
                     // Don't create U-turns unless it's a dead-end

@@ -45,16 +45,20 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- prep: get rid of other_side
-		- when oneways use DrivingDirectionOnly as well, other geometry doesn't line up!
-
 	- display + mouseover parking lane and sidewalk
-		- all roads have sidewalk on both sides, oneways only have parking lane on one side
+		- make parking lanes on one-ways work
+		- add in sidewalks (update the ID offset!)
+		- make the center lines in geom layer work (use debug mode to verify)
+
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work
 	- be able to convert between parking and bike lanes, recompute the turns
 
 	- when rendering sidewalks, have an option for a grass buffer
+
+	- regression testing
+		- goldenfile approach for map_model, geom, and render layer from a small OSM chunk
+		- or maybe a visual demo approach with a list of things to manually check
 
 ## Code cleanup
 

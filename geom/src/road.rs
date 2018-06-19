@@ -40,6 +40,7 @@ impl GeomRoad {
         pts[0] = Pt2D::from(new_first_pt);
         pts[num_pts - 1] = Pt2D::from(new_last_pt);
 
+        // TODO handle offset
         let lane_center_shift = if road.one_way_road {
             0.0
         } else if road.use_yellow_center_lines {

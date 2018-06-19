@@ -495,6 +495,12 @@ impl UI {
 
     fn color_road(&self, id: map_model::RoadID) -> Color {
         let r = self.map.get_r(id);
+        let default = match r.lane_type {
+            map_model::LaneType::Driving => render::ROAD_COLOR,
+            map_model::LaneType::Parking => render::PARKING_COLOR,
+            map_model::LaneType::Sidewalk => render::SIDEWALK_COLOR,
+        };
+
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
@@ -515,7 +521,7 @@ impl UI {
         ].iter()
             .filter_map(|c| *c)
             .next()
-            .unwrap_or(render::ROAD_COLOR)
+            .unwrap_or(default)
     }
 
     fn color_intersection(&self, id: map_model::IntersectionID) -> Color {
