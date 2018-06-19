@@ -27,12 +27,8 @@ impl DrawRoad {
     pub fn new(road: &map_model::Road, geom_map: &geom::GeomMap) -> DrawRoad {
         let geom_r = geom_map.get_r(road.id);
 
-        let thick_line = if road.one_way_road {
-            geometry::ThickLine::Centered(geom::LANE_THICKNESS)
-        } else {
-            geometry::ThickLine::DrivingDirectionOnly(geom::LANE_THICKNESS, road.offset)
-        };
-
+        let thick_line =
+            geometry::ThickLine::DrivingDirectionOnly(geom::LANE_THICKNESS, road.offset);
         DrawRoad {
             id: road.id,
             polygons: geometry::thick_multiline(&thick_line, &geom_r.pts),

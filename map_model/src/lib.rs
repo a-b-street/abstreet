@@ -173,8 +173,6 @@ pub struct Road {
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
     // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
     pub use_yellow_center_lines: bool,
-    // Ugly hack, preserving whether the original road geometry represents a one-way road or not.
-    pub one_way_road: bool,
     // Need to remember this just for detecting U-turns here.
     other_side: Option<RoadID>,
 }
@@ -285,9 +283,7 @@ impl Map {
                 (LaneType::Sidewalk, 2, orig_direction, None),
             ];
             if oneway {
-                lanes.pop();
-                lanes.pop();
-            //lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
+                lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
             } else {
                 lanes.extend(vec![
                     (LaneType::Driving, 0, reverse_direction, Some(-3)),
@@ -329,34 +325,31 @@ impl Map {
                     use_yellow_center_lines: if let Some(other) = other_side {
                         id.0 < other.0
                     } else {
-                        false
+                        lane.1 == 0
                     },
-                    one_way_road: oneway,
                 });
             }
         }
 
-        for i in &mut m.intersections {
+        for i in &m.intersections {
             // TODO: Figure out why this happens in the huge map
             if m.intersection_to_roads.get(&i.id).is_none() {
                 println!("WARNING: intersection {:?} has no roads", i);
                 continue;
             }
-            let incident_roads = &m.intersection_to_roads[&i.id];
-            for src in incident_roads {
+            let incident_roads: Vec<RoadID> = m.intersection_to_roads[&i.id]
+                .iter()
+                .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
+                .map(|id| *id)
+                .collect();
+            for src in &incident_roads {
                 let src_r = &m.roads[src.0];
                 if i.point != *src_r.points.last().unwrap() {
                     continue;
                 }
-                if src_r.lane_type != LaneType::Driving {
-                    continue;
-                }
-                for dst in incident_roads {
+                for dst in &incident_roads {
                     let dst_r = &m.roads[dst.0];
                     if i.point != dst_r.points[0] {
-                        continue;
-                    }
-                    if dst_r.lane_type != LaneType::Driving {
                         continue;
                     }
                     // Don't create U-turns unless it's a dead-end
@@ -371,9 +364,11 @@ impl Map {
                         src: *src,
                         dst: *dst,
                     });
-                    i.turns.push(id);
                 }
             }
+        }
+        for t in &m.turns {
+            m.intersections[t.parent.0].turns.push(t.id);
         }
 
         for (idx, b) in data.get_buildings().iter().enumerate() {

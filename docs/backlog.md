@@ -20,7 +20,11 @@
 	- and maybe to recalculate fixedish things if they change?
 
 - more advanced road modeling, like https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
-- yellow center lines eat into the width of one lane arbitrarily
+
+- clean multilines
+	- yellow center lines eat into the width of one lane arbitrarily
+	- the oneway at the top of montlake has a weird first point
+	- draw intersections at dead-ends
 
 ## Conga line idea
 

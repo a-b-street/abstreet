@@ -40,11 +40,8 @@ impl GeomRoad {
         pts[0] = Pt2D::from(new_first_pt);
         pts[num_pts - 1] = Pt2D::from(new_last_pt);
 
-        // TODO handle offset
         let offset = road.offset as f64;
-        let lane_center_shift = if road.one_way_road {
-            0.0
-        } else if road.use_yellow_center_lines {
+        let lane_center_shift = if road.use_yellow_center_lines {
             // TODO I think this is unfair to one side, right? If we hover over the yellow line, it
             // shouldn't match either lane. Needs to be its own thing, or adjust the bbox.
             (LANE_THICKNESS / 2.0) + (BIG_ARROW_THICKNESS / 2.0)
@@ -75,12 +72,12 @@ impl GeomRoad {
     }
 
     pub fn last_pt(&self) -> Vec2d {
-        let pt = &self.lane_center_lines[self.lane_center_lines.len() - 1].1;
+        let pt = &self.lane_center_lines.last().unwrap().1;
         [pt.x(), pt.y()]
     }
 
     pub fn last_line(&self) -> (Pt2D, Pt2D) {
-        self.lane_center_lines[self.lane_center_lines.len() - 1]
+        *self.lane_center_lines.last().unwrap()
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {
