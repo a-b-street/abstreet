@@ -41,6 +41,7 @@ impl GeomRoad {
         pts[num_pts - 1] = Pt2D::from(new_last_pt);
 
         // TODO handle offset
+        let offset = road.offset as f64;
         let lane_center_shift = if road.one_way_road {
             0.0
         } else if road.use_yellow_center_lines {
@@ -48,9 +49,9 @@ impl GeomRoad {
             // shouldn't match either lane. Needs to be its own thing, or adjust the bbox.
             (LANE_THICKNESS / 2.0) + (BIG_ARROW_THICKNESS / 2.0)
         } else {
-            (LANE_THICKNESS / 2.0)
+            LANE_THICKNESS * (offset + 0.5)
         };
-        // TODO when drawing cars along these lines, do we have the line overlap problem?
+        // TODO when drawing cars along these lines, do we have the line overlap problem? yes.
         let lane_center_lines: Vec<(Pt2D, Pt2D)> = pts.windows(2)
             .map(|pair| {
                 geometry::shift_line_perpendicularly_in_driving_direction(

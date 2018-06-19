@@ -46,12 +46,12 @@
 
 - multiple lanes
 	- display + mouseover parking lane and sidewalk
-		- make the center lines in geom layer work (use debug mode to verify)
 		- something broke curved roads
 		- make extra lanes for oneways work
 			- have to switch from Centered to DrivingDirection somehow
 			- either translate points up-front and be normal or fix geom layer (for turns and intersections)
 
+	- dont allow cars on non-driving lanes :)
 	- model cars parking
 		- maybe render numbers on the cars to distinguish them
 		- document the FSM (on lane driving, waiting, turning, parking, etc)

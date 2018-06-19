@@ -25,8 +25,8 @@ const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
 
-pub const DEBUG_COLOR: Color = canvas::PURPLE;
-pub const BRIGHT_DEBUG_COLOR: Color = [1.0, 0.1, 0.55, 1.0];
+pub const DEBUG_COLOR: Color = canvas::RED;
+pub const BRIGHT_DEBUG_COLOR: Color = [0.8, 0.1, 0.1, 1.0];
 pub const ROAD_COLOR: Color = canvas::BLACK;
 pub const PARKING_COLOR: Color = canvas::PURPLE;
 pub const SIDEWALK_COLOR: Color = canvas::GREEN;

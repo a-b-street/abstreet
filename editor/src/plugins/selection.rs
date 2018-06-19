@@ -174,6 +174,8 @@ impl SelectionState {
                         draw_map.get_t(turn.id).draw_full(g, render::TURN_COLOR);
                     },
                 }
+                // TODO tmp
+                draw_map.get_r(id).draw_debug(g, geom_map.get_r(id));
             }
             SelectionState::TooltipRoad(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_r(id).tooltip_lines(map, geom_map));

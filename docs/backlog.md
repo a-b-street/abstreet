@@ -20,6 +20,7 @@
 	- and maybe to recalculate fixedish things if they change?
 
 - more advanced road modeling, like https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
+- yellow center lines eat into the width of one lane arbitrarily
 
 ## Conga line idea
 
