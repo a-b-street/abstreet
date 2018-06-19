@@ -46,7 +46,6 @@
 
 - multiple lanes
 	- display + mouseover parking lane and sidewalk
-		- something broke curved roads
 		- make extra lanes for oneways work
 			- have to switch from Centered to DrivingDirection somehow
 			- either translate points up-front and be normal or fix geom layer (for turns and intersections)

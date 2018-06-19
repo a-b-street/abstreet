@@ -67,22 +67,11 @@ pub fn thick_multiline(style: &ThickLine, pts: &[Pt2D]) -> Vec<Vec<Vec2d>> {
         let (pt1, pt2, pt3) = (&slice[0], &slice[1], &slice[2]);
         let quad1 = thick_line(style, pt1, pt2);
         let quad2 = thick_line(style, pt2, pt3);
-        // Of course, the original quad
+        // The original quad. This over-extends in some cases, especially with multiple lanes.
         polygons.push(quad1.clone());
-        // Add some triangles to fill in the gaps. Comment this out to see part of the polyline
-        // problem more clearly.
-        polygons.push(vec![
-            [pt2.x(), pt2.y()],
-            quad1[3],
-            quad2[0],
-            [pt2.x(), pt2.y()],
-        ]);
-        polygons.push(vec![
-            [pt2.x(), pt2.y()],
-            quad1[2],
-            quad2[1],
-            [pt2.x(), pt2.y()],
-        ]);
+        // Add a quad to fill in the gap. Comment out to see part of the polyline problem very
+        // clearly.
+        polygons.push(vec![quad1[2], quad1[3], quad2[0], quad2[1], quad1[2]]);
     }
 
     // We always need a quad for the last group, since there won't be a window of 3.
