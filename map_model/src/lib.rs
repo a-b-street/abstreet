@@ -279,18 +279,20 @@ impl Map {
                     LaneType::Driving,
                     0,
                     orig_direction,
-                    if oneway { None } else { Some(2) },
+                    if oneway { None } else { Some(3) },
                 ),
                 (LaneType::Parking, 1, orig_direction, None),
-                //(LaneType::Sidewalk, 2, orig_direction, None),
+                (LaneType::Sidewalk, 2, orig_direction, None),
             ];
             if oneway {
-                //lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
+                lanes.pop();
+                lanes.pop();
+            //lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
             } else {
                 lanes.extend(vec![
-                    (LaneType::Driving, 0, reverse_direction, Some(-2)),
+                    (LaneType::Driving, 0, reverse_direction, Some(-3)),
                     (LaneType::Parking, 1, reverse_direction, None),
-                    //(LaneType::Sidewalk, 2, reverse_direction, None),
+                    (LaneType::Sidewalk, 2, reverse_direction, None),
                 ]);
             }
 

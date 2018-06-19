@@ -55,7 +55,6 @@ impl ThickLine {
                     (-1.0 * w * offset, -1.0 * w * (offset + 1.0))
                 }
             }
-            // TODO this case
             ThickLine::Centered(w) => (w / -2.0, w / 2.0),
         }
     }

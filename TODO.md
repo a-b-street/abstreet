@@ -46,19 +46,27 @@
 
 - multiple lanes
 	- display + mouseover parking lane and sidewalk
-		- make parking lanes on one-ways work
-		- add in sidewalks (update the ID offset!)
 		- make the center lines in geom layer work (use debug mode to verify)
+		- something broke curved roads
+		- make extra lanes for oneways work
+			- have to switch from Centered to DrivingDirection somehow
+			- either translate points up-front and be normal or fix geom layer (for turns and intersections)
 
+	- model cars parking
+		- maybe render numbers on the cars to distinguish them
+		- document the FSM (on lane driving, waiting, turning, parking, etc)
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work
 	- be able to convert between parking and bike lanes, recompute the turns
+	- model pdestrians
+		- maybe draw crosswalks?
 
 	- when rendering sidewalks, have an option for a grass buffer
 
 	- regression testing
 		- goldenfile approach for map_model, geom, and render layer from a small OSM chunk
 		- or maybe a visual demo approach with a list of things to manually check
+		- unit test that Centered thick line yields same geometry with points reversed
 
 ## Code cleanup
 

@@ -17,7 +17,7 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawRoad {
     pub id: RoadID,
-    pub polygons: Vec<Vec<Vec2d>>, // TODO pub for DrawIntersection
+    polygons: Vec<Vec<Vec2d>>,
     // Empty for one-ways and one side of two-ways.
     // TODO ideally this could be done in the shader or something
     yellow_center_lines: Vec<Pt2D>,
@@ -27,7 +27,6 @@ impl DrawRoad {
     pub fn new(road: &map_model::Road, geom_map: &geom::GeomMap) -> DrawRoad {
         let geom_r = geom_map.get_r(road.id);
 
-        // TODO handle offset for Centered
         let thick_line = if road.one_way_road {
             geometry::ThickLine::Centered(geom::LANE_THICKNESS)
         } else {
