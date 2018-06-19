@@ -32,7 +32,7 @@ fn main() {
     let control_map = control::ControlMap::new(&map, &geom_map);
     let mut sim = sim::straw_model::Sim::new(&map, &geom_map, flags.rng_seed);
     // TODO need a notion of scenarios
-    sim.spawn_many_on_empty_roads(100000);
+    sim.spawn_many_on_empty_roads(&map, 100000);
 
     let mut counter = 0;
     let mut benchmark = sim.start_benchmark();

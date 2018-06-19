@@ -253,9 +253,11 @@ impl UI {
                     }
                 }
 
-                if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                    if !self.sim_ctrl.sim.spawn_one_on_road(id) {
-                        println!("No room, sorry");
+                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
+                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
+                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
+                            println!("No room, sorry");
+                        }
                     }
                 }
             }
@@ -286,7 +288,7 @@ impl UI {
         }
 
         if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
-            self.sim_ctrl.sim.spawn_many_on_empty_roads(1000);
+            self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {

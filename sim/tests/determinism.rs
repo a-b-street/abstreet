@@ -20,8 +20,8 @@ fn from_scratch() {
 
     let mut sim1 = sim::straw_model::Sim::new(&map, &geom_map, Some(rng_seed));
     let mut sim2 = sim::straw_model::Sim::new(&map, &geom_map, Some(rng_seed));
-    sim1.spawn_many_on_empty_roads(spawn_count);
-    sim2.spawn_many_on_empty_roads(spawn_count);
+    sim1.spawn_many_on_empty_roads(&map, spawn_count);
+    sim2.spawn_many_on_empty_roads(&map, spawn_count);
 
     for _ in 1..1200 {
         if sim1 != sim2 {
@@ -51,8 +51,8 @@ fn with_savestating() {
 
     let mut sim1 = sim::straw_model::Sim::new(&map, &geom_map, Some(rng_seed));
     let mut sim2 = sim::straw_model::Sim::new(&map, &geom_map, Some(rng_seed));
-    sim1.spawn_many_on_empty_roads(spawn_count);
-    sim2.spawn_many_on_empty_roads(spawn_count);
+    sim1.spawn_many_on_empty_roads(&map, spawn_count);
+    sim2.spawn_many_on_empty_roads(&map, spawn_count);
 
     for _ in 1..600 {
         sim1.step(&geom_map, &map, &control_map);

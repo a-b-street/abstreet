@@ -10,7 +10,7 @@ use ezgui::canvas::GfxCtx;
 use geom::{geometry, GeomMap, Radian};
 use graphics;
 use graphics::math::Vec2d;
-use map_model::{Map, Pt2D, RoadID, TurnID};
+use map_model::{LaneType, Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::{BTreeMap, HashSet};
@@ -348,11 +348,11 @@ impl Sim {
         true
     }
 
-    pub fn spawn_many_on_empty_roads(&mut self, num_cars: usize) {
+    pub fn spawn_many_on_empty_roads(&mut self, map: &Map, num_cars: usize) {
         let mut roads: Vec<RoadID> = self.roads
             .iter()
             .filter_map(|r| {
-                if r.is_empty() {
+                if map.get_r(r.id.as_road()).lane_type == LaneType::Driving && r.is_empty() {
                     Some(r.id.as_road())
                 } else {
                     None
