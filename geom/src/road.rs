@@ -40,7 +40,7 @@ impl GeomRoad {
         pts[0] = Pt2D::from(new_first_pt);
         pts[num_pts - 1] = Pt2D::from(new_last_pt);
 
-        let lane_center_shift = if road.other_side.is_none() {
+        let lane_center_shift = if road.one_way_road {
             0.0
         } else if road.use_yellow_center_lines {
             // TODO I think this is unfair to one side, right? If we hover over the yellow line, it

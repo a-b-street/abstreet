@@ -165,16 +165,18 @@ pub struct Road {
     // Ideally all of these would just become translated center points immediately, but this is
     // hard due to the polyline problem.
 
+    // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
+    // the centermost lane on each side, then it counts up.
+    offset: u8,
     // The orientation is implied by the order of these points
     pub points: Vec<Pt2D>,
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
     // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
     pub use_yellow_center_lines: bool,
-
-    pub other_side: Option<RoadID>,
-    // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
-    // the centermost lane on each side, then it counts up.
-    offset: u8,
+    // Ugly hack, preserving whether the original road geometry represents a one-way road or not.
+    pub one_way_road: bool,
+    // Need to remember this just for detecting U-turns here.
+    other_side: Option<RoadID>,
 }
 
 impl PartialEq for Road {
@@ -271,42 +273,38 @@ impl Map {
 
             let orig_direction = true;
             let reverse_direction = false;
-            let mut lanes = vec![
-                (LaneType::Driving, 0, orig_direction),
-                (LaneType::Parking, 1, orig_direction),
-                (LaneType::Sidewalk, 2, orig_direction),
+            // lane_type, offset, reverse the points or not, offset to get the other_side's ID
+            let mut lanes: Vec<(LaneType, u8, bool, Option<isize>)> = vec![
+                (
+                    LaneType::Driving,
+                    0,
+                    orig_direction,
+                    if oneway { None } else { Some(1) },
+                ),
+                //(LaneType::Parking, 1, orig_direction, None),
+                //(LaneType::Sidewalk, 2, orig_direction, None),
             ];
             if oneway {
-                lanes.push((LaneType::Sidewalk, 0, reverse_direction));
+                //lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
             } else {
                 lanes.extend(vec![
-                    (LaneType::Driving, 0, reverse_direction),
-                    (LaneType::Parking, 1, reverse_direction),
-                    (LaneType::Sidewalk, 2, reverse_direction),
+                    (LaneType::Driving, 0, reverse_direction, Some(-1)),
+                    //(LaneType::Parking, 1, reverse_direction, None),
+                    //(LaneType::Sidewalk, 2, reverse_direction, None),
                 ]);
             }
 
-            // TODO I made a second iter of cloned roads and tried to chain, but couldn't make the
-            // types work :( so here's this hackier version
-            for &idx_offset in &vec![0, 1] {
-                if idx_offset == 1 && r.get_osm_tags().contains(&String::from("oneway=yes")) {
-                    continue;
-                }
-                let other_side = match idx_offset {
-                    _ if oneway => None,
-                    0 => Some(RoadID(counter + 1)),
-                    1 => Some(RoadID(counter - 1)),
-                    _ => panic!("not possible"),
-                };
-
+            for lane in &lanes {
                 let id = RoadID(counter);
                 counter += 1;
-                let pts: Vec<Pt2D> = match idx_offset {
-                    0 => r.get_points().iter().map(Pt2D::from).collect(),
-                    1 => r.get_points().iter().rev().map(Pt2D::from).collect(),
-                    _ => panic!("not possible"),
-                };
+                let other_side = lane.3
+                    .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
+                let pts: Vec<Pt2D> = if lane.2 == orig_direction {
+                    r.get_points().iter().map(Pt2D::from).collect()
+                } else {
+                    r.get_points().iter().rev().map(Pt2D::from).collect()
+                };
                 let i1 = m.pt_to_intersection[&pts[0]];
                 let i2 = m.pt_to_intersection[pts.last().unwrap()];
                 m.intersection_to_roads
@@ -321,17 +319,17 @@ impl Map {
                 m.roads.push(Road {
                     id,
                     other_side,
-                    points: pts,
                     osm_tags: r.get_osm_tags().to_vec(),
                     osm_way_id: r.get_osm_way_id(),
+                    lane_type: lane.0,
+                    offset: lane.1,
+                    points: pts,
                     use_yellow_center_lines: if let Some(other) = other_side {
                         id.0 < other.0
                     } else {
                         false
                     },
-
-                    offset: 0,
-                    lane_type: LaneType::Driving,
+                    one_way_road: oneway,
                 });
             }
         }
