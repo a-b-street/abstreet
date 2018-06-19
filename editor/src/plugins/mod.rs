@@ -5,7 +5,6 @@ pub mod floodfill;
 pub mod search;
 pub mod selection;
 pub mod sim_controls;
-pub mod snake;
 pub mod steep;
 pub mod stop_sign_editor;
 pub mod traffic_signal_editor;

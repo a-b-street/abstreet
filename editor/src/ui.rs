@@ -19,7 +19,6 @@ use plugins::floodfill::Floodfiller;
 use plugins::search::SearchState;
 use plugins::selection::{SelectionState, ID};
 use plugins::sim_controls::SimController;
-use plugins::snake::Snake;
 use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
@@ -54,7 +53,6 @@ pub struct UI {
     current_selection_state: SelectionState,
     current_search_state: SearchState,
     floodfiller: Option<Floodfiller>,
-    snake: Option<Snake>,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
     turn_colors: TurnColors,
@@ -109,7 +107,6 @@ impl UI {
             current_selection_state: SelectionState::Empty,
             current_search_state: SearchState::Empty,
             floodfiller: None,
-            snake: None,
             osm_classifier: OsmClassifier {},
             traffic_signal_editor: None,
             stop_sign_editor: None,
@@ -153,21 +150,6 @@ impl UI {
         input: &mut UserInput,
         window_size: &Size,
     ) -> (UI, animation::EventLoopMode) {
-        if let Some(mut s) = self.snake {
-            if s.event(
-                input,
-                &self.map,
-                &self.draw_map,
-                &mut self.canvas,
-                window_size,
-            ) {
-                self.snake = None;
-            } else {
-                self.snake = Some(s);
-                return (self, animation::EventLoopMode::Animation);
-            }
-        }
-
         let mut event_loop_mode = animation::EventLoopMode::InputOnly;
         let mut edit_mode = false;
 
@@ -268,15 +250,6 @@ impl UI {
                 if self.floodfiller.is_none() {
                     if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
                         self.floodfiller = Some(Floodfiller::new(id));
-                    }
-                }
-
-                if self.snake.is_none() {
-                    if input.key_pressed(Key::Q, "Press Q to start a game of Snake from this road")
-                    {
-                        self.snake = Some(Snake::new(id));
-                        // TODO weird to reset other things here?
-                        self.current_selection_state = SelectionState::Empty;
                     }
                 }
 
@@ -402,10 +375,6 @@ impl UI {
             g,
         );
 
-        if let Some(ref s) = self.snake {
-            s.draw(&self.map, &self.canvas, &self.draw_map, g);
-        }
-
         let mut osd_lines = self.sim_ctrl.get_osd_lines();
         let action_lines = input.get_possible_actions();
         if !action_lines.is_empty() {
@@ -507,7 +476,6 @@ impl UI {
             self.current_selection_state.color_r(r),
             self.current_search_state.color_r(r),
             self.floodfiller.as_ref().and_then(|f| f.color_r(r)),
-            self.snake.as_ref().and_then(|s| s.color_r(r)),
             if self.steepness_active.is_enabled() {
                 self.steepness_viz.color_r(&self.map, r)
             } else {
