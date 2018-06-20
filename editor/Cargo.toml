@@ -6,6 +6,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 [dependencies]
 aabb-quadtree = "0.1.0"
 control = { path = "../control" }
+geo = "0.9.1"
 geom = { path = "../geom" }
 ezgui = { path = "../ezgui" }
 map_model = { path = "../map_model" }

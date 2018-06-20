@@ -35,18 +35,18 @@ impl DrawParcel {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {
+    pub fn draw(&self, g: &mut GfxCtx, (boundary_color, _fill_color): (Color, Color)) {
         let boundary_poly = graphics::Polygon::new(boundary_color);
         for p in &self.boundary_polygons {
             boundary_poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
         }
-        let fill_poly = graphics::Polygon::new(fill_color);
+        /*let fill_poly = graphics::Polygon::new(fill_color);
         fill_poly.draw(
             &self.fill_polygon,
             &g.ctx.draw_state,
             g.ctx.transform,
             g.gfx,
-        );
+        );*/
     }
 
     //pub fn contains_pt(&self, x: f64, y: f64) -> bool {}

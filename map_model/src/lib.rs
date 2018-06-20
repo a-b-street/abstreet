@@ -505,3 +505,7 @@ impl Map {
         b
     }
 }
+
+pub fn has_osm_tag(tags: &Vec<String>, key: &str, value: &str) -> bool {
+    tags.contains(&format!("{}={}", key, value))
+}

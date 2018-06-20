@@ -45,16 +45,19 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- model cars parking
-		- maybe render numbers on the cars to distinguish them
-		- document the FSM (on lane driving, waiting, turning, parking, etc)
+	- always draw building to sidewalk paths
+	- move colors to config, have interactive picker
+
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work
 	- be able to convert between parking and bike lanes, recompute the turns
+
+	- model cars parking
+		- maybe render numbers on the cars to distinguish them
+		- document the FSM (on lane driving, waiting, turning, parking, etc)
+
 	- model pdestrians
 		- maybe draw crosswalks?
-
-	- when rendering sidewalks, have an option for a grass buffer
 
 	- regression testing
 		- goldenfile approach for map_model, geom, and render layer from a small OSM chunk
@@ -63,6 +66,7 @@
 
 ## Code cleanup
 
+- where does 'extern crate' belong? only in main / mod?
 - clean up code
 	- master Map struct
 	- line type / ditch vec2d / settle on types
