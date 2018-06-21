@@ -70,7 +70,7 @@ impl DrawMap {
             .collect();
         let buildings: Vec<DrawBuilding> = map.all_buildings()
             .iter()
-            .map(|b| DrawBuilding::new(b, &bounds))
+            .map(|b| DrawBuilding::new(b, &bounds, map, geom_map))
             .collect();
         let parcels: Vec<DrawParcel> = map.all_parcels()
             .iter()

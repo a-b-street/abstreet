@@ -182,7 +182,6 @@ impl SelectionState {
             }
             SelectionState::SelectedBuilding(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_b(id).tooltip_lines(map));
-                draw_map.get_b(id).draw_sidewalk_path(g, map, geom_map);
             }
             SelectionState::SelectedCar(id) => {
                 canvas.draw_mouse_tooltip(g, &sim.car_tooltip(id));

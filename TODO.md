@@ -45,7 +45,6 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- always draw building to sidewalk paths
 	- move colors to config, have interactive picker
 
 	- model bikes in driving lanes (as slow cars)
