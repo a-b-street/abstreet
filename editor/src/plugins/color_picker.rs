@@ -11,6 +11,7 @@ const WIDTH: u32 = 255;
 const HEIGHT: u32 = 255;
 const TILE_DIMS: u32 = 2;
 
+// TODO should probably be a base widget in ezgui or something
 pub struct ColorPicker {
     // This is an alternative to ToggleableLayer when there's a whole stateful plugin associated
     active: bool,

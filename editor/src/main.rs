@@ -12,11 +12,15 @@ extern crate multimap;
 extern crate opengl_graphics;
 extern crate ordered_float;
 extern crate piston;
+extern crate rand;
 #[macro_use]
 extern crate serde_derive;
 extern crate sim;
 #[macro_use]
 extern crate structopt;
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
 extern crate vecmath;
 
 use ezgui::input::UserInput;
@@ -28,6 +32,7 @@ use piston::window::{Window, WindowSettings};
 use structopt::StructOpt;
 
 mod animation;
+mod colors;
 mod plugins;
 mod render;
 mod savestate;

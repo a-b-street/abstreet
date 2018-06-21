@@ -5,6 +5,7 @@
 extern crate map_model;
 
 use animation;
+use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::ToggleableLayer;
 use ezgui::canvas;
@@ -63,6 +64,7 @@ pub struct UI {
     color_picker: ColorPicker,
 
     canvas: Canvas,
+    color_scheme: ColorScheme,
 }
 
 impl UI {
@@ -115,6 +117,7 @@ impl UI {
             color_picker: ColorPicker::new(),
 
             canvas: Canvas::new(),
+            color_scheme: ColorScheme::random_settings(),
         };
 
         match savestate::load("editor_state") {
@@ -130,6 +133,16 @@ impl UI {
                 println!("Couldn't load editor_state, just centering initial view");
                 ui.canvas
                     .center_on_map_pt(center_pt.x(), center_pt.y(), window_size);
+            }
+        }
+
+        match ColorScheme::load("color_scheme") {
+            Ok(scheme) => {
+                println!("Loaded previous color_scheme");
+                ui.color_scheme = scheme;
+            }
+            Err(err) => {
+                println!("Couldn't load color_scheme: {}", err);
             }
         }
 
@@ -304,8 +317,11 @@ impl UI {
                 stop_signs: self.control_map.get_stop_signs_savestate(),
             };
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
-            savestate::write("editor_state", state).expect("Saving editor state failed");
-            println!("Saved editor_state");
+            savestate::write("editor_state", state).expect("Saving editor_state failed");
+            self.color_scheme
+                .write("color_scheme")
+                .expect("Saving color_scheme failed");
+            println!("Saved editor_state and color_scheme");
             process::exit(0);
         }
 
