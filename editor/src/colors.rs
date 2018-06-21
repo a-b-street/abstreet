@@ -6,7 +6,7 @@ use graphics::types::Color;
 use rand;
 use std::collections::BTreeMap;
 use std::fs::File;
-use std::io::{Error, ErrorKind, Read, Write};
+use std::io::{Error, Read, Write};
 use strum::IntoEnumIterator;
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, PartialOrd, Ord)]
@@ -51,30 +51,21 @@ impl ColorScheme {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
-        let scheme: ColorScheme = serde_json::from_str(&contents).unwrap();
+        let mut scheme: ColorScheme = serde_json::from_str(&contents).unwrap();
 
         for color in Colors::iter() {
             if !scheme.map.contains_key(&color) {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    format!("no color for {:?} defined", color),
-                ));
+                println!(
+                    "No color for {:?} defined, initializing with a random one",
+                    color
+                );
+                scheme
+                    .map
+                    .insert(color, [rand::random(), rand::random(), rand::random(), 1.0]);
             }
         }
 
         Ok(scheme)
-    }
-
-    pub fn random_colors() -> ColorScheme {
-        let mut scheme = ColorScheme {
-            map: BTreeMap::new(),
-        };
-        for color in Colors::iter() {
-            scheme
-                .map
-                .insert(color, [rand::random(), rand::random(), rand::random(), 1.0]);
-        }
-        scheme
     }
 
     pub fn get(&self, c: Colors) -> Color {

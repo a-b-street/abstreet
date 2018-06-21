@@ -118,7 +118,7 @@ impl UI {
             color_picker: ColorPicker::new(),
 
             canvas: Canvas::new(),
-            cs: ColorScheme::random_colors(),
+            cs: ColorScheme::load("color_scheme").unwrap(),
         };
 
         match savestate::load("editor_state") {
@@ -134,16 +134,6 @@ impl UI {
                 println!("Couldn't load editor_state, just centering initial view");
                 ui.canvas
                     .center_on_map_pt(center_pt.x(), center_pt.y(), window_size);
-            }
-        }
-
-        match ColorScheme::load("color_scheme") {
-            Ok(scheme) => {
-                println!("Loaded previous color_scheme");
-                ui.cs = scheme;
-            }
-            Err(err) => {
-                println!("Couldn't load color_scheme: {}", err);
             }
         }
 
