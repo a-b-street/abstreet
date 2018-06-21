@@ -388,7 +388,7 @@ impl UI {
             g,
         );
 
-        self.color_picker.draw(g);
+        self.color_picker.draw(&self.canvas, g);
 
         let mut osd_lines = self.sim_ctrl.get_osd_lines();
         let action_lines = input.get_possible_actions();

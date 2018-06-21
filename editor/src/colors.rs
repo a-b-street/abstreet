@@ -9,7 +9,8 @@ use std::fs::File;
 use std::io::{Error, Read, Write};
 use strum::IntoEnumIterator;
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, EnumString, ToString,
+         PartialOrd, Ord)]
 pub enum Colors {
     Debug,
     BrightDebug,

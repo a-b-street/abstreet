@@ -46,7 +46,6 @@
 
 - multiple lanes
 	- live color tuner
-		- scrolling text menu to select color
 		- mutate color scheme
 
 	- model bikes in driving lanes (as slow cars)

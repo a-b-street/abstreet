@@ -7,6 +7,7 @@ extern crate piston;
 
 pub mod canvas;
 pub mod input;
+pub mod menu;
 pub mod text_box;
 
 use piston::input::Key;
