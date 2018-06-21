@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use animation;
+use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
@@ -139,6 +140,7 @@ impl SelectionState {
         draw_map: &render::DrawMap,
         control_map: &ControlMap,
         sim: &Sim,
+        cs: &ColorScheme,
         g: &mut GfxCtx,
     ) {
         match *self {
@@ -147,7 +149,7 @@ impl SelectionState {
                 if let Some(signal) = control_map.traffic_signals.get(&id) {
                     let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
                     for t in &cycle.turns {
-                        draw_map.get_t(*t).draw_full(g, render::TURN_COLOR);
+                        draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
                     }
                 }
             }
@@ -160,22 +162,22 @@ impl SelectionState {
                         let turn = draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
                         let geom_turn =
                             geom_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
-                        turn.draw_full(g, render::TURN_COLOR);
+                        turn.draw_full(g, cs.get(Colors::Turn));
                         for map_t in all_turns {
                             let draw_t = draw_map.get_t(map_t.id);
                             let geom_t = geom_map.get_t(map_t.id);
                             if geom_t.conflicts_with(geom_turn) {
                                 // TODO should we instead change color_t?
-                                draw_t.draw_icon(g, render::CONFLICTING_TURN_COLOR);
+                                draw_t.draw_icon(g, cs.get(Colors::ConflictingTurn), cs);
                             }
                         }
                     }
                     None => for turn in &relevant_turns {
-                        draw_map.get_t(turn.id).draw_full(g, render::TURN_COLOR);
+                        draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
                     },
                 }
                 // TODO tmp
-                draw_map.get_r(id).draw_debug(g, geom_map.get_r(id));
+                draw_map.get_r(id).draw_debug(g, cs, geom_map.get_r(id));
             }
             SelectionState::TooltipRoad(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_r(id).tooltip_lines(map, geom_map));
@@ -192,34 +194,36 @@ impl SelectionState {
     // TODO instead, since color logic is complicated anyway, just have a way to ask "are we
     // selecting this generic ID?"
 
-    pub fn color_r(&self, r: &map_model::Road) -> Option<Color> {
+    pub fn color_r(&self, r: &map_model::Road, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedRoad(id, _) if r.id == id => Some(render::SELECTED_COLOR),
-            SelectionState::TooltipRoad(id) if r.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedRoad(id, _) if r.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::TooltipRoad(id) if r.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
-    pub fn color_i(&self, i: &map_model::Intersection) -> Option<Color> {
+    pub fn color_i(&self, i: &map_model::Intersection, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedIntersection(id) if i.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedIntersection(id) if i.id == id => {
+                Some(cs.get(Colors::Selected))
+            }
             _ => None,
         }
     }
-    pub fn color_t(&self, t: &map_model::Turn) -> Option<Color> {
+    pub fn color_t(&self, t: &map_model::Turn, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedTurn(id) if t.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedTurn(id) if t.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
-    pub fn color_b(&self, b: &map_model::Building) -> Option<Color> {
+    pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedBuilding(id) if b.id == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedBuilding(id) if b.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
-    pub fn color_c(&self, c: CarID) -> Option<Color> {
+    pub fn color_c(&self, c: CarID, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedCar(id) if c == id => Some(render::SELECTED_COLOR),
+            SelectionState::SelectedCar(id) if c == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }

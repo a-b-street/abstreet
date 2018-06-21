@@ -4,6 +4,7 @@ extern crate aabb_quadtree;
 extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
+use colors::{ColorScheme, Colors};
 use ezgui::canvas::GfxCtx;
 use geom;
 use geom::GeomMap;
@@ -13,7 +14,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::TurnID;
 use render::{BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
-             TURN_ICON_ARROW_TIP_LENGTH, TURN_ICON_CIRCLE_COLOR};
+             TURN_ICON_ARROW_TIP_LENGTH};
 use std::f64;
 use vecmath;
 
@@ -78,8 +79,8 @@ impl DrawTurn {
         );
     }
 
-    pub fn draw_icon(&self, g: &mut GfxCtx, color: Color) {
-        let circle = graphics::Ellipse::new(TURN_ICON_CIRCLE_COLOR);
+    pub fn draw_icon(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
+        let circle = graphics::Ellipse::new(cs.get(Colors::TurnIconCircle));
         circle.draw(self.icon_circle, &g.ctx.draw_state, g.ctx.transform, g.gfx);
 
         let turn_line = graphics::Line::new_round(color, TURN_ICON_ARROW_THICKNESS);

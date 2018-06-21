@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use colors::{ColorScheme, Colors};
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
 use graphics::types::Color;
 use map_model;
 use piston::input::Key;
-use render;
 
 pub enum SearchState {
     Empty,
@@ -14,18 +14,18 @@ pub enum SearchState {
 }
 
 impl SearchState {
-    pub fn color_r(&self, r: &map_model::Road) -> Option<Color> {
-        self.choose_color(&r.osm_tags)
+    pub fn color_r(&self, r: &map_model::Road, cs: &ColorScheme) -> Option<Color> {
+        self.choose_color(&r.osm_tags, cs)
     }
-    pub fn color_b(&self, b: &map_model::Building) -> Option<Color> {
-        self.choose_color(&b.osm_tags)
+    pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
+        self.choose_color(&b.osm_tags, cs)
     }
 
-    fn choose_color(&self, osm_tags: &[String]) -> Option<Color> {
+    fn choose_color(&self, osm_tags: &[String], cs: &ColorScheme) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             for tag in osm_tags {
                 if tag.contains(filter) {
-                    return Some(render::SEARCH_RESULT_COLOR);
+                    return Some(cs.get(Colors::SearchResult));
                 }
             }
         }

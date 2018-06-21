@@ -4,13 +4,13 @@ extern crate serde_json;
 
 use graphics::types::Color;
 use rand;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Write};
 use strum::IntoEnumIterator;
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, Hash)]
-pub enum ColorSetting {
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, PartialOrd, Ord)]
+pub enum Colors {
     Debug,
     BrightDebug,
     Road,
@@ -37,7 +37,7 @@ pub enum ColorSetting {
 
 #[derive(Serialize, Deserialize)]
 pub struct ColorScheme {
-    map: HashMap<ColorSetting, Color>,
+    map: BTreeMap<Colors, Color>,
 }
 
 impl ColorScheme {
@@ -53,11 +53,11 @@ impl ColorScheme {
         file.read_to_string(&mut contents)?;
         let scheme: ColorScheme = serde_json::from_str(&contents).unwrap();
 
-        for setting in ColorSetting::iter() {
-            if !scheme.map.contains_key(&setting) {
+        for color in Colors::iter() {
+            if !scheme.map.contains_key(&color) {
                 return Err(Error::new(
                     ErrorKind::Other,
-                    format!("no color for {:?} defined", setting),
+                    format!("no color for {:?} defined", color),
                 ));
             }
         }
@@ -65,16 +65,20 @@ impl ColorScheme {
         Ok(scheme)
     }
 
-    pub fn random_settings() -> ColorScheme {
+    pub fn random_colors() -> ColorScheme {
         let mut scheme = ColorScheme {
-            map: HashMap::new(),
+            map: BTreeMap::new(),
         };
-        for setting in ColorSetting::iter() {
-            scheme.map.insert(
-                setting,
-                [rand::random(), rand::random(), rand::random(), 1.0],
-            );
+        for color in Colors::iter() {
+            scheme
+                .map
+                .insert(color, [rand::random(), rand::random(), rand::random(), 1.0]);
         }
         scheme
+    }
+
+    pub fn get(&self, c: Colors) -> Color {
+        // TODO make sure this isn't slow; maybe back this with an array
+        *self.map.get(&c).unwrap()
     }
 }

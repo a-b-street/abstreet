@@ -10,7 +10,6 @@ use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScro
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
 
-//pub const WHITE: Color = [1.0, 1.0, 1.0, 1.0];
 pub const BLACK: Color = [0.0, 0.0, 0.0, 1.0];
 pub const BLUE: Color = [0.0, 0.0, 1.0, 1.0];
 pub const YELLOW: Color = [1.0, 1.0, 0.0, 1.0];
@@ -22,9 +21,7 @@ pub const DARK_GREY: Color = [0.3, 0.3, 0.3, 1.0];
 pub const PURPLE: Color = [0.5, 0.0, 0.5, 1.0];
 pub const CYAN: Color = [0.0, 1.0, 1.0, 1.0];
 pub const LIGHT_BROWN: Color = [210.0 / 255.0, 105.0 / 255.0, 30.0 / 255.0, 1.0];
-// TODO it'd be a bit more efficient to not render it at all...
 pub const ALMOST_INVISIBLE: Color = [0.0, 0.0, 0.0, 0.1];
-//pub const INVISIBLE: Color = [0.0, 0.0, 0.0, 0.0];
 
 const TEXT_FG_COLOR: Color = BLACK;
 const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];

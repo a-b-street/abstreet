@@ -4,6 +4,7 @@ extern crate aabb_quadtree;
 extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
+use colors::{ColorScheme, Colors};
 use ezgui::canvas::GfxCtx;
 use geom;
 use geom::geometry;
@@ -11,7 +12,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{Pt2D, RoadID};
-use render::{BRIGHT_DEBUG_COLOR, DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS, ROAD_ORIENTATION_COLOR};
+use render::PARCEL_BOUNDARY_THICKNESS;
 use std::f64;
 
 #[derive(Debug)]
@@ -47,9 +48,9 @@ impl DrawRoad {
         }
     }
 
-    pub fn draw_detail(&self, g: &mut GfxCtx) {
+    pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         let road_marking =
-            graphics::Line::new_round(ROAD_ORIENTATION_COLOR, geom::BIG_ARROW_THICKNESS);
+            graphics::Line::new_round(cs.get(Colors::RoadOrientation), geom::BIG_ARROW_THICKNESS);
 
         for pair in self.yellow_center_lines.windows(2) {
             road_marking.draw(
@@ -61,9 +62,10 @@ impl DrawRoad {
         }
     }
 
-    pub fn draw_debug(&self, g: &mut GfxCtx, geom_r: &geom::GeomRoad) {
-        let line = graphics::Line::new_round(DEBUG_COLOR, PARCEL_BOUNDARY_THICKNESS / 2.0);
-        let circle = graphics::Ellipse::new(BRIGHT_DEBUG_COLOR);
+    pub fn draw_debug(&self, g: &mut GfxCtx, cs: &ColorScheme, geom_r: &geom::GeomRoad) {
+        let line =
+            graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
+        let circle = graphics::Ellipse::new(cs.get(Colors::BrightDebug));
 
         for &(pt1, pt2) in &geom_r.lane_center_lines {
             line.draw(

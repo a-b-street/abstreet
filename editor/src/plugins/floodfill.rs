@@ -2,11 +2,11 @@
 
 extern crate map_model;
 
+use colors::{ColorScheme, Colors};
 use ezgui::input::UserInput;
 use graphics::types::Color;
 use map_model::{Map, Road, RoadID};
 use piston::input::Key;
-use render;
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
@@ -76,16 +76,16 @@ impl Floodfiller {
         false
     }
 
-    pub fn color_r(&self, r: &Road) -> Option<Color> {
+    pub fn color_r(&self, r: &Road, cs: &ColorScheme) -> Option<Color> {
         if self.visited.contains(&r.id) {
-            return Some(render::VISITED_COLOR);
+            return Some(cs.get(Colors::Visited));
         }
         if !self.queue.is_empty() && *self.queue.front().unwrap() == r.id {
-            return Some(render::NEXT_QUEUED_COLOR);
+            return Some(cs.get(Colors::NextQueued));
         }
         // TODO linear search shouldnt suck too much for interactive mode
         if self.queue.contains(&r.id) {
-            return Some(render::QUEUED_COLOR);
+            return Some(cs.get(Colors::Queued));
         }
         None
     }

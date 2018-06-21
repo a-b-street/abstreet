@@ -5,7 +5,7 @@
 extern crate map_model;
 
 use animation;
-use colors::ColorScheme;
+use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::ToggleableLayer;
 use ezgui::canvas;
@@ -64,7 +64,8 @@ pub struct UI {
     color_picker: ColorPicker,
 
     canvas: Canvas,
-    color_scheme: ColorScheme,
+    // TODO maybe never pass this to other places? Always resolve colors here?
+    cs: ColorScheme,
 }
 
 impl UI {
@@ -117,7 +118,7 @@ impl UI {
             color_picker: ColorPicker::new(),
 
             canvas: Canvas::new(),
-            color_scheme: ColorScheme::random_settings(),
+            cs: ColorScheme::random_colors(),
         };
 
         match savestate::load("editor_state") {
@@ -139,7 +140,7 @@ impl UI {
         match ColorScheme::load("color_scheme") {
             Ok(scheme) => {
                 println!("Loaded previous color_scheme");
-                ui.color_scheme = scheme;
+                ui.cs = scheme;
             }
             Err(err) => {
                 println!("Couldn't load color_scheme: {}", err);
@@ -318,7 +319,7 @@ impl UI {
             };
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             savestate::write("editor_state", state).expect("Saving editor_state failed");
-            self.color_scheme
+            self.cs
                 .write("color_scheme")
                 .expect("Saving color_scheme failed");
             println!("Saved editor_state and color_scheme");
@@ -341,10 +342,10 @@ impl UI {
         for r in &roads_onscreen {
             r.draw(g, self.color_road(r.id));
             if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
-                r.draw_detail(g);
+                r.draw_detail(g, &self.cs);
             }
             if self.debug_mode.is_enabled() {
-                r.draw_debug(g, self.geom_map.get_r(r.id));
+                r.draw_debug(g, &self.cs, self.geom_map.get_r(r.id));
             }
         }
 
@@ -356,7 +357,7 @@ impl UI {
 
         if self.show_icons.is_enabled() {
             for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
-                t.draw_icon(g, self.color_turn_icon(t.id));
+                t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
                 for c in &self.sim_ctrl
                     .sim
                     .get_draw_cars_on_turn(t.id, &self.geom_map)
@@ -394,6 +395,7 @@ impl UI {
             &self.draw_map,
             &self.control_map,
             &self.sim_ctrl.sim,
+            &self.cs,
             g,
         );
 
@@ -489,17 +491,19 @@ impl UI {
     fn color_road(&self, id: map_model::RoadID) -> Color {
         let r = self.map.get_r(id);
         let default = match r.lane_type {
-            map_model::LaneType::Driving => render::ROAD_COLOR,
-            map_model::LaneType::Parking => render::PARKING_COLOR,
-            map_model::LaneType::Sidewalk => render::SIDEWALK_COLOR,
+            map_model::LaneType::Driving => self.cs.get(Colors::Road),
+            map_model::LaneType::Parking => self.cs.get(Colors::Parking),
+            map_model::LaneType::Sidewalk => self.cs.get(Colors::Sidewalk),
         };
 
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
-            self.current_selection_state.color_r(r),
-            self.current_search_state.color_r(r),
-            self.floodfiller.as_ref().and_then(|f| f.color_r(r)),
+            self.current_selection_state.color_r(r, &self.cs),
+            self.current_search_state.color_r(r, &self.cs),
+            self.floodfiller
+                .as_ref()
+                .and_then(|f| f.color_r(r, &self.cs)),
             if self.steepness_active.is_enabled() {
                 self.steepness_viz.color_r(&self.map, r)
             } else {
@@ -521,50 +525,52 @@ impl UI {
         // TODO weird to squeeze in some quick logic here?
         let default_color = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
             if s.changed() {
-                render::CHANGED_TRAFFIC_SIGNAL_INTERSECTION_COLOR
+                self.cs.get(Colors::ChangedTrafficSignalIntersection)
             } else {
-                render::TRAFFIC_SIGNAL_INTERSECTION_COLOR
+                self.cs.get(Colors::TrafficSignalIntersection)
             }
         } else if let Some(s) = self.control_map.stop_signs.get(&i.id) {
             if s.changed() {
-                render::CHANGED_STOP_SIGN_INTERSECTION_COLOR
+                self.cs.get(Colors::ChangedStopSignIntersection)
             } else {
-                render::NORMAL_INTERSECTION_COLOR
+                self.cs.get(Colors::NormalIntersection)
             }
         } else {
-            render::NORMAL_INTERSECTION_COLOR
+            self.cs.get(Colors::NormalIntersection)
         };
 
         self.current_selection_state
-            .color_i(i)
+            .color_i(i, &self.cs)
             .unwrap_or(default_color)
     }
 
     fn color_turn_icon(&self, id: map_model::TurnID) -> Color {
         let t = self.map.get_t(id);
         // TODO traffic signal selection logic maybe moves here
-        self.current_selection_state.color_t(t).unwrap_or_else(|| {
-            self.stop_sign_editor
-                .as_ref()
-                .and_then(|e| e.color_t(t, &self.control_map))
-                .unwrap_or_else(|| {
-                    self.traffic_signal_editor
-                        .as_ref()
-                        .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map))
-                        .unwrap_or_else(|| {
-                            self.turn_colors
-                                .color_t(t)
-                                .unwrap_or(render::TURN_ICON_INACTIVE_COLOR)
-                        })
-                })
-        })
+        self.current_selection_state
+            .color_t(t, &self.cs)
+            .unwrap_or_else(|| {
+                self.stop_sign_editor
+                    .as_ref()
+                    .and_then(|e| e.color_t(t, &self.control_map))
+                    .unwrap_or_else(|| {
+                        self.traffic_signal_editor
+                            .as_ref()
+                            .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map))
+                            .unwrap_or_else(|| {
+                                self.turn_colors
+                                    .color_t(t)
+                                    .unwrap_or(self.cs.get(Colors::TurnIconInactive))
+                            })
+                    })
+            })
     }
 
     fn color_building(&self, id: map_model::BuildingID) -> Color {
         let b = self.map.get_b(id);
         vec![
-            self.current_selection_state.color_b(b),
-            self.current_search_state.color_b(b),
+            self.current_selection_state.color_b(b, &self.cs),
+            self.current_search_state.color_b(b, &self.cs),
             if self.osm_classifier_active.is_enabled() {
                 self.osm_classifier.color_b(b)
             } else {
@@ -573,17 +579,20 @@ impl UI {
         ].iter()
             .filter_map(|c| *c)
             .next()
-            .unwrap_or(render::BUILDING_COLOR)
+            .unwrap_or(self.cs.get(Colors::Building))
     }
 
     // Returns (boundary, fill) color
     fn color_parcel(&self, id: map_model::ParcelID) -> (Color, Color) {
         let _p = self.map.get_p(id);
-        (render::PARCEL_BOUNDARY_COLOR, render::PARCEL_INTERIOR_COLOR)
+        (
+            self.cs.get(Colors::ParcelBoundary),
+            self.cs.get(Colors::ParcelInterior),
+        )
     }
 
     fn color_car(&self, id: CarID) -> Color {
-        if let Some(c) = self.current_selection_state.color_c(id) {
+        if let Some(c) = self.current_selection_state.color_c(id, &self.cs) {
             return c;
         }
         if self.sim_ctrl.sim.is_moving(id) {

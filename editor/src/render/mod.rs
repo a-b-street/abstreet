@@ -9,9 +9,7 @@ mod parcel;
 mod road;
 mod turn;
 
-use ezgui::canvas;
 use geom;
-use graphics::types::Color;
 pub use render::map::DrawMap;
 pub use render::road::DrawRoad;
 pub use render::turn::DrawTurn;
@@ -24,27 +22,3 @@ const TURN_ICON_ARROW_THICKNESS: f64 = geom::BIG_ARROW_THICKNESS / 3.0;
 const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
-
-pub const DEBUG_COLOR: Color = canvas::RED;
-pub const BRIGHT_DEBUG_COLOR: Color = [0.8, 0.1, 0.1, 1.0];
-pub const ROAD_COLOR: Color = canvas::BLACK;
-pub const PARKING_COLOR: Color = canvas::PURPLE;
-pub const SIDEWALK_COLOR: Color = canvas::GREEN;
-pub const CHANGED_STOP_SIGN_INTERSECTION_COLOR: Color = canvas::GREEN;
-pub const CHANGED_TRAFFIC_SIGNAL_INTERSECTION_COLOR: Color = canvas::ORANGE;
-pub const TRAFFIC_SIGNAL_INTERSECTION_COLOR: Color = canvas::YELLOW;
-pub const NORMAL_INTERSECTION_COLOR: Color = canvas::DARK_GREY;
-pub const SELECTED_COLOR: Color = canvas::BLUE;
-pub const TURN_COLOR: Color = canvas::GREEN;
-pub const CONFLICTING_TURN_COLOR: Color = [1.0, 0.0, 0.0, 0.5];
-pub const BUILDING_COLOR: Color = canvas::LIGHT_GREY;
-pub const PARCEL_BOUNDARY_COLOR: Color = canvas::DARK_GREY;
-pub const PARCEL_INTERIOR_COLOR: Color = canvas::LIGHT_BROWN;
-const ROAD_ORIENTATION_COLOR: Color = canvas::YELLOW;
-pub const SEARCH_RESULT_COLOR: Color = canvas::RED;
-// For interactive algorithms
-pub const VISITED_COLOR: Color = canvas::BLUE;
-pub const QUEUED_COLOR: Color = canvas::RED;
-pub const NEXT_QUEUED_COLOR: Color = canvas::GREEN;
-const TURN_ICON_CIRCLE_COLOR: Color = canvas::DARK_GREY;
-pub const TURN_ICON_INACTIVE_COLOR: Color = canvas::LIGHT_GREY;
