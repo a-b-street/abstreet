@@ -2,9 +2,9 @@
 
 extern crate map_model;
 
+use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::stop_signs::TurnPriority;
-use ezgui::canvas;
 use ezgui::input::UserInput;
 use geom::GeomMap;
 use graphics::types::Color;
@@ -73,14 +73,14 @@ impl StopSignEditor {
         false
     }
 
-    pub fn color_t(&self, t: &Turn, control_map: &ControlMap) -> Option<Color> {
+    pub fn color_t(&self, t: &Turn, control_map: &ControlMap, cs: &ColorScheme) -> Option<Color> {
         if t.parent != self.i {
-            return Some(canvas::DARK_GREY);
+            return Some(cs.get(Colors::TurnIrrelevant));
         }
         match control_map.stop_signs[&self.i].get_priority(t.id) {
-            TurnPriority::Priority => Some(canvas::GREEN),
-            TurnPriority::Yield => Some(canvas::YELLOW),
-            TurnPriority::Stop => Some(canvas::RED),
+            TurnPriority::Priority => Some(cs.get(Colors::PriorityTurn)),
+            TurnPriority::Yield => Some(cs.get(Colors::YieldTurn)),
+            TurnPriority::Stop => Some(cs.get(Colors::StopTurn)),
         }
     }
 }

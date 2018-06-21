@@ -8,7 +8,6 @@ use animation;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::ToggleableLayer;
-use ezgui::canvas;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use geom;
@@ -500,7 +499,7 @@ impl UI {
                 None
             },
             if self.osm_classifier_active.is_enabled() {
-                self.osm_classifier.color_r(r)
+                self.osm_classifier.color_r(r, &self.cs)
             } else {
                 None
             },
@@ -542,11 +541,11 @@ impl UI {
             .unwrap_or_else(|| {
                 self.stop_sign_editor
                     .as_ref()
-                    .and_then(|e| e.color_t(t, &self.control_map))
+                    .and_then(|e| e.color_t(t, &self.control_map, &self.cs))
                     .unwrap_or_else(|| {
                         self.traffic_signal_editor
                             .as_ref()
-                            .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map))
+                            .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map, &self.cs))
                             .unwrap_or_else(|| {
                                 self.turn_colors
                                     .color_t(t)
@@ -562,7 +561,7 @@ impl UI {
             self.current_selection_state.color_b(b, &self.cs),
             self.current_search_state.color_b(b, &self.cs),
             if self.osm_classifier_active.is_enabled() {
-                self.osm_classifier.color_b(b)
+                self.osm_classifier.color_b(b, &self.cs)
             } else {
                 None
             },
@@ -586,9 +585,9 @@ impl UI {
             return c;
         }
         if self.sim_ctrl.sim.is_moving(id) {
-            canvas::CYAN
+            self.cs.get(Colors::MovingCar)
         } else {
-            canvas::RED
+            self.cs.get(Colors::StuckCar)
         }
     }
 }

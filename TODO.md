@@ -45,7 +45,9 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- move colors to config, have interactive picker
+	- live color tuner
+		- scrolling text menu to select color
+		- mutate color scheme
 
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work
@@ -70,6 +72,10 @@
 	- master Map struct
 	- line type / ditch vec2d / settle on types
 	- better layering: GeomParcel, GeomIntersection, etc, so that render layer doesn't need to know Bounds and use gps_to_screen
+
+	- one-at-a-time UI plugins
+	- UI plugins track their own active state
+	- UI colors in one place
 
 - add/plan tests
 - document pieces that're stabilizing

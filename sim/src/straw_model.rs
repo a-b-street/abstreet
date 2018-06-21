@@ -5,7 +5,6 @@ extern crate serde_json;
 use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
-use ezgui::canvas;
 use ezgui::canvas::GfxCtx;
 use geom::{geometry, GeomMap, Radian};
 use graphics;
@@ -61,7 +60,7 @@ impl DrawCar {
         poly.draw(&self.quad, &g.ctx.draw_state, g.ctx.transform, g.gfx);
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {
-            let turn_line = graphics::Line::new_round(canvas::CYAN, 0.25);
+            let turn_line = graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25);
             turn_line.draw_arrow(a, 1.0, &g.ctx.draw_state, g.ctx.transform, g.gfx);
         }
     }

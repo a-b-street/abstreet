@@ -4,8 +4,8 @@
 
 extern crate map_model;
 
+use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::canvas;
 use ezgui::input::UserInput;
 use geom::GeomMap;
 use graphics::types::Color;
@@ -78,19 +78,25 @@ impl TrafficSignalEditor {
         false
     }
 
-    pub fn color_t(&self, t: &Turn, geom_map: &GeomMap, control_map: &ControlMap) -> Option<Color> {
+    pub fn color_t(
+        &self,
+        t: &Turn,
+        geom_map: &GeomMap,
+        control_map: &ControlMap,
+        cs: &ColorScheme,
+    ) -> Option<Color> {
         if t.parent != self.i {
-            return Some(canvas::DARK_GREY);
+            return Some(cs.get(Colors::TurnIrrelevant));
         }
 
         let cycle = &control_map.traffic_signals[&self.i].cycles[self.current_cycle];
 
         if cycle.contains(t.id) {
-            Some(canvas::GREEN)
+            Some(cs.get(Colors::SignalEditorTurnInCurrentCycle))
         } else if !cycle.conflicts_with(t.id, geom_map) {
-            Some([0.0, 1.0, 0.0, 0.2])
+            Some(cs.get(Colors::SignalEditorTurnCompatibleWithCurrentCycle))
         } else {
-            Some(canvas::RED)
+            Some(cs.get(Colors::SignalEditorTurnConflictsWithCurrentCycle))
         }
         // TODO maybe something to indicate unused in any cycle so far
     }

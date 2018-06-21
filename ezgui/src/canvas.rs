@@ -10,20 +10,7 @@ use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScro
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
 
-pub const BLACK: Color = [0.0, 0.0, 0.0, 1.0];
-pub const BLUE: Color = [0.0, 0.0, 1.0, 1.0];
-pub const YELLOW: Color = [1.0, 1.0, 0.0, 1.0];
-pub const ORANGE: Color = [1.0, 0.65, 0.0, 1.0];
-pub const RED: Color = [1.0, 0.0, 0.0, 1.0];
-pub const GREEN: Color = [0.0, 1.0, 0.0, 1.0];
-pub const LIGHT_GREY: Color = [0.7, 0.7, 0.7, 1.0];
-pub const DARK_GREY: Color = [0.3, 0.3, 0.3, 1.0];
-pub const PURPLE: Color = [0.5, 0.0, 0.5, 1.0];
-pub const CYAN: Color = [0.0, 1.0, 1.0, 1.0];
-pub const LIGHT_BROWN: Color = [210.0 / 255.0, 105.0 / 255.0, 30.0 / 255.0, 1.0];
-pub const ALMOST_INVISIBLE: Color = [0.0, 0.0, 0.0, 0.1];
-
-const TEXT_FG_COLOR: Color = BLACK;
+const TEXT_FG_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
 const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];
 
 const ZOOM_SPEED: f64 = 0.05;

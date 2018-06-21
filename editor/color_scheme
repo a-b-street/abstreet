@@ -131,6 +131,72 @@
       0.7,
       0.7,
       1.0
+    ],
+    "MatchClassification": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "DontMatchClassification": [
+      0.0,
+      0.0,
+      0.0,
+      0.1
+    ],
+    "TurnIrrelevant": [
+      0.3,
+      0.3,
+      0.3,
+      1.0
+    ],
+    "SignalEditorTurnInCurrentCycle": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "SignalEditorTurnCompatibleWithCurrentCycle": [
+      0.0,
+      1.0,
+      0.0,
+      0.2
+    ],
+    "SignalEditorTurnConflictsWithCurrentCycle": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "PriorityTurn": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "YieldTurn": [
+      1.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "StopTurn": [
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "MovingCar": [
+      0.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "StuckCar": [
+      1.0,
+      0.0,
+      0.0,
+      1.0
     ]
   }
 }

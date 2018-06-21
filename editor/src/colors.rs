@@ -33,6 +33,21 @@ pub enum Colors {
     NextQueued,
     TurnIconCircle,
     TurnIconInactive,
+
+    MatchClassification,
+    DontMatchClassification,
+
+    TurnIrrelevant,
+    SignalEditorTurnInCurrentCycle,
+    SignalEditorTurnCompatibleWithCurrentCycle,
+    SignalEditorTurnConflictsWithCurrentCycle,
+
+    PriorityTurn,
+    YieldTurn,
+    StopTurn,
+
+    MovingCar,
+    StuckCar,
 }
 
 #[derive(Serialize, Deserialize)]
