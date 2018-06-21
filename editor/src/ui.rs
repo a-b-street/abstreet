@@ -15,6 +15,7 @@ use graphics::types::Color;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
+use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
 use plugins::search::SearchState;
 use plugins::selection::{SelectionState, ID};
@@ -59,6 +60,7 @@ pub struct UI {
     traffic_signal_editor: Option<TrafficSignalEditor>,
     stop_sign_editor: Option<StopSignEditor>,
     sim_ctrl: SimController,
+    color_picker: ColorPicker,
 
     canvas: Canvas,
 }
@@ -110,6 +112,7 @@ impl UI {
             osm_classifier: OsmClassifier {},
             traffic_signal_editor: None,
             stop_sign_editor: None,
+            color_picker: ColorPicker::new(),
 
             canvas: Canvas::new(),
         };
@@ -229,6 +232,7 @@ impl UI {
             self.steepness_active.handle_event(input);
             self.osm_classifier_active.handle_event(input);
             self.debug_mode.handle_event(input);
+            self.color_picker = self.color_picker.handle_event(input, window_size);
         }
 
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -376,6 +380,8 @@ impl UI {
             &self.sim_ctrl.sim,
             g,
         );
+
+        self.color_picker.draw(g);
 
         let mut osd_lines = self.sim_ctrl.get_osd_lines();
         let action_lines = input.get_possible_actions();
