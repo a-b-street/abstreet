@@ -10,6 +10,7 @@ use strum::IntoEnumIterator;
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, EnumString, ToString,
          PartialOrd, Ord, Clone, Copy)]
 pub enum Colors {
+    Background,
     Debug,
     BrightDebug,
     Road,

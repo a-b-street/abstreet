@@ -14,6 +14,7 @@ use ezgui::ToggleableLayer;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use geom;
+use graphics;
 use graphics::types::Color;
 use map_model::IntersectionID;
 use piston::input::{Key, MouseCursorEvent};
@@ -303,6 +304,8 @@ impl UI {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, input: UserInput) {
+        graphics::clear(self.cs.get(Colors::Background), g.gfx);
+
         g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
 
         let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
