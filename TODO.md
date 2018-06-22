@@ -71,7 +71,6 @@
 	- line type / ditch vec2d / settle on types
 
 	- one-at-a-time UI plugins
-	- UI plugins track their own active state
 	- UI colors in one place
 
 	- cleaner pipeline of map construction

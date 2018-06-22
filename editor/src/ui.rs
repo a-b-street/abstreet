@@ -131,15 +131,8 @@ impl UI {
             }
         }
 
-        // TODO or make a custom event for zoom change
-        let old_zoom = -1.0;
         let new_zoom = ui.canvas.cam_zoom;
-        ui.show_roads.handle_zoom(old_zoom, new_zoom);
-        ui.show_buildings.handle_zoom(old_zoom, new_zoom);
-        ui.show_intersections.handle_zoom(old_zoom, new_zoom);
-        ui.show_parcels.handle_zoom(old_zoom, new_zoom);
-        ui.show_icons.handle_zoom(old_zoom, new_zoom);
-        ui.debug_mode.handle_zoom(old_zoom, new_zoom);
+        ui.zoom_for_toggleable_layers(-1.0, new_zoom);
 
         ui
     }
@@ -199,13 +192,7 @@ impl UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input.use_event_directly());
         let new_zoom = self.canvas.cam_zoom;
-
-        self.show_roads.handle_zoom(old_zoom, new_zoom);
-        self.show_buildings.handle_zoom(old_zoom, new_zoom);
-        self.show_intersections.handle_zoom(old_zoom, new_zoom);
-        self.show_parcels.handle_zoom(old_zoom, new_zoom);
-        self.show_icons.handle_zoom(old_zoom, new_zoom);
-        self.debug_mode.handle_zoom(old_zoom, new_zoom);
+        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
 
         if !edit_mode {
             if self.show_roads.handle_event(input) {
@@ -397,6 +384,16 @@ impl UI {
             osd_lines.extend(search_lines);
         }
         self.canvas.draw_osd_notification(g, &osd_lines);
+    }
+
+    // TODO or make a custom event for zoom change
+    fn zoom_for_toggleable_layers(&mut self, old_zoom: f64, new_zoom: f64) {
+        self.show_roads.handle_zoom(old_zoom, new_zoom);
+        self.show_buildings.handle_zoom(old_zoom, new_zoom);
+        self.show_intersections.handle_zoom(old_zoom, new_zoom);
+        self.show_parcels.handle_zoom(old_zoom, new_zoom);
+        self.show_icons.handle_zoom(old_zoom, new_zoom);
+        self.debug_mode.handle_zoom(old_zoom, new_zoom);
     }
 
     fn mouseover_something(&self, window_size: &Size) -> Option<ID> {
