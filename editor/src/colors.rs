@@ -1,12 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate serde_json;
-
+use abstutil;
 use graphics::types::Color;
 use rand;
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::{Error, Read, Write};
+use std::io::Error;
 use strum::IntoEnumIterator;
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, EnumString, ToString,
@@ -57,17 +55,8 @@ pub struct ColorScheme {
 }
 
 impl ColorScheme {
-    pub fn write(&self, path: &str) -> Result<(), Error> {
-        let mut file = File::create(path)?;
-        file.write_all(serde_json::to_string_pretty(self).unwrap().as_bytes())?;
-        Ok(())
-    }
-
     pub fn load(path: &str) -> Result<ColorScheme, Error> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let mut scheme: ColorScheme = serde_json::from_str(&contents).unwrap();
+        let mut scheme: ColorScheme = abstutil::read_json(path)?;
 
         for color in Colors::iter() {
             if !scheme.map.contains_key(&color) {

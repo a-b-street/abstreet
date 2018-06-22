@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate aabb_quadtree;
+extern crate abstutil;
 extern crate control;
 extern crate ezgui;
 extern crate geo;
@@ -35,7 +36,6 @@ mod animation;
 mod colors;
 mod plugins;
 mod render;
-mod savestate;
 mod ui;
 
 #[derive(StructOpt, Debug)]

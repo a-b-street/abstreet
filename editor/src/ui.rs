@@ -3,15 +3,19 @@
 // TODO this should just be a way to handle interactions between plugins
 
 extern crate map_model;
+extern crate serde;
 
+use abstutil;
 use animation;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
+use control::{ModifiedStopSign, ModifiedTrafficSignal};
 use ezgui::ToggleableLayer;
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use geom;
 use graphics::types::Color;
+use map_model::IntersectionID;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
@@ -25,8 +29,8 @@ use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use render;
-use savestate;
 use sim::CarID;
+use std::collections::HashMap;
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -115,7 +119,7 @@ impl UI {
             cs: ColorScheme::load("color_scheme").unwrap(),
         };
 
-        match savestate::load("editor_state") {
+        match abstutil::read_json::<EditorState>("editor_state") {
             Ok(state) => {
                 println!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
@@ -281,7 +285,7 @@ impl UI {
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
-            let state = savestate::EditorState {
+            let state = EditorState {
                 cam_x: self.canvas.cam_x,
                 cam_y: self.canvas.cam_y,
                 cam_zoom: self.canvas.cam_zoom,
@@ -289,10 +293,8 @@ impl UI {
                 stop_signs: self.control_map.get_stop_signs_savestate(),
             };
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
-            savestate::write("editor_state", state).expect("Saving editor_state failed");
-            self.cs
-                .write("color_scheme")
-                .expect("Saving color_scheme failed");
+            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
+            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
             println!("Saved editor_state and color_scheme");
             process::exit(0);
         }
@@ -570,4 +572,14 @@ impl UI {
             self.cs.get(Colors::StuckCar)
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EditorState {
+    pub cam_x: f64,
+    pub cam_y: f64,
+    pub cam_zoom: f64,
+
+    pub traffic_signals: HashMap<IntersectionID, ModifiedTrafficSignal>,
+    pub stop_signs: HashMap<IntersectionID, ModifiedStopSign>,
 }

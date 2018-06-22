@@ -1,0 +1,8 @@
+[package]
+name = "abstutil"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+
+[dependencies]
+serde = "1.0"
+serde_json = "1.0"

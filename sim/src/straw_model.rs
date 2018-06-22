@@ -1,7 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate serde_json;
-
 use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
@@ -14,8 +12,6 @@ use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::{BTreeMap, HashSet};
 use std::f64;
-use std::fs::File;
-use std::io::{Error, Read, Write};
 use std::time::{Duration, Instant};
 use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 
@@ -555,20 +551,6 @@ impl Sim {
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
         speed.value_unsafe
-    }
-
-    pub fn write_savestate(&self, path: &str) -> Result<(), Error> {
-        let mut file = File::create(path)?;
-        file.write_all(serde_json::to_string_pretty(self).unwrap().as_bytes())?;
-        Ok(())
-    }
-
-    pub fn load_savestate(path: &str) -> Result<Sim, Error> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let sim: Sim = serde_json::from_str(&contents).unwrap();
-        Ok(sim)
     }
 }
 
