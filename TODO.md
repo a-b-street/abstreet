@@ -69,11 +69,16 @@
 - clean up code
 	- master Map struct
 	- line type / ditch vec2d / settle on types
-	- better layering: GeomParcel, GeomIntersection, etc, so that render layer doesn't need to know Bounds and use gps_to_screen
 
 	- one-at-a-time UI plugins
 	- UI plugins track their own active state
 	- UI colors in one place
+
+	- cleaner pipeline of map construction
+		- serde, not pb
+		- logically be able to shift what gets recomputed or not
+	- better layering: GeomParcel, GeomIntersection, etc, so that render layer doesn't need to know Bounds and use gps_to_screen
+		- more uniformity with polygon + center line?
 
 - add/plan tests
 - document pieces that're stabilizing

@@ -4,11 +4,14 @@
 
 extern crate map_model;
 
+use ezgui::input::UserInput;
 use graphics::types::Color;
 use map_model::{Map, Road};
+use piston::input::Key;
 use std::f64;
 
 pub struct SteepnessVisualizer {
+    active: bool,
     min_difference: f64,
     max_difference: f64,
 }
@@ -16,6 +19,7 @@ pub struct SteepnessVisualizer {
 impl SteepnessVisualizer {
     pub fn new(map: &Map) -> SteepnessVisualizer {
         let mut s = SteepnessVisualizer {
+            active: false,
             min_difference: f64::MAX,
             max_difference: f64::MIN_POSITIVE,
         };
@@ -31,6 +35,17 @@ impl SteepnessVisualizer {
         s
     }
 
+    pub fn handle_event(&mut self, input: &mut UserInput) {
+        let msg = if self.active {
+            "Press 5 to stop showing steepness"
+        } else {
+            "Press 5 to visualize steepness"
+        };
+        if input.unimportant_key_pressed(Key::D5, msg) {
+            self.active = !self.active;
+        }
+    }
+
     fn get_delta(&self, map: &Map, r: &Road) -> f64 {
         let e1 = map.get_source_intersection(r.id).elevation_meters;
         let e2 = map.get_destination_intersection(r.id).elevation_meters;
@@ -38,6 +53,10 @@ impl SteepnessVisualizer {
     }
 
     pub fn color_r(&self, map: &Map, r: &Road) -> Option<Color> {
+        if !self.active {
+            return None;
+        }
+
         let normalized = (self.get_delta(map, r) - self.min_difference)
             / (self.max_difference - self.min_difference);
         Some([normalized as f32, 0.0, 0.0, 1.0])

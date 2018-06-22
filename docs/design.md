@@ -62,3 +62,10 @@ deriving Eq is a headache. Since the timestep size is fixed anyway, this should
 just become ticks. Was tempted to use usize, but arch dependence is weird, and
 with a 0.1s timestep, 2^32 - 1 ticks is about 13.5 years, which is quite a long
 timescale for a traffic simulation. :) So, let's switch to u32.
+
+## UI plugins
+
+- Things like steepness visualizer used to just be UI-less logic, making it
+  easy to understand and test. Maybe the sim_ctrl pattern is nicer? A light
+adapter to control the thing from the UI? ezgui's textbox and menu are similar
+-- no rendering, some input handling.

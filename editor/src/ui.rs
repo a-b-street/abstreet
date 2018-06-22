@@ -46,9 +46,6 @@ pub struct UI {
     show_intersections: ToggleableLayer,
     show_parcels: ToggleableLayer,
     show_icons: ToggleableLayer,
-    // TODO should these be more associated with their plugins?
-    steepness_active: ToggleableLayer,
-    osm_classifier_active: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
     current_selection_state: SelectionState,
@@ -104,14 +101,12 @@ impl UI {
                 "7",
                 Some(MIN_ZOOM_FOR_ROAD_MARKERS),
             ),
-            steepness_active: ToggleableLayer::new("steepness visualize", Key::D5, "5", None),
-            osm_classifier_active: ToggleableLayer::new("OSM type classifier", Key::D6, "6", None),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
             current_selection_state: SelectionState::Empty,
             current_search_state: SearchState::Empty,
             floodfiller: None,
-            osm_classifier: OsmClassifier {},
+            osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: None,
             stop_sign_editor: None,
             color_picker: ColorPicker::new(),
@@ -144,8 +139,6 @@ impl UI {
         ui.show_intersections.handle_zoom(old_zoom, new_zoom);
         ui.show_parcels.handle_zoom(old_zoom, new_zoom);
         ui.show_icons.handle_zoom(old_zoom, new_zoom);
-        ui.steepness_active.handle_zoom(old_zoom, new_zoom);
-        ui.osm_classifier_active.handle_zoom(old_zoom, new_zoom);
         ui.debug_mode.handle_zoom(old_zoom, new_zoom);
 
         ui
@@ -212,8 +205,6 @@ impl UI {
         self.show_intersections.handle_zoom(old_zoom, new_zoom);
         self.show_parcels.handle_zoom(old_zoom, new_zoom);
         self.show_icons.handle_zoom(old_zoom, new_zoom);
-        self.steepness_active.handle_zoom(old_zoom, new_zoom);
-        self.osm_classifier_active.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
 
         if !edit_mode {
@@ -237,8 +228,8 @@ impl UI {
             }
             self.show_parcels.handle_event(input);
             self.show_icons.handle_event(input);
-            self.steepness_active.handle_event(input);
-            self.osm_classifier_active.handle_event(input);
+            self.steepness_viz.handle_event(input);
+            self.osm_classifier.handle_event(input);
             self.debug_mode.handle_event(input);
         }
 
@@ -497,16 +488,8 @@ impl UI {
             self.floodfiller
                 .as_ref()
                 .and_then(|f| f.color_r(r, &self.cs)),
-            if self.steepness_active.is_enabled() {
-                self.steepness_viz.color_r(&self.map, r)
-            } else {
-                None
-            },
-            if self.osm_classifier_active.is_enabled() {
-                self.osm_classifier.color_r(r, &self.cs)
-            } else {
-                None
-            },
+            self.steepness_viz.color_r(&self.map, r),
+            self.osm_classifier.color_r(r, &self.cs),
         ].iter()
             .filter_map(|c| *c)
             .next()
@@ -564,11 +547,7 @@ impl UI {
         vec![
             self.current_selection_state.color_b(b, &self.cs),
             self.current_search_state.color_b(b, &self.cs),
-            if self.osm_classifier_active.is_enabled() {
-                self.osm_classifier.color_b(b, &self.cs)
-            } else {
-                None
-            },
+            self.osm_classifier.color_b(b, &self.cs),
         ].iter()
             .filter_map(|c| *c)
             .next()
