@@ -2,22 +2,14 @@
 
 use GfxCtx;
 use aabb_quadtree::geom::{Point, Rect};
-use graphics;
-use graphics::types::Color;
-use graphics::{Context, Image, Transformed};
+use graphics::{Context, Transformed};
 use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScrollEvent,
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
-
-const TEXT_FG_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
-const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];
+use text;
 
 const ZOOM_SPEED: f64 = 0.05;
 const PAN_SPEED: f64 = 10.0;
-
-const FONT_SIZE: u32 = 24;
-// TODO this is a hack, need a glyphs.height() method as well!
-const LINE_HEIGHT: f64 = 22.0;
 
 pub struct Canvas {
     pub cam_x: f64,
@@ -86,10 +78,10 @@ impl Canvas {
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, lines: &[String]) {
-        let (width, height) = self.text_dims(g, lines);
+        let (width, height) = text::dims(g, lines);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        self.draw_text_bubble(g, lines, x1, y1);
+        text::draw_text_bubble(g, lines, x1, y1);
     }
 
     // at the bottom-left of the screen
@@ -97,51 +89,13 @@ impl Canvas {
         if lines.is_empty() {
             return;
         }
-        let (_, height) = self.text_dims(g, lines);
+        let (_, height) = text::dims(g, lines);
         let y1 = f64::from(g.window_size.height) - height;
-        self.draw_text_bubble(g, lines, 0.0, y1);
+        text::draw_text_bubble(g, lines, 0.0, y1);
     }
 
     pub fn draw_text_at(&self, g: &mut GfxCtx, lines: &[String], x: f64, y: f64) {
-        self.draw_text_bubble(g, lines, self.map_to_screen_x(x), self.map_to_screen_y(y));
-    }
-
-    fn draw_text_bubble(&self, g: &mut GfxCtx, lines: &[String], x1: f64, y1: f64) {
-        let (width, height) = self.text_dims(g, lines);
-        let tooltip = graphics::Rectangle::new(TEXT_BG_COLOR);
-        tooltip.draw(
-            [x1, y1, width, height],
-            &g.orig_ctx.draw_state,
-            g.orig_ctx.transform,
-            g.gfx,
-        );
-
-        let text = Image::new_color(TEXT_FG_COLOR);
-        let mut y = y1 + LINE_HEIGHT;
-        for line in lines.iter() {
-            let mut x = x1;
-            for ch in line.chars() {
-                if let Ok(draw_ch) = g.glyphs.character(FONT_SIZE, ch) {
-                    text.draw(
-                        draw_ch.texture,
-                        &g.orig_ctx.draw_state,
-                        g.orig_ctx
-                            .transform
-                            .trans(x + draw_ch.left(), y - draw_ch.top()),
-                        g.gfx,
-                    );
-                    x += draw_ch.width();
-                }
-            }
-            y += LINE_HEIGHT;
-        }
-    }
-
-    fn text_dims(&self, g: &mut GfxCtx, lines: &[String]) -> (f64, f64) {
-        let longest_line = lines.iter().max_by_key(|l| l.len()).unwrap();
-        let width = g.glyphs.width(FONT_SIZE, longest_line).unwrap();
-        let height = (lines.len() as f64) * LINE_HEIGHT;
-        (width, height)
+        text::draw_text_bubble(g, lines, self.map_to_screen_x(x), self.map_to_screen_y(y));
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

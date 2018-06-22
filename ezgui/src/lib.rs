@@ -8,6 +8,7 @@ extern crate piston;
 pub mod canvas;
 pub mod input;
 pub mod menu;
+pub mod text;
 pub mod text_box;
 
 use graphics::Context;
