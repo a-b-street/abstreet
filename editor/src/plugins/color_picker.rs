@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
+use colors::{ColorScheme, Colors};
 use ezgui::canvas::{Canvas, GfxCtx};
 use ezgui::input::UserInput;
 use ezgui::menu;
@@ -20,7 +20,8 @@ const TILE_DIMS: u32 = 2;
 pub enum ColorPicker {
     Inactive,
     Choosing(menu::Menu),
-    PickingColor(Colors),
+    // Remember the original color, in case we revert
+    PickingColor(Colors, graphics::types::Color),
 }
 
 impl ColorPicker {
@@ -28,7 +29,12 @@ impl ColorPicker {
         ColorPicker::Inactive
     }
 
-    pub fn handle_event(self, input: &mut UserInput, window_size: &Size) -> ColorPicker {
+    pub fn handle_event(
+        self,
+        input: &mut UserInput,
+        window_size: &Size,
+        cs: &mut ColorScheme,
+    ) -> ColorPicker {
         match self {
             ColorPicker::Inactive => {
                 if input.unimportant_key_pressed(Key::D8, "Press 8 to configure colors") {
@@ -44,13 +50,28 @@ impl ColorPicker {
                     menu::Result::Canceled => ColorPicker::Inactive,
                     menu::Result::StillActive => ColorPicker::Choosing(menu),
                     menu::Result::Done(choice) => {
-                        ColorPicker::PickingColor(Colors::from_str(&choice).unwrap())
+                        let c = Colors::from_str(&choice).unwrap();
+                        ColorPicker::PickingColor(c, cs.get(c))
                     }
                 }
             }
-            ColorPicker::PickingColor(color) => {
-                // TODO be able to confirm a choice and edit the ColorScheme
-                if input.key_pressed(Key::D8, "Press 8 to stop configuring colors") {
+            ColorPicker::PickingColor(c, orig_color) => {
+                if input.key_pressed(
+                    Key::Escape,
+                    &format!(
+                        "Press escape to stop configuring color for {:?} and revert",
+                        c
+                    ),
+                ) {
+                    cs.set(c, orig_color);
+                    return ColorPicker::Inactive;
+                }
+
+                if input.key_pressed(
+                    Key::Return,
+                    &format!("Press enter to finalize new color for {:?}", c),
+                ) {
+                    println!("Setting color for {:?}", c);
                     return ColorPicker::Inactive;
                 }
 
@@ -60,11 +81,12 @@ impl ColorPicker {
                     let x = (pos[0] - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
                     let y = (pos[1] - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        println!("current color is {:?}", get_color(x as f32, y as f32));
+                        cs.set(c, get_color(x as f32, y as f32));
+                        return ColorPicker::PickingColor(c, orig_color);
                     }
                 }
 
-                ColorPicker::PickingColor(color)
+                ColorPicker::PickingColor(c, orig_color)
             }
         }
     }
@@ -78,7 +100,7 @@ impl ColorPicker {
                 // TODO would be nice to display the text in the current color
                 canvas.draw_mouse_tooltip(g, &menu.lines_to_display());
             }
-            ColorPicker::PickingColor(_) => {
+            ColorPicker::PickingColor(_, _) => {
                 let (start_x, start_y) = get_screen_offset(&g.window_size);
 
                 for x in 0..WIDTH {

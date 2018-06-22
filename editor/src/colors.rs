@@ -10,7 +10,7 @@ use std::io::{Error, Read, Write};
 use strum::IntoEnumIterator;
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, EnumString, ToString,
-         PartialOrd, Ord)]
+         PartialOrd, Ord, Clone, Copy)]
 pub enum Colors {
     Debug,
     BrightDebug,
@@ -87,5 +87,9 @@ impl ColorScheme {
     pub fn get(&self, c: Colors) -> Color {
         // TODO make sure this isn't slow; maybe back this with an array
         *self.map.get(&c).unwrap()
+    }
+
+    pub fn set(&mut self, c: Colors, value: Color) {
+        self.map.insert(c, value);
     }
 }

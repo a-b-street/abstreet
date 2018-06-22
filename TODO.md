@@ -45,8 +45,7 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- live color tuner
-		- mutate color scheme
+	- make a smaller GUI where it's easy to explore solving the multiline problem
 
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work

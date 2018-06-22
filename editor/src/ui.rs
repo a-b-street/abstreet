@@ -189,6 +189,11 @@ impl UI {
             }
         }
 
+        if !edit_mode {
+            self.color_picker = self.color_picker
+                .handle_event(input, window_size, &mut self.cs);
+        }
+
         self.current_search_state = self.current_search_state.event(input);
 
         if !edit_mode
@@ -235,7 +240,6 @@ impl UI {
             self.steepness_active.handle_event(input);
             self.osm_classifier_active.handle_event(input);
             self.debug_mode.handle_event(input);
-            self.color_picker = self.color_picker.handle_event(input, window_size);
         }
 
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
