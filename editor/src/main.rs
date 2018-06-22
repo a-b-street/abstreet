@@ -88,7 +88,7 @@ fn main() {
         if let Some(args) = ev.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 ui.draw(
-                    &mut ezgui::canvas::GfxCtx {
+                    &mut ezgui::GfxCtx {
                         glyphs,
                         gfx: g,
                         orig_ctx: c,

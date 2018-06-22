@@ -10,7 +10,20 @@ pub mod input;
 pub mod menu;
 pub mod text_box;
 
+use graphics::Context;
+use graphics::character::CharacterCache;
+use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
+use piston::window::Size;
+
+//struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
+pub struct GfxCtx<'a> {
+    pub glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
+    pub orig_ctx: Context,
+    pub ctx: Context,
+    pub gfx: &'a mut GlGraphics,
+    pub window_size: Size,
+}
 
 pub struct ToggleableLayer {
     layer_name: String,

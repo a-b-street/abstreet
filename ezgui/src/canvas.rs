@@ -1,11 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use GfxCtx;
 use aabb_quadtree::geom::{Point, Rect};
 use graphics;
-use graphics::character::CharacterCache;
 use graphics::types::Color;
 use graphics::{Context, Image, Transformed};
-use opengl_graphics::{GlGraphics, Texture};
 use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScrollEvent,
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
@@ -19,15 +18,6 @@ const PAN_SPEED: f64 = 10.0;
 const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
 const LINE_HEIGHT: f64 = 22.0;
-
-//struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
-pub struct GfxCtx<'a> {
-    pub glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
-    pub orig_ctx: Context,
-    pub ctx: Context,
-    pub gfx: &'a mut GlGraphics,
-    pub window_size: Size,
-}
 
 pub struct Canvas {
     pub cam_x: f64,

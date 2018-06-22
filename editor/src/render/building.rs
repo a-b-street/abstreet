@@ -5,7 +5,7 @@ extern crate geo;
 extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
-use ezgui::canvas::GfxCtx;
+use ezgui::GfxCtx;
 use geom::GeomMap;
 use geom::geometry;
 use graphics;

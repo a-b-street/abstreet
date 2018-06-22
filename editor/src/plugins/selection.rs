@@ -3,7 +3,8 @@
 use animation;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::canvas::{Canvas, GfxCtx};
+use ezgui::GfxCtx;
+use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use geom;
 use graphics::types::Color;

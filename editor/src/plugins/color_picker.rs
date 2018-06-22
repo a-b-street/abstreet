@@ -1,7 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::canvas::{Canvas, GfxCtx};
+use ezgui::GfxCtx;
+use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::menu;
 use graphics;

@@ -3,7 +3,7 @@
 use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
-use ezgui::canvas::GfxCtx;
+use ezgui::GfxCtx;
 use geom::{geometry, GeomMap, Radian};
 use graphics;
 use graphics::math::Vec2d;
