@@ -62,30 +62,44 @@ impl gui::GUI for UI {
         g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
 
         let thin = 1.0;
+        let thick = 5.0;
         let shift_away = 50.0;
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
-        // TODO multiple points
-        // TODO nicer stuff here
+        // TODO automatic labels for all points, but be able to toggle them
+        // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
+        // try them out in piston
+        // TODO figure out polygons too
 
         let p1 = (100.0, 100.0);
         let p2 = (110.0, 200.0);
         let p3 = (p1.0 + self.p3_offset.0, p1.1 + self.p3_offset.1);
-        //let p3 = (101.0, 105.0);          BREAKS
-        //let p3 = (20.0, 250.0);
-        //let p3 = (20.0, 100.0);
 
-        line(g, p1, p2, thin, RED);
-        line(g, p2, p3, thin, RED);
+        line(g, p1, p2, thick, RED);
+        line(g, p2, p3, thick, RED);
 
+        // Two lanes on one side of the road
         let (p1_a, p2_a) = shift_line(shift_away, p1, p2);
         let (p2_b, p3_b) = shift_line(shift_away, p2, p3);
         let p2_c = line_intersection((p1_a, p2_a), (p2_b, p3_b));
 
-        //line(g, p1_a, p2_a, thin, GREEN);
-        //line(g, p2_b, p3_b, thin, BLUE);
         line(g, p1_a, p2_c, thin, GREEN);
-        line(g, p2_c, p3_b, thin, BLUE);
+        line(g, p2_c, p3_b, thin, GREEN);
+
+        let (p1_a2, p2_a2) = shift_line(shift_away * 2.0, p1, p2);
+        let (p2_b2, p3_b2) = shift_line(shift_away * 2.0, p2, p3);
+        let p2_c2 = line_intersection((p1_a2, p2_a2), (p2_b2, p3_b2));
+
+        line(g, p1_a2, p2_c2, thin, GREEN);
+        line(g, p2_c2, p3_b2, thin, GREEN);
+
+        // Other side
+        let (p1_e, p2_e) = shift_line(shift_away, p3, p2);
+        let (p2_f, p3_f) = shift_line(shift_away, p2, p1);
+        let p2_g = line_intersection((p1_e, p2_e), (p2_f, p3_f));
+
+        line(g, p1_e, p2_g, thin, BLUE);
+        line(g, p2_g, p3_f, thin, BLUE);
 
         //self.label(g, p1, &format!("p1 {:?}", p1));
         //self.label(g, p2, &format!("p2 {:?}", p2));
