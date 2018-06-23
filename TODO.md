@@ -45,7 +45,7 @@
 		- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 
 - multiple lanes
-	- make a smaller GUI where it's easy to explore solving the multiline problem
+	- solve the multiline problem
 
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work

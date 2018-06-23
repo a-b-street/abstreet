@@ -59,3 +59,4 @@ The polyline problem:
 - https://stackoverflow.com/questions/36475254/polylines-outline-construction-drawing-thick-polylines
 - Will lengths change? Is this a problem?
 - Drawing cars as rectangles is funky, because if their front is aligned to a new line segment, their back juts into the center of the road
+- Note that drawing lines with round ends just kind of works...

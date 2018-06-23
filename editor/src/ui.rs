@@ -17,6 +17,7 @@ use ezgui::input::UserInput;
 use geom;
 use graphics;
 use graphics::types::Color;
+use gui;
 use map_model::IntersectionID;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
@@ -141,255 +142,6 @@ impl UI {
         ui.zoom_for_toggleable_layers(-1.0, new_zoom);
 
         ui
-    }
-
-    pub fn event(
-        mut self,
-        input: &mut UserInput,
-        window_size: &Size,
-    ) -> (UI, animation::EventLoopMode) {
-        let mut event_loop_mode = animation::EventLoopMode::InputOnly;
-        let mut edit_mode = false;
-
-        if let Some(mut e) = self.traffic_signal_editor {
-            edit_mode = true;
-            if e.event(
-                input,
-                &self.map,
-                &self.geom_map,
-                &mut self.control_map,
-                &self.current_selection_state,
-            ) {
-                self.traffic_signal_editor = None;
-            } else {
-                self.traffic_signal_editor = Some(e);
-            }
-        }
-
-        if let Some(mut e) = self.stop_sign_editor {
-            edit_mode = true;
-            if e.event(
-                input,
-                &self.map,
-                &self.geom_map,
-                &mut self.control_map,
-                &self.current_selection_state,
-            ) {
-                self.stop_sign_editor = None;
-            } else {
-                self.stop_sign_editor = Some(e);
-            }
-        }
-
-        if !edit_mode {
-            self.color_picker = self.color_picker
-                .handle_event(input, window_size, &mut self.cs);
-        }
-
-        self.current_search_state = self.current_search_state.event(input);
-
-        if !edit_mode
-            && self.sim_ctrl
-                .event(input, &self.geom_map, &self.map, &self.control_map)
-        {
-            event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
-        }
-
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(input.use_event_directly());
-        let new_zoom = self.canvas.cam_zoom;
-        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
-
-        if !edit_mode {
-            if self.show_roads.handle_event(input) {
-                if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-                if let SelectionState::TooltipRoad(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-            }
-            if self.show_buildings.handle_event(input) {
-                if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-            }
-            if self.show_intersections.handle_event(input) {
-                if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-            }
-            self.show_parcels.handle_event(input);
-            self.show_icons.handle_event(input);
-            self.steepness_viz.handle_event(input);
-            self.osm_classifier.handle_event(input);
-            self.debug_mode.handle_event(input);
-        }
-
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.current_selection_state = SelectionState::Empty;
-        }
-        if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
-        {
-            self.current_selection_state = self.current_selection_state
-                .handle_mouseover(&self.mouseover_something(window_size));
-        }
-        // TODO can't get this destructuring expressed right
-        let (new_selection_state, new_event_loop_mode) = self.current_selection_state
-            .event(input, &mut self.sim_ctrl.sim);
-        event_loop_mode = event_loop_mode.merge(new_event_loop_mode);
-        self.current_selection_state = new_selection_state;
-        match self.current_selection_state {
-            SelectionState::SelectedRoad(id, _) => {
-                if self.floodfiller.is_none() {
-                    if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
-                        self.floodfiller = Some(Floodfiller::new(id));
-                    }
-                }
-
-                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
-                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
-                            println!("No room, sorry");
-                        }
-                    }
-                }
-            }
-            SelectionState::SelectedIntersection(id) => {
-                if self.traffic_signal_editor.is_none()
-                    && self.control_map.traffic_signals.contains_key(&id)
-                {
-                    if input.key_pressed(Key::E, "Press E to edit this traffic signal") {
-                        self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
-                    }
-                }
-                if self.stop_sign_editor.is_none() && self.control_map.stop_signs.contains_key(&id)
-                {
-                    if input.key_pressed(Key::E, "Press E to edit this stop sign") {
-                        self.stop_sign_editor = Some(StopSignEditor::new(id));
-                    }
-                }
-            }
-            _ => {}
-        }
-
-        if let Some(mut f) = self.floodfiller {
-            if f.event(&self.map, input) {
-                self.floodfiller = None;
-            } else {
-                self.floodfiller = Some(f);
-            }
-        }
-
-        if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
-            self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
-        }
-
-        if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
-            let state = EditorState {
-                cam_x: self.canvas.cam_x,
-                cam_y: self.canvas.cam_y,
-                cam_zoom: self.canvas.cam_zoom,
-                traffic_signals: self.control_map.get_traffic_signals_savestate(),
-                stop_signs: self.control_map.get_stop_signs_savestate(),
-            };
-            // TODO maybe make state line up with the map, so loading from a new map doesn't break
-            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
-            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
-            println!("Saved editor_state and color_scheme");
-            process::exit(0);
-        }
-
-        (self, event_loop_mode)
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, input: UserInput) {
-        graphics::clear(self.cs.get(Colors::Background), g.gfx);
-
-        g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
-
-        let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
-
-        let roads_onscreen = if self.show_roads.is_enabled() {
-            self.draw_map.get_roads_onscreen(screen_bbox)
-        } else {
-            Vec::new()
-        };
-        for r in &roads_onscreen {
-            r.draw(g, self.color_road(r.id));
-            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
-                r.draw_detail(g, &self.cs);
-            }
-            if self.debug_mode.is_enabled() {
-                r.draw_debug(g, &self.cs, self.geom_map.get_r(r.id));
-            }
-        }
-
-        if self.show_intersections.is_enabled() {
-            for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
-                i.draw(g, self.color_intersection(i.id));
-            }
-        }
-
-        if self.show_icons.is_enabled() {
-            for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
-                t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
-                for c in &self.sim_ctrl
-                    .sim
-                    .get_draw_cars_on_turn(t.id, &self.geom_map)
-                {
-                    c.draw(g, self.color_car(c.id));
-                }
-            }
-        }
-
-        for r in &roads_onscreen {
-            for c in &self.sim_ctrl
-                .sim
-                .get_draw_cars_on_road(r.id, &self.geom_map)
-            {
-                c.draw(g, self.color_car(c.id));
-            }
-        }
-
-        if self.show_parcels.is_enabled() {
-            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                p.draw(g, self.color_parcel(p.id));
-            }
-        }
-
-        if self.show_buildings.is_enabled() {
-            for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
-                b.draw(g, self.color_building(b.id));
-            }
-        }
-
-        self.current_selection_state.draw(
-            &self.map,
-            &self.canvas,
-            &self.geom_map,
-            &self.draw_map,
-            &self.control_map,
-            &self.sim_ctrl.sim,
-            &self.cs,
-            g,
-        );
-
-        self.color_picker.draw(&self.canvas, g);
-
-        let mut osd_lines = self.sim_ctrl.get_osd_lines();
-        let action_lines = input.get_possible_actions();
-        if !action_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(action_lines);
-        }
-        let search_lines = self.current_search_state.get_osd_lines();
-        if !search_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(search_lines);
-        }
-        self.canvas.draw_osd_notification(g, &osd_lines);
     }
 
     // TODO or make a custom event for zoom change
@@ -575,6 +327,257 @@ impl UI {
         } else {
             self.cs.get(Colors::StuckCar)
         }
+    }
+}
+
+impl gui::GUI for UI {
+    fn event(
+        mut self,
+        input: &mut UserInput,
+        window_size: &Size,
+    ) -> (UI, animation::EventLoopMode) {
+        let mut event_loop_mode = animation::EventLoopMode::InputOnly;
+        let mut edit_mode = false;
+
+        if let Some(mut e) = self.traffic_signal_editor {
+            edit_mode = true;
+            if e.event(
+                input,
+                &self.map,
+                &self.geom_map,
+                &mut self.control_map,
+                &self.current_selection_state,
+            ) {
+                self.traffic_signal_editor = None;
+            } else {
+                self.traffic_signal_editor = Some(e);
+            }
+        }
+
+        if let Some(mut e) = self.stop_sign_editor {
+            edit_mode = true;
+            if e.event(
+                input,
+                &self.map,
+                &self.geom_map,
+                &mut self.control_map,
+                &self.current_selection_state,
+            ) {
+                self.stop_sign_editor = None;
+            } else {
+                self.stop_sign_editor = Some(e);
+            }
+        }
+
+        if !edit_mode {
+            self.color_picker = self.color_picker
+                .handle_event(input, window_size, &mut self.cs);
+        }
+
+        self.current_search_state = self.current_search_state.event(input);
+
+        if !edit_mode
+            && self.sim_ctrl
+                .event(input, &self.geom_map, &self.map, &self.control_map)
+        {
+            event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
+        }
+
+        let old_zoom = self.canvas.cam_zoom;
+        self.canvas.handle_event(input.use_event_directly());
+        let new_zoom = self.canvas.cam_zoom;
+        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
+
+        if !edit_mode {
+            if self.show_roads.handle_event(input) {
+                if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+                if let SelectionState::TooltipRoad(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+            }
+            if self.show_buildings.handle_event(input) {
+                if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+            }
+            if self.show_intersections.handle_event(input) {
+                if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
+                    self.current_selection_state = SelectionState::Empty;
+                }
+            }
+            self.show_parcels.handle_event(input);
+            self.show_icons.handle_event(input);
+            self.steepness_viz.handle_event(input);
+            self.osm_classifier.handle_event(input);
+            self.debug_mode.handle_event(input);
+        }
+
+        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+            self.current_selection_state = SelectionState::Empty;
+        }
+        if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
+            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+        {
+            self.current_selection_state = self.current_selection_state
+                .handle_mouseover(&self.mouseover_something(window_size));
+        }
+        // TODO can't get this destructuring expressed right
+        let (new_selection_state, new_event_loop_mode) = self.current_selection_state
+            .event(input, &mut self.sim_ctrl.sim);
+        event_loop_mode = event_loop_mode.merge(new_event_loop_mode);
+        self.current_selection_state = new_selection_state;
+        match self.current_selection_state {
+            SelectionState::SelectedRoad(id, _) => {
+                if self.floodfiller.is_none() {
+                    if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
+                        self.floodfiller = Some(Floodfiller::new(id));
+                    }
+                }
+
+                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
+                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
+                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
+                            println!("No room, sorry");
+                        }
+                    }
+                }
+            }
+            SelectionState::SelectedIntersection(id) => {
+                if self.traffic_signal_editor.is_none()
+                    && self.control_map.traffic_signals.contains_key(&id)
+                {
+                    if input.key_pressed(Key::E, "Press E to edit this traffic signal") {
+                        self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
+                    }
+                }
+                if self.stop_sign_editor.is_none() && self.control_map.stop_signs.contains_key(&id)
+                {
+                    if input.key_pressed(Key::E, "Press E to edit this stop sign") {
+                        self.stop_sign_editor = Some(StopSignEditor::new(id));
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        if let Some(mut f) = self.floodfiller {
+            if f.event(&self.map, input) {
+                self.floodfiller = None;
+            } else {
+                self.floodfiller = Some(f);
+            }
+        }
+
+        if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
+            self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
+        }
+
+        if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
+            let state = EditorState {
+                cam_x: self.canvas.cam_x,
+                cam_y: self.canvas.cam_y,
+                cam_zoom: self.canvas.cam_zoom,
+                traffic_signals: self.control_map.get_traffic_signals_savestate(),
+                stop_signs: self.control_map.get_stop_signs_savestate(),
+            };
+            // TODO maybe make state line up with the map, so loading from a new map doesn't break
+            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
+            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
+            println!("Saved editor_state and color_scheme");
+            process::exit(0);
+        }
+
+        (self, event_loop_mode)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, input: UserInput) {
+        graphics::clear(self.cs.get(Colors::Background), g.gfx);
+
+        g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
+
+        let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
+
+        let roads_onscreen = if self.show_roads.is_enabled() {
+            self.draw_map.get_roads_onscreen(screen_bbox)
+        } else {
+            Vec::new()
+        };
+        for r in &roads_onscreen {
+            r.draw(g, self.color_road(r.id));
+            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
+                r.draw_detail(g, &self.cs);
+            }
+            if self.debug_mode.is_enabled() {
+                r.draw_debug(g, &self.cs, self.geom_map.get_r(r.id));
+            }
+        }
+
+        if self.show_intersections.is_enabled() {
+            for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
+                i.draw(g, self.color_intersection(i.id));
+            }
+        }
+
+        if self.show_icons.is_enabled() {
+            for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
+                t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
+                for c in &self.sim_ctrl
+                    .sim
+                    .get_draw_cars_on_turn(t.id, &self.geom_map)
+                {
+                    c.draw(g, self.color_car(c.id));
+                }
+            }
+        }
+
+        for r in &roads_onscreen {
+            for c in &self.sim_ctrl
+                .sim
+                .get_draw_cars_on_road(r.id, &self.geom_map)
+            {
+                c.draw(g, self.color_car(c.id));
+            }
+        }
+
+        if self.show_parcels.is_enabled() {
+            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
+                p.draw(g, self.color_parcel(p.id));
+            }
+        }
+
+        if self.show_buildings.is_enabled() {
+            for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
+                b.draw(g, self.color_building(b.id));
+            }
+        }
+
+        self.current_selection_state.draw(
+            &self.map,
+            &self.canvas,
+            &self.geom_map,
+            &self.draw_map,
+            &self.control_map,
+            &self.sim_ctrl.sim,
+            &self.cs,
+            g,
+        );
+
+        self.color_picker.draw(&self.canvas, g);
+
+        let mut osd_lines = self.sim_ctrl.get_osd_lines();
+        let action_lines = input.get_possible_actions();
+        if !action_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(action_lines);
+        }
+        let search_lines = self.current_search_state.get_osd_lines();
+        if !search_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(search_lines);
+        }
+        self.canvas.draw_osd_notification(g, &osd_lines);
     }
 }
 
