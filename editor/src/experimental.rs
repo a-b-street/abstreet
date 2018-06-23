@@ -18,6 +18,7 @@ const BLUE: Color = [0.0, 0.0, 1.0, 0.8];
 pub struct UI {
     canvas: Canvas,
     p3_offset: (f64, f64),
+    show_labels: bool,
 }
 
 impl UI {
@@ -25,6 +26,7 @@ impl UI {
         UI {
             canvas: Canvas::new(),
             p3_offset: (200.0, 150.0),
+            show_labels: true,
         }
     }
 }
@@ -51,6 +53,9 @@ impl gui::GUI for UI {
         if input.unimportant_key_pressed(Key::L, "right") {
             self.p3_offset.0 += speed;
         }
+        if input.unimportant_key_pressed(Key::P, "toggle labels") {
+            self.show_labels = !self.show_labels;
+        }
 
         self.canvas.handle_event(input.use_event_directly());
 
@@ -60,6 +65,22 @@ impl gui::GUI for UI {
     fn draw(&self, g: &mut GfxCtx, _input: UserInput) {
         graphics::clear(WHITE, g.gfx);
         g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
+
+        let mut labels: Vec<((f64, f64), String)> = Vec::new();
+
+        macro_rules! point {
+            ($pt_name:ident, $value:expr) => {
+                let $pt_name = $value;
+                labels.push(($pt_name, stringify!($pt_name).to_string()));
+            };
+        }
+        macro_rules! points {
+            ($pt1_name:ident, $pt2_name:ident, $value:expr) => {
+                let ($pt1_name, $pt2_name) = $value;
+                labels.push(($pt1_name, stringify!($pt1_name).to_string()));
+                labels.push(($pt2_name, stringify!($pt2_name).to_string()));
+            };
+        }
 
         let thin = 1.0;
         let thick = 5.0;
@@ -71,44 +92,41 @@ impl gui::GUI for UI {
         // try them out in piston
         // TODO figure out polygons too
 
-        let p1 = (100.0, 100.0);
-        let p2 = (110.0, 200.0);
-        let p3 = (p1.0 + self.p3_offset.0, p1.1 + self.p3_offset.1);
+        point!(p1, (100.0, 100.0));
+        point!(p2, (110.0, 200.0));
+        point!(p3, (p1.0 + self.p3_offset.0, p1.1 + self.p3_offset.1));
 
         line(g, p1, p2, thick, RED);
         line(g, p2, p3, thick, RED);
 
         // Two lanes on one side of the road
-        let (p1_a, p2_a) = shift_line(shift_away, p1, p2);
-        let (p2_b, p3_b) = shift_line(shift_away, p2, p3);
-        let p2_c = line_intersection((p1_a, p2_a), (p2_b, p3_b));
+        points!(p1_a, p2_a, shift_line(shift_away, p1, p2));
+        points!(p2_b, p3_b, shift_line(shift_away, p2, p3));
+        point!(p2_c, line_intersection((p1_a, p2_a), (p2_b, p3_b)));
 
         line(g, p1_a, p2_c, thin, GREEN);
         line(g, p2_c, p3_b, thin, GREEN);
 
-        let (p1_a2, p2_a2) = shift_line(shift_away * 2.0, p1, p2);
-        let (p2_b2, p3_b2) = shift_line(shift_away * 2.0, p2, p3);
-        let p2_c2 = line_intersection((p1_a2, p2_a2), (p2_b2, p3_b2));
+        points!(p1_a2, p2_a2, shift_line(shift_away * 2.0, p1, p2));
+        points!(p2_b2, p3_b2, shift_line(shift_away * 2.0, p2, p3));
+        point!(p2_c2, line_intersection((p1_a2, p2_a2), (p2_b2, p3_b2)));
 
         line(g, p1_a2, p2_c2, thin, GREEN);
         line(g, p2_c2, p3_b2, thin, GREEN);
 
         // Other side
-        let (p1_e, p2_e) = shift_line(shift_away, p3, p2);
-        let (p2_f, p3_f) = shift_line(shift_away, p2, p1);
-        let p2_g = line_intersection((p1_e, p2_e), (p2_f, p3_f));
+        points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
+        points!(p2_f, p3_f, shift_line(shift_away, p2, p1));
+        point!(p2_g, line_intersection((p1_e, p2_e), (p2_f, p3_f)));
 
         line(g, p1_e, p2_g, thin, BLUE);
         line(g, p2_g, p3_f, thin, BLUE);
 
-        //self.label(g, p1, &format!("p1 {:?}", p1));
-        //self.label(g, p2, &format!("p2 {:?}", p2));
-        self.label(g, p3, &format!("p3 {:?}", p3));
-        /*self.label(g, p1_a, "p1_a");
-        self.label(g, p2_a, "p2_a");
-        self.label(g, p2_b, "p2_b");
-        self.label(g, p3_b, "p3_b");
-        self.label(g, p2_c, "p2_c");*/
+        if self.show_labels {
+            for pair in &labels {
+                self.label(g, pair.0, &pair.1);
+            }
+        }
 
         println!("");
         println!("p1 -> p2 is {}", angle_degrees(p1, p2));
