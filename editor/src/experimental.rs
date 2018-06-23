@@ -74,20 +74,19 @@ impl gui::GUI for UI {
                 labels.push(($pt_name, stringify!($pt_name).to_string()));
             };
         }
-        macro_rules! points {
+        /*macro_rules! points {
             ($pt1_name:ident, $pt2_name:ident, $value:expr) => {
                 let ($pt1_name, $pt2_name) = $value;
                 labels.push(($pt1_name, stringify!($pt1_name).to_string()));
                 labels.push(($pt2_name, stringify!($pt2_name).to_string()));
             };
-        }
+        }*/
 
         let thin = 1.0;
         let thick = 5.0;
         let shift_away = 50.0;
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
-        // TODO automatic labels for all points, but be able to toggle them
         // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
         // try them out in piston
         // TODO figure out polygons too
@@ -95,32 +94,37 @@ impl gui::GUI for UI {
         point!(p1, (100.0, 100.0));
         point!(p2, (110.0, 200.0));
         point!(p3, (p1.0 + self.p3_offset.0, p1.1 + self.p3_offset.1));
+        point!(p4, (500.0, 120.0));
 
-        line(g, p1, p2, thick, RED);
-        line(g, p2, p3, thick, RED);
+        polyline(g, vec![p1, p2, p3, p4], thick, RED);
 
         // Two lanes on one side of the road
-        points!(p1_a, p2_a, shift_line(shift_away, p1, p2));
-        points!(p2_b, p3_b, shift_line(shift_away, p2, p3));
-        point!(p2_c, line_intersection((p1_a, p2_a), (p2_b, p3_b)));
+        let l1_pts = shift_polyline(shift_away, vec![p1, p2, p3, p4]);
+        for (idx, pt) in l1_pts.iter().enumerate() {
+            labels.push((*pt, format!("l1_p{}", idx + 1)));
+        }
+        polyline(g, l1_pts, thin, GREEN);
 
-        line(g, p1_a, p2_c, thin, GREEN);
-        line(g, p2_c, p3_b, thin, GREEN);
-
-        points!(p1_a2, p2_a2, shift_line(shift_away * 2.0, p1, p2));
-        points!(p2_b2, p3_b2, shift_line(shift_away * 2.0, p2, p3));
-        point!(p2_c2, line_intersection((p1_a2, p2_a2), (p2_b2, p3_b2)));
-
-        line(g, p1_a2, p2_c2, thin, GREEN);
-        line(g, p2_c2, p3_b2, thin, GREEN);
+        let l2_pts = shift_polyline(shift_away * 2.0, vec![p1, p2, p3, p4]);
+        for (idx, pt) in l2_pts.iter().enumerate() {
+            labels.push((*pt, format!("l2_p{}", idx + 1)));
+        }
+        polyline(g, l2_pts, thin, GREEN);
 
         // Other side
-        points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
+        let l3_pts = shift_polyline(shift_away, vec![p4, p3, p2, p1]);
+        for (idx, pt) in l3_pts.iter().enumerate() {
+            labels.push((*pt, format!("l3_p{}", idx + 1)));
+        }
+        polyline(g, l3_pts, thin, BLUE);
+
+        // Manual approach for more debugging
+        /*points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
         points!(p2_f, p3_f, shift_line(shift_away, p2, p1));
         point!(p2_g, line_intersection((p1_e, p2_e), (p2_f, p3_f)));
 
         line(g, p1_e, p2_g, thin, BLUE);
-        line(g, p2_g, p3_f, thin, BLUE);
+        line(g, p2_g, p3_f, thin, BLUE);*/
 
         if self.show_labels {
             for pair in &labels {
@@ -151,6 +155,13 @@ fn line(g: &mut GfxCtx, pt1: (f64, f64), pt2: (f64, f64), thickness: f64, color:
     );
 }
 
+fn polyline(g: &mut GfxCtx, pts: Vec<(f64, f64)>, thickness: f64, color: Color) {
+    assert!(pts.len() >= 2);
+    for pair in pts.windows(2) {
+        line(g, pair[0], pair[1], thickness, color);
+    }
+}
+
 fn shift_line(width: f64, pt1: (f64, f64), pt2: (f64, f64)) -> ((f64, f64), (f64, f64)) {
     let x1 = pt1.0;
     let y1 = pt1.1;
@@ -161,6 +172,41 @@ fn shift_line(width: f64, pt1: (f64, f64), pt2: (f64, f64)) -> ((f64, f64), (f64
     let shifted1 = (x1 + width * angle.cos(), y1 + width * angle.sin());
     let shifted2 = (x2 + width * angle.cos(), y2 + width * angle.sin());
     (shifted1, shifted2)
+}
+
+// TODO unit test this by comparing with manual shift_line sequence
+fn shift_polyline(width: f64, pts: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
+    let mut result: Vec<(f64, f64)> = Vec::new();
+    // TODO handle 2
+    assert!(pts.len() >= 3);
+
+    let mut pt3_idx = 2;
+    let mut pt1_raw = pts[0];
+    let mut pt2_raw = pts[1];
+
+    loop {
+        let pt3_raw = pts[pt3_idx];
+
+        let (pt1_shift, pt2_shift_1st) = shift_line(width, pt1_raw, pt2_raw);
+        let (pt2_shift_2nd, pt3_shift) = shift_line(width, pt2_raw, pt3_raw);
+        let pt2_shift = line_intersection((pt1_shift, pt2_shift_1st), (pt2_shift_2nd, pt3_shift));
+
+        if pt3_idx == 2 {
+            result.push(pt1_shift);
+        }
+        result.push(pt2_shift);
+        if pt3_idx == pts.len() - 1 {
+            result.push(pt3_shift);
+            break;
+        }
+
+        pt1_raw = pt2_raw;
+        pt2_raw = pt3_raw;
+        pt3_idx += 1;
+    }
+
+    assert!(result.len() == pts.len());
+    result
 }
 
 fn angle_degrees(from: (f64, f64), to: (f64, f64)) -> f64 {
