@@ -2,18 +2,21 @@
 
 extern crate ordered_float;
 extern crate protobuf;
+extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+pub mod pb;
+mod polyline;
+
 use ordered_float::NotNaN;
+pub use polyline::{polygons_for_polyline, shift_polyline};
 use protobuf::error::ProtobufError;
 use protobuf::{CodedInputStream, CodedOutputStream, Message};
 use std::collections::HashMap;
 use std::f64;
 use std::fs::File;
-
-pub mod pb;
 
 pub fn write_pb(map: &pb::Map, path: &str) -> Result<(), ProtobufError> {
     let mut file = File::create(path)?;
