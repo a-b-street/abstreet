@@ -174,11 +174,14 @@ fn shift_line(width: f64, pt1: (f64, f64), pt2: (f64, f64)) -> ((f64, f64), (f64
     (shifted1, shifted2)
 }
 
-// TODO unit test this by comparing with manual shift_line sequence
 fn shift_polyline(width: f64, pts: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
+    assert!(pts.len() >= 2);
+    if pts.len() == 2 {
+        let (pt1_shift, pt2_shift) = shift_line(width, pts[0], pts[1]);
+        return vec![pt1_shift, pt2_shift];
+    }
+
     let mut result: Vec<(f64, f64)> = Vec::new();
-    // TODO handle 2
-    assert!(pts.len() >= 3);
 
     let mut pt3_idx = 2;
     let mut pt1_raw = pts[0];
@@ -238,4 +241,42 @@ fn line_intersection(l1: ((f64, f64), (f64, f64)), l2: ((f64, f64), (f64, f64)))
     let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
     let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
     (numer_x / denom, numer_y / denom)
+}
+
+#[test]
+fn shift_polyline_equivalence() {
+    use rand;
+
+    let scale = 1000.0;
+    let pt1 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+    let pt2 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+    let pt3 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+    let pt4 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+    let pt5 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+
+    let width = 50.0;
+    let (pt1_s, _) = shift_line(width, pt1, pt2);
+    let pt2_s = line_intersection(shift_line(width, pt1, pt2), shift_line(width, pt2, pt3));
+    let pt3_s = line_intersection(shift_line(width, pt2, pt3), shift_line(width, pt3, pt4));
+    let pt4_s = line_intersection(shift_line(width, pt3, pt4), shift_line(width, pt4, pt5));
+    let (_, pt5_s) = shift_line(width, pt4, pt5);
+
+    assert_eq!(
+        shift_polyline(width, vec![pt1, pt2, pt3, pt4, pt5]),
+        vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s]
+    );
+}
+
+#[test]
+fn shift_short_polyline_equivalence() {
+    use rand;
+
+    let scale = 1000.0;
+    let pt1 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+    let pt2 = (rand::random::<f64>() * scale, rand::random::<f64>() * scale);
+
+    let width = 50.0;
+    let (pt1_s, pt2_s) = shift_line(width, pt1, pt2);
+
+    assert_eq!(shift_polyline(width, vec![pt1, pt2]), vec![pt1_s, pt2_s]);
 }

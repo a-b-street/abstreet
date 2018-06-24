@@ -46,6 +46,10 @@
 
 - multiple lanes
 	- solve the multiline problem
+		- implement polygons
+		- move it out of experimental
+		- use it for real
+		- clean up oneway osm way hacks
 
 	- model bikes in driving lanes (as slow cars)
 	- add random bike lanes, figure out how turns would work
