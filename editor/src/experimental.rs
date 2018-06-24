@@ -14,6 +14,7 @@ const WHITE: Color = [1.0; 4];
 const RED: Color = [1.0, 0.0, 0.0, 0.8];
 const GREEN: Color = [0.0, 1.0, 0.0, 0.8];
 const BLUE: Color = [0.0, 0.0, 1.0, 0.8];
+const BLACK: Color = [0.0, 0.0, 0.0, 0.3];
 
 pub struct UI {
     canvas: Canvas,
@@ -87,44 +88,55 @@ impl gui::GUI for UI {
         let shift_away = 50.0;
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
+        // TODO still try the angle bisection method
         // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
         // try them out in piston
-        // TODO figure out polygons too
 
         point!(p1, (100.0, 100.0));
         point!(p2, (110.0, 200.0));
         point!(p3, (p1.0 + self.p3_offset.0, p1.1 + self.p3_offset.1));
         point!(p4, (500.0, 120.0));
 
-        polyline(g, vec![p1, p2, p3, p4], thick, RED);
+        draw_polyline(g, vec![p1, p2, p3, p4], thick, RED);
 
+        /*let polygon = polygon_for_polyline(&vec![p1, p2, p3, p4], shift_away);
+        for (idx, pt) in polygon.iter().enumerate() {
+            labels.push(((pt[0], pt[1]), format!("x{}", idx + 1)));
+        }
+        draw_polygon(g, polygon, BLACK);*/
+        for p in polygons_for_polyline(&vec![p1, p2, p3, p4], shift_away) {
+            draw_polygon(g, p, BLACK);
+        }
+
+        /*
         // Two lanes on one side of the road
-        let l1_pts = shift_polyline(shift_away, vec![p1, p2, p3, p4]);
+        let l1_pts = shift_polyline(shift_away, &vec![p1, p2, p3, p4]);
         for (idx, pt) in l1_pts.iter().enumerate() {
             labels.push((*pt, format!("l1_p{}", idx + 1)));
         }
-        polyline(g, l1_pts, thin, GREEN);
+        draw_polyline(g, l1_pts, thin, GREEN);
 
-        let l2_pts = shift_polyline(shift_away * 2.0, vec![p1, p2, p3, p4]);
+        let l2_pts = shift_polyline(shift_away * 2.0, &vec![p1, p2, p3, p4]);
         for (idx, pt) in l2_pts.iter().enumerate() {
             labels.push((*pt, format!("l2_p{}", idx + 1)));
         }
-        polyline(g, l2_pts, thin, GREEN);
+        draw_polyline(g, l2_pts, thin, GREEN);
 
         // Other side
-        let l3_pts = shift_polyline(shift_away, vec![p4, p3, p2, p1]);
+        let l3_pts = shift_polyline(shift_away, &vec![p4, p3, p2, p1]);
         for (idx, pt) in l3_pts.iter().enumerate() {
             labels.push((*pt, format!("l3_p{}", idx + 1)));
         }
-        polyline(g, l3_pts, thin, BLUE);
+        draw_polyline(g, l3_pts, thin, BLUE);
+        */
 
         // Manual approach for more debugging
         /*points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
         points!(p2_f, p3_f, shift_line(shift_away, p2, p1));
         point!(p2_g, line_intersection((p1_e, p2_e), (p2_f, p3_f)));
 
-        line(g, p1_e, p2_g, thin, BLUE);
-        line(g, p2_g, p3_f, thin, BLUE);*/
+        draw_line(g, p1_e, p2_g, thin, BLUE);
+        draw_line(g, p2_g, p3_f, thin, BLUE);*/
 
         if self.show_labels {
             for pair in &labels {
@@ -145,7 +157,7 @@ impl UI {
     }
 }
 
-fn line(g: &mut GfxCtx, pt1: (f64, f64), pt2: (f64, f64), thickness: f64, color: Color) {
+fn draw_line(g: &mut GfxCtx, pt1: (f64, f64), pt2: (f64, f64), thickness: f64, color: Color) {
     let l = graphics::Line::new(color, thickness);
     l.draw(
         [pt1.0, pt1.1, pt2.0, pt2.1],
@@ -155,11 +167,15 @@ fn line(g: &mut GfxCtx, pt1: (f64, f64), pt2: (f64, f64), thickness: f64, color:
     );
 }
 
-fn polyline(g: &mut GfxCtx, pts: Vec<(f64, f64)>, thickness: f64, color: Color) {
+fn draw_polyline(g: &mut GfxCtx, pts: Vec<(f64, f64)>, thickness: f64, color: Color) {
     assert!(pts.len() >= 2);
     for pair in pts.windows(2) {
-        line(g, pair[0], pair[1], thickness, color);
+        draw_line(g, pair[0], pair[1], thickness, color);
     }
+}
+
+fn draw_polygon(g: &mut GfxCtx, pts: Vec<[f64; 2]>, color: Color) {
+    graphics::Polygon::new(color).draw(&pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
 }
 
 fn shift_line(width: f64, pt1: (f64, f64), pt2: (f64, f64)) -> ((f64, f64), (f64, f64)) {
@@ -174,7 +190,44 @@ fn shift_line(width: f64, pt1: (f64, f64), pt2: (f64, f64)) -> ((f64, f64), (f64
     (shifted1, shifted2)
 }
 
-fn shift_polyline(width: f64, pts: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
+// TODO unsure why this doesn't work. maybe see if mouse is inside polygon to check it out?
+/*fn polygon_for_polyline(center_pts: &Vec<(f64, f64)>, width: f64) -> Vec<[f64; 2]> {
+    let mut result = shift_polyline(width / 2.0, center_pts);
+    let mut reversed_center_pts = center_pts.clone();
+    reversed_center_pts.reverse();
+    result.extend(shift_polyline(width / 2.0, &reversed_center_pts));
+    // TODO unclear if piston needs last point to match the first or not
+    let first_pt = result[0];
+    result.push(first_pt);
+    result.iter().map(|pair| [pair.0, pair.1]).collect()
+}*/
+
+// TODO why do we need a bunch of triangles? why doesn't the single polygon triangulate correctly?
+// TODO ideally, detect when the polygon overlaps itself due to sharp lines and too much width
+fn polygons_for_polyline(center_pts: &Vec<(f64, f64)>, width: f64) -> Vec<Vec<[f64; 2]>> {
+    let side1 = shift_polyline(width / 2.0, center_pts);
+    let mut reversed_center_pts = center_pts.clone();
+    reversed_center_pts.reverse();
+    let mut side2 = shift_polyline(width / 2.0, &reversed_center_pts);
+    side2.reverse();
+
+    let mut result: Vec<Vec<(f64, f64)>> = Vec::new();
+    for high_idx in 1..center_pts.len() {
+        result.push(vec![
+            side1[high_idx],
+            side1[high_idx - 1],
+            side2[high_idx - 1],
+        ]);
+        result.push(vec![side2[high_idx], side2[high_idx - 1], side1[high_idx]]);
+    }
+    println!("{} triangles", result.len());
+    result
+        .iter()
+        .map(|tri| tri.iter().map(|pair| [pair.0, pair.1]).collect())
+        .collect()
+}
+
+fn shift_polyline(width: f64, pts: &Vec<(f64, f64)>) -> Vec<(f64, f64)> {
     assert!(pts.len() >= 2);
     if pts.len() == 2 {
         let (pt1_shift, pt2_shift) = shift_line(width, pts[0], pts[1]);
@@ -262,7 +315,7 @@ fn shift_polyline_equivalence() {
     let (_, pt5_s) = shift_line(width, pt4, pt5);
 
     assert_eq!(
-        shift_polyline(width, vec![pt1, pt2, pt3, pt4, pt5]),
+        shift_polyline(width, &vec![pt1, pt2, pt3, pt4, pt5]),
         vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s]
     );
 }
@@ -278,5 +331,5 @@ fn shift_short_polyline_equivalence() {
     let width = 50.0;
     let (pt1_s, pt2_s) = shift_line(width, pt1, pt2);
 
-    assert_eq!(shift_polyline(width, vec![pt1, pt2]), vec![pt1_s, pt2_s]);
+    assert_eq!(shift_polyline(width, &vec![pt1, pt2]), vec![pt1_s, pt2_s]);
 }

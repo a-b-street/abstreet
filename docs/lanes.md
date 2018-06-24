@@ -66,3 +66,20 @@ The polyline problem:
 	  side of the road, but of course it does.
 	- Width of the road varies wildly in the joint
 - For drawing, round caps works nicely.
+
+
+
+
+the transition is hard:
+- who should be responsible for shoving road lines back to not hit intersection?
+- intersection and road association is done by points... gps or not?
+	- also need to retain other_side only temporarily for map construction.
+	- organize map_model lib more; map construction is now very interesting
+	- arguably, we could do two-phase map construction and serialize more stuff. map model is serializable because of rust magic!
+	- map model kind of acts as the graph/connection layer. keep the construction more separated.
+- should all GPS stuff be converted to screen at loading time? (it'd be nice to use pt2d for screen space only)
+- dependency hell most easily resolved by putting polyline stuff in map_model
+
+so really do this in two parts:
+1) current structure with weird intermediate stuff, but new geometry libs
+2) careful reorg

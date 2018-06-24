@@ -15,6 +15,7 @@ use render::PARCEL_BOUNDARY_THICKNESS;
 #[derive(Debug)]
 pub struct DrawParcel {
     pub id: ParcelID,
+    // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
     fill_polygon: Vec<Vec2d>,
 }

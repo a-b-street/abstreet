@@ -46,7 +46,6 @@
 
 - multiple lanes
 	- solve the multiline problem
-		- implement polygons
 		- move it out of experimental
 		- use it for real
 		- clean up oneway osm way hacks
