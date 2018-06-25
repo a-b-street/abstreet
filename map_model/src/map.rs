@@ -135,48 +135,8 @@ impl Map {
         }
 
         for i in &m.intersections {
-            let incoming: Vec<RoadID> = i.incoming_roads
-                .iter()
-                .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
-                .map(|id| *id)
-                .collect();
-            let outgoing: Vec<RoadID> = i.outgoing_roads
-                .iter()
-                .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
-                .map(|id| *id)
-                .collect();
-
-            // TODO: Figure out why this happens in the huge map
-            if incoming.is_empty() {
-                println!("WARNING: intersection {:?} has no incoming roads", i);
-                continue;
-            }
-            if outgoing.is_empty() {
-                println!("WARNING: intersection {:?} has no outgoing roads", i);
-                continue;
-            }
-            let dead_end = incoming.len() == 1 && outgoing.len() == 1;
-
-            for src in &incoming {
-                let src_r = &m.roads[src.0];
-                for dst in &outgoing {
-                    let dst_r = &m.roads[dst.0];
-                    // Don't create U-turns unless it's a dead-end
-                    if src_r.other_side == Some(dst_r.id) && !dead_end {
-                        continue;
-                    }
-
-                    let id = TurnID(m.turns.len());
-                    m.turns.push(Turn {
-                        id,
-                        parent: i.id,
-                        src: *src,
-                        dst: *dst,
-                        src_pt: src_r.last_pt(),
-                        dst_pt: dst_r.first_pt(),
-                    });
-                }
-            }
+            let turns = make_turns(i, &m);
+            m.turns.extend(turns);
         }
         for t in &m.turns {
             m.intersections[t.parent.0].turns.push(t.id);
@@ -292,4 +252,52 @@ impl Map {
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()
     }
+}
+
+// TODO organize these differently
+fn make_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
+    let incoming: Vec<RoadID> = i.incoming_roads
+        .iter()
+        .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
+        .map(|id| *id)
+        .collect();
+    let outgoing: Vec<RoadID> = i.outgoing_roads
+        .iter()
+        .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
+        .map(|id| *id)
+        .collect();
+
+    // TODO: Figure out why this happens in the huge map
+    if incoming.is_empty() {
+        println!("WARNING: intersection {:?} has no incoming roads", i);
+        return Vec::new();
+    }
+    if outgoing.is_empty() {
+        println!("WARNING: intersection {:?} has no outgoing roads", i);
+        return Vec::new();
+    }
+    let dead_end = incoming.len() == 1 && outgoing.len() == 1;
+
+    let mut result = Vec::new();
+    for src in &incoming {
+        let src_r = &m.roads[src.0];
+        for dst in &outgoing {
+            let dst_r = &m.roads[dst.0];
+            // Don't create U-turns unless it's a dead-end
+            if src_r.other_side == Some(dst_r.id) && !dead_end {
+                continue;
+            }
+
+            let id = TurnID(m.turns.len());
+            result.push(Turn {
+                id,
+                parent: i.id,
+                src: *src,
+                dst: *dst,
+                src_pt: src_r.last_pt(),
+                dst_pt: dst_r.first_pt(),
+            });
+        }
+    }
+    result
 }
