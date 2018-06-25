@@ -7,7 +7,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{Bounds, IntersectionID, Map};
+use map_model::{IntersectionID, Map};
 use render::DrawRoad;
 use std::f64;
 
@@ -24,7 +24,6 @@ impl DrawIntersection {
         inter: &map_model::Intersection,
         map: &Map,
         roads: &Vec<DrawRoad>,
-        bounds: &Bounds,
     ) -> DrawIntersection {
         let mut pts: Vec<Vec2d> = Vec::new();
         for r in &map.get_roads_to_intersection(inter.id) {
@@ -38,7 +37,7 @@ impl DrawIntersection {
             pts.push(pt2);
         }
 
-        let center = geometry::gps_to_screen_space(&inter.point, bounds);
+        let center = inter.point;
         // Sort points by angle from the center
         pts.sort_by_key(|pt| {
             let mut angle = (pt[1] - center.y()).atan2(pt[0] - center.x()).to_degrees();

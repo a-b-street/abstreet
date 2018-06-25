@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Bounds;
+use IntersectionID;
 use Pt2D;
 use dimensioned::si;
 use geometry;
@@ -25,15 +25,15 @@ pub struct Road {
     pub osm_way_id: i64,
     pub lane_type: LaneType,
 
+    pub(crate) src_i: IntersectionID,
+    pub(crate) dst_i: IntersectionID,
+
     // Ideally all of these would just become translated center points immediately, but this is
     // hard due to the polyline problem.
 
     // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
     // the centermost lane on each side, then it counts up.
     pub offset: u8,
-    // The orientation is implied by the order of these points
-    // These're GPS
-    pub points: Vec<Pt2D>,
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
     // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
     pub use_yellow_center_lines: bool,
@@ -43,8 +43,8 @@ pub struct Road {
     /// GeomRoad stuff
     // TODO need to settle on a proper Line type
     pub lane_center_lines: Vec<(Pt2D, Pt2D)>,
-    // unshifted center points. consider computing these twice or otherwise not storing them
-    // These're screen
+    // Unshifted center points. consider computing these twice or otherwise not storing them
+    // These're screen-space. Order implies road orientation.
     pub pts: Vec<Pt2D>,
 }
 
@@ -104,17 +104,11 @@ impl Road {
     }
 }
 
-// Returns lane_center_lines, pts
-pub(crate) fn calculate_geometry(
-    gps_points: &Vec<Pt2D>,
+pub(crate) fn calculate_lane_center_lines(
+    pts: &mut Vec<Pt2D>,
     offset: u8,
     use_yellow_center_lines: bool,
-    bounds: &Bounds,
-) -> (Vec<(Pt2D, Pt2D)>, Vec<Pt2D>) {
-    let mut pts: Vec<Pt2D> = gps_points
-        .iter()
-        .map(|pt| geometry::gps_to_screen_space(pt, bounds))
-        .collect();
+) -> Vec<(Pt2D, Pt2D)> {
     // Shove the lines away from the intersection so they don't overlap.
     // TODO deal with tiny roads
     let num_pts = pts.len();
@@ -145,5 +139,5 @@ pub(crate) fn calculate_geometry(
         })
         .collect();
 
-    (lane_center_lines, pts)
+    lane_center_lines
 }

@@ -20,7 +20,6 @@ pub struct Map {
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
 
-    pt_to_intersection: HashMap<Pt2D, IntersectionID>,
     intersection_to_roads: HashMap<IntersectionID, Vec<RoadID>>,
 
     // TODO maybe dont need to retain GPS stuff later
@@ -35,15 +34,16 @@ impl Map {
             turns: Vec::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
-            pt_to_intersection: HashMap::new(),
             intersection_to_roads: HashMap::new(),
             bounds: get_gps_bounds(data),
         };
         let bounds = m.get_gps_bounds();
 
+        let mut pt_to_intersection: HashMap<Pt2D, IntersectionID> = HashMap::new();
+
         for (idx, i) in data.get_intersections().iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = Pt2D::from(i.get_point());
+            let pt = geometry::gps_to_screen_space(&Pt2D::from(i.get_point()), &bounds);
             m.intersections.push(Intersection {
                 id,
                 point: pt,
@@ -53,7 +53,7 @@ impl Map {
                 //has_traffic_signal: i.get_has_traffic_signal(),
                 has_traffic_signal: idx % 2 == 0,
             });
-            m.pt_to_intersection.insert(pt, id);
+            pt_to_intersection.insert(pt, id);
         }
 
         let mut counter = 0;
@@ -89,13 +89,14 @@ impl Map {
                 let other_side = lane.3
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
-                let pts: Vec<Pt2D> = if lane.2 == orig_direction {
-                    r.get_points().iter().map(Pt2D::from).collect()
-                } else {
-                    r.get_points().iter().rev().map(Pt2D::from).collect()
-                };
-                let i1 = m.pt_to_intersection[&pts[0]];
-                let i2 = m.pt_to_intersection[pts.last().unwrap()];
+                let mut pts: Vec<Pt2D> = r.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect();
+                if lane.2 != orig_direction {
+                    pts.reverse();
+                }
+
+                // Do this with the original points, before trimming them back
+                let i1 = pt_to_intersection[&pts[0]];
+                let i2 = pt_to_intersection[pts.last().unwrap()];
                 m.intersection_to_roads
                     .entry(i1)
                     .or_insert_with(Vec::new)
@@ -111,11 +112,12 @@ impl Map {
                 } else {
                     lane.1 == 0
                 };
-                let (lane_center_lines, screen_pts) = road::calculate_geometry(
-                    &pts,
+                // This has the side-effect of trimming the endpoints! Will do this differently
+                // soon.
+                let lane_center_lines = road::calculate_lane_center_lines(
+                    &mut pts,
                     offset,
                     use_yellow_center_lines,
-                    &bounds,
                 );
 
                 m.roads.push(Road {
@@ -124,11 +126,12 @@ impl Map {
                     offset,
                     use_yellow_center_lines,
                     lane_center_lines,
+                    pts,
+                    src_i: i1,
+                    dst_i: i2,
                     osm_tags: r.get_osm_tags().to_vec(),
                     osm_way_id: r.get_osm_way_id(),
                     lane_type: lane.0,
-                    points: pts,
-                    pts: screen_pts,
                 });
             }
         }
@@ -146,12 +149,12 @@ impl Map {
                 .collect();
             for src in &incident_roads {
                 let src_r = &m.roads[src.0];
-                if i.point != *src_r.points.last().unwrap() {
+                if src_r.dst_i != i.id {
                     continue;
                 }
                 for dst in &incident_roads {
                     let dst_r = &m.roads[dst.0];
-                    if i.point != dst_r.points[0] {
+                    if dst_r.src_i != i.id {
                         continue;
                     }
                     // Don't create U-turns unless it's a dead-end
@@ -194,11 +197,12 @@ impl Map {
         m
     }
 
+    // TODO this should just be explicitly stored in intersection, and mapped to &Road from ID
     pub fn get_roads_to_intersection(&self, id: IntersectionID) -> Vec<&Road> {
         self.intersection_to_roads[&id]
             .iter()
             .map(|id| &self.roads[id.0])
-            .filter(|r| *r.points.last().unwrap() == self.get_i(id).point)
+            .filter(|r| r.dst_i == id)
             .collect()
     }
 
@@ -206,7 +210,7 @@ impl Map {
         self.intersection_to_roads[&id]
             .iter()
             .map(|id| &self.roads[id.0])
-            .filter(|r| r.points[0] == self.get_i(id).point)
+            .filter(|r| r.src_i == id)
             .collect()
     }
 
@@ -253,11 +257,11 @@ impl Map {
     // All these helpers should take IDs and return objects.
 
     pub fn get_source_intersection(&self, r: RoadID) -> &Intersection {
-        self.get_i(self.pt_to_intersection[&self.get_r(r).points[0]])
+        self.get_i(self.get_r(r).src_i)
     }
 
     pub fn get_destination_intersection(&self, r: RoadID) -> &Intersection {
-        self.get_i(self.pt_to_intersection[self.get_r(r).points.last().unwrap()])
+        self.get_i(self.get_r(r).dst_i)
     }
 
     pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
