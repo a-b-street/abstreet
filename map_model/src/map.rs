@@ -4,6 +4,7 @@ use Bounds;
 use Pt2D;
 use building;
 use building::{Building, BuildingID};
+use dimensioned::si;
 use geometry;
 use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
@@ -94,17 +95,17 @@ impl Map {
                 let other_side = lane.3
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
-                let mut pts: Vec<Pt2D> = r.get_points()
+                let mut unshifted_pts: Vec<Pt2D> = r.get_points()
                     .iter()
                     .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
                     .collect();
                 if lane.2 != orig_direction {
-                    pts.reverse();
+                    unshifted_pts.reverse();
                 }
 
                 // Do this with the original points, before trimming them back
-                let i1 = pt_to_intersection[&pts[0]];
-                let i2 = pt_to_intersection[pts.last().unwrap()];
+                let i1 = pt_to_intersection[&unshifted_pts[0]];
+                let i2 = pt_to_intersection[unshifted_pts.last().unwrap()];
                 m.intersections[i1.0].outgoing_roads.push(id);
                 m.intersections[i2.0].incoming_roads.push(id);
 
@@ -114,8 +115,11 @@ impl Map {
                 } else {
                     lane.1 == 0
                 };
-                let lane_center_lines =
-                    road::calculate_lane_center_lines(&pts, offset, use_yellow_center_lines);
+                let lane_center_lines = road::calculate_lane_center_lines(
+                    &unshifted_pts,
+                    offset,
+                    use_yellow_center_lines,
+                );
 
                 // pts and lane_center_lines will get updated in the next pass
                 m.roads.push(Road {
@@ -124,7 +128,7 @@ impl Map {
                     offset,
                     use_yellow_center_lines,
                     lane_center_lines,
-                    pts,
+                    unshifted_pts,
                     src_i: i1,
                     dst_i: i2,
                     osm_tags: r.get_osm_tags().to_vec(),
@@ -132,6 +136,10 @@ impl Map {
                     lane_type: lane.0,
                 });
             }
+        }
+
+        for i in &m.intersections {
+            trim_lines(&mut m.roads, i);
         }
 
         for i in &m.intersections {
@@ -300,4 +308,50 @@ fn make_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
         }
     }
     result
+}
+
+fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
+    use std::collections::hash_map::Entry;
+
+    let mut shortest_first_line: HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)> = HashMap::new();
+    let mut shortest_last_line: HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)> = HashMap::new();
+
+    fn update_shortest(
+        m: &mut HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)>,
+        r: RoadID,
+        l: (Pt2D, Pt2D),
+    ) {
+        let new_len = geometry::euclid_dist(l);
+
+        match m.entry(r) {
+            Entry::Occupied(mut o) => {
+                if new_len < o.get().2 {
+                    o.insert((l.0, l.1, new_len));
+                }
+            }
+            Entry::Vacant(v) => {
+                v.insert((l.0, l.1, new_len));
+            }
+        }
+    }
+
+    for incoming in &i.incoming_roads {
+        for outgoing in &i.outgoing_roads {
+            let l1 = *(roads[incoming.0].lane_center_lines.last().unwrap());
+            let l2 = roads[outgoing.0].lane_center_lines[0];
+            if let Some(hit) = geometry::line_segment_intersection(l1, l2) {
+                update_shortest(&mut shortest_last_line, *incoming, (l1.0, hit));
+                update_shortest(&mut shortest_first_line, *outgoing, (hit, l2.1));
+            }
+        }
+    }
+
+    // Apply the updates
+    for (id, triple) in &shortest_first_line {
+        roads[id.0].lane_center_lines[0] = (triple.0, triple.1);
+    }
+    for (id, triple) in &shortest_last_line {
+        let len = roads[id.0].lane_center_lines.len();
+        roads[id.0].lane_center_lines[len - 1] = (triple.0, triple.1);
+    }
 }

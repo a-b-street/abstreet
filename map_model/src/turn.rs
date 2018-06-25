@@ -56,7 +56,7 @@ impl Turn {
     pub fn length(&self) -> si::Meter<f64> {
         let src = Pt2D::new(self.src_pt[0], self.src_pt[1]);
         let dst = Pt2D::new(self.dst_pt[0], self.dst_pt[1]);
-        geometry::euclid_dist((&src, &dst))
+        geometry::euclid_dist((src, dst))
     }
 
     pub fn slope(&self) -> [f64; 2] {

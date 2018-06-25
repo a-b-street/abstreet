@@ -5,6 +5,7 @@ use Pt2D;
 use aabb_quadtree::geom::{Point, Rect};
 use dimensioned::si;
 use graphics::math::Vec2d;
+use polyline;
 use std::f64;
 use vecmath;
 
@@ -172,7 +173,8 @@ pub fn point_in_circle(x: f64, y: f64, center: Vec2d, radius: f64) -> bool {
     return [x, y];
 }*/
 
-pub fn euclid_dist((pt1, pt2): (&Pt2D, &Pt2D)) -> si::Meter<f64> {
+// TODO borrow or copy?
+pub(crate) fn euclid_dist((pt1, pt2): (Pt2D, Pt2D)) -> si::Meter<f64> {
     return ((pt1.x() - pt2.x()).powi(2) + (pt1.y() - pt2.y()).powi(2)).sqrt() * si::M;
 }
 
@@ -186,6 +188,18 @@ fn is_counter_clockwise(pt1: &Vec2d, pt2: &Vec2d, pt3: &Vec2d) -> bool {
     (pt3[1] - pt1[1]) * (pt2[0] - pt1[0]) > (pt2[1] - pt1[1]) * (pt3[0] - pt1[0])
 }
 
+pub fn line_segment_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Option<Pt2D> {
+    // TODO shoddy way of implementing this
+    // TODO doesn't handle nearly parallel lines
+    if !line_segments_intersect(
+        (&l1.0.to_vec(), &l1.1.to_vec()),
+        (&l2.0.to_vec(), &l2.1.to_vec()),
+    ) {
+        return None;
+    }
+    Some(polyline::line_intersection(l1, l2))
+}
+
 pub fn dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {
     //assert!(euclid_dist(&pt1, &pt2) <= dist_along);
     let vec = vecmath::vec2_normalized([pt2.x() - pt1.x(), pt2.y() - pt1.y()]);
@@ -194,7 +208,7 @@ pub fn dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {
 
 // TODO rm the other one
 pub fn safe_dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: si::Meter<f64>) -> Vec2d {
-    let len = euclid_dist((pt1, pt2));
+    let len = euclid_dist((*pt1, *pt2));
     if dist_along > len + EPSILON_METERS {
         panic!("cant do {} along a line of length {}", dist_along, len);
     }

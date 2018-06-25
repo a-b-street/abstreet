@@ -86,7 +86,7 @@ fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
 
 // NOT segment. ignores parallel lines.
 // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Pt2D {
+pub(crate) fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Pt2D {
     let x1 = l1.0.x();
     let y1 = l1.0.y();
     let x2 = l1.1.x();

@@ -106,9 +106,13 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		  like aorta's map make. but instead, be able to restart from
 		  any point, by the magic of easy serialization.
 		- get rid of the protobuf
+		- figure out how to do dynamicish updates as we edit the map!
+	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more
+	- MORE CLEANUP: Line type that's just a pair of pt2d's with length and fmt display
 
 	- line trimming
 		- just replacing the last pt might not always work. especially with old center lines!
+
 
 
 - an mvp release could just be producing high-quality, reusable geometry for seattle

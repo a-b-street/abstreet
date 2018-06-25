@@ -27,9 +27,9 @@ impl DrawRoad {
             geometry::ThickLine::DrivingDirectionOnly(geometry::LANE_THICKNESS, road.offset);
         DrawRoad {
             id: road.id,
-            polygons: geometry::thick_multiline(&thick_line, &road.pts),
+            polygons: geometry::thick_multiline(&thick_line, &road.unshifted_pts),
             yellow_center_lines: if road.use_yellow_center_lines {
-                road.pts.clone()
+                road.unshifted_pts.clone()
             } else {
                 Vec::new()
             },

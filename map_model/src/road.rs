@@ -45,7 +45,7 @@ pub struct Road {
     pub lane_center_lines: Vec<(Pt2D, Pt2D)>,
     // Unshifted center points. consider computing these twice or otherwise not storing them
     // These're screen-space. Order implies road orientation.
-    pub pts: Vec<Pt2D>,
+    pub unshifted_pts: Vec<Pt2D>,
 }
 
 impl PartialEq for Road {
@@ -74,7 +74,7 @@ impl Road {
         // Haversine?
         let mut dist_left = dist_along;
         for (idx, l) in self.lane_center_lines.iter().enumerate() {
-            let length = geometry::euclid_dist((&l.0, &l.1));
+            let length = geometry::euclid_dist((l.0, l.1));
             let epsilon = if idx == self.lane_center_lines.len() - 1 {
                 geometry::EPSILON_METERS
             } else {
@@ -99,7 +99,7 @@ impl Road {
         self.lane_center_lines
             .iter()
             .fold(0.0 * si::M, |so_far, l| {
-                so_far + geometry::euclid_dist((&l.0, &l.1))
+                so_far + geometry::euclid_dist((l.0, l.1))
             })
     }
 }

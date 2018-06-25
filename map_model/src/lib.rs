@@ -25,6 +25,7 @@ mod turn;
 
 pub use building::{Building, BuildingID};
 pub use geometry::angles::{Radian, RAD};
+use graphics::math::Vec2d;
 pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
 use ordered_float::NotNaN;
@@ -34,6 +35,7 @@ use protobuf::error::ProtobufError;
 use protobuf::{CodedInputStream, CodedOutputStream, Message};
 pub use road::{LaneType, Road, RoadID};
 use std::f64;
+use std::fmt;
 use std::fs::File;
 pub use turn::{Turn, TurnID};
 
@@ -98,6 +100,10 @@ impl Pt2D {
         let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
         earth_radius_m * c
     }
+
+    pub fn to_vec(&self) -> Vec2d {
+        [self.x(), self.y()]
+    }
 }
 
 impl<'a> From<&'a pb::Coordinate> for Pt2D {
@@ -109,6 +115,12 @@ impl<'a> From<&'a pb::Coordinate> for Pt2D {
 impl From<[f64; 2]> for Pt2D {
     fn from(pt: [f64; 2]) -> Self {
         Pt2D::new(pt[0], pt[1])
+    }
+}
+
+impl fmt::Display for Pt2D {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Pt2D({0}, {1})", self.x(), self.y())
     }
 }
 
