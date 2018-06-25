@@ -59,47 +59,17 @@ impl Map {
 
         let mut counter = 0;
         for r in data.get_roads() {
-            let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
-            // These seem to represent weird roundabouts
-            let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
-
-            let orig_direction = true;
-            let reverse_direction = false;
-            // lane_type, offset, reverse the points or not, offset to get the other_side's ID
-            let mut lanes: Vec<(LaneType, u8, bool, Option<isize>)> = vec![
-                (
-                    LaneType::Driving,
-                    0,
-                    orig_direction,
-                    if oneway || junction { None } else { Some(3) },
-                ),
-                (LaneType::Parking, 1, orig_direction, None),
-                (LaneType::Sidewalk, 2, orig_direction, None),
-            ];
-            if junction {
-                lanes.pop();
-                lanes.pop();
-            } else if oneway {
-                lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
-            } else {
-                lanes.extend(vec![
-                    (LaneType::Driving, 0, reverse_direction, Some(-3)),
-                    (LaneType::Parking, 1, reverse_direction, None),
-                    (LaneType::Sidewalk, 2, reverse_direction, None),
-                ]);
-            }
-
-            for lane in &lanes {
+            for lane in get_lane_specs(r) {
                 let id = RoadID(counter);
                 counter += 1;
-                let other_side = lane.3
+                let other_side = lane.offset_for_other_id
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
                 let mut unshifted_pts: Vec<Pt2D> = r.get_points()
                     .iter()
                     .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
                     .collect();
-                if lane.2 != orig_direction {
+                if lane.reverse_pts {
                     unshifted_pts.reverse();
                 }
 
@@ -109,15 +79,14 @@ impl Map {
                 m.intersections[i1.0].outgoing_roads.push(id);
                 m.intersections[i2.0].incoming_roads.push(id);
 
-                let offset = lane.1;
                 let use_yellow_center_lines = if let Some(other) = other_side {
                     id.0 < other.0
                 } else {
-                    lane.1 == 0
+                    lane.offset == 0
                 };
                 let lane_center_lines = road::calculate_lane_center_lines(
                     &unshifted_pts,
-                    offset,
+                    lane.offset,
                     use_yellow_center_lines,
                 );
 
@@ -125,15 +94,15 @@ impl Map {
                 m.roads.push(Road {
                     id,
                     other_side,
-                    offset,
                     use_yellow_center_lines,
                     lane_center_lines,
                     unshifted_pts,
+                    offset: lane.offset,
                     src_i: i1,
                     dst_i: i2,
                     osm_tags: r.get_osm_tags().to_vec(),
                     osm_way_id: r.get_osm_way_id(),
-                    lane_type: lane.0,
+                    lane_type: lane.lane_type,
                 });
             }
         }
@@ -354,4 +323,92 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
         let len = roads[id.0].lane_center_lines.len();
         roads[id.0].lane_center_lines[len - 1] = (triple.0, triple.1);
     }
+}
+
+struct LaneSpec {
+    lane_type: LaneType,
+    offset: u8,
+    reverse_pts: bool,
+    offset_for_other_id: Option<isize>,
+}
+
+fn get_lane_specs(r: &pb::Road) -> Vec<LaneSpec> {
+    // TODO these choices per raw road is a perfect fxn
+    let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
+    // These seem to represent weird roundabouts
+    let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
+
+    // TODO debugging convenience
+    let only_roads_for_debugging = false;
+
+    let mut lanes: Vec<LaneSpec> = vec![
+        LaneSpec {
+            lane_type: LaneType::Driving,
+            offset: 0,
+            reverse_pts: false,
+            offset_for_other_id: if oneway || junction {
+                None
+            } else {
+                Some(if only_roads_for_debugging { 1 } else { 3 })
+            },
+        },
+        LaneSpec {
+            lane_type: LaneType::Parking,
+            offset: 1,
+            reverse_pts: false,
+            offset_for_other_id: None,
+        },
+        LaneSpec {
+            lane_type: LaneType::Sidewalk,
+            offset: 2,
+            reverse_pts: false,
+            offset_for_other_id: None,
+        },
+    ];
+    if only_roads_for_debugging && !oneway {
+        lanes.pop();
+        lanes.pop();
+        lanes.push(LaneSpec {
+            lane_type: LaneType::Driving,
+            offset: 0,
+            reverse_pts: true,
+            offset_for_other_id: Some(-1),
+        });
+    } else if junction {
+        lanes.pop();
+        lanes.pop();
+    } else if oneway {
+        lanes.push(LaneSpec {
+            lane_type: LaneType::Sidewalk,
+            offset: 0,
+            reverse_pts: true,
+            offset_for_other_id: None,
+        });
+    } else {
+        lanes.extend(vec![
+            LaneSpec {
+                lane_type: LaneType::Driving,
+                offset: 0,
+                reverse_pts: true,
+                offset_for_other_id: if oneway || junction {
+                    None
+                } else {
+                    Some(if only_roads_for_debugging { -1 } else { -3 })
+                },
+            },
+            LaneSpec {
+                lane_type: LaneType::Parking,
+                offset: 1,
+                reverse_pts: true,
+                offset_for_other_id: None,
+            },
+            LaneSpec {
+                lane_type: LaneType::Sidewalk,
+                offset: 2,
+                reverse_pts: true,
+                offset_for_other_id: None,
+            },
+        ]);
+    }
+    lanes
 }
