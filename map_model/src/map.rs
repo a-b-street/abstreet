@@ -86,6 +86,7 @@ impl Map {
                 };
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
+                // Reverse points for British-style driving on the left
                 let lane_center_pts = shift_polyline(
                     geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5),
                     &unshifted_pts,
@@ -305,6 +306,7 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
         }
     }
 
+    // For short first/last lines, this might not work well
     for incoming in &i.incoming_roads {
         for outgoing in &i.outgoing_roads {
             let l1 = roads[incoming.0].last_line();

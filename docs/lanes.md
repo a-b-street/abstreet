@@ -91,12 +91,19 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 
 
 - follow aorta's multi phase map construction better.
-	- length epsilon thing broke
-	- rm old thick line stuff
+	- polish intersection geometry
+		- at a T intersection, some lines aren't trimmed back at all
+		- the lane polygons overlap, even though the lines dont
 
+	- rename Road to Lane
+	- figure out what to do about yellow center lines
+		- who should own drawing them?
+		- trim them back too (maybe to avoid hitting the intersection?)
+
+	- multiple driving lanes on highways
+		- dashed white lines
 
 	- THEN: express the proto -> runtime map loading as a sequence of phases
-		- keep doing the current road trimming for the moment
 		- later, this could be the same as the OSM conversion. just
 		  like aorta's map make. but instead, be able to restart from
 		  any point, by the magic of easy serialization.
@@ -104,9 +111,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- figure out how to do dynamicish updates as we edit the map!
 	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more
 	- MORE CLEANUP: Line type that's just a pair of pt2d's with length and fmt display
-
-	- line trimming
-		- just replacing the last pt might not always work. especially with old center lines!
 
 
 

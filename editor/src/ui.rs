@@ -431,13 +431,17 @@ impl gui::GUI for UI {
                 if self.traffic_signal_editor.is_none()
                     && self.control_map.traffic_signals.contains_key(&id)
                 {
-                    if input.key_pressed(Key::E, &format!("Press E to edit traffic signal for {:?}", id)) {
+                    if input.key_pressed(
+                        Key::E,
+                        &format!("Press E to edit traffic signal for {:?}", id),
+                    ) {
                         self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
                     }
                 }
                 if self.stop_sign_editor.is_none() && self.control_map.stop_signs.contains_key(&id)
                 {
-                    if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id)) {
+                    if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id))
+                    {
                         self.stop_sign_editor = Some(StopSignEditor::new(id));
                     }
                 }

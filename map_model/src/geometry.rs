@@ -28,85 +28,11 @@ pub mod angles {
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
 
-// -1 for driving on the left
-const DRIVING_DIRECTION: f64 = 1.0;
-
 use std;
 pub const EPSILON_METERS: si::Meter<f64> = si::Meter {
     value_unsafe: 0.00001,
     _marker: std::marker::PhantomData,
 };
-
-pub enum ThickLine {
-    // The f64's represent the full width of the thick line
-    // The u8 is the offset from center
-    DrivingDirectionOnly(f64, u8),
-    Centered(f64),
-}
-
-impl ThickLine {
-    // Returns a scaling factor to project away from a center line, left and right side.
-    fn project_away_lengths(&self) -> (f64, f64) {
-        match *self {
-            ThickLine::DrivingDirectionOnly(w, raw_offset) => {
-                let offset = raw_offset as f64;
-                if DRIVING_DIRECTION == 1.0 {
-                    (w * (offset + 1.0), w * offset)
-                } else {
-                    (-1.0 * w * offset, -1.0 * w * (offset + 1.0))
-                }
-            }
-            ThickLine::Centered(w) => (w / -2.0, w / 2.0),
-        }
-    }
-}
-
-pub fn thick_multiline(style: &ThickLine, pts: &[Pt2D]) -> Vec<Vec<Vec2d>> {
-    let mut polygons: Vec<Vec<Vec2d>> = Vec::new();
-
-    for slice in pts.windows(3) {
-        let (pt1, pt2, pt3) = (&slice[0], &slice[1], &slice[2]);
-        let quad1 = thick_line(style, pt1, pt2);
-        let quad2 = thick_line(style, pt2, pt3);
-        // The original quad. This over-extends in some cases, especially with multiple lanes.
-        polygons.push(quad1.clone());
-        // Add a quad to fill in the gap. Comment out to see part of the polyline problem very
-        // clearly.
-        polygons.push(vec![quad1[2], quad1[3], quad2[0], quad2[1], quad1[2]]);
-    }
-
-    // We always need a quad for the last group, since there won't be a window of 3.
-    polygons.push(thick_line(style, &pts[pts.len() - 2], &pts[pts.len() - 1]));
-
-    polygons
-}
-
-pub fn thick_line(style: &ThickLine, pt1: &Pt2D, pt2: &Pt2D) -> Vec<Vec2d> {
-    let x1 = pt1.x();
-    let y1 = pt1.y();
-    let x2 = pt2.x();
-    let y2 = pt2.y();
-    let angle = (y2 - y1).atan2(x2 - x1) + (f64::consts::PI / 2.0);
-    // Project away from (x1, y1) in both directions by some amount
-    let (side1_width, side2_width) = style.project_away_lengths();
-    let c1 = [
-        x1 + side1_width * angle.cos(),
-        y1 + side1_width * angle.sin(),
-    ];
-    let c2 = [
-        x1 + side2_width * angle.cos(),
-        y1 + side2_width * angle.sin(),
-    ];
-    let c3 = [
-        x2 + side1_width * angle.cos(),
-        y2 + side1_width * angle.sin(),
-    ];
-    let c4 = [
-        x2 + side2_width * angle.cos(),
-        y2 + side2_width * angle.sin(),
-    ];
-    vec![c1, c2, c4, c3, c1]
-}
 
 pub fn thick_line_from_angle(
     thickness: f64,
@@ -119,22 +45,6 @@ pub fn thick_line_from_angle(
         pt.y() + line_length * angle.value_unsafe.sin(),
     );
     polyline::polygons_for_polyline(&vec![*pt, pt2], thickness)
-}
-
-pub fn shift_line_perpendicularly_in_driving_direction(
-    width: f64,
-    pt1: &Pt2D,
-    pt2: &Pt2D,
-) -> (Pt2D, Pt2D) {
-    let x1 = pt1.x();
-    let y1 = pt1.y();
-    let x2 = pt2.x();
-    let y2 = pt2.y();
-    let half_pi = f64::consts::PI / 2.0;
-    let angle = (y2 - y1).atan2(x2 - x1) + DRIVING_DIRECTION * half_pi;
-    let shifted1 = Pt2D::new(x1 + width * angle.cos(), y1 + width * angle.sin());
-    let shifted2 = Pt2D::new(x2 + width * angle.cos(), y2 + width * angle.sin());
-    (shifted1, shifted2)
 }
 
 // Algorithm from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
