@@ -41,10 +41,6 @@ pub struct Road {
     pub(crate) other_side: Option<RoadID>,
 
     /// GeomRoad stuff
-    // TODO need to settle on a proper Line type
-    pub lane_center_lines: Vec<(Pt2D, Pt2D)>,
-
-    // Not ready for prime-time yet
     pub lane_center_pts: Vec<Pt2D>,
 
     // Unshifted center points. consider computing these twice or otherwise not storing them
@@ -59,39 +55,39 @@ impl PartialEq for Road {
 }
 
 impl Road {
-    // TODO will be removing these two
     pub fn first_pt(&self) -> Vec2d {
-        let pt = &self.lane_center_lines[0].0;
-        [pt.x(), pt.y()]
+        self.lane_center_pts[0].to_vec()
     }
-
     pub fn last_pt(&self) -> Vec2d {
-        let pt = &self.lane_center_lines.last().unwrap().1;
-        [pt.x(), pt.y()]
+        self.lane_center_pts.last().unwrap().to_vec()
     }
-
-
     pub fn first_line(&self) -> (Pt2D, Pt2D) {
         (self.lane_center_pts[0], self.lane_center_pts[1])
     }
     pub fn last_line(&self) -> (Pt2D, Pt2D) {
-        (self.lane_center_pts[self.lane_center_pts.len() - 2], self.lane_center_pts[self.lane_center_pts.len() - 1])
+        (
+            self.lane_center_pts[self.lane_center_pts.len() - 2],
+            self.lane_center_pts[self.lane_center_pts.len() - 1],
+        )
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {
         // TODO valid to do euclidean distance on screen-space points that're formed from
         // Haversine?
         let mut dist_left = dist_along;
-        for (idx, l) in self.lane_center_lines.iter().enumerate() {
-            let length = geometry::euclid_dist((l.0, l.1));
-            let epsilon = if idx == self.lane_center_lines.len() - 1 {
+        for (idx, pair) in self.lane_center_pts.windows(2).enumerate() {
+            let length = geometry::euclid_dist((pair[0], pair[1]));
+            let epsilon = if idx == self.lane_center_pts.len() {
                 geometry::EPSILON_METERS
             } else {
                 0.0 * si::M
             };
             if dist_left <= length + epsilon {
-                let vec = geometry::safe_dist_along_line((&l.0, &l.1), dist_left);
-                return (Pt2D::new(vec[0], vec[1]), geometry::angle(&l.0, &l.1));
+                let vec = geometry::safe_dist_along_line((&pair[0], &pair[1]), dist_left);
+                return (
+                    Pt2D::new(vec[0], vec[1]),
+                    geometry::angle(&pair[0], &pair[1]),
+                );
             }
             dist_left -= length;
         }
@@ -105,36 +101,10 @@ impl Road {
     }
 
     pub fn length(&self) -> si::Meter<f64> {
-        self.lane_center_lines
-            .iter()
-            .fold(0.0 * si::M, |so_far, l| {
-                so_far + geometry::euclid_dist((l.0, l.1))
+        self.lane_center_pts
+            .windows(2)
+            .fold(0.0 * si::M, |so_far, pair| {
+                so_far + geometry::euclid_dist((pair[0], pair[1]))
             })
     }
-}
-
-pub(crate) fn calculate_lane_center_lines(
-    pts: &Vec<Pt2D>,
-    offset: u8,
-    use_yellow_center_lines: bool,
-) -> Vec<(Pt2D, Pt2D)> {
-    let lane_center_shift = if use_yellow_center_lines {
-        // TODO I think this is unfair to one side, right? If we hover over the yellow line, it
-        // shouldn't match either lane. Needs to be its own thing, or adjust the bbox.
-        (geometry::LANE_THICKNESS / 2.0) + (geometry::BIG_ARROW_THICKNESS / 2.0)
-    } else {
-        geometry::LANE_THICKNESS * ((offset as f64) + 0.5)
-    };
-    // TODO when drawing cars along these lines, do we have the line overlap problem? yes.
-    let lane_center_lines: Vec<(Pt2D, Pt2D)> = pts.windows(2)
-        .map(|pair| {
-            geometry::shift_line_perpendicularly_in_driving_direction(
-                lane_center_shift,
-                &pair[0],
-                &pair[1],
-            )
-        })
-        .collect();
-
-    lane_center_lines
 }

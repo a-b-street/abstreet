@@ -100,9 +100,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- CLEANUP: bldg front path should happen upfront, not in render
 
 
-	- figure out why new polygons dont work for roads
-	- rm old thick line
-	- rm old lane center lines, switch to pts
+	- rm old thick line stuff
 
 
 	- THEN: express the proto -> runtime map loading as a sequence of phases

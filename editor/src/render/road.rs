@@ -33,7 +33,8 @@ impl DrawRoad {
         let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
         let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
 
-        let polygons = map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
+        let polygons =
+            map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
 
         DrawRoad {
             id: road.id,
