@@ -266,7 +266,7 @@ fn make_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
                 continue;
             }
 
-            let id = TurnID(m.turns.len());
+            let id = TurnID(m.turns.len() + result.len());
             result.push(Turn {
                 id,
                 parent: i.id,
