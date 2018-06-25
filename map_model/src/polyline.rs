@@ -1,5 +1,6 @@
 use Pt2D;
 use std::f64;
+use graphics::math::Vec2d;
 
 // TODO unsure why this doesn't work. maybe see if mouse is inside polygon to check it out?
 /*fn polygon_for_polyline(center_pts: &Vec<(f64, f64)>, width: f64) -> Vec<[f64; 2]> {
@@ -15,7 +16,8 @@ use std::f64;
 
 // TODO why do we need a bunch of triangles? why doesn't the single polygon triangulate correctly?
 // TODO ideally, detect when the polygon overlaps itself due to sharp lines and too much width
-pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Pt2D>> {
+// return Vec2d since this is only used for drawing right now
+pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Vec2d>> {
     let side1 = shift_polyline(width / 2.0, center_pts);
     let mut reversed_center_pts = center_pts.clone();
     reversed_center_pts.reverse();
@@ -31,7 +33,7 @@ pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Pt2D
         ]);
         result.push(vec![side2[high_idx], side2[high_idx - 1], side1[high_idx]]);
     }
-    result
+    result.iter().map(|pts| pts.iter().map(|pt| pt.to_vec()).collect()).collect()
 }
 
 pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {

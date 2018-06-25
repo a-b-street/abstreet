@@ -4,6 +4,7 @@ use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use graphics;
 use graphics::types::Color;
+use graphics::math::Vec2d;
 use gui;
 use map_model::{polygons_for_polyline, shift_polyline, Pt2D};
 use piston::input::Key;
@@ -176,9 +177,8 @@ fn draw_polyline(g: &mut GfxCtx, pts: Vec<Pt2D>, thickness: f64, color: Color) {
     }
 }
 
-fn draw_polygon(g: &mut GfxCtx, pts: Vec<Pt2D>, color: Color) {
-    let tuples: Vec<[f64; 2]> = pts.iter().map(|pt| [pt.x(), pt.y()]).collect();
-    graphics::Polygon::new(color).draw(&tuples, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+fn draw_polygon(g: &mut GfxCtx, pts: Vec<Vec2d>, color: Color) {
+    graphics::Polygon::new(color).draw(&pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
 }
 
 fn angle_degrees(from: Pt2D, to: Pt2D) -> f64 {
