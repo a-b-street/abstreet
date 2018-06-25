@@ -23,10 +23,7 @@ pub struct DrawBuilding {
 
 impl DrawBuilding {
     pub fn new(bldg: &map_model::Building, map: &Map) -> DrawBuilding {
-        let pts: Vec<Vec2d> = bldg.points
-            .iter()
-            .map(|pt| [pt.x(), pt.y()])
-            .collect();
+        let pts: Vec<Vec2d> = bldg.points.iter().map(|pt| [pt.x(), pt.y()]).collect();
         DrawBuilding {
             id: bldg.id,
             // TODO ideally start the path on a side of the building

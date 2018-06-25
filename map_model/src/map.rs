@@ -3,9 +3,9 @@
 use Bounds;
 use Pt2D;
 use building::{Building, BuildingID};
+use geometry;
 use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
-use geometry;
 use parcel::{Parcel, ParcelID};
 use pb;
 use road;
@@ -20,8 +20,6 @@ pub struct Map {
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
 
-    intersection_to_roads: HashMap<IntersectionID, Vec<RoadID>>,
-
     // TODO maybe dont need to retain GPS stuff later
     bounds: Bounds,
 }
@@ -34,7 +32,6 @@ impl Map {
             turns: Vec::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
-            intersection_to_roads: HashMap::new(),
             bounds: get_gps_bounds(data),
         };
         let bounds = m.get_gps_bounds();
@@ -52,6 +49,8 @@ impl Map {
                 // TODO use the data again!
                 //has_traffic_signal: i.get_has_traffic_signal(),
                 has_traffic_signal: idx % 2 == 0,
+                incoming_roads: Vec::new(),
+                outgoing_roads: Vec::new(),
             });
             pt_to_intersection.insert(pt, id);
         }
@@ -89,7 +88,10 @@ impl Map {
                 let other_side = lane.3
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
-                let mut pts: Vec<Pt2D> = r.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect();
+                let mut pts: Vec<Pt2D> = r.get_points()
+                    .iter()
+                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                    .collect();
                 if lane.2 != orig_direction {
                     pts.reverse();
                 }
@@ -97,14 +99,8 @@ impl Map {
                 // Do this with the original points, before trimming them back
                 let i1 = pt_to_intersection[&pts[0]];
                 let i2 = pt_to_intersection[pts.last().unwrap()];
-                m.intersection_to_roads
-                    .entry(i1)
-                    .or_insert_with(Vec::new)
-                    .push(id);
-                m.intersection_to_roads
-                    .entry(i2)
-                    .or_insert_with(Vec::new)
-                    .push(id);
+                m.intersections[i1.0].outgoing_roads.push(id);
+                m.intersections[i2.0].incoming_roads.push(id);
 
                 let offset = lane.1;
                 let use_yellow_center_lines = if let Some(other) = other_side {
@@ -114,11 +110,8 @@ impl Map {
                 };
                 // This has the side-effect of trimming the endpoints! Will do this differently
                 // soon.
-                let lane_center_lines = road::calculate_lane_center_lines(
-                    &mut pts,
-                    offset,
-                    use_yellow_center_lines,
-                );
+                let lane_center_lines =
+                    road::calculate_lane_center_lines(&mut pts, offset, use_yellow_center_lines);
 
                 m.roads.push(Road {
                     id,
@@ -137,28 +130,34 @@ impl Map {
         }
 
         for i in &m.intersections {
-            // TODO: Figure out why this happens in the huge map
-            if m.intersection_to_roads.get(&i.id).is_none() {
-                println!("WARNING: intersection {:?} has no roads", i);
-                continue;
-            }
-            let incident_roads: Vec<RoadID> = m.intersection_to_roads[&i.id]
+            let incoming: Vec<RoadID> = i.incoming_roads
                 .iter()
                 .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
                 .map(|id| *id)
                 .collect();
-            for src in &incident_roads {
+            let outgoing: Vec<RoadID> = i.outgoing_roads
+                .iter()
+                .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
+                .map(|id| *id)
+                .collect();
+
+            // TODO: Figure out why this happens in the huge map
+            if incoming.is_empty() {
+                println!("WARNING: intersection {:?} has no incoming roads", i);
+                continue;
+            }
+            if outgoing.is_empty() {
+                println!("WARNING: intersection {:?} has no outgoing roads", i);
+                continue;
+            }
+            let dead_end = incoming.len() == 1 && outgoing.len() == 1;
+
+            for src in &incoming {
                 let src_r = &m.roads[src.0];
-                if src_r.dst_i != i.id {
-                    continue;
-                }
-                for dst in &incident_roads {
+                for dst in &outgoing {
                     let dst_r = &m.roads[dst.0];
-                    if dst_r.src_i != i.id {
-                        continue;
-                    }
                     // Don't create U-turns unless it's a dead-end
-                    if src_r.other_side == Some(dst_r.id) && incident_roads.len() > 2 {
+                    if src_r.other_side == Some(dst_r.id) && !dead_end {
                         continue;
                     }
 
@@ -181,7 +180,10 @@ impl Map {
         for (idx, b) in data.get_buildings().iter().enumerate() {
             m.buildings.push(Building {
                 id: BuildingID(idx),
-                points: b.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect(),
+                points: b.get_points()
+                    .iter()
+                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                    .collect(),
                 osm_tags: b.get_osm_tags().to_vec(),
                 osm_way_id: b.get_osm_way_id(),
             });
@@ -190,28 +192,14 @@ impl Map {
         for (idx, p) in data.get_parcels().iter().enumerate() {
             m.parcels.push(Parcel {
                 id: ParcelID(idx),
-                points: p.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect(),
+                points: p.get_points()
+                    .iter()
+                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                    .collect(),
             });
         }
 
         m
-    }
-
-    // TODO this should just be explicitly stored in intersection, and mapped to &Road from ID
-    pub fn get_roads_to_intersection(&self, id: IntersectionID) -> Vec<&Road> {
-        self.intersection_to_roads[&id]
-            .iter()
-            .map(|id| &self.roads[id.0])
-            .filter(|r| r.dst_i == id)
-            .collect()
-    }
-
-    pub fn get_roads_from_intersection(&self, id: IntersectionID) -> Vec<&Road> {
-        self.intersection_to_roads[&id]
-            .iter()
-            .map(|id| &self.roads[id.0])
-            .filter(|r| r.src_i == id)
-            .collect()
     }
 
     pub fn all_roads(&self) -> &Vec<Road> {

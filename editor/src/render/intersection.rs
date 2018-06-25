@@ -7,32 +7,27 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{IntersectionID, Map};
 use render::DrawRoad;
 use std::f64;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
-    pub id: IntersectionID,
+    pub id: map_model::IntersectionID,
     pub point: Vec2d,
 
     polygon: Vec<Vec2d>,
 }
 
 impl DrawIntersection {
-    pub fn new(
-        inter: &map_model::Intersection,
-        map: &Map,
-        roads: &Vec<DrawRoad>,
-    ) -> DrawIntersection {
+    pub fn new(inter: &map_model::Intersection, roads: &Vec<DrawRoad>) -> DrawIntersection {
         let mut pts: Vec<Vec2d> = Vec::new();
-        for r in &map.get_roads_to_intersection(inter.id) {
-            let (pt1, pt2) = roads[r.id.0].get_end_crossing();
+        for r in &inter.incoming_roads {
+            let (pt1, pt2) = roads[r.0].get_end_crossing();
             pts.push(pt1);
             pts.push(pt2);
         }
-        for r in &map.get_roads_from_intersection(inter.id) {
-            let (pt1, pt2) = roads[r.id.0].get_start_crossing();
+        for r in &inter.outgoing_roads {
+            let (pt1, pt2) = roads[r.0].get_start_crossing();
             pts.push(pt1);
             pts.push(pt2);
         }
