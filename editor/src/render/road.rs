@@ -25,11 +25,11 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let (first1, first2) = road.lane_center_lines[0];
+        let (first1, first2) = road.first_line();
         let (start_1, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first1, first2);
         let (_, start_2) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first2, first1);
 
-        let (last1, last2) = *road.lane_center_lines.last().unwrap();
+        let (last1, last2) = road.last_line();
         let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
         let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
 
@@ -76,7 +76,8 @@ impl DrawRoad {
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle = graphics::Ellipse::new(cs.get(Colors::BrightDebug));
 
-        for &(pt1, pt2) in &r.lane_center_lines {
+        for pair in r.lane_center_pts.windows(2) {
+            let (pt1, pt2) = (pair[0], pair[1]);
             line.draw(
                 [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
                 &g.ctx.draw_state,

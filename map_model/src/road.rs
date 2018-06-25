@@ -59,6 +59,7 @@ impl PartialEq for Road {
 }
 
 impl Road {
+    // TODO will be removing these two
     pub fn first_pt(&self) -> Vec2d {
         let pt = &self.lane_center_lines[0].0;
         [pt.x(), pt.y()]
@@ -69,8 +70,12 @@ impl Road {
         [pt.x(), pt.y()]
     }
 
+
+    pub fn first_line(&self) -> (Pt2D, Pt2D) {
+        (self.lane_center_pts[0], self.lane_center_pts[1])
+    }
     pub fn last_line(&self) -> (Pt2D, Pt2D) {
-        *self.lane_center_lines.last().unwrap()
+        (self.lane_center_pts[self.lane_center_pts.len() - 2], self.lane_center_pts[self.lane_center_pts.len() - 1])
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {

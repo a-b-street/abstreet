@@ -86,14 +86,9 @@ fn center(pts: &Vec<Pt2D>) -> Pt2D {
 
 fn road_to_line_string(r: RoadID, map: &Map) -> geo::LineString<f64> {
     let pts: Vec<geo::Point<f64>> = map.get_r(r)
-        .lane_center_lines
+        .lane_center_pts
         .iter()
-        .flat_map(|pair| {
-            vec![
-                geo::Point::new(pair.0.x(), pair.0.y()),
-                geo::Point::new(pair.1.x(), pair.1.y()),
-            ]
-        })
+        .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();
     pts.into()
 }

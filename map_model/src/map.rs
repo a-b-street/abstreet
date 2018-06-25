@@ -311,11 +311,8 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
 
     for incoming in &i.incoming_roads {
         for outgoing in &i.outgoing_roads {
-            let pts1 = &roads[incoming.0].lane_center_pts;
-            // TODO helper for last two pts?
-            let l1 = (pts1[pts1.len() - 2], pts1[pts1.len() - 1]);
-            let pts2 = &roads[outgoing.0].lane_center_pts;
-            let l2 = (pts2[0], pts2[1]);
+            let l1 = roads[incoming.0].last_line();
+            let l2 = roads[outgoing.0].first_line();
             if let Some(hit) = geometry::line_segment_intersection(l1, l2) {
                 update_shortest(&mut shortest_last_line, *incoming, (l1.0, hit));
                 update_shortest(&mut shortest_first_line, *outgoing, (hit, l2.1));
