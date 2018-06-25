@@ -163,6 +163,8 @@ impl Map {
                         parent: i.id,
                         src: *src,
                         dst: *dst,
+                        src_pt: src_r.last_pt(),
+                        dst_pt: dst_r.first_pt(),
                     });
                 }
             }
