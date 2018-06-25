@@ -347,11 +347,11 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
     }
 
     // Apply the updates
-    /*for (id, triple) in &shortest_first_line {
+    for (id, triple) in &shortest_first_line {
         roads[id.0].lane_center_lines[0] = (triple.0, triple.1);
     }
     for (id, triple) in &shortest_last_line {
         let len = roads[id.0].lane_center_lines.len();
         roads[id.0].lane_center_lines[len - 1] = (triple.0, triple.1);
-    }*/
+    }
 }
