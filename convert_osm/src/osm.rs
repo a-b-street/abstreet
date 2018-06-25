@@ -9,7 +9,7 @@ use std::fs::File;
 use std::io::BufReader;
 
 // TODO Result, but is there an easy way to say io error or osm xml error?
-pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::pb::Map, map_model::Bounds) {
+pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model::Bounds) {
     println!("Opening {}", osm_path);
     let f = File::open(osm_path).unwrap();
     let reader = BufReader::new(f);
@@ -27,7 +27,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::pb::Map, map_model::Bound
         id_to_node.insert(node.id, node);
     }
 
-    let mut map = map_model::pb::Map::new();
+    let mut map = map_model::raw_data::Map::blank();
     let mut bounds = map_model::Bounds::new();
     for (i, way) in doc.ways.iter().enumerate() {
         // TODO count with a nicer progress bar
@@ -42,10 +42,10 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::pb::Map, map_model::Bound
                 osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
                     Some(node) => {
                         bounds.update(node.lon, node.lat);
-                        let mut pt = map_model::pb::Coordinate::new();
-                        pt.set_latitude(node.lat);
-                        pt.set_longitude(node.lon);
-                        pts.push(pt);
+                        pts.push(map_model::raw_data::LatLon {
+                            latitude: node.lat,
+                            longitude: node.lon,
+                        });
                     }
                     None => {
                         valid = false;
@@ -63,39 +63,37 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::pb::Map, map_model::Bound
             continue;
         }
         if is_road(&way.tags) {
-            let mut road = map_model::pb::Road::new();
-            road.set_osm_way_id(way.id);
-            for tag in &way.tags {
-                road.mut_osm_tags().push(format!("{}={}", tag.key, tag.val));
-            }
-            for pt in pts {
-                road.mut_points().push(pt);
-            }
-            map.mut_roads().push(road);
+            map.roads.push(map_model::raw_data::Road {
+                osm_way_id: way.id,
+                points: pts,
+                osm_tags: way.tags
+                    .iter()
+                    .map(|tag| format!("{}={}", tag.key, tag.val))
+                    .collect(),
+            });
         } else if is_bldg(&way.tags) {
-            let mut bldg = map_model::pb::Building::new();
-            bldg.set_osm_way_id(way.id);
-            for tag in &way.tags {
-                bldg.mut_osm_tags().push(format!("{}={}", tag.key, tag.val));
-            }
-            for pt in pts {
-                bldg.mut_points().push(pt);
-            }
-            map.mut_buildings().push(bldg);
+            map.buildings.push(map_model::raw_data::Building {
+                osm_way_id: way.id,
+                points: pts,
+                osm_tags: way.tags
+                    .iter()
+                    .map(|tag| format!("{}={}", tag.key, tag.val))
+                    .collect(),
+            });
         }
     }
     (map, bounds)
 }
 
 pub fn split_up_roads(
-    input: &map_model::pb::Map,
+    input: &map_model::raw_data::Map,
     elevation: &srtm::Elevation,
-) -> map_model::pb::Map {
-    println!("splitting up {} roads", input.get_roads().len());
+) -> map_model::raw_data::Map {
+    println!("splitting up {} roads", input.roads.len());
     let mut counts_per_pt: HashMap<Pt2D, usize> = HashMap::new();
     let mut intersections: HashSet<Pt2D> = HashSet::new();
-    for r in input.get_roads() {
-        for (idx, raw_pt) in r.get_points().iter().enumerate() {
+    for r in &input.roads {
+        for (idx, raw_pt) in r.points.iter().enumerate() {
             let pt = Pt2D::from(raw_pt);
             counts_per_pt.entry(pt).or_insert(0);
             let count = counts_per_pt[&pt] + 1;
@@ -106,40 +104,41 @@ pub fn split_up_roads(
             }
 
             // All start and endpoints of ways are also intersections.
-            if idx == 0 || idx == r.get_points().len() - 1 {
+            if idx == 0 || idx == r.points.len() - 1 {
                 intersections.insert(pt);
             }
         }
     }
 
-    let mut map = map_model::pb::Map::new();
-    for b in input.get_buildings() {
-        map.mut_buildings().push(b.clone());
-    }
+    let mut map = map_model::raw_data::Map::blank();
+    map.buildings.extend(input.buildings.clone());
+
     for pt in &intersections {
-        let mut intersection = map_model::pb::Intersection::new();
-        intersection.set_has_traffic_signal(false);
-        intersection.mut_point().set_longitude(pt.x());
-        intersection.mut_point().set_latitude(pt.y());
-        intersection.set_elevation_meters(elevation.get(pt.x(), pt.y()));
-        map.mut_intersections().push(intersection);
+        map.intersections.push(map_model::raw_data::Intersection {
+            point: map_model::raw_data::LatLon {
+                latitude: pt.y(),
+                longitude: pt.x(),
+            },
+            elevation_meters: elevation.get(pt.x(), pt.y()),
+            has_traffic_signal: false,
+        });
     }
 
     // Now actually split up the roads based on the intersections
-    for orig_road in input.get_roads() {
+    for orig_road in &input.roads {
         let mut r = orig_road.clone();
-        r.clear_points();
+        r.points.clear();
 
-        for pt in orig_road.get_points() {
-            r.mut_points().push(pt.clone());
-            if r.get_points().len() > 1 && intersections.contains(&Pt2D::from(pt)) {
+        for pt in &orig_road.points {
+            r.points.push(pt.clone());
+            if r.points.len() > 1 && intersections.contains(&Pt2D::from(pt)) {
                 // Start a new road
-                map.mut_roads().push(r.clone());
-                r.clear_points();
-                r.mut_points().push(pt.clone());
+                map.roads.push(r.clone());
+                r.points.clear();
+                r.points.push(pt.clone());
             }
         }
-        assert!(r.get_points().len() == 1);
+        assert!(r.points.len() == 1);
     }
 
     // TODO we're somehow returning an intersection here with no roads. figure that out.

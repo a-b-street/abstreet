@@ -45,9 +45,9 @@ impl SteepnessVisualizer {
     }
 
     fn get_delta(&self, map: &Map, r: &Road) -> f64 {
-        let e1 = map.get_source_intersection(r.id).elevation_meters;
-        let e2 = map.get_destination_intersection(r.id).elevation_meters;
-        (e1 - e2).abs()
+        let e1 = map.get_source_intersection(r.id).elevation;
+        let e2 = map.get_destination_intersection(r.id).elevation;
+        (e1 - e2).value_unsafe.abs()
     }
 
     pub fn color_r(&self, map: &Map, r: &Road) -> Option<Color> {

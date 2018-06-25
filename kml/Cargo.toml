@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 map_model = { path = "../map_model" }
 quick-xml = "0.10.0"

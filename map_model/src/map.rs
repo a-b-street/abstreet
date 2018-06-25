@@ -2,17 +2,18 @@
 
 use Bounds;
 use Pt2D;
+use abstutil;
 use building;
 use building::{Building, BuildingID};
 use dimensioned::si;
 use geometry;
-use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
 use parcel::{Parcel, ParcelID};
-use pb;
+use raw_data;
 use road::{LaneType, Road, RoadID};
 use shift_polyline;
 use std::collections::HashMap;
+use std::io::Error;
 use turn::{Turn, TurnID};
 
 pub struct Map {
@@ -27,27 +28,29 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(data: &pb::Map) -> Map {
+    pub fn new(path: &str) -> Result<Map, Error> {
+        let data: raw_data::Map = abstutil::read_json(path)?;
+
+        let bounds = data.get_gps_bounds();
         let mut m = Map {
+            bounds,
             roads: Vec::new(),
             intersections: Vec::new(),
             turns: Vec::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
-            bounds: get_gps_bounds(data),
         };
-        let bounds = m.get_gps_bounds();
 
         let mut pt_to_intersection: HashMap<Pt2D, IntersectionID> = HashMap::new();
 
-        for (idx, i) in data.get_intersections().iter().enumerate() {
+        for (idx, i) in data.intersections.iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = geometry::gps_to_screen_space(&Pt2D::from(i.get_point()), &bounds);
+            let pt = geometry::gps_to_screen_space(&Pt2D::from(&i.point), &bounds);
             m.intersections.push(Intersection {
                 id,
                 point: pt,
                 turns: Vec::new(),
-                elevation_meters: i.get_elevation_meters(),
+                elevation: i.elevation_meters * si::M,
                 // TODO use the data again!
                 //has_traffic_signal: i.get_has_traffic_signal(),
                 has_traffic_signal: idx % 2 == 0,
@@ -58,14 +61,14 @@ impl Map {
         }
 
         let mut counter = 0;
-        for r in data.get_roads() {
+        for r in &data.roads {
             for lane in get_lane_specs(r) {
                 let id = RoadID(counter);
                 counter += 1;
                 let other_side = lane.offset_for_other_id
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
-                let mut unshifted_pts: Vec<Pt2D> = r.get_points()
+                let mut unshifted_pts: Vec<Pt2D> = r.points
                     .iter()
                     .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
                     .collect();
@@ -102,8 +105,8 @@ impl Map {
                     offset: lane.offset,
                     src_i: i1,
                     dst_i: i2,
-                    osm_tags: r.get_osm_tags().to_vec(),
-                    osm_way_id: r.get_osm_way_id(),
+                    osm_tags: r.osm_tags.clone(),
+                    osm_way_id: r.osm_way_id,
                     lane_type: lane.lane_type,
                 });
             }
@@ -121,34 +124,34 @@ impl Map {
             m.intersections[t.parent.0].turns.push(t.id);
         }
 
-        for (idx, b) in data.get_buildings().iter().enumerate() {
-            let points = b.get_points()
+        // TODO consume data, so we dont have to clone tags?
+        for (idx, b) in data.buildings.iter().enumerate() {
+            let points = b.points
                 .iter()
                 .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
                 .collect();
-            let osm_tags = b.get_osm_tags().to_vec();
-            let front_path = building::find_front_path(&points, &osm_tags, &m);
+            let front_path = building::find_front_path(&points, &b.osm_tags, &m);
 
             m.buildings.push(Building {
                 points,
-                osm_tags,
                 front_path,
                 id: BuildingID(idx),
-                osm_way_id: b.get_osm_way_id(),
+                osm_way_id: b.osm_way_id,
+                osm_tags: b.osm_tags.clone(),
             });
         }
 
-        for (idx, p) in data.get_parcels().iter().enumerate() {
+        for (idx, p) in data.parcels.iter().enumerate() {
             m.parcels.push(Parcel {
                 id: ParcelID(idx),
-                points: p.get_points()
+                points: p.points
                     .iter()
                     .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
                     .collect(),
             });
         }
 
-        m
+        Ok(m)
     }
 
     pub fn all_roads(&self) -> &Vec<Road> {
@@ -337,11 +340,11 @@ struct LaneSpec {
     offset_for_other_id: Option<isize>,
 }
 
-fn get_lane_specs(r: &pb::Road) -> Vec<LaneSpec> {
+fn get_lane_specs(r: &raw_data::Road) -> Vec<LaneSpec> {
     // TODO these choices per raw road is a perfect fxn
-    let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
+    let oneway = r.osm_tags.contains(&String::from("oneway=yes"));
     // These seem to represent weird roundabouts
-    let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
+    let junction = r.osm_tags.contains(&String::from("junction=yes"));
 
     // TODO debugging convenience
     let only_roads_for_debugging = false;

@@ -70,8 +70,7 @@ pub struct UI {
 impl UI {
     pub fn new(abst_path: &str, window_size: &Size, rng_seed: Option<u8>) -> UI {
         println!("Opening {}", abst_path);
-        let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
-        let map = map_model::Map::new(&data);
+        let map = map_model::Map::new(abst_path).expect("Couldn't load map");
         let (draw_map, center_pt) = render::DrawMap::new(&map);
         let control_map = ControlMap::new(&map);
 

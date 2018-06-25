@@ -3,6 +3,7 @@
 use Pt2D;
 use RoadID;
 use TurnID;
+use dimensioned::si;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -13,7 +14,7 @@ pub struct Intersection {
     pub id: IntersectionID,
     pub point: Pt2D,
     pub turns: Vec<TurnID>,
-    pub elevation_meters: f64,
+    pub elevation: si::Meter<f64>,
     pub has_traffic_signal: bool,
 
     pub incoming_roads: Vec<RoadID>,

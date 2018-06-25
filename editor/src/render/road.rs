@@ -123,9 +123,9 @@ impl DrawRoad {
                 self.polygons.len()
             ),
             format!(
-                "Road goes from {}m to {}m",
-                map.get_source_intersection(self.id).elevation_meters,
-                map.get_destination_intersection(self.id).elevation_meters,
+                "Road goes from {} to {}",
+                map.get_source_intersection(self.id).elevation,
+                map.get_destination_intersection(self.id).elevation,
             ),
             format!("Road is {}m long", r.length()),
         ];

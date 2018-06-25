@@ -1,12 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate aabb_quadtree;
+extern crate abstutil;
 #[macro_use]
 extern crate dimensioned;
 extern crate geo;
 extern crate graphics;
 extern crate ordered_float;
-extern crate protobuf;
 extern crate rand;
 extern crate serde;
 #[macro_use]
@@ -18,8 +18,8 @@ pub mod geometry;
 mod intersection;
 mod map;
 mod parcel;
-pub mod pb;
 mod polyline;
+pub mod raw_data;
 mod road;
 mod turn;
 
@@ -31,29 +31,10 @@ pub use map::Map;
 use ordered_float::NotNaN;
 pub use parcel::{Parcel, ParcelID};
 pub use polyline::{polygons_for_polyline, shift_line, shift_polyline};
-use protobuf::error::ProtobufError;
-use protobuf::{CodedInputStream, CodedOutputStream, Message};
 pub use road::{LaneType, Road, RoadID};
 use std::f64;
 use std::fmt;
-use std::fs::File;
 pub use turn::{Turn, TurnID};
-
-pub fn write_pb(map: &pb::Map, path: &str) -> Result<(), ProtobufError> {
-    let mut file = File::create(path)?;
-    let mut cos = CodedOutputStream::new(&mut file);
-    map.write_to(&mut cos)?;
-    cos.flush()?;
-    Ok(())
-}
-
-pub fn load_pb(path: &str) -> Result<pb::Map, ProtobufError> {
-    let mut file = File::open(path)?;
-    let mut cis = CodedInputStream::new(&mut file);
-    let mut map = pb::Map::new();
-    map.merge_from(&mut cis)?;
-    Ok(map)
-}
 
 // This isn't opinionated about what the (x, y) represents. Could be GPS coordinates, could be
 // screen-space.
@@ -106,9 +87,9 @@ impl Pt2D {
     }
 }
 
-impl<'a> From<&'a pb::Coordinate> for Pt2D {
-    fn from(pt: &pb::Coordinate) -> Self {
-        Pt2D::new(pt.get_longitude(), pt.get_latitude())
+impl<'a> From<&'a raw_data::LatLon> for Pt2D {
+    fn from(pt: &raw_data::LatLon) -> Self {
+        Pt2D::new(pt.longitude, pt.latitude)
     }
 }
 
@@ -154,8 +135,8 @@ impl Bounds {
         self.update(pt.x(), pt.y());
     }
 
-    pub fn update_coord(&mut self, coord: &pb::Coordinate) {
-        self.update(coord.get_longitude(), coord.get_latitude());
+    pub fn update_coord(&mut self, coord: &raw_data::LatLon) {
+        self.update(coord.longitude, coord.latitude);
     }
 
     pub fn contains(&self, x: f64, y: f64) -> bool {
@@ -165,29 +146,4 @@ impl Bounds {
 
 pub fn has_osm_tag(tags: &Vec<String>, key: &str, value: &str) -> bool {
     tags.contains(&format!("{}={}", key, value))
-}
-
-fn get_gps_bounds(data: &pb::Map) -> Bounds {
-    let mut bounds = Bounds::new();
-
-    for r in data.get_roads() {
-        for pt in r.get_points() {
-            bounds.update_coord(pt);
-        }
-    }
-    for i in data.get_intersections() {
-        bounds.update_coord(i.get_point());
-    }
-    for b in data.get_buildings() {
-        for pt in b.get_points() {
-            bounds.update_coord(pt);
-        }
-    }
-    for p in data.get_parcels() {
-        for pt in p.get_points() {
-            bounds.update_coord(pt);
-        }
-    }
-
-    bounds
 }

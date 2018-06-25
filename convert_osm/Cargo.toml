@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 byteorder = "1.2.1"
 ordered-float = "0.5.0"
 osm-xml = "0.5.1"

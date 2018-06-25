@@ -103,12 +103,15 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- multiple driving lanes on highways
 		- dashed white lines
 
+	- more compact output
+	- osm tags as map
 	- THEN: express the proto -> runtime map loading as a sequence of phases
 		- later, this could be the same as the OSM conversion. just
 		  like aorta's map make. but instead, be able to restart from
 		  any point, by the magic of easy serialization.
-		- get rid of the protobuf
 		- figure out how to do dynamicish updates as we edit the map!
+
+
 	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more
 	- MORE CLEANUP: Line type that's just a pair of pt2d's with length and fmt display
 

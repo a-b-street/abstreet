@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+extern crate abstutil;
 extern crate map_model;
 extern crate quick_xml;
 
@@ -22,13 +23,13 @@ fn main() {
         min_y: 47.5793,
         max_y: 47.7155,
     };
-    let mut map = map_model::pb::Map::new();
-    for p in kml::load(&args[1], &bounds).unwrap().iter() {
-        // TODO dont clone, take ownership!
-        map.mut_parcels().push(p.clone());
+    // TODO could use a better output format now
+    let mut map = map_model::raw_data::Map::blank();
+    if let Ok(parcels) = kml::load(&args[1], &bounds) {
+        map.parcels.extend(parcels);
     }
 
     let out_path = &args[2];
     println!("writing to {}", out_path);
-    map_model::write_pb(&map, out_path).expect("serializing map failed");
+    abstutil::write_json(out_path, &map).expect("serializing map failed");
 }

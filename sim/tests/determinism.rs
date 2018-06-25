@@ -13,8 +13,7 @@ fn from_scratch() {
     println!("Creating two simulations");
     // TODO bundle all of the layers of the map together in some super-struct, so this
     // initialization and plumbing is easier
-    let data = map_model::load_pb(input).expect("Couldn't load input");
-    let map = map_model::Map::new(&data);
+    let map = map_model::Map::new(input).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
     let mut sim1 = sim::straw_model::Sim::new(&map, Some(rng_seed));
@@ -43,8 +42,7 @@ fn with_savestating() {
     let spawn_count = 1000;
 
     println!("Creating two simulations");
-    let data = map_model::load_pb(input).expect("Couldn't load input");
-    let map = map_model::Map::new(&data);
+    let map = map_model::Map::new(input).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
     let mut sim1 = sim::straw_model::Sim::new(&map, Some(rng_seed));

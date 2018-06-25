@@ -6,7 +6,10 @@ use quick_xml::reader::Reader;
 use std::fs::File;
 use std::{io, f64};
 
-pub fn load(path: &String, b: &map_model::Bounds) -> Result<Vec<map_model::pb::Parcel>, io::Error> {
+pub fn load(
+    path: &String,
+    b: &map_model::Bounds,
+) -> Result<Vec<map_model::raw_data::Parcel>, io::Error> {
     println!("Opening {}", path);
     let f = File::open(path).unwrap();
     let mut reader = Reader::from_reader(io::BufReader::new(f));
@@ -32,14 +35,14 @@ pub fn load(path: &String, b: &map_model::Bounds) -> Result<Vec<map_model::pb::P
                 // interpret parsing failures appropriately though...
                 if text.contains(" ") {
                     let mut ok = true;
-                    let mut parcel = map_model::pb::Parcel::new();
+                    let mut parcel = map_model::raw_data::Parcel { points: Vec::new() };
                     for pt in text.split(" ") {
                         if let Some((lon, lat)) = parse_pt(pt) {
                             if b.contains(lon, lat) {
-                                let mut coord = map_model::pb::Coordinate::new();
-                                coord.set_longitude(lon);
-                                coord.set_latitude(lat);
-                                parcel.mut_points().push(coord);
+                                parcel.points.push(map_model::raw_data::LatLon {
+                                    latitude: lat,
+                                    longitude: lon,
+                                });
                             } else {
                                 ok = false;
                             }

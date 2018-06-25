@@ -24,8 +24,7 @@ fn main() {
     let flags = Flags::from_args();
 
     println!("Opening {}", flags.abst_input);
-    let data = map_model::load_pb(&flags.abst_input).expect("Couldn't load pb");
-    let map = map_model::Map::new(&data);
+    let map = map_model::Map::new(&flags.abst_input).expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
     let mut sim = sim::straw_model::Sim::new(&map, flags.rng_seed);
