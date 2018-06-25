@@ -66,11 +66,11 @@ impl DrawMap {
             .collect();
         let buildings: Vec<DrawBuilding> = map.all_buildings()
             .iter()
-            .map(|b| DrawBuilding::new(b, &bounds, map))
+            .map(|b| DrawBuilding::new(b, map))
             .collect();
         let parcels: Vec<DrawParcel> = map.all_parcels()
             .iter()
-            .map(|p| DrawParcel::new(p, &bounds))
+            .map(|p| DrawParcel::new(p))
             .collect();
 
         // min_y here due to the wacky y inversion

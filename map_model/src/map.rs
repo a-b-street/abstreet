@@ -5,6 +5,7 @@ use Pt2D;
 use building::{Building, BuildingID};
 use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
+use geometry;
 use parcel::{Parcel, ParcelID};
 use pb;
 use road;
@@ -38,6 +39,7 @@ impl Map {
             intersection_to_roads: HashMap::new(),
             bounds: get_gps_bounds(data),
         };
+        let bounds = m.get_gps_bounds();
 
         for (idx, i) in data.get_intersections().iter().enumerate() {
             let id = IntersectionID(idx);
@@ -113,7 +115,7 @@ impl Map {
                     &pts,
                     offset,
                     use_yellow_center_lines,
-                    &m.get_gps_bounds(),
+                    &bounds,
                 );
 
                 m.roads.push(Road {
@@ -176,7 +178,7 @@ impl Map {
         for (idx, b) in data.get_buildings().iter().enumerate() {
             m.buildings.push(Building {
                 id: BuildingID(idx),
-                points: b.get_points().iter().map(Pt2D::from).collect(),
+                points: b.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect(),
                 osm_tags: b.get_osm_tags().to_vec(),
                 osm_way_id: b.get_osm_way_id(),
             });
@@ -185,7 +187,7 @@ impl Map {
         for (idx, p) in data.get_parcels().iter().enumerate() {
             m.parcels.push(Parcel {
                 id: ParcelID(idx),
-                points: p.get_points().iter().map(Pt2D::from).collect(),
+                points: p.get_points().iter().map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds)).collect(),
             });
         }
 

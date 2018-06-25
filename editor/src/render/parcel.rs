@@ -7,30 +7,25 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{Bounds, ParcelID, Pt2D};
 use render::PARCEL_BOUNDARY_THICKNESS;
 
 #[derive(Debug)]
 pub struct DrawParcel {
-    pub id: ParcelID,
+    pub id: map_model::ParcelID,
     // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
     fill_polygon: Vec<Vec2d>,
 }
 
 impl DrawParcel {
-    pub fn new(p: &map_model::Parcel, bounds: &Bounds) -> DrawParcel {
-        let pts: Vec<Pt2D> = p.points
-            .iter()
-            .map(|pt| geometry::gps_to_screen_space(pt, bounds))
-            .collect();
+    pub fn new(p: &map_model::Parcel) -> DrawParcel {
         DrawParcel {
             id: p.id,
             boundary_polygons: geometry::thick_multiline(
                 &geometry::ThickLine::Centered(PARCEL_BOUNDARY_THICKNESS),
-                &pts,
+                &p.points,
             ),
-            fill_polygon: pts.iter().map(|pt| [pt.x(), pt.y()]).collect(),
+            fill_polygon: p.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
         }
     }
 

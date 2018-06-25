@@ -8,7 +8,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{Bounds, BuildingID, Map};
+use map_model::{BuildingID, Map};
 use ordered_float::NotNaN;
 use std::f64;
 
@@ -22,13 +22,10 @@ pub struct DrawBuilding {
 }
 
 impl DrawBuilding {
-    pub fn new(bldg: &map_model::Building, bounds: &Bounds, map: &Map) -> DrawBuilding {
+    pub fn new(bldg: &map_model::Building, map: &Map) -> DrawBuilding {
         let pts: Vec<Vec2d> = bldg.points
             .iter()
-            .map(|pt| {
-                let screen_pt = geometry::gps_to_screen_space(pt, bounds);
-                [screen_pt.x(), screen_pt.y()]
-            })
+            .map(|pt| [pt.x(), pt.y()])
             .collect();
         DrawBuilding {
             id: bldg.id,
