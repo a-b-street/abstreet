@@ -43,6 +43,10 @@ pub struct Road {
     /// GeomRoad stuff
     // TODO need to settle on a proper Line type
     pub lane_center_lines: Vec<(Pt2D, Pt2D)>,
+
+    // Not ready for prime-time yet
+    pub lane_center_pts: Vec<Pt2D>,
+
     // Unshifted center points. consider computing these twice or otherwise not storing them
     // These're screen-space. Order implies road orientation.
     pub unshifted_pts: Vec<Pt2D>,

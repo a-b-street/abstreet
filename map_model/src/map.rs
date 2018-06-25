@@ -7,6 +7,7 @@ use building::{Building, BuildingID};
 use dimensioned::si;
 use geometry;
 use get_gps_bounds;
+use shift_polyline;
 use intersection::{Intersection, IntersectionID};
 use parcel::{Parcel, ParcelID};
 use pb;
@@ -89,6 +90,9 @@ impl Map {
                     lane.offset,
                     use_yellow_center_lines,
                 );
+                // TODO probably different behavior for oneways
+                // TODO need to factor in yellow center lines (but what's the right thing to even do?
+                let lane_center_pts = shift_polyline(geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5), &unshifted_pts);
 
                 // pts and lane_center_lines will get updated in the next pass
                 m.roads.push(Road {
@@ -96,6 +100,7 @@ impl Map {
                     other_side,
                     use_yellow_center_lines,
                     lane_center_lines,
+                    lane_center_pts,
                     unshifted_pts,
                     offset: lane.offset,
                     src_i: i1,
@@ -339,7 +344,7 @@ fn get_lane_specs(r: &pb::Road) -> Vec<LaneSpec> {
     let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
 
     // TODO debugging convenience
-    let only_roads_for_debugging = true;
+    let only_roads_for_debugging = false;
 
     let mut lanes: Vec<LaneSpec> = vec![
         LaneSpec {

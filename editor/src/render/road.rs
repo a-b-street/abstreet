@@ -25,11 +25,6 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let lane_center_pts: Vec<Pt2D> = road.lane_center_lines
-            .iter()
-            .flat_map(|pair| vec![pair.0, pair.1])
-            .collect();
-
         let (first1, first2) = road.lane_center_lines[0];
         let (start_1, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first1, first2);
         let (_, start_2) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first2, first1);
@@ -38,14 +33,7 @@ impl DrawRoad {
         let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
         let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
 
-        //let polygons = if road.lane_center_lines.len() == 1 {
-        let polygons = if road.id == RoadID(39) {
-            println!("bad pts: {:?}", lane_center_pts);
-            map_model::polygons_for_polyline(&lane_center_pts, geometry::LANE_THICKNESS)
-        } else {
-            let thick_line = geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
-            geometry::thick_multiline(&thick_line, &lane_center_pts)
-        };
+        let polygons = map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
 
         DrawRoad {
             id: road.id,
