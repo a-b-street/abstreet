@@ -26,12 +26,19 @@ pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Vec2
 
     let mut result: Vec<Vec<Pt2D>> = Vec::new();
     for high_idx in 1..center_pts.len() {
+        // Duplicate first point, since that's what graphics layer expects
         result.push(vec![
             side1[high_idx],
             side1[high_idx - 1],
             side2[high_idx - 1],
+            side1[high_idx],
         ]);
-        result.push(vec![side2[high_idx], side2[high_idx - 1], side1[high_idx]]);
+        result.push(vec![
+            side2[high_idx],
+            side2[high_idx - 1],
+            side1[high_idx],
+            side2[high_idx],
+        ]);
     }
     result
         .iter()

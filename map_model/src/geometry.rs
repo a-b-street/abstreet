@@ -114,12 +114,12 @@ pub fn thick_line_from_angle(
     line_length: f64,
     pt: &Pt2D,
     angle: angles::Radian<f64>,
-) -> Vec<Vec2d> {
+) -> Vec<Vec<Vec2d>> {
     let pt2 = Pt2D::new(
         pt.x() + line_length * angle.value_unsafe.cos(),
         pt.y() + line_length * angle.value_unsafe.sin(),
     );
-    thick_line(&ThickLine::Centered(thickness), &pt, &pt2)
+    polyline::polygons_for_polyline(&vec![*pt, pt2], thickness)
 }
 
 pub fn shift_line_perpendicularly_in_driving_direction(

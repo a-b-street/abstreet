@@ -27,7 +27,7 @@ const CAR_LENGTH: f64 = 4.5;
 // TODO move this out
 pub struct DrawCar {
     pub id: CarID,
-    quad: Vec<Vec2d>,
+    polygons: Vec<Vec<Vec2d>>,
     front: Pt2D,
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<[f64; 4]>,
@@ -42,7 +42,7 @@ impl DrawCar {
             turn_arrow: None,
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
             // add PI because we want to find the back of the car relative to the front
-            quad: geometry::thick_line_from_angle(
+            polygons: geometry::thick_line_from_angle(
                 CAR_WIDTH,
                 CAR_LENGTH,
                 front,
@@ -53,7 +53,9 @@ impl DrawCar {
 
     pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
         let poly = graphics::Polygon::new(color);
-        poly.draw(&self.quad, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        for p in &self.polygons {
+            poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        }
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {
             let turn_line = graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25);
@@ -62,7 +64,12 @@ impl DrawCar {
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        geometry::point_in_polygon(x, y, &self.quad)
+        for p in &self.polygons {
+            if geometry::point_in_polygon(x, y, p) {
+                return true;
+            }
+        }
+        false
     }
 }
 
