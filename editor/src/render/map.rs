@@ -27,9 +27,7 @@ pub struct DrawMap {
 
 impl DrawMap {
     // Also returns the center of the map in map-space
-    pub fn new(map: &Map) -> (DrawMap, Bounds, Pt2D) {
-        let bounds = map.get_gps_bounds();
-
+    pub fn new(map: &Map) -> (DrawMap, Pt2D) {
         let mut roads: Vec<DrawRoad> = Vec::new();
         for r in map.all_roads() {
             roads.push(DrawRoad::new(r));
@@ -74,6 +72,7 @@ impl DrawMap {
             .collect();
 
         // min_y here due to the wacky y inversion
+        let bounds = map.get_gps_bounds();
         let max_screen_pt =
             geometry::gps_to_screen_space(&Pt2D::new(bounds.max_x, bounds.min_y), &bounds);
         let map_bbox = Rect {
@@ -119,7 +118,6 @@ impl DrawMap {
                 buildings_quadtree,
                 parcels_quadtree,
             },
-            bounds,
             Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
         )
     }

@@ -72,7 +72,7 @@ impl UI {
         println!("Opening {}", abst_path);
         let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
         let map = map_model::Map::new(&data);
-        let (draw_map, _, center_pt) = render::DrawMap::new(&map);
+        let (draw_map, center_pt) = render::DrawMap::new(&map);
         let control_map = ControlMap::new(&map);
 
         let steepness_viz = SteepnessVisualizer::new(&map);

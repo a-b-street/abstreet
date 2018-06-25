@@ -95,10 +95,9 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		---> option 1: module per object type, geometry and graph squished together
 		- option 2: try to separate the graph/geom stuff within map model.
 	- CLEANUP: no more 'extern crate' in non lib
-
-
 	- CLEANUP: gps to screen in map upfront, dont plumb along gps pts for bldg/parcel/etc, so bounds should become private.
 		- pt2d should no longer represent gps
+
 
 	- CLEANUP: bldg front path should happen upfront, not in render
 	- THEN: express the proto -> runtime map loading as a sequence of phases
