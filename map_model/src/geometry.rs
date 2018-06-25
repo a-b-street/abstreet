@@ -27,7 +27,6 @@ pub mod angles {
 
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
-pub const TURN_DIST_FROM_INTERSECTION: f64 = 7.5;
 
 // -1 for driving on the left
 const DRIVING_DIRECTION: f64 = 1.0;

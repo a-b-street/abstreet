@@ -94,7 +94,7 @@ impl Map {
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 let lane_center_pts = shift_polyline(geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5), &unshifted_pts);
 
-                // pts and lane_center_lines will get updated in the next pass
+                // lane_center_pts will get updated in the next pass
                 m.roads.push(Road {
                     id,
                     other_side,
@@ -311,8 +311,11 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
 
     for incoming in &i.incoming_roads {
         for outgoing in &i.outgoing_roads {
-            let l1 = *(roads[incoming.0].lane_center_lines.last().unwrap());
-            let l2 = roads[outgoing.0].lane_center_lines[0];
+            let pts1 = &roads[incoming.0].lane_center_pts;
+            // TODO helper for last two pts?
+            let l1 = (pts1[pts1.len() - 2], pts1[pts1.len() - 1]);
+            let pts2 = &roads[outgoing.0].lane_center_pts;
+            let l2 = (pts2[0], pts2[1]);
             if let Some(hit) = geometry::line_segment_intersection(l1, l2) {
                 update_shortest(&mut shortest_last_line, *incoming, (l1.0, hit));
                 update_shortest(&mut shortest_first_line, *outgoing, (hit, l2.1));
@@ -322,11 +325,13 @@ fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
 
     // Apply the updates
     for (id, triple) in &shortest_first_line {
-        roads[id.0].lane_center_lines[0] = (triple.0, triple.1);
+        roads[id.0].lane_center_pts[0] = triple.0;
+        roads[id.0].lane_center_pts[1] = triple.1;
     }
     for (id, triple) in &shortest_last_line {
-        let len = roads[id.0].lane_center_lines.len();
-        roads[id.0].lane_center_lines[len - 1] = (triple.0, triple.1);
+        let len = roads[id.0].lane_center_pts.len();
+        roads[id.0].lane_center_pts[len - 2] = triple.0;
+        roads[id.0].lane_center_pts[len - 1] = triple.1;
     }
 }
 
