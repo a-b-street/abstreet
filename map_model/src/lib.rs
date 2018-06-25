@@ -3,6 +3,7 @@
 extern crate aabb_quadtree;
 #[macro_use]
 extern crate dimensioned;
+extern crate geo;
 extern crate graphics;
 extern crate ordered_float;
 extern crate protobuf;

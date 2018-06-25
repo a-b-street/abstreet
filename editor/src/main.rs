@@ -4,7 +4,6 @@ extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate control;
 extern crate ezgui;
-extern crate geo;
 extern crate glutin_window;
 extern crate graphics;
 extern crate map_model;

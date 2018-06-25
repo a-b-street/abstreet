@@ -2,6 +2,7 @@
 
 use Bounds;
 use Pt2D;
+use building;
 use building::{Building, BuildingID};
 use geometry;
 use get_gps_bounds;
@@ -178,13 +179,18 @@ impl Map {
         }
 
         for (idx, b) in data.get_buildings().iter().enumerate() {
+            let points = b.get_points()
+                .iter()
+                .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                .collect();
+            let osm_tags = b.get_osm_tags().to_vec();
+            let front_path = building::find_front_path(&points, &osm_tags, &m);
+
             m.buildings.push(Building {
+                points,
+                osm_tags,
+                front_path,
                 id: BuildingID(idx),
-                points: b.get_points()
-                    .iter()
-                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
-                    .collect(),
-                osm_tags: b.get_osm_tags().to_vec(),
                 osm_way_id: b.get_osm_way_id(),
             });
         }

@@ -3,7 +3,7 @@
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
 use map_model::geometry;
-use map_model::{Bounds, BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
+use map_model::{BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
 use render::parcel::DrawParcel;
@@ -64,7 +64,7 @@ impl DrawMap {
             .collect();
         let buildings: Vec<DrawBuilding> = map.all_buildings()
             .iter()
-            .map(|b| DrawBuilding::new(b, map))
+            .map(|b| DrawBuilding::new(b))
             .collect();
         let parcels: Vec<DrawParcel> = map.all_parcels()
             .iter()

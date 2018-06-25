@@ -6,6 +6,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 [dependencies]
 aabb-quadtree = "0.1.0"
 dimensioned = "0.6.0"
+geo = "0.9.1"
 ordered-float = "0.5.0"
 piston2d-graphics = "*"
 protobuf = "1.4"
