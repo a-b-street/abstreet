@@ -1,9 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate map_model;
-extern crate osm_xml;
-
+use map_model;
 use map_model::Pt2D;
+use osm_xml;
 use srtm;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;

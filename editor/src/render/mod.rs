@@ -1,7 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate map_model;
-
 mod building;
 mod intersection;
 mod map;

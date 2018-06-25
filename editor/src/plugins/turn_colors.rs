@@ -2,8 +2,6 @@
 
 // TODO problem with this approach is that turns can belong to multiple cycles
 
-extern crate map_model;
-
 use control::ControlMap;
 use graphics::types::Color;
 use map_model::{Turn, TurnID};

@@ -1,8 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate map_model;
-extern crate quick_xml;
-
+use map_model;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::fs::File;

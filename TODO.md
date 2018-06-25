@@ -68,7 +68,6 @@
 
 ## Code cleanup
 
-- where does 'extern crate' belong? only in main / mod?
 - clean up code
 	- master Map struct
 	- line type / ditch vec2d / settle on types

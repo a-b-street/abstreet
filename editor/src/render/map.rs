@@ -1,8 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate aabb_quadtree;
-extern crate map_model;
-
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
 use map_model::geometry;

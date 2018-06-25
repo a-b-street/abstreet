@@ -2,8 +2,6 @@
 
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
-extern crate map_model;
-
 use ezgui::input::UserInput;
 use graphics::types::Color;
 use map_model::{Map, Road};

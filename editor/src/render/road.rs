@@ -1,14 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate aabb_quadtree;
-extern crate map_model;
-
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use ezgui::GfxCtx;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
+use map_model;
 use map_model::geometry;
 use map_model::{Pt2D, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;

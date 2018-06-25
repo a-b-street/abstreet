@@ -2,9 +2,6 @@
 
 // TODO this should just be a way to handle interactions between plugins
 
-extern crate map_model;
-extern crate serde;
-
 use abstutil;
 use animation;
 use colors::{ColorScheme, Colors};
@@ -17,6 +14,7 @@ use ezgui::input::UserInput;
 use graphics;
 use graphics::types::Color;
 use gui;
+use map_model;
 use map_model::IntersectionID;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;

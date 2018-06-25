@@ -2,8 +2,6 @@
 
 // TODO how to edit cycle time?
 
-extern crate map_model;
-
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::input::UserInput;
