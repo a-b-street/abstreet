@@ -19,22 +19,37 @@ pub struct DrawRoad {
     // Empty for one-ways and one side of two-ways.
     // TODO ideally this could be done in the shader or something
     yellow_center_lines: Vec<Pt2D>,
+    start_crossing: (Vec2d, Vec2d),
+    end_crossing: (Vec2d, Vec2d),
 }
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let thick_line =
-            geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
-        let lane_center_pts: Vec<Pt2D> = road.lane_center_lines.iter().flat_map(|pair| vec![pair.0, pair.1]).collect();
+        let thick_line = geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
+        let lane_center_pts: Vec<Pt2D> = road.lane_center_lines
+            .iter()
+            .flat_map(|pair| vec![pair.0, pair.1])
+            .collect();
+
+        let (first1, first2) = road.lane_center_lines[0];
+        let (start_1, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first1, first2);
+        let (_, start_2) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first2, first1);
+
+        let (last1, last2) = *road.lane_center_lines.last().unwrap();
+        let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
+        let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
 
         DrawRoad {
             id: road.id,
             polygons: geometry::thick_multiline(&thick_line, &lane_center_pts),
+            //polygons: map_model::polygons_for_polyline(&lane_center_pts, geometry::LANE_THICKNESS),
             yellow_center_lines: if road.use_yellow_center_lines {
                 road.unshifted_pts.clone()
             } else {
                 Vec::new()
             },
+            start_crossing: (start_1.to_vec(), start_2.to_vec()),
+            end_crossing: (end_1.to_vec(), end_2.to_vec()),
         }
     }
 
@@ -123,13 +138,10 @@ impl DrawRoad {
 
     // Get the line marking the end of the road, perpendicular to the direction of the road
     pub(crate) fn get_end_crossing(&self) -> (Vec2d, Vec2d) {
-        (
-            self.polygons.last().unwrap()[2],
-            self.polygons.last().unwrap()[3],
-        )
+        self.end_crossing
     }
 
     pub(crate) fn get_start_crossing(&self) -> (Vec2d, Vec2d) {
-        (self.polygons[0][0], self.polygons[0][1])
+        self.start_crossing
     }
 }

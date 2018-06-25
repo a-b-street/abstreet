@@ -100,6 +100,10 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- CLEANUP: bldg front path should happen upfront, not in render
 
 
+	- rm old thick line
+	- rm old lane center lines, switch to pts
+
+
 	- THEN: express the proto -> runtime map loading as a sequence of phases
 		- keep doing the current road trimming for the moment
 		- later, this could be the same as the OSM conversion. just

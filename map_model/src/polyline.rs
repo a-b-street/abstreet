@@ -1,6 +1,6 @@
 use Pt2D;
-use std::f64;
 use graphics::math::Vec2d;
+use std::f64;
 
 // TODO unsure why this doesn't work. maybe see if mouse is inside polygon to check it out?
 /*fn polygon_for_polyline(center_pts: &Vec<(f64, f64)>, width: f64) -> Vec<[f64; 2]> {
@@ -33,7 +33,10 @@ pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Vec2
         ]);
         result.push(vec![side2[high_idx], side2[high_idx - 1], side1[high_idx]]);
     }
-    result.iter().map(|pts| pts.iter().map(|pt| pt.to_vec()).collect()).collect()
+    result
+        .iter()
+        .map(|pts| pts.iter().map(|pt| pt.to_vec()).collect())
+        .collect()
 }
 
 pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
@@ -74,7 +77,7 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
     result
 }
 
-fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
+pub fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
     let x1 = pt1.x();
     let y1 = pt1.y();
     let x2 = pt2.x();

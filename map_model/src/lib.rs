@@ -30,7 +30,7 @@ pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
 use ordered_float::NotNaN;
 pub use parcel::{Parcel, ParcelID};
-pub use polyline::{polygons_for_polyline, shift_polyline};
+pub use polyline::{polygons_for_polyline, shift_line, shift_polyline};
 use protobuf::error::ProtobufError;
 use protobuf::{CodedInputStream, CodedOutputStream, Message};
 pub use road::{LaneType, Road, RoadID};

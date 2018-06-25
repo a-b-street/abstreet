@@ -23,7 +23,7 @@ impl DrawParcel {
             id: p.id,
             boundary_polygons: map_model::polygons_for_polyline(
                 &p.points,
-                PARCEL_BOUNDARY_THICKNESS
+                PARCEL_BOUNDARY_THICKNESS,
             ),
             fill_polygon: p.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
         }
