@@ -339,7 +339,7 @@ fn get_lane_specs(r: &pb::Road) -> Vec<LaneSpec> {
     let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
 
     // TODO debugging convenience
-    let only_roads_for_debugging = false;
+    let only_roads_for_debugging = true;
 
     let mut lanes: Vec<LaneSpec> = vec![
         LaneSpec {
@@ -365,15 +365,17 @@ fn get_lane_specs(r: &pb::Road) -> Vec<LaneSpec> {
             offset_for_other_id: None,
         },
     ];
-    if only_roads_for_debugging && !oneway {
+    if only_roads_for_debugging {
         lanes.pop();
         lanes.pop();
-        lanes.push(LaneSpec {
-            lane_type: LaneType::Driving,
-            offset: 0,
-            reverse_pts: true,
-            offset_for_other_id: Some(-1),
-        });
+        if !oneway {
+            lanes.push(LaneSpec {
+                lane_type: LaneType::Driving,
+                offset: 0,
+                reverse_pts: true,
+                offset_for_other_id: Some(-1),
+            });
+        }
     } else if junction {
         lanes.pop();
         lanes.pop();

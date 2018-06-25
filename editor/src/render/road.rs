@@ -25,7 +25,6 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let thick_line = geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
         let lane_center_pts: Vec<Pt2D> = road.lane_center_lines
             .iter()
             .flat_map(|pair| vec![pair.0, pair.1])
@@ -39,10 +38,18 @@ impl DrawRoad {
         let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
         let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
 
+        //let polygons = if road.lane_center_lines.len() == 1 {
+        let polygons = if road.id == RoadID(39) {
+            println!("bad pts: {:?}", lane_center_pts);
+            map_model::polygons_for_polyline(&lane_center_pts, geometry::LANE_THICKNESS)
+        } else {
+            let thick_line = geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
+            geometry::thick_multiline(&thick_line, &lane_center_pts)
+        };
+
         DrawRoad {
             id: road.id,
-            polygons: geometry::thick_multiline(&thick_line, &lane_center_pts),
-            //polygons: map_model::polygons_for_polyline(&lane_center_pts, geometry::LANE_THICKNESS),
+            polygons,
             yellow_center_lines: if road.use_yellow_center_lines {
                 road.unshifted_pts.clone()
             } else {
