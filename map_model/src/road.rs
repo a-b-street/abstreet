@@ -77,7 +77,7 @@ impl Road {
         let mut dist_left = dist_along;
         for (idx, pair) in self.lane_center_pts.windows(2).enumerate() {
             let length = geometry::euclid_dist((pair[0], pair[1]));
-            let epsilon = if idx == self.lane_center_pts.len() {
+            let epsilon = if idx == self.lane_center_pts.len() - 2 {
                 geometry::EPSILON_METERS
             } else {
                 0.0 * si::M
