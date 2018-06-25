@@ -24,10 +24,12 @@ pub struct DrawRoad {
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
         let thick_line =
-            geometry::ThickLine::DrivingDirectionOnly(geometry::LANE_THICKNESS, road.offset);
+            geometry::ThickLine::Centered(geometry::LANE_THICKNESS);
+        let lane_center_pts: Vec<Pt2D> = road.lane_center_lines.iter().flat_map(|pair| vec![pair.0, pair.1]).collect();
+
         DrawRoad {
             id: road.id,
-            polygons: geometry::thick_multiline(&thick_line, &road.unshifted_pts),
+            polygons: geometry::thick_multiline(&thick_line, &lane_center_pts),
             yellow_center_lines: if road.use_yellow_center_lines {
                 road.unshifted_pts.clone()
             } else {
