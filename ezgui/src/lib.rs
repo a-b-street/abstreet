@@ -76,4 +76,8 @@ impl ToggleableLayer {
         }
         false
     }
+
+    pub fn disable(&mut self) {
+        self.enabled = false;
+    }
 }

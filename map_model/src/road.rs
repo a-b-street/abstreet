@@ -105,22 +105,10 @@ impl Road {
 }
 
 pub(crate) fn calculate_lane_center_lines(
-    pts: &mut Vec<Pt2D>,
+    pts: &Vec<Pt2D>,
     offset: u8,
     use_yellow_center_lines: bool,
 ) -> Vec<(Pt2D, Pt2D)> {
-    // Shove the lines away from the intersection so they don't overlap.
-    // TODO deal with tiny roads
-    let num_pts = pts.len();
-    let new_first_pt =
-        geometry::dist_along_line((&pts[0], &pts[1]), geometry::TURN_DIST_FROM_INTERSECTION);
-    let new_last_pt = geometry::dist_along_line(
-        (&pts[num_pts - 1], &pts[num_pts - 2]),
-        geometry::TURN_DIST_FROM_INTERSECTION,
-    );
-    pts[0] = Pt2D::from(new_first_pt);
-    pts[num_pts - 1] = Pt2D::from(new_last_pt);
-
     let lane_center_shift = if use_yellow_center_lines {
         // TODO I think this is unfair to one side, right? If we hover over the yellow line, it
         // shouldn't match either lane. Needs to be its own thing, or adjust the bbox.

@@ -135,6 +135,12 @@ impl UI {
         let new_zoom = ui.canvas.cam_zoom;
         ui.zoom_for_toggleable_layers(-1.0, new_zoom);
 
+        // TODO tmp
+        ui.show_buildings.disable();
+        ui.show_intersections.disable();
+        ui.show_parcels.disable();
+        ui.show_icons.disable();
+
         ui
     }
 

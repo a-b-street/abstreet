@@ -114,11 +114,10 @@ impl Map {
                 } else {
                     lane.1 == 0
                 };
-                // This has the side-effect of trimming the endpoints! Will do this differently
-                // soon.
                 let lane_center_lines =
-                    road::calculate_lane_center_lines(&mut pts, offset, use_yellow_center_lines);
+                    road::calculate_lane_center_lines(&pts, offset, use_yellow_center_lines);
 
+                // pts and lane_center_lines will get updated in the next pass
                 m.roads.push(Road {
                     id,
                     other_side,
