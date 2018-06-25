@@ -59,6 +59,8 @@ impl Map {
         let mut counter = 0;
         for r in data.get_roads() {
             let oneway = r.get_osm_tags().contains(&String::from("oneway=yes"));
+            // These seem to represent weird roundabouts
+            let junction = r.get_osm_tags().contains(&String::from("junction=yes"));
 
             let orig_direction = true;
             let reverse_direction = false;
@@ -68,12 +70,15 @@ impl Map {
                     LaneType::Driving,
                     0,
                     orig_direction,
-                    if oneway { None } else { Some(3) },
+                    if oneway || junction { None } else { Some(3) },
                 ),
                 (LaneType::Parking, 1, orig_direction, None),
                 (LaneType::Sidewalk, 2, orig_direction, None),
             ];
-            if oneway {
+            if junction {
+                lanes.pop();
+                lanes.pop();
+            } else if oneway {
                 lanes.push((LaneType::Sidewalk, 0, reverse_direction, None));
             } else {
                 lanes.extend(vec![
