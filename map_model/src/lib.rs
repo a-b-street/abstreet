@@ -1,13 +1,19 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+extern crate aabb_quadtree;
+#[macro_use]
+extern crate dimensioned;
+extern crate graphics;
 extern crate ordered_float;
 extern crate protobuf;
 extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate vecmath;
 
 mod building;
+mod geometry;
 mod intersection;
 mod map;
 mod parcel;

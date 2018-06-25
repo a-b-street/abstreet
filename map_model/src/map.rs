@@ -7,6 +7,7 @@ use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
 use parcel::{Parcel, ParcelID};
 use pb;
+use road;
 use road::{LaneType, Road, RoadID};
 use std::collections::HashMap;
 use turn::{Turn, TurnID};
@@ -102,19 +103,30 @@ impl Map {
                     .or_insert_with(Vec::new)
                     .push(id);
 
+                let offset = lane.1;
+                let use_yellow_center_lines = if let Some(other) = other_side {
+                    id.0 < other.0
+                } else {
+                    lane.1 == 0
+                };
+                let (lane_center_lines, screen_pts) = road::calculate_geometry(
+                    &pts,
+                    offset,
+                    use_yellow_center_lines,
+                    &m.get_gps_bounds(),
+                );
+
                 m.roads.push(Road {
                     id,
                     other_side,
+                    offset,
+                    use_yellow_center_lines,
+                    lane_center_lines,
                     osm_tags: r.get_osm_tags().to_vec(),
                     osm_way_id: r.get_osm_way_id(),
                     lane_type: lane.0,
-                    offset: lane.1,
                     points: pts,
-                    use_yellow_center_lines: if let Some(other) = other_side {
-                        id.0 < other.0
-                    } else {
-                        lane.1 == 0
-                    },
+                    pts: screen_pts,
                 });
             }
         }
