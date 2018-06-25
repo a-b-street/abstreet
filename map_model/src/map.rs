@@ -3,6 +3,7 @@
 use Bounds;
 use Pt2D;
 use building::{Building, BuildingID};
+use get_gps_bounds;
 use intersection::{Intersection, IntersectionID};
 use parcel::{Parcel, ParcelID};
 use pb;
@@ -19,6 +20,9 @@ pub struct Map {
 
     pt_to_intersection: HashMap<Pt2D, IntersectionID>,
     intersection_to_roads: HashMap<IntersectionID, Vec<RoadID>>,
+
+    // TODO maybe dont need to retain GPS stuff later
+    bounds: Bounds,
 }
 
 impl Map {
@@ -31,6 +35,7 @@ impl Map {
             parcels: Vec::new(),
             pt_to_intersection: HashMap::new(),
             intersection_to_roads: HashMap::new(),
+            bounds: get_gps_bounds(data),
         };
 
         for (idx, i) in data.get_intersections().iter().enumerate() {
@@ -265,26 +270,8 @@ impl Map {
             .collect()
     }
 
+    // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
-        let mut b = Bounds::new();
-        for r in &self.roads {
-            for pt in &r.points {
-                b.update_pt(pt);
-            }
-        }
-        for i in &self.intersections {
-            b.update_pt(&i.point);
-        }
-        for bldg in &self.buildings {
-            for pt in &bldg.points {
-                b.update_pt(pt);
-            }
-        }
-        for p in &self.parcels {
-            for pt in &p.points {
-                b.update_pt(pt);
-            }
-        }
-        b
+        self.bounds.clone()
     }
 }

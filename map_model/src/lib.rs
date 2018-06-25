@@ -105,7 +105,7 @@ impl From<[f64; 2]> for Pt2D {
 }
 
 // TODO argh, use this in kml too
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,
@@ -134,6 +134,10 @@ impl Bounds {
         self.update(pt.x(), pt.y());
     }
 
+    pub fn update_coord(&mut self, coord: &pb::Coordinate) {
+        self.update(coord.get_longitude(), coord.get_latitude());
+    }
+
     pub fn contains(&self, x: f64, y: f64) -> bool {
         x >= self.min_x && x <= self.max_x && y >= self.min_y && y <= self.max_y
     }
@@ -141,4 +145,29 @@ impl Bounds {
 
 pub fn has_osm_tag(tags: &Vec<String>, key: &str, value: &str) -> bool {
     tags.contains(&format!("{}={}", key, value))
+}
+
+fn get_gps_bounds(data: &pb::Map) -> Bounds {
+    let mut bounds = Bounds::new();
+
+    for r in data.get_roads() {
+        for pt in r.get_points() {
+            bounds.update_coord(pt);
+        }
+    }
+    for i in data.get_intersections() {
+        bounds.update_coord(i.get_point());
+    }
+    for b in data.get_buildings() {
+        for pt in b.get_points() {
+            bounds.update_coord(pt);
+        }
+    }
+    for p in data.get_parcels() {
+        for pt in p.get_points() {
+            bounds.update_coord(pt);
+        }
+    }
+
+    bounds
 }
