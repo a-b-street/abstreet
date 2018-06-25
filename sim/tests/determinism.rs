@@ -1,3 +1,4 @@
+extern crate abstutil;
 extern crate control;
 extern crate map_model;
 extern crate sim;
@@ -25,8 +26,8 @@ fn from_scratch() {
         if sim1 != sim2 {
             // TODO write to temporary files somewhere
             // TODO need to sort dicts in json output to compare
-            sim1.write_savestate("sim1_state.json").unwrap();
-            sim2.write_savestate("sim2_state.json").unwrap();
+            abstutil::write_json("sim1_state.json", &sim1).unwrap();
+            abstutil::write_json("sim2_state.json", &sim2).unwrap();
             panic!("sim state differs at {}. compare sim1_state.json and sim2_state.json", sim1.time);
         }
         sim1.step(&map, &control_map);
@@ -57,27 +58,27 @@ fn with_savestating() {
     }
 
     if sim1 != sim2 {
-        sim1.write_savestate("sim1_state.json").unwrap();
-        sim2.write_savestate("sim2_state.json").unwrap();
+        abstutil::write_json("sim1_state.json", &sim1).unwrap();
+        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!("sim state differs at {}. compare sim1_state.json and sim2_state.json", sim1.time);
     }
 
-    sim1.write_savestate("sim1_savestate.json").unwrap();
+    abstutil::write_json("sim1_savestate.json", &sim1).unwrap();
 
     for _ in 1..60 {
         sim1.step(&map, &control_map);
     }
 
     if sim1 == sim2 {
-        sim1.write_savestate("sim1_state.json").unwrap();
-        sim2.write_savestate("sim2_state.json").unwrap();
+        abstutil::write_json("sim1_state.json", &sim1).unwrap();
+        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!("sim state unexpectedly the same at {}. compare sim1_state.json and sim2_state.json", sim1.time);
     }
 
-    let sim3 = sim::straw_model::Sim::load_savestate("sim1_savestate.json").unwrap();
+    let sim3: sim::straw_model::Sim = abstutil::read_json("sim1_savestate.json").unwrap();
     if sim3 != sim2 {
-        sim3.write_savestate("sim3_state.json").unwrap();
-        sim2.write_savestate("sim2_state.json").unwrap();
+        abstutil::write_json("sim3_state.json", &sim3).unwrap();
+        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!("sim state differs at {}. compare sim3_state.json and sim2_state.json", sim1.time);
     }
 

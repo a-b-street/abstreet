@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 control = { path = "../control" }
 derivative = "1.0.0"
 dimensioned = "0.6.0"
