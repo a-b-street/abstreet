@@ -83,3 +83,20 @@ the transition is hard:
 so really do this in two parts:
 1) current structure with weird intermediate stuff, but new geometry libs
 2) careful reorg
+
+wait slow down even more -- before any of this change, lanes on adjacent roads smoosh into each other. main road doesnt, but other parts do.
+- at every intersection, find corresponding lanes and trim back center lines
+- do we need to do this at the level of the polygons?!
+
+
+
+- follow aorta's multi phase map construction better.
+	- FIRST: move geom things into the Map structs directly. get rid of that crate.
+		---> option 1: module per object type, geometry and graph squished together
+		- option 2: try to separate the graph/geom stuff within map model.
+	- THEN: express the proto -> runtime map loading as a sequence of phases
+		- keep doing the current road trimming for the moment
+		- later, this could be the same as the OSM conversion. just
+		  like aorta's map make. but instead, be able to restart from
+		  any point, by the magic of easy serialization.
+		- get rid of the protobuf
