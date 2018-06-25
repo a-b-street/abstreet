@@ -1,12 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate dimensioned;
-extern crate geom;
 extern crate map_model;
 #[macro_use]
 extern crate serde_derive;
 
-use geom::GeomMap;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::HashMap;
 use stop_signs::{ControlStopSign, TurnPriority};
@@ -22,7 +20,7 @@ pub struct ControlMap {
 }
 
 impl ControlMap {
-    pub fn new(map: &Map, geom_map: &GeomMap) -> ControlMap {
+    pub fn new(map: &Map) -> ControlMap {
         let mut ctrl = ControlMap {
             traffic_signals: HashMap::new(),
             stop_signs: HashMap::new(),
@@ -31,7 +29,7 @@ impl ControlMap {
         for i in map.all_intersections() {
             if i.has_traffic_signal {
                 ctrl.traffic_signals
-                    .insert(i.id, ControlTrafficSignal::new(map, i.id, &geom_map));
+                    .insert(i.id, ControlTrafficSignal::new(map, i.id));
             } else {
                 ctrl.stop_signs
                     .insert(i.id, ControlStopSign::new(map, i.id));

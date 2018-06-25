@@ -4,7 +4,6 @@ use CycleState;
 use ModifiedTrafficSignal;
 
 use dimensioned::si;
-use geom::GeomMap;
 use map_model::{IntersectionID, Map, TurnID};
 
 use std;
@@ -20,15 +19,11 @@ pub struct ControlTrafficSignal {
 }
 
 impl ControlTrafficSignal {
-    pub fn new(
-        map: &Map,
-        intersection: IntersectionID,
-        geom_map: &GeomMap,
-    ) -> ControlTrafficSignal {
+    pub fn new(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
         assert!(map.get_i(intersection).has_traffic_signal);
         ControlTrafficSignal {
             intersection,
-            cycles: ControlTrafficSignal::greedy_assignment(map, intersection, geom_map),
+            cycles: ControlTrafficSignal::greedy_assignment(map, intersection),
         }
     }
 
@@ -73,11 +68,7 @@ impl ControlTrafficSignal {
         (cycle, remaining_cycle_time)
     }
 
-    fn greedy_assignment(
-        map: &Map,
-        intersection: IntersectionID,
-        geom_map: &GeomMap,
-    ) -> Vec<Cycle> {
+    fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
         let mut cycles = Vec::new();
 
         // Greedily partition turns into cycles. More clever things later.
@@ -93,7 +84,7 @@ impl ControlTrafficSignal {
         while !remaining_turns.is_empty() {
             let add_turn = remaining_turns
                 .iter()
-                .position(|&t| !current_cycle.conflicts_with(t, geom_map));
+                .position(|&t| !current_cycle.conflicts_with(t, map));
             match add_turn {
                 Some(idx) => {
                     current_cycle.turns.push(remaining_turns[idx]);
@@ -125,9 +116,9 @@ pub struct Cycle {
 }
 
 impl Cycle {
-    pub fn conflicts_with(&self, t1: TurnID, geom_map: &GeomMap) -> bool {
+    pub fn conflicts_with(&self, t1: TurnID, map: &Map) -> bool {
         for t2 in &self.turns {
-            if geom_map.get_t(t1).conflicts_with(geom_map.get_t(*t2)) {
+            if map.get_t(t1).conflicts_with(map.get_t(*t2)) {
                 return true;
             }
         }

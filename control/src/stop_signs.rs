@@ -2,7 +2,6 @@
 
 use ModifiedStopSign;
 
-use geom::GeomMap;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::HashMap;
 
@@ -50,19 +49,17 @@ impl ControlStopSign {
         self.turns[&turn]
     }
 
-    pub fn set_priority(&mut self, turn: TurnID, priority: TurnPriority, geom_map: &GeomMap) {
+    pub fn set_priority(&mut self, turn: TurnID, priority: TurnPriority, map: &Map) {
         if priority == TurnPriority::Priority {
-            assert!(self.could_be_priority_turn(turn, geom_map));
+            assert!(self.could_be_priority_turn(turn, map));
         }
         self.turns.insert(turn, priority);
         self.changed = true;
     }
 
-    pub fn could_be_priority_turn(&self, id: TurnID, geom_map: &GeomMap) -> bool {
+    pub fn could_be_priority_turn(&self, id: TurnID, map: &Map) -> bool {
         for (t, pri) in &self.turns {
-            if *pri == TurnPriority::Priority
-                && geom_map.get_t(id).conflicts_with(geom_map.get_t(*t))
-            {
+            if *pri == TurnPriority::Priority && map.get_t(id).conflicts_with(map.get_t(*t)) {
                 return false;
             }
         }

@@ -13,7 +13,7 @@ extern crate serde_derive;
 extern crate vecmath;
 
 mod building;
-mod geometry;
+pub mod geometry;
 mod intersection;
 mod map;
 mod parcel;
@@ -23,6 +23,7 @@ mod road;
 mod turn;
 
 pub use building::{Building, BuildingID};
+pub use geometry::angles::{Radian, RAD};
 pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
 use ordered_float::NotNaN;

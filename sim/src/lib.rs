@@ -5,7 +5,6 @@ extern crate control;
 extern crate derivative;
 extern crate dimensioned;
 extern crate ezgui;
-extern crate geom;
 extern crate graphics;
 extern crate map_model;
 extern crate multimap;

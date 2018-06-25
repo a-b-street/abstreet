@@ -3,7 +3,6 @@
 use abstutil;
 use control::ControlMap;
 use ezgui::input::UserInput;
-use geom::GeomMap;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
 use sim::common;
@@ -22,9 +21,9 @@ pub struct SimController {
 }
 
 impl SimController {
-    pub fn new(map: &Map, geom_map: &GeomMap, rng_seed: Option<u8>) -> SimController {
+    pub fn new(map: &Map, rng_seed: Option<u8>) -> SimController {
         SimController {
-            sim: straw_model::Sim::new(map, geom_map, rng_seed),
+            sim: straw_model::Sim::new(map, rng_seed),
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,
@@ -33,13 +32,7 @@ impl SimController {
     }
 
     // true if the sim is running
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        geom_map: &GeomMap,
-        map: &Map,
-        control_map: &ControlMap,
-    ) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map, control_map: &ControlMap) -> bool {
         if input.unimportant_key_pressed(Key::LeftBracket, "Press [ to slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
@@ -65,7 +58,7 @@ impl SimController {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(self.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, "press M to run one step") {
-                self.sim.step(geom_map, map, control_map);
+                self.sim.step(map, control_map);
             }
         }
 
@@ -75,7 +68,7 @@ impl SimController {
                 let dt = tick.elapsed();
                 let dt_s = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
                 if dt_s >= common::TIMESTEP.value_unsafe / self.desired_speed {
-                    self.sim.step(geom_map, map, control_map);
+                    self.sim.step(map, control_map);
                     self.last_step = Some(Instant::now());
                 }
 

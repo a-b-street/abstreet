@@ -5,8 +5,7 @@ extern crate map_model;
 
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
-use geom::GeomMap;
-use geom::geometry;
+use map_model::geometry;
 use map_model::{Bounds, BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
@@ -31,12 +30,12 @@ pub struct DrawMap {
 
 impl DrawMap {
     // Also returns the center of the map in map-space
-    pub fn new(map: &Map, geom_map: &GeomMap) -> (DrawMap, Bounds, Pt2D) {
+    pub fn new(map: &Map) -> (DrawMap, Bounds, Pt2D) {
         let bounds = map.get_gps_bounds();
 
         let mut roads: Vec<DrawRoad> = Vec::new();
         for r in map.all_roads() {
-            roads.push(DrawRoad::new(r, geom_map));
+            roads.push(DrawRoad::new(r));
         }
 
         let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -44,8 +43,8 @@ impl DrawMap {
             let mut turns = map.get_turns_from_road(r.id);
             // Sort the turn icons by angle.
             turns.sort_by_key(|t| {
-                let src_pt = geom_map.get_r(t.src).last_pt();
-                let dst_pt = geom_map.get_r(t.dst).first_pt();
+                let src_pt = map.get_r(t.src).last_pt();
+                let dst_pt = map.get_r(t.dst).first_pt();
                 let mut angle = (dst_pt[1] - src_pt[1])
                     .atan2(dst_pt[0] - src_pt[0])
                     .to_degrees();
@@ -62,7 +61,7 @@ impl DrawMap {
 
         let turns: Vec<DrawTurn> = map.all_turns()
             .iter()
-            .map(|t| DrawTurn::new(geom_map, t, turn_to_road_offset[&t.id]))
+            .map(|t| DrawTurn::new(map, t, turn_to_road_offset[&t.id]))
             .collect();
         let intersections: Vec<DrawIntersection> = map.all_intersections()
             .iter()
@@ -70,7 +69,7 @@ impl DrawMap {
             .collect();
         let buildings: Vec<DrawBuilding> = map.all_buildings()
             .iter()
-            .map(|b| DrawBuilding::new(b, &bounds, map, geom_map))
+            .map(|b| DrawBuilding::new(b, &bounds, map))
             .collect();
         let parcels: Vec<DrawParcel> = map.all_parcels()
             .iter()

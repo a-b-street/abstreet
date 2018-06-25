@@ -5,10 +5,10 @@ extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
-use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
+use map_model::geometry;
 use map_model::{Bounds, IntersectionID, Map};
 use render::DrawRoad;
 use std::f64;

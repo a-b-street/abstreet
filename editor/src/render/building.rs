@@ -6,12 +6,11 @@ extern crate map_model;
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
-use geom::GeomMap;
-use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model::{Bounds, BuildingID};
+use map_model::geometry;
+use map_model::{Bounds, BuildingID, Map};
 use ordered_float::NotNaN;
 use std::f64;
 
@@ -25,12 +24,7 @@ pub struct DrawBuilding {
 }
 
 impl DrawBuilding {
-    pub fn new(
-        bldg: &map_model::Building,
-        bounds: &Bounds,
-        map: &map_model::Map,
-        geom_map: &GeomMap,
-    ) -> DrawBuilding {
+    pub fn new(bldg: &map_model::Building, bounds: &Bounds, map: &Map) -> DrawBuilding {
         let pts: Vec<Vec2d> = bldg.points
             .iter()
             .map(|pt| {
@@ -41,7 +35,7 @@ impl DrawBuilding {
         DrawBuilding {
             id: bldg.id,
             // TODO ideally start the path on a side of the building
-            front_path: find_front_path(bldg.id, center(&pts), map, geom_map),
+            front_path: find_front_path(bldg.id, center(&pts), map),
             polygon: pts,
         }
     }
@@ -61,7 +55,7 @@ impl DrawBuilding {
         geometry::point_in_polygon(x, y, &self.polygon)
     }
 
-    pub fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
+    pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
         let b = map.get_b(self.id);
         let mut lines = vec![
             format!("Building #{:?} (from OSM way {})", self.id, b.osm_way_id),
@@ -86,9 +80,8 @@ fn center(pts: &Vec<Vec2d>) -> Vec2d {
     [x / len, y / len]
 }
 
-fn road_to_line_string(r: map_model::RoadID, geom_map: &GeomMap) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = geom_map
-        .get_r(r)
+fn road_to_line_string(r: map_model::RoadID, map: &Map) -> geo::LineString<f64> {
+    let pts: Vec<geo::Point<f64>> = map.get_r(r)
         .lane_center_lines
         .iter()
         .flat_map(|pair| {
@@ -101,12 +94,7 @@ fn road_to_line_string(r: map_model::RoadID, geom_map: &GeomMap) -> geo::LineStr
     pts.into()
 }
 
-fn find_front_path(
-    id: BuildingID,
-    bldg_center: Vec2d,
-    map: &map_model::Map,
-    geom_map: &GeomMap,
-) -> Option<[f64; 4]> {
+fn find_front_path(id: BuildingID, bldg_center: Vec2d, map: &Map) -> Option<[f64; 4]> {
     use geo::prelude::{ClosestPoint, EuclideanDistance};
 
     if let Some(tag) = map.get_b(id)
@@ -127,7 +115,7 @@ fn find_front_path(
                     && map_model::has_osm_tag(&r.osm_tags, "name", street_name)
                 {
                     if let geo::Closest::SinglePoint(pt) =
-                        road_to_line_string(r.id, geom_map).closest_point(&center_pt)
+                        road_to_line_string(r.id, map).closest_point(&center_pt)
                     {
                         return Some((r.id, pt));
                     }

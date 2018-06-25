@@ -7,7 +7,6 @@ extern crate map_model;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::input::UserInput;
-use geom::GeomMap;
 use graphics::types::Color;
 use map_model::Map;
 use map_model::{IntersectionID, Turn};
@@ -31,7 +30,6 @@ impl TrafficSignalEditor {
         &mut self,
         input: &mut UserInput,
         map: &Map,
-        geom_map: &GeomMap,
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
@@ -67,7 +65,7 @@ impl TrafficSignalEditor {
                     ) {
                         cycle.remove(id);
                     }
-                } else if !cycle.conflicts_with(id, geom_map) {
+                } else if !cycle.conflicts_with(id, map) {
                     if input.key_pressed(Key::Space, "Press Space to add this turn to this cycle") {
                         cycle.add(id);
                     }
@@ -81,7 +79,7 @@ impl TrafficSignalEditor {
     pub fn color_t(
         &self,
         t: &Turn,
-        geom_map: &GeomMap,
+        map: &Map,
         control_map: &ControlMap,
         cs: &ColorScheme,
     ) -> Option<Color> {
@@ -93,7 +91,7 @@ impl TrafficSignalEditor {
 
         if cycle.contains(t.id) {
             Some(cs.get(Colors::SignalEditorTurnInCurrentCycle))
-        } else if !cycle.conflicts_with(t.id, geom_map) {
+        } else if !cycle.conflicts_with(t.id, map) {
             Some(cs.get(Colors::SignalEditorTurnCompatibleWithCurrentCycle))
         } else {
             Some(cs.get(Colors::SignalEditorTurnConflictsWithCurrentCycle))

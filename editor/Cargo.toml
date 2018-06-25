@@ -8,7 +8,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 control = { path = "../control" }
 geo = "0.9.1"
-geom = { path = "../geom" }
 ezgui = { path = "../ezgui" }
 map_model = { path = "../map_model" }
 multimap = "0.4.0"

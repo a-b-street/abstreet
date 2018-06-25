@@ -14,7 +14,6 @@ use ezgui::GfxCtx;
 use ezgui::ToggleableLayer;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
-use geom;
 use graphics;
 use graphics::types::Color;
 use gui;
@@ -44,7 +43,6 @@ const MIN_ZOOM_FOR_ROAD_MARKERS: f64 = 5.0;
 
 pub struct UI {
     map: map_model::Map,
-    geom_map: geom::GeomMap,
     draw_map: render::DrawMap,
     control_map: ControlMap,
 
@@ -76,17 +74,15 @@ impl UI {
         println!("Opening {}", abst_path);
         let data = map_model::load_pb(abst_path).expect("Couldn't load pb");
         let map = map_model::Map::new(&data);
-        let geom_map = geom::GeomMap::new(&map);
-        let (draw_map, _, center_pt) = render::DrawMap::new(&map, &geom_map);
-        let control_map = ControlMap::new(&map, &geom_map);
+        let (draw_map, _, center_pt) = render::DrawMap::new(&map);
+        let control_map = ControlMap::new(&map);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim_ctrl = SimController::new(&map, &geom_map, rng_seed);
+        let sim_ctrl = SimController::new(&map, rng_seed);
 
         let mut ui = UI {
             map,
-            geom_map,
             draw_map,
             control_map,
             steepness_viz,
@@ -165,10 +161,7 @@ impl UI {
             Vec::new()
         };
         for r in &roads_onscreen {
-            for c in &self.sim_ctrl
-                .sim
-                .get_draw_cars_on_road(r.id, &self.geom_map)
-            {
+            for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                 if c.contains_pt(x, y) {
                     return Some(ID::Car(c.id));
                 }
@@ -186,7 +179,7 @@ impl UI {
         if self.show_intersections.is_enabled() {
             for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
                 for t in &self.map.get_i(i.id).turns {
-                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.geom_map) {
+                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
                         if c.contains_pt(x, y) {
                             return Some(ID::Car(c.id));
                         }
@@ -201,10 +194,7 @@ impl UI {
 
         if self.show_roads.is_enabled() {
             for r in &roads_onscreen {
-                for c in &self.sim_ctrl
-                    .sim
-                    .get_draw_cars_on_road(r.id, &self.geom_map)
-                {
+                for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                     if c.contains_pt(x, y) {
                         return Some(ID::Car(c.id));
                     }
@@ -287,7 +277,7 @@ impl UI {
                     .unwrap_or_else(|| {
                         self.traffic_signal_editor
                             .as_ref()
-                            .and_then(|e| e.color_t(t, &self.geom_map, &self.control_map, &self.cs))
+                            .and_then(|e| e.color_t(t, &self.map, &self.control_map, &self.cs))
                             .unwrap_or_else(|| {
                                 self.turn_colors
                                     .color_t(t)
@@ -344,7 +334,6 @@ impl gui::GUI for UI {
             if e.event(
                 input,
                 &self.map,
-                &self.geom_map,
                 &mut self.control_map,
                 &self.current_selection_state,
             ) {
@@ -359,7 +348,6 @@ impl gui::GUI for UI {
             if e.event(
                 input,
                 &self.map,
-                &self.geom_map,
                 &mut self.control_map,
                 &self.current_selection_state,
             ) {
@@ -376,10 +364,7 @@ impl gui::GUI for UI {
 
         self.current_search_state = self.current_search_state.event(input);
 
-        if !edit_mode
-            && self.sim_ctrl
-                .event(input, &self.geom_map, &self.map, &self.control_map)
-        {
+        if !edit_mode && self.sim_ctrl.event(input, &self.map, &self.control_map) {
             event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
         }
 
@@ -510,7 +495,7 @@ impl gui::GUI for UI {
                 r.draw_detail(g, &self.cs);
             }
             if self.debug_mode.is_enabled() {
-                r.draw_debug(g, &self.cs, self.geom_map.get_r(r.id));
+                r.draw_debug(g, &self.cs, self.map.get_r(r.id));
             }
         }
 
@@ -523,20 +508,14 @@ impl gui::GUI for UI {
         if self.show_icons.is_enabled() {
             for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
                 t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
-                for c in &self.sim_ctrl
-                    .sim
-                    .get_draw_cars_on_turn(t.id, &self.geom_map)
-                {
+                for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(t.id, &self.map) {
                     c.draw(g, self.color_car(c.id));
                 }
             }
         }
 
         for r in &roads_onscreen {
-            for c in &self.sim_ctrl
-                .sim
-                .get_draw_cars_on_road(r.id, &self.geom_map)
-            {
+            for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
             }
         }
@@ -556,7 +535,6 @@ impl gui::GUI for UI {
         self.current_selection_state.draw(
             &self.map,
             &self.canvas,
-            &self.geom_map,
             &self.draw_map,
             &self.control_map,
             &self.sim_ctrl.sim,

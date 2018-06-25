@@ -7,7 +7,6 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 control = { path = "../control" }
 derivative = "1.0.0"
 dimensioned = "0.6.0"
-geom = { path = "../geom" }
 ezgui = { path = "../ezgui" }
 map_model = { path = "../map_model" }
 multimap = "0.4.0"

@@ -6,11 +6,10 @@ extern crate map_model;
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use ezgui::GfxCtx;
-use geom;
-use geom::geometry;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
+use map_model::geometry;
 use map_model::{Pt2D, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
 use std::f64;
@@ -25,16 +24,14 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(road: &map_model::Road, geom_map: &geom::GeomMap) -> DrawRoad {
-        let geom_r = geom_map.get_r(road.id);
-
+    pub fn new(road: &map_model::Road) -> DrawRoad {
         let thick_line =
-            geometry::ThickLine::DrivingDirectionOnly(geom::LANE_THICKNESS, road.offset);
+            geometry::ThickLine::DrivingDirectionOnly(geometry::LANE_THICKNESS, road.offset);
         DrawRoad {
             id: road.id,
-            polygons: geometry::thick_multiline(&thick_line, &geom_r.pts),
+            polygons: geometry::thick_multiline(&thick_line, &road.pts),
             yellow_center_lines: if road.use_yellow_center_lines {
-                geom_r.pts.clone()
+                road.pts.clone()
             } else {
                 Vec::new()
             },
@@ -49,8 +46,10 @@ impl DrawRoad {
     }
 
     pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        let road_marking =
-            graphics::Line::new_round(cs.get(Colors::RoadOrientation), geom::BIG_ARROW_THICKNESS);
+        let road_marking = graphics::Line::new_round(
+            cs.get(Colors::RoadOrientation),
+            geometry::BIG_ARROW_THICKNESS,
+        );
 
         for pair in self.yellow_center_lines.windows(2) {
             road_marking.draw(
@@ -62,12 +61,12 @@ impl DrawRoad {
         }
     }
 
-    pub fn draw_debug(&self, g: &mut GfxCtx, cs: &ColorScheme, geom_r: &geom::GeomRoad) {
+    pub fn draw_debug(&self, g: &mut GfxCtx, cs: &ColorScheme, r: &map_model::Road) {
         let line =
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle = graphics::Ellipse::new(cs.get(Colors::BrightDebug));
 
-        for &(pt1, pt2) in &geom_r.lane_center_lines {
+        for &(pt1, pt2) in &r.lane_center_lines {
             line.draw(
                 [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
                 &g.ctx.draw_state,
@@ -102,7 +101,7 @@ impl DrawRoad {
         false
     }
 
-    pub fn tooltip_lines(&self, map: &map_model::Map, geom_map: &geom::GeomMap) -> Vec<String> {
+    pub fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
         let r = map.get_r(self.id);
         let mut lines = vec![
             format!(
@@ -116,7 +115,7 @@ impl DrawRoad {
                 map.get_source_intersection(self.id).elevation_meters,
                 map.get_destination_intersection(self.id).elevation_meters,
             ),
-            format!("Road is {}m long", geom_map.get_r(self.id).length()),
+            format!("Road is {}m long", r.length()),
         ];
         lines.extend(r.osm_tags.iter().cloned());
         lines

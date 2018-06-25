@@ -5,7 +5,6 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
 control = { path = "../control" }
-geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 sim = { path = "../sim" }
 structopt = "0.2"

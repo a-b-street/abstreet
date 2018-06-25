@@ -4,8 +4,7 @@ use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use dimensioned::si;
-use geom::GeomMap;
-use map_model::{IntersectionID, TurnID};
+use map_model::{IntersectionID, Map, TurnID};
 use std::collections::HashMap;
 
 use std;
@@ -28,15 +27,15 @@ impl IntersectionPolicy {
         car: CarID,
         turn: TurnID,
         time: Tick,
-        geom_map: &GeomMap,
+        map: &Map,
         control_map: &ControlMap,
     ) -> bool {
         match *self {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                p.can_do_turn(car, turn, time, geom_map, control_map)
+                p.can_do_turn(car, turn, time, map, control_map)
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                p.can_do_turn(car, turn, time, geom_map, control_map)
+                p.can_do_turn(car, turn, time, map, control_map)
             }
         }
     }
@@ -73,27 +72,25 @@ impl StopSign {
         }
     }
 
-    fn conflicts_with_accepted(&self, turn: TurnID, geom_map: &GeomMap) -> bool {
-        let base_t = geom_map.get_t(turn);
+    fn conflicts_with_accepted(&self, turn: TurnID, map: &Map) -> bool {
+        let base_t = map.get_t(turn);
         self.accepted
             .values()
-            .find(|t| base_t.conflicts_with(geom_map.get_t(**t)))
+            .find(|t| base_t.conflicts_with(map.get_t(**t)))
             .is_some()
     }
 
     fn conflicts_with_waiting_with_higher_priority(
         &self,
         turn: TurnID,
-        geom_map: &GeomMap,
+        map: &Map,
         ss: &ControlStopSign,
     ) -> bool {
-        let base_t = geom_map.get_t(turn);
+        let base_t = map.get_t(turn);
         let base_priority = ss.get_priority(turn);
         self.waiting
             .values()
-            .find(|t| {
-                base_t.conflicts_with(geom_map.get_t(**t)) && ss.get_priority(**t) > base_priority
-            })
+            .find(|t| base_t.conflicts_with(map.get_t(**t)) && ss.get_priority(**t) > base_priority)
             .is_some()
     }
 
@@ -102,7 +99,7 @@ impl StopSign {
         car: CarID,
         turn: TurnID,
         time: Tick,
-        geom_map: &GeomMap,
+        map: &Map,
         control_map: &ControlMap,
     ) -> bool {
         // TODO assert turn is in this intersection
@@ -115,13 +112,13 @@ impl StopSign {
             self.started_waiting_at.insert(car, time);
         }
 
-        if self.conflicts_with_accepted(turn, geom_map) {
+        if self.conflicts_with_accepted(turn, map) {
             self.waiting.insert(car, turn);
             return false;
         }
 
         let ss = &control_map.stop_signs[&self.id];
-        if self.conflicts_with_waiting_with_higher_priority(turn, geom_map, ss) {
+        if self.conflicts_with_waiting_with_higher_priority(turn, map, ss) {
             self.waiting.insert(car, turn);
             return false;
         }
@@ -169,7 +166,7 @@ impl TrafficSignal {
         car: CarID,
         turn: TurnID,
         time: Tick,
-        geom_map: &GeomMap,
+        map: &Map,
         control_map: &ControlMap,
     ) -> bool {
         // TODO assert turn is in this intersection
@@ -185,7 +182,7 @@ impl TrafficSignal {
             return false;
         }
         // How long will it take the car to cross the turn?
-        let crossing_time = geom_map.get_t(turn).length() / SPEED_LIMIT;
+        let crossing_time = map.get_t(turn).length() / SPEED_LIMIT;
         // TODO account for TIMESTEP
 
         if crossing_time < remaining_cycle_time {

@@ -4,10 +4,10 @@ use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{geometry, GeomMap, Radian};
 use graphics;
 use graphics::math::Vec2d;
-use map_model::{LaneType, Map, Pt2D, RoadID, TurnID};
+use map_model::geometry;
+use map_model::{LaneType, Map, Pt2D, Radian, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::{BTreeMap, HashSet};
@@ -88,17 +88,17 @@ impl On {
         }
     }
 
-    fn length(&self, geom_map: &GeomMap) -> si::Meter<f64> {
+    fn length(&self, map: &Map) -> si::Meter<f64> {
         match self {
-            &On::Road(id) => geom_map.get_r(id).length(),
-            &On::Turn(id) => geom_map.get_t(id).length(),
+            &On::Road(id) => map.get_r(id).length(),
+            &On::Turn(id) => map.get_t(id).length(),
         }
     }
 
-    fn dist_along(&self, dist: si::Meter<f64>, geom_map: &GeomMap) -> (Pt2D, Radian<f64>) {
+    fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Radian<f64>) {
         match self {
-            &On::Road(id) => geom_map.get_r(id).dist_along(dist),
-            &On::Turn(id) => geom_map.get_t(id).dist_along(dist),
+            &On::Road(id) => map.get_r(id).dist_along(dist),
+            &On::Turn(id) => map.get_t(id).dist_along(dist),
         }
     }
 }
@@ -130,13 +130,13 @@ impl Car {
         ]
     }
 
-    fn step(&self, geom_map: &GeomMap, map: &Map, time: Tick, rng: &mut XorShiftRng) -> Action {
+    fn step(&self, map: &Map, time: Tick, rng: &mut XorShiftRng) -> Action {
         if let Some(on) = self.waiting_for {
             return Action::Goto(on);
         }
 
         let dist = SPEED_LIMIT * (time - self.started_at).as_time();
-        if dist < self.on.length(geom_map) {
+        if dist < self.on.length(map) {
             return Action::Continue;
         }
 
@@ -158,16 +158,12 @@ impl Car {
     }
 
     // Returns the angle and the dist along the road/turn too
-    fn get_best_case_pos(
-        &self,
-        time: Tick,
-        geom_map: &GeomMap,
-    ) -> (Pt2D, Radian<f64>, si::Meter<f64>) {
+    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Radian<f64>, si::Meter<f64>) {
         let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
-            dist = self.on.length(geom_map);
+            dist = self.on.length(map);
         }
-        let (pt, angle) = self.on.dist_along(dist, geom_map);
+        let (pt, angle) = self.on.dist_along(dist, map);
         (pt, angle, dist)
     }
 }
@@ -180,11 +176,11 @@ struct SimQueue {
 }
 
 impl SimQueue {
-    fn new(id: On, geom_map: &GeomMap) -> SimQueue {
+    fn new(id: On, map: &Map) -> SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
-            capacity: ((id.length(geom_map) / FOLLOWING_DISTANCE).floor() as usize).max(1),
+            capacity: ((id.length(map) / FOLLOWING_DISTANCE).floor() as usize).max(1),
         }
     }
 
@@ -235,27 +231,27 @@ impl SimQueue {
 
     // TODO this starts cars with their front aligned with the end of the road, sticking their back
     // into the intersection. :(
-    fn get_draw_cars(&self, sim: &Sim, geom_map: &GeomMap) -> Vec<DrawCar> {
+    fn get_draw_cars(&self, sim: &Sim, map: &Map) -> Vec<DrawCar> {
         if self.cars_queue.is_empty() {
             return Vec::new();
         }
 
         let mut results = Vec::new();
         let (pos1, angle1, dist_along1) =
-            sim.cars[&self.cars_queue[0]].get_best_case_pos(sim.time, geom_map);
+            sim.cars[&self.cars_queue[0]].get_best_case_pos(sim.time, map);
         results.push(DrawCar::new(self.cars_queue[0], &pos1, angle1));
         let mut dist_along_bound = dist_along1;
 
         for id in self.cars_queue.iter().skip(1) {
-            let (pos, angle, dist_along) = sim.cars[id].get_best_case_pos(sim.time, geom_map);
+            let (pos, angle, dist_along) = sim.cars[id].get_best_case_pos(sim.time, map);
             if dist_along_bound - FOLLOWING_DISTANCE > dist_along {
                 results.push(DrawCar::new(*id, &pos, angle));
                 dist_along_bound = dist_along;
             } else {
                 dist_along_bound -= FOLLOWING_DISTANCE;
                 // If not, we violated room_at_end() and reset() didn't catch it
-                assert!(dist_along_bound >= 0.0 * si::M, "dist_along_bound went negative ({}) for {:?} (length {}) with queue {:?}. first car at {}", dist_along_bound, self.id, self.id.length(geom_map), self.cars_queue, dist_along1);
-                let (pt, angle) = self.id.dist_along(dist_along_bound, geom_map);
+                assert!(dist_along_bound >= 0.0 * si::M, "dist_along_bound went negative ({}) for {:?} (length {}) with queue {:?}. first car at {}", dist_along_bound, self.id, self.id.length(map), self.cars_queue, dist_along1);
+                let (pt, angle) = self.id.dist_along(dist_along_bound, map);
                 results.push(DrawCar::new(*id, &pt, angle));
             }
         }
@@ -284,7 +280,7 @@ pub struct Sim {
 }
 
 impl Sim {
-    pub fn new(map: &Map, geom_map: &GeomMap, rng_seed: Option<u8>) -> Sim {
+    pub fn new(map: &Map, rng_seed: Option<u8>) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
@@ -308,11 +304,11 @@ impl Sim {
             cars: BTreeMap::new(),
             roads: map.all_roads()
                 .iter()
-                .map(|r| SimQueue::new(On::Road(r.id), geom_map))
+                .map(|r| SimQueue::new(On::Road(r.id), map))
                 .collect(),
             turns: map.all_turns()
                 .iter()
-                .map(|t| SimQueue::new(On::Turn(t.id), geom_map))
+                .map(|t| SimQueue::new(On::Turn(t.id), map))
                 .collect(),
             time: Tick::zero(),
             id_counter: 0,
@@ -366,7 +362,7 @@ impl Sim {
         println!("Spawned {}", n);
     }
 
-    pub fn step(&mut self, geom_map: &GeomMap, map: &Map, control_map: &ControlMap) {
+    pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
         // Could be concurrent. Ask all cars for their move, reinterpreting Goto to see if there's
@@ -381,7 +377,7 @@ impl Sim {
         for c in self.cars.values() {
             requested_moves.push((
                 c.id,
-                match c.step(geom_map, map, self.time, &mut self.rng) {
+                match c.step(map, self.time, &mut self.rng) {
                     Action::Goto(on) => {
                         // This is a monotonic property in conjunction with
                         // new_car_entered_this_step. The last car won't go backwards.
@@ -426,7 +422,7 @@ impl Sim {
                             *id,
                             t,
                             self.time,
-                            geom_map,
+                            map,
                             control_map,
                         );
                     }
@@ -488,11 +484,11 @@ impl Sim {
         self.cars[&c].waiting_for.is_none()
     }
 
-    pub fn get_draw_cars_on_road(&self, r: RoadID, geom_map: &GeomMap) -> Vec<DrawCar> {
-        let mut cars = self.roads[r.0].get_draw_cars(&self, geom_map);
+    pub fn get_draw_cars_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawCar> {
+        let mut cars = self.roads[r.0].get_draw_cars(&self, map);
         for c in &mut cars {
             if let Some(on) = self.cars[&c.id].waiting_for {
-                let slope = geom_map.get_t(on.as_turn()).slope();
+                let slope = map.get_t(on.as_turn()).slope();
                 c.turn_arrow = Some([
                     c.front.x() - (CAR_LENGTH / 2.0) * slope[0],
                     c.front.y() - (CAR_LENGTH / 2.0) * slope[1],
@@ -504,8 +500,8 @@ impl Sim {
         cars
     }
 
-    pub fn get_draw_cars_on_turn(&self, t: TurnID, geom_map: &GeomMap) -> Vec<DrawCar> {
-        self.turns[t.0].get_draw_cars(&self, geom_map)
+    pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
+        self.turns[t.0].get_draw_cars(&self, map)
     }
 
     pub fn summary(&self) -> String {
