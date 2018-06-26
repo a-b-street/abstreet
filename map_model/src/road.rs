@@ -7,10 +7,17 @@ use geometry;
 use graphics::math::Vec2d;
 use std::collections::HashMap;
 use std::f64;
+use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct RoadID(pub usize);
+
+impl fmt::Display for RoadID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RoadID({0})", self.0)
+    }
+}
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum LaneType {

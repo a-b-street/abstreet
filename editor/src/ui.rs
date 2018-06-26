@@ -28,6 +28,7 @@ use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
+use plugins::warp::WarpState;
 use render;
 use sim::CarID;
 use std::collections::HashMap;
@@ -53,6 +54,7 @@ pub struct UI {
 
     current_selection_state: SelectionState,
     current_search_state: SearchState,
+    warp: WarpState,
     floodfiller: Option<Floodfiller>,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
@@ -105,6 +107,7 @@ impl UI {
 
             current_selection_state: SelectionState::Empty,
             current_search_state: SearchState::Empty,
+            warp: WarpState::Empty,
             floodfiller: None,
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: None,
@@ -354,12 +357,16 @@ impl gui::GUI for UI {
             }
         }
 
-        if !edit_mode {
+        // TODO disabling temporarily since it conflicts with warp. need to solve the
+        // one-plugin-at-a-time problem.
+        if !edit_mode && false {
             self.color_picker = self.color_picker
                 .handle_event(input, window_size, &mut self.cs);
         }
 
         self.current_search_state = self.current_search_state.event(input);
+        self.warp = self.warp
+            .event(input, &self.map, &mut self.canvas, window_size);
 
         if !edit_mode && self.sim_ctrl.event(input, &self.map, &self.control_map) {
             event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
@@ -555,6 +562,11 @@ impl gui::GUI for UI {
         if !search_lines.is_empty() {
             osd_lines.push(String::from(""));
             osd_lines.extend(search_lines);
+        }
+        let warp_lines = self.warp.get_osd_lines();
+        if !warp_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(warp_lines);
         }
         self.canvas.draw_osd_notification(g, &osd_lines);
     }

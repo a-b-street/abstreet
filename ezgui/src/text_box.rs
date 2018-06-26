@@ -109,6 +109,16 @@ impl TextBox {
                 Key::X => Some('x'),
                 Key::Y => Some('y'),
                 Key::Z => Some('z'),
+                Key::D0 => Some('0'),
+                Key::D1 => Some('1'),
+                Key::D2 => Some('2'),
+                Key::D3 => Some('3'),
+                Key::D4 => Some('4'),
+                Key::D5 => Some('5'),
+                Key::D6 => Some('6'),
+                Key::D7 => Some('7'),
+                Key::D8 => Some('8'),
+                Key::D9 => Some('9'),
                 _ => None,
             };
             if let Some(c) = new_char {
