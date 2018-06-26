@@ -492,6 +492,12 @@ impl gui::GUI for UI {
 
         let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
 
+        if self.show_parcels.is_enabled() {
+            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
+                p.draw(g, self.color_parcel(p.id));
+            }
+        }
+
         let roads_onscreen = if self.show_roads.is_enabled() {
             self.draw_map.get_roads_onscreen(screen_bbox)
         } else {
@@ -525,12 +531,6 @@ impl gui::GUI for UI {
         for r in &roads_onscreen {
             for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
-            }
-        }
-
-        if self.show_parcels.is_enabled() {
-            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                p.draw(g, self.color_parcel(p.id));
             }
         }
 
