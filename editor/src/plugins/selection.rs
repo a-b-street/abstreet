@@ -58,6 +58,7 @@ impl SelectionState {
     pub fn event(
         &self,
         input: &mut UserInput,
+        map: &Map,
         sim: &mut Sim,
     ) -> (SelectionState, animation::EventLoopMode) {
         // TODO simplify the way this is written
@@ -87,6 +88,12 @@ impl SelectionState {
                         SelectionState::SelectedRoad(id, Some(idx)),
                         animation::EventLoopMode::InputOnly,
                     )
+                } else if input.key_pressed(Key::D, "press D to debug") {
+                    map.get_r(id).dump_debug();
+                    (
+                        SelectionState::SelectedRoad(id, current_turn_index),
+                        animation::EventLoopMode::InputOnly,
+                        )
                 } else {
                     (
                         SelectionState::SelectedRoad(id, current_turn_index),

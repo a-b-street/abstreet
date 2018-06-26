@@ -115,4 +115,12 @@ impl Road {
                 so_far + geometry::euclid_dist((pair[0], pair[1]))
             })
     }
+
+    pub fn dump_debug(&self) {
+        println!("\nlet debug_r{}_pts = vec![", self.id.0);
+        for pt in &self.lane_center_pts {
+            println!("  Pt2D::new({}, {}),", pt.x(), pt.y());
+        }
+        println!("];");
+    }
 }

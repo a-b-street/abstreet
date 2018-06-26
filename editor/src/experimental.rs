@@ -6,7 +6,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use gui;
-use map_model::{polygons_for_polyline, shift_polyline, Pt2D};
+use map_model::{polygons_for_polyline, shift_polyline, Pt2D, geometry};
 use piston::input::Key;
 use piston::window::Size;
 use std::f64;
@@ -85,6 +85,8 @@ impl gui::GUI for UI {
             };
         }*/
 
+        self.debug_polyline(g, &mut labels);
+
         let thin = 1.0;
         let thick = 5.0;
         let shift_away = 50.0;
@@ -94,7 +96,7 @@ impl gui::GUI for UI {
         // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
         // try them out in piston
 
-        point!(p1, Pt2D::new(100.0, 100.0));
+        /*point!(p1, Pt2D::new(100.0, 100.0));
         point!(p2, Pt2D::new(110.0, 200.0));
         point!(
             p3,
@@ -102,14 +104,18 @@ impl gui::GUI for UI {
         );
         point!(p4, Pt2D::new(500.0, 120.0));
 
-        draw_polyline(g, vec![p1, p2, p3, p4], thick, RED);
+        /*println!("");
+        println!("p1 -> p2 is {}", angle_degrees(p1, p2));
+        println!("p2 -> p3 is {}", angle_degrees(p2, p3));*/
+
+        draw_polyline(g, &vec![p1, p2, p3, p4], thick, RED);*/
 
         /*let polygon = polygon_for_polyline(&vec![p1, p2, p3, p4], shift_away);
         for (idx, pt) in polygon.iter().enumerate() {
             labels.push(((pt[0], pt[1]), format!("x{}", idx + 1)));
         }
         draw_polygon(g, polygon, BLACK);*/
-        for p in polygons_for_polyline(&vec![p1, p2, p3, p4], shift_away) {
+        /*for p in polygons_for_polyline(&vec![p1, p2, p3, p4], shift_away) {
             draw_polygon(g, p, BLACK);
         }
 
@@ -118,20 +124,20 @@ impl gui::GUI for UI {
         for (idx, pt) in l1_pts.iter().enumerate() {
             labels.push((*pt, format!("l1_p{}", idx + 1)));
         }
-        draw_polyline(g, l1_pts, thin, GREEN);
+        draw_polyline(g, &l1_pts, thin, GREEN);
 
         let l2_pts = shift_polyline(shift_away * 2.0, &vec![p1, p2, p3, p4]);
         for (idx, pt) in l2_pts.iter().enumerate() {
             labels.push((*pt, format!("l2_p{}", idx + 1)));
         }
-        draw_polyline(g, l2_pts, thin, GREEN);
+        draw_polyline(g, &l2_pts, thin, GREEN);
 
         // Other side
         let l3_pts = shift_polyline(shift_away, &vec![p4, p3, p2, p1]);
         for (idx, pt) in l3_pts.iter().enumerate() {
             labels.push((*pt, format!("l3_p{}", idx + 1)));
         }
-        draw_polyline(g, l3_pts, thin, BLUE);
+        draw_polyline(g, &l3_pts, thin, BLUE);*/
 
         // Manual approach for more debugging
         /*points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
@@ -146,10 +152,6 @@ impl gui::GUI for UI {
                 self.label(g, pair.0, &pair.1);
             }
         }
-
-        println!("");
-        println!("p1 -> p2 is {}", angle_degrees(p1, p2));
-        println!("p2 -> p3 is {}", angle_degrees(p2, p3));
     }
 }
 
@@ -157,6 +159,47 @@ impl UI {
     fn label(&self, g: &mut GfxCtx, pt: Pt2D, text: &str) {
         self.canvas
             .draw_text_at(g, &vec![text.to_string()], pt.x(), pt.y());
+    }
+
+    fn debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
+        let thin = 1.0;
+        let width = 50.0;
+
+        // TODO retain this as a regression test
+        let center_pts: Vec<Pt2D> = vec![
+          //Pt2D::new(2623.117354164207, 1156.9671270455774),
+          //Pt2D::new(2623.0950086610856, 1162.8272397294127),
+          //Pt2D::new(2623.0956685132396, 1162.7341864981956),
+          // One problem happens starting here -- some overlap
+          Pt2D::new(2622.8995366939575, 1163.2433695162579),
+          Pt2D::new(2620.4658232463926, 1163.9861244298272),
+          Pt2D::new(2610.979416102837, 1164.2392149291984),
+          //Pt2D::new(2572.5481805300115, 1164.2059309889344),
+        ].iter().map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0)).collect();
+        draw_polyline(g, &center_pts, thin, RED);
+        for (idx, pt) in center_pts.iter().enumerate() {
+            labels.push((*pt, format!("p{}", idx + 1)));
+        }
+
+        for p in polygons_for_polyline(&center_pts, width) {
+            draw_polygon(g, p, BLACK);
+        }
+
+        // TODO colored labels!
+        let side1 = shift_polyline(width / 2.0, &center_pts);
+        //draw_polyline(g, &side1, thin, BLUE);
+        for (idx, pt) in side1.iter().enumerate() {
+            labels.push((*pt, format!("L{}", idx + 1)));
+        }
+
+        let mut reversed_center_pts = center_pts.clone();
+        reversed_center_pts.reverse();
+        let mut side2 = shift_polyline(width / 2.0, &reversed_center_pts);
+        side2.reverse();
+        //draw_polyline(g, &side2, thin, GREEN);
+        for (idx, pt) in side2.iter().enumerate() {
+            labels.push((*pt, format!("R{}", idx + 1)));
+        }
     }
 }
 
@@ -170,10 +213,15 @@ fn draw_line(g: &mut GfxCtx, pt1: Pt2D, pt2: Pt2D, thickness: f64, color: Color)
     );
 }
 
-fn draw_polyline(g: &mut GfxCtx, pts: Vec<Pt2D>, thickness: f64, color: Color) {
+fn draw_polyline(g: &mut GfxCtx, pts: &Vec<Pt2D>, thickness: f64, color: Color) {
     assert!(pts.len() >= 2);
     for pair in pts.windows(2) {
         draw_line(g, pair[0], pair[1], thickness, color);
+    }
+    let circle = graphics::Ellipse::new(BLUE);
+    let radius = 0.5;
+    for pt in pts {
+        circle.draw(geometry::circle(pt.x(), pt.y(), radius), &g.ctx.draw_state, g.ctx.transform, g.gfx);
     }
 }
 

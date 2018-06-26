@@ -101,10 +101,15 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- trim them back too (maybe to avoid hitting the intersection?)
 		- osm tags and such would ideally be part of a master road
 
-	- multiple driving lanes on highways
-		- dashed white lines
 
 	- debug impossibly long derived roads, like the horizontal E McGraw. try to detect by comparing length of original points with length of derived center pts.
+		- actually, looks like the polygon is borked.
+
+	- multiple driving lanes on highways
+		- dashed white lines
+	- render trees?
+	- revisit parks/water (as parcels / areas, maybe)
+
 	- big maps start centered over emptiness
 	- some bldg paths are quite long.
 	- make final Map serializable too

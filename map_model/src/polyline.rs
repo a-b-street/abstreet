@@ -70,9 +70,21 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
             .unwrap_or(pt2_shift_1st);
 
         if pt3_idx == 2 {
-            result.push(pt1_shift);
+            // Swap order if the points swapped place relative to the original. Compare angles.
+            let orig_angle = (pt2_raw.y() - pt1_raw.y()).atan2(pt2_raw.x() - pt1_raw.x());
+            let shift_angle = (pt2_shift.y() - pt1_shift.y()).atan2(pt2_shift.x() - pt1_shift.x());
+            let delta = (shift_angle - orig_angle).abs();
+            //println!("orig angle {}, shift angle {}, delta {} which is {} degs", orig_angle, shift_angle, delta, delta * 360.0 / (2.0 * f64::consts::PI));
+            if delta < 0.00001 {
+                result.push(pt1_shift);
+                result.push(pt2_shift);
+            } else {
+                result.push(pt2_shift);
+                result.push(pt1_shift);
+            }
+        } else {
+            result.push(pt2_shift);
         }
-        result.push(pt2_shift);
         if pt3_idx == pts.len() - 1 {
             result.push(pt3_shift);
             break;
