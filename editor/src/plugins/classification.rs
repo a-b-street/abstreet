@@ -32,23 +32,24 @@ impl OsmClassifier {
             return None;
         }
 
-        for tag in &r.osm_tags {
-            if tag == "highway=primary" || tag == "highway=secondary" || tag == "highway=tertiary" {
-                return Some(cs.get(Colors::MatchClassification));
-            }
+        if match r.osm_tags.get("highway") {
+            Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
+            None => false,
+        } {
+            Some(cs.get(Colors::MatchClassification))
+        } else {
+            Some(cs.get(Colors::DontMatchClassification))
         }
-        Some(cs.get(Colors::DontMatchClassification))
     }
     pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
         if !self.active {
             return None;
         }
 
-        for tag in &b.osm_tags {
-            if tag.contains("addr:housenumber") {
-                return Some(cs.get(Colors::MatchClassification));
-            }
+        if b.osm_tags.contains_key("addr:housenumber") {
+            Some(cs.get(Colors::MatchClassification))
+        } else {
+            None
         }
-        None
     }
 }

@@ -143,7 +143,3 @@ impl Bounds {
         x >= self.min_x && x <= self.max_x && y >= self.min_y && y <= self.max_y
     }
 }
-
-pub fn has_osm_tag(tags: &Vec<String>, key: &str, value: &str) -> bool {
-    tags.contains(&format!("{}={}", key, value))
-}

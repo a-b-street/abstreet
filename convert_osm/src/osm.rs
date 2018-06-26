@@ -68,7 +68,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                 points: pts,
                 osm_tags: way.tags
                     .iter()
-                    .map(|tag| format!("{}={}", tag.key, tag.val))
+                    .map(|tag| (tag.key.clone(), tag.val.clone()))
                     .collect(),
             });
         } else if is_bldg(&way.tags) {
@@ -77,7 +77,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                 points: pts,
                 osm_tags: way.tags
                     .iter()
-                    .map(|tag| format!("{}={}", tag.key, tag.val))
+                    .map(|tag| (tag.key.clone(), tag.val.clone()))
                     .collect(),
             });
         }

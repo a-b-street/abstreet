@@ -129,7 +129,9 @@ impl DrawRoad {
             ),
             format!("Road is {}m long", r.length()),
         ];
-        lines.extend(r.osm_tags.iter().cloned());
+        for (k, v) in &r.osm_tags {
+            lines.push(format!("{} = {}", k, v));
+        }
         lines
     }
 

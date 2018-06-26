@@ -99,17 +99,16 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- figure out what to do about yellow center lines
 		- who should own drawing them?
 		- trim them back too (maybe to avoid hitting the intersection?)
+		- osm tags and such would ideally be part of a master road
 
 	- multiple driving lanes on highways
 		- dashed white lines
 
 	- more compact output
-	- osm tags as map
-	- THEN: express the proto -> runtime map loading as a sequence of phases
-		- later, this could be the same as the OSM conversion. just
-		  like aorta's map make. but instead, be able to restart from
-		  any point, by the magic of easy serialization.
-		- figure out how to do dynamicish updates as we edit the map!
+	- draw sidewalk and parking markings
+	- why are bigger maps NaNing?
+	- make final Map serializable too
+	- reorg map making
 
 
 	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more

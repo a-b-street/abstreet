@@ -5,6 +5,7 @@ use Pt2D;
 use dimensioned::si;
 use geometry;
 use graphics::math::Vec2d;
+use std::collections::HashMap;
 use std::f64;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -21,7 +22,7 @@ pub enum LaneType {
 #[derive(Debug)]
 pub struct Road {
     pub id: RoadID,
-    pub osm_tags: Vec<String>,
+    pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
     pub lane_type: LaneType,
 

@@ -1,4 +1,5 @@
 use Bounds;
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
@@ -53,9 +54,7 @@ pub struct LatLon {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Road {
     pub points: Vec<LatLon>,
-    // "key=value" format, for now
-    // TODO can change this easily now that we're not using proto
-    pub osm_tags: Vec<String>,
+    pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
 }
 
@@ -70,9 +69,7 @@ pub struct Intersection {
 pub struct Building {
     // last point never the first?
     pub points: Vec<LatLon>,
-    // "key=value" format, for now
-    // TODO can change this easily now that we're not using proto
-    pub osm_tags: Vec<String>,
+    pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
 }
 

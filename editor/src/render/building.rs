@@ -49,7 +49,9 @@ impl DrawBuilding {
         let mut lines = vec![
             format!("Building #{:?} (from OSM way {})", self.id, b.osm_way_id),
         ];
-        lines.extend(b.osm_tags.iter().cloned());
+        for (k, v) in &b.osm_tags {
+            lines.push(format!("{} = {}", k, v));
+        }
         lines
     }
 

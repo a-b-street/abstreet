@@ -341,10 +341,9 @@ struct LaneSpec {
 }
 
 fn get_lane_specs(r: &raw_data::Road) -> Vec<LaneSpec> {
-    // TODO these choices per raw road is a perfect fxn
-    let oneway = r.osm_tags.contains(&String::from("oneway=yes"));
+    let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
     // These seem to represent weird roundabouts
-    let junction = r.osm_tags.contains(&String::from("junction=yes"));
+    let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
 
     // TODO debugging convenience
     let only_roads_for_debugging = false;
