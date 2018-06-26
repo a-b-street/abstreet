@@ -105,8 +105,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- bad polygons when shifted lines invert points
 		- arguably, these could be a case when there's not enough room to shift away.
 
-	- multiple driving lanes on highways
-		- dashed white lines
+	- render dashed white lines for multiple driving lanes
 	- render trees?
 	- revisit parks/water (as parcels / areas, maybe)
 
