@@ -107,7 +107,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- debug impossibly long derived roads, like the horizontal E McGraw. try to detect by comparing length of original points with length of derived center pts.
 	- big maps start centered over emptiness
 	- some bldg paths are quite long.
-	- draw sidewalk and parking markings
+	- draw parking markings
 	- make final Map serializable too
 		- useful to precompute sidewalk paths
 	- reorg map making

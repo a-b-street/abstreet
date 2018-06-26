@@ -3,6 +3,7 @@
 extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate control;
+extern crate dimensioned;
 extern crate ezgui;
 extern crate glutin_window;
 extern crate graphics;

@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
+use dimensioned::si;
 use ezgui::GfxCtx;
 use graphics;
 use graphics::math::Vec2d;
@@ -21,17 +22,17 @@ pub struct DrawRoad {
     yellow_center_lines: Vec<Pt2D>,
     start_crossing: (Vec2d, Vec2d),
     end_crossing: (Vec2d, Vec2d),
+
+    sidewalk_lines: Vec<(Vec2d, Vec2d)>,
 }
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
         let (first1, first2) = road.first_line();
-        let (start_1, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first1, first2);
-        let (_, start_2) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, first2, first1);
+        let (start_1, start_2) = perp_line(first1, first2, geometry::LANE_THICKNESS);
 
         let (last1, last2) = road.last_line();
-        let (_, end_1) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last1, last2);
-        let (end_2, _) = map_model::shift_line(geometry::LANE_THICKNESS / 2.0, last2, last1);
+        let (end_1, end_2) = perp_line(last2, last1, geometry::LANE_THICKNESS);
 
         let polygons =
             map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
@@ -44,8 +45,13 @@ impl DrawRoad {
             } else {
                 Vec::new()
             },
-            start_crossing: (start_1.to_vec(), start_2.to_vec()),
-            end_crossing: (end_1.to_vec(), end_2.to_vec()),
+            start_crossing: (start_1, start_2),
+            end_crossing: (end_1, end_2),
+            sidewalk_lines: if road.lane_type == map_model::LaneType::Sidewalk {
+                calculate_sidewalk_lines(road)
+            } else {
+                Vec::new()
+            },
         }
     }
 
@@ -57,14 +63,28 @@ impl DrawRoad {
     }
 
     pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        let road_marking = graphics::Line::new_round(
+        let center_marking = graphics::Line::new_round(
             cs.get(Colors::RoadOrientation),
             geometry::BIG_ARROW_THICKNESS,
         );
 
         for pair in self.yellow_center_lines.windows(2) {
-            road_marking.draw(
+            center_marking.draw(
                 [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()],
+                &g.ctx.draw_state,
+                g.ctx.transform,
+                g.gfx,
+            );
+        }
+
+        let sidewalk_marking = graphics::Line::new(
+            cs.get(Colors::SidewalkMarking),
+            // TODO move this somewhere
+            0.25,
+        );
+        for pair in &self.sidewalk_lines {
+            sidewalk_marking.draw(
+                [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
                 &g.ctx.draw_state,
                 g.ctx.transform,
                 g.gfx,
@@ -143,4 +163,33 @@ impl DrawRoad {
     pub(crate) fn get_start_crossing(&self) -> (Vec2d, Vec2d) {
         self.start_crossing
     }
+}
+
+fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+    let tile_every = geometry::LANE_THICKNESS * si::M;
+
+    let length = road.length();
+
+    let mut result = Vec::new();
+    // Start away from the intersections
+    let mut dist_along = tile_every;
+    while dist_along < length - tile_every {
+        let (pt, angle) = road.dist_along(dist_along);
+        // Reuse perp_line. Project away an arbitrary amount
+        let pt2 = Pt2D::new(
+            pt.x() + angle.value_unsafe.cos(),
+            pt.y() + angle.value_unsafe.sin(),
+        );
+        result.push(perp_line(pt, pt2, geometry::LANE_THICKNESS));
+        dist_along += tile_every;
+    }
+
+    result
+}
+
+// TODO this always does it at pt1
+fn perp_line(orig1: Pt2D, orig2: Pt2D, length: f64) -> (Vec2d, Vec2d) {
+    let (pt1, _) = map_model::shift_line(length / 2.0, orig1, orig2);
+    let (_, pt2) = map_model::shift_line(length / 2.0, orig2, orig1);
+    (pt1.to_vec(), pt2.to_vec())
 }

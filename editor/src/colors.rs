@@ -16,6 +16,7 @@ pub enum Colors {
     Road,
     Parking,
     Sidewalk,
+    SidewalkMarking,
     ChangedStopSignIntersection,
     ChangedTrafficSignalIntersection,
     TrafficSignalIntersection,

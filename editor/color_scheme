@@ -31,9 +31,15 @@
       1.0
     ],
     "Sidewalk": [
-      0.0,
-      1.0,
-      0.0,
+      0.8,
+      0.8,
+      0.8,
+      1.0
+    ],
+    "SidewalkMarking": [
+      0.7,
+      0.7,
+      0.7,
       1.0
     ],
     "ChangedStopSignIntersection": [
