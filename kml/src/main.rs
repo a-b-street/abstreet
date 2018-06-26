@@ -31,5 +31,5 @@ fn main() {
 
     let out_path = &args[2];
     println!("writing to {}", out_path);
-    abstutil::write_json(out_path, &map).expect("serializing map failed");
+    abstutil::write_binary(out_path, &map).expect("serializing map failed");
 }

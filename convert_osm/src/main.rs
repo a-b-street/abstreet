@@ -50,7 +50,7 @@ fn main() {
     let (map, bounds) = osm::osm_to_raw_roads(&flags.osm);
     let mut map = osm::split_up_roads(&map, &elevation);
     let parcels_map: raw_data::Map =
-        abstutil::read_json(&flags.parcels).expect("loading parcels failed");
+        abstutil::read_binary(&flags.parcels).expect("loading parcels failed");
     println!(
         "Finding matching parcels from {} candidates",
         parcels_map.parcels.len()
@@ -94,5 +94,5 @@ fn main() {
     }
 
     println!("writing to {}", flags.output);
-    abstutil::write_json(&flags.output, &map).expect("serializing map failed");
+    abstutil::write_binary(&flags.output, &map).expect("serializing map failed");
 }

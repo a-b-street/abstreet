@@ -29,7 +29,7 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str) -> Result<Map, Error> {
-        let data: raw_data::Map = abstutil::read_json(path)?;
+        let data: raw_data::Map = abstutil::read_binary(path)?;
 
         let bounds = data.get_gps_bounds();
         let mut m = Map {
