@@ -106,7 +106,7 @@ pub fn line_segment_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Option<P
     ) {
         return None;
     }
-    Some(polyline::line_intersection(l1, l2))
+    polyline::line_intersection(l1, l2)
 }
 
 pub fn dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {

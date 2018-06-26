@@ -64,7 +64,10 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
 
         let (pt1_shift, pt2_shift_1st) = shift_line(width, pt1_raw, pt2_raw);
         let (pt2_shift_2nd, pt3_shift) = shift_line(width, pt2_raw, pt3_raw);
-        let pt2_shift = line_intersection((pt1_shift, pt2_shift_1st), (pt2_shift_2nd, pt3_shift));
+        // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
+        // original geometry is redundant.
+        let pt2_shift = line_intersection((pt1_shift, pt2_shift_1st), (pt2_shift_2nd, pt3_shift))
+            .unwrap_or(pt2_shift_1st);
 
         if pt3_idx == 2 {
             result.push(pt1_shift);
@@ -96,9 +99,9 @@ pub fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
     (shifted1, shifted2)
 }
 
-// NOT segment. ignores parallel lines.
+// NOT segment. Fails for parallel lines.
 // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-pub(crate) fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Pt2D {
+pub(crate) fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Option<Pt2D> {
     let x1 = l1.0.x();
     let y1 = l1.0.y();
     let x2 = l1.1.x();
@@ -112,7 +115,11 @@ pub(crate) fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Pt2D {
     let numer_x = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
     let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
     let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    Pt2D::new(numer_x / denom, numer_y / denom)
+    if denom == 0.0 {
+        None
+    } else {
+        Some(Pt2D::new(numer_x / denom, numer_y / denom))
+    }
 }
 
 #[test]
@@ -128,9 +135,12 @@ fn shift_polyline_equivalence() {
 
     let width = 50.0;
     let (pt1_s, _) = shift_line(width, pt1, pt2);
-    let pt2_s = line_intersection(shift_line(width, pt1, pt2), shift_line(width, pt2, pt3));
-    let pt3_s = line_intersection(shift_line(width, pt2, pt3), shift_line(width, pt3, pt4));
-    let pt4_s = line_intersection(shift_line(width, pt3, pt4), shift_line(width, pt4, pt5));
+    let pt2_s =
+        line_intersection(shift_line(width, pt1, pt2), shift_line(width, pt2, pt3)).unwrap();
+    let pt3_s =
+        line_intersection(shift_line(width, pt2, pt3), shift_line(width, pt3, pt4)).unwrap();
+    let pt4_s =
+        line_intersection(shift_line(width, pt3, pt4), shift_line(width, pt4, pt5)).unwrap();
     let (_, pt5_s) = shift_line(width, pt4, pt5);
 
     assert_eq!(
