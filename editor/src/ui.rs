@@ -413,8 +413,9 @@ impl gui::GUI for UI {
                 .handle_mouseover(&self.mouseover_something(window_size));
         }
         // TODO can't get this destructuring expressed right
-        let (new_selection_state, new_event_loop_mode) = self.current_selection_state
-            .event(input, &self.map, &mut self.sim_ctrl.sim);
+        let (new_selection_state, new_event_loop_mode) =
+            self.current_selection_state
+                .event(input, &self.map, &mut self.sim_ctrl.sim);
         event_loop_mode = event_loop_mode.merge(new_event_loop_mode);
         self.current_selection_state = new_selection_state;
         match self.current_selection_state {

@@ -93,7 +93,7 @@ impl SelectionState {
                     (
                         SelectionState::SelectedRoad(id, current_turn_index),
                         animation::EventLoopMode::InputOnly,
-                        )
+                    )
                 } else {
                     (
                         SelectionState::SelectedRoad(id, current_turn_index),

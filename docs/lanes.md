@@ -102,8 +102,8 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- osm tags and such would ideally be part of a master road
 
 
-	- debug impossibly long derived roads, like the horizontal E McGraw. try to detect by comparing length of original points with length of derived center pts.
-		- actually, looks like the polygon is borked.
+	- bad polygons when shifted lines invert points
+		- arguably, these could be a case when there's not enough room to shift away.
 
 	- multiple driving lanes on highways
 		- dashed white lines
