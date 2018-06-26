@@ -536,7 +536,11 @@ impl gui::GUI for UI {
 
         if self.show_buildings.is_enabled() {
             for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
-                b.draw(g, self.color_building(b.id));
+                b.draw(
+                    g,
+                    self.color_building(b.id),
+                    self.cs.get(Colors::BuildingPath),
+                );
             }
         }
 

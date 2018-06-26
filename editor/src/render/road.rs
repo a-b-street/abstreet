@@ -23,7 +23,9 @@ pub struct DrawRoad {
     start_crossing: (Vec2d, Vec2d),
     end_crossing: (Vec2d, Vec2d),
 
-    sidewalk_lines: Vec<(Vec2d, Vec2d)>,
+    marking_lines: Vec<(Vec2d, Vec2d)>,
+    // Remember so we know how to color marking_lines
+    lane_type: map_model::LaneType,
 }
 
 impl DrawRoad {
@@ -47,11 +49,12 @@ impl DrawRoad {
             },
             start_crossing: (start_1, start_2),
             end_crossing: (end_1, end_2),
-            sidewalk_lines: if road.lane_type == map_model::LaneType::Sidewalk {
-                calculate_sidewalk_lines(road)
-            } else {
-                Vec::new()
+            marking_lines: match road.lane_type {
+                map_model::LaneType::Sidewalk => calculate_sidewalk_lines(road),
+                map_model::LaneType::Parking => calculate_parking_lines(road),
+                map_model::LaneType::Driving => Vec::new(),
             },
+            lane_type: road.lane_type,
         }
     }
 
@@ -77,13 +80,19 @@ impl DrawRoad {
             );
         }
 
-        let sidewalk_marking = graphics::Line::new(
-            cs.get(Colors::SidewalkMarking),
+        let extra_marking_color = match self.lane_type {
+            map_model::LaneType::Sidewalk => cs.get(Colors::SidewalkMarking),
+            map_model::LaneType::Parking => cs.get(Colors::ParkingMarking),
+            // this case doesn't matter yet, no dotted lines yet...
+            map_model::LaneType::Driving => cs.get(Colors::Road),
+        };
+        let extra_marking = graphics::Line::new(
+            extra_marking_color,
             // TODO move this somewhere
             0.25,
         );
-        for pair in &self.sidewalk_lines {
-            sidewalk_marking.draw(
+        for pair in &self.marking_lines {
+            extra_marking.draw(
                 [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
                 &g.ctx.draw_state,
                 g.ctx.transform,
@@ -165,6 +174,13 @@ impl DrawRoad {
     }
 }
 
+// TODO this always does it at pt1
+fn perp_line(orig1: Pt2D, orig2: Pt2D, length: f64) -> (Vec2d, Vec2d) {
+    let (pt1, _) = map_model::shift_line(length / 2.0, orig1, orig2);
+    let (_, pt2) = map_model::shift_line(length / 2.0, orig2, orig1);
+    (pt1.to_vec(), pt2.to_vec())
+}
+
 fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     let tile_every = geometry::LANE_THICKNESS * si::M;
 
@@ -187,9 +203,55 @@ fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     result
 }
 
-// TODO this always does it at pt1
-fn perp_line(orig1: Pt2D, orig2: Pt2D, length: f64) -> (Vec2d, Vec2d) {
-    let (pt1, _) = map_model::shift_line(length / 2.0, orig1, orig2);
-    let (_, pt2) = map_model::shift_line(length / 2.0, orig2, orig1);
-    (pt1.to_vec(), pt2.to_vec())
+fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+    // TODO look up this value
+    let tile_every = 10.0 * si::M;
+    // meters, but the dims get annoying below to remove
+    // TODO make Pt2D natively understand meters, projecting away by an angle
+    let leg_length = 1.0;
+    let pi = f64::consts::PI;
+
+    let length = road.length();
+
+    let mut result = Vec::new();
+    // Start away from the intersections
+    let mut dist_along = tile_every;
+    while dist_along < length - tile_every {
+        let (pt, lane_angle) = road.dist_along(dist_along);
+        let perp_angle = lane_angle.value_unsafe + (pi * 1.5);
+        // Find the outside of the lane. Actually, shift inside a little bit, since the line will
+        // have thickness, but shouldn't really intersect the adjacent line when drawn.
+        let t_pt = Pt2D::new(
+            pt.x() + (geometry::LANE_THICKNESS * 0.4) * perp_angle.cos(),
+            pt.y() + (geometry::LANE_THICKNESS * 0.4) * perp_angle.sin(),
+        );
+        // The perp leg
+        result.push((
+            [t_pt.x(), t_pt.y()],
+            [
+                t_pt.x() - leg_length * perp_angle.cos(),
+                t_pt.y() - leg_length * perp_angle.sin(),
+            ],
+        ));
+        // Upper leg
+        result.push((
+            [t_pt.x(), t_pt.y()],
+            [
+                t_pt.x() + leg_length * lane_angle.value_unsafe.cos(),
+                t_pt.y() + leg_length * lane_angle.value_unsafe.sin(),
+            ],
+        ));
+        // Lower leg
+        result.push((
+            [t_pt.x(), t_pt.y()],
+            [
+                t_pt.x() - leg_length * lane_angle.value_unsafe.cos(),
+                t_pt.y() - leg_length * lane_angle.value_unsafe.sin(),
+            ],
+        ));
+
+        dist_along += tile_every;
+    }
+
+    result
 }

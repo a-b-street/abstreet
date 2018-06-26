@@ -30,13 +30,14 @@ impl DrawBuilding {
     }
 
     // TODO it'd be cool to draw a thick border. how to expand a polygon?
-    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
+    pub fn draw(&self, g: &mut GfxCtx, fill_color: Color, path_color: Color) {
         if let Some(line) = self.front_path {
-            let path = graphics::Line::new_round([0.0, 0.6, 0.0, 1.0], 1.0);
+            // TODO tune width
+            let path = graphics::Line::new_round(path_color, 1.0);
             path.draw(line, &g.ctx.draw_state, g.ctx.transform, g.gfx);
         }
 
-        let poly = graphics::Polygon::new(color);
+        let poly = graphics::Polygon::new(fill_color);
         poly.draw(&self.polygon, &g.ctx.draw_state, g.ctx.transform, g.gfx);
     }
 
