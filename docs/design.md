@@ -69,3 +69,25 @@ timescale for a traffic simulation. :) So, let's switch to u32.
   easy to understand and test. Maybe the sim_ctrl pattern is nicer? A light
 adapter to control the thing from the UI? ezgui's textbox and menu are similar
 -- no rendering, some input handling.
+
+## Map making
+
+Stages are roughly:
+
+- extract parcels inside a bbox from a .kml
+- load elevation into memory from a .hgt
+- get raw OSM ways and bbox from a .osm
+- (elevation, raw OSM ways) -> split up OSM stuff
+- merge in the parcels fitting the specific bbox
+- load traffic signal from a .shp and match to nearest intersection
+
+- create finalish Intersection structs
+- * split roads into lanes based on lane specs. also update Intersections.
+- * trim road lines for each intersection
+- * make turns for each intersection
+- * make each building, finding the front path using lanes
+- map over parcels directly
+
+The live edits will modify lane specs and turns. Will have to re-do starred
+items most likely. Should be straightforward to only redo small parts of those
+stages.

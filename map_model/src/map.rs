@@ -3,18 +3,17 @@
 use Bounds;
 use Pt2D;
 use abstutil;
-use building;
 use building::{Building, BuildingID};
 use dimensioned::si;
 use geometry;
 use intersection::{Intersection, IntersectionID};
+use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
-use road::{LaneType, Road, RoadID};
+use road::{Road, RoadID};
 use shift_polyline;
 use std::collections::HashMap;
 use std::io::Error;
-use std::iter;
 use turn::{Turn, TurnID};
 
 pub struct Map {
@@ -63,7 +62,8 @@ impl Map {
 
         let mut counter = 0;
         for r in &data.roads {
-            for lane in get_lane_specs(r) {
+            // TODO move this to make/lanes.rs too
+            for lane in make::get_lane_specs(r) {
                 let id = RoadID(counter);
                 counter += 1;
                 let other_side = lane.offset_for_other_id
@@ -114,32 +114,20 @@ impl Map {
         }
 
         for i in &m.intersections {
-            trim_lines(&mut m.roads, i);
+            make::trim_lines(&mut m.roads, i);
         }
 
         for i in &m.intersections {
-            let turns = make_turns(i, &m);
+            let turns = make::make_turns(i, &m, m.turns.len());
             m.turns.extend(turns);
         }
         for t in &m.turns {
             m.intersections[t.parent.0].turns.push(t.id);
         }
 
-        // TODO consume data, so we dont have to clone tags?
         for (idx, b) in data.buildings.iter().enumerate() {
-            let points = b.points
-                .iter()
-                .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
-                .collect();
-            let front_path = building::find_front_path(&points, &b.osm_tags, &m);
-
-            m.buildings.push(Building {
-                points,
-                front_path,
-                id: BuildingID(idx),
-                osm_way_id: b.osm_way_id,
-                osm_tags: b.osm_tags.clone(),
-            });
+            m.buildings
+                .push(make::make_building(b, BuildingID(idx), &bounds, &m.roads));
         }
 
         for (idx, p) in data.parcels.iter().enumerate() {
@@ -235,185 +223,4 @@ impl Map {
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()
     }
-}
-
-// TODO organize these differently
-fn make_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
-    let incoming: Vec<RoadID> = i.incoming_roads
-        .iter()
-        .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
-        .map(|id| *id)
-        .collect();
-    let outgoing: Vec<RoadID> = i.outgoing_roads
-        .iter()
-        .filter(|id| m.roads[id.0].lane_type == LaneType::Driving)
-        .map(|id| *id)
-        .collect();
-
-    // TODO: Figure out why this happens in the huge map
-    if incoming.is_empty() {
-        println!("WARNING: intersection {:?} has no incoming roads", i);
-        return Vec::new();
-    }
-    if outgoing.is_empty() {
-        println!("WARNING: intersection {:?} has no outgoing roads", i);
-        return Vec::new();
-    }
-    let dead_end = incoming.len() == 1 && outgoing.len() == 1;
-
-    let mut result = Vec::new();
-    for src in &incoming {
-        let src_r = &m.roads[src.0];
-        for dst in &outgoing {
-            let dst_r = &m.roads[dst.0];
-            // Don't create U-turns unless it's a dead-end
-            if src_r.other_side == Some(dst_r.id) && !dead_end {
-                continue;
-            }
-
-            let id = TurnID(m.turns.len() + result.len());
-            result.push(Turn {
-                id,
-                parent: i.id,
-                src: *src,
-                dst: *dst,
-                src_pt: src_r.last_pt(),
-                dst_pt: dst_r.first_pt(),
-            });
-        }
-    }
-    result
-}
-
-fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
-    use std::collections::hash_map::Entry;
-
-    let mut shortest_first_line: HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)> = HashMap::new();
-    let mut shortest_last_line: HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)> = HashMap::new();
-
-    fn update_shortest(
-        m: &mut HashMap<RoadID, (Pt2D, Pt2D, si::Meter<f64>)>,
-        r: RoadID,
-        l: (Pt2D, Pt2D),
-    ) {
-        let new_len = geometry::euclid_dist(l);
-
-        match m.entry(r) {
-            Entry::Occupied(mut o) => {
-                if new_len < o.get().2 {
-                    o.insert((l.0, l.1, new_len));
-                }
-            }
-            Entry::Vacant(v) => {
-                v.insert((l.0, l.1, new_len));
-            }
-        }
-    }
-
-    // For short first/last lines, this might not work well
-    for incoming in &i.incoming_roads {
-        for outgoing in &i.outgoing_roads {
-            let l1 = roads[incoming.0].last_line();
-            let l2 = roads[outgoing.0].first_line();
-            if let Some(hit) = geometry::line_segment_intersection(l1, l2) {
-                update_shortest(&mut shortest_last_line, *incoming, (l1.0, hit));
-                update_shortest(&mut shortest_first_line, *outgoing, (hit, l2.1));
-            }
-        }
-    }
-
-    // Apply the updates
-    for (id, triple) in &shortest_first_line {
-        roads[id.0].lane_center_pts[0] = triple.0;
-        roads[id.0].lane_center_pts[1] = triple.1;
-    }
-    for (id, triple) in &shortest_last_line {
-        let len = roads[id.0].lane_center_pts.len();
-        roads[id.0].lane_center_pts[len - 2] = triple.0;
-        roads[id.0].lane_center_pts[len - 1] = triple.1;
-    }
-}
-
-// (original direction, reversed direction)
-fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
-    let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
-    // These seem to represent weird roundabouts
-    let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
-    let big_road = r.osm_tags.get("highway") == Some(&"primary".to_string())
-        || r.osm_tags.get("highway") == Some(&"secondary".to_string());
-    // TODO debugging convenience
-    let only_roads_for_debugging = false;
-
-    if junction {
-        return (vec![LaneType::Driving], Vec::new());
-    }
-
-    let num_driving_lanes = if big_road { 2 } else { 1 };
-    let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(num_driving_lanes)
-        .collect();
-    if only_roads_for_debugging {
-        if oneway {
-            return (driving_lanes, Vec::new());
-        } else {
-            return (driving_lanes.clone(), driving_lanes);
-        }
-    }
-
-    let mut full_side = driving_lanes;
-    full_side.push(LaneType::Parking);
-    full_side.push(LaneType::Sidewalk);
-    if oneway {
-        (full_side, vec![LaneType::Sidewalk])
-    } else {
-        (full_side.clone(), full_side)
-    }
-}
-
-struct LaneSpec {
-    lane_type: LaneType,
-    offset: u8,
-    reverse_pts: bool,
-    offset_for_other_id: Option<isize>,
-}
-
-fn get_lane_specs(r: &raw_data::Road) -> Vec<LaneSpec> {
-    let mut specs: Vec<LaneSpec> = Vec::new();
-
-    let (side1_types, side2_types) = get_lanes(r);
-    for (idx, lane_type) in side1_types.iter().enumerate() {
-        // TODO this might be a bit wrong. add unit tests. :)
-        let offset_for_other_id = if *lane_type != LaneType::Driving {
-            None
-        } else if !side2_types.contains(&LaneType::Driving) {
-            None
-        } else if side1_types == side2_types {
-            Some(side1_types.len() as isize)
-        } else {
-            panic!("get_lane_specs case not handled yet");
-        };
-
-        specs.push(LaneSpec {
-            offset_for_other_id,
-            lane_type: *lane_type,
-            offset: idx as u8,
-            reverse_pts: false,
-        });
-    }
-    for (idx, lane_type) in side2_types.iter().enumerate() {
-        let offset_for_other_id = if *lane_type != LaneType::Driving {
-            None
-        } else {
-            Some(-1 * (side1_types.len() as isize))
-        };
-
-        specs.push(LaneSpec {
-            offset_for_other_id,
-            lane_type: *lane_type,
-            offset: idx as u8,
-            reverse_pts: true,
-        });
-    }
-
-    specs
 }

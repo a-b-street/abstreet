@@ -119,7 +119,8 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- some bldg paths are quite long.
 	- make final Map serializable too
 		- useful to precompute sidewalk paths
-	- reorg map making
+		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
+		- cant easily serialize ordered float, so move away from it first?
 	- small geometry refactorings (like shifting polyline on opposite side, reversing pts)
 
 

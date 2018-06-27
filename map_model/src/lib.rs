@@ -16,6 +16,7 @@ extern crate vecmath;
 mod building;
 pub mod geometry;
 mod intersection;
+mod make;
 mod map;
 mod parcel;
 mod polyline;
