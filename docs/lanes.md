@@ -59,6 +59,7 @@ The polyline problem:
 - https://stackoverflow.com/questions/36475254/polylines-outline-construction-drawing-thick-polylines
 - Will lengths change? Is this a problem?
 - Drawing cars as rectangles is funky, because if their front is aligned to a new line segment, their back juts into the center of the road
+- https://hal.inria.fr/hal-00907326/document
 
 
 - Seemingly: line intersection of shifted lines yields the new joint point, which looks good.
@@ -102,10 +103,15 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- osm tags and such would ideally be part of a master road
 
 
+	- automated regression test / quality control
+		- find all overlapping polygons, only some are expected
+		- find a way to show the problem easily
+		- geo rust!
+	- improve intersection geom?
+
 	- bad polygons when shifted lines invert points
 		- arguably, these could be a case when there's not enough room to shift away.
 
-	- render dashed white lines for multiple driving lanes
 	- render trees?
 	- revisit parks/water (as parcels / areas, maybe)
 
@@ -114,6 +120,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- make final Map serializable too
 		- useful to precompute sidewalk paths
 	- reorg map making
+	- small geometry refactorings (like shifting polyline on opposite side, reversing pts)
 
 
 	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more

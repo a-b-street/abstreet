@@ -52,7 +52,7 @@ impl DrawRoad {
             marking_lines: match road.lane_type {
                 map_model::LaneType::Sidewalk => calculate_sidewalk_lines(road),
                 map_model::LaneType::Parking => calculate_parking_lines(road),
-                map_model::LaneType::Driving => Vec::new(),
+                map_model::LaneType::Driving => calculate_driving_lines(road),
             },
             lane_type: road.lane_type,
         }
@@ -83,8 +83,7 @@ impl DrawRoad {
         let extra_marking_color = match self.lane_type {
             map_model::LaneType::Sidewalk => cs.get(Colors::SidewalkMarking),
             map_model::LaneType::Parking => cs.get(Colors::ParkingMarking),
-            // this case doesn't matter yet, no dotted lines yet...
-            map_model::LaneType::Driving => cs.get(Colors::Road),
+            map_model::LaneType::Driving => cs.get(Colors::DrivingLaneMarking),
         };
         let extra_marking = graphics::Line::new(
             extra_marking_color,
@@ -254,4 +253,36 @@ fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     }
 
     result
+}
+
+fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+    // Only multi-lane roads have dashed white lines.
+    if road.offset == 0 {
+        return Vec::new();
+    }
+
+    // Project left, so reverse the points.
+    let mut center_pts = road.lane_center_pts.clone();
+    center_pts.reverse();
+    let lane_edge_pts = map_model::shift_polyline(geometry::LANE_THICKNESS / 2.0, &center_pts);
+
+    // This is an incredibly expensive way to compute dashed polyines, and it doesn't follow bends
+    // properly. Just a placeholder.
+    let lane_len = geometry::polyline_len(&lane_edge_pts);
+    let dash_separation = 2.0 * si::M;
+    let dash_len = 1.0 * si::M;
+
+    let mut dashes: Vec<(Vec2d, Vec2d)> = Vec::new();
+    let mut start = dash_separation;
+    loop {
+        if start + dash_len >= lane_len - dash_separation {
+            break;
+        }
+
+        let (pt1, _) = geometry::dist_along(&lane_edge_pts, start);
+        let (pt2, _) = geometry::dist_along(&lane_edge_pts, start + dash_len);
+        dashes.push((pt1.to_vec(), pt2.to_vec()));
+        start += dash_len + dash_separation;
+    }
+    dashes
 }

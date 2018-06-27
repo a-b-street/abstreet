@@ -80,40 +80,11 @@ impl Road {
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {
-        // TODO valid to do euclidean distance on screen-space points that're formed from
-        // Haversine?
-        let mut dist_left = dist_along;
-        for (idx, pair) in self.lane_center_pts.windows(2).enumerate() {
-            let length = geometry::euclid_dist((pair[0], pair[1]));
-            let epsilon = if idx == self.lane_center_pts.len() - 2 {
-                geometry::EPSILON_METERS
-            } else {
-                0.0 * si::M
-            };
-            if dist_left <= length + epsilon {
-                let vec = geometry::safe_dist_along_line((&pair[0], &pair[1]), dist_left);
-                return (
-                    Pt2D::new(vec[0], vec[1]),
-                    geometry::angle(&pair[0], &pair[1]),
-                );
-            }
-            dist_left -= length;
-        }
-        panic!(
-            "{} is longer than road {:?}'s {}. dist_left is {}",
-            dist_along,
-            self.id,
-            self.length(),
-            dist_left
-        );
+        geometry::dist_along(&self.lane_center_pts, dist_along)
     }
 
     pub fn length(&self) -> si::Meter<f64> {
-        self.lane_center_pts
-            .windows(2)
-            .fold(0.0 * si::M, |so_far, pair| {
-                so_far + geometry::euclid_dist((pair[0], pair[1]))
-            })
+        geometry::polyline_len(&self.lane_center_pts)
     }
 
     pub fn dump_debug(&self) {

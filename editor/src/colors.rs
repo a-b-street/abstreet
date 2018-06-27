@@ -14,6 +14,7 @@ pub enum Colors {
     Debug,
     BrightDebug,
     Road,
+    DrivingLaneMarking,
     Parking,
     ParkingMarking,
     Sidewalk,

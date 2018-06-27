@@ -83,6 +83,8 @@ pub fn point_in_circle(x: f64, y: f64, center: Vec2d, radius: f64) -> bool {
 }*/
 
 // TODO borrow or copy?
+// TODO valid to do euclidean distance on screen-space points that're formed from
+// Haversine?
 pub(crate) fn euclid_dist((pt1, pt2): (Pt2D, Pt2D)) -> si::Meter<f64> {
     return ((pt1.x() - pt2.x()).powi(2) + (pt1.y() - pt2.y()).powi(2)).sqrt() * si::M;
 }
@@ -199,4 +201,28 @@ pub fn angle(from: &Pt2D, to: &Pt2D) -> angles::Radian<f64> {
         theta += 2.0 * f64::consts::PI;
     }
     theta * angles::RAD
+}
+
+pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, angles::Radian<f64>) {
+    let mut dist_left = dist_along;
+    for (idx, pair) in pts.windows(2).enumerate() {
+        let length = euclid_dist((pair[0], pair[1]));
+        let epsilon = if idx == pts.len() - 2 {
+            EPSILON_METERS
+        } else {
+            0.0 * si::M
+        };
+        if dist_left <= length + epsilon {
+            let vec = safe_dist_along_line((&pair[0], &pair[1]), dist_left);
+            return (Pt2D::new(vec[0], vec[1]), angle(&pair[0], &pair[1]));
+        }
+        dist_left -= length;
+    }
+    panic!("{} is longer than pts by {}", dist_along, dist_left);
+}
+
+pub fn polyline_len(pts: &Vec<Pt2D>) -> si::Meter<f64> {
+    pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+        so_far + euclid_dist((pair[0], pair[1]))
+    })
 }
