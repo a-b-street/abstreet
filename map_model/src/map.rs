@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use Bounds;
+use HashablePt2D;
 use Pt2D;
 use abstutil;
 use building::{Building, BuildingID};
@@ -41,11 +42,11 @@ impl Map {
             parcels: Vec::new(),
         };
 
-        let mut pt_to_intersection: HashMap<Pt2D, IntersectionID> = HashMap::new();
+        let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
 
         for (idx, i) in data.intersections.iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = geometry::gps_to_screen_space(&Pt2D::from(&i.point), &bounds);
+            let pt = geometry::gps_to_screen_space(&i.point, &bounds);
             m.intersections.push(Intersection {
                 id,
                 point: pt,
@@ -57,7 +58,7 @@ impl Map {
                 incoming_roads: Vec::new(),
                 outgoing_roads: Vec::new(),
             });
-            pt_to_intersection.insert(pt, id);
+            pt_to_intersection.insert(HashablePt2D::from(pt), id);
         }
 
         let mut counter = 0;
@@ -71,15 +72,15 @@ impl Map {
 
                 let mut unshifted_pts: Vec<Pt2D> = r.points
                     .iter()
-                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                    .map(|coord| geometry::gps_to_screen_space(&coord, &bounds))
                     .collect();
                 if lane.reverse_pts {
                     unshifted_pts.reverse();
                 }
 
                 // Do this with the original points, before trimming them back
-                let i1 = pt_to_intersection[&unshifted_pts[0]];
-                let i2 = pt_to_intersection[unshifted_pts.last().unwrap()];
+                let i1 = pt_to_intersection[&HashablePt2D::from(unshifted_pts[0])];
+                let i2 = pt_to_intersection[&HashablePt2D::from(*unshifted_pts.last().unwrap())];
                 m.intersections[i1.0].outgoing_roads.push(id);
                 m.intersections[i2.0].incoming_roads.push(id);
 
@@ -135,7 +136,7 @@ impl Map {
                 id: ParcelID(idx),
                 points: p.points
                     .iter()
-                    .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), &bounds))
+                    .map(|coord| geometry::gps_to_screen_space(coord, &bounds))
                     .collect(),
             });
         }

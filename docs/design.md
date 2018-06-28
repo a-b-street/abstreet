@@ -91,3 +91,19 @@ Stages are roughly:
 The live edits will modify lane specs and turns. Will have to re-do starred
 items most likely. Should be straightforward to only redo small parts of those
 stages.
+
+## Basic geometric types
+
+Not aiming to get it right forever, just improving the mess now.
+
+- Pt2D
+	- just a pair of f64's, representing world space (non-negative)
+	- no more ordered_float; have a variant only when needed
+- Angle
+	- normalized, with easy reversing/perpendicularing
+- Line
+	- pair of points
+- Polyline
+- Polygon
+
+conversions to Vec2d ONLY for graphics; maybe even scope those conversions to render/

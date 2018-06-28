@@ -2,8 +2,8 @@
 
 use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
-use map_model::geometry;
 use map_model::{BuildingID, IntersectionID, Map, ParcelID, Pt2D, RoadID, TurnID};
+use map_model::{geometry, raw_data};
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
 use render::parcel::DrawParcel;
@@ -73,8 +73,13 @@ impl DrawMap {
 
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
-        let max_screen_pt =
-            geometry::gps_to_screen_space(&Pt2D::new(bounds.max_x, bounds.min_y), &bounds);
+        let max_screen_pt = geometry::gps_to_screen_space(
+            &raw_data::LonLat {
+                longitude: bounds.max_x,
+                latitude: bounds.min_y,
+            },
+            &bounds,
+        );
         let map_bbox = Rect {
             top_left: Point { x: 0.0, y: 0.0 },
             bottom_right: Point {

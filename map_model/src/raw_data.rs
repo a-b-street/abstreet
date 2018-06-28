@@ -45,22 +45,23 @@ impl Map {
     }
 }
 
+// longitude is x, latitude is y
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct LatLon {
-    pub latitude: f64,
+pub struct LonLat {
     pub longitude: f64,
+    pub latitude: f64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Road {
-    pub points: Vec<LatLon>,
+    pub points: Vec<LonLat>,
     pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Intersection {
-    pub point: LatLon,
+    pub point: LonLat,
     pub elevation_meters: f64,
     pub has_traffic_signal: bool,
 }
@@ -68,7 +69,7 @@ pub struct Intersection {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Building {
     // last point never the first?
-    pub points: Vec<LatLon>,
+    pub points: Vec<LonLat>,
     pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
 }
@@ -76,6 +77,6 @@ pub struct Building {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Parcel {
     // last point never the first?
-    pub points: Vec<LatLon>,
+    pub points: Vec<LonLat>,
     // TODO decide what metadata from the shapefile is useful
 }

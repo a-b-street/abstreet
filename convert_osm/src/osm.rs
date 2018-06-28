@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use map_model;
-use map_model::Pt2D;
+use map_model::HashablePt2D;
 use osm_xml;
 use srtm;
 use std::collections::{HashMap, HashSet};
@@ -42,9 +42,9 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                 osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
                     Some(node) => {
                         bounds.update(node.lon, node.lat);
-                        pts.push(map_model::raw_data::LatLon {
-                            latitude: node.lat,
+                        pts.push(map_model::raw_data::LonLat {
                             longitude: node.lon,
+                            latitude: node.lat,
                         });
                     }
                     None => {
@@ -90,11 +90,11 @@ pub fn split_up_roads(
     elevation: &srtm::Elevation,
 ) -> map_model::raw_data::Map {
     println!("splitting up {} roads", input.roads.len());
-    let mut counts_per_pt: HashMap<Pt2D, usize> = HashMap::new();
-    let mut intersections: HashSet<Pt2D> = HashSet::new();
+    let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
+    let mut intersections: HashSet<HashablePt2D> = HashSet::new();
     for r in &input.roads {
         for (idx, raw_pt) in r.points.iter().enumerate() {
-            let pt = Pt2D::from(raw_pt);
+            let pt = hash_pt(raw_pt);
             counts_per_pt.entry(pt).or_insert(0);
             let count = counts_per_pt[&pt] + 1;
             counts_per_pt.insert(pt, count);
@@ -115,9 +115,9 @@ pub fn split_up_roads(
 
     for pt in &intersections {
         map.intersections.push(map_model::raw_data::Intersection {
-            point: map_model::raw_data::LatLon {
-                latitude: pt.y(),
+            point: map_model::raw_data::LonLat {
                 longitude: pt.x(),
+                latitude: pt.y(),
             },
             elevation_meters: elevation.get(pt.x(), pt.y()),
             has_traffic_signal: false,
@@ -131,7 +131,7 @@ pub fn split_up_roads(
 
         for pt in &orig_road.points {
             r.points.push(pt.clone());
-            if r.points.len() > 1 && intersections.contains(&Pt2D::from(pt)) {
+            if r.points.len() > 1 && intersections.contains(&hash_pt(pt)) {
                 // Start a new road
                 map.roads.push(r.clone());
                 r.points.clear();
@@ -193,4 +193,8 @@ fn is_bldg(tags: &[osm_xml::Tag]) -> bool {
         }
     }
     false
+}
+
+fn hash_pt(pt: &map_model::raw_data::LonLat) -> HashablePt2D {
+    HashablePt2D::new(pt.longitude, pt.latitude)
 }

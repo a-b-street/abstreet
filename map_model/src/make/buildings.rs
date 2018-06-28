@@ -20,7 +20,7 @@ pub(crate) fn make_building(
     // TODO consume data, so we dont have to clone tags?
     let points = b.points
         .iter()
-        .map(|coord| geometry::gps_to_screen_space(&Pt2D::from(coord), bounds))
+        .map(|coord| geometry::gps_to_screen_space(coord, bounds))
         .collect();
     let front_path = find_front_path(&points, &b.osm_tags, roads);
 

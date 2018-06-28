@@ -37,10 +37,40 @@ use std::f64;
 use std::fmt;
 pub use turn::{Turn, TurnID};
 
+// This isn't opinionated about what the (x, y) represents -- could be lat/lon or world space.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct HashablePt2D {
+    x_nan: NotNaN<f64>,
+    y_nan: NotNaN<f64>,
+}
+
+impl HashablePt2D {
+    pub fn new(x: f64, y: f64) -> HashablePt2D {
+        HashablePt2D {
+            x_nan: NotNaN::new(x).unwrap(),
+            y_nan: NotNaN::new(y).unwrap(),
+        }
+    }
+
+    pub fn x(&self) -> f64 {
+        self.x_nan.into_inner()
+    }
+
+    pub fn y(&self) -> f64 {
+        self.y_nan.into_inner()
+    }
+}
+
+impl From<Pt2D> for HashablePt2D {
+    fn from(pt: Pt2D) -> Self {
+        HashablePt2D::new(pt.x(), pt.y())
+    }
+}
+
 // This isn't opinionated about what the (x, y) represents. Could be GPS coordinates, could be
 // screen-space.
 // TODO but actually, different types to represent GPS and screen space would be awesome.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Pt2D {
     x_nan: NotNaN<f64>,
     y_nan: NotNaN<f64>,
@@ -88,18 +118,6 @@ impl Pt2D {
     }
 }
 
-impl<'a> From<&'a raw_data::LatLon> for Pt2D {
-    fn from(pt: &raw_data::LatLon) -> Self {
-        Pt2D::new(pt.longitude, pt.latitude)
-    }
-}
-
-impl From<[f64; 2]> for Pt2D {
-    fn from(pt: [f64; 2]) -> Self {
-        Pt2D::new(pt[0], pt[1])
-    }
-}
-
 impl fmt::Display for Pt2D {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Pt2D({0}, {1})", self.x(), self.y())
@@ -136,7 +154,7 @@ impl Bounds {
         self.update(pt.x(), pt.y());
     }
 
-    pub fn update_coord(&mut self, coord: &raw_data::LatLon) {
+    pub fn update_coord(&mut self, coord: &raw_data::LonLat) {
         self.update(coord.longitude, coord.latitude);
     }
 
