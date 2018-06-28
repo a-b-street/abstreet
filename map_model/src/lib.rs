@@ -2,7 +2,6 @@
 
 extern crate aabb_quadtree;
 extern crate abstutil;
-#[macro_use]
 extern crate dimensioned;
 extern crate geo;
 extern crate graphics;
@@ -25,7 +24,6 @@ mod road;
 mod turn;
 
 pub use building::{Building, BuildingID};
-pub use geometry::angles::{Radian, RAD};
 use graphics::math::Vec2d;
 pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
@@ -117,6 +115,21 @@ impl Pt2D {
     pub fn to_vec(&self) -> Vec2d {
         [self.x(), self.y()]
     }
+
+    // TODO better name
+    // TODO Meters for dist?
+    pub fn project_away(&self, dist: f64, theta: Angle) -> Pt2D {
+        // If negative, caller should use theta.opposite()
+        assert!(dist >= 0.0);
+
+        let (sin, cos) = theta.0.sin_cos();
+        Pt2D::new(self.x() + dist * cos, self.y() + dist * sin)
+    }
+
+    pub fn angle_to(&self, to: Pt2D) -> Angle {
+        // DON'T invert y here
+        Angle((to.y() - self.y()).atan2(to.x() - self.x()))
+    }
 }
 
 impl fmt::Display for Pt2D {
@@ -162,5 +175,37 @@ impl Bounds {
 
     pub fn contains(&self, x: f64, y: f64) -> bool {
         x >= self.min_x && x <= self.max_x && y >= self.min_y && y <= self.max_y
+    }
+}
+
+// Stores in radians
+#[derive(Clone, Copy, Debug)]
+pub struct Angle(f64);
+
+impl Angle {
+    pub fn opposite(&self) -> Angle {
+        Angle(self.0 + f64::consts::PI)
+    }
+
+    pub fn rotate_degs(&self, degrees: f64) -> Angle {
+        Angle(self.0 + degrees.to_radians())
+    }
+
+    pub fn normalized_radians(&self) -> f64 {
+        if self.0 < 0.0 {
+            self.0 + (2.0 * f64::consts::PI)
+        } else {
+            self.0
+        }
+    }
+}
+
+impl fmt::Display for Angle {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Angle({} degrees)",
+            self.normalized_radians().to_degrees()
+        )
     }
 }

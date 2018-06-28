@@ -172,8 +172,8 @@ impl UI {
         point!(p4, Pt2D::new(500.0, 120.0));
 
         println!("");
-        println!("p1 -> p2 is {}", angle_degrees(p1, p2));
-        println!("p2 -> p3 is {}", angle_degrees(p2, p3));
+        println!("p1 -> p2 is {}", p1.angle_to(p2));
+        println!("p2 -> p3 is {}", p2.angle_to(p3));
 
         draw_polyline(g, &vec![p1, p2, p3, p4], thick, RED);
 
@@ -232,16 +232,4 @@ fn draw_polyline(g: &mut GfxCtx, pts: &Vec<Pt2D>, thickness: f64, color: Color) 
 
 fn draw_polygon(g: &mut GfxCtx, pts: Vec<Vec2d>, color: Color) {
     graphics::Polygon::new(color).draw(&pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
-}
-
-fn angle_degrees(from: Pt2D, to: Pt2D) -> f64 {
-    // Y inversion necessary because of drawing
-    let theta_rads = (from.y() - to.y()).atan2(to.x() - from.x());
-    let theta_degs = theta_rads * 360.0 / (2.0 * f64::consts::PI);
-    // Normalize
-    if theta_degs < 0.0 {
-        theta_degs + 360.0
-    } else {
-        theta_degs
-    }
 }

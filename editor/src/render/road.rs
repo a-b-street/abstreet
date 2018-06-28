@@ -11,7 +11,6 @@ use map_model;
 use map_model::geometry;
 use map_model::{Pt2D, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
-use std::f64;
 
 #[derive(Debug)]
 pub struct DrawRoad {
@@ -191,10 +190,7 @@ fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     while dist_along < length - tile_every {
         let (pt, angle) = road.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
-        let pt2 = Pt2D::new(
-            pt.x() + angle.value_unsafe.cos(),
-            pt.y() + angle.value_unsafe.sin(),
-        );
+        let pt2 = pt.project_away(1.0, angle);
         result.push(perp_line(pt, pt2, geometry::LANE_THICKNESS));
         dist_along += tile_every;
     }
@@ -208,7 +204,6 @@ fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     // meters, but the dims get annoying below to remove
     // TODO make Pt2D natively understand meters, projecting away by an angle
     let leg_length = 1.0;
-    let pi = f64::consts::PI;
 
     let length = road.length();
 
@@ -217,36 +212,26 @@ fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
         let (pt, lane_angle) = road.dist_along(dist_along);
-        let perp_angle = lane_angle.value_unsafe + (pi * 1.5);
+        let perp_angle = lane_angle.rotate_degs(270.0);
         // Find the outside of the lane. Actually, shift inside a little bit, since the line will
         // have thickness, but shouldn't really intersect the adjacent line when drawn.
-        let t_pt = Pt2D::new(
-            pt.x() + (geometry::LANE_THICKNESS * 0.4) * perp_angle.cos(),
-            pt.y() + (geometry::LANE_THICKNESS * 0.4) * perp_angle.sin(),
-        );
+        let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
         // The perp leg
         result.push((
             [t_pt.x(), t_pt.y()],
-            [
-                t_pt.x() - leg_length * perp_angle.cos(),
-                t_pt.y() - leg_length * perp_angle.sin(),
-            ],
+            t_pt.project_away(leg_length, perp_angle.opposite())
+                .to_vec(),
         ));
         // Upper leg
         result.push((
             [t_pt.x(), t_pt.y()],
-            [
-                t_pt.x() + leg_length * lane_angle.value_unsafe.cos(),
-                t_pt.y() + leg_length * lane_angle.value_unsafe.sin(),
-            ],
+            t_pt.project_away(leg_length, lane_angle).to_vec(),
         ));
         // Lower leg
         result.push((
             [t_pt.x(), t_pt.y()],
-            [
-                t_pt.x() - leg_length * lane_angle.value_unsafe.cos(),
-                t_pt.y() - leg_length * lane_angle.value_unsafe.sin(),
-            ],
+            t_pt.project_away(leg_length, lane_angle.opposite())
+                .to_vec(),
         ));
 
         dist_along += tile_every;

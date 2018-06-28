@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use Angle;
 use IntersectionID;
 use Pt2D;
 use RoadID;
@@ -46,11 +47,11 @@ impl Turn {
     }
 
     // TODO share impl with GeomRoad
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {
+    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         let src = Pt2D::new(self.src_pt[0], self.src_pt[1]);
         let dst = Pt2D::new(self.dst_pt[0], self.dst_pt[1]);
         let vec = geometry::safe_dist_along_line((&src, &dst), dist_along);
-        (Pt2D::new(vec[0], vec[1]), geometry::angle(&src, &dst))
+        (Pt2D::new(vec[0], vec[1]), src.angle_to(dst))
     }
 
     pub fn length(&self) -> si::Meter<f64> {

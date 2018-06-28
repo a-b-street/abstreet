@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use Angle;
 use Bounds;
 use Pt2D;
 use aabb_quadtree::geom::{Point, Rect};
@@ -8,22 +9,6 @@ use graphics::math::Vec2d;
 use polyline;
 use std::f64;
 use vecmath;
-
-pub mod angles {
-    make_units! {
-        ANGLES;
-        ONE: Unitless;
-
-        base {
-            RAD: Radian, "rad";
-        }
-        derived {}
-        constants {}
-
-        fmt = true;
-    }
-    pub use self::f64consts::*;
-}
 
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
@@ -38,12 +23,9 @@ pub fn thick_line_from_angle(
     thickness: f64,
     line_length: f64,
     pt: &Pt2D,
-    angle: angles::Radian<f64>,
+    angle: Angle,
 ) -> Vec<Vec<Vec2d>> {
-    let pt2 = Pt2D::new(
-        pt.x() + line_length * angle.value_unsafe.cos(),
-        pt.y() + line_length * angle.value_unsafe.sin(),
-    );
+    let pt2 = pt.project_away(line_length, angle);
     polyline::polygons_for_polyline(&vec![*pt, pt2], thickness)
 }
 
@@ -178,17 +160,7 @@ pub fn circle_to_bbox(c: &[f64; 4]) -> Rect {
     }
 }
 
-pub fn angle(from: &Pt2D, to: &Pt2D) -> angles::Radian<f64> {
-    // DON'T invert y here
-    let mut theta = (to.y() - from.y()).atan2(to.x() - from.x());
-    // Normalize for easy output
-    if theta < 0.0 {
-        theta += 2.0 * f64::consts::PI;
-    }
-    theta * angles::RAD
-}
-
-pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, angles::Radian<f64>) {
+pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
     let mut dist_left = dist_along;
     for (idx, pair) in pts.windows(2).enumerate() {
         let length = euclid_dist((pair[0], pair[1]));
@@ -199,7 +171,7 @@ pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, angles:
         };
         if dist_left <= length + epsilon {
             let vec = safe_dist_along_line((&pair[0], &pair[1]), dist_left);
-            return (Pt2D::new(vec[0], vec[1]), angle(&pair[0], &pair[1]));
+            return (Pt2D::new(vec[0], vec[1]), pair[0].angle_to(pair[1]));
         }
         dist_left -= length;
     }

@@ -7,7 +7,7 @@ use ezgui::GfxCtx;
 use graphics;
 use graphics::math::Vec2d;
 use map_model::geometry;
-use map_model::{LaneType, Map, Pt2D, Radian, RoadID, TurnID};
+use map_model::{Angle, LaneType, Map, Pt2D, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::{BTreeMap, HashSet};
@@ -34,19 +34,19 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    fn new(id: CarID, front: &Pt2D, angle: Radian<f64>) -> DrawCar {
+    fn new(id: CarID, front: &Pt2D, angle: Angle) -> DrawCar {
         DrawCar {
             id,
             front: front.clone(),
             // Fill this out later
             turn_arrow: None,
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
-            // add PI because we want to find the back of the car relative to the front
             polygons: geometry::thick_line_from_angle(
                 CAR_WIDTH,
                 CAR_LENGTH,
                 front,
-                angle + (f64::consts::PI * geometry::angles::RAD),
+                // find the back of the car relative to the front
+                angle.opposite(),
             ),
         }
     }
@@ -102,7 +102,7 @@ impl On {
         }
     }
 
-    fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Radian<f64>) {
+    fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
         match self {
             &On::Road(id) => map.get_r(id).dist_along(dist),
             &On::Turn(id) => map.get_t(id).dist_along(dist),
@@ -165,7 +165,7 @@ impl Car {
     }
 
     // Returns the angle and the dist along the road/turn too
-    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Radian<f64>, si::Meter<f64>) {
+    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, si::Meter<f64>) {
         let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
             dist = self.on.length(map);

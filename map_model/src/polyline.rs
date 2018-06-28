@@ -87,8 +87,10 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
 
     // Check that the angles roughly match up between the original and shifted line
     for (orig_pair, shifted_pair) in pts.windows(2).zip(result.windows(2)) {
-        let orig_angle = angle_btwn(orig_pair[0], orig_pair[1]);
-        let shifted_angle = angle_btwn(shifted_pair[0], shifted_pair[1]);
+        let orig_angle = orig_pair[0].angle_to(orig_pair[1]).normalized_radians();
+        let shifted_angle = shifted_pair[0]
+            .angle_to(shifted_pair[1])
+            .normalized_radians();
         let delta = (shifted_angle - orig_angle).abs();
         if delta > 0.00001 {
             println!(
@@ -102,25 +104,12 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
     result
 }
 
-fn angle_btwn(from: Pt2D, to: Pt2D) -> f64 {
-    let theta = (to.y() - from.y()).atan2(to.x() - from.x());
-    if theta < 0.0 {
-        theta + 2.0 * f64::consts::PI
-    } else {
-        theta
-    }
-}
-
 pub fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
-    let x1 = pt1.x();
-    let y1 = pt1.y();
-    let x2 = pt2.x();
-    let y2 = pt2.y();
-    let half_pi = f64::consts::PI / 2.0;
-    let angle = (y2 - y1).atan2(x2 - x1) + half_pi;
-    let shifted1 = Pt2D::new(x1 + width * angle.cos(), y1 + width * angle.sin());
-    let shifted2 = Pt2D::new(x2 + width * angle.cos(), y2 + width * angle.sin());
-    (shifted1, shifted2)
+    let angle = pt1.angle_to(pt2).rotate_degs(90.0);
+    (
+        pt1.project_away(width, angle),
+        pt2.project_away(width, angle),
+    )
 }
 
 // NOT segment. Fails for parallel lines.

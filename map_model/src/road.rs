@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use Angle;
 use IntersectionID;
 use Pt2D;
 use dimensioned::si;
@@ -79,7 +80,7 @@ impl Road {
         )
     }
 
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, geometry::angles::Radian<f64>) {
+    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         geometry::dist_along(&self.lane_center_pts, dist_along)
     }
 
