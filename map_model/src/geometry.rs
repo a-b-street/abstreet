@@ -6,7 +6,6 @@ use aabb_quadtree::geom::{Point, Rect};
 use dimensioned::si;
 use graphics::math::Vec2d;
 use polyline;
-use raw_data;
 use std::f64;
 use vecmath;
 
@@ -155,24 +154,6 @@ pub fn get_bbox_for_polygons(polygons: &[Vec<Vec2d>]) -> Rect {
             y: b.max_y as f32,
         },
     }
-}
-
-pub fn gps_to_screen_space(gps: &raw_data::LonLat, b: &Bounds) -> Pt2D {
-    let gps_x = gps.longitude;
-    let gps_y = gps.latitude;
-
-    // If not, havoc ensues
-    assert!(b.contains(gps_x, gps_y));
-
-    // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
-    let base = Pt2D::new(b.min_x, b.max_y);
-    // Apparently the aabb_quadtree can't handle 0, so add a bit.
-    // TODO epsilon or epsilon - 1.0?
-    let dx = base.gps_dist_meters(&Pt2D::new(gps_x, base.y())) + f64::EPSILON;
-    let dy = base.gps_dist_meters(&Pt2D::new(base.x(), gps_y)) + f64::EPSILON;
-    // By default, 1 meter is one pixel. Normal zooming can change that. If we did scaling here,
-    // then we'd have to update all of the other constants too.
-    Pt2D::new(dx, dy)
 }
 
 pub fn circle(center_x: f64, center_y: f64, radius: f64) -> [f64; 4] {

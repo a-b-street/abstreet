@@ -39,10 +39,9 @@ pub fn load(
                     for pt in text.split(" ") {
                         if let Some((lon, lat)) = parse_pt(pt) {
                             if b.contains(lon, lat) {
-                                parcel.points.push(map_model::raw_data::LonLat {
-                                    longitude: lon,
-                                    latitude: lat,
-                                });
+                                parcel
+                                    .points
+                                    .push(map_model::raw_data::LonLat::new(lon, lat));
                             } else {
                                 ok = false;
                             }

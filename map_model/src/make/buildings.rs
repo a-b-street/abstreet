@@ -6,7 +6,6 @@ use Pt2D;
 use Road;
 use RoadID;
 use geo;
-use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::HashMap;
@@ -20,7 +19,7 @@ pub(crate) fn make_building(
     // TODO consume data, so we dont have to clone tags?
     let points = b.points
         .iter()
-        .map(|coord| geometry::gps_to_screen_space(coord, bounds))
+        .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
     let front_path = find_front_path(&points, &b.osm_tags, roads);
 

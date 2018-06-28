@@ -46,7 +46,7 @@ impl Map {
 
         for (idx, i) in data.intersections.iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = geometry::gps_to_screen_space(&i.point, &bounds);
+            let pt = Pt2D::from_gps(&i.point, &bounds);
             m.intersections.push(Intersection {
                 id,
                 point: pt,
@@ -72,7 +72,7 @@ impl Map {
 
                 let mut unshifted_pts: Vec<Pt2D> = r.points
                     .iter()
-                    .map(|coord| geometry::gps_to_screen_space(&coord, &bounds))
+                    .map(|coord| Pt2D::from_gps(coord, &bounds))
                     .collect();
                 if lane.reverse_pts {
                     unshifted_pts.reverse();
@@ -136,7 +136,7 @@ impl Map {
                 id: ParcelID(idx),
                 points: p.points
                     .iter()
-                    .map(|coord| geometry::gps_to_screen_space(coord, &bounds))
+                    .map(|coord| Pt2D::from_gps(coord, &bounds))
                     .collect(),
             });
         }

@@ -32,6 +32,7 @@ pub use map::Map;
 use ordered_float::NotNaN;
 pub use parcel::{Parcel, ParcelID};
 pub use polyline::{polygons_for_polyline, shift_line, shift_polyline};
+use raw_data::LonLat;
 pub use road::{LaneType, Road, RoadID};
 use std::f64;
 use std::fmt;
@@ -76,12 +77,32 @@ pub struct Pt2D {
 
 impl Pt2D {
     pub fn new(x: f64, y: f64) -> Pt2D {
-        assert!(x >= 0.0);
-        assert!(y >= 0.0);
-
-        Pt2D {
-            x, y
+        // TODO enforce after fixing:
+        // - shift_polyline goes OOB sometimes
+        // - convert_map uses this for GPS I think?
+        if x < 0.0 || y < 0.0 {
+            println!("Bad pt: {}, {}", x, y);
         }
+        //assert!(x >= 0.0);
+        //assert!(y >= 0.0);
+
+        Pt2D { x, y }
+    }
+
+    pub fn from_gps(gps: &LonLat, b: &Bounds) -> Pt2D {
+        // If not, havoc ensues
+        assert!(b.contains(gps.longitude, gps.latitude));
+
+        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
+        let base = raw_data::LonLat::new(b.min_x, b.max_y);
+
+        // Apparently the aabb_quadtree can't handle 0, so add a bit.
+        // TODO epsilon or epsilon - 1.0?
+        let dx = base.gps_dist_meters(LonLat::new(gps.longitude, base.latitude)) + f64::EPSILON;
+        let dy = base.gps_dist_meters(LonLat::new(base.longitude, gps.latitude)) + f64::EPSILON;
+        // By default, 1 meter is one pixel. Normal zooming can change that. If we did scaling here,
+        // then we'd have to update all of the other constants too.
+        Pt2D::new(dx, dy)
     }
 
     pub fn x(&self) -> f64 {
@@ -90,24 +111,6 @@ impl Pt2D {
 
     pub fn y(&self) -> f64 {
         self.y
-    }
-
-    // TODO move to LonLat
-    // Interprets the Pt2D as GPS coordinates, using Haversine distance
-    pub fn gps_dist_meters(&self, other: &Pt2D) -> f64 {
-        let earth_radius_m = 6371000.0;
-        let lon1 = self.x().to_radians();
-        let lon2 = other.x().to_radians();
-        let lat1 = self.y().to_radians();
-        let lat2 = other.y().to_radians();
-
-        let delta_lat = lat2 - lat1;
-        let delta_lon = lon2 - lon1;
-
-        let a = (delta_lat / 2.0).sin().powi(2)
-            + (delta_lon / 2.0).sin().powi(2) * lat1.cos() * lat2.cos();
-        let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
-        earth_radius_m * c
     }
 
     // TODO probably remove this
@@ -123,6 +126,7 @@ impl fmt::Display for Pt2D {
 }
 
 // TODO argh, use this in kml too
+// TODO this maybe represents LonLat only?
 #[derive(Clone, Copy, Debug)]
 pub struct Bounds {
     pub min_x: f64,

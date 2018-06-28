@@ -42,10 +42,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                 osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
                     Some(node) => {
                         bounds.update(node.lon, node.lat);
-                        pts.push(map_model::raw_data::LonLat {
-                            longitude: node.lon,
-                            latitude: node.lat,
-                        });
+                        pts.push(map_model::raw_data::LonLat::new(node.lon, node.lat));
                     }
                     None => {
                         valid = false;
@@ -115,10 +112,7 @@ pub fn split_up_roads(
 
     for pt in &intersections {
         map.intersections.push(map_model::raw_data::Intersection {
-            point: map_model::raw_data::LonLat {
-                longitude: pt.x(),
-                latitude: pt.y(),
-            },
+            point: map_model::raw_data::LonLat::new(pt.x(), pt.y()),
             elevation_meters: elevation.get(pt.x(), pt.y()),
             has_traffic_signal: false,
         });
