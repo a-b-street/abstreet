@@ -67,35 +67,32 @@ impl From<Pt2D> for HashablePt2D {
     }
 }
 
-// This isn't opinionated about what the (x, y) represents. Could be GPS coordinates, could be
-// screen-space.
-// TODO but actually, different types to represent GPS and screen space would be awesome.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+// This represents world-space in meters.
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt2D {
-    x_nan: NotNaN<f64>,
-    y_nan: NotNaN<f64>,
+    x: f64,
+    y: f64,
 }
 
 impl Pt2D {
     pub fn new(x: f64, y: f64) -> Pt2D {
+        assert!(x >= 0.0);
+        assert!(y >= 0.0);
+
         Pt2D {
-            x_nan: NotNaN::new(x).unwrap(),
-            y_nan: NotNaN::new(y).unwrap(),
+            x, y
         }
     }
 
-    pub fn zero() -> Pt2D {
-        Pt2D::new(0.0, 0.0)
-    }
-
     pub fn x(&self) -> f64 {
-        self.x_nan.into_inner()
+        self.x
     }
 
     pub fn y(&self) -> f64 {
-        self.y_nan.into_inner()
+        self.y
     }
 
+    // TODO move to LonLat
     // Interprets the Pt2D as GPS coordinates, using Haversine distance
     pub fn gps_dist_meters(&self, other: &Pt2D) -> f64 {
         let earth_radius_m = 6371000.0;
@@ -113,6 +110,7 @@ impl Pt2D {
         earth_radius_m * c
     }
 
+    // TODO probably remove this
     pub fn to_vec(&self) -> Vec2d {
         [self.x(), self.y()]
     }
