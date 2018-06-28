@@ -121,11 +121,14 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- useful to precompute sidewalk paths
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 		- cant easily serialize ordered float, so move away from it first?
-	- small geometry refactorings (like shifting polyline on opposite side, reversing pts)
 
 
-	- MORE CLEANUP: do we really need to hash pt2d's often? Should maybe settle and use Vec2d more
-	- MORE CLEANUP: Line type that's just a pair of pt2d's with length and fmt display
+	- polyline too; search for Vec<Pt2D>
+	- isolate vec2d
+	- turn's slope() and vecmath::normalized
+	- split out geometry crate again
+	- let ezgui stuff depend on it too
+	- also a polygon struct?
 
 
 

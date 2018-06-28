@@ -59,7 +59,7 @@ fn warp(line: String, map: &Map, canvas: &mut Canvas, window_size: &Size) {
             let id = RoadID(idx);
             println!("Warping to {}", id);
             let pt = map.get_r(id).first_pt();
-            canvas.center_on_map_pt(pt[0], pt[1], window_size);
+            canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
         }
         Err(_) => {
             println!("{} isn't a valid ID", line);

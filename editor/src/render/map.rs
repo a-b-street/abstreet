@@ -36,17 +36,7 @@ impl DrawMap {
         for r in map.all_roads() {
             let mut turns = map.get_turns_from_road(r.id);
             // Sort the turn icons by angle.
-            turns.sort_by_key(|t| {
-                let src_pt = map.get_r(t.src).last_pt();
-                let dst_pt = map.get_r(t.dst).first_pt();
-                let mut angle = (dst_pt[1] - src_pt[1])
-                    .atan2(dst_pt[0] - src_pt[0])
-                    .to_degrees();
-                if angle < 0.0 {
-                    angle += 360.0;
-                }
-                angle as i64
-            });
+            turns.sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
 
             for (idx, t) in turns.iter().enumerate() {
                 turn_to_road_offset.insert(t.id, idx);

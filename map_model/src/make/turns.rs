@@ -1,3 +1,4 @@
+use Line;
 use Map;
 use intersection::Intersection;
 use road::{LaneType, RoadID};
@@ -43,8 +44,7 @@ pub(crate) fn make_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec
                 parent: i.id,
                 src: *src,
                 dst: *dst,
-                src_pt: src_r.last_pt(),
-                dst_pt: dst_r.first_pt(),
+                line: Line(src_r.last_pt(), dst_r.first_pt()),
             });
         }
     }

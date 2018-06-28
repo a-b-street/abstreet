@@ -1,3 +1,4 @@
+use Line;
 use Pt2D;
 use graphics::math::Vec2d;
 use std::f64;
@@ -49,8 +50,8 @@ pub fn polygons_for_polyline(center_pts: &Vec<Pt2D>, width: f64) -> Vec<Vec<Vec2
 pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
     assert!(pts.len() >= 2);
     if pts.len() == 2 {
-        let (pt1_shift, pt2_shift) = shift_line(width, pts[0], pts[1]);
-        return vec![pt1_shift, pt2_shift];
+        let l = Line(pts[0], pts[1]).shift(width);
+        return vec![l.pt1(), l.pt2()];
     }
 
     let mut result: Vec<Pt2D> = Vec::new();
@@ -62,19 +63,18 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
     loop {
         let pt3_raw = pts[pt3_idx];
 
-        let (pt1_shift, pt2_shift_1st) = shift_line(width, pt1_raw, pt2_raw);
-        let (pt2_shift_2nd, pt3_shift) = shift_line(width, pt2_raw, pt3_raw);
+        let l1 = Line(pt1_raw, pt2_raw).shift(width);
+        let l2 = Line(pt2_raw, pt3_raw).shift(width);
         // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
         // original geometry is redundant.
-        let pt2_shift = line_intersection((pt1_shift, pt2_shift_1st), (pt2_shift_2nd, pt3_shift))
-            .unwrap_or(pt2_shift_1st);
+        let pt2_shift = line_intersection(&l1, &l2).unwrap_or(l1.pt2());
 
         if pt3_idx == 2 {
-            result.push(pt1_shift);
+            result.push(l1.pt1());
         }
         result.push(pt2_shift);
         if pt3_idx == pts.len() - 1 {
-            result.push(pt3_shift);
+            result.push(l2.pt2());
             break;
         }
 
@@ -87,16 +87,15 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
 
     // Check that the angles roughly match up between the original and shifted line
     for (orig_pair, shifted_pair) in pts.windows(2).zip(result.windows(2)) {
-        let orig_angle = orig_pair[0].angle_to(orig_pair[1]).normalized_radians();
+        let orig_angle = orig_pair[0].angle_to(orig_pair[1]).normalized_degrees();
         let shifted_angle = shifted_pair[0]
             .angle_to(shifted_pair[1])
-            .normalized_radians();
+            .normalized_degrees();
         let delta = (shifted_angle - orig_angle).abs();
         if delta > 0.00001 {
             println!(
                 "Points changed angles from {} to {}",
-                orig_angle.to_degrees(),
-                shifted_angle.to_degrees()
+                orig_angle, shifted_angle
             );
         }
     }
@@ -104,26 +103,18 @@ pub fn shift_polyline(width: f64, pts: &Vec<Pt2D>) -> Vec<Pt2D> {
     result
 }
 
-pub fn shift_line(width: f64, pt1: Pt2D, pt2: Pt2D) -> (Pt2D, Pt2D) {
-    let angle = pt1.angle_to(pt2).rotate_degs(90.0);
-    (
-        pt1.project_away(width, angle),
-        pt2.project_away(width, angle),
-    )
-}
-
 // NOT segment. Fails for parallel lines.
 // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-pub(crate) fn line_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Option<Pt2D> {
-    let x1 = l1.0.x();
-    let y1 = l1.0.y();
-    let x2 = l1.1.x();
-    let y2 = l1.1.y();
+pub(crate) fn line_intersection(l1: &Line, l2: &Line) -> Option<Pt2D> {
+    let x1 = l1.pt1().x();
+    let y1 = l1.pt1().y();
+    let x2 = l1.pt2().x();
+    let y2 = l1.pt2().y();
 
-    let x3 = l2.0.x();
-    let y3 = l2.0.y();
-    let x4 = l2.1.x();
-    let y4 = l2.1.y();
+    let x3 = l2.pt1().x();
+    let y3 = l2.pt1().y();
+    let x4 = l2.pt2().x();
+    let y4 = l2.pt2().y();
 
     let numer_x = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
     let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
@@ -147,14 +138,14 @@ fn shift_polyline_equivalence() {
     let pt5 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
     let width = 50.0;
-    let (pt1_s, _) = shift_line(width, pt1, pt2);
+    let pt1_s = Line(pt1, pt2).shift(width).pt1();
     let pt2_s =
-        line_intersection(shift_line(width, pt1, pt2), shift_line(width, pt2, pt3)).unwrap();
+        line_intersection(&Line(pt1, pt2).shift(width), &Line(pt2, pt3).shift(width)).unwrap();
     let pt3_s =
-        line_intersection(shift_line(width, pt2, pt3), shift_line(width, pt3, pt4)).unwrap();
+        line_intersection(&Line(pt2, pt3).shift(width), &Line(pt3, pt4).shift(width)).unwrap();
     let pt4_s =
-        line_intersection(shift_line(width, pt3, pt4), shift_line(width, pt4, pt5)).unwrap();
-    let (_, pt5_s) = shift_line(width, pt4, pt5);
+        line_intersection(&Line(pt3, pt4).shift(width), &Line(pt4, pt5).shift(width)).unwrap();
+    let pt5_s = Line(pt4, pt5).shift(width).pt2();
 
     assert_eq!(
         shift_polyline(width, &vec![pt1, pt2, pt3, pt4, pt5]),
@@ -171,7 +162,10 @@ fn shift_short_polyline_equivalence() {
     let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
     let width = 50.0;
-    let (pt1_s, pt2_s) = shift_line(width, pt1, pt2);
+    let l = Line(pt1, pt2).shift(width);
 
-    assert_eq!(shift_polyline(width, &vec![pt1, pt2]), vec![pt1_s, pt2_s]);
+    assert_eq!(
+        shift_polyline(width, &vec![pt1, pt2]),
+        vec![l.pt1(), l.pt2()]
+    );
 }

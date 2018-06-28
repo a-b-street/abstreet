@@ -6,7 +6,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
-use map_model::geometry;
+use map_model::{geometry, Pt2D};
 use render::DrawRoad;
 use std::f64;
 
@@ -35,11 +35,9 @@ impl DrawIntersection {
         let center = inter.point;
         // Sort points by angle from the center
         pts.sort_by_key(|pt| {
-            let mut angle = (pt[1] - center.y()).atan2(pt[0] - center.x()).to_degrees();
-            if angle < 0.0 {
-                angle += 360.0;
-            }
-            angle as i64
+            center
+                .angle_to(Pt2D::new(pt[0], pt[1]))
+                .normalized_degrees() as i64
         });
         let first_pt = pts[0].clone();
         pts.push(first_pt);

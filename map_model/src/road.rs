@@ -2,10 +2,10 @@
 
 use Angle;
 use IntersectionID;
+use Line;
 use Pt2D;
 use dimensioned::si;
 use geometry;
-use graphics::math::Vec2d;
 use std::collections::HashMap;
 use std::f64;
 use std::fmt;
@@ -64,17 +64,17 @@ impl PartialEq for Road {
 }
 
 impl Road {
-    pub fn first_pt(&self) -> Vec2d {
-        self.lane_center_pts[0].to_vec()
+    pub fn first_pt(&self) -> Pt2D {
+        self.lane_center_pts[0]
     }
-    pub fn last_pt(&self) -> Vec2d {
-        self.lane_center_pts.last().unwrap().to_vec()
+    pub fn last_pt(&self) -> Pt2D {
+        *self.lane_center_pts.last().unwrap()
     }
-    pub fn first_line(&self) -> (Pt2D, Pt2D) {
-        (self.lane_center_pts[0], self.lane_center_pts[1])
+    pub fn first_line(&self) -> Line {
+        Line(self.lane_center_pts[0], self.lane_center_pts[1])
     }
-    pub fn last_line(&self) -> (Pt2D, Pt2D) {
-        (
+    pub fn last_line(&self) -> Line {
+        Line(
             self.lane_center_pts[self.lane_center_pts.len() - 2],
             self.lane_center_pts[self.lane_center_pts.len() - 1],
         )

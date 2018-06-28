@@ -2,13 +2,13 @@
 
 use Angle;
 use Bounds;
+use Line;
 use Pt2D;
 use aabb_quadtree::geom::{Point, Rect};
 use dimensioned::si;
 use graphics::math::Vec2d;
 use polyline;
 use std::f64;
-use vecmath;
 
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
@@ -57,68 +57,6 @@ pub fn point_in_circle(x: f64, y: f64, center: Vec2d, radius: f64) -> bool {
     (x - center[0]).powi(2) + (y - center[1]).powi(2) < radius.powi(2)
 }
 
-/*pub fn interpolate_along_line((pt1, pt2): (&Pt2D, &Pt2D), factor_along: f64) -> Vec2d {
-    assert!(factor_along >= 0.0 && factor_along <= 1.0);
-    let x = pt1.x + factor_along * (pt2.x - pt1.x);
-    let y = pt1.y + factor_along * (pt2.y - pt1.y);
-    return [x, y];
-}*/
-
-// TODO borrow or copy?
-// TODO valid to do euclidean distance on screen-space points that're formed from
-// Haversine?
-pub(crate) fn euclid_dist((pt1, pt2): (Pt2D, Pt2D)) -> si::Meter<f64> {
-    return ((pt1.x() - pt2.x()).powi(2) + (pt1.y() - pt2.y()).powi(2)).sqrt() * si::M;
-}
-
-pub fn line_segments_intersect((pt1, pt2): (&Vec2d, &Vec2d), (pt3, pt4): (&Vec2d, &Vec2d)) -> bool {
-    // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
-    is_counter_clockwise(pt1, pt3, pt4) != is_counter_clockwise(pt2, pt3, pt4)
-        && is_counter_clockwise(pt1, pt2, pt3) != is_counter_clockwise(pt1, pt2, pt4)
-}
-
-fn is_counter_clockwise(pt1: &Vec2d, pt2: &Vec2d, pt3: &Vec2d) -> bool {
-    (pt3[1] - pt1[1]) * (pt2[0] - pt1[0]) > (pt2[1] - pt1[1]) * (pt3[0] - pt1[0])
-}
-
-pub fn line_segment_intersection(l1: (Pt2D, Pt2D), l2: (Pt2D, Pt2D)) -> Option<Pt2D> {
-    // TODO shoddy way of implementing this
-    // TODO doesn't handle nearly parallel lines
-    if !line_segments_intersect(
-        (&l1.0.to_vec(), &l1.1.to_vec()),
-        (&l2.0.to_vec(), &l2.1.to_vec()),
-    ) {
-        return None;
-    }
-    polyline::line_intersection(l1, l2)
-}
-
-pub fn dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: f64) -> Vec2d {
-    //assert!(euclid_dist(&pt1, &pt2) <= dist_along);
-    let vec = vecmath::vec2_normalized([pt2.x() - pt1.x(), pt2.y() - pt1.y()]);
-    [pt1.x() + dist_along * vec[0], pt1.y() + dist_along * vec[1]]
-}
-
-// TODO rm the other one
-pub fn safe_dist_along_line((pt1, pt2): (&Pt2D, &Pt2D), dist_along: si::Meter<f64>) -> Vec2d {
-    let len = euclid_dist((*pt1, *pt2));
-    if dist_along > len + EPSILON_METERS {
-        panic!("cant do {} along a line of length {}", dist_along, len);
-    }
-
-    let percent = (dist_along / len).value_unsafe;
-    [
-        pt1.x() + percent * (pt2.x() - pt1.x()),
-        pt1.y() + percent * (pt2.y() - pt1.y()),
-    ]
-    // TODO unit test
-    /*
-    let res_len = euclid_dist((pt1, &Pt2D::new(res[0], res[1])));
-    if res_len != dist_along {
-        println!("whats the delta btwn {} and {}?", res_len, dist_along);
-    }
-    */}
-
 pub fn get_bbox_for_polygons(polygons: &[Vec<Vec2d>]) -> Rect {
     let mut b = Bounds::new();
     for poly in polygons {
@@ -163,15 +101,15 @@ pub fn circle_to_bbox(c: &[f64; 4]) -> Rect {
 pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
     let mut dist_left = dist_along;
     for (idx, pair) in pts.windows(2).enumerate() {
-        let length = euclid_dist((pair[0], pair[1]));
+        let l = Line(pair[0], pair[1]);
+        let length = l.length();
         let epsilon = if idx == pts.len() - 2 {
             EPSILON_METERS
         } else {
             0.0 * si::M
         };
         if dist_left <= length + epsilon {
-            let vec = safe_dist_along_line((&pair[0], &pair[1]), dist_left);
-            return (Pt2D::new(vec[0], vec[1]), pair[0].angle_to(pair[1]));
+            return (l.dist_along(dist_left), l.angle());
         }
         dist_left -= length;
     }
@@ -180,6 +118,6 @@ pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, Angle) 
 
 pub fn polyline_len(pts: &Vec<Pt2D>) -> si::Meter<f64> {
     pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-        so_far + euclid_dist((pair[0], pair[1]))
+        so_far + Line(pair[0], pair[1]).length()
     })
 }

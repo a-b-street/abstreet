@@ -2,6 +2,7 @@ use Bounds;
 use Building;
 use BuildingID;
 use LaneType;
+use Line;
 use Pt2D;
 use Road;
 use RoadID;
@@ -36,7 +37,7 @@ fn find_front_path(
     bldg_points: &Vec<Pt2D>,
     bldg_osm_tags: &HashMap<String, String>,
     roads: &Vec<Road>,
-) -> Option<(Pt2D, Pt2D)> {
+) -> Option<Line> {
     use geo::prelude::{ClosestPoint, EuclideanDistance};
 
     if let Some(street_name) = bldg_osm_tags.get("addr:street") {
@@ -65,7 +66,7 @@ fn find_front_path(
             .iter()
             .min_by_key(|pair| NotNaN::new(pair.1.euclidean_distance(&center_pt)).unwrap())
         {
-            return Some((bldg_center, Pt2D::new(closest.1.x(), closest.1.y())));
+            return Some(Line(bldg_center, Pt2D::new(closest.1.x(), closest.1.y())));
         }
     }
     None

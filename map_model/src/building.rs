@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use Line;
 use Pt2D;
 use std::collections::HashMap;
 
@@ -14,7 +15,7 @@ pub struct Building {
     pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
 
-    pub front_path: Option<(Pt2D, Pt2D)>,
+    pub front_path: Option<Line>,
 }
 
 impl PartialEq for Building {

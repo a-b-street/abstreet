@@ -12,7 +12,7 @@ mod osm;
 mod srtm;
 mod traffic_signals;
 
-use map_model::{raw_data, Pt2D};
+use map_model::raw_data;
 use ordered_float::NotNaN;
 use srtm::Elevation;
 use structopt::StructOpt;
@@ -73,7 +73,9 @@ fn main() {
         for pt in &s.intersections {
             if bounds.contains(pt.x(), pt.y()) {
                 let distance = |i: &raw_data::Intersection| {
-                    pt.gps_dist_meters(&Pt2D::new(i.point.longitude, i.point.latitude))
+                    // TODO weird to use Pt2D at all for GPS, uh oh
+                    raw_data::LonLat::new(pt.x(), pt.y())
+                        .gps_dist_meters(raw_data::LonLat::new(i.point.longitude, i.point.latitude))
                 };
 
                 // TODO use a quadtree or some better way to match signals to the closest

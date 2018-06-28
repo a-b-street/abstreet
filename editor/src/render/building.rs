@@ -24,7 +24,8 @@ impl DrawBuilding {
             id: bldg.id,
             // TODO ideally start the path on a side of the building
             front_path: bldg.front_path
-                .map(|pair| [pair.0.x(), pair.0.y(), pair.1.x(), pair.1.y()]),
+                .as_ref()
+                .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
             polygon: pts,
         }
     }

@@ -9,7 +9,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{Pt2D, RoadID};
+use map_model::{Line, Pt2D, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
 
 #[derive(Debug)]
@@ -29,11 +29,9 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let (first1, first2) = road.first_line();
-        let (start_1, start_2) = perp_line(first1, first2, geometry::LANE_THICKNESS);
+        let (start_1, start_2) = perp_line(road.first_line(), geometry::LANE_THICKNESS);
 
-        let (last1, last2) = road.last_line();
-        let (end_1, end_2) = perp_line(last2, last1, geometry::LANE_THICKNESS);
+        let (end_1, end_2) = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
 
         let polygons =
             map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
@@ -173,9 +171,10 @@ impl DrawRoad {
 }
 
 // TODO this always does it at pt1
-fn perp_line(orig1: Pt2D, orig2: Pt2D, length: f64) -> (Vec2d, Vec2d) {
-    let (pt1, _) = map_model::shift_line(length / 2.0, orig1, orig2);
-    let (_, pt2) = map_model::shift_line(length / 2.0, orig2, orig1);
+// TODO move to Line or reimplement differently
+fn perp_line(l: Line, length: f64) -> (Vec2d, Vec2d) {
+    let pt1 = l.shift(length / 2.0).pt1();
+    let pt2 = l.reverse().shift(length / 2.0).pt2();
     (pt1.to_vec(), pt2.to_vec())
 }
 
@@ -191,7 +190,7 @@ fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
         let (pt, angle) = road.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(1.0, angle);
-        result.push(perp_line(pt, pt2, geometry::LANE_THICKNESS));
+        result.push(perp_line(Line::new(pt, pt2), geometry::LANE_THICKNESS));
         dist_along += tile_every;
     }
 

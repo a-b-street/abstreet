@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
+use dimensioned::si;
 use ezgui::GfxCtx;
 use graphics;
 use graphics::math::Vec2d;
@@ -28,32 +29,34 @@ impl DrawTurn {
         let offset_along_road = offset_along_road as f64;
         let src_pt = map.get_r(turn.src).last_pt();
         let dst_pt = map.get_r(turn.dst).first_pt();
-        let slope = vecmath::vec2_normalized([dst_pt[0] - src_pt[0], dst_pt[1] - src_pt[1]]);
+        let slope = vecmath::vec2_normalized([dst_pt.x() - src_pt.x(), dst_pt.y() - src_pt.y()]);
         let last_line = map.get_r(turn.src).last_line();
 
-        let icon_center = geometry::dist_along_line(
-            // Start the distance from the intersection
-            (&last_line.1, &last_line.0),
-            (offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH,
-        );
+        // Start the distance from the intersection
+        let icon_center = last_line
+            .reverse()
+            .unbounded_dist_along((offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
         let icon_src = [
-            icon_center[0] - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
-            icon_center[1] - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
+            icon_center.x() - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
+            icon_center.y() - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
         ];
         let icon_dst = [
-            icon_center[0] + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
-            icon_center[1] + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
+            icon_center.x() + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
+            icon_center.y() + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
         ];
 
-        let icon_circle =
-            geometry::circle(icon_center[0], icon_center[1], TURN_ICON_ARROW_LENGTH / 2.0);
+        let icon_circle = geometry::circle(
+            icon_center.x(),
+            icon_center.y(),
+            TURN_ICON_ARROW_LENGTH / 2.0,
+        );
 
         let icon_arrow = [icon_src[0], icon_src[1], icon_dst[0], icon_dst[1]];
 
         DrawTurn {
             id: turn.id,
-            src_pt,
-            dst_pt,
+            src_pt: src_pt.to_vec(),
+            dst_pt: dst_pt.to_vec(),
             icon_circle,
             icon_arrow,
         }
