@@ -9,7 +9,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use map_model::{Line, Pt2D, RoadID};
+use map_model::{Line, PolyLine, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ pub struct DrawRoad {
     polygons: Vec<Vec<Vec2d>>,
     // Empty for one-ways and one side of two-ways.
     // TODO ideally this could be done in the shader or something
-    yellow_center_lines: Vec<Pt2D>,
+    yellow_center_lines: Option<PolyLine>,
     start_crossing: (Vec2d, Vec2d),
     end_crossing: (Vec2d, Vec2d),
 
@@ -33,16 +33,15 @@ impl DrawRoad {
 
         let (end_1, end_2) = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
 
-        let polygons =
-            map_model::polygons_for_polyline(&road.lane_center_pts, geometry::LANE_THICKNESS);
+        let polygons = road.lane_center_pts.make_polygons(geometry::LANE_THICKNESS);
 
         DrawRoad {
             id: road.id,
             polygons,
             yellow_center_lines: if road.use_yellow_center_lines {
-                road.unshifted_pts.clone()
+                Some(road.unshifted_pts.clone())
             } else {
-                Vec::new()
+                None
             },
             start_crossing: (start_1, start_2),
             end_crossing: (end_1, end_2),
@@ -68,13 +67,15 @@ impl DrawRoad {
             geometry::BIG_ARROW_THICKNESS,
         );
 
-        for pair in self.yellow_center_lines.windows(2) {
-            center_marking.draw(
-                [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()],
-                &g.ctx.draw_state,
-                g.ctx.transform,
-                g.gfx,
-            );
+        if let Some(ref pl) = self.yellow_center_lines {
+            for pair in pl.points().windows(2) {
+                center_marking.draw(
+                    [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()],
+                    &g.ctx.draw_state,
+                    g.ctx.transform,
+                    g.gfx,
+                );
+            }
         }
 
         let extra_marking_color = match self.lane_type {
@@ -102,7 +103,7 @@ impl DrawRoad {
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle = graphics::Ellipse::new(cs.get(Colors::BrightDebug));
 
-        for pair in r.lane_center_pts.windows(2) {
+        for pair in r.lane_center_pts.points().windows(2) {
             let (pt1, pt2) = (pair[0], pair[1]);
             line.draw(
                 [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
@@ -246,13 +247,12 @@ fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     }
 
     // Project left, so reverse the points.
-    let mut center_pts = road.lane_center_pts.clone();
-    center_pts.reverse();
-    let lane_edge_pts = map_model::shift_polyline(geometry::LANE_THICKNESS / 2.0, &center_pts);
+    let center_pts = road.lane_center_pts.reversed();
+    let lane_edge_pts = center_pts.shift(geometry::LANE_THICKNESS / 2.0);
 
     // This is an incredibly expensive way to compute dashed polyines, and it doesn't follow bends
     // properly. Just a placeholder.
-    let lane_len = geometry::polyline_len(&lane_edge_pts);
+    let lane_len = lane_edge_pts.length();
     let dash_separation = 2.0 * si::M;
     let dash_len = 1.0 * si::M;
 
@@ -263,8 +263,8 @@ fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
             break;
         }
 
-        let (pt1, _) = geometry::dist_along(&lane_edge_pts, start);
-        let (pt2, _) = geometry::dist_along(&lane_edge_pts, start + dash_len);
+        let (pt1, _) = lane_edge_pts.dist_along(start);
+        let (pt2, _) = lane_edge_pts.dist_along(start + dash_len);
         dashes.push((pt1.to_vec(), pt2.to_vec()));
         start += dash_len + dash_separation;
     }

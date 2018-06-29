@@ -2,12 +2,11 @@
 
 use Angle;
 use Bounds;
-use Line;
+use PolyLine;
 use Pt2D;
 use aabb_quadtree::geom::{Point, Rect};
 use dimensioned::si;
 use graphics::math::Vec2d;
-use polyline;
 use std::f64;
 
 pub const LANE_THICKNESS: f64 = 2.5;
@@ -26,7 +25,7 @@ pub fn thick_line_from_angle(
     angle: Angle,
 ) -> Vec<Vec<Vec2d>> {
     let pt2 = pt.project_away(line_length, angle);
-    polyline::polygons_for_polyline(&vec![*pt, pt2], thickness)
+    PolyLine::new(vec![*pt, pt2]).make_polygons(thickness)
 }
 
 // Algorithm from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
@@ -96,28 +95,4 @@ pub fn circle_to_bbox(c: &[f64; 4]) -> Rect {
             y: (c[1] + c[3]) as f32,
         },
     }
-}
-
-pub fn dist_along(pts: &Vec<Pt2D>, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
-    let mut dist_left = dist_along;
-    for (idx, pair) in pts.windows(2).enumerate() {
-        let l = Line(pair[0], pair[1]);
-        let length = l.length();
-        let epsilon = if idx == pts.len() - 2 {
-            EPSILON_METERS
-        } else {
-            0.0 * si::M
-        };
-        if dist_left <= length + epsilon {
-            return (l.dist_along(dist_left), l.angle());
-        }
-        dist_left -= length;
-    }
-    panic!("{} is longer than pts by {}", dist_along, dist_left);
-}
-
-pub fn polyline_len(pts: &Vec<Pt2D>) -> si::Meter<f64> {
-    pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-        so_far + Line(pair[0], pair[1]).length()
-    })
 }

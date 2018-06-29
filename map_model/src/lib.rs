@@ -30,7 +30,7 @@ pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
 use ordered_float::NotNaN;
 pub use parcel::{Parcel, ParcelID};
-pub use polyline::{polygons_for_polyline, shift_polyline};
+pub use polyline::PolyLine;
 use raw_data::LonLat;
 pub use road::{LaneType, Road, RoadID};
 use std::f64;
@@ -309,5 +309,3 @@ impl Line {
 fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
     (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
 }
-
-pub struct PolyLine(Vec<Pt2D>);

@@ -6,7 +6,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use gui;
-use map_model::{geometry, polygons_for_polyline, shift_polyline, Pt2D};
+use map_model::{geometry, PolyLine, Pt2D};
 use piston::input::Key;
 use piston::window::Size;
 use std::f64;
@@ -106,40 +106,39 @@ impl UI {
         let width = 50.0;
 
         // TODO retain this as a regression test
-        let center_pts: Vec<Pt2D> = vec![
-            //Pt2D::new(2623.117354164207, 1156.9671270455774),
-            //Pt2D::new(2623.0950086610856, 1162.8272397294127),
-            Pt2D::new(2623.0956685132396, 1162.7341864981956),
-            // One problem happens starting here -- some overlap
-            Pt2D::new(2622.8995366939575, 1163.2433695162579),
-            Pt2D::new(2620.4658232463926, 1163.9861244298272),
-            Pt2D::new(2610.979416102837, 1164.2392149291984),
-            //Pt2D::new(2572.5481805300115, 1164.2059309889344),
-        ].iter()
-            .map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0))
-            .collect();
+        let center_pts = PolyLine::new(
+            vec![
+                //Pt2D::new(2623.117354164207, 1156.9671270455774),
+                //Pt2D::new(2623.0950086610856, 1162.8272397294127),
+                Pt2D::new(2623.0956685132396, 1162.7341864981956),
+                // One problem happens starting here -- some overlap
+                Pt2D::new(2622.8995366939575, 1163.2433695162579),
+                Pt2D::new(2620.4658232463926, 1163.9861244298272),
+                Pt2D::new(2610.979416102837, 1164.2392149291984),
+                //Pt2D::new(2572.5481805300115, 1164.2059309889344),
+            ].iter()
+                .map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0))
+                .collect(),
+        );
         draw_polyline(g, &center_pts, thin, RED);
-        for (idx, pt) in center_pts.iter().enumerate() {
+        for (idx, pt) in center_pts.points().iter().enumerate() {
             labels.push((*pt, format!("p{}", idx + 1)));
         }
 
-        for p in polygons_for_polyline(&center_pts, width) {
+        for p in center_pts.make_polygons(width) {
             draw_polygon(g, p, BLACK);
         }
 
         // TODO colored labels!
-        let side1 = shift_polyline(width / 2.0, &center_pts);
+        let side1 = center_pts.shift(width / 2.0);
         //draw_polyline(g, &side1, thin, BLUE);
-        for (idx, pt) in side1.iter().enumerate() {
+        for (idx, pt) in side1.points().iter().enumerate() {
             labels.push((*pt, format!("L{}", idx + 1)));
         }
 
-        let mut reversed_center_pts = center_pts.clone();
-        reversed_center_pts.reverse();
-        let mut side2 = shift_polyline(width / 2.0, &reversed_center_pts);
-        side2.reverse();
+        let side2 = center_pts.reversed().shift(width / 2.0).reversed();
         //draw_polyline(g, &side2, thin, GREEN);
-        for (idx, pt) in side2.iter().enumerate() {
+        for (idx, pt) in side2.points().iter().enumerate() {
             labels.push((*pt, format!("R{}", idx + 1)));
         }
     }
@@ -175,28 +174,30 @@ impl UI {
         println!("p1 -> p2 is {}", p1.angle_to(p2));
         println!("p2 -> p3 is {}", p2.angle_to(p3));
 
-        draw_polyline(g, &vec![p1, p2, p3, p4], thick, RED);
+        let pts = PolyLine::new(vec![p1, p2, p3, p4]);
 
-        for p in polygons_for_polyline(&vec![p1, p2, p3, p4], shift_away) {
+        draw_polyline(g, &pts, thick, RED);
+
+        for p in pts.make_polygons(shift_away) {
             draw_polygon(g, p, BLACK);
         }
 
         // Two lanes on one side of the road
-        let l1_pts = shift_polyline(shift_away, &vec![p1, p2, p3, p4]);
-        for (idx, pt) in l1_pts.iter().enumerate() {
+        let l1_pts = pts.shift(shift_away);
+        for (idx, pt) in l1_pts.points().iter().enumerate() {
             labels.push((*pt, format!("l1_p{}", idx + 1)));
         }
         draw_polyline(g, &l1_pts, thin, GREEN);
 
-        let l2_pts = shift_polyline(shift_away * 2.0, &vec![p1, p2, p3, p4]);
-        for (idx, pt) in l2_pts.iter().enumerate() {
+        let l2_pts = pts.shift(shift_away * 2.0);
+        for (idx, pt) in l2_pts.points().iter().enumerate() {
             labels.push((*pt, format!("l2_p{}", idx + 1)));
         }
         draw_polyline(g, &l2_pts, thin, GREEN);
 
         // Other side
-        let l3_pts = shift_polyline(shift_away, &vec![p4, p3, p2, p1]);
-        for (idx, pt) in l3_pts.iter().enumerate() {
+        let l3_pts = pts.reversed().shift(shift_away);
+        for (idx, pt) in l3_pts.points().iter().enumerate() {
             labels.push((*pt, format!("l3_p{}", idx + 1)));
         }
         draw_polyline(g, &l3_pts, thin, BLUE);
@@ -213,7 +214,8 @@ fn draw_line(g: &mut GfxCtx, pt1: Pt2D, pt2: Pt2D, thickness: f64, color: Color)
     );
 }
 
-fn draw_polyline(g: &mut GfxCtx, pts: &Vec<Pt2D>, thickness: f64, color: Color) {
+fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
+    let pts = pl.points();
     assert!(pts.len() >= 2);
     for pair in pts.windows(2) {
         draw_line(g, pair[0], pair[1], thickness, color);

@@ -3,9 +3,9 @@
 use Angle;
 use IntersectionID;
 use Line;
+use PolyLine;
 use Pt2D;
 use dimensioned::si;
-use geometry;
 use std::collections::HashMap;
 use std::f64;
 use std::fmt;
@@ -50,11 +50,11 @@ pub struct Road {
     pub(crate) other_side: Option<RoadID>,
 
     /// GeomRoad stuff
-    pub lane_center_pts: Vec<Pt2D>,
+    pub lane_center_pts: PolyLine,
 
     // Unshifted center points. consider computing these twice or otherwise not storing them
-    // These're screen-space. Order implies road orientation.
-    pub unshifted_pts: Vec<Pt2D>,
+    // Order implies road orientation.
+    pub unshifted_pts: PolyLine,
 }
 
 impl PartialEq for Road {
@@ -64,33 +64,32 @@ impl PartialEq for Road {
 }
 
 impl Road {
+    // TODO most of these are wrappers; stop doing this?
     pub fn first_pt(&self) -> Pt2D {
-        self.lane_center_pts[0]
+        self.lane_center_pts.first_pt()
     }
     pub fn last_pt(&self) -> Pt2D {
-        *self.lane_center_pts.last().unwrap()
+        self.lane_center_pts.last_pt()
     }
     pub fn first_line(&self) -> Line {
-        Line(self.lane_center_pts[0], self.lane_center_pts[1])
+        self.lane_center_pts.first_line()
     }
     pub fn last_line(&self) -> Line {
-        Line(
-            self.lane_center_pts[self.lane_center_pts.len() - 2],
-            self.lane_center_pts[self.lane_center_pts.len() - 1],
-        )
+        self.lane_center_pts.last_line()
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
-        geometry::dist_along(&self.lane_center_pts, dist_along)
+        self.lane_center_pts.dist_along(dist_along)
     }
 
     pub fn length(&self) -> si::Meter<f64> {
-        geometry::polyline_len(&self.lane_center_pts)
+        self.lane_center_pts.length()
     }
 
     pub fn dump_debug(&self) {
         println!("\nlet debug_r{}_pts = vec![", self.id.0);
-        for pt in &self.lane_center_pts {
+        // TODO nicer display for PolyLine?
+        for pt in self.lane_center_pts.points().iter() {
             println!("  Pt2D::new({}, {}),", pt.x(), pt.y());
         }
         println!("];");

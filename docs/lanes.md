@@ -123,12 +123,11 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- cant easily serialize ordered float, so move away from it first?
 
 
-	- polyline too; search for Vec<Pt2D>
 	- isolate vec2d
 	- turn's slope() and vecmath::normalized
 	- split out geometry crate again
 	- let ezgui stuff depend on it too
-	- also a polygon struct?
+	- also a polygon struct? for parcels and buildings
 
 
 

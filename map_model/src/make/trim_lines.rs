@@ -38,12 +38,13 @@ pub(crate) fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
 
     // Apply the updates
     for (id, pair) in &shortest_first_line {
-        roads[id.0].lane_center_pts[0] = pair.0.pt1();
-        roads[id.0].lane_center_pts[1] = pair.0.pt2();
+        roads[id.0]
+            .lane_center_pts
+            .replace_first_line(pair.0.pt1(), pair.0.pt2());
     }
     for (id, pair) in &shortest_last_line {
-        let len = roads[id.0].lane_center_pts.len();
-        roads[id.0].lane_center_pts[len - 2] = pair.0.pt1();
-        roads[id.0].lane_center_pts[len - 1] = pair.0.pt2();
+        roads[id.0]
+            .lane_center_pts
+            .replace_last_line(pair.0.pt1(), pair.0.pt2());
     }
 }

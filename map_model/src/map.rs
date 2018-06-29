@@ -2,6 +2,7 @@
 
 use Bounds;
 use HashablePt2D;
+use PolyLine;
 use Pt2D;
 use abstutil;
 use building::{Building, BuildingID};
@@ -12,7 +13,6 @@ use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
 use road::{Road, RoadID};
-use shift_polyline;
 use std::collections::HashMap;
 use std::io::Error;
 use turn::{Turn, TurnID};
@@ -70,17 +70,19 @@ impl Map {
                 let other_side = lane.offset_for_other_id
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
 
-                let mut unshifted_pts: Vec<Pt2D> = r.points
-                    .iter()
-                    .map(|coord| Pt2D::from_gps(coord, &bounds))
-                    .collect();
+                let mut unshifted_pts = PolyLine::new(
+                    r.points
+                        .iter()
+                        .map(|coord| Pt2D::from_gps(coord, &bounds))
+                        .collect(),
+                );
                 if lane.reverse_pts {
-                    unshifted_pts.reverse();
+                    unshifted_pts = unshifted_pts.reversed();
                 }
 
                 // Do this with the original points, before trimming them back
-                let i1 = pt_to_intersection[&HashablePt2D::from(unshifted_pts[0])];
-                let i2 = pt_to_intersection[&HashablePt2D::from(*unshifted_pts.last().unwrap())];
+                let i1 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.first_pt())];
+                let i2 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.last_pt())];
                 m.intersections[i1.0].outgoing_roads.push(id);
                 m.intersections[i2.0].incoming_roads.push(id);
 
@@ -92,10 +94,8 @@ impl Map {
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 // Reverse points for British-style driving on the left
-                let lane_center_pts = shift_polyline(
-                    geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5),
-                    &unshifted_pts,
-                );
+                let lane_center_pts =
+                    unshifted_pts.shift(geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5));
 
                 // lane_center_pts will get updated in the next pass
                 m.roads.push(Road {

@@ -21,10 +21,8 @@ impl DrawParcel {
     pub fn new(p: &map_model::Parcel) -> DrawParcel {
         DrawParcel {
             id: p.id,
-            boundary_polygons: map_model::polygons_for_polyline(
-                &p.points,
-                PARCEL_BOUNDARY_THICKNESS,
-            ),
+            boundary_polygons: map_model::PolyLine::new(p.points.clone())
+                .make_polygons(PARCEL_BOUNDARY_THICKNESS),
             fill_polygon: p.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
         }
     }
