@@ -13,7 +13,6 @@ use map_model::geometry;
 use render::{BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
              TURN_ICON_ARROW_TIP_LENGTH};
 use std::f64;
-use vecmath;
 
 #[derive(Debug)]
 pub struct DrawTurn {
@@ -27,23 +26,21 @@ pub struct DrawTurn {
 impl DrawTurn {
     pub fn new(map: &map_model::Map, turn: &map_model::Turn, offset_along_road: usize) -> DrawTurn {
         let offset_along_road = offset_along_road as f64;
-        let src_pt = map.get_r(turn.src).last_pt();
-        let dst_pt = map.get_r(turn.dst).first_pt();
-        let slope = vecmath::vec2_normalized([dst_pt.x() - src_pt.x(), dst_pt.y() - src_pt.y()]);
+        let src_pt = turn.line.pt1();
+        let dst_pt = turn.line.pt2();
+        let angle = turn.line.angle();
         let last_line = map.get_r(turn.src).last_line();
 
         // Start the distance from the intersection
         let icon_center = last_line
             .reverse()
             .unbounded_dist_along((offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
-        let icon_src = [
-            icon_center.x() - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
-            icon_center.y() - (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
-        ];
-        let icon_dst = [
-            icon_center.x() + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[0],
-            icon_center.y() + (TURN_ICON_ARROW_LENGTH / 2.0) * slope[1],
-        ];
+        let icon_src = icon_center
+            .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite())
+            .to_vec();
+        let icon_dst = icon_center
+            .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle)
+            .to_vec();
 
         let icon_circle = geometry::circle(
             icon_center.x(),

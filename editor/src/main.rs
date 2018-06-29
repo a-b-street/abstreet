@@ -21,7 +21,6 @@ extern crate structopt;
 extern crate strum;
 #[macro_use]
 extern crate strum_macros;
-extern crate vecmath;
 
 use ezgui::input::UserInput;
 use glutin_window::GlutinWindow;

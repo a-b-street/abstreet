@@ -15,4 +15,3 @@ piston2d-graphics = "*"
 rand = { version = "0.5.1", features = ["serde1"] }
 serde = "1.0"
 serde_derive = "1.0"
-vecmath = "0.3.1"

@@ -495,13 +495,9 @@ impl Sim {
         let mut cars = self.roads[r.0].get_draw_cars(&self, map);
         for c in &mut cars {
             if let Some(on) = self.cars[&c.id].waiting_for {
-                let slope = map.get_t(on.as_turn()).slope();
-                c.turn_arrow = Some([
-                    c.front.x() - (CAR_LENGTH / 2.0) * slope[0],
-                    c.front.y() - (CAR_LENGTH / 2.0) * slope[1],
-                    c.front.x(),
-                    c.front.y(),
-                ]);
+                let angle = map.get_t(on.as_turn()).line.angle();
+                let arrow_pt = c.front.project_away(CAR_LENGTH / 2.0, angle.opposite());
+                c.turn_arrow = Some([arrow_pt.x(), arrow_pt.y(), c.front.x(), c.front.y()]);
             }
         }
         cars

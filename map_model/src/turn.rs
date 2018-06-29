@@ -7,7 +7,6 @@ use Pt2D;
 use RoadID;
 use dimensioned::si;
 use std::f64;
-use vecmath;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -48,13 +47,5 @@ impl Turn {
 
     pub fn length(&self) -> si::Meter<f64> {
         self.line.length()
-    }
-
-    // TODO rethink this one
-    pub fn slope(&self) -> [f64; 2] {
-        vecmath::vec2_normalized([
-            self.line.pt2().x() - self.line.pt1().x(),
-            self.line.pt2().y() - self.line.pt1().y(),
-        ])
     }
 }

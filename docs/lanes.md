@@ -120,11 +120,8 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- make final Map serializable too
 		- useful to precompute sidewalk paths
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
-		- cant easily serialize ordered float, so move away from it first?
-
 
 	- isolate vec2d
-	- turn's slope() and vecmath::normalized
 	- split out geometry crate again
 	- let ezgui stuff depend on it too
 	- also a polygon struct? for parcels and buildings
