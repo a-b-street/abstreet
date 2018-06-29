@@ -123,10 +123,10 @@ impl PolyLine {
                 .normalized_degrees();
             let delta = (shifted_angle - orig_angle).abs();
             if delta > 0.00001 {
-                println!(
+                /*println!(
                     "Points changed angles from {} to {}",
                     orig_angle, shifted_angle
-                );
+                );*/
             }
         }
 

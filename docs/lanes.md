@@ -97,17 +97,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- the lane polygons overlap, even though the lines dont
 
 	- rename Road to Lane
-	- figure out what to do about yellow center lines
-		- who should own drawing them?
-		- trim them back too (maybe to avoid hitting the intersection?)
-		- osm tags and such would ideally be part of a master road
-
-
-	- automated regression test / quality control
-		- find all overlapping polygons, only some are expected
-		- find a way to show the problem easily
-		- geo rust!
-	- improve intersection geom?
 
 	- bad polygons when shifted lines invert points
 		- arguably, these could be a case when there's not enough room to shift away.
@@ -121,12 +110,44 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- useful to precompute sidewalk paths
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 
+
+
+
 	- also a polygon struct? for parcels and buildings
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 	- isolate vec2d
+
+	- automated regression test / quality control
+		- find all overlapping polygons, only some are expected
+		- find a way to show the problem easily
+		- geo rust!
+
+	- improve intersection geom?
+	- detect problematic areas where we cant shift the lines enough, and highlight them
+	- depict stop signs, traffic lights, yields?
+	- figure out what to do about yellow center lines
+		- yellow and white lines intersect cars and turn icons and such
+		- who should own drawing them?
+		- trim them back too (maybe to avoid hitting the intersection?)
+		- osm tags and such would ideally be part of a master road
 
 
 
 - an mvp release could just be producing high-quality, reusable geometry for seattle
 	- with an editor to quickly fiddle with where sidewalks/different lanes are
-	- show off themes... halloween, winter, jungle
+	- show off themes... halloween, winter, jungle, 8bit
+- 3 phases of project
+	- high quality model and rendering
+	- editor to tweak map (for real fixes and desired edits)
+
+
+
+Crosswalk notes:
+- Turns go from a src to a dst, so we'd need to double them for crosswalks, since they're always bidirectional
+- Turn icons might not make sense as a UI?
+- Many sidewalks directly connect at corners and shouldn't have anything drawn for them
+- We don't want to draw diagonals... just from one side of the road to the other
+- We want crosswalks at the beginning AND end of the sidewalk!
+
+- v1: remember other_side for sidewalks too. draw crosswalks at the beginning AND end of every sidewalk lane.
+- do extra drawing in DrawIntersection for now, figure out modeling later.

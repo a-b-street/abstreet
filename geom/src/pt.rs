@@ -17,7 +17,7 @@ impl Pt2D {
         // - shift_polyline goes OOB sometimes
         // - convert_map uses this for GPS I think?
         if x < 0.0 || y < 0.0 {
-            println!("Bad pt: {}, {}", x, y);
+            //println!("Bad pt: {}, {}", x, y);
         }
         //assert!(x >= 0.0);
         //assert!(y >= 0.0);

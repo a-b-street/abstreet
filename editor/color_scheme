@@ -54,6 +54,12 @@
       0.7,
       1.0
     ],
+    "Crosswalk": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
     "ChangedStopSignIntersection": [
       0.0,
       1.0,

@@ -31,8 +31,8 @@ pub struct Road {
     pub osm_way_id: i64,
     pub lane_type: LaneType,
 
-    pub(crate) src_i: IntersectionID,
-    pub(crate) dst_i: IntersectionID,
+    pub src_i: IntersectionID,
+    pub dst_i: IntersectionID,
 
     // Ideally all of these would just become translated center points immediately, but this is
     // hard due to the polyline problem.
@@ -43,8 +43,9 @@ pub struct Road {
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
     // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
     pub use_yellow_center_lines: bool,
-    // Need to remember this just for detecting U-turns here.
-    pub(crate) other_side: Option<RoadID>,
+    // Need to remember this just for detecting U-turns here. Also for finding sidewalks to connect
+    // with a crosswalk.
+    pub other_side: Option<RoadID>,
 
     /// GeomRoad stuff
     pub lane_center_pts: PolyLine,

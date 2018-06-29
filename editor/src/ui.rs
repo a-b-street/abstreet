@@ -516,7 +516,7 @@ impl gui::GUI for UI {
 
         if self.show_intersections.is_enabled() {
             for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
-                i.draw(g, self.color_intersection(i.id));
+                i.draw(g, self.color_intersection(i.id), &self.cs);
             }
         }
 
