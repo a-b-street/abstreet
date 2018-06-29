@@ -13,6 +13,7 @@ pub enum Colors {
     Background,
     Debug,
     BrightDebug,
+    Broken,
     Road,
     DrivingLaneMarking,
     Parking,

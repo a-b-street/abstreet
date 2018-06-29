@@ -33,7 +33,8 @@ impl DrawRoad {
 
         let (end_1, end_2) = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
 
-        let polygons = road.lane_center_pts.make_polygons(geometry::LANE_THICKNESS);
+        let polygons = road.lane_center_pts
+            .make_polygons_blindly(geometry::LANE_THICKNESS);
 
         DrawRoad {
             id: road.id,
@@ -248,7 +249,7 @@ fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
 
     // Project left, so reverse the points.
     let center_pts = road.lane_center_pts.reversed();
-    let lane_edge_pts = center_pts.shift(geometry::LANE_THICKNESS / 2.0);
+    let lane_edge_pts = center_pts.shift_blindly(geometry::LANE_THICKNESS / 2.0);
 
     // This is an incredibly expensive way to compute dashed polyines, and it doesn't follow bends
     // properly. Just a placeholder.

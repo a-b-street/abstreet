@@ -126,21 +126,33 @@ impl UI {
             labels.push((*pt, format!("p{}", idx + 1)));
         }
 
-        for p in center_pts.make_polygons(width) {
-            draw_polygon(g, p, BLACK);
+        if let Some(polys) = center_pts.make_polygons(width) {
+            for p in polys {
+                draw_polygon(g, p, BLACK);
+            }
         }
 
         // TODO colored labels!
-        let side1 = center_pts.shift(width / 2.0);
-        //draw_polyline(g, &side1, thin, BLUE);
-        for (idx, pt) in side1.points().iter().enumerate() {
-            labels.push((*pt, format!("L{}", idx + 1)));
+        if let Some(side1) = center_pts.shift(width / 2.0) {
+            //draw_polyline(g, &side1, thin, BLUE);
+            for (idx, pt) in side1.points().iter().enumerate() {
+                labels.push((*pt, format!("L{}", idx + 1)));
+            }
+        } else {
+            println!("side1 borked");
         }
 
-        let side2 = center_pts.reversed().shift(width / 2.0).reversed();
-        //draw_polyline(g, &side2, thin, GREEN);
-        for (idx, pt) in side2.points().iter().enumerate() {
-            labels.push((*pt, format!("R{}", idx + 1)));
+        if let Some(side2) = center_pts
+            .reversed()
+            .shift(width / 2.0)
+            .map(|pl| pl.reversed())
+        {
+            //draw_polyline(g, &side2, thin, GREEN);
+            for (idx, pt) in side2.points().iter().enumerate() {
+                labels.push((*pt, format!("R{}", idx + 1)));
+            }
+        } else {
+            println!("side2 borked");
         }
     }
 
@@ -179,29 +191,40 @@ impl UI {
 
         draw_polyline(g, &pts, thick, RED);
 
-        for p in pts.make_polygons(shift_away) {
-            draw_polygon(g, p, BLACK);
+        if let Some(polys) = pts.make_polygons(shift_away) {
+            for p in polys {
+                draw_polygon(g, p, BLACK);
+            }
         }
 
         // Two lanes on one side of the road
-        let l1_pts = pts.shift(shift_away);
-        for (idx, pt) in l1_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l1_p{}", idx + 1)));
+        if let Some(l1_pts) = pts.shift(shift_away) {
+            for (idx, pt) in l1_pts.points().iter().enumerate() {
+                labels.push((*pt, format!("l1_p{}", idx + 1)));
+            }
+            draw_polyline(g, &l1_pts, thin, GREEN);
+        } else {
+            println!("l1_pts borked");
         }
-        draw_polyline(g, &l1_pts, thin, GREEN);
 
-        let l2_pts = pts.shift(shift_away * 2.0);
-        for (idx, pt) in l2_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l2_p{}", idx + 1)));
+        if let Some(l2_pts) = pts.shift(shift_away * 2.0) {
+            for (idx, pt) in l2_pts.points().iter().enumerate() {
+                labels.push((*pt, format!("l2_p{}", idx + 1)));
+            }
+            draw_polyline(g, &l2_pts, thin, GREEN);
+        } else {
+            println!("l2_pts borked");
         }
-        draw_polyline(g, &l2_pts, thin, GREEN);
 
         // Other side
-        let l3_pts = pts.reversed().shift(shift_away);
-        for (idx, pt) in l3_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l3_p{}", idx + 1)));
+        if let Some(l3_pts) = pts.reversed().shift(shift_away) {
+            for (idx, pt) in l3_pts.points().iter().enumerate() {
+                labels.push((*pt, format!("l3_p{}", idx + 1)));
+            }
+            draw_polyline(g, &l3_pts, thin, BLUE);
+        } else {
+            println!("l3_pts borked");
         }
-        draw_polyline(g, &l3_pts, thin, BLUE);
     }
 }
 

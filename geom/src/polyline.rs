@@ -78,7 +78,8 @@ impl PolyLine {
         Line::new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
-    pub fn shift(&self, width: f64) -> PolyLine {
+    // Doesn't check if the result is valid
+    pub fn shift_blindly(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift(width);
             return PolyLine::new(vec![l.pt1(), l.pt2()]);
@@ -114,9 +115,16 @@ impl PolyLine {
         }
 
         assert!(result.len() == self.pts.len());
+        PolyLine::new(result)
+    }
+
+    // Shifting might fail if the requested width doesn't fit in tight angles between points in the
+    // polyline.
+    pub fn shift(&self, width: f64) -> Option<PolyLine> {
+        let result = self.shift_blindly(width);
 
         // Check that the angles roughly match up between the original and shifted line
-        for (orig_pair, shifted_pair) in self.pts.windows(2).zip(result.windows(2)) {
+        for (orig_pair, shifted_pair) in self.pts.windows(2).zip(result.pts.windows(2)) {
             let orig_angle = orig_pair[0].angle_to(orig_pair[1]).normalized_degrees();
             let shifted_angle = shifted_pair[0]
                 .angle_to(shifted_pair[1])
@@ -127,19 +135,29 @@ impl PolyLine {
                     "Points changed angles from {} to {}",
                     orig_angle, shifted_angle
                 );*/
+                return None;
             }
         }
-
-        PolyLine::new(result)
+        Some(result)
     }
 
     // TODO why do we need a bunch of triangles? why doesn't the single polygon triangulate correctly?
     // TODO ideally, detect when the polygon overlaps itself due to sharp lines and too much width
     // return Vec2d since this is only used for drawing right now
-    pub fn make_polygons(&self, width: f64) -> Vec<Vec<Vec2d>> {
-        let side1 = self.shift(width / 2.0);
-        let side2 = self.reversed().shift(width / 2.0).reversed();
+    // Represent failure too
+    pub fn make_polygons(&self, width: f64) -> Option<Vec<Vec<Vec2d>>> {
+        let side1 = self.shift(width / 2.0)?;
+        let side2 = self.reversed().shift(width / 2.0)?.reversed();
+        Some(self.polygons_from_sides(&side1, &side2))
+    }
 
+    pub fn make_polygons_blindly(&self, width: f64) -> Vec<Vec<Vec2d>> {
+        let side1 = self.shift_blindly(width / 2.0);
+        let side2 = self.reversed().shift_blindly(width / 2.0).reversed();
+        self.polygons_from_sides(&side1, &side2)
+    }
+
+    fn polygons_from_sides(&self, side1: &PolyLine, side2: &PolyLine) -> Vec<Vec<Vec2d>> {
         let mut result: Vec<Vec<Pt2D>> = Vec::new();
         for high_idx in 1..self.pts.len() {
             // Duplicate first point, since that's what graphics layer expects
@@ -205,7 +223,7 @@ fn shift_polyline_equivalence() {
 
     assert_eq!(
         PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift(width),
-        PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s])
+        Some(PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s]))
     );
 }
 
@@ -222,6 +240,6 @@ fn shift_short_polyline_equivalence() {
 
     assert_eq!(
         PolyLine::new(vec![pt1, pt2]).shift(width),
-        PolyLine::new(vec![l.pt1(), l.pt2()])
+        Some(PolyLine::new(vec![l.pt1(), l.pt2()]))
     );
 }

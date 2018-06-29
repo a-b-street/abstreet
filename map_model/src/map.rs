@@ -91,8 +91,12 @@ impl Map {
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 // Reverse points for British-style driving on the left
-                let lane_center_pts =
-                    unshifted_pts.shift(geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5));
+                let width = geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5);
+                let (lane_center_pts, probably_broken) = match unshifted_pts.shift(width) {
+                    Some(pts) => (pts, false),
+                    // TODO wasteful to calculate again, but eh
+                    None => (unshifted_pts.shift_blindly(width), true),
+                };
 
                 // lane_center_pts will get updated in the next pass
                 m.roads.push(Road {
@@ -100,6 +104,7 @@ impl Map {
                     other_side,
                     use_yellow_center_lines,
                     lane_center_pts,
+                    probably_broken,
                     unshifted_pts,
                     offset: lane.offset,
                     src_i: i1,

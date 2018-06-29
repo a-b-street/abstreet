@@ -15,7 +15,10 @@ pub fn thick_line_from_angle(
     angle: Angle,
 ) -> Vec<Vec<Vec2d>> {
     let pt2 = pt.project_away(line_length, angle);
-    PolyLine::new(vec![*pt, pt2]).make_polygons(thickness)
+    // Shouldn't ever fail for a single line
+    PolyLine::new(vec![*pt, pt2])
+        .make_polygons(thickness)
+        .unwrap()
 }
 
 // Algorithm from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html

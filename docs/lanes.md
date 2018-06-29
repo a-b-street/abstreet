@@ -60,6 +60,7 @@ The polyline problem:
 - Will lengths change? Is this a problem?
 - Drawing cars as rectangles is funky, because if their front is aligned to a new line segment, their back juts into the center of the road
 - https://hal.inria.fr/hal-00907326/document
+- https://www.researchgate.net/publication/220200701_High-Quality_Cartographic_Roads_on_High-Resolution_DEMs
 
 
 - Seemingly: line intersection of shifted lines yields the new joint point, which looks good.
@@ -123,7 +124,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- geo rust!
 
 	- improve intersection geom?
-	- detect problematic areas where we cant shift the lines enough, and highlight them
 	- depict stop signs, traffic lights, yields?
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such

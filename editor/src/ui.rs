@@ -219,11 +219,14 @@ impl UI {
 
     fn color_road(&self, id: map_model::RoadID) -> Color {
         let r = self.map.get_r(id);
-        let default = match r.lane_type {
+        let mut default = match r.lane_type {
             map_model::LaneType::Driving => self.cs.get(Colors::Road),
             map_model::LaneType::Parking => self.cs.get(Colors::Parking),
             map_model::LaneType::Sidewalk => self.cs.get(Colors::Sidewalk),
         };
+        if r.probably_broken {
+            default = self.cs.get(Colors::Broken);
+        }
 
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
