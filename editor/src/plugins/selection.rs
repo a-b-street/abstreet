@@ -13,8 +13,10 @@ use piston::input::{Button, Key, ReleaseEvent};
 use render;
 use sim::CarID;
 use sim::straw_model::Sim;
+use std::collections::HashSet;
 
 // TODO only used for mouseover, which happens in order anyway...
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum ID {
     Road(RoadID),
     Intersection(IntersectionID),
@@ -37,8 +39,8 @@ pub enum SelectionState {
 
 impl SelectionState {
     // TODO shouldnt these two consume self?
-    pub fn handle_mouseover(&self, some_id: &Option<ID>) -> SelectionState {
-        match *some_id {
+    pub fn handle_mouseover(&self, some_id: Option<ID>) -> SelectionState {
+        match some_id {
             Some(ID::Intersection(id)) => SelectionState::SelectedIntersection(id),
             Some(ID::Road(id)) => {
                 match *self {
@@ -232,5 +234,49 @@ impl SelectionState {
             SelectionState::SelectedCar(id) if c == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
+    }
+}
+
+pub struct Hider {
+    items: HashSet<ID>,
+}
+
+impl Hider {
+    pub fn new() -> Hider {
+        Hider {
+            items: HashSet::new(),
+        }
+    }
+
+    pub fn event(&mut self, input: &mut UserInput, state: &SelectionState) {
+        if input.unimportant_key_pressed(Key::K, "Press k to unhide everything") {
+            println!("Unhiding {} things", self.items.len());
+            self.items.clear();
+        }
+
+        let item = match state {
+            SelectionState::SelectedIntersection(id) => Some(ID::Intersection(*id)),
+            SelectionState::SelectedRoad(id, _) => Some(ID::Road(*id)),
+            SelectionState::SelectedBuilding(id) => Some(ID::Building(*id)),
+            _ => None,
+        };
+        if let Some(id) = item {
+            if input.unimportant_key_pressed(Key::H, &format!("Press h to hide {:?}", id)) {
+                self.items.insert(id);
+                println!("Hiding {:?}", id);
+            }
+        }
+    }
+
+    pub fn show_r(&self, id: RoadID) -> bool {
+        !self.items.contains(&ID::Road(id))
+    }
+
+    pub fn show_b(&self, id: BuildingID) -> bool {
+        !self.items.contains(&ID::Building(id))
+    }
+
+    pub fn show_i(&self, id: IntersectionID) -> bool {
+        !self.items.contains(&ID::Intersection(id))
     }
 }

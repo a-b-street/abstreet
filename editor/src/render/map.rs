@@ -4,6 +4,7 @@ use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
 use geom::{LonLat, Pt2D};
 use map_model::{BuildingID, IntersectionID, Map, ParcelID, RoadID, TurnID};
+use plugins::selection::Hider;
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
 use render::parcel::DrawParcel;
@@ -132,18 +133,26 @@ impl DrawMap {
         &self.parcels[id.0]
     }
 
-    pub fn get_roads_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawRoad> {
+    pub fn get_roads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawRoad> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.roads_quadtree.query(screen_bbox) {
-            v.push(self.get_r(*id));
+            if hider.show_r(*id) {
+                v.push(self.get_r(*id));
+            }
         }
         v
     }
 
-    pub fn get_intersections_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawIntersection> {
+    pub fn get_intersections_onscreen(
+        &self,
+        screen_bbox: Rect,
+        hider: &Hider,
+    ) -> Vec<&DrawIntersection> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.intersections_quadtree.query(screen_bbox) {
-            v.push(self.get_i(*id));
+            if hider.show_i(*id) {
+                v.push(self.get_i(*id));
+            }
         }
         v
     }
@@ -156,10 +165,12 @@ impl DrawMap {
         v
     }
 
-    pub fn get_buildings_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawBuilding> {
+    pub fn get_buildings_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawBuilding> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.buildings_quadtree.query(screen_bbox) {
-            v.push(self.get_b(*id));
+            if hider.show_b(*id) {
+                v.push(self.get_b(*id));
+            }
         }
         v
     }

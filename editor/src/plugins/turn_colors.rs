@@ -7,7 +7,7 @@ use graphics::types::Color;
 use map_model::{Turn, TurnID};
 use std::collections::HashMap;
 
-const CYCLE_COLORS: [Color; 8] = [
+const CYCLE_COLORS: [Color; 14] = [
     // TODO these are awful choices
     [1.0, 1.0, 0.0, 1.0],
     [1.0, 0.0, 1.0, 1.0],
@@ -17,6 +17,12 @@ const CYCLE_COLORS: [Color; 8] = [
     [0.5, 0.0, 0.5, 0.5],
     [0.0, 0.5, 0.5, 0.5],
     [0.0, 0.0, 0.5, 0.5],
+    [0.3, 0.2, 0.5, 0.5],
+    [0.4, 0.2, 0.5, 0.5],
+    [0.5, 0.2, 0.5, 0.5],
+    [0.6, 0.2, 0.5, 0.5],
+    [0.7, 0.2, 0.5, 0.5],
+    [0.8, 0.2, 0.5, 0.5],
 ];
 
 pub struct TurnColors {
@@ -30,6 +36,13 @@ impl TurnColors {
             for (idx, cycle) in signal.cycles.iter().enumerate() {
                 for t in &cycle.turns {
                     m.insert(*t, idx);
+                    if idx >= CYCLE_COLORS.len() {
+                        panic!(
+                            "Turn idx {}, but only {} CYCLE_COLORS",
+                            idx,
+                            CYCLE_COLORS.len()
+                        );
+                    }
                 }
             }
         }

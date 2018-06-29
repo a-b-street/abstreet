@@ -22,7 +22,7 @@ use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
 use plugins::search::SearchState;
-use plugins::selection::{SelectionState, ID};
+use plugins::selection::{Hider, SelectionState, ID};
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
@@ -53,6 +53,7 @@ pub struct UI {
     debug_mode: ToggleableLayer,
 
     current_selection_state: SelectionState,
+    hider: Hider,
     current_search_state: SearchState,
     warp: WarpState,
     floodfiller: Option<Floodfiller>,
@@ -106,6 +107,7 @@ impl UI {
             debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
             current_selection_state: SelectionState::Empty,
+            hider: Hider::new(),
             current_search_state: SearchState::Empty,
             warp: WarpState::Empty,
             floodfiller: None,
@@ -156,7 +158,7 @@ impl UI {
         let screen_bbox = self.canvas.get_screen_bbox(window_size);
 
         let roads_onscreen = if self.show_roads.is_enabled() {
-            self.draw_map.get_roads_onscreen(screen_bbox)
+            self.draw_map.get_roads_onscreen(screen_bbox, &self.hider)
         } else {
             Vec::new()
         };
@@ -177,7 +179,9 @@ impl UI {
         }
 
         if self.show_intersections.is_enabled() {
-            for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
+            for i in &self.draw_map
+                .get_intersections_onscreen(screen_bbox, &self.hider)
+            {
                 for t in &self.map.get_i(i.id).turns {
                     for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
                         if c.contains_pt(x, y) {
@@ -207,7 +211,9 @@ impl UI {
         }
 
         if self.show_buildings.is_enabled() {
-            for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
+            for b in &self.draw_map
+                .get_buildings_onscreen(screen_bbox, &self.hider)
+            {
                 if b.contains_pt(x, y) {
                     return Some(ID::Building(b.id));
                 }
@@ -412,9 +418,10 @@ impl gui::GUI for UI {
         if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            self.current_selection_state = self.current_selection_state
-                .handle_mouseover(&self.mouseover_something(window_size));
+            let item = self.mouseover_something(window_size);
+            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
+        self.hider.event(input, &self.current_selection_state);
         // TODO can't get this destructuring expressed right
         let (new_selection_state, new_event_loop_mode) =
             self.current_selection_state
@@ -503,7 +510,7 @@ impl gui::GUI for UI {
         }
 
         let roads_onscreen = if self.show_roads.is_enabled() {
-            self.draw_map.get_roads_onscreen(screen_bbox)
+            self.draw_map.get_roads_onscreen(screen_bbox, &self.hider)
         } else {
             Vec::new()
         };
@@ -518,7 +525,9 @@ impl gui::GUI for UI {
         }
 
         if self.show_intersections.is_enabled() {
-            for i in &self.draw_map.get_intersections_onscreen(screen_bbox) {
+            for i in &self.draw_map
+                .get_intersections_onscreen(screen_bbox, &self.hider)
+            {
                 i.draw(g, self.color_intersection(i.id), &self.cs);
             }
         }
@@ -539,7 +548,9 @@ impl gui::GUI for UI {
         }
 
         if self.show_buildings.is_enabled() {
-            for b in &self.draw_map.get_buildings_onscreen(screen_bbox) {
+            for b in &self.draw_map
+                .get_buildings_onscreen(screen_bbox, &self.hider)
+            {
                 b.draw(
                     g,
                     self.color_building(b.id),
