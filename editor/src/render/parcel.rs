@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
+use geom::PolyLine;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
@@ -21,7 +22,7 @@ impl DrawParcel {
     pub fn new(p: &map_model::Parcel) -> DrawParcel {
         DrawParcel {
             id: p.id,
-            boundary_polygons: map_model::PolyLine::new(p.points.clone())
+            boundary_polygons: PolyLine::new(p.points.clone())
                 .make_polygons(PARCEL_BOUNDARY_THICKNESS),
             fill_polygon: p.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
         }

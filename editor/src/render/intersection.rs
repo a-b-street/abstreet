@@ -2,11 +2,12 @@
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
+use geom::Pt2D;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
-use map_model::{geometry, Pt2D};
+use map_model::geometry;
 use render::DrawRoad;
 use std::f64;
 

@@ -1,22 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Angle;
-use Bounds;
-use PolyLine;
-use Pt2D;
 use aabb_quadtree::geom::{Point, Rect};
-use dimensioned::si;
+use geom::{Angle, Bounds, PolyLine, Pt2D};
 use graphics::math::Vec2d;
 use std::f64;
 
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
-
-use std;
-pub const EPSILON_METERS: si::Meter<f64> = si::Meter {
-    value_unsafe: 0.00001,
-    _marker: std::marker::PhantomData,
-};
 
 pub fn thick_line_from_angle(
     thickness: f64,

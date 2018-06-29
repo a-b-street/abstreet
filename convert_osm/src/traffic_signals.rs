@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use map_model::Pt2D;
+use geom::Pt2D;
 use std::io::Error;
 
 pub struct TrafficSignal {

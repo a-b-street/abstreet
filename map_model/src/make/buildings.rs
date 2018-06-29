@@ -1,15 +1,9 @@
-use Bounds;
-use Building;
-use BuildingID;
-use LaneType;
-use Line;
-use Pt2D;
-use Road;
-use RoadID;
 use geo;
+use geom::{Bounds, Line, Pt2D};
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::HashMap;
+use {Building, BuildingID, LaneType, Road, RoadID};
 
 pub(crate) fn make_building(
     b: &raw_data::Building,
@@ -66,7 +60,10 @@ fn find_front_path(
             .iter()
             .min_by_key(|pair| NotNaN::new(pair.1.euclidean_distance(&center_pt)).unwrap())
         {
-            return Some(Line(bldg_center, Pt2D::new(closest.1.x(), closest.1.y())));
+            return Some(Line::new(
+                bldg_center,
+                Pt2D::new(closest.1.x(), closest.1.y()),
+            ));
         }
     }
     None

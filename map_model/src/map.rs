@@ -1,12 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Bounds;
-use HashablePt2D;
-use PolyLine;
-use Pt2D;
 use abstutil;
 use building::{Building, BuildingID};
 use dimensioned::si;
+use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use intersection::{Intersection, IntersectionID};
 use make;

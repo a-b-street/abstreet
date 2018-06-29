@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use map_model;
-use map_model::HashablePt2D;
+use geom::{Bounds, HashablePt2D, LonLat};
+use map_model::raw_data;
 use osm_xml;
 use srtm;
 use std::collections::{HashMap, HashSet};
@@ -9,7 +9,7 @@ use std::fs::File;
 use std::io::BufReader;
 
 // TODO Result, but is there an easy way to say io error or osm xml error?
-pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model::Bounds) {
+pub fn osm_to_raw_roads(osm_path: &str) -> (raw_data::Map, Bounds) {
     println!("Opening {}", osm_path);
     let f = File::open(osm_path).unwrap();
     let reader = BufReader::new(f);
@@ -27,8 +27,8 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
         id_to_node.insert(node.id, node);
     }
 
-    let mut map = map_model::raw_data::Map::blank();
-    let mut bounds = map_model::Bounds::new();
+    let mut map = raw_data::Map::blank();
+    let mut bounds = Bounds::new();
     for (i, way) in doc.ways.iter().enumerate() {
         // TODO count with a nicer progress bar
         if i % 1000 == 0 {
@@ -42,7 +42,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                 osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
                     Some(node) => {
                         bounds.update(node.lon, node.lat);
-                        pts.push(map_model::raw_data::LonLat::new(node.lon, node.lat));
+                        pts.push(LonLat::new(node.lon, node.lat));
                     }
                     None => {
                         valid = false;
@@ -60,7 +60,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
             continue;
         }
         if is_road(&way.tags) {
-            map.roads.push(map_model::raw_data::Road {
+            map.roads.push(raw_data::Road {
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: way.tags
@@ -69,7 +69,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
                     .collect(),
             });
         } else if is_bldg(&way.tags) {
-            map.buildings.push(map_model::raw_data::Building {
+            map.buildings.push(raw_data::Building {
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: way.tags
@@ -82,10 +82,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (map_model::raw_data::Map, map_model:
     (map, bounds)
 }
 
-pub fn split_up_roads(
-    input: &map_model::raw_data::Map,
-    elevation: &srtm::Elevation,
-) -> map_model::raw_data::Map {
+pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw_data::Map {
     println!("splitting up {} roads", input.roads.len());
     let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
     let mut intersections: HashSet<HashablePt2D> = HashSet::new();
@@ -107,12 +104,12 @@ pub fn split_up_roads(
         }
     }
 
-    let mut map = map_model::raw_data::Map::blank();
+    let mut map = raw_data::Map::blank();
     map.buildings.extend(input.buildings.clone());
 
     for pt in &intersections {
-        map.intersections.push(map_model::raw_data::Intersection {
-            point: map_model::raw_data::LonLat::new(pt.x(), pt.y()),
+        map.intersections.push(raw_data::Intersection {
+            point: LonLat::new(pt.x(), pt.y()),
             elevation_meters: elevation.get(pt.x(), pt.y()),
             has_traffic_signal: false,
         });
@@ -189,6 +186,6 @@ fn is_bldg(tags: &[osm_xml::Tag]) -> bool {
     false
 }
 
-fn hash_pt(pt: &map_model::raw_data::LonLat) -> HashablePt2D {
+fn hash_pt(pt: &LonLat) -> HashablePt2D {
     HashablePt2D::new(pt.longitude, pt.latitude)
 }

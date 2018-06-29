@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use geom;
 use map_model;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
@@ -8,7 +9,7 @@ use std::{io, f64};
 
 pub fn load(
     path: &String,
-    b: &map_model::Bounds,
+    b: &geom::Bounds,
 ) -> Result<Vec<map_model::raw_data::Parcel>, io::Error> {
     println!("Opening {}", path);
     let f = File::open(path).unwrap();
@@ -39,9 +40,7 @@ pub fn load(
                     for pt in text.split(" ") {
                         if let Some((lon, lat)) = parse_pt(pt) {
                             if b.contains(lon, lat) {
-                                parcel
-                                    .points
-                                    .push(map_model::raw_data::LonLat::new(lon, lat));
+                                parcel.points.push(geom::LonLat::new(lon, lat));
                             } else {
                                 ok = false;
                             }

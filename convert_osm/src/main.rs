@@ -2,6 +2,7 @@
 
 extern crate abstutil;
 extern crate byteorder;
+extern crate geom;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
@@ -12,6 +13,7 @@ mod osm;
 mod srtm;
 mod traffic_signals;
 
+use geom::LonLat;
 use map_model::raw_data;
 use ordered_float::NotNaN;
 use srtm::Elevation;
@@ -74,8 +76,8 @@ fn main() {
             if bounds.contains(pt.x(), pt.y()) {
                 let distance = |i: &raw_data::Intersection| {
                     // TODO weird to use Pt2D at all for GPS, uh oh
-                    raw_data::LonLat::new(pt.x(), pt.y())
-                        .gps_dist_meters(raw_data::LonLat::new(i.point.longitude, i.point.latitude))
+                    LonLat::new(pt.x(), pt.y())
+                        .gps_dist_meters(LonLat::new(i.point.longitude, i.point.latitude))
                 };
 
                 // TODO use a quadtree or some better way to match signals to the closest

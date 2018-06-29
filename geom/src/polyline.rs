@@ -1,10 +1,7 @@
-use Angle;
-use Line;
-use Pt2D;
 use dimensioned::si;
-use geometry;
 use graphics::math::Vec2d;
 use std::f64;
+use {util, Angle, Line, Pt2D};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PolyLine {
@@ -29,12 +26,12 @@ impl PolyLine {
     }
 
     // TODO weird to have these specific things?
-    pub(crate) fn replace_first_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
+    pub fn replace_first_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
         self.pts[0] = pt1;
         self.pts[1] = pt2;
     }
 
-    pub(crate) fn replace_last_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
+    pub fn replace_last_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
         let len = self.pts.len();
         self.pts[len - 2] = pt1;
         self.pts[len - 1] = pt2;
@@ -46,17 +43,17 @@ impl PolyLine {
 
     pub fn length(&self) -> si::Meter<f64> {
         self.pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-            so_far + Line(pair[0], pair[1]).length()
+            so_far + Line::new(pair[0], pair[1]).length()
         })
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         let mut dist_left = dist_along;
         for (idx, pair) in self.pts.windows(2).enumerate() {
-            let l = Line(pair[0], pair[1]);
+            let l = Line::new(pair[0], pair[1]);
             let length = l.length();
             let epsilon = if idx == self.pts.len() - 2 {
-                geometry::EPSILON_METERS
+                util::EPSILON_METERS
             } else {
                 0.0 * si::M
             };
@@ -75,15 +72,15 @@ impl PolyLine {
         *self.pts.last().unwrap()
     }
     pub fn first_line(&self) -> Line {
-        Line(self.pts[0], self.pts[1])
+        Line::new(self.pts[0], self.pts[1])
     }
     pub fn last_line(&self) -> Line {
-        Line(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
+        Line::new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
 
     pub fn shift(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
-            let l = Line(self.pts[0], self.pts[1]).shift(width);
+            let l = Line::new(self.pts[0], self.pts[1]).shift(width);
             return PolyLine::new(vec![l.pt1(), l.pt2()]);
         }
 
@@ -96,11 +93,11 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line(pt1_raw, pt2_raw).shift(width);
-            let l2 = Line(pt2_raw, pt3_raw).shift(width);
+            let l1 = Line::new(pt1_raw, pt2_raw).shift(width);
+            let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
-            let pt2_shift = line_intersection(&l1, &l2).unwrap_or(l1.pt2());
+            let pt2_shift = util::line_intersection(&l1, &l2).unwrap_or(l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -178,32 +175,10 @@ impl PolyLine {
     result.iter().map(|pair| [pair.0, pair.1]).collect()
 }*/
 
-// NOT segment. Fails for parallel lines.
-// https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-pub(crate) fn line_intersection(l1: &Line, l2: &Line) -> Option<Pt2D> {
-    let x1 = l1.pt1().x();
-    let y1 = l1.pt1().y();
-    let x2 = l1.pt2().x();
-    let y2 = l1.pt2().y();
-
-    let x3 = l2.pt1().x();
-    let y3 = l2.pt1().y();
-    let x4 = l2.pt2().x();
-    let y4 = l2.pt2().y();
-
-    let numer_x = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
-    let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
-    let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if denom == 0.0 {
-        None
-    } else {
-        Some(Pt2D::new(numer_x / denom, numer_y / denom))
-    }
-}
-
 #[test]
 fn shift_polyline_equivalence() {
     use rand;
+    use util::line_intersection;
 
     let scale = 1000.0;
     let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
@@ -213,14 +188,20 @@ fn shift_polyline_equivalence() {
     let pt5 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
     let width = 50.0;
-    let pt1_s = Line(pt1, pt2).shift(width).pt1();
-    let pt2_s =
-        line_intersection(&Line(pt1, pt2).shift(width), &Line(pt2, pt3).shift(width)).unwrap();
-    let pt3_s =
-        line_intersection(&Line(pt2, pt3).shift(width), &Line(pt3, pt4).shift(width)).unwrap();
-    let pt4_s =
-        line_intersection(&Line(pt3, pt4).shift(width), &Line(pt4, pt5).shift(width)).unwrap();
-    let pt5_s = Line(pt4, pt5).shift(width).pt2();
+    let pt1_s = Line::new(pt1, pt2).shift(width).pt1();
+    let pt2_s = line_intersection(
+        &Line::new(pt1, pt2).shift(width),
+        &Line::new(pt2, pt3).shift(width),
+    ).unwrap();
+    let pt3_s = line_intersection(
+        &Line::new(pt2, pt3).shift(width),
+        &Line::new(pt3, pt4).shift(width),
+    ).unwrap();
+    let pt4_s = line_intersection(
+        &Line::new(pt3, pt4).shift(width),
+        &Line::new(pt4, pt5).shift(width),
+    ).unwrap();
+    let pt5_s = Line::new(pt4, pt5).shift(width).pt2();
 
     assert_eq!(
         PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift(width),
@@ -237,7 +218,7 @@ fn shift_short_polyline_equivalence() {
     let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
     let width = 50.0;
-    let l = Line(pt1, pt2).shift(width);
+    let l = Line::new(pt1, pt2).shift(width);
 
     assert_eq!(
         PolyLine::new(vec![pt1, pt2]).shift(width),

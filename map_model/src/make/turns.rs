@@ -1,8 +1,5 @@
-use Line;
-use Map;
-use intersection::Intersection;
-use road::{LaneType, RoadID};
-use turn::{Turn, TurnID};
+use geom::Line;
+use {Intersection, LaneType, Map, RoadID, Turn, TurnID};
 
 pub(crate) fn make_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
     let incoming: Vec<RoadID> = i.incoming_roads
@@ -44,7 +41,7 @@ pub(crate) fn make_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec
                 parent: i.id,
                 src: *src,
                 dst: *dst,
-                line: Line(src_r.last_pt(), dst_r.first_pt()),
+                line: Line::new(src_r.last_pt(), dst_r.first_pt()),
             });
         }
     }

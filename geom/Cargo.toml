@@ -1,15 +1,12 @@
 [package]
-name = "map_model"
+name = "geom"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
-abstutil = { path = "../abstutil" }
-aabb-quadtree = "0.1.0"
 dimensioned = "0.6.0"
-geo = "0.9.1"
-geom = { path = "../geom" }
 ordered-float = "0.5.0"
 piston2d-graphics = "*"
+rand = "0.5.1"
 serde = "1.0"
 serde_derive = "1.0"

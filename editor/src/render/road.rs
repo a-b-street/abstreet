@@ -4,12 +4,12 @@ use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
+use geom::{Line, PolyLine};
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
-use map_model::geometry;
-use map_model::{Line, PolyLine, RoadID};
+use map_model::{geometry, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
 
 #[derive(Debug)]

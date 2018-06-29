@@ -121,10 +121,9 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- useful to precompute sidewalk paths
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 
-	- isolate vec2d
-	- split out geometry crate again
-	- let ezgui stuff depend on it too
 	- also a polygon struct? for parcels and buildings
+	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
+	- isolate vec2d
 
 
 

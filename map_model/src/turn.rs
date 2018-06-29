@@ -1,11 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Angle;
 use IntersectionID;
-use Line;
-use Pt2D;
 use RoadID;
 use dimensioned::si;
+use geom::{Angle, Line, Pt2D};
 use std::f64;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.

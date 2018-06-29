@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Line;
-use Pt2D;
+use geom::{Line, Pt2D};
 use std::collections::HashMap;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.

@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate abstutil;
+extern crate geom;
 extern crate map_model;
 extern crate quick_xml;
 
@@ -17,7 +18,7 @@ fn main() {
     }
 
     // TODO don't hardcode
-    let bounds = map_model::Bounds {
+    let bounds = geom::Bounds {
         min_x: -122.4416,
         max_x: -122.2421,
         min_y: 47.5793,

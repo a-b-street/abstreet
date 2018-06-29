@@ -1,11 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use Angle;
 use IntersectionID;
-use Line;
-use PolyLine;
-use Pt2D;
 use dimensioned::si;
+use geom::{Angle, Line, PolyLine, Pt2D};
 use std::collections::HashMap;
 use std::f64;
 use std::fmt;

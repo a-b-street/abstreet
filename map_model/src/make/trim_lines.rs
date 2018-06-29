@@ -1,5 +1,5 @@
-use Line;
 use dimensioned::si;
+use geom::Line;
 use intersection::Intersection;
 use road::{Road, RoadID};
 use std::collections::HashMap;
@@ -30,8 +30,12 @@ pub(crate) fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
             let l1 = roads[incoming.0].last_line();
             let l2 = roads[outgoing.0].first_line();
             if let Some(hit) = l1.intersection(&l2) {
-                update_shortest(&mut shortest_last_line, *incoming, Line(l1.pt1(), hit));
-                update_shortest(&mut shortest_first_line, *outgoing, Line(hit, l2.pt2()));
+                update_shortest(&mut shortest_last_line, *incoming, Line::new(l1.pt1(), hit));
+                update_shortest(
+                    &mut shortest_first_line,
+                    *outgoing,
+                    Line::new(hit, l2.pt2()),
+                );
             }
         }
     }
