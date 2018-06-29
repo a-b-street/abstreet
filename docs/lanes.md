@@ -122,6 +122,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- find all overlapping polygons, only some are expected
 		- find a way to show the problem easily
 		- geo rust!
+	- be able to hide stuff to debug overlapping geometry
 
 	- improve intersection geom?
 	- depict stop signs, traffic lights, yields?

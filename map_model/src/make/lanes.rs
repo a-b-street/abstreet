@@ -7,8 +7,19 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
     // These seem to represent weird roundabouts
     let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
-    let big_road = r.osm_tags.get("highway") == Some(&"primary".to_string())
-        || r.osm_tags.get("highway") == Some(&"secondary".to_string());
+    let big_highway = r.osm_tags.get("highway") == Some(&"motorway".to_string());
+    let num_driving_lanes = if let Some(n) = r.osm_tags
+        .get("lanes")
+        .and_then(|num| num.parse::<usize>().ok())
+    {
+        n
+    } else if r.osm_tags.get("highway") == Some(&"primary".to_string())
+        || r.osm_tags.get("highway") == Some(&"secondary".to_string())
+    {
+        2
+    } else {
+        1
+    };
     // TODO debugging convenience
     let only_roads_for_debugging = false;
 
@@ -16,11 +27,10 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         return (vec![LaneType::Driving], Vec::new());
     }
 
-    let num_driving_lanes = if big_road { 2 } else { 1 };
     let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(num_driving_lanes)
         .collect();
-    if only_roads_for_debugging {
+    if only_roads_for_debugging || big_highway {
         if oneway {
             return (driving_lanes, Vec::new());
         } else {
