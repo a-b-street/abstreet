@@ -4,7 +4,7 @@ use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Line, PolyLine};
+use geom::Line;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
@@ -13,45 +13,57 @@ use map_model::{geometry, RoadID};
 use render::PARCEL_BOUNDARY_THICKNESS;
 
 #[derive(Debug)]
+struct Marking {
+    lines: Vec<[f64; 4]>,
+    color: Colors,
+    thickness: f64,
+    round: bool,
+}
+
+#[derive(Debug)]
 pub struct DrawRoad {
     pub id: RoadID,
     pub polygons: Vec<Vec<Vec2d>>,
-    // Empty for one-ways and one side of two-ways.
-    // TODO ideally this could be done in the shader or something
-    yellow_center_lines: Option<PolyLine>,
     start_crossing: (Vec2d, Vec2d),
     end_crossing: (Vec2d, Vec2d),
-
-    marking_lines: Vec<(Vec2d, Vec2d)>,
-    // Remember so we know how to color marking_lines
-    lane_type: map_model::LaneType,
+    markings: Vec<Marking>,
 }
 
 impl DrawRoad {
     pub fn new(road: &map_model::Road) -> DrawRoad {
-        let (start_1, start_2) = perp_line(road.first_line(), geometry::LANE_THICKNESS);
-
-        let (end_1, end_2) = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
+        let start = perp_line(road.first_line(), geometry::LANE_THICKNESS);
+        let end = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
 
         let polygons = road.lane_center_pts
             .make_polygons_blindly(geometry::LANE_THICKNESS);
 
+        let mut markings: Vec<Marking> = Vec::new();
+        if road.use_yellow_center_lines {
+            markings.push(Marking {
+                lines: road.unshifted_pts
+                    .points()
+                    .windows(2)
+                    .map(|pair| [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()])
+                    .collect(),
+                color: Colors::RoadOrientation,
+                thickness: geometry::BIG_ARROW_THICKNESS,
+                round: true,
+            });
+        }
+        for m in match road.lane_type {
+            map_model::LaneType::Sidewalk => Some(calculate_sidewalk_lines(road)),
+            map_model::LaneType::Parking => Some(calculate_parking_lines(road)),
+            map_model::LaneType::Driving => calculate_driving_lines(road),
+        } {
+            markings.push(m);
+        }
+
         DrawRoad {
             id: road.id,
             polygons,
-            yellow_center_lines: if road.use_yellow_center_lines {
-                Some(road.unshifted_pts.clone())
-            } else {
-                None
-            },
-            start_crossing: (start_1, start_2),
-            end_crossing: (end_1, end_2),
-            marking_lines: match road.lane_type {
-                map_model::LaneType::Sidewalk => calculate_sidewalk_lines(road),
-                map_model::LaneType::Parking => calculate_parking_lines(road),
-                map_model::LaneType::Driving => calculate_driving_lines(road),
-            },
-            lane_type: road.lane_type,
+            markings,
+            start_crossing: ([start[0], start[1]], [start[2], start[3]]),
+            end_crossing: ([end[0], end[1]], [end[2], end[3]]),
         }
     }
 
@@ -63,39 +75,15 @@ impl DrawRoad {
     }
 
     pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        let center_marking = graphics::Line::new_round(
-            cs.get(Colors::RoadOrientation),
-            geometry::BIG_ARROW_THICKNESS,
-        );
-
-        if let Some(ref pl) = self.yellow_center_lines {
-            for pair in pl.points().windows(2) {
-                center_marking.draw(
-                    [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()],
-                    &g.ctx.draw_state,
-                    g.ctx.transform,
-                    g.gfx,
-                );
+        for m in &self.markings {
+            let line = if m.round {
+                graphics::Line::new_round(cs.get(m.color), m.thickness)
+            } else {
+                graphics::Line::new(cs.get(m.color), m.thickness)
+            };
+            for pts in &m.lines {
+                line.draw(*pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
             }
-        }
-
-        let extra_marking_color = match self.lane_type {
-            map_model::LaneType::Sidewalk => cs.get(Colors::SidewalkMarking),
-            map_model::LaneType::Parking => cs.get(Colors::ParkingMarking),
-            map_model::LaneType::Driving => cs.get(Colors::DrivingLaneMarking),
-        };
-        let extra_marking = graphics::Line::new(
-            extra_marking_color,
-            // TODO move this somewhere
-            0.25,
-        );
-        for pair in &self.marking_lines {
-            extra_marking.draw(
-                [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
-                &g.ctx.draw_state,
-                g.ctx.transform,
-                g.gfx,
-            );
         }
     }
 
@@ -174,32 +162,37 @@ impl DrawRoad {
 
 // TODO this always does it at pt1
 // TODO move to Line or reimplement differently
-fn perp_line(l: Line, length: f64) -> (Vec2d, Vec2d) {
+fn perp_line(l: Line, length: f64) -> [f64; 4] {
     let pt1 = l.shift(length / 2.0).pt1();
     let pt2 = l.reverse().shift(length / 2.0).pt2();
-    (pt1.to_vec(), pt2.to_vec())
+    [pt1.x(), pt1.y(), pt2.x(), pt2.y()]
 }
 
-fn calculate_sidewalk_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+fn calculate_sidewalk_lines(road: &map_model::Road) -> Marking {
     let tile_every = geometry::LANE_THICKNESS * si::M;
 
     let length = road.length();
 
-    let mut result = Vec::new();
+    let mut lines = Vec::new();
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
         let (pt, angle) = road.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(1.0, angle);
-        result.push(perp_line(Line::new(pt, pt2), geometry::LANE_THICKNESS));
+        lines.push(perp_line(Line::new(pt, pt2), geometry::LANE_THICKNESS));
         dist_along += tile_every;
     }
 
-    result
+    Marking {
+        lines,
+        color: Colors::SidewalkMarking,
+        thickness: 0.25,
+        round: false,
+    }
 }
 
-fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+fn calculate_parking_lines(road: &map_model::Road) -> Marking {
     // TODO look up this value
     let tile_every = 10.0 * si::M;
     // meters, but the dims get annoying below to remove
@@ -208,7 +201,7 @@ fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
 
     let length = road.length();
 
-    let mut result = Vec::new();
+    let mut lines = Vec::new();
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
@@ -218,33 +211,30 @@ fn calculate_parking_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
         // have thickness, but shouldn't really intersect the adjacent line when drawn.
         let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
         // The perp leg
-        result.push((
-            [t_pt.x(), t_pt.y()],
-            t_pt.project_away(leg_length, perp_angle.opposite())
-                .to_vec(),
-        ));
+        let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
+        lines.push([t_pt.x(), t_pt.y(), p1.x(), p1.y()]);
         // Upper leg
-        result.push((
-            [t_pt.x(), t_pt.y()],
-            t_pt.project_away(leg_length, lane_angle).to_vec(),
-        ));
+        let p2 = t_pt.project_away(leg_length, lane_angle);
+        lines.push([t_pt.x(), t_pt.y(), p2.x(), p2.y()]);
         // Lower leg
-        result.push((
-            [t_pt.x(), t_pt.y()],
-            t_pt.project_away(leg_length, lane_angle.opposite())
-                .to_vec(),
-        ));
+        let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
+        lines.push([t_pt.x(), t_pt.y(), p3.x(), p3.y()]);
 
         dist_along += tile_every;
     }
 
-    result
+    Marking {
+        lines,
+        color: Colors::ParkingMarking,
+        thickness: 0.25,
+        round: false,
+    }
 }
 
-fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
+fn calculate_driving_lines(road: &map_model::Road) -> Option<Marking> {
     // Only multi-lane roads have dashed white lines.
     if road.offset == 0 {
-        return Vec::new();
+        return None;
     }
 
     // Project left, so reverse the points.
@@ -257,7 +247,7 @@ fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
     let dash_separation = 2.0 * si::M;
     let dash_len = 1.0 * si::M;
 
-    let mut dashes: Vec<(Vec2d, Vec2d)> = Vec::new();
+    let mut lines = Vec::new();
     let mut start = dash_separation;
     loop {
         if start + dash_len >= lane_len - dash_separation {
@@ -266,8 +256,14 @@ fn calculate_driving_lines(road: &map_model::Road) -> Vec<(Vec2d, Vec2d)> {
 
         let (pt1, _) = lane_edge_pts.dist_along(start);
         let (pt2, _) = lane_edge_pts.dist_along(start + dash_len);
-        dashes.push((pt1.to_vec(), pt2.to_vec()));
+        lines.push([pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
         start += dash_len + dash_separation;
     }
-    dashes
+
+    Some(Marking {
+        lines,
+        color: Colors::DrivingLaneMarking,
+        thickness: 0.25,
+        round: false,
+    })
 }

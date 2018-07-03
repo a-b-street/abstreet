@@ -118,13 +118,14 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 
 
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
-	- isolate vec2d
 
-	- also a polygon struct? for parcels and buildings
+	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?
+	- isolate vec2d
 
 	- improve intersection geom?
 		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
 		- just make polygons around center lines, then intersect?
+	- shift turn icons and stop markings and such away from crosswalk
 	- depict stop signs, traffic lights, yields?
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
@@ -145,3 +146,13 @@ Crosswalk notes:
 
 - v1: remember other_side for sidewalks too. draw crosswalks at the beginning AND end of every sidewalk lane.
 - do extra drawing in DrawIntersection for now, figure out modeling later.
+
+
+
+
+How to depict stop signs? Each driving lane has a priority... asap go or full
+stop. Turns from go lanes might be yields, but shouldn't need to represent that
+visually.
+
+- Easy representation: draw red line / stop sign in some driving lanes. Leave the priority lanes alone.
+- Harder: draw a stop sign on the side of the road by some lanes. Won't this look weird top-down and at certain angles?
