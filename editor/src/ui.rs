@@ -375,8 +375,13 @@ impl gui::GUI for UI {
         }
 
         self.current_search_state = self.current_search_state.event(input);
-        self.warp = self.warp
-            .event(input, &self.map, &mut self.canvas, window_size);
+        self.warp = self.warp.event(
+            input,
+            &self.map,
+            &mut self.canvas,
+            window_size,
+            &mut self.current_selection_state,
+        );
 
         if !edit_mode && self.sim_ctrl.event(input, &self.map, &self.control_map) {
             event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);

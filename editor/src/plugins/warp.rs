@@ -5,6 +5,7 @@ use map_model::Map;
 use map_model::RoadID;
 use piston::input::Key;
 use piston::window::Size;
+use plugins::selection::SelectionState;
 use std::usize;
 
 pub enum WarpState {
@@ -19,6 +20,7 @@ impl WarpState {
         map: &Map,
         canvas: &mut Canvas,
         window_size: &Size,
+        selection_state: &mut SelectionState,
     ) -> WarpState {
         match self {
             WarpState::Empty => {
@@ -34,7 +36,7 @@ impl WarpState {
             WarpState::EnteringSearch(mut tb) => {
                 if tb.event(input.use_event_directly()) {
                     input.consume_event();
-                    warp(tb.line, map, canvas, window_size);
+                    warp(tb.line, map, canvas, window_size, selection_state);
                     WarpState::Empty
                 } else {
                     input.consume_event();
@@ -53,13 +55,20 @@ impl WarpState {
     }
 }
 
-fn warp(line: String, map: &Map, canvas: &mut Canvas, window_size: &Size) {
+fn warp(
+    line: String,
+    map: &Map,
+    canvas: &mut Canvas,
+    window_size: &Size,
+    selection_state: &mut SelectionState,
+) {
     match usize::from_str_radix(&line, 10) {
         Ok(idx) => {
             let id = RoadID(idx);
             println!("Warping to {}", id);
             let pt = map.get_r(id).first_pt();
             canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
+            *selection_state = SelectionState::SelectedRoad(id, None);
         }
         Err(_) => {
             println!("{} isn't a valid ID", line);
