@@ -421,7 +421,7 @@ impl gui::GUI for UI {
             let item = self.mouseover_something(window_size);
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
-        self.hider.event(input, &self.current_selection_state);
+        self.hider.event(input, &mut self.current_selection_state);
         // TODO can't get this destructuring expressed right
         let (new_selection_state, new_event_loop_mode) =
             self.current_selection_state

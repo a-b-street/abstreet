@@ -248,7 +248,7 @@ impl Hider {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, state: &SelectionState) {
+    pub fn event(&mut self, input: &mut UserInput, state: &mut SelectionState) {
         if input.unimportant_key_pressed(Key::K, "Press k to unhide everything") {
             println!("Unhiding {} things", self.items.len());
             self.items.clear();
@@ -264,6 +264,7 @@ impl Hider {
             if input.unimportant_key_pressed(Key::H, &format!("Press h to hide {:?}", id)) {
                 self.items.insert(id);
                 println!("Hiding {:?}", id);
+                *state = SelectionState::Empty;
             }
         }
     }
