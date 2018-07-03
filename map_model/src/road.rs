@@ -8,7 +8,7 @@ use std::f64;
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct RoadID(pub usize);
 
 impl fmt::Display for RoadID {

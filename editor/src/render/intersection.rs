@@ -18,7 +18,7 @@ pub struct DrawIntersection {
     pub id: map_model::IntersectionID,
     pub point: Vec2d,
 
-    polygon: Vec<Vec2d>,
+    pub polygon: Vec<Vec2d>,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
 }
 

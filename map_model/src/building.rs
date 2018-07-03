@@ -2,10 +2,17 @@
 
 use geom::{Line, Pt2D};
 use std::collections::HashMap;
+use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct BuildingID(pub usize);
+
+impl fmt::Display for BuildingID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "BuildingID({0})", self.0)
+    }
+}
 
 #[derive(Debug)]
 pub struct Building {

@@ -121,10 +121,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- isolate vec2d
 
 	- also a polygon struct? for parcels and buildings
-	- automated regression test / quality control
-		- find all overlapping polygons, only some are expected
-		- find a way to show the problem easily
-		- geo rust!
 
 	- improve intersection geom?
 		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf

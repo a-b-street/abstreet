@@ -21,6 +21,7 @@ use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
+use plugins::geom_validation;
 use plugins::search::SearchState;
 use plugins::selection::{Hider, SelectionState, ID};
 use plugins::sim_controls::SimController;
@@ -476,6 +477,10 @@ impl gui::GUI for UI {
 
         if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
             self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
+        }
+
+        if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
+            geom_validation::validate_geometry(&self.draw_map);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {

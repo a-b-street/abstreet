@@ -5,6 +5,7 @@ extern crate abstutil;
 extern crate control;
 extern crate dimensioned;
 extern crate ezgui;
+extern crate geo;
 extern crate geom;
 extern crate glutin_window;
 extern crate graphics;

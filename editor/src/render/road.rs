@@ -15,7 +15,7 @@ use render::PARCEL_BOUNDARY_THICKNESS;
 #[derive(Debug)]
 pub struct DrawRoad {
     pub id: RoadID,
-    polygons: Vec<Vec<Vec2d>>,
+    pub polygons: Vec<Vec<Vec2d>>,
     // Empty for one-ways and one side of two-ways.
     // TODO ideally this could be done in the shader or something
     yellow_center_lines: Option<PolyLine>,

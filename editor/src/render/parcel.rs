@@ -15,7 +15,7 @@ pub struct DrawParcel {
     pub id: map_model::ParcelID,
     // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
-    fill_polygon: Vec<Vec2d>,
+    pub fill_polygon: Vec<Vec2d>,
 }
 
 impl DrawParcel {

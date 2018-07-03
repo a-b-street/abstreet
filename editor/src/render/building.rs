@@ -13,7 +13,7 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawBuilding {
     pub id: BuildingID,
-    polygon: Vec<Vec2d>,
+    pub polygon: Vec<Vec2d>,
     front_path: Option<[f64; 4]>,
 }
 

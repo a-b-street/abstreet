@@ -5,10 +5,17 @@ use RoadID;
 use dimensioned::si;
 use geom::{Angle, Line, Pt2D};
 use std::f64;
+use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct TurnID(pub usize);
+
+impl fmt::Display for TurnID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TurnID({0})", self.0)
+    }
+}
 
 #[derive(Debug)]
 pub struct Turn {

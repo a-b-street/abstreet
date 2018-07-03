@@ -3,6 +3,7 @@
 pub mod classification;
 pub mod color_picker;
 pub mod floodfill;
+pub mod geom_validation;
 pub mod search;
 pub mod selection;
 pub mod sim_controls;
