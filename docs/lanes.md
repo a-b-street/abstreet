@@ -63,6 +63,9 @@ The polyline problem:
 - https://www.researchgate.net/publication/220200701_High-Quality_Cartographic_Roads_on_High-Resolution_DEMs
 
 
+https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
+
+
 - Seemingly: line intersection of shifted lines yields the new joint point, which looks good.
 	- Length increases or increases depending on the original angle and the
 	  side of the road, but of course it does.
@@ -114,16 +117,18 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 
 
 
-	- also a polygon struct? for parcels and buildings
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 	- isolate vec2d
 
+	- also a polygon struct? for parcels and buildings
 	- automated regression test / quality control
 		- find all overlapping polygons, only some are expected
 		- find a way to show the problem easily
 		- geo rust!
 
 	- improve intersection geom?
+		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
+		- just make polygons around center lines, then intersect?
 	- depict stop signs, traffic lights, yields?
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such

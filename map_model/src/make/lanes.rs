@@ -27,12 +27,17 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         return (vec![LaneType::Driving], Vec::new());
     }
 
+    // The lanes tag is of course ambiguous, but seems to usually mean total number of lanes for
+    // both directions of the road.
     let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(num_driving_lanes)
+        .take(num_driving_lanes / 2)
         .collect();
     if only_roads_for_debugging || big_highway {
         if oneway {
-            return (driving_lanes, Vec::new());
+            let mut all_lanes = Vec::new();
+            all_lanes.extend(driving_lanes.clone());
+            all_lanes.extend(driving_lanes);
+            return (all_lanes, Vec::new());
         } else {
             return (driving_lanes.clone(), driving_lanes);
         }
