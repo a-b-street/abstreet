@@ -126,7 +126,8 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
 		- just make polygons around center lines, then intersect?
 	- shift turn icons and stop markings and such away from crosswalk
-	- depict traffic lights
+	- draw stop signs as rounded ellipse (hard without using rotations in GfxCtx)
+	- depict traffic lights (3 colored circles on a black rectangle)
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?
@@ -156,3 +157,9 @@ visually.
 
 - Easy representation: draw red line / stop sign in some driving lanes. Leave the priority lanes alone.
 - Harder: draw a stop sign on the side of the road by some lanes. Won't this look weird top-down and at certain angles?
+
+Traffic signals?
+- per lane would be weird.
+- drawing turn icons as red/yellow/green is pretty clear...
+- could draw an unaligned signal box with 3 circles in the middle of the intersection, but what does it represent? maybe just an initial indicator of what's going on; not full detail.
+- similarly, draw a single stop sign in the middle of other intersections? :P

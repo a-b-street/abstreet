@@ -16,7 +16,7 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawIntersection {
     pub id: map_model::IntersectionID,
-    pub point: Vec2d,
+    pub center: Vec2d,
 
     pub polygon: Vec<Vec2d>,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
@@ -52,7 +52,7 @@ impl DrawIntersection {
 
         DrawIntersection {
             id: inter.id,
-            point: [center.x(), center.y()],
+            center: [center.x(), center.y()],
             polygon: pts,
             crosswalks: calculate_crosswalks(inter, map),
         }

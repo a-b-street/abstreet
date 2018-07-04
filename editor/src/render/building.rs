@@ -58,6 +58,10 @@ impl DrawBuilding {
     }
 
     pub fn get_bbox(&self) -> Rect {
-        geometry::get_bbox_for_polygons(&[self.polygon.clone()])
+        let mut polygons = vec![self.polygon.clone()];
+        if let Some(line) = self.front_path {
+            polygons.push(vec![[line[0], line[1]], [line[2], line[3]]]);
+        }
+        geometry::get_bbox_for_polygons(&polygons)
     }
 }
