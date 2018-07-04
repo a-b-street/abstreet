@@ -30,7 +30,7 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(road: &map_model::Road) -> DrawRoad {
+    pub fn new(road: &map_model::Road, map: &map_model::Map) -> DrawRoad {
         let start = perp_line(road.first_line(), geometry::LANE_THICKNESS);
         let end = perp_line(road.last_line().reverse(), geometry::LANE_THICKNESS);
 
@@ -56,6 +56,12 @@ impl DrawRoad {
             map_model::LaneType::Driving => calculate_driving_lines(road),
         } {
             markings.push(m);
+        }
+        // TODO not all sides of the road have to stop
+        if road.lane_type == map_model::LaneType::Driving
+            && !map.get_i(road.dst_i).has_traffic_signal
+        {
+            markings.push(calculate_stop_sign_line(road));
         }
 
         DrawRoad {
@@ -266,4 +272,16 @@ fn calculate_driving_lines(road: &map_model::Road) -> Option<Marking> {
         thickness: 0.25,
         round: false,
     })
+}
+
+fn calculate_stop_sign_line(road: &map_model::Road) -> Marking {
+    let (pt1, angle) = road.dist_along(road.length() - (2.0 * geometry::LANE_THICKNESS * si::M));
+    // Reuse perp_line. Project away an arbitrary amount
+    let pt2 = pt1.project_away(1.0, angle);
+    Marking {
+        lines: vec![perp_line(Line::new(pt1, pt2), geometry::LANE_THICKNESS)],
+        color: Colors::StopSignMarking,
+        thickness: 0.25,
+        round: true,
+    }
 }

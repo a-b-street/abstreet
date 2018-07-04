@@ -126,7 +126,7 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
 		- just make polygons around center lines, then intersect?
 	- shift turn icons and stop markings and such away from crosswalk
-	- depict stop signs, traffic lights, yields?
+	- depict traffic lights
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?

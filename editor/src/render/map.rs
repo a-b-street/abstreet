@@ -31,7 +31,7 @@ impl DrawMap {
     pub fn new(map: &Map) -> (DrawMap, Pt2D) {
         let mut roads: Vec<DrawRoad> = Vec::new();
         for r in map.all_roads() {
-            roads.push(DrawRoad::new(r));
+            roads.push(DrawRoad::new(r, map));
         }
 
         let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();
