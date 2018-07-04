@@ -115,8 +115,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 
 
-	- remove different colors for changed intersections
-	- tune traffic light colors
 	- draw stop signs as rounded ellipse (hard without using rotations in GfxCtx)
 
 

@@ -22,10 +22,10 @@ pub enum Colors {
     SidewalkMarking,
     Crosswalk,
     StopSignMarking,
-    ChangedStopSignIntersection,
-    ChangedTrafficSignalIntersection,
-    TrafficSignalIntersection,
-    NormalIntersection,
+
+    UnchangedIntersection,
+    ChangedIntersection,
+
     Selected,
     Turn,
     ConflictingTurn,

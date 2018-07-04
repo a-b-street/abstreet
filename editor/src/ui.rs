@@ -253,21 +253,17 @@ impl UI {
 
     fn color_intersection(&self, id: map_model::IntersectionID) -> Color {
         let i = self.map.get_i(id);
-        // TODO weird to squeeze in some quick logic here?
-        let default_color = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
-            if s.changed() {
-                self.cs.get(Colors::ChangedTrafficSignalIntersection)
-            } else {
-                self.cs.get(Colors::TrafficSignalIntersection)
-            }
+        let changed = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
+            s.changed()
         } else if let Some(s) = self.control_map.stop_signs.get(&i.id) {
-            if s.changed() {
-                self.cs.get(Colors::ChangedStopSignIntersection)
-            } else {
-                self.cs.get(Colors::NormalIntersection)
-            }
+            s.changed()
         } else {
-            self.cs.get(Colors::NormalIntersection)
+            false
+        };
+        let default_color = if changed {
+            self.cs.get(Colors::ChangedIntersection)
+        } else {
+            self.cs.get(Colors::UnchangedIntersection)
         };
 
         self.current_selection_state

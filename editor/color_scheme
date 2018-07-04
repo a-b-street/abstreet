@@ -72,28 +72,16 @@
       0.0,
       1.0
     ],
-    "ChangedStopSignIntersection": [
-      0.0,
-      1.0,
-      0.0,
+    "UnchangedIntersection": [
+      0.6,
+      0.6,
+      0.6,
       1.0
     ],
-    "ChangedTrafficSignalIntersection": [
-      1.0,
-      0.65,
-      0.0,
-      1.0
-    ],
-    "TrafficSignalIntersection": [
-      1.0,
-      1.0,
-      0.0,
-      1.0
-    ],
-    "NormalIntersection": [
-      0.3,
-      0.3,
-      0.3,
+    "ChangedIntersection": [
+      0.8,
+      0.6,
+      0.6,
       1.0
     ],
     "Selected": [
@@ -247,9 +235,9 @@
       1.0
     ],
     "TrafficSignalBox": [
-      0.8439573,
-      0.49223435,
-      0.26289922,
+      0.0,
+      0.0,
+      0.0,
       1.0
     ],
     "TrafficSignalGreen": [
