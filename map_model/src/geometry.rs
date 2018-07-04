@@ -89,3 +89,14 @@ pub fn circle_to_bbox(c: &[f64; 4]) -> Rect {
         },
     }
 }
+
+pub fn center(pts: &Vec<Pt2D>) -> Pt2D {
+    let mut x = 0.0;
+    let mut y = 0.0;
+    for pt in pts {
+        x += pt.x();
+        y += pt.y();
+    }
+    let len = pts.len() as f64;
+    Pt2D::new(x / len, y / len)
+}

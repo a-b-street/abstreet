@@ -245,6 +245,30 @@
       0.0,
       0.0,
       1.0
+    ],
+    "TrafficSignalBox": [
+      0.8439573,
+      0.49223435,
+      0.26289922,
+      1.0
+    ],
+    "TrafficSignalGreen": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "TrafficSignalYellow": [
+      1.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "TrafficSignalRed": [
+      1.0,
+      0.0,
+      0.0,
+      1.0
     ]
   }
 }

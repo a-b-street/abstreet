@@ -20,6 +20,7 @@ pub struct DrawIntersection {
 
     pub polygon: Vec<Vec2d>,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
+    traffic_signal_center: Option<Pt2D>,
 }
 
 impl DrawIntersection {
@@ -49,12 +50,20 @@ impl DrawIntersection {
         });
         let first_pt = pts[0].clone();
         pts.push(first_pt);
+        let traffic_signal_center = if inter.has_traffic_signal {
+            Some(geometry::center(&pts.iter()
+                .map(|pt| Pt2D::new(pt[0], pt[1]))
+                .collect()))
+        } else {
+            None
+        };
 
         DrawIntersection {
             id: inter.id,
             center: [center.x(), center.y()],
             polygon: pts,
             crosswalks: calculate_crosswalks(inter, map),
+            traffic_signal_center,
         }
     }
 
@@ -77,6 +86,10 @@ impl DrawIntersection {
                 );
             }
         }
+
+        if let Some(center) = self.traffic_signal_center {
+            self.draw_traffic_signal(center, g, cs);
+        }
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
@@ -85,6 +98,47 @@ impl DrawIntersection {
 
     pub fn get_bbox(&self) -> Rect {
         geometry::get_bbox_for_polygons(&[self.polygon.clone()])
+    }
+
+    fn draw_traffic_signal(&self, center: Pt2D, g: &mut GfxCtx, cs: &ColorScheme) {
+        let radius = 0.5;
+
+        let bg = graphics::Rectangle::new(cs.get(Colors::TrafficSignalBox));
+        bg.draw(
+            [
+                center.x() - (2.0 * radius),
+                center.y() - (4.0 * radius),
+                4.0 * radius,
+                8.0 * radius,
+            ],
+            &g.ctx.draw_state,
+            g.ctx.transform,
+            g.gfx,
+        );
+
+        let yellow = graphics::Ellipse::new(cs.get(Colors::TrafficSignalYellow));
+        yellow.draw(
+            geometry::circle(center.x(), center.y(), radius),
+            &g.ctx.draw_state,
+            g.ctx.transform,
+            g.gfx,
+        );
+
+        let green = graphics::Ellipse::new(cs.get(Colors::TrafficSignalGreen));
+        green.draw(
+            geometry::circle(center.x(), center.y() + (radius * 2.0), radius),
+            &g.ctx.draw_state,
+            g.ctx.transform,
+            g.gfx,
+        );
+
+        let red = graphics::Ellipse::new(cs.get(Colors::TrafficSignalRed));
+        red.draw(
+            geometry::circle(center.x(), center.y() - (radius * 2.0), radius),
+            &g.ctx.draw_state,
+            g.ctx.transform,
+            g.gfx,
+        );
     }
 }
 

@@ -115,6 +115,9 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 
 
+	- remove different colors for changed intersections
+	- tune traffic light colors
+	- draw stop signs as rounded ellipse (hard without using rotations in GfxCtx)
 
 
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
@@ -126,8 +129,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
 		- just make polygons around center lines, then intersect?
 	- shift turn icons and stop markings and such away from crosswalk
-	- draw stop signs as rounded ellipse (hard without using rotations in GfxCtx)
-	- depict traffic lights (3 colored circles on a black rectangle)
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?

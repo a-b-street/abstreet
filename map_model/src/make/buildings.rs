@@ -1,5 +1,6 @@
 use geo;
 use geom::{Bounds, Line, Pt2D};
+use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::HashMap;
@@ -36,7 +37,7 @@ fn find_front_path(
 
     if let Some(street_name) = bldg_osm_tags.get("addr:street") {
         // TODO start from the side of the building, not the center
-        let bldg_center = center(bldg_points);
+        let bldg_center = geometry::center(bldg_points);
         let center_pt = geo::Point::new(bldg_center.x(), bldg_center.y());
 
         // Find all matching sidewalks with that street name, then find the closest point on
@@ -67,17 +68,6 @@ fn find_front_path(
         }
     }
     None
-}
-
-fn center(pts: &Vec<Pt2D>) -> Pt2D {
-    let mut x = 0.0;
-    let mut y = 0.0;
-    for pt in pts {
-        x += pt.x();
-        y += pt.y();
-    }
-    let len = pts.len() as f64;
-    Pt2D::new(x / len, y / len)
 }
 
 fn road_to_line_string(r: &Road) -> geo::LineString<f64> {
