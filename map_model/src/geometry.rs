@@ -100,3 +100,17 @@ pub fn center(pts: &Vec<Pt2D>) -> Pt2D {
     let len = pts.len() as f64;
     Pt2D::new(x / len, y / len)
 }
+
+pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Vec<Pt2D> {
+    let mut pts = Vec::new();
+    for i in 0..sides {
+        let theta = (i as f64) * 2.0 * f64::consts::PI / (sides as f64);
+        pts.push(Pt2D::new(
+            length * theta.cos() + center.x(),
+            length * theta.sin() + center.y(),
+        ));
+    }
+    let first_pt = pts[0];
+    pts.push(first_pt);
+    pts
+}

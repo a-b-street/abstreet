@@ -115,9 +115,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 
 
-	- draw stop signs as rounded ellipse (hard without using rotations in GfxCtx)
-
-
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 
 	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?

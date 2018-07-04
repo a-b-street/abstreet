@@ -60,6 +60,8 @@ pub enum Colors {
     TrafficSignalGreen,
     TrafficSignalYellow,
     TrafficSignalRed,
+
+    StopSignBackground,
 }
 
 #[derive(Serialize, Deserialize)]

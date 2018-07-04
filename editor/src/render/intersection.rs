@@ -16,11 +16,10 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawIntersection {
     pub id: map_model::IntersectionID,
-    pub center: Vec2d,
-
     pub polygon: Vec<Vec2d>,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
-    traffic_signal_center: Option<Pt2D>,
+    center: Pt2D,
+    has_traffic_signal: bool,
 }
 
 impl DrawIntersection {
@@ -41,7 +40,7 @@ impl DrawIntersection {
             pts.push(pt2);
         }
 
-        let center = inter.point;
+        let center = geometry::center(&pts.iter().map(|pt| Pt2D::new(pt[0], pt[1])).collect());
         // Sort points by angle from the center
         pts.sort_by_key(|pt| {
             center
@@ -50,20 +49,13 @@ impl DrawIntersection {
         });
         let first_pt = pts[0].clone();
         pts.push(first_pt);
-        let traffic_signal_center = if inter.has_traffic_signal {
-            Some(geometry::center(&pts.iter()
-                .map(|pt| Pt2D::new(pt[0], pt[1]))
-                .collect()))
-        } else {
-            None
-        };
 
         DrawIntersection {
+            center,
             id: inter.id,
-            center: [center.x(), center.y()],
             polygon: pts,
             crosswalks: calculate_crosswalks(inter, map),
-            traffic_signal_center,
+            has_traffic_signal: inter.has_traffic_signal,
         }
     }
 
@@ -87,8 +79,10 @@ impl DrawIntersection {
             }
         }
 
-        if let Some(center) = self.traffic_signal_center {
-            self.draw_traffic_signal(center, g, cs);
+        if self.has_traffic_signal {
+            self.draw_traffic_signal(g, cs);
+        } else {
+            self.draw_stop_sign(g, cs);
         }
     }
 
@@ -100,14 +94,25 @@ impl DrawIntersection {
         geometry::get_bbox_for_polygons(&[self.polygon.clone()])
     }
 
-    fn draw_traffic_signal(&self, center: Pt2D, g: &mut GfxCtx, cs: &ColorScheme) {
+    fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+        let sign = graphics::Polygon::new(cs.get(Colors::StopSignBackground));
+        // TODO rotate it
+        let poly: Vec<Vec2d> = geometry::regular_polygon(self.center, 8, 1.5)
+            .iter()
+            .map(|pt| pt.to_vec())
+            .collect();
+        sign.draw(&poly, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        // TODO draw "STOP"
+    }
+
+    fn draw_traffic_signal(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         let radius = 0.5;
 
         let bg = graphics::Rectangle::new(cs.get(Colors::TrafficSignalBox));
         bg.draw(
             [
-                center.x() - (2.0 * radius),
-                center.y() - (4.0 * radius),
+                self.center.x() - (2.0 * radius),
+                self.center.y() - (4.0 * radius),
                 4.0 * radius,
                 8.0 * radius,
             ],
@@ -118,7 +123,7 @@ impl DrawIntersection {
 
         let yellow = graphics::Ellipse::new(cs.get(Colors::TrafficSignalYellow));
         yellow.draw(
-            geometry::circle(center.x(), center.y(), radius),
+            geometry::circle(self.center.x(), self.center.y(), radius),
             &g.ctx.draw_state,
             g.ctx.transform,
             g.gfx,
@@ -126,7 +131,7 @@ impl DrawIntersection {
 
         let green = graphics::Ellipse::new(cs.get(Colors::TrafficSignalGreen));
         green.draw(
-            geometry::circle(center.x(), center.y() + (radius * 2.0), radius),
+            geometry::circle(self.center.x(), self.center.y() + (radius * 2.0), radius),
             &g.ctx.draw_state,
             g.ctx.transform,
             g.gfx,
@@ -134,7 +139,7 @@ impl DrawIntersection {
 
         let red = graphics::Ellipse::new(cs.get(Colors::TrafficSignalRed));
         red.draw(
-            geometry::circle(center.x(), center.y() - (radius * 2.0), radius),
+            geometry::circle(self.center.x(), self.center.y() - (radius * 2.0), radius),
             &g.ctx.draw_state,
             g.ctx.transform,
             g.gfx,
