@@ -7,7 +7,7 @@ OSM, elevation data, King Country GIS data, etc, and also manual edits.
 
 - Polygons shouldn't overlap
 - Can export to various formats and announce for anyone's use (though waiting for the editor might be wiser)
-- Have fun with themed rendering: halloween, winter, jungle, 8bit, organic (deform buildings)
+- Have fun with themed rendering: halloween, winter, jungle, 8bit, organic (deform buildings), floorplan
 
 ## Phase 2: Editor
 

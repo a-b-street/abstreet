@@ -97,8 +97,21 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 
 - follow aorta's multi phase map construction better.
 	- polish intersection geometry
+		- figure out how to iterate quickly in experimental.
+		- aha, big bug! we only try to trim first/last lines. do the whole polyline.
+			- can think of an easy fixpoint approach to try first, even though it's inefficient.
+			- wait, the fixpoint is also incorrect. :(
+
+
+
+		- before trimming back lines, project out the correct width. sort all those points by angle from the center. thats the intersection polygon? then somehow trim back lines to hit that nicely.
+		- do the current trim_lines thing, but with lines, not segments? no, there'd be many almost-parallel lines.
+
 		- at a T intersection, some lines aren't trimmed back at all
 		- the lane polygons overlap, even though the lines dont
+		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf pg38
+		- just make polygons around center lines, then intersect?
+	- shift turn icons and stop markings and such away from crosswalk
 
 	- rename Road to Lane
 
@@ -120,10 +133,6 @@ wait slow down even more -- before any of this change, lanes on adjacent roads s
 	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?
 	- isolate vec2d
 
-	- improve intersection geom?
-		- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf
-		- just make polygons around center lines, then intersect?
-	- shift turn icons and stop markings and such away from crosswalk
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?

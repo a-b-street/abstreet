@@ -9,6 +9,7 @@ abstutil = { path = "../abstutil" }
 control = { path = "../control" }
 dimensioned = "0.6.0"
 ezgui = { path = "../ezgui" }
+generator = "0.6"
 geo = "0.9.1"
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
