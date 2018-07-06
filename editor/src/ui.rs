@@ -367,12 +367,8 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
-        {
-            let (new_search, active) = self.current_search_state.event(input);
-            self.current_search_state = new_search;
-            if active {
-                return (self, gui::EventLoopMode::InputOnly);
-            }
+        if self.current_search_state.event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         {
