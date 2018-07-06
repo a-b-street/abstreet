@@ -9,8 +9,9 @@ use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
 use piston::input::Key;
 use render;
 
+// TODO just have one of these
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
-enum ID {
+pub enum ID {
     Road(RoadID),
     Intersection(IntersectionID),
     Building(BuildingID),
@@ -19,13 +20,20 @@ enum ID {
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
-pub struct Validator {
-    gen: generator::Generator<'static, (), (ID, ID)>,
-    current_problem: Option<(ID, ID)>,
+pub enum Validator {
+    Inactive,
+    Active {
+        gen: generator::Generator<'static, (), (ID, ID)>,
+        current_problem: Option<(ID, ID)>,
+    },
 }
 
 impl Validator {
-    pub fn new(draw_map: &render::DrawMap) -> Validator {
+    pub fn new() -> Validator {
+        Validator::Inactive
+    }
+
+    pub fn start(draw_map: &render::DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
         for r in &draw_map.roads {
             objects.push((
@@ -79,38 +87,47 @@ impl Validator {
             done!();
         });
 
-        Validator {
+        Validator::Active {
             gen,
             current_problem: None,
         }
     }
 
     pub fn event(&mut self, input: &mut UserInput, canvas: &mut Canvas, map: &Map) -> bool {
-        // Initialize or advance?
-        if !self.current_problem.is_some()
-            || input.key_pressed(Key::N, "Press N to see the next problem")
-        {
-            self.current_problem = self.gen.next();
+        match self {
+            Validator::Inactive => false,
+            Validator::Active {
+                gen,
+                current_problem,
+            } => {
+                // Initialize or advance?
+                if !current_problem.is_some()
+                    || input.key_pressed(Key::N, "Press N to see the next problem")
+                {
+                    // TODO do this in a bg thread or something
+                    *current_problem = gen.next();
 
-            if let Some((id1, id2)) = self.current_problem {
-                println!("{:?} and {:?} intersect", id1, id2);
-                let pt = get_pt(map, id1);
-                canvas.center_on_map_pt(pt.x(), pt.y());
-                // TODO also modify selection state to highlight stuff?
-                return false;
-            } else {
-                println!("No more problems!");
-                return true;
+                    if let Some((id1, id2)) = current_problem {
+                        println!("{:?} and {:?} intersect", id1, id2);
+                        let pt = get_pt(map, *id1);
+                        canvas.center_on_map_pt(pt.x(), pt.y());
+                    // TODO also modify selection state to highlight stuff?
+                    } else {
+                        println!("No more problems!");
+                        *self = Validator::Inactive;
+                    }
+                    return true;
+                }
+
+                if input.key_pressed(Key::Escape, "Press Escape to stop looking at problems") {
+                    println!("Quit geometry validator");
+                    *self = Validator::Inactive;
+                }
+
+                // Later, keys for resolving problems
+                true
             }
         }
-
-        if input.key_pressed(Key::Escape, "Press Escape to stop looking at problems") {
-            println!("Quit geometry validator");
-            return true;
-        }
-
-        // Later, keys for resolving problems
-        false
     }
 }
 

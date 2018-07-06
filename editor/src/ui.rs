@@ -66,7 +66,7 @@ pub struct UI {
     stop_sign_editor: StopSignEditor,
     sim_ctrl: SimController,
     color_picker: ColorPicker,
-    geom_validator: Option<Validator>,
+    geom_validator: Validator,
 
     canvas: Canvas,
     // TODO maybe never pass this to other places? Always resolve colors here?
@@ -118,7 +118,7 @@ impl UI {
             traffic_signal_editor: TrafficSignalEditor::new(),
             stop_sign_editor: StopSignEditor::new(),
             color_picker: ColorPicker::new(),
-            geom_validator: None,
+            geom_validator: Validator::new(),
 
             canvas: Canvas::new(window_size),
             cs: ColorScheme::load("color_scheme").unwrap(),
@@ -444,16 +444,13 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
-        if let Some(mut v) = self.geom_validator {
-            if v.event(input, &mut self.canvas, &self.map) {
-                self.geom_validator = None;
-            } else {
-                self.geom_validator = Some(v);
-            }
+        if self.geom_validator
+            .event(input, &mut self.canvas, &self.map)
+        {
             return (self, gui::EventLoopMode::InputOnly);
         }
         if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
-            self.geom_validator = Some(Validator::new(&self.draw_map));
+            self.geom_validator = Validator::start(&self.draw_map);
             return (self, gui::EventLoopMode::InputOnly);
         }
 
