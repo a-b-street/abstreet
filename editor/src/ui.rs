@@ -361,14 +361,10 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
+        if self.color_picker
+            .handle_event(input, &mut self.canvas, &mut self.cs)
         {
-            let (new_color_picker, active) =
-                self.color_picker
-                    .handle_event(input, &mut self.canvas, &mut self.cs);
-            self.color_picker = new_color_picker;
-            if active {
-                return (self, gui::EventLoopMode::InputOnly);
-            }
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         {

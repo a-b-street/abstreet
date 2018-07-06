@@ -29,35 +29,35 @@ impl ColorPicker {
         ColorPicker::Inactive
     }
 
-    // True if plugin was active
     pub fn handle_event(
-        self,
+        &mut self,
         input: &mut UserInput,
         canvas: &Canvas,
         cs: &mut ColorScheme,
-    ) -> (ColorPicker, bool) {
+    ) -> bool {
         match self {
             ColorPicker::Inactive => {
                 if input.unimportant_key_pressed(Key::D8, "Press 8 to configure colors") {
-                    return (
-                        ColorPicker::Choosing(menu::Menu::new(
-                            Colors::iter().map(|c| c.to_string()).collect(),
-                        )),
-                        true,
-                    );
+                    *self = ColorPicker::Choosing(menu::Menu::new(
+                        Colors::iter().map(|c| c.to_string()).collect(),
+                    ));
+                    return true;
                 }
-                (ColorPicker::Inactive, false)
+                false
             }
-            ColorPicker::Choosing(mut menu) => {
+            ColorPicker::Choosing(ref mut menu) => {
                 // TODO arrow keys scroll canvas too
                 match menu.event(input.use_event_directly()) {
-                    menu::Result::Canceled => (ColorPicker::Inactive, true),
-                    menu::Result::StillActive => (ColorPicker::Choosing(menu), true),
+                    menu::Result::Canceled => {
+                        *self = ColorPicker::Inactive;
+                    }
+                    menu::Result::StillActive => {}
                     menu::Result::Done(choice) => {
                         let c = Colors::from_str(&choice).unwrap();
-                        (ColorPicker::PickingColor(c, cs.get(c)), true)
+                        *self = ColorPicker::PickingColor(c, cs.get(c));
                     }
-                }
+                };
+                true
             }
             ColorPicker::PickingColor(c, orig_color) => {
                 if input.key_pressed(
@@ -67,8 +67,9 @@ impl ColorPicker {
                         c
                     ),
                 ) {
-                    cs.set(c, orig_color);
-                    return (ColorPicker::Inactive, true);
+                    cs.set(*c, *orig_color);
+                    *self = ColorPicker::Inactive;
+                    return true;
                 }
 
                 if input.key_pressed(
@@ -76,7 +77,8 @@ impl ColorPicker {
                     &format!("Press enter to finalize new color for {:?}", c),
                 ) {
                     println!("Setting color for {:?}", c);
-                    return (ColorPicker::Inactive, true);
+                    *self = ColorPicker::Inactive;
+                    return true;
                 }
 
                 if let Some(pos) = input.use_event_directly().mouse_cursor_args() {
@@ -85,12 +87,11 @@ impl ColorPicker {
                     let x = (pos[0] - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
                     let y = (pos[1] - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        cs.set(c, get_color(x as f32, y as f32));
-                        return (ColorPicker::PickingColor(c, orig_color), true);
+                        cs.set(*c, get_color(x as f32, y as f32));
                     }
                 }
 
-                (ColorPicker::PickingColor(c, orig_color), true)
+                true
             }
         }
     }
