@@ -493,12 +493,8 @@ impl gui::GUI for UI {
         }
 
         // Do this one lastish, since it conflicts with lots of other stuff
-        {
-            let (new_selection, active) = self.current_selection_state.event(input, &self.map);
-            self.current_selection_state = new_selection;
-            if active {
-                return (self, gui::EventLoopMode::InputOnly);
-            }
+        if self.current_selection_state.event(input, &self.map) {
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {

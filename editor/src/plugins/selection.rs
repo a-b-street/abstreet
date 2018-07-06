@@ -56,41 +56,42 @@ impl SelectionState {
         }
     }
 
-    // TODO consume self
-    pub fn event(&self, input: &mut UserInput, map: &Map) -> (SelectionState, bool) {
-        // TODO simplify the way this is written
-        match *self {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
+        match self {
             SelectionState::SelectedRoad(id, current_turn_index) => {
                 if input.key_pressed(
                     Key::LCtrl,
                     &format!("Hold Ctrl to show road {:?}'s tooltip", id),
                 ) {
-                    (SelectionState::TooltipRoad(id), true)
+                    *self = SelectionState::TooltipRoad(*id);
+                    true
                 } else if input
                     .key_pressed(Key::Tab, "Press Tab to cycle through this road's turns")
                 {
-                    let idx = match current_turn_index {
+                    let idx = match *current_turn_index {
                         Some(i) => i + 1,
                         None => 0,
                     };
-                    (SelectionState::SelectedRoad(id, Some(idx)), true)
+                    *self = SelectionState::SelectedRoad(*id, Some(idx));
+                    true
                 } else if input.key_pressed(Key::D, "press D to debug") {
-                    map.get_r(id).dump_debug();
-                    (SelectionState::SelectedRoad(id, current_turn_index), true)
+                    map.get_r(*id).dump_debug();
+                    true
                 } else {
-                    (self.clone(), false)
+                    false
                 }
             }
             SelectionState::TooltipRoad(id) => {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    (SelectionState::SelectedRoad(id, None), true)
+                    *self = SelectionState::SelectedRoad(*id, None);
+                    true
                 } else {
-                    (self.clone(), false)
+                    false
                 }
             }
-            _ => (self.clone(), false),
+            _ => false,
         }
     }
 
