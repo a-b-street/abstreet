@@ -343,108 +343,100 @@ impl gui::GUI for UI {
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
 
-        if self.traffic_signal_editor.event(
-            input,
-            &self.map,
-            &mut self.control_map,
-            &self.current_selection_state,
-        ) {
-            return gui::EventLoopMode::InputOnly;
-        }
+        // Let each plugin run, short-circuiting if the plugin claimed it was active.
+        let plugins: Vec<Box<Fn(&mut UI, &mut UserInput) -> bool>> = vec![
+            Box::new(|ui, input| {
+                ui.traffic_signal_editor.event(
+                    input,
+                    &ui.map,
+                    &mut ui.control_map,
+                    &ui.current_selection_state,
+                )
+            }),
+            Box::new(|ui, input| {
+                ui.stop_sign_editor.event(
+                    input,
+                    &ui.map,
+                    &mut ui.control_map,
+                    &ui.current_selection_state,
+                )
+            }),
+            Box::new(|ui, input| {
+                ui.color_picker
+                    .handle_event(input, &mut ui.canvas, &mut ui.cs)
+            }),
+            Box::new(|ui, input| ui.current_search_state.event(input)),
+            Box::new(|ui, input| {
+                ui.warp.event(
+                    input,
+                    &ui.map,
+                    &mut ui.canvas,
+                    &mut ui.current_selection_state,
+                )
+            }),
+            Box::new(|ui, input| {
+                if ui.show_roads.handle_event(input) {
+                    if let SelectionState::SelectedRoad(_, _) = ui.current_selection_state {
+                        ui.current_selection_state = SelectionState::Empty;
+                    }
+                    if let SelectionState::TooltipRoad(_) = ui.current_selection_state {
+                        ui.current_selection_state = SelectionState::Empty;
+                    }
+                    true
+                } else {
+                    false
+                }
+            }),
+            Box::new(|ui, input| {
+                if ui.show_buildings.handle_event(input) {
+                    if let SelectionState::SelectedBuilding(_) = ui.current_selection_state {
+                        ui.current_selection_state = SelectionState::Empty;
+                    }
+                    true
+                } else {
+                    false
+                }
+            }),
+            Box::new(|ui, input| {
+                if ui.show_intersections.handle_event(input) {
+                    if let SelectionState::SelectedIntersection(_) = ui.current_selection_state {
+                        ui.current_selection_state = SelectionState::Empty;
+                    }
+                    true
+                } else {
+                    false
+                }
+            }),
+            Box::new(|ui, input| ui.show_parcels.handle_event(input)),
+            Box::new(|ui, input| ui.show_icons.handle_event(input)),
+            Box::new(|ui, input| ui.debug_mode.handle_event(input)),
+            Box::new(|ui, input| ui.steepness_viz.handle_event(input)),
+            Box::new(|ui, input| ui.osm_classifier.handle_event(input)),
+            Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
+            Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
+            Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
+            Box::new(|ui, input| {
+                if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
+                    ui.geom_validator = Validator::start(&ui.draw_map);
+                    true
+                } else {
+                    false
+                }
+            }),
+            Box::new(|ui, input| {
+                if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
+                    ui.sim_ctrl.sim.spawn_many_on_empty_roads(&ui.map, 1000);
+                    true
+                } else {
+                    false
+                }
+            }),
+        ];
 
-        if self.stop_sign_editor.event(
-            input,
-            &self.map,
-            &mut self.control_map,
-            &self.current_selection_state,
-        ) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.color_picker
-            .handle_event(input, &mut self.canvas, &mut self.cs)
-        {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.current_search_state.event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.warp.event(
-            input,
-            &self.map,
-            &mut self.canvas,
-            &mut self.current_selection_state,
-        ) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.show_roads.handle_event(input) {
-            if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+        for cb in &plugins {
+            if cb(self, input) {
+                return gui::EventLoopMode::InputOnly;
             }
-            if let SelectionState::TooltipRoad(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
-            }
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.show_buildings.handle_event(input) {
-            if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
-            }
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.show_intersections.handle_event(input) {
-            if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
-            }
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.show_parcels.handle_event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.show_icons.handle_event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.debug_mode.handle_event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.steepness_viz.handle_event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.osm_classifier.handle_event(input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.hider.event(input, &mut self.current_selection_state) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.floodfiller.event(&self.map, input) {
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if self.geom_validator
-            .event(input, &mut self.canvas, &self.map)
-        {
-            return gui::EventLoopMode::InputOnly;
-        }
-        if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
-            self.geom_validator = Validator::start(&self.draw_map);
-            return gui::EventLoopMode::InputOnly;
-        }
-
-        if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
-            self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
-            return gui::EventLoopMode::InputOnly;
         }
 
         match self.current_selection_state {
