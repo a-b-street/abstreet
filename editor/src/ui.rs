@@ -62,7 +62,7 @@ pub struct UI {
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
     turn_colors: TurnColors,
-    traffic_signal_editor: Option<TrafficSignalEditor>,
+    traffic_signal_editor: TrafficSignalEditor,
     stop_sign_editor: Option<StopSignEditor>,
     sim_ctrl: SimController,
     color_picker: ColorPicker,
@@ -115,7 +115,7 @@ impl UI {
             warp: WarpState::Empty,
             floodfiller: Floodfiller::new(),
             osm_classifier: OsmClassifier::new(),
-            traffic_signal_editor: None,
+            traffic_signal_editor: TrafficSignalEditor::new(),
             stop_sign_editor: None,
             color_picker: ColorPicker::new(),
             geom_validator: None,
@@ -282,8 +282,7 @@ impl UI {
                     .and_then(|e| e.color_t(t, &self.control_map, &self.cs))
                     .unwrap_or_else(|| {
                         self.traffic_signal_editor
-                            .as_ref()
-                            .and_then(|e| e.color_t(t, &self.map, &self.control_map, &self.cs))
+                            .color_t(t, &self.map, &self.control_map, &self.cs)
                             .unwrap_or_else(|| {
                                 self.turn_colors
                                     .color_t(t)
@@ -345,17 +344,12 @@ impl gui::GUI for UI {
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
 
-        if let Some(mut e) = self.traffic_signal_editor {
-            if e.event(
-                input,
-                &self.map,
-                &mut self.control_map,
-                &self.current_selection_state,
-            ) {
-                self.traffic_signal_editor = None;
-            } else {
-                self.traffic_signal_editor = Some(e);
-            }
+        if self.traffic_signal_editor.event(
+            input,
+            &self.map,
+            &mut self.control_map,
+            &self.current_selection_state,
+        ) {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
@@ -504,7 +498,7 @@ impl gui::GUI for UI {
                         Key::E,
                         &format!("Press E to edit traffic signal for {:?}", id),
                     ) {
-                        self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
+                        self.traffic_signal_editor = TrafficSignalEditor::start(id);
                         return (self, gui::EventLoopMode::InputOnly);
                     }
                 }

@@ -11,14 +11,21 @@ use map_model::{IntersectionID, Turn};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 
-pub struct TrafficSignalEditor {
-    i: IntersectionID,
-    current_cycle: usize,
+pub enum TrafficSignalEditor {
+    Inactive,
+    Active {
+        i: IntersectionID,
+        current_cycle: usize,
+    },
 }
 
 impl TrafficSignalEditor {
-    pub fn new(i: IntersectionID) -> TrafficSignalEditor {
-        TrafficSignalEditor {
+    pub fn new() -> TrafficSignalEditor {
+        TrafficSignalEditor::Inactive
+    }
+
+    pub fn start(i: IntersectionID) -> TrafficSignalEditor {
+        TrafficSignalEditor::Active {
             i,
             current_cycle: 0,
         }
@@ -31,47 +38,56 @@ impl TrafficSignalEditor {
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
-        if input.key_pressed(Key::Return, "Press enter to quit the editor") {
-            return true;
-        }
+        match self {
+            TrafficSignalEditor::Inactive => false,
+            TrafficSignalEditor::Active { i, current_cycle } => {
+                if input.key_pressed(Key::Return, "Press enter to quit the editor") {
+                    *self = TrafficSignalEditor::Inactive;
+                    return true;
+                }
 
-        // Change cycles
-        {
-            let cycles = &control_map.traffic_signals[&self.i].cycles;
-            if let Some(n) = input.number_chosen(
-                cycles.len(),
-                &format!(
-                    "Showing cycle {} of {}. Switch by pressing 1 - {}.",
-                    self.current_cycle + 1,
-                    cycles.len(),
-                    cycles.len()
-                ),
-            ) {
-                self.current_cycle = n - 1;
-            }
-        }
-
-        // Change turns
-        if let SelectionState::SelectedTurn(id) = *current_selection {
-            if map.get_t(id).parent == self.i {
-                let cycle = &mut control_map.traffic_signals.get_mut(&self.i).unwrap().cycles
-                    [self.current_cycle];
-                if cycle.contains(id) {
-                    if input.key_pressed(
-                        Key::Backspace,
-                        "Press Backspace to remove this turn from this cycle",
+                // Change cycles
+                {
+                    let cycles = &control_map.traffic_signals[&i].cycles;
+                    if let Some(n) = input.number_chosen(
+                        cycles.len(),
+                        &format!(
+                            "Showing cycle {} of {}. Switch by pressing 1 - {}.",
+                            *current_cycle + 1,
+                            cycles.len(),
+                            cycles.len()
+                        ),
                     ) {
-                        cycle.remove(id);
-                    }
-                } else if !cycle.conflicts_with(id, map) {
-                    if input.key_pressed(Key::Space, "Press Space to add this turn to this cycle") {
-                        cycle.add(id);
+                        *current_cycle = n - 1;
                     }
                 }
+
+                // Change turns
+                if let SelectionState::SelectedTurn(id) = *current_selection {
+                    if map.get_t(id).parent == *i {
+                        let cycle = &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
+                            [*current_cycle];
+                        if cycle.contains(id) {
+                            if input.key_pressed(
+                                Key::Backspace,
+                                "Press Backspace to remove this turn from this cycle",
+                            ) {
+                                cycle.remove(id);
+                            }
+                        } else if !cycle.conflicts_with(id, map) {
+                            if input.key_pressed(
+                                Key::Space,
+                                "Press Space to add this turn to this cycle",
+                            ) {
+                                cycle.add(id);
+                            }
+                        }
+                    }
+                }
+
+                true
             }
         }
-
-        false
     }
 
     pub fn color_t(
@@ -81,19 +97,24 @@ impl TrafficSignalEditor {
         control_map: &ControlMap,
         cs: &ColorScheme,
     ) -> Option<Color> {
-        if t.parent != self.i {
-            return Some(cs.get(Colors::TurnIrrelevant));
-        }
+        match self {
+            TrafficSignalEditor::Inactive => None,
+            TrafficSignalEditor::Active { i, current_cycle } => {
+                if t.parent != *i {
+                    return Some(cs.get(Colors::TurnIrrelevant));
+                }
 
-        let cycle = &control_map.traffic_signals[&self.i].cycles[self.current_cycle];
+                let cycle = &control_map.traffic_signals[&i].cycles[*current_cycle];
 
-        if cycle.contains(t.id) {
-            Some(cs.get(Colors::SignalEditorTurnInCurrentCycle))
-        } else if !cycle.conflicts_with(t.id, map) {
-            Some(cs.get(Colors::SignalEditorTurnCompatibleWithCurrentCycle))
-        } else {
-            Some(cs.get(Colors::SignalEditorTurnConflictsWithCurrentCycle))
+                if cycle.contains(t.id) {
+                    Some(cs.get(Colors::SignalEditorTurnInCurrentCycle))
+                } else if !cycle.conflicts_with(t.id, map) {
+                    Some(cs.get(Colors::SignalEditorTurnCompatibleWithCurrentCycle))
+                } else {
+                    Some(cs.get(Colors::SignalEditorTurnConflictsWithCurrentCycle))
+                }
+                // TODO maybe something to indicate unused in any cycle so far
+            }
         }
-        // TODO maybe something to indicate unused in any cycle so far
     }
 }
