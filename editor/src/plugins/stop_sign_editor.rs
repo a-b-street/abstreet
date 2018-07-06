@@ -10,13 +10,18 @@ use map_model::{Map, Turn};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 
-pub struct StopSignEditor {
-    i: IntersectionID,
+pub enum StopSignEditor {
+    Inactive,
+    Active(IntersectionID),
 }
 
 impl StopSignEditor {
-    pub fn new(i: IntersectionID) -> StopSignEditor {
-        StopSignEditor { i }
+    pub fn new() -> StopSignEditor {
+        StopSignEditor::Inactive
+    }
+
+    pub fn start(i: IntersectionID) -> StopSignEditor {
+        StopSignEditor::Active(i)
     }
 
     pub fn event(
@@ -26,57 +31,76 @@ impl StopSignEditor {
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
-        if input.key_pressed(Key::Return, "Press enter to quit the editor") {
-            return true;
-        }
+        match self {
+            StopSignEditor::Inactive => false,
+            StopSignEditor::Active(i) => {
+                if input.key_pressed(Key::Return, "Press enter to quit the editor") {
+                    *self = StopSignEditor::Inactive;
+                    return true;
+                }
 
-        if let SelectionState::SelectedTurn(id) = *current_selection {
-            if map.get_t(id).parent == self.i {
-                let sign = &mut control_map.stop_signs.get_mut(&self.i).unwrap();
-                match sign.get_priority(id) {
-                    TurnPriority::Priority => {
-                        if input.key_pressed(Key::D2, "Press 2 to make this turn yield") {
-                            sign.set_priority(id, TurnPriority::Yield, map);
-                        }
-                        if input.key_pressed(Key::D3, "Press 3 to make this turn always stop") {
-                            sign.set_priority(id, TurnPriority::Stop, map);
-                        }
+                if let SelectionState::SelectedTurn(id) = *current_selection {
+                    if map.get_t(id).parent == *i {
+                        let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
+                        match sign.get_priority(id) {
+                            TurnPriority::Priority => {
+                                if input.key_pressed(Key::D2, "Press 2 to make this turn yield") {
+                                    sign.set_priority(id, TurnPriority::Yield, map);
+                                }
+                                if input
+                                    .key_pressed(Key::D3, "Press 3 to make this turn always stop")
+                                {
+                                    sign.set_priority(id, TurnPriority::Stop, map);
+                                }
+                            }
+                            TurnPriority::Yield => {
+                                if sign.could_be_priority_turn(id, map)
+                                    && input.key_pressed(
+                                        Key::D1,
+                                        "Press 1 to let this turn go immediately",
+                                    ) {
+                                    sign.set_priority(id, TurnPriority::Priority, map);
+                                }
+                                if input
+                                    .key_pressed(Key::D3, "Press 3 to make this turn always stop")
+                                {
+                                    sign.set_priority(id, TurnPriority::Stop, map);
+                                }
+                            }
+                            TurnPriority::Stop => {
+                                if sign.could_be_priority_turn(id, map)
+                                    && input.key_pressed(
+                                        Key::D1,
+                                        "Press 1 to let this turn go immediately",
+                                    ) {
+                                    sign.set_priority(id, TurnPriority::Priority, map);
+                                }
+                                if input.key_pressed(Key::D2, "Press 2 to make this turn yield") {
+                                    sign.set_priority(id, TurnPriority::Yield, map);
+                                }
+                            }
+                        };
                     }
-                    TurnPriority::Yield => {
-                        if sign.could_be_priority_turn(id, map)
-                            && input.key_pressed(Key::D1, "Press 1 to let this turn go immediately")
-                        {
-                            sign.set_priority(id, TurnPriority::Priority, map);
-                        }
-                        if input.key_pressed(Key::D3, "Press 3 to make this turn always stop") {
-                            sign.set_priority(id, TurnPriority::Stop, map);
-                        }
-                    }
-                    TurnPriority::Stop => {
-                        if sign.could_be_priority_turn(id, map)
-                            && input.key_pressed(Key::D1, "Press 1 to let this turn go immediately")
-                        {
-                            sign.set_priority(id, TurnPriority::Priority, map);
-                        }
-                        if input.key_pressed(Key::D2, "Press 2 to make this turn yield") {
-                            sign.set_priority(id, TurnPriority::Yield, map);
-                        }
-                    }
-                };
+                }
+
+                true
             }
         }
-
-        false
     }
 
     pub fn color_t(&self, t: &Turn, control_map: &ControlMap, cs: &ColorScheme) -> Option<Color> {
-        if t.parent != self.i {
-            return Some(cs.get(Colors::TurnIrrelevant));
-        }
-        match control_map.stop_signs[&self.i].get_priority(t.id) {
-            TurnPriority::Priority => Some(cs.get(Colors::PriorityTurn)),
-            TurnPriority::Yield => Some(cs.get(Colors::YieldTurn)),
-            TurnPriority::Stop => Some(cs.get(Colors::StopTurn)),
+        match self {
+            StopSignEditor::Inactive => None,
+            StopSignEditor::Active(i) => {
+                if t.parent != *i {
+                    return Some(cs.get(Colors::TurnIrrelevant));
+                }
+                match control_map.stop_signs[i].get_priority(t.id) {
+                    TurnPriority::Priority => Some(cs.get(Colors::PriorityTurn)),
+                    TurnPriority::Yield => Some(cs.get(Colors::YieldTurn)),
+                    TurnPriority::Stop => Some(cs.get(Colors::StopTurn)),
+                }
+            }
         }
     }
 }

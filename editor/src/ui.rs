@@ -63,7 +63,7 @@ pub struct UI {
     osm_classifier: OsmClassifier,
     turn_colors: TurnColors,
     traffic_signal_editor: TrafficSignalEditor,
-    stop_sign_editor: Option<StopSignEditor>,
+    stop_sign_editor: StopSignEditor,
     sim_ctrl: SimController,
     color_picker: ColorPicker,
     geom_validator: Option<Validator>,
@@ -116,7 +116,7 @@ impl UI {
             floodfiller: Floodfiller::new(),
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: TrafficSignalEditor::new(),
-            stop_sign_editor: None,
+            stop_sign_editor: StopSignEditor::new(),
             color_picker: ColorPicker::new(),
             geom_validator: None,
 
@@ -278,8 +278,7 @@ impl UI {
             .color_t(t, &self.cs)
             .unwrap_or_else(|| {
                 self.stop_sign_editor
-                    .as_ref()
-                    .and_then(|e| e.color_t(t, &self.control_map, &self.cs))
+                    .color_t(t, &self.control_map, &self.cs)
                     .unwrap_or_else(|| {
                         self.traffic_signal_editor
                             .color_t(t, &self.map, &self.control_map, &self.cs)
@@ -353,17 +352,12 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
-        if let Some(mut e) = self.stop_sign_editor {
-            if e.event(
-                input,
-                &self.map,
-                &mut self.control_map,
-                &self.current_selection_state,
-            ) {
-                self.stop_sign_editor = None;
-            } else {
-                self.stop_sign_editor = Some(e);
-            }
+        if self.stop_sign_editor.event(
+            input,
+            &self.map,
+            &mut self.control_map,
+            &self.current_selection_state,
+        ) {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
@@ -505,7 +499,7 @@ impl gui::GUI for UI {
                 if self.control_map.stop_signs.contains_key(&id) {
                     if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id))
                     {
-                        self.stop_sign_editor = Some(StopSignEditor::new(id));
+                        self.stop_sign_editor = StopSignEditor::start(id);
                         return (self, gui::EventLoopMode::InputOnly);
                     }
                 }
