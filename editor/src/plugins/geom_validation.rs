@@ -1,10 +1,13 @@
+use ezgui::canvas::Canvas;
+use ezgui::input::UserInput;
 use generator;
 use geo;
-use ezgui::input::UserInput;
-use piston::input::Key;
 use geo::prelude::Intersects;
+use geom::Pt2D;
 use graphics::math::Vec2d;
-use map_model::{BuildingID, IntersectionID, ParcelID, RoadID};
+use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
+use piston::input::Key;
+use piston::window::Size;
 use render;
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
@@ -26,7 +29,10 @@ impl Validator {
     pub fn new(draw_map: &render::DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
         for r in &draw_map.roads {
-            objects.push((ID::Road(r.id), r.polygons.iter().map(|poly| make_poly(poly)).collect()));
+            objects.push((
+                ID::Road(r.id),
+                r.polygons.iter().map(|poly| make_poly(poly)).collect(),
+            ));
         }
         for i in &draw_map.intersections {
             objects.push((ID::Intersection(i.id), vec![make_poly(&i.polygon)]));
@@ -80,13 +86,24 @@ impl Validator {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        canvas: &mut Canvas,
+        window_size: &Size,
+        map: &Map,
+    ) -> bool {
         // Initialize or advance?
-        if !self.current_problem.is_some() || input.key_pressed(Key::N, "Press N to see the next problem") {
+        if !self.current_problem.is_some()
+            || input.key_pressed(Key::N, "Press N to see the next problem")
+        {
             self.current_problem = self.gen.next();
 
             if let Some((id1, id2)) = self.current_problem {
                 println!("{:?} and {:?} intersect", id1, id2);
+                let pt = get_pt(map, id1);
+                canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
+                // TODO also modify selection state to highlight stuff?
                 return false;
             } else {
                 println!("No more problems!");
@@ -110,4 +127,14 @@ fn make_poly(points: &Vec<Vec2d>) -> geo::Polygon<f64> {
         .map(|pt| geo::Point::new(pt[0], pt[1]))
         .collect();
     geo::Polygon::new(exterior.into(), Vec::new())
+}
+
+// TODO duplicated with warp. generic handling of object types?
+fn get_pt(map: &Map, id: ID) -> Pt2D {
+    match id {
+        ID::Road(id) => map.get_r(id).first_pt(),
+        ID::Intersection(id) => map.get_i(id).point,
+        ID::Building(id) => geometry::center(&map.get_b(id).points),
+        ID::Parcel(id) => geometry::center(&map.get_p(id).points),
+    }
 }

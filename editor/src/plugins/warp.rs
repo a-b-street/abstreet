@@ -1,7 +1,7 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
-use map_model::{Map, RoadID, IntersectionID, BuildingID, ParcelID, geometry};
+use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
 use piston::input::Key;
 use piston::window::Size;
 use plugins::selection::SelectionState;
@@ -61,34 +61,32 @@ fn warp(
     window_size: &Size,
     selection_state: &mut SelectionState,
 ) {
-    let pt = match usize::from_str_radix(&line[1 .. line.len()], 10) {
-        Ok(idx) => {
-            match line.chars().next().unwrap() {
-                'r' => {
-                    let id = RoadID(idx);
-                    *selection_state = SelectionState::SelectedRoad(id, None);
-                    map.get_r(id).first_pt()
-                }
-                'i' => {
-                    let id = IntersectionID(idx);
-                    *selection_state = SelectionState::SelectedIntersection(id);
-                    map.get_i(id).point
-                }
-                'b' => {
-                    let id = BuildingID(idx);
-                    *selection_state = SelectionState::SelectedBuilding(id);
-                    geometry::center(&map.get_b(id).points)
-                }
-                'p' => {
-                    let id = ParcelID(idx);
-                    geometry::center(&map.get_p(id).points)
-                }
-                _ => {
-                    println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
-                    return;
-                }
+    let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
+        Ok(idx) => match line.chars().next().unwrap() {
+            'r' => {
+                let id = RoadID(idx);
+                *selection_state = SelectionState::SelectedRoad(id, None);
+                map.get_r(id).first_pt()
             }
-        }
+            'i' => {
+                let id = IntersectionID(idx);
+                *selection_state = SelectionState::SelectedIntersection(id);
+                map.get_i(id).point
+            }
+            'b' => {
+                let id = BuildingID(idx);
+                *selection_state = SelectionState::SelectedBuilding(id);
+                geometry::center(&map.get_b(id).points)
+            }
+            'p' => {
+                let id = ParcelID(idx);
+                geometry::center(&map.get_p(id).points)
+            }
+            _ => {
+                println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
+                return;
+            }
+        },
         Err(_) => {
             println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
             return;

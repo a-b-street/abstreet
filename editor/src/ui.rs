@@ -479,7 +479,7 @@ impl gui::GUI for UI {
         }
 
         if let Some(mut v) = self.geom_validator {
-            if v.event(input) {
+            if v.event(input, &mut self.canvas, window_size, &self.map) {
                 self.geom_validator = None;
             } else {
                 self.geom_validator = Some(v);
