@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use animation;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::GfxCtx;
@@ -26,6 +25,7 @@ pub enum ID {
     //Parcel(ParcelID),
 }
 
+#[derive(Clone)]
 pub enum SelectionState {
     Empty,
     SelectedIntersection(IntersectionID),
@@ -57,28 +57,15 @@ impl SelectionState {
     }
 
     // TODO consume self
-    pub fn event(
-        &self,
-        input: &mut UserInput,
-        map: &Map,
-        sim: &mut Sim,
-    ) -> (SelectionState, animation::EventLoopMode) {
+    pub fn event(&self, input: &mut UserInput, map: &Map) -> (SelectionState, bool) {
         // TODO simplify the way this is written
         match *self {
-            SelectionState::Empty => (SelectionState::Empty, animation::EventLoopMode::InputOnly),
-            SelectionState::SelectedIntersection(id) => (
-                SelectionState::SelectedIntersection(id),
-                animation::EventLoopMode::InputOnly,
-            ),
             SelectionState::SelectedRoad(id, current_turn_index) => {
                 if input.key_pressed(
                     Key::LCtrl,
                     &format!("Hold Ctrl to show road {:?}'s tooltip", id),
                 ) {
-                    (
-                        SelectionState::TooltipRoad(id),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (SelectionState::TooltipRoad(id), true)
                 } else if input
                     .key_pressed(Key::Tab, "Press Tab to cycle through this road's turns")
                 {
@@ -86,58 +73,24 @@ impl SelectionState {
                         Some(i) => i + 1,
                         None => 0,
                     };
-                    (
-                        SelectionState::SelectedRoad(id, Some(idx)),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (SelectionState::SelectedRoad(id, Some(idx)), true)
                 } else if input.key_pressed(Key::D, "press D to debug") {
                     map.get_r(id).dump_debug();
-                    (
-                        SelectionState::SelectedRoad(id, current_turn_index),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (SelectionState::SelectedRoad(id, current_turn_index), true)
                 } else {
-                    (
-                        SelectionState::SelectedRoad(id, current_turn_index),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (self.clone(), false)
                 }
             }
             SelectionState::TooltipRoad(id) => {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    (
-                        SelectionState::SelectedRoad(id, None),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (SelectionState::SelectedRoad(id, None), true)
                 } else {
-                    (
-                        SelectionState::TooltipRoad(id),
-                        animation::EventLoopMode::InputOnly,
-                    )
+                    (self.clone(), false)
                 }
             }
-            SelectionState::SelectedBuilding(id) => (
-                SelectionState::SelectedBuilding(id),
-                animation::EventLoopMode::InputOnly,
-            ),
-            SelectionState::SelectedTurn(id) => (
-                SelectionState::SelectedTurn(id),
-                animation::EventLoopMode::InputOnly,
-            ),
-            SelectionState::SelectedCar(id) => {
-                // TODO not sure if we should debug like this (pushing the bit down to all the
-                // layers representing an entity) or by using some scary global mutable singleton
-                if input.unimportant_key_pressed(Key::D, "press D to debug") {
-                    sim.toggle_debug(id);
-                }
-
-                (
-                    SelectionState::SelectedCar(id),
-                    animation::EventLoopMode::InputOnly,
-                )
-            }
+            _ => (self.clone(), false),
         }
     }
 
@@ -248,10 +201,11 @@ impl Hider {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, state: &mut SelectionState) {
+    pub fn event(&mut self, input: &mut UserInput, state: &mut SelectionState) -> bool {
         if input.unimportant_key_pressed(Key::K, "Press k to unhide everything") {
             println!("Unhiding {} things", self.items.len());
             self.items.clear();
+            return true;
         }
 
         let item = match state {
@@ -265,8 +219,10 @@ impl Hider {
                 self.items.insert(id);
                 println!("Hiding {:?}", id);
                 *state = SelectionState::Empty;
+                return true;
             }
         }
+        false
     }
 
     pub fn show_r(&self, id: RoadID) -> bool {

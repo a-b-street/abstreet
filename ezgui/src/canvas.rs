@@ -3,13 +3,13 @@
 use GfxCtx;
 use aabb_quadtree::geom::{Point, Rect};
 use graphics::Transformed;
-use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScrollEvent,
-                    PressEvent, ReleaseEvent};
+use piston::input::{Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
+                    ReleaseEvent};
 use piston::window::Size;
 use text;
 
 const ZOOM_SPEED: f64 = 0.05;
-const PAN_SPEED: f64 = 10.0;
+//const PAN_SPEED: f64 = 10.0;
 
 pub struct Canvas {
     pub cam_x: f64,
@@ -60,7 +60,8 @@ impl Canvas {
         if let Some(Button::Mouse(MouseButton::Left)) = ev.release_args() {
             self.left_mouse_drag_from = None;
         }
-        if let Some(Button::Keyboard(key)) = ev.press_args() {
+        // These aren't used much now, and they conflict with other plugins
+        /*if let Some(Button::Keyboard(key)) = ev.press_args() {
             match key {
                 Key::Up => self.cam_y -= PAN_SPEED,
                 Key::Down => self.cam_y += PAN_SPEED,
@@ -70,7 +71,7 @@ impl Canvas {
                 Key::W => self.zoom_towards_mouse(ZOOM_SPEED),
                 _ => {}
             }
-        }
+        }*/
         if let Some(scroll) = ev.mouse_scroll_args() {
             self.zoom_towards_mouse(scroll[1] * ZOOM_SPEED);
         }
@@ -123,10 +124,10 @@ impl Canvas {
         )
     }
 
-    fn screen_to_map_x(&self, x: f64) -> f64 {
+    pub fn screen_to_map_x(&self, x: f64) -> f64 {
         (x + self.cam_x) / self.cam_zoom
     }
-    fn screen_to_map_y(&self, y: f64) -> f64 {
+    pub fn screen_to_map_y(&self, y: f64) -> f64 {
         (y + self.cam_y) / self.cam_zoom
     }
 

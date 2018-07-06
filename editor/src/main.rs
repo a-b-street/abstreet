@@ -34,7 +34,6 @@ use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
 use structopt::StructOpt;
 
-mod animation;
 mod colors;
 mod experimental;
 mod gui;
@@ -107,7 +106,7 @@ fn run<T: gui::GUI>(
     mut glyphs: GlyphCache,
     mut gui: T,
 ) {
-    let mut last_event_mode = animation::EventLoopMode::InputOnly;
+    let mut last_event_mode = gui::EventLoopMode::InputOnly;
 
     while let Some(ev) = events.next(&mut window) {
         let mut input = UserInput::new(ev.clone());
@@ -115,7 +114,7 @@ fn run<T: gui::GUI>(
         gui = new_gui;
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
-            events.set_lazy(new_event_mode == animation::EventLoopMode::InputOnly);
+            events.set_lazy(new_event_mode == gui::EventLoopMode::InputOnly);
             last_event_mode = new_event_mode;
         }
 

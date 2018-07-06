@@ -33,7 +33,7 @@ impl SteepnessVisualizer {
         s
     }
 
-    pub fn handle_event(&mut self, input: &mut UserInput) {
+    pub fn handle_event(&mut self, input: &mut UserInput) -> bool {
         let msg = if self.active {
             "Press 5 to stop showing steepness"
         } else {
@@ -41,6 +41,9 @@ impl SteepnessVisualizer {
         };
         if input.unimportant_key_pressed(Key::D5, msg) {
             self.active = !self.active;
+            true
+        } else {
+            false
         }
     }
 

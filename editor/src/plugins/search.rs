@@ -34,22 +34,23 @@ impl SearchState {
     }
 
     // TODO Does this pattern where we consume self and return it work out nicer?
-    pub fn event(self, input: &mut UserInput) -> SearchState {
+    // True if active
+    pub fn event(self, input: &mut UserInput) -> (SearchState, bool) {
         match self {
             SearchState::Empty => {
                 if input.unimportant_key_pressed(Key::Slash, "Press / to start searching") {
-                    SearchState::EnteringSearch(TextBox::new())
+                    (SearchState::EnteringSearch(TextBox::new()), true)
                 } else {
-                    self
+                    (self, false)
                 }
             }
             SearchState::EnteringSearch(mut tb) => {
                 if tb.event(input.use_event_directly()) {
                     input.consume_event();
-                    SearchState::FilterOSM(tb.line)
+                    (SearchState::FilterOSM(tb.line), true)
                 } else {
                     input.consume_event();
-                    SearchState::EnteringSearch(tb)
+                    (SearchState::EnteringSearch(tb), true)
                 }
             }
             SearchState::FilterOSM(filter) => {
@@ -57,9 +58,9 @@ impl SearchState {
                     Key::Return,
                     &format!("Press enter to clear the current search for {}", filter),
                 ) {
-                    SearchState::Empty
+                    (SearchState::Empty, true)
                 } else {
-                    SearchState::FilterOSM(filter)
+                    (SearchState::FilterOSM(filter), true)
                 }
             }
         }

@@ -16,7 +16,7 @@ impl OsmClassifier {
         OsmClassifier { active: false }
     }
 
-    pub fn handle_event(&mut self, input: &mut UserInput) {
+    pub fn handle_event(&mut self, input: &mut UserInput) -> bool {
         let msg = if self.active {
             "Press 6 to stop showing OSM classes"
         } else {
@@ -24,6 +24,9 @@ impl OsmClassifier {
         };
         if input.unimportant_key_pressed(Key::D6, msg) {
             self.active = !self.active;
+            true
+        } else {
+            false
         }
     }
 

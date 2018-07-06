@@ -3,7 +3,6 @@
 // TODO this should just be a way to handle interactions between plugins
 
 use abstutil;
-use animation;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
@@ -52,7 +51,10 @@ pub struct UI {
     show_icons: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
+    // This is a particularly special plugin, since it's always kind of active and other things
+    // read/write it.
     current_selection_state: SelectionState,
+
     hider: Hider,
     current_search_state: SearchState,
     warp: WarpState,
@@ -327,12 +329,25 @@ impl UI {
 }
 
 impl gui::GUI for UI {
-    fn event(mut self, input: &mut UserInput) -> (UI, animation::EventLoopMode) {
-        let mut event_loop_mode = animation::EventLoopMode::InputOnly;
-        let mut edit_mode = false;
+    fn event(mut self, input: &mut UserInput) -> (UI, gui::EventLoopMode) {
+        // First update the camera and handle zoom
+        let old_zoom = self.canvas.cam_zoom;
+        self.canvas.handle_event(input.use_event_directly());
+        let new_zoom = self.canvas.cam_zoom;
+        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
+
+        // Always handle mouseover
+        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+            self.current_selection_state = SelectionState::Empty;
+        }
+        if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
+            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+        {
+            let item = self.mouseover_something();
+            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
+        }
 
         if let Some(mut e) = self.traffic_signal_editor {
-            edit_mode = true;
             if e.event(
                 input,
                 &self.map,
@@ -343,10 +358,10 @@ impl gui::GUI for UI {
             } else {
                 self.traffic_signal_editor = Some(e);
             }
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if let Some(mut e) = self.stop_sign_editor {
-            edit_mode = true;
             if e.event(
                 input,
                 &self.map,
@@ -357,111 +372,86 @@ impl gui::GUI for UI {
             } else {
                 self.stop_sign_editor = Some(e);
             }
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
-        // TODO disabling temporarily since it conflicts with warp. need to solve the
-        // one-plugin-at-a-time problem.
-        if !edit_mode && false {
-            self.color_picker =
+        {
+            let (new_color_picker, active) =
                 self.color_picker
                     .handle_event(input, &mut self.canvas, &mut self.cs);
-        }
-
-        self.current_search_state = self.current_search_state.event(input);
-        self.warp = self.warp.event(
-            input,
-            &self.map,
-            &mut self.canvas,
-            &mut self.current_selection_state,
-        );
-
-        if !edit_mode && self.sim_ctrl.event(input, &self.map, &self.control_map) {
-            event_loop_mode = event_loop_mode.merge(animation::EventLoopMode::Animation);
-        }
-
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(input.use_event_directly());
-        let new_zoom = self.canvas.cam_zoom;
-        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
-
-        if !edit_mode {
-            if self.show_roads.handle_event(input) {
-                if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-                if let SelectionState::TooltipRoad(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
+            self.color_picker = new_color_picker;
+            if active {
+                return (self, gui::EventLoopMode::InputOnly);
             }
-            if self.show_buildings.handle_event(input) {
-                if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-            }
-            if self.show_intersections.handle_event(input) {
-                if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
-                    self.current_selection_state = SelectionState::Empty;
-                }
-            }
-            self.show_parcels.handle_event(input);
-            self.show_icons.handle_event(input);
-            self.steepness_viz.handle_event(input);
-            self.osm_classifier.handle_event(input);
-            self.debug_mode.handle_event(input);
         }
 
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.current_selection_state = SelectionState::Empty;
-        }
-        if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            let item = self.mouseover_something();
-            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
+            let (new_search, active) = self.current_search_state.event(input);
+            self.current_search_state = new_search;
+            if active {
+                return (self, gui::EventLoopMode::InputOnly);
+            }
         }
-        self.hider.event(input, &mut self.current_selection_state);
-        // TODO can't get this destructuring expressed right
-        let (new_selection_state, new_event_loop_mode) =
-            self.current_selection_state
-                .event(input, &self.map, &mut self.sim_ctrl.sim);
-        event_loop_mode = event_loop_mode.merge(new_event_loop_mode);
-        self.current_selection_state = new_selection_state;
-        match self.current_selection_state {
-            SelectionState::SelectedRoad(id, _) => {
-                if self.floodfiller.is_none() {
-                    if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
-                        self.floodfiller = Some(Floodfiller::new(id));
-                    }
-                }
 
-                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
-                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
-                            println!("No room, sorry");
-                        }
-                    }
-                }
+        {
+            let (new_warp, active) = self.warp.event(
+                input,
+                &self.map,
+                &mut self.canvas,
+                &mut self.current_selection_state,
+            );
+            self.warp = new_warp;
+            if active {
+                return (self, gui::EventLoopMode::InputOnly);
             }
-            SelectionState::SelectedIntersection(id) => {
-                if self.traffic_signal_editor.is_none()
-                    && self.control_map.traffic_signals.contains_key(&id)
-                {
-                    if input.key_pressed(
-                        Key::E,
-                        &format!("Press E to edit traffic signal for {:?}", id),
-                    ) {
-                        self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
-                    }
-                }
-                if self.stop_sign_editor.is_none() && self.control_map.stop_signs.contains_key(&id)
-                {
-                    if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id))
-                    {
-                        self.stop_sign_editor = Some(StopSignEditor::new(id));
-                    }
-                }
+        }
+
+        if self.show_roads.handle_event(input) {
+            if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
             }
-            _ => {}
+            if let SelectionState::TooltipRoad(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.show_buildings.handle_event(input) {
+            if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.show_intersections.handle_event(input) {
+            if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.show_parcels.handle_event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.show_icons.handle_event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.debug_mode.handle_event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.steepness_viz.handle_event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.osm_classifier.handle_event(input) {
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+
+        if self.hider.event(input, &mut self.current_selection_state) {
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if let Some(mut f) = self.floodfiller {
@@ -470,6 +460,7 @@ impl gui::GUI for UI {
             } else {
                 self.floodfiller = Some(f);
             }
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if let Some(mut v) = self.geom_validator {
@@ -478,14 +469,70 @@ impl gui::GUI for UI {
             } else {
                 self.geom_validator = Some(v);
             }
+            return (self, gui::EventLoopMode::InputOnly);
+        }
+        if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
+            self.geom_validator = Some(Validator::new(&self.draw_map));
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
             self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
-        if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
-            self.geom_validator = Some(Validator::new(&self.draw_map));
+        match self.current_selection_state {
+            SelectionState::SelectedCar(id) => {
+                // TODO not sure if we should debug like this (pushing the bit down to all the
+                // layers representing an entity) or by using some scary global mutable singleton
+                if input.unimportant_key_pressed(Key::D, "press D to debug") {
+                    self.sim_ctrl.sim.toggle_debug(id);
+                    return (self, gui::EventLoopMode::InputOnly);
+                }
+            }
+            SelectionState::SelectedRoad(id, _) => {
+                if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
+                    self.floodfiller = Some(Floodfiller::new(id));
+                    return (self, gui::EventLoopMode::InputOnly);
+                }
+
+                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
+                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
+                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
+                            println!("No room, sorry");
+                        }
+                        return (self, gui::EventLoopMode::InputOnly);
+                    }
+                }
+            }
+            SelectionState::SelectedIntersection(id) => {
+                if self.control_map.traffic_signals.contains_key(&id) {
+                    if input.key_pressed(
+                        Key::E,
+                        &format!("Press E to edit traffic signal for {:?}", id),
+                    ) {
+                        self.traffic_signal_editor = Some(TrafficSignalEditor::new(id));
+                        return (self, gui::EventLoopMode::InputOnly);
+                    }
+                }
+                if self.control_map.stop_signs.contains_key(&id) {
+                    if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id))
+                    {
+                        self.stop_sign_editor = Some(StopSignEditor::new(id));
+                        return (self, gui::EventLoopMode::InputOnly);
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        // Do this one lastish, since it conflicts with lots of other stuff
+        {
+            let (new_selection, active) = self.current_selection_state.event(input, &self.map);
+            self.current_selection_state = new_selection;
+            if active {
+                return (self, gui::EventLoopMode::InputOnly);
+            }
         }
 
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
@@ -503,7 +550,12 @@ impl gui::GUI for UI {
             process::exit(0);
         }
 
-        (self, event_loop_mode)
+        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
+        if self.sim_ctrl.event(input, &self.map, &self.control_map) {
+            (self, gui::EventLoopMode::Animation)
+        } else {
+            (self, gui::EventLoopMode::InputOnly)
+        }
     }
 
     // TODO Weird to mut self just to set window_size on the canvas

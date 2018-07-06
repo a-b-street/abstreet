@@ -179,3 +179,15 @@ GUI refactoring thoughts:
 	- Canvas has persistent state, GfxCtx is ephemeral every draw cycle
 	- dont want to draw outside of render, but may want to readjust camera
 	- compromise is maybe storing the last known window size in canvas, so we dont have to keep plumbing it between frames anyway.
+
+
+One UI plugin at a time:
+- What can plugins do?
+	- (rarely) contribute OSD lines (in some order)
+	- (rarely) do custom drawing (in some order)
+	- event handling
+		- mutate themselves or consume+return?
+		- indicate if the plugin was active and did stuff?
+- just quit after handling each plugin? and do panning / some selection stuff earlier
+- alright, atfer the current cleanup with short-circuiting... express as a more abstract monadish thing? or since there are side effects sometimes and inconsistent arguments and such, maybe not?
+	- consistently mutate a plugin or return a copy

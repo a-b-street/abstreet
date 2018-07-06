@@ -1,4 +1,3 @@
-use animation;
 use ezgui::GfxCtx;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
@@ -36,7 +35,7 @@ impl UI {
 }
 
 impl gui::GUI for UI {
-    fn event(mut self, input: &mut UserInput) -> (UI, animation::EventLoopMode) {
+    fn event(mut self, input: &mut UserInput) -> (UI, gui::EventLoopMode) {
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
             process::exit(0);
         }
@@ -59,7 +58,7 @@ impl gui::GUI for UI {
 
         self.canvas.handle_event(input.use_event_directly());
 
-        (self, animation::EventLoopMode::InputOnly)
+        (self, gui::EventLoopMode::InputOnly)
     }
 
     // TODO Weird to mut self just to set window_size on the canvas
