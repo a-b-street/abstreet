@@ -1,8 +1,7 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
-use map_model::Map;
-use map_model::RoadID;
+use map_model::{Map, RoadID, IntersectionID, BuildingID, ParcelID, geometry};
 use piston::input::Key;
 use piston::window::Size;
 use plugins::selection::SelectionState;
@@ -26,7 +25,7 @@ impl WarpState {
             WarpState::Empty => {
                 if input.unimportant_key_pressed(
                     Key::J,
-                    "Press J to start searching for a road to warp to",
+                    "Press J to start searching for something to warp to",
                 ) {
                     WarpState::EnteringSearch(TextBox::new())
                 } else {
@@ -62,16 +61,38 @@ fn warp(
     window_size: &Size,
     selection_state: &mut SelectionState,
 ) {
-    match usize::from_str_radix(&line, 10) {
+    let pt = match usize::from_str_radix(&line[1 .. line.len()], 10) {
         Ok(idx) => {
-            let id = RoadID(idx);
-            println!("Warping to {}", id);
-            let pt = map.get_r(id).first_pt();
-            canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
-            *selection_state = SelectionState::SelectedRoad(id, None);
+            match line.chars().next().unwrap() {
+                'r' => {
+                    let id = RoadID(idx);
+                    *selection_state = SelectionState::SelectedRoad(id, None);
+                    map.get_r(id).first_pt()
+                }
+                'i' => {
+                    let id = IntersectionID(idx);
+                    *selection_state = SelectionState::SelectedIntersection(id);
+                    map.get_i(id).point
+                }
+                'b' => {
+                    let id = BuildingID(idx);
+                    *selection_state = SelectionState::SelectedBuilding(id);
+                    geometry::center(&map.get_b(id).points)
+                }
+                'p' => {
+                    let id = ParcelID(idx);
+                    geometry::center(&map.get_p(id).points)
+                }
+                _ => {
+                    println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
+                    return;
+                }
+            }
         }
         Err(_) => {
-            println!("{} isn't a valid ID", line);
+            println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
+            return;
         }
-    }
+    };
+    canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
 }
