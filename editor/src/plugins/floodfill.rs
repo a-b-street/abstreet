@@ -8,83 +8,97 @@ use piston::input::Key;
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
-pub struct Floodfiller {
-    visited: HashSet<RoadID>,
-    // Order of expansion doesn't really matter, could use other things here
-    queue: VecDeque<RoadID>,
+pub enum Floodfiller {
+    Inactive,
+    Active {
+        visited: HashSet<RoadID>,
+        // Order of expansion doesn't really matter, could use other things here
+        queue: VecDeque<RoadID>,
+    },
 }
 
 impl Floodfiller {
+    pub fn new() -> Floodfiller {
+        Floodfiller::Inactive
+    }
+
     // TODO doesn't guarantee all visited roads are connected? are dead-ends possible with the
     // current turn definitions?
-    pub fn new(start: RoadID) -> Floodfiller {
-        let mut f = Floodfiller {
+    pub fn start(start: RoadID) -> Floodfiller {
+        let mut queue = VecDeque::new();
+        queue.push_back(start);
+        Floodfiller::Active {
+            queue,
             visited: HashSet::new(),
-            queue: VecDeque::new(),
-        };
-        f.queue.push_back(start);
-        f
+        }
     }
 
     // TODO step backwards!
 
-    pub fn step(&mut self, map: &Map) -> bool {
-        loop {
-            if self.queue.is_empty() {
-                return true;
-            }
-
-            let r = map.get_r(self.queue.pop_front().unwrap());
-            if self.visited.contains(&r.id) {
-                continue;
-            }
-            self.visited.insert(r.id);
-            for next in &map.get_next_roads(r.id) {
-                if !self.visited.contains(&next.id) {
-                    self.queue.push_back(next.id);
-                }
-            }
-
-            return false;
-        }
-    }
-
-    pub fn finish(&mut self, map: &Map) {
-        loop {
-            if self.step(map) {
-                return;
-            }
-        }
-    }
-
-    // returns true if done
+    // returns true if active
     pub fn event(&mut self, map: &Map, input: &mut UserInput) -> bool {
-        if input.key_pressed(Key::Return, "Press Enter to quit floodfilling") {
-            return true;
-        }
+        match self {
+            Floodfiller::Inactive => false,
+            Floodfiller::Active { visited, queue } => {
+                if input.key_pressed(Key::Return, "Press Enter to quit floodfilling") {
+                    *self = Floodfiller::Inactive;
+                    return true;
+                }
 
-        if !self.queue.is_empty() {
-            if input.key_pressed(Key::Space, "Press space to step floodfilling forwards") {
-                self.step(map);
-            }
-            if input.key_pressed(Key::Tab, "Press tab to floodfill the rest of the map") {
-                self.finish(map);
+                if !queue.is_empty() {
+                    if input.key_pressed(Key::Space, "Press space to step floodfilling forwards") {
+                        step(visited, queue, map);
+                    }
+                    if input.key_pressed(Key::Tab, "Press tab to floodfill the rest of the map") {
+                        loop {
+                            if step(visited, queue, map) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                true
             }
         }
-        false
     }
 
     pub fn color_r(&self, r: &Road, cs: &ColorScheme) -> Option<Color> {
-        if self.visited.contains(&r.id) {
-            return Some(cs.get(Colors::Visited));
+        match self {
+            Floodfiller::Inactive => None,
+            Floodfiller::Active { visited, queue } => {
+                if visited.contains(&r.id) {
+                    return Some(cs.get(Colors::Visited));
+                }
+                if !queue.is_empty() && *queue.front().unwrap() == r.id {
+                    return Some(cs.get(Colors::NextQueued));
+                }
+                // TODO linear search shouldnt suck too much for interactive mode
+                if queue.contains(&r.id) {
+                    return Some(cs.get(Colors::Queued));
+                }
+                None
+            }
         }
-        if !self.queue.is_empty() && *self.queue.front().unwrap() == r.id {
-            return Some(cs.get(Colors::NextQueued));
+    }
+}
+
+fn step(visited: &mut HashSet<RoadID>, queue: &mut VecDeque<RoadID>, map: &Map) -> bool {
+    loop {
+        if queue.is_empty() {
+            return true;
         }
-        // TODO linear search shouldnt suck too much for interactive mode
-        if self.queue.contains(&r.id) {
-            return Some(cs.get(Colors::Queued));
+
+        let r = map.get_r(queue.pop_front().unwrap());
+        if visited.contains(&r.id) {
+            continue;
         }
-        None
+        visited.insert(r.id);
+        for next in &map.get_next_roads(r.id) {
+            if !visited.contains(&next.id) {
+                queue.push_back(next.id);
+            }
+        }
+
+        return false;
     }
 }

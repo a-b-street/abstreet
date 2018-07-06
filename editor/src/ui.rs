@@ -58,7 +58,7 @@ pub struct UI {
     hider: Hider,
     current_search_state: SearchState,
     warp: WarpState,
-    floodfiller: Option<Floodfiller>,
+    floodfiller: Floodfiller,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
     turn_colors: TurnColors,
@@ -113,7 +113,7 @@ impl UI {
             hider: Hider::new(),
             current_search_state: SearchState::Empty,
             warp: WarpState::Empty,
-            floodfiller: None,
+            floodfiller: Floodfiller::new(),
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: None,
             stop_sign_editor: None,
@@ -242,9 +242,7 @@ impl UI {
         vec![
             self.current_selection_state.color_r(r, &self.cs),
             self.current_search_state.color_r(r, &self.cs),
-            self.floodfiller
-                .as_ref()
-                .and_then(|f| f.color_r(r, &self.cs)),
+            self.floodfiller.color_r(r, &self.cs),
             self.steepness_viz.color_r(&self.map, r),
             self.osm_classifier.color_r(r, &self.cs),
         ].iter()
@@ -454,12 +452,7 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
-        if let Some(mut f) = self.floodfiller {
-            if f.event(&self.map, input) {
-                self.floodfiller = None;
-            } else {
-                self.floodfiller = Some(f);
-            }
+        if self.floodfiller.event(&self.map, input) {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
@@ -492,7 +485,7 @@ impl gui::GUI for UI {
             }
             SelectionState::SelectedRoad(id, _) => {
                 if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
-                    self.floodfiller = Some(Floodfiller::new(id));
+                    self.floodfiller = Floodfiller::start(id);
                     return (self, gui::EventLoopMode::InputOnly);
                 }
 
