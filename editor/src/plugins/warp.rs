@@ -12,34 +12,31 @@ pub enum WarpState {
 }
 
 impl WarpState {
-    // True if active
     pub fn event(
-        self,
+        &mut self,
         input: &mut UserInput,
         map: &Map,
         canvas: &mut Canvas,
         selection_state: &mut SelectionState,
-    ) -> (WarpState, bool) {
+    ) -> bool {
         match self {
             WarpState::Empty => {
                 if input.unimportant_key_pressed(
                     Key::J,
                     "Press J to start searching for something to warp to",
                 ) {
-                    (WarpState::EnteringSearch(TextBox::new()), true)
-                } else {
-                    (self, false)
+                    *self = WarpState::EnteringSearch(TextBox::new());
+                    return true;
                 }
+                false
             }
-            WarpState::EnteringSearch(mut tb) => {
+            WarpState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
-                    input.consume_event();
-                    warp(tb.line, map, canvas, selection_state);
-                    (WarpState::Empty, true)
-                } else {
-                    input.consume_event();
-                    (WarpState::EnteringSearch(tb), true)
+                    warp(tb.line.clone(), map, canvas, selection_state);
+                    *self = WarpState::Empty;
                 }
+                input.consume_event();
+                true
             }
         }
     }

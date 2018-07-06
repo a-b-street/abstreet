@@ -371,17 +371,13 @@ impl gui::GUI for UI {
             return (self, gui::EventLoopMode::InputOnly);
         }
 
-        {
-            let (new_warp, active) = self.warp.event(
-                input,
-                &self.map,
-                &mut self.canvas,
-                &mut self.current_selection_state,
-            );
-            self.warp = new_warp;
-            if active {
-                return (self, gui::EventLoopMode::InputOnly);
-            }
+        if self.warp.event(
+            input,
+            &self.map,
+            &mut self.canvas,
+            &mut self.current_selection_state,
+        ) {
+            return (self, gui::EventLoopMode::InputOnly);
         }
 
         if self.show_roads.handle_event(input) {
