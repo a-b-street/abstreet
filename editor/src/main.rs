@@ -110,8 +110,7 @@ fn run<T: gui::GUI>(
 
     while let Some(ev) = events.next(&mut window) {
         let mut input = UserInput::new(ev.clone());
-        let (new_gui, new_event_mode) = gui.event(&mut input);
-        gui = new_gui;
+        let new_event_mode = gui.event(&mut input);
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
             events.set_lazy(new_event_mode == gui::EventLoopMode::InputOnly);
