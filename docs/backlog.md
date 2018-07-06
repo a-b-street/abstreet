@@ -1,31 +1,14 @@
 # Backlog
 
-## UI
-
-- show more things
-	- draw water and greenery areas
-	- draw benches, bike racks
-		- more generally, a way to display random GIS data from seattle site (kml)
-
-- support massive maps
-	- render to a bitmap and clip that in?
-	- drop events sometimes
-
-- 3D UI sharing the same structure as the 2D one
-- svg export some area, for manual mockups
-
-- web version
-	- ggez, quicksilver, unrust could work
+## Code cleanup
 
 - easier way to define magic tuneable constants
 	- and maybe to recalculate fixedish things if they change?
-
-- more advanced road modeling, like https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
-
-- clean multilines
-	- yellow center lines eat into the width of one lane arbitrarily
-	- the oneway at the top of montlake has a weird first point
-	- draw intersections at dead-ends
+- add/plan tests
+- document pieces that're stabilizing
+- run clippy everywhere
+	- presubmit script
+	- also enforce consistent style (import order, extern crate only in mod.rs or lib.rs, derive order)
 
 ## Conga line idea
 
