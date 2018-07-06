@@ -34,12 +34,10 @@ impl DrawBuilding {
     pub fn draw(&self, g: &mut GfxCtx, fill_color: Color, path_color: Color) {
         if let Some(line) = self.front_path {
             // TODO tune width
-            let path = graphics::Line::new_round(path_color, 1.0);
-            path.draw(line, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+            g.draw_line(&graphics::Line::new_round(path_color, 1.0), line);
         }
 
-        let poly = graphics::Polygon::new(fill_color);
-        poly.draw(&self.polygon, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        g.draw_polygon(fill_color, &self.polygon);
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {

@@ -60,8 +60,7 @@ impl DrawIntersection {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        let poly = graphics::Polygon::new(color);
-        poly.draw(&self.polygon, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        g.draw_polygon(color, &self.polygon);
 
         let crosswalk_marking = graphics::Line::new(
             cs.get(Colors::Crosswalk),
@@ -70,11 +69,9 @@ impl DrawIntersection {
         );
         for crosswalk in &self.crosswalks {
             for pair in crosswalk {
-                crosswalk_marking.draw(
+                g.draw_line(
+                    &crosswalk_marking,
                     [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
-                    &g.ctx.draw_state,
-                    g.ctx.transform,
-                    g.gfx,
                 );
             }
         }
@@ -95,54 +92,41 @@ impl DrawIntersection {
     }
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        let sign = graphics::Polygon::new(cs.get(Colors::StopSignBackground));
         // TODO rotate it
         let poly: Vec<Vec2d> = geometry::regular_polygon(self.center, 8, 1.5)
             .iter()
             .map(|pt| pt.to_vec())
             .collect();
-        sign.draw(&poly, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        g.draw_polygon(cs.get(Colors::StopSignBackground), &poly);
         // TODO draw "STOP"
     }
 
     fn draw_traffic_signal(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         let radius = 0.5;
 
-        let bg = graphics::Rectangle::new(cs.get(Colors::TrafficSignalBox));
-        bg.draw(
+        g.draw_rectangle(
+            cs.get(Colors::TrafficSignalBox),
             [
                 self.center.x() - (2.0 * radius),
                 self.center.y() - (4.0 * radius),
                 4.0 * radius,
                 8.0 * radius,
             ],
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
 
-        let yellow = graphics::Ellipse::new(cs.get(Colors::TrafficSignalYellow));
-        yellow.draw(
+        g.draw_ellipse(
+            cs.get(Colors::TrafficSignalYellow),
             geometry::circle(self.center.x(), self.center.y(), radius),
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
 
-        let green = graphics::Ellipse::new(cs.get(Colors::TrafficSignalGreen));
-        green.draw(
+        g.draw_ellipse(
+            cs.get(Colors::TrafficSignalGreen),
             geometry::circle(self.center.x(), self.center.y() + (radius * 2.0), radius),
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
 
-        let red = graphics::Ellipse::new(cs.get(Colors::TrafficSignalRed));
-        red.draw(
+        g.draw_ellipse(
+            cs.get(Colors::TrafficSignalRed),
             geometry::circle(self.center.x(), self.center.y() - (radius * 2.0), radius),
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
     }
 }

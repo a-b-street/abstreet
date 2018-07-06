@@ -3,7 +3,6 @@
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
 use geom::PolyLine;
-use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
@@ -29,17 +28,10 @@ impl DrawParcel {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {
-        let boundary_poly = graphics::Polygon::new(boundary_color);
         for p in &self.boundary_polygons {
-            boundary_poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+            g.draw_polygon(boundary_color, p);
         }
-        let fill_poly = graphics::Polygon::new(fill_color);
-        fill_poly.draw(
-            &self.fill_polygon,
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
-        );
+        g.draw_polygon(fill_color, &self.fill_polygon);
     }
 
     //pub fn contains_pt(&self, x: f64, y: f64) -> bool {}

@@ -53,14 +53,16 @@ impl DrawCar {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
-        let poly = graphics::Polygon::new(color);
         for p in &self.polygons {
-            poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+            g.draw_polygon(color, p);
         }
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {
-            let turn_line = graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25);
-            turn_line.draw_arrow(a, 1.0, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+            g.draw_arrow(
+                &graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25),
+                a,
+                1.0,
+            );
         }
     }
 

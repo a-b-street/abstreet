@@ -179,6 +179,3 @@ GUI refactoring thoughts:
 	- Canvas has persistent state, GfxCtx is ephemeral every draw cycle
 	- dont want to draw outside of render, but may want to readjust camera
 	- compromise is maybe storing the last known window size in canvas, so we dont have to keep plumbing it between frames anyway.
-
-
-should GfxCtx own canvas?

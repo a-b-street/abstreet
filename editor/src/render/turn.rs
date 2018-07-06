@@ -60,8 +60,8 @@ impl DrawTurn {
     }
 
     pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
-        let turn_line = graphics::Line::new_round(color, geometry::BIG_ARROW_THICKNESS);
-        turn_line.draw_arrow(
+        g.draw_arrow(
+            &graphics::Line::new_round(color, geometry::BIG_ARROW_THICKNESS),
             [
                 self.src_pt[0],
                 self.src_pt[1],
@@ -69,23 +69,16 @@ impl DrawTurn {
                 self.dst_pt[1],
             ],
             BIG_ARROW_TIP_LENGTH,
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
     }
 
     pub fn draw_icon(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        let circle = graphics::Ellipse::new(cs.get(Colors::TurnIconCircle));
-        circle.draw(self.icon_circle, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+        g.draw_ellipse(cs.get(Colors::TurnIconCircle), self.icon_circle);
 
-        let turn_line = graphics::Line::new_round(color, TURN_ICON_ARROW_THICKNESS);
-        turn_line.draw_arrow(
+        g.draw_arrow(
+            &graphics::Line::new_round(color, TURN_ICON_ARROW_THICKNESS),
             self.icon_arrow,
             TURN_ICON_ARROW_TIP_LENGTH,
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
         );
     }
 

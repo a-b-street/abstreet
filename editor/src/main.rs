@@ -122,12 +122,7 @@ fn run<T: gui::GUI>(
         if let Some(args) = ev.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 gui.draw(
-                    &mut ezgui::GfxCtx {
-                        glyphs: &mut glyphs,
-                        gfx: g,
-                        orig_ctx: c,
-                        ctx: c,
-                    },
+                    &mut ezgui::GfxCtx::new(&mut glyphs, g, c),
                     input,
                     window.draw_size(),
                 );

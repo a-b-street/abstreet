@@ -106,17 +106,14 @@ impl ColorPicker {
                 for x in 0..WIDTH {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
-                        let pixel = graphics::Rectangle::new(color);
-                        pixel.draw(
+                        g.draw_rectangle(
+                            color,
                             [
                                 (x * TILE_DIMS + start_x) as f64,
                                 (y * TILE_DIMS + start_y) as f64,
                                 TILE_DIMS as f64,
                                 TILE_DIMS as f64,
                             ],
-                            &g.orig_ctx.draw_state,
-                            g.orig_ctx.transform,
-                            g.gfx,
                         );
                     }
                 }

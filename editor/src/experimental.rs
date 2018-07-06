@@ -64,9 +64,8 @@ impl gui::GUI for UI {
 
     // TODO Weird to mut self just to set window_size on the canvas
     fn draw(&mut self, g: &mut GfxCtx, _input: UserInput, window_size: Size) {
-        graphics::clear(WHITE, g.gfx);
-        g.ctx = self.canvas
-            .get_transformed_context(&g.orig_ctx, window_size);
+        g.clear(WHITE);
+        self.canvas.start_drawing(g, window_size);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 
@@ -227,12 +226,9 @@ impl UI {
 }
 
 fn draw_line(g: &mut GfxCtx, pt1: Pt2D, pt2: Pt2D, thickness: f64, color: Color) {
-    let l = graphics::Line::new(color, thickness);
-    l.draw(
+    g.draw_line(
+        &graphics::Line::new(color, thickness),
         [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
-        &g.ctx.draw_state,
-        g.ctx.transform,
-        g.gfx,
     );
 }
 
@@ -242,18 +238,12 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     for pair in pts.windows(2) {
         draw_line(g, pair[0], pair[1], thickness, color);
     }
-    let circle = graphics::Ellipse::new(BLUE);
     let radius = 0.5;
     for pt in pts {
-        circle.draw(
-            geometry::circle(pt.x(), pt.y(), radius),
-            &g.ctx.draw_state,
-            g.ctx.transform,
-            g.gfx,
-        );
+        g.draw_ellipse(BLUE, geometry::circle(pt.x(), pt.y(), radius));
     }
 }
 
 fn draw_polygon(g: &mut GfxCtx, pts: Vec<Vec2d>, color: Color) {
-    graphics::Polygon::new(color).draw(&pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+    g.draw_polygon(color, &pts);
 }

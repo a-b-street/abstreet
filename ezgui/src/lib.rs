@@ -11,17 +11,72 @@ pub mod menu;
 pub mod text;
 pub mod text_box;
 
-use graphics::Context;
 use graphics::character::CharacterCache;
+use graphics::types::Color;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {
-    pub glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
-    pub orig_ctx: Context,
-    pub ctx: Context,
-    pub gfx: &'a mut GlGraphics,
+    glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
+    orig_ctx: graphics::Context,
+    ctx: graphics::Context,
+    gfx: &'a mut GlGraphics,
+}
+
+impl<'a> GfxCtx<'a> {
+    pub fn new(
+        glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
+        g: &'a mut GlGraphics,
+        c: graphics::Context,
+    ) -> GfxCtx<'a> {
+        GfxCtx {
+            glyphs: glyphs,
+            gfx: g,
+            orig_ctx: c,
+            ctx: c,
+        }
+    }
+
+    pub fn clear(&mut self, color: Color) {
+        graphics::clear(color, self.gfx);
+    }
+
+    pub fn draw_line(&mut self, style: &graphics::Line, pts: [f64; 4]) {
+        style.draw(pts, &self.ctx.draw_state, self.ctx.transform, self.gfx);
+    }
+
+    pub fn draw_arrow(&mut self, style: &graphics::Line, pts: [f64; 4], head_size: f64) {
+        style.draw_arrow(
+            pts,
+            head_size,
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
+    }
+
+    pub fn draw_polygon(&mut self, color: Color, pts: &[[f64; 2]]) {
+        graphics::Polygon::new(color).draw(pts, &self.ctx.draw_state, self.ctx.transform, self.gfx);
+    }
+
+    pub fn draw_ellipse(&mut self, color: Color, ellipse: [f64; 4]) {
+        graphics::Ellipse::new(color).draw(
+            ellipse,
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
+    }
+
+    pub fn draw_rectangle(&mut self, color: Color, rect: [f64; 4]) {
+        graphics::Rectangle::new(color).draw(
+            rect,
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
+    }
 }
 
 pub struct ToggleableLayer {

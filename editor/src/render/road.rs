@@ -74,9 +74,8 @@ impl DrawRoad {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        let poly = graphics::Polygon::new(color);
         for p in &self.polygons {
-            poly.draw(p, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+            g.draw_polygon(color, p);
         }
     }
 
@@ -88,7 +87,7 @@ impl DrawRoad {
                 graphics::Line::new(cs.get(m.color), m.thickness)
             };
             for pts in &m.lines {
-                line.draw(*pts, &g.ctx.draw_state, g.ctx.transform, g.gfx);
+                g.draw_line(&line, *pts);
             }
         }
     }
@@ -96,28 +95,13 @@ impl DrawRoad {
     pub fn draw_debug(&self, g: &mut GfxCtx, cs: &ColorScheme, r: &map_model::Road) {
         let line =
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
-        let circle = graphics::Ellipse::new(cs.get(Colors::BrightDebug));
+        let circle_color = cs.get(Colors::BrightDebug);
 
         for pair in r.lane_center_pts.points().windows(2) {
             let (pt1, pt2) = (pair[0], pair[1]);
-            line.draw(
-                [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
-                &g.ctx.draw_state,
-                g.ctx.transform,
-                g.gfx,
-            );
-            circle.draw(
-                geometry::circle(pt1.x(), pt1.y(), 0.4),
-                &g.ctx.draw_state,
-                g.ctx.transform,
-                g.gfx,
-            );
-            circle.draw(
-                geometry::circle(pt2.x(), pt2.y(), 0.8),
-                &g.ctx.draw_state,
-                g.ctx.transform,
-                g.gfx,
-            );
+            g.draw_line(&line, [pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
+            g.draw_ellipse(circle_color, geometry::circle(pt1.x(), pt1.y(), 0.4));
+            g.draw_ellipse(circle_color, geometry::circle(pt2.x(), pt2.y(), 0.8));
         }
     }
 

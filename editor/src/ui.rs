@@ -11,7 +11,6 @@ use ezgui::GfxCtx;
 use ezgui::ToggleableLayer;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
-use graphics;
 use graphics::types::Color;
 use gui;
 use map_model;
@@ -509,10 +508,8 @@ impl gui::GUI for UI {
 
     // TODO Weird to mut self just to set window_size on the canvas
     fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size) {
-        graphics::clear(self.cs.get(Colors::Background), g.gfx);
-
-        g.ctx = self.canvas
-            .get_transformed_context(&g.orig_ctx, window_size);
+        g.clear(self.cs.get(Colors::Background));
+        self.canvas.start_drawing(g, window_size);
 
         let screen_bbox = self.canvas.get_screen_bbox();
 

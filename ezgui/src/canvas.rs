@@ -2,7 +2,7 @@
 
 use GfxCtx;
 use aabb_quadtree::geom::{Point, Rect};
-use graphics::{Context, Transformed};
+use graphics::Transformed;
 use piston::input::{Button, Event, Key, MouseButton, MouseCursorEvent, MouseScrollEvent,
                     PressEvent, ReleaseEvent};
 use piston::window::Size;
@@ -76,10 +76,11 @@ impl Canvas {
         }
     }
 
-    // TODO rename
-    pub fn get_transformed_context(&mut self, ctx: &Context, window_size: Size) -> Context {
+    pub fn start_drawing(&mut self, g: &mut GfxCtx, window_size: Size) {
         self.window_size = window_size;
-        ctx.trans(-self.cam_x, -self.cam_y).zoom(self.cam_zoom)
+        g.ctx = g.orig_ctx
+            .trans(-self.cam_x, -self.cam_y)
+            .zoom(self.cam_zoom)
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, lines: &[String]) {
