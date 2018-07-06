@@ -20,10 +20,12 @@ pub struct Canvas {
     cursor_y: f64,
 
     left_mouse_drag_from: Option<[f64; 2]>,
+
+    pub window_size: Size,
 }
 
 impl Canvas {
-    pub fn new() -> Canvas {
+    pub fn new(window_size: Size) -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -33,6 +35,7 @@ impl Canvas {
             cursor_y: 0.0,
 
             left_mouse_drag_from: None,
+            window_size,
         }
     }
 
@@ -73,7 +76,9 @@ impl Canvas {
         }
     }
 
-    pub fn get_transformed_context(&self, ctx: &Context) -> Context {
+    // TODO rename
+    pub fn get_transformed_context(&mut self, ctx: &Context, window_size: Size) -> Context {
+        self.window_size = window_size;
         ctx.trans(-self.cam_x, -self.cam_y).zoom(self.cam_zoom)
     }
 
@@ -90,7 +95,7 @@ impl Canvas {
             return;
         }
         let (_, height) = text::dims(g, lines);
-        let y1 = f64::from(g.window_size.height) - height;
+        let y1 = f64::from(self.window_size.height) - height;
         text::draw_text_bubble(g, lines, 0.0, y1);
     }
 
@@ -124,9 +129,9 @@ impl Canvas {
         (y + self.cam_y) / self.cam_zoom
     }
 
-    pub fn center_on_map_pt(&mut self, x: f64, y: f64, window_size: &Size) {
-        self.cam_x = (x * self.cam_zoom) - (f64::from(window_size.width) / 2.0);
-        self.cam_y = (y * self.cam_zoom) - (f64::from(window_size.height) / 2.0);
+    pub fn center_on_map_pt(&mut self, x: f64, y: f64) {
+        self.cam_x = (x * self.cam_zoom) - (f64::from(self.window_size.width) / 2.0);
+        self.cam_y = (y * self.cam_zoom) - (f64::from(self.window_size.height) / 2.0);
     }
 
     fn map_to_screen_x(&self, x: f64) -> f64 {
@@ -137,15 +142,15 @@ impl Canvas {
     }
 
     // little weird to return an aabb_quadtree type here. need standard geometry types
-    pub fn get_screen_bbox(&self, window_size: &Size) -> Rect {
+    pub fn get_screen_bbox(&self) -> Rect {
         Rect {
             top_left: Point {
                 x: self.screen_to_map_x(0.0) as f32,
                 y: self.screen_to_map_y(0.0) as f32,
             },
             bottom_right: Point {
-                x: self.screen_to_map_x(f64::from(window_size.width)) as f32,
-                y: self.screen_to_map_y(f64::from(window_size.height)) as f32,
+                x: self.screen_to_map_x(f64::from(self.window_size.width)) as f32,
+                y: self.screen_to_map_y(f64::from(self.window_size.height)) as f32,
             },
         }
     }

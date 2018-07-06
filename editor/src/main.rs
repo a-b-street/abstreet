@@ -80,16 +80,22 @@ fn main() {
         texture_settings,
     ).expect("Could not load font");
 
-    let size = &window.draw_size();
+    let window_size = window.draw_size();
     if flags.experimental_gui {
-        run(events, window, gl, glyphs, experimental::UI::new());
+        run(
+            events,
+            window,
+            gl,
+            glyphs,
+            experimental::UI::new(window_size),
+        );
     } else {
         run(
             events,
             window,
             gl,
             glyphs,
-            ui::UI::new(&flags.abst_input, size, flags.rng_seed),
+            ui::UI::new(&flags.abst_input, window_size, flags.rng_seed),
         );
     }
 }
@@ -105,7 +111,7 @@ fn run<T: gui::GUI>(
 
     while let Some(ev) = events.next(&mut window) {
         let mut input = UserInput::new(ev.clone());
-        let (new_gui, new_event_mode) = gui.event(&mut input, &window.draw_size());
+        let (new_gui, new_event_mode) = gui.event(&mut input);
         gui = new_gui;
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
@@ -121,9 +127,9 @@ fn run<T: gui::GUI>(
                         gfx: g,
                         orig_ctx: c,
                         ctx: c,
-                        window_size: window.draw_size(),
                     },
                     input,
+                    window.draw_size(),
                 );
             });
         }

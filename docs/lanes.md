@@ -168,3 +168,17 @@ Traffic signals?
 - drawing turn icons as red/yellow/green is pretty clear...
 - could draw an unaligned signal box with 3 circles in the middle of the intersection, but what does it represent? maybe just an initial indicator of what's going on; not full detail.
 - similarly, draw a single stop sign in the middle of other intersections? :P
+
+
+
+
+GUI refactoring thoughts:
+- GfxCtx members should be private. make methods for drawing rectangles and such
+	- should be useful short term. dunno how this will look later with gfx-rs, but dedupes code in the meantime.
+- should GfxCtx own Canvas or vice versa?
+	- Canvas has persistent state, GfxCtx is ephemeral every draw cycle
+	- dont want to draw outside of render, but may want to readjust camera
+	- compromise is maybe storing the last known window size in canvas, so we dont have to keep plumbing it between frames anyway.
+
+
+should GfxCtx own canvas?

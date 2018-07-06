@@ -15,7 +15,6 @@ use graphics::Context;
 use graphics::character::CharacterCache;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
-use piston::window::Size;
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {
@@ -23,7 +22,6 @@ pub struct GfxCtx<'a> {
     pub orig_ctx: Context,
     pub ctx: Context,
     pub gfx: &'a mut GlGraphics,
-    pub window_size: Size,
 }
 
 pub struct ToggleableLayer {

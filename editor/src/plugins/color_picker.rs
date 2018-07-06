@@ -7,7 +7,6 @@ use ezgui::input::UserInput;
 use ezgui::menu;
 use graphics;
 use piston::input::{Key, MouseCursorEvent};
-use piston::window::Size;
 use std::str::FromStr;
 use std::string::ToString;
 use strum::IntoEnumIterator;
@@ -33,7 +32,7 @@ impl ColorPicker {
     pub fn handle_event(
         self,
         input: &mut UserInput,
-        window_size: &Size,
+        canvas: &Canvas,
         cs: &mut ColorScheme,
     ) -> ColorPicker {
         match self {
@@ -78,7 +77,7 @@ impl ColorPicker {
 
                 if let Some(pos) = input.use_event_directly().mouse_cursor_args() {
                     // TODO argh too much casting
-                    let (start_x, start_y) = get_screen_offset(window_size);
+                    let (start_x, start_y) = get_screen_offset(canvas);
                     let x = (pos[0] - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
                     let y = (pos[1] - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
@@ -102,7 +101,7 @@ impl ColorPicker {
                 canvas.draw_mouse_tooltip(g, &menu.lines_to_display());
             }
             ColorPicker::PickingColor(_, _) => {
-                let (start_x, start_y) = get_screen_offset(&g.window_size);
+                let (start_x, start_y) = get_screen_offset(canvas);
 
                 for x in 0..WIDTH {
                     for y in 0..HEIGHT {
@@ -126,11 +125,11 @@ impl ColorPicker {
     }
 }
 
-fn get_screen_offset(window_size: &Size) -> (u32, u32) {
+fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
     let total_width = TILE_DIMS * WIDTH;
     let total_height = TILE_DIMS * HEIGHT;
-    let start_x = (window_size.width - total_width) / 2;
-    let start_y = (window_size.height - total_height) / 2;
+    let start_x = (canvas.window_size.width - total_width) / 2;
+    let start_y = (canvas.window_size.height - total_height) / 2;
     (start_x, start_y)
 }
 

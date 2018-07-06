@@ -73,7 +73,7 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(abst_path: &str, window_size: &Size, rng_seed: Option<u8>) -> UI {
+    pub fn new(abst_path: &str, window_size: Size, rng_seed: Option<u8>) -> UI {
         println!("Opening {}", abst_path);
         let map = map_model::Map::new(abst_path).expect("Couldn't load map");
         let (draw_map, center_pt) = render::DrawMap::new(&map);
@@ -119,7 +119,7 @@ impl UI {
             color_picker: ColorPicker::new(),
             geom_validator: None,
 
-            canvas: Canvas::new(),
+            canvas: Canvas::new(window_size),
             cs: ColorScheme::load("color_scheme").unwrap(),
         };
 
@@ -134,8 +134,7 @@ impl UI {
             }
             Err(_) => {
                 println!("Couldn't load editor_state, just centering initial view");
-                ui.canvas
-                    .center_on_map_pt(center_pt.x(), center_pt.y(), window_size);
+                ui.canvas.center_on_map_pt(center_pt.x(), center_pt.y());
             }
         }
 
@@ -155,10 +154,10 @@ impl UI {
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
     }
 
-    fn mouseover_something(&self, window_size: &Size) -> Option<ID> {
+    fn mouseover_something(&self) -> Option<ID> {
         let (x, y) = self.canvas.get_cursor_in_map_space();
 
-        let screen_bbox = self.canvas.get_screen_bbox(window_size);
+        let screen_bbox = self.canvas.get_screen_bbox();
 
         let roads_onscreen = if self.show_roads.is_enabled() {
             self.draw_map.get_roads_onscreen(screen_bbox, &self.hider)
@@ -329,11 +328,7 @@ impl UI {
 }
 
 impl gui::GUI for UI {
-    fn event(
-        mut self,
-        input: &mut UserInput,
-        window_size: &Size,
-    ) -> (UI, animation::EventLoopMode) {
+    fn event(mut self, input: &mut UserInput) -> (UI, animation::EventLoopMode) {
         let mut event_loop_mode = animation::EventLoopMode::InputOnly;
         let mut edit_mode = false;
 
@@ -368,8 +363,9 @@ impl gui::GUI for UI {
         // TODO disabling temporarily since it conflicts with warp. need to solve the
         // one-plugin-at-a-time problem.
         if !edit_mode && false {
-            self.color_picker = self.color_picker
-                .handle_event(input, window_size, &mut self.cs);
+            self.color_picker =
+                self.color_picker
+                    .handle_event(input, &mut self.canvas, &mut self.cs);
         }
 
         self.current_search_state = self.current_search_state.event(input);
@@ -377,7 +373,6 @@ impl gui::GUI for UI {
             input,
             &self.map,
             &mut self.canvas,
-            window_size,
             &mut self.current_selection_state,
         );
 
@@ -422,7 +417,7 @@ impl gui::GUI for UI {
         if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            let item = self.mouseover_something(window_size);
+            let item = self.mouseover_something();
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
         self.hider.event(input, &mut self.current_selection_state);
@@ -479,7 +474,7 @@ impl gui::GUI for UI {
         }
 
         if let Some(mut v) = self.geom_validator {
-            if v.event(input, &mut self.canvas, window_size, &self.map) {
+            if v.event(input, &mut self.canvas, &self.map) {
                 self.geom_validator = None;
             } else {
                 self.geom_validator = Some(v);
@@ -512,12 +507,14 @@ impl gui::GUI for UI {
         (self, event_loop_mode)
     }
 
-    fn draw(&self, g: &mut GfxCtx, input: UserInput) {
+    // TODO Weird to mut self just to set window_size on the canvas
+    fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size) {
         graphics::clear(self.cs.get(Colors::Background), g.gfx);
 
-        g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
+        g.ctx = self.canvas
+            .get_transformed_context(&g.orig_ctx, window_size);
 
-        let screen_bbox = self.canvas.get_screen_bbox(&g.window_size);
+        let screen_bbox = self.canvas.get_screen_bbox();
 
         if self.show_parcels.is_enabled() {
             for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {

@@ -26,9 +26,9 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new() -> UI {
+    pub fn new(window_size: Size) -> UI {
         UI {
-            canvas: Canvas::new(),
+            canvas: Canvas::new(window_size),
             p3_offset: (200.0, 150.0),
             show_labels: true,
         }
@@ -36,11 +36,7 @@ impl UI {
 }
 
 impl gui::GUI for UI {
-    fn event(
-        mut self,
-        input: &mut UserInput,
-        _window_size: &Size,
-    ) -> (UI, animation::EventLoopMode) {
+    fn event(mut self, input: &mut UserInput) -> (UI, animation::EventLoopMode) {
         if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
             process::exit(0);
         }
@@ -66,9 +62,11 @@ impl gui::GUI for UI {
         (self, animation::EventLoopMode::InputOnly)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _input: UserInput) {
+    // TODO Weird to mut self just to set window_size on the canvas
+    fn draw(&mut self, g: &mut GfxCtx, _input: UserInput, window_size: Size) {
         graphics::clear(WHITE, g.gfx);
-        g.ctx = self.canvas.get_transformed_context(&g.orig_ctx);
+        g.ctx = self.canvas
+            .get_transformed_context(&g.orig_ctx, window_size);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 

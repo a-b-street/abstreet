@@ -3,7 +3,6 @@ use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
 use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
 use piston::input::Key;
-use piston::window::Size;
 use plugins::selection::SelectionState;
 use std::usize;
 
@@ -18,7 +17,6 @@ impl WarpState {
         input: &mut UserInput,
         map: &Map,
         canvas: &mut Canvas,
-        window_size: &Size,
         selection_state: &mut SelectionState,
     ) -> WarpState {
         match self {
@@ -35,7 +33,7 @@ impl WarpState {
             WarpState::EnteringSearch(mut tb) => {
                 if tb.event(input.use_event_directly()) {
                     input.consume_event();
-                    warp(tb.line, map, canvas, window_size, selection_state);
+                    warp(tb.line, map, canvas, selection_state);
                     WarpState::Empty
                 } else {
                     input.consume_event();
@@ -54,13 +52,7 @@ impl WarpState {
     }
 }
 
-fn warp(
-    line: String,
-    map: &Map,
-    canvas: &mut Canvas,
-    window_size: &Size,
-    selection_state: &mut SelectionState,
-) {
+fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut SelectionState) {
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
@@ -92,5 +84,5 @@ fn warp(
             return;
         }
     };
-    canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
+    canvas.center_on_map_pt(pt.x(), pt.y());
 }

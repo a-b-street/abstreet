@@ -7,7 +7,6 @@ use geom::Pt2D;
 use graphics::math::Vec2d;
 use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
 use piston::input::Key;
-use piston::window::Size;
 use render;
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
@@ -86,13 +85,7 @@ impl Validator {
         }
     }
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        canvas: &mut Canvas,
-        window_size: &Size,
-        map: &Map,
-    ) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, canvas: &mut Canvas, map: &Map) -> bool {
         // Initialize or advance?
         if !self.current_problem.is_some()
             || input.key_pressed(Key::N, "Press N to see the next problem")
@@ -102,7 +95,7 @@ impl Validator {
             if let Some((id1, id2)) = self.current_problem {
                 println!("{:?} and {:?} intersect", id1, id2);
                 let pt = get_pt(map, id1);
-                canvas.center_on_map_pt(pt.x(), pt.y(), window_size);
+                canvas.center_on_map_pt(pt.x(), pt.y());
                 // TODO also modify selection state to highlight stuff?
                 return false;
             } else {
