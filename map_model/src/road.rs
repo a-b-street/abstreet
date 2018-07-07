@@ -89,11 +89,13 @@ impl Road {
     }
 
     pub fn dump_debug(&self) {
-        println!("\nlet debug_r{}_pts = vec![", self.id.0);
-        // TODO nicer display for PolyLine?
-        for pt in self.lane_center_pts.points().iter() {
-            println!("  Pt2D::new({}, {}),", pt.x(), pt.y());
-        }
-        println!("];");
+        println!(
+            "\nlet lane_center_r{}_pts = {}",
+            self.id.0, self.lane_center_pts
+        );
+        println!(
+            "\nlet unshifted_r{}_pts = {}",
+            self.id.0, self.unshifted_pts
+        );
     }
 }

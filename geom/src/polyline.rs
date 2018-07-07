@@ -1,6 +1,7 @@
 use dimensioned::si;
 use graphics::math::Vec2d;
 use std::f64;
+use std::fmt;
 use {util, Angle, Line, Pt2D};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -178,6 +179,16 @@ impl PolyLine {
             .iter()
             .map(|pts| pts.iter().map(|pt| pt.to_vec()).collect())
             .collect()
+    }
+}
+
+impl fmt::Display for PolyLine {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "PolyLine::new(vec![\n")?;
+        for pt in &self.pts {
+            write!(f, "  Pt2D::new({}, {}),\n", pt.x(), pt.y())?;
+        }
+        write!(f, "])")
     }
 }
 

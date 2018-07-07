@@ -3,7 +3,6 @@ use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use geom::{PolyLine, Pt2D};
 use graphics;
-use graphics::math::Vec2d;
 use graphics::types::Color;
 use gui;
 use map_model::geometry;
@@ -17,6 +16,8 @@ const RED: Color = [1.0, 0.0, 0.0, 0.8];
 const GREEN: Color = [0.0, 1.0, 0.0, 0.8];
 const BLUE: Color = [0.0, 0.0, 1.0, 0.8];
 const BLACK: Color = [0.0, 0.0, 0.0, 0.3];
+const SOLID_BLACK: Color = [0.0, 0.0, 0.0, 0.9];
+const YELLOW: Color = [1.0, 1.0, 0.0, 0.8];
 
 pub struct UI {
     canvas: Canvas,
@@ -26,8 +27,13 @@ pub struct UI {
 
 impl UI {
     pub fn new(window_size: Size) -> UI {
+        let mut canvas = Canvas::new(window_size);
+        // TODO this is only for debug_intersection
+        canvas.cam_zoom = 5.5;
+        canvas.center_on_map_pt(2000.0, 1300.0);
+
         UI {
-            canvas: Canvas::new(window_size),
+            canvas,
             p3_offset: (200.0, 150.0),
             show_labels: true,
         }
@@ -68,21 +74,17 @@ impl gui::GUI for UI {
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 
-        //self.debug_polyline(g, &mut labels);
-        self.moving_polyline(g, &mut labels);
+        if true {
+            self.debug_intersection(g, &mut labels);
+        } else {
+            self.moving_polyline(g, &mut labels);
+            self.debug_polyline(g, &mut labels);
+        }
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
         // TODO still try the angle bisection method
         // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
         // try them out in piston
-
-        // Manual approach for more debugging
-        /*points!(p1_e, p2_e, shift_line(shift_away, p3, p2));
-        points!(p2_f, p3_f, shift_line(shift_away, p2, p1));
-        point!(p2_g, line_intersection((p1_e, p2_e), (p2_f, p3_f)));
-
-        draw_line(g, p1_e, p2_g, thin, BLUE);
-        draw_line(g, p2_g, p3_f, thin, BLUE);*/
 
         if self.show_labels {
             for pair in &labels {
@@ -98,7 +100,7 @@ impl UI {
             .draw_text_at(g, &vec![text.to_string()], pt.x(), pt.y());
     }
 
-    fn _debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
+    fn debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
         let thin = 1.0;
         let width = 50.0;
 
@@ -124,7 +126,7 @@ impl UI {
 
         if let Some(polys) = center_pts.make_polygons(width) {
             for p in polys {
-                draw_polygon(g, p, BLACK);
+                g.draw_polygon(BLACK, &p);
             }
         }
 
@@ -189,7 +191,7 @@ impl UI {
 
         if let Some(polys) = pts.make_polygons(shift_away) {
             for p in polys {
-                draw_polygon(g, p, BLACK);
+                g.draw_polygon(BLACK, &p);
             }
         }
 
@@ -222,6 +224,48 @@ impl UI {
             println!("l3_pts borked");
         }
     }
+
+    fn debug_intersection(&self, g: &mut GfxCtx, _labels: &mut Vec<(Pt2D, String)>) {
+        let thin = 0.25;
+        let shift1_width = geometry::LANE_THICKNESS * 0.5;
+        let shift2_width = geometry::LANE_THICKNESS * 1.5;
+
+        // All the center lines are expressed as incoming to the intersection
+        let shared_pt = Pt2D::new(1983.3524141911557, 1260.9463599480669);
+        let diagonal_yellow = PolyLine::new(vec![
+            Pt2D::new(2165.2047110114004, 1394.0800456196182),
+            shared_pt,
+        ]);
+        let north_yellow = PolyLine::new(vec![
+            Pt2D::new(1983.7494225415583, 1187.7689787235172),
+            Pt2D::new(1983.562154453436, 1221.9280601888336),
+            shared_pt,
+        ]);
+        let south_yellow = PolyLine::new(vec![
+            Pt2D::new(1979.8392648173965, 1345.9215228907012),
+            Pt2D::new(1981.6744921024178, 1301.599225129214),
+            Pt2D::new(1983.1876182714725, 1264.9938552786543),
+            shared_pt,
+        ]);
+
+        for (yellow_line, colors) in &mut vec![
+            (diagonal_yellow, RelatedColors::new(1.0, 0.0, 0.0)),
+            (north_yellow, RelatedColors::new(0.0, 1.0, 0.0)),
+            (south_yellow, RelatedColors::new(0.0, 0.0, 1.0)),
+        ] {
+            let lane1_in = yellow_line.shift(shift1_width).unwrap();
+            draw_lane(g, &lane1_in, colors.next().unwrap());
+            let lane2_in = yellow_line.shift(shift2_width).unwrap();
+            draw_lane(g, &lane2_in, colors.next().unwrap());
+
+            let lane1_out = yellow_line.reversed().shift(shift1_width).unwrap();
+            draw_lane(g, &lane1_out, colors.next().unwrap());
+            let lane2_out = yellow_line.reversed().shift(shift2_width).unwrap();
+            draw_lane(g, &lane2_out, colors.next().unwrap());
+
+            draw_polyline(g, &yellow_line, thin, YELLOW);
+        }
+    }
 }
 
 fn draw_line(g: &mut GfxCtx, pt1: Pt2D, pt2: Pt2D, thickness: f64, color: Color) {
@@ -243,6 +287,39 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     }
 }
 
-fn draw_polygon(g: &mut GfxCtx, pts: Vec<Vec2d>, color: Color) {
-    g.draw_polygon(color, &pts);
+fn draw_lane(g: &mut GfxCtx, pl: &PolyLine, color: Color) {
+    for p in pl.make_polygons(geometry::LANE_THICKNESS).unwrap().iter() {
+        g.draw_polygon(color, &p);
+    }
+
+    // Debug the center points
+    draw_polyline(g, pl, 0.25, SOLID_BLACK);
+}
+
+struct RelatedColors {
+    r: f32,
+    g: f32,
+    b: f32,
+    count: usize,
+}
+
+impl RelatedColors {
+    fn new(r: f32, g: f32, b: f32) -> RelatedColors {
+        RelatedColors { r, g, b, count: 10 }
+    }
+}
+
+impl Iterator for RelatedColors {
+    type Item = Color;
+
+    fn next(&mut self) -> Option<Color> {
+        self.count -= 2;
+        let multiplier = 0.1 * (self.count as f32);
+        Some([
+            self.r * multiplier,
+            self.g * multiplier,
+            self.b * multiplier,
+            0.8,
+        ])
+    }
 }

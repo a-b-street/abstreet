@@ -43,7 +43,10 @@
 
 ## Intersection geometry brainstorm
 
-- figure out how to iterate quickly in experimental.
+- can we merge adjacent polylines at intersections based on closest angle, and then use the existing stuff to get nice geometry?
+	- i think we still have to trim back correctly
+	- first figure out all the trimming cases for the T, outside and inside lanes, etc
+
 
 - aha, big bug! we only try to trim first/last lines. do the whole polyline.
 	- can think of an easy fixpoint approach to try first, even though it's inefficient.
