@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct BuildingID(pub usize);
 
 impl fmt::Display for BuildingID {

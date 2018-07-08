@@ -8,7 +8,7 @@ use std::f64;
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct TurnID(pub usize);
 
 impl fmt::Display for TurnID {

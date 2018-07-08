@@ -6,7 +6,7 @@ use std::fmt;
 use {RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IntersectionID(pub usize);
 
 impl fmt::Display for IntersectionID {
