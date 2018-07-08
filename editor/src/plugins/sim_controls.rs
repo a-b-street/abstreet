@@ -5,7 +5,7 @@ use control::ControlMap;
 use ezgui::input::UserInput;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
-use sim::common;
+use sim;
 use sim::straw_model;
 use std::time::{Duration, Instant};
 
@@ -67,7 +67,7 @@ impl SimController {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt = tick.elapsed();
                 let dt_s = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
-                if dt_s >= common::TIMESTEP.value_unsafe / self.desired_speed {
+                if dt_s >= sim::TIMESTEP.value_unsafe / self.desired_speed {
                     self.sim.step(map, control_map);
                     self.last_step = Some(Instant::now());
                 }

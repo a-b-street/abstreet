@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::HashMap;
+use {CarID, Tick, SPEED_LIMIT};
 
 use std;
 const WAIT_AT_STOP_SIGN: si::Second<f64> = si::Second {

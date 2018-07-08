@@ -60,3 +60,14 @@
 - https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf pg38
 
 - just make polygons around center lines, then intersect?
+
+
+
+
+
+
+morning thoughts!
+
+- trim lines based on outermost POLYGON border line, not lane center lines or anything
+- the ascending angle and skipping existing lines in the thesis seems to make sense
+- find where infinite line intersects line segment for some cases?

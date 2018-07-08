@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use common::{CarID, Tick, SPEED_LIMIT};
 use control::ControlMap;
 use dimensioned::si;
 use ezgui::GfxCtx;
@@ -15,6 +14,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
+use {CarID, Tick, SPEED_LIMIT};
 
 use std;
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
