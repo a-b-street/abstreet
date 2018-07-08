@@ -6,11 +6,12 @@ use ezgui::GfxCtx;
 use geom::{Angle, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
+use map_model;
 use map_model::geometry;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
@@ -122,6 +123,8 @@ struct Car {
     // TODO ideally, something else would remember Goto was requested and not even call step()
     waiting_for: Option<On>,
     debug: bool,
+    // Head is the next road
+    path: VecDeque<RoadID>,
 }
 
 enum Action {
@@ -137,10 +140,11 @@ impl Car {
             format!("Car {:?}", self.id),
             format!("On {:?}, started at {:?}", self.on, self.started_at),
             format!("Committed to waiting for {:?}", self.waiting_for),
+            format!("{} roads left in path", self.path.len()),
         ]
     }
 
-    fn step(&self, map: &Map, time: Tick, rng: &mut XorShiftRng) -> Action {
+    fn step(&self, map: &Map, time: Tick) -> Action {
         if let Some(on) = self.waiting_for {
             return Action::Goto(on);
         }
@@ -150,21 +154,29 @@ impl Car {
             return Action::Continue;
         }
 
+        // Done!
+        if self.path.is_empty() {
+            return Action::Vanish;
+        }
+
         match self.on {
-            // For now, just kill off cars that're stuck on disconnected bits of the map
-            On::Road(id) if map.get_turns_from_road(id).is_empty() => Action::Vanish,
             // TODO cant try to go to next road unless we're the front car
             // if we dont do this here, we wont be able to see what turns people are waiting for
             // even if we wait till we're the front car, we might unravel the line of queued cars
             // too quickly
-            On::Road(id) => Action::Goto(On::Turn(self.choose_turn(id, map, rng))),
+            On::Road(id) => Action::Goto(On::Turn(self.choose_turn(id, map))),
             On::Turn(id) => Action::Goto(On::Road(map.get_t(id).dst)),
         }
     }
 
-    fn choose_turn(&self, from: RoadID, map: &Map, rng: &mut XorShiftRng) -> TurnID {
+    fn choose_turn(&self, from: RoadID, map: &Map) -> TurnID {
         assert!(self.waiting_for.is_none());
-        rng.choose(&map.get_turns_from_road(from)).unwrap().id
+        for t in map.get_turns_from_road(from) {
+            if t.dst == self.path[0] {
+                return t.id;
+            }
+        }
+        panic!("No turn from {} to {}", from, self.path[0]);
     }
 
     // Returns the angle and the dist along the road/turn too
@@ -312,6 +324,7 @@ impl Sim {
             intersections,
 
             cars: BTreeMap::new(),
+            // TODO only driving ones
             roads: map.all_roads()
                 .iter()
                 .map(|r| SimQueue::new(On::Road(r.id), map))
@@ -329,23 +342,39 @@ impl Sim {
     // TODO cars basically start in the intersection, with their front bumper right at the
     // beginning of the road. later, we want cars starting at arbitrary points in the middle of the
     // road (from a building), so just ignore this problem for now.
-    pub fn spawn_one_on_road(&mut self, road: RoadID) -> bool {
-        if !self.roads[road.0].room_at_end(self.time, &self.cars) {
+    pub fn spawn_one_on_road(&mut self, map: &Map, start: RoadID) -> bool {
+        if !self.roads[start.0].room_at_end(self.time, &self.cars) {
             return false;
         }
         let id = CarID(self.id_counter);
         self.id_counter += 1;
+
+        let goal = self.rng.choose(map.all_roads()).unwrap();
+        if goal.lane_type != LaneType::Driving || goal.id == start {
+            println!("Chose bad goal {}", goal.id);
+            return false;
+        }
+        let mut path = if let Some(steps) = map_model::pathfind(map, start, goal.id) {
+            VecDeque::from(steps)
+        } else {
+            println!("No path from {} to {}", start, goal.id);
+            return false;
+        };
+        // path includes the start, but that's not the invariant Car enforces
+        path.pop_front();
+
         self.cars.insert(
             id,
             Car {
                 id,
+                path,
                 started_at: self.time,
-                on: On::Road(road),
+                on: On::Road(start),
                 waiting_for: None,
                 debug: false,
             },
         );
-        self.roads[road.0].cars_queue.push(id);
+        self.roads[start.0].cars_queue.push(id);
         true
     }
 
@@ -366,19 +395,22 @@ impl Sim {
         }
 
         let n = num_cars.min(roads.len());
+        let mut actual = 0;
         for i in 0..n {
-            assert!(self.spawn_one_on_road(roads[i]));
+            if self.spawn_one_on_road(map, roads[i]) {
+                actual += 1;
+            }
         }
-        println!("Spawned {}", n);
+        println!("Spawned {} of {}", actual, n);
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
-        // Could be concurrent. Ask all cars for their move, reinterpreting Goto to see if there's
-        // room now. It's important to query has_room_now here using the previous, fixed state of
-        // the world. If we did it in the next loop, then order of updates would matter for more
-        // than just conflict resolution.
+        // Could be concurrent, since this is deterministic. Note no RNG. Ask all cars for their
+        // move, reinterpreting Goto to see if there's room now. It's important to query
+        // has_room_now here using the previous, fixed state of the world. If we did it in the next
+        // loop, then order of updates would matter for more than just conflict resolution.
         //
         // Note that since this uses RNG right now, it's only deterministic if iteration order is!
         // So can't be concurrent and use RNG. Could have a RNG per car or something later if we
@@ -387,7 +419,7 @@ impl Sim {
         for c in self.cars.values() {
             requested_moves.push((
                 c.id,
-                match c.step(map, self.time, &mut self.rng) {
+                match c.step(map, self.time) {
                     Action::Goto(on) => {
                         // This is a monotonic property in conjunction with
                         // new_car_entered_this_step. The last car won't go backwards.
@@ -444,6 +476,8 @@ impl Sim {
                         let c = self.cars.get_mut(&id).unwrap();
                         if let On::Turn(t) = c.on {
                             self.intersections[map.get_t(t).parent.0].on_exit(c.id);
+                            assert_eq!(c.path[0], map.get_t(t).dst);
+                            c.path.pop_front();
                         }
                         c.waiting_for = None;
                         c.on = on;

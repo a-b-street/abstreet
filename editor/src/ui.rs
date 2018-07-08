@@ -436,7 +436,7 @@ impl gui::GUI for UI {
 
                 if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
                     if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                        if !self.sim_ctrl.sim.spawn_one_on_road(id) {
+                        if !self.sim_ctrl.sim.spawn_one_on_road(&self.map, id) {
                             println!("No room, sorry");
                         }
                         return gui::EventLoopMode::InputOnly;

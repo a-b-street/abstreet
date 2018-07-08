@@ -24,15 +24,13 @@ pub fn pathfind(map: &Map, start: RoadID, end: RoadID) -> Option<Vec<RoadID>> {
             let mut lookup = current;
             loop {
                 path.push(lookup);
-                if let Some(next) = backrefs.get(&lookup) {
-                    lookup = *next;
-                } else {
-                    assert!(lookup == start);
+                if lookup == start {
                     path.reverse();
                     assert_eq!(path[0], start);
                     assert_eq!(*path.last().unwrap(), end);
                     return Some(path);
                 }
+                lookup = backrefs[&lookup];
             }
         }
 
