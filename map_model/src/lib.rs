@@ -25,5 +25,5 @@ pub use intersection::{Intersection, IntersectionID};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::pathfind;
-pub use road::{LaneType, Road, RoadID};
+pub use road::{LaneType, Road, RoadID, PARKING_SPOT_LENGTH};
 pub use turn::{Turn, TurnID};

@@ -1,14 +1,20 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Angle, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use map_model::{geometry, Map, TurnID};
+use std;
 use CarID;
 
 const CAR_WIDTH: f64 = 2.0;
-const CAR_LENGTH: f64 = 4.5;
+
+pub(crate) const CAR_LENGTH: si::Meter<f64> = si::Meter {
+    value_unsafe: 4.5,
+    _marker: std::marker::PhantomData,
+};
 
 // TODO should this live in editor/render?
 pub struct DrawCar {
@@ -28,7 +34,7 @@ impl DrawCar {
     ) -> DrawCar {
         let turn_arrow = if let Some(t) = waiting_for_turn {
             let angle = map.get_t(t).line.angle();
-            let arrow_pt = front.project_away(CAR_LENGTH / 2.0, angle.opposite());
+            let arrow_pt = front.project_away(CAR_LENGTH.value_unsafe / 2.0, angle.opposite());
             Some([arrow_pt.x(), arrow_pt.y(), front.x(), front.y()])
         } else {
             None
@@ -40,7 +46,7 @@ impl DrawCar {
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
             polygons: geometry::thick_line_from_angle(
                 CAR_WIDTH,
-                CAR_LENGTH,
+                CAR_LENGTH.value_unsafe,
                 front,
                 // find the back of the car relative to the front
                 angle.opposite(),

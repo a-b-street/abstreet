@@ -1,4 +1,6 @@
+use draw_car;
 use draw_car::DrawCar;
+use map_model;
 use map_model::{LaneType, Map, Road, RoadID};
 use rand::Rng;
 use std::iter;
@@ -109,8 +111,10 @@ impl ParkingLane {
             .enumerate()
             .filter_map(|(idx, maybe_id)| {
                 maybe_id.and_then(|id| {
-                    // TODO make the car centered inside the spot
-                    let (front, angle) = r.parking_spot_position(idx);
+                    let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
+                    let (front, angle) = r.dist_along(
+                        spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
+                    );
                     Some(DrawCar::new(id, None, map, front, angle))
                 })
             })

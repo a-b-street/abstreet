@@ -8,7 +8,7 @@ use std::f64;
 use std::fmt;
 use IntersectionID;
 
-const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
+pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
     // TODO look up a real value
     value_unsafe: 10.0,
     _marker: std::marker::PhantomData,
@@ -120,13 +120,5 @@ impl Road {
         } else {
             0
         }
-    }
-
-    // Returns the front of the spot. Can handle [0, number_parking_spots()] inclusive -- the last
-    // value is for rendering the last marking.
-    pub fn parking_spot_position(&self, spot_idx: usize) -> (Pt2D, Angle) {
-        assert_eq!(self.lane_type, LaneType::Parking);
-        // +1 to start away from the intersection
-        self.dist_along(PARKING_SPOT_LENGTH * (1.0 + spot_idx as f64))
     }
 }

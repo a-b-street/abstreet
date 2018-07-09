@@ -3,7 +3,6 @@
 ## cars
 
 - model cars parking
-	- center the parked cars
 	- make vanished cars just park again
 		- how to handle when parking is full or no parking at goal road?
 
