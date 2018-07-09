@@ -22,9 +22,16 @@ mod sim;
 
 use dimensioned::si;
 pub use sim::{Benchmark, Sim};
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(pub usize);
+
+impl fmt::Display for CarID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "CarID({0})", self.0)
+    }
+}
 
 pub const TIMESTEP: si::Second<f64> = si::Second {
     value_unsafe: 0.1,

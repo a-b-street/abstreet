@@ -414,9 +414,16 @@ impl gui::GUI for UI {
             self.geom_validator = Validator::start(&self.draw_map);
             return gui::EventLoopMode::InputOnly;
         }
-        if input.unimportant_key_pressed(Key::S, "Spawn 1000 cars in random places") {
-            self.sim_ctrl.sim.spawn_many_on_empty_roads(&self.map, 1000);
-            return gui::EventLoopMode::InputOnly;
+        if self.sim_ctrl.sim.total_cars() == 0 {
+            if input.unimportant_key_pressed(Key::S, "Seed the map with 50% parked cars") {
+                self.sim_ctrl.sim.seed_parked_cars(0.5);
+                return gui::EventLoopMode::InputOnly;
+            }
+        } else {
+            if input.unimportant_key_pressed(Key::S, "Make 1000 parked cars start driving") {
+                self.sim_ctrl.sim.start_many_parked_cars(&self.map, 1000);
+                return gui::EventLoopMode::InputOnly;
+            }
         }
 
         match self.current_selection_state {
@@ -435,10 +442,8 @@ impl gui::GUI for UI {
                 }
 
                 if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
-                    if input.key_pressed(Key::A, "Press A to add a car starting from this road") {
-                        if !self.sim_ctrl.sim.spawn_one_on_road(&self.map, id) {
-                            println!("No room, sorry");
-                        }
+                    if input.key_pressed(Key::A, "Press A to start a parked car on this road") {
+                        self.sim_ctrl.sim.start_parked_car(&self.map, id);
                         return gui::EventLoopMode::InputOnly;
                     }
                 }

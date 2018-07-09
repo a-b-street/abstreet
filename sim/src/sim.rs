@@ -3,11 +3,9 @@
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
-use driving::{Car, DrivingSimState, On};
-use map_model;
+use driving::DrivingSimState;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
-use std::collections::VecDeque;
 use parking::ParkingSimState;
 use std::f64;
 use std::time::{Duration, Instant};
@@ -45,75 +43,78 @@ impl Sim {
         }
     }
 
-    // TODO cars basically start in the intersection, with their front bumper right at the
-    // beginning of the road. later, we want cars starting at arbitrary points in the middle of the
-    // road (from a building), so just ignore this problem for now.
-    pub fn spawn_one_on_road(&mut self, map: &Map, start: RoadID) -> bool {
-        if !self.driving_state.roads[start.0].room_at_end(self.time, &self.driving_state.cars) {
-            return false;
-        }
-        let id = CarID(self.id_counter);
-        self.id_counter += 1;
-
-        let goal = self.rng.choose(map.all_roads()).unwrap();
-        if goal.lane_type != LaneType::Driving || goal.id == start {
-            println!("Chose bad goal {}", goal.id);
-            return false;
-        }
-        let mut path = if let Some(steps) = map_model::pathfind(map, start, goal.id) {
-            VecDeque::from(steps)
-        } else {
-            println!("No path from {} to {}", start, goal.id);
-            return false;
-        };
-        // path includes the start, but that's not the invariant Car enforces
-        path.pop_front();
-
-        self.driving_state.cars.insert(
-            id,
-            Car {
-                id,
-                path,
-                started_at: self.time,
-                on: On::Road(start),
-                waiting_for: None,
-                debug: false,
-            },
-        );
-        self.driving_state.roads[start.0].cars_queue.push(id);
-        true
+    pub fn total_cars(&self) -> usize {
+        self.id_counter
     }
 
-    pub fn spawn_many_on_empty_roads(&mut self, map: &Map, num_cars: usize) {
-        let mut roads: Vec<RoadID> = self.driving_state
-            .roads
-            .iter()
+    pub fn seed_parked_cars(&mut self, percent: f64) {
+        self.parking_state.seed_random_cars(&mut self.rng, percent, &mut self.id_counter)
+    }
+
+    pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
+        let mut driving_lanes: Vec<RoadID> = map.all_roads().iter()
             .filter_map(|r| {
-                if map.get_r(r.id.as_road()).lane_type == LaneType::Driving && r.is_empty() {
-                    Some(r.id.as_road())
+                if r.lane_type == LaneType::Driving && self.driving_state.roads[r.id.0].is_empty() {
+                    Some(r.id)
                 } else {
                     None
                 }
             })
             .collect();
         // Don't ruin determinism for silly reasons. :)
-        if !roads.is_empty() {
-            self.rng.shuffle(&mut roads);
+        if !driving_lanes.is_empty() {
+            self.rng.shuffle(&mut driving_lanes);
         }
 
-        let n = num_cars.min(roads.len());
+        let n = num_cars.min(driving_lanes.len());
         let mut actual = 0;
         for i in 0..n {
-            if self.spawn_one_on_road(map, roads[i]) {
+            if self.start_parked_car(map, driving_lanes[i]) {
                 actual += 1;
             }
         }
-        println!("Spawned {} of {}", actual, n);
+        println!("Started {} parked cars of requested {}", actual, n);
+    }
+
+    pub fn start_parked_car(&mut self, map: &Map, id: RoadID) -> bool {
+        let (driving_lane, parking_lane) = match map.get_r(id).lane_type {
+            LaneType::Sidewalk => {
+                println!("{} is a sidewalk, can't start a parked car here", id);
+                return false;
+            }
+            LaneType::Driving => {
+                if let Some(parking) = map.find_parking_lane(id) {
+                    (id, parking)
+                } else {
+                    println!("{} has no parking lane", id);
+                    return false;
+                }
+            }
+            LaneType::Parking => {
+                if let Some(driving) = map.find_driving_lane(id) {
+                    (driving, id)
+                } else {
+                    println!("{} has no driving lane", id);
+                    return false;
+                }
+            }
+        };
+
+        if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
+            if self.driving_state.start_car_on_road(self.time, driving_lane, car, map, &mut self.rng) {
+                self.parking_state.remove_last_parked_car(parking_lane, car);
+            }
+            true
+        } else {
+            println!("No parked cars on {}", parking_lane);
+            false
+        }
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
+        // TODO Vanish action should become Park
         self.driving_state.step(self.time, map, control_map);
     }
 

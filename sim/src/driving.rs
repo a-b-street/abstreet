@@ -5,7 +5,9 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
-use map_model::{Map, RoadID, TurnID};
+use map_model;
+use rand::Rng;
+use map_model::{Map, RoadID, TurnID, LaneType};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
@@ -392,5 +394,45 @@ impl DrivingSimState {
                 t.reset(&Vec::new(), &self.cars);
             }
         }
+    }
+
+    // TODO cars basically start in the intersection, with their front bumper right at the
+    // beginning of the road. later, we want cars starting at arbitrary points in the middle of the
+    // road (from a building), so just ignore this problem for now.
+    // True if we spawned one
+    pub fn start_car_on_road<R: Rng + ?Sized>(&mut self, time: Tick, start: RoadID, car: CarID, map: &Map, rng: &mut R) -> bool {
+        if !self.roads[start.0].room_at_end(time, &self.cars) {
+            // TODO car should enter Unparking state and wait for room
+            println!("No room for {} to start driving on {}", car, start);
+            return false;
+        }
+
+        let goal = rng.choose(map.all_roads()).unwrap();
+        if goal.lane_type != LaneType::Driving || goal.id == start {
+            println!("Chose bad goal {}", goal.id);
+            return false;
+        }
+        let mut path = if let Some(steps) = map_model::pathfind(map, start, goal.id) {
+            VecDeque::from(steps)
+        } else {
+            println!("No path from {} to {}", start, goal.id);
+            return false;
+        };
+        // path includes the start, but that's not the invariant Car enforces
+        path.pop_front();
+
+        self.cars.insert(
+            car,
+            Car {
+                id: car,
+                path,
+                started_at: time,
+                on: On::Road(start),
+                waiting_for: None,
+                debug: false,
+            },
+        );
+        self.roads[start.0].cars_queue.push(car);
+        true
     }
 }

@@ -3,8 +3,10 @@
 ## cars
 
 - model cars parking
-	- populate a bunch of parked cars initially
-	- maybe render numbers on the cars to distinguish them
+	- need to update the tests to seed, then start
+	- render parked cars (different color)
+	- make vanished cars just park again
+		- how to handle when parking is full or no parking at goal road?
 
 - code cleanup
 	- try to simplify straw_model step (less phases?)
@@ -18,6 +20,7 @@
 	- draw cars in slightly different colors, to distinguish them better
 
 - start implementing a second AORTAish driving model
+	- then make cars park/unpark at the correct position
 
 - reversible sim
 
