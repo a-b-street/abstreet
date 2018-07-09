@@ -37,15 +37,13 @@ impl Floodfiller {
 
     // returns true if active
     pub fn event(&mut self, map: &Map, input: &mut UserInput) -> bool {
-        match self {
+        let mut new_state: Option<Floodfiller> = None;
+        let active = match self {
             Floodfiller::Inactive => false,
             Floodfiller::Active { visited, queue } => {
                 if input.key_pressed(Key::Return, "Press Enter to quit floodfilling") {
-                    *self = Floodfiller::Inactive;
-                    return true;
-                }
-
-                if !queue.is_empty() {
+                    new_state = Some(Floodfiller::Inactive);
+                } else if !queue.is_empty() {
                     if input.key_pressed(Key::Space, "Press space to step floodfilling forwards") {
                         step(visited, queue, map);
                     }
@@ -59,7 +57,11 @@ impl Floodfiller {
                 }
                 true
             }
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 
     pub fn color_r(&self, r: &Road, cs: &ColorScheme) -> Option<Color> {

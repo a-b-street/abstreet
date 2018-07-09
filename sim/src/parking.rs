@@ -53,7 +53,7 @@ impl ParkingSimState {
         self.roads[id.0].get_last_parked_car()
     }
 
-    pub(crate) fn remove_last_parked_car(&self, id: RoadID, car: CarID) {
+    pub(crate) fn remove_last_parked_car(&mut self, id: RoadID, car: CarID) {
         self.roads[id.0].remove_last_parked_car(car)
     }
 }

@@ -19,26 +19,32 @@ impl WarpState {
         canvas: &mut Canvas,
         selection_state: &mut SelectionState,
     ) -> bool {
-        match self {
+        let mut new_state: Option<WarpState> = None;
+        let active = match self {
             WarpState::Empty => {
                 if input.unimportant_key_pressed(
                     Key::J,
                     "Press J to start searching for something to warp to",
                 ) {
-                    *self = WarpState::EnteringSearch(TextBox::new());
-                    return true;
+                    new_state = Some(WarpState::EnteringSearch(TextBox::new()));
+                    true
+                } else {
+                    false
                 }
-                false
             }
             WarpState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
                     warp(tb.line.clone(), map, canvas, selection_state);
-                    *self = WarpState::Empty;
+                    new_state = Some(WarpState::Empty);
                 }
                 input.consume_event();
                 true
             }
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 
     pub fn get_osd_lines(&self) -> Vec<String> {

@@ -38,48 +38,49 @@ impl TrafficSignalEditor {
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
-        match self {
+        let mut new_state: Option<TrafficSignalEditor> = None;
+        let active = match self {
             TrafficSignalEditor::Inactive => false,
             TrafficSignalEditor::Active { i, current_cycle } => {
                 if input.key_pressed(Key::Return, "Press enter to quit the editor") {
-                    *self = TrafficSignalEditor::Inactive;
-                    return true;
-                }
-
-                // Change cycles
-                {
-                    let cycles = &control_map.traffic_signals[&i].cycles;
-                    if let Some(n) = input.number_chosen(
-                        cycles.len(),
-                        &format!(
-                            "Showing cycle {} of {}. Switch by pressing 1 - {}.",
-                            *current_cycle + 1,
+                    new_state = Some(TrafficSignalEditor::Inactive);
+                } else {
+                    // Change cycles
+                    {
+                        let cycles = &control_map.traffic_signals[&i].cycles;
+                        if let Some(n) = input.number_chosen(
                             cycles.len(),
-                            cycles.len()
-                        ),
-                    ) {
-                        *current_cycle = n - 1;
+                            &format!(
+                                "Showing cycle {} of {}. Switch by pressing 1 - {}.",
+                                *current_cycle + 1,
+                                cycles.len(),
+                                cycles.len()
+                            ),
+                        ) {
+                            *current_cycle = n - 1;
+                        }
                     }
-                }
 
-                // Change turns
-                if let SelectionState::SelectedTurn(id) = *current_selection {
-                    if map.get_t(id).parent == *i {
-                        let cycle = &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
-                            [*current_cycle];
-                        if cycle.contains(id) {
-                            if input.key_pressed(
-                                Key::Backspace,
-                                "Press Backspace to remove this turn from this cycle",
-                            ) {
-                                cycle.remove(id);
-                            }
-                        } else if !cycle.conflicts_with(id, map) {
-                            if input.key_pressed(
-                                Key::Space,
-                                "Press Space to add this turn to this cycle",
-                            ) {
-                                cycle.add(id);
+                    // Change turns
+                    if let SelectionState::SelectedTurn(id) = *current_selection {
+                        if map.get_t(id).parent == *i {
+                            let cycle =
+                                &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
+                                    [*current_cycle];
+                            if cycle.contains(id) {
+                                if input.key_pressed(
+                                    Key::Backspace,
+                                    "Press Backspace to remove this turn from this cycle",
+                                ) {
+                                    cycle.remove(id);
+                                }
+                            } else if !cycle.conflicts_with(id, map) {
+                                if input.key_pressed(
+                                    Key::Space,
+                                    "Press Space to add this turn to this cycle",
+                                ) {
+                                    cycle.add(id);
+                                }
                             }
                         }
                     }
@@ -87,7 +88,11 @@ impl TrafficSignalEditor {
 
                 true
             }
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 
     pub fn color_t(

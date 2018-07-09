@@ -31,15 +31,13 @@ impl StopSignEditor {
         control_map: &mut ControlMap,
         current_selection: &SelectionState,
     ) -> bool {
-        match self {
+        let mut new_state: Option<StopSignEditor> = None;
+        let active = match self {
             StopSignEditor::Inactive => false,
             StopSignEditor::Active(i) => {
                 if input.key_pressed(Key::Return, "Press enter to quit the editor") {
-                    *self = StopSignEditor::Inactive;
-                    return true;
-                }
-
-                if let SelectionState::SelectedTurn(id) = *current_selection {
+                    new_state = Some(StopSignEditor::Inactive);
+                } else if let SelectionState::SelectedTurn(id) = *current_selection {
                     if map.get_t(id).parent == *i {
                         let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
                         match sign.get_priority(id) {
@@ -85,7 +83,11 @@ impl StopSignEditor {
 
                 true
             }
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 
     pub fn color_t(&self, t: &Turn, control_map: &ControlMap, cs: &ColorScheme) -> Option<Color> {

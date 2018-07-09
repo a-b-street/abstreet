@@ -94,7 +94,8 @@ impl Validator {
     }
 
     pub fn event(&mut self, input: &mut UserInput, canvas: &mut Canvas, map: &Map) -> bool {
-        match self {
+        let mut new_state: Option<Validator> = None;
+        let active = match self {
             Validator::Inactive => false,
             Validator::Active {
                 gen,
@@ -114,20 +115,22 @@ impl Validator {
                     // TODO also modify selection state to highlight stuff?
                     } else {
                         println!("No more problems!");
-                        *self = Validator::Inactive;
+                        new_state = Some(Validator::Inactive);
                     }
-                    return true;
-                }
-
-                if input.key_pressed(Key::Escape, "Press Escape to stop looking at problems") {
+                } else if input.key_pressed(Key::Escape, "Press Escape to stop looking at problems")
+                {
                     println!("Quit geometry validator");
-                    *self = Validator::Inactive;
+                    new_state = Some(Validator::Inactive);
                 }
 
                 // Later, keys for resolving problems
                 true
             }
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 }
 

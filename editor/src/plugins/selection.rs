@@ -56,13 +56,14 @@ impl SelectionState {
     }
 
     pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
-        match self {
+        let mut new_state: Option<SelectionState> = None;
+        let active = match self {
             SelectionState::SelectedRoad(id, current_turn_index) => {
                 if input.key_pressed(
                     Key::LCtrl,
                     &format!("Hold Ctrl to show road {:?}'s tooltip", id),
                 ) {
-                    *self = SelectionState::TooltipRoad(*id);
+                    new_state = Some(SelectionState::TooltipRoad(*id));
                     true
                 } else if input
                     .key_pressed(Key::Tab, "Press Tab to cycle through this road's turns")
@@ -71,7 +72,7 @@ impl SelectionState {
                         Some(i) => i + 1,
                         None => 0,
                     };
-                    *self = SelectionState::SelectedRoad(*id, Some(idx));
+                    new_state = Some(SelectionState::SelectedRoad(*id, Some(idx)));
                     true
                 } else if input.key_pressed(Key::D, "press D to debug") {
                     map.get_r(*id).dump_debug();
@@ -84,14 +85,18 @@ impl SelectionState {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    *self = SelectionState::SelectedRoad(*id, None);
+                    new_state = Some(SelectionState::SelectedRoad(*id, None));
                     true
                 } else {
                     false
                 }
             }
             _ => false,
+        };
+        if let Some(s) = new_state {
+            *self = s;
         }
+        active
     }
 
     pub fn draw(
