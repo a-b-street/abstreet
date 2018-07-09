@@ -27,7 +27,7 @@ fn main() {
     let map = map_model::Map::new(&flags.abst_input).expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
-    let mut sim = sim::straw_model::Sim::new(&map, flags.rng_seed);
+    let mut sim = sim::Sim::new(&map, flags.rng_seed);
     // TODO need a notion of scenarios
     sim.spawn_many_on_empty_roads(&map, 100000);
 

@@ -16,8 +16,8 @@ fn from_scratch() {
     let map = map_model::Map::new(input).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim1 = sim::straw_model::Sim::new(&map, Some(rng_seed));
-    let mut sim2 = sim::straw_model::Sim::new(&map, Some(rng_seed));
+    let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
+    let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
     sim1.spawn_many_on_empty_roads(&map, spawn_count);
     sim2.spawn_many_on_empty_roads(&map, spawn_count);
 
@@ -45,8 +45,8 @@ fn with_savestating() {
     let map = map_model::Map::new(input).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim1 = sim::straw_model::Sim::new(&map, Some(rng_seed));
-    let mut sim2 = sim::straw_model::Sim::new(&map, Some(rng_seed));
+    let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
+    let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
     sim1.spawn_many_on_empty_roads(&map, spawn_count);
     sim2.spawn_many_on_empty_roads(&map, spawn_count);
 
@@ -73,7 +73,7 @@ fn with_savestating() {
         panic!("sim state unexpectedly the same at {}. compare sim1_state.json and sim2_state.json", sim1.time);
     }
 
-    let sim3: sim::straw_model::Sim = abstutil::read_json("sim1_savestate.json").unwrap();
+    let sim3: sim::Sim = abstutil::read_json("sim1_savestate.json").unwrap();
     if sim3 != sim2 {
         abstutil::write_json("sim3_state.json", &sim3).unwrap();
         abstutil::write_json("sim2_state.json", &sim2).unwrap();

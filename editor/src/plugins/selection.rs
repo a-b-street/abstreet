@@ -10,8 +10,7 @@ use map_model;
 use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
-use sim::CarID;
-use sim::straw_model::Sim;
+use sim::{CarID, Sim};
 use std::collections::HashSet;
 
 // TODO only used for mouseover, which happens in order anyway...

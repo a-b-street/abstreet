@@ -6,24 +6,24 @@ use ezgui::input::UserInput;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
 use sim;
-use sim::straw_model;
+use sim::{Benchmark, Sim};
 use std::time::{Duration, Instant};
 
 const ADJUST_SPEED: f64 = 0.1;
 
 pub struct SimController {
-    pub sim: straw_model::Sim,
+    pub sim: Sim,
     desired_speed: f64, // sim seconds per real second
     // If None, then the sim is paused
     last_step: Option<Instant>,
-    benchmark: Option<straw_model::Benchmark>,
+    benchmark: Option<Benchmark>,
     sim_speed: String,
 }
 
 impl SimController {
     pub fn new(map: &Map, rng_seed: Option<u8>) -> SimController {
         SimController {
-            sim: straw_model::Sim::new(map, rng_seed),
+            sim: Sim::new(map, rng_seed),
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,

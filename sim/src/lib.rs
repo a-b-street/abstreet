@@ -18,9 +18,10 @@ mod draw_car;
 mod driving;
 mod intersections;
 mod parking;
-pub mod straw_model;
+mod sim;
 
 use dimensioned::si;
+pub use sim::{Benchmark, Sim};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(pub usize);
