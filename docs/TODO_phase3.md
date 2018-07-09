@@ -3,7 +3,6 @@
 ## cars
 
 - model cars parking
-	- need to update the tests to seed, then start
 	- render parked cars (different color)
 	- make vanished cars just park again
 		- how to handle when parking is full or no parking at goal road?

@@ -29,7 +29,8 @@ fn main() {
     let control_map = control::ControlMap::new(&map);
     let mut sim = sim::Sim::new(&map, flags.rng_seed);
     // TODO need a notion of scenarios
-    sim.spawn_many_on_empty_roads(&map, 100000);
+    sim.seed_parked_cars(0.7);
+    sim.start_many_parked_cars(&map, 100000);
 
     let mut counter = 0;
     let mut benchmark = sim.start_benchmark();

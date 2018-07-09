@@ -414,15 +414,21 @@ impl DrivingSimState {
             return false;
         }
 
-        let goal = rng.choose(map.all_roads()).unwrap();
-        if goal.lane_type != LaneType::Driving || goal.id == start {
-            println!("Chose bad goal {}", goal.id);
-            return false;
-        }
-        let mut path = if let Some(steps) = map_model::pathfind(map, start, goal.id) {
+        let candidate_goals: Vec<RoadID> = map.all_roads()
+            .iter()
+            .filter_map(|r| {
+                if r.lane_type != LaneType::Driving || r.id == start {
+                    None
+                } else {
+                    Some(r.id)
+                }
+            })
+            .collect();
+        let goal = rng.choose(&candidate_goals).unwrap();
+        let mut path = if let Some(steps) = map_model::pathfind(map, start, *goal) {
             VecDeque::from(steps)
         } else {
-            println!("No path from {} to {}", start, goal.id);
+            println!("No path from {} to {}", start, goal);
             return false;
         };
         // path includes the start, but that's not the invariant Car enforces
