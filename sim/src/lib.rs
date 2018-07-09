@@ -15,8 +15,8 @@ extern crate serde;
 extern crate serde_derive;
 
 mod draw_car;
+mod intersections;
 mod parking;
-mod straw_intersections;
 pub mod straw_model;
 
 use dimensioned::si;

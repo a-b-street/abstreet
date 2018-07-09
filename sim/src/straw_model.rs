@@ -4,6 +4,7 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
+use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 use map_model;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use multimap::MultiMap;
@@ -12,7 +13,6 @@ use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
-use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 use {CarID, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
