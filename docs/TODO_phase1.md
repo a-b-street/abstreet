@@ -1,5 +1,18 @@
 # TODO for Phase 1 (Basemap)
 
+- road with many lanes
+	- maybe also the time to split into different lane types? what's similar/not between them?
+		- graph querying?
+		- rendering (and other UI/editor interactions)?
+		- sim state?
+	- split structs, IDs, getters, etc
+	- osm tags belong to road
+	- this will clean up other_side and siblings
+	- figure out what to do about yellow center lines
+		- yellow and white lines intersect cars and turn icons and such
+		- who should own drawing them?
+		- trim them back too (maybe to avoid hitting the intersection?)
+
 - model bike lanes
 
 - more data
@@ -25,19 +38,12 @@
 		  building layer before sidewalk layer
 
 - code cleanup
-	- rename Road to Lane
 	- make final Map serializable too
 		- useful to precompute sidewalk paths
 		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?
 	- isolate vec2d
-
-- figure out what to do about yellow center lines
-	- yellow and white lines intersect cars and turn icons and such
-	- who should own drawing them?
-	- trim them back too (maybe to avoid hitting the intersection?)
-	- osm tags and such would ideally be part of a master road
 
 - draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
 

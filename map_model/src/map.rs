@@ -9,7 +9,7 @@ use intersection::{Intersection, IntersectionID};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
-use road::{Road, RoadID};
+use road::{Road, RoadID, LaneType};
 use std::collections::HashMap;
 use std::io::Error;
 use turn::{Turn, TurnID};
@@ -66,6 +66,8 @@ impl Map {
                 counter += 1;
                 let other_side = lane.offset_for_other_id
                     .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
+                let siblings = lane.offsets_for_siblings.iter()
+                    .map(|offset| RoadID(((id.0 as isize) + offset) as usize)).collect();
 
                 let mut unshifted_pts = PolyLine::new(
                     r.points
@@ -102,6 +104,7 @@ impl Map {
                 m.roads.push(Road {
                     id,
                     other_side,
+                    siblings,
                     use_yellow_center_lines,
                     lane_center_pts,
                     probably_broken,
@@ -225,5 +228,18 @@ impl Map {
     // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()
+    }
+
+    pub fn find_driving_lane(&self, parking: RoadID) -> Option<RoadID> {
+        let r = self.get_r(parking);
+        assert_eq!(r.lane_type, LaneType::Parking);
+        // TODO find the closest one to the parking lane, if there are multiple
+        r.siblings.iter().find(|&&id| self.get_r(id).lane_type == LaneType::Driving).map(|id| *id)
+    }
+
+    pub fn find_parking_lane(&self, driving: RoadID) -> Option<RoadID> {
+        let r = self.get_r(driving);
+        assert_eq!(r.lane_type, LaneType::Driving);
+        r.siblings.iter().find(|&&id| self.get_r(id).lane_type == LaneType::Parking).map(|id| *id)
     }
 }

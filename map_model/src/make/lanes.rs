@@ -59,6 +59,7 @@ pub(crate) struct LaneSpec {
     pub offset: u8,
     pub reverse_pts: bool,
     pub offset_for_other_id: Option<isize>,
+    pub offsets_for_siblings: Vec<isize>,
 }
 
 impl LaneSpec {
@@ -67,12 +68,14 @@ impl LaneSpec {
         offset: u8,
         reverse_pts: bool,
         offset_for_other_id: Option<isize>,
+        offsets_for_siblings: Vec<isize>,
     ) -> LaneSpec {
         LaneSpec {
             lane_type,
             offset,
             reverse_pts,
             offset_for_other_id,
+            offsets_for_siblings,
         }
     }
 }
@@ -107,6 +110,7 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
             idx as u8,
             false,
             offset_for_other_id,
+            make_offsets(idx as isize, side1_types.len() as isize),
         ));
     }
     for (idx, lane_type) in side2_types.iter().enumerate() {
@@ -122,10 +126,41 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
             idx as u8,
             true,
             offset_for_other_id,
+            make_offsets(idx as isize, side2_types.len() as isize),
         ));
     }
 
     specs
+}
+
+fn make_offsets(idx: isize, len: isize) -> Vec<isize> {
+    let mut offsets = Vec::new();
+    for i in 0 .. len {
+        if i != idx {
+            offsets.push(i - idx);
+        }
+    }
+    offsets
+}
+
+#[test]
+fn offsets() {
+    let no_offsets: Vec<isize> = Vec::new();
+    assert_eq!(
+        make_offsets(0, 1),
+        no_offsets);
+
+    assert_eq!(
+        make_offsets(0, 3),
+        vec![1, 2]);
+
+    assert_eq!(
+        make_offsets(1, 3),
+        vec![-1, 1]);
+
+    assert_eq!(
+        make_offsets(2, 3),
+        vec![-2, -1]);
 }
 
 #[test]
@@ -134,7 +169,7 @@ fn junction() {
 
     assert_eq!(
         lane_specs_for((vec![d], vec![])),
-        vec![LaneSpec::new(d, 0, false, None)]
+        vec![LaneSpec::new(d, 0, false, None, vec![])]
     );
 }
 
@@ -147,10 +182,10 @@ fn oneway() {
     assert_eq!(
         lane_specs_for((vec![d, p, s], vec![s])),
         vec![
-            LaneSpec::new(d, 0, false, None),
-            LaneSpec::new(p, 1, false, None),
-            LaneSpec::new(s, 2, false, Some(1)),
-            LaneSpec::new(s, 0, true, Some(-1)),
+            LaneSpec::new(d, 0, false, None, vec![1, 2]),
+            LaneSpec::new(p, 1, false, None, vec![-1, 1]),
+            LaneSpec::new(s, 2, false, Some(1), vec![-2, -1]),
+            LaneSpec::new(s, 0, true, Some(-1), vec![]),
         ]
     );
 }
@@ -164,12 +199,12 @@ fn twoway() {
     assert_eq!(
         lane_specs_for((vec![d, p, s], vec![d, p, s])),
         vec![
-            LaneSpec::new(d, 0, false, Some(3)),
-            LaneSpec::new(p, 1, false, None),
-            LaneSpec::new(s, 2, false, Some(3)),
-            LaneSpec::new(d, 0, true, Some(-3)),
-            LaneSpec::new(p, 1, true, None),
-            LaneSpec::new(s, 2, true, Some(-3)),
+            LaneSpec::new(d, 0, false, Some(3), vec![1, 2]),
+            LaneSpec::new(p, 1, false, None, vec![-1, 1]),
+            LaneSpec::new(s, 2, false, Some(3), vec![-2, -1]),
+            LaneSpec::new(d, 0, true, Some(-3), vec![1, 2]),
+            LaneSpec::new(p, 1, true, None, vec![-1, 1]),
+            LaneSpec::new(s, 2, true, Some(-3), vec![-2, -1]),
         ]
     );
 }
@@ -183,14 +218,14 @@ fn big_twoway() {
     assert_eq!(
         lane_specs_for((vec![d, d, p, s], vec![d, d, p, s])),
         vec![
-            LaneSpec::new(d, 0, false, Some(4)),
-            LaneSpec::new(d, 1, false, Some(4)),
-            LaneSpec::new(p, 2, false, None),
-            LaneSpec::new(s, 3, false, Some(4)),
-            LaneSpec::new(d, 0, true, Some(-4)),
-            LaneSpec::new(d, 1, true, Some(-4)),
-            LaneSpec::new(p, 2, true, None),
-            LaneSpec::new(s, 3, true, Some(-4)),
+            LaneSpec::new(d, 0, false, Some(4), vec![1, 2, 3]),
+            LaneSpec::new(d, 1, false, Some(4), vec![-1, 1, 2]),
+            LaneSpec::new(p, 2, false, None, vec![-2, -1, 1]),
+            LaneSpec::new(s, 3, false, Some(4), vec![-3, -2, -1]),
+            LaneSpec::new(d, 0, true, Some(-4), vec![1, 2, 3]),
+            LaneSpec::new(d, 1, true, Some(-4), vec![-1, 1, 2]),
+            LaneSpec::new(p, 2, true, None, vec![-2, -1, 1]),
+            LaneSpec::new(s, 3, true, Some(-4), vec![-3, -2, -1]),
         ]
     );
 }

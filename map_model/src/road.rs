@@ -50,9 +50,12 @@ pub struct Road {
     // Should this lane own the drawing of the yellow center lines? For two-way roads, this is
     // arbitrarily grouped with one of the lanes. Ideally it would be owned by something else.
     pub use_yellow_center_lines: bool,
+
     // Need to remember this just for detecting U-turns here. Also for finding sidewalks to connect
     // with a crosswalk.
     pub other_side: Option<RoadID>,
+    // TODO alright, we might need a Road-vs-Lanes distinction
+    pub siblings: Vec<RoadID>,
 
     /// GeomRoad stuff
     pub lane_center_pts: PolyLine,
