@@ -3,7 +3,7 @@
 ## cars
 
 - model cars parking
-	- render parked cars (different color)
+	- center the parked cars
 	- make vanished cars just park again
 		- how to handle when parking is full or no parking at goal road?
 

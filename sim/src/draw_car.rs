@@ -1,11 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use driving::{Car, On};
 use ezgui::GfxCtx;
 use geom::{Angle, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
-use map_model::{geometry, Map};
+use map_model::{geometry, Map, TurnID};
 use CarID;
 
 const CAR_WIDTH: f64 = 2.0;
@@ -20,9 +19,15 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    pub(crate) fn new(car: &Car, map: &Map, front: Pt2D, angle: Angle) -> DrawCar {
-        let turn_arrow = if let Some(On::Turn(on)) = car.waiting_for {
-            let angle = map.get_t(on).line.angle();
+    pub(crate) fn new(
+        id: CarID,
+        waiting_for_turn: Option<TurnID>,
+        map: &Map,
+        front: Pt2D,
+        angle: Angle,
+    ) -> DrawCar {
+        let turn_arrow = if let Some(t) = waiting_for_turn {
+            let angle = map.get_t(t).line.angle();
             let arrow_pt = front.project_away(CAR_LENGTH / 2.0, angle.opposite());
             Some([arrow_pt.x(), arrow_pt.y(), front.x(), front.y()])
         } else {
@@ -30,7 +35,7 @@ impl DrawCar {
         };
 
         DrawCar {
-            id: car.id,
+            id: id,
             turn_arrow,
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
             polygons: geometry::thick_line_from_angle(

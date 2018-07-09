@@ -29,7 +29,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::warp::WarpState;
 use render;
-use sim::CarID;
+use sim::{CarID, CarState};
 use std::collections::HashMap;
 use std::process;
 
@@ -316,10 +316,10 @@ impl UI {
         if let Some(c) = self.current_selection_state.color_c(id, &self.cs) {
             return c;
         }
-        if self.sim_ctrl.sim.is_moving(id) {
-            self.cs.get(Colors::MovingCar)
-        } else {
-            self.cs.get(Colors::StuckCar)
+        match self.sim_ctrl.sim.get_car_state(id) {
+            CarState::Moving => self.cs.get(Colors::MovingCar),
+            CarState::Stuck => self.cs.get(Colors::StuckCar),
+            CarState::Parked => self.cs.get(Colors::ParkedCar),
         }
     }
 }

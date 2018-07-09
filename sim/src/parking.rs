@@ -1,3 +1,4 @@
+use draw_car::DrawCar;
 use map_model::{LaneType, Map, Road, RoadID};
 use rand::Rng;
 use std::iter;
@@ -56,6 +57,10 @@ impl ParkingSimState {
     pub(crate) fn remove_last_parked_car(&mut self, id: RoadID, car: CarID) {
         self.roads[id.0].remove_last_parked_car(car)
     }
+
+    pub(crate) fn get_draw_cars(&self, id: RoadID, map: &Map) -> Vec<DrawCar> {
+        self.roads[id.0].get_draw_cars(map)
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -93,5 +98,22 @@ impl ParkingLane {
             .expect("No parked cars at all now");
         assert_eq!(self.spots[idx], Some(car));
         self.spots[idx] = None;
+    }
+
+    fn get_draw_cars(&self, map: &Map) -> Vec<DrawCar> {
+        let r = map.get_r(self.r);
+        // TODO this is slow to do constantly! can we precompute for each spot or something like
+        // that?
+        self.spots
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, maybe_id)| {
+                maybe_id.and_then(|id| {
+                    // TODO make the car centered inside the spot
+                    let (front, angle) = r.parking_spot_position(idx);
+                    Some(DrawCar::new(id, None, map, front, angle))
+                })
+            })
+            .collect()
     }
 }

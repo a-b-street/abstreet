@@ -21,7 +21,7 @@ mod parking;
 mod sim;
 
 use dimensioned::si;
-pub use sim::{Benchmark, Sim};
+pub use sim::{Benchmark, CarState, Sim};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

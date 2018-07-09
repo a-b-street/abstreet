@@ -41,6 +41,13 @@ impl On {
         }
     }
 
+    fn maybe_turn(&self) -> Option<TurnID> {
+        match self {
+            &On::Turn(id) => Some(id),
+            &On::Road(_) => None,
+        }
+    }
+
     fn length(&self, map: &Map) -> si::Meter<f64> {
         match self {
             &On::Road(id) => map.get_r(id).length(),
@@ -212,7 +219,10 @@ impl SimQueue {
         let (pos1, angle1, dist_along1) =
             sim.cars[&self.cars_queue[0]].get_best_case_pos(time, map);
         results.push(DrawCar::new(
-            &sim.cars[&self.cars_queue[0]],
+            self.cars_queue[0],
+            sim.cars[&self.cars_queue[0]]
+                .waiting_for
+                .and_then(|on| on.maybe_turn()),
             map,
             pos1,
             angle1,
@@ -222,14 +232,26 @@ impl SimQueue {
         for id in self.cars_queue.iter().skip(1) {
             let (pos, angle, dist_along) = sim.cars[id].get_best_case_pos(time, map);
             if dist_along_bound - FOLLOWING_DISTANCE > dist_along {
-                results.push(DrawCar::new(&sim.cars[id], map, pos, angle));
+                results.push(DrawCar::new(
+                    *id,
+                    sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
+                    map,
+                    pos,
+                    angle,
+                ));
                 dist_along_bound = dist_along;
             } else {
                 dist_along_bound -= FOLLOWING_DISTANCE;
                 // If not, we violated room_at_end() and reset() didn't catch it
                 assert!(dist_along_bound >= 0.0 * si::M, "dist_along_bound went negative ({}) for {:?} (length {}) with queue {:?}. first car at {}", dist_along_bound, self.id, self.id.length(map), self.cars_queue, dist_along1);
                 let (pt, angle) = self.id.dist_along(dist_along_bound, map);
-                results.push(DrawCar::new(&sim.cars[id], map, pt, angle));
+                results.push(DrawCar::new(
+                    *id,
+                    sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
+                    map,
+                    pt,
+                    angle,
+                ));
             }
         }
 

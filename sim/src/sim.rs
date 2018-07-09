@@ -11,6 +11,12 @@ use std::f64;
 use std::time::{Duration, Instant};
 use {CarID, Tick};
 
+pub enum CarState {
+    Moving,
+    Stuck,
+    Parked,
+}
+
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
 pub struct Sim {
@@ -126,23 +132,34 @@ impl Sim {
         self.driving_state.step(self.time, map, control_map);
     }
 
-    pub fn is_moving(&self, c: CarID) -> bool {
-        // TODO dont assume driving state
-        self.driving_state.cars[&c].waiting_for.is_none()
+    pub fn get_car_state(&self, c: CarID) -> CarState {
+        if let Some(driving) = self.driving_state.cars.get(&c) {
+            if driving.waiting_for.is_none() {
+                CarState::Moving
+            } else {
+                CarState::Stuck
+            }
+        } else {
+            CarState::Parked
+        }
     }
 
     pub fn get_draw_cars_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawCar> {
-        // TODO dont assume driving state
-        self.driving_state.roads[r.0].get_draw_cars(self.time, &self.driving_state, map)
+        match map.get_r(r).lane_type {
+            LaneType::Driving => {
+                self.driving_state.roads[r.0].get_draw_cars(self.time, &self.driving_state, map)
+            }
+            LaneType::Parking => self.parking_state.get_draw_cars(r, map),
+            LaneType::Sidewalk => Vec::new(),
+        }
     }
 
     pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
-        // TODO dont assume driving state
         self.driving_state.turns[t.0].get_draw_cars(self.time, &self.driving_state, map)
     }
 
     pub fn summary(&self) -> String {
-        // TODO dont assume driving state
+        // TODO also report parking state
         let waiting = self.driving_state
             .cars
             .values()
@@ -157,8 +174,11 @@ impl Sim {
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        // TODO dont assume driving state
-        self.driving_state.cars[&car].tooltip_lines()
+        if let Some(driving) = self.driving_state.cars.get(&car) {
+            driving.tooltip_lines()
+        } else {
+            vec![format!("{} is parked", car)]
+        }
     }
 
     pub fn toggle_debug(&mut self, car: CarID) {
