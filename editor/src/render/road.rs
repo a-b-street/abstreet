@@ -183,34 +183,29 @@ fn calculate_sidewalk_lines(road: &map_model::Road) -> Marking {
 }
 
 fn calculate_parking_lines(road: &map_model::Road) -> Marking {
-    // TODO look up this value
-    let tile_every = 10.0 * si::M;
     // meters, but the dims get annoying below to remove
     // TODO make Pt2D natively understand meters, projecting away by an angle
     let leg_length = 1.0;
 
-    let length = road.length();
-
     let mut lines = Vec::new();
-    // Start away from the intersections
-    let mut dist_along = tile_every;
-    while dist_along < length - tile_every {
-        let (pt, lane_angle) = road.dist_along(dist_along);
-        let perp_angle = lane_angle.rotate_degs(270.0);
-        // Find the outside of the lane. Actually, shift inside a little bit, since the line will
-        // have thickness, but shouldn't really intersect the adjacent line when drawn.
-        let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
-        // The perp leg
-        let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-        lines.push([t_pt.x(), t_pt.y(), p1.x(), p1.y()]);
-        // Upper leg
-        let p2 = t_pt.project_away(leg_length, lane_angle);
-        lines.push([t_pt.x(), t_pt.y(), p2.x(), p2.y()]);
-        // Lower leg
-        let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-        lines.push([t_pt.x(), t_pt.y(), p3.x(), p3.y()]);
-
-        dist_along += tile_every;
+    let num_spots = road.number_parking_spots();
+    if num_spots > 0 {
+        for idx in 0..=num_spots {
+            let (pt, lane_angle) = road.parking_spot_position(idx);
+            let perp_angle = lane_angle.rotate_degs(270.0);
+            // Find the outside of the lane. Actually, shift inside a little bit, since the line will
+            // have thickness, but shouldn't really intersect the adjacent line when drawn.
+            let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
+            // The perp leg
+            let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
+            lines.push([t_pt.x(), t_pt.y(), p1.x(), p1.y()]);
+            // Upper leg
+            let p2 = t_pt.project_away(leg_length, lane_angle);
+            lines.push([t_pt.x(), t_pt.y(), p2.x(), p2.y()]);
+            // Lower leg
+            let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
+            lines.push([t_pt.x(), t_pt.y(), p3.x(), p3.y()]);
+        }
     }
 
     Marking {

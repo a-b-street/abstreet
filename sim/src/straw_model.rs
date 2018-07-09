@@ -11,13 +11,13 @@ use map_model::geometry;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
+use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use straw_intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 use {CarID, Tick, SPEED_LIMIT};
 
-use std;
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
     _marker: std::marker::PhantomData,
@@ -116,6 +116,8 @@ impl On {
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 struct Car {
+    // TODO might be going back to something old here, but an enum with parts of the state grouped
+    // could be more clear.
     id: CarID,
     on: On,
     // When did the car start the current On?

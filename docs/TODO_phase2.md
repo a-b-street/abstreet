@@ -12,6 +12,7 @@
 
 - easy UI bugs
 	- big maps start centered over emptiness
+	- warping to something with an 8 triggers color picker. execute the already-active plugin FIRST.
 
 - traffic signal editor
 	- button to reset intersection to original cycles

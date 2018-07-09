@@ -223,3 +223,26 @@ One UI plugin at a time:
 - alright, atfer the current cleanup with short-circuiting... express as a more abstract monadish thing? or since there are side effects sometimes and inconsistent arguments and such, maybe not?
 	- consistently mutate a plugin or return a copy
 	- the Optionals might be annoying.
+
+## Parking
+
+- already drawing parking spots of some length
+- car has to drive on adjacent driving lane past that distance, then spend X seconds parking or unparking
+	- draw different color while doing this
+	- this will probably mess up the clunky minimal driving model that infers distance based on time
+- Need to mark occupancy of all the parking spots. should be there for parking lanes instead of SimQueue.
+- Start the sim with a bunch of parked cars
+	- how to model those cars? not as active agents.
+	- no more spawning a car! select a car to wake up. :D
+
+The car's FSM:
+
+```dot
+parked -> departing;
+departing -> traveling_along_road;
+traveling_along_road -> waiting_for_turn;
+waiting_for_turn -> executing_turn;
+executing_turn -> traveling_along_road;
+traveling_along_road -> parking;
+parking -> parkd;
+```

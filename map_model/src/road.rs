@@ -3,9 +3,16 @@
 use IntersectionID;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
+use std;
 use std::collections::HashMap;
 use std::f64;
 use std::fmt;
+
+const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
+    // TODO look up a real value
+    value_unsafe: 10.0,
+    _marker: std::marker::PhantomData,
+};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -97,5 +104,26 @@ impl Road {
             "\nlet unshifted_r{}_pts = {}",
             self.id.0, self.unshifted_pts
         );
+    }
+
+    // TODO different types for each lane type might be reasonable
+
+    pub fn number_parking_spots(&self) -> usize {
+        assert_eq!(self.lane_type, LaneType::Parking);
+        // No spots next to intersections
+        let spots = (self.length() / PARKING_SPOT_LENGTH).floor() - 2.0;
+        if spots >= 1.0 {
+            spots as usize
+        } else {
+            0
+        }
+    }
+
+    // Returns the front of the spot. Can handle [0, number_parking_spots()] inclusive -- the last
+    // value is for rendering the last marking.
+    pub fn parking_spot_position(&self, spot_idx: usize) -> (Pt2D, Angle) {
+        assert_eq!(self.lane_type, LaneType::Parking);
+        // +1 to start away from the intersection
+        self.dist_along(PARKING_SPOT_LENGTH * (1.0 + spot_idx as f64))
     }
 }

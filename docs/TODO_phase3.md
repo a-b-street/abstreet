@@ -3,9 +3,8 @@
 ## cars
 
 - model cars parking
-	- maybe render numbers on the cars to distinguish them
-	- document the FSM (on lane driving, waiting, turning, parking, etc)
 	- populate a bunch of parked cars initially
+	- maybe render numbers on the cars to distinguish them
 
 - try to simplify straw_model step (less phases?)
 
