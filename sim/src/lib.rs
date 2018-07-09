@@ -15,6 +15,7 @@ extern crate serde;
 extern crate serde_derive;
 
 mod draw_car;
+mod driving;
 mod intersections;
 mod parking;
 pub mod straw_model;

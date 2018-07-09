@@ -3,12 +3,13 @@
 ## cars
 
 - model cars parking
-	- clean up DrawCar construction, so parking can make them too
-
 	- populate a bunch of parked cars initially
 	- maybe render numbers on the cars to distinguish them
 
-- try to simplify straw_model step (less phases?)
+- code cleanup
+	- try to simplify straw_model step (less phases?)
+	- figure out responsibility btwn agents and managers, then fix up visibility
+	- rng should live in a scenario spec layer, not in the sim itself
 
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
