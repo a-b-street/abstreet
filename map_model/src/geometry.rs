@@ -11,12 +11,12 @@ pub const BIG_ARROW_THICKNESS: f64 = 0.5;
 pub fn thick_line_from_angle(
     thickness: f64,
     line_length: f64,
-    pt: &Pt2D,
+    pt: Pt2D,
     angle: Angle,
 ) -> Vec<Vec<Vec2d>> {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
-    PolyLine::new(vec![*pt, pt2])
+    PolyLine::new(vec![pt, pt2])
         .make_polygons(thickness)
         .unwrap()
 }

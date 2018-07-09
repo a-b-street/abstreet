@@ -246,3 +246,8 @@ executing_turn -> traveling_along_road;
 traveling_along_road -> parking;
 parking -> parkd;
 ```
+
+- I guess CarIDs are going to be handled a little differently now; all the cars will be created once up-front in a parking state
+- Don't really want active Car structs for all the parked cars. Or, don't want to ask them to do stuff every tick.
+	- As we add more agent types, it'll become more clear how to arrange things...
+	- But for now, make something to manage both active and parked cars.

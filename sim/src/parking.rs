@@ -1,7 +1,7 @@
 use CarID;
-use map_model::{Map, Road, RoadID, LaneType};
-use std::iter;
+use map_model::{LaneType, Map, Road, RoadID};
 use rand::Rng;
+use std::iter;
 
 struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
@@ -11,7 +11,10 @@ struct ParkingSimState {
 impl ParkingSimState {
     fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
-            roads: map.all_roads().iter().map(|r| ParkingLane::new(r)).collect(),
+            roads: map.all_roads()
+                .iter()
+                .map(|r| ParkingLane::new(r))
+                .collect(),
         }
     }
 
@@ -29,11 +32,14 @@ impl ParkingSimState {
             for spot in &mut r.spots {
                 if !spot.is_some() && rng.gen_bool(percent_capacity_to_fill) {
                     new_cars += 1;
-                    *spot = Some(CarID(42));    // TODO create a new car, right?
+                    *spot = Some(CarID(42)); // TODO create a new car, right?
                 }
             }
         }
-        println!("Seeded {} of {} parking spots with cars", new_cars, total_capacity);
+        println!(
+            "Seeded {} of {} parking spots with cars",
+            new_cars, total_capacity
+        );
     }
 }
 

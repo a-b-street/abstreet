@@ -3,6 +3,8 @@
 ## cars
 
 - model cars parking
+	- clean up DrawCar construction, so parking can make them too
+
 	- populate a bunch of parked cars initially
 	- maybe render numbers on the cars to distinguish them
 

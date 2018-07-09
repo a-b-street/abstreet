@@ -2,12 +2,9 @@
 
 use control::ControlMap;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
-use graphics;
-use graphics::math::Vec2d;
 use map_model;
-use map_model::geometry;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
@@ -23,63 +20,9 @@ const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     _marker: std::marker::PhantomData,
 };
 
-const CAR_WIDTH: f64 = 2.0;
-const CAR_LENGTH: f64 = 4.5;
-
-// TODO move this out
-pub struct DrawCar {
-    pub id: CarID,
-    polygons: Vec<Vec<Vec2d>>,
-    front: Pt2D,
-    // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
-    turn_arrow: Option<[f64; 4]>,
-}
-
-impl DrawCar {
-    fn new(id: CarID, front: &Pt2D, angle: Angle) -> DrawCar {
-        DrawCar {
-            id,
-            front: front.clone(),
-            // Fill this out later
-            turn_arrow: None,
-            // TODO the rounded corners from graphics::Line::new_round look kind of cool though
-            polygons: geometry::thick_line_from_angle(
-                CAR_WIDTH,
-                CAR_LENGTH,
-                front,
-                // find the back of the car relative to the front
-                angle.opposite(),
-            ),
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
-        for p in &self.polygons {
-            g.draw_polygon(color, p);
-        }
-        // TODO tune color, sizes
-        if let Some(a) = self.turn_arrow {
-            g.draw_arrow(
-                &graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25),
-                a,
-                1.0,
-            );
-        }
-    }
-
-    pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        for p in &self.polygons {
-            if geometry::point_in_polygon(x, y, p) {
-                return true;
-            }
-        }
-        false
-    }
-}
-
 // TODO this name isn't quite right :)
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-enum On {
+pub(crate) enum On {
     Road(RoadID),
     Turn(TurnID),
 }
@@ -92,7 +35,7 @@ impl On {
         }
     }
 
-    fn as_turn(&self) -> TurnID {
+    pub(crate) fn as_turn(&self) -> TurnID {
         match self {
             &On::Turn(id) => id,
             &On::Road(_) => panic!("not a turn"),
@@ -115,15 +58,15 @@ impl On {
 }
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
-struct Car {
+pub(crate) struct Car {
     // TODO might be going back to something old here, but an enum with parts of the state grouped
     // could be more clear.
-    id: CarID,
+    pub(crate) id: CarID,
     on: On,
     // When did the car start the current On?
     started_at: Tick,
     // TODO ideally, something else would remember Goto was requested and not even call step()
-    waiting_for: Option<On>,
+    pub(crate) waiting_for: Option<On>,
     debug: bool,
     // Head is the next road
     path: VecDeque<RoadID>,
@@ -263,20 +206,25 @@ impl SimQueue {
         let mut results = Vec::new();
         let (pos1, angle1, dist_along1) =
             sim.cars[&self.cars_queue[0]].get_best_case_pos(sim.time, map);
-        results.push(DrawCar::new(self.cars_queue[0], &pos1, angle1));
+        results.push(DrawCar::new(
+            &sim.cars[&self.cars_queue[0]],
+            map,
+            pos1,
+            angle1,
+        ));
         let mut dist_along_bound = dist_along1;
 
         for id in self.cars_queue.iter().skip(1) {
             let (pos, angle, dist_along) = sim.cars[id].get_best_case_pos(sim.time, map);
             if dist_along_bound - FOLLOWING_DISTANCE > dist_along {
-                results.push(DrawCar::new(*id, &pos, angle));
+                results.push(DrawCar::new(&sim.cars[id], map, pos, angle));
                 dist_along_bound = dist_along;
             } else {
                 dist_along_bound -= FOLLOWING_DISTANCE;
                 // If not, we violated room_at_end() and reset() didn't catch it
                 assert!(dist_along_bound >= 0.0 * si::M, "dist_along_bound went negative ({}) for {:?} (length {}) with queue {:?}. first car at {}", dist_along_bound, self.id, self.id.length(map), self.cars_queue, dist_along1);
                 let (pt, angle) = self.id.dist_along(dist_along_bound, map);
-                results.push(DrawCar::new(*id, &pt, angle));
+                results.push(DrawCar::new(&sim.cars[id], map, pt, angle));
             }
         }
 
@@ -531,15 +479,7 @@ impl Sim {
     }
 
     pub fn get_draw_cars_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawCar> {
-        let mut cars = self.roads[r.0].get_draw_cars(&self, map);
-        for c in &mut cars {
-            if let Some(on) = self.cars[&c.id].waiting_for {
-                let angle = map.get_t(on.as_turn()).line.angle();
-                let arrow_pt = c.front.project_away(CAR_LENGTH / 2.0, angle.opposite());
-                c.turn_arrow = Some([arrow_pt.x(), arrow_pt.y(), c.front.x(), c.front.y()]);
-            }
-        }
-        cars
+        self.roads[r.0].get_draw_cars(&self, map)
     }
 
     pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
