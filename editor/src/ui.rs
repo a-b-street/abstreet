@@ -6,10 +6,10 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui::GfxCtx;
-use ezgui::ToggleableLayer;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
+use ezgui::GfxCtx;
+use ezgui::ToggleableLayer;
 use graphics::types::Color;
 use gui;
 use map_model;
@@ -336,7 +336,8 @@ impl gui::GUI for UI {
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
             self.current_selection_state = SelectionState::Empty;
         }
-        if !self.canvas.is_dragging() && input.use_event_directly().mouse_cursor_args().is_some()
+        if !self.canvas.is_dragging()
+            && input.use_event_directly().mouse_cursor_args().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
             let item = self.mouseover_something();

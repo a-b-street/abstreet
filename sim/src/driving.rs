@@ -6,9 +6,9 @@ use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 use map_model;
-use rand::Rng;
-use map_model::{Map, RoadID, TurnID, LaneType};
+use map_model::{LaneType, Map, RoadID, TurnID};
 use multimap::MultiMap;
+use rand::Rng;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
@@ -400,7 +400,14 @@ impl DrivingSimState {
     // beginning of the road. later, we want cars starting at arbitrary points in the middle of the
     // road (from a building), so just ignore this problem for now.
     // True if we spawned one
-    pub fn start_car_on_road<R: Rng + ?Sized>(&mut self, time: Tick, start: RoadID, car: CarID, map: &Map, rng: &mut R) -> bool {
+    pub fn start_car_on_road<R: Rng + ?Sized>(
+        &mut self,
+        time: Tick,
+        start: RoadID,
+        car: CarID,
+        map: &Map,
+        rng: &mut R,
+    ) -> bool {
         if !self.roads[start.0].room_at_end(time, &self.cars) {
             // TODO car should enter Unparking state and wait for room
             println!("No room for {} to start driving on {}", car, start);

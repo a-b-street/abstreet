@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use control::ControlMap;
 use control::stop_signs::{ControlStopSign, TurnPriority};
+use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::HashMap;

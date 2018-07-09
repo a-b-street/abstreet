@@ -1,9 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use GfxCtx;
 use graphics;
 use graphics::types::Color;
 use graphics::{Image, Transformed};
+use GfxCtx;
 
 const TEXT_FG_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
 const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];

@@ -8,10 +8,12 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
-use map_model::TurnID;
 use map_model::geometry;
-use render::{BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
-             TURN_ICON_ARROW_TIP_LENGTH};
+use map_model::TurnID;
+use render::{
+    BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
+    TURN_ICON_ARROW_TIP_LENGTH,
+};
 use std::f64;
 
 #[derive(Debug)]

@@ -1,12 +1,13 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use GfxCtx;
 use aabb_quadtree::geom::{Point, Rect};
 use graphics::Transformed;
-use piston::input::{Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
-                    ReleaseEvent};
+use piston::input::{
+    Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
+};
 use piston::window::Size;
 use text;
+use GfxCtx;
 
 const ZOOM_SPEED: f64 = 0.05;
 //const PAN_SPEED: f64 = 10.0;

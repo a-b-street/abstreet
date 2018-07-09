@@ -135,7 +135,7 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
 
 fn make_offsets(idx: isize, len: isize) -> Vec<isize> {
     let mut offsets = Vec::new();
-    for i in 0 .. len {
+    for i in 0..len {
         if i != idx {
             offsets.push(i - idx);
         }
@@ -146,21 +146,13 @@ fn make_offsets(idx: isize, len: isize) -> Vec<isize> {
 #[test]
 fn offsets() {
     let no_offsets: Vec<isize> = Vec::new();
-    assert_eq!(
-        make_offsets(0, 1),
-        no_offsets);
+    assert_eq!(make_offsets(0, 1), no_offsets);
 
-    assert_eq!(
-        make_offsets(0, 3),
-        vec![1, 2]);
+    assert_eq!(make_offsets(0, 3), vec![1, 2]);
 
-    assert_eq!(
-        make_offsets(1, 3),
-        vec![-1, 1]);
+    assert_eq!(make_offsets(1, 3), vec![-1, 1]);
 
-    assert_eq!(
-        make_offsets(2, 3),
-        vec![-2, -1]);
+    assert_eq!(make_offsets(2, 3), vec![-2, -1]);
 }
 
 #[test]

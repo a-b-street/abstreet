@@ -5,8 +5,8 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use driving::DrivingSimState;
 use map_model::{LaneType, Map, RoadID, TurnID};
-use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use parking::ParkingSimState;
+use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::f64;
 use std::time::{Duration, Instant};
 use {CarID, Tick};
@@ -48,11 +48,13 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
-        self.parking_state.seed_random_cars(&mut self.rng, percent, &mut self.id_counter)
+        self.parking_state
+            .seed_random_cars(&mut self.rng, percent, &mut self.id_counter)
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        let mut driving_lanes: Vec<RoadID> = map.all_roads().iter()
+        let mut driving_lanes: Vec<RoadID> = map.all_roads()
+            .iter()
             .filter_map(|r| {
                 if r.lane_type == LaneType::Driving && self.driving_state.roads[r.id.0].is_empty() {
                     Some(r.id)
@@ -101,7 +103,13 @@ impl Sim {
         };
 
         if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
-            if self.driving_state.start_car_on_road(self.time, driving_lane, car, map, &mut self.rng) {
+            if self.driving_state.start_car_on_road(
+                self.time,
+                driving_lane,
+                car,
+                map,
+                &mut self.rng,
+            ) {
                 self.parking_state.remove_last_parked_car(parking_lane, car);
             }
             true

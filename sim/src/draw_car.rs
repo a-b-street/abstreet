@@ -1,12 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use CarID;
 use driving::{Car, On};
 use ezgui::GfxCtx;
 use geom::{Angle, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use map_model::{geometry, Map};
+use CarID;
 
 const CAR_WIDTH: f64 = 2.0;
 const CAR_LENGTH: f64 = 4.5;

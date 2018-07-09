@@ -46,9 +46,10 @@ impl DrawBuilding {
 
     pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
         let b = map.get_b(self.id);
-        let mut lines = vec![
-            format!("Building #{:?} (from OSM way {})", self.id, b.osm_way_id),
-        ];
+        let mut lines = vec![format!(
+            "Building #{:?} (from OSM way {})",
+            self.id, b.osm_way_id
+        )];
         for (k, v) in &b.osm_tags {
             lines.push(format!("{} = {}", k, v));
         }

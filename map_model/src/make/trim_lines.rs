@@ -2,8 +2,8 @@ use dimensioned::si;
 use geom::Line;
 use intersection::Intersection;
 use road::{Road, RoadID};
-use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
 pub(crate) fn trim_lines(roads: &mut Vec<Road>, i: &Intersection) {
     let mut shortest_first_line: HashMap<RoadID, (Line, si::Meter<f64>)> = HashMap::new();

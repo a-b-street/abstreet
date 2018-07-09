@@ -2,9 +2,9 @@
 
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::GfxCtx;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
+use ezgui::GfxCtx;
 use graphics::types::Color;
 use map_model;
 use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};

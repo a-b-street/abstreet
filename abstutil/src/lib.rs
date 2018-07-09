@@ -2,8 +2,8 @@ extern crate serde;
 extern crate serde_cbor;
 extern crate serde_json;
 
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Write};
 

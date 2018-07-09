@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::QuadTree;
 use aabb_quadtree::geom::{Point, Rect};
+use aabb_quadtree::QuadTree;
 use geom::{LonLat, Pt2D};
 use map_model::{BuildingID, IntersectionID, Map, ParcelID, RoadID, TurnID};
 use plugins::selection::Hider;

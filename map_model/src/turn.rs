@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use IntersectionID;
-use RoadID;
 use dimensioned::si;
 use geom::{Angle, Line, Pt2D};
 use std::f64;
 use std::fmt;
+use IntersectionID;
+use RoadID;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
-use CarID;
 use map_model::{LaneType, Map, Road, RoadID};
 use rand::Rng;
 use std::iter;
+use CarID;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub(crate) struct ParkingSimState {
@@ -20,7 +20,12 @@ impl ParkingSimState {
     }
 
     // Kind of vague whether this should handle existing spots or not
-    pub(crate) fn seed_random_cars<R: Rng + ?Sized>(&mut self, rng: &mut R, percent_capacity_to_fill: f64, id_counter: &mut usize) {
+    pub(crate) fn seed_random_cars<R: Rng + ?Sized>(
+        &mut self,
+        rng: &mut R,
+        percent_capacity_to_fill: f64,
+        id_counter: &mut usize,
+    ) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
         let mut total_capacity = 0;
@@ -75,11 +80,17 @@ impl ParkingLane {
     }
 
     fn get_last_parked_car(&self) -> Option<CarID> {
-        self.spots.iter().rfind(|&&x| x.is_some()).map(|r| r.unwrap())
+        self.spots
+            .iter()
+            .rfind(|&&x| x.is_some())
+            .map(|r| r.unwrap())
     }
 
     fn remove_last_parked_car(&mut self, car: CarID) {
-        let idx = self.spots.iter().rposition(|&x| x.is_some()).expect("No parked cars at all now");
+        let idx = self.spots
+            .iter()
+            .rposition(|&x| x.is_some())
+            .expect("No parked cars at all now");
         assert_eq!(self.spots[idx], Some(car));
         self.spots[idx] = None;
     }

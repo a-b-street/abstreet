@@ -5,7 +5,7 @@ use map_model;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::fs::File;
-use std::{io, f64};
+use std::{f64, io};
 
 pub fn load(
     path: &String,

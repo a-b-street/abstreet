@@ -1,6 +1,6 @@
-use ezgui::GfxCtx;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
+use ezgui::GfxCtx;
 use geom::{PolyLine, Pt2D};
 use graphics;
 use graphics::types::Color;

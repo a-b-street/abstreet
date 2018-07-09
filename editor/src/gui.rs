@@ -1,5 +1,5 @@
-use ezgui::GfxCtx;
 use ezgui::input::UserInput;
+use ezgui::GfxCtx;
 use piston::window::Size;
 
 pub trait GUI {

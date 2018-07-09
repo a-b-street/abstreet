@@ -1,8 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use control::ControlMap;
 use control::stop_signs::TurnPriority;
+use control::ControlMap;
 use ezgui::input::UserInput;
 use graphics::types::Color;
 use map_model::IntersectionID;
