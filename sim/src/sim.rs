@@ -8,6 +8,7 @@ use map_model;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::VecDeque;
+use parking::ParkingSimState;
 use std::f64;
 use std::time::{Duration, Instant};
 use {CarID, Tick};
@@ -24,7 +25,7 @@ pub struct Sim {
     debug: Option<CarID>,
 
     driving_state: DrivingSimState,
-    // TODO parking state
+    parking_state: ParkingSimState,
 }
 
 impl Sim {
@@ -34,11 +35,10 @@ impl Sim {
             rng = XorShiftRng::from_seed([seed; 16]);
         }
 
-        let driving_state = DrivingSimState::new(map);
-
         Sim {
             rng,
-            driving_state,
+            driving_state: DrivingSimState::new(map),
+            parking_state: ParkingSimState::new(map),
             time: Tick::zero(),
             id_counter: 0,
             debug: None,

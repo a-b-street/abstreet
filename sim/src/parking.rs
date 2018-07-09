@@ -3,13 +3,14 @@ use map_model::{LaneType, Map, Road, RoadID};
 use rand::Rng;
 use std::iter;
 
-struct ParkingSimState {
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+pub(crate) struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     roads: Vec<ParkingLane>,
 }
 
 impl ParkingSimState {
-    fn new(map: &Map) -> ParkingSimState {
+    pub(crate) fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
             roads: map.all_roads()
                 .iter()
@@ -19,7 +20,7 @@ impl ParkingSimState {
     }
 
     // Kind of vague whether this should handle existing spots or not
-    fn seed_random_cars<R: Rng + ?Sized>(&mut self, rng: &mut R, percent_capacity_to_fill: f64) {
+    pub(crate) fn seed_random_cars<R: Rng + ?Sized>(&mut self, rng: &mut R, percent_capacity_to_fill: f64) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
         let mut total_capacity = 0;
@@ -43,6 +44,7 @@ impl ParkingSimState {
     }
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct ParkingLane {
     r: RoadID,
     spots: Vec<Option<CarID>>,
