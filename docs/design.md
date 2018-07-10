@@ -186,6 +186,28 @@ https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
 - v1: remember other_side for sidewalks too. draw crosswalks at the beginning AND end of every sidewalk lane.
 - do extra drawing in DrawIntersection for now, figure out modeling later.
 
+- alright, directional lanes and turns dont fit sidewalks at all. turn icons
+  are drawn at one end. the turns-in-an-intersection invariant is broken, since
+  src and dst dont match up for one side.
+- could kind of cheat by doubling lanes for sidewalks and making the geometry
+  overlap, but this feels like a worse hack. it's very tempting to ditch lanes
+  and turns for a different way to model sidewalks and crosswalks.
+	- for now, let's make a distinct road and lane abstraction and plumb that all the way through. see what it'd be like to have some more primitives:
+
+- Intersection
+- Building
+- Parcel
+- Road (undirected bundle)
+- Driving/biking Lane (directed)
+- Sidewalk (undirected)
+- Parking lane (no orientation... or, kind of like a driving lane)
+- Turn (directed and not)
+
+but the fact that sidewalks are oriented is actually convenient, it makes it clear that incoming's last pt should be glued to outgoing's first pt.
+
+what if we just add a bit and make turns bidirectional? still express them in the directional way?
+if we're looking at turns from a road that's a sidewalk, bake in some extra logic?
+
 ## Stop signs
 
 How to depict stop signs? Each driving lane has a priority... asap go or full

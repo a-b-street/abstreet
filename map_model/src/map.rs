@@ -128,6 +128,8 @@ impl Map {
         for i in &m.intersections {
             let turns = make::make_turns(i, &m, m.turns.len());
             m.turns.extend(turns);
+            let crosswalks = make::make_crosswalks(i, &m, m.turns.len());
+            m.turns.extend(crosswalks);
         }
         for t in &m.turns {
             m.intersections[t.parent.0].turns.push(t.id);
@@ -209,14 +211,25 @@ impl Map {
             .collect()
     }
 
-    pub fn get_turns_from_road(&self, id: RoadID) -> Vec<&Turn> {
-        let i = self.get_destination_intersection(id);
-        // TODO can't filter on get_turns_in_intersection... winds up being Vec<&&Turn>
-        i.turns
+    // The turns may belong to two different intersections!
+    pub fn get_turns_from_road(&self, r: RoadID) -> Vec<&Turn> {
+        let road = self.get_r(r);
+        let mut turns: Vec<&Turn> = self.get_i(road.dst_i)
+            .turns
             .iter()
             .map(|t| self.get_t(*t))
-            .filter(|t| t.src == id)
-            .collect()
+            .filter(|t| t.src == r)
+            .collect();
+        // Sidewalks are bidirectional
+        if road.lane_type == LaneType::Sidewalk {
+            for t in &self.get_i(road.src_i).turns {
+                let turn = self.get_t(*t);
+                if turn.src == r {
+                    turns.push(turn);
+                }
+            }
+        }
+        turns
     }
 
     pub fn get_next_roads(&self, from: RoadID) -> Vec<&Road> {

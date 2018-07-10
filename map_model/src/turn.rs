@@ -20,9 +20,12 @@ impl fmt::Display for TurnID {
 #[derive(Debug)]
 pub struct Turn {
     pub id: TurnID,
+    // src and dst must both belong to parent. No guarantees that src is incoming and dst is
+    // outgoing for turns between sidewalks.
     pub parent: IntersectionID,
     pub src: RoadID,
     pub dst: RoadID,
+    pub(crate) between_sidewalks: bool,
 
     /// GeomTurn stuff
     pub line: Line,
@@ -36,6 +39,10 @@ impl PartialEq for Turn {
 
 impl Turn {
     pub fn conflicts_with(&self, other: &Turn) -> bool {
+        if self.between_sidewalks && other.between_sidewalks {
+            return false;
+        }
+
         if self.line.pt1() == other.line.pt1() {
             return false;
         }

@@ -120,8 +120,6 @@ impl SelectionState {
                 }
             }
             SelectionState::SelectedRoad(id, current_turn_index) => {
-                let all_turns: Vec<&map_model::Turn> =
-                    map.get_turns_in_intersection(map.get_destination_intersection(id).id);
                 let relevant_turns = map.get_turns_from_road(id);
                 if !relevant_turns.is_empty() {
                     match current_turn_index {
@@ -130,10 +128,10 @@ impl SelectionState {
                             let draw_turn =
                                 draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
                             draw_turn.draw_full(g, cs.get(Colors::Turn));
-                            for map_t in all_turns {
-                                let t = map.get_t(map_t.id);
-                                let draw_t = draw_map.get_t(map_t.id);
+
+                            for t in map.get_turns_in_intersection(turn.parent) {
                                 if t.conflicts_with(turn) {
+                                    let draw_t = draw_map.get_t(t.id);
                                     // TODO should we instead change color_t?
                                     draw_t.draw_icon(g, cs.get(Colors::ConflictingTurn), cs);
                                 }

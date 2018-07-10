@@ -28,8 +28,6 @@
 
 ## pedestrians
 
-- calculate turns at crosswalks, see how they conflict
-	- for now, treat same in control layer
 - pedestrians with different speeds, moving bidirectionally on everything
 - make them start and end at buildings
 	- trim the sidewalk path to the edge of a building

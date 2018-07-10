@@ -31,12 +31,13 @@ impl DrawTurn {
         let src_pt = turn.line.pt1();
         let dst_pt = turn.line.pt2();
         let angle = turn.line.angle();
-        let last_line = map.get_r(turn.src).last_line();
 
+        let end_line = map.get_r(turn.src).end_line(turn.parent);
         // Start the distance from the intersection
-        let icon_center = last_line
+        let icon_center = end_line
             .reverse()
             .unbounded_dist_along((offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
+
         let icon_src = icon_center
             .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite())
             .to_vec();

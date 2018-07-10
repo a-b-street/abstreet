@@ -42,8 +42,73 @@ pub(crate) fn make_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec
                 src: *src,
                 dst: *dst,
                 line: Line::new(src_r.last_pt(), dst_r.first_pt()),
+                between_sidewalks: false,
             });
         }
     }
+    result
+}
+
+pub(crate) fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<Turn> {
+    let mut result = Vec::new();
+
+    // TODO dedupe some of this logic render/intersection
+
+    // First make all of the crosswalks -- from each incoming and outgoing sidewalk to its other
+    // side
+    for id in i.incoming_roads.iter().chain(i.outgoing_roads.iter()) {
+        let src = m.get_r(*id);
+        if src.lane_type != LaneType::Sidewalk {
+            continue;
+        }
+        let dst = m.get_r(src.other_side.unwrap());
+
+        let id = TurnID(turn_id_start);
+        turn_id_start += 1;
+        result.push(Turn {
+            id,
+            parent: i.id,
+            src: src.id,
+            dst: dst.id,
+            line: Line::new(src.endpoint(i.id), dst.endpoint(i.id)),
+            between_sidewalks: true,
+        });
+    }
+
+    // Then all of the immediate connections onto the shared point
+    for id1 in i.incoming_roads.iter().chain(i.outgoing_roads.iter()) {
+        let src = m.get_r(*id1);
+        if src.lane_type != LaneType::Sidewalk {
+            continue;
+        }
+        let src_pt = src.endpoint(i.id);
+        for id2 in i.incoming_roads.iter().chain(i.outgoing_roads.iter()) {
+            if id1 == id2 {
+                continue;
+            }
+
+            let dst = m.get_r(*id2);
+            if dst.lane_type != LaneType::Sidewalk {
+                continue;
+            }
+            let dst_pt = dst.endpoint(i.id);
+
+            if src_pt != dst_pt {
+                continue;
+            }
+
+            let id = TurnID(turn_id_start);
+            turn_id_start += 1;
+            result.push(Turn {
+                id,
+                parent: i.id,
+                src: src.id,
+                dst: dst.id,
+                line: Line::new(src_pt, dst_pt),
+                between_sidewalks: true,
+            });
+        }
+    }
+
     result
 }

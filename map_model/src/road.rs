@@ -90,6 +90,27 @@ impl Road {
         self.lane_center_pts.last_line()
     }
 
+    pub fn endpoint(&self, i: IntersectionID) -> Pt2D {
+        if i == self.src_i {
+            self.first_pt()
+        } else if i == self.dst_i {
+            self.last_pt()
+        } else {
+            panic!("{} isn't an endpoint of {}", i, self.id);
+        }
+    }
+
+    // pt2 will be endpoint
+    pub fn end_line(&self, i: IntersectionID) -> Line {
+        if i == self.src_i {
+            self.first_line().reverse()
+        } else if i == self.dst_i {
+            self.last_line()
+        } else {
+            panic!("{} isn't an endpoint of {}", i, self.id);
+        }
+    }
+
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         self.lane_center_pts.dist_along(dist_along)
     }

@@ -3,7 +3,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geom::{LonLat, Pt2D};
-use map_model::{BuildingID, IntersectionID, Map, ParcelID, RoadID, TurnID};
+use map_model::{BuildingID, IntersectionID, Map, ParcelID, RoadID, Turn, TurnID};
 use plugins::selection::Hider;
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
@@ -36,14 +36,25 @@ impl DrawMap {
 
         let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();
         for r in map.all_roads() {
-            let mut turns = map.get_turns_from_road(r.id);
-            // Sort the turn icons by angle.
-            turns.sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+            // Split into two groups, based on the endpoint
+            let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_road(r.id)
+                .iter()
+                .partition(|t| t.parent == r.dst_i);
 
-            for (idx, t) in turns.iter().enumerate() {
+            // Sort the turn icons by angle.
+            pair.0
+                .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+            pair.1
+                .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+
+            for (idx, t) in pair.0.iter().enumerate() {
+                turn_to_road_offset.insert(t.id, idx);
+            }
+            for (idx, t) in pair.1.iter().enumerate() {
                 turn_to_road_offset.insert(t.id, idx);
             }
         }
+        assert_eq!(turn_to_road_offset.len(), map.all_turns().len());
 
         let turns: Vec<DrawTurn> = map.all_turns()
             .iter()
