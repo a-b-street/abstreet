@@ -123,24 +123,26 @@ impl SelectionState {
                 let all_turns: Vec<&map_model::Turn> =
                     map.get_turns_in_intersection(map.get_destination_intersection(id).id);
                 let relevant_turns = map.get_turns_from_road(id);
-                match current_turn_index {
-                    Some(idx) => {
-                        let turn = map.get_t(relevant_turns[idx % relevant_turns.len()].id);
-                        let draw_turn =
-                            draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
-                        draw_turn.draw_full(g, cs.get(Colors::Turn));
-                        for map_t in all_turns {
-                            let t = map.get_t(map_t.id);
-                            let draw_t = draw_map.get_t(map_t.id);
-                            if t.conflicts_with(turn) {
-                                // TODO should we instead change color_t?
-                                draw_t.draw_icon(g, cs.get(Colors::ConflictingTurn), cs);
+                if !relevant_turns.is_empty() {
+                    match current_turn_index {
+                        Some(idx) => {
+                            let turn = map.get_t(relevant_turns[idx % relevant_turns.len()].id);
+                            let draw_turn =
+                                draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
+                            draw_turn.draw_full(g, cs.get(Colors::Turn));
+                            for map_t in all_turns {
+                                let t = map.get_t(map_t.id);
+                                let draw_t = draw_map.get_t(map_t.id);
+                                if t.conflicts_with(turn) {
+                                    // TODO should we instead change color_t?
+                                    draw_t.draw_icon(g, cs.get(Colors::ConflictingTurn), cs);
+                                }
                             }
                         }
+                        None => for turn in &relevant_turns {
+                            draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
+                        },
                     }
-                    None => for turn in &relevant_turns {
-                        draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
-                    },
                 }
                 // TODO tmp
                 draw_map.get_r(id).draw_debug(g, cs, map.get_r(id));

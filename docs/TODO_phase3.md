@@ -3,8 +3,8 @@
 ## cars
 
 - model cars parking
-	- make vanished cars just park again
-		- how to handle when parking is full or no parking at goal road?
+	- make vanished cars just park again, when possible
+	- when parking is full or no parking at goal road, roam until parking is found
 
 - code cleanup
 	- try to simplify straw_model step (less phases?)
@@ -28,5 +28,8 @@
 
 ## pedestrians
 
-- model pedestrians
-	- also move from building to sidewalk?
+- calculate turns at crosswalks, see how they conflict
+	- for now, treat same in control layer
+- pedestrians with different speeds, moving bidirectionally on everything
+- make them start and end at buildings
+	- trim the sidewalk path to the edge of a building
