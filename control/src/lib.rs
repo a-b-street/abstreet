@@ -73,6 +73,8 @@ impl ControlMap {
     }
 }
 
+// General problem: TurnIDs change as code does. Serialized state is kinda tied to code version.
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ModifiedTrafficSignal {
     pub cycles: Vec<CycleState>,

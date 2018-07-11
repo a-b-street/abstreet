@@ -102,7 +102,7 @@ impl StopSign {
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
-        // TODO assert turn is in this intersection
+        assert_eq!(map.get_t(turn).parent, self.id);
 
         if self.accepted.contains_key(&car) {
             return true;
@@ -164,12 +164,14 @@ impl TrafficSignal {
     fn can_do_turn(
         &mut self,
         car: CarID,
-        turn: TurnID,
+        t: TurnID,
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
-        // TODO assert turn is in this intersection
+        let turn = map.get_t(t);
+
+        assert_eq!(turn.parent, self.id);
 
         if self.accepted.contains_key(&car) {
             return true;
@@ -178,15 +180,15 @@ impl TrafficSignal {
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
 
-        if !cycle.contains(turn) {
+        if !cycle.contains(t) {
             return false;
         }
         // How long will it take the car to cross the turn?
-        let crossing_time = map.get_t(turn).length() / SPEED_LIMIT;
+        let crossing_time = turn.length() / SPEED_LIMIT;
         // TODO account for TIMESTEP
 
         if crossing_time < remaining_cycle_time {
-            self.accepted.insert(car, turn);
+            self.accepted.insert(car, t);
             return true;
         }
 
