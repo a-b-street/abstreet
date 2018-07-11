@@ -3,13 +3,15 @@
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
+use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use map_model::{LaneType, Map, RoadID, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::f64;
 use std::time::{Duration, Instant};
-use {CarID, Tick};
+use walking::WalkingSimState;
+use {CarID, PedestrianID, Tick};
 
 pub enum CarState {
     Moving,
@@ -25,11 +27,12 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     rng: XorShiftRng,
     pub time: Tick,
-    id_counter: usize,
+    car_id_counter: usize,
     debug: Option<CarID>,
 
     driving_state: DrivingSimState,
     parking_state: ParkingSimState,
+    walking_state: WalkingSimState,
 }
 
 impl Sim {
@@ -43,19 +46,20 @@ impl Sim {
             rng,
             driving_state: DrivingSimState::new(map),
             parking_state: ParkingSimState::new(map),
+            walking_state: WalkingSimState::new(),
             time: Tick::zero(),
-            id_counter: 0,
+            car_id_counter: 0,
             debug: None,
         }
     }
 
     pub fn total_cars(&self) -> usize {
-        self.id_counter
+        self.car_id_counter
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
         self.parking_state
-            .seed_random_cars(&mut self.rng, percent, &mut self.id_counter)
+            .seed_random_cars(&mut self.rng, percent, &mut self.car_id_counter)
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
@@ -77,18 +81,19 @@ impl Sim {
         let n = num_cars.min(driving_lanes.len());
         let mut actual = 0;
         for i in 0..n {
-            if self.start_parked_car(map, driving_lanes[i]) {
+            if self.start_agent(map, driving_lanes[i]) {
                 actual += 1;
             }
         }
         println!("Started {} parked cars of requested {}", actual, n);
     }
 
-    pub fn start_parked_car(&mut self, map: &Map, id: RoadID) -> bool {
+    pub fn start_agent(&mut self, map: &Map, id: RoadID) -> bool {
         let (driving_lane, parking_lane) = match map.get_r(id).lane_type {
             LaneType::Sidewalk => {
-                println!("{} is a sidewalk, can't start a parked car here", id);
-                return false;
+                self.walking_state.seed_pedestrian(id);
+                println!("Spawned a pedestrian at {}", id);
+                return true;
             }
             LaneType::Driving => {
                 if let Some(parking) = map.find_parking_lane(id) {
@@ -125,11 +130,17 @@ impl Sim {
         }
     }
 
+    pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
+        self.walking_state.seed_pedestrians(&mut self.rng, map, num);
+        println!("Spawned {} pedestrians", num);
+    }
+
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
         // TODO Vanish action should become Park
         self.driving_state.step(self.time, map, control_map);
+        self.walking_state.step(self.time, map, control_map);
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -144,6 +155,7 @@ impl Sim {
         }
     }
 
+    // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawCar> {
         match map.get_r(r).lane_type {
             LaneType::Driving => {
@@ -158,8 +170,16 @@ impl Sim {
         self.driving_state.turns[t.0].get_draw_cars(self.time, &self.driving_state, map)
     }
 
+    pub fn get_draw_peds_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawPedestrian> {
+        self.walking_state.get_draw_peds_on_road(map.get_r(r))
+    }
+
+    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrian> {
+        self.walking_state.get_draw_peds_on_turn(map.get_t(t))
+    }
+
     pub fn summary(&self) -> String {
-        // TODO also report parking state
+        // TODO also report parking state and walking state
         let waiting = self.driving_state
             .cars
             .values()
@@ -171,6 +191,10 @@ impl Sim {
             waiting,
             self.driving_state.cars.len()
         )
+    }
+
+    pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
+        vec![format!("Hello to {}", p)]
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {

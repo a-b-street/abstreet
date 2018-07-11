@@ -254,3 +254,5 @@ fn shift_short_polyline_equivalence() {
         Some(PolyLine::new(vec![l.pt1(), l.pt2()]))
     );
 }
+
+// TODO test that shifting lines and polylines is a reversible operation

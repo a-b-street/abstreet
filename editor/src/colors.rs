@@ -57,6 +57,8 @@ pub enum Colors {
     StuckCar,
     ParkedCar,
 
+    Pedestrian,
+
     TrafficSignalBox,
     TrafficSignalGreen,
     TrafficSignalYellow,

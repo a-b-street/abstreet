@@ -28,6 +28,6 @@
 
 ## pedestrians
 
-- pedestrians with different speeds, moving bidirectionally on everything
+- pathfinding and stepping
 - make them start and end at buildings
 	- trim the sidewalk path to the edge of a building

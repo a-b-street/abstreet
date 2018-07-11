@@ -10,7 +10,7 @@ use map_model;
 use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
-use sim::{CarID, Sim};
+use sim::{CarID, PedestrianID, Sim};
 use std::collections::HashSet;
 
 // TODO only used for mouseover, which happens in order anyway...
@@ -21,6 +21,7 @@ pub enum ID {
     Turn(TurnID),
     Building(BuildingID),
     Car(CarID),
+    Pedestrian(PedestrianID),
     //Parcel(ParcelID),
 }
 
@@ -34,6 +35,7 @@ pub enum SelectionState {
     SelectedBuilding(BuildingID),
     SelectedTurn(TurnID),
     SelectedCar(CarID),
+    SelectedPedestrian(PedestrianID),
 }
 
 impl SelectionState {
@@ -51,6 +53,7 @@ impl SelectionState {
             Some(ID::Building(id)) => SelectionState::SelectedBuilding(id),
             Some(ID::Turn(id)) => SelectionState::SelectedTurn(id),
             Some(ID::Car(id)) => SelectionState::SelectedCar(id),
+            Some(ID::Pedestrian(id)) => SelectionState::SelectedPedestrian(id),
             None => SelectionState::Empty,
         }
     }
@@ -153,6 +156,9 @@ impl SelectionState {
             }
             SelectionState::SelectedCar(id) => {
                 canvas.draw_mouse_tooltip(g, &sim.car_tooltip(id));
+            }
+            SelectionState::SelectedPedestrian(id) => {
+                canvas.draw_mouse_tooltip(g, &sim.ped_tooltip(id));
             }
         }
     }

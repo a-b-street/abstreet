@@ -208,6 +208,15 @@ but the fact that sidewalks are oriented is actually convenient, it makes it cle
 what if we just add a bit and make turns bidirectional? still express them in the directional way?
 if we're looking at turns from a road that's a sidewalk, bake in some extra logic?
 
+## Pedestrian modeling
+
+- Is it useful to distinguish CarID and PedestrianID? What about when an agent has a multi-modal trip? Probably become AgentID later.
+
+- Worth mentioning that I'm assuming pedestrians don't queue or collide. In
+  most reasonable sidewalk cases, this is true. Don't need to model more
+  detailed movement. As a consequence of this, crosswalk turns never conflict.
+  Assume people can weave.
+
 ## Stop signs
 
 How to depict stop signs? Each driving lane has a priority... asap go or full

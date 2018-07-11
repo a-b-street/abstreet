@@ -29,7 +29,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::warp::WarpState;
 use render;
-use sim::{CarID, CarState};
+use sim::{CarID, CarState, PedestrianID};
 use std::collections::HashMap;
 use std::process;
 
@@ -171,6 +171,11 @@ impl UI {
                     return Some(ID::Car(c.id));
                 }
             }
+            for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
+                if p.contains_pt(x, y) {
+                    return Some(ID::Pedestrian(p.id));
+                }
+            }
         }
 
         if self.show_icons.is_enabled() {
@@ -191,6 +196,11 @@ impl UI {
                             return Some(ID::Car(c.id));
                         }
                     }
+                    for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(*t, &self.map) {
+                        if p.contains_pt(x, y) {
+                            return Some(ID::Pedestrian(p.id));
+                        }
+                    }
                 }
 
                 if i.contains_pt(x, y) {
@@ -204,6 +214,11 @@ impl UI {
                 for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                     if c.contains_pt(x, y) {
                         return Some(ID::Car(c.id));
+                    }
+                }
+                for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
+                    if p.contains_pt(x, y) {
+                        return Some(ID::Pedestrian(p.id));
                     }
                 }
 
@@ -322,6 +337,10 @@ impl UI {
             CarState::Parked => self.cs.get(Colors::ParkedCar),
         }
     }
+
+    fn color_ped(&self, _id: PedestrianID) -> Color {
+        self.cs.get(Colors::Pedestrian)
+    }
 }
 
 impl gui::GUI for UI {
@@ -416,8 +435,12 @@ impl gui::GUI for UI {
             return gui::EventLoopMode::InputOnly;
         }
         if self.sim_ctrl.sim.total_cars() == 0 {
-            if input.unimportant_key_pressed(Key::S, "Seed the map with 50% parked cars") {
+            if input.unimportant_key_pressed(
+                Key::S,
+                "Seed the map with 50% parked cars and some pedestrians",
+            ) {
                 self.sim_ctrl.sim.seed_parked_cars(0.5);
+                self.sim_ctrl.sim.seed_pedestrians(&self.map, 1000);
                 return gui::EventLoopMode::InputOnly;
             }
         } else {
@@ -442,11 +465,9 @@ impl gui::GUI for UI {
                     return gui::EventLoopMode::InputOnly;
                 }
 
-                if self.map.get_r(id).lane_type == map_model::LaneType::Driving {
-                    if input.key_pressed(Key::A, "Press A to start a parked car on this road") {
-                        self.sim_ctrl.sim.start_parked_car(&self.map, id);
-                        return gui::EventLoopMode::InputOnly;
-                    }
+                if input.key_pressed(Key::A, "Press A to start something on this road") {
+                    self.sim_ctrl.sim.start_agent(&self.map, id);
+                    return gui::EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedIntersection(id) => {
@@ -538,12 +559,18 @@ impl gui::GUI for UI {
                 for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(t.id, &self.map) {
                     c.draw(g, self.color_car(c.id));
                 }
+                for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(t.id, &self.map) {
+                    p.draw(g, self.color_ped(p.id));
+                }
             }
         }
 
         for r in &roads_onscreen {
             for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
+            }
+            for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
+                p.draw(g, self.color_ped(p.id));
             }
         }
 

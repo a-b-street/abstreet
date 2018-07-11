@@ -12,56 +12,12 @@ use rand::Rng;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
-use {CarID, Tick, SPEED_LIMIT};
+use {CarID, On, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
     _marker: std::marker::PhantomData,
 };
-
-// TODO this name isn't quite right :)
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub(crate) enum On {
-    Road(RoadID),
-    Turn(TurnID),
-}
-
-impl On {
-    pub(crate) fn as_road(&self) -> RoadID {
-        match self {
-            &On::Road(id) => id,
-            &On::Turn(_) => panic!("not a road"),
-        }
-    }
-
-    pub(crate) fn as_turn(&self) -> TurnID {
-        match self {
-            &On::Turn(id) => id,
-            &On::Road(_) => panic!("not a turn"),
-        }
-    }
-
-    fn maybe_turn(&self) -> Option<TurnID> {
-        match self {
-            &On::Turn(id) => Some(id),
-            &On::Road(_) => None,
-        }
-    }
-
-    fn length(&self, map: &Map) -> si::Meter<f64> {
-        match self {
-            &On::Road(id) => map.get_r(id).length(),
-            &On::Turn(id) => map.get_t(id).length(),
-        }
-    }
-
-    fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
-        match self {
-            &On::Road(id) => map.get_r(id).dist_along(dist),
-            &On::Turn(id) => map.get_t(id).dist_along(dist),
-        }
-    }
-}
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
