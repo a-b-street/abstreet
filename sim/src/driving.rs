@@ -5,14 +5,13 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
-use map_model;
-use map_model::{LaneType, Map, RoadID, TurnID};
+use map_model::{Map, RoadID, TurnID};
 use multimap::MultiMap;
 use rand::Rng;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
-use {CarID, On, Tick, SPEED_LIMIT};
+use {pick_goal_and_find_path, CarID, On, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
@@ -392,38 +391,22 @@ impl DrivingSimState {
             return false;
         }
 
-        let candidate_goals: Vec<RoadID> = map.all_roads()
-            .iter()
-            .filter_map(|r| {
-                if r.lane_type != LaneType::Driving || r.id == start {
-                    None
-                } else {
-                    Some(r.id)
-                }
-            })
-            .collect();
-        let goal = rng.choose(&candidate_goals).unwrap();
-        let mut path = if let Some(steps) = map_model::pathfind(map, start, *goal) {
-            VecDeque::from(steps)
+        if let Some(path) = pick_goal_and_find_path(rng, map, start) {
+            self.cars.insert(
+                car,
+                Car {
+                    id: car,
+                    path,
+                    started_at: time,
+                    on: On::Road(start),
+                    waiting_for: None,
+                    debug: false,
+                },
+            );
+            self.roads[start.0].cars_queue.push(car);
+            true
         } else {
-            println!("No path from {} to {}", start, goal);
-            return false;
-        };
-        // path includes the start, but that's not the invariant Car enforces
-        path.pop_front();
-
-        self.cars.insert(
-            car,
-            Car {
-                id: car,
-                path,
-                started_at: time,
-                on: On::Road(start),
-                waiting_for: None,
-                debug: false,
-            },
-        );
-        self.roads[start.0].cars_queue.push(car);
-        true
+            false
+        }
     }
 }

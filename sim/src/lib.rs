@@ -25,7 +25,9 @@ mod walking;
 use dimensioned::si;
 use geom::{Angle, Pt2D};
 use map_model::{Map, RoadID, TurnID};
+use rand::Rng;
 pub use sim::{Benchmark, CarState, Sim};
+use std::collections::VecDeque;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -129,4 +131,32 @@ impl On {
             &On::Turn(id) => map.get_t(id).dist_along(dist),
         }
     }
+}
+
+pub(crate) fn pick_goal_and_find_path<R: Rng + ?Sized>(
+    rng: &mut R,
+    map: &Map,
+    start: RoadID,
+) -> Option<VecDeque<RoadID>> {
+    let lane_type = map.get_r(start).lane_type;
+    let candidate_goals: Vec<RoadID> = map.all_roads()
+        .iter()
+        .filter_map(|r| {
+            if r.lane_type != lane_type || r.id == start {
+                None
+            } else {
+                Some(r.id)
+            }
+        })
+        .collect();
+    let goal = rng.choose(&candidate_goals).unwrap();
+    let mut path = if let Some(steps) = map_model::pathfind(map, start, *goal) {
+        VecDeque::from(steps)
+    } else {
+        println!("No path from {} to {}", start, goal);
+        return None;
+    };
+    // path includes the start, but that's not the invariant Car enforces
+    path.pop_front();
+    Some(path)
 }

@@ -91,9 +91,12 @@ impl Sim {
     pub fn start_agent(&mut self, map: &Map, id: RoadID) -> bool {
         let (driving_lane, parking_lane) = match map.get_r(id).lane_type {
             LaneType::Sidewalk => {
-                self.walking_state.seed_pedestrian(id);
-                println!("Spawned a pedestrian at {}", id);
-                return true;
+                if self.walking_state.seed_pedestrian(&mut self.rng, map, id) {
+                    println!("Spawned a pedestrian at {}", id);
+                    return true;
+                } else {
+                    return false;
+                }
             }
             LaneType::Driving => {
                 if let Some(parking) = map.find_parking_lane(id) {
@@ -131,8 +134,8 @@ impl Sim {
     }
 
     pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
-        self.walking_state.seed_pedestrians(&mut self.rng, map, num);
-        println!("Spawned {} pedestrians", num);
+        let actual = self.walking_state.seed_pedestrians(&mut self.rng, map, num);
+        println!("Spawned {} pedestrians", actual);
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
