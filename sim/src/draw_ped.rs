@@ -26,6 +26,11 @@ impl DrawPedestrian {
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        geometry::point_in_circle(x, y, [self.circle[0], self.circle[1]], RADIUS)
+        geometry::point_in_circle(
+            x,
+            y,
+            [self.circle[0] + RADIUS, self.circle[1] + RADIUS],
+            RADIUS,
+        )
     }
 }

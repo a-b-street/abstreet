@@ -211,17 +211,6 @@ impl UI {
 
         if self.show_roads.is_enabled() {
             for r in &roads_onscreen {
-                for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
-                    if c.contains_pt(x, y) {
-                        return Some(ID::Car(c.id));
-                    }
-                }
-                for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
-                    if p.contains_pt(x, y) {
-                        return Some(ID::Pedestrian(p.id));
-                    }
-                }
-
                 if r.road_contains_pt(x, y) {
                     return Some(ID::Road(r.id));
                 }
