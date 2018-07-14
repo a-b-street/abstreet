@@ -6,7 +6,7 @@ use multimap::MultiMap;
 use rand::Rng;
 use std;
 use std::collections::VecDeque;
-use {pick_goal_and_find_path, On, PedestrianID, Tick};
+use {pick_goal_and_find_path, On, PedestrianID};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -15,7 +15,7 @@ const SPEED: si::MeterPerSecond<f64> = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Pedestrian {
     id: PedestrianID,
 
@@ -39,6 +39,65 @@ impl PartialEq for Pedestrian {
 }
 impl Eq for Pedestrian {}
 
+impl Pedestrian {
+    // True if done and should vanish!
+    fn step_sidewalk(
+        &mut self,
+        delta_time: si::Second<f64>,
+        map: &Map,
+        control_map: &ControlMap,
+    ) -> bool {
+        let new_dist: si::Meter<f64> = delta_time * SPEED;
+        let done_current_sidewalk = if self.contraflow {
+            self.dist_along -= new_dist.value_unsafe;
+            self.dist_along <= 0.0
+        } else {
+            self.dist_along += new_dist.value_unsafe;
+            self.dist_along * si::M >= self.on.length(map)
+        };
+
+        if !done_current_sidewalk {
+            return false;
+        }
+        if self.path.is_empty() {
+            return true;
+        }
+
+        let turn = map.get_turns_from_road(self.on.as_road())
+            .iter()
+            .find(|t| t.dst == self.path[0])
+            .unwrap()
+            .id;
+        // TODO request the turn and wait for it; don't just go!
+        self.on = On::Turn(turn);
+        self.contraflow = false;
+        self.dist_along = 0.0;
+        self.path.pop_front();
+        false
+    }
+
+    fn step_turn(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
+        let new_dist: si::Meter<f64> = delta_time * SPEED;
+        self.dist_along += new_dist.value_unsafe;
+        if self.dist_along * si::M < self.on.length(map) {
+            return;
+        }
+
+        let turn = map.get_t(self.on.as_turn());
+        let road = map.get_r(turn.dst);
+        self.on = On::Road(road.id);
+
+        // Which end of the sidewalk are we entering?
+        if turn.parent == road.src_i {
+            self.contraflow = false;
+            self.dist_along = 0.0;
+        } else {
+            self.contraflow = true;
+            self.dist_along = road.length().value_unsafe;
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub(crate) struct WalkingSimState {
     // Trying a different style than driving for storing things
@@ -57,8 +116,39 @@ impl WalkingSimState {
         }
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
-        // TODO implement
+    pub fn step(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
+        // Since pedestrians don't interact at all, any ordering and concurrency is deterministic
+        // here.
+        // TODO but wait, the interactions with the intersections aren't deterministic!
+
+        // TODO not sure how to do this most fluidly and performantly. might even make more sense
+        // to just have a slotmap of peds, then a multimap from road->ped IDs to speed up drawing.
+        // since we seemingly can't iterate and consume a MultiMap, slotmap really seems best.
+        let mut new_per_sidewalk: MultiMap<RoadID, Pedestrian> = MultiMap::new();
+        let mut new_per_turn: MultiMap<TurnID, Pedestrian> = MultiMap::new();
+
+        for (_, peds) in self.peds_per_sidewalk.iter_all_mut() {
+            for p in peds.iter_mut() {
+                if !p.step_sidewalk(delta_time, map, control_map) {
+                    match p.on {
+                        On::Road(id) => new_per_sidewalk.insert(id, p.clone()),
+                        On::Turn(id) => new_per_turn.insert(id, p.clone()),
+                    };
+                }
+            }
+        }
+        for (_, peds) in self.peds_per_turn.iter_all_mut() {
+            for p in peds.iter_mut() {
+                p.step_turn(delta_time, map, control_map);
+                match p.on {
+                    On::Road(id) => new_per_sidewalk.insert(id, p.clone()),
+                    On::Turn(id) => new_per_turn.insert(id, p.clone()),
+                };
+            }
+        }
+
+        self.peds_per_sidewalk = new_per_sidewalk;
+        self.peds_per_turn = new_per_turn;
     }
 
     pub fn get_draw_peds_on_road(&self, r: &Road) -> Vec<DrawPedestrian> {

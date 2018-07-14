@@ -57,6 +57,7 @@ pub const SPEED_LIMIT: si::MeterPerSecond<f64> = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
+// Represents a moment in time, not a duration/delta
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Tick(u32);
 

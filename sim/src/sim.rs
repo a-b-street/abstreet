@@ -11,7 +11,7 @@ use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, PedestrianID, Tick};
+use {CarID, PedestrianID, Tick, TIMESTEP};
 
 pub enum CarState {
     Moving,
@@ -143,7 +143,7 @@ impl Sim {
 
         // TODO Vanish action should become Park
         self.driving_state.step(self.time, map, control_map);
-        self.walking_state.step(self.time, map, control_map);
+        self.walking_state.step(TIMESTEP, map, control_map);
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
