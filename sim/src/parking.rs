@@ -10,6 +10,7 @@ use CarID;
 pub(crate) struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     roads: Vec<ParkingLane>,
+    total_count: usize,
 }
 
 impl ParkingSimState {
@@ -19,7 +20,12 @@ impl ParkingSimState {
                 .iter()
                 .map(|r| ParkingLane::new(r))
                 .collect(),
+            total_count: 0,
         }
+    }
+
+    pub(crate) fn total_count(&self) -> usize {
+        self.total_count
     }
 
     // Kind of vague whether this should handle existing spots or not
@@ -46,6 +52,7 @@ impl ParkingSimState {
                 }
             }
         }
+        self.total_count += new_cars;
         println!(
             "Seeded {} of {} parking spots with cars",
             new_cars, total_capacity
@@ -57,7 +64,8 @@ impl ParkingSimState {
     }
 
     pub(crate) fn remove_last_parked_car(&mut self, id: RoadID, car: CarID) {
-        self.roads[id.0].remove_last_parked_car(car)
+        self.roads[id.0].remove_last_parked_car(car);
+        self.total_count -= 1;
     }
 
     pub(crate) fn get_draw_cars(&self, id: RoadID, map: &Map) -> Vec<DrawCar> {

@@ -189,10 +189,12 @@ impl Sim {
             .filter(|c| c.waiting_for.is_some())
             .count();
         format!(
-            "Time: {0:.2}, {1} / {2} cars waiting",
+            "Time: {0:.2}, {1} / {2} active cars waiting, {3} cars parked, {4} pedestrians",
             self.time,
             waiting,
-            self.driving_state.cars.len()
+            self.driving_state.cars.len(),
+            self.parking_state.total_count(),
+            self.walking_state.total_count(),
         )
     }
 

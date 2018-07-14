@@ -28,6 +28,7 @@
 
 ## pedestrians
 
-- pathfinding and stepping
+- UI: draw cars and peds in intersections, even at lower zoom levels, just like on roads
+- make them obey intersections (deterministically!)
 - make them start and end at buildings
 	- trim the sidewalk path to the edge of a building

@@ -10,8 +10,9 @@ use {pick_goal_and_find_path, On, PedestrianID};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
+// TODO temporarily very high to debug peds faster
 const SPEED: si::MeterPerSecond<f64> = si::MeterPerSecond {
-    value_unsafe: 0.9,
+    value_unsafe: 3.9,
     _marker: std::marker::PhantomData,
 };
 
@@ -88,6 +89,9 @@ impl Pedestrian {
         self.on = On::Road(road.id);
 
         // Which end of the sidewalk are we entering?
+        // TODO are there cases where we should enter a new sidewalk and immediately enter a
+        // different turn, instead of always going to the other side of the sidealk? or are there
+        // enough turns to make that unnecessary?
         if turn.parent == road.src_i {
             self.contraflow = false;
             self.dist_along = 0.0;
@@ -114,6 +118,10 @@ impl WalkingSimState {
             peds_per_turn: MultiMap::new(),
             id_counter: 0,
         }
+    }
+
+    pub fn total_count(&self) -> usize {
+        self.id_counter
     }
 
     pub fn step(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
