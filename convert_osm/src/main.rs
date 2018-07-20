@@ -11,6 +11,7 @@ extern crate shp;
 extern crate structopt;
 
 mod osm;
+mod split_ways;
 mod srtm;
 mod traffic_signals;
 
@@ -51,7 +52,7 @@ fn main() {
 
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
     let (map, bounds) = osm::osm_to_raw_roads(&flags.osm);
-    let mut map = osm::split_up_roads(&map, &elevation);
+    let mut map = split_ways::split_up_roads(&map, &elevation);
     let parcels_map: raw_data::Map =
         abstutil::read_binary(&flags.parcels).expect("loading parcels failed");
     println!(

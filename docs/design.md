@@ -76,8 +76,9 @@ Stages are roughly:
 
 - extract parcels inside a bbox from a .kml
 - load elevation into memory from a .hgt
-- get raw OSM ways and bbox from a .osm
+- get raw OSM ways from a .osm
 - (elevation, raw OSM ways) -> split up OSM stuff
+- find and remove disconnected things, then also compute bbox of result
 - merge in the parcels fitting the specific bbox
 - load traffic signal from a .shp and match to nearest intersection
 
