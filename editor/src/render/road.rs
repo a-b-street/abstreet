@@ -122,8 +122,12 @@ impl DrawRoad {
         let r = map.get_r(self.id);
         let mut lines = vec![
             format!(
-                "Road #{:?} (from OSM way {}) has {} polygons",
-                self.id,
+                "{} is {}",
+                r.id,
+                r.osm_tags.get("name").unwrap_or(&"???".to_string())
+            ),
+            format!(
+                "From OSM way {}, with {} polygons",
                 r.osm_way_id,
                 self.polygons.len()
             ),

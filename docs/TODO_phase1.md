@@ -20,7 +20,6 @@
 	- draw benches, bike racks
 		- more generally, a way to display random GIS data from seattle site (kml)
 	- render trees
-	- parse shp, get traffic signals in the right places
 	- do need to mouseover shapefile things and see full data
 	- grab number of phases from traffic signal shp
 	- look for current stop sign priorities

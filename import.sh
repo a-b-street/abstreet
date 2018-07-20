@@ -14,7 +14,7 @@ mkdir -p data/input
 
 ELEVATION=../data/input/N47W122.hgt
 PARCELS_KML=../data/input/King_County_Parcels__parcel_area.kml
-TRAFFIC_SIGNALS=../data/inputTrafficSignals.shp
+TRAFFIC_SIGNALS=../data/input/TrafficSignals.shp
 
 SMALL_OSM=../data/input/tiny_montlake.osm
 MEDIUM_OSM=../data/input/montlake.osm

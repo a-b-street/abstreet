@@ -49,9 +49,7 @@ impl Map {
                 point: pt,
                 turns: Vec::new(),
                 elevation: i.elevation_meters * si::M,
-                // TODO use the data again!
-                //has_traffic_signal: i.get_has_traffic_signal(),
-                has_traffic_signal: idx % 2 == 0,
+                has_traffic_signal: i.has_traffic_signal,
                 incoming_roads: Vec::new(),
                 outgoing_roads: Vec::new(),
             });
