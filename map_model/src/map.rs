@@ -121,6 +121,9 @@ impl Map {
 
         for i in &m.intersections {
             make::trim_lines(&mut m.roads, i);
+            if i.incoming_roads.is_empty() && i.outgoing_roads.is_empty() {
+                panic!("{:?} is orphaned!", i);
+            }
         }
 
         for i in &m.intersections {

@@ -11,7 +11,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
     let mut intersections: HashSet<HashablePt2D> = HashSet::new();
     for r in &input.roads {
         for (idx, raw_pt) in r.points.iter().enumerate() {
-            let pt = hash_pt(raw_pt);
+            let pt = raw_pt.to_hashable();
             counts_per_pt.entry(pt).or_insert(0);
             let count = counts_per_pt[&pt] + 1;
             counts_per_pt.insert(pt, count);
@@ -45,7 +45,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
 
         for pt in &orig_road.points {
             r.points.push(pt.clone());
-            if r.points.len() > 1 && intersections.contains(&hash_pt(pt)) {
+            if r.points.len() > 1 && intersections.contains(&pt.to_hashable()) {
                 // Start a new road
                 map.roads.push(r.clone());
                 r.points.clear();
@@ -58,8 +58,4 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
     // TODO we're somehow returning an intersection here with no roads. figure that out.
 
     map
-}
-
-fn hash_pt(pt: &LonLat) -> HashablePt2D {
-    HashablePt2D::new(pt.longitude, pt.latitude)
 }

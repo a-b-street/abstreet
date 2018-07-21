@@ -1,5 +1,9 @@
 # TODO for Phase 1 (Basemap)
 
+- remove disconnected parts of the map (to speed up spawning things)
+	- map conversion isn't deterministic. make a test to verify
+	- it's hard to relate roads and lanes. of course. :)
+
 - road with many lanes
 	- maybe also the time to split into different lane types? what's similar/not between them?
 		- graph querying?

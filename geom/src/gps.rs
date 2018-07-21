@@ -1,3 +1,5 @@
+use pt::HashablePt2D;
+
 // longitude is x, latitude is y
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LonLat {
@@ -29,5 +31,9 @@ impl LonLat {
             + (delta_lon / 2.0).sin().powi(2) * lat1.cos() * lat2.cos();
         let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
         earth_radius_m * c
+    }
+
+    pub fn to_hashable(&self) -> HashablePt2D {
+        HashablePt2D::new(self.longitude, self.latitude)
     }
 }

@@ -1,4 +1,4 @@
-use geom::{Bounds, LonLat};
+use geom::{Bounds, HashablePt2D, LonLat};
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,6 +50,16 @@ pub struct Road {
     pub points: Vec<LonLat>,
     pub osm_tags: HashMap<String, String>,
     pub osm_way_id: i64,
+}
+
+impl Road {
+    pub fn first_pt(&self) -> HashablePt2D {
+        self.points[0].to_hashable()
+    }
+
+    pub fn last_pt(&self) -> HashablePt2D {
+        self.points.last().unwrap().to_hashable()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

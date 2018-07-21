@@ -12,7 +12,6 @@ extern crate geom;
 extern crate glutin_window;
 extern crate graphics;
 extern crate map_model;
-extern crate multimap;
 extern crate opengl_graphics;
 extern crate ordered_float;
 extern crate piston;

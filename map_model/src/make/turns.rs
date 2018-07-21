@@ -16,11 +16,17 @@ pub(crate) fn make_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec
 
     // TODO: Figure out why this happens in the huge map
     if incoming.is_empty() {
-        println!("WARNING: intersection {:?} has no incoming roads", i);
+        println!(
+            "WARNING: intersection {:?} has no incoming driving lanes",
+            i
+        );
         return Vec::new();
     }
     if outgoing.is_empty() {
-        println!("WARNING: intersection {:?} has no outgoing roads", i);
+        println!(
+            "WARNING: intersection {:?} has no outgoing driving lanes",
+            i
+        );
         return Vec::new();
     }
     let dead_end = incoming.len() == 1 && outgoing.len() == 1;
