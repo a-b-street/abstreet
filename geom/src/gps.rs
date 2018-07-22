@@ -1,7 +1,7 @@
 use pt::HashablePt2D;
 
 // longitude is x, latitude is y
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct LonLat {
     pub longitude: f64,
     pub latitude: f64,

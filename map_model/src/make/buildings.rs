@@ -3,7 +3,7 @@ use geom::{Bounds, Line, Pt2D};
 use geometry;
 use ordered_float::NotNaN;
 use raw_data;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use {Building, BuildingID, LaneType, Road, RoadID};
 
 pub(crate) fn make_building(
@@ -30,7 +30,7 @@ pub(crate) fn make_building(
 
 fn find_front_path(
     bldg_points: &Vec<Pt2D>,
-    bldg_osm_tags: &HashMap<String, String>,
+    bldg_osm_tags: &BTreeMap<String, String>,
     roads: &Vec<Road>,
 ) -> Option<Line> {
     use geo::prelude::{ClosestPoint, EuclideanDistance};

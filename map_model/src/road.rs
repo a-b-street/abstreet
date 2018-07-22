@@ -3,7 +3,7 @@
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::f64;
 use std::fmt;
 use IntersectionID;
@@ -34,7 +34,7 @@ pub enum LaneType {
 #[derive(Debug)]
 pub struct Road {
     pub id: RoadID,
-    pub osm_tags: HashMap<String, String>,
+    pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
     pub lane_type: LaneType,
 

@@ -1,7 +1,7 @@
 use geom::{Bounds, HashablePt2D, LonLat};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Map {
     pub roads: Vec<Road>,
     pub intersections: Vec<Intersection>,
@@ -45,10 +45,10 @@ impl Map {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Road {
     pub points: Vec<LonLat>,
-    pub osm_tags: HashMap<String, String>,
+    pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
 }
 
@@ -62,22 +62,22 @@ impl Road {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Intersection {
     pub point: LonLat,
     pub elevation_meters: f64,
     pub has_traffic_signal: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Building {
     // last point never the first?
     pub points: Vec<LonLat>,
-    pub osm_tags: HashMap<String, String>,
+    pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Parcel {
     // last point never the first?
     pub points: Vec<LonLat>,
