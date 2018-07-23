@@ -101,7 +101,12 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
                 sidewalk2_idx.map(|idx| (side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)
             }
             LaneType::Parking => None,
-            LaneType::Biking => None,
+            LaneType::Biking => if !side2_types.contains(&LaneType::Biking) {
+                None
+            } else {
+                assert!(side1_types == side2_types);
+                Some(side1_types.len() as isize)
+            },
             LaneType::Driving => if !side2_types.contains(&LaneType::Driving) {
                 None
             } else {
@@ -121,7 +126,7 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
     for (idx, lane_type) in side2_types.iter().enumerate() {
         let offset_for_other_id = match lane_type {
             LaneType::Parking => None,
-            LaneType::Biking => None,
+            LaneType::Biking => Some(-1 * (side1_types.len() as isize)),
             LaneType::Sidewalk => sidewalk2_idx
                 .map(|idx| -1 * ((side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)),
             LaneType::Driving => Some(-1 * (side1_types.len() as isize)),
@@ -219,12 +224,12 @@ fn big_twoway() {
         vec![
             LaneSpec::new(d, 0, false, Some(5), vec![1, 2, 3, 4]),
             LaneSpec::new(d, 1, false, Some(5), vec![-1, 1, 2, 3]),
-            LaneSpec::new(b, 2, false, None, vec![-2, -1, 1, 2]),
+            LaneSpec::new(b, 2, false, Some(5), vec![-2, -1, 1, 2]),
             LaneSpec::new(p, 3, false, None, vec![-3, -2, -1, 1]),
             LaneSpec::new(s, 4, false, Some(5), vec![-4, -3, -2, -1]),
             LaneSpec::new(d, 0, true, Some(-5), vec![1, 2, 3, 4]),
             LaneSpec::new(d, 1, true, Some(-5), vec![-1, 1, 2, 3]),
-            LaneSpec::new(b, 2, true, None, vec![-2, -1, 1, 2]),
+            LaneSpec::new(b, 2, true, Some(-5), vec![-2, -1, 1, 2]),
             LaneSpec::new(p, 3, true, None, vec![-3, -2, -1, 1]),
             LaneSpec::new(s, 4, true, Some(-5), vec![-4, -3, -2, -1]),
         ]

@@ -209,6 +209,10 @@ but the fact that sidewalks are oriented is actually convenient, it makes it cle
 what if we just add a bit and make turns bidirectional? still express them in the directional way?
 if we're looking at turns from a road that's a sidewalk, bake in some extra logic?
 
+## Bike lanes
+
+How do we model bikes merging to a driving lane to make a left?
+
 ## Pedestrian modeling
 
 - Is it useful to distinguish CarID and PedestrianID? What about when an agent has a multi-modal trip? Probably become AgentID later.

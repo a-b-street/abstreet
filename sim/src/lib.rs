@@ -154,7 +154,7 @@ pub(crate) fn pick_goal_and_find_path<R: Rng + ?Sized>(
     let mut path = if let Some(steps) = map_model::pathfind(map, start, *goal) {
         VecDeque::from(steps)
     } else {
-        println!("No path from {} to {}", start, goal);
+        println!("No path from {} to {} ({:?})", start, goal, lane_type);
         return None;
     };
     // path includes the start, but that's not the invariant Car enforces

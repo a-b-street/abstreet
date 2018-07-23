@@ -128,8 +128,10 @@ impl Map {
         }
 
         for i in &m.intersections {
-            let turns = make::make_turns(i, &m, m.turns.len());
-            m.turns.extend(turns);
+            let turns1 = make::make_driving_turns(i, &m, m.turns.len());
+            m.turns.extend(turns1);
+            let turns2 = make::make_biking_turns(i, &m, m.turns.len());
+            m.turns.extend(turns2);
             let crosswalks = make::make_crosswalks(i, &m, m.turns.len());
             m.turns.extend(crosswalks);
         }
