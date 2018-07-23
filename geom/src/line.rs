@@ -94,6 +94,15 @@ impl Line {
             println!("whats the delta btwn {} and {}?", res_len, dist_along);
         }
         */    }
+
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+        let dist = Line(self.0, pt).length() + Line(pt, self.1).length() - self.length();
+        if dist < 0.0 * si::M {
+            -1.0 * dist < util::EPSILON_METERS
+        } else {
+            dist < util::EPSILON_METERS
+        }
+    }
 }
 
 fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
