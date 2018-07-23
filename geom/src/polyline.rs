@@ -180,6 +180,20 @@ impl PolyLine {
             .map(|pts| pts.iter().map(|pt| pt.to_vec()).collect())
             .collect()
     }
+
+    pub fn intersects(&self, other: &PolyLine) -> bool {
+        // Quadratic
+        for pair1 in self.pts.windows(2) {
+            let l1 = Line::new(pair1[0], pair1[1]);
+            for pair2 in other.pts.windows(2) {
+                let l2 = Line::new(pair2[0], pair2[1]);
+                if l1.intersects(&l2) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
 }
 
 impl fmt::Display for PolyLine {
