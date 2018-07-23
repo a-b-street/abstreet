@@ -1,6 +1,6 @@
 # TODO for Phase 1 (Basemap)
 
-- remove disconnected parts of the map (to speed up spawning things)
+- trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - road with many lanes
 	- maybe also the time to split into different lane types? what's similar/not between them?

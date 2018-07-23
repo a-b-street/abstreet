@@ -45,16 +45,23 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map) {
     partitions.sort_by_key(|roads| roads.len());
     partitions.reverse();
     println!("Main partition has {} roads", partitions[0].len());
+    let mut remove_roads = HashSet::new();
     for p in partitions.iter().skip(1) {
         println!("Removing disconnected partition with {} roads", p.len());
         for idx in p {
-            println!("TODO: remove road {:?}", map.roads[*idx].osm_tags);
-
-            // TODO this is expensive
-            /*let old_r = map.roads.remove(*idx);
-            next_roads.remove(old_r.first_pt(), *idx);
-            next_roads.remove(old_r.last_pt(), *idx);*/        }
+            remove_roads.insert(idx);
+        }
     }
+    let mut roads: Vec<raw_data::Road> = Vec::new();
+    for (idx, r) in map.roads.iter().enumerate() {
+        if remove_roads.contains(&idx) {
+            next_roads.remove(r.first_pt(), idx);
+            next_roads.remove(r.last_pt(), idx);
+        } else {
+            roads.push(r.clone());
+        }
+    }
+    map.roads = roads;
 
     // Remove intersections without any roads
     map.intersections
