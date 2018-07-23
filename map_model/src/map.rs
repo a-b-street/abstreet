@@ -57,7 +57,7 @@ impl Map {
         }
 
         let mut counter = 0;
-        for r in &data.roads {
+        for (idx, r) in data.roads.iter().enumerate() {
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r) {
                 let id = RoadID(counter);
@@ -115,6 +115,7 @@ impl Map {
                     osm_tags: r.osm_tags.clone(),
                     osm_way_id: r.osm_way_id,
                     lane_type: lane.lane_type,
+                    orig_road_idx: idx,
                 });
             }
         }

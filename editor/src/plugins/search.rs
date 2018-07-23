@@ -6,7 +6,7 @@ use ezgui::text_box::TextBox;
 use graphics::types::Color;
 use map_model;
 use piston::input::Key;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub enum SearchState {
     Empty,
@@ -22,7 +22,7 @@ impl SearchState {
         self.choose_color(&b.osm_tags, cs)
     }
 
-    fn choose_color(&self, osm_tags: &HashMap<String, String>, cs: &ColorScheme) -> Option<Color> {
+    fn choose_color(&self, osm_tags: &BTreeMap<String, String>, cs: &ColorScheme) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             for (k, v) in osm_tags {
                 if format!("{}={}", k, v).contains(filter) {

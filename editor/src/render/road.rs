@@ -127,9 +127,10 @@ impl DrawRoad {
                 r.osm_tags.get("name").unwrap_or(&"???".to_string())
             ),
             format!(
-                "From OSM way {}, with {} polygons",
+                "From OSM way {}, with {} polygons, orig road idx {}",
                 r.osm_way_id,
-                self.polygons.len()
+                self.polygons.len(),
+                r.orig_road_idx,
             ),
             format!(
                 "Road goes from {} to {}",

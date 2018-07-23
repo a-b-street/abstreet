@@ -56,6 +56,7 @@ pub struct Road {
     pub other_side: Option<RoadID>,
     // TODO alright, we might need a Road-vs-Lanes distinction
     pub siblings: Vec<RoadID>,
+    pub orig_road_idx: usize,
 
     /// GeomRoad stuff
     pub lane_center_pts: PolyLine,
