@@ -29,6 +29,7 @@ pub enum LaneType {
     Driving,
     Parking,
     Sidewalk,
+    Biking,
 }
 
 #[derive(Debug)]

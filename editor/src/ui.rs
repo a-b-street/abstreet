@@ -236,6 +236,7 @@ impl UI {
             map_model::LaneType::Driving => self.cs.get(Colors::Road),
             map_model::LaneType::Parking => self.cs.get(Colors::Parking),
             map_model::LaneType::Sidewalk => self.cs.get(Colors::Sidewalk),
+            map_model::LaneType::Biking => self.cs.get(Colors::Biking),
         };
         if r.probably_broken {
             default = self.cs.get(Colors::Broken);

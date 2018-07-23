@@ -23,5 +23,6 @@
 	- cant have no stop signs for two roads whose center line crosses
 		- infer default policy
 
-- add random bike lanes, figure out how turns would work
-- be able to convert between parking and bike lanes, recompute the turns
+- be able to convert between parking, driving, bike lanes, recompute the turns
+
+- be able to change road directions

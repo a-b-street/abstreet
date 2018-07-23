@@ -24,7 +24,7 @@
 
 ## bikes
 
-- model bikes in driving lanes (as slow cars)
+- model bikes as slow cars
 
 ## pedestrians
 

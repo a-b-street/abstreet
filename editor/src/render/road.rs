@@ -54,6 +54,7 @@ impl DrawRoad {
             map_model::LaneType::Sidewalk => Some(calculate_sidewalk_lines(road)),
             map_model::LaneType::Parking => Some(calculate_parking_lines(road)),
             map_model::LaneType::Driving => calculate_driving_lines(road),
+            map_model::LaneType::Biking => None,
         } {
             markings.push(m);
         }

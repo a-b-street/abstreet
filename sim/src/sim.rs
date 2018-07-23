@@ -114,6 +114,10 @@ impl Sim {
                     return false;
                 }
             }
+            LaneType::Biking => {
+                println!("TODO implement bikes");
+                return false;
+            }
         };
 
         if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
@@ -166,6 +170,7 @@ impl Sim {
             }
             LaneType::Parking => self.parking_state.get_draw_cars(r, map),
             LaneType::Sidewalk => Vec::new(),
+            LaneType::Biking => Vec::new(),
         }
     }
 

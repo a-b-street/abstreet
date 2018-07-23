@@ -44,6 +44,10 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     }
 
     let mut full_side = driving_lanes;
+    // TODO have a better idea where bike lanes are
+    if r.osm_way_id % 10 == 0 {
+        full_side.push(LaneType::Biking);
+    }
     full_side.push(LaneType::Parking);
     full_side.push(LaneType::Sidewalk);
     if oneway {
@@ -97,6 +101,7 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
                 sidewalk2_idx.map(|idx| (side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)
             }
             LaneType::Parking => None,
+            LaneType::Biking => None,
             LaneType::Driving => if !side2_types.contains(&LaneType::Driving) {
                 None
             } else {
@@ -116,6 +121,7 @@ fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) ->
     for (idx, lane_type) in side2_types.iter().enumerate() {
         let offset_for_other_id = match lane_type {
             LaneType::Parking => None,
+            LaneType::Biking => None,
             LaneType::Sidewalk => sidewalk2_idx
                 .map(|idx| -1 * ((side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)),
             LaneType::Driving => Some(-1 * (side1_types.len() as isize)),
@@ -204,20 +210,23 @@ fn twoway() {
 #[test]
 fn big_twoway() {
     let d = LaneType::Driving;
+    let b = LaneType::Biking;
     let p = LaneType::Parking;
     let s = LaneType::Sidewalk;
 
     assert_eq!(
-        lane_specs_for((vec![d, d, p, s], vec![d, d, p, s])),
+        lane_specs_for((vec![d, d, b, p, s], vec![d, d, b, p, s])),
         vec![
-            LaneSpec::new(d, 0, false, Some(4), vec![1, 2, 3]),
-            LaneSpec::new(d, 1, false, Some(4), vec![-1, 1, 2]),
-            LaneSpec::new(p, 2, false, None, vec![-2, -1, 1]),
-            LaneSpec::new(s, 3, false, Some(4), vec![-3, -2, -1]),
-            LaneSpec::new(d, 0, true, Some(-4), vec![1, 2, 3]),
-            LaneSpec::new(d, 1, true, Some(-4), vec![-1, 1, 2]),
-            LaneSpec::new(p, 2, true, None, vec![-2, -1, 1]),
-            LaneSpec::new(s, 3, true, Some(-4), vec![-3, -2, -1]),
+            LaneSpec::new(d, 0, false, Some(5), vec![1, 2, 3, 4]),
+            LaneSpec::new(d, 1, false, Some(5), vec![-1, 1, 2, 3]),
+            LaneSpec::new(b, 2, false, None, vec![-2, -1, 1, 2]),
+            LaneSpec::new(p, 3, false, None, vec![-3, -2, -1, 1]),
+            LaneSpec::new(s, 4, false, Some(5), vec![-4, -3, -2, -1]),
+            LaneSpec::new(d, 0, true, Some(-5), vec![1, 2, 3, 4]),
+            LaneSpec::new(d, 1, true, Some(-5), vec![-1, 1, 2, 3]),
+            LaneSpec::new(b, 2, true, None, vec![-2, -1, 1, 2]),
+            LaneSpec::new(p, 3, true, None, vec![-3, -2, -1, 1]),
+            LaneSpec::new(s, 4, true, Some(-5), vec![-4, -3, -2, -1]),
         ]
     );
 }

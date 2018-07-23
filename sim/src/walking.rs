@@ -46,7 +46,7 @@ impl Pedestrian {
         &mut self,
         delta_time: si::Second<f64>,
         map: &Map,
-        control_map: &ControlMap,
+        _control_map: &ControlMap,
     ) -> bool {
         let new_dist: si::Meter<f64> = delta_time * SPEED;
         let done_current_sidewalk = if self.contraflow {
@@ -77,7 +77,7 @@ impl Pedestrian {
         false
     }
 
-    fn step_turn(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
+    fn step_turn(&mut self, delta_time: si::Second<f64>, map: &Map, _control_map: &ControlMap) {
         let new_dist: si::Meter<f64> = delta_time * SPEED;
         self.dist_along += new_dist.value_unsafe;
         if self.dist_along * si::M < self.on.length(map) {

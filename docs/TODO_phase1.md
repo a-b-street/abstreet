@@ -1,5 +1,7 @@
 # TODO for Phase 1 (Basemap)
 
+- turns for bike lanes
+
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - road with many lanes
@@ -14,8 +16,6 @@
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?
 		- trim them back too (maybe to avoid hitting the intersection?)
-
-- model bike lanes
 
 - more data
 	- draw water and greenery areas
