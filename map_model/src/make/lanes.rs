@@ -8,6 +8,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     // These seem to represent weird roundabouts
     let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
     let big_highway = r.osm_tags.get("highway") == Some(&"motorway".to_string());
+    let bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
     let num_driving_lanes = if let Some(n) = r.osm_tags
         .get("lanes")
         .and_then(|num| num.parse::<usize>().ok())
@@ -44,8 +45,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     }
 
     let mut full_side = driving_lanes;
-    // TODO have a better idea where bike lanes are
-    if r.osm_way_id % 10 == 0 {
+    if bike_lane {
         full_side.push(LaneType::Biking);
     }
     full_side.push(LaneType::Parking);
