@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use geom::{Bounds, LonLat};
+use geom::LonLat;
 use map_model::raw_data;
 use osm_xml;
 use std::collections::HashMap;
@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::BufReader;
 
 // TODO Result, but is there an easy way to say io error or osm xml error?
-pub fn osm_to_raw_roads(osm_path: &str) -> (raw_data::Map, Bounds) {
+pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
     println!("Opening {}", osm_path);
     let f = File::open(osm_path).unwrap();
     let reader = BufReader::new(f);
@@ -27,7 +27,6 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (raw_data::Map, Bounds) {
     }
 
     let mut map = raw_data::Map::blank();
-    let mut bounds = Bounds::new();
     for (i, way) in doc.ways.iter().enumerate() {
         // TODO count with a nicer progress bar
         if i % 1000 == 0 {
@@ -40,7 +39,6 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (raw_data::Map, Bounds) {
             match *node_ref {
                 osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
                     Some(node) => {
-                        bounds.update(node.lon, node.lat);
                         pts.push(LonLat::new(node.lon, node.lat));
                     }
                     None => {
@@ -78,7 +76,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> (raw_data::Map, Bounds) {
             });
         }
     }
-    (map, bounds)
+    map
 }
 
 fn is_road(raw_tags: &[osm_xml::Tag]) -> bool {

@@ -28,6 +28,8 @@
 
 ## pedestrians
 
+- why so many impossible paths? r350 to r41
+
 - UI: draw cars and peds in intersections, even at lower zoom levels, just like on roads
 - make them obey intersections (deterministically!)
 - make them start and end at buildings
