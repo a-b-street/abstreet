@@ -55,10 +55,6 @@
 	- first figure out all the trimming cases for the T, outside and inside lanes, etc
 
 
-- aha, big bug! we only try to trim first/last lines. do the whole polyline.
-	- can think of an easy fixpoint approach to try first, even though it's inefficient.
-	- wait, the fixpoint is also incorrect. :(
-
 - before trimming back lines, project out the correct width. sort all those points by angle from the center. thats the intersection polygon? then somehow trim back lines to hit that nicely.
 - do the current trim_lines thing, but with lines, not segments? no, there'd be many almost-parallel lines.
 

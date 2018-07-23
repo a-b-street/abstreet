@@ -99,9 +99,7 @@ pub(crate) fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usiz
             }
             let dst_pt = dst.endpoint(i.id);
 
-            // TODO Just the first check ideally, but until line trimming handles polylines, we
-            // should also do the second check.
-            if src_pt != dst_pt && !src.lane_center_pts.intersects(&dst.lane_center_pts) {
+            if src_pt != dst_pt {
                 continue;
             }
 

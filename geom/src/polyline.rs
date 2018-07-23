@@ -181,23 +181,7 @@ impl PolyLine {
             .collect()
     }
 
-    pub fn intersects(&self, other: &PolyLine) -> bool {
-        // Quadratic
-        for pair1 in self.pts.windows(2) {
-            let l1 = Line::new(pair1[0], pair1[1]);
-            for pair2 in other.pts.windows(2) {
-                let l2 = Line::new(pair2[0], pair2[1]);
-                if l1.intersects(&l2) {
-                    return true;
-                }
-            }
-        }
-        false
-    }
-
-    // index, experimental mode
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
-        // Quadratic
         for pair1 in self.pts.windows(2) {
             let l1 = Line::new(pair1[0], pair1[1]);
             for pair2 in other.pts.windows(2) {
@@ -212,7 +196,10 @@ impl PolyLine {
 
     // Starts trimming from the head. Assumes the pt is on the polyline somewhere.
     pub fn trim_to_pt(&mut self, pt: Pt2D) {
-        if let Some(idx) = self.pts.windows(2).position(|pair| Line::new(pair[0], pair[1]).contains_pt(pt)) {
+        if let Some(idx) = self.pts
+            .windows(2)
+            .position(|pair| Line::new(pair[0], pair[1]).contains_pt(pt))
+        {
             self.pts.truncate(idx + 1);
             self.pts.push(pt);
         } else {
