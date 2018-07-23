@@ -3,12 +3,12 @@
 use geom::{HashablePt2D, LonLat};
 use map_model::raw_data;
 use srtm;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap};
 
 pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw_data::Map {
     println!("splitting up {} roads", input.roads.len());
     let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
-    let mut intersections: HashSet<HashablePt2D> = HashSet::new();
+    let mut intersections: BTreeSet<HashablePt2D> = BTreeSet::new();
     for r in &input.roads {
         for (idx, raw_pt) in r.points.iter().enumerate() {
             let pt = raw_pt.to_hashable();

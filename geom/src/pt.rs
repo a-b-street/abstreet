@@ -77,7 +77,7 @@ impl fmt::Display for Pt2D {
 }
 
 // This isn't opinionated about what the (x, y) represents -- could be lat/lon or world space.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
     x_nan: NotNaN<f64>,
     y_nan: NotNaN<f64>,
