@@ -49,8 +49,6 @@ pub struct Lane {
     // Need to remember this just for detecting U-turns here. Also for finding sidewalks to connect
     // with a crosswalk.
     pub other_side: Option<LaneID>,
-    // TODO alright, we might need a Road-vs-Lanes distinction
-    pub siblings: Vec<LaneID>,
 }
 
 impl PartialEq for Lane {

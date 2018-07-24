@@ -84,10 +84,6 @@ impl Map {
                 counter += 1;
                 let other_side = lane.offset_for_other_id
                     .map(|offset| LaneID(((id.0 as isize) + offset) as usize));
-                let siblings = lane.offsets_for_siblings
-                    .iter()
-                    .map(|offset| LaneID(((id.0 as isize) + offset) as usize))
-                    .collect();
 
                 let mut unshifted_pts = road_center_pts.clone();
                 if lane.reverse_pts {
@@ -114,7 +110,6 @@ impl Map {
                 m.lanes.push(Lane {
                     id,
                     other_side,
-                    siblings,
                     lane_center_pts,
                     probably_broken,
                     src_i: i1,
@@ -270,24 +265,5 @@ impl Map {
     // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()
-    }
-
-    pub fn find_driving_lane(&self, parking: LaneID) -> Option<LaneID> {
-        let l = self.get_l(parking);
-        assert_eq!(l.lane_type, LaneType::Parking);
-        // TODO find the closest one to the parking lane, if there are multiple
-        l.siblings
-            .iter()
-            .find(|&&id| self.get_l(id).lane_type == LaneType::Driving)
-            .map(|id| *id)
-    }
-
-    pub fn find_parking_lane(&self, driving: LaneID) -> Option<LaneID> {
-        let l = self.get_l(driving);
-        assert_eq!(l.lane_type, LaneType::Driving);
-        l.siblings
-            .iter()
-            .find(|&&id| self.get_l(id).lane_type == LaneType::Parking)
-            .map(|id| *id)
     }
 }

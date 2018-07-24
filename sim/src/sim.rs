@@ -89,7 +89,10 @@ impl Sim {
     }
 
     pub fn start_agent(&mut self, map: &Map, id: LaneID) -> bool {
-        let (driving_lane, parking_lane) = match map.get_l(id).lane_type {
+        // TODO maybe a way to grab both?
+        let lane = map.get_l(id);
+        let road = map.get_r(lane.parent);
+        let (driving_lane, parking_lane) = match lane.lane_type {
             LaneType::Sidewalk => {
                 if self.walking_state.seed_pedestrian(&mut self.rng, map, id) {
                     println!("Spawned a pedestrian at {}", id);
@@ -99,7 +102,7 @@ impl Sim {
                 }
             }
             LaneType::Driving => {
-                if let Some(parking) = map.find_parking_lane(id) {
+                if let Some(parking) = road.find_parking_lane(id, map) {
                     (id, parking)
                 } else {
                     println!("{} has no parking lane", id);
@@ -107,7 +110,7 @@ impl Sim {
                 }
             }
             LaneType::Parking => {
-                if let Some(driving) = map.find_driving_lane(id) {
+                if let Some(driving) = road.find_driving_lane(id, map) {
                     (driving, id)
                 } else {
                     println!("{} has no driving lane", id);

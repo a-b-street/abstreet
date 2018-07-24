@@ -1,7 +1,7 @@
 use geom::PolyLine;
 use std::collections::BTreeMap;
 use std::fmt;
-use LaneID;
+use {LaneID, LaneType, Map};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -48,5 +48,33 @@ impl Road {
             return lane == self.children_forwards[0];
         }
         lane == self.children_backwards[0]
+    }
+
+    pub fn find_driving_lane(&self, parking: LaneID, map: &Map) -> Option<LaneID> {
+        // TODO find the closest one to the parking lane, if there are multiple
+        //assert_eq!(l.lane_type, LaneType::Parking);
+        self.get_siblings(parking)
+            .iter()
+            .find(|&&id| map.get_l(id).lane_type == LaneType::Driving)
+            .map(|id| *id)
+    }
+
+    pub fn find_parking_lane(&self, driving: LaneID, map: &Map) -> Option<LaneID> {
+        //assert_eq!(l.lane_type, LaneType::Driving);
+        self.get_siblings(driving)
+            .iter()
+            .find(|&&id| map.get_l(id).lane_type == LaneType::Parking)
+            .map(|id| *id)
+    }
+
+    fn get_siblings(&self, lane: LaneID) -> &Vec<LaneID> {
+        // TODO rm lane from this list?
+        if self.children_forwards.contains(&lane) {
+            return &self.children_forwards;
+        }
+        if self.children_backwards.contains(&lane) {
+            return &self.children_backwards;
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
     }
 }
