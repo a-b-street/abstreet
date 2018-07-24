@@ -10,6 +10,7 @@ extern crate serde;
 extern crate serde_derive;
 
 mod building;
+mod edits;
 pub mod geometry;
 mod intersection;
 mod lane;

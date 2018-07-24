@@ -36,20 +36,27 @@ impl PartialEq for Road {
 }
 
 impl Road {
+    pub fn get_lane_types(&self) -> (Vec<LaneType>, Vec<LaneType>) {
+        (
+            self.children_forwards.iter().map(|pair| pair.1).collect(),
+            self.children_backwards.iter().map(|pair| pair.1).collect(),
+        )
+    }
+
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
-    // it counts up from there.
-    pub fn lane_offset(&self, lane: LaneID) -> u8 {
+    // it counts up from there. Returns true for the forwards direction, false for backwards.
+    pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {
         if let Some(idx) = self.children_forwards
             .iter()
             .position(|pair| pair.0 == lane)
         {
-            return idx as u8;
+            return (true, idx);
         }
         if let Some(idx) = self.children_backwards
             .iter()
             .position(|pair| pair.0 == lane)
         {
-            return idx as u8;
+            return (false, idx);
         }
         panic!("{} doesn't contain {}", self.id, lane);
     }

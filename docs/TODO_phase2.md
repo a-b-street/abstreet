@@ -23,6 +23,9 @@
 	- cant have no stop signs for two roads whose center line crosses
 		- infer default policy
 
-- be able to convert between parking, driving, bike lanes, recompute the turns
-
 - be able to change road directions
+
+- basic road edits
+	- UI to make edits and savestate
+	- load edits, use in original map making
+	- apply edits to live map and recompute everything needed

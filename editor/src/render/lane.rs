@@ -227,7 +227,7 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
 
 fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> Option<Marking> {
     // The rightmost lanes don't have dashed white lines.
-    if parent.lane_offset(lane.id) == 0 {
+    if parent.dir_and_offset(lane.id).1 == 0 {
         return None;
     }
 
