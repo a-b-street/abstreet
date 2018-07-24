@@ -15,6 +15,7 @@ extern crate map_model;
 extern crate opengl_graphics;
 extern crate ordered_float;
 extern crate piston;
+#[macro_use] extern crate pretty_assertions;
 extern crate rand;
 #[macro_use]
 extern crate serde_derive;

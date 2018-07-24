@@ -10,5 +10,6 @@ geom = { path = "../geom" }
 ordered-float = "0.5.0"
 osm-xml = "0.5.1"
 map_model = { path = "../map_model" }
+pretty_assertions = "0.5.1"
 shp = "0.1.1"
 structopt = "0.2"

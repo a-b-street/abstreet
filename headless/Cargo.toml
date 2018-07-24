@@ -6,5 +6,6 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 [dependencies]
 control = { path = "../control" }
 map_model = { path = "../map_model" }
+pretty_assertions = "0.5.1"
 sim = { path = "../sim" }
 structopt = "0.2"

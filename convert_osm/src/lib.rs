@@ -4,6 +4,7 @@ extern crate geom;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
+#[macro_use] extern crate pretty_assertions;
 extern crate shp;
 #[macro_use]
 extern crate structopt;

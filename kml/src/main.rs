@@ -3,6 +3,7 @@
 extern crate abstutil;
 extern crate geom;
 extern crate map_model;
+#[macro_use] extern crate pretty_assertions;
 extern crate quick_xml;
 
 mod kml;

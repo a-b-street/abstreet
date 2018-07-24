@@ -7,4 +7,5 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+pretty_assertions = "0.5.1"
 quick-xml = "0.10.0"
