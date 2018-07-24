@@ -10,12 +10,13 @@ use lane::{Lane, LaneID, LaneType};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
-use road::RoadID;
+use road::{Road, RoadID};
 use std::collections::HashMap;
 use std::io::Error;
 use turn::{Turn, TurnID};
 
 pub struct Map {
+    roads: Vec<Road>,
     lanes: Vec<Lane>,
     intersections: Vec<Intersection>,
     turns: Vec<Turn>,
@@ -33,6 +34,7 @@ impl Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
             bounds,
+            roads: Vec::new(),
             lanes: Vec::new(),
             intersections: Vec::new(),
             turns: Vec::new(),
@@ -59,6 +61,13 @@ impl Map {
 
         let mut counter = 0;
         for (idx, r) in data.roads.iter().enumerate() {
+            let road_id = RoadID(idx);
+            m.roads.push(Road {
+                id: road_id,
+                osm_tags: r.osm_tags.clone(),
+                osm_way_id: r.osm_way_id,
+            });
+
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r) {
                 let id = LaneID(counter);
@@ -116,7 +125,7 @@ impl Map {
                     osm_tags: r.osm_tags.clone(),
                     osm_way_id: r.osm_way_id,
                     lane_type: lane.lane_type,
-                    road: RoadID(idx),
+                    road: road_id,
                 });
             }
         }
@@ -158,6 +167,10 @@ impl Map {
         Ok(m)
     }
 
+    pub fn all_roads(&self) -> &Vec<Road> {
+        &self.roads
+    }
+
     pub fn all_lanes(&self) -> &Vec<Lane> {
         &self.lanes
     }
@@ -176,6 +189,10 @@ impl Map {
 
     pub fn all_parcels(&self) -> &Vec<Parcel> {
         &self.parcels
+    }
+
+    pub fn get_r(&self, id: RoadID) -> &Road {
+        &self.roads[id.0]
     }
 
     pub fn get_l(&self, id: LaneID) -> &Lane {

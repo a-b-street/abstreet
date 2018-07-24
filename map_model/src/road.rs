@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -8,4 +9,11 @@ impl fmt::Display for RoadID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "RoadID({0})", self.0)
     }
+}
+
+#[derive(Debug)]
+pub struct Road {
+    pub id: RoadID,
+    pub osm_tags: BTreeMap<String, String>,
+    pub osm_way_id: i64,
 }

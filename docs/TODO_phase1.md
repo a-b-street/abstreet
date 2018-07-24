@@ -5,13 +5,16 @@
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - road with many lanes
+	- osm tags belong to road
+	- make/turns can use this especially. intersections should refer to different things.
+	- this will clean up other_side and siblings
+
+
 	- maybe also the time to split into different lane types? what's similar/not between them?
 		- graph querying?
 		- rendering (and other UI/editor interactions)?
 		- sim state?
 	- split structs, IDs, getters, etc
-	- osm tags belong to road
-	- this will clean up other_side and siblings
 	- figure out what to do about yellow center lines
 		- yellow and white lines intersect cars and turn icons and such
 		- who should own drawing them?

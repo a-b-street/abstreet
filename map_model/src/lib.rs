@@ -27,5 +27,5 @@ pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::pathfind;
-pub use road::RoadID;
+pub use road::{Road, RoadID};
 pub use turn::{Turn, TurnID};
