@@ -40,7 +40,8 @@ impl DrawLane {
         let mut markings: Vec<Marking> = Vec::new();
         if lane.use_yellow_center_lines {
             markings.push(Marking {
-                lines: lane.unshifted_pts
+                lines: map.get_r(lane.parent)
+                    .center_pts
                     .points()
                     .windows(2)
                     .map(|pair| [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()])

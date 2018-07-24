@@ -43,7 +43,6 @@ pub struct Lane {
     pub probably_broken: bool,
 
     // TODO i think everything else should be moved to road, honestly.
-
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 
@@ -59,10 +58,6 @@ pub struct Lane {
     pub other_side: Option<LaneID>,
     // TODO alright, we might need a Road-vs-Lanes distinction
     pub siblings: Vec<LaneID>,
-
-    // Unshifted center points. consider computing these twice or otherwise not storing them
-    // Order implies road orientation.
-    pub unshifted_pts: PolyLine,
 }
 
 impl PartialEq for Lane {
@@ -119,10 +114,6 @@ impl Lane {
         println!(
             "\nlet lane_center_r{}_pts = {}",
             self.id.0, self.lane_center_pts
-        );
-        println!(
-            "\nlet unshifted_r{}_pts = {}",
-            self.id.0, self.unshifted_pts
         );
     }
 

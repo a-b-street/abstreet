@@ -5,8 +5,10 @@
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - road with many lanes
-	- make/turns can use this especially. intersections should refer to different things.
-	- this will clean up other_side and siblings
+	- make road know about children in each direction
+	- make intersection know about roads, not lanes
+		- make/turns can use this especially. intersections should refer to different things.
+	- clean up all state in lane
 
 
 	- maybe also the time to split into different lane types? what's similar/not between them?

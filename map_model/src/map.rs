@@ -62,10 +62,18 @@ impl Map {
         let mut counter = 0;
         for (idx, r) in data.roads.iter().enumerate() {
             let road_id = RoadID(idx);
+            let road_center_pts = PolyLine::new(
+                r.points
+                    .iter()
+                    .map(|coord| Pt2D::from_gps(coord, &bounds))
+                    .collect(),
+            );
+
             m.roads.push(Road {
                 id: road_id,
                 osm_tags: r.osm_tags.clone(),
                 osm_way_id: r.osm_way_id,
+                center_pts: road_center_pts.clone(),
             });
 
             // TODO move this to make/lanes.rs too
@@ -79,12 +87,7 @@ impl Map {
                     .map(|offset| LaneID(((id.0 as isize) + offset) as usize))
                     .collect();
 
-                let mut unshifted_pts = PolyLine::new(
-                    r.points
-                        .iter()
-                        .map(|coord| Pt2D::from_gps(coord, &bounds))
-                        .collect(),
-                );
+                let mut unshifted_pts = road_center_pts.clone();
                 if lane.reverse_pts {
                     unshifted_pts = unshifted_pts.reversed();
                 }
@@ -118,7 +121,6 @@ impl Map {
                     use_yellow_center_lines,
                     lane_center_pts,
                     probably_broken,
-                    unshifted_pts,
                     offset: lane.offset,
                     src_i: i1,
                     dst_i: i2,

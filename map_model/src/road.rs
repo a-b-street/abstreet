@@ -1,3 +1,4 @@
+use geom::PolyLine;
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -17,4 +18,7 @@ pub struct Road {
     pub id: RoadID,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+
+    // Unshifted center points. Order implies road orientation.
+    pub center_pts: PolyLine,
 }
