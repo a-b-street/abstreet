@@ -142,19 +142,19 @@ fn calculate_crosswalks(
         .iter()
         .chain(inter.incoming_lanes.iter())
     {
-        let r1 = map.get_l(*id);
-        if r1.lane_type != map_model::LaneType::Sidewalk {
+        let l1 = map.get_l(*id);
+        if l1.lane_type != map_model::LaneType::Sidewalk {
             continue;
         }
-        if r1.other_side.unwrap().0 < r1.id.0 {
+        let l2 = map.get_l(map.get_r(l1.parent).get_opposite_lane(l1.id, map).unwrap());
+        if l2.id < l1.id {
             continue;
         }
-        let r2 = map.get_l(r1.other_side.unwrap());
 
-        let line = if r1.src_i == inter.id {
-            Line::new(r1.first_pt(), r2.last_pt())
+        let line = if l1.src_i == inter.id {
+            Line::new(l1.first_pt(), l2.last_pt())
         } else {
-            Line::new(r1.last_pt(), r2.first_pt())
+            Line::new(l1.last_pt(), l2.first_pt())
         };
         let angle = line.angle();
         let length = line.length();

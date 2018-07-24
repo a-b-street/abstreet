@@ -23,6 +23,7 @@ pub struct Road {
     // Invariant: A road must contain at least one child
     pub children_forwards: Vec<LaneID>,
     pub children_backwards: Vec<LaneID>,
+    // TODO should consider having a redundant lookup from LaneID to direction and lane type
 
     // Unshifted center points. Order implies road orientation.
     pub center_pts: PolyLine,
@@ -65,6 +66,28 @@ impl Road {
             .iter()
             .find(|&&id| map.get_l(id).lane_type == LaneType::Parking)
             .map(|id| *id)
+    }
+
+    pub fn get_opposite_lane(&self, lane: LaneID, map: &Map) -> Option<LaneID> {
+        let lane_type = map.get_l(lane).lane_type;
+        let forwards: Vec<LaneID> = self.children_forwards
+            .iter()
+            .filter(|&&id| map.get_l(id).lane_type == lane_type)
+            .map(|id| *id)
+            .collect();
+        let backwards: Vec<LaneID> = self.children_backwards
+            .iter()
+            .filter(|&&id| map.get_l(id).lane_type == lane_type)
+            .map(|id| *id)
+            .collect();
+
+        if let Some(idx) = forwards.iter().position(|id| *id == lane) {
+            return backwards.get(idx).map(|id| *id);
+        }
+        if let Some(idx) = backwards.iter().position(|id| *id == lane) {
+            return forwards.get(idx).map(|id| *id);
+        }
+        panic!("{} doesn't contain {}", self.id, lane);
     }
 
     fn get_siblings(&self, lane: LaneID) -> &Vec<LaneID> {

@@ -3,7 +3,17 @@ use geom::Line;
 use std::collections::HashSet;
 use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
-pub(crate) fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+pub(crate) fn make_all_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+    let mut turns: Vec<Turn> = Vec::new();
+    turns.extend(make_driving_turns(i, m, turn_id_start));
+    let len = turns.len();
+    turns.extend(make_biking_turns(i, m, turn_id_start + len));
+    let len = turns.len();
+    turns.extend(make_crosswalks(i, m, turn_id_start + len));
+    turns
+}
+
+fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
     let incoming: Vec<LaneID> = i.incoming_lanes
         .iter()
         // TODO why's this double borrow happen?
@@ -19,7 +29,7 @@ pub(crate) fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize
     make_turns(m, turn_id_start, i.id, &incoming, &outgoing)
 }
 
-pub(crate) fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
     // TODO great further evidence of needing a road/lane distinction
     let mut incoming_roads: HashSet<RoadID> = HashSet::new();
     let mut incoming_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
@@ -96,10 +106,12 @@ fn make_turns(
     let mut result = Vec::new();
     for src in incoming {
         let src_l = map.get_l(*src);
+        let other_side = map.get_r(src_l.parent).get_opposite_lane(src_l.id, map);
+
         for dst in outgoing {
             let dst_l = map.get_l(*dst);
             // Don't create U-turns unless it's a dead-end
-            if src_l.other_side == Some(dst_l.id) && !dead_end {
+            if other_side == Some(dst_l.id) && !dead_end {
                 continue;
             }
 
@@ -117,7 +129,7 @@ fn make_turns(
     result
 }
 
-pub(crate) fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<Turn> {
+fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<Turn> {
     let mut result = Vec::new();
 
     // TODO dedupe some of this logic render/intersection
@@ -129,7 +141,7 @@ pub(crate) fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usiz
         if src.lane_type != LaneType::Sidewalk {
             continue;
         }
-        let dst = m.get_l(src.other_side.unwrap());
+        let dst = m.get_l(m.get_r(src.parent).get_opposite_lane(src.id, m).unwrap());
 
         let id = TurnID(turn_id_start);
         turn_id_start += 1;

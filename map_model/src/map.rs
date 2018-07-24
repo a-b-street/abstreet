@@ -82,8 +82,6 @@ impl Map {
             for lane in make::get_lane_specs(r) {
                 let id = LaneID(counter);
                 counter += 1;
-                let other_side = lane.offset_for_other_id
-                    .map(|offset| LaneID(((id.0 as isize) + offset) as usize));
 
                 let mut unshifted_pts = road_center_pts.clone();
                 if lane.reverse_pts {
@@ -109,7 +107,6 @@ impl Map {
                 // lane_center_pts will get updated in the next pass
                 m.lanes.push(Lane {
                     id,
-                    other_side,
                     lane_center_pts,
                     probably_broken,
                     src_i: i1,
@@ -133,12 +130,9 @@ impl Map {
         }
 
         for i in &m.intersections {
-            let turns1 = make::make_driving_turns(i, &m, m.turns.len());
-            m.turns.extend(turns1);
-            let turns2 = make::make_biking_turns(i, &m, m.turns.len());
-            m.turns.extend(turns2);
-            let crosswalks = make::make_crosswalks(i, &m, m.turns.len());
-            m.turns.extend(crosswalks);
+            let len = m.turns.len();
+            let turns = make::make_all_turns(i, &m, len);
+            m.turns.extend(turns);
         }
         for t in &m.turns {
             m.intersections[t.parent.0].turns.push(t.id);

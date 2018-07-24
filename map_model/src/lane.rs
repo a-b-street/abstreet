@@ -42,13 +42,9 @@ pub struct Lane {
     // use this breakage to infer that a road doesn't have so many lanes.
     pub probably_broken: bool,
 
-    // TODO i think everything else should be moved to road, honestly.
+    // This is redundant with road, but kind of annoying to compute constantly, so leave it for now
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
-
-    // Need to remember this just for detecting U-turns here. Also for finding sidewalks to connect
-    // with a crosswalk.
-    pub other_side: Option<LaneID>,
 }
 
 impl PartialEq for Lane {

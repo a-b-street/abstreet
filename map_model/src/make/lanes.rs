@@ -21,8 +21,6 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     } else {
         1
     };
-    // TODO debugging convenience
-    let only_driving_lanes_for_debugging = false;
 
     if junction {
         return (vec![LaneType::Driving], Vec::new());
@@ -33,7 +31,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(num_driving_lanes / 2)
         .collect();
-    if only_driving_lanes_for_debugging || big_highway {
+    if big_highway {
         if oneway {
             let mut all_lanes = Vec::new();
             all_lanes.extend(driving_lanes.clone());
@@ -62,149 +60,27 @@ pub(crate) struct LaneSpec {
     pub lane_type: LaneType,
     pub offset: u8,
     pub reverse_pts: bool,
-    pub offset_for_other_id: Option<isize>,
 }
 
 impl LaneSpec {
-    fn new(
-        lane_type: LaneType,
-        offset: u8,
-        reverse_pts: bool,
-        offset_for_other_id: Option<isize>,
-    ) -> LaneSpec {
+    fn new(lane_type: LaneType, offset: u8, reverse_pts: bool) -> LaneSpec {
         LaneSpec {
             lane_type,
             offset,
             reverse_pts,
-            offset_for_other_id,
         }
     }
 }
 
 pub(crate) fn get_lane_specs(r: &raw_data::Road) -> Vec<LaneSpec> {
-    lane_specs_for(get_lanes(r))
-}
+    let (side1_types, side2_types) = get_lanes(r);
 
-fn lane_specs_for((side1_types, side2_types): (Vec<LaneType>, Vec<LaneType>)) -> Vec<LaneSpec> {
     let mut specs: Vec<LaneSpec> = Vec::new();
-
-    // This seems like a messy approach. :\
-    let sidewalk1_idx = side1_types.iter().position(|&lt| lt == LaneType::Sidewalk);
-    let sidewalk2_idx = side2_types.iter().position(|&lt| lt == LaneType::Sidewalk);
-
     for (idx, lane_type) in side1_types.iter().enumerate() {
-        let offset_for_other_id = match lane_type {
-            LaneType::Sidewalk => {
-                sidewalk2_idx.map(|idx| (side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)
-            }
-            LaneType::Parking => None,
-            LaneType::Biking => if !side2_types.contains(&LaneType::Biking) {
-                None
-            } else {
-                assert!(side1_types == side2_types);
-                Some(side1_types.len() as isize)
-            },
-            LaneType::Driving => if !side2_types.contains(&LaneType::Driving) {
-                None
-            } else {
-                assert!(side1_types == side2_types);
-                Some(side1_types.len() as isize)
-            },
-        };
-
-        specs.push(LaneSpec::new(
-            *lane_type,
-            idx as u8,
-            false,
-            offset_for_other_id,
-        ));
+        specs.push(LaneSpec::new(*lane_type, idx as u8, false));
     }
     for (idx, lane_type) in side2_types.iter().enumerate() {
-        let offset_for_other_id = match lane_type {
-            LaneType::Parking => None,
-            LaneType::Biking => Some(-1 * (side1_types.len() as isize)),
-            LaneType::Sidewalk => sidewalk2_idx
-                .map(|idx| -1 * ((side1_types.len() - sidewalk1_idx.unwrap() + idx) as isize)),
-            LaneType::Driving => Some(-1 * (side1_types.len() as isize)),
-        };
-
-        specs.push(LaneSpec::new(
-            *lane_type,
-            idx as u8,
-            true,
-            offset_for_other_id,
-        ));
+        specs.push(LaneSpec::new(*lane_type, idx as u8, true));
     }
-
     specs
-}
-
-#[test]
-fn junction() {
-    let d = LaneType::Driving;
-
-    assert_eq!(
-        lane_specs_for((vec![d], vec![])),
-        vec![LaneSpec::new(d, 0, false, None)]
-    );
-}
-
-#[test]
-fn oneway() {
-    let d = LaneType::Driving;
-    let p = LaneType::Parking;
-    let s = LaneType::Sidewalk;
-
-    assert_eq!(
-        lane_specs_for((vec![d, p, s], vec![s])),
-        vec![
-            LaneSpec::new(d, 0, false, None),
-            LaneSpec::new(p, 1, false, None),
-            LaneSpec::new(s, 2, false, Some(1)),
-            LaneSpec::new(s, 0, true, Some(-1)),
-        ]
-    );
-}
-
-#[test]
-fn twoway() {
-    let d = LaneType::Driving;
-    let p = LaneType::Parking;
-    let s = LaneType::Sidewalk;
-
-    assert_eq!(
-        lane_specs_for((vec![d, p, s], vec![d, p, s])),
-        vec![
-            LaneSpec::new(d, 0, false, Some(3)),
-            LaneSpec::new(p, 1, false, None),
-            LaneSpec::new(s, 2, false, Some(3)),
-            LaneSpec::new(d, 0, true, Some(-3)),
-            LaneSpec::new(p, 1, true, None),
-            LaneSpec::new(s, 2, true, Some(-3)),
-        ]
-    );
-}
-
-#[test]
-fn big_twoway() {
-    let d = LaneType::Driving;
-    let b = LaneType::Biking;
-    let p = LaneType::Parking;
-    let s = LaneType::Sidewalk;
-
-    assert_eq!(
-        lane_specs_for((vec![d, d, b, p, s], vec![d, d, b, p, s])),
-        vec![
-            LaneSpec::new(d, 0, false, Some(5)),
-            LaneSpec::new(d, 1, false, Some(5)),
-            LaneSpec::new(b, 2, false, Some(5)),
-            LaneSpec::new(p, 3, false, None),
-            LaneSpec::new(s, 4, false, Some(5)),
-            LaneSpec::new(d, 0, true, Some(-5)),
-            LaneSpec::new(d, 1, true, Some(-5)),
-            LaneSpec::new(b, 2, true, Some(-5)),
-            LaneSpec::new(p, 3, true, None),
-            LaneSpec::new(s, 4, true, Some(-5)),
-        ]
-    );
 }

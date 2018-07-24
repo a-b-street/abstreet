@@ -1,24 +1,15 @@
 # TODO for Phase 1 (Basemap)
 
-- turns for bike lanes
+- road with many lanes
+	- make intersection know about roads, not lanes
+		- make/turns can use this especially. intersections should refer to different things.
 
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
-- road with many lanes
-	- remove offset stuff from lanespec! \o/
-	- make intersection know about roads, not lanes
-		- make/turns can use this especially. intersections should refer to different things.
-	- clean up all state in lane
-
-
-	- maybe also the time to split into different lane types? what's similar/not between them?
-		- graph querying?
-		- rendering (and other UI/editor interactions)?
-		- sim state?
-	- figure out what to do about yellow center lines
-		- yellow and white lines intersect cars and turn icons and such
-		- who should own drawing them?
-		- trim them back too (maybe to avoid hitting the intersection?)
+- maybe also the time to split into different lane types? what's similar/not between them?
+	- graph querying?
+	- rendering (and other UI/editor interactions)?
+	- sim state?
 
 - more data
 	- draw water and greenery areas
@@ -40,6 +31,10 @@
 	- sidewalk paths start in building centers and end in sidewalk centers
 		- this is probably fine to show agents moving, but at least draw
 		  building layer before sidewalk layer
+	- figure out what to do about yellow center lines
+		- yellow and white lines intersect cars and turn icons and such
+		- who should own drawing them?
+		- trim them back too (maybe to avoid hitting the intersection?)
 
 - code cleanup
 	- make final Map serializable too
