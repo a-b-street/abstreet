@@ -3,6 +3,7 @@
 use abstutil;
 use building::{Building, BuildingID};
 use dimensioned::si;
+use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use intersection::{Intersection, IntersectionID};
@@ -28,7 +29,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str) -> Result<Map, Error> {
+    pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
         let data: raw_data::Map = abstutil::read_binary(path)?;
 
         let bounds = data.get_gps_bounds();
@@ -86,7 +87,7 @@ impl Map {
             m.intersections[i2.0].incoming_roads.push(road_id);
 
             // TODO move this to make/lanes.rs too
-            for lane in make::get_lane_specs(r) {
+            for lane in make::get_lane_specs(r, road_id, edits) {
                 let id = LaneID(counter);
                 counter += 1;
 

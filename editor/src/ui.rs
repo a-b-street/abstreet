@@ -80,7 +80,7 @@ impl UI {
         let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
         println!("Opening {}", abst_path);
-        let map = map_model::Map::new(abst_path).expect("Couldn't load map");
+        let map = map_model::Map::new(abst_path, &edits).expect("Couldn't load map");
         let (draw_map, center_pt) = render::DrawMap::new(&map);
         let control_map = ControlMap::new(&map);
 

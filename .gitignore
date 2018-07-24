@@ -3,6 +3,7 @@
 *.swp
 
 editor/editor_state
+editor/road_edits.json
 editor/sim_state
 data/*.abst
 data/input/*

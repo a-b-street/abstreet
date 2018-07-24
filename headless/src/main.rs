@@ -24,7 +24,8 @@ fn main() {
     let flags = Flags::from_args();
 
     println!("Opening {}", flags.abst_input);
-    let map = map_model::Map::new(&flags.abst_input).expect("Couldn't load map");
+    let map = map_model::Map::new(&flags.abst_input, &map_model::Edits::new())
+        .expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
     let mut sim = sim::Sim::new(&map, flags.rng_seed);

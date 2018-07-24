@@ -5,7 +5,7 @@ use {Lane, LaneType, Road, RoadID};
 // are here, since map construction maybe needs to know these?
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Edits {
-    roads: BTreeMap<RoadID, RoadEdit>,
+    pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
 }
 
 impl Edits {
@@ -47,8 +47,8 @@ pub enum EditReason {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RoadEdit {
     road: RoadID,
-    forwards_lanes: Vec<LaneType>,
-    backwards_lanes: Vec<LaneType>,
+    pub(crate) forwards_lanes: Vec<LaneType>,
+    pub(crate) backwards_lanes: Vec<LaneType>,
     reason: EditReason,
 }
 
@@ -59,6 +59,11 @@ impl RoadEdit {
         lane: &Lane,
         new_type: LaneType,
     ) -> Option<RoadEdit> {
+        // Sidewalks are fixed
+        if lane.lane_type == LaneType::Sidewalk {
+            return None;
+        }
+
         let (mut forwards, mut backwards) = r.get_lane_types();
         let (is_fwd, idx) = r.dir_and_offset(lane.id);
         if is_fwd {

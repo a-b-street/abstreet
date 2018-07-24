@@ -1,5 +1,7 @@
+use edits::Edits;
 use lane::LaneType;
 use raw_data;
+use road::RoadID;
 use std::iter;
 
 // (original direction, reversed direction)
@@ -72,8 +74,13 @@ impl LaneSpec {
     }
 }
 
-pub(crate) fn get_lane_specs(r: &raw_data::Road) -> Vec<LaneSpec> {
-    let (side1_types, side2_types) = get_lanes(r);
+pub(crate) fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &Edits) -> Vec<LaneSpec> {
+    let (side1_types, side2_types) = if let Some(e) = edits.roads.get(&id) {
+        println!("Using edits for {}", id);
+        (e.forwards_lanes.clone(), e.backwards_lanes.clone())
+    } else {
+        get_lanes(r)
+    };
 
     let mut specs: Vec<LaneSpec> = Vec::new();
     for (idx, lane_type) in side1_types.iter().enumerate() {
