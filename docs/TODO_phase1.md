@@ -1,9 +1,5 @@
 # TODO for Phase 1 (Basemap)
 
-- road with many lanes
-	- make intersection know about roads, not lanes
-		- make/turns can use this especially. intersections should refer to different things.
-
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - maybe also the time to split into different lane types? what's similar/not between them?

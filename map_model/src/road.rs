@@ -29,6 +29,12 @@ pub struct Road {
     pub center_pts: PolyLine,
 }
 
+impl PartialEq for Road {
+    fn eq(&self, other: &Road) -> bool {
+        self.id == other.id
+    }
+}
+
 impl Road {
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there.

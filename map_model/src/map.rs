@@ -53,6 +53,8 @@ impl Map {
                 turns: Vec::new(),
                 elevation: i.elevation_meters * si::M,
                 has_traffic_signal: i.has_traffic_signal,
+                incoming_roads: Vec::new(),
+                outgoing_roads: Vec::new(),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
             });
@@ -78,6 +80,11 @@ impl Map {
                 center_pts: road_center_pts.clone(),
             });
 
+            let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
+            let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
+            m.intersections[i1.0].outgoing_roads.push(road_id);
+            m.intersections[i2.0].incoming_roads.push(road_id);
+
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r) {
                 let id = LaneID(counter);
@@ -87,12 +94,13 @@ impl Map {
                 if lane.reverse_pts {
                     unshifted_pts = unshifted_pts.reversed();
                 }
-
-                // Do this with the original points, before trimming them back
-                let i1 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.first_pt())];
-                let i2 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.last_pt())];
-                m.intersections[i1.0].outgoing_lanes.push(id);
-                m.intersections[i2.0].incoming_lanes.push(id);
+                let (src_i, dst_i) = if lane.reverse_pts {
+                    (i2, i1)
+                } else {
+                    (i1, i2)
+                };
+                m.intersections[src_i.0].outgoing_lanes.push(id);
+                m.intersections[dst_i.0].incoming_lanes.push(id);
 
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
@@ -109,8 +117,8 @@ impl Map {
                     id,
                     lane_center_pts,
                     probably_broken,
-                    src_i: i1,
-                    dst_i: i2,
+                    src_i,
+                    dst_i,
                     lane_type: lane.lane_type,
                     parent: road_id,
                 });
