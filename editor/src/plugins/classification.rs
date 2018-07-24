@@ -30,12 +30,17 @@ impl OsmClassifier {
         }
     }
 
-    pub fn color_l(&self, l: &map_model::Lane, cs: &ColorScheme) -> Option<Color> {
+    pub fn color_l(
+        &self,
+        l: &map_model::Lane,
+        map: &map_model::Map,
+        cs: &ColorScheme,
+    ) -> Option<Color> {
         if !self.active {
             return None;
         }
 
-        if match l.osm_tags.get("highway") {
+        if match map.get_r(l.parent).osm_tags.get("highway") {
             Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
             None => false,
         } {

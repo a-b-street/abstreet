@@ -246,10 +246,10 @@ impl UI {
         // chaining is harder to read. :(
         vec![
             self.current_selection_state.color_l(l, &self.cs),
-            self.current_search_state.color_l(l, &self.cs),
+            self.current_search_state.color_l(l, &self.map, &self.cs),
             self.floodfiller.color_l(l, &self.cs),
             self.steepness_viz.color_l(&self.map, l),
-            self.osm_classifier.color_l(l, &self.cs),
+            self.osm_classifier.color_l(l, &self.map, &self.cs),
         ].iter()
             .filter_map(|c| *c)
             .next()

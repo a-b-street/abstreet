@@ -11,6 +11,7 @@ impl fmt::Display for RoadID {
     }
 }
 
+// These're bidirectional (possibly)
 #[derive(Debug)]
 pub struct Road {
     pub id: RoadID,

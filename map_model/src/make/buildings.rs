@@ -4,20 +4,21 @@ use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::BTreeMap;
-use {Building, BuildingID, Lane, LaneID, LaneType};
+use {Building, BuildingID, Lane, LaneID, LaneType, Road};
 
 pub(crate) fn make_building(
     b: &raw_data::Building,
     id: BuildingID,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
+    roads: &Vec<Road>,
 ) -> Building {
     // TODO consume data, so we dont have to clone tags?
     let points = b.points
         .iter()
         .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
-    let front_path = find_front_path(&points, &b.osm_tags, lanes);
+    let front_path = find_front_path(&points, &b.osm_tags, lanes, roads);
 
     Building {
         points,
@@ -32,6 +33,7 @@ fn find_front_path(
     bldg_points: &Vec<Pt2D>,
     bldg_osm_tags: &BTreeMap<String, String>,
     lanes: &Vec<Lane>,
+    roads: &Vec<Road>,
 ) -> Option<Line> {
     use geo::prelude::{ClosestPoint, EuclideanDistance};
 
@@ -45,7 +47,8 @@ fn find_front_path(
         let candidates: Vec<(LaneID, geo::Point<f64>)> = lanes
             .iter()
             .filter_map(|l| {
-                if l.lane_type == LaneType::Sidewalk && l.osm_tags.get("name") == Some(street_name)
+                if l.lane_type == LaneType::Sidewalk
+                    && roads[l.parent.0].osm_tags.get("name") == Some(street_name)
                 {
                     if let geo::Closest::SinglePoint(pt) =
                         lane_to_line_string(&lanes[l.id.0]).closest_point(&center_pt)

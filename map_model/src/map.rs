@@ -122,10 +122,8 @@ impl Map {
                     offset: lane.offset,
                     src_i: i1,
                     dst_i: i2,
-                    osm_tags: r.osm_tags.clone(),
-                    osm_way_id: r.osm_way_id,
                     lane_type: lane.lane_type,
-                    road: road_id,
+                    parent: road_id,
                 });
             }
         }
@@ -150,8 +148,13 @@ impl Map {
         }
 
         for (idx, b) in data.buildings.iter().enumerate() {
-            m.buildings
-                .push(make::make_building(b, BuildingID(idx), &bounds, &m.lanes));
+            m.buildings.push(make::make_building(
+                b,
+                BuildingID(idx),
+                &bounds,
+                &m.lanes,
+                &m.roads,
+            ));
         }
 
         for (idx, p) in data.parcels.iter().enumerate() {

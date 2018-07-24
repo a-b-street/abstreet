@@ -3,7 +3,6 @@
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
-use std::collections::BTreeMap;
 use std::f64;
 use std::fmt;
 use {IntersectionID, RoadID};
@@ -35,15 +34,18 @@ pub enum LaneType {
 #[derive(Debug)]
 pub struct Lane {
     pub id: LaneID,
-    pub osm_tags: BTreeMap<String, String>,
-    pub osm_way_id: i64,
+    pub parent: RoadID,
     pub lane_type: LaneType,
+    pub lane_center_pts: PolyLine,
+
+    // Remember that lane_center_pts and derived geometry is probably broken. Might be better to
+    // use this breakage to infer that a road doesn't have so many lanes.
+    pub probably_broken: bool,
+
+    // TODO i think everything else should be moved to road, honestly.
 
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
-
-    // Ideally all of these would just become translated center points immediately, but this is
-    // hard due to the polyline problem.
 
     // All roads are two-way (since even one-way streets have sidewalks on both sides). Offset 0 is
     // the centermost lane on each side, then it counts up.
@@ -57,14 +59,6 @@ pub struct Lane {
     pub other_side: Option<LaneID>,
     // TODO alright, we might need a Road-vs-Lanes distinction
     pub siblings: Vec<LaneID>,
-    pub road: RoadID,
-
-    /// GeomLane stuff
-    pub lane_center_pts: PolyLine,
-
-    // Remember that lane_center_pts and derived geometry is probably broken. Might be better to
-    // use this breakage to infer that a road doesn't have so many lanes.
-    pub probably_broken: bool,
 
     // Unshifted center points. consider computing these twice or otherwise not storing them
     // Order implies road orientation.

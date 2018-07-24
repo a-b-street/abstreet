@@ -26,10 +26,10 @@ pub(crate) fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize)
     let mut incoming_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.incoming_lanes {
         let l = m.get_l(*id);
-        incoming_roads.insert(l.road);
+        incoming_roads.insert(l.parent);
         match l.lane_type {
-            LaneType::Biking => incoming_bike_lanes_per_road.insert(l.road, *id),
-            LaneType::Driving => incoming_driving_lanes_per_road.insert(l.road, *id),
+            LaneType::Biking => incoming_bike_lanes_per_road.insert(l.parent, *id),
+            LaneType::Driving => incoming_driving_lanes_per_road.insert(l.parent, *id),
             _ => {}
         };
     }
@@ -39,10 +39,10 @@ pub(crate) fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize)
     let mut outgoing_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.outgoing_lanes {
         let l = m.get_l(*id);
-        outgoing_roads.insert(l.road);
+        outgoing_roads.insert(l.parent);
         match l.lane_type {
-            LaneType::Biking => outgoing_bike_lanes_per_road.insert(l.road, *id),
-            LaneType::Driving => outgoing_driving_lanes_per_road.insert(l.road, *id),
+            LaneType::Biking => outgoing_bike_lanes_per_road.insert(l.parent, *id),
+            LaneType::Driving => outgoing_driving_lanes_per_road.insert(l.parent, *id),
             _ => {}
         };
     }

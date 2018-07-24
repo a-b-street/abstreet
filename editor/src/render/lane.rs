@@ -121,17 +121,18 @@ impl DrawLane {
 
     pub fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
         let l = map.get_l(self.id);
+        let r = map.get_r(l.parent);
         let mut lines = vec![
             format!(
                 "{} is {}",
                 l.id,
-                l.osm_tags.get("name").unwrap_or(&"???".to_string())
+                r.osm_tags.get("name").unwrap_or(&"???".to_string())
             ),
             format!(
                 "From OSM way {}, with {} polygons, parent is {}",
-                l.osm_way_id,
+                r.osm_way_id,
                 self.polygons.len(),
-                l.road,
+                r.id,
             ),
             format!(
                 "Lane goes from {} to {}",
@@ -140,7 +141,7 @@ impl DrawLane {
             ),
             format!("Lane is {}m long", l.length()),
         ];
-        for (k, v) in &l.osm_tags {
+        for (k, v) in &r.osm_tags {
             lines.push(format!("{} = {}", k, v));
         }
         lines
