@@ -13,13 +13,14 @@ use ezgui::ToggleableLayer;
 use graphics::types::Color;
 use gui;
 use map_model;
-use map_model::IntersectionID;
+use map_model::{Edits, IntersectionID};
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
 use plugins::geom_validation::Validator;
+use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
 use plugins::selection::{Hider, SelectionState, ID};
 use plugins::sim_controls::SimController;
@@ -64,6 +65,7 @@ pub struct UI {
     turn_colors: TurnColors,
     traffic_signal_editor: TrafficSignalEditor,
     stop_sign_editor: StopSignEditor,
+    road_editor: RoadEditor,
     sim_ctrl: SimController,
     color_picker: ColorPicker,
     geom_validator: Validator,
@@ -75,6 +77,8 @@ pub struct UI {
 
 impl UI {
     pub fn new(abst_path: &str, window_size: Size, rng_seed: Option<u8>) -> UI {
+        let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
+
         println!("Opening {}", abst_path);
         let map = map_model::Map::new(abst_path).expect("Couldn't load map");
         let (draw_map, center_pt) = render::DrawMap::new(&map);
@@ -117,6 +121,7 @@ impl UI {
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: TrafficSignalEditor::new(),
             stop_sign_editor: StopSignEditor::new(),
+            road_editor: RoadEditor::new(edits),
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
 
@@ -375,6 +380,10 @@ impl gui::GUI for UI {
             &self.current_selection_state,
         ));
         stop_if_done!(
+            self.road_editor
+                .event(input, &self.map, &self.current_selection_state,)
+        );
+        stop_if_done!(
             self.color_picker
                 .handle_event(input, &mut self.canvas, &mut self.cs)
         );
@@ -495,7 +504,9 @@ impl gui::GUI for UI {
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
             abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
-            println!("Saved editor_state and color_scheme");
+            abstutil::write_json("road_edits.json", self.road_editor.get_edits())
+                .expect("Saving road_edits.json failed");
+            println!("Saved editor_state, color_scheme, and road_edits.json");
             process::exit(0);
         }
 

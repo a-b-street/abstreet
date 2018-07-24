@@ -1,15 +1,28 @@
+use std::collections::BTreeMap;
 use {Lane, LaneType, Road, RoadID};
 
-#[derive(Serialize, Deserialize, Debug)]
+// TODO bring in the intersection modifications from the control crate here. for now, road edits
+// are here, since map construction maybe needs to know these?
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Edits {
+    roads: BTreeMap<RoadID, RoadEdit>,
+}
+
+impl Edits {
+    pub fn new() -> Edits {
+        Edits {
+            roads: BTreeMap::new(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Reason {
     BasemapWrong,
     Hypothetical,
 }
 
-// TODO bring in the intersection modifications from the control crate here. for now, road edits
-// are here, since map construction maybe needs to know these?
-
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RoadEdit {
     road: RoadID,
     forwards_lanes: Vec<LaneType>,

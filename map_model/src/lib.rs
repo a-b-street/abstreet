@@ -23,6 +23,7 @@ mod road;
 mod turn;
 
 pub use building::{Building, BuildingID};
+pub use edits::Edits;
 pub use intersection::{Intersection, IntersectionID};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
