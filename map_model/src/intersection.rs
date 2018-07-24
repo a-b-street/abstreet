@@ -3,7 +3,7 @@
 use dimensioned::si;
 use geom::Pt2D;
 use std::fmt;
-use {LaneID, TurnID, RoadID};
+use {LaneID, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

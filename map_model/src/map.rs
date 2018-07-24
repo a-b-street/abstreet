@@ -94,11 +94,7 @@ impl Map {
                 if lane.reverse_pts {
                     unshifted_pts = unshifted_pts.reversed();
                 }
-                let (src_i, dst_i) = if lane.reverse_pts {
-                    (i2, i1)
-                } else {
-                    (i1, i2)
-                };
+                let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
                 m.intersections[src_i.0].outgoing_lanes.push(id);
                 m.intersections[dst_i.0].incoming_lanes.push(id);
 
@@ -123,9 +119,13 @@ impl Map {
                     parent: road_id,
                 });
                 if lane.reverse_pts {
-                    m.roads[road_id.0].children_backwards.push(id);
+                    m.roads[road_id.0]
+                        .children_backwards
+                        .push((id, lane.lane_type));
                 } else {
-                    m.roads[road_id.0].children_forwards.push(id);
+                    m.roads[road_id.0]
+                        .children_forwards
+                        .push((id, lane.lane_type));
                 }
             }
         }

@@ -146,7 +146,11 @@ fn calculate_crosswalks(
         if l1.lane_type != map_model::LaneType::Sidewalk {
             continue;
         }
-        let l2 = map.get_l(map.get_r(l1.parent).get_opposite_lane(l1.id, map).unwrap());
+        let l2 = map.get_l(
+            map.get_r(l1.parent)
+                .get_opposite_lane(l1.id, map_model::LaneType::Sidewalk)
+                .unwrap(),
+        );
         if l2.id < l1.id {
             continue;
         }

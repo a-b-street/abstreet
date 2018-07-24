@@ -1,6 +1,5 @@
 use abstutil::MultiMap;
 use geom::Line;
-use std::collections::HashSet;
 use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
 pub(crate) fn make_all_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
@@ -30,13 +29,11 @@ fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tu
 }
 
 fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
-    // TODO great further evidence of needing a road/lane distinction
-    let mut incoming_roads: HashSet<RoadID> = HashSet::new();
+    // TODO Road should make this easier, but how?
     let mut incoming_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     let mut incoming_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.incoming_lanes {
         let l = m.get_l(*id);
-        incoming_roads.insert(l.parent);
         match l.lane_type {
             LaneType::Biking => incoming_bike_lanes_per_road.insert(l.parent, *id),
             LaneType::Driving => incoming_driving_lanes_per_road.insert(l.parent, *id),
@@ -44,12 +41,10 @@ fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tur
         };
     }
 
-    let mut outgoing_roads: HashSet<RoadID> = HashSet::new();
     let mut outgoing_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     let mut outgoing_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.outgoing_lanes {
         let l = m.get_l(*id);
-        outgoing_roads.insert(l.parent);
         match l.lane_type {
             LaneType::Biking => outgoing_bike_lanes_per_road.insert(l.parent, *id),
             LaneType::Driving => outgoing_driving_lanes_per_road.insert(l.parent, *id),
@@ -58,7 +53,7 @@ fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tur
     }
 
     let mut incoming: Vec<LaneID> = Vec::new();
-    for incoming_road in &incoming_roads {
+    for incoming_road in &i.incoming_roads {
         // Prefer a bike lane if it's there, otherwise use all driving lanes
         let lanes = incoming_bike_lanes_per_road.get(*incoming_road);
         if !lanes.is_empty() {
@@ -69,7 +64,7 @@ fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tur
     }
 
     let mut outgoing: Vec<LaneID> = Vec::new();
-    for outgoing_road in &outgoing_roads {
+    for outgoing_road in &i.outgoing_roads {
         let lanes = outgoing_bike_lanes_per_road.get(*outgoing_road);
         if !lanes.is_empty() {
             outgoing.extend(lanes);
@@ -106,7 +101,8 @@ fn make_turns(
     let mut result = Vec::new();
     for src in incoming {
         let src_l = map.get_l(*src);
-        let other_side = map.get_r(src_l.parent).get_opposite_lane(src_l.id, map);
+        let other_side = map.get_r(src_l.parent)
+            .get_opposite_lane(src_l.id, src_l.lane_type);
 
         for dst in outgoing {
             let dst_l = map.get_l(*dst);
@@ -141,7 +137,11 @@ fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<T
         if src.lane_type != LaneType::Sidewalk {
             continue;
         }
-        let dst = m.get_l(m.get_r(src.parent).get_opposite_lane(src.id, m).unwrap());
+        let dst = m.get_l(
+            m.get_r(src.parent)
+                .get_opposite_lane(src.id, LaneType::Sidewalk)
+                .unwrap(),
+        );
 
         let id = TurnID(turn_id_start);
         turn_id_start += 1;

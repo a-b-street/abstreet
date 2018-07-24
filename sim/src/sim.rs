@@ -102,7 +102,7 @@ impl Sim {
                 }
             }
             LaneType::Driving => {
-                if let Some(parking) = road.find_parking_lane(id, map) {
+                if let Some(parking) = road.find_parking_lane(id) {
                     (id, parking)
                 } else {
                     println!("{} has no parking lane", id);
@@ -110,7 +110,7 @@ impl Sim {
                 }
             }
             LaneType::Parking => {
-                if let Some(driving) = road.find_driving_lane(id, map) {
+                if let Some(driving) = road.find_driving_lane(id) {
                     (driving, id)
                 } else {
                     println!("{} has no driving lane", id);
