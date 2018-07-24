@@ -24,7 +24,7 @@ mod walking;
 
 use dimensioned::si;
 use geom::{Angle, Pt2D};
-use map_model::{Map, RoadID, TurnID};
+use map_model::{LaneID, Map, TurnID};
 use rand::Rng;
 pub use sim::{Benchmark, CarState, Sim};
 use std::collections::VecDeque;
@@ -93,42 +93,42 @@ impl std::fmt::Display for Tick {
 // TODO this name isn't quite right :)
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub(crate) enum On {
-    Road(RoadID),
+    Lane(LaneID),
     Turn(TurnID),
 }
 
 impl On {
-    pub(crate) fn as_road(&self) -> RoadID {
+    pub(crate) fn as_lane(&self) -> LaneID {
         match self {
-            &On::Road(id) => id,
-            &On::Turn(_) => panic!("not a road"),
+            &On::Lane(id) => id,
+            &On::Turn(_) => panic!("not a lane"),
         }
     }
 
     pub(crate) fn as_turn(&self) -> TurnID {
         match self {
             &On::Turn(id) => id,
-            &On::Road(_) => panic!("not a turn"),
+            &On::Lane(_) => panic!("not a turn"),
         }
     }
 
     fn maybe_turn(&self) -> Option<TurnID> {
         match self {
             &On::Turn(id) => Some(id),
-            &On::Road(_) => None,
+            &On::Lane(_) => None,
         }
     }
 
     fn length(&self, map: &Map) -> si::Meter<f64> {
         match self {
-            &On::Road(id) => map.get_r(id).length(),
+            &On::Lane(id) => map.get_l(id).length(),
             &On::Turn(id) => map.get_t(id).length(),
         }
     }
 
     fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
         match self {
-            &On::Road(id) => map.get_r(id).dist_along(dist),
+            &On::Lane(id) => map.get_l(id).dist_along(dist),
             &On::Turn(id) => map.get_t(id).dist_along(dist),
         }
     }
@@ -137,16 +137,16 @@ impl On {
 pub(crate) fn pick_goal_and_find_path<R: Rng + ?Sized>(
     rng: &mut R,
     map: &Map,
-    start: RoadID,
-) -> Option<VecDeque<RoadID>> {
-    let lane_type = map.get_r(start).lane_type;
-    let candidate_goals: Vec<RoadID> = map.all_roads()
+    start: LaneID,
+) -> Option<VecDeque<LaneID>> {
+    let lane_type = map.get_l(start).lane_type;
+    let candidate_goals: Vec<LaneID> = map.all_lanes()
         .iter()
-        .filter_map(|r| {
-            if r.lane_type != lane_type || r.id == start {
+        .filter_map(|l| {
+            if l.lane_type != lane_type || l.id == start {
                 None
             } else {
-                Some(r.id)
+                Some(l.id)
             }
         })
         .collect();

@@ -5,7 +5,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
-use map_model::{Map, RoadID, TurnID};
+use map_model::{LaneID, Map, TurnID};
 use multimap::MultiMap;
 use rand::Rng;
 use std;
@@ -30,8 +30,8 @@ pub(crate) struct Car {
     // TODO ideally, something else would remember Goto was requested and not even call step()
     pub(crate) waiting_for: Option<On>,
     pub(crate) debug: bool,
-    // Head is the next road
-    pub(crate) path: VecDeque<RoadID>,
+    // Head is the next lane
+    pub(crate) path: VecDeque<LaneID>,
 }
 
 pub(crate) enum Action {
@@ -47,7 +47,7 @@ impl Car {
             format!("Car {:?}", self.id),
             format!("On {:?}, started at {:?}", self.on, self.started_at),
             format!("Committed to waiting for {:?}", self.waiting_for),
-            format!("{} roads left in path", self.path.len()),
+            format!("{} lanes left in path", self.path.len()),
         ]
     }
 
@@ -67,18 +67,18 @@ impl Car {
         }
 
         match self.on {
-            // TODO cant try to go to next road unless we're the front car
+            // TODO cant try to go to next lane unless we're the front car
             // if we dont do this here, we wont be able to see what turns people are waiting for
             // even if we wait till we're the front car, we might unravel the line of queued cars
             // too quickly
-            On::Road(id) => Action::Goto(On::Turn(self.choose_turn(id, map))),
-            On::Turn(id) => Action::Goto(On::Road(map.get_t(id).dst)),
+            On::Lane(id) => Action::Goto(On::Turn(self.choose_turn(id, map))),
+            On::Turn(id) => Action::Goto(On::Lane(map.get_t(id).dst)),
         }
     }
 
-    fn choose_turn(&self, from: RoadID, map: &Map) -> TurnID {
+    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
         assert!(self.waiting_for.is_none());
-        for t in map.get_turns_from_road(from) {
+        for t in map.get_turns_from_lane(from) {
             if t.dst == self.path[0] {
                 return t.id;
             }
@@ -86,7 +86,7 @@ impl Car {
         panic!("No turn from {} to {}", from, self.path[0]);
     }
 
-    // Returns the angle and the dist along the road/turn too
+    // Returns the angle and the dist along the lane/turn too
     fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, si::Meter<f64>) {
         let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
@@ -158,7 +158,7 @@ impl SimQueue {
         self.cars_queue.is_empty()
     }
 
-    // TODO this starts cars with their front aligned with the end of the road, sticking their back
+    // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
     pub(crate) fn get_draw_cars(
         &self,
@@ -221,7 +221,7 @@ pub(crate) struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic. Should be able to relax
     // this later after step() doesnt need a RNG.
     pub(crate) cars: BTreeMap<CarID, Car>,
-    pub(crate) roads: Vec<SimQueue>,
+    pub(crate) lanes: Vec<SimQueue>,
     pub(crate) turns: Vec<SimQueue>,
     intersections: Vec<IntersectionPolicy>,
 }
@@ -244,9 +244,9 @@ impl DrivingSimState {
 
             cars: BTreeMap::new(),
             // TODO only driving ones
-            roads: map.all_roads()
+            lanes: map.all_lanes()
                 .iter()
-                .map(|r| SimQueue::new(On::Road(r.id), map))
+                .map(|l| SimQueue::new(On::Lane(l.id), map))
                 .collect(),
             turns: map.all_turns()
                 .iter()
@@ -273,11 +273,11 @@ impl DrivingSimState {
                         // This is a monotonic property in conjunction with
                         // new_car_entered_this_step. The last car won't go backwards.
                         let has_room_now = match on {
-                            On::Road(id) => self.roads[id.0].room_at_end(time, &self.cars),
+                            On::Lane(id) => self.lanes[id.0].room_at_end(time, &self.cars),
                             On::Turn(id) => self.turns[id.0].room_at_end(time, &self.cars),
                         };
                         let is_lead_vehicle = match c.on {
-                            On::Road(id) => self.roads[id.0].cars_queue[0] == c.id,
+                            On::Lane(id) => self.lanes[id.0].cars_queue[0] == c.id,
                             On::Turn(id) => self.turns[id.0].cars_queue[0] == c.id,
                         };
                         if has_room_now && is_lead_vehicle {
@@ -334,7 +334,7 @@ impl DrivingSimState {
                             self.intersections[map.get_t(t).parent.0].on_enter(c.id);
                         }
                         // TODO could calculate leftover (and deal with large timesteps, small
-                        // roads)
+                        // lanes)
                         c.started_at = time;
                     }
                 }
@@ -344,25 +344,25 @@ impl DrivingSimState {
             }
         }
 
-        // Group cars by road and turn
+        // Group cars by lane and turn
         // TODO ideally, just hash On
-        let mut cars_per_road = MultiMap::new();
+        let mut cars_per_lane = MultiMap::new();
         let mut cars_per_turn = MultiMap::new();
         for c in self.cars.values() {
             match c.on {
-                On::Road(id) => cars_per_road.insert(id, c.id),
+                On::Lane(id) => cars_per_lane.insert(id, c.id),
                 On::Turn(id) => cars_per_turn.insert(id, c.id),
             };
         }
 
         // Reset all queues
-        for r in &mut self.roads {
-            if let Some(v) = cars_per_road.get_vec(&r.id.as_road()) {
-                r.reset(v, &self.cars);
+        for l in &mut self.lanes {
+            if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
+                l.reset(v, &self.cars);
             } else {
-                r.reset(&Vec::new(), &self.cars);
+                l.reset(&Vec::new(), &self.cars);
             }
-            //r.reset(cars_per_road.get_vec(&r.id).unwrap_or_else(|| &Vec::new()), &self.cars);
+            //l.reset(cars_per_lane.get_vec(&l.id).unwrap_or_else(|| &Vec::new()), &self.cars);
         }
         for t in &mut self.turns {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
@@ -374,18 +374,18 @@ impl DrivingSimState {
     }
 
     // TODO cars basically start in the intersection, with their front bumper right at the
-    // beginning of the road. later, we want cars starting at arbitrary points in the middle of the
-    // road (from a building), so just ignore this problem for now.
+    // beginning of the lane. later, we want cars starting at arbitrary points in the middle of the
+    // lane (from a building), so just ignore this problem for now.
     // True if we spawned one
-    pub fn start_car_on_road<R: Rng + ?Sized>(
+    pub fn start_car_on_lane<R: Rng + ?Sized>(
         &mut self,
         time: Tick,
-        start: RoadID,
+        start: LaneID,
         car: CarID,
         map: &Map,
         rng: &mut R,
     ) -> bool {
-        if !self.roads[start.0].room_at_end(time, &self.cars) {
+        if !self.lanes[start.0].room_at_end(time, &self.cars) {
             // TODO car should enter Unparking state and wait for room
             println!("No room for {} to start driving on {}", car, start);
             return false;
@@ -398,12 +398,12 @@ impl DrivingSimState {
                     id: car,
                     path,
                     started_at: time,
-                    on: On::Road(start),
+                    on: On::Lane(start),
                     waiting_for: None,
                     debug: false,
                 },
             );
-            self.roads[start.0].cars_queue.push(car);
+            self.lanes[start.0].cars_queue.push(car);
             true
         } else {
             false

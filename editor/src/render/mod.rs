@@ -2,14 +2,14 @@
 
 mod building;
 mod intersection;
+mod lane;
 mod map;
 mod parcel;
-mod road;
 mod turn;
 
 use map_model::geometry;
+pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
-pub use render::road::DrawRoad;
 pub use render::turn::DrawTurn;
 use std::f64;
 

@@ -4,7 +4,7 @@
 
 use ezgui::input::UserInput;
 use graphics::types::Color;
-use map_model::{Map, Road};
+use map_model::{Lane, Map};
 use piston::input::Key;
 use std::f64;
 
@@ -21,8 +21,8 @@ impl SteepnessVisualizer {
             min_difference: f64::MAX,
             max_difference: f64::MIN_POSITIVE,
         };
-        for r in map.all_roads() {
-            let d = s.get_delta(map, r);
+        for l in map.all_lanes() {
+            let d = s.get_delta(map, l);
             // TODO hack! skip crazy outliers in terrible way.
             if d > 100.0 {
                 continue;
@@ -47,18 +47,18 @@ impl SteepnessVisualizer {
         }
     }
 
-    fn get_delta(&self, map: &Map, r: &Road) -> f64 {
-        let e1 = map.get_source_intersection(r.id).elevation;
-        let e2 = map.get_destination_intersection(r.id).elevation;
+    fn get_delta(&self, map: &Map, l: &Lane) -> f64 {
+        let e1 = map.get_source_intersection(l.id).elevation;
+        let e2 = map.get_destination_intersection(l.id).elevation;
         (e1 - e2).value_unsafe.abs()
     }
 
-    pub fn color_r(&self, map: &Map, r: &Road) -> Option<Color> {
+    pub fn color_l(&self, map: &Map, l: &Lane) -> Option<Color> {
         if !self.active {
             return None;
         }
 
-        let normalized = (self.get_delta(map, r) - self.min_difference)
+        let normalized = (self.get_delta(map, l) - self.min_difference)
             / (self.max_difference - self.min_difference);
         Some([normalized as f32, 0.0, 0.0, 1.0])
     }
@@ -66,8 +66,8 @@ impl SteepnessVisualizer {
 
 // TODO uh oh, we need Map again
 /*impl ColorChooser for SteepnessVisualizer {
-    fn color_r(&self, r: &Road) -> Option<Color> {
-        let normalized = (self.get_delta(&r) - self.min_difference) /
+    fn color_l(&self, l: &Lane) -> Option<Color> {
+        let normalized = (self.get_delta(&l) - self.min_difference) /
           (self.max_difference - self.min_difference);
         return Some([normalized as f32, 0.0, 0.0, 1.0]);
     }

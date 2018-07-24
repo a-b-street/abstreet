@@ -3,23 +3,23 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geom::{LonLat, Pt2D};
-use map_model::{BuildingID, IntersectionID, Map, ParcelID, RoadID, Turn, TurnID};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID, Turn, TurnID};
 use plugins::selection::Hider;
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
+use render::lane::DrawLane;
 use render::parcel::DrawParcel;
-use render::road::DrawRoad;
 use render::turn::DrawTurn;
 use std::collections::HashMap;
 
 pub struct DrawMap {
-    pub roads: Vec<DrawRoad>,
+    pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub turns: Vec<DrawTurn>,
     pub buildings: Vec<DrawBuilding>,
     pub parcels: Vec<DrawParcel>,
 
-    roads_quadtree: QuadTree<RoadID>,
+    lanes_quadtree: QuadTree<LaneID>,
     intersections_quadtree: QuadTree<IntersectionID>,
     turn_icons_quadtree: QuadTree<TurnID>,
     buildings_quadtree: QuadTree<BuildingID>,
@@ -29,17 +29,17 @@ pub struct DrawMap {
 impl DrawMap {
     // Also returns the center of the map in map-space
     pub fn new(map: &Map) -> (DrawMap, Pt2D) {
-        let mut roads: Vec<DrawRoad> = Vec::new();
-        for r in map.all_roads() {
-            roads.push(DrawRoad::new(r, map));
+        let mut lanes: Vec<DrawLane> = Vec::new();
+        for l in map.all_lanes() {
+            lanes.push(DrawLane::new(l, map));
         }
 
-        let mut turn_to_road_offset: HashMap<TurnID, usize> = HashMap::new();
-        for r in map.all_roads() {
+        let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
+        for l in map.all_lanes() {
             // Split into two groups, based on the endpoint
-            let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_road(r.id)
+            let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_lane(l.id)
                 .iter()
-                .partition(|t| t.parent == r.dst_i);
+                .partition(|t| t.parent == l.dst_i);
 
             // Sort the turn icons by angle.
             pair.0
@@ -48,21 +48,21 @@ impl DrawMap {
                 .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
 
             for (idx, t) in pair.0.iter().enumerate() {
-                turn_to_road_offset.insert(t.id, idx);
+                turn_to_lane_offset.insert(t.id, idx);
             }
             for (idx, t) in pair.1.iter().enumerate() {
-                turn_to_road_offset.insert(t.id, idx);
+                turn_to_lane_offset.insert(t.id, idx);
             }
         }
-        assert_eq!(turn_to_road_offset.len(), map.all_turns().len());
+        assert_eq!(turn_to_lane_offset.len(), map.all_turns().len());
 
         let turns: Vec<DrawTurn> = map.all_turns()
             .iter()
-            .map(|t| DrawTurn::new(map, t, turn_to_road_offset[&t.id]))
+            .map(|t| DrawTurn::new(map, t, turn_to_lane_offset[&t.id]))
             .collect();
         let intersections: Vec<DrawIntersection> = map.all_intersections()
             .iter()
-            .map(|i| DrawIntersection::new(i, map, &roads))
+            .map(|i| DrawIntersection::new(i, map, &lanes))
             .collect();
         let buildings: Vec<DrawBuilding> = map.all_buildings()
             .iter()
@@ -84,9 +84,9 @@ impl DrawMap {
             },
         };
 
-        let mut roads_quadtree = QuadTree::default(map_bbox);
-        for r in &roads {
-            roads_quadtree.insert_with_box(r.id, r.get_bbox_for_road());
+        let mut lanes_quadtree = QuadTree::default(map_bbox);
+        for l in &lanes {
+            lanes_quadtree.insert_with_box(l.id, l.get_bbox_for_lane());
         }
         let mut intersections_quadtree = QuadTree::default(map_bbox);
         for i in &intersections {
@@ -107,13 +107,13 @@ impl DrawMap {
 
         (
             DrawMap {
-                roads,
+                lanes,
                 intersections,
                 turns,
                 buildings,
                 parcels,
 
-                roads_quadtree,
+                lanes_quadtree,
                 intersections_quadtree,
                 turn_icons_quadtree,
                 buildings_quadtree,
@@ -124,8 +124,8 @@ impl DrawMap {
     }
 
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
-    pub fn get_r(&self, id: RoadID) -> &DrawRoad {
-        &self.roads[id.0]
+    pub fn get_l(&self, id: LaneID) -> &DrawLane {
+        &self.lanes[id.0]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &DrawIntersection {
@@ -144,11 +144,11 @@ impl DrawMap {
         &self.parcels[id.0]
     }
 
-    pub fn get_roads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawRoad> {
+    pub fn get_loads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawLane> {
         let mut v = Vec::new();
-        for &(id, _, _) in &self.roads_quadtree.query(screen_bbox) {
+        for &(id, _, _) in &self.lanes_quadtree.query(screen_bbox) {
             if hider.show_r(*id) {
-                v.push(self.get_r(*id));
+                v.push(self.get_l(*id));
             }
         }
         v

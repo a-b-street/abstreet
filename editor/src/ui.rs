@@ -34,17 +34,17 @@ use std::collections::HashMap;
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
-const MIN_ZOOM_FOR_ROADS: f64 = 0.15;
+const MIN_ZOOM_FOR_LANES: f64 = 0.15;
 const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 1.0;
-const MIN_ZOOM_FOR_ROAD_MARKERS: f64 = 5.0;
+const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 pub struct UI {
     map: map_model::Map,
     draw_map: render::DrawMap,
     control_map: ControlMap,
 
-    show_roads: ToggleableLayer,
+    show_lanes: ToggleableLayer,
     show_buildings: ToggleableLayer,
     show_intersections: ToggleableLayer,
     show_parcels: ToggleableLayer,
@@ -92,20 +92,20 @@ impl UI {
             turn_colors,
             sim_ctrl,
 
-            show_roads: ToggleableLayer::new("roads", Key::D3, "3", Some(MIN_ZOOM_FOR_ROADS)),
+            show_lanes: ToggleableLayer::new("lanes", Key::D3, "3", Some(MIN_ZOOM_FOR_LANES)),
             show_buildings: ToggleableLayer::new("buildings", Key::D1, "1", Some(0.0)),
             show_intersections: ToggleableLayer::new(
                 "intersections",
                 Key::D2,
                 "2",
-                Some(MIN_ZOOM_FOR_ROADS),
+                Some(MIN_ZOOM_FOR_LANES),
             ),
             show_parcels: ToggleableLayer::new("parcels", Key::D4, "4", Some(MIN_ZOOM_FOR_PARCELS)),
             show_icons: ToggleableLayer::new(
                 "turn icons",
                 Key::D7,
                 "7",
-                Some(MIN_ZOOM_FOR_ROAD_MARKERS),
+                Some(MIN_ZOOM_FOR_LANE_MARKERS),
             ),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
@@ -147,7 +147,7 @@ impl UI {
 
     // TODO or make a custom event for zoom change
     fn zoom_for_toggleable_layers(&mut self, old_zoom: f64, new_zoom: f64) {
-        self.show_roads.handle_zoom(old_zoom, new_zoom);
+        self.show_lanes.handle_zoom(old_zoom, new_zoom);
         self.show_buildings.handle_zoom(old_zoom, new_zoom);
         self.show_intersections.handle_zoom(old_zoom, new_zoom);
         self.show_parcels.handle_zoom(old_zoom, new_zoom);
@@ -160,18 +160,18 @@ impl UI {
 
         let screen_bbox = self.canvas.get_screen_bbox();
 
-        let roads_onscreen = if self.show_roads.is_enabled() {
-            self.draw_map.get_roads_onscreen(screen_bbox, &self.hider)
+        let lanes_onscreen = if self.show_lanes.is_enabled() {
+            self.draw_map.get_loads_onscreen(screen_bbox, &self.hider)
         } else {
             Vec::new()
         };
-        for r in &roads_onscreen {
-            for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
+        for l in &lanes_onscreen {
+            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
                 if c.contains_pt(x, y) {
                     return Some(ID::Car(c.id));
                 }
             }
-            for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
+            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
                 if p.contains_pt(x, y) {
                     return Some(ID::Pedestrian(p.id));
                 }
@@ -209,10 +209,10 @@ impl UI {
             }
         }
 
-        if self.show_roads.is_enabled() {
-            for r in &roads_onscreen {
-                if r.road_contains_pt(x, y) {
-                    return Some(ID::Road(r.id));
+        if self.show_lanes.is_enabled() {
+            for l in &lanes_onscreen {
+                if l.lane_contains_pt(x, y) {
+                    return Some(ID::Lane(l.id));
                 }
             }
         }
@@ -230,26 +230,26 @@ impl UI {
         None
     }
 
-    fn color_road(&self, id: map_model::RoadID) -> Color {
-        let r = self.map.get_r(id);
-        let mut default = match r.lane_type {
+    fn color_lane(&self, id: map_model::LaneID) -> Color {
+        let l = self.map.get_l(id);
+        let mut default = match l.lane_type {
             map_model::LaneType::Driving => self.cs.get(Colors::Road),
             map_model::LaneType::Parking => self.cs.get(Colors::Parking),
             map_model::LaneType::Sidewalk => self.cs.get(Colors::Sidewalk),
             map_model::LaneType::Biking => self.cs.get(Colors::Biking),
         };
-        if r.probably_broken {
+        if l.probably_broken {
             default = self.cs.get(Colors::Broken);
         }
 
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
-            self.current_selection_state.color_r(r, &self.cs),
-            self.current_search_state.color_r(r, &self.cs),
-            self.floodfiller.color_r(r, &self.cs),
-            self.steepness_viz.color_r(&self.map, r),
-            self.osm_classifier.color_r(r, &self.cs),
+            self.current_selection_state.color_l(l, &self.cs),
+            self.current_search_state.color_l(l, &self.cs),
+            self.floodfiller.color_l(l, &self.cs),
+            self.steepness_viz.color_l(&self.map, l),
+            self.osm_classifier.color_l(l, &self.cs),
         ].iter()
             .filter_map(|c| *c)
             .next()
@@ -386,11 +386,11 @@ impl gui::GUI for UI {
             &mut self.current_selection_state,
         ));
 
-        if self.show_roads.handle_event(input) {
-            if let SelectionState::SelectedRoad(_, _) = self.current_selection_state {
+        if self.show_lanes.handle_event(input) {
+            if let SelectionState::SelectedLane(_, _) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            if let SelectionState::TooltipRoad(_) = self.current_selection_state {
+            if let SelectionState::TooltipLane(_) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             return gui::EventLoopMode::InputOnly;
@@ -449,13 +449,13 @@ impl gui::GUI for UI {
                     return gui::EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::SelectedRoad(id, _) => {
-                if input.key_pressed(Key::F, "Press F to start floodfilling from this road") {
+            SelectionState::SelectedLane(id, _) => {
+                if input.key_pressed(Key::F, "Press F to start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
                     return gui::EventLoopMode::InputOnly;
                 }
 
-                if input.key_pressed(Key::A, "Press A to start something on this road") {
+                if input.key_pressed(Key::A, "Press A to start something on this lane") {
                     self.sim_ctrl.sim.start_agent(&self.map, id);
                     return gui::EventLoopMode::InputOnly;
                 }
@@ -520,18 +520,18 @@ impl gui::GUI for UI {
             }
         }
 
-        let roads_onscreen = if self.show_roads.is_enabled() {
-            self.draw_map.get_roads_onscreen(screen_bbox, &self.hider)
+        let lanes_onscreen = if self.show_lanes.is_enabled() {
+            self.draw_map.get_loads_onscreen(screen_bbox, &self.hider)
         } else {
             Vec::new()
         };
-        for r in &roads_onscreen {
-            r.draw(g, self.color_road(r.id));
-            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_ROAD_MARKERS {
-                r.draw_detail(g, &self.cs);
+        for l in &lanes_onscreen {
+            l.draw(g, self.color_lane(l.id));
+            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
+                l.draw_detail(g, &self.cs);
             }
             if self.debug_mode.is_enabled() {
-                r.draw_debug(g, &self.cs, self.map.get_r(r.id));
+                l.draw_debug(g, &self.cs, self.map.get_l(l.id));
             }
         }
 
@@ -555,11 +555,11 @@ impl gui::GUI for UI {
             }
         }
 
-        for r in &roads_onscreen {
-            for c in &self.sim_ctrl.sim.get_draw_cars_on_road(r.id, &self.map) {
+        for l in &lanes_onscreen {
+            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
             }
-            for p in &self.sim_ctrl.sim.get_draw_peds_on_road(r.id, &self.map) {
+            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
                 p.draw(g, self.color_ped(p.id));
             }
         }

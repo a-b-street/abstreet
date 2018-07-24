@@ -26,17 +26,17 @@ pub struct DrawTurn {
 }
 
 impl DrawTurn {
-    pub fn new(map: &map_model::Map, turn: &map_model::Turn, offset_along_road: usize) -> DrawTurn {
-        let offset_along_road = offset_along_road as f64;
+    pub fn new(map: &map_model::Map, turn: &map_model::Turn, offset_along_lane: usize) -> DrawTurn {
+        let offset_along_lane = offset_along_lane as f64;
         let src_pt = turn.line.pt1();
         let dst_pt = turn.line.pt2();
         let angle = turn.line.angle();
 
-        let end_line = map.get_r(turn.src).end_line(turn.parent);
+        let end_line = map.get_l(turn.src).end_line(turn.parent);
         // Start the distance from the intersection
         let icon_center = end_line
             .reverse()
-            .unbounded_dist_along((offset_along_road + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
+            .unbounded_dist_along((offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
 
         let icon_src = icon_center
             .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite())

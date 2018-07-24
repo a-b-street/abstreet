@@ -15,8 +15,8 @@ pub enum SearchState {
 }
 
 impl SearchState {
-    pub fn color_r(&self, r: &map_model::Road, cs: &ColorScheme) -> Option<Color> {
-        self.choose_color(&r.osm_tags, cs)
+    pub fn color_l(&self, l: &map_model::Lane, cs: &ColorScheme) -> Option<Color> {
+        self.choose_color(&l.osm_tags, cs)
     }
     pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
         self.choose_color(&b.osm_tags, cs)

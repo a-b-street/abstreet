@@ -4,20 +4,20 @@ use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::BTreeMap;
-use {Building, BuildingID, LaneType, Road, RoadID};
+use {Building, BuildingID, Lane, LaneID, LaneType};
 
 pub(crate) fn make_building(
     b: &raw_data::Building,
     id: BuildingID,
     bounds: &Bounds,
-    roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
 ) -> Building {
     // TODO consume data, so we dont have to clone tags?
     let points = b.points
         .iter()
         .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
-    let front_path = find_front_path(&points, &b.osm_tags, roads);
+    let front_path = find_front_path(&points, &b.osm_tags, lanes);
 
     Building {
         points,
@@ -31,7 +31,7 @@ pub(crate) fn make_building(
 fn find_front_path(
     bldg_points: &Vec<Pt2D>,
     bldg_osm_tags: &BTreeMap<String, String>,
-    roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
 ) -> Option<Line> {
     use geo::prelude::{ClosestPoint, EuclideanDistance};
 
@@ -42,15 +42,15 @@ fn find_front_path(
 
         // Find all matching sidewalks with that street name, then find the closest point on
         // that sidewalk
-        let candidates: Vec<(RoadID, geo::Point<f64>)> = roads
+        let candidates: Vec<(LaneID, geo::Point<f64>)> = lanes
             .iter()
-            .filter_map(|r| {
-                if r.lane_type == LaneType::Sidewalk && r.osm_tags.get("name") == Some(street_name)
+            .filter_map(|l| {
+                if l.lane_type == LaneType::Sidewalk && l.osm_tags.get("name") == Some(street_name)
                 {
                     if let geo::Closest::SinglePoint(pt) =
-                        road_to_line_string(&roads[r.id.0]).closest_point(&center_pt)
+                        lane_to_line_string(&lanes[l.id.0]).closest_point(&center_pt)
                     {
-                        return Some((r.id, pt));
+                        return Some((l.id, pt));
                     }
                 }
                 None
@@ -70,8 +70,8 @@ fn find_front_path(
     None
 }
 
-fn road_to_line_string(r: &Road) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = r.lane_center_pts
+fn lane_to_line_string(l: &Lane) -> geo::LineString<f64> {
+    let pts: Vec<geo::Point<f64>> = l.lane_center_pts
         .points()
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))

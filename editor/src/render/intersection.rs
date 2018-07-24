@@ -10,7 +10,7 @@ use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use render::DrawRoad;
+use render::DrawLane;
 use std::f64;
 
 #[derive(Debug)]
@@ -26,16 +26,16 @@ impl DrawIntersection {
     pub fn new(
         inter: &map_model::Intersection,
         map: &map_model::Map,
-        roads: &Vec<DrawRoad>,
+        lanes: &Vec<DrawLane>,
     ) -> DrawIntersection {
         let mut pts: Vec<Vec2d> = Vec::new();
-        for r in &inter.incoming_roads {
-            let (pt1, pt2) = roads[r.0].get_end_crossing();
+        for l in &inter.incoming_lanes {
+            let (pt1, pt2) = lanes[l.0].get_end_crossing();
             pts.push(pt1);
             pts.push(pt2);
         }
-        for r in &inter.outgoing_roads {
-            let (pt1, pt2) = roads[r.0].get_start_crossing();
+        for l in &inter.outgoing_lanes {
+            let (pt1, pt2) = lanes[l.0].get_start_crossing();
             pts.push(pt1);
             pts.push(pt2);
         }
@@ -138,18 +138,18 @@ fn calculate_crosswalks(
     let mut crosswalks = Vec::new();
 
     for id in inter
-        .outgoing_roads
+        .outgoing_lanes
         .iter()
-        .chain(inter.incoming_roads.iter())
+        .chain(inter.incoming_lanes.iter())
     {
-        let r1 = map.get_r(*id);
+        let r1 = map.get_l(*id);
         if r1.lane_type != map_model::LaneType::Sidewalk {
             continue;
         }
         if r1.other_side.unwrap().0 < r1.id.0 {
             continue;
         }
-        let r2 = map.get_r(r1.other_side.unwrap());
+        let r2 = map.get_l(r1.other_side.unwrap());
 
         let line = if r1.src_i == inter.id {
             Line::new(r1.first_pt(), r2.last_pt())
@@ -176,7 +176,7 @@ fn calculate_crosswalks(
     crosswalks
 }
 
-// TODO copied from DrawRoad
+// TODO copied from DrawLane
 fn perp_line(l: Line, length: f64) -> (Vec2d, Vec2d) {
     let pt1 = l.shift(length / 2.0).pt1();
     let pt2 = l.reverse().shift(length / 2.0).pt2();

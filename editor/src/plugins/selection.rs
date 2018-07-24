@@ -7,7 +7,7 @@ use ezgui::input::UserInput;
 use ezgui::GfxCtx;
 use graphics::types::Color;
 use map_model;
-use map_model::{BuildingID, IntersectionID, Map, RoadID, TurnID};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
 use sim::{CarID, PedestrianID, Sim};
@@ -16,7 +16,7 @@ use std::collections::HashSet;
 // TODO only used for mouseover, which happens in order anyway...
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum ID {
-    Road(RoadID),
+    Lane(LaneID),
     Intersection(IntersectionID),
     Turn(TurnID),
     Building(BuildingID),
@@ -30,8 +30,8 @@ pub enum SelectionState {
     Empty,
     SelectedIntersection(IntersectionID),
     // Second param is the current_turn_index
-    SelectedRoad(RoadID, Option<usize>),
-    TooltipRoad(RoadID),
+    SelectedLane(LaneID, Option<usize>),
+    TooltipLane(LaneID),
     SelectedBuilding(BuildingID),
     SelectedTurn(TurnID),
     SelectedCar(CarID),
@@ -43,11 +43,11 @@ impl SelectionState {
     pub fn handle_mouseover(&self, some_id: Option<ID>) -> SelectionState {
         match some_id {
             Some(ID::Intersection(id)) => SelectionState::SelectedIntersection(id),
-            Some(ID::Road(id)) => {
+            Some(ID::Lane(id)) => {
                 match *self {
                     // Don't break out of the tooltip state
-                    SelectionState::TooltipRoad(_) => SelectionState::TooltipRoad(id),
-                    _ => SelectionState::SelectedRoad(id, None),
+                    SelectionState::TooltipLane(_) => SelectionState::TooltipLane(id),
+                    _ => SelectionState::SelectedLane(id, None),
                 }
             }
             Some(ID::Building(id)) => SelectionState::SelectedBuilding(id),
@@ -61,34 +61,34 @@ impl SelectionState {
     pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
-            SelectionState::SelectedRoad(id, current_turn_index) => {
+            SelectionState::SelectedLane(id, current_turn_index) => {
                 if input.key_pressed(
                     Key::LCtrl,
-                    &format!("Hold Ctrl to show road {:?}'s tooltip", id),
+                    &format!("Hold Ctrl to show lane {:?}'s tooltip", id),
                 ) {
-                    new_state = Some(SelectionState::TooltipRoad(*id));
+                    new_state = Some(SelectionState::TooltipLane(*id));
                     true
                 } else if input
-                    .key_pressed(Key::Tab, "Press Tab to cycle through this road's turns")
+                    .key_pressed(Key::Tab, "Press Tab to cycle through this lane's turns")
                 {
                     let idx = match *current_turn_index {
                         Some(i) => i + 1,
                         None => 0,
                     };
-                    new_state = Some(SelectionState::SelectedRoad(*id, Some(idx)));
+                    new_state = Some(SelectionState::SelectedLane(*id, Some(idx)));
                     true
                 } else if input.key_pressed(Key::D, "press D to debug") {
-                    map.get_r(*id).dump_debug();
+                    map.get_l(*id).dump_debug();
                     true
                 } else {
                     false
                 }
             }
-            SelectionState::TooltipRoad(id) => {
+            SelectionState::TooltipLane(id) => {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    new_state = Some(SelectionState::SelectedRoad(*id, None));
+                    new_state = Some(SelectionState::SelectedLane(*id, None));
                     true
                 } else {
                     false
@@ -122,8 +122,8 @@ impl SelectionState {
                     }
                 }
             }
-            SelectionState::SelectedRoad(id, current_turn_index) => {
-                let relevant_turns = map.get_turns_from_road(id);
+            SelectionState::SelectedLane(id, current_turn_index) => {
+                let relevant_turns = map.get_turns_from_lane(id);
                 if !relevant_turns.is_empty() {
                     match current_turn_index {
                         Some(idx) => {
@@ -146,10 +146,10 @@ impl SelectionState {
                     }
                 }
                 // TODO tmp
-                draw_map.get_r(id).draw_debug(g, cs, map.get_r(id));
+                draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
-            SelectionState::TooltipRoad(id) => {
-                canvas.draw_mouse_tooltip(g, &draw_map.get_r(id).tooltip_lines(map));
+            SelectionState::TooltipLane(id) => {
+                canvas.draw_mouse_tooltip(g, &draw_map.get_l(id).tooltip_lines(map));
             }
             SelectionState::SelectedBuilding(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_b(id).tooltip_lines(map));
@@ -166,10 +166,10 @@ impl SelectionState {
     // TODO instead, since color logic is complicated anyway, just have a way to ask "are we
     // selecting this generic ID?"
 
-    pub fn color_r(&self, r: &map_model::Road, cs: &ColorScheme) -> Option<Color> {
+    pub fn color_l(&self, l: &map_model::Lane, cs: &ColorScheme) -> Option<Color> {
         match *self {
-            SelectionState::SelectedRoad(id, _) if r.id == id => Some(cs.get(Colors::Selected)),
-            SelectionState::TooltipRoad(id) if r.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::SelectedLane(id, _) if l.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::TooltipLane(id) if l.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
@@ -221,7 +221,7 @@ impl Hider {
 
         let item = match state {
             SelectionState::SelectedIntersection(id) => Some(ID::Intersection(*id)),
-            SelectionState::SelectedRoad(id, _) => Some(ID::Road(*id)),
+            SelectionState::SelectedLane(id, _) => Some(ID::Lane(*id)),
             SelectionState::SelectedBuilding(id) => Some(ID::Building(*id)),
             _ => None,
         };
@@ -236,8 +236,8 @@ impl Hider {
         false
     }
 
-    pub fn show_r(&self, id: RoadID) -> bool {
-        !self.items.contains(&ID::Road(id))
+    pub fn show_r(&self, id: LaneID) -> bool {
+        !self.items.contains(&ID::Lane(id))
     }
 
     pub fn show_b(&self, id: BuildingID) -> bool {

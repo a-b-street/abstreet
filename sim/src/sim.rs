@@ -5,7 +5,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
-use map_model::{LaneType, Map, RoadID, TurnID};
+use map_model::{LaneID, LaneType, Map, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::f64;
@@ -63,11 +63,11 @@ impl Sim {
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        let mut driving_lanes: Vec<RoadID> = map.all_roads()
+        let mut driving_lanes: Vec<LaneID> = map.all_lanes()
             .iter()
-            .filter_map(|r| {
-                if r.lane_type == LaneType::Driving && self.driving_state.roads[r.id.0].is_empty() {
-                    Some(r.id)
+            .filter_map(|l| {
+                if l.lane_type == LaneType::Driving && self.driving_state.lanes[l.id.0].is_empty() {
+                    Some(l.id)
                 } else {
                     None
                 }
@@ -88,8 +88,8 @@ impl Sim {
         println!("Started {} parked cars of requested {}", actual, n);
     }
 
-    pub fn start_agent(&mut self, map: &Map, id: RoadID) -> bool {
-        let (driving_lane, parking_lane) = match map.get_r(id).lane_type {
+    pub fn start_agent(&mut self, map: &Map, id: LaneID) -> bool {
+        let (driving_lane, parking_lane) = match map.get_l(id).lane_type {
             LaneType::Sidewalk => {
                 if self.walking_state.seed_pedestrian(&mut self.rng, map, id) {
                     println!("Spawned a pedestrian at {}", id);
@@ -121,7 +121,7 @@ impl Sim {
         };
 
         if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
-            if self.driving_state.start_car_on_road(
+            if self.driving_state.start_car_on_lane(
                 self.time,
                 driving_lane,
                 car,
@@ -163,12 +163,12 @@ impl Sim {
     }
 
     // TODO maybe just DrawAgent instead? should caller care?
-    pub fn get_draw_cars_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawCar> {
-        match map.get_r(r).lane_type {
+    pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCar> {
+        match map.get_l(l).lane_type {
             LaneType::Driving => {
-                self.driving_state.roads[r.0].get_draw_cars(self.time, &self.driving_state, map)
+                self.driving_state.lanes[l.0].get_draw_cars(self.time, &self.driving_state, map)
             }
-            LaneType::Parking => self.parking_state.get_draw_cars(r, map),
+            LaneType::Parking => self.parking_state.get_draw_cars(l, map),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
         }
@@ -178,8 +178,8 @@ impl Sim {
         self.driving_state.turns[t.0].get_draw_cars(self.time, &self.driving_state, map)
     }
 
-    pub fn get_draw_peds_on_road(&self, r: RoadID, map: &Map) -> Vec<DrawPedestrian> {
-        self.walking_state.get_draw_peds_on_road(map.get_r(r))
+    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrian> {
+        self.walking_state.get_draw_peds_on_lane(map.get_l(l))
     }
 
     pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrian> {

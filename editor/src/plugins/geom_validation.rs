@@ -5,14 +5,14 @@ use geo;
 use geo::prelude::Intersects;
 use geom::Pt2D;
 use graphics::math::Vec2d;
-use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
+use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
 use render;
 
 // TODO just have one of these
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub enum ID {
-    Road(RoadID),
+    Lane(LaneID),
     Intersection(IntersectionID),
     Building(BuildingID),
     Parcel(ParcelID),
@@ -35,10 +35,10 @@ impl Validator {
 
     pub fn start(draw_map: &render::DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
-        for r in &draw_map.roads {
+        for l in &draw_map.lanes {
             objects.push((
-                ID::Road(r.id),
-                r.polygons.iter().map(|poly| make_poly(poly)).collect(),
+                ID::Lane(l.id),
+                l.polygons.iter().map(|poly| make_poly(poly)).collect(),
             ));
         }
         for i in &draw_map.intersections {
@@ -145,7 +145,7 @@ fn make_poly(points: &Vec<Vec2d>) -> geo::Polygon<f64> {
 // TODO duplicated with warp. generic handling of object types?
 fn get_pt(map: &Map, id: ID) -> Pt2D {
     match id {
-        ID::Road(id) => map.get_r(id).first_pt(),
+        ID::Lane(id) => map.get_l(id).first_pt(),
         ID::Intersection(id) => map.get_i(id).point,
         ID::Building(id) => geometry::center(&map.get_b(id).points),
         ID::Parcel(id) => geometry::center(&map.get_p(id).points),

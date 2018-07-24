@@ -6,16 +6,16 @@ use dimensioned::si;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use intersection::{Intersection, IntersectionID};
+use lane::{Lane, LaneID, LaneType};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
-use road::{LaneType, Road, RoadID};
 use std::collections::HashMap;
 use std::io::Error;
 use turn::{Turn, TurnID};
 
 pub struct Map {
-    roads: Vec<Road>,
+    lanes: Vec<Lane>,
     intersections: Vec<Intersection>,
     turns: Vec<Turn>,
     buildings: Vec<Building>,
@@ -32,7 +32,7 @@ impl Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
             bounds,
-            roads: Vec::new(),
+            lanes: Vec::new(),
             intersections: Vec::new(),
             turns: Vec::new(),
             buildings: Vec::new(),
@@ -50,8 +50,8 @@ impl Map {
                 turns: Vec::new(),
                 elevation: i.elevation_meters * si::M,
                 has_traffic_signal: i.has_traffic_signal,
-                incoming_roads: Vec::new(),
-                outgoing_roads: Vec::new(),
+                incoming_lanes: Vec::new(),
+                outgoing_lanes: Vec::new(),
             });
             pt_to_intersection.insert(HashablePt2D::from(pt), id);
         }
@@ -60,13 +60,13 @@ impl Map {
         for (idx, r) in data.roads.iter().enumerate() {
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r) {
-                let id = RoadID(counter);
+                let id = LaneID(counter);
                 counter += 1;
                 let other_side = lane.offset_for_other_id
-                    .map(|offset| RoadID(((id.0 as isize) + offset) as usize));
+                    .map(|offset| LaneID(((id.0 as isize) + offset) as usize));
                 let siblings = lane.offsets_for_siblings
                     .iter()
-                    .map(|offset| RoadID(((id.0 as isize) + offset) as usize))
+                    .map(|offset| LaneID(((id.0 as isize) + offset) as usize))
                     .collect();
 
                 let mut unshifted_pts = PolyLine::new(
@@ -82,8 +82,8 @@ impl Map {
                 // Do this with the original points, before trimming them back
                 let i1 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.first_pt())];
                 let i2 = pt_to_intersection[&HashablePt2D::from(unshifted_pts.last_pt())];
-                m.intersections[i1.0].outgoing_roads.push(id);
-                m.intersections[i2.0].incoming_roads.push(id);
+                m.intersections[i1.0].outgoing_lanes.push(id);
+                m.intersections[i2.0].incoming_lanes.push(id);
 
                 let use_yellow_center_lines = if let Some(other) = other_side {
                     id.0 < other.0
@@ -101,7 +101,7 @@ impl Map {
                 };
 
                 // lane_center_pts will get updated in the next pass
-                m.roads.push(Road {
+                m.lanes.push(Lane {
                     id,
                     other_side,
                     siblings,
@@ -121,8 +121,8 @@ impl Map {
         }
 
         for i in &m.intersections {
-            make::trim_lines(&mut m.roads, i);
-            if i.incoming_roads.is_empty() && i.outgoing_roads.is_empty() {
+            make::trim_lines(&mut m.lanes, i);
+            if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
                 panic!("{:?} is orphaned!", i);
             }
         }
@@ -141,7 +141,7 @@ impl Map {
 
         for (idx, b) in data.buildings.iter().enumerate() {
             m.buildings
-                .push(make::make_building(b, BuildingID(idx), &bounds, &m.roads));
+                .push(make::make_building(b, BuildingID(idx), &bounds, &m.lanes));
         }
 
         for (idx, p) in data.parcels.iter().enumerate() {
@@ -157,8 +157,8 @@ impl Map {
         Ok(m)
     }
 
-    pub fn all_roads(&self) -> &Vec<Road> {
-        &self.roads
+    pub fn all_lanes(&self) -> &Vec<Lane> {
+        &self.lanes
     }
 
     pub fn all_intersections(&self) -> &Vec<Intersection> {
@@ -177,8 +177,8 @@ impl Map {
         &self.parcels
     }
 
-    pub fn get_r(&self, id: RoadID) -> &Road {
-        &self.roads[id.0]
+    pub fn get_l(&self, id: LaneID) -> &Lane {
+        &self.lanes[id.0]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {
@@ -199,12 +199,12 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_source_intersection(&self, r: RoadID) -> &Intersection {
-        self.get_i(self.get_r(r).src_i)
+    pub fn get_source_intersection(&self, l: LaneID) -> &Intersection {
+        self.get_i(self.get_l(l).src_i)
     }
 
-    pub fn get_destination_intersection(&self, r: RoadID) -> &Intersection {
-        self.get_i(self.get_r(r).dst_i)
+    pub fn get_destination_intersection(&self, l: LaneID) -> &Intersection {
+        self.get_i(self.get_l(l).dst_i)
     }
 
     pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
@@ -216,19 +216,19 @@ impl Map {
     }
 
     // The turns may belong to two different intersections!
-    pub fn get_turns_from_road(&self, r: RoadID) -> Vec<&Turn> {
-        let road = self.get_r(r);
-        let mut turns: Vec<&Turn> = self.get_i(road.dst_i)
+    pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
+        let lane = self.get_l(l);
+        let mut turns: Vec<&Turn> = self.get_i(lane.dst_i)
             .turns
             .iter()
             .map(|t| self.get_t(*t))
-            .filter(|t| t.src == r)
+            .filter(|t| t.src == l)
             .collect();
         // Sidewalks are bidirectional
-        if road.lane_type == LaneType::Sidewalk {
-            for t in &self.get_i(road.src_i).turns {
+        if lane.lane_type == LaneType::Sidewalk {
+            for t in &self.get_i(lane.src_i).turns {
                 let turn = self.get_t(*t);
-                if turn.src == r {
+                if turn.src == l {
                     turns.push(turn);
                 }
             }
@@ -236,11 +236,11 @@ impl Map {
         turns
     }
 
-    pub fn get_next_roads(&self, from: RoadID) -> Vec<&Road> {
+    pub fn get_next_lanes(&self, from: LaneID) -> Vec<&Lane> {
         // TODO assumes no duplicates
-        self.get_turns_from_road(from)
+        self.get_turns_from_lane(from)
             .iter()
-            .map(|t| self.get_r(t.dst))
+            .map(|t| self.get_l(t.dst))
             .collect()
     }
 
@@ -249,22 +249,22 @@ impl Map {
         self.bounds.clone()
     }
 
-    pub fn find_driving_lane(&self, parking: RoadID) -> Option<RoadID> {
-        let r = self.get_r(parking);
-        assert_eq!(r.lane_type, LaneType::Parking);
+    pub fn find_driving_lane(&self, parking: LaneID) -> Option<LaneID> {
+        let l = self.get_l(parking);
+        assert_eq!(l.lane_type, LaneType::Parking);
         // TODO find the closest one to the parking lane, if there are multiple
-        r.siblings
+        l.siblings
             .iter()
-            .find(|&&id| self.get_r(id).lane_type == LaneType::Driving)
+            .find(|&&id| self.get_l(id).lane_type == LaneType::Driving)
             .map(|id| *id)
     }
 
-    pub fn find_parking_lane(&self, driving: RoadID) -> Option<RoadID> {
-        let r = self.get_r(driving);
-        assert_eq!(r.lane_type, LaneType::Driving);
-        r.siblings
+    pub fn find_parking_lane(&self, driving: LaneID) -> Option<LaneID> {
+        let l = self.get_l(driving);
+        assert_eq!(l.lane_type, LaneType::Driving);
+        l.siblings
             .iter()
-            .find(|&&id| self.get_r(id).lane_type == LaneType::Parking)
+            .find(|&&id| self.get_l(id).lane_type == LaneType::Parking)
             .map(|id| *id)
     }
 }

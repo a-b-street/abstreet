@@ -1,7 +1,7 @@
 use draw_car;
 use draw_car::DrawCar;
 use map_model;
-use map_model::{LaneType, Map, Road, RoadID};
+use map_model::{Lane, LaneID, LaneType, Map};
 use rand::Rng;
 use std::iter;
 use CarID;
@@ -9,16 +9,16 @@ use CarID;
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub(crate) struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
-    roads: Vec<ParkingLane>,
+    lanes: Vec<ParkingLane>,
     total_count: usize,
 }
 
 impl ParkingSimState {
     pub(crate) fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
-            roads: map.all_roads()
+            lanes: map.all_lanes()
                 .iter()
-                .map(|r| ParkingLane::new(r))
+                .map(|l| ParkingLane::new(l))
                 .collect(),
             total_count: 0,
         }
@@ -38,13 +38,13 @@ impl ParkingSimState {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
         let mut total_capacity = 0;
-        for r in &self.roads {
-            total_capacity += r.spots.len();
+        for l in &self.lanes {
+            total_capacity += l.spots.len();
         }
 
         let mut new_cars = 0;
-        for r in &mut self.roads {
-            for spot in &mut r.spots {
+        for l in &mut self.lanes {
+            for spot in &mut l.spots {
                 if !spot.is_some() && rng.gen_bool(percent_capacity_to_fill) {
                     new_cars += 1;
                     *spot = Some(CarID(*id_counter));
@@ -59,38 +59,38 @@ impl ParkingSimState {
         );
     }
 
-    pub(crate) fn get_last_parked_car(&self, id: RoadID) -> Option<CarID> {
-        self.roads[id.0].get_last_parked_car()
+    pub(crate) fn get_last_parked_car(&self, id: LaneID) -> Option<CarID> {
+        self.lanes[id.0].get_last_parked_car()
     }
 
-    pub(crate) fn remove_last_parked_car(&mut self, id: RoadID, car: CarID) {
-        self.roads[id.0].remove_last_parked_car(car);
+    pub(crate) fn remove_last_parked_car(&mut self, id: LaneID, car: CarID) {
+        self.lanes[id.0].remove_last_parked_car(car);
         self.total_count -= 1;
     }
 
-    pub(crate) fn get_draw_cars(&self, id: RoadID, map: &Map) -> Vec<DrawCar> {
-        self.roads[id.0].get_draw_cars(map)
+    pub(crate) fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCar> {
+        self.lanes[id.0].get_draw_cars(map)
     }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct ParkingLane {
-    r: RoadID,
+    l: LaneID,
     spots: Vec<Option<CarID>>,
 }
 
 impl ParkingLane {
-    fn new(r: &Road) -> ParkingLane {
-        if r.lane_type != LaneType::Parking {
+    fn new(l: &Lane) -> ParkingLane {
+        if l.lane_type != LaneType::Parking {
             return ParkingLane {
-                r: r.id,
+                l: l.id,
                 spots: Vec::new(),
             };
         }
 
         ParkingLane {
-            r: r.id,
-            spots: iter::repeat(None).take(r.number_parking_spots()).collect(),
+            l: l.id,
+            spots: iter::repeat(None).take(l.number_parking_spots()).collect(),
         }
     }
 
@@ -98,7 +98,7 @@ impl ParkingLane {
         self.spots
             .iter()
             .rfind(|&&x| x.is_some())
-            .map(|r| r.unwrap())
+            .map(|l| l.unwrap())
     }
 
     fn remove_last_parked_car(&mut self, car: CarID) {
@@ -111,7 +111,7 @@ impl ParkingLane {
     }
 
     fn get_draw_cars(&self, map: &Map) -> Vec<DrawCar> {
-        let r = map.get_r(self.r);
+        let l = map.get_l(self.l);
         // TODO this is slow to do constantly! can we precompute for each spot or something like
         // that?
         self.spots
@@ -120,7 +120,7 @@ impl ParkingLane {
             .filter_map(|(idx, maybe_id)| {
                 maybe_id.and_then(|id| {
                     let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
-                    let (front, angle) = r.dist_along(
+                    let (front, angle) = l.dist_along(
                         spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
                     );
                     Some(DrawCar::new(id, None, map, front, angle))

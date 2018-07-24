@@ -3,7 +3,7 @@
 use colors::{ColorScheme, Colors};
 use ezgui::input::UserInput;
 use graphics::types::Color;
-use map_model::{Map, Road, RoadID};
+use map_model::{Lane, LaneID, Map};
 use piston::input::Key;
 use std::collections::{HashSet, VecDeque};
 
@@ -11,9 +11,9 @@ use std::collections::{HashSet, VecDeque};
 pub enum Floodfiller {
     Inactive,
     Active {
-        visited: HashSet<RoadID>,
+        visited: HashSet<LaneID>,
         // Order of expansion doesn't really matter, could use other things here
-        queue: VecDeque<RoadID>,
+        queue: VecDeque<LaneID>,
     },
 }
 
@@ -22,9 +22,9 @@ impl Floodfiller {
         Floodfiller::Inactive
     }
 
-    // TODO doesn't guarantee all visited roads are connected? are dead-ends possible with the
+    // TODO doesn't guarantee all visited lanes are connected? are dead-ends possible with the
     // current turn definitions?
-    pub fn start(start: RoadID) -> Floodfiller {
+    pub fn start(start: LaneID) -> Floodfiller {
         let mut queue = VecDeque::new();
         queue.push_back(start);
         Floodfiller::Active {
@@ -64,18 +64,18 @@ impl Floodfiller {
         active
     }
 
-    pub fn color_r(&self, r: &Road, cs: &ColorScheme) -> Option<Color> {
+    pub fn color_l(&self, l: &Lane, cs: &ColorScheme) -> Option<Color> {
         match self {
             Floodfiller::Inactive => None,
             Floodfiller::Active { visited, queue } => {
-                if visited.contains(&r.id) {
+                if visited.contains(&l.id) {
                     return Some(cs.get(Colors::Visited));
                 }
-                if !queue.is_empty() && *queue.front().unwrap() == r.id {
+                if !queue.is_empty() && *queue.front().unwrap() == l.id {
                     return Some(cs.get(Colors::NextQueued));
                 }
                 // TODO linear search shouldnt suck too much for interactive mode
-                if queue.contains(&r.id) {
+                if queue.contains(&l.id) {
                     return Some(cs.get(Colors::Queued));
                 }
                 None
@@ -84,18 +84,18 @@ impl Floodfiller {
     }
 }
 
-fn step(visited: &mut HashSet<RoadID>, queue: &mut VecDeque<RoadID>, map: &Map) -> bool {
+fn step(visited: &mut HashSet<LaneID>, queue: &mut VecDeque<LaneID>, map: &Map) -> bool {
     loop {
         if queue.is_empty() {
             return true;
         }
 
-        let r = map.get_r(queue.pop_front().unwrap());
-        if visited.contains(&r.id) {
+        let l = map.get_l(queue.pop_front().unwrap());
+        if visited.contains(&l.id) {
             continue;
         }
-        visited.insert(r.id);
-        for next in &map.get_next_roads(r.id) {
+        visited.insert(l.id);
+        for next in &map.get_next_lanes(l.id) {
             if !visited.contains(&next.id) {
                 queue.push_back(next.id);
             }

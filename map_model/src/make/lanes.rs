@@ -1,5 +1,5 @@
+use lane::LaneType;
 use raw_data;
-use road::LaneType;
 use std::iter;
 
 // (original direction, reversed direction)
@@ -22,7 +22,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         1
     };
     // TODO debugging convenience
-    let only_roads_for_debugging = false;
+    let only_driving_lanes_for_debugging = false;
 
     if junction {
         return (vec![LaneType::Driving], Vec::new());
@@ -33,7 +33,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(num_driving_lanes / 2)
         .collect();
-    if only_roads_for_debugging || big_highway {
+    if only_driving_lanes_for_debugging || big_highway {
         if oneway {
             let mut all_lanes = Vec::new();
             all_lanes.extend(driving_lanes.clone());

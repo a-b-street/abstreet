@@ -5,7 +5,7 @@ use geom::{Angle, Line, Pt2D};
 use std::f64;
 use std::fmt;
 use IntersectionID;
-use RoadID;
+use LaneID;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -23,8 +23,8 @@ pub struct Turn {
     // src and dst must both belong to parent. No guarantees that src is incoming and dst is
     // outgoing for turns between sidewalks.
     pub parent: IntersectionID,
-    pub src: RoadID,
-    pub dst: RoadID,
+    pub src: LaneID,
+    pub dst: LaneID,
     pub(crate) between_sidewalks: bool,
 
     /// GeomTurn stuff
@@ -52,7 +52,7 @@ impl Turn {
         self.line.intersects(&other.line)
     }
 
-    // TODO share impl with GeomRoad
+    // TODO share impl with GeomLane
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         (self.line.dist_along(dist_along), self.line.angle())
     }

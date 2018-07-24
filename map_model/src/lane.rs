@@ -16,11 +16,11 @@ pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct RoadID(pub usize);
+pub struct LaneID(pub usize);
 
-impl fmt::Display for RoadID {
+impl fmt::Display for LaneID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "RoadID({0})", self.0)
+        write!(f, "LaneID({0})", self.0)
     }
 }
 
@@ -33,8 +33,8 @@ pub enum LaneType {
 }
 
 #[derive(Debug)]
-pub struct Road {
-    pub id: RoadID,
+pub struct Lane {
+    pub id: LaneID,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
     pub lane_type: LaneType,
@@ -54,12 +54,12 @@ pub struct Road {
 
     // Need to remember this just for detecting U-turns here. Also for finding sidewalks to connect
     // with a crosswalk.
-    pub other_side: Option<RoadID>,
+    pub other_side: Option<LaneID>,
     // TODO alright, we might need a Road-vs-Lanes distinction
-    pub siblings: Vec<RoadID>,
+    pub siblings: Vec<LaneID>,
     pub orig_road_idx: usize,
 
-    /// GeomRoad stuff
+    /// GeomLane stuff
     pub lane_center_pts: PolyLine,
 
     // Remember that lane_center_pts and derived geometry is probably broken. Might be better to
@@ -71,13 +71,13 @@ pub struct Road {
     pub unshifted_pts: PolyLine,
 }
 
-impl PartialEq for Road {
-    fn eq(&self, other: &Road) -> bool {
+impl PartialEq for Lane {
+    fn eq(&self, other: &Lane) -> bool {
         self.id == other.id
     }
 }
 
-impl Road {
+impl Lane {
     // TODO most of these are wrappers; stop doing this?
     pub fn first_pt(&self) -> Pt2D {
         self.lane_center_pts.first_pt()

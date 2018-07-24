@@ -292,3 +292,32 @@ parking -> parkd;
 	- master sim owns driving and parking state. a CarID is managed by exactly one. master sim has to enforce that.
 	- master sim owns car state as an enum, calls high-level step-forward functions for driving and parking
 		- perf: cant iterate just the active cars?
+
+## Representing map edits
+
+Two reasons for edits:
+- the basemap is wrong because of bad OSM data or heuristics
+- here's a possible edit to A/B test
+
+Types of edits:
+- change lane type between driving, parking, biking
+	- sidewalks are fixed!
+	- some edits are illegal... parking lane has to be in a certain side... right? well, actually, dont do that yet.
+- delete a lane (because the basemap is wrong)
+- modify stop sign priorities
+- modify traffic signal timings
+
+How to visually diff edits?
+- highlight them
+- UI to quickly jump and see them
+
+How to encode the edits?
+- "Remove lane" is weird; how about per road, list the lane types? Then it's
+  almost kinda obvious how to plug into part of the current map making
+pipeline.
+- alright, let's really first think about road vs lane
+
+Need to work through some edits to see how they affect downstream things. What
+needs to be recomputed? How do we long-term serialize things like edits? How
+can they even refer to things by ID if the IDs could change? What IDs might
+change?

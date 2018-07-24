@@ -1,7 +1,7 @@
 use control::ControlMap;
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
-use map_model::{LaneType, Map, Road, RoadID, Turn, TurnID};
+use map_model::{Lane, LaneID, LaneType, Map, Turn, TurnID};
 use multimap::MultiMap;
 use rand::Rng;
 use std;
@@ -24,11 +24,11 @@ struct Pedestrian {
     // TODO si::Meter<f64> after serde support lands
     // TODO or since Tick is deliberately not f64, have a better type for Meters.
     dist_along: f64,
-    // Traveling along the road/turn in its original direction or not?
+    // Traveling along the lane/turn in its original direction or not?
     contraflow: bool,
 
-    // Head is the next road
-    path: VecDeque<RoadID>,
+    // Head is the next lane
+    path: VecDeque<LaneID>,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -64,7 +64,7 @@ impl Pedestrian {
             return true;
         }
 
-        let turn = map.get_turns_from_road(self.on.as_road())
+        let turn = map.get_turns_from_lane(self.on.as_lane())
             .iter()
             .find(|t| t.dst == self.path[0])
             .unwrap()
@@ -85,19 +85,19 @@ impl Pedestrian {
         }
 
         let turn = map.get_t(self.on.as_turn());
-        let road = map.get_r(turn.dst);
-        self.on = On::Road(road.id);
+        let lane = map.get_l(turn.dst);
+        self.on = On::Lane(lane.id);
 
         // Which end of the sidewalk are we entering?
         // TODO are there cases where we should enter a new sidewalk and immediately enter a
         // different turn, instead of always going to the other side of the sidealk? or are there
         // enough turns to make that unnecessary?
-        if turn.parent == road.src_i {
+        if turn.parent == lane.src_i {
             self.contraflow = false;
             self.dist_along = 0.0;
         } else {
             self.contraflow = true;
-            self.dist_along = road.length().value_unsafe;
+            self.dist_along = lane.length().value_unsafe;
         }
     }
 }
@@ -105,7 +105,7 @@ impl Pedestrian {
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub(crate) struct WalkingSimState {
     // Trying a different style than driving for storing things
-    peds_per_sidewalk: MultiMap<RoadID, Pedestrian>,
+    peds_per_sidewalk: MultiMap<LaneID, Pedestrian>,
     peds_per_turn: MultiMap<TurnID, Pedestrian>,
 
     id_counter: usize,
@@ -130,16 +130,16 @@ impl WalkingSimState {
         // TODO but wait, the interactions with the intersections aren't deterministic!
 
         // TODO not sure how to do this most fluidly and performantly. might even make more sense
-        // to just have a slotmap of peds, then a multimap from road->ped IDs to speed up drawing.
+        // to just have a slotmap of peds, then a multimap from lane->ped IDs to speed up drawing.
         // since we seemingly can't iterate and consume a MultiMap, slotmap really seems best.
-        let mut new_per_sidewalk: MultiMap<RoadID, Pedestrian> = MultiMap::new();
+        let mut new_per_sidewalk: MultiMap<LaneID, Pedestrian> = MultiMap::new();
         let mut new_per_turn: MultiMap<TurnID, Pedestrian> = MultiMap::new();
 
         for (_, peds) in self.peds_per_sidewalk.iter_all_mut() {
             for p in peds.iter_mut() {
                 if !p.step_sidewalk(delta_time, map, control_map) {
                     match p.on {
-                        On::Road(id) => new_per_sidewalk.insert(id, p.clone()),
+                        On::Lane(id) => new_per_sidewalk.insert(id, p.clone()),
                         On::Turn(id) => new_per_turn.insert(id, p.clone()),
                     };
                 }
@@ -149,7 +149,7 @@ impl WalkingSimState {
             for p in peds.iter_mut() {
                 p.step_turn(delta_time, map, control_map);
                 match p.on {
-                    On::Road(id) => new_per_sidewalk.insert(id, p.clone()),
+                    On::Lane(id) => new_per_sidewalk.insert(id, p.clone()),
                     On::Turn(id) => new_per_turn.insert(id, p.clone()),
                 };
             }
@@ -159,12 +159,12 @@ impl WalkingSimState {
         self.peds_per_turn = new_per_turn;
     }
 
-    pub fn get_draw_peds_on_road(&self, r: &Road) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_lane(&self, l: &Lane) -> Vec<DrawPedestrian> {
         let mut result = Vec::new();
-        for p in self.peds_per_sidewalk.get_vec(&r.id).unwrap_or(&Vec::new()) {
+        for p in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
             result.push(DrawPedestrian::new(
                 p.id,
-                r.dist_along(p.dist_along * si::M).0,
+                l.dist_along(p.dist_along * si::M).0,
             ));
         }
         result
@@ -187,10 +187,10 @@ impl WalkingSimState {
         map: &Map,
         num_peds: usize,
     ) -> usize {
-        let mut sidewalks: Vec<RoadID> = Vec::new();
-        for r in map.all_roads() {
-            if r.lane_type == LaneType::Sidewalk {
-                sidewalks.push(r.id);
+        let mut sidewalks: Vec<LaneID> = Vec::new();
+        for l in map.all_lanes() {
+            if l.lane_type == LaneType::Sidewalk {
+                sidewalks.push(l.id);
             }
         }
 
@@ -208,7 +208,7 @@ impl WalkingSimState {
         &mut self,
         rng: &mut R,
         map: &Map,
-        start: RoadID,
+        start: LaneID,
     ) -> bool {
         if let Some(path) = pick_goal_and_find_path(rng, map, start) {
             let id = PedestrianID(self.id_counter);
@@ -220,7 +220,7 @@ impl WalkingSimState {
                     id,
                     path,
                     contraflow,
-                    on: On::Road(start),
+                    on: On::Lane(start),
                     // TODO start next to a building path, or at least some random position
                     dist_along: 0.0,
                 },
@@ -232,6 +232,6 @@ impl WalkingSimState {
     }
 }
 
-fn is_contraflow(map: &Map, from: RoadID, to: RoadID) -> bool {
-    map.get_r(from).dst_i != map.get_r(to).src_i
+fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
+    map.get_l(from).dst_i != map.get_l(to).src_i
 }

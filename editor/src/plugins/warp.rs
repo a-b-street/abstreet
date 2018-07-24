@@ -1,7 +1,7 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
-use map_model::{geometry, BuildingID, IntersectionID, Map, ParcelID, RoadID};
+use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 use std::usize;
@@ -60,9 +60,9 @@ fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut Sele
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
-                let id = RoadID(idx);
-                *selection_state = SelectionState::SelectedRoad(id, None);
-                map.get_r(id).first_pt()
+                let id = LaneID(idx);
+                *selection_state = SelectionState::SelectedLane(id, None);
+                map.get_l(id).first_pt()
             }
             'i' => {
                 let id = IntersectionID(idx);
