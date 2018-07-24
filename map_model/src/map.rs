@@ -10,6 +10,7 @@ use lane::{Lane, LaneID, LaneType};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
+use road::RoadID;
 use std::collections::HashMap;
 use std::io::Error;
 use turn::{Turn, TurnID};
@@ -115,7 +116,7 @@ impl Map {
                     osm_tags: r.osm_tags.clone(),
                     osm_way_id: r.osm_way_id,
                     lane_type: lane.lane_type,
-                    orig_road_idx: idx,
+                    road: RoadID(idx),
                 });
             }
         }

@@ -6,7 +6,7 @@ use std;
 use std::collections::BTreeMap;
 use std::f64;
 use std::fmt;
-use IntersectionID;
+use {IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
     // TODO look up a real value
@@ -57,7 +57,7 @@ pub struct Lane {
     pub other_side: Option<LaneID>,
     // TODO alright, we might need a Road-vs-Lanes distinction
     pub siblings: Vec<LaneID>,
-    pub orig_road_idx: usize,
+    pub road: RoadID,
 
     /// GeomLane stuff
     pub lane_center_pts: PolyLine,

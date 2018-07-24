@@ -1,7 +1,7 @@
 use abstutil::MultiMap;
 use geom::Line;
 use std::collections::HashSet;
-use {Intersection, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
 pub(crate) fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
     let incoming: Vec<LaneID> = i.incoming_lanes
@@ -21,28 +21,28 @@ pub(crate) fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize
 
 pub(crate) fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
     // TODO great further evidence of needing a road/lane distinction
-    let mut incoming_roads: HashSet<usize> = HashSet::new();
-    let mut incoming_bike_lanes_per_road: MultiMap<usize, LaneID> = MultiMap::new();
-    let mut incoming_driving_lanes_per_road: MultiMap<usize, LaneID> = MultiMap::new();
+    let mut incoming_roads: HashSet<RoadID> = HashSet::new();
+    let mut incoming_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
+    let mut incoming_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.incoming_lanes {
         let l = m.get_l(*id);
-        incoming_roads.insert(l.orig_road_idx);
+        incoming_roads.insert(l.road);
         match l.lane_type {
-            LaneType::Biking => incoming_bike_lanes_per_road.insert(l.orig_road_idx, *id),
-            LaneType::Driving => incoming_driving_lanes_per_road.insert(l.orig_road_idx, *id),
+            LaneType::Biking => incoming_bike_lanes_per_road.insert(l.road, *id),
+            LaneType::Driving => incoming_driving_lanes_per_road.insert(l.road, *id),
             _ => {}
         };
     }
 
-    let mut outgoing_roads: HashSet<usize> = HashSet::new();
-    let mut outgoing_bike_lanes_per_road: MultiMap<usize, LaneID> = MultiMap::new();
-    let mut outgoing_driving_lanes_per_road: MultiMap<usize, LaneID> = MultiMap::new();
+    let mut outgoing_roads: HashSet<RoadID> = HashSet::new();
+    let mut outgoing_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
+    let mut outgoing_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     for id in &i.outgoing_lanes {
         let l = m.get_l(*id);
-        outgoing_roads.insert(l.orig_road_idx);
+        outgoing_roads.insert(l.road);
         match l.lane_type {
-            LaneType::Biking => outgoing_bike_lanes_per_road.insert(l.orig_road_idx, *id),
-            LaneType::Driving => outgoing_driving_lanes_per_road.insert(l.orig_road_idx, *id),
+            LaneType::Biking => outgoing_bike_lanes_per_road.insert(l.road, *id),
+            LaneType::Driving => outgoing_driving_lanes_per_road.insert(l.road, *id),
             _ => {}
         };
     }

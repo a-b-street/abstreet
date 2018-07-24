@@ -128,10 +128,10 @@ impl DrawLane {
                 l.osm_tags.get("name").unwrap_or(&"???".to_string())
             ),
             format!(
-                "From OSM way {}, with {} polygons, orig road idx {}",
+                "From OSM way {}, with {} polygons, parent is {}",
                 l.osm_way_id,
                 self.polygons.len(),
-                l.orig_road_idx,
+                l.road,
             ),
             format!(
                 "Lane goes from {} to {}",
