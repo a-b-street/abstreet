@@ -1,5 +1,5 @@
 use ezgui::input::UserInput;
-use map_model::{Edits, Map};
+use map_model::{EditReason, Edits, LaneType, Map};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 
@@ -37,7 +37,31 @@ impl RoadEditor {
                 if input.key_pressed(Key::Return, "Press enter to stop editing roads") {
                     new_state = Some(RoadEditor::Inactive(edits.clone()));
                 } else if let SelectionState::SelectedLane(id, _) = *current_selection {
-                    // TODO the magic
+                    let lane = map.get_l(id);
+                    let road = map.get_r(lane.parent);
+                    let reason = EditReason::BasemapWrong; // TODO be able to choose
+
+                    // TODO filter out no-ops
+                    if input.key_pressed(Key::D, "Press D to make this a driving lane") {
+                        if !edits.change_lane_type(reason, road, lane, LaneType::Driving) {
+                            println!("Invalid edit");
+                        }
+                    }
+                    if input.key_pressed(Key::P, "Press p to make this a parking lane") {
+                        if !edits.change_lane_type(reason, road, lane, LaneType::Parking) {
+                            println!("Invalid edit");
+                        }
+                    }
+                    if input.key_pressed(Key::B, "Press b to make this a bike lane") {
+                        if !edits.change_lane_type(reason, road, lane, LaneType::Biking) {
+                            println!("Invalid edit");
+                        }
+                    }
+                    if input.key_pressed(Key::Backspace, "Press backspace to delete this lane") {
+                        if !edits.delete_lane(road, lane) {
+                            println!("Invalid edit");
+                        }
+                    }
                 }
 
                 true

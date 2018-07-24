@@ -110,6 +110,7 @@ impl UserInput {
                 return true;
             }
         }
+        // TODO stringify the key, so we don't have to say what to press!
         self.important_actions.push(String::from(action));
         false
     }

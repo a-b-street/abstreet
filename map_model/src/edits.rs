@@ -14,10 +14,32 @@ impl Edits {
             roads: BTreeMap::new(),
         }
     }
+
+    pub fn change_lane_type(
+        &mut self,
+        reason: EditReason,
+        r: &Road,
+        lane: &Lane,
+        new_type: LaneType,
+    ) -> bool {
+        if let Some(edit) = RoadEdit::change_lane_type(reason, r, lane, new_type) {
+            self.roads.insert(r.id, edit);
+            return true;
+        }
+        false
+    }
+
+    pub fn delete_lane(&mut self, r: &Road, lane: &Lane) -> bool {
+        if let Some(edit) = RoadEdit::delete_lane(r, lane) {
+            self.roads.insert(r.id, edit);
+            return true;
+        }
+        false
+    }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum Reason {
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum EditReason {
     BasemapWrong,
     Hypothetical,
 }
@@ -27,12 +49,12 @@ pub struct RoadEdit {
     road: RoadID,
     forwards_lanes: Vec<LaneType>,
     backwards_lanes: Vec<LaneType>,
-    reason: Reason,
+    reason: EditReason,
 }
 
 impl RoadEdit {
-    pub fn change_lane_type(
-        reason: Reason,
+    fn change_lane_type(
+        reason: EditReason,
         r: &Road,
         lane: &Lane,
         new_type: LaneType,
@@ -40,13 +62,17 @@ impl RoadEdit {
         let (mut forwards, mut backwards) = r.get_lane_types();
         let (is_fwd, idx) = r.dir_and_offset(lane.id);
         if is_fwd {
-            assert_ne!(forwards[idx], new_type);
+            if forwards[idx] == new_type {
+                return None;
+            }
             forwards[idx] = new_type;
             if !are_lanes_valid(&forwards) {
                 return None;
             }
         } else {
-            assert_ne!(backwards[idx], new_type);
+            if backwards[idx] == new_type {
+                return None;
+            }
             backwards[idx] = new_type;
             if !are_lanes_valid(&backwards) {
                 return None;
@@ -61,7 +87,7 @@ impl RoadEdit {
         })
     }
 
-    pub fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
+    fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
         // Sidewalks are fixed
         if lane.lane_type == LaneType::Sidewalk {
             return None;
@@ -79,7 +105,7 @@ impl RoadEdit {
             road: r.id,
             forwards_lanes: forwards,
             backwards_lanes: backwards,
-            reason: Reason::BasemapWrong,
+            reason: EditReason::BasemapWrong,
         })
     }
 }

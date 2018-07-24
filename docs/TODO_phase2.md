@@ -26,6 +26,5 @@
 - be able to change road directions
 
 - basic road edits
-	- UI to make edits and savestate
 	- load edits, use in original map making
 	- apply edits to live map and recompute everything needed
