@@ -31,6 +31,7 @@ pub struct DrawLane {
 
 impl DrawLane {
     pub fn new(lane: &map_model::Lane, map: &map_model::Map) -> DrawLane {
+        let road = map.get_r(lane.parent);
         let start = perp_line(lane.first_line(), geometry::LANE_THICKNESS);
         let end = perp_line(lane.last_line().reverse(), geometry::LANE_THICKNESS);
 
@@ -38,10 +39,9 @@ impl DrawLane {
             .make_polygons_blindly(geometry::LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
-        if lane.use_yellow_center_lines {
+        if road.is_canonical_lane(lane.id) {
             markings.push(Marking {
-                lines: map.get_r(lane.parent)
-                    .center_pts
+                lines: road.center_pts
                     .points()
                     .windows(2)
                     .map(|pair| [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()])
@@ -54,7 +54,7 @@ impl DrawLane {
         for m in match lane.lane_type {
             map_model::LaneType::Sidewalk => Some(calculate_sidewalk_lines(lane)),
             map_model::LaneType::Parking => Some(calculate_parking_lines(lane)),
-            map_model::LaneType::Driving => calculate_driving_lines(lane),
+            map_model::LaneType::Driving => calculate_driving_lines(lane, road),
             map_model::LaneType::Biking => None,
         } {
             markings.push(m);
@@ -225,9 +225,9 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
     }
 }
 
-fn calculate_driving_lines(lane: &map_model::Lane) -> Option<Marking> {
-    // Only multi-lane lanes have dashed white lines.
-    if lane.offset == 0 {
+fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> Option<Marking> {
+    // The rightmost lanes don't have dashed white lines.
+    if parent.lane_offset(lane.id) == 0 {
         return None;
     }
 

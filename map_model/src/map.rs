@@ -73,6 +73,8 @@ impl Map {
                 id: road_id,
                 osm_tags: r.osm_tags.clone(),
                 osm_way_id: r.osm_way_id,
+                children_forwards: Vec::new(),
+                children_backwards: Vec::new(),
                 center_pts: road_center_pts.clone(),
             });
 
@@ -98,11 +100,6 @@ impl Map {
                 m.intersections[i1.0].outgoing_lanes.push(id);
                 m.intersections[i2.0].incoming_lanes.push(id);
 
-                let use_yellow_center_lines = if let Some(other) = other_side {
-                    id.0 < other.0
-                } else {
-                    lane.offset == 0
-                };
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 // Reverse points for British-style driving on the left
@@ -118,15 +115,18 @@ impl Map {
                     id,
                     other_side,
                     siblings,
-                    use_yellow_center_lines,
                     lane_center_pts,
                     probably_broken,
-                    offset: lane.offset,
                     src_i: i1,
                     dst_i: i2,
                     lane_type: lane.lane_type,
                     parent: road_id,
                 });
+                if lane.reverse_pts {
+                    m.roads[road_id.0].children_backwards.push(id);
+                } else {
+                    m.roads[road_id.0].children_forwards.push(id);
+                }
             }
         }
 

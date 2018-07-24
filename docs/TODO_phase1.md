@@ -5,7 +5,7 @@
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - road with many lanes
-	- make road know about children in each direction
+	- remove offset stuff from lanespec! \o/
 	- make intersection know about roads, not lanes
 		- make/turns can use this especially. intersections should refer to different things.
 	- clean up all state in lane
