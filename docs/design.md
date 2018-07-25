@@ -321,3 +321,108 @@ Need to work through some edits to see how they affect downstream things. What
 needs to be recomputed? How do we long-term serialize things like edits? How
 can they even refer to things by ID if the IDs could change? What IDs might
 change?
+
+Alright, now we can be concrete -- when we have a road edit, what can be affected?
+
+MAP LAYER:
+
+- the road struct state (just list of children, really)
+	- dont want to blindly run all the road making code, since it'd double-add stuff to intersection
+- delete old lanes, make new lanes
+	- how would IDs work? if we try to reuse the old ones, we might wind up
+	  with gaps, or overflowing available space.
+- trim lanes
+	- need to recalculate original lane_center_pts for all affected lanes
+	  in a certain direction. tricky since they're two-sided; have to
+	  restore just the original direction on it.
+- recalculate turns, for the two intersections
+	- same ID problem
+- recalculate some building front paths, maybe
+
+CONTROL LAYER:
+
+- recalculate two intersections
+
+SIM LAYER:
+
+- creating/deleting sidewalks is pretty easy
+- SimQueues are associated with turns and lanes, but easyish to create/delete later
+- should probably have a way to prevent mutations; maybe need to drain a lane of agents before changing it
+
+UI:
+
+- make a new DrawLane, DrawIntersection, etc
+- update quadtrees
+- would have to maybe update a bunch of plugin state (highlighting or
+  floodfilling or something), but since we know road editor is active, is easy!
+
+
+
+Strategies:
+- testing via equivalence -- reload from scratch should be equal to live edits
+	- will IDs make this very tricky?
+- for things like sim and UI that hook on and have derived state, should we
+  always kinda lazily grab DrawRoads, SimQueues, etc? or immediately plumb
+  through deletes and inserts?
+- is there a way to programatically record data dependencies or kinda do FRPish stuff from the start?
+- could always blindly recalculate everything live, but man, that's gotta be slow
+- maybe change constructors that take full map into incremental "hey, this road exists!" mutations. then just need to introduce deletions. in other words, embrace incremental mutability.
+- assume the bbox doesn't change as a result of any edit
+
+
+
+the ID problem:
+- need determinism and deep equality checks for things. if we load a map from
+  scratch with edits, vs do a live shuffle, the IDs wont match up if they use a
+  slotmap.
+- can we refer to things in more stable ways; no LaneID, but
+  RoadID+direction+offset. no Turn, but two... effectively lane IDs?
+- maybe we can combine these ideas; use nondet slotmaps, but when doing
+  equality checks, dont use these IDs -- treat these IDs as memory addresses.
+  IDs for lookup and IDs for equality.
+- what're the different things that need this?
+	- stable objects: building, intersection, parcel, road
+	- malleable
+		- lane (road, direction, offset, lane type)
+		- turn (src lane, dst lane)
+			- recurse and refer to full lane descriptions, or their temporary ID?
+- ideally want to store things contiguously in memory
+- ideally want a compact, easy thing to type quickly to debug.
+- aka, ideally want a nice bijection from the persistent thing to numbers?
+- actually, if we "leave room for" enough lanes per road and turns per intersection to begin with...
+	- can just replace existing IDs when we change something
+	- still have to mark things dead
+	- still have to watch out for dangling references
+
+
+The changes needed:
+- figure out the ID problem
+- change existing code from big constructors to incremental adds
+	- exactly what layers and objects?
+- implement incremental deletes
+- try doing a live edit and comparing with from scratch
+
+
+Going to start implementing part of this in a branch, just to get more detail.
+
+- when there's a road edit, calculate the affected objects (road and all children, two intersections)
+- implement a sanity check to make sure no dangling ref to old IDs
+
+I think this is working so far. The vital question: is it too complicated? Is there a simpler way?
+- simpler idea: retain more raw data, violently destroy road and intersection and make from scratch
+	- problem: it'd percolate, we need to keep old connected roads the same
+- EVEN SIMPLER IDEA: stop trying to solve hard problems
+	- lane deletion is rare and a basemap-only edit; can mark it in the UI temporarily and omit in the next full load
+	- changing lane types is the main intended edit. what actual consequences does this have? filtering through the list earlier...
+		- change lane type
+		- recalculate all turns for two intersections
+			- the number of turns might go up or down
+		- control layer intersection policies then need updating
+		- sim needs to know about changed lanes and turns
+		- and a few easy edits in the UI layer too
+	- changing lane direction might be a little more complicated, but NOT BY MUCH
+
+so, I think the steps:
+- see what's useful from this branch, bring it to master (encapsulating the driving state stuff)
+- ditch TurnIDs; have a BTreeMap of src/dst (LaneID, LaneID)
+- add a mutate_lanes() and replace_turns() to all the appropriate layers

@@ -5,7 +5,8 @@ extern crate geo;
 extern crate geom;
 extern crate graphics;
 extern crate ordered_float;
-#[macro_use] extern crate pretty_assertions;
+#[macro_use]
+extern crate pretty_assertions;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

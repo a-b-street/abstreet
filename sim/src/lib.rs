@@ -9,7 +9,8 @@ extern crate geom;
 extern crate graphics;
 extern crate map_model;
 extern crate multimap;
-#[macro_use] extern crate pretty_assertions;
+#[macro_use]
+extern crate pretty_assertions;
 extern crate rand;
 extern crate serde;
 #[macro_use]

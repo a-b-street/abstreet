@@ -28,3 +28,5 @@
 - basic road edits
 	- apply edits to live map and recompute everything needed
 	- multiple edits to a road should work
+
+- undo support!
