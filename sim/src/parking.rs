@@ -24,7 +24,7 @@ impl ParkingSimState {
         }
     }
 
-    pub fn remove_lane(&mut self, id: LaneID) {
+    pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
         self.lanes[id.0] = ParkingLane {
             l: id,
@@ -32,7 +32,7 @@ impl ParkingSimState {
         };
     }
 
-    pub fn add_lane(&mut self, l: &Lane) {
+    pub fn edit_add_lane(&mut self, l: &Lane) {
         self.lanes[l.id.0] = ParkingLane::new(l);
     }
 

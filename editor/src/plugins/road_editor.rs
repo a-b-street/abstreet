@@ -89,30 +89,26 @@ impl RoadEditor {
             // intermediate states are scary. maybe pass old and new struct for intersection (aka
             // list of turns)?
 
-            /*
             // Remove turns
             for i in &intersections {
                 for t in &map.get_i(*i).turns {
                     draw_map.edit_remove_turn(*t);
-                    sim.edit_remove_turn(*t);
+                    sim.edit_remove_turn(map.get_t(*t));
                 }
             }
-            */
 
             let old_type = map.get_l(id).lane_type;
             map.edit_lane_type(id, new_type);
             draw_map.edit_lane_type(id, map);
             sim.edit_lane_type(id, old_type, map);
 
-            /*
             // Add turns back
             for i in &intersections {
                 for t in &map.get_i(*i).turns {
-                    draw_map.edit_add_turn(*t);
-                    sim.edit_add_turn(*t);
+                    draw_map.edit_add_turn(*t, map);
+                    sim.edit_add_turn(map.get_t(*t), map);
                 }
             }
-            */
         }
         active
     }

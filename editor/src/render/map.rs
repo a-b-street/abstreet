@@ -3,7 +3,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geom::{LonLat, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID, Turn, TurnID};
+use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
 use plugins::selection::Hider;
 use render::building::DrawBuilding;
 use render::intersection::DrawIntersection;
@@ -36,23 +36,7 @@ impl DrawMap {
 
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
         for l in map.all_lanes() {
-            // Split into two groups, based on the endpoint
-            let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_lane(l.id)
-                .iter()
-                .partition(|t| t.parent == l.dst_i);
-
-            // Sort the turn icons by angle.
-            pair.0
-                .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
-            pair.1
-                .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
-
-            for (idx, t) in pair.0.iter().enumerate() {
-                turn_to_lane_offset.insert(t.id, idx);
-            }
-            for (idx, t) in pair.1.iter().enumerate() {
-                turn_to_lane_offset.insert(t.id, idx);
-            }
+            DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, l, map);
         }
         assert_eq!(turn_to_lane_offset.len(), map.all_turns().len());
 
@@ -123,6 +107,26 @@ impl DrawMap {
         )
     }
 
+    fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {
+        // Split into two groups, based on the endpoint
+        let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_lane(l.id)
+            .iter()
+            .partition(|t| t.parent == l.dst_i);
+
+        // Sort the turn icons by angle.
+        pair.0
+            .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+        pair.1
+            .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+
+        for (idx, t) in pair.0.iter().enumerate() {
+            result.insert(t.id, idx);
+        }
+        for (idx, t) in pair.1.iter().enumerate() {
+            result.insert(t.id, idx);
+        }
+    }
+
     pub fn edit_lane_type(&mut self, id: LaneID, map: &Map) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
         self.lanes[id.0] = DrawLane::new(map.get_l(id), map);
@@ -140,8 +144,14 @@ impl DrawMap {
         self.turn_icons_quadtree.remove(item_id);
     }
 
-    pub fn edit_add_turn(&mut self, id: TurnID) {
-        // TODO
+    pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
+        let t = map.get_t(id);
+        let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
+        DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, map.get_l(t.src), map);
+        let draw_turn = DrawTurn::new(map, t, turn_to_lane_offset[&id]);
+        self.turn_icons_quadtree
+            .insert_with_box(id, draw_turn.get_bbox());
+        self.turns.insert(id, draw_turn);
     }
 
     // The alt to these is implementing std::ops::Index, but that's way more verbose!

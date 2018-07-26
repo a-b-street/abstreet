@@ -120,11 +120,19 @@ impl WalkingSimState {
         }
     }
 
-    pub fn remove_lane(&mut self, id: LaneID) {
+    pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert_eq!(self.peds_per_sidewalk.get_vec(&id), None);
     }
 
-    pub fn add_lane(&mut self, _id: LaneID) {
+    pub fn edit_add_lane(&mut self, _id: LaneID) {
+        // No-op
+    }
+
+    pub fn edit_remove_turn(&mut self, id: TurnID) {
+        assert_eq!(self.peds_per_turn.get_vec(&id), None);
+    }
+
+    pub fn edit_add_turn(&mut self, _id: TurnID) {
         // No-op
     }
 

@@ -5,7 +5,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
-use map_model::{LaneID, LaneType, Map, TurnID};
+use map_model::{LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::f64;
@@ -55,23 +55,35 @@ impl Sim {
 
     pub fn edit_lane_type(&mut self, id: LaneID, old_type: LaneType, map: &Map) {
         match old_type {
-            LaneType::Driving => self.driving_state.remove_lane(id),
-            LaneType::Parking => self.parking_state.remove_lane(id),
-            LaneType::Sidewalk => self.walking_state.remove_lane(id),
+            LaneType::Driving => self.driving_state.edit_remove_lane(id),
+            LaneType::Parking => self.parking_state.edit_remove_lane(id),
+            LaneType::Sidewalk => self.walking_state.edit_remove_lane(id),
             LaneType::Biking => {}
         };
         let l = map.get_l(id);
         match l.lane_type {
-            LaneType::Driving => self.driving_state.add_lane(id),
-            LaneType::Parking => self.parking_state.add_lane(l),
-            LaneType::Sidewalk => self.walking_state.add_lane(id),
+            LaneType::Driving => self.driving_state.edit_add_lane(id),
+            LaneType::Parking => self.parking_state.edit_add_lane(l),
+            LaneType::Sidewalk => self.walking_state.edit_add_lane(id),
             LaneType::Biking => {}
         };
     }
 
-    pub fn edit_remove_turn(&mut self, id: TurnID) {}
+    pub fn edit_remove_turn(&mut self, t: &Turn) {
+        if t.between_sidewalks {
+            self.walking_state.edit_remove_turn(t.id);
+        } else {
+            self.driving_state.edit_remove_turn(t.id);
+        }
+    }
 
-    pub fn edit_add_turn(&mut self, id: TurnID) {}
+    pub fn edit_add_turn(&mut self, t: &Turn, map: &Map) {
+        if t.between_sidewalks {
+            self.walking_state.edit_add_turn(t.id);
+        } else {
+            self.driving_state.edit_add_turn(t.id, map);
+        }
+    }
 
     pub fn total_cars(&self) -> usize {
         self.car_id_counter

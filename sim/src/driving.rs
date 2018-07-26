@@ -253,12 +253,23 @@ impl DrivingSimState {
         s
     }
 
-    pub fn remove_lane(&mut self, id: LaneID) {
+    pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
     }
 
-    pub fn add_lane(&mut self, id: LaneID) {
+    pub fn edit_add_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
+    }
+
+    pub fn edit_remove_turn(&mut self, id: TurnID) {
+        if let Some(queue) = self.turns.get(&id) {
+            assert!(queue.is_empty());
+        }
+        self.turns.remove(&id);
+    }
+
+    pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
+        self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
     pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {

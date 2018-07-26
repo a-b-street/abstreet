@@ -174,7 +174,6 @@ impl Map {
         assert_ne!(self.get_l(lane).lane_type, new_type);
         self.lanes[lane.0].lane_type = new_type;
 
-        /*
         // Recalculate all of the turns at the two connected intersections.
         let intersections = self.get_l(lane).intersections();
         for i in &intersections {
@@ -187,7 +186,7 @@ impl Map {
                 self.intersections[i.0].turns.push(t.id);
                 self.turns.insert(t.id, t);
             }
-        }*/
+        }
     }
 
     pub fn all_roads(&self) -> &Vec<Road> {
