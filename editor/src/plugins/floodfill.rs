@@ -41,13 +41,13 @@ impl Floodfiller {
         let active = match self {
             Floodfiller::Inactive => false,
             Floodfiller::Active { visited, queue } => {
-                if input.key_pressed(Key::Return, "Press Enter to quit floodfilling") {
+                if input.key_pressed(Key::Return, "quit floodfilling") {
                     new_state = Some(Floodfiller::Inactive);
                 } else if !queue.is_empty() {
-                    if input.key_pressed(Key::Space, "Press space to step floodfilling forwards") {
+                    if input.key_pressed(Key::Space, "step floodfilling forwards") {
                         step(visited, queue, map);
                     }
-                    if input.key_pressed(Key::Tab, "Press tab to floodfill the rest of the map") {
+                    if input.key_pressed(Key::Tab, "floodfill the rest of the map") {
                         loop {
                             if step(visited, queue, map) {
                                 break;

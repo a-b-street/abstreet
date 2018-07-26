@@ -22,10 +22,8 @@ impl WarpState {
         let mut new_state: Option<WarpState> = None;
         let active = match self {
             WarpState::Empty => {
-                if input.unimportant_key_pressed(
-                    Key::J,
-                    "Press J to start searching for something to warp to",
-                ) {
+                if input.unimportant_key_pressed(Key::J, "start searching for something to warp to")
+                {
                     new_state = Some(WarpState::EnteringSearch(TextBox::new()));
                     true
                 } else {

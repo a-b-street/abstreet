@@ -38,7 +38,7 @@ impl ColorPicker {
         let mut new_state: Option<ColorPicker> = None;
         let active = match self {
             ColorPicker::Inactive => {
-                if input.unimportant_key_pressed(Key::D8, "Press 8 to configure colors") {
+                if input.unimportant_key_pressed(Key::D8, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(menu::Menu::new(
                         Colors::iter().map(|c| c.to_string()).collect(),
                     )));
@@ -64,17 +64,12 @@ impl ColorPicker {
             ColorPicker::PickingColor(c, orig_color) => {
                 if input.key_pressed(
                     Key::Escape,
-                    &format!(
-                        "Press escape to stop configuring color for {:?} and revert",
-                        c
-                    ),
+                    &format!("stop configuring color for {:?} and revert", c),
                 ) {
                     cs.set(*c, *orig_color);
                     new_state = Some(ColorPicker::Inactive);
-                } else if input.key_pressed(
-                    Key::Return,
-                    &format!("Press enter to finalize new color for {:?}", c),
-                ) {
+                } else if input.key_pressed(Key::Return, &format!("finalize new color for {:?}", c))
+                {
                     println!("Setting color for {:?}", c);
                     new_state = Some(ColorPicker::Inactive);
                 }

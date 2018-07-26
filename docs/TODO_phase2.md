@@ -25,8 +25,6 @@
 
 - be able to change road directions
 
-- basic road edits
-	- apply edits to live map and recompute everything needed
-	- multiple edits to a road should work
+- tests that edits + reload from scratch are equivalent
 
 - undo support!

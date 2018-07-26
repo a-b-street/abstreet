@@ -7,6 +7,7 @@ extern crate piston;
 
 pub mod canvas;
 pub mod input;
+mod keys;
 pub mod menu;
 pub mod text;
 pub mod text_box;

@@ -33,31 +33,31 @@ impl SimController {
 
     // true if the sim is running
     pub fn event(&mut self, input: &mut UserInput, map: &Map, control_map: &ControlMap) -> bool {
-        if input.unimportant_key_pressed(Key::LeftBracket, "Press [ to slow down sim") {
+        if input.unimportant_key_pressed(Key::LeftBracket, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
         }
-        if input.unimportant_key_pressed(Key::RightBracket, "Press ] to speed up sim") {
+        if input.unimportant_key_pressed(Key::RightBracket, "speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
-        if input.unimportant_key_pressed(Key::O, "Press O to save sim state") {
+        if input.unimportant_key_pressed(Key::O, "save sim state") {
             abstutil::write_json("sim_state", &self.sim).expect("Writing sim state failed");
             println!("Wrote sim_state");
         }
-        if input.unimportant_key_pressed(Key::P, "Press P to load sim state") {
+        if input.unimportant_key_pressed(Key::P, "load sim state") {
             self.sim = abstutil::read_json("sim_state").expect("sim state failed");
         }
         if self.last_step.is_some() {
-            if input.unimportant_key_pressed(Key::Space, "Press space to pause sim") {
+            if input.unimportant_key_pressed(Key::Space, "pause sim") {
                 self.last_step = None;
                 self.benchmark = None;
                 self.sim_speed = String::from("paused");
             }
         } else {
-            if input.unimportant_key_pressed(Key::Space, "Press space to run sim") {
+            if input.unimportant_key_pressed(Key::Space, "run sim") {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(self.sim.start_benchmark());
-            } else if input.unimportant_key_pressed(Key::M, "press M to run one step") {
+            } else if input.unimportant_key_pressed(Key::M, "run one step") {
                 self.sim.step(map, control_map);
             }
         }

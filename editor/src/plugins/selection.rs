@@ -68,16 +68,14 @@ impl SelectionState {
                 ) {
                     new_state = Some(SelectionState::TooltipLane(*id));
                     true
-                } else if input
-                    .key_pressed(Key::Tab, "Press Tab to cycle through this lane's turns")
-                {
+                } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
                     let idx = match *current_turn_index {
                         Some(i) => i + 1,
                         None => 0,
                     };
                     new_state = Some(SelectionState::SelectedLane(*id, Some(idx)));
                     true
-                } else if input.key_pressed(Key::D, "press D to debug") {
+                } else if input.key_pressed(Key::D, "debug") {
                     map.get_l(*id).dump_debug();
                     true
                 } else {
@@ -213,7 +211,7 @@ impl Hider {
     }
 
     pub fn event(&mut self, input: &mut UserInput, state: &mut SelectionState) -> bool {
-        if input.unimportant_key_pressed(Key::K, "Press k to unhide everything") {
+        if input.unimportant_key_pressed(Key::K, "unhide everything") {
             println!("Unhiding {} things", self.items.len());
             self.items.clear();
             return true;
@@ -226,7 +224,7 @@ impl Hider {
             _ => None,
         };
         if let Some(id) = item {
-            if input.unimportant_key_pressed(Key::H, &format!("Press h to hide {:?}", id)) {
+            if input.unimportant_key_pressed(Key::H, &format!("hide {:?}", id)) {
                 self.items.insert(id);
                 println!("Hiding {:?}", id);
                 *state = SelectionState::Empty;

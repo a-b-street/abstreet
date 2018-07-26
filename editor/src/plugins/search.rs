@@ -42,7 +42,7 @@ impl SearchState {
         let mut new_state: Option<SearchState> = None;
         let active = match self {
             SearchState::Empty => {
-                if input.unimportant_key_pressed(Key::Slash, "Press / to start searching") {
+                if input.unimportant_key_pressed(Key::Slash, "start searching") {
                     new_state = Some(SearchState::EnteringSearch(TextBox::new()));
                     true
                 } else {
@@ -59,7 +59,7 @@ impl SearchState {
             SearchState::FilterOSM(filter) => {
                 if input.key_pressed(
                     Key::Return,
-                    &format!("Press enter to clear the current search for {}", filter),
+                    &format!("clear the current search for {}", filter),
                 ) {
                     new_state = Some(SearchState::Empty);
                 }

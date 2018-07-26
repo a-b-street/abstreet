@@ -456,35 +456,31 @@ impl gui::GUI for UI {
             SelectionState::SelectedCar(id) => {
                 // TODO not sure if we should debug like this (pushing the bit down to all the
                 // layers representing an entity) or by using some scary global mutable singleton
-                if input.unimportant_key_pressed(Key::D, "press D to debug") {
+                if input.unimportant_key_pressed(Key::D, "debug") {
                     self.sim_ctrl.sim.toggle_debug(id);
                     return gui::EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedLane(id, _) => {
-                if input.key_pressed(Key::F, "Press F to start floodfilling from this lane") {
+                if input.key_pressed(Key::F, "start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
                     return gui::EventLoopMode::InputOnly;
                 }
 
-                if input.key_pressed(Key::A, "Press A to start something on this lane") {
+                if input.key_pressed(Key::A, "start something on this lane") {
                     self.sim_ctrl.sim.start_agent(&self.map, id);
                     return gui::EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedIntersection(id) => {
                 if self.control_map.traffic_signals.contains_key(&id) {
-                    if input.key_pressed(
-                        Key::E,
-                        &format!("Press E to edit traffic signal for {:?}", id),
-                    ) {
+                    if input.key_pressed(Key::E, &format!("edit traffic signal for {:?}", id)) {
                         self.traffic_signal_editor = TrafficSignalEditor::start(id);
                         return gui::EventLoopMode::InputOnly;
                     }
                 }
                 if self.control_map.stop_signs.contains_key(&id) {
-                    if input.key_pressed(Key::E, &format!("Press E to edit stop sign for {:?}", id))
-                    {
+                    if input.key_pressed(Key::E, &format!("edit stop sign for {:?}", id)) {
                         self.stop_sign_editor = StopSignEditor::start(id);
                         return gui::EventLoopMode::InputOnly;
                     }
@@ -496,7 +492,7 @@ impl gui::GUI for UI {
         // Do this one lastish, since it conflicts with lots of other stuff
         stop_if_done!(self.current_selection_state.event(input, &self.map));
 
-        if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
+        if input.unimportant_key_pressed(Key::Escape, "quit") {
             let state = EditorState {
                 cam_x: self.canvas.cam_x,
                 cam_y: self.canvas.cam_y,

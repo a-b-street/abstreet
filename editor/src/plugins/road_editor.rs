@@ -41,7 +41,7 @@ impl RoadEditor {
                 _ => false,
             },
             RoadEditor::Active(edits) => {
-                if input.key_pressed(Key::Return, "Press enter to stop editing roads") {
+                if input.key_pressed(Key::Return, "stop editing roads") {
                     new_state = Some(RoadEditor::Inactive(edits.clone()));
                 } else if let SelectionState::SelectedLane(id, _) = *current_selection {
                     let lane = map.get_l(id);
@@ -49,27 +49,27 @@ impl RoadEditor {
                     let reason = EditReason::BasemapWrong; // TODO be able to choose
 
                     if lane.lane_type != LaneType::Driving
-                        && input.key_pressed(Key::D, "Press D to make this a driving lane")
+                        && input.key_pressed(Key::D, "make this a driving lane")
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
                             changed = Some((lane.id, LaneType::Driving));
                         }
                     }
                     if lane.lane_type != LaneType::Parking
-                        && input.key_pressed(Key::P, "Press p to make this a parking lane")
+                        && input.key_pressed(Key::P, "make this a parking lane")
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
                             changed = Some((lane.id, LaneType::Parking));
                         }
                     }
                     if lane.lane_type != LaneType::Biking
-                        && input.key_pressed(Key::B, "Press b to make this a bike lane")
+                        && input.key_pressed(Key::B, "make this a bike lane")
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
                             changed = Some((lane.id, LaneType::Biking));
                         }
                     }
-                    if input.key_pressed(Key::Backspace, "Press backspace to delete this lane") {
+                    if input.key_pressed(Key::Backspace, "delete this lane") {
                         if edits.delete_lane(road, lane) {
                             println!("Have to reload the map from scratch to pick up this change!");
                         }

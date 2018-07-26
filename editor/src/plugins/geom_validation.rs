@@ -102,9 +102,7 @@ impl Validator {
                 current_problem,
             } => {
                 // Initialize or advance?
-                if !current_problem.is_some()
-                    || input.key_pressed(Key::N, "Press N to see the next problem")
-                {
+                if !current_problem.is_some() || input.key_pressed(Key::N, "see the next problem") {
                     // TODO do this in a bg thread or something
                     *current_problem = gen.next();
 
@@ -117,8 +115,7 @@ impl Validator {
                         println!("No more problems!");
                         new_state = Some(Validator::Inactive);
                     }
-                } else if input.key_pressed(Key::Escape, "Press Escape to stop looking at problems")
-                {
+                } else if input.key_pressed(Key::Escape, "stop looking at problems") {
                     println!("Quit geometry validator");
                     new_state = Some(Validator::Inactive);
                 }

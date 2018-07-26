@@ -42,7 +42,7 @@ impl TrafficSignalEditor {
         let active = match self {
             TrafficSignalEditor::Inactive => false,
             TrafficSignalEditor::Active { i, current_cycle } => {
-                if input.key_pressed(Key::Return, "Press enter to quit the editor") {
+                if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(TrafficSignalEditor::Inactive);
                 } else {
                     // Change cycles
@@ -68,17 +68,13 @@ impl TrafficSignalEditor {
                                 &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
                                     [*current_cycle];
                             if cycle.contains(id) {
-                                if input.key_pressed(
-                                    Key::Backspace,
-                                    "Press Backspace to remove this turn from this cycle",
-                                ) {
+                                if input
+                                    .key_pressed(Key::Backspace, "remove this turn from this cycle")
+                                {
                                     cycle.remove(id);
                                 }
                             } else if !cycle.conflicts_with(id, map) {
-                                if input.key_pressed(
-                                    Key::Space,
-                                    "Press Space to add this turn to this cycle",
-                                ) {
+                                if input.key_pressed(Key::Space, "add this turn to this cycle") {
                                     cycle.add(id);
                                 }
                             }

@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use keys::describe_key;
 use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
 use std::collections::HashMap;
 
@@ -110,8 +111,8 @@ impl UserInput {
                 return true;
             }
         }
-        // TODO stringify the key, so we don't have to say what to press!
-        self.important_actions.push(String::from(action));
+        self.important_actions
+            .push(format!("Press {} to {}", describe_key(key), action));
         false
     }
 
@@ -128,7 +129,8 @@ impl UserInput {
                 return true;
             }
         }
-        self.unimportant_actions.push(String::from(action));
+        self.unimportant_actions
+            .push(format!("Press {} to {}", describe_key(key), action));
         false
     }
 

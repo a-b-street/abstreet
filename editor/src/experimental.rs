@@ -42,7 +42,7 @@ impl UI {
 
 impl gui::GUI for UI {
     fn event(&mut self, input: &mut UserInput) -> gui::EventLoopMode {
-        if input.unimportant_key_pressed(Key::Escape, "Press escape to quit") {
+        if input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
         let speed = 5.0;
