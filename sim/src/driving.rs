@@ -23,18 +23,18 @@ const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
 pub(crate) struct Car {
     // TODO might be going back to something old here, but an enum with parts of the state grouped
     // could be more clear.
-    pub(crate) id: CarID,
-    pub(crate) on: On,
+    pub id: CarID,
+    pub on: On,
     // When did the car start the current On?
-    pub(crate) started_at: Tick,
+    pub started_at: Tick,
     // TODO ideally, something else would remember Goto was requested and not even call step()
-    pub(crate) waiting_for: Option<On>,
-    pub(crate) debug: bool,
+    pub waiting_for: Option<On>,
+    pub debug: bool,
     // Head is the next lane
-    pub(crate) path: VecDeque<LaneID>,
+    pub path: VecDeque<LaneID>,
 }
 
-pub(crate) enum Action {
+enum Action {
     Vanish,      // hit a deadend, oops
     Continue,    // need more time to cross the current spot
     Goto(On),    // go somewhere if there's room
@@ -42,7 +42,7 @@ pub(crate) enum Action {
 }
 
 impl Car {
-    pub(crate) fn tooltip_lines(&self) -> Vec<String> {
+    pub fn tooltip_lines(&self) -> Vec<String> {
         vec![
             format!("Car {:?}", self.id),
             format!("On {:?}, started at {:?}", self.on, self.started_at),
@@ -51,7 +51,7 @@ impl Car {
         ]
     }
 
-    pub(crate) fn step(&self, map: &Map, time: Tick) -> Action {
+    fn step(&self, map: &Map, time: Tick) -> Action {
         if let Some(on) = self.waiting_for {
             return Action::Goto(on);
         }
@@ -98,14 +98,14 @@ impl Car {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub(crate) struct SimQueue {
-    pub(crate) id: On,
-    pub(crate) cars_queue: Vec<CarID>,
+struct SimQueue {
+    id: On,
+    cars_queue: Vec<CarID>,
     capacity: usize,
 }
 
 impl SimQueue {
-    pub(crate) fn new(id: On, map: &Map) -> SimQueue {
+    pub fn new(id: On, map: &Map) -> SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
@@ -116,7 +116,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    pub(crate) fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
+    pub fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
         if self.cars_queue.is_empty() {
             return true;
         }
@@ -130,7 +130,7 @@ impl SimQueue {
             >= FOLLOWING_DISTANCE / SPEED_LIMIT
     }
 
-    pub(crate) fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
+    pub fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
         let old_queue = self.cars_queue.clone();
 
         assert!(ids.len() <= self.capacity);
@@ -154,18 +154,13 @@ impl SimQueue {
         }
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.cars_queue.is_empty()
     }
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    pub(crate) fn get_draw_cars(
-        &self,
-        time: Tick,
-        sim: &DrivingSimState,
-        map: &Map,
-    ) -> Vec<DrawCar> {
+    pub fn get_draw_cars(&self, time: Tick, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
         if self.cars_queue.is_empty() {
             return Vec::new();
         }
@@ -216,13 +211,13 @@ impl SimQueue {
 
 // This manages only actively driving cars
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
-pub(crate) struct DrivingSimState {
+pub struct DrivingSimState {
     // TODO investigate slot map-like structures for performance
     // Using BTreeMap instead of HashMap so iteration is deterministic. Should be able to relax
     // this later after step() doesnt need a RNG.
     pub(crate) cars: BTreeMap<CarID, Car>,
-    pub(crate) lanes: Vec<SimQueue>,
-    pub(crate) turns: Vec<SimQueue>,
+    lanes: Vec<SimQueue>,
+    turns: Vec<SimQueue>,
     intersections: Vec<IntersectionPolicy>,
 }
 
@@ -408,5 +403,23 @@ impl DrivingSimState {
         } else {
             false
         }
+    }
+
+    pub fn get_empty_lanes(&self) -> Vec<LaneID> {
+        let mut lanes: Vec<LaneID> = Vec::new();
+        for queue in &self.lanes {
+            if queue.is_empty() {
+                lanes.push(queue.id.as_lane());
+            }
+        }
+        lanes
+    }
+
+    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
+        self.lanes[lane.0].get_draw_cars(time, self, map)
+    }
+
+    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
+        self.turns[turn.0].get_draw_cars(time, self, map)
     }
 }

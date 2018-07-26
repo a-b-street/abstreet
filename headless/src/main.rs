@@ -2,8 +2,6 @@
 
 extern crate control;
 extern crate map_model;
-#[macro_use]
-extern crate pretty_assertions;
 extern crate sim;
 #[macro_use]
 extern crate structopt;

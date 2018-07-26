@@ -7,14 +7,14 @@ use std::iter;
 use CarID;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub(crate) struct ParkingSimState {
+pub struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     lanes: Vec<ParkingLane>,
     total_count: usize,
 }
 
 impl ParkingSimState {
-    pub(crate) fn new(map: &Map) -> ParkingSimState {
+    pub fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
             lanes: map.all_lanes()
                 .iter()
@@ -24,12 +24,12 @@ impl ParkingSimState {
         }
     }
 
-    pub(crate) fn total_count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.total_count
     }
 
     // Kind of vague whether this should handle existing spots or not
-    pub(crate) fn seed_random_cars<R: Rng + ?Sized>(
+    pub fn seed_random_cars<R: Rng + ?Sized>(
         &mut self,
         rng: &mut R,
         percent_capacity_to_fill: f64,
@@ -59,16 +59,16 @@ impl ParkingSimState {
         );
     }
 
-    pub(crate) fn get_last_parked_car(&self, id: LaneID) -> Option<CarID> {
+    pub fn get_last_parked_car(&self, id: LaneID) -> Option<CarID> {
         self.lanes[id.0].get_last_parked_car()
     }
 
-    pub(crate) fn remove_last_parked_car(&mut self, id: LaneID, car: CarID) {
+    pub fn remove_last_parked_car(&mut self, id: LaneID, car: CarID) {
         self.lanes[id.0].remove_last_parked_car(car);
         self.total_count -= 1;
     }
 
-    pub(crate) fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCar> {
+    pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCar> {
         self.lanes[id.0].get_draw_cars(map)
     }
 }

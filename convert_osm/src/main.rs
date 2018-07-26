@@ -1,7 +1,5 @@
 extern crate abstutil;
 extern crate convert_osm;
-#[macro_use]
-extern crate pretty_assertions;
 extern crate structopt;
 
 use convert_osm::{convert, Flags};

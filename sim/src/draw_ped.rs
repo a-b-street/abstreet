@@ -14,7 +14,7 @@ pub struct DrawPedestrian {
 }
 
 impl DrawPedestrian {
-    pub(crate) fn new(id: PedestrianID, pos: Pt2D) -> DrawPedestrian {
+    pub fn new(id: PedestrianID, pos: Pt2D) -> DrawPedestrian {
         DrawPedestrian {
             id,
             circle: geometry::circle(pos.x(), pos.y(), RADIUS),

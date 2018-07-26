@@ -423,6 +423,6 @@ I think this is working so far. The vital question: is it too complicated? Is th
 	- changing lane direction might be a little more complicated, but NOT BY MUCH
 
 so, I think the steps:
-- see what's useful from this branch, bring it to master (encapsulating the driving state stuff)
+= see what's useful from this branch, bring it to master (encapsulating the driving state stuff)
 - ditch TurnIDs; have a BTreeMap of src/dst (LaneID, LaneID)
 - add a mutate_lanes() and replace_turns() to all the appropriate layers

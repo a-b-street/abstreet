@@ -63,16 +63,7 @@ impl Sim {
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        let mut driving_lanes: Vec<LaneID> = map.all_lanes()
-            .iter()
-            .filter_map(|l| {
-                if l.lane_type == LaneType::Driving && self.driving_state.lanes[l.id.0].is_empty() {
-                    Some(l.id)
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut driving_lanes = self.driving_state.get_empty_lanes();
         // Don't ruin determinism for silly reasons. :)
         if !driving_lanes.is_empty() {
             self.rng.shuffle(&mut driving_lanes);
@@ -168,9 +159,7 @@ impl Sim {
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCar> {
         match map.get_l(l).lane_type {
-            LaneType::Driving => {
-                self.driving_state.lanes[l.0].get_draw_cars(self.time, &self.driving_state, map)
-            }
+            LaneType::Driving => self.driving_state.get_draw_cars_on_lane(l, self.time, map),
             LaneType::Parking => self.parking_state.get_draw_cars(l, map),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
@@ -178,7 +167,7 @@ impl Sim {
     }
 
     pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
-        self.driving_state.turns[t.0].get_draw_cars(self.time, &self.driving_state, map)
+        self.driving_state.get_draw_cars_on_turn(t, self.time, map)
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrian> {

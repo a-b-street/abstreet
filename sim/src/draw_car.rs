@@ -11,7 +11,7 @@ use CarID;
 
 const CAR_WIDTH: f64 = 2.0;
 
-pub(crate) const CAR_LENGTH: si::Meter<f64> = si::Meter {
+pub const CAR_LENGTH: si::Meter<f64> = si::Meter {
     value_unsafe: 4.5,
     _marker: std::marker::PhantomData,
 };
@@ -25,7 +25,7 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    pub(crate) fn new(
+    pub fn new(
         id: CarID,
         waiting_for_turn: Option<TurnID>,
         map: &Map,

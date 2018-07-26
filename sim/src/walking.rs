@@ -103,7 +103,7 @@ impl Pedestrian {
 }
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
-pub(crate) struct WalkingSimState {
+pub struct WalkingSimState {
     // Trying a different style than driving for storing things
     peds_per_sidewalk: MultiMap<LaneID, Pedestrian>,
     peds_per_turn: MultiMap<TurnID, Pedestrian>,
