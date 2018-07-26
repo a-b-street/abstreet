@@ -5,6 +5,7 @@ use {Lane, LaneType, Road, RoadID};
 // are here, since map construction maybe needs to know these?
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Edits {
+    // TODO detect when we wind up editing back to the original thing
     pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
 }
 
@@ -53,14 +54,15 @@ pub struct RoadEdit {
 }
 
 impl RoadEdit {
+    // TODO return Result, so we can enforce a reason coming back!
     fn change_lane_type(
         reason: EditReason,
         r: &Road,
         lane: &Lane,
         new_type: LaneType,
     ) -> Option<RoadEdit> {
-        // Sidewalks are fixed
         if lane.lane_type == LaneType::Sidewalk {
+            println!("Sidewalks are fixed; can't change their type");
             return None;
         }
 
@@ -68,6 +70,7 @@ impl RoadEdit {
         let (is_fwd, idx) = r.dir_and_offset(lane.id);
         if is_fwd {
             if forwards[idx] == new_type {
+                println!("{} is already {:?}", lane.id, new_type);
                 return None;
             }
             forwards[idx] = new_type;
@@ -76,6 +79,7 @@ impl RoadEdit {
             }
         } else {
             if backwards[idx] == new_type {
+                println!("{} is already {:?}", lane.id, new_type);
                 return None;
             }
             backwards[idx] = new_type;
@@ -95,6 +99,7 @@ impl RoadEdit {
     fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
         // Sidewalks are fixed
         if lane.lane_type == LaneType::Sidewalk {
+            println!("Can't delete sidewalks");
             return None;
         }
 
@@ -116,15 +121,17 @@ impl RoadEdit {
 }
 
 fn are_lanes_valid(lanes: &Vec<LaneType>) -> bool {
-    // Can't have adjacent parking lanes
+    // TODO this check doesn't seem to be working
     for pair in lanes.windows(2) {
         if pair[0] == LaneType::Parking && pair[1] == LaneType::Parking {
+            println!("Can't have two adjacent parking lanes");
             return false;
         }
     }
 
     // Can't have two sidewalks on one side of a road
     if lanes.iter().filter(|&&lt| lt == LaneType::Sidewalk).count() > 1 {
+        println!("Can't have two sidewalks on one side of a road");
         return false;
     }
 

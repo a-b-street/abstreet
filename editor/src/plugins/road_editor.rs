@@ -53,8 +53,6 @@ impl RoadEditor {
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
                             changed = Some((lane.id, LaneType::Driving));
-                        } else {
-                            println!("Invalid edit");
                         }
                     }
                     if lane.lane_type != LaneType::Parking
@@ -62,8 +60,6 @@ impl RoadEditor {
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
                             changed = Some((lane.id, LaneType::Parking));
-                        } else {
-                            println!("Invalid edit");
                         }
                     }
                     if lane.lane_type != LaneType::Biking
@@ -71,15 +67,11 @@ impl RoadEditor {
                     {
                         if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
                             changed = Some((lane.id, LaneType::Biking));
-                        } else {
-                            println!("Invalid edit");
                         }
                     }
                     if input.key_pressed(Key::Backspace, "Press backspace to delete this lane") {
                         if edits.delete_lane(road, lane) {
                             println!("Have to reload the map from scratch to pick up this change!");
-                        } else {
-                            println!("Invalid edit");
                         }
                     }
                 }
@@ -94,7 +86,8 @@ impl RoadEditor {
             let intersections = map.get_l(id).intersections();
 
             // TODO generally tense about having two methods to carry out this change. weird
-            // intermediate states are scary.
+            // intermediate states are scary. maybe pass old and new struct for intersection (aka
+            // list of turns)?
 
             /*
             // Remove turns
