@@ -3,7 +3,7 @@
 use dimensioned::si;
 use geom::Pt2D;
 use std::fmt;
-use {LaneID, RoadID, TurnID};
+use {LaneID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -24,9 +24,6 @@ pub struct Intersection {
     pub has_traffic_signal: bool,
 
     // Some duplication that's proving convenient so far
-    pub incoming_roads: Vec<RoadID>,
-    pub outgoing_roads: Vec<RoadID>,
-
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
 }

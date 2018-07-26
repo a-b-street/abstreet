@@ -54,8 +54,6 @@ impl Map {
                 turns: Vec::new(),
                 elevation: i.elevation_meters * si::M,
                 has_traffic_signal: i.has_traffic_signal,
-                incoming_roads: Vec::new(),
-                outgoing_roads: Vec::new(),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
             });
@@ -83,8 +81,6 @@ impl Map {
 
             let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
             let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
-            m.intersections[i1.0].outgoing_roads.push(road_id);
-            m.intersections[i2.0].incoming_roads.push(road_id);
 
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r, road_id, edits) {
