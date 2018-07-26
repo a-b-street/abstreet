@@ -59,7 +59,7 @@ impl WarpState {
 fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut SelectionState) {
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
-            'r' => {
+            'l' => {
                 let id = LaneID(idx);
                 *selection_state = SelectionState::SelectedLane(id, None);
                 map.get_l(id).first_pt()
@@ -79,12 +79,12 @@ fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut Sele
                 geometry::center(&map.get_p(id).points)
             }
             _ => {
-                println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
+                println!("{} isn't a valid ID; Should be [libp][0-9]+", line);
                 return;
             }
         },
         Err(_) => {
-            println!("{} isn't a valid ID; Should be [ribp][0-9]+", line);
+            println!("{} isn't a valid ID; Should be [libp][0-9]+", line);
             return;
         }
     };
