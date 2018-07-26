@@ -170,6 +170,26 @@ impl Map {
         Ok(m)
     }
 
+    pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
+        assert_ne!(self.get_l(lane).lane_type, new_type);
+        self.lanes[lane.0].lane_type = new_type;
+
+        /*
+        // Recalculate all of the turns at the two connected intersections.
+        let intersections = self.get_l(lane).intersections();
+        for i in &intersections {
+            for t in &self.intersections[i.0].turns {
+                self.turns.remove(t);
+            }
+            self.intersections[i.0].turns.clear();
+
+            for t in make::make_all_turns(self.get_i(*i), &self) {
+                self.intersections[i.0].turns.push(t.id);
+                self.turns.insert(t.id, t);
+            }
+        }*/
+    }
+
     pub fn all_roads(&self) -> &Vec<Road> {
         &self.roads
     }

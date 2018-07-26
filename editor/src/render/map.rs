@@ -123,6 +123,27 @@ impl DrawMap {
         )
     }
 
+    pub fn edit_lane_type(&mut self, id: LaneID, map: &Map) {
+        // No need to edit the quadtree; the bbox shouldn't depend on lane type.
+        self.lanes[id.0] = DrawLane::new(map.get_l(id), map);
+    }
+
+    pub fn edit_remove_turn(&mut self, id: TurnID) {
+        self.turns.remove(&id);
+
+        // TODO remember ItemId instead
+        let item_id = *self.turn_icons_quadtree
+            .iter()
+            .find(|pair| (pair.1).0 == id)
+            .unwrap()
+            .0;
+        self.turn_icons_quadtree.remove(item_id);
+    }
+
+    pub fn edit_add_turn(&mut self, id: TurnID) {
+        // TODO
+    }
+
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
         &self.lanes[id.0]

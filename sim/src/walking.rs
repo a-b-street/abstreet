@@ -16,7 +16,7 @@ const SPEED: si::MeterPerSecond<f64> = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct Pedestrian {
     id: PedestrianID,
 
@@ -118,6 +118,14 @@ impl WalkingSimState {
             peds_per_turn: MultiMap::new(),
             id_counter: 0,
         }
+    }
+
+    pub fn remove_lane(&mut self, id: LaneID) {
+        assert_eq!(self.peds_per_sidewalk.get_vec(&id), None);
+    }
+
+    pub fn add_lane(&mut self, _id: LaneID) {
+        // No-op
     }
 
     pub fn total_count(&self) -> usize {

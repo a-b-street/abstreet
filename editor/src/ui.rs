@@ -379,10 +379,13 @@ impl gui::GUI for UI {
             &mut self.control_map,
             &self.current_selection_state,
         ));
-        stop_if_done!(
-            self.road_editor
-                .event(input, &self.map, &self.current_selection_state,)
-        );
+        stop_if_done!(self.road_editor.event(
+            input,
+            &self.current_selection_state,
+            &mut self.map,
+            &mut self.draw_map,
+            &mut self.sim_ctrl.sim
+        ));
         stop_if_done!(
             self.color_picker
                 .handle_event(input, &mut self.canvas, &mut self.cs)

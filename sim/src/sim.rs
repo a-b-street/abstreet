@@ -53,6 +53,26 @@ impl Sim {
         }
     }
 
+    pub fn edit_lane_type(&mut self, id: LaneID, old_type: LaneType, map: &Map) {
+        match old_type {
+            LaneType::Driving => self.driving_state.remove_lane(id),
+            LaneType::Parking => self.parking_state.remove_lane(id),
+            LaneType::Sidewalk => self.walking_state.remove_lane(id),
+            LaneType::Biking => {}
+        };
+        let l = map.get_l(id);
+        match l.lane_type {
+            LaneType::Driving => self.driving_state.add_lane(id),
+            LaneType::Parking => self.parking_state.add_lane(l),
+            LaneType::Sidewalk => self.walking_state.add_lane(id),
+            LaneType::Biking => {}
+        };
+    }
+
+    pub fn edit_remove_turn(&mut self, id: TurnID) {}
+
+    pub fn edit_add_turn(&mut self, id: TurnID) {}
+
     pub fn total_cars(&self) -> usize {
         self.car_id_counter
     }

@@ -104,6 +104,11 @@ impl Lane {
         );
     }
 
+    pub fn intersections(&self) -> Vec<IntersectionID> {
+        // TODO I think we're assuming there are no loop lanes
+        vec![self.src_i, self.dst_i]
+    }
+
     // TODO different types for each lane type might be reasonable
 
     pub fn number_parking_spots(&self) -> usize {

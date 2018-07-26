@@ -24,6 +24,18 @@ impl ParkingSimState {
         }
     }
 
+    pub fn remove_lane(&mut self, id: LaneID) {
+        assert!(self.lanes[id.0].is_empty());
+        self.lanes[id.0] = ParkingLane {
+            l: id,
+            spots: Vec::new(),
+        };
+    }
+
+    pub fn add_lane(&mut self, l: &Lane) {
+        self.lanes[l.id.0] = ParkingLane::new(l);
+    }
+
     pub fn total_count(&self) -> usize {
         self.total_count
     }
@@ -127,5 +139,9 @@ impl ParkingLane {
                 })
             })
             .collect()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        !self.get_last_parked_car().is_some()
     }
 }

@@ -253,6 +253,14 @@ impl DrivingSimState {
         s
     }
 
+    pub fn remove_lane(&mut self, id: LaneID) {
+        assert!(self.lanes[id.0].is_empty());
+    }
+
+    pub fn add_lane(&mut self, id: LaneID) {
+        assert!(self.lanes[id.0].is_empty());
+    }
+
     pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
         // Could be concurrent, since this is deterministic. Note no RNG. Ask all cars for their
         // move, reinterpreting Goto to see if there's room now. It's important to query
