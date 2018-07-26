@@ -12,7 +12,7 @@ use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
 use road::{Road, RoadID};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 use turn::{Turn, TurnID};
 
@@ -20,7 +20,7 @@ pub struct Map {
     roads: Vec<Road>,
     lanes: Vec<Lane>,
     intersections: Vec<Intersection>,
-    turns: Vec<Turn>,
+    turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
 
@@ -38,7 +38,7 @@ impl Map {
             roads: Vec::new(),
             lanes: Vec::new(),
             intersections: Vec::new(),
-            turns: Vec::new(),
+            turns: BTreeMap::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
         };
@@ -139,11 +139,11 @@ impl Map {
         }
 
         for i in &m.intersections {
-            let len = m.turns.len();
-            let turns = make::make_all_turns(i, &m, len);
-            m.turns.extend(turns);
+            for t in make::make_all_turns(i, &m) {
+                m.turns.insert(t.id, t);
+            }
         }
-        for t in &m.turns {
+        for t in m.turns.values() {
             m.intersections[t.parent.0].turns.push(t.id);
         }
 
@@ -182,7 +182,7 @@ impl Map {
         &self.intersections
     }
 
-    pub fn all_turns(&self) -> &Vec<Turn> {
+    pub fn all_turns(&self) -> &BTreeMap<TurnID, Turn> {
         &self.turns
     }
 
@@ -207,7 +207,7 @@ impl Map {
     }
 
     pub fn get_t(&self, id: TurnID) -> &Turn {
-        &self.turns[id.0]
+        &self.turns[&id]
     }
 
     pub fn get_b(&self, id: BuildingID) -> &Building {

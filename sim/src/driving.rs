@@ -217,7 +217,7 @@ pub struct DrivingSimState {
     // this later after step() doesnt need a RNG.
     pub(crate) cars: BTreeMap<CarID, Car>,
     lanes: Vec<SimQueue>,
-    turns: Vec<SimQueue>,
+    turns: BTreeMap<TurnID, SimQueue>,
     intersections: Vec<IntersectionPolicy>,
 }
 
@@ -234,7 +234,7 @@ impl DrivingSimState {
             }
         }
 
-        DrivingSimState {
+        let mut s = DrivingSimState {
             intersections,
 
             cars: BTreeMap::new(),
@@ -243,11 +243,14 @@ impl DrivingSimState {
                 .iter()
                 .map(|l| SimQueue::new(On::Lane(l.id), map))
                 .collect(),
-            turns: map.all_turns()
-                .iter()
-                .map(|t| SimQueue::new(On::Turn(t.id), map))
-                .collect(),
+            turns: BTreeMap::new(),
+        };
+        for t in map.all_turns().values() {
+            if !t.between_sidewalks {
+                s.turns.insert(t.id, SimQueue::new(On::Turn(t.id), map));
+            }
         }
+        s
     }
 
     pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
@@ -269,11 +272,11 @@ impl DrivingSimState {
                         // new_car_entered_this_step. The last car won't go backwards.
                         let has_room_now = match on {
                             On::Lane(id) => self.lanes[id.0].room_at_end(time, &self.cars),
-                            On::Turn(id) => self.turns[id.0].room_at_end(time, &self.cars),
+                            On::Turn(id) => self.turns[&id].room_at_end(time, &self.cars),
                         };
                         let is_lead_vehicle = match c.on {
                             On::Lane(id) => self.lanes[id.0].cars_queue[0] == c.id,
-                            On::Turn(id) => self.turns[id.0].cars_queue[0] == c.id,
+                            On::Turn(id) => self.turns[&id].cars_queue[0] == c.id,
                         };
                         if has_room_now && is_lead_vehicle {
                             Action::Goto(on)
@@ -359,7 +362,7 @@ impl DrivingSimState {
             }
             //l.reset(cars_per_lane.get_vec(&l.id).unwrap_or_else(|| &Vec::new()), &self.cars);
         }
-        for t in &mut self.turns {
+        for t in self.turns.values_mut() {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
                 t.reset(v, &self.cars);
             } else {
@@ -420,6 +423,9 @@ impl DrivingSimState {
     }
 
     pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
-        self.turns[turn.0].get_draw_cars(time, self, map)
+        if let Some(queue) = self.turns.get(&turn) {
+            return queue.get_draw_cars(time, self, map);
+        }
+        return Vec::new();
     }
 }

@@ -2,17 +2,15 @@ use abstutil::MultiMap;
 use geom::Line;
 use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
-pub(crate) fn make_all_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+pub(crate) fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
-    turns.extend(make_driving_turns(i, m, turn_id_start));
-    let len = turns.len();
-    turns.extend(make_biking_turns(i, m, turn_id_start + len));
-    let len = turns.len();
-    turns.extend(make_crosswalks(i, m, turn_id_start + len));
+    turns.extend(make_driving_turns(i, m));
+    turns.extend(make_biking_turns(i, m));
+    turns.extend(make_crosswalks(i, m));
     turns
 }
 
-fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+fn make_driving_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let incoming: Vec<LaneID> = i.incoming_lanes
         .iter()
         // TODO why's this double borrow happen?
@@ -25,10 +23,10 @@ fn make_driving_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tu
         .map(|id| *id)
         .collect();
 
-    make_turns(m, turn_id_start, i.id, &incoming, &outgoing)
+    make_turns(m, i.id, &incoming, &outgoing)
 }
 
-fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Turn> {
+fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     // TODO Road should make this easier, but how?
     let mut incoming_bike_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
     let mut incoming_driving_lanes_per_road: MultiMap<RoadID, LaneID> = MultiMap::new();
@@ -77,12 +75,11 @@ fn make_biking_turns(i: &Intersection, m: &Map, turn_id_start: usize) -> Vec<Tur
     incoming.sort();
     outgoing.sort();
 
-    make_turns(m, turn_id_start, i.id, &incoming, &outgoing)
+    make_turns(m, i.id, &incoming, &outgoing)
 }
 
 fn make_turns(
     map: &Map,
-    turn_id_start: usize,
     parent: IntersectionID,
     incoming: &Vec<LaneID>,
     outgoing: &Vec<LaneID>,
@@ -111,9 +108,8 @@ fn make_turns(
                 continue;
             }
 
-            let id = TurnID(turn_id_start + result.len());
             result.push(Turn {
-                id,
+                id: TurnID::new(*src, *dst),
                 parent,
                 src: *src,
                 dst: *dst,
@@ -125,7 +121,7 @@ fn make_turns(
     result
 }
 
-fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<Turn> {
+fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut result = Vec::new();
 
     // TODO dedupe some of this logic render/intersection
@@ -143,10 +139,8 @@ fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<T
                 .unwrap(),
         );
 
-        let id = TurnID(turn_id_start);
-        turn_id_start += 1;
         result.push(Turn {
-            id,
+            id: TurnID::new(src.id, dst.id),
             parent: i.id,
             src: src.id,
             dst: dst.id,
@@ -177,10 +171,8 @@ fn make_crosswalks(i: &Intersection, m: &Map, mut turn_id_start: usize) -> Vec<T
                 continue;
             }
 
-            let id = TurnID(turn_id_start);
-            turn_id_start += 1;
             result.push(Turn {
-                id,
+                id: TurnID::new(src.id, dst.id),
                 parent: i.id,
                 src: src.id,
                 dst: dst.id,

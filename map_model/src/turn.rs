@@ -7,13 +7,19 @@ use std::fmt;
 use IntersectionID;
 use LaneID;
 
-// TODO reconsider pub usize. maybe outside world shouldnt know.
+// Turns are uniquely identified by their (src, dst) lanes.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct TurnID(pub usize);
+pub struct TurnID(LaneID, LaneID);
+
+impl TurnID {
+    pub(crate) fn new(src: LaneID, dst: LaneID) -> TurnID {
+        TurnID(src, dst)
+    }
+}
 
 impl fmt::Display for TurnID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TurnID({0})", self.0)
+        write!(f, "TurnID({0}, {1})", self.0, self.1)
     }
 }
 
@@ -25,7 +31,7 @@ pub struct Turn {
     pub parent: IntersectionID,
     pub src: LaneID,
     pub dst: LaneID,
-    pub(crate) between_sidewalks: bool,
+    pub between_sidewalks: bool,
 
     /// GeomTurn stuff
     pub line: Line,

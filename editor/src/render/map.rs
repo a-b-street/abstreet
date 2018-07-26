@@ -15,7 +15,7 @@ use std::collections::HashMap;
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
-    pub turns: Vec<DrawTurn>,
+    pub turns: HashMap<TurnID, DrawTurn>,
     pub buildings: Vec<DrawBuilding>,
     pub parcels: Vec<DrawParcel>,
 
@@ -56,10 +56,10 @@ impl DrawMap {
         }
         assert_eq!(turn_to_lane_offset.len(), map.all_turns().len());
 
-        let turns: Vec<DrawTurn> = map.all_turns()
-            .iter()
-            .map(|t| DrawTurn::new(map, t, turn_to_lane_offset[&t.id]))
-            .collect();
+        let mut turns: HashMap<TurnID, DrawTurn> = HashMap::new();
+        for t in map.all_turns().values() {
+            turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
+        }
         let intersections: Vec<DrawIntersection> = map.all_intersections()
             .iter()
             .map(|i| DrawIntersection::new(i, map, &lanes))
@@ -93,7 +93,7 @@ impl DrawMap {
             intersections_quadtree.insert_with_box(i.id, i.get_bbox());
         }
         let mut turn_icons_quadtree = QuadTree::default(map_bbox);
-        for t in &turns {
+        for t in turns.values() {
             turn_icons_quadtree.insert_with_box(t.id, t.get_bbox());
         }
         let mut buildings_quadtree = QuadTree::default(map_bbox);
@@ -133,7 +133,7 @@ impl DrawMap {
     }
 
     pub fn get_t(&self, id: TurnID) -> &DrawTurn {
-        &self.turns[id.0]
+        &self.turns[&id]
     }
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
