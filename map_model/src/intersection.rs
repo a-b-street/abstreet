@@ -2,9 +2,9 @@
 
 use dimensioned::si;
 use geom::Pt2D;
-use std::fmt;
-use {LaneID, TurnID, RoadID, Map};
 use std::collections::HashSet;
+use std::fmt;
+use {LaneID, Map, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

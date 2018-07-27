@@ -173,14 +173,14 @@ impl Map {
         self.roads[parent.0].edit_lane_type(lane, new_type);
 
         // Recalculate all of the turns at the two connected intersections.
-        let intersections = self.get_l(lane).intersections();
-        for i in &intersections {
+        for i in self.get_l(lane).intersections().into_iter() {
             for t in &self.intersections[i.0].turns {
                 self.turns.remove(t);
             }
             self.intersections[i.0].turns.clear();
 
-            for t in make::make_all_turns(self.get_i(*i), &self) {
+            for t in make::make_all_turns(self.get_i(i), &self) {
+                // TODO ahh need to dedupe
                 self.intersections[i.0].turns.push(t.id);
                 self.turns.insert(t.id, t);
             }

@@ -8,7 +8,18 @@ pub(crate) fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     turns.extend(make_driving_turns(i, m));
     turns.extend(make_biking_turns(i, m));
     turns.extend(make_crosswalks(i, m));
+    check_dupes(&turns);
     turns
+}
+
+fn check_dupes(turns: &Vec<Turn>) {
+    let mut ids = HashSet::new();
+    for t in turns {
+        if ids.contains(&t.id) {
+            panic!("Duplicate turns! {:?}", turns);
+        }
+        ids.insert(t.id);
+    }
 }
 
 fn make_driving_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
@@ -80,7 +91,15 @@ fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     incoming.sort();
     outgoing.sort();
 
+    // Kind of a hack. We wind up making some driving->driving turns here, but make_driving_turns
+    // will create those, and duplicates are bad. Filter them out here.
     make_turns(m, i.id, &incoming, &outgoing)
+        .into_iter()
+        .filter(|t| {
+            m.get_l(t.src).lane_type == LaneType::Biking
+                || m.get_l(t.dst).lane_type == LaneType::Biking
+        })
+        .collect()
 }
 
 fn make_turns(
