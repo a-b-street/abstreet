@@ -3,7 +3,8 @@
 use dimensioned::si;
 use geom::Pt2D;
 use std::fmt;
-use {LaneID, TurnID};
+use {LaneID, TurnID, RoadID, Map};
+use std::collections::HashSet;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -31,5 +32,15 @@ pub struct Intersection {
 impl PartialEq for Intersection {
     fn eq(&self, other: &Intersection) -> bool {
         self.id == other.id
+    }
+}
+
+impl Intersection {
+    pub fn is_dead_end(&self, map: &Map) -> bool {
+        let mut roads: HashSet<RoadID> = HashSet::new();
+        for l in self.incoming_lanes.iter().chain(self.outgoing_lanes.iter()) {
+            roads.insert(map.get_l(*l).parent);
+        }
+        roads.len() == 1
     }
 }

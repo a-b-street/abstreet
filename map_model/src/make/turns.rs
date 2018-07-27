@@ -107,20 +107,19 @@ fn make_turns(
         assert_eq!(map.get_l(*l).src_i, parent);
     }
 
-    let dead_end = incoming.len() == 1 && outgoing.len() == 1;
+    let dead_end = map.get_i(parent).is_dead_end(map);
 
     let mut result = Vec::new();
     for src in incoming {
         let src_l = map.get_l(*src);
-        let other_side = map.get_r(src_l.parent)
-            .get_opposite_lane(src_l.id, src_l.lane_type);
 
         for dst in outgoing {
             let dst_l = map.get_l(*dst);
             // Don't create U-turns unless it's a dead-end
-            if other_side == Some(dst_l.id) && !dead_end {
+            if src_l.parent == dst_l.parent && !dead_end {
                 continue;
             }
+            // TODO if it's a multi-lane dead-end, ideally match up lanes or something
 
             result.push(Turn {
                 id: TurnID::new(*src, *dst),
