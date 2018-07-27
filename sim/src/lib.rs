@@ -12,6 +12,7 @@ extern crate multimap;
 #[macro_use]
 extern crate pretty_assertions;
 extern crate rand;
+extern crate rayon;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -153,13 +154,10 @@ pub(crate) fn pick_goal_and_find_path<R: Rng + ?Sized>(
         })
         .collect();
     let goal = rng.choose(&candidate_goals).unwrap();
-    let mut path = if let Some(steps) = map_model::pathfind(map, start, *goal) {
-        VecDeque::from(steps)
+    if let Some(steps) = map_model::pathfind(map, start, *goal) {
+        Some(VecDeque::from(steps))
     } else {
         println!("No path from {} to {} ({:?})", start, goal, lane_type);
-        return None;
-    };
-    // path includes the start, but that's not the invariant Car enforces
-    path.pop_front();
-    Some(path)
+        None
+    }
 }

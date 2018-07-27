@@ -15,5 +15,6 @@ multimap = "0.4.0"
 piston2d-graphics = "*"
 pretty_assertions = "0.5.1"
 rand = { version = "0.5.1", features = ["serde1"] }
+rayon = "1.0"
 serde = "1.0"
 serde_derive = "1.0"

@@ -428,3 +428,11 @@ so, I think the steps:
 = add a mutate_lanes() and replace_turns() to all the appropriate layers
 
 Cool, good enough to start. whew.
+
+## Spawning agents ##
+
+Ideally, each method would return a future that would do stuff, right? But the
+mutations need to be done serially. So I think each sim's method should take
+the path outright, not even start/end. Stick the rng work in sim for the
+moment. This should let the start/goal selection and the parallelization of
+paths happen at a more outer layer, in the sim aggregator.

@@ -5,13 +5,15 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
+use map_model;
 use map_model::{LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
+use std::collections::VecDeque;
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, PedestrianID, Tick, TIMESTEP};
+use {pick_goal_and_find_path, CarID, PedestrianID, Tick, TIMESTEP};
 
 pub enum CarState {
     Moving,
@@ -117,8 +119,9 @@ impl Sim {
         let road = map.get_r(lane.parent);
         let (driving_lane, parking_lane) = match lane.lane_type {
             LaneType::Sidewalk => {
-                if self.walking_state.seed_pedestrian(&mut self.rng, map, id) {
+                if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, id) {
                     println!("Spawned a pedestrian at {}", id);
+                    self.walking_state.seed_pedestrian(map, path);
                     return true;
                 } else {
                     return false;
@@ -164,8 +167,48 @@ impl Sim {
     }
 
     pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
-        let actual = self.walking_state.seed_pedestrians(&mut self.rng, map, num);
-        println!("Spawned {} pedestrians", actual);
+        use rayon::prelude::*;
+
+        let mut sidewalks: Vec<LaneID> = Vec::new();
+        for l in map.all_lanes() {
+            if l.lane_type == LaneType::Sidewalk {
+                sidewalks.push(l.id);
+            }
+        }
+
+        let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
+        for _i in 0..num {
+            let start = *self.rng.choose(&sidewalks).unwrap();
+            let goal = choose_different(&mut self.rng, &sidewalks, start);
+            requested_paths.push((start, goal));
+        }
+
+        println!("Calculating {} paths for pedestrians", num);
+        // TODO better timer macro
+        let timer = Instant::now();
+        let paths: Vec<Option<Vec<LaneID>>> = requested_paths
+            .par_iter()
+            .map(|(start, goal)| map_model::pathfind(map, *start, *goal))
+            .collect();
+
+        let mut actual = 0;
+        for path in paths.into_iter() {
+            if let Some(steps) = path {
+                self.walking_state
+                    .seed_pedestrian(map, VecDeque::from(steps));
+                actual += 1;
+            } else {
+                // zip with request to have start/goal?
+                //println!("Failed to pathfind for a pedestrian");
+            };
+        }
+
+        println!(
+            "Calculating {} pedestrian paths took {:?}",
+            num,
+            timer.elapsed()
+        );
+        println!("Spawned {} pedestrians of requested {}", actual, num);
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
@@ -276,5 +319,19 @@ pub struct Benchmark {
 impl Benchmark {
     pub fn has_real_time_passed(&self, d: Duration) -> bool {
         self.last_real_time.elapsed() >= d
+    }
+}
+
+fn choose_different<R: Rng + ?Sized, T: PartialEq + Copy>(
+    rng: &mut R,
+    choices: &Vec<T>,
+    except: T,
+) -> T {
+    assert!(choices.len() > 1);
+    loop {
+        let choice = *rng.choose(choices).unwrap();
+        if choice != except {
+            return choice;
+        }
     }
 }

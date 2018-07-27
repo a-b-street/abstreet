@@ -1,12 +1,11 @@
 use control::ControlMap;
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
-use map_model::{Lane, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
-use rand::Rng;
 use std;
 use std::collections::VecDeque;
-use {pick_goal_and_find_path, On, PedestrianID};
+use {On, PedestrianID};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -197,54 +196,23 @@ impl WalkingSimState {
         result
     }
 
-    pub fn seed_pedestrians<R: Rng + ?Sized>(
-        &mut self,
-        rng: &mut R,
-        map: &Map,
-        num_peds: usize,
-    ) -> usize {
-        let mut sidewalks: Vec<LaneID> = Vec::new();
-        for l in map.all_lanes() {
-            if l.lane_type == LaneType::Sidewalk {
-                sidewalks.push(l.id);
-            }
-        }
+    pub fn seed_pedestrian(&mut self, map: &Map, mut path: VecDeque<LaneID>) {
+        let id = PedestrianID(self.id_counter);
+        self.id_counter += 1;
 
-        let mut count = 0;
-        for _i in 0..num_peds {
-            let start = *rng.choose(&sidewalks).unwrap();
-            if self.seed_pedestrian(rng, map, start) {
-                count += 1;
-            }
-        }
-        count
-    }
-
-    pub fn seed_pedestrian<R: Rng + ?Sized>(
-        &mut self,
-        rng: &mut R,
-        map: &Map,
-        start: LaneID,
-    ) -> bool {
-        if let Some(path) = pick_goal_and_find_path(rng, map, start) {
-            let id = PedestrianID(self.id_counter);
-            self.id_counter += 1;
-            let contraflow = is_contraflow(map, start, path[0]);
-            self.peds_per_sidewalk.insert(
-                start,
-                Pedestrian {
-                    id,
-                    path,
-                    contraflow,
-                    on: On::Lane(start),
-                    // TODO start next to a building path, or at least some random position
-                    dist_along: 0.0,
-                },
-            );
-            true
-        } else {
-            false
-        }
+        let start = path.pop_front().unwrap();
+        let contraflow = is_contraflow(map, start, path[0]);
+        self.peds_per_sidewalk.insert(
+            start,
+            Pedestrian {
+                id,
+                path,
+                contraflow,
+                on: On::Lane(start),
+                // TODO start next to a building path, or at least some random position
+                dist_along: 0.0,
+            },
+        );
     }
 }
 
