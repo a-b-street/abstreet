@@ -436,20 +436,11 @@ impl gui::GUI for UI {
             self.geom_validator = Validator::start(&self.draw_map);
             return gui::EventLoopMode::InputOnly;
         }
-        if self.sim_ctrl.sim.total_cars() == 0 {
-            if input.unimportant_key_pressed(
-                Key::S,
-                "Seed the map with 50% parked cars and some pedestrians",
-            ) {
-                self.sim_ctrl.sim.seed_parked_cars(0.5);
-                self.sim_ctrl.sim.seed_pedestrians(&self.map, 1000);
-                return gui::EventLoopMode::InputOnly;
-            }
-        } else {
-            if input.unimportant_key_pressed(Key::S, "Make 1000 parked cars start driving") {
-                self.sim_ctrl.sim.start_many_parked_cars(&self.map, 1000);
-                return gui::EventLoopMode::InputOnly;
-            }
+        if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
+            self.sim_ctrl.sim.seed_parked_cars(0.5);
+            self.sim_ctrl.sim.seed_pedestrians(&self.map, 1000);
+            self.sim_ctrl.sim.start_many_parked_cars(&self.map, 1000);
+            return gui::EventLoopMode::InputOnly;
         }
 
         match self.current_selection_state {

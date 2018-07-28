@@ -5,13 +5,12 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
-use map_model::{LaneID, Map, TurnID};
+use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
-use rand::Rng;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
-use {pick_goal_and_find_path, CarID, On, Tick, SPEED_LIMIT};
+use {CarID, On, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
@@ -394,43 +393,39 @@ impl DrivingSimState {
     // beginning of the lane. later, we want cars starting at arbitrary points in the middle of the
     // lane (from a building), so just ignore this problem for now.
     // True if we spawned one
-    pub fn start_car_on_lane<R: Rng + ?Sized>(
+    pub fn start_car_on_lane(
         &mut self,
         time: Tick,
-        start: LaneID,
         car: CarID,
-        map: &Map,
-        rng: &mut R,
+        mut path: VecDeque<LaneID>,
     ) -> bool {
+        let start = path.pop_front().unwrap();
+
         if !self.lanes[start.0].room_at_end(time, &self.cars) {
             // TODO car should enter Unparking state and wait for room
             println!("No room for {} to start driving on {}", car, start);
             return false;
         }
 
-        if let Some(path) = pick_goal_and_find_path(rng, map, start) {
-            self.cars.insert(
-                car,
-                Car {
-                    id: car,
-                    path,
-                    started_at: time,
-                    on: On::Lane(start),
-                    waiting_for: None,
-                    debug: false,
-                },
-            );
-            self.lanes[start.0].cars_queue.push(car);
-            true
-        } else {
-            false
-        }
+        self.cars.insert(
+            car,
+            Car {
+                id: car,
+                path,
+                started_at: time,
+                on: On::Lane(start),
+                waiting_for: None,
+                debug: false,
+            },
+        );
+        self.lanes[start.0].cars_queue.push(car);
+        true
     }
 
-    pub fn get_empty_lanes(&self) -> Vec<LaneID> {
+    pub fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID> {
         let mut lanes: Vec<LaneID> = Vec::new();
-        for queue in &self.lanes {
-            if queue.is_empty() {
+        for (idx, queue) in self.lanes.iter().enumerate() {
+            if map.get_l(LaneID(idx)).lane_type == LaneType::Driving && queue.is_empty() {
                 lanes.push(queue.id.as_lane());
             }
         }

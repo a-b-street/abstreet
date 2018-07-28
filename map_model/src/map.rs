@@ -282,6 +282,11 @@ impl Map {
             .collect()
     }
 
+    pub fn get_lane_and_parent(&self, id: LaneID) -> (&Lane, &Road) {
+        let l = self.get_l(id);
+        (l, self.get_r(l.parent))
+    }
+
     // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()

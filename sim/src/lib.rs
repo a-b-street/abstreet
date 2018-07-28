@@ -28,9 +28,7 @@ mod walking;
 use dimensioned::si;
 use geom::{Angle, Pt2D};
 use map_model::{LaneID, Map, TurnID};
-use rand::Rng;
 pub use sim::{Benchmark, CarState, Sim};
-use std::collections::VecDeque;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -134,30 +132,5 @@ impl On {
             &On::Lane(id) => map.get_l(id).dist_along(dist),
             &On::Turn(id) => map.get_t(id).dist_along(dist),
         }
-    }
-}
-
-pub(crate) fn pick_goal_and_find_path<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    start: LaneID,
-) -> Option<VecDeque<LaneID>> {
-    let lane_type = map.get_l(start).lane_type;
-    let candidate_goals: Vec<LaneID> = map.all_lanes()
-        .iter()
-        .filter_map(|l| {
-            if l.lane_type != lane_type || l.id == start {
-                None
-            } else {
-                Some(l.id)
-            }
-        })
-        .collect();
-    let goal = rng.choose(&candidate_goals).unwrap();
-    if let Some(steps) = map_model::pathfind(map, start, *goal) {
-        Some(VecDeque::from(steps))
-    } else {
-        println!("No path from {} to {} ({:?})", start, goal, lane_type);
-        None
     }
 }

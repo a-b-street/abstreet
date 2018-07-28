@@ -13,7 +13,7 @@ use std::collections::VecDeque;
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {pick_goal_and_find_path, CarID, PedestrianID, Tick, TIMESTEP};
+use {CarID, PedestrianID, Tick, TIMESTEP};
 
 pub enum CarState {
     Moving,
@@ -87,57 +87,95 @@ impl Sim {
         }
     }
 
-    pub fn total_cars(&self) -> usize {
-        self.car_id_counter
-    }
-
     pub fn seed_parked_cars(&mut self, percent: f64) {
         self.parking_state
             .seed_random_cars(&mut self.rng, percent, &mut self.car_id_counter)
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        let mut driving_lanes = self.driving_state.get_empty_lanes();
+        use rayon::prelude::*;
+
+        let mut driving_lanes = self.driving_state.get_empty_lanes(map);
         // Don't ruin determinism for silly reasons. :)
         if !driving_lanes.is_empty() {
             self.rng.shuffle(&mut driving_lanes);
         }
 
-        let n = num_cars.min(driving_lanes.len());
-        let mut actual = 0;
-        for i in 0..n {
-            if self.start_agent(map, driving_lanes[i]) {
-                actual += 1;
-            }
+        let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
+        for i in 0..num_cars.min(driving_lanes.len()) {
+            let start = driving_lanes[i];
+            let goal = choose_different(&mut self.rng, &driving_lanes, start);
+            requested_paths.push((start, goal));
         }
-        println!("Started {} parked cars of requested {}", actual, n);
+
+        println!("Calculating {} paths for cars", requested_paths.len());
+        let timer = Instant::now();
+        let paths: Vec<Option<Vec<LaneID>>> = requested_paths
+            .par_iter()
+            .map(|(start, goal)| map_model::pathfind(map, *start, *goal))
+            .collect();
+
+        let mut actual = 0;
+        for path in paths.into_iter() {
+            if let Some(steps) = path {
+                if self.start_parked_car(map, steps) {
+                    actual += 1;
+                }
+            } else {
+                // zip with request to have start/goal?
+                //println!("Failed to pathfind for a pedestrian");
+            };
+        }
+
+        println!(
+            "Calculating {} car paths took {:?}",
+            requested_paths.len(),
+            timer.elapsed()
+        );
+        println!("Started {} parked cars of requested {}", actual, num_cars);
     }
 
+    fn start_parked_car(&mut self, map: &Map, steps: Vec<LaneID>) -> bool {
+        let driving_lane = steps[0];
+        if let Some(parking_lane) = map.get_lane_and_parent(driving_lane)
+            .1
+            .find_parking_lane(driving_lane)
+        {
+            if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
+                if self.driving_state
+                    .start_car_on_lane(self.time, car, VecDeque::from(steps))
+                {
+                    self.parking_state.remove_last_parked_car(parking_lane, car);
+                    return true;
+                }
+            } else {
+                println!("No parked cars on {}", parking_lane);
+            }
+        } else {
+            println!("{} has no parking lane", driving_lane);
+        }
+        false
+    }
+
+    // TODO make the UI do some of this
     pub fn start_agent(&mut self, map: &Map, id: LaneID) -> bool {
         // TODO maybe a way to grab both?
-        let lane = map.get_l(id);
-        let road = map.get_r(lane.parent);
-        let (driving_lane, parking_lane) = match lane.lane_type {
+        let (lane, road) = map.get_lane_and_parent(id);
+        let driving_lane = match lane.lane_type {
             LaneType::Sidewalk => {
                 if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, id) {
                     println!("Spawned a pedestrian at {}", id);
-                    self.walking_state.seed_pedestrian(map, path);
+                    self.walking_state
+                        .seed_pedestrian(map, VecDeque::from(path));
                     return true;
                 } else {
                     return false;
                 }
             }
-            LaneType::Driving => {
-                if let Some(parking) = road.find_parking_lane(id) {
-                    (id, parking)
-                } else {
-                    println!("{} has no parking lane", id);
-                    return false;
-                }
-            }
+            LaneType::Driving => id,
             LaneType::Parking => {
                 if let Some(driving) = road.find_driving_lane(id) {
-                    (driving, id)
+                    driving
                 } else {
                     println!("{} has no driving lane", id);
                     return false;
@@ -149,21 +187,10 @@ impl Sim {
             }
         };
 
-        if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
-            if self.driving_state.start_car_on_lane(
-                self.time,
-                driving_lane,
-                car,
-                map,
-                &mut self.rng,
-            ) {
-                self.parking_state.remove_last_parked_car(parking_lane, car);
-            }
-            true
-        } else {
-            println!("No parked cars on {}", parking_lane);
-            false
+        if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, driving_lane) {
+            return self.start_parked_car(map, path);
         }
+        false
     }
 
     pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
@@ -333,5 +360,30 @@ fn choose_different<R: Rng + ?Sized, T: PartialEq + Copy>(
         if choice != except {
             return choice;
         }
+    }
+}
+
+fn pick_goal_and_find_path<R: Rng + ?Sized>(
+    rng: &mut R,
+    map: &Map,
+    start: LaneID,
+) -> Option<Vec<LaneID>> {
+    let lane_type = map.get_l(start).lane_type;
+    let candidate_goals: Vec<LaneID> = map.all_lanes()
+        .iter()
+        .filter_map(|l| {
+            if l.lane_type != lane_type || l.id == start {
+                None
+            } else {
+                Some(l.id)
+            }
+        })
+        .collect();
+    let goal = rng.choose(&candidate_goals).unwrap();
+    if let Some(steps) = map_model::pathfind(map, start, *goal) {
+        Some(steps)
+    } else {
+        println!("No path from {} to {} ({:?})", start, goal, lane_type);
+        None
     }
 }
