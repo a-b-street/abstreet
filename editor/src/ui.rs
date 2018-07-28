@@ -386,10 +386,6 @@ impl gui::GUI for UI {
             &mut self.draw_map,
             &mut self.sim_ctrl.sim
         ));
-        stop_if_done!(
-            self.color_picker
-                .handle_event(input, &mut self.canvas, &mut self.cs)
-        );
         stop_if_done!(self.current_search_state.event(input));
         stop_if_done!(self.warp.event(
             input,
@@ -397,6 +393,10 @@ impl gui::GUI for UI {
             &mut self.canvas,
             &mut self.current_selection_state,
         ));
+        stop_if_done!(
+            self.color_picker
+                .handle_event(input, &mut self.canvas, &mut self.cs)
+        );
 
         if self.show_lanes.handle_event(input) {
             if let SelectionState::SelectedLane(_, _) = self.current_selection_state {

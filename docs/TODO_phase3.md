@@ -14,7 +14,6 @@
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
 	- draw stop buffer in front/behind of cars
-	- draw cars in intersections, even when slightly zoomed out
 	- draw cars in slightly different colors, to distinguish them better
 
 - start implementing a second AORTAish driving model
