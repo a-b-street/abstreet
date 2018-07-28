@@ -541,18 +541,20 @@ impl gui::GUI for UI {
                 .get_intersections_onscreen(screen_bbox, &self.hider)
             {
                 i.draw(g, self.color_intersection(i.id), &self.cs);
+                for t in &self.map.get_i(i.id).turns {
+                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
+                        c.draw(g, self.color_car(c.id));
+                    }
+                    for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(*t, &self.map) {
+                        p.draw(g, self.color_ped(p.id));
+                    }
+                }
             }
         }
 
         if self.show_icons.is_enabled() {
             for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
                 t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
-                for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(t.id, &self.map) {
-                    c.draw(g, self.color_car(c.id));
-                }
-                for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(t.id, &self.map) {
-                    p.draw(g, self.color_ped(p.id));
-                }
             }
         }
 
