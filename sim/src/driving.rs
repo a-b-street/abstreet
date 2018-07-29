@@ -7,6 +7,7 @@ use geom::{Angle, Pt2D};
 use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
@@ -214,8 +215,31 @@ pub struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic.
     pub(crate) cars: BTreeMap<CarID, Car>,
     lanes: Vec<SimQueue>,
+    // See https://github.com/serde-rs/json/issues/402.
+    #[serde(serialize_with = "serialize_turn_map")]
+    #[serde(deserialize_with = "deserialize_turn_map")]
     turns: BTreeMap<TurnID, SimQueue>,
     intersections: Vec<IntersectionPolicy>,
+}
+
+fn serialize_turn_map<S: Serializer>(
+    map: &BTreeMap<TurnID, SimQueue>,
+    s: S,
+) -> Result<S::Ok, S::Error> {
+    map.iter()
+        .map(|(a, b)| (a.clone(), b.clone()))
+        .collect::<Vec<(_, _)>>()
+        .serialize(s)
+}
+fn deserialize_turn_map<'de, D: Deserializer<'de>>(
+    d: D,
+) -> Result<BTreeMap<TurnID, SimQueue>, D::Error> {
+    let vec = <Vec<(TurnID, SimQueue)>>::deserialize(d)?;
+    let mut map = BTreeMap::new();
+    for (k, v) in vec {
+        map.insert(k, v);
+    }
+    Ok(map)
 }
 
 impl DrivingSimState {

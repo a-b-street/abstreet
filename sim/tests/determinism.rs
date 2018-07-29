@@ -4,6 +4,16 @@ extern crate map_model;
 extern crate sim;
 
 #[test]
+fn serialization() {
+    // This assumes this map has been built
+    let input = "../data/small.abst";
+
+    let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
+    let sim = sim::Sim::new(&map, Some(42));
+    abstutil::write_json("/tmp/sim_state.json", &sim).unwrap();
+}
+
+#[test]
 fn from_scratch() {
     // This assumes this map has been built
     let input = "../data/small.abst";
@@ -11,8 +21,6 @@ fn from_scratch() {
     let spawn_count = 1000;
 
     println!("Creating two simulations");
-    // TODO bundle all of the layers of the map together in some super-struct, so this
-    // initialization and plumbing is easier
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 

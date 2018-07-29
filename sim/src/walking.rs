@@ -3,6 +3,7 @@ use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std;
 use std::collections::VecDeque;
 use {On, PedestrianID};
@@ -105,9 +106,32 @@ impl Pedestrian {
 pub struct WalkingSimState {
     // Trying a different style than driving for storing things
     peds_per_sidewalk: MultiMap<LaneID, Pedestrian>,
+    #[serde(serialize_with = "serialize_turn_map")]
+    #[serde(deserialize_with = "deserialize_turn_map")]
     peds_per_turn: MultiMap<TurnID, Pedestrian>,
 
     id_counter: usize,
+}
+
+fn serialize_turn_map<S: Serializer>(
+    map: &MultiMap<TurnID, Pedestrian>,
+    s: S,
+) -> Result<S::Ok, S::Error> {
+    // TODO maybe need to sort by TurnID to have deterministic output
+    map.iter()
+        .map(|(a, b)| (a.clone(), b.clone()))
+        .collect::<Vec<(_, _)>>()
+        .serialize(s)
+}
+fn deserialize_turn_map<'de, D: Deserializer<'de>>(
+    d: D,
+) -> Result<MultiMap<TurnID, Pedestrian>, D::Error> {
+    let vec = <Vec<(TurnID, Pedestrian)>>::deserialize(d)?;
+    let mut map = MultiMap::new();
+    for (k, v) in vec {
+        map.insert(k, v);
+    }
+    Ok(map)
 }
 
 impl WalkingSimState {
