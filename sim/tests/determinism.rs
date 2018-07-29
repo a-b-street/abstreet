@@ -18,8 +18,10 @@ fn from_scratch() {
 
     let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
     let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
+    sim1.seed_pedestrians(&map, 1000);
     sim1.seed_parked_cars(0.7);
     sim1.start_many_parked_cars(&map, spawn_count);
+    sim2.seed_pedestrians(&map, 1000);
     sim2.seed_parked_cars(0.7);
     sim2.start_many_parked_cars(&map, spawn_count);
 
@@ -49,8 +51,10 @@ fn with_savestating() {
 
     let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
     let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
+    sim1.seed_pedestrians(&map, 1000);
     sim1.seed_parked_cars(0.7);
     sim1.start_many_parked_cars(&map, spawn_count);
+    sim2.seed_pedestrians(&map, 1000);
     sim2.seed_parked_cars(0.7);
     sim2.start_many_parked_cars(&map, spawn_count);
 

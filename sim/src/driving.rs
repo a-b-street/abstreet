@@ -211,9 +211,7 @@ impl SimQueue {
 // This manages only actively driving cars
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub struct DrivingSimState {
-    // TODO investigate slot map-like structures for performance
-    // Using BTreeMap instead of HashMap so iteration is deterministic. Should be able to relax
-    // this later after step() doesnt need a RNG.
+    // Using BTreeMap instead of HashMap so iteration is deterministic.
     pub(crate) cars: BTreeMap<CarID, Car>,
     lanes: Vec<SimQueue>,
     turns: BTreeMap<TurnID, SimQueue>,
@@ -276,10 +274,6 @@ impl DrivingSimState {
         // move, reinterpreting Goto to see if there's room now. It's important to query
         // has_room_now here using the previous, fixed state of the world. If we did it in the next
         // loop, then order of updates would matter for more than just conflict resolution.
-        //
-        // Note that since this uses RNG right now, it's only deterministic if iteration order is!
-        // So can't be concurrent and use RNG. Could have a RNG per car or something later if we
-        // really needed both.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
             requested_moves.push((
@@ -306,8 +300,7 @@ impl DrivingSimState {
                 },
             ));
         }
-        // TODO since self.cars is a hash, requested_moves is in random order. sort by car ID to be
-        // deterministic.
+        // TODO rm this
         requested_moves.sort_by_key(|pair| (pair.0).0);
 
         // Apply moves, resolving conflicts. This has to happen serially.

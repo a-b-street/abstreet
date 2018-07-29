@@ -436,3 +436,29 @@ mutations need to be done serially. So I think each sim's method should take
 the path outright, not even start/end. Stick the rng work in sim for the
 moment. This should let the start/goal selection and the parallelization of
 paths happen at a more outer layer, in the sim aggregator.
+
+## Intersection policies for pedestrians ##
+
+Before figuring out how pedestrians will deterministically use intersections alongside cars, recall how cars currently work...
+
+- ask all cars for next move (continue on same thing, or move to a turn/lane)
+- using fixed state, adjust some of the moves that dont have room to move to a new spot to wait instead
+- serially ask intersections if a car can start a turn
+- serially make sure only one new car enters a lane in the tick
+	- shouldnt the intersection policy guarantee this by itself?
+- very awkwardly reset all queues from scratch
+
+How did AORTA do it?
+
+- agent.step for all of em
+	- enter intersections, telling them. must've previously gotten a ticket
+- let all the agents react to the new world
+	- here we ask for tickets, unless we've already got one
+- same for intersections
+	- grant them here
+
+aka basically yeah, the simple:
+
+- agents send a ticket during the planning phase?
+- intersections get a chance to react every tick, granting tickets
+- during the next action phase, an agent can act on the approved ticket?
