@@ -30,3 +30,8 @@
 - make them obey intersections (deterministically!)
 - make them start and end at buildings
 	- trim the sidewalk path to the edge of a building
+
+## General
+
+- savestating a sim has nondet output due to hashes; switching to btree is kind of weird
+- diffing two sim states is tedious no matter what; is there a nice macro-driven deep equals we could do instead?

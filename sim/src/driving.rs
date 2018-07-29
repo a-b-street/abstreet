@@ -324,8 +324,6 @@ impl DrivingSimState {
                 },
             ));
         }
-        // TODO rm this
-        requested_moves.sort_by_key(|pair| (pair.0).0);
 
         // Apply moves, resolving conflicts. This has to happen serially.
         // It might make more sense to push the conflict resolution down to SimQueue?

@@ -4,7 +4,7 @@ use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use {CarID, Tick, SPEED_LIMIT};
 
 use std;
@@ -57,18 +57,21 @@ impl IntersectionPolicy {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct StopSign {
     id: IntersectionID,
-    started_waiting_at: HashMap<CarID, Tick>,
-    accepted: HashMap<CarID, TurnID>,
-    waiting: HashMap<CarID, TurnID>,
+    // Use BTreeMap so serialized state is easy to compare.
+    // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
+    // is an alt.
+    started_waiting_at: BTreeMap<CarID, Tick>,
+    accepted: BTreeMap<CarID, TurnID>,
+    waiting: BTreeMap<CarID, TurnID>,
 }
 
 impl StopSign {
     pub fn new(id: IntersectionID) -> StopSign {
         StopSign {
             id,
-            started_waiting_at: HashMap::new(),
-            accepted: HashMap::new(),
-            waiting: HashMap::new(),
+            started_waiting_at: BTreeMap::new(),
+            accepted: BTreeMap::new(),
+            waiting: BTreeMap::new(),
         }
     }
 
@@ -148,14 +151,14 @@ impl StopSign {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct TrafficSignal {
     id: IntersectionID,
-    accepted: HashMap<CarID, TurnID>,
+    accepted: BTreeMap<CarID, TurnID>,
 }
 
 impl TrafficSignal {
     pub fn new(id: IntersectionID) -> TrafficSignal {
         TrafficSignal {
             id,
-            accepted: HashMap::new(),
+            accepted: BTreeMap::new(),
         }
     }
 
