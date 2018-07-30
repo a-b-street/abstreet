@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
@@ -113,8 +114,14 @@ struct StopSign {
     // Use BTreeMap so serialized state is easy to compare.
     // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
     // is an alt.
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     started_waiting_at: BTreeMap<AgentID, Tick>,
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     accepted: BTreeMap<AgentID, TurnID>,
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     waiting: BTreeMap<AgentID, TurnID>,
 }
 
@@ -204,6 +211,8 @@ impl StopSign {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct TrafficSignal {
     id: IntersectionID,
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     accepted: BTreeMap<AgentID, TurnID>,
 }
 

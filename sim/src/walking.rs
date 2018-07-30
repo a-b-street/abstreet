@@ -106,14 +106,15 @@ impl Pedestrian {
 pub struct WalkingSimState {
     // Trying a different style than driving for storing things
     peds_per_sidewalk: MultiMap<LaneID, Pedestrian>,
-    #[serde(serialize_with = "serialize_turn_map")]
-    #[serde(deserialize_with = "deserialize_turn_map")]
+    #[serde(serialize_with = "serialize_multimap")]
+    #[serde(deserialize_with = "deserialize_multimap")]
     peds_per_turn: MultiMap<TurnID, Pedestrian>,
 
     id_counter: usize,
 }
 
-fn serialize_turn_map<S: Serializer>(
+// TODO make generic, lift to abstutil
+fn serialize_multimap<S: Serializer>(
     map: &MultiMap<TurnID, Pedestrian>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
@@ -123,7 +124,7 @@ fn serialize_turn_map<S: Serializer>(
         .collect::<Vec<(_, _)>>()
         .serialize(s)
 }
-fn deserialize_turn_map<'de, D: Deserializer<'de>>(
+fn deserialize_multimap<'de, D: Deserializer<'de>>(
     d: D,
 ) -> Result<MultiMap<TurnID, Pedestrian>, D::Error> {
     let vec = <Vec<(TurnID, Vec<Pedestrian>)>>::deserialize(d)?;

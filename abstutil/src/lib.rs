@@ -3,7 +3,8 @@ extern crate serde_cbor;
 extern crate serde_json;
 
 use serde::de::DeserializeOwned;
-use serde::Serialize;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::collections::BTreeMap;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Write};
@@ -67,4 +68,32 @@ where
     pub fn get(&self, key: K) -> &HashSet<V> {
         self.map.get(&key).unwrap_or(&self.empty)
     }
+}
+
+// For BTreeMaps with struct keys. See https://github.com/serde-rs/json/issues/402.
+
+pub fn serialize_btreemap<S: Serializer, K: Serialize, V: Serialize>(
+    map: &BTreeMap<K, V>,
+    s: S,
+) -> Result<S::Ok, S::Error> {
+    map.iter()
+        .map(|(a, b)| (a.clone(), b.clone()))
+        .collect::<Vec<(_, _)>>()
+        .serialize(s)
+}
+
+pub fn deserialize_btreemap<
+    'de,
+    D: Deserializer<'de>,
+    K: Deserialize<'de> + Ord,
+    V: Deserialize<'de>,
+>(
+    d: D,
+) -> Result<BTreeMap<K, V>, D::Error> {
+    let vec = <Vec<(K, V)>>::deserialize(d)?;
+    let mut map = BTreeMap::new();
+    for (k, v) in vec {
+        map.insert(k, v);
+    }
+    Ok(map)
 }
