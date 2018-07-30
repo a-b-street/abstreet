@@ -4,7 +4,7 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
-use intersections::{IntersectionPolicy, StopSign, TrafficSignal};
+use intersections::{IntersectionPolicy, Request, StopSign, TrafficSignal};
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -341,8 +341,7 @@ impl DrivingSimState {
                     let mut ok_to_turn = true;
                     if let On::Turn(t) = on {
                         ok_to_turn = self.intersections[map.get_t(t).parent.0].can_do_turn(
-                            *id,
-                            t,
+                            Request::for_car(*id, t),
                             time,
                             map,
                             control_map,
@@ -355,14 +354,16 @@ impl DrivingSimState {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
                         if let On::Turn(t) = c.on {
-                            self.intersections[map.get_t(t).parent.0].on_exit(c.id);
+                            self.intersections[map.get_t(t).parent.0]
+                                .on_exit(Request::for_car(c.id, t));
                             assert_eq!(c.path[0], map.get_t(t).dst);
                             c.path.pop_front();
                         }
                         c.waiting_for = None;
                         c.on = on;
                         if let On::Turn(t) = c.on {
-                            self.intersections[map.get_t(t).parent.0].on_enter(c.id);
+                            self.intersections[map.get_t(t).parent.0]
+                                .on_enter(Request::for_car(c.id, t));
                         }
                         // TODO could calculate leftover (and deal with large timesteps, small
                         // lanes)

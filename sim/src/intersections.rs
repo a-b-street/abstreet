@@ -5,13 +5,41 @@ use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::BTreeMap;
-use {CarID, Tick, SPEED_LIMIT};
+use {CarID, PedestrianID, Tick, SPEED_LIMIT};
 
 use std;
 const WAIT_AT_STOP_SIGN: si::Second<f64> = si::Second {
     value_unsafe: 1.5,
     _marker: std::marker::PhantomData,
 };
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub enum AgentID {
+    Car(CarID),
+    Pedestrian(PedestrianID),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Request {
+    pub agent: AgentID,
+    pub turn: TurnID,
+}
+
+impl Request {
+    pub fn for_car(car: CarID, t: TurnID) -> Request {
+        Request {
+            agent: AgentID::Car(car),
+            turn: t,
+        }
+    }
+
+    pub fn for_ped(ped: PedestrianID, t: TurnID) -> Request {
+        Request {
+            agent: AgentID::Pedestrian(ped),
+            turn: t,
+        }
+    }
+}
 
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -21,35 +49,34 @@ pub enum IntersectionPolicy {
 }
 
 impl IntersectionPolicy {
-    // This must only be called when the car is ready to enter the intersection.
+    // This must only be called when the agent is ready to enter the intersection.
     pub fn can_do_turn(
         &mut self,
-        car: CarID,
-        turn: TurnID,
+        req: Request,
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
         match *self {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                p.can_do_turn(car, turn, time, map, control_map)
+                p.can_do_turn(req, time, map, control_map)
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                p.can_do_turn(car, turn, time, map, control_map)
+                p.can_do_turn(req, time, map, control_map)
             }
         }
     }
 
-    pub fn on_enter(&self, car: CarID) {
+    pub fn on_enter(&self, req: Request) {
         match self {
-            IntersectionPolicy::StopSignPolicy(p) => p.on_enter(car),
-            IntersectionPolicy::TrafficSignalPolicy(p) => p.on_enter(car),
+            IntersectionPolicy::StopSignPolicy(p) => p.on_enter(req),
+            IntersectionPolicy::TrafficSignalPolicy(p) => p.on_enter(req),
         }
     }
-    pub fn on_exit(&mut self, car: CarID) {
+    pub fn on_exit(&mut self, req: Request) {
         match *self {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => p.on_exit(car),
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.on_exit(car),
+            IntersectionPolicy::StopSignPolicy(ref mut p) => p.on_exit(req),
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.on_exit(req),
         }
     }
 }
@@ -60,9 +87,9 @@ pub struct StopSign {
     // Use BTreeMap so serialized state is easy to compare.
     // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
     // is an alt.
-    started_waiting_at: BTreeMap<CarID, Tick>,
-    accepted: BTreeMap<CarID, TurnID>,
-    waiting: BTreeMap<CarID, TurnID>,
+    started_waiting_at: BTreeMap<AgentID, Tick>,
+    accepted: BTreeMap<AgentID, TurnID>,
+    waiting: BTreeMap<AgentID, TurnID>,
 }
 
 impl StopSign {
@@ -99,59 +126,59 @@ impl StopSign {
 
     fn can_do_turn(
         &mut self,
-        car: CarID,
-        turn: TurnID,
+        req: Request,
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
+        let (agent, turn) = (req.agent, req.turn);
         assert_eq!(map.get_t(turn).parent, self.id);
 
-        if self.accepted.contains_key(&car) {
+        if self.accepted.contains_key(&agent) {
             return true;
         }
 
-        if !self.started_waiting_at.contains_key(&car) {
-            self.started_waiting_at.insert(car, time);
+        if !self.started_waiting_at.contains_key(&agent) {
+            self.started_waiting_at.insert(agent, time);
         }
 
         if self.conflicts_with_accepted(turn, map) {
-            self.waiting.insert(car, turn);
+            self.waiting.insert(agent, turn);
             return false;
         }
 
         let ss = &control_map.stop_signs[&self.id];
         if self.conflicts_with_waiting_with_higher_priority(turn, map, ss) {
-            self.waiting.insert(car, turn);
+            self.waiting.insert(agent, turn);
             return false;
         }
         if ss.get_priority(turn) == TurnPriority::Stop
-            && (time - self.started_waiting_at[&car]).as_time() < WAIT_AT_STOP_SIGN
+            && (time - self.started_waiting_at[&agent]).as_time() < WAIT_AT_STOP_SIGN
         {
-            self.waiting.insert(car, turn);
+            self.waiting.insert(agent, turn);
             return false;
         }
 
-        self.accepted.insert(car, turn);
-        self.waiting.remove(&car);
-        self.started_waiting_at.remove(&car);
+        self.accepted.insert(agent, turn);
+        self.waiting.remove(&agent);
+        self.started_waiting_at.remove(&agent);
         true
     }
 
-    fn on_enter(&self, car: CarID) {
-        assert!(self.accepted.contains_key(&car));
+    fn on_enter(&self, req: Request) {
+        assert!(self.accepted.contains_key(&req.agent));
     }
 
-    fn on_exit(&mut self, car: CarID) {
-        assert!(self.accepted.contains_key(&car));
-        self.accepted.remove(&car);
+    fn on_exit(&mut self, req: Request) {
+        assert!(self.accepted.contains_key(&req.agent));
+        self.accepted.remove(&req.agent);
     }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct TrafficSignal {
     id: IntersectionID,
-    accepted: BTreeMap<CarID, TurnID>,
+    accepted: BTreeMap<AgentID, TurnID>,
 }
 
 impl TrafficSignal {
@@ -162,48 +189,48 @@ impl TrafficSignal {
         }
     }
 
-    // TODO determine if cars are staying in the intersection past the cycle time.
+    // TODO determine if agents are staying in the intersection past the cycle time.
 
     fn can_do_turn(
         &mut self,
-        car: CarID,
-        t: TurnID,
+        req: Request,
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
-        let turn = map.get_t(t);
+        let turn = map.get_t(req.turn);
 
         assert_eq!(turn.parent, self.id);
 
-        if self.accepted.contains_key(&car) {
+        if self.accepted.contains_key(&req.agent) {
             return true;
         }
 
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
 
-        if !cycle.contains(t) {
+        if !cycle.contains(turn.id) {
             return false;
         }
-        // How long will it take the car to cross the turn?
+        // How long will it take the agent to cross the turn?
+        // TODO different speeds
         let crossing_time = turn.length() / SPEED_LIMIT;
         // TODO account for TIMESTEP
 
         if crossing_time < remaining_cycle_time {
-            self.accepted.insert(car, t);
+            self.accepted.insert(req.agent, turn.id);
             return true;
         }
 
         false
     }
 
-    fn on_enter(&self, car: CarID) {
-        assert!(self.accepted.contains_key(&car));
+    fn on_enter(&self, req: Request) {
+        assert!(self.accepted.contains_key(&req.agent));
     }
 
-    fn on_exit(&mut self, car: CarID) {
-        assert!(self.accepted.contains_key(&car));
-        self.accepted.remove(&car);
+    fn on_exit(&mut self, req: Request) {
+        assert!(self.accepted.contains_key(&req.agent));
+        self.accepted.remove(&req.agent);
     }
 }
