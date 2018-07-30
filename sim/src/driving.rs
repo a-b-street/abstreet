@@ -4,7 +4,7 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
-use intersections::{IntersectionPolicy, Request, StopSign, TrafficSignal};
+use intersections::{IntersectionSimState, Request};
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -219,7 +219,6 @@ pub struct DrivingSimState {
     #[serde(serialize_with = "serialize_turn_map")]
     #[serde(deserialize_with = "deserialize_turn_map")]
     turns: BTreeMap<TurnID, SimQueue>,
-    intersections: Vec<IntersectionPolicy>,
 }
 
 fn serialize_turn_map<S: Serializer>(
@@ -244,20 +243,7 @@ fn deserialize_turn_map<'de, D: Deserializer<'de>>(
 
 impl DrivingSimState {
     pub fn new(map: &Map) -> DrivingSimState {
-        let mut intersections: Vec<IntersectionPolicy> = Vec::new();
-        for i in map.all_intersections() {
-            if i.has_traffic_signal {
-                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(
-                    i.id,
-                )));
-            } else {
-                intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
-            }
-        }
-
         let mut s = DrivingSimState {
-            intersections,
-
             cars: BTreeMap::new(),
             // TODO only driving ones
             lanes: map.all_lanes()
@@ -293,7 +279,13 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
+    pub fn step(
+        &mut self,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        intersections: &mut IntersectionSimState,
+    ) {
         // Could be concurrent, since this is deterministic. Note no RNG. Ask all cars for their
         // move, reinterpreting Goto to see if there's room now. It's important to query
         // has_room_now here using the previous, fixed state of the world. If we did it in the next
@@ -340,7 +332,7 @@ impl DrivingSimState {
                     // new_car_entered_this_step.
                     let mut ok_to_turn = true;
                     if let On::Turn(t) = on {
-                        ok_to_turn = self.intersections[map.get_t(t).parent.0].can_do_turn(
+                        ok_to_turn = intersections.can_do_turn(
                             Request::for_car(*id, t),
                             time,
                             map,
@@ -354,16 +346,14 @@ impl DrivingSimState {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
                         if let On::Turn(t) = c.on {
-                            self.intersections[map.get_t(t).parent.0]
-                                .on_exit(Request::for_car(c.id, t));
+                            intersections.on_exit(Request::for_car(c.id, t), map);
                             assert_eq!(c.path[0], map.get_t(t).dst);
                             c.path.pop_front();
                         }
                         c.waiting_for = None;
                         c.on = on;
                         if let On::Turn(t) = c.on {
-                            self.intersections[map.get_t(t).parent.0]
-                                .on_enter(Request::for_car(c.id, t));
+                            intersections.on_enter(Request::for_car(c.id, t), map);
                         }
                         // TODO could calculate leftover (and deal with large timesteps, small
                         // lanes)

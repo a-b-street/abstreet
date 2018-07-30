@@ -41,14 +41,26 @@ impl Request {
     }
 }
 
-// Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub enum IntersectionPolicy {
-    StopSignPolicy(StopSign),
-    TrafficSignalPolicy(TrafficSignal),
+pub struct IntersectionSimState {
+    intersections: Vec<IntersectionPolicy>,
 }
 
-impl IntersectionPolicy {
+impl IntersectionSimState {
+    pub fn new(map: &Map) -> IntersectionSimState {
+        let mut intersections: Vec<IntersectionPolicy> = Vec::new();
+        for i in map.all_intersections() {
+            if i.has_traffic_signal {
+                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(
+                    i.id,
+                )));
+            } else {
+                intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
+            }
+        }
+        IntersectionSimState { intersections }
+    }
+
     // This must only be called when the agent is ready to enter the intersection.
     pub fn can_do_turn(
         &mut self,
@@ -57,7 +69,9 @@ impl IntersectionPolicy {
         map: &Map,
         control_map: &ControlMap,
     ) -> bool {
-        match *self {
+        let i = map.get_t(req.turn).parent;
+
+        match self.intersections[i.0] {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
                 p.can_do_turn(req, time, map, control_map)
             }
@@ -67,22 +81,34 @@ impl IntersectionPolicy {
         }
     }
 
-    pub fn on_enter(&self, req: Request) {
-        match self {
-            IntersectionPolicy::StopSignPolicy(p) => p.on_enter(req),
-            IntersectionPolicy::TrafficSignalPolicy(p) => p.on_enter(req),
+    pub fn on_enter(&self, req: Request, map: &Map) {
+        let i = map.get_t(req.turn).parent;
+
+        match self.intersections[i.0] {
+            IntersectionPolicy::StopSignPolicy(ref p) => p.on_enter(req),
+            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.on_enter(req),
         }
     }
-    pub fn on_exit(&mut self, req: Request) {
-        match *self {
+
+    pub fn on_exit(&mut self, req: Request, map: &Map) {
+        let i = map.get_t(req.turn).parent;
+
+        match self.intersections[i.0] {
             IntersectionPolicy::StopSignPolicy(ref mut p) => p.on_exit(req),
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.on_exit(req),
         }
     }
 }
 
+// Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub struct StopSign {
+enum IntersectionPolicy {
+    StopSignPolicy(StopSign),
+    TrafficSignalPolicy(TrafficSignal),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+struct StopSign {
     id: IntersectionID,
     // Use BTreeMap so serialized state is easy to compare.
     // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
@@ -93,7 +119,7 @@ pub struct StopSign {
 }
 
 impl StopSign {
-    pub fn new(id: IntersectionID) -> StopSign {
+    fn new(id: IntersectionID) -> StopSign {
         StopSign {
             id,
             started_waiting_at: BTreeMap::new(),
@@ -176,13 +202,13 @@ impl StopSign {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub struct TrafficSignal {
+struct TrafficSignal {
     id: IntersectionID,
     accepted: BTreeMap<AgentID, TurnID>,
 }
 
 impl TrafficSignal {
-    pub fn new(id: IntersectionID) -> TrafficSignal {
+    fn new(id: IntersectionID) -> TrafficSignal {
         TrafficSignal {
             id,
             accepted: BTreeMap::new(),

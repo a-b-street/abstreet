@@ -462,3 +462,8 @@ aka basically yeah, the simple:
 - agents send a ticket during the planning phase?
 - intersections get a chance to react every tick, granting tickets
 - during the next action phase, an agent can act on the approved ticket?
+
+good pattern in intersections:
+- a sim state that the rest of the code interacts with for ALL intersections. rest of code doesnt see individual objects.
+- that manager object delegates out most of the logic to SPECIALIZED versions of individual objects and does the matching
+	- no need for this to exist on the individual IntersectionPolicy object

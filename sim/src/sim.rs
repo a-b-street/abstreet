@@ -5,6 +5,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
+use intersections::IntersectionSimState;
 use map_model;
 use map_model::{LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
@@ -32,6 +33,7 @@ pub struct Sim {
     car_id_counter: usize,
     debug: Option<CarID>,
 
+    intersection_state: IntersectionSimState,
     driving_state: DrivingSimState,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
@@ -46,6 +48,7 @@ impl Sim {
 
         Sim {
             rng,
+            intersection_state: IntersectionSimState::new(map),
             driving_state: DrivingSimState::new(map),
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
@@ -242,7 +245,8 @@ impl Sim {
         self.time.increment();
 
         // TODO Vanish action should become Park
-        self.driving_state.step(self.time, map, control_map);
+        self.driving_state
+            .step(self.time, map, control_map, &mut self.intersection_state);
         self.walking_state.step(TIMESTEP, map, control_map);
     }
 
