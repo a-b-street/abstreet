@@ -246,8 +246,9 @@ impl Sim {
 
         // TODO Vanish action should become Park
         self.driving_state
-            .step(self.time, map, control_map, &mut self.intersection_state);
+            .step(self.time, map, &mut self.intersection_state);
         self.walking_state.step(TIMESTEP, map, control_map);
+        self.intersection_state.step(self.time, map, control_map);
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {

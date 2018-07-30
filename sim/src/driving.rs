@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
@@ -52,7 +51,13 @@ impl Car {
     }
 
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
-    fn react(&self, map: &Map, time: Tick, sim: &DrivingSimState) -> Action {
+    fn react(
+        &self,
+        map: &Map,
+        time: Tick,
+        sim: &DrivingSimState,
+        intersections: &IntersectionSimState,
+    ) -> Action {
         let desired_on: On = {
             if let Some(on) = self.waiting_for {
                 on
@@ -84,7 +89,12 @@ impl Car {
             On::Lane(id) => sim.lanes[id.0].cars_queue[0] == self.id,
             On::Turn(id) => sim.turns[&id].cars_queue[0] == self.id,
         };
-        if has_room_now && is_lead_vehicle {
+        let intersection_req_granted = match desired_on {
+            // Already doing a turn, finish it!
+            On::Lane(_) => true,
+            On::Turn(id) => intersections.request_granted(Request::for_car(self.id, id), map),
+        };
+        if has_room_now && is_lead_vehicle && intersection_req_granted {
             Action::Goto(desired_on)
         } else {
             Action::WaitFor(desired_on)
@@ -273,18 +283,15 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(
-        &mut self,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        intersections: &mut IntersectionSimState,
-    ) {
+    pub fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((c.id, c.react(map, time, &self)));
+            requested_moves.push((c.id, c.react(map, time, &self, intersections)));
         }
+
+        // In AORTA, there was a split here -- react vs step phase. We're still following the same
+        // thing, but it might be slightly more clear to express it differently?
 
         // Apply moves, resolving conflicts. This has to happen serially.
         // It might make more sense to push the conflict resolution down to SimQueue?
@@ -297,19 +304,12 @@ impl DrivingSimState {
                 }
                 Action::Continue => {}
                 Action::Goto(on) => {
-                    // Order matters due to can_do_turn being mutable and due to
-                    // new_car_entered_this_step.
-                    let mut ok_to_turn = true;
-                    if let On::Turn(t) = on {
-                        ok_to_turn = intersections.can_do_turn(
-                            Request::for_car(*id, t),
-                            time,
-                            map,
-                            control_map,
-                        );
-                    }
-
-                    if new_car_entered_this_step.contains(&on) || !ok_to_turn {
+                    // Order matters due to new_car_entered_this_step.
+                    // TODO rethink this, since intersections should make this safe
+                    if new_car_entered_this_step.contains(&on) {
+                        // The car thought they could go, but have to abort last-minute. We may
+                        // need to set waiting_for, since the car didn't necessarily return WaitFor
+                        // previously.
                         self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     } else {
                         new_car_entered_this_step.insert(on);
@@ -331,9 +331,15 @@ impl DrivingSimState {
                 }
                 Action::WaitFor(on) => {
                     self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
+                    if let On::Turn(t) = on {
+                        // Note this is idempotent and does NOT grant the request.
+                        intersections.submit_request(Request::for_car(*id, t), time, map);
+                    }
                 }
             }
         }
+
+        // TODO could simplify this by only adjusting the SimQueues we need above
 
         // Group cars by lane and turn
         // TODO ideally, just hash On
