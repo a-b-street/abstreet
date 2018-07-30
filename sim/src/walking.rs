@@ -118,18 +118,20 @@ fn serialize_turn_map<S: Serializer>(
     s: S,
 ) -> Result<S::Ok, S::Error> {
     // TODO maybe need to sort by TurnID to have deterministic output
-    map.iter()
-        .map(|(a, b)| (a.clone(), b.clone()))
+    map.iter_all()
+        .map(|(key, values)| (key.clone(), values.clone()))
         .collect::<Vec<(_, _)>>()
         .serialize(s)
 }
 fn deserialize_turn_map<'de, D: Deserializer<'de>>(
     d: D,
 ) -> Result<MultiMap<TurnID, Pedestrian>, D::Error> {
-    let vec = <Vec<(TurnID, Pedestrian)>>::deserialize(d)?;
+    let vec = <Vec<(TurnID, Vec<Pedestrian>)>>::deserialize(d)?;
     let mut map = MultiMap::new();
-    for (k, v) in vec {
-        map.insert(k, v);
+    for (key, values) in vec {
+        for value in values {
+            map.insert(key, value);
+        }
     }
     Ok(map)
 }

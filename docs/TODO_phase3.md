@@ -34,4 +34,6 @@
 ## General
 
 - savestating a sim has nondet output due to hashes; switching to btree is kind of weird
+	- unit test that two savestates of same sim are equal
 - diffing two sim states is tedious no matter what; is there a nice macro-driven deep equals we could do instead?
+	- will need programmatic diffs later for pointing out changes to players in A/B tests
