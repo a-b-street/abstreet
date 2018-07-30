@@ -450,9 +450,9 @@ Before figuring out how pedestrians will deterministically use intersections alo
 
 How did AORTA do it?
 
-- agent.step for all of em
+- agent.step for all of em (mutate stuff)
 	- enter intersections, telling them. must've previously gotten a ticket
-- let all the agents react to the new world
+- let all the agents react to the new world (immutable, except for IDEMPOTENTLY asking for turn)
 	- here we ask for tickets, unless we've already got one
 - same for intersections
 	- grant them here
@@ -467,3 +467,8 @@ good pattern in intersections:
 - a sim state that the rest of the code interacts with for ALL intersections. rest of code doesnt see individual objects.
 - that manager object delegates out most of the logic to SPECIALIZED versions of individual objects and does the matching
 	- no need for this to exist on the individual IntersectionPolicy object
+
+## Notes on determinism ##
+
+- serde tricks
+- unit tests

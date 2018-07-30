@@ -105,7 +105,7 @@ struct SimQueue {
 }
 
 impl SimQueue {
-    pub fn new(id: On, map: &Map) -> SimQueue {
+    fn new(id: On, map: &Map) -> SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
@@ -116,7 +116,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    pub fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
+    fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
         if self.cars_queue.is_empty() {
             return true;
         }
@@ -130,7 +130,7 @@ impl SimQueue {
             >= FOLLOWING_DISTANCE / SPEED_LIMIT
     }
 
-    pub fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
+    fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
         let old_queue = self.cars_queue.clone();
 
         assert!(ids.len() <= self.capacity);
@@ -154,13 +154,13 @@ impl SimQueue {
         }
     }
 
-    pub fn is_empty(&self) -> bool {
+    fn is_empty(&self) -> bool {
         self.cars_queue.is_empty()
     }
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    pub fn get_draw_cars(&self, time: Tick, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
+    fn get_draw_cars(&self, time: Tick, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
         if self.cars_queue.is_empty() {
             return Vec::new();
         }
