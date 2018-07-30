@@ -51,28 +51,43 @@ impl Car {
         ]
     }
 
-    fn step(&self, map: &Map, time: Tick) -> Action {
-        if let Some(on) = self.waiting_for {
-            return Action::Goto(on);
-        }
+    // Note this doesn't change the car's state, and it observes a fixed view of the world!
+    fn react(&self, map: &Map, time: Tick, sim: &DrivingSimState) -> Action {
+        let desired_on: On = {
+            if let Some(on) = self.waiting_for {
+                on
+            } else {
+                let dist = SPEED_LIMIT * (time - self.started_at).as_time();
+                if dist < self.on.length(map) {
+                    return Action::Continue;
+                }
 
-        let dist = SPEED_LIMIT * (time - self.started_at).as_time();
-        if dist < self.on.length(map) {
-            return Action::Continue;
-        }
+                // Done!
+                if self.path.is_empty() {
+                    return Action::Vanish;
+                }
 
-        // Done!
-        if self.path.is_empty() {
-            return Action::Vanish;
-        }
+                match self.on {
+                    On::Lane(id) => On::Turn(self.choose_turn(id, map)),
+                    On::Turn(id) => On::Lane(map.get_t(id).dst),
+                }
+            }
+        };
 
-        match self.on {
-            // TODO cant try to go to next lane unless we're the front car
-            // if we dont do this here, we wont be able to see what turns people are waiting for
-            // even if we wait till we're the front car, we might unravel the line of queued cars
-            // too quickly
-            On::Lane(id) => Action::Goto(On::Turn(self.choose_turn(id, map))),
-            On::Turn(id) => Action::Goto(On::Lane(map.get_t(id).dst)),
+        // Can we actually go there right now?
+        // In a more detailed driving model, this would do things like lookahead.
+        let has_room_now = match desired_on {
+            On::Lane(id) => sim.lanes[id.0].room_at_end(time, &sim.cars),
+            On::Turn(id) => sim.turns[&id].room_at_end(time, &sim.cars),
+        };
+        let is_lead_vehicle = match self.on {
+            On::Lane(id) => sim.lanes[id.0].cars_queue[0] == self.id,
+            On::Turn(id) => sim.turns[&id].cars_queue[0] == self.id,
+        };
+        if has_room_now && is_lead_vehicle {
+            Action::Goto(desired_on)
+        } else {
+            Action::WaitFor(desired_on)
         }
     }
 
@@ -265,35 +280,10 @@ impl DrivingSimState {
         control_map: &ControlMap,
         intersections: &mut IntersectionSimState,
     ) {
-        // Could be concurrent, since this is deterministic. Note no RNG. Ask all cars for their
-        // move, reinterpreting Goto to see if there's room now. It's important to query
-        // has_room_now here using the previous, fixed state of the world. If we did it in the next
-        // loop, then order of updates would matter for more than just conflict resolution.
+        // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((
-                c.id,
-                match c.step(map, time) {
-                    Action::Goto(on) => {
-                        // This is a monotonic property in conjunction with
-                        // new_car_entered_this_step. The last car won't go backwards.
-                        let has_room_now = match on {
-                            On::Lane(id) => self.lanes[id.0].room_at_end(time, &self.cars),
-                            On::Turn(id) => self.turns[&id].room_at_end(time, &self.cars),
-                        };
-                        let is_lead_vehicle = match c.on {
-                            On::Lane(id) => self.lanes[id.0].cars_queue[0] == c.id,
-                            On::Turn(id) => self.turns[&id].cars_queue[0] == c.id,
-                        };
-                        if has_room_now && is_lead_vehicle {
-                            Action::Goto(on)
-                        } else {
-                            Action::WaitFor(on)
-                        }
-                    }
-                    x => x,
-                },
-            ));
+            requested_moves.push((c.id, c.react(map, time, &self)));
         }
 
         // Apply moves, resolving conflicts. This has to happen serially.
