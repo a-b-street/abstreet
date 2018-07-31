@@ -558,15 +558,7 @@ impl gui::GUI for UI {
             }
         }
 
-        for l in &lanes_onscreen {
-            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
-                c.draw(g, self.color_car(c.id));
-            }
-            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
-                p.draw(g, self.color_ped(p.id));
-            }
-        }
-
+        // Building paths overlap sidewalks, so do these first to not look messy
         if self.show_buildings.is_enabled() {
             for b in &self.draw_map
                 .get_buildings_onscreen(screen_bbox, &self.hider)
@@ -576,6 +568,15 @@ impl gui::GUI for UI {
                     self.color_building(b.id),
                     self.cs.get(Colors::BuildingPath),
                 );
+            }
+        }
+
+        for l in &lanes_onscreen {
+            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
+                c.draw(g, self.color_car(c.id));
+            }
+            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
+                p.draw(g, self.color_ped(p.id));
             }
         }
 

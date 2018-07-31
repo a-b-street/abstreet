@@ -46,6 +46,7 @@ impl SimController {
         }
         if input.unimportant_key_pressed(Key::P, "load sim state") {
             self.sim = abstutil::read_json("sim_state").expect("sim state failed");
+            println!("Loaded sim_state");
         }
         if self.last_step.is_some() {
             if input.unimportant_key_pressed(Key::Space, "pause sim") {

@@ -59,21 +59,25 @@ fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut Sele
         Ok(idx) => match line.chars().next().unwrap() {
             'l' => {
                 let id = LaneID(idx);
+                println!("Warping to {}", id);
                 *selection_state = SelectionState::SelectedLane(id, None);
                 map.get_l(id).first_pt()
             }
             'i' => {
                 let id = IntersectionID(idx);
+                println!("Warping to {}", id);
                 *selection_state = SelectionState::SelectedIntersection(id);
                 map.get_i(id).point
             }
             'b' => {
                 let id = BuildingID(idx);
+                println!("Warping to {}", id);
                 *selection_state = SelectionState::SelectedBuilding(id);
                 geometry::center(&map.get_b(id).points)
             }
             'p' => {
                 let id = ParcelID(idx);
+                println!("Warping to {}", id);
                 geometry::center(&map.get_p(id).points)
             }
             _ => {
