@@ -390,6 +390,7 @@ impl gui::GUI for UI {
         stop_if_done!(self.warp.event(
             input,
             &self.map,
+            &self.sim_ctrl.sim,
             &mut self.canvas,
             &mut self.current_selection_state,
         ));

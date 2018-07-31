@@ -234,6 +234,11 @@ impl WalkingSimState {
         }
     }
 
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> DrawPedestrian {
+        let ped = &self.peds[&id];
+        DrawPedestrian::new(id, ped.on.dist_along(ped.dist_along * si::M, map).0)
+    }
+
     pub fn get_draw_peds_on_lane(&self, l: &Lane) -> Vec<DrawPedestrian> {
         let mut result = Vec::new();
         for id in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {

@@ -264,6 +264,14 @@ impl Sim {
         }
     }
 
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> DrawCar {
+        self.driving_state.get_draw_car(id, self.time, map)
+    }
+
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> DrawPedestrian {
+        self.walking_state.get_draw_ped(id, map)
+    }
+
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCar> {
         match map.get_l(l).lane_type {

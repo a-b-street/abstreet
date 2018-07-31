@@ -22,6 +22,7 @@ pub struct DrawCar {
     polygons: Vec<Vec<Vec2d>>,
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<[f64; 4]>,
+    front_pt: Pt2D,
 }
 
 impl DrawCar {
@@ -51,6 +52,7 @@ impl DrawCar {
                 // find the back of the car relative to the front
                 angle.opposite(),
             ),
+            front_pt: front,
         }
     }
 
@@ -75,5 +77,9 @@ impl DrawCar {
             }
         }
         false
+    }
+
+    pub fn focus_pt(&self) -> Pt2D {
+        self.front_pt
     }
 }

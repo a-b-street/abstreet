@@ -4,6 +4,7 @@ use ezgui::text_box::TextBox;
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
 use plugins::selection::SelectionState;
+use sim::{CarID, PedestrianID, Sim};
 use std::usize;
 
 pub enum WarpState {
@@ -16,6 +17,7 @@ impl WarpState {
         &mut self,
         input: &mut UserInput,
         map: &Map,
+        sim: &Sim,
         canvas: &mut Canvas,
         selection_state: &mut SelectionState,
     ) -> bool {
@@ -32,7 +34,7 @@ impl WarpState {
             }
             WarpState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
-                    warp(tb.line.clone(), map, canvas, selection_state);
+                    warp(tb.line.clone(), map, sim, canvas, selection_state);
                     new_state = Some(WarpState::Empty);
                 }
                 input.consume_event();
@@ -54,7 +56,13 @@ impl WarpState {
     }
 }
 
-fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut SelectionState) {
+fn warp(
+    line: String,
+    map: &Map,
+    sim: &Sim,
+    canvas: &mut Canvas,
+    selection_state: &mut SelectionState,
+) {
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
             'l' => {
@@ -75,18 +83,29 @@ fn warp(line: String, map: &Map, canvas: &mut Canvas, selection_state: &mut Sele
                 *selection_state = SelectionState::SelectedBuilding(id);
                 geometry::center(&map.get_b(id).points)
             }
-            'p' => {
+            // TODO ideally "pa" prefix?
+            'e' => {
                 let id = ParcelID(idx);
                 println!("Warping to {}", id);
                 geometry::center(&map.get_p(id).points)
             }
+            'p' => {
+                let id = PedestrianID(idx);
+                println!("Warping to {}", id);
+                sim.get_draw_ped(id, map).focus_pt()
+            }
+            'c' => {
+                let id = CarID(idx);
+                println!("Warping to {}", id);
+                sim.get_draw_car(id, map).focus_pt()
+            }
             _ => {
-                println!("{} isn't a valid ID; Should be [libp][0-9]+", line);
+                println!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
                 return;
             }
         },
         Err(_) => {
-            println!("{} isn't a valid ID; Should be [libp][0-9]+", line);
+            println!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
             return;
         }
     };

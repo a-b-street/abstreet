@@ -33,4 +33,9 @@ impl DrawPedestrian {
             RADIUS,
         )
     }
+
+    pub fn focus_pt(&self) -> Pt2D {
+        let radius = self.circle[2] / 2.0;
+        Pt2D::new(self.circle[0] + radius, self.circle[1] + radius)
+    }
 }
