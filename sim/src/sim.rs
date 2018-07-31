@@ -247,7 +247,8 @@ impl Sim {
         // TODO Vanish action should become Park
         self.driving_state
             .step(self.time, map, &mut self.intersection_state);
-        self.walking_state.step(TIMESTEP, map, control_map);
+        self.walking_state
+            .step(self.time, TIMESTEP, map, &mut self.intersection_state);
         self.intersection_state.step(self.time, map, control_map);
     }
 

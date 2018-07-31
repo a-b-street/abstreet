@@ -1,12 +1,12 @@
-use control::ControlMap;
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
+use intersections::{IntersectionSimState, Request};
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {On, PedestrianID};
+use {On, PedestrianID, Tick};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -29,6 +29,7 @@ struct Pedestrian {
 
     // Head is the next lane
     path: VecDeque<LaneID>,
+    waiting_for: Option<On>,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -40,71 +41,61 @@ impl PartialEq for Pedestrian {
 }
 impl Eq for Pedestrian {}
 
+enum Action {
+    Vanish,      // done
+    Continue,    // need more time to cross the current spot
+    Goto(On),    // go somewhere if there's still room
+    WaitFor(On), // ready to go somewhere, but can't yet for some reason
+}
+
 impl Pedestrian {
-    // True if done and should vanish!
-    fn step_sidewalk(
-        &mut self,
-        delta_time: si::Second<f64>,
-        map: &Map,
-        _control_map: &ControlMap,
-    ) -> bool {
-        let new_dist: si::Meter<f64> = delta_time * SPEED;
-        let done_current_sidewalk = if self.contraflow {
-            self.dist_along -= new_dist.value_unsafe;
-            self.dist_along <= 0.0
-        } else {
-            self.dist_along += new_dist.value_unsafe;
-            self.dist_along * si::M >= self.on.length(map)
+    // Note this doesn't change the ped's state, and it observes a fixed view of the world!
+    // TODO Quite similar to car's state and logic! Maybe refactor. Following paths, same four
+    // actions, same transitions between turns and lanes...
+    fn react(&self, map: &Map, intersections: &IntersectionSimState) -> Action {
+        let desired_on: On = {
+            if let Some(on) = self.waiting_for {
+                on
+            } else {
+                if (!self.contraflow && self.dist_along * si::M < self.on.length(map))
+                    || (self.contraflow && self.dist_along > 0.0)
+                {
+                    return Action::Continue;
+                }
+
+                // Done!
+                if self.path.is_empty() {
+                    return Action::Vanish;
+                }
+
+                match self.on {
+                    On::Lane(id) => On::Turn(self.choose_turn(id, map)),
+                    On::Turn(id) => On::Lane(map.get_t(id).dst),
+                }
+            }
         };
 
-        if !done_current_sidewalk {
-            return false;
+        // Can we actually go there right now?
+        let intersection_req_granted = match desired_on {
+            // Already doing a turn, finish it!
+            On::Lane(_) => true,
+            On::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id), map),
+        };
+        if intersection_req_granted {
+            Action::Goto(desired_on)
+        } else {
+            Action::WaitFor(desired_on)
         }
-        if self.path.is_empty() {
-            return true;
-        }
-
-        let turn = map.get_turns_from_lane(self.on.as_lane())
-            .iter()
-            .find(|t| t.dst == self.path[0])
-            .unwrap()
-            .id;
-        // TODO request the turn and wait for it; don't just go!
-        self.on = On::Turn(turn);
-        self.contraflow = false;
-        self.dist_along = 0.0;
-        self.path.pop_front();
-        false
     }
 
-    fn step_turn(
-        &mut self,
-        delta_time: si::Second<f64>,
-        map: &Map,
-        _control_map: &ControlMap,
-    ) -> bool {
-        let new_dist: si::Meter<f64> = delta_time * SPEED;
-        self.dist_along += new_dist.value_unsafe;
-        if self.dist_along * si::M < self.on.length(map) {
-            return false;
+    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
+        assert!(self.waiting_for.is_none());
+        for t in map.get_turns_from_lane(from) {
+            if t.dst == self.path[0] {
+                return t.id;
+            }
         }
-
-        let turn = map.get_t(self.on.as_turn());
-        let lane = map.get_l(turn.dst);
-        self.on = On::Lane(lane.id);
-
-        // Which end of the sidewalk are we entering?
-        // TODO are there cases where we should enter a new sidewalk and immediately enter a
-        // different turn, instead of always going to the other side of the sidealk? or are there
-        // enough turns to make that unnecessary?
-        if turn.parent == lane.src_i {
-            self.contraflow = false;
-            self.dist_along = 0.0;
-        } else {
-            self.contraflow = true;
-            self.dist_along = lane.length().value_unsafe;
-        }
-        false
+        panic!("No turn from {} to {}", from, self.path[0]);
     }
 }
 
@@ -174,32 +165,96 @@ impl WalkingSimState {
         self.id_counter
     }
 
-    pub fn step(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
-        // Since pedestrians don't interact at all, any ordering and concurrency is deterministic
-        // here.
+    pub fn step(
+        &mut self,
+        time: Tick,
+        delta_time: si::Second<f64>,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) {
+        // Could be concurrent, since this is deterministic.
+        let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
+        for p in self.peds.values() {
+            requested_moves.push((p.id, p.react(map, intersections)));
+        }
 
-        let mut remove: Vec<PedestrianID> = Vec::new();
-        let mut new_per_sidewalk: MultiMap<LaneID, PedestrianID> = MultiMap::new();
-        let mut new_per_turn: MultiMap<TurnID, PedestrianID> = MultiMap::new();
-        for p in self.peds.values_mut() {
-            let done = match p.on {
-                On::Lane(_) => p.step_sidewalk(delta_time, map, control_map),
-                On::Turn(_) => p.step_turn(delta_time, map, control_map),
-            };
-            if done {
-                remove.push(p.id);
-            } else {
-                match p.on {
-                    On::Lane(id) => new_per_sidewalk.insert(id, p.id),
-                    On::Turn(id) => new_per_turn.insert(id, p.id),
-                };
+        // In AORTA, there was a split here -- react vs step phase. We're still following the same
+        // thing, but it might be slightly more clear to express it differently?
+
+        // Apply moves. This can also be concurrent, since there are no possible conflicts.
+        for (id, act) in &requested_moves {
+            match *act {
+                Action::Vanish => {
+                    self.peds.remove(&id);
+                }
+                Action::Continue => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    let new_dist: si::Meter<f64> = delta_time * SPEED;
+                    if p.contraflow {
+                        p.dist_along -= new_dist.value_unsafe;
+                        if p.dist_along < 0.0 {
+                            p.dist_along = 0.0;
+                        }
+                    } else {
+                        p.dist_along += new_dist.value_unsafe;
+                        let max_dist = p.on.length(map).value_unsafe;
+                        if p.dist_along > max_dist {
+                            p.dist_along = max_dist;
+                        }
+                    }
+                }
+                Action::Goto(on) => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    let old_on = p.on.clone();
+                    if let On::Turn(t) = p.on {
+                        intersections.on_exit(Request::for_ped(p.id, t), map);
+                        assert_eq!(p.path[0], map.get_t(t).dst);
+                        p.path.pop_front();
+                    }
+                    p.waiting_for = None;
+                    p.on = on;
+                    p.dist_along = 0.0;
+                    p.contraflow = false;
+                    match p.on {
+                        On::Turn(t) => {
+                            intersections.on_enter(Request::for_ped(p.id, t), map);
+                        }
+                        On::Lane(l) => {
+                            // Which end of the sidewalk are we entering?
+                            // TODO are there cases where we should enter a new sidewalk and
+                            // immediately enter a different turn, instead of always going to the
+                            // other side of the sidealk? or are there enough turns to make that
+                            // unnecessary?
+                            let turn = map.get_t(old_on.as_turn());
+                            let lane = map.get_l(l);
+                            if turn.parent == lane.dst_i {
+                                p.contraflow = true;
+                                p.dist_along = lane.length().value_unsafe;
+                            }
+                        }
+                    }
+
+                    // TODO could calculate leftover (and deal with large timesteps, small
+                    // lanes)
+                }
+                Action::WaitFor(on) => {
+                    self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
+                    if let On::Turn(t) = on {
+                        // Note this is idempotent and does NOT grant the request.
+                        intersections.submit_request(Request::for_ped(*id, t), time, map);
+                    }
+                }
             }
         }
 
-        self.peds_per_sidewalk = new_per_sidewalk;
-        self.peds_per_turn = new_per_turn;
-        for id in remove.into_iter() {
-            self.peds.remove(&id);
+        // TODO could simplify this by only adjusting the sets we need above
+        self.peds_per_sidewalk.clear();
+        self.peds_per_turn.clear();
+        for p in self.peds.values() {
+            match p.on {
+                On::Lane(id) => self.peds_per_sidewalk.insert(id, p.id),
+                On::Turn(id) => self.peds_per_turn.insert(id, p.id),
+            };
         }
     }
 
@@ -240,6 +295,7 @@ impl WalkingSimState {
                 on: On::Lane(start),
                 // TODO start next to a building path, or at least some random position
                 dist_along: 0.0,
+                waiting_for: None,
             },
         );
         self.peds_per_sidewalk.insert(start, id);

@@ -26,7 +26,6 @@ pub(crate) struct Car {
     pub on: On,
     // When did the car start the current On?
     pub started_at: Tick,
-    // TODO ideally, something else would remember Goto was requested and not even call step()
     pub waiting_for: Option<On>,
     pub debug: bool,
     // Head is the next lane
@@ -36,8 +35,8 @@ pub(crate) struct Car {
 enum Action {
     Vanish,      // hit a deadend, oops
     Continue,    // need more time to cross the current spot
-    Goto(On),    // go somewhere if there's room
-    WaitFor(On), // TODO this is only used inside sim. bleh.
+    Goto(On),    // go somewhere if there's still room
+    WaitFor(On), // ready to go somewhere, but can't yet for some reason
 }
 
 impl Car {
