@@ -211,6 +211,30 @@ impl Map {
         &self.parcels
     }
 
+    pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {
+        self.roads.get(id.0)
+    }
+
+    pub fn maybe_get_l(&self, id: LaneID) -> Option<&Lane> {
+        self.lanes.get(id.0)
+    }
+
+    pub fn maybe_get_i(&self, id: IntersectionID) -> Option<&Intersection> {
+        self.intersections.get(id.0)
+    }
+
+    pub fn maybe_get_t(&self, id: TurnID) -> Option<&Turn> {
+        self.turns.get(&id)
+    }
+
+    pub fn maybe_get_b(&self, id: BuildingID) -> Option<&Building> {
+        self.buildings.get(id.0)
+    }
+
+    pub fn maybe_get_p(&self, id: ParcelID) -> Option<&Parcel> {
+        self.parcels.get(id.0)
+    }
+
     pub fn get_r(&self, id: RoadID) -> &Road {
         &self.roads[id.0]
     }

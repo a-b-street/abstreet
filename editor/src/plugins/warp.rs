@@ -64,40 +64,73 @@ fn warp(
     selection_state: &mut SelectionState,
 ) {
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
+        // TODO express this more succinctly
         Ok(idx) => match line.chars().next().unwrap() {
             'l' => {
                 let id = LaneID(idx);
-                println!("Warping to {}", id);
-                *selection_state = SelectionState::SelectedLane(id, None);
-                map.get_l(id).first_pt()
+                if let Some(l) = map.maybe_get_l(id) {
+                    println!("Warping to {}", id);
+                    *selection_state = SelectionState::SelectedLane(id, None);
+                    l.first_pt()
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             'i' => {
                 let id = IntersectionID(idx);
-                println!("Warping to {}", id);
-                *selection_state = SelectionState::SelectedIntersection(id);
-                map.get_i(id).point
+                if let Some(i) = map.maybe_get_i(id) {
+                    println!("Warping to {}", id);
+                    *selection_state = SelectionState::SelectedIntersection(id);
+                    i.point
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             'b' => {
                 let id = BuildingID(idx);
-                println!("Warping to {}", id);
-                *selection_state = SelectionState::SelectedBuilding(id);
-                geometry::center(&map.get_b(id).points)
+                if let Some(b) = map.maybe_get_b(id) {
+                    println!("Warping to {}", id);
+                    *selection_state = SelectionState::SelectedBuilding(id);
+                    geometry::center(&b.points)
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             // TODO ideally "pa" prefix?
             'e' => {
                 let id = ParcelID(idx);
-                println!("Warping to {}", id);
-                geometry::center(&map.get_p(id).points)
+                if let Some(p) = map.maybe_get_p(id) {
+                    println!("Warping to {}", id);
+                    geometry::center(&p.points)
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             'p' => {
                 let id = PedestrianID(idx);
-                println!("Warping to {}", id);
-                sim.get_draw_ped(id, map).focus_pt()
+                if let Some(p) = sim.get_draw_ped(id, map) {
+                    println!("Warping to {}", id);
+                    *selection_state = SelectionState::SelectedPedestrian(id);
+                    p.focus_pt()
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             'c' => {
                 let id = CarID(idx);
-                println!("Warping to {}", id);
-                sim.get_draw_car(id, map).focus_pt()
+                if let Some(c) = sim.get_draw_car(id, map) {
+                    println!("Warping to {}", id);
+                    *selection_state = SelectionState::SelectedCar(id);
+                    c.focus_pt()
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
             }
             _ => {
                 println!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
@@ -105,7 +138,6 @@ fn warp(
             }
         },
         Err(_) => {
-            println!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
             return;
         }
     };

@@ -412,12 +412,12 @@ impl DrivingSimState {
         lanes
     }
 
-    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> DrawCar {
-        let all = match self.cars[&id].on {
+    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
+        let all = match self.cars.get(&id)?.on {
             On::Lane(l) => self.get_draw_cars_on_lane(l, time, map),
             On::Turn(t) => self.get_draw_cars_on_turn(t, time, map),
         };
-        all.into_iter().find(|c| c.id == id).unwrap()
+        all.into_iter().find(|c| c.id == id)
     }
 
     pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {

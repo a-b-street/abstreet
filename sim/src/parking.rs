@@ -83,6 +83,16 @@ impl ParkingSimState {
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCar> {
         self.lanes[id.0].get_draw_cars(map)
     }
+
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
+        // TODO this is so horrendously slow :D
+        for l in &self.lanes {
+            if l.spots.contains(&Some(id)) {
+                return l.get_draw_cars(map).into_iter().find(|c| c.id == id);
+            }
+        }
+        None
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]

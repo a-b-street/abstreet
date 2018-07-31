@@ -264,11 +264,13 @@ impl Sim {
         }
     }
 
-    pub fn get_draw_car(&self, id: CarID, map: &Map) -> DrawCar {
-        self.driving_state.get_draw_car(id, self.time, map)
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
+        self.driving_state
+            .get_draw_car(id, self.time, map)
+            .or_else(|| self.parking_state.get_draw_car(id, map))
     }
 
-    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> DrawPedestrian {
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrian> {
         self.walking_state.get_draw_ped(id, map)
     }
 
