@@ -197,6 +197,13 @@ impl SelectionState {
             _ => None,
         }
     }
+
+    pub fn color_p(&self, p: PedestrianID, cs: &ColorScheme) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedPedestrian(id) if p == id => Some(cs.get(Colors::Selected)),
+            _ => None,
+        }
+    }
 }
 
 pub struct Hider {

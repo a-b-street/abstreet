@@ -333,7 +333,10 @@ impl UI {
         }
     }
 
-    fn color_ped(&self, _id: PedestrianID) -> Color {
+    fn color_ped(&self, id: PedestrianID) -> Color {
+        if let Some(c) = self.current_selection_state.color_p(id, &self.cs) {
+            return c;
+        }
         self.cs.get(Colors::Pedestrian)
     }
 }
