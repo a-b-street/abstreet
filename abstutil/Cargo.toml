@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+multimap = "0.4.0"
 serde = "1.0"
 serde_cbor = "0.8.2"
 serde_json = "1.0"

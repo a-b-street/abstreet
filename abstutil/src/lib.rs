@@ -1,3 +1,4 @@
+extern crate multimap;
 extern crate serde;
 extern crate serde_cbor;
 extern crate serde_json;
@@ -7,6 +8,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::BTreeMap;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
+use std::hash::Hash;
 use std::io::{Error, ErrorKind, Read, Write};
 
 pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
@@ -94,6 +96,35 @@ pub fn deserialize_btreemap<
     let mut map = BTreeMap::new();
     for (k, v) in vec {
         map.insert(k, v);
+    }
+    Ok(map)
+}
+
+pub fn serialize_multimap<S: Serializer, K: Serialize + Eq + Hash, V: Serialize + Eq + Hash>(
+    map: &multimap::MultiMap<K, V>,
+    s: S,
+) -> Result<S::Ok, S::Error> {
+    // TODO maybe need to sort to have deterministic output
+    map.iter_all()
+        .map(|(key, values)| (key.clone(), values.clone()))
+        .collect::<Vec<(_, _)>>()
+        .serialize(s)
+}
+
+pub fn deserialize_multimap<
+    'de,
+    D: Deserializer<'de>,
+    K: Deserialize<'de> + Eq + Hash + Clone,
+    V: Deserialize<'de> + Eq + Hash,
+>(
+    d: D,
+) -> Result<multimap::MultiMap<K, V>, D::Error> {
+    let vec = <Vec<(K, Vec<V>)>>::deserialize(d)?;
+    let mut map = multimap::MultiMap::new();
+    for (key, values) in vec {
+        for value in values {
+            map.insert(key.clone(), value);
+        }
     }
     Ok(map)
 }

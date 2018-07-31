@@ -1,9 +1,9 @@
+use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use intersections::{IntersectionSimState, Request};
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std;
 use std::collections::{BTreeMap, VecDeque};
 use {On, PedestrianID, Tick};
@@ -109,30 +109,6 @@ pub struct WalkingSimState {
     peds_per_turn: MultiMap<TurnID, PedestrianID>,
 
     id_counter: usize,
-}
-
-// TODO make generic, lift to abstutil
-fn serialize_multimap<S: Serializer>(
-    map: &MultiMap<TurnID, PedestrianID>,
-    s: S,
-) -> Result<S::Ok, S::Error> {
-    // TODO maybe need to sort by TurnID to have deterministic output
-    map.iter_all()
-        .map(|(key, values)| (key.clone(), values.clone()))
-        .collect::<Vec<(_, _)>>()
-        .serialize(s)
-}
-fn deserialize_multimap<'de, D: Deserializer<'de>>(
-    d: D,
-) -> Result<MultiMap<TurnID, PedestrianID>, D::Error> {
-    let vec = <Vec<(TurnID, Vec<PedestrianID>)>>::deserialize(d)?;
-    let mut map = MultiMap::new();
-    for (key, values) in vec {
-        for value in values {
-            map.insert(key, value);
-        }
-    }
-    Ok(map)
 }
 
 impl WalkingSimState {
