@@ -5,7 +5,7 @@ use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std;
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 use {On, PedestrianID};
 
 // TODO tune these!
@@ -77,11 +77,16 @@ impl Pedestrian {
         false
     }
 
-    fn step_turn(&mut self, delta_time: si::Second<f64>, map: &Map, _control_map: &ControlMap) {
+    fn step_turn(
+        &mut self,
+        delta_time: si::Second<f64>,
+        map: &Map,
+        _control_map: &ControlMap,
+    ) -> bool {
         let new_dist: si::Meter<f64> = delta_time * SPEED;
         self.dist_along += new_dist.value_unsafe;
         if self.dist_along * si::M < self.on.length(map) {
-            return;
+            return false;
         }
 
         let turn = map.get_t(self.on.as_turn());
@@ -99,23 +104,25 @@ impl Pedestrian {
             self.contraflow = true;
             self.dist_along = lane.length().value_unsafe;
         }
+        false
     }
 }
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub struct WalkingSimState {
-    // Trying a different style than driving for storing things
-    peds_per_sidewalk: MultiMap<LaneID, Pedestrian>,
+    // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
+    peds: BTreeMap<PedestrianID, Pedestrian>,
+    peds_per_sidewalk: MultiMap<LaneID, PedestrianID>,
     #[serde(serialize_with = "serialize_multimap")]
     #[serde(deserialize_with = "deserialize_multimap")]
-    peds_per_turn: MultiMap<TurnID, Pedestrian>,
+    peds_per_turn: MultiMap<TurnID, PedestrianID>,
 
     id_counter: usize,
 }
 
 // TODO make generic, lift to abstutil
 fn serialize_multimap<S: Serializer>(
-    map: &MultiMap<TurnID, Pedestrian>,
+    map: &MultiMap<TurnID, PedestrianID>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
     // TODO maybe need to sort by TurnID to have deterministic output
@@ -126,8 +133,8 @@ fn serialize_multimap<S: Serializer>(
 }
 fn deserialize_multimap<'de, D: Deserializer<'de>>(
     d: D,
-) -> Result<MultiMap<TurnID, Pedestrian>, D::Error> {
-    let vec = <Vec<(TurnID, Vec<Pedestrian>)>>::deserialize(d)?;
+) -> Result<MultiMap<TurnID, PedestrianID>, D::Error> {
+    let vec = <Vec<(TurnID, Vec<PedestrianID>)>>::deserialize(d)?;
     let mut map = MultiMap::new();
     for (key, values) in vec {
         for value in values {
@@ -140,6 +147,7 @@ fn deserialize_multimap<'de, D: Deserializer<'de>>(
 impl WalkingSimState {
     pub fn new() -> WalkingSimState {
         WalkingSimState {
+            peds: BTreeMap::new(),
             peds_per_sidewalk: MultiMap::new(),
             peds_per_turn: MultiMap::new(),
             id_counter: 0,
@@ -169,44 +177,38 @@ impl WalkingSimState {
     pub fn step(&mut self, delta_time: si::Second<f64>, map: &Map, control_map: &ControlMap) {
         // Since pedestrians don't interact at all, any ordering and concurrency is deterministic
         // here.
-        // TODO but wait, the interactions with the intersections aren't deterministic!
 
-        // TODO not sure how to do this most fluidly and performantly. might even make more sense
-        // to just have a slotmap of peds, then a multimap from lane->ped IDs to speed up drawing.
-        // since we seemingly can't iterate and consume a MultiMap, slotmap really seems best.
-        let mut new_per_sidewalk: MultiMap<LaneID, Pedestrian> = MultiMap::new();
-        let mut new_per_turn: MultiMap<TurnID, Pedestrian> = MultiMap::new();
-
-        for (_, peds) in self.peds_per_sidewalk.iter_all_mut() {
-            for p in peds.iter_mut() {
-                if !p.step_sidewalk(delta_time, map, control_map) {
-                    match p.on {
-                        On::Lane(id) => new_per_sidewalk.insert(id, p.clone()),
-                        On::Turn(id) => new_per_turn.insert(id, p.clone()),
-                    };
-                }
-            }
-        }
-        for (_, peds) in self.peds_per_turn.iter_all_mut() {
-            for p in peds.iter_mut() {
-                p.step_turn(delta_time, map, control_map);
+        let mut remove: Vec<PedestrianID> = Vec::new();
+        let mut new_per_sidewalk: MultiMap<LaneID, PedestrianID> = MultiMap::new();
+        let mut new_per_turn: MultiMap<TurnID, PedestrianID> = MultiMap::new();
+        for p in self.peds.values_mut() {
+            let done = match p.on {
+                On::Lane(_) => p.step_sidewalk(delta_time, map, control_map),
+                On::Turn(_) => p.step_turn(delta_time, map, control_map),
+            };
+            if done {
+                remove.push(p.id);
+            } else {
                 match p.on {
-                    On::Lane(id) => new_per_sidewalk.insert(id, p.clone()),
-                    On::Turn(id) => new_per_turn.insert(id, p.clone()),
+                    On::Lane(id) => new_per_sidewalk.insert(id, p.id),
+                    On::Turn(id) => new_per_turn.insert(id, p.id),
                 };
             }
         }
 
         self.peds_per_sidewalk = new_per_sidewalk;
         self.peds_per_turn = new_per_turn;
+        for id in remove.into_iter() {
+            self.peds.remove(&id);
+        }
     }
 
     pub fn get_draw_peds_on_lane(&self, l: &Lane) -> Vec<DrawPedestrian> {
         let mut result = Vec::new();
-        for p in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
+        for id in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
             result.push(DrawPedestrian::new(
-                p.id,
-                l.dist_along(p.dist_along * si::M).0,
+                *id,
+                l.dist_along(self.peds[id].dist_along * si::M).0,
             ));
         }
         result
@@ -214,10 +216,10 @@ impl WalkingSimState {
 
     pub fn get_draw_peds_on_turn(&self, t: &Turn) -> Vec<DrawPedestrian> {
         let mut result = Vec::new();
-        for p in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
+        for id in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
             result.push(DrawPedestrian::new(
-                p.id,
-                t.dist_along(p.dist_along * si::M).0,
+                *id,
+                t.dist_along(self.peds[id].dist_along * si::M).0,
             ));
         }
         result
@@ -229,8 +231,8 @@ impl WalkingSimState {
 
         let start = path.pop_front().unwrap();
         let contraflow = is_contraflow(map, start, path[0]);
-        self.peds_per_sidewalk.insert(
-            start,
+        self.peds.insert(
+            id,
             Pedestrian {
                 id,
                 path,
@@ -240,6 +242,7 @@ impl WalkingSimState {
                 dist_along: 0.0,
             },
         );
+        self.peds_per_sidewalk.insert(start, id);
     }
 }
 
