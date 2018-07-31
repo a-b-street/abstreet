@@ -239,15 +239,19 @@ impl WalkingSimState {
         Some(DrawPedestrian::new(
             id,
             ped.on.dist_along(ped.dist_along * si::M, map).0,
+            // TODO this isnt correct, but works right now because this is only called by warp
+            None,
         ))
     }
 
-    pub fn get_draw_peds_on_lane(&self, l: &Lane) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_lane(&self, l: &Lane, map: &Map) -> Vec<DrawPedestrian> {
         let mut result = Vec::new();
         for id in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
+            let ped = &self.peds[id];
             result.push(DrawPedestrian::new(
                 *id,
-                l.dist_along(self.peds[id].dist_along * si::M).0,
+                l.dist_along(ped.dist_along * si::M).0,
+                ped.waiting_for.map(|on| map.get_t(on.as_turn())),
             ));
         }
         result
@@ -259,6 +263,7 @@ impl WalkingSimState {
             result.push(DrawPedestrian::new(
                 *id,
                 t.dist_along(self.peds[id].dist_along * si::M).0,
+                None,
             ));
         }
         result

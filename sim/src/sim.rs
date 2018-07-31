@@ -289,7 +289,7 @@ impl Sim {
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrian> {
-        self.walking_state.get_draw_peds_on_lane(map.get_l(l))
+        self.walking_state.get_draw_peds_on_lane(map.get_l(l), map)
     }
 
     pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrian> {

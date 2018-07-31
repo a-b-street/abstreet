@@ -7,7 +7,6 @@
 	- when parking is full or no parking at goal road, roam until parking is found
 
 - code cleanup
-	- try to simplify straw_model step (less phases?)
 	- figure out responsibility btwn agents and managers, then fix up visibility
 	- rng should live in a scenario spec layer, not in the sim itself
 
@@ -27,9 +26,9 @@
 
 ## pedestrians
 
-- make them obey intersections (deterministically!)
 - make them start and end at buildings
 	- trim the sidewalk path to the edge of a building
+- render overlapping peds reasonably
 
 ## General
 
