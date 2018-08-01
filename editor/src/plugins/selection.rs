@@ -58,7 +58,7 @@ impl SelectionState {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map, sim: &Sim) -> bool {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
             SelectionState::SelectedLane(id, current_turn_index) => {
@@ -87,6 +87,14 @@ impl SelectionState {
                     input.use_event_directly().release_args()
                 {
                     new_state = Some(SelectionState::SelectedLane(*id, None));
+                    true
+                } else {
+                    false
+                }
+            }
+            SelectionState::SelectedPedestrian(id) => {
+                if input.key_pressed(Key::D, "debug") {
+                    sim.debug_ped(*id);
                     true
                 } else {
                     false

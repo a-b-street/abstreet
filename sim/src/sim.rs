@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
@@ -313,6 +314,10 @@ impl Sim {
         )
     }
 
+    pub fn debug_ped(&self, id: PedestrianID) {
+        self.walking_state.debug_ped(id);
+    }
+
     pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
         vec![format!("Hello to {}", p)]
     }
@@ -325,16 +330,20 @@ impl Sim {
         }
     }
 
-    pub fn toggle_debug(&mut self, car: CarID) {
+    pub fn toggle_debug(&mut self, id: CarID) {
         if let Some(c) = self.debug {
-            if c != car {
+            if c != id {
                 self.driving_state.cars.get_mut(&c).unwrap().debug = false;
             }
         }
 
-        let c = self.driving_state.cars.get_mut(&car).unwrap();
-        c.debug = !c.debug;
-        self.debug = Some(car);
+        if let Some(car) = self.driving_state.cars.get_mut(&id) {
+            abstutil::dump_json(car);
+            car.debug = !car.debug;
+            self.debug = Some(id);
+        } else {
+            println!("{} is parked somewhere", id);
+        }
     }
 
     pub fn start_benchmark(&self) -> Benchmark {

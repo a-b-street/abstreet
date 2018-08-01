@@ -1,3 +1,4 @@
+use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
@@ -231,6 +232,14 @@ impl WalkingSimState {
                 On::Lane(id) => self.peds_per_sidewalk.insert(id, p.id),
                 On::Turn(id) => self.peds_per_turn.insert(id, p.id),
             };
+        }
+    }
+
+    pub fn debug_ped(&self, id: PedestrianID) {
+        if let Some(ped) = self.peds.get(&id) {
+            abstutil::dump_json(ped);
+        } else {
+            println!("{} doesn't exist", id);
         }
     }
 
