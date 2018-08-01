@@ -11,13 +11,13 @@ use std::fs::File;
 use std::hash::Hash;
 use std::io::{Error, ErrorKind, Read, Write};
 
-pub fn dump_json<T: Serialize>(obj: &T) {
-    println!("{}", serde_json::to_string_pretty(obj).unwrap());
+pub fn to_json<T: Serialize>(obj: &T) -> String {
+    serde_json::to_string_pretty(obj).unwrap()
 }
 
 pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     let mut file = File::create(path)?;
-    file.write_all(serde_json::to_string_pretty(obj).unwrap().as_bytes())?;
+    file.write_all(to_json(obj).as_bytes())?;
     Ok(())
 }
 

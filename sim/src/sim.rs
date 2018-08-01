@@ -338,7 +338,7 @@ impl Sim {
         }
 
         if let Some(car) = self.driving_state.cars.get_mut(&id) {
-            abstutil::dump_json(car);
+            println!("{}", abstutil::to_json(car));
             car.debug = !car.debug;
             self.debug = Some(id);
         } else {

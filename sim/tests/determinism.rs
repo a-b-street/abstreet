@@ -7,10 +7,20 @@ extern crate sim;
 fn serialization() {
     // This assumes this map has been built
     let input = "../data/small.abst";
+    let rng_seed = 42;
+    let spawn_count = 10;
 
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
-    let sim = sim::Sim::new(&map, Some(42));
-    abstutil::write_json("/tmp/sim_state.json", &sim).unwrap();
+
+    let mut sim = sim::Sim::new(&map, Some(rng_seed));
+    sim.seed_pedestrians(&map, spawn_count);
+    sim.seed_parked_cars(0.5);
+    sim.start_many_parked_cars(&map, spawn_count);
+
+    // Does savestating produce the same string?
+    let save1 = abstutil::to_json(&sim);
+    let save2 = abstutil::to_json(&sim);
+    assert_eq!(save1, save2);
 }
 
 #[test]
