@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use dimensioned::si;
 use geom::Pt2D;
 use std::collections::HashSet;
@@ -42,5 +43,9 @@ impl Intersection {
             roads.insert(map.get_l(*l).parent);
         }
         roads.len() == 1
+    }
+
+    pub fn dump_debug(&self) {
+        println!("{}", abstutil::to_json(self));
     }
 }

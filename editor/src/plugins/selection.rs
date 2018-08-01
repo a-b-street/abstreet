@@ -100,6 +100,14 @@ impl SelectionState {
                     false
                 }
             }
+            SelectionState::SelectedIntersection(id) => {
+                if input.key_pressed(Key::D, "debug") {
+                    map.get_i(*id).dump_debug();
+                    true
+                } else {
+                    false
+                }
+            }
             _ => false,
         };
         if let Some(s) = new_state {
