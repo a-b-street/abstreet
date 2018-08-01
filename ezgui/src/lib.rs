@@ -3,6 +3,7 @@
 extern crate aabb_quadtree;
 extern crate graphics;
 extern crate opengl_graphics;
+extern crate palette;
 extern crate piston;
 
 pub mod canvas;
@@ -134,4 +135,24 @@ impl ToggleableLayer {
     pub fn disable(&mut self) {
         self.enabled = false;
     }
+}
+
+// Deterministically shift a color's brightness based on an ID.
+pub fn shift_color(c: Color, id: usize) -> Color {
+    use palette::Shade;
+
+    // TODO this needs tuning. too easy to get too light/dark, but also too easy to have too few
+    // variants. should maybe just manually come up with a list of 100 colors, hardcode in, modulo.
+    let variants = 10;
+    let half_variants = variants / 2;
+    let modulo = id % variants;
+    let scale = 1.0 / (variants as f32);
+
+    let color = palette::Srgb::new(c[0], c[1], c[2]).into_linear();
+    let new_color = if modulo < half_variants {
+        color.lighten(scale * (modulo as f32))
+    } else {
+        color.darken(scale * ((modulo - half_variants) as f32))
+    };
+    [new_color.red, new_color.green, new_color.blue, 1.0]
 }

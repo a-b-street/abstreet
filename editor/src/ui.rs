@@ -6,10 +6,10 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
+use ezgui;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
-use ezgui::GfxCtx;
-use ezgui::ToggleableLayer;
+use ezgui::{GfxCtx, ToggleableLayer};
 use graphics::types::Color;
 use gui;
 use map_model;
@@ -327,9 +327,9 @@ impl UI {
             return c;
         }
         match self.sim_ctrl.sim.get_car_state(id) {
-            CarState::Moving => self.cs.get(Colors::MovingCar),
-            CarState::Stuck => self.cs.get(Colors::StuckCar),
-            CarState::Parked => self.cs.get(Colors::ParkedCar),
+            CarState::Moving => ezgui::shift_color(self.cs.get(Colors::MovingCar), id.0),
+            CarState::Stuck => ezgui::shift_color(self.cs.get(Colors::StuckCar), id.0),
+            CarState::Parked => ezgui::shift_color(self.cs.get(Colors::ParkedCar), id.0),
         }
     }
 
@@ -337,7 +337,7 @@ impl UI {
         if let Some(c) = self.current_selection_state.color_p(id, &self.cs) {
             return c;
         }
-        self.cs.get(Colors::Pedestrian)
+        ezgui::shift_color(self.cs.get(Colors::Pedestrian), id.0)
     }
 }
 
