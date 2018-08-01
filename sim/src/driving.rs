@@ -304,7 +304,14 @@ impl DrivingSimState {
                 Action::Continue => {}
                 Action::Goto(on) => {
                     // Order matters due to new_car_entered_this_step.
-                    // TODO rethink this, since intersections should make this safe
+                    // Why is this needed?
+                    // - could two cars enter the same lane from the same turn? proper lookahead
+                    // behavior WILL fix this
+                    // - could two cars enter the same lane from different turns? no, then
+                    // conflicting turns are happening simultaneously!
+                    // - could two cars enter the same turn? proper lookahead
+                    // behavior and not submitting a request until being the leader vehice should
+                    // fix
                     if new_car_entered_this_step.contains(&on) {
                         // The car thought they could go, but have to abort last-minute. We may
                         // need to set waiting_for, since the car didn't necessarily return WaitFor

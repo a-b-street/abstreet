@@ -64,16 +64,8 @@ impl IntersectionSimState {
 
     // This is just an immutable query.
     pub fn request_granted(&self, req: Request, map: &Map) -> bool {
-        let i = map.get_t(req.turn).parent;
-        // TODO this operates on common state, so dont delegate to the policy
-        match self.intersections[i.0] {
-            IntersectionPolicy::StopSignPolicy(ref p) => {
-                p.accepted.get(&req.agent) == Some(&req.turn)
-            }
-            IntersectionPolicy::TrafficSignalPolicy(ref p) => {
-                p.accepted.get(&req.agent) == Some(&req.turn)
-            }
-        }
+        let i = &self.intersections[map.get_t(req.turn).parent.0];
+        i.accepted().get(&req.agent) == Some(&req.turn)
     }
 
     // This is mutable, but MUST be idempotent, because it could be called in parallel/nondet
@@ -82,26 +74,23 @@ impl IntersectionSimState {
     // The request may have been previously granted, but the agent might not have been able to
     // start the turn.
     pub fn submit_request(&mut self, req: Request, time: Tick, map: &Map) {
-        let i = map.get_t(req.turn).parent;
-        // TODO this operates on common state, so dont delegate to the policy
-        match self.intersections[i.0] {
+        let i = self.intersections
+            .get_mut(map.get_t(req.turn).parent.0)
+            .unwrap();
+        if let Some(t) = i.accepted().get(&req.agent) {
+            assert_eq!(*t, req.turn);
+            return;
+        }
+        match i {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                if let Some(t) = p.accepted.get(&req.agent) {
-                    assert_eq!(*t, req.turn);
-                } else {
-                    // TODO assert that the agent hasn't requested something different previously
-                    if !p.started_waiting_at.contains_key(&req) {
-                        p.started_waiting_at.insert(req, time);
-                    }
+                // TODO assert that the agent hasn't requested something different previously
+                if !p.started_waiting_at.contains_key(&req) {
+                    p.started_waiting_at.insert(req, time);
                 }
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                if let Some(t) = p.accepted.get(&req.agent) {
-                    assert_eq!(*t, req.turn);
-                } else {
-                    // TODO assert that the agent hasn't requested something different previously
-                    p.requests.insert(req);
-                }
+                // TODO assert that the agent hasn't requested something different previously
+                p.requests.insert(req);
             }
         }
     }
@@ -118,19 +107,16 @@ impl IntersectionSimState {
     }
 
     pub fn on_enter(&self, req: Request, map: &Map) {
-        let i = map.get_t(req.turn).parent;
-        match self.intersections[i.0] {
-            IntersectionPolicy::StopSignPolicy(ref p) => p.on_enter(req),
-            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.on_enter(req),
-        }
+        let i = &self.intersections[map.get_t(req.turn).parent.0];
+        assert!(i.accepted().contains_key(&req.agent));
     }
 
     pub fn on_exit(&mut self, req: Request, map: &Map) {
-        let i = map.get_t(req.turn).parent;
-        match self.intersections[i.0] {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => p.on_exit(req),
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.on_exit(req),
-        }
+        let i = self.intersections
+            .get_mut(map.get_t(req.turn).parent.0)
+            .unwrap();
+        assert!(i.accepted().contains_key(&req.agent));
+        i.accepted_mut().remove(&req.agent);
     }
 }
 
@@ -139,6 +125,22 @@ impl IntersectionSimState {
 enum IntersectionPolicy {
     StopSignPolicy(StopSign),
     TrafficSignalPolicy(TrafficSignal),
+}
+
+impl IntersectionPolicy {
+    fn accepted(&self) -> &BTreeMap<AgentID, TurnID> {
+        match self {
+            IntersectionPolicy::StopSignPolicy(ref p) => &p.accepted,
+            IntersectionPolicy::TrafficSignalPolicy(ref p) => &p.accepted,
+        }
+    }
+
+    fn accepted_mut(&mut self) -> &mut BTreeMap<AgentID, TurnID> {
+        match self {
+            IntersectionPolicy::StopSignPolicy(ref mut p) => &mut p.accepted,
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => &mut p.accepted,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -218,15 +220,6 @@ impl StopSign {
             self.started_waiting_at.remove(&req);
         }
     }
-
-    fn on_enter(&self, req: Request) {
-        assert!(self.accepted.contains_key(&req.agent));
-    }
-
-    fn on_exit(&mut self, req: Request) {
-        assert!(self.accepted.contains_key(&req.agent));
-        self.accepted.remove(&req.agent);
-    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -277,14 +270,5 @@ impl TrafficSignal {
         }
 
         self.requests = keep_requests;
-    }
-
-    fn on_enter(&self, req: Request) {
-        assert!(self.accepted.contains_key(&req.agent));
-    }
-
-    fn on_exit(&mut self, req: Request) {
-        assert!(self.accepted.contains_key(&req.agent));
-        self.accepted.remove(&req.agent);
     }
 }

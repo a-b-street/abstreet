@@ -468,6 +468,14 @@ good pattern in intersections:
 - that manager object delegates out most of the logic to SPECIALIZED versions of individual objects and does the matching
 	- no need for this to exist on the individual IntersectionPolicy object
 
+How to share common state in intersections?
+- if it's just the accepted set, have a parallel array and pass it into step()
+	- data locality gets ruined, this is ECS style, bleh
+- have a common struct that both enum variants contain
+	- still have to match on enum type to operate on it commonly!
+- have one struct that then contains an enum
+	- when delegating to specialized thing, can pass this unpacked thing down, right?
+
 ## Notes on determinism ##
 
 - serde tricks

@@ -9,6 +9,7 @@
 - code cleanup
 	- figure out responsibility btwn agents and managers, then fix up visibility
 	- rng should live in a scenario spec layer, not in the sim itself
+	- on a lane vs turn permeates so many places
 
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
@@ -36,3 +37,5 @@
 	- unit test that two savestates of same sim are equal
 - diffing two sim states is tedious no matter what; is there a nice macro-driven deep equals we could do instead?
 	- will need programmatic diffs later for pointing out changes to players in A/B tests
+- consider refactoring car/ped sim
+	- basic structure with actions, react, stepping is same. SimQueue, lookahead, can goto? differs.
