@@ -63,8 +63,8 @@ impl IntersectionSimState {
     }
 
     // This is just an immutable query.
-    pub fn request_granted(&self, req: Request, map: &Map) -> bool {
-        let i = &self.intersections[map.get_t(req.turn).parent.0];
+    pub fn request_granted(&self, req: Request) -> bool {
+        let i = &self.intersections[req.turn.parent.0];
         i.accepted().get(&req.agent) == Some(&req.turn)
     }
 
@@ -73,10 +73,8 @@ impl IntersectionSimState {
     // must be ready to enter the intersection (leader vehicle and at the end of the lane already).
     // The request may have been previously granted, but the agent might not have been able to
     // start the turn.
-    pub fn submit_request(&mut self, req: Request, time: Tick, map: &Map) {
-        let i = self.intersections
-            .get_mut(map.get_t(req.turn).parent.0)
-            .unwrap();
+    pub fn submit_request(&mut self, req: Request, time: Tick) {
+        let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
             assert_eq!(*t, req.turn);
             return;
@@ -106,15 +104,13 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn on_enter(&self, req: Request, map: &Map) {
-        let i = &self.intersections[map.get_t(req.turn).parent.0];
+    pub fn on_enter(&self, req: Request) {
+        let i = &self.intersections[req.turn.parent.0];
         assert!(i.accepted().contains_key(&req.agent));
     }
 
-    pub fn on_exit(&mut self, req: Request, map: &Map) {
-        let i = self.intersections
-            .get_mut(map.get_t(req.turn).parent.0)
-            .unwrap();
+    pub fn on_exit(&mut self, req: Request) {
+        let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         assert!(i.accepted().contains_key(&req.agent));
         i.accepted_mut().remove(&req.agent);
     }
@@ -195,7 +191,7 @@ impl StopSign {
         let mut newly_accepted: Vec<Request> = Vec::new();
         for (req, started_waiting) in self.started_waiting_at.iter() {
             let (agent, turn) = (req.agent, req.turn);
-            assert_eq!(map.get_t(turn).parent, self.id);
+            assert_eq!(turn.parent, self.id);
             assert_eq!(self.accepted.contains_key(&agent), false);
 
             if self.conflicts_with_accepted(turn, map) {

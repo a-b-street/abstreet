@@ -7,24 +7,24 @@ use std::fmt;
 use IntersectionID;
 use LaneID;
 
-// Turns are uniquely identified by their (src, dst) lanes.
+// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
+// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct TurnID(LaneID, LaneID);
-
-impl TurnID {
-    pub(crate) fn new(src: LaneID, dst: LaneID) -> TurnID {
-        TurnID(src, dst)
-    }
+pub struct TurnID {
+    pub parent: IntersectionID,
+    pub src: LaneID,
+    pub dst: LaneID,
 }
 
 impl fmt::Display for TurnID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TurnID({0}, {1})", self.0, self.1)
+        write!(f, "TurnID({0}, {1}, {2})", self.parent, self.src, self.dst)
     }
 }
 
 #[derive(Debug)]
 pub struct Turn {
+    // parent, src, dst are all encoded by id. TODO dedupe.
     pub id: TurnID,
     // src and dst must both belong to parent. No guarantees that src is incoming and dst is
     // outgoing for turns between sidewalks.

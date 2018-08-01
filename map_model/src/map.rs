@@ -136,6 +136,7 @@ impl Map {
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
+                assert!(!m.turns.contains_key(&t.id));
                 m.turns.insert(t.id, t);
             }
         }

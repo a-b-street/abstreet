@@ -91,7 +91,7 @@ impl Car {
         let intersection_req_granted = match desired_on {
             // Already doing a turn, finish it!
             On::Lane(_) => true,
-            On::Turn(id) => intersections.request_granted(Request::for_car(self.id, id), map),
+            On::Turn(id) => intersections.request_granted(Request::for_car(self.id, id)),
         };
         if has_room_now && is_lead_vehicle && intersection_req_granted {
             Action::Goto(desired_on)
@@ -321,14 +321,14 @@ impl DrivingSimState {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
                         if let On::Turn(t) = c.on {
-                            intersections.on_exit(Request::for_car(c.id, t), map);
+                            intersections.on_exit(Request::for_car(c.id, t));
                             assert_eq!(c.path[0], map.get_t(t).dst);
                             c.path.pop_front();
                         }
                         c.waiting_for = None;
                         c.on = on;
                         if let On::Turn(t) = c.on {
-                            intersections.on_enter(Request::for_car(c.id, t), map);
+                            intersections.on_enter(Request::for_car(c.id, t));
                         }
                         // TODO could calculate leftover (and deal with large timesteps, small
                         // lanes)
@@ -339,7 +339,7 @@ impl DrivingSimState {
                     self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_car(*id, t), time, map);
+                        intersections.submit_request(Request::for_car(*id, t), time);
                     }
                 }
             }

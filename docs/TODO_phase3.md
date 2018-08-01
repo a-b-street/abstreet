@@ -35,6 +35,7 @@
 
 - savestating a sim has nondet output due to hashes; switching to btree is kind of weird
 	- unit test that two savestates of same sim are equal
+	- consider overriding encoding for TurnID and such, instead of remembering to stick maps everywhere
 - diffing two sim states is tedious no matter what; is there a nice macro-driven deep equals we could do instead?
 	- will need programmatic diffs later for pointing out changes to players in A/B tests
 - consider refactoring car/ped sim

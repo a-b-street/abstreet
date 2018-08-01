@@ -80,7 +80,7 @@ impl Pedestrian {
         let intersection_req_granted = match desired_on {
             // Already doing a turn, finish it!
             On::Lane(_) => true,
-            On::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id), map),
+            On::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id)),
         };
         if intersection_req_granted {
             Action::Goto(desired_on)
@@ -184,7 +184,7 @@ impl WalkingSimState {
                     let p = self.peds.get_mut(&id).unwrap();
                     let old_on = p.on.clone();
                     if let On::Turn(t) = p.on {
-                        intersections.on_exit(Request::for_ped(p.id, t), map);
+                        intersections.on_exit(Request::for_ped(p.id, t));
                         assert_eq!(p.path[0], map.get_t(t).dst);
                         p.path.pop_front();
                     }
@@ -194,7 +194,7 @@ impl WalkingSimState {
                     p.contraflow = false;
                     match p.on {
                         On::Turn(t) => {
-                            intersections.on_enter(Request::for_ped(p.id, t), map);
+                            intersections.on_enter(Request::for_ped(p.id, t));
                         }
                         On::Lane(l) => {
                             // Which end of the sidewalk are we entering?
@@ -218,7 +218,7 @@ impl WalkingSimState {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_ped(*id, t), time, map);
+                        intersections.submit_request(Request::for_ped(*id, t), time);
                     }
                 }
             }

@@ -141,7 +141,7 @@ fn make_turns(
             // TODO if it's a multi-lane dead-end, ideally match up lanes or something
 
             result.push(Turn {
-                id: TurnID::new(*src, *dst),
+                id: turn_id(parent, *src, *dst),
                 parent,
                 src: *src,
                 dst: *dst,
@@ -172,7 +172,7 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
         );
 
         result.push(Turn {
-            id: TurnID::new(src.id, dst.id),
+            id: turn_id(i.id, src.id, dst.id),
             parent: i.id,
             src: src.id,
             dst: dst.id,
@@ -204,7 +204,7 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
             }
 
             result.push(Turn {
-                id: TurnID::new(src.id, dst.id),
+                id: turn_id(i.id, src.id, dst.id),
                 parent: i.id,
                 src: src.id,
                 dst: dst.id,
@@ -215,4 +215,8 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
     }
 
     result
+}
+
+fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
+    TurnID { parent, src, dst }
 }
