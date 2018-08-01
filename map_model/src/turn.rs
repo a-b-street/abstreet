@@ -22,7 +22,7 @@ impl fmt::Display for TurnID {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Turn {
     // parent, src, dst are all encoded by id. TODO dedupe.
     pub id: TurnID,

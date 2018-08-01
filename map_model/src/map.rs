@@ -2,7 +2,6 @@
 
 use abstutil;
 use building::{Building, BuildingID};
-use dimensioned::si;
 use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
@@ -16,6 +15,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 use turn::{Turn, TurnID};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Map {
     roads: Vec<Road>,
     lanes: Vec<Lane>,
@@ -52,7 +52,7 @@ impl Map {
                 id,
                 point: pt,
                 turns: Vec::new(),
-                elevation: i.elevation_meters * si::M,
+                elevation: i.elevation,
                 has_traffic_signal: i.has_traffic_signal,
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),

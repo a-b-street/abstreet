@@ -3,7 +3,7 @@ use {LonLat, Pt2D};
 
 // TODO argh, use this in kml too
 // TODO this maybe represents LonLat only?
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,

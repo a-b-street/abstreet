@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use dimensioned::si;
 use geom::{HashablePt2D, LonLat};
 use map_model::raw_data;
 use srtm;
@@ -33,7 +34,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
     for pt in &intersections {
         map.intersections.push(raw_data::Intersection {
             point: LonLat::new(pt.x(), pt.y()),
-            elevation_meters: elevation.get(pt.x(), pt.y()),
+            elevation: elevation.get(pt.x(), pt.y()) * si::M,
             has_traffic_signal: false,
         });
     }

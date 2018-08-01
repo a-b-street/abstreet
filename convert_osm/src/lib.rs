@@ -1,5 +1,6 @@
 extern crate abstutil;
 extern crate byteorder;
+extern crate dimensioned;
 extern crate geom;
 extern crate map_model;
 extern crate ordered_float;

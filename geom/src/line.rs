@@ -2,7 +2,7 @@ use dimensioned::si;
 use {util, Angle, Pt2D};
 
 // Segment, technically
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {

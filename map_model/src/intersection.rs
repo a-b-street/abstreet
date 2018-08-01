@@ -16,7 +16,7 @@ impl fmt::Display for IntersectionID {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
     pub point: Pt2D,

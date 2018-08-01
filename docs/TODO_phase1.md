@@ -33,9 +33,6 @@
 		- trim them back too (maybe to avoid hitting the intersection?)
 
 - code cleanup
-	- make final Map serializable too
-		- useful to precompute sidewalk paths
-		- waiting on https://github.com/paholg/dimensioned/issues/31 to release
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?
 	- isolate vec2d

@@ -13,7 +13,7 @@ impl fmt::Display for ParcelID {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Parcel {
     pub id: ParcelID,
     pub points: Vec<Pt2D>,

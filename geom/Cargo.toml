@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
-dimensioned = "0.6.0"
+dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 ordered-float = "0.5.0"
 piston2d-graphics = "*"
 rand = "0.5.1"

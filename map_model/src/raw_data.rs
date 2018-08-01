@@ -1,3 +1,4 @@
+use dimensioned::si;
 use geom::{Bounds, HashablePt2D, LonLat};
 use std::collections::BTreeMap;
 
@@ -65,7 +66,7 @@ impl Road {
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Intersection {
     pub point: LonLat,
-    pub elevation_meters: f64,
+    pub elevation: si::Meter<f64>,
     pub has_traffic_signal: bool,
 }
 

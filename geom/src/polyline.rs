@@ -4,7 +4,7 @@ use std::f64;
 use std::fmt;
 use {util, Angle, Line, Pt2D};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
     pts: Vec<Pt2D>,
 }

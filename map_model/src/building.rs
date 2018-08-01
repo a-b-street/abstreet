@@ -14,7 +14,7 @@ impl fmt::Display for BuildingID {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Building {
     pub id: BuildingID,
     pub points: Vec<Pt2D>,

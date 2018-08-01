@@ -5,7 +5,7 @@ use std::fmt;
 use {Angle, Bounds, LonLat};
 
 // This represents world-space in meters.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pt2D {
     x: f64,
     y: f64,

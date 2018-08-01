@@ -14,7 +14,7 @@ impl fmt::Display for RoadID {
 }
 
 // These're bidirectional (possibly)
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Road {
     pub id: RoadID,
     pub osm_tags: BTreeMap<String, String>,

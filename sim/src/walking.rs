@@ -22,9 +22,8 @@ struct Pedestrian {
     id: PedestrianID,
 
     on: On,
-    // TODO si::Meter<f64> after serde support lands
-    // TODO or since Tick is deliberately not f64, have a better type for Meters.
-    dist_along: f64,
+    // TODO since Tick is deliberately not f64, have a better type for Meters.
+    dist_along: si::Meter<f64>,
     // Traveling along the lane/turn in its original direction or not?
     contraflow: bool,
 
@@ -58,8 +57,8 @@ impl Pedestrian {
             if let Some(on) = self.waiting_for {
                 on
             } else {
-                if (!self.contraflow && self.dist_along * si::M < self.on.length(map))
-                    || (self.contraflow && self.dist_along > 0.0)
+                if (!self.contraflow && self.dist_along < self.on.length(map))
+                    || (self.contraflow && self.dist_along > 0.0 * si::M)
                 {
                     return Action::Continue;
                 }
@@ -168,13 +167,13 @@ impl WalkingSimState {
                     let p = self.peds.get_mut(&id).unwrap();
                     let new_dist: si::Meter<f64> = delta_time * SPEED;
                     if p.contraflow {
-                        p.dist_along -= new_dist.value_unsafe;
-                        if p.dist_along < 0.0 {
-                            p.dist_along = 0.0;
+                        p.dist_along -= new_dist;
+                        if p.dist_along < 0.0 * si::M {
+                            p.dist_along = 0.0 * si::M;
                         }
                     } else {
-                        p.dist_along += new_dist.value_unsafe;
-                        let max_dist = p.on.length(map).value_unsafe;
+                        p.dist_along += new_dist;
+                        let max_dist = p.on.length(map);
                         if p.dist_along > max_dist {
                             p.dist_along = max_dist;
                         }
@@ -190,7 +189,7 @@ impl WalkingSimState {
                     }
                     p.waiting_for = None;
                     p.on = on;
-                    p.dist_along = 0.0;
+                    p.dist_along = 0.0 * si::M;
                     p.contraflow = false;
                     match p.on {
                         On::Turn(t) => {
@@ -206,7 +205,7 @@ impl WalkingSimState {
                             let lane = map.get_l(l);
                             if turn.parent == lane.dst_i {
                                 p.contraflow = true;
-                                p.dist_along = lane.length().value_unsafe;
+                                p.dist_along = lane.length();
                             }
                         }
                     }
@@ -247,7 +246,7 @@ impl WalkingSimState {
         let ped = self.peds.get(&id)?;
         Some(DrawPedestrian::new(
             id,
-            ped.on.dist_along(ped.dist_along * si::M, map).0,
+            ped.on.dist_along(ped.dist_along, map).0,
             // TODO this isnt correct, but works right now because this is only called by warp
             None,
         ))
@@ -259,7 +258,7 @@ impl WalkingSimState {
             let ped = &self.peds[id];
             result.push(DrawPedestrian::new(
                 *id,
-                l.dist_along(ped.dist_along * si::M).0,
+                l.dist_along(ped.dist_along).0,
                 ped.waiting_for.map(|on| map.get_t(on.as_turn())),
             ));
         }
@@ -271,7 +270,7 @@ impl WalkingSimState {
         for id in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
             result.push(DrawPedestrian::new(
                 *id,
-                t.dist_along(self.peds[id].dist_along * si::M).0,
+                t.dist_along(self.peds[id].dist_along).0,
                 None,
             ));
         }
@@ -292,7 +291,7 @@ impl WalkingSimState {
                 contraflow,
                 on: On::Lane(start),
                 // TODO start next to a building path, or at least some random position
-                dist_along: 0.0,
+                dist_along: 0.0 * si::M,
                 waiting_for: None,
             },
         );

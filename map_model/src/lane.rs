@@ -31,7 +31,7 @@ pub enum LaneType {
     Biking,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {
     pub id: LaneID,
     pub parent: RoadID,
