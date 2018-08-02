@@ -45,7 +45,7 @@ impl Validator {
             objects.push((ID::Intersection(i.id), vec![make_poly(&i.polygon)]));
         }
         for b in &draw_map.buildings {
-            objects.push((ID::Building(b.id), vec![make_poly(&b.polygon)]));
+            objects.push((ID::Building(b.id), vec![make_poly(&b.fill_polygon)]));
         }
         for p in &draw_map.parcels {
             objects.push((ID::Parcel(p.id), vec![make_poly(&p.fill_polygon)]));

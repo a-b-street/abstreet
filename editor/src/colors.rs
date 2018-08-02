@@ -32,6 +32,7 @@ pub enum Colors {
     ConflictingTurn,
     Building,
     BuildingPath,
+    BuildingBoundary,
     ParcelBoundary,
     ParcelInterior,
     RoadOrientation,

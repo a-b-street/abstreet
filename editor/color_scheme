@@ -120,6 +120,12 @@
       0.8,
       1.0
     ],
+    "BuildingBoundary": [
+      0.0,
+      0.395,
+      0.0,
+      1.0
+    ],
     "ParcelBoundary": [
       0.3,
       0.3,

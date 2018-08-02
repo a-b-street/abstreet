@@ -578,6 +578,7 @@ impl gui::GUI for UI {
                     g,
                     self.color_building(b.id),
                     self.cs.get(Colors::BuildingPath),
+                    self.cs.get(Colors::BuildingBoundary),
                 );
             }
         }

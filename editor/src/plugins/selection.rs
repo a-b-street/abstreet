@@ -159,8 +159,7 @@ impl SelectionState {
                         },
                     }
                 }
-                // TODO tmp
-                draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
+                //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
             SelectionState::TooltipLane(id) => {
                 canvas.draw_mouse_tooltip(g, &draw_map.get_l(id).tooltip_lines(map));
