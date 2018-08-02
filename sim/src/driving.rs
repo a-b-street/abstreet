@@ -5,6 +5,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionSimState, Request};
+use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
 use std;
@@ -189,6 +190,9 @@ impl SimQueue {
             return Vec::new();
         }
 
+        // TODO base this on actual speed ;)
+        let stopping_dist = Vehicle::typical_car().stopping_distance(SPEED_LIMIT);
+
         let mut results = Vec::new();
         let (pos1, angle1, dist_along1) =
             sim.cars[&self.cars_queue[0]].get_best_case_pos(time, map);
@@ -200,6 +204,7 @@ impl SimQueue {
             map,
             pos1,
             angle1,
+            stopping_dist,
         ));
         let mut dist_along_bound = dist_along1;
 
@@ -212,6 +217,7 @@ impl SimQueue {
                     map,
                     pos,
                     angle,
+                    stopping_dist,
                 ));
                 dist_along_bound = dist_along;
             } else {
@@ -225,6 +231,7 @@ impl SimQueue {
                     map,
                     pt,
                     angle,
+                    stopping_dist,
                 ));
             }
         }

@@ -1,3 +1,4 @@
+use dimensioned::si;
 use draw_car;
 use draw_car::DrawCar;
 use map_model;
@@ -145,7 +146,7 @@ impl ParkingLane {
                     let (front, angle) = l.dist_along(
                         spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
                     );
-                    Some(DrawCar::new(id, None, map, front, angle))
+                    Some(DrawCar::new(id, None, map, front, angle, 0.0 * si::M))
                 })
             })
             .collect()

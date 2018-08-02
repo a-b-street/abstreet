@@ -23,6 +23,10 @@ pub struct DrawCar {
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<[f64; 4]>,
     front_pt: Pt2D,
+    // TODO maybe also draw lookahead buffer to know what the car is considering
+    // TODO it would be really neat to project the stopping buffer onto the actual route that'll be
+    // taken
+    stopping_buffer_arrow: Option<[f64; 4]>,
 }
 
 impl DrawCar {
@@ -32,6 +36,7 @@ impl DrawCar {
         map: &Map,
         front: Pt2D,
         angle: Angle,
+        stopping_dist: si::Meter<f64>,
     ) -> DrawCar {
         let turn_arrow = if let Some(t) = waiting_for_turn {
             let angle = map.get_t(t).line.angle();
@@ -39,6 +44,13 @@ impl DrawCar {
             Some([arrow_pt.x(), arrow_pt.y(), front.x(), front.y()])
         } else {
             None
+        };
+
+        let stopping_buffer_arrow = if stopping_dist == 0.0 * si::M {
+            None
+        } else {
+            let arrow_pt = front.project_away(stopping_dist.value_unsafe, angle);
+            Some([front.x(), front.y(), arrow_pt.x(), arrow_pt.y()])
         };
 
         DrawCar {
@@ -53,6 +65,7 @@ impl DrawCar {
                 angle.opposite(),
             ),
             front_pt: front,
+            stopping_buffer_arrow,
         }
     }
 
@@ -64,6 +77,14 @@ impl DrawCar {
         if let Some(a) = self.turn_arrow {
             g.draw_arrow(
                 &graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25),
+                a,
+                1.0,
+            );
+        }
+
+        if let Some(a) = self.stopping_buffer_arrow {
+            g.draw_arrow(
+                &graphics::Line::new_round([1.0, 0.0, 0.0, 0.7], 0.25),
                 a,
                 1.0,
             );

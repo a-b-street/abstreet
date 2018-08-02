@@ -22,6 +22,7 @@ mod draw_car;
 mod draw_ped;
 mod driving;
 mod intersections;
+mod kinematics;
 mod parking;
 mod sim;
 mod walking;

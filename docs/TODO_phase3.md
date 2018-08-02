@@ -13,7 +13,6 @@
 
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
-	- draw stop buffer in front/behind of cars
 
 - start implementing a second AORTAish driving model
 	- then make cars park/unpark at the correct position
