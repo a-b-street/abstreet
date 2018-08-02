@@ -257,7 +257,7 @@ impl Hider {
         false
     }
 
-    pub fn show_r(&self, id: LaneID) -> bool {
+    pub fn show_l(&self, id: LaneID) -> bool {
         !self.items.contains(&ID::Lane(id))
     }
 

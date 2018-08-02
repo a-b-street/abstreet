@@ -178,7 +178,7 @@ impl DrawMap {
     pub fn get_loads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawLane> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.lanes_quadtree.query(screen_bbox) {
-            if hider.show_r(*id) {
+            if hider.show_l(*id) {
                 v.push(self.get_l(*id));
             }
         }
@@ -199,10 +199,12 @@ impl DrawMap {
         v
     }
 
-    pub fn get_turn_icons_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawTurn> {
+    pub fn get_turn_icons_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawTurn> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.turn_icons_quadtree.query(screen_bbox) {
-            v.push(self.get_t(*id));
+            if hider.show_l(id.src) {
+                v.push(self.get_t(*id));
+            }
         }
         v
     }

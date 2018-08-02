@@ -184,7 +184,9 @@ impl UI {
         }
 
         if self.show_icons.is_enabled() {
-            for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
+            for t in &self.draw_map
+                .get_turn_icons_onscreen(screen_bbox, &self.hider)
+            {
                 if t.contains_pt(x, y) {
                     return Some(ID::Turn(t.id));
                 }
@@ -560,7 +562,9 @@ impl gui::GUI for UI {
         }
 
         if self.show_icons.is_enabled() {
-            for t in &self.draw_map.get_turn_icons_onscreen(screen_bbox) {
+            for t in &self.draw_map
+                .get_turn_icons_onscreen(screen_bbox, &self.hider)
+            {
                 t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
             }
         }
