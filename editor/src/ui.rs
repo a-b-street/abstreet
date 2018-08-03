@@ -408,7 +408,7 @@ impl gui::GUI for UI {
             if let SelectionState::SelectedLane(_, _) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            if let SelectionState::TooltipLane(_) = self.current_selection_state {
+            if let SelectionState::Tooltip(ID::Lane(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             return gui::EventLoopMode::InputOnly;
@@ -417,10 +417,16 @@ impl gui::GUI for UI {
             if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
+            if let SelectionState::Tooltip(ID::Building(_)) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
             return gui::EventLoopMode::InputOnly;
         }
         if self.show_intersections.handle_event(input) {
             if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            if let SelectionState::Tooltip(ID::Intersection(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             return gui::EventLoopMode::InputOnly;

@@ -13,7 +13,6 @@ use render;
 use sim::{CarID, PedestrianID, Sim};
 use std::collections::HashSet;
 
-// TODO only used for mouseover, which happens in order anyway...
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum ID {
     Lane(LaneID),
@@ -25,36 +24,33 @@ pub enum ID {
     //Parcel(ParcelID),
 }
 
+// TODO lots of code duplication here, but haven't quite worked out how to improve it...
+
 #[derive(Clone)]
 pub enum SelectionState {
     Empty,
     SelectedIntersection(IntersectionID),
     // Second param is the current_turn_index
     SelectedLane(LaneID, Option<usize>),
-    TooltipLane(LaneID),
     SelectedBuilding(BuildingID),
     SelectedTurn(TurnID),
     SelectedCar(CarID),
     SelectedPedestrian(PedestrianID),
+    Tooltip(ID),
 }
 
 impl SelectionState {
     // TODO shouldnt these two consume self?
-    pub fn handle_mouseover(&self, some_id: Option<ID>) -> SelectionState {
-        match some_id {
-            Some(ID::Intersection(id)) => SelectionState::SelectedIntersection(id),
-            Some(ID::Lane(id)) => {
-                match *self {
-                    // Don't break out of the tooltip state
-                    SelectionState::TooltipLane(_) => SelectionState::TooltipLane(id),
-                    _ => SelectionState::SelectedLane(id, None),
-                }
+    pub fn handle_mouseover(&self, maybe_id: Option<ID>) -> SelectionState {
+        if let Some(some_id) = maybe_id {
+            // Don't break out of the tooltip state
+            if let SelectionState::Tooltip(_) = *self {
+                SelectionState::Tooltip(some_id)
+            } else {
+                selection_state_for(some_id)
             }
-            Some(ID::Building(id)) => SelectionState::SelectedBuilding(id),
-            Some(ID::Turn(id)) => SelectionState::SelectedTurn(id),
-            Some(ID::Car(id)) => SelectionState::SelectedCar(id),
-            Some(ID::Pedestrian(id)) => SelectionState::SelectedPedestrian(id),
-            None => SelectionState::Empty,
+        } else {
+            SelectionState::Empty
         }
     }
 
@@ -62,11 +58,8 @@ impl SelectionState {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
             SelectionState::SelectedLane(id, current_turn_index) => {
-                if input.key_pressed(
-                    Key::LCtrl,
-                    &format!("Hold Ctrl to show lane {:?}'s tooltip", id),
-                ) {
-                    new_state = Some(SelectionState::TooltipLane(*id));
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Lane(*id)));
                     true
                 } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
                     let idx = match *current_turn_index {
@@ -82,18 +75,21 @@ impl SelectionState {
                     false
                 }
             }
-            SelectionState::TooltipLane(id) => {
+            SelectionState::Tooltip(id) => {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    new_state = Some(SelectionState::SelectedLane(*id, None));
+                    new_state = Some(selection_state_for(*id));
                     true
                 } else {
                     false
                 }
             }
             SelectionState::SelectedPedestrian(id) => {
-                if input.key_pressed(Key::D, "debug") {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Pedestrian(*id)));
+                    true
+                } else if input.key_pressed(Key::D, "debug") {
                     sim.debug_ped(*id);
                     true
                 } else {
@@ -101,14 +97,41 @@ impl SelectionState {
                 }
             }
             SelectionState::SelectedIntersection(id) => {
-                if input.key_pressed(Key::D, "debug") {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Intersection(*id)));
+                    true
+                } else if input.key_pressed(Key::D, "debug") {
                     map.get_i(*id).dump_debug();
                     true
                 } else {
                     false
                 }
             }
-            _ => false,
+            SelectionState::SelectedBuilding(id) => {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Building(*id)));
+                    true
+                } else {
+                    false
+                }
+            }
+            SelectionState::SelectedTurn(id) => {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Turn(*id)));
+                    true
+                } else {
+                    false
+                }
+            }
+            SelectionState::SelectedCar(id) => {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::Car(*id)));
+                    true
+                } else {
+                    false
+                }
+            }
+            SelectionState::Empty => false,
         };
         if let Some(s) = new_state {
             *self = s;
@@ -127,7 +150,11 @@ impl SelectionState {
         g: &mut GfxCtx,
     ) {
         match *self {
-            SelectionState::Empty | SelectionState::SelectedTurn(_) => {}
+            SelectionState::Empty
+            | SelectionState::SelectedTurn(_)
+            | SelectionState::SelectedBuilding(_)
+            | SelectionState::SelectedCar(_)
+            | SelectionState::SelectedPedestrian(_) => {}
             SelectionState::SelectedIntersection(id) => {
                 if let Some(signal) = control_map.traffic_signals.get(&id) {
                     let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
@@ -161,17 +188,16 @@ impl SelectionState {
                 }
                 //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
-            SelectionState::TooltipLane(id) => {
-                canvas.draw_mouse_tooltip(g, &draw_map.get_l(id).tooltip_lines(map));
-            }
-            SelectionState::SelectedBuilding(id) => {
-                canvas.draw_mouse_tooltip(g, &draw_map.get_b(id).tooltip_lines(map));
-            }
-            SelectionState::SelectedCar(id) => {
-                canvas.draw_mouse_tooltip(g, &sim.car_tooltip(id));
-            }
-            SelectionState::SelectedPedestrian(id) => {
-                canvas.draw_mouse_tooltip(g, &sim.ped_tooltip(id));
+            SelectionState::Tooltip(some_id) => {
+                let lines = match some_id {
+                    ID::Lane(id) => draw_map.get_l(id).tooltip_lines(map),
+                    ID::Building(id) => draw_map.get_b(id).tooltip_lines(map),
+                    ID::Car(id) => sim.car_tooltip(id),
+                    ID::Pedestrian(id) => sim.ped_tooltip(id),
+                    ID::Intersection(id) => vec![format!("{}", id)],
+                    ID::Turn(id) => vec![format!("{}", id)],
+                };
+                canvas.draw_mouse_tooltip(g, &lines);
             }
         }
     }
@@ -182,7 +208,7 @@ impl SelectionState {
     pub fn color_l(&self, l: &map_model::Lane, cs: &ColorScheme) -> Option<Color> {
         match *self {
             SelectionState::SelectedLane(id, _) if l.id == id => Some(cs.get(Colors::Selected)),
-            SelectionState::TooltipLane(id) if l.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::Lane(id)) if l.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
@@ -191,24 +217,32 @@ impl SelectionState {
             SelectionState::SelectedIntersection(id) if i.id == id => {
                 Some(cs.get(Colors::Selected))
             }
+            SelectionState::Tooltip(ID::Intersection(id)) if i.id == id => {
+                Some(cs.get(Colors::Selected))
+            }
             _ => None,
         }
     }
     pub fn color_t(&self, t: &map_model::Turn, cs: &ColorScheme) -> Option<Color> {
         match *self {
             SelectionState::SelectedTurn(id) if t.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::Turn(id)) if t.id == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
     pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
         match *self {
             SelectionState::SelectedBuilding(id) if b.id == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::Building(id)) if b.id == id => {
+                Some(cs.get(Colors::Selected))
+            }
             _ => None,
         }
     }
     pub fn color_c(&self, c: CarID, cs: &ColorScheme) -> Option<Color> {
         match *self {
             SelectionState::SelectedCar(id) if c == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::Car(id)) if c == id => Some(cs.get(Colors::Selected)),
             _ => None,
         }
     }
@@ -216,8 +250,22 @@ impl SelectionState {
     pub fn color_p(&self, p: PedestrianID, cs: &ColorScheme) -> Option<Color> {
         match *self {
             SelectionState::SelectedPedestrian(id) if p == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::Pedestrian(id)) if p == id => {
+                Some(cs.get(Colors::Selected))
+            }
             _ => None,
         }
+    }
+}
+
+fn selection_state_for(some_id: ID) -> SelectionState {
+    match some_id {
+        ID::Intersection(id) => SelectionState::SelectedIntersection(id),
+        ID::Lane(id) => SelectionState::SelectedLane(id, None),
+        ID::Building(id) => SelectionState::SelectedBuilding(id),
+        ID::Turn(id) => SelectionState::SelectedTurn(id),
+        ID::Car(id) => SelectionState::SelectedCar(id),
+        ID::Pedestrian(id) => SelectionState::SelectedPedestrian(id),
     }
 }
 
