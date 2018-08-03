@@ -484,5 +484,4 @@ How to share common state in intersections?
 ## AORTA driving model ##
 
 - how to sub out different driving models? it'd be useful to maintain the current one for comparison
-
-- first draw stop buffer ahead... if slammed on brakes now, where would we end up?
+	- fork a "minimal" driving model, just hide the old one

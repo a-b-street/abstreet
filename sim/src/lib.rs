@@ -30,7 +30,7 @@ mod walking;
 use dimensioned::si;
 use geom::{Angle, Pt2D};
 use map_model::{LaneID, Map, TurnID};
-pub use sim::{Benchmark, CarState, Sim};
+pub use sim::{Benchmark, Sim};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -135,4 +135,10 @@ impl On {
             &On::Turn(id) => map.get_t(id).dist_along(dist),
         }
     }
+}
+
+pub enum CarState {
+    Moving,
+    Stuck,
+    Parked,
 }

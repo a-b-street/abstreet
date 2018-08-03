@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use abstutil;
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
@@ -15,13 +14,7 @@ use std::collections::VecDeque;
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, PedestrianID, Tick, TIMESTEP};
-
-pub enum CarState {
-    Moving,
-    Stuck,
-    Parked,
-}
+use {CarID, CarState, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -32,7 +25,6 @@ pub struct Sim {
     rng: XorShiftRng,
     pub time: Tick,
     car_id_counter: usize,
-    debug: Option<CarID>,
 
     intersection_state: IntersectionSimState,
     driving_state: DrivingSimState,
@@ -55,7 +47,6 @@ impl Sim {
             walking_state: WalkingSimState::new(),
             time: Tick::zero(),
             car_id_counter: 0,
-            debug: None,
         }
     }
 
@@ -254,15 +245,7 @@ impl Sim {
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
-        if let Some(driving) = self.driving_state.cars.get(&c) {
-            if driving.waiting_for.is_none() {
-                CarState::Moving
-            } else {
-                CarState::Stuck
-            }
-        } else {
-            CarState::Parked
-        }
+        self.driving_state.get_car_state(c)
     }
 
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
@@ -298,17 +281,12 @@ impl Sim {
     }
 
     pub fn summary(&self) -> String {
-        // TODO also report parking state and walking state
-        let waiting = self.driving_state
-            .cars
-            .values()
-            .filter(|c| c.waiting_for.is_some())
-            .count();
+        let (waiting_cars, active_cars) = self.driving_state.get_active_and_waiting_count();
         format!(
             "Time: {0:.2}, {1} / {2} active cars waiting, {3} cars parked, {4} pedestrians",
             self.time,
-            waiting,
-            self.driving_state.cars.len(),
+            waiting_cars,
+            active_cars,
             self.parking_state.total_count(),
             self.walking_state.total_count(),
         )
@@ -323,27 +301,13 @@ impl Sim {
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        if let Some(driving) = self.driving_state.cars.get(&car) {
-            driving.tooltip_lines()
-        } else {
-            vec![format!("{} is parked", car)]
-        }
+        self.driving_state
+            .tooltip_lines(car)
+            .unwrap_or(vec![format!("{} is parked", car)])
     }
 
     pub fn toggle_debug(&mut self, id: CarID) {
-        if let Some(c) = self.debug {
-            if c != id {
-                self.driving_state.cars.get_mut(&c).unwrap().debug = false;
-            }
-        }
-
-        if let Some(car) = self.driving_state.cars.get_mut(&id) {
-            println!("{}", abstutil::to_json(car));
-            car.debug = !car.debug;
-            self.debug = Some(id);
-        } else {
-            println!("{} is parked somewhere", id);
-        }
+        self.driving_state.toggle_debug(id);
     }
 
     pub fn start_benchmark(&self) -> Benchmark {

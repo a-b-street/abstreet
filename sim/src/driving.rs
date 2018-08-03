@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
@@ -11,7 +12,7 @@ use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
-use {CarID, On, Tick, SPEED_LIMIT};
+use {CarID, CarState, On, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
@@ -20,17 +21,17 @@ const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub(crate) struct Car {
+struct Car {
     // TODO might be going back to something old here, but an enum with parts of the state grouped
     // could be more clear.
-    pub id: CarID,
-    pub on: On,
+    id: CarID,
+    on: On,
     // When did the car start the current On?
-    pub started_at: Tick,
-    pub waiting_for: Option<On>,
-    pub debug: bool,
+    started_at: Tick,
+    waiting_for: Option<On>,
+    debug: bool,
     // Head is the next lane
-    pub path: VecDeque<LaneID>,
+    path: VecDeque<LaneID>,
 }
 
 enum Action {
@@ -41,15 +42,6 @@ enum Action {
 }
 
 impl Car {
-    pub fn tooltip_lines(&self) -> Vec<String> {
-        vec![
-            format!("Car {:?}", self.id),
-            format!("On {:?}, started at {:?}", self.on, self.started_at),
-            format!("Committed to waiting for {:?}", self.waiting_for),
-            format!("{} lanes left in path", self.path.len()),
-        ]
-    }
-
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
     fn react(
         &self,
@@ -244,11 +236,12 @@ impl SimQueue {
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic.
-    pub(crate) cars: BTreeMap<CarID, Car>,
+    cars: BTreeMap<CarID, Car>,
     lanes: Vec<SimQueue>,
     #[serde(serialize_with = "serialize_btreemap")]
     #[serde(deserialize_with = "deserialize_btreemap")]
     turns: BTreeMap<TurnID, SimQueue>,
+    debug: Option<CarID>,
 }
 
 impl DrivingSimState {
@@ -261,6 +254,7 @@ impl DrivingSimState {
                 .map(|l| SimQueue::new(On::Lane(l.id), map))
                 .collect(),
             turns: BTreeMap::new(),
+            debug: None,
         };
         for t in map.all_turns().values() {
             if !t.between_sidewalks {
@@ -268,6 +262,56 @@ impl DrivingSimState {
             }
         }
         s
+    }
+
+    pub fn get_car_state(&self, c: CarID) -> CarState {
+        if let Some(driving) = self.cars.get(&c) {
+            if driving.waiting_for.is_none() {
+                CarState::Moving
+            } else {
+                CarState::Stuck
+            }
+        } else {
+            // Assume the caller isn't asking about a nonexistent car
+            CarState::Parked
+        }
+    }
+
+    pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
+        let waiting = self.cars
+            .values()
+            .filter(|c| c.waiting_for.is_some())
+            .count();
+        (waiting, self.cars.len())
+    }
+
+    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
+        if let Some(c) = self.cars.get(&id) {
+            Some(vec![
+                format!("Car {:?}", id),
+                format!("On {:?}, started at {:?}", c.on, c.started_at),
+                format!("Committed to waiting for {:?}", c.waiting_for),
+                format!("{} lanes left in path", c.path.len()),
+            ])
+        } else {
+            None
+        }
+    }
+
+    pub fn toggle_debug(&mut self, id: CarID) {
+        if let Some(c) = self.debug {
+            if c != id {
+                self.cars.get_mut(&c).unwrap().debug = false;
+            }
+        }
+
+        if let Some(car) = self.cars.get_mut(&id) {
+            println!("{}", abstutil::to_json(car));
+            car.debug = !car.debug;
+            self.debug = Some(id);
+        } else {
+            println!("{} is parked somewhere", id);
+        }
     }
 
     pub fn edit_remove_lane(&mut self, id: LaneID) {
