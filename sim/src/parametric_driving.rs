@@ -1,18 +1,21 @@
+// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
+
+// This implements a simple driving model. Might adapt it into something nicer later, but for now,
+// it exists to kind of enforce that driving models can be subbed out easily.
+
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
+use geom::{Angle, Pt2D};
 use intersections::{IntersectionSimState, Request};
 use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
-use ordered_float::NotNaN;
 use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
-use {CarID, CarState, On, Tick};
-
-// TODO once this is kinda stable, diff with the parametric model and share some things
+use {CarID, CarState, On, Tick, SPEED_LIMIT};
 
 const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
@@ -22,10 +25,12 @@ const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
 struct Car {
+    // TODO might be going back to something old here, but an enum with parts of the state grouped
+    // could be more clear.
     id: CarID,
     on: On,
-    speed: si::MeterPerSecond<f64>,
-    dist_along: si::Meter<f64>,
+    // When did the car start the current On?
+    started_at: Tick,
     waiting_for: Option<On>,
     debug: bool,
     // Head is the next lane
@@ -44,7 +49,7 @@ impl Eq for Car {}
 enum Action {
     Vanish,      // hit a deadend, oops
     Continue,    // need more time to cross the current spot
-    Goto(On),    // go somewhere
+    Goto(On),    // go somewhere if there's still room
     WaitFor(On), // ready to go somewhere, but can't yet for some reason
 }
 
@@ -61,7 +66,8 @@ impl Car {
             if let Some(on) = self.waiting_for {
                 on
             } else {
-                if self.dist_along < self.on.length(map) {
+                let dist = SPEED_LIMIT * (time - self.started_at).as_time();
+                if dist < self.on.length(map) {
                     return Action::Continue;
                 }
 
@@ -79,7 +85,10 @@ impl Car {
 
         // Can we actually go there right now?
         // In a more detailed driving model, this would do things like lookahead.
-        // TODO implement those things ;)
+        let has_room_now = match desired_on {
+            On::Lane(id) => sim.lanes[id.0].room_at_end(time, &sim.cars),
+            On::Turn(id) => sim.turns[&id].room_at_end(time, &sim.cars),
+        };
         let is_lead_vehicle = match self.on {
             On::Lane(id) => sim.lanes[id.0].cars_queue[0] == self.id,
             On::Turn(id) => sim.turns[&id].cars_queue[0] == self.id,
@@ -89,7 +98,7 @@ impl Car {
             On::Lane(_) => true,
             On::Turn(id) => intersections.request_granted(Request::for_car(self.id, id)),
         };
-        if is_lead_vehicle && intersection_req_granted {
+        if has_room_now && is_lead_vehicle && intersection_req_granted {
             Action::Goto(desired_on)
         } else {
             Action::WaitFor(desired_on)
@@ -104,6 +113,16 @@ impl Car {
             }
         }
         panic!("No turn from {} to {}", from, self.path[0]);
+    }
+
+    // Returns the angle and the dist along the lane/turn too
+    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, si::Meter<f64>) {
+        let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
+        if self.waiting_for.is_some() {
+            dist = self.on.length(map);
+        }
+        let (pt, angle) = self.on.dist_along(dist, map);
+        (pt, angle, dist)
     }
 }
 
@@ -126,22 +145,39 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
+    fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
+        if self.cars_queue.is_empty() {
+            return true;
+        }
+        if self.cars_queue.len() == self.capacity {
+            return false;
+        }
+        // Has the last car crossed at least FOLLOWING_DISTANCE? If so and the capacity
+        // isn't filled, then we know for sure that there's room, because in this model, we assume
+        // none of the cars just arbitrarily slow down or stop without reason.
+        (time - cars[self.cars_queue.last().unwrap()].started_at).as_time()
+            >= FOLLOWING_DISTANCE / SPEED_LIMIT
+    }
+
     fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
         let old_queue = self.cars_queue.clone();
 
         assert!(ids.len() <= self.capacity);
         self.cars_queue.clear();
         self.cars_queue.extend(ids);
-        self.cars_queue
-            .sort_by_key(|id| NotNaN::new(cars[id].dist_along.value_unsafe).unwrap());
+        self.cars_queue.sort_by_key(|id| cars[id].started_at);
 
         // assert here we're not squished together too much
+        let min_dt = FOLLOWING_DISTANCE / SPEED_LIMIT;
         for slice in self.cars_queue.windows(2) {
-            let c1 = cars[&slice[0]].dist_along;
-            let c2 = cars[&slice[1]].dist_along;
-            if c2 - c1 < FOLLOWING_DISTANCE {
-                println!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} and {}. badness {}", self.id, self.cars_queue, FOLLOWING_DISTANCE, c2, c1, c2 - c1 - FOLLOWING_DISTANCE);
+            let c1 = cars[&slice[0]].started_at.as_time();
+            let c2 = cars[&slice[1]].started_at.as_time();
+            if c2 - c1 < min_dt {
+                println!("uh oh! on {:?}, reset to {:?} broke. min dt is {}, but we have {} and {}. badness {}", self.id, self.cars_queue, min_dt, c2, c1, c2 - c1 - min_dt);
                 println!("  prev queue was {:?}", old_queue);
+                for c in &self.cars_queue {
+                    println!("  {:?} started at {}", c, cars[c].started_at);
+                }
                 panic!("invariant borked");
             }
         }
@@ -153,11 +189,57 @@ impl SimQueue {
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
-        let mut results = Vec::new();
-        for id in &self.cars_queue {
-            results.push(sim.get_draw_car(*id, Tick::zero(), map).unwrap())
+    fn get_draw_cars(&self, time: Tick, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
+        if self.cars_queue.is_empty() {
+            return Vec::new();
         }
+
+        // TODO base this on actual speed ;)
+        let stopping_dist = Vehicle::typical_car().stopping_distance(SPEED_LIMIT);
+
+        let mut results = Vec::new();
+        let (pos1, angle1, dist_along1) =
+            sim.cars[&self.cars_queue[0]].get_best_case_pos(time, map);
+        results.push(DrawCar::new(
+            self.cars_queue[0],
+            sim.cars[&self.cars_queue[0]]
+                .waiting_for
+                .and_then(|on| on.maybe_turn()),
+            map,
+            pos1,
+            angle1,
+            stopping_dist,
+        ));
+        let mut dist_along_bound = dist_along1;
+
+        for id in self.cars_queue.iter().skip(1) {
+            let (pos, angle, dist_along) = sim.cars[id].get_best_case_pos(time, map);
+            if dist_along_bound - FOLLOWING_DISTANCE > dist_along {
+                results.push(DrawCar::new(
+                    *id,
+                    sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
+                    map,
+                    pos,
+                    angle,
+                    stopping_dist,
+                ));
+                dist_along_bound = dist_along;
+            } else {
+                dist_along_bound -= FOLLOWING_DISTANCE;
+                // If not, we violated room_at_end() and reset() didn't catch it
+                assert!(dist_along_bound >= 0.0 * si::M, "dist_along_bound went negative ({}) for {:?} (length {}) with queue {:?}. first car at {}", dist_along_bound, self.id, self.id.length(map), self.cars_queue, dist_along1);
+                let (pt, angle) = self.id.dist_along(dist_along_bound, map);
+                results.push(DrawCar::new(
+                    *id,
+                    sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
+                    map,
+                    pt,
+                    angle,
+                    stopping_dist,
+                ));
+            }
+        }
+
         results
     }
 }
@@ -219,10 +301,7 @@ impl DrivingSimState {
         if let Some(c) = self.cars.get(&id) {
             Some(vec![
                 format!("Car {:?}", id),
-                format!(
-                    "On {:?}, speed {:?}, dist along {:?}",
-                    c.on, c.speed, c.dist_along
-                ),
+                format!("On {:?}, started at {:?}", c.on, c.started_at),
                 format!("Committed to waiting for {:?}", c.waiting_for),
                 format!("{} lanes left in path", c.path.len()),
             ])
@@ -267,8 +346,6 @@ impl DrivingSimState {
     }
 
     pub fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) {
-        // TODO choose acceleration, update speed
-
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -298,7 +375,6 @@ impl DrivingSimState {
                     // - could two cars enter the same turn? proper lookahead
                     // behavior and not submitting a request until being the leader vehice should
                     // fix
-                    // TODO fix this up!
                     if new_car_entered_this_step.contains(&on) {
                         // The car thought they could go, but have to abort last-minute. We may
                         // need to set waiting_for, since the car didn't necessarily return WaitFor
@@ -319,7 +395,7 @@ impl DrivingSimState {
                         }
                         // TODO could calculate leftover (and deal with large timesteps, small
                         // lanes)
-                        c.dist_along = 0.0 * si::M;
+                        c.started_at = time;
                     }
                 }
                 Action::WaitFor(on) => {
@@ -375,13 +451,18 @@ impl DrivingSimState {
     ) -> bool {
         let start = path.pop_front().unwrap();
 
+        if !self.lanes[start.0].room_at_end(time, &self.cars) {
+            // TODO car should enter Unparking state and wait for room
+            println!("No room for {} to start driving on {}", car, start);
+            return false;
+        }
+
         self.cars.insert(
             car,
             Car {
                 id: car,
                 path,
-                dist_along: 0.0 * si::M,
-                speed: 0.0 * si::MPS,
+                started_at: time,
                 on: On::Lane(start),
                 waiting_for: None,
                 debug: false,
@@ -401,27 +482,21 @@ impl DrivingSimState {
         lanes
     }
 
-    pub fn get_draw_car(&self, id: CarID, _time: Tick, map: &Map) -> Option<DrawCar> {
-        let c = self.cars.get(&id)?;
-        let (pos, angle) = c.on.dist_along(c.dist_along, map);
-        let stopping_dist = Vehicle::typical_car().stopping_distance(c.speed);
-        Some(DrawCar::new(
-            c.id,
-            c.waiting_for.and_then(|on| on.maybe_turn()),
-            map,
-            pos,
-            angle,
-            stopping_dist,
-        ))
+    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
+        let all = match self.cars.get(&id)?.on {
+            On::Lane(l) => self.get_draw_cars_on_lane(l, time, map),
+            On::Turn(t) => self.get_draw_cars_on_turn(t, time, map),
+        };
+        all.into_iter().find(|c| c.id == id)
     }
 
     pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
-        self.lanes[lane.0].get_draw_cars(self, map)
+        self.lanes[lane.0].get_draw_cars(time, self, map)
     }
 
     pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
         if let Some(queue) = self.turns.get(&turn) {
-            return queue.get_draw_cars(self, map);
+            return queue.get_draw_cars(time, self, map);
         }
         return Vec::new();
     }

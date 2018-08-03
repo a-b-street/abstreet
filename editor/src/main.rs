@@ -13,7 +13,6 @@ extern crate glutin_window;
 extern crate graphics;
 extern crate map_model;
 extern crate opengl_graphics;
-extern crate ordered_float;
 extern crate piston;
 #[macro_use]
 extern crate pretty_assertions;

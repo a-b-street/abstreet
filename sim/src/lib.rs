@@ -10,6 +10,7 @@ extern crate geom;
 extern crate graphics;
 extern crate map_model;
 extern crate multimap;
+extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;
 extern crate rand;
@@ -23,6 +24,7 @@ mod draw_ped;
 mod driving;
 mod intersections;
 mod kinematics;
+mod parametric_driving;
 mod parking;
 mod sim;
 mod walking;

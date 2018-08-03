@@ -483,5 +483,6 @@ How to share common state in intersections?
 
 ## AORTA driving model ##
 
-- how to sub out different driving models? it'd be useful to maintain the current one for comparison
-	- fork a "minimal" driving model, just hide the old one
+- figure out how to dynamically sub out two different driving models. traits or generics on Sim.
+	- repeat determinism tests for both!
+- start sharing code between the two models (and the ped model)
