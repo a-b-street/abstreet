@@ -4,6 +4,8 @@ use std;
 use std::collections::VecDeque;
 use On;
 
+// This is all stuff that seems useful to share among different models.
+
 // At all speeds (including at rest), cars must be at least this far apart.
 pub const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
     value_unsafe: 8.0,
@@ -32,5 +34,3 @@ pub(crate) fn choose_turn(
     }
     panic!("No turn from {} to {}", from, path[0]);
 }
-
-// TODO some of DrivingSimState could maybe be parameterized

@@ -18,6 +18,10 @@ struct Flags {
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
     rng_seed: Option<u8>,
+
+    /// Use the old parametric sim
+    #[structopt(long = "parametric_sim")]
+    parametric_sim: bool,
 }
 
 fn main() {
@@ -28,7 +32,7 @@ fn main() {
         .expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
-    let mut sim = sim::Sim::new(&map, flags.rng_seed);
+    let mut sim = sim::Sim::new(&map, flags.rng_seed, flags.parametric_sim);
     // TODO need a notion of scenarios
     sim.seed_parked_cars(0.7);
     sim.start_many_parked_cars(&map, 100000);
