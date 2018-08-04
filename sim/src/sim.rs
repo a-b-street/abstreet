@@ -4,11 +4,13 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
-use driving::DrivingSimState;
 use intersections::IntersectionSimState;
+use driving;
+use parametric_driving;
 use map_model;
 use map_model::{LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
+use models::DrivingSim;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::VecDeque;
 use std::f64;
@@ -27,22 +29,24 @@ pub struct Sim {
     car_id_counter: usize,
 
     intersection_state: IntersectionSimState,
-    driving_state: DrivingSimState,
+    driving_state: Box<DrivingSim>,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
 }
 
 impl Sim {
-    pub fn new(map: &Map, rng_seed: Option<u8>) -> Sim {
+    pub fn new(map: &Map, rng_seed: Option<u8>, parametric_sim: bool) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
         }
 
+        let driving_state: Box<DrivingSim> = if parametric_sim { Box::new(parametric_driving::DrivingSimState::new(map)) } else { Box::new(driving::DrivingSimState::new(map)) };
+
         Sim {
             rng,
+            driving_state,
             intersection_state: IntersectionSimState::new(map),
-            driving_state: DrivingSimState::new(map),
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
             time: Tick::zero(),

@@ -5,6 +5,8 @@ extern crate control;
 #[macro_use]
 extern crate derivative;
 extern crate dimensioned;
+#[macro_use]
+extern crate erased_serde;
 extern crate ezgui;
 extern crate geom;
 extern crate graphics;
@@ -24,6 +26,7 @@ mod draw_ped;
 mod driving;
 mod intersections;
 mod kinematics;
+mod models;
 mod parametric_driving;
 mod parking;
 mod sim;

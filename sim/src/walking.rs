@@ -4,6 +4,7 @@ use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use intersections::{IntersectionSimState, Request};
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
+use models::{Action, choose_turn};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};
@@ -41,13 +42,6 @@ impl PartialEq for Pedestrian {
 }
 impl Eq for Pedestrian {}
 
-enum Action {
-    Vanish,      // done
-    Continue,    // need more time to cross the current spot
-    Goto(On),    // go somewhere if there's still room
-    WaitFor(On), // ready to go somewhere, but can't yet for some reason
-}
-
 impl Pedestrian {
     // Note this doesn't change the ped's state, and it observes a fixed view of the world!
     // TODO Quite similar to car's state and logic! Maybe refactor. Following paths, same four
@@ -69,7 +63,7 @@ impl Pedestrian {
                 }
 
                 match self.on {
-                    On::Lane(id) => On::Turn(self.choose_turn(id, map)),
+                    On::Lane(id) => On::Turn(choose_turn(&self.path, &self.waiting_for, id, map)),
                     On::Turn(id) => On::Lane(map.get_t(id).dst),
                 }
             }
@@ -86,16 +80,6 @@ impl Pedestrian {
         } else {
             Action::WaitFor(desired_on)
         }
-    }
-
-    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
-        assert!(self.waiting_for.is_none());
-        for t in map.get_turns_from_lane(from) {
-            if t.dst == self.path[0] {
-                return t.id;
-            }
-        }
-        panic!("No turn from {} to {}", from, self.path[0]);
     }
 }
 

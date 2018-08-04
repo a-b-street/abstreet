@@ -10,17 +10,12 @@ use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{IntersectionSimState, Request};
 use kinematics::Vehicle;
+use models::{FOLLOWING_DISTANCE, Action, choose_turn, DrivingSim};
 use map_model::{LaneID, LaneType, Map, TurnID};
 use multimap::MultiMap;
-use std;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::f64;
 use {CarID, CarState, On, Tick, SPEED_LIMIT};
-
-const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
-    value_unsafe: 8.0,
-    _marker: std::marker::PhantomData,
-};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -46,13 +41,6 @@ impl PartialEq for Car {
 }
 impl Eq for Car {}
 
-enum Action {
-    Vanish,      // hit a deadend, oops
-    Continue,    // need more time to cross the current spot
-    Goto(On),    // go somewhere if there's still room
-    WaitFor(On), // ready to go somewhere, but can't yet for some reason
-}
-
 impl Car {
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
     fn react(
@@ -77,7 +65,7 @@ impl Car {
                 }
 
                 match self.on {
-                    On::Lane(id) => On::Turn(self.choose_turn(id, map)),
+                    On::Lane(id) => On::Turn(choose_turn(&self.path, &self.waiting_for, id, map)),
                     On::Turn(id) => On::Lane(map.get_t(id).dst),
                 }
             }
@@ -103,16 +91,6 @@ impl Car {
         } else {
             Action::WaitFor(desired_on)
         }
-    }
-
-    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
-        assert!(self.waiting_for.is_none());
-        for t in map.get_turns_from_lane(from) {
-            if t.dst == self.path[0] {
-                return t.id;
-            }
-        }
-        panic!("No turn from {} to {}", from, self.path[0]);
     }
 
     // Returns the angle and the dist along the lane/turn too
@@ -275,8 +253,10 @@ impl DrivingSimState {
         }
         s
     }
+}
 
-    pub fn get_car_state(&self, c: CarID) -> CarState {
+impl DrivingSim for DrivingSimState {
+    fn get_car_state(&self, c: CarID) -> CarState {
         if let Some(driving) = self.cars.get(&c) {
             if driving.waiting_for.is_none() {
                 CarState::Moving
@@ -289,7 +269,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
+    fn get_active_and_waiting_count(&self) -> (usize, usize) {
         let waiting = self.cars
             .values()
             .filter(|c| c.waiting_for.is_some())
@@ -297,7 +277,7 @@ impl DrivingSimState {
         (waiting, self.cars.len())
     }
 
-    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
+    fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         if let Some(c) = self.cars.get(&id) {
             Some(vec![
                 format!("Car {:?}", id),
@@ -310,7 +290,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn toggle_debug(&mut self, id: CarID) {
+    fn toggle_debug(&mut self, id: CarID) {
         if let Some(c) = self.debug {
             if c != id {
                 self.cars.get_mut(&c).unwrap().debug = false;
@@ -326,26 +306,26 @@ impl DrivingSimState {
         }
     }
 
-    pub fn edit_remove_lane(&mut self, id: LaneID) {
+    fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
     }
 
-    pub fn edit_add_lane(&mut self, id: LaneID) {
+    fn edit_add_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
     }
 
-    pub fn edit_remove_turn(&mut self, id: TurnID) {
+    fn edit_remove_turn(&mut self, id: TurnID) {
         if let Some(queue) = self.turns.get(&id) {
             assert!(queue.is_empty());
         }
         self.turns.remove(&id);
     }
 
-    pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
+    fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) {
+    fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -443,7 +423,7 @@ impl DrivingSimState {
     // beginning of the lane. later, we want cars starting at arbitrary points in the middle of the
     // lane (from a building), so just ignore this problem for now.
     // True if we spawned one
-    pub fn start_car_on_lane(
+    fn start_car_on_lane(
         &mut self,
         time: Tick,
         car: CarID,
@@ -472,7 +452,7 @@ impl DrivingSimState {
         true
     }
 
-    pub fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID> {
+    fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID> {
         let mut lanes: Vec<LaneID> = Vec::new();
         for (idx, queue) in self.lanes.iter().enumerate() {
             if map.get_l(LaneID(idx)).lane_type == LaneType::Driving && queue.is_empty() {
@@ -482,7 +462,7 @@ impl DrivingSimState {
         lanes
     }
 
-    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
+    fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
         let all = match self.cars.get(&id)?.on {
             On::Lane(l) => self.get_draw_cars_on_lane(l, time, map),
             On::Turn(t) => self.get_draw_cars_on_turn(t, time, map),
@@ -490,11 +470,11 @@ impl DrivingSimState {
         all.into_iter().find(|c| c.id == id)
     }
 
-    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
+    fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
         self.lanes[lane.0].get_draw_cars(time, self, map)
     }
 
-    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
+    fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
         if let Some(queue) = self.turns.get(&turn) {
             return queue.get_draw_cars(time, self, map);
         }
