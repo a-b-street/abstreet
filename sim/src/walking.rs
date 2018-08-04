@@ -81,6 +81,56 @@ impl Pedestrian {
             Action::WaitFor(desired_on)
         }
     }
+
+    fn step_continue(&mut self, delta_time: si::Second<f64>, map: &Map) {
+        let new_dist: si::Meter<f64> = delta_time * SPEED;
+        if self.contraflow {
+            self.dist_along -= new_dist;
+            if self.dist_along < 0.0 * si::M {
+                self.dist_along = 0.0 * si::M;
+            }
+        } else {
+            self.dist_along += new_dist;
+            let max_dist = self.on.length(map);
+            if self.dist_along > max_dist {
+                self.dist_along = max_dist;
+            }
+        }
+    }
+
+    fn step_goto(&mut self, on: On, map: &Map, intersections: &mut IntersectionSimState) {
+        let old_on = self.on.clone();
+        if let On::Turn(t) = self.on {
+            intersections.on_exit(Request::for_ped(self.id, t));
+            assert_eq!(self.path[0], map.get_t(t).dst);
+            self.path.pop_front();
+        }
+        self.waiting_for = None;
+        self.on = on;
+        self.dist_along = 0.0 * si::M;
+        self.contraflow = false;
+        match self.on {
+            On::Turn(t) => {
+                intersections.on_enter(Request::for_ped(self.id, t));
+            }
+            On::Lane(l) => {
+                // Which end of the sidewalk are we entering?
+                // TODO are there cases where we should enter a new sidewalk and
+                // immediately enter a different turn, instead of always going to the
+                // other side of the sidealk? or are there enough turns to make that
+                // unnecessary?
+                let turn = map.get_t(old_on.as_turn());
+                let lane = map.get_l(l);
+                if turn.parent == lane.dst_i {
+                    self.contraflow = true;
+                    self.dist_along = lane.length();
+                }
+            }
+        }
+
+        // TODO could calculate leftover (and deal with large timesteps, small
+        // lanes)
+    }
 }
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
@@ -149,53 +199,11 @@ impl WalkingSimState {
                 }
                 Action::Continue => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    let new_dist: si::Meter<f64> = delta_time * SPEED;
-                    if p.contraflow {
-                        p.dist_along -= new_dist;
-                        if p.dist_along < 0.0 * si::M {
-                            p.dist_along = 0.0 * si::M;
-                        }
-                    } else {
-                        p.dist_along += new_dist;
-                        let max_dist = p.on.length(map);
-                        if p.dist_along > max_dist {
-                            p.dist_along = max_dist;
-                        }
-                    }
+                    p.step_continue(delta_time, map);
                 }
                 Action::Goto(on) => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    let old_on = p.on.clone();
-                    if let On::Turn(t) = p.on {
-                        intersections.on_exit(Request::for_ped(p.id, t));
-                        assert_eq!(p.path[0], map.get_t(t).dst);
-                        p.path.pop_front();
-                    }
-                    p.waiting_for = None;
-                    p.on = on;
-                    p.dist_along = 0.0 * si::M;
-                    p.contraflow = false;
-                    match p.on {
-                        On::Turn(t) => {
-                            intersections.on_enter(Request::for_ped(p.id, t));
-                        }
-                        On::Lane(l) => {
-                            // Which end of the sidewalk are we entering?
-                            // TODO are there cases where we should enter a new sidewalk and
-                            // immediately enter a different turn, instead of always going to the
-                            // other side of the sidealk? or are there enough turns to make that
-                            // unnecessary?
-                            let turn = map.get_t(old_on.as_turn());
-                            let lane = map.get_l(l);
-                            if turn.parent == lane.dst_i {
-                                p.contraflow = true;
-                                p.dist_along = lane.length();
-                            }
-                        }
-                    }
-
-                    // TODO could calculate leftover (and deal with large timesteps, small
-                    // lanes)
+                    p.step_goto(on, map, intersections);
                 }
                 Action::WaitFor(on) => {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);

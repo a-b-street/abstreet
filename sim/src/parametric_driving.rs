@@ -20,8 +20,6 @@ use {CarID, CarState, On, Tick, SPEED_LIMIT};
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
 struct Car {
-    // TODO might be going back to something old here, but an enum with parts of the state grouped
-    // could be more clear.
     id: CarID,
     on: On,
     // When did the car start the current On?
@@ -91,6 +89,28 @@ impl Car {
         } else {
             Action::WaitFor(desired_on)
         }
+    }
+
+    fn step_goto(
+        &mut self,
+        on: On,
+        time: Tick,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) {
+        if let On::Turn(t) = self.on {
+            intersections.on_exit(Request::for_car(self.id, t));
+            assert_eq!(self.path[0], map.get_t(t).dst);
+            self.path.pop_front();
+        }
+        self.waiting_for = None;
+        self.on = on;
+        if let On::Turn(t) = self.on {
+            intersections.on_enter(Request::for_car(self.id, t));
+        }
+        // TODO could calculate leftover (and deal with large timesteps, small
+        // lanes)
+        self.started_at = time;
     }
 
     // Returns the angle and the dist along the lane/turn too
@@ -361,19 +381,7 @@ impl DrivingSimState {
                     } else {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
-                        if let On::Turn(t) = c.on {
-                            intersections.on_exit(Request::for_car(c.id, t));
-                            assert_eq!(c.path[0], map.get_t(t).dst);
-                            c.path.pop_front();
-                        }
-                        c.waiting_for = None;
-                        c.on = on;
-                        if let On::Turn(t) = c.on {
-                            intersections.on_enter(Request::for_car(c.id, t));
-                        }
-                        // TODO could calculate leftover (and deal with large timesteps, small
-                        // lanes)
-                        c.started_at = time;
+                        c.step_goto(on, time, map, intersections);
                     }
                 }
                 Action::WaitFor(on) => {

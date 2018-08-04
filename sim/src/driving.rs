@@ -81,6 +81,22 @@ impl Car {
             Action::WaitFor(desired_on)
         }
     }
+
+    fn step_goto(&mut self, on: On, map: &Map, intersections: &mut IntersectionSimState) {
+        if let On::Turn(t) = self.on {
+            intersections.on_exit(Request::for_car(self.id, t));
+            assert_eq!(self.path[0], map.get_t(t).dst);
+            self.path.pop_front();
+        }
+        self.waiting_for = None;
+        self.on = on;
+        if let On::Turn(t) = self.on {
+            intersections.on_enter(Request::for_car(self.id, t));
+        }
+        // TODO could calculate leftover (and deal with large timesteps, small
+        // lanes)
+        self.dist_along = 0.0 * si::M;
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -283,19 +299,7 @@ impl DrivingSimState {
                     } else {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
-                        if let On::Turn(t) = c.on {
-                            intersections.on_exit(Request::for_car(c.id, t));
-                            assert_eq!(c.path[0], map.get_t(t).dst);
-                            c.path.pop_front();
-                        }
-                        c.waiting_for = None;
-                        c.on = on;
-                        if let On::Turn(t) = c.on {
-                            intersections.on_enter(Request::for_car(c.id, t));
-                        }
-                        // TODO could calculate leftover (and deal with large timesteps, small
-                        // lanes)
-                        c.dist_along = 0.0 * si::M;
+                        c.step_goto(on, map, intersections);
                     }
                 }
                 Action::WaitFor(on) => {
