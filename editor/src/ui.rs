@@ -76,7 +76,12 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(abst_path: &str, window_size: Size, rng_seed: Option<u8>) -> UI {
+    pub fn new(
+        abst_path: &str,
+        window_size: Size,
+        rng_seed: Option<u8>,
+        parametric_sim: bool,
+    ) -> UI {
         let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
         println!("Opening {}", abst_path);
@@ -86,7 +91,7 @@ impl UI {
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim_ctrl = SimController::new(&map, rng_seed);
+        let sim_ctrl = SimController::new(&map, rng_seed, parametric_sim);
 
         let mut ui = UI {
             map,

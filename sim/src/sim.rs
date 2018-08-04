@@ -4,19 +4,88 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
-use intersections::IntersectionSimState;
 use driving;
-use parametric_driving;
+use intersections::IntersectionSimState;
 use map_model;
 use map_model::{LaneID, LaneType, Map, Turn, TurnID};
+use parametric_driving;
 use parking::ParkingSimState;
-use models::DrivingSim;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use std::collections::VecDeque;
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
 use {CarID, CarState, PedestrianID, Tick, TIMESTEP};
+
+#[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
+enum DrivingModel {
+    V1(driving::DrivingSimState),
+    V2(parametric_driving::DrivingSimState),
+}
+
+macro_rules! delegate {
+    // Immutable, no arguments, return type
+    (fn $fxn_name:ident(&self) -> $ret:ty) => {
+        fn $fxn_name(&self) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name(),
+                DrivingModel::V2(s) => s.$fxn_name(),
+            }
+        }
+    };
+
+    // Immutable, arguments, return type
+    (fn $fxn_name:ident(&self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
+        fn $fxn_name(&self, $( $value: $type ),*) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+
+    // Mutable, arguments, return type
+    (fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
+        fn $fxn_name(&mut self, $( $value: $type ),*) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+
+    // Mutable, arguments, no return type
+    (fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* )) => {
+        fn $fxn_name(&mut self, $( $value: $type ),*) {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+}
+
+impl DrivingModel {
+    delegate!(fn get_car_state(&self, c: CarID) -> CarState);
+    delegate!(fn get_active_and_waiting_count(&self) -> (usize, usize));
+    delegate!(fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>>);
+    delegate!(fn toggle_debug(&mut self, id: CarID));
+    delegate!(fn edit_remove_lane(&mut self, id: LaneID));
+    delegate!(fn edit_add_lane(&mut self, id: LaneID));
+    delegate!(fn edit_remove_turn(&mut self, id: TurnID));
+    delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
+    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState));
+    delegate!(fn start_car_on_lane(
+        &mut self,
+        time: Tick,
+        car: CarID,
+        path: VecDeque<LaneID>
+    ) -> bool);
+    delegate!(fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID>);
+    delegate!(fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar>);
+    delegate!(fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar>);
+    delegate!(fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar>);
+}
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -29,7 +98,7 @@ pub struct Sim {
     car_id_counter: usize,
 
     intersection_state: IntersectionSimState,
-    driving_state: Box<DrivingSim>,
+    driving_state: DrivingModel,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
 }
@@ -41,7 +110,11 @@ impl Sim {
             rng = XorShiftRng::from_seed([seed; 16]);
         }
 
-        let driving_state: Box<DrivingSim> = if parametric_sim { Box::new(parametric_driving::DrivingSimState::new(map)) } else { Box::new(driving::DrivingSimState::new(map)) };
+        let driving_state = if parametric_sim {
+            DrivingModel::V2(parametric_driving::DrivingSimState::new(map))
+        } else {
+            DrivingModel::V1(driving::DrivingSimState::new(map))
+        };
 
         Sim {
             rng,

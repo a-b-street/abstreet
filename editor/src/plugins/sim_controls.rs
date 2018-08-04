@@ -21,9 +21,9 @@ pub struct SimController {
 }
 
 impl SimController {
-    pub fn new(map: &Map, rng_seed: Option<u8>) -> SimController {
+    pub fn new(map: &Map, rng_seed: Option<u8>, parametric_sim: bool) -> SimController {
         SimController {
-            sim: Sim::new(map, rng_seed),
+            sim: Sim::new(map, rng_seed, parametric_sim),
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,

@@ -55,6 +55,10 @@ struct Flags {
     /// Use the experimental GUI
     #[structopt(long = "experimental")]
     experimental_gui: bool,
+
+    /// Use the old parametric sim
+    #[structopt(long = "parametric_sim")]
+    parametric_sim: bool,
 }
 
 fn main() {
@@ -94,7 +98,12 @@ fn main() {
             window,
             gl,
             glyphs,
-            ui::UI::new(&flags.abst_input, window_size, flags.rng_seed),
+            ui::UI::new(
+                &flags.abst_input,
+                window_size,
+                flags.rng_seed,
+                flags.parametric_sim,
+            ),
         );
     }
 }

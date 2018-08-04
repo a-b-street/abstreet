@@ -486,3 +486,11 @@ How to share common state in intersections?
 - figure out how to dynamically sub out two different driving models. traits or generics on Sim.
 	- repeat determinism tests for both!
 - start sharing code between the two models (and the ped model)
+
+the polymorphism mess:
+	- a sim can contain one of two different driving models
+	- driving models both implement the same interface (a trait)
+	- need to serialize/deserialize them, but cant get deserialization with erased_serde working
+	- so use enums and just delegate everything. macro?
+	- tried deref on an enum, returning a trait
+	- delegate crate can't handle match expressions

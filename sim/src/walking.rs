@@ -4,7 +4,7 @@ use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use intersections::{IntersectionSimState, Request};
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
-use models::{Action, choose_turn};
+use models::{choose_turn, Action};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};

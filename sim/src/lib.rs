@@ -5,8 +5,6 @@ extern crate control;
 #[macro_use]
 extern crate derivative;
 extern crate dimensioned;
-#[macro_use]
-extern crate erased_serde;
 extern crate ezgui;
 extern crate geom;
 extern crate graphics;
