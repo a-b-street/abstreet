@@ -1,4 +1,5 @@
 use dimensioned::si;
+use TIMESTEP;
 
 pub struct Vehicle {
     // > 0
@@ -21,6 +22,14 @@ impl Vehicle {
         let stopping_time = speed / self.max_accel;
         dist_at_constant_accel(self.max_deaccel, stopping_time, speed)
     }
+
+    pub fn accel_to_achieve_speed_in_one_tick(
+        &self,
+        current: si::MeterPerSecond<f64>,
+        target: si::MeterPerSecond<f64>,
+    ) -> si::MeterPerSecond2<f64> {
+        (target - current) / TIMESTEP
+    }
 }
 
 fn dist_at_constant_accel(
@@ -42,4 +51,25 @@ fn min(t1: si::Second<f64>, t2: si::Second<f64>) -> si::Second<f64> {
         return t1;
     }
     t2
+}
+
+// TODO combine these two
+pub fn new_speed_after_tick(
+    speed: si::MeterPerSecond<f64>,
+    accel: si::MeterPerSecond2<f64>,
+) -> si::MeterPerSecond<f64> {
+    // Don't deaccelerate past 0
+    let new_speed = speed + (accel * TIMESTEP);
+    if new_speed >= 0.0 * si::MPS {
+        return new_speed;
+    }
+    0.0 * si::MPS
+}
+
+pub fn dist_at_constant_accel_for_one_tick(
+    accel: si::MeterPerSecond2<f64>,
+    initial_speed: si::MeterPerSecond<f64>,
+) -> si::Meter<f64> {
+    // TODO impl this
+    return 0.0 * si::M;
 }

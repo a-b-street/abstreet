@@ -3,14 +3,15 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
 use intersections::{IntersectionSimState, Request};
+use kinematics;
 use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
-use models::{choose_turn, Action, FOLLOWING_DISTANCE};
+use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use std::f64;
-use {CarID, CarState, On, Tick};
+use {CarID, CarState, On, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -19,6 +20,7 @@ struct Car {
     on: On,
     speed: si::MeterPerSecond<f64>,
     dist_along: si::Meter<f64>,
+    // TODO need to fill this out now
     waiting_for: Option<On>,
     debug: bool,
     // Head is the next lane
@@ -34,52 +36,51 @@ impl PartialEq for Car {
 }
 impl Eq for Car {}
 
+enum Action {
+    Vanish, // TODO start parking instead
+    Continue(si::MeterPerSecond2<f64>, Option<Request>),
+}
+
 impl Car {
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
-    fn react(
-        &self,
-        map: &Map,
-        _time: Tick,
-        sim: &DrivingSimState,
-        intersections: &IntersectionSimState,
-    ) -> Action {
-        let desired_on: On = {
-            if let Some(on) = self.waiting_for {
-                on
-            } else {
-                if self.dist_along < self.on.length(map) {
-                    return Action::Continue;
-                }
-
-                // Done!
-                if self.path.is_empty() {
-                    return Action::Vanish;
-                }
-
-                match self.on {
-                    On::Lane(id) => On::Turn(choose_turn(&self.path, &self.waiting_for, id, map)),
-                    On::Turn(id) => On::Lane(map.get_t(id).dst),
-                }
-            }
-        };
-
-        // Can we actually go there right now?
-        // In a more detailed driving model, this would do things like lookahead.
-        // TODO implement those things ;)
-        let is_lead_vehicle = match self.on {
-            On::Lane(id) => sim.lanes[id.0].cars_queue[0] == self.id,
-            On::Turn(id) => sim.turns[&id].cars_queue[0] == self.id,
-        };
-        let intersection_req_granted = match desired_on {
-            // Already doing a turn, finish it!
-            On::Lane(_) => true,
-            On::Turn(id) => intersections.request_granted(Request::for_car(self.id, id)),
-        };
-        if is_lead_vehicle && intersection_req_granted {
-            Action::Goto(desired_on)
-        } else {
-            Action::WaitFor(desired_on)
+    fn react(&self, map: &Map, _time: Tick, intersections: &IntersectionSimState) -> Action {
+        if self.path.is_empty() {
+            return Action::Vanish;
         }
+
+        // TODO for all of these, do lookahead. max lookahead dist is bound by current road's speed
+        // limit and... er, is it just the stopping distance? or the stopping distance assuming we
+        // accelerate the max here?
+
+        // Don't exceed the speed limit
+        let constraint1 =
+            Vehicle::typical_car().accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT);
+
+        // Stop for intersections if we have to
+        let maybe_request = match self.on {
+            On::Turn(_) => None,
+            On::Lane(id) => Some(Request::for_car(
+                self.id,
+                choose_turn(&self.path, &self.waiting_for, id, map),
+            )),
+        };
+        /*if stop_for_intersection {
+            //On::Lane(id) => !intersections.request_granted(Request::for_car(self.id, choose_turn(&self.path, &self.waiting_for, id, map))),
+            //let constraint2 = Vehicle::typical_car().accel_to_stop_in_dist(self.speed, self.on.length(map) - self.dist_along)
+        }*/
+
+        // TODO don't hit the vehicle in front of us
+        Action::Continue(constraint1, maybe_request)
+    }
+
+    fn step_continue(&mut self, accel: si::MeterPerSecond2<f64>) {
+        // Travel at the target constant acceleration for the duration of the timestep, capping off
+        // when speed hits zero.
+        let new_dist = kinematics::dist_at_constant_accel_for_one_tick(accel, self.speed);
+        assert!(new_dist >= 0.0 * si::M);
+        self.dist_along += new_dist;
+        // TODO handle hitting the end
+        self.speed = kinematics::new_speed_after_tick(self.speed, accel);
     }
 
     fn step_goto(&mut self, on: On, map: &Map, intersections: &mut IntersectionSimState) {
@@ -264,49 +265,27 @@ impl DrivingSimState {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((c.id, c.react(map, time, &self, intersections)));
+            requested_moves.push((c.id, c.react(map, time, intersections)));
         }
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
 
-        // Apply moves, resolving conflicts. This has to happen serially.
-        // It might make more sense to push the conflict resolution down to SimQueue?
-        // TODO should shuffle deterministically here, to be more fair
-        let mut new_car_entered_this_step = HashSet::new();
+        // Apply moves. This should resolve in no conflicts because lookahead behavior works, so
+        // this could be applied concurrently!
         for (id, act) in &requested_moves {
             match *act {
                 Action::Vanish => {
                     self.cars.remove(&id);
                 }
-                Action::Continue => {}
-                Action::Goto(on) => {
-                    // Order matters due to new_car_entered_this_step.
-                    // Why is this needed?
-                    // - could two cars enter the same lane from the same turn? proper lookahead
-                    // behavior WILL fix this
-                    // - could two cars enter the same lane from different turns? no, then
-                    // conflicting turns are happening simultaneously!
-                    // - could two cars enter the same turn? proper lookahead
-                    // behavior and not submitting a request until being the leader vehice should
-                    // fix
-                    // TODO fix this up!
-                    if new_car_entered_this_step.contains(&on) {
-                        // The car thought they could go, but have to abort last-minute. We may
-                        // need to set waiting_for, since the car didn't necessarily return WaitFor
-                        // previously.
-                        self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
-                    } else {
-                        new_car_entered_this_step.insert(on);
-                        let c = self.cars.get_mut(&id).unwrap();
-                        c.step_goto(on, map, intersections);
-                    }
-                }
-                Action::WaitFor(on) => {
-                    self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
-                    if let On::Turn(t) = on {
+                Action::Continue(accel, ref maybe_request) => {
+                    let c = self.cars.get_mut(&id).unwrap();
+                    c.step_continue(accel);
+                    // TODO maybe just return TurnID
+                    if let Some(req) = maybe_request {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_car(*id, t), time);
+                        intersections.submit_request(req.clone(), time);
+                        //self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     }
                 }
             }
