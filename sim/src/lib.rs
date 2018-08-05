@@ -54,11 +54,11 @@ impl fmt::Display for PedestrianID {
     }
 }
 
-pub const TIMESTEP: si::Second<f64> = si::Second {
+pub const TIMESTEP: Time = si::Second {
     value_unsafe: 0.1,
     _marker: std::marker::PhantomData,
 };
-pub const SPEED_LIMIT: si::MeterPerSecond<f64> = si::MeterPerSecond {
+pub const SPEED_LIMIT: Speed = si::MeterPerSecond {
     value_unsafe: 8.9408,
     _marker: std::marker::PhantomData,
 };
@@ -72,7 +72,7 @@ impl Tick {
         Tick(0)
     }
 
-    pub fn as_time(&self) -> si::Second<f64> {
+    pub fn as_time(&self) -> Time {
         (self.0 as f64) * TIMESTEP
     }
 
@@ -125,14 +125,14 @@ impl On {
         }
     }
 
-    fn length(&self, map: &Map) -> si::Meter<f64> {
+    fn length(&self, map: &Map) -> Distance {
         match self {
             &On::Lane(id) => map.get_l(id).length(),
             &On::Turn(id) => map.get_t(id).length(),
         }
     }
 
-    fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
+    fn dist_along(&self, dist: Distance, map: &Map) -> (Pt2D, Angle) {
         match self {
             &On::Lane(id) => map.get_l(id).dist_along(dist),
             &On::Turn(id) => map.get_t(id).dist_along(dist),
@@ -145,3 +145,8 @@ pub enum CarState {
     Stuck,
     Parked,
 }
+
+pub type Time = si::Second<f64>;
+pub type Distance = si::Meter<f64>;
+pub type Speed = si::MeterPerSecond<f64>;
+pub type Acceleration = si::MeterPerSecond2<f64>;

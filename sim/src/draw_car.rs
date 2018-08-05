@@ -7,11 +7,11 @@ use graphics;
 use graphics::math::Vec2d;
 use map_model::{geometry, Map, TurnID};
 use std;
-use CarID;
+use {CarID, Distance};
 
 const CAR_WIDTH: f64 = 2.0;
 
-pub const CAR_LENGTH: si::Meter<f64> = si::Meter {
+pub const CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 4.5,
     _marker: std::marker::PhantomData,
 };
@@ -36,7 +36,7 @@ impl DrawCar {
         map: &Map,
         front: Pt2D,
         angle: Angle,
-        stopping_dist: si::Meter<f64>,
+        stopping_dist: Distance,
     ) -> DrawCar {
         let turn_arrow = if let Some(t) = waiting_for_turn {
             let angle = map.get_t(t).line.angle();

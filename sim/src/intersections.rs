@@ -6,10 +6,10 @@ use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet};
-use {CarID, PedestrianID, Tick, SPEED_LIMIT};
+use {CarID, PedestrianID, Tick, Time, SPEED_LIMIT};
 
 use std;
-const WAIT_AT_STOP_SIGN: si::Second<f64> = si::Second {
+const WAIT_AT_STOP_SIGN: Time = si::Second {
     value_unsafe: 1.5,
     _marker: std::marker::PhantomData,
 };

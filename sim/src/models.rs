@@ -2,12 +2,12 @@ use dimensioned::si;
 use map_model::{LaneID, Map, TurnID};
 use std;
 use std::collections::VecDeque;
-use On;
+use {Distance, On};
 
 // This is all stuff that seems useful to share among different models.
 
 // At all speeds (including at rest), cars must be at least this far apart.
-pub const FOLLOWING_DISTANCE: si::Meter<f64> = si::Meter {
+pub const FOLLOWING_DISTANCE: Distance = si::Meter {
     value_unsafe: 8.0,
     _marker: std::marker::PhantomData,
 };

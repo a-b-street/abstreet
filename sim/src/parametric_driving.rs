@@ -14,8 +14,7 @@ use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use std::collections::{BTreeMap, HashSet, VecDeque};
-use std::f64;
-use {CarID, CarState, On, Tick, SPEED_LIMIT};
+use {CarID, CarState, Distance, On, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -114,7 +113,7 @@ impl Car {
     }
 
     // Returns the angle and the dist along the lane/turn too
-    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, si::Meter<f64>) {
+    fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, Distance) {
         let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
             dist = self.on.length(map);

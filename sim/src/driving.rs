@@ -10,16 +10,15 @@ use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, VecDeque};
-use std::f64;
-use {CarID, CarState, On, Tick, SPEED_LIMIT};
+use {Acceleration, CarID, CarState, Distance, On, Speed, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
 struct Car {
     id: CarID,
     on: On,
-    speed: si::MeterPerSecond<f64>,
-    dist_along: si::Meter<f64>,
+    speed: Speed,
+    dist_along: Distance,
     // TODO need to fill this out now
     waiting_for: Option<On>,
     debug: bool,
@@ -38,7 +37,7 @@ impl Eq for Car {}
 
 enum Action {
     Vanish, // TODO start parking instead
-    Continue(si::MeterPerSecond2<f64>, Option<Request>),
+    Continue(Acceleration, Option<Request>),
 }
 
 impl Car {
@@ -73,7 +72,7 @@ impl Car {
         Action::Continue(constraint1, maybe_request)
     }
 
-    fn step_continue(&mut self, accel: si::MeterPerSecond2<f64>) {
+    fn step_continue(&mut self, accel: Acceleration) {
         // Travel at the target constant acceleration for the duration of the timestep, capping off
         // when speed hits zero.
         let new_dist = kinematics::dist_at_constant_accel_for_one_tick(accel, self.speed);

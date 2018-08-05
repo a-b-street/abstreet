@@ -8,12 +8,12 @@ use models::{choose_turn, Action};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {On, PedestrianID, Tick};
+use {Distance, On, PedestrianID, Speed, Tick, Time};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
 // TODO temporarily very high to debug peds faster
-const SPEED: si::MeterPerSecond<f64> = si::MeterPerSecond {
+const SPEED: Speed = si::MeterPerSecond {
     value_unsafe: 3.9,
     _marker: std::marker::PhantomData,
 };
@@ -24,7 +24,7 @@ struct Pedestrian {
 
     on: On,
     // TODO since Tick is deliberately not f64, have a better type for Meters.
-    dist_along: si::Meter<f64>,
+    dist_along: Distance,
     // Traveling along the lane/turn in its original direction or not?
     contraflow: bool,
 
@@ -82,8 +82,8 @@ impl Pedestrian {
         }
     }
 
-    fn step_continue(&mut self, delta_time: si::Second<f64>, map: &Map) {
-        let new_dist: si::Meter<f64> = delta_time * SPEED;
+    fn step_continue(&mut self, delta_time: Time, map: &Map) {
+        let new_dist = delta_time * SPEED;
         if self.contraflow {
             self.dist_along -= new_dist;
             if self.dist_along < 0.0 * si::M {
@@ -178,7 +178,7 @@ impl WalkingSimState {
     pub fn step(
         &mut self,
         time: Tick,
-        delta_time: si::Second<f64>,
+        delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) {
