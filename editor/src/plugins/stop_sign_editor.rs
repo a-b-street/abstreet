@@ -97,4 +97,11 @@ impl StopSignEditor {
             }
         }
     }
+
+    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
+        match self {
+            StopSignEditor::Active(i) => *i == id,
+            StopSignEditor::Inactive => false,
+        }
+    }
 }

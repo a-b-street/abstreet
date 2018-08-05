@@ -1,5 +1,12 @@
 # TODO for Phase 1 (Basemap)
 
+- lots more data
+	- lanes: https://data-seattlecitygis.opendata.arcgis.com/datasets/49d417979fec452981a068ca078e7070_3
+	- traffic circles: https://data-seattlecitygis.opendata.arcgis.com/datasets/717b10434d4945658355eba78b66971a_6
+	- https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
+	- https://data-seattlecitygis.opendata.arcgis.com/datasets/curb-ramps
+	- high quality thick roads: https://seattlecitygis.maps.arcgis.com/apps/webappviewer/index.html?id=86cb6824307c4d63b8e180ebcff58ce2
+
 - trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - maybe also the time to split into different lane types? what's similar/not between them?

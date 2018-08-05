@@ -49,7 +49,6 @@ pub struct UI {
     show_buildings: ToggleableLayer,
     show_intersections: ToggleableLayer,
     show_parcels: ToggleableLayer,
-    show_icons: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
     // This is a particularly special plugin, since it's always kind of active and other things
@@ -110,12 +109,6 @@ impl UI {
                 Some(MIN_ZOOM_FOR_LANES),
             ),
             show_parcels: ToggleableLayer::new("parcels", Key::D4, "4", Some(MIN_ZOOM_FOR_PARCELS)),
-            show_icons: ToggleableLayer::new(
-                "turn icons",
-                Key::D7,
-                "7",
-                Some(MIN_ZOOM_FOR_LANE_MARKERS),
-            ),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
             current_selection_state: SelectionState::Empty,
@@ -161,7 +154,6 @@ impl UI {
         self.show_buildings.handle_zoom(old_zoom, new_zoom);
         self.show_intersections.handle_zoom(old_zoom, new_zoom);
         self.show_parcels.handle_zoom(old_zoom, new_zoom);
-        self.show_icons.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
     }
 
@@ -188,21 +180,17 @@ impl UI {
             }
         }
 
-        if self.show_icons.is_enabled() {
-            for t in &self.draw_map
-                .get_turn_icons_onscreen(screen_bbox, &self.hider)
-            {
-                if t.contains_pt(x, y) {
-                    return Some(ID::Turn(t.id));
-                }
-            }
-        }
-
         if self.show_intersections.is_enabled() {
             for i in &self.draw_map
                 .get_intersections_onscreen(screen_bbox, &self.hider)
             {
+                let show_icons = self.show_icons_for(i.id);
+
                 for t in &self.map.get_i(i.id).turns {
+                    if show_icons && self.draw_map.get_t(*t).contains_pt(x, y) {
+                        return Some(ID::Turn(*t));
+                    }
+
                     for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
                         if c.contains_pt(x, y) {
                             return Some(ID::Car(c.id));
@@ -346,6 +334,10 @@ impl UI {
         }
         ezgui::shift_color(self.cs.get(Colors::Pedestrian), id.0)
     }
+
+    fn show_icons_for(&self, id: IntersectionID) -> bool {
+        self.stop_sign_editor.show_turn_icons(id) || self.traffic_signal_editor.show_turn_icons(id)
+    }
 }
 
 impl gui::GUI for UI {
@@ -438,7 +430,6 @@ impl gui::GUI for UI {
         }
 
         stop_if_done!(self.show_parcels.handle_event(input));
-        stop_if_done!(self.show_icons.handle_event(input));
         stop_if_done!(self.debug_mode.handle_event(input));
         stop_if_done!(self.steepness_viz.handle_event(input));
         stop_if_done!(self.osm_classifier.handle_event(input));
@@ -561,7 +552,13 @@ impl gui::GUI for UI {
                 .get_intersections_onscreen(screen_bbox, &self.hider)
             {
                 i.draw(g, self.color_intersection(i.id), &self.cs);
+                let show_icons = self.show_icons_for(i.id);
                 for t in &self.map.get_i(i.id).turns {
+                    if show_icons {
+                        self.draw_map
+                            .get_t(*t)
+                            .draw_icon(g, self.color_turn_icon(*t), &self.cs);
+                    }
                     for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
                         c.draw(g, self.color_car(c.id));
                     }
@@ -569,14 +566,6 @@ impl gui::GUI for UI {
                         p.draw(g, self.color_ped(p.id));
                     }
                 }
-            }
-        }
-
-        if self.show_icons.is_enabled() {
-            for t in &self.draw_map
-                .get_turn_icons_onscreen(screen_bbox, &self.hider)
-            {
-                t.draw_icon(g, self.color_turn_icon(t.id), &self.cs);
             }
         }
 

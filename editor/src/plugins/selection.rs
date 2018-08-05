@@ -168,9 +168,8 @@ impl SelectionState {
                 if !relevant_turns.is_empty() {
                     match current_turn_index {
                         Some(idx) => {
-                            let turn = map.get_t(relevant_turns[idx % relevant_turns.len()].id);
-                            let draw_turn =
-                                draw_map.get_t(relevant_turns[idx % relevant_turns.len()].id);
+                            let turn = relevant_turns[idx % relevant_turns.len()];
+                            let draw_turn = draw_map.get_t(turn.id);
                             draw_turn.draw_full(g, cs.get(Colors::Turn));
 
                             for t in map.get_turns_in_intersection(turn.parent) {

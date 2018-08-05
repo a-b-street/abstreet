@@ -118,4 +118,14 @@ impl TrafficSignalEditor {
             }
         }
     }
+
+    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
+        match self {
+            TrafficSignalEditor::Active {
+                i,
+                current_cycle: _,
+            } => *i == id,
+            TrafficSignalEditor::Inactive => false,
+        }
+    }
 }

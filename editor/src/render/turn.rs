@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
@@ -85,11 +84,7 @@ impl DrawTurn {
         );
     }
 
-    // the two below are for the icon
-    pub fn get_bbox(&self) -> Rect {
-        geometry::circle_to_bbox(&self.icon_circle)
-    }
-
+    // for the icon
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
         let radius = self.icon_circle[2] / 2.0;
         geometry::point_in_circle(

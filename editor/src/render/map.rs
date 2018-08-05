@@ -21,7 +21,6 @@ pub struct DrawMap {
 
     lanes_quadtree: QuadTree<LaneID>,
     intersections_quadtree: QuadTree<IntersectionID>,
-    turn_icons_quadtree: QuadTree<TurnID>,
     buildings_quadtree: QuadTree<BuildingID>,
     parcels_quadtree: QuadTree<ParcelID>,
 }
@@ -76,10 +75,6 @@ impl DrawMap {
         for i in &intersections {
             intersections_quadtree.insert_with_box(i.id, i.get_bbox());
         }
-        let mut turn_icons_quadtree = QuadTree::default(map_bbox);
-        for t in turns.values() {
-            turn_icons_quadtree.insert_with_box(t.id, t.get_bbox());
-        }
         let mut buildings_quadtree = QuadTree::default(map_bbox);
         for b in &buildings {
             buildings_quadtree.insert_with_box(b.id, b.get_bbox());
@@ -99,7 +94,6 @@ impl DrawMap {
 
                 lanes_quadtree,
                 intersections_quadtree,
-                turn_icons_quadtree,
                 buildings_quadtree,
                 parcels_quadtree,
             },
@@ -134,14 +128,6 @@ impl DrawMap {
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {
         self.turns.remove(&id);
-
-        // TODO remember ItemId instead
-        let item_id = *self.turn_icons_quadtree
-            .iter()
-            .find(|pair| (pair.1).0 == id)
-            .unwrap()
-            .0;
-        self.turn_icons_quadtree.remove(item_id);
     }
 
     pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
@@ -149,8 +135,6 @@ impl DrawMap {
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
         DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, map.get_l(t.src), map);
         let draw_turn = DrawTurn::new(map, t, turn_to_lane_offset[&id]);
-        self.turn_icons_quadtree
-            .insert_with_box(id, draw_turn.get_bbox());
         self.turns.insert(id, draw_turn);
     }
 
@@ -194,16 +178,6 @@ impl DrawMap {
         for &(id, _, _) in &self.intersections_quadtree.query(screen_bbox) {
             if hider.show_i(*id) {
                 v.push(self.get_i(*id));
-            }
-        }
-        v
-    }
-
-    pub fn get_turn_icons_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawTurn> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.turn_icons_quadtree.query(screen_bbox) {
-            if hider.show_l(id.src) {
-                v.push(self.get_t(*id));
             }
         }
         v
