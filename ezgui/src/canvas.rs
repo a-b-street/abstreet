@@ -9,8 +9,7 @@ use piston::window::Size;
 use text;
 use GfxCtx;
 
-const ZOOM_SPEED: f64 = 0.05;
-//const PAN_SPEED: f64 = 10.0;
+const ZOOM_SPEED: f64 = 0.1;
 
 pub struct Canvas {
     pub cam_x: f64,
@@ -61,20 +60,10 @@ impl Canvas {
         if let Some(Button::Mouse(MouseButton::Left)) = ev.release_args() {
             self.left_mouse_drag_from = None;
         }
-        // These aren't used much now, and they conflict with other plugins
-        /*if let Some(Button::Keyboard(key)) = ev.press_args() {
-            match key {
-                Key::Up => self.cam_y -= PAN_SPEED,
-                Key::Down => self.cam_y += PAN_SPEED,
-                Key::Left => self.cam_x -= PAN_SPEED,
-                Key::Right => self.cam_x += PAN_SPEED,
-                Key::Q => self.zoom_towards_mouse(-ZOOM_SPEED),
-                Key::W => self.zoom_towards_mouse(ZOOM_SPEED),
-                _ => {}
-            }
-        }*/
         if let Some(scroll) = ev.mouse_scroll_args() {
-            self.zoom_towards_mouse(scroll[1] * ZOOM_SPEED);
+            // Zoom slower at low zooms, faster at high.
+            let delta = scroll[1] * ZOOM_SPEED * self.cam_zoom;
+            self.zoom_towards_mouse(delta);
         }
     }
 
