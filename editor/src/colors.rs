@@ -34,7 +34,6 @@ pub enum Colors {
     BuildingPath,
     BuildingBoundary,
     ParcelBoundary,
-    ParcelInterior,
     RoadOrientation,
     SearchResult,
     Visited,

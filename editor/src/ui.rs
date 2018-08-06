@@ -310,10 +310,27 @@ impl UI {
 
     // Returns (boundary, fill) color
     fn color_parcel(&self, id: map_model::ParcelID) -> (Color, Color) {
-        let _p = self.map.get_p(id);
+        const COLORS: [Color; 14] = [
+            // TODO these are awful choices
+            [1.0, 1.0, 0.0, 1.0],
+            [1.0, 0.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0, 1.0],
+            [0.5, 0.2, 0.7, 1.0],
+            [0.5, 0.5, 0.0, 0.5],
+            [0.5, 0.0, 0.5, 0.5],
+            [0.0, 0.5, 0.5, 0.5],
+            [0.0, 0.0, 0.5, 0.5],
+            [0.3, 0.2, 0.5, 0.5],
+            [0.4, 0.2, 0.5, 0.5],
+            [0.5, 0.2, 0.5, 0.5],
+            [0.6, 0.2, 0.5, 0.5],
+            [0.7, 0.2, 0.5, 0.5],
+            [0.8, 0.2, 0.5, 0.5],
+        ];
+        let p = self.map.get_p(id);
         (
             self.cs.get(Colors::ParcelBoundary),
-            self.cs.get(Colors::ParcelInterior),
+            COLORS[p.block % COLORS.len()],
         )
     }
 

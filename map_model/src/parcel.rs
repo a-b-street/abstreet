@@ -17,6 +17,8 @@ impl fmt::Display for ParcelID {
 pub struct Parcel {
     pub id: ParcelID,
     pub points: Vec<Pt2D>,
+    // All parcels of the same block have the same number.
+    pub block: usize,
 }
 
 impl PartialEq for Parcel {
