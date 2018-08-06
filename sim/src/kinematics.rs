@@ -1,6 +1,8 @@
 use dimensioned::si;
 use {Acceleration, Distance, Speed, Time, TIMESTEP};
 
+// TODO unit test all of this
+
 pub struct Vehicle {
     // > 0
     max_accel: Acceleration,
@@ -30,6 +32,39 @@ impl Vehicle {
     ) -> Acceleration {
         (target - current) / TIMESTEP
     }
+
+    // TODO this needs unit tests and some careful checking
+    pub fn accel_to_stop_in_dist(&self, speed: Speed, dist: Distance) -> Acceleration {
+        assert!(dist > 0.0 * si::M);
+
+        // d = (v_1)(t) + (1/2)(a)(t^2)
+        // 0 = (v_1) + (a)(t)
+        // Eliminating time yields the formula for accel below. This same accel should be applied
+        // for t = -v_1 / a, which is possible even if that's not a multiple of TIMESTEP since
+        // we're decelerating to rest.
+        let normal_case: Acceleration = (-1.0 * speed * speed) / (2.0 * dist);
+        let required_time: Time = -1.0 * speed / normal_case;
+
+        if !required_time.value_unsafe.is_nan() {
+            return normal_case;
+        }
+
+        // We have to accelerate so that we can get going, but not enough so that we can't stop. Do
+        // one tick of acceleration, one tick of deacceleration at that same rate. If the required
+        // acceleration is then too high, we'll cap off and trigger a normal case next tick.
+        // Want (1/2)(a)(dt^2) + (a dt)dt - (1/2)(a)(dt^2) = dist
+        dist / (TIMESTEP * TIMESTEP)
+    }
+
+    // Assume we accelerate as much as possible this tick (restricted only by the speed limit),
+    // then stop as fast as possible.
+    pub fn max_lookahead_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
+        assert!(current_speed <= speed_limit);
+        let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
+        let max_next_dist = dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed);
+        let max_next_speed = current_speed + max_next_accel * TIMESTEP;
+        max_next_dist + self.stopping_distance(max_next_speed)
+    }
 }
 
 fn dist_at_constant_accel(accel: Acceleration, time: Time, initial_speed: Speed) -> Distance {
@@ -37,29 +72,38 @@ fn dist_at_constant_accel(accel: Acceleration, time: Time, initial_speed: Speed)
     let actual_time = if accel >= 0.0 * si::MPS2 {
         time
     } else {
-        min(time, -1.0 * initial_speed / accel)
+        min_time(time, -1.0 * initial_speed / accel)
     };
     (initial_speed * actual_time) + (0.5 * accel * (actual_time * actual_time))
 }
 
-fn min(t1: Time, t2: Time) -> Time {
+fn min_time(t1: Time, t2: Time) -> Time {
     if t1 < t2 {
         return t1;
     }
     t2
 }
 
-// TODO combine these two
-pub fn new_speed_after_tick(speed: Speed, accel: Acceleration) -> Speed {
-    // Don't deaccelerate past 0
-    let new_speed = speed + (accel * TIMESTEP);
-    if new_speed >= 0.0 * si::MPS {
-        return new_speed;
+fn min_accel(a1: Acceleration, a2: Acceleration) -> Acceleration {
+    if a1 < a2 {
+        return a1;
     }
-    0.0 * si::MPS
+    a2
 }
 
-pub fn dist_at_constant_accel_for_one_tick(accel: Acceleration, initial_speed: Speed) -> Distance {
-    // TODO impl this
-    return 0.0 * si::M;
+pub fn results_of_accel_for_one_tick(
+    initial_speed: Speed,
+    accel: Acceleration,
+) -> (Distance, Speed) {
+    // Don't deaccelerate into going backwards, just cap things off.
+    let actual_time = if accel >= 0.0 * si::MPS2 {
+        TIMESTEP
+    } else {
+        min_time(TIMESTEP, -1.0 * initial_speed / accel)
+    };
+    let dist = (initial_speed * actual_time) + (0.5 * accel * (actual_time * actual_time));
+    assert!(dist >= 0.0 * si::M);
+    let new_speed = initial_speed + (accel * actual_time);
+    assert!(new_speed >= 0.0 * si::MPS);
+    (dist, new_speed)
 }

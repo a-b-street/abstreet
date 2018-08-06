@@ -146,6 +146,7 @@ pub enum CarState {
     Parked,
 }
 
+// TODO Don't just alias types; assert that time, dist, and speed are always positive
 pub type Time = si::Second<f64>;
 pub type Distance = si::Meter<f64>;
 pub type Speed = si::MeterPerSecond<f64>;

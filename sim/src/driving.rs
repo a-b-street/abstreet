@@ -52,8 +52,9 @@ impl Car {
         // accelerate the max here?
 
         // Don't exceed the speed limit
-        let constraint1 =
-            Vehicle::typical_car().accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT);
+        let constraint1 = Some(
+            Vehicle::typical_car().accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT),
+        );
 
         // Stop for intersections if we have to
         let maybe_request = match self.on {
@@ -63,39 +64,62 @@ impl Car {
                 choose_turn(&self.path, &self.waiting_for, id, map),
             )),
         };
-        /*if stop_for_intersection {
-            //On::Lane(id) => !intersections.request_granted(Request::for_car(self.id, choose_turn(&self.path, &self.waiting_for, id, map))),
-            //let constraint2 = Vehicle::typical_car().accel_to_stop_in_dist(self.speed, self.on.length(map) - self.dist_along)
-        }*/
+        let constraint2 = if let Some(ref req) = maybe_request {
+            if intersections.request_granted(req.clone()) {
+                None
+            } else {
+                Some(
+                    Vehicle::typical_car()
+                        .accel_to_stop_in_dist(self.speed, self.on.length(map) - self.dist_along),
+                )
+            }
+        } else {
+            None
+        };
 
         // TODO don't hit the vehicle in front of us
-        Action::Continue(constraint1, maybe_request)
+
+        // TODO this type mangling is awful
+        let safe_accel = vec![constraint1, constraint2]
+            .into_iter()
+            .filter_map(|c| c)
+            .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
+            .unwrap();
+        Action::Continue(safe_accel, maybe_request)
     }
 
-    fn step_continue(&mut self, accel: Acceleration) {
-        // Travel at the target constant acceleration for the duration of the timestep, capping off
-        // when speed hits zero.
-        let new_dist = kinematics::dist_at_constant_accel_for_one_tick(accel, self.speed);
-        assert!(new_dist >= 0.0 * si::M);
-        self.dist_along += new_dist;
-        // TODO handle hitting the end
-        self.speed = kinematics::new_speed_after_tick(self.speed, accel);
-    }
+    fn step_continue(
+        &mut self,
+        accel: Acceleration,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) {
+        let (dist, new_speed) = kinematics::results_of_accel_for_one_tick(self.speed, accel);
+        self.dist_along += dist;
+        self.speed = new_speed;
 
-    fn step_goto(&mut self, on: On, map: &Map, intersections: &mut IntersectionSimState) {
-        if let On::Turn(t) = self.on {
-            intersections.on_exit(Request::for_car(self.id, t));
-            assert_eq!(self.path[0], map.get_t(t).dst);
-            self.path.pop_front();
+        loop {
+            let leftover_dist = self.dist_along - self.on.length(map);
+            if leftover_dist < 0.0 * si::M {
+                break;
+            }
+            let next_on = match self.on {
+                On::Turn(t) => On::Lane(map.get_t(t).dst),
+                On::Lane(l) => On::Turn(choose_turn(&self.path, &self.waiting_for, l, map)),
+            };
+
+            if let On::Turn(t) = self.on {
+                intersections.on_exit(Request::for_car(self.id, t));
+                assert_eq!(self.path[0], map.get_t(t).dst);
+                self.path.pop_front();
+            }
+            self.waiting_for = None;
+            self.on = next_on;
+            if let On::Turn(t) = self.on {
+                intersections.on_enter(Request::for_car(self.id, t));
+            }
+            self.dist_along = leftover_dist;
         }
-        self.waiting_for = None;
-        self.on = on;
-        if let On::Turn(t) = self.on {
-            intersections.on_enter(Request::for_car(self.id, t));
-        }
-        // TODO could calculate leftover (and deal with large timesteps, small
-        // lanes)
-        self.dist_along = 0.0 * si::M;
     }
 }
 
@@ -279,7 +303,7 @@ impl DrivingSimState {
                 }
                 Action::Continue(accel, ref maybe_request) => {
                     let c = self.cars.get_mut(&id).unwrap();
-                    c.step_continue(accel);
+                    c.step_continue(accel, map, intersections);
                     // TODO maybe just return TurnID
                     if let Some(req) = maybe_request {
                         // Note this is idempotent and does NOT grant the request.
