@@ -83,4 +83,5 @@ pub struct Parcel {
     // last point never the first?
     pub points: Vec<LonLat>,
     // TODO decide what metadata from the shapefile is useful
+    pub block: usize,
 }

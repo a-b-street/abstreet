@@ -161,10 +161,9 @@ impl Map {
                     .iter()
                     .map(|coord| Pt2D::from_gps(coord, &bounds))
                     .collect(),
-                block: 0,
+                block: p.block,
             });
         }
-        make::group_parcels(&mut m.parcels);
 
         Ok(m)
     }

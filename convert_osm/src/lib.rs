@@ -1,6 +1,7 @@
 extern crate abstutil;
 extern crate byteorder;
 extern crate dimensioned;
+extern crate geo;
 extern crate geom;
 extern crate map_model;
 extern crate ordered_float;
@@ -9,6 +10,7 @@ extern crate shp;
 #[macro_use]
 extern crate structopt;
 
+mod group_parcels;
 mod osm;
 mod remove_disconnected;
 mod split_ways;
@@ -69,6 +71,7 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
             map.parcels.push(p);
         }
     }
+    group_parcels::group_parcels(&mut map.parcels);
 
     for coord in
         &traffic_signals::extract(&flags.traffic_signals).expect("loading traffic signals failed")

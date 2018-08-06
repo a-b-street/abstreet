@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::{Point, Rect};
-use geo;
 use geom::{Angle, Bounds, PolyLine, Pt2D};
 use graphics::math::Vec2d;
 use std::f64;
@@ -114,20 +113,4 @@ pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Vec<Pt2D> {
     let first_pt = pts[0];
     pts.push(first_pt);
     pts
-}
-
-pub fn polygons_intersect(pts1: &Vec<Pt2D>, pts2: &Vec<Pt2D>) -> bool {
-    use geo::prelude::Intersects;
-
-    let poly1 = geo::Polygon::new(
-        pts1.iter()
-            .map(|pt| geo::Point::new(pt.x(), pt.y()))
-            .collect(),
-        Vec::new());
-    let poly2 = geo::Polygon::new(
-        pts2.iter()
-            .map(|pt| geo::Point::new(pt.x(), pt.y()))
-            .collect(),
-        Vec::new());
-    poly1.intersects(&poly2)
 }

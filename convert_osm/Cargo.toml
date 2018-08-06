@@ -7,6 +7,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 abstutil = { path = "../abstutil" }
 byteorder = "1.2.1"
 dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
+geo = "0.9.1"
 geom = { path = "../geom" }
 ordered-float = "0.5.0"
 osm-xml = "0.5.1"

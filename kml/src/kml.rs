@@ -36,7 +36,10 @@ pub fn load(
                 // interpret parsing failures appropriately though...
                 if text.contains(" ") {
                     let mut ok = true;
-                    let mut parcel = map_model::raw_data::Parcel { points: Vec::new() };
+                    let mut parcel = map_model::raw_data::Parcel {
+                        points: Vec::new(),
+                        block: 0,
+                    };
                     for pt in text.split(" ") {
                         if let Some((lon, lat)) = parse_pt(pt) {
                             if b.contains(lon, lat) {
