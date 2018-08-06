@@ -37,55 +37,91 @@ impl Eq for Car {}
 
 enum Action {
     Vanish, // TODO start parking instead
-    Continue(Acceleration, Option<Request>),
+    Continue(Acceleration, Vec<Request>),
 }
 
 impl Car {
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
-    fn react(&self, map: &Map, _time: Tick, intersections: &IntersectionSimState) -> Action {
+    fn react(
+        &self,
+        map: &Map,
+        _time: Tick,
+        sim: &DrivingSimState,
+        intersections: &IntersectionSimState,
+    ) -> Action {
         if self.path.is_empty() {
             return Action::Vanish;
         }
 
-        // TODO for all of these, do lookahead. max lookahead dist is bound by current road's speed
-        // limit and... er, is it just the stopping distance? or the stopping distance assuming we
-        // accelerate the max here?
+        let vehicle = Vehicle::typical_car();
 
-        // Don't exceed the speed limit
-        let constraint1 = Some(
-            Vehicle::typical_car().accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT),
-        );
+        // TODO could wrap this state up
+        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, SPEED_LIMIT);
+        let mut constraints: Vec<Acceleration> = Vec::new();
+        let mut requests: Vec<Request> = Vec::new();
+        let mut current_on = self.on;
+        let mut current_dist_along = self.dist_along;
+        let mut current_path = self.path.clone();
+        let mut dist_scanned_ahead = 0.0 * si::M;
 
-        // Stop for intersections if we have to
-        let maybe_request = match self.on {
-            On::Turn(_) => None,
-            On::Lane(id) => Some(Request::for_car(
-                self.id,
-                choose_turn(&self.path, &self.waiting_for, id, map),
-            )),
-        };
-        let constraint2 = if let Some(ref req) = maybe_request {
-            if intersections.request_granted(req.clone()) {
-                None
-            } else {
-                Some(
-                    Vehicle::typical_car()
-                        .accel_to_stop_in_dist(self.speed, self.on.length(map) - self.dist_along),
-                )
+        loop {
+            // Don't exceed the speed limit
+            // TODO speed limit per road
+            constraints.push(vehicle.accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT));
+
+            // Stop for intersections?
+            if let On::Lane(id) = current_on {
+                let req = Request::for_car(
+                    self.id,
+                    choose_turn(&current_path, &self.waiting_for, id, map),
+                );
+                requests.push(req.clone());
+                if !intersections.request_granted(req) {
+                    constraints.push(vehicle.accel_to_stop_in_dist(
+                        self.speed,
+                        current_on.length(map) - current_dist_along,
+                    ));
+                    // TODO halt the lookahead now, right?
+                }
             }
-        } else {
-            None
-        };
 
-        // TODO don't hit the vehicle in front of us
+            // Don't hit the vehicle in front of us
+            if let Some(other) = sim.next_car_in_front_of(current_on, current_dist_along) {
+                assert!(self != other);
+                assert!(current_dist_along < other.dist_along);
+                let dist_behind_other =
+                    dist_scanned_ahead + (other.dist_along - current_dist_along);
+                constraints.push(vehicle.accel_to_follow(
+                    self.speed,
+                    &vehicle,
+                    dist_behind_other,
+                    other.speed,
+                ));
+            }
+
+            // Advance to the next step.
+            let dist_this_step = current_on.length(map) - current_dist_along;
+            dist_to_lookahead -= dist_this_step;
+            if dist_to_lookahead <= 0.0 * si::M {
+                break;
+            }
+            current_on = match current_on {
+                On::Turn(t) => {
+                    current_path.pop_front();
+                    On::Lane(map.get_t(t).dst)
+                }
+                On::Lane(l) => On::Turn(choose_turn(&current_path, &self.waiting_for, l, map)),
+            };
+            current_dist_along = 0.0 * si::M;
+            dist_scanned_ahead += dist_this_step;
+        }
 
         // TODO this type mangling is awful
-        let safe_accel = vec![constraint1, constraint2]
+        let safe_accel = constraints
             .into_iter()
-            .filter_map(|c| c)
             .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
             .unwrap();
-        Action::Continue(safe_accel, maybe_request)
+        Action::Continue(safe_accel, requests)
     }
 
     fn step_continue(
@@ -126,6 +162,8 @@ impl Car {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct SimQueue {
     id: On,
+    // First element is at the END of the queue. TODO This is opposite what's expected, maybe swap
+    // it.
     cars_queue: Vec<CarID>,
     capacity: usize,
 }
@@ -175,6 +213,13 @@ impl SimQueue {
             results.push(sim.get_draw_car(*id, Tick::zero(), map).unwrap())
         }
         results
+    }
+
+    fn next_car_in_front_of(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
+        self.cars_queue
+            .iter()
+            .find(|id| sim.cars[id].dist_along > dist)
+            .map(|id| *id)
     }
 }
 
@@ -288,7 +333,7 @@ impl DrivingSimState {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((c.id, c.react(map, time, intersections)));
+            requested_moves.push((c.id, c.react(map, time, self, intersections)));
         }
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
@@ -301,12 +346,14 @@ impl DrivingSimState {
                 Action::Vanish => {
                     self.cars.remove(&id);
                 }
-                Action::Continue(accel, ref maybe_request) => {
+                Action::Continue(accel, ref requests) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.step_continue(accel, map, intersections);
                     // TODO maybe just return TurnID
-                    if let Some(req) = maybe_request {
+                    for req in requests {
                         // Note this is idempotent and does NOT grant the request.
+                        // TODO should we check that the car is currently the lead vehicle?
+                        // intersection is assuming that! or relax that assumption.
                         intersections.submit_request(req.clone(), time);
                         //self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     }
@@ -406,5 +453,12 @@ impl DrivingSimState {
             return queue.get_draw_cars(self, map);
         }
         return Vec::new();
+    }
+
+    fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&Car> {
+        match on {
+            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist, self),
+            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist, self),
+        }.map(|id| &self.cars[&id])
     }
 }

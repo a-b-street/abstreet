@@ -65,6 +65,29 @@ impl Vehicle {
         let max_next_speed = current_speed + max_next_accel * TIMESTEP;
         max_next_dist + self.stopping_distance(max_next_speed)
     }
+
+    fn min_next_speed(&self, current_speed: Speed) -> Speed {
+        let new_speed = current_speed + self.max_deaccel * TIMESTEP;
+        if new_speed >= 0.0 * si::MPS {
+            return new_speed;
+        }
+        0.0 * si::MPS
+    }
+
+    pub fn accel_to_follow(
+        &self,
+        our_speed: Speed,
+        other: &Vehicle,
+        dist_behind_other: Distance,
+        other_speed: Speed,
+    ) -> Acceleration {
+        // TODO this analysis isn't the same as the one in AORTA
+
+        // What if they slam on their brakes right now?
+        let their_stopping_dist = other.stopping_distance(other.min_next_speed(other_speed));
+        let worst_case_dist_away = dist_behind_other + their_stopping_dist;
+        self.accel_to_stop_in_dist(our_speed, worst_case_dist_away)
+    }
 }
 
 fn dist_at_constant_accel(accel: Acceleration, time: Time, initial_speed: Speed) -> Distance {
