@@ -1,3 +1,4 @@
+extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate byteorder;
 extern crate dimensioned;
@@ -71,7 +72,7 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
             map.parcels.push(p);
         }
     }
-    group_parcels::group_parcels(&mut map.parcels);
+    group_parcels::group_parcels(&bounds, &mut map.parcels);
 
     for coord in
         &traffic_signals::extract(&flags.traffic_signals).expect("loading traffic signals failed")

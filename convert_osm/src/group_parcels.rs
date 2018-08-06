@@ -1,13 +1,21 @@
+use aabb_quadtree::geom::{Point, Rect};
+use aabb_quadtree::QuadTree;
 use abstutil::MultiMap;
 use geo;
-use geom::LonLat;
+use geom::{Bounds, LonLat};
 use map_model::raw_data;
 use std::collections::BTreeSet;
 
 // Slight cheat
 type ParcelIdx = usize;
 
-pub fn group_parcels(parcels: &mut Vec<raw_data::Parcel>) {
+pub fn group_parcels(map_bounds: &Bounds, parcels: &mut Vec<raw_data::Parcel>) {
+    // Make a quadtree to quickly prune intersections between parcels
+    let mut quadtree = QuadTree::default(bounds_to_bbox(map_bounds));
+    for (idx, p) in parcels.iter().enumerate() {
+        quadtree.insert_with_box(idx, get_bbox(&p.points));
+    }
+
     // First compute which parcels intersect
     let mut adjacency: MultiMap<ParcelIdx, ParcelIdx> = MultiMap::new();
     // TODO could use quadtree to prune
@@ -16,12 +24,14 @@ pub fn group_parcels(parcels: &mut Vec<raw_data::Parcel>) {
         parcels.len()
     );
     let mut adj_counter = 0;
-    for (p1_idx, p1) in parcels.iter().enumerate() {
-        for (p2_idx, p2) in parcels.iter().enumerate() {
-            if p1_idx < p2_idx && polygons_intersect(&p1.points, &p2.points) {
+    for p1_idx in 0..parcels.len() {
+        for &(p2_idx, _, _) in &quadtree.query(get_bbox(&parcels[p1_idx].points)) {
+            if p1_idx != *p2_idx
+                && polygons_intersect(&parcels[p1_idx].points, &parcels[*p2_idx].points)
+            {
                 // TODO could do something more clever later to avoid double memory
-                adjacency.insert(p1_idx, p2_idx);
-                adjacency.insert(p2_idx, p1_idx);
+                adjacency.insert(p1_idx, *p2_idx);
+                adjacency.insert(*p2_idx, p1_idx);
                 adj_counter += 1;
             }
         }
@@ -94,4 +104,25 @@ fn polygons_intersect(pts1: &Vec<LonLat>, pts2: &Vec<LonLat>) -> bool {
         Vec::new(),
     );
     poly1.intersects(&poly2)
+}
+
+fn bounds_to_bbox(b: &Bounds) -> Rect {
+    Rect {
+        top_left: Point {
+            x: b.min_x as f32,
+            y: b.min_y as f32,
+        },
+        bottom_right: Point {
+            x: b.max_x as f32,
+            y: b.max_y as f32,
+        },
+    }
+}
+
+fn get_bbox(pts: &Vec<LonLat>) -> Rect {
+    let mut b = Bounds::new();
+    for p in pts.iter() {
+        b.update(p.longitude, p.latitude);
+    }
+    bounds_to_bbox(&b)
 }
