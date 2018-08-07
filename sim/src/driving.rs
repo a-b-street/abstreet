@@ -52,7 +52,7 @@ impl Car {
         sim: &DrivingSimState,
         intersections: &IntersectionSimState,
     ) -> Action {
-        if self.path.is_empty() {
+        if self.path.is_empty() && self.dist_along == self.on.length(map) {
             return Action::Vanish;
         }
 
