@@ -38,12 +38,10 @@ fn main() {
     sim.seed_pedestrians(&map, 100);
     sim.start_many_parked_cars(&map, 100);
 
-    let mut counter = 0;
     let mut benchmark = sim.start_benchmark();
     loop {
-        counter += 1;
         sim.step(&map, &control_map);
-        if counter % 1000 == 0 {
+        if sim.time.is_multiple_of_minute() {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }

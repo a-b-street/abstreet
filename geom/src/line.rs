@@ -1,5 +1,5 @@
 use dimensioned::si;
-use {util, Angle, Pt2D};
+use {line_intersection, Angle, Pt2D, EPSILON_DIST};
 
 // Segment, technically
 #[derive(Serialize, Deserialize, Debug)]
@@ -33,7 +33,7 @@ impl Line {
         if !self.intersects(other) {
             None
         } else {
-            util::line_intersection(self, other)
+            line_intersection(self, other)
         }
     }
 
@@ -63,7 +63,7 @@ impl Line {
 
     pub fn dist_along(&self, dist: si::Meter<f64>) -> Pt2D {
         let len = self.length();
-        if dist > len + util::EPSILON_METERS {
+        if dist > len + EPSILON_DIST {
             panic!("cant do {} along a line of length {}", dist, len);
         }
 
@@ -98,9 +98,9 @@ impl Line {
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         let dist = Line(self.0, pt).length() + Line(pt, self.1).length() - self.length();
         if dist < 0.0 * si::M {
-            -1.0 * dist < util::EPSILON_METERS
+            -1.0 * dist < EPSILON_DIST
         } else {
-            dist < util::EPSILON_METERS
+            dist < EPSILON_DIST
         }
     }
 }

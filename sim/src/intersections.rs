@@ -298,6 +298,7 @@ impl TrafficSignal {
                 continue;
             }
             // How long will it take the agent to cross the turn?
+            // TODO assuming they accelerate!
             let crossing_time = turn.length() / speeds[&agent];
             // TODO account for TIMESTEP
 

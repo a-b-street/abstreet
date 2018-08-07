@@ -1,8 +1,15 @@
 use dimensioned::si;
 use models::FOLLOWING_DISTANCE;
+use std;
 use {Acceleration, Distance, Speed, Time, TIMESTEP};
 
+pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
+    value_unsafe: 0.00000001,
+    _marker: std::marker::PhantomData,
+};
+
 // TODO unit test all of this
+// TODO handle floating point issues uniformly here
 
 pub struct Vehicle {
     // > 0
@@ -36,7 +43,11 @@ impl Vehicle {
 
     // TODO this needs unit tests and some careful checking
     pub fn accel_to_stop_in_dist(&self, speed: Speed, dist: Distance) -> Acceleration {
-        assert!(dist > 0.0 * si::M);
+        assert_ge!(dist, 0.0 * si::M);
+        // Don't NaN out
+        if dist == 0.0 * si::M {
+            return 0.0 * si::MPS2;
+        }
 
         // d = (v_1)(t) + (1/2)(a)(t^2)
         // 0 = (v_1) + (a)(t)
@@ -60,7 +71,7 @@ impl Vehicle {
     // Assume we accelerate as much as possible this tick (restricted only by the speed limit),
     // then stop as fast as possible.
     pub fn max_lookahead_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
-        assert!(current_speed <= speed_limit);
+        assert_le!(current_speed, speed_limit);
         let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
         let max_next_dist = dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed);
         let max_next_speed = current_speed + max_next_accel * TIMESTEP;
@@ -69,7 +80,7 @@ impl Vehicle {
 
     // TODO share with max_lookahead_dist
     fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
-        assert!(current_speed <= speed_limit);
+        assert_le!(current_speed, speed_limit);
         let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
         dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed)
     }
@@ -154,9 +165,13 @@ pub fn results_of_accel_for_one_tick(
         min_time(TIMESTEP, -1.0 * initial_speed / accel)
     };
     let dist = (initial_speed * actual_time) + (0.5 * accel * (actual_time * actual_time));
-    assert!(dist >= 0.0 * si::M);
-    let new_speed = initial_speed + (accel * actual_time);
-    assert!(new_speed >= 0.0 * si::MPS);
+    assert_ge!(dist, 0.0 * si::M);
+    let mut new_speed = initial_speed + (accel * actual_time);
+    // Handle some floating point imprecision
+    if new_speed < 0.0 * si::MPS && new_speed >= -1.0 * EPSILON_SPEED {
+        new_speed = 0.0 * si::MPS;
+    }
+    assert_ge!(new_speed, 0.0 * si::MPS);
     (dist, new_speed)
 }
 

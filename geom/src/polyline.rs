@@ -2,7 +2,7 @@ use dimensioned::si;
 use graphics::math::Vec2d;
 use std::f64;
 use std::fmt;
-use {util, Angle, Line, Pt2D};
+use {line_intersection, Angle, Line, Pt2D, EPSILON_DIST};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
@@ -59,7 +59,7 @@ impl PolyLine {
             let l = Line::new(pair[0], pair[1]);
             let length = l.length();
             let epsilon = if idx == self.pts.len() - 2 {
-                util::EPSILON_METERS
+                EPSILON_DIST
             } else {
                 0.0 * si::M
             };
@@ -115,7 +115,7 @@ impl PolyLine {
             let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
-            let pt2_shift = util::line_intersection(&l1, &l2).unwrap_or(l1.pt2());
+            let pt2_shift = line_intersection(&l1, &l2).unwrap_or(l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -248,8 +248,8 @@ impl fmt::Display for PolyLine {
 
 #[test]
 fn shift_polyline_equivalence() {
+    use line_intersection;
     use rand;
-    use util::line_intersection;
 
     let scale = 1000.0;
     let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);

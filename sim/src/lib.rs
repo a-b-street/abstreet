@@ -9,6 +9,8 @@ extern crate ezgui;
 extern crate geom;
 extern crate graphics;
 extern crate map_model;
+#[macro_use]
+extern crate more_asserts;
 extern crate multimap;
 extern crate ordered_float;
 #[macro_use]
@@ -85,6 +87,11 @@ impl Tick {
 
     pub fn increment(&mut self) {
         self.0 += 1;
+    }
+
+    // TODO er, little weird
+    pub fn is_multiple_of_minute(&self) -> bool {
+        self.0 % 600 == 0
     }
 }
 

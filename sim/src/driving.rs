@@ -162,7 +162,12 @@ impl Car {
 
         loop {
             let leftover_dist = self.dist_along - self.on.length(map);
-            if leftover_dist < 0.0 * si::M {
+            // == 0.0 is important! If no floating point imprecision happens, cars will stop RIGHT
+            // at the end of a lane, with exactly 0 leftover distance. We don't want to bump them
+            // into the turn and illegally enter the intersection in that case. The alternative
+            // from AORTA, IIRC, is to make cars stop anywhere in a small buffer at the end of the
+            // lane.
+            if leftover_dist <= 0.0 * si::M {
                 break;
             }
             let next_on = match self.on {
@@ -178,7 +183,15 @@ impl Car {
             self.waiting_for = None;
             self.on = next_on;
             if let On::Turn(t) = self.on {
-                intersections.on_enter(Request::for_car(self.id, t))?;
+                // TODO easier way to attach more debug info?
+                intersections
+                    .on_enter(Request::for_car(self.id, t))
+                    .map_err(|e| {
+                        InvariantViolated(format!(
+                            "{}. new speed {}, leftover dist {}",
+                            e, self.speed, leftover_dist
+                        ))
+                    })?;
             }
             self.dist_along = leftover_dist;
         }
@@ -213,7 +226,7 @@ impl SimQueue {
     ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
 
-        assert!(ids.len() <= self.capacity);
+        assert_le!(ids.len(), self.capacity);
         self.cars_queue.clear();
         self.cars_queue.extend(ids);
         // Sort descending.

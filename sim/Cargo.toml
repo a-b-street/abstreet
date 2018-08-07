@@ -11,6 +11,7 @@ dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+more-asserts = "0.2.1"
 multimap = "0.4.0"
 ordered-float = "0.5.0"
 piston2d-graphics = "*"
