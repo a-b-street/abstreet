@@ -7,8 +7,8 @@ use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use models::{choose_turn, Action};
 use multimap::MultiMap;
 use std;
-use std::collections::{BTreeMap, VecDeque};
-use {Distance, InvariantViolated, On, PedestrianID, Speed, Tick, Time};
+use std::collections::{BTreeMap, HashMap, VecDeque};
+use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -98,7 +98,12 @@ impl Pedestrian {
         }
     }
 
-    fn step_goto(&mut self, on: On, map: &Map, intersections: &mut IntersectionSimState) {
+    fn step_goto(
+        &mut self,
+        on: On,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) -> Result<(), InvariantViolated> {
         let old_on = self.on.clone();
         if let On::Turn(t) = self.on {
             intersections.on_exit(Request::for_ped(self.id, t));
@@ -111,7 +116,7 @@ impl Pedestrian {
         self.contraflow = false;
         match self.on {
             On::Turn(t) => {
-                intersections.on_enter(Request::for_ped(self.id, t));
+                intersections.on_enter(Request::for_ped(self.id, t))?;
             }
             On::Lane(l) => {
                 // Which end of the sidewalk are we entering?
@@ -130,6 +135,7 @@ impl Pedestrian {
 
         // TODO could calculate leftover (and deal with large timesteps, small
         // lanes)
+        Ok(())
     }
 }
 
@@ -177,7 +183,6 @@ impl WalkingSimState {
 
     pub fn step(
         &mut self,
-        time: Tick,
         delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
@@ -203,13 +208,13 @@ impl WalkingSimState {
                 }
                 Action::Goto(on) => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    p.step_goto(on, map, intersections);
+                    p.step_goto(on, map, intersections)?;
                 }
                 Action::WaitFor(on) => {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_ped(*id, t), time)?;
+                        intersections.submit_request(Request::for_ped(*id, t))?;
                     }
                 }
             }
@@ -290,6 +295,21 @@ impl WalkingSimState {
             },
         );
         self.peds_per_sidewalk.insert(start, id);
+    }
+
+    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
+        let mut m = HashMap::new();
+        for p in self.peds.values() {
+            m.insert(
+                AgentID::Pedestrian(p.id),
+                if p.waiting_for.is_some() {
+                    0.0 * si::MPS
+                } else {
+                    SPEED
+                },
+            );
+        }
+        m
     }
 }
 

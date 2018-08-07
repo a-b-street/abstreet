@@ -5,20 +5,14 @@ use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
-use std::collections::{BTreeMap, BTreeSet};
-use {CarID, InvariantViolated, PedestrianID, Tick, Time, SPEED_LIMIT};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use {AgentID, CarID, InvariantViolated, PedestrianID, Speed, Tick, Time};
 
 use std;
 const WAIT_AT_STOP_SIGN: Time = si::Second {
     value_unsafe: 1.5,
     _marker: std::marker::PhantomData,
 };
-
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
-pub enum AgentID {
-    Car(CarID),
-    Pedestrian(PedestrianID),
-}
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub struct Request {
@@ -73,7 +67,7 @@ impl IntersectionSimState {
     // must be ready to enter the intersection (leader vehicle and at the end of the lane already).
     // The request may have been previously granted, but the agent might not have been able to
     // start the turn.
-    pub fn submit_request(&mut self, req: Request, time: Tick) -> Result<(), InvariantViolated> {
+    pub fn submit_request(&mut self, req: Request) -> Result<(), InvariantViolated> {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
             if *t != req.turn {
@@ -88,7 +82,7 @@ impl IntersectionSimState {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
                 // TODO assert that the agent hasn't requested something different previously
                 if !p.started_waiting_at.contains_key(&req) {
-                    p.started_waiting_at.insert(req, time);
+                    p.approaching_agents.insert(req);
                 }
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
@@ -99,20 +93,35 @@ impl IntersectionSimState {
         Ok(())
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
+    pub fn step(
+        &mut self,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        speeds: HashMap<AgentID, Speed>,
+    ) {
         for i in self.intersections.iter_mut() {
             match i {
-                IntersectionPolicy::StopSignPolicy(ref mut p) => p.step(time, map, control_map),
+                IntersectionPolicy::StopSignPolicy(ref mut p) => {
+                    p.step(time, map, control_map, &speeds)
+                }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(time, map, control_map)
+                    p.step(time, map, control_map, &speeds)
                 }
             }
         }
     }
 
-    pub fn on_enter(&self, req: Request) {
+    pub fn on_enter(&self, req: Request) -> Result<(), InvariantViolated> {
         let i = &self.intersections[req.turn.parent.0];
-        assert!(i.accepted().contains_key(&req.agent));
+        if i.accepted().contains_key(&req.agent) {
+            Ok(())
+        } else {
+            Err(InvariantViolated(format!(
+                "{:?} entered, but wasn't accepted by the intersection yet",
+                req
+            )))
+        }
     }
 
     pub fn on_exit(&mut self, req: Request) {
@@ -148,9 +157,12 @@ impl IntersectionPolicy {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct StopSign {
     id: IntersectionID,
+    // Might not be stopped yet
+    approaching_agents: BTreeSet<Request>,
     // Use BTreeMap so serialized state is easy to compare.
     // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
     // is an alt.
+    // This is when the agent actually stopped.
     #[serde(serialize_with = "serialize_btreemap")]
     #[serde(deserialize_with = "deserialize_btreemap")]
     started_waiting_at: BTreeMap<Request, Tick>,
@@ -163,6 +175,7 @@ impl StopSign {
     fn new(id: IntersectionID) -> StopSign {
         StopSign {
             id,
+            approaching_agents: BTreeSet::new(),
             started_waiting_at: BTreeMap::new(),
             accepted: BTreeMap::new(),
         }
@@ -193,7 +206,26 @@ impl StopSign {
             .is_some()
     }
 
-    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
+    fn step(
+        &mut self,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        speeds: &HashMap<AgentID, Speed>,
+    ) {
+        // If anybody is stopped, promote them.
+        // TODO retain() would rock
+        let mut newly_stopped: Vec<Request> = Vec::new();
+        for req in self.approaching_agents.iter() {
+            if speeds[&req.agent] == 0.0 * si::MPS {
+                self.started_waiting_at.insert(req.clone(), time);
+                newly_stopped.push(req.clone());
+            }
+        }
+        for req in newly_stopped.into_iter() {
+            self.approaching_agents.remove(&req);
+        }
+
         let mut newly_accepted: Vec<Request> = Vec::new();
         for (req, started_waiting) in self.started_waiting_at.iter() {
             let (agent, turn) = (req.agent, req.turn);
@@ -244,7 +276,13 @@ impl TrafficSignal {
 
     // TODO determine if agents are staying in the intersection past the cycle time.
 
-    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {
+    fn step(
+        &mut self,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        speeds: &HashMap<AgentID, Speed>,
+    ) {
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
 
@@ -260,8 +298,7 @@ impl TrafficSignal {
                 continue;
             }
             // How long will it take the agent to cross the turn?
-            // TODO different speeds
-            let crossing_time = turn.length() / SPEED_LIMIT;
+            let crossing_time = turn.length() / speeds[&agent];
             // TODO account for TIMESTEP
 
             if crossing_time < remaining_cycle_time {

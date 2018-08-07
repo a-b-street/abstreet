@@ -55,6 +55,12 @@ impl fmt::Display for PedestrianID {
     }
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
+pub enum AgentID {
+    Car(CarID),
+    Pedestrian(PedestrianID),
+}
+
 pub const TIMESTEP: Time = si::Second {
     value_unsafe: 0.1,
     _marker: std::marker::PhantomData,

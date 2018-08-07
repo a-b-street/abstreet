@@ -11,11 +11,11 @@ use map_model::{LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
+use {AgentID, CarID, CarState, InvariantViolated, PedestrianID, Speed, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 enum DrivingModel {
@@ -66,6 +66,7 @@ macro_rules! delegate {
 }
 
 impl DrivingModel {
+    delegate!(fn get_all_speeds(&self) -> HashMap<AgentID, Speed>);
     delegate!(fn get_car_state(&self, c: CarID) -> CarState);
     delegate!(fn get_active_and_waiting_count(&self) -> (usize, usize));
     delegate!(fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>>);
@@ -319,13 +320,19 @@ impl Sim {
         {
             panic!("At {}: {}", self.time, e);
         }
-        if let Err(e) =
-            self.walking_state
-                .step(self.time, TIMESTEP, map, &mut self.intersection_state)
+        if let Err(e) = self.walking_state
+            .step(TIMESTEP, map, &mut self.intersection_state)
         {
             panic!("At {}: {}", self.time, e);
         }
-        self.intersection_state.step(self.time, map, control_map);
+
+        // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
+        // borrowed :(
+        let mut speeds = self.driving_state.get_all_speeds();
+        speeds.extend(self.walking_state.get_all_speeds());
+
+        self.intersection_state
+            .step(self.time, map, control_map, speeds);
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {

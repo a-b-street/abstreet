@@ -13,8 +13,8 @@ use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
-use std::collections::{BTreeMap, HashSet, VecDeque};
-use {CarID, CarState, Distance, InvariantViolated, On, Tick, SPEED_LIMIT};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -96,7 +96,7 @@ impl Car {
         time: Tick,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) {
+    ) -> Result<(), InvariantViolated> {
         if let On::Turn(t) = self.on {
             intersections.on_exit(Request::for_car(self.id, t));
             assert_eq!(self.path[0], map.get_t(t).dst);
@@ -105,11 +105,12 @@ impl Car {
         self.waiting_for = None;
         self.on = on;
         if let On::Turn(t) = self.on {
-            intersections.on_enter(Request::for_car(self.id, t));
+            intersections.on_enter(Request::for_car(self.id, t))?;
         }
         // TODO could calculate leftover (and deal with large timesteps, small
         // lanes)
         self.started_at = time;
+        Ok(())
     }
 
     // Returns the angle and the dist along the lane/turn too
@@ -276,6 +277,21 @@ impl DrivingSimState {
         s
     }
 
+    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
+        let mut m = HashMap::new();
+        for c in self.cars.values() {
+            m.insert(
+                AgentID::Car(c.id),
+                if c.waiting_for.is_some() {
+                    0.0 * si::MPS
+                } else {
+                    SPEED_LIMIT
+                },
+            );
+        }
+        m
+    }
+
     pub fn get_car_state(&self, c: CarID) -> CarState {
         if let Some(driving) = self.cars.get(&c) {
             if driving.waiting_for.is_none() {
@@ -388,14 +404,14 @@ impl DrivingSimState {
                     } else {
                         new_car_entered_this_step.insert(on);
                         let c = self.cars.get_mut(&id).unwrap();
-                        c.step_goto(on, time, map, intersections);
+                        c.step_goto(on, time, map, intersections)?;
                     }
                 }
                 Action::WaitFor(on) => {
                     self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_car(*id, t), time)?;
+                        intersections.submit_request(Request::for_car(*id, t))?;
                     }
                 }
             }

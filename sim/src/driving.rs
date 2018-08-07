@@ -9,8 +9,11 @@ use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use std::collections::{BTreeMap, VecDeque};
-use {Acceleration, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, SPEED_LIMIT};
+use std::collections::{BTreeMap, HashMap, VecDeque};
+use {
+    Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick,
+    SPEED_LIMIT,
+};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -152,7 +155,7 @@ impl Car {
         accel: Acceleration,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) {
+    ) -> Result<(), InvariantViolated> {
         let (dist, new_speed) = kinematics::results_of_accel_for_one_tick(self.speed, accel);
         self.dist_along += dist;
         self.speed = new_speed;
@@ -175,10 +178,11 @@ impl Car {
             self.waiting_for = None;
             self.on = next_on;
             if let On::Turn(t) = self.on {
-                intersections.on_enter(Request::for_car(self.id, t));
+                intersections.on_enter(Request::for_car(self.id, t))?;
             }
             self.dist_along = leftover_dist;
         }
+        Ok(())
     }
 }
 
@@ -282,6 +286,14 @@ impl DrivingSimState {
         s
     }
 
+    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
+        let mut m = HashMap::new();
+        for c in self.cars.values() {
+            m.insert(AgentID::Car(c.id), c.speed);
+        }
+        m
+    }
+
     pub fn get_car_state(&self, c: CarID) -> CarState {
         if let Some(driving) = self.cars.get(&c) {
             if driving.waiting_for.is_none() {
@@ -378,13 +390,13 @@ impl DrivingSimState {
                 }
                 Action::Continue(accel, ref requests) => {
                     let c = self.cars.get_mut(&id).unwrap();
-                    c.step_continue(accel, map, intersections);
+                    c.step_continue(accel, map, intersections)?;
                     // TODO maybe just return TurnID
                     for req in requests {
                         // Note this is idempotent and does NOT grant the request.
                         // TODO should we check that the car is currently the lead vehicle?
                         // intersection is assuming that! or relax that assumption.
-                        intersections.submit_request(req.clone(), time)?;
+                        intersections.submit_request(req.clone())?;
                         //self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     }
                 }
