@@ -69,22 +69,6 @@ impl Car {
             // TODO speed limit per road
             constraints.push(vehicle.accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT));
 
-            // Stop for intersections?
-            if let On::Lane(id) = current_on {
-                let req = Request::for_car(
-                    self.id,
-                    choose_turn(&current_path, &self.waiting_for, id, map),
-                );
-                requests.push(req.clone());
-                if !intersections.request_granted(req) {
-                    constraints.push(vehicle.accel_to_stop_in_dist(
-                        self.speed,
-                        current_on.length(map) - current_dist_along,
-                    ));
-                    // TODO halt the lookahead now, right?
-                }
-            }
-
             // Don't hit the vehicle in front of us
             if let Some(other) = sim.next_car_in_front_of(current_on, current_dist_along) {
                 assert!(self != other);
@@ -97,6 +81,28 @@ impl Car {
                     dist_behind_other,
                     other.speed,
                 ));
+            }
+
+            // Stop for intersections?
+            if let On::Lane(id) = current_on {
+                let stop_at_end = if current_path.is_empty() {
+                    true
+                } else {
+                    let req = Request::for_car(
+                        self.id,
+                        choose_turn(&current_path, &self.waiting_for, id, map),
+                    );
+                    requests.push(req.clone());
+                    !intersections.request_granted(req)
+                };
+                if stop_at_end {
+                    constraints.push(vehicle.accel_to_stop_in_dist(
+                        self.speed,
+                        current_on.length(map) - current_dist_along,
+                    ));
+                    // No use in further lookahead.
+                    break;
+                }
             }
 
             // Advance to the next step.
