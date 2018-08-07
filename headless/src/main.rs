@@ -34,8 +34,9 @@ fn main() {
     let control_map = control::ControlMap::new(&map);
     let mut sim = sim::Sim::new(&map, flags.rng_seed, flags.parametric_sim);
     // TODO need a notion of scenarios
-    sim.seed_parked_cars(0.7);
-    sim.start_many_parked_cars(&map, 100000);
+    sim.seed_parked_cars(0.5);
+    sim.seed_pedestrians(&map, 100);
+    sim.start_many_parked_cars(&map, 100);
 
     let mut counter = 0;
     let mut benchmark = sim.start_benchmark();

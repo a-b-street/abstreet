@@ -48,7 +48,12 @@ impl PolyLine {
         })
     }
 
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
+    // TODO return result with an error message
+    pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
+        if dist_along < 0.0 * si::M {
+            return None;
+        }
+
         let mut dist_left = dist_along;
         for (idx, pair) in self.pts.windows(2).enumerate() {
             let l = Line::new(pair[0], pair[1]);
@@ -59,11 +64,22 @@ impl PolyLine {
                 0.0 * si::M
             };
             if dist_left <= length + epsilon {
-                return (l.dist_along(dist_left), l.angle());
+                return Some((l.dist_along(dist_left), l.angle()));
             }
             dist_left -= length;
         }
-        panic!("{} is longer than pts by {}", dist_along, dist_left);
+        None
+    }
+
+    // TODO rm this one
+    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
+        if let Some(pair) = self.safe_dist_along(dist_along) {
+            return pair;
+        }
+        if dist_along < 0.0 * si::M {
+            panic!("dist_along {} is negative", dist_along);
+        }
+        panic!("dist_along {} is longer than {}", dist_along, self.length());
     }
 
     pub fn first_pt(&self) -> Pt2D {

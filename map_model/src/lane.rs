@@ -93,6 +93,10 @@ impl Lane {
         self.lane_center_pts.dist_along(dist_along)
     }
 
+    pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
+        self.lane_center_pts.safe_dist_along(dist_along)
+    }
+
     pub fn length(&self) -> si::Meter<f64> {
         self.lane_center_pts.length()
     }

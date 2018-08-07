@@ -3,8 +3,9 @@
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
+use ezgui::canvas::Canvas;
 use ezgui::GfxCtx;
-use geom::Line;
+use geom::{Line, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
@@ -27,6 +28,9 @@ pub struct DrawLane {
     start_crossing: (Vec2d, Vec2d),
     end_crossing: (Vec2d, Vec2d),
     markings: Vec<Marking>,
+
+    // TODO pretty temporary
+    draw_id_at: Vec<Pt2D>,
 }
 
 impl DrawLane {
@@ -63,7 +67,9 @@ impl DrawLane {
         if lane.lane_type == map_model::LaneType::Driving
             && !map.get_i(lane.dst_i).has_traffic_signal
         {
-            markings.push(calculate_stop_sign_line(lane));
+            if let Some(m) = calculate_stop_sign_line(lane) {
+                markings.push(m);
+            }
         }
 
         DrawLane {
@@ -72,6 +78,7 @@ impl DrawLane {
             markings,
             start_crossing: ([start[0], start[1]], [start[2], start[3]]),
             end_crossing: ([end[0], end[1]], [end[2], end[3]]),
+            draw_id_at: calculate_id_positions(lane).unwrap_or(Vec::new()),
         }
     }
 
@@ -81,7 +88,7 @@ impl DrawLane {
         }
     }
 
-    pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+    pub fn draw_detail(&self, g: &mut GfxCtx, canvas: &Canvas, cs: &ColorScheme) {
         for m in &self.markings {
             let line = if m.round {
                 graphics::Line::new_round(cs.get(m.color), m.thickness)
@@ -91,6 +98,11 @@ impl DrawLane {
             for pts in &m.lines {
                 g.draw_line(&line, *pts);
             }
+        }
+
+        // TODO move to draw_debug
+        for pt in &self.draw_id_at {
+            canvas.draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
         }
     }
 
@@ -262,14 +274,25 @@ fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> 
     })
 }
 
-fn calculate_stop_sign_line(lane: &map_model::Lane) -> Marking {
-    let (pt1, angle) = lane.dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M));
+fn calculate_stop_sign_line(lane: &map_model::Lane) -> Option<Marking> {
+    let (pt1, angle) =
+        lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
     // Reuse perp_line. Project away an arbitrary amount
     let pt2 = pt1.project_away(1.0, angle);
-    Marking {
+    Some(Marking {
         lines: vec![perp_line(Line::new(pt1, pt2), geometry::LANE_THICKNESS)],
         color: Colors::StopSignMarking,
         thickness: 0.25,
         round: true,
+    })
+}
+
+fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
+    if lane.lane_type != map_model::LaneType::Driving {
+        return None;
     }
+
+    let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
+    let (pt2, _) = lane.safe_dist_along(2.0 * geometry::LANE_THICKNESS * si::M)?;
+    Some(vec![pt1, pt2])
 }

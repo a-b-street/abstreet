@@ -6,7 +6,7 @@ use control::ControlMap;
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet};
-use {CarID, PedestrianID, Tick, Time, SPEED_LIMIT};
+use {CarID, InvariantViolated, PedestrianID, Tick, Time, SPEED_LIMIT};
 
 use std;
 const WAIT_AT_STOP_SIGN: Time = si::Second {
@@ -14,13 +14,13 @@ const WAIT_AT_STOP_SIGN: Time = si::Second {
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum AgentID {
     Car(CarID),
     Pedestrian(PedestrianID),
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub struct Request {
     pub agent: AgentID,
     pub turn: TurnID,
@@ -73,11 +73,16 @@ impl IntersectionSimState {
     // must be ready to enter the intersection (leader vehicle and at the end of the lane already).
     // The request may have been previously granted, but the agent might not have been able to
     // start the turn.
-    pub fn submit_request(&mut self, req: Request, time: Tick) {
+    pub fn submit_request(&mut self, req: Request, time: Tick) -> Result<(), InvariantViolated> {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
-            assert_eq!(*t, req.turn);
-            return;
+            if *t != req.turn {
+                return Err(InvariantViolated(format!(
+                    "{:?} made, but {} has already been accepted",
+                    req, t
+                )));
+            }
+            return Ok(());
         }
         match i {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
@@ -91,6 +96,7 @@ impl IntersectionSimState {
                 p.requests.insert(req);
             }
         }
+        Ok(())
     }
 
     pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap) {

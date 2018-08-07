@@ -8,7 +8,7 @@ use models::{choose_turn, Action};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {Distance, On, PedestrianID, Speed, Tick, Time};
+use {Distance, InvariantViolated, On, PedestrianID, Speed, Tick, Time};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -181,7 +181,7 @@ impl WalkingSimState {
         delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) {
+    ) -> Result<(), InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
@@ -209,7 +209,7 @@ impl WalkingSimState {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_ped(*id, t), time);
+                        intersections.submit_request(Request::for_ped(*id, t), time)?;
                     }
                 }
             }
@@ -224,6 +224,8 @@ impl WalkingSimState {
                 On::Turn(id) => self.peds_per_turn.insert(id, p.id),
             };
         }
+
+        Ok(())
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {

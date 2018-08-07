@@ -395,7 +395,7 @@ impl DrivingSimState {
                     self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     if let On::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_car(*id, t), time);
+                        intersections.submit_request(Request::for_car(*id, t), time)?;
                     }
                 }
             }

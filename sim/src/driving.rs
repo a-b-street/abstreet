@@ -75,20 +75,29 @@ impl Car {
                 assert!(current_dist_along < other.dist_along);
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
-                if self.id == CarID(1512) && other.id == CarID(1506) {
-                    println!(
-                        "currently {} behind, while lead on {:?} and we're on {:?}",
-                        dist_behind_other, current_on, self.on
-                    );
-                }
-
-                constraints.push(vehicle.accel_to_follow(
+                let accel = vehicle.accel_to_follow(
                     self.speed,
                     SPEED_LIMIT,
                     &vehicle,
                     dist_behind_other,
                     other.speed,
-                ));
+                );
+
+                if self.id == CarID(1549) && other.id == CarID(59) {
+                    println!(
+                        "currently {} behind, while lead on {:?} and we're on {:?}. our speed {}. need to accel {} to be ok",
+                        dist_behind_other, current_on, self.on, self.speed, accel
+                    );
+                }
+                constraints.push(accel);
+
+                /*constraints.push(vehicle.accel_to_follow(
+                    self.speed,
+                    SPEED_LIMIT,
+                    &vehicle,
+                    dist_behind_other,
+                    other.speed,
+                ));*/
             }
 
             // Stop for intersections?
@@ -375,7 +384,7 @@ impl DrivingSimState {
                         // Note this is idempotent and does NOT grant the request.
                         // TODO should we check that the car is currently the lead vehicle?
                         // intersection is assuming that! or relax that assumption.
-                        intersections.submit_request(req.clone(), time);
+                        intersections.submit_request(req.clone(), time)?;
                         //self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
                     }
                 }

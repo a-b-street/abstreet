@@ -319,8 +319,12 @@ impl Sim {
         {
             panic!("At {}: {}", self.time, e);
         }
-        self.walking_state
-            .step(self.time, TIMESTEP, map, &mut self.intersection_state);
+        if let Err(e) =
+            self.walking_state
+                .step(self.time, TIMESTEP, map, &mut self.intersection_state)
+        {
+            panic!("At {}: {}", self.time, e);
+        }
         self.intersection_state.step(self.time, map, control_map);
     }
 
