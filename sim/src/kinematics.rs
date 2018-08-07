@@ -1,5 +1,6 @@
 use dimensioned::si;
 use {Acceleration, Distance, Speed, Time, TIMESTEP};
+use models::FOLLOWING_DISTANCE;
 
 // TODO unit test all of this
 
@@ -66,6 +67,13 @@ impl Vehicle {
         max_next_dist + self.stopping_distance(max_next_speed)
     }
 
+    // TODO share with max_lookahead_dist
+    fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
+        assert!(current_speed <= speed_limit);
+        let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
+        dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed)
+    }
+
     fn min_next_speed(&self, current_speed: Speed) -> Speed {
         let new_speed = current_speed + self.max_deaccel * TIMESTEP;
         if new_speed >= 0.0 * si::MPS {
@@ -74,19 +82,40 @@ impl Vehicle {
         0.0 * si::MPS
     }
 
+    fn min_next_dist(&self, current_speed: Speed) -> Distance {
+        dist_at_constant_accel(self.max_deaccel, TIMESTEP, current_speed)
+    }
+
     pub fn accel_to_follow(
         &self,
         our_speed: Speed,
+        our_speed_limit: Speed,
         other: &Vehicle,
         dist_behind_other: Distance,
         other_speed: Speed,
     ) -> Acceleration {
-        // TODO this analysis isn't the same as the one in AORTA
+        /* A seemingly failed attempt at a simpler version:
 
         // What if they slam on their brakes right now?
         let their_stopping_dist = other.stopping_distance(other.min_next_speed(other_speed));
         let worst_case_dist_away = dist_behind_other + their_stopping_dist;
         self.accel_to_stop_in_dist(our_speed, worst_case_dist_away)
+        */
+
+        let us_worst_dist = self.max_lookahead_dist(our_speed, our_speed_limit);
+        let most_we_could_go = self.max_next_dist(our_speed, our_speed_limit);
+        let least_they_could_go = other.min_next_dist(other_speed);
+
+        // TODO this optimizes for next tick, so we're playing it really
+        // conservative here... will that make us fluctuate more?
+        let projected_dist_from_them = dist_behind_other - most_we_could_go + least_they_could_go;
+        let desired_dist_btwn = us_worst_dist + FOLLOWING_DISTANCE;
+
+        // Positive = speed up, zero = go their speed, negative = slow down
+        let delta_dist = projected_dist_from_them - desired_dist_btwn;
+
+        // Try to cover whatever the distance is
+        accel_to_cover_dist_in_one_tick(delta_dist, our_speed)
     }
 }
 
@@ -129,4 +158,9 @@ pub fn results_of_accel_for_one_tick(
     let new_speed = initial_speed + (accel * actual_time);
     assert!(new_speed >= 0.0 * si::MPS);
     (dist, new_speed)
+}
+
+fn accel_to_cover_dist_in_one_tick(dist: Distance, speed: Speed) -> Acceleration {
+    // d = (v_i)(t) + (1/2)(a)(t^2), solved for a
+    2.0 * (dist - (speed * TIMESTEP)) / (TIMESTEP * TIMESTEP)
 }

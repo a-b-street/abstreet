@@ -75,8 +75,13 @@ impl Car {
                 assert!(current_dist_along < other.dist_along);
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
+                if self.id == CarID(1512) && other.id == CarID(1506) {
+                    println!("currently {} behind, while lead on {:?} and we're on {:?}", dist_behind_other, current_on, self.on);
+                }
+
                 constraints.push(vehicle.accel_to_follow(
                     self.speed,
+                    SPEED_LIMIT,
                     &vehicle,
                     dist_behind_other,
                     other.speed,
@@ -168,8 +173,7 @@ impl Car {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct SimQueue {
     id: On,
-    // First element is at the END of the queue. TODO This is opposite what's expected, maybe swap
-    // it.
+    // First element is farthest along the queue; they have the greatest dist_along.
     cars_queue: Vec<CarID>,
     capacity: usize,
 }
@@ -192,15 +196,16 @@ impl SimQueue {
         assert!(ids.len() <= self.capacity);
         self.cars_queue.clear();
         self.cars_queue.extend(ids);
+        // Sort descending.
         self.cars_queue
-            .sort_by_key(|id| NotNaN::new(cars[id].dist_along.value_unsafe).unwrap());
+            .sort_by_key(|id| -NotNaN::new(cars[id].dist_along.value_unsafe).unwrap());
 
         // assert here we're not squished together too much
         for slice in self.cars_queue.windows(2) {
-            let c1 = cars[&slice[0]].dist_along;
-            let c2 = cars[&slice[1]].dist_along;
-            if c2 - c1 < FOLLOWING_DISTANCE {
-                println!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} and {}. badness {}", self.id, self.cars_queue, FOLLOWING_DISTANCE, c2, c1, c2 - c1 - FOLLOWING_DISTANCE);
+            let (c1, c2) = (slice[0], slice[1]);
+            let (dist1, dist2) = (cars[&c1].dist_along, cars[&c2].dist_along);
+            if dist1 - dist2 < FOLLOWING_DISTANCE {
+                println!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}", self.id, self.cars_queue, FOLLOWING_DISTANCE, c1, dist1, c2, dist2, dist1 - dist2);
                 println!("  prev queue was {:?}", old_queue);
                 panic!("invariant borked");
             }
@@ -224,6 +229,7 @@ impl SimQueue {
     fn next_car_in_front_of(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
         self.cars_queue
             .iter()
+            .rev()
             .find(|id| sim.cars[id].dist_along > dist)
             .map(|id| *id)
     }
