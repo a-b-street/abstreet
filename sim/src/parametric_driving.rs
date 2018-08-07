@@ -136,7 +136,7 @@ impl SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
-            capacity: ((id.length(map) / FOLLOWING_DISTANCE).floor() as usize).max(1),
+            capacity: ((id.length(map) / FOLLOWING_DISTANCE).ceil() as usize).max(1),
         }
     }
 

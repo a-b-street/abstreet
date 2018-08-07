@@ -212,7 +212,7 @@ impl SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
-            capacity: ((id.length(map) / FOLLOWING_DISTANCE).floor() as usize).max(1),
+            capacity: ((id.length(map) / FOLLOWING_DISTANCE).ceil() as usize).max(1),
         }
     }
 
@@ -226,7 +226,13 @@ impl SimQueue {
     ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
 
-        assert_le!(ids.len(), self.capacity);
+        if ids.len() > self.capacity {
+            let dists: Vec<Distance> = ids.iter().map(|id| cars[id].dist_along).collect();
+            return Err(InvariantViolated(format!(
+                "on {:?}, reset to {:?} broke, because capacity is just {}. dist_alongs are {:?}",
+                self.id, ids, self.capacity, dists
+            )));
+        }
         self.cars_queue.clear();
         self.cars_queue.extend(ids);
         // Sort descending.
