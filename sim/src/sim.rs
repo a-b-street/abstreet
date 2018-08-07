@@ -15,7 +15,7 @@ use std::collections::VecDeque;
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 enum DrivingModel {
@@ -74,7 +74,7 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState));
+    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) -> Result<(), InvariantViolated>);
     delegate!(fn start_car_on_lane(
         &mut self,
         time: Tick,
@@ -314,8 +314,11 @@ impl Sim {
         self.time.increment();
 
         // TODO Vanish action should become Park
-        self.driving_state
-            .step(self.time, map, &mut self.intersection_state);
+        if let Err(e) = self.driving_state
+            .step(self.time, map, &mut self.intersection_state)
+        {
+            panic!("At {}: {}", self.time, e);
+        }
         self.walking_state
             .step(self.time, TIMESTEP, map, &mut self.intersection_state);
         self.intersection_state.step(self.time, map, control_map);

@@ -14,7 +14,7 @@ use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use std::collections::{BTreeMap, HashSet, VecDeque};
-use {CarID, CarState, Distance, On, Tick, SPEED_LIMIT};
+use {CarID, CarState, Distance, InvariantViolated, On, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -156,7 +156,11 @@ impl SimQueue {
             >= FOLLOWING_DISTANCE / SPEED_LIMIT
     }
 
-    fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) {
+    fn reset(
+        &mut self,
+        ids: &Vec<CarID>,
+        cars: &BTreeMap<CarID, Car>,
+    ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
 
         assert!(ids.len() <= self.capacity);
@@ -167,17 +171,16 @@ impl SimQueue {
         // assert here we're not squished together too much
         let min_dt = FOLLOWING_DISTANCE / SPEED_LIMIT;
         for slice in self.cars_queue.windows(2) {
-            let c1 = cars[&slice[0]].started_at.as_time();
-            let c2 = cars[&slice[1]].started_at.as_time();
-            if c2 - c1 < min_dt {
-                println!("uh oh! on {:?}, reset to {:?} broke. min dt is {}, but we have {} and {}. badness {}", self.id, self.cars_queue, min_dt, c2, c1, c2 - c1 - min_dt);
-                println!("  prev queue was {:?}", old_queue);
-                for c in &self.cars_queue {
-                    println!("  {:?} started at {}", c, cars[c].started_at);
-                }
-                panic!("invariant borked");
+            let (c1, c2) = (slice[0], slice[1]);
+            let (t1, t2) = (
+                cars[&c1].started_at.as_time(),
+                cars[&c2].started_at.as_time(),
+            );
+            if t2 - t1 < min_dt {
+                return Err(InvariantViolated(format!("uh oh! on {:?}, reset to {:?} broke. min dt is {}, but we have {} at {} and {} at {}. dt is just {}. prev queue was {:?}", self.id, self.cars_queue, min_dt, c1, t1, c2, t2, t2 - t1, old_queue)));
             }
         }
+        Ok(())
     }
 
     fn is_empty(&self) -> bool {
@@ -342,7 +345,12 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) {
+    pub fn step(
+        &mut self,
+        time: Tick,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) -> Result<(), InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -409,19 +417,21 @@ impl DrivingSimState {
         // Reset all queues
         for l in &mut self.lanes {
             if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
-                l.reset(v, &self.cars);
+                l.reset(v, &self.cars)?;
             } else {
-                l.reset(&Vec::new(), &self.cars);
+                l.reset(&Vec::new(), &self.cars)?;
             }
             //l.reset(cars_per_lane.get_vec(&l.id).unwrap_or_else(|| &Vec::new()), &self.cars);
         }
         for t in self.turns.values_mut() {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
-                t.reset(v, &self.cars);
+                t.reset(v, &self.cars)?;
             } else {
-                t.reset(&Vec::new(), &self.cars);
+                t.reset(&Vec::new(), &self.cars)?;
             }
         }
+
+        Ok(())
     }
 
     // TODO cars basically start in the intersection, with their front bumper right at the

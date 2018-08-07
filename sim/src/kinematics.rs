@@ -1,6 +1,6 @@
 use dimensioned::si;
-use {Acceleration, Distance, Speed, Time, TIMESTEP};
 use models::FOLLOWING_DISTANCE;
+use {Acceleration, Distance, Speed, Time, TIMESTEP};
 
 // TODO unit test all of this
 
@@ -74,13 +74,13 @@ impl Vehicle {
         dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed)
     }
 
-    fn min_next_speed(&self, current_speed: Speed) -> Speed {
+    /*fn min_next_speed(&self, current_speed: Speed) -> Speed {
         let new_speed = current_speed + self.max_deaccel * TIMESTEP;
         if new_speed >= 0.0 * si::MPS {
             return new_speed;
         }
         0.0 * si::MPS
-    }
+    }*/
 
     fn min_next_dist(&self, current_speed: Speed) -> Distance {
         dist_at_constant_accel(self.max_deaccel, TIMESTEP, current_speed)

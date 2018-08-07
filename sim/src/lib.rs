@@ -34,6 +34,7 @@ use dimensioned::si;
 use geom::{Angle, Pt2D};
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
+use std::error;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -151,3 +152,18 @@ pub type Time = si::Second<f64>;
 pub type Distance = si::Meter<f64>;
 pub type Speed = si::MeterPerSecond<f64>;
 pub type Acceleration = si::MeterPerSecond2<f64>;
+
+#[derive(Debug)]
+pub struct InvariantViolated(String);
+
+impl error::Error for InvariantViolated {
+    fn description(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for InvariantViolated {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "InvariantViolated({0})", self.0)
+    }
+}
