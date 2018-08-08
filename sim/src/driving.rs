@@ -22,7 +22,7 @@ struct Car {
     on: On,
     speed: Speed,
     dist_along: Distance,
-    // TODO need to fill this out now
+    // TODO should this only be turns?
     waiting_for: Option<On>,
     debug: bool,
     // Head is the next lane
@@ -108,10 +108,7 @@ impl Car {
                 let stop_at_end = if current_path.is_empty() {
                     true
                 } else {
-                    let req = Request::for_car(
-                        self.id,
-                        choose_turn(&current_path, &self.waiting_for, id, map),
-                    );
+                    let req = Request::for_car(self.id, choose_turn(&current_path, &None, id, map));
                     let granted = intersections.request_granted(req.clone());
                     if !granted {
                         // Otherwise, we wind up submitting a request at the end of our step, after
@@ -141,7 +138,7 @@ impl Car {
                     current_path.pop_front();
                     On::Lane(map.get_t(t).dst)
                 }
-                On::Lane(l) => On::Turn(choose_turn(&current_path, &self.waiting_for, l, map)),
+                On::Lane(l) => On::Turn(choose_turn(&current_path, &None, l, map)),
             };
             current_dist_along = 0.0 * si::M;
             dist_scanned_ahead += dist_this_step;
@@ -177,7 +174,7 @@ impl Car {
             }
             let next_on = match self.on {
                 On::Turn(t) => On::Lane(map.get_t(t).dst),
-                On::Lane(l) => On::Turn(choose_turn(&self.path, &self.waiting_for, l, map)),
+                On::Lane(l) => On::Turn(choose_turn(&self.path, &None, l, map)),
             };
 
             if let On::Turn(t) = self.on {
@@ -314,7 +311,7 @@ impl DrivingSimState {
         for c in self.cars.values() {
             let id = AgentID::Car(c.id);
             info.speeds.insert(id, c.speed);
-            if !self.next_car_in_front_of(c.on, c.dist_along).is_some() {
+            if self.next_car_in_front_of(c.on, c.dist_along).is_none() {
                 info.leaders.insert(id);
             }
         }
@@ -322,7 +319,7 @@ impl DrivingSimState {
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
         if let Some(driving) = self.cars.get(&c) {
-            if driving.waiting_for.is_none() {
+            if driving.speed > kinematics::EPSILON_SPEED {
                 CarState::Moving
             } else {
                 CarState::Stuck
@@ -336,7 +333,7 @@ impl DrivingSimState {
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
         let waiting = self.cars
             .values()
-            .filter(|c| c.waiting_for.is_some())
+            .filter(|c| c.speed <= kinematics::EPSILON_SPEED)
             .count();
         (waiting, self.cars.len())
     }
@@ -423,7 +420,13 @@ impl DrivingSimState {
                         // TODO should we check that the car is currently the lead vehicle?
                         // intersection is assuming that! or relax that assumption.
                         intersections.submit_request(req.clone())?;
-                        //self.cars.get_mut(&id).unwrap().waiting_for = Some(on);
+
+                        // TODO kind of a weird way to figure out when to fill this out...
+                        // duplicated with stop sign's check, also. should check that they're a
+                        // leader vehicle...
+                        if On::Lane(req.turn.src) == c.on && c.speed <= kinematics::EPSILON_SPEED {
+                            c.waiting_for = Some(On::Turn(req.turn));
+                        }
                     }
                 }
             }

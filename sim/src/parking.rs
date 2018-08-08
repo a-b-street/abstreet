@@ -58,7 +58,7 @@ impl ParkingSimState {
         let mut new_cars = 0;
         for l in &mut self.lanes {
             for spot in &mut l.spots {
-                if !spot.is_some() && rng.gen_bool(percent_capacity_to_fill) {
+                if spot.is_none() && rng.gen_bool(percent_capacity_to_fill) {
                     new_cars += 1;
                     *spot = Some(CarID(*id_counter));
                     *id_counter += 1;

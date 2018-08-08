@@ -26,6 +26,8 @@ pub(crate) fn choose_turn(
     from: LaneID,
     map: &Map,
 ) -> TurnID {
+    // TODO waiting_for check doesn't make sense for aorta driving model. what was the point of
+    // this?
     assert!(waiting_for.is_none());
     for t in map.get_turns_from_lane(from) {
         if t.dst == path[0] {
