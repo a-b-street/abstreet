@@ -177,10 +177,6 @@ impl WalkingSimState {
         // No-op
     }
 
-    pub fn total_count(&self) -> usize {
-        self.id_counter
-    }
-
     pub fn step(
         &mut self,
         delta_time: Time,
@@ -310,6 +306,14 @@ impl WalkingSimState {
             );
             info.leaders.insert(id);
         }
+    }
+
+    pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
+        let waiting = self.peds
+            .values()
+            .filter(|p| p.waiting_for.is_some())
+            .count();
+        (waiting, self.peds.len())
     }
 }
 
