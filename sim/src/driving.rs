@@ -112,8 +112,13 @@ impl Car {
                         self.id,
                         choose_turn(&current_path, &self.waiting_for, id, map),
                     );
-                    requests.push(req.clone());
-                    !intersections.request_granted(req)
+                    let granted = intersections.request_granted(req.clone());
+                    if !granted {
+                        // Otherwise, we wind up submitting a request at the end of our step, after
+                        // we've passed through the intersection!
+                        requests.push(req);
+                    }
+                    !granted
                 };
                 if stop_at_end {
                     constraints.push(vehicle.accel_to_stop_in_dist(
