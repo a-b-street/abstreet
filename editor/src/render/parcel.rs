@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
+use geom;
 use geom::PolyLine;
 use graphics::math::Vec2d;
 use graphics::types::Color;
@@ -14,7 +15,9 @@ pub struct DrawParcel {
     pub id: map_model::ParcelID,
     // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
+    // TODO clean this up
     pub fill_polygon: Vec<Vec2d>,
+    fill_triangles: Vec<Vec<Vec2d>>,
 }
 
 impl DrawParcel {
@@ -24,6 +27,7 @@ impl DrawParcel {
             boundary_polygons: PolyLine::new(p.points.clone())
                 .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
             fill_polygon: p.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
+            fill_triangles: geom::triangulate(&p.points),
         }
     }
 
@@ -31,7 +35,9 @@ impl DrawParcel {
         for p in &self.boundary_polygons {
             g.draw_polygon(boundary_color, p);
         }
-        g.draw_polygon(fill_color, &self.fill_polygon);
+        for p in &self.fill_triangles {
+            g.draw_polygon(fill_color, p);
+        }
     }
 
     //pub fn contains_pt(&self, x: f64, y: f64) -> bool {}

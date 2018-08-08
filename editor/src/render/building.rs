@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
+use geom;
 use geom::PolyLine;
 use graphics;
 use graphics::math::Vec2d;
@@ -17,20 +18,22 @@ pub struct DrawBuilding {
     pub id: BuildingID,
     // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
+    // TODO rm the other one
     pub fill_polygon: Vec<Vec2d>,
+    fill_triangles: Vec<Vec<Vec2d>>,
     front_path: Option<[f64; 4]>,
 }
 
 impl DrawBuilding {
     pub fn new(bldg: &map_model::Building) -> DrawBuilding {
-        let pts: Vec<Vec2d> = bldg.points.iter().map(|pt| [pt.x(), pt.y()]).collect();
         DrawBuilding {
             id: bldg.id,
+            fill_polygon: bldg.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
             // TODO ideally start the path on a side of the building
             front_path: bldg.front_path
                 .as_ref()
                 .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
-            fill_polygon: pts,
+            fill_triangles: geom::triangulate(&bldg.points),
             boundary_polygons: PolyLine::new(bldg.points.clone())
                 .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
         }
@@ -51,8 +54,9 @@ impl DrawBuilding {
         for p in &self.boundary_polygons {
             g.draw_polygon(boundary_color, p);
         }
-        // TODO the triangulation seems messed up. ><
-        g.draw_polygon(fill_color, &self.fill_polygon);
+        for p in &self.fill_triangles {
+            g.draw_polygon(fill_color, p);
+        }
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {

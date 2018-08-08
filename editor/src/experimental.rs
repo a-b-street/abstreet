@@ -1,6 +1,7 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::GfxCtx;
+use geom;
 use geom::{PolyLine, Pt2D};
 use graphics;
 use graphics::types::Color;
@@ -306,8 +307,9 @@ impl UI {
             Pt2D::new(947.7612927256201, 765.1100512564725), // 5
         ];
         //draw_polyline(g, &PolyLine::new(pts.clone()), 0.25, RED);
-        let poly_pts: Vec<[f64; 2]> = pts.iter().map(|pt| [pt.x(), pt.y()]).collect();
-        g.draw_polygon(BLUE, &poly_pts);
+        for tri in geom::triangulate(&pts).iter() {
+            g.draw_polygon(BLUE, tri);
+        }
 
         for (idx, pt) in pts.iter().enumerate() {
             labels.push((*pt, format!("{}", idx)));

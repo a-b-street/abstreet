@@ -10,6 +10,7 @@ mod angle;
 mod bounds;
 mod gps;
 mod line;
+mod polygon;
 mod polyline;
 mod pt;
 
@@ -18,6 +19,7 @@ pub use bounds::Bounds;
 use dimensioned::si;
 pub use gps::LonLat;
 pub use line::Line;
+pub use polygon::triangulate;
 pub use polyline::PolyLine;
 pub use pt::{HashablePt2D, Pt2D};
 use std::marker;

@@ -58,6 +58,8 @@ impl<'a> GfxCtx<'a> {
         );
     }
 
+    // TODO triangulate the points here, or remove this and just have a version that draws
+    // triangles
     pub fn draw_polygon(&mut self, color: Color, pts: &[[f64; 2]]) {
         graphics::Polygon::new(color).draw(pts, &self.ctx.draw_state, self.ctx.transform, self.gfx);
     }
