@@ -287,10 +287,10 @@ impl TrafficSignal {
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
-        speeds: &HashMap<AgentID, Speed>,
+        _speeds: &HashMap<AgentID, Speed>,
     ) {
         let signal = &control_map.traffic_signals[&self.id];
-        let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
+        let (cycle, _remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
 
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {
@@ -303,16 +303,12 @@ impl TrafficSignal {
                 keep_requests.insert(req.clone());
                 continue;
             }
-            // How long will it take the agent to cross the turn?
-            // TODO assuming they accelerate!
-            let crossing_time = turn.length() / speeds[&agent];
-            // TODO account for TIMESTEP
 
-            if crossing_time < remaining_cycle_time {
-                self.accepted.insert(req.agent, turn.id);
-            } else {
-                keep_requests.insert(req.clone());
-            }
+            // TODO Don't accept agents if they won't make the light. But calculating that is
+            // hard...
+            //let crossing_time = turn.length() / speeds[&agent];
+
+            self.accepted.insert(req.agent, turn.id);
         }
 
         self.requests = keep_requests;
