@@ -55,14 +55,6 @@ complicated UI and let individual turns be classified into 3 priority classes.
 First group can't conflict, second and third groups can conflict and are FIFO.
 Will probably have to revisit this later.
 
-## Sim state equality and f64's
-
-Currently using si::Second<f64> for time, which means comparing sim state by
-deriving Eq is a headache. Since the timestep size is fixed anyway, this should
-just become ticks. Was tempted to use usize, but arch dependence is weird, and
-with a 0.1s timestep, 2^32 - 1 ticks is about 13.5 years, which is quite a long
-timescale for a traffic simulation. :) So, let's switch to u32.
-
 ## UI plugins
 
 - Things like steepness visualizer used to just be UI-less logic, making it
@@ -494,3 +486,36 @@ the polymorphism mess:
 	- so use enums and just delegate everything. macro?
 	- tried deref on an enum, returning a trait
 	- delegate crate can't handle match expressions
+
+## Floating point and units ##
+
+Currently using si::Second<f64> for time, which means comparing sim state by
+deriving Eq is a headache. Since the timestep size is fixed anyway, this should
+just become ticks. Was tempted to use usize, but arch dependence is weird, and
+with a 0.1s timestep, 2^32 - 1 ticks is about 13.5 years, which is quite a long
+timescale for a traffic simulation. :) So, let's switch to u32.
+
+Now I'm hitting all the fun FP imprecision issues. Could probably hack in
+epsilon and negative checks everywhere in kinematics, but why? Should research
+it more, but I think the better approach is to use fixed-point arithmetic for
+everything (aka u8 or whatever).
+
+- moment in time (tick)
+	- resolution: 0.1s with u32, so about 13.5 years
+- duration
+	- resolution: 0.1s with u32, so about 13.5 years
+	- time - time = duration
+- distance (always an interval -- dist_along is relative to the start)
+	- non-negative by construction!
+	- say resolution is 0.3m (about 1ft), use u32, huge huge distances
+	- geometry is polylines, sequences of (f64, f64) representing meters
+	  from some origin. we could keep drawing the same, but do stuff like
+	  dist_along as this new type? or change Pt2D to have more reasonable resolution?
+	- still represent angles as f64 radians? for drawing, turn calculation, etc
+- speed
+	- meters per second, constructed from distance / duration
+	- should resolution be 0.3m / 0.1s? 1 unit of distance per one timestep? or, maybe less than that?
+	- can be negative
+- acceleration
+	- can be negative
+	- what should the resolution be?

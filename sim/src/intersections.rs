@@ -4,6 +4,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
+use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use {AgentID, CarID, InvariantViolated, PedestrianID, Speed, Tick, Time};
@@ -217,7 +218,12 @@ impl StopSign {
         // TODO retain() would rock
         let mut newly_stopped: Vec<Request> = Vec::new();
         for req in self.approaching_agents.iter() {
-            if speeds[&req.agent] == 0.0 * si::MPS {
+            // TODO tmpish debug
+            if !speeds.contains_key(&req.agent) {
+                println!("no speed for {:?}", req);
+            }
+
+            if speeds[&req.agent] <= kinematics::EPSILON_SPEED {
                 self.started_waiting_at.insert(req.clone(), time);
                 newly_stopped.push(req.clone());
             }
