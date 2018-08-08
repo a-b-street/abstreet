@@ -2,12 +2,12 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
-use intersections::{IntersectionSimState, Request};
+use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{Lane, LaneID, Map, Turn, TurnID};
 use models::{choose_turn, Action};
 use multimap::MultiMap;
 use std;
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time};
 
 // TODO tune these!
@@ -297,19 +297,19 @@ impl WalkingSimState {
         self.peds_per_sidewalk.insert(start, id);
     }
 
-    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
-        let mut m = HashMap::new();
+    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
         for p in self.peds.values() {
-            m.insert(
-                AgentID::Pedestrian(p.id),
+            let id = AgentID::Pedestrian(p.id);
+            info.speeds.insert(
+                id,
                 if p.waiting_for.is_some() {
                     0.0 * si::MPS
                 } else {
                     SPEED
                 },
             );
+            info.leaders.insert(id);
         }
-        m
     }
 }
 

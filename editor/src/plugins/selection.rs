@@ -102,6 +102,7 @@ impl SelectionState {
                     true
                 } else if input.key_pressed(Key::D, "debug") {
                     map.get_i(*id).dump_debug();
+                    sim.debug_intersection(*id);
                     true
                 } else {
                     false

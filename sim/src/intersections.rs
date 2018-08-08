@@ -1,12 +1,13 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use {AgentID, CarID, InvariantViolated, PedestrianID, Speed, Tick, Time};
 
 use std;
@@ -65,9 +66,9 @@ impl IntersectionSimState {
 
     // This is mutable, but MUST be idempotent, because it could be called in parallel/nondet
     // orders. It does NOT grant the request, just enqueues it for later consideration. The agent
-    // must be ready to enter the intersection (leader vehicle and at the end of the lane already).
-    // The request may have been previously granted, but the agent might not have been able to
-    // start the turn.
+    // MIGHT NOT be ready to enter the intersection (lookahead could send the request before the
+    // agent is the leader vehicle and at the end of the lane). The request may have been
+    // previously granted, but the agent might not have been able to start the turn.
     pub fn submit_request(&mut self, req: Request) -> Result<(), InvariantViolated> {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
@@ -94,20 +95,14 @@ impl IntersectionSimState {
         Ok(())
     }
 
-    pub fn step(
-        &mut self,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        speeds: HashMap<AgentID, Speed>,
-    ) {
+    pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: AgentInfo) {
         for i in self.intersections.iter_mut() {
             match i {
                 IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                    p.step(time, map, control_map, &speeds)
+                    p.step(time, map, control_map, &info)
                 }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(time, map, control_map, &speeds)
+                    p.step(time, map, control_map, &info)
                 }
             }
         }
@@ -129,6 +124,10 @@ impl IntersectionSimState {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         assert!(i.accepted().contains_key(&req.agent));
         i.accepted_mut().remove(&req.agent);
+    }
+
+    pub fn debug(&self, id: IntersectionID) {
+        println!("{}", abstutil::to_json(&self.intersections[id.0]));
     }
 }
 
@@ -207,23 +206,19 @@ impl StopSign {
             .is_some()
     }
 
-    fn step(
-        &mut self,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        speeds: &HashMap<AgentID, Speed>,
-    ) {
+    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: &AgentInfo) {
         // If anybody is stopped, promote them.
         // TODO retain() would rock
         let mut newly_stopped: Vec<Request> = Vec::new();
         for req in self.approaching_agents.iter() {
             // TODO tmpish debug
-            if !speeds.contains_key(&req.agent) {
+            if !info.speeds.contains_key(&req.agent) {
                 println!("no speed for {:?}", req);
             }
 
-            if speeds[&req.agent] <= kinematics::EPSILON_SPEED {
+            if info.leaders.contains(&req.agent)
+                && info.speeds[&req.agent] <= kinematics::EPSILON_SPEED
+            {
                 self.started_waiting_at.insert(req.clone(), time);
                 newly_stopped.push(req.clone());
             }
@@ -282,15 +277,10 @@ impl TrafficSignal {
 
     // TODO determine if agents are staying in the intersection past the cycle time.
 
-    fn step(
-        &mut self,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        _speeds: &HashMap<AgentID, Speed>,
-    ) {
+    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, _info: &AgentInfo) {
         let signal = &control_map.traffic_signals[&self.id];
-        let (cycle, _remaining_cycle_time) = signal.current_cycle_and_remaining_time(time.as_time());
+        let (cycle, _remaining_cycle_time) =
+            signal.current_cycle_and_remaining_time(time.as_time());
 
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {
@@ -313,4 +303,10 @@ impl TrafficSignal {
 
         self.requests = keep_requests;
     }
+}
+
+// TODO this is a kind of odd way to plumb info to intersections, but...
+pub struct AgentInfo {
+    pub speeds: HashMap<AgentID, Speed>,
+    pub leaders: HashSet<AgentID>,
 }

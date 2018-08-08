@@ -8,13 +8,13 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
-use intersections::{IntersectionSimState, Request};
+use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
-use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, SPEED_LIMIT};
+use std::collections::{BTreeMap, HashSet, VecDeque};
+use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick, SPEED_LIMIT};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -277,19 +277,19 @@ impl DrivingSimState {
         s
     }
 
-    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
-        let mut m = HashMap::new();
+    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
         for c in self.cars.values() {
-            m.insert(
-                AgentID::Car(c.id),
+            let id = AgentID::Car(c.id);
+            info.speeds.insert(
+                id,
                 if c.waiting_for.is_some() {
                     0.0 * si::MPS
                 } else {
                     SPEED_LIMIT
                 },
             );
+            info.leaders.insert(id);
         }
-        m
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {

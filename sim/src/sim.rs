@@ -5,17 +5,17 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving;
-use intersections::IntersectionSimState;
+use intersections::{AgentInfo, IntersectionSimState};
 use map_model;
-use map_model::{LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {AgentID, CarID, CarState, InvariantViolated, PedestrianID, Speed, Tick, TIMESTEP};
+use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 enum DrivingModel {
@@ -37,6 +37,16 @@ macro_rules! delegate {
     // Immutable, arguments, return type
     (fn $fxn_name:ident(&self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
         fn $fxn_name(&self, $( $value: $type ),*) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+
+    // Immutable, arguments, no return type
+    (fn $fxn_name:ident(&self, $($value:ident: $type:ty),* )) => {
+        fn $fxn_name(&self, $( $value: $type ),*) {
             match self {
                 DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
                 DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
@@ -66,7 +76,7 @@ macro_rules! delegate {
 }
 
 impl DrivingModel {
-    delegate!(fn get_all_speeds(&self) -> HashMap<AgentID, Speed>);
+    delegate!(fn populate_info_for_intersections(&self, info: &mut AgentInfo));
     delegate!(fn get_car_state(&self, c: CarID) -> CarState);
     delegate!(fn get_active_and_waiting_count(&self) -> (usize, usize));
     delegate!(fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>>);
@@ -328,11 +338,17 @@ impl Sim {
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(
-        let mut speeds = self.driving_state.get_all_speeds();
-        speeds.extend(self.walking_state.get_all_speeds());
+        let mut info = AgentInfo {
+            speeds: HashMap::new(),
+            leaders: HashSet::new(),
+        };
+        self.driving_state
+            .populate_info_for_intersections(&mut info);
+        self.walking_state
+            .populate_info_for_intersections(&mut info);
 
         self.intersection_state
-            .step(self.time, map, control_map, speeds);
+            .step(self.time, map, control_map, info);
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -415,6 +431,10 @@ impl Sim {
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
         speed.value_unsafe
+    }
+
+    pub fn debug_intersection(&self, id: IntersectionID) {
+        self.intersection_state.debug(id);
     }
 }
 

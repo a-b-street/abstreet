@@ -2,14 +2,14 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
-use intersections::{IntersectionSimState, Request};
+use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick,
     SPEED_LIMIT,
@@ -305,12 +305,14 @@ impl DrivingSimState {
         s
     }
 
-    pub fn get_all_speeds(&self) -> HashMap<AgentID, Speed> {
-        let mut m = HashMap::new();
+    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
         for c in self.cars.values() {
-            m.insert(AgentID::Car(c.id), c.speed);
+            let id = AgentID::Car(c.id);
+            info.speeds.insert(id, c.speed);
+            if !self.next_car_in_front_of(c.on, c.dist_along).is_some() {
+                info.leaders.insert(id);
+            }
         }
-        m
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
