@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use geom::{Line, Pt2D};
+use abstutil;
+use geom::{Line, PolyLine, Pt2D};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -27,5 +28,12 @@ pub struct Building {
 impl PartialEq for Building {
     fn eq(&self, other: &Building) -> bool {
         self.id == other.id
+    }
+}
+
+impl Building {
+    pub fn dump_debug(&self) {
+        println!("{}", abstutil::to_json(self));
+        println!("{}", PolyLine::new(self.points.clone()));
     }
 }

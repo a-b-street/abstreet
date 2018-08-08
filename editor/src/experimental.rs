@@ -29,8 +29,9 @@ impl UI {
     pub fn new(window_size: Size) -> UI {
         let mut canvas = Canvas::new(window_size);
         // TODO this is only for debug_intersection
-        canvas.cam_zoom = 7.5;
-        canvas.center_on_map_pt(1350.0, 400.0);
+        //canvas.cam_zoom = 7.5;
+        //canvas.center_on_map_pt(1350.0, 400.0);
+        canvas.center_on_map_pt(800.0, 600.0);
 
         UI {
             canvas,
@@ -75,8 +76,9 @@ impl gui::GUI for UI {
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 
         if true {
-            self.trim_polyline(g, &mut labels);
+            self.debug_polygon_drawing(g, &mut labels);
         } else {
+            self.trim_polyline(g, &mut labels);
             self.debug_intersection(g, &mut labels);
             self.moving_polyline(g, &mut labels);
             self.debug_polyline(g, &mut labels);
@@ -292,6 +294,24 @@ impl UI {
 
         draw_polyline(g, &vertical_pl, 0.25, RED);
         draw_polyline(g, &horiz_pl, 0.25, GREEN);
+    }
+
+    fn debug_polygon_drawing(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
+        let pts = vec![
+            Pt2D::new(947.7612927256201, 754.8801180050414), // 0
+            Pt2D::new(954.2786170591581, 752.7800425703825), // 1
+            Pt2D::new(954.2711258819234, 750.2129484453652), // 2
+            Pt2D::new(956.2712702474311, 754.1907094598071), // 3
+            Pt2D::new(956.4285849731709, 765.1100512564725), // 4
+            Pt2D::new(947.7612927256201, 765.1100512564725), // 5
+        ];
+        //draw_polyline(g, &PolyLine::new(pts.clone()), 0.25, RED);
+        let poly_pts: Vec<[f64; 2]> = pts.iter().map(|pt| [pt.x(), pt.y()]).collect();
+        g.draw_polygon(BLUE, &poly_pts);
+
+        for (idx, pt) in pts.iter().enumerate() {
+            labels.push((*pt, format!("{}", idx)));
+        }
     }
 }
 

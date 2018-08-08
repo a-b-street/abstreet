@@ -112,6 +112,9 @@ impl SelectionState {
                 if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
                     new_state = Some(SelectionState::Tooltip(ID::Building(*id)));
                     true
+                } else if input.key_pressed(Key::D, "debug") {
+                    map.get_b(*id).dump_debug();
+                    true
                 } else {
                     false
                 }
