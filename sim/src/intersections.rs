@@ -248,10 +248,10 @@ impl StopSign {
             }
 
             newly_accepted.push(req.clone());
+            self.accepted.insert(req.agent, req.turn);
         }
 
         for req in newly_accepted.into_iter() {
-            self.accepted.insert(req.agent, req.turn);
             self.started_waiting_at.remove(&req);
         }
     }
