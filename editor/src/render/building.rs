@@ -44,12 +44,8 @@ impl DrawBuilding {
             g.draw_line(&graphics::Line::new_round(path_color, 1.0), line);
         }
 
-        for p in &self.boundary_polygon.for_drawing() {
-            g.draw_polygon(boundary_color, p);
-        }
-        for p in &self.fill_polygon.for_drawing() {
-            g.draw_polygon(fill_color, p);
-        }
+        g.draw_polygon(boundary_color, &self.boundary_polygon);
+        g.draw_polygon(fill_color, &self.fill_polygon);
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {

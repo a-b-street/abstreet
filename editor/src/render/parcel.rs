@@ -26,12 +26,8 @@ impl DrawParcel {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {
-        for p in &self.boundary_polygon.for_drawing() {
-            g.draw_polygon(boundary_color, p);
-        }
-        for p in &self.fill_polygon.for_drawing() {
-            g.draw_polygon(fill_color, p);
-        }
+        g.draw_polygon(boundary_color, &self.boundary_polygon);
+        g.draw_polygon(fill_color, &self.fill_polygon);
     }
 
     pub fn get_bbox(&self) -> Rect {

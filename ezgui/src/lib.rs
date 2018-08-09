@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate aabb_quadtree;
+extern crate geom;
 extern crate graphics;
 extern crate opengl_graphics;
 extern crate palette;
@@ -60,8 +61,15 @@ impl<'a> GfxCtx<'a> {
 
     // TODO triangulate the points here, or remove this and just have a version that draws
     // triangles
-    pub fn draw_polygon(&mut self, color: Color, pts: &[[f64; 2]]) {
-        graphics::Polygon::new(color).draw(pts, &self.ctx.draw_state, self.ctx.transform, self.gfx);
+    pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
+        for pts in poly.for_drawing().iter() {
+            graphics::Polygon::new(color).draw(
+                pts,
+                &self.ctx.draw_state,
+                self.ctx.transform,
+                self.gfx,
+            );
+        }
     }
 
     pub fn draw_ellipse(&mut self, color: Color, ellipse: [f64; 4]) {

@@ -69,9 +69,7 @@ impl DrawCar {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
-        for p in &self.polygon.for_drawing() {
-            g.draw_polygon(color, p);
-        }
+        g.draw_polygon(color, &self.polygon);
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {
             g.draw_arrow(

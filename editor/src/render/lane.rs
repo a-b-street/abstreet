@@ -81,9 +81,7 @@ impl DrawLane {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        for p in &self.polygon.for_drawing() {
-            g.draw_polygon(color, p);
-        }
+        g.draw_polygon(color, &self.polygon);
     }
 
     pub fn draw_detail(&self, g: &mut GfxCtx, canvas: &Canvas, cs: &ColorScheme) {

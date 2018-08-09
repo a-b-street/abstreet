@@ -56,9 +56,7 @@ impl DrawIntersection {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        for p in &self.polygon.for_drawing() {
-            g.draw_polygon(color, p);
-        }
+        g.draw_polygon(color, &self.polygon);
 
         let crosswalk_marking = graphics::Line::new(
             cs.get(Colors::Crosswalk),
@@ -91,11 +89,10 @@ impl DrawIntersection {
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         // TODO rotate it
-        let poly: Vec<Vec2d> = geometry::regular_polygon(self.center, 8, 1.5)
-            .iter()
-            .map(|pt| pt.to_vec())
-            .collect();
-        g.draw_polygon(cs.get(Colors::StopSignBackground), &poly);
+        g.draw_polygon(
+            cs.get(Colors::StopSignBackground),
+            &geometry::regular_polygon(self.center, 8, 1.5),
+        );
         // TODO draw "STOP"
     }
 

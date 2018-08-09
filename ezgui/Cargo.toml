@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+geom = { path = "../geom" }
 palette = "0.4"
 piston = "*"
 piston2d-graphics = "*"

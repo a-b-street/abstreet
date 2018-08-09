@@ -127,10 +127,8 @@ impl UI {
             labels.push((*pt, format!("p{}", idx + 1)));
         }
 
-        if let Some(polys) = center_pts.make_polygons(width) {
-            for p in &polys.for_drawing() {
-                g.draw_polygon(BLACK, &p);
-            }
+        if let Some(poly) = center_pts.make_polygons(width) {
+            g.draw_polygon(BLACK, &poly);
         }
 
         // TODO colored labels!
@@ -192,10 +190,8 @@ impl UI {
 
         draw_polyline(g, &pts, thick, RED);
 
-        if let Some(polys) = pts.make_polygons(shift_away) {
-            for p in &polys.for_drawing() {
-                g.draw_polygon(BLACK, &p);
-            }
+        if let Some(poly) = pts.make_polygons(shift_away) {
+            g.draw_polygon(BLACK, &poly);
         }
 
         // Two lanes on one side of the road
@@ -306,9 +302,7 @@ impl UI {
             Pt2D::new(947.7612927256201, 765.1100512564725), // 5
         ];
         //draw_polyline(g, &PolyLine::new(pts.clone()), 0.25, RED);
-        for tri in &Polygon::new(&pts).for_drawing() {
-            g.draw_polygon(BLUE, tri);
-        }
+        g.draw_polygon(BLUE, &Polygon::new(&pts));
 
         for (idx, pt) in pts.iter().enumerate() {
             labels.push((*pt, format!("{}", idx)));
@@ -336,13 +330,7 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
 }
 
 fn draw_lane(g: &mut GfxCtx, pl: &PolyLine, color: Color) {
-    for p in pl.make_polygons(geometry::LANE_THICKNESS)
-        .unwrap()
-        .for_drawing()
-        .iter()
-    {
-        g.draw_polygon(color, &p);
-    }
+    g.draw_polygon(color, &pl.make_polygons(geometry::LANE_THICKNESS).unwrap());
 
     // Debug the center points
     draw_polyline(g, pl, 0.25, SOLID_BLACK);
