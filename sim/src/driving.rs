@@ -60,6 +60,7 @@ impl Car {
 
         // TODO could wrap this state up
         let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, SPEED_LIMIT);
+        // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
         let mut current_on = self.on;
@@ -78,50 +79,56 @@ impl Car {
                 assert!(current_dist_along < other.dist_along);
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
-                let accel = vehicle.accel_to_follow(
-                    self.speed,
-                    SPEED_LIMIT,
-                    &vehicle,
-                    dist_behind_other,
-                    other.speed,
-                );
+                // If our lookahead doesn't even hit the lead vehicle, then ignore them.
+                if dist_to_lookahead >= dist_behind_other {
+                    let accel = vehicle.accel_to_follow(
+                        self.speed,
+                        SPEED_LIMIT,
+                        &vehicle,
+                        dist_behind_other,
+                        other.speed,
+                    );
 
-                /*if self.id == CarID(584) && other.id == CarID(255) {
-                    println!("at {}: 584's speed is {}. currently {} behind 255, whose speed is {}.\n  need accel {}", _time, self.speed, dist_behind_other, other.speed, accel);
-                }*/
+                    /*if self.id == CarID(584) && other.id == CarID(255) {
+                        println!("at {}: 584's speed is {}. currently {} behind 255, whose speed is {}.\n  need accel {}", _time, self.speed, dist_behind_other, other.speed, accel);
+                    }*/
 
-                constraints.push(accel);
+                    constraints.push(accel);
 
-                /*constraints.push(vehicle.accel_to_follow(
-                    self.speed,
-                    SPEED_LIMIT,
-                    &vehicle,
-                    dist_behind_other,
-                    other.speed,
-                ));*/
+                    /*constraints.push(vehicle.accel_to_follow(
+                        self.speed,
+                        SPEED_LIMIT,
+                        &vehicle,
+                        dist_behind_other,
+                        other.speed,
+                    ));*/
+                }
             }
 
             // Stop for intersections?
             if let On::Lane(id) = current_on {
-                let stop_at_end = if current_path.is_empty() {
-                    true
-                } else {
-                    let req = Request::for_car(self.id, choose_turn(&current_path, &None, id, map));
-                    let granted = intersections.request_granted(req.clone());
-                    if !granted {
-                        // Otherwise, we wind up submitting a request at the end of our step, after
-                        // we've passed through the intersection!
-                        requests.push(req);
+                // If our lookahead doesn't even hit the intersection, then ignore it. This means
+                // we won't request turns until we're close.
+                let dist_from_end = current_on.length(map) - current_dist_along;
+                if dist_to_lookahead >= dist_from_end {
+                    let stop_at_end = if current_path.is_empty() {
+                        true
+                    } else {
+                        let req =
+                            Request::for_car(self.id, choose_turn(&current_path, &None, id, map));
+                        let granted = intersections.request_granted(req.clone());
+                        if !granted {
+                            // Otherwise, we wind up submitting a request at the end of our step, after
+                            // we've passed through the intersection!
+                            requests.push(req);
+                        }
+                        !granted
+                    };
+                    if stop_at_end {
+                        constraints.push(vehicle.accel_to_stop_in_dist(self.speed, dist_from_end));
+                        // No use in further lookahead.
+                        break;
                     }
-                    !granted
-                };
-                if stop_at_end {
-                    constraints.push(vehicle.accel_to_stop_in_dist(
-                        self.speed,
-                        current_on.length(map) - current_dist_along,
-                    ));
-                    // No use in further lookahead.
-                    break;
                 }
             }
 
@@ -144,14 +151,12 @@ impl Car {
 
         // Clamp based on what we can actually do
         // TODO this type mangling is awful
-        let safe_accel = vehicle.clamp_accel(constraints
-            .into_iter()
-            .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
-            .unwrap());
-
-        /*if self.id == CarID(584) || self.id == CarID(255) {
-            println!("at {}: {} chose accel {}", _time, self.id, safe_accel);
-        }*/
+        let safe_accel = vehicle.clamp_accel(
+            constraints
+                .into_iter()
+                .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
+                .unwrap(),
+        );
 
         Action::Continue(safe_accel, requests)
     }
