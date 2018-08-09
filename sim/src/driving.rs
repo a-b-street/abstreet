@@ -48,7 +48,7 @@ impl Car {
     fn react(
         &self,
         map: &Map,
-        _time: Tick,
+        time: Tick,
         sim: &DrivingSimState,
         intersections: &IntersectionSimState,
     ) -> Action {
@@ -69,9 +69,22 @@ impl Car {
         let mut dist_scanned_ahead = 0.0 * si::M;
 
         loop {
+            if self.debug {
+                println!(
+                    "  -- {} looking ahead to {:?} with {} left to scan",
+                    self.id, current_on, dist_to_lookahead
+                );
+            }
+
             // Don't exceed the speed limit
             // TODO speed limit per road
-            constraints.push(vehicle.accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT));
+            {
+                let accel = vehicle.accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT);
+                constraints.push(accel);
+                if self.debug {
+                    println!("  {} needs {} to match speed limit", self.id, accel);
+                }
+            }
 
             // Don't hit the vehicle in front of us
             if let Some(other) = sim.next_car_in_front_of(current_on, current_dist_along) {
@@ -79,8 +92,8 @@ impl Car {
                 assert!(current_dist_along < other.dist_along);
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
-                // If our lookahead doesn't even hit the lead vehicle, then ignore them.
-                if dist_to_lookahead >= dist_behind_other {
+                // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
+                if dist_to_lookahead + FOLLOWING_DISTANCE >= dist_behind_other {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
                         SPEED_LIMIT,
@@ -89,19 +102,14 @@ impl Car {
                         other.speed,
                     );
 
-                    /*if self.id == CarID(584) && other.id == CarID(255) {
-                        println!("at {}: 584's speed is {}. currently {} behind 255, whose speed is {}.\n  need accel {}", _time, self.speed, dist_behind_other, other.speed, accel);
-                    }*/
+                    if self.debug {
+                        println!(
+                            "  {} needs {} to not hit {}. Currently {} behind them",
+                            self.id, accel, other.id, dist_behind_other
+                        );
+                    }
 
                     constraints.push(accel);
-
-                    /*constraints.push(vehicle.accel_to_follow(
-                        self.speed,
-                        SPEED_LIMIT,
-                        &vehicle,
-                        dist_behind_other,
-                        other.speed,
-                    ));*/
                 }
             }
 
@@ -125,7 +133,11 @@ impl Car {
                         !granted
                     };
                     if stop_at_end {
-                        constraints.push(vehicle.accel_to_stop_in_dist(self.speed, dist_from_end));
+                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_end);
+                        if self.debug {
+                            println!("  {} needs {} to stop for the intersection that's currently {} away", self.id, accel, dist_from_end);
+                        }
+                        constraints.push(accel);
                         // No use in further lookahead.
                         break;
                     }
@@ -157,6 +169,9 @@ impl Car {
                 .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
                 .unwrap(),
         );
+        if self.debug {
+            println!("At {}, {} chose {}", time, self.id, safe_accel);
+        }
 
         Action::Continue(safe_accel, requests)
     }
