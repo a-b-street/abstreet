@@ -4,7 +4,6 @@ use generator;
 use geo;
 use geo::prelude::Intersects;
 use geom::{Polygon, Pt2D};
-use graphics::math::Vec2d;
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
 use render;
@@ -36,19 +35,16 @@ impl Validator {
     pub fn start(draw_map: &render::DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
         for l in &draw_map.lanes {
-            objects.push((
-                ID::Lane(l.id),
-                l.polygons.iter().map(|poly| make_poly(poly)).collect(),
-            ));
+            objects.push((ID::Lane(l.id), make_polys(&l.polygon)));
         }
         for i in &draw_map.intersections {
-            objects.push((ID::Intersection(i.id), vec![make_new_poly(&i.polygon)]));
+            objects.push((ID::Intersection(i.id), make_polys(&i.polygon)));
         }
         for b in &draw_map.buildings {
-            objects.push((ID::Building(b.id), vec![make_new_poly(&b.fill_polygon)]));
+            objects.push((ID::Building(b.id), make_polys(&b.fill_polygon)));
         }
         for p in &draw_map.parcels {
-            objects.push((ID::Parcel(p.id), vec![make_new_poly(&p.fill_polygon)]));
+            objects.push((ID::Parcel(p.id), make_polys(&p.fill_polygon)));
         }
 
         println!(
@@ -131,20 +127,17 @@ impl Validator {
     }
 }
 
-fn make_poly(points: &Vec<Vec2d>) -> geo::Polygon<f64> {
-    let exterior: Vec<geo::Point<f64>> = points
-        .iter()
-        .map(|pt| geo::Point::new(pt[0], pt[1]))
-        .collect();
-    geo::Polygon::new(exterior.into(), Vec::new())
-}
-
-fn make_new_poly(p: &Polygon) -> geo::Polygon<f64> {
-    let exterior: Vec<geo::Point<f64>> = p.pts
-        .iter()
-        .map(|pt| geo::Point::new(pt.x(), pt.y()))
-        .collect();
-    geo::Polygon::new(exterior.into(), Vec::new())
+fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
+    let mut result = Vec::new();
+    for tri in &p.triangles {
+        let exterior = vec![
+            geo::Point::new(tri.pt1.x(), tri.pt1.y()),
+            geo::Point::new(tri.pt2.x(), tri.pt2.y()),
+            geo::Point::new(tri.pt3.x(), tri.pt3.y()),
+        ];
+        result.push(geo::Polygon::new(exterior.into(), Vec::new()));
+    }
+    result
 }
 
 // TODO duplicated with warp. generic handling of object types?

@@ -3,11 +3,8 @@ use {Bounds, Pt2D};
 
 #[derive(Debug)]
 pub struct Polygon {
-    // TODO urgh, just storing for geom validation. :P
-    pub pts: Vec<Pt2D>,
-
     // This could be stored more efficiently, but worry about it later when switching to gfx-rs.
-    triangles: Vec<Triangle>,
+    pub triangles: Vec<Triangle>,
 }
 
 impl Polygon {
@@ -73,10 +70,7 @@ impl Polygon {
         for tri in tgs.chunks(3) {
             triangles.push(Triangle::new(pts[tri[0]], pts[tri[1]], pts[tri[2]]));
         }
-        Polygon {
-            pts: pts.clone(),
-            triangles,
-        }
+        Polygon { triangles }
     }
 
     pub fn for_drawing(&self) -> Vec<Vec<Vec2d>> {
@@ -105,14 +99,14 @@ impl Polygon {
 }
 
 #[derive(Debug)]
-struct Triangle {
-    pt1: Pt2D,
-    pt2: Pt2D,
-    pt3: Pt2D,
+pub struct Triangle {
+    pub pt1: Pt2D,
+    pub pt2: Pt2D,
+    pub pt3: Pt2D,
 }
 
 impl Triangle {
-    fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
+    pub(crate) fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
         Triangle { pt1, pt2, pt3 }
     }
 

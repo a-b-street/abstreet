@@ -4,7 +4,6 @@ use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
-use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{Building, BuildingID, Map};
 use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
@@ -14,7 +13,7 @@ use std::f64;
 pub struct DrawBuilding {
     pub id: BuildingID,
     // TODO should just have one. use graphics::Line for now.
-    boundary_polygons: Vec<Vec<Vec2d>>,
+    boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
     front_path: Option<[f64; 4]>,
 }
@@ -28,7 +27,7 @@ impl DrawBuilding {
                 .as_ref()
                 .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
             fill_polygon: Polygon::new(&bldg.points),
-            boundary_polygons: PolyLine::new(bldg.points.clone())
+            boundary_polygon: PolyLine::new(bldg.points.clone())
                 .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
         }
     }
@@ -45,7 +44,7 @@ impl DrawBuilding {
             g.draw_line(&graphics::Line::new_round(path_color, 1.0), line);
         }
 
-        for p in &self.boundary_polygons {
+        for p in &self.boundary_polygon.for_drawing() {
             g.draw_polygon(boundary_color, p);
         }
         for p in &self.fill_polygon.for_drawing() {

@@ -3,7 +3,6 @@
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon};
-use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
@@ -12,7 +11,7 @@ use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
 pub struct DrawParcel {
     pub id: map_model::ParcelID,
     // TODO should just have one. use graphics::Line for now.
-    boundary_polygons: Vec<Vec<Vec2d>>,
+    boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
 }
 
@@ -20,14 +19,14 @@ impl DrawParcel {
     pub fn new(p: &map_model::Parcel) -> DrawParcel {
         DrawParcel {
             id: p.id,
-            boundary_polygons: PolyLine::new(p.points.clone())
+            boundary_polygon: PolyLine::new(p.points.clone())
                 .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
             fill_polygon: Polygon::new(&p.points),
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {
-        for p in &self.boundary_polygons {
+        for p in &self.boundary_polygon.for_drawing() {
             g.draw_polygon(boundary_color, p);
         }
         for p in &self.fill_polygon.for_drawing() {

@@ -5,13 +5,12 @@ use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::canvas::Canvas;
 use ezgui::GfxCtx;
-use geom::{Line, Pt2D};
+use geom::{Line, Polygon, Pt2D};
 use graphics;
-use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::{geometry, LaneID};
-use render::PARCEL_BOUNDARY_THICKNESS;
+use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
 struct Marking {
@@ -24,7 +23,7 @@ struct Marking {
 #[derive(Debug)]
 pub struct DrawLane {
     pub id: LaneID,
-    pub polygons: Vec<Vec<Vec2d>>,
+    pub polygon: Polygon,
     start_crossing: Line,
     end_crossing: Line,
     markings: Vec<Marking>,
@@ -38,7 +37,7 @@ impl DrawLane {
         let road = map.get_r(lane.parent);
         let start = new_perp_line(lane.first_line(), geometry::LANE_THICKNESS);
         let end = new_perp_line(lane.last_line().reverse(), geometry::LANE_THICKNESS);
-        let polygons = lane.lane_center_pts
+        let polygon = lane.lane_center_pts
             .make_polygons_blindly(geometry::LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
@@ -73,7 +72,7 @@ impl DrawLane {
 
         DrawLane {
             id: lane.id,
-            polygons,
+            polygon,
             markings,
             start_crossing: start,
             end_crossing: end,
@@ -82,7 +81,7 @@ impl DrawLane {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        for p in &self.polygons {
+        for p in &self.polygon.for_drawing() {
             g.draw_polygon(color, p);
         }
     }
@@ -119,16 +118,11 @@ impl DrawLane {
     }
 
     pub fn get_bbox_for_lane(&self) -> Rect {
-        geometry::get_bbox_for_polygons(&self.polygons)
+        get_bbox(&self.polygon.get_bounds())
     }
 
     pub fn lane_contains_pt(&self, x: f64, y: f64) -> bool {
-        for p in &self.polygons {
-            if geometry::point_in_polygon(x, y, p) {
-                return true;
-            }
-        }
-        false
+        self.polygon.contains_pt(Pt2D::new(x, y))
     }
 
     pub fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
@@ -140,12 +134,7 @@ impl DrawLane {
                 l.id,
                 r.osm_tags.get("name").unwrap_or(&"???".to_string())
             ),
-            format!(
-                "From OSM way {}, with {} polygons, parent is {}",
-                r.osm_way_id,
-                self.polygons.len(),
-                r.id,
-            ),
+            format!("From OSM way {}, parent is {}", r.osm_way_id, r.id,),
             format!(
                 "Lane goes from {} to {}",
                 map.get_source_intersection(self.id).elevation,

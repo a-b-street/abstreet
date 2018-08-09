@@ -1,24 +1,17 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::{Point, Rect};
-use geom::{Angle, Bounds, PolyLine, Pt2D};
+use geom::{Angle, Bounds, PolyLine, Polygon, Pt2D};
 use graphics::math::Vec2d;
 use std::f64;
 
 pub const LANE_THICKNESS: f64 = 2.5;
 pub const BIG_ARROW_THICKNESS: f64 = 0.5;
 
-pub fn thick_line_from_angle(
-    thickness: f64,
-    line_length: f64,
-    pt: Pt2D,
-    angle: Angle,
-) -> Vec<Vec<Vec2d>> {
+pub fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: Angle) -> Polygon {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
-    PolyLine::new(vec![pt, pt2])
-        .make_polygons(thickness)
-        .unwrap()
+    PolyLine::new(vec![pt, pt2]).make_polygons_blindly(thickness)
 }
 
 // Algorithm from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html

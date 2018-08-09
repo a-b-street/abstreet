@@ -19,7 +19,7 @@ pub use bounds::Bounds;
 use dimensioned::si;
 pub use gps::LonLat;
 pub use line::Line;
-pub use polygon::Polygon;
+pub use polygon::{Polygon, Triangle};
 pub use polyline::PolyLine;
 pub use pt::{HashablePt2D, Pt2D};
 use std::marker;

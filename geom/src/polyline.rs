@@ -1,8 +1,7 @@
 use dimensioned::si;
-use graphics::math::Vec2d;
 use std::f64;
 use std::fmt;
-use {line_intersection, Angle, Line, Pt2D, EPSILON_DIST};
+use {line_intersection, Angle, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
@@ -158,43 +157,37 @@ impl PolyLine {
         Some(result)
     }
 
-    // TODO why do we need a bunch of triangles? why doesn't the single polygon triangulate correctly?
-    // TODO ideally, detect when the polygon overlaps itself due to sharp lines and too much width
-    // return Vec2d since this is only used for drawing right now
-    // Represent failure too
-    pub fn make_polygons(&self, width: f64) -> Option<Vec<Vec<Vec2d>>> {
+    // This could fail by needing too much width for sharp angles
+    pub fn make_polygons(&self, width: f64) -> Option<Polygon> {
         let side1 = self.shift(width / 2.0)?;
         let side2 = self.reversed().shift(width / 2.0)?.reversed();
         Some(self.polygons_from_sides(&side1, &side2))
     }
 
-    pub fn make_polygons_blindly(&self, width: f64) -> Vec<Vec<Vec2d>> {
+    pub fn make_polygons_blindly(&self, width: f64) -> Polygon {
         let side1 = self.shift_blindly(width / 2.0);
         let side2 = self.reversed().shift_blindly(width / 2.0).reversed();
         self.polygons_from_sides(&side1, &side2)
     }
 
-    fn polygons_from_sides(&self, side1: &PolyLine, side2: &PolyLine) -> Vec<Vec<Vec2d>> {
-        let mut result: Vec<Vec<Pt2D>> = Vec::new();
+    fn polygons_from_sides(&self, side1: &PolyLine, side2: &PolyLine) -> Polygon {
+        let mut poly = Polygon {
+            triangles: Vec::new(),
+        };
         for high_idx in 1..self.pts.len() {
             // Duplicate first point, since that's what graphics layer expects
-            result.push(vec![
+            poly.triangles.push(Triangle::new(
                 side1.pts[high_idx],
                 side1.pts[high_idx - 1],
                 side2.pts[high_idx - 1],
-                side1.pts[high_idx],
-            ]);
-            result.push(vec![
+            ));
+            poly.triangles.push(Triangle::new(
                 side2.pts[high_idx],
                 side2.pts[high_idx - 1],
                 side1.pts[high_idx],
-                side2.pts[high_idx],
-            ]);
+            ));
         }
-        result
-            .iter()
-            .map(|pts| pts.iter().map(|pt| pt.to_vec()).collect())
-            .collect()
+        poly
     }
 
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {

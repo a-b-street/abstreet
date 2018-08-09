@@ -2,9 +2,8 @@
 
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Angle, Pt2D};
+use geom::{Angle, Polygon, Pt2D};
 use graphics;
-use graphics::math::Vec2d;
 use map_model::{geometry, Map, TurnID};
 use std;
 use {CarID, Distance};
@@ -19,7 +18,7 @@ pub const CAR_LENGTH: Distance = si::Meter {
 // TODO should this live in editor/render?
 pub struct DrawCar {
     pub id: CarID,
-    polygons: Vec<Vec<Vec2d>>,
+    polygon: Polygon,
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<[f64; 4]>,
     front_pt: Pt2D,
@@ -57,7 +56,7 @@ impl DrawCar {
             id: id,
             turn_arrow,
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
-            polygons: geometry::thick_line_from_angle(
+            polygon: geometry::thick_line_from_angle(
                 CAR_WIDTH,
                 CAR_LENGTH.value_unsafe,
                 front,
@@ -70,7 +69,7 @@ impl DrawCar {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
-        for p in &self.polygons {
+        for p in &self.polygon.for_drawing() {
             g.draw_polygon(color, p);
         }
         // TODO tune color, sizes
@@ -92,12 +91,7 @@ impl DrawCar {
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        for p in &self.polygons {
-            if geometry::point_in_polygon(x, y, p) {
-                return true;
-            }
-        }
-        false
+        self.polygon.contains_pt(Pt2D::new(x, y))
     }
 
     pub fn focus_pt(&self) -> Pt2D {
