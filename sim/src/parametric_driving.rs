@@ -14,7 +14,7 @@ use map_model::{LaneID, LaneType, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use std::collections::{BTreeMap, HashSet, VecDeque};
-use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick, SPEED_LIMIT};
+use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -51,7 +51,7 @@ impl Car {
             if let Some(on) = self.waiting_for {
                 on
             } else {
-                let dist = SPEED_LIMIT * (time - self.started_at).as_time();
+                let dist = self.on.speed_limit(map) * (time - self.started_at).as_time();
                 if dist < self.on.length(map) {
                     return Action::Continue;
                 }
@@ -71,8 +71,8 @@ impl Car {
         // Can we actually go there right now?
         // In a more detailed driving model, this would do things like lookahead.
         let has_room_now = match desired_on {
-            On::Lane(id) => sim.lanes[id.0].room_at_end(time, &sim.cars),
-            On::Turn(id) => sim.turns[&id].room_at_end(time, &sim.cars),
+            On::Lane(id) => sim.lanes[id.0].room_at_end(time, &sim.cars, map),
+            On::Turn(id) => sim.turns[&id].room_at_end(time, &sim.cars, map),
         };
         let is_lead_vehicle = match self.on {
             On::Lane(id) => sim.lanes[id.0].cars_queue[0] == self.id,
@@ -115,7 +115,7 @@ impl Car {
 
     // Returns the angle and the dist along the lane/turn too
     fn get_best_case_pos(&self, time: Tick, map: &Map) -> (Pt2D, Angle, Distance) {
-        let mut dist = SPEED_LIMIT * (time - self.started_at).as_time();
+        let mut dist = self.on.speed_limit(map) * (time - self.started_at).as_time();
         if self.waiting_for.is_some() {
             dist = self.on.length(map);
         }
@@ -143,7 +143,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>) -> bool {
+    fn room_at_end(&self, time: Tick, cars: &BTreeMap<CarID, Car>, map: &Map) -> bool {
         if self.cars_queue.is_empty() {
             return true;
         }
@@ -154,13 +154,14 @@ impl SimQueue {
         // isn't filled, then we know for sure that there's room, because in this model, we assume
         // none of the cars just arbitrarily slow down or stop without reason.
         (time - cars[self.cars_queue.last().unwrap()].started_at).as_time()
-            >= FOLLOWING_DISTANCE / SPEED_LIMIT
+            >= FOLLOWING_DISTANCE / self.id.speed_limit(map)
     }
 
     fn reset(
         &mut self,
         ids: &Vec<CarID>,
         cars: &BTreeMap<CarID, Car>,
+        map: &Map,
     ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
 
@@ -170,7 +171,7 @@ impl SimQueue {
         self.cars_queue.sort_by_key(|id| cars[id].started_at);
 
         // assert here we're not squished together too much
-        let min_dt = FOLLOWING_DISTANCE / SPEED_LIMIT;
+        let min_dt = FOLLOWING_DISTANCE / self.id.speed_limit(map);
         for slice in self.cars_queue.windows(2) {
             let (c1, c2) = (slice[0], slice[1]);
             let (t1, t2) = (
@@ -196,7 +197,7 @@ impl SimQueue {
         }
 
         // TODO base this on actual speed ;)
-        let stopping_dist = Vehicle::typical_car().stopping_distance(SPEED_LIMIT);
+        let stopping_dist = Vehicle::typical_car().stopping_distance(self.id.speed_limit(map));
 
         let mut results = Vec::new();
         let (pos1, angle1, dist_along1) =
@@ -277,7 +278,7 @@ impl DrivingSimState {
         s
     }
 
-    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
+    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo, map: &Map) {
         for c in self.cars.values() {
             let id = AgentID::Car(c.id);
             info.speeds.insert(
@@ -285,7 +286,7 @@ impl DrivingSimState {
                 if c.waiting_for.is_some() {
                     0.0 * si::MPS
                 } else {
-                    SPEED_LIMIT
+                    c.on.speed_limit(map)
                 },
             );
             info.leaders.insert(id);
@@ -433,17 +434,17 @@ impl DrivingSimState {
         // Reset all queues
         for l in &mut self.lanes {
             if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
-                l.reset(v, &self.cars)?;
+                l.reset(v, &self.cars, map)?;
             } else {
-                l.reset(&Vec::new(), &self.cars)?;
+                l.reset(&Vec::new(), &self.cars, map)?;
             }
             //l.reset(cars_per_lane.get_vec(&l.id).unwrap_or_else(|| &Vec::new()), &self.cars);
         }
         for t in self.turns.values_mut() {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
-                t.reset(v, &self.cars)?;
+                t.reset(v, &self.cars, map)?;
             } else {
-                t.reset(&Vec::new(), &self.cars)?;
+                t.reset(&Vec::new(), &self.cars, map)?;
             }
         }
 
@@ -459,10 +460,11 @@ impl DrivingSimState {
         time: Tick,
         car: CarID,
         mut path: VecDeque<LaneID>,
+        map: &Map,
     ) -> bool {
         let start = path.pop_front().unwrap();
 
-        if !self.lanes[start.0].room_at_end(time, &self.cars) {
+        if !self.lanes[start.0].room_at_end(time, &self.cars, map) {
             // TODO car should enter Unparking state and wait for room
             println!("No room for {} to start driving on {}", car, start);
             return false;

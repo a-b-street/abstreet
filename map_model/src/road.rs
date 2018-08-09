@@ -1,3 +1,4 @@
+use dimensioned::si;
 use geom::PolyLine;
 use std::collections::BTreeMap;
 use std::fmt;
@@ -134,5 +135,16 @@ impl Road {
             return &self.children_backwards;
         }
         panic!("{} doesn't contain {}", self.id, lane);
+    }
+
+    pub fn get_speed_limit(&self) -> si::MeterPerSecond<f64> {
+        if self.osm_tags.get("highway") == Some(&"primary".to_string())
+            || self.osm_tags.get("highway") == Some(&"secondary".to_string())
+        {
+            // 40mph
+            return 17.8816 * si::MPS;
+        }
+        // 20mph
+        8.9408 * si::MPS
     }
 }

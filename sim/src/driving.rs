@@ -10,10 +10,7 @@ use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, VecDeque};
-use {
-    Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick,
-    SPEED_LIMIT,
-};
+use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick};
 
 // This represents an actively driving car, not a parked one
 #[derive(Clone, Serialize, Deserialize)]
@@ -59,7 +56,8 @@ impl Car {
         let vehicle = Vehicle::typical_car();
 
         // TODO could wrap this state up
-        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, SPEED_LIMIT);
+        let mut current_speed_limit = self.on.speed_limit(map);
+        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit);
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
@@ -77,9 +75,9 @@ impl Car {
             }
 
             // Don't exceed the speed limit
-            // TODO speed limit per road
             {
-                let accel = vehicle.accel_to_achieve_speed_in_one_tick(self.speed, SPEED_LIMIT);
+                let accel =
+                    vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
                 constraints.push(accel);
                 if self.debug {
                     println!("  {} needs {} to match speed limit", self.id, accel);
@@ -96,7 +94,7 @@ impl Car {
                 if dist_to_lookahead + FOLLOWING_DISTANCE >= dist_behind_other {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
-                        SPEED_LIMIT,
+                        current_speed_limit,
                         &vehicle,
                         dist_behind_other,
                         other.speed,
@@ -157,6 +155,7 @@ impl Car {
                 }
                 On::Lane(l) => On::Turn(choose_turn(&current_path, &None, l, map)),
             };
+            current_speed_limit = current_on.speed_limit(map);
             current_dist_along = 0.0 * si::M;
             dist_scanned_ahead += dist_this_step;
         }
@@ -331,7 +330,7 @@ impl DrivingSimState {
         s
     }
 
-    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
+    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo, _map: &Map) {
         for c in self.cars.values() {
             let id = AgentID::Car(c.id);
             info.speeds.insert(id, c.speed);
@@ -498,6 +497,7 @@ impl DrivingSimState {
         _time: Tick,
         car: CarID,
         mut path: VecDeque<LaneID>,
+        _map: &Map,
     ) -> bool {
         let start = path.pop_front().unwrap();
 

@@ -67,10 +67,6 @@ pub const TIMESTEP: Time = si::Second {
     value_unsafe: 0.1,
     _marker: std::marker::PhantomData,
 };
-pub const SPEED_LIMIT: Speed = si::MeterPerSecond {
-    value_unsafe: 8.9408,
-    _marker: std::marker::PhantomData,
-};
 
 // Represents a moment in time, not a duration/delta
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -122,14 +118,14 @@ pub(crate) enum On {
 }
 
 impl On {
-    pub(crate) fn as_lane(&self) -> LaneID {
+    pub fn as_lane(&self) -> LaneID {
         match self {
             &On::Lane(id) => id,
             &On::Turn(_) => panic!("not a lane"),
         }
     }
 
-    pub(crate) fn as_turn(&self) -> TurnID {
+    pub fn as_turn(&self) -> TurnID {
         match self {
             &On::Turn(id) => id,
             &On::Lane(_) => panic!("not a turn"),
@@ -154,6 +150,13 @@ impl On {
         match self {
             &On::Lane(id) => map.get_l(id).dist_along(dist),
             &On::Turn(id) => map.get_t(id).dist_along(dist),
+        }
+    }
+
+    fn speed_limit(&self, map: &Map) -> Speed {
+        match self {
+            &On::Lane(id) => map.get_lane_and_parent(id).1.get_speed_limit(),
+            &On::Turn(id) => map.get_lane_and_parent(id.dst).1.get_speed_limit(),
         }
     }
 }

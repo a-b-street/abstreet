@@ -13,6 +13,7 @@
 
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
+	- make lookahead buffer follow the shape of the road and extend into other lanes and stuff
 
 - start implementing a second AORTAish driving model
 	- then make cars park/unpark at the correct position

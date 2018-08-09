@@ -76,7 +76,7 @@ macro_rules! delegate {
 }
 
 impl DrivingModel {
-    delegate!(fn populate_info_for_intersections(&self, info: &mut AgentInfo));
+    delegate!(fn populate_info_for_intersections(&self, info: &mut AgentInfo, map: &Map));
     delegate!(fn get_car_state(&self, c: CarID) -> CarState);
     delegate!(fn get_active_and_waiting_count(&self) -> (usize, usize));
     delegate!(fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>>);
@@ -90,7 +90,8 @@ impl DrivingModel {
         &mut self,
         time: Tick,
         car: CarID,
-        path: VecDeque<LaneID>
+        path: VecDeque<LaneID>,
+        map: &Map
     ) -> bool);
     delegate!(fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID>);
     delegate!(fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar>);
@@ -226,7 +227,7 @@ impl Sim {
         {
             if let Some(car) = self.parking_state.get_last_parked_car(parking_lane) {
                 if self.driving_state
-                    .start_car_on_lane(self.time, car, VecDeque::from(steps))
+                    .start_car_on_lane(self.time, car, VecDeque::from(steps), map)
                 {
                     self.parking_state.remove_last_parked_car(parking_lane, car);
                     return true;
@@ -343,7 +344,7 @@ impl Sim {
             leaders: HashSet::new(),
         };
         self.driving_state
-            .populate_info_for_intersections(&mut info);
+            .populate_info_for_intersections(&mut info, map);
         self.walking_state
             .populate_info_for_intersections(&mut info);
 
