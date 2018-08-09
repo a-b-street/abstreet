@@ -86,12 +86,10 @@ impl Car {
                     other.speed,
                 );
 
-                if self.id == CarID(1549) && other.id == CarID(59) {
-                    println!(
-                        "currently {} behind, while lead on {:?} and we're on {:?}. our speed {}. need to accel {} to be ok",
-                        dist_behind_other, current_on, self.on, self.speed, accel
-                    );
-                }
+                /*if self.id == CarID(584) && other.id == CarID(255) {
+                    println!("at {}: 584's speed is {}. currently {} behind 255, whose speed is {}.\n  need accel {}", _time, self.speed, dist_behind_other, other.speed, accel);
+                }*/
+
                 constraints.push(accel);
 
                 /*constraints.push(vehicle.accel_to_follow(
@@ -144,11 +142,17 @@ impl Car {
             dist_scanned_ahead += dist_this_step;
         }
 
+        // Clamp based on what we can actually do
         // TODO this type mangling is awful
-        let safe_accel = constraints
+        let safe_accel = vehicle.clamp_accel(constraints
             .into_iter()
             .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
-            .unwrap();
+            .unwrap());
+
+        /*if self.id == CarID(584) || self.id == CarID(255) {
+            println!("at {}: {} chose accel {}", _time, self.id, safe_accel);
+        }*/
+
         Action::Continue(safe_accel, requests)
     }
 

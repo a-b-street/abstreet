@@ -26,6 +26,16 @@ impl Vehicle {
         }
     }
 
+    pub fn clamp_accel(&self, accel: Acceleration) -> Acceleration {
+        if accel < self.max_deaccel {
+            self.max_deaccel
+        } else if accel > self.max_accel {
+            self.max_accel
+        } else {
+            accel
+        }
+    }
+
     pub fn stopping_distance(&self, speed: Speed) -> Distance {
         // v_f = v_0 + a*t
         // TODO why isn't this part negative?
