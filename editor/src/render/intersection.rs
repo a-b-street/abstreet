@@ -81,8 +81,8 @@ impl DrawIntersection {
         }
     }
 
-    pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        self.polygon.contains_pt(Pt2D::new(x, y))
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+        self.polygon.contains_pt(pt)
     }
 
     pub fn get_bbox(&self) -> Rect {

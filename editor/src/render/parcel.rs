@@ -34,8 +34,6 @@ impl DrawParcel {
         }
     }
 
-    //pub fn contains_pt(&self, x: f64, y: f64) -> bool {}
-
     pub fn get_bbox(&self) -> Rect {
         get_bbox(&self.fill_polygon.get_bounds())
     }

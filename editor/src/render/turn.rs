@@ -3,6 +3,7 @@
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
+use geom::Pt2D;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
@@ -85,11 +86,11 @@ impl DrawTurn {
     }
 
     // for the icon
-    pub fn contains_pt(&self, x: f64, y: f64) -> bool {
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
         let radius = self.icon_circle[2] / 2.0;
         geometry::point_in_circle(
-            x,
-            y,
+            pt.x(),
+            pt.y(),
             [self.icon_circle[0] + radius, self.icon_circle[1] + radius],
             radius,
         )

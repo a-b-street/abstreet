@@ -52,8 +52,8 @@ impl DrawBuilding {
         }
     }
 
-    pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        self.fill_polygon.contains_pt(Pt2D::new(x, y))
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+        self.fill_polygon.contains_pt(pt)
     }
 
     pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {

@@ -10,6 +10,7 @@ use ezgui;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::{GfxCtx, ToggleableLayer};
+use geom::Pt2D;
 use graphics::types::Color;
 use gui;
 use map_model;
@@ -159,6 +160,7 @@ impl UI {
 
     fn mouseover_something(&self) -> Option<ID> {
         let (x, y) = self.canvas.get_cursor_in_map_space();
+        let pt = Pt2D::new(x, y);
 
         let screen_bbox = self.canvas.get_screen_bbox();
 
@@ -169,12 +171,12 @@ impl UI {
         };
         for l in &lanes_onscreen {
             for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
-                if c.contains_pt(x, y) {
+                if c.contains_pt(pt) {
                     return Some(ID::Car(c.id));
                 }
             }
             for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
-                if p.contains_pt(x, y) {
+                if p.contains_pt(pt) {
                     return Some(ID::Pedestrian(p.id));
                 }
             }
@@ -187,23 +189,23 @@ impl UI {
                 let show_icons = self.show_icons_for(i.id);
 
                 for t in &self.map.get_i(i.id).turns {
-                    if show_icons && self.draw_map.get_t(*t).contains_pt(x, y) {
+                    if show_icons && self.draw_map.get_t(*t).contains_pt(pt) {
                         return Some(ID::Turn(*t));
                     }
 
                     for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
-                        if c.contains_pt(x, y) {
+                        if c.contains_pt(pt) {
                             return Some(ID::Car(c.id));
                         }
                     }
                     for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(*t, &self.map) {
-                        if p.contains_pt(x, y) {
+                        if p.contains_pt(pt) {
                             return Some(ID::Pedestrian(p.id));
                         }
                     }
                 }
 
-                if i.contains_pt(x, y) {
+                if i.contains_pt(pt) {
                     return Some(ID::Intersection(i.id));
                 }
             }
@@ -211,7 +213,7 @@ impl UI {
 
         if self.show_lanes.is_enabled() {
             for l in &lanes_onscreen {
-                if l.lane_contains_pt(x, y) {
+                if l.contains_pt(pt) {
                     return Some(ID::Lane(l.id));
                 }
             }
@@ -221,7 +223,7 @@ impl UI {
             for b in &self.draw_map
                 .get_buildings_onscreen(screen_bbox, &self.hider)
             {
-                if b.contains_pt(x, y) {
+                if b.contains_pt(pt) {
                     return Some(ID::Building(b.id));
                 }
             }
