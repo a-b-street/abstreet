@@ -400,6 +400,12 @@ impl Sim {
         )
     }
 
+    pub fn is_done(&self) -> bool {
+        let (_, active_cars) = self.driving_state.get_active_and_waiting_count();
+        let (_, active_peds) = self.walking_state.get_active_and_waiting_count();
+        active_cars == 0 && active_peds == 0
+    }
+
     pub fn debug_ped(&self, id: PedestrianID) {
         self.walking_state.debug_ped(id);
     }
