@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 control = { path = "../control" }
 map_model = { path = "../map_model" }
 pretty_assertions = "0.5.1"
