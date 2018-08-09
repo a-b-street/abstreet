@@ -4,19 +4,19 @@ use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Line, Pt2D};
+use geom::{Line, Polygon, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model;
 use map_model::geometry;
-use render::DrawLane;
+use render::{get_bbox, DrawLane};
 use std::f64;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
     pub id: map_model::IntersectionID,
-    pub polygon: Vec<Vec2d>,
+    pub polygon: Polygon,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
     center: Pt2D,
     has_traffic_signal: bool,
@@ -28,39 +28,37 @@ impl DrawIntersection {
         map: &map_model::Map,
         lanes: &Vec<DrawLane>,
     ) -> DrawIntersection {
-        let mut pts: Vec<Vec2d> = Vec::new();
+        let mut pts: Vec<Pt2D> = Vec::new();
         for l in &inter.incoming_lanes {
-            let (pt1, pt2) = lanes[l.0].get_end_crossing();
-            pts.push(pt1);
-            pts.push(pt2);
+            let line = lanes[l.0].get_end_crossing();
+            pts.push(line.pt1());
+            pts.push(line.pt2());
         }
         for l in &inter.outgoing_lanes {
-            let (pt1, pt2) = lanes[l.0].get_start_crossing();
-            pts.push(pt1);
-            pts.push(pt2);
+            let line = lanes[l.0].get_start_crossing();
+            pts.push(line.pt1());
+            pts.push(line.pt2());
         }
 
-        let center = geometry::center(&pts.iter().map(|pt| Pt2D::new(pt[0], pt[1])).collect());
+        let center = geometry::center(&pts);
         // Sort points by angle from the center
-        pts.sort_by_key(|pt| {
-            center
-                .angle_to(Pt2D::new(pt[0], pt[1]))
-                .normalized_degrees() as i64
-        });
+        pts.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
         let first_pt = pts[0].clone();
         pts.push(first_pt);
 
         DrawIntersection {
             center,
             id: inter.id,
-            polygon: pts,
+            polygon: Polygon::new(&pts),
             crosswalks: calculate_crosswalks(inter, map),
             has_traffic_signal: inter.has_traffic_signal,
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        g.draw_polygon(color, &self.polygon);
+        for p in &self.polygon.for_drawing() {
+            g.draw_polygon(color, p);
+        }
 
         let crosswalk_marking = graphics::Line::new(
             cs.get(Colors::Crosswalk),
@@ -84,11 +82,11 @@ impl DrawIntersection {
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        geometry::point_in_polygon(x, y, &self.polygon)
+        self.polygon.contains_pt(Pt2D::new(x, y))
     }
 
     pub fn get_bbox(&self) -> Rect {
-        geometry::get_bbox_for_polygons(&[self.polygon.clone()])
+        get_bbox(&self.polygon.get_bounds())
     }
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {

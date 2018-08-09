@@ -2,15 +2,12 @@
 
 use aabb_quadtree::geom::Rect;
 use ezgui::GfxCtx;
-use geom;
-use geom::PolyLine;
+use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model;
-use map_model::geometry;
-use map_model::{BuildingID, Map};
-use render::PARCEL_BOUNDARY_THICKNESS;
+use map_model::{Building, BuildingID, Map};
+use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
 use std::f64;
 
 #[derive(Debug)]
@@ -18,22 +15,19 @@ pub struct DrawBuilding {
     pub id: BuildingID,
     // TODO should just have one. use graphics::Line for now.
     boundary_polygons: Vec<Vec<Vec2d>>,
-    // TODO rm the other one
-    pub fill_polygon: Vec<Vec2d>,
-    fill_triangles: Vec<Vec<Vec2d>>,
+    pub fill_polygon: Polygon,
     front_path: Option<[f64; 4]>,
 }
 
 impl DrawBuilding {
-    pub fn new(bldg: &map_model::Building) -> DrawBuilding {
+    pub fn new(bldg: &Building) -> DrawBuilding {
         DrawBuilding {
             id: bldg.id,
-            fill_polygon: bldg.points.iter().map(|pt| [pt.x(), pt.y()]).collect(),
             // TODO ideally start the path on a side of the building
             front_path: bldg.front_path
                 .as_ref()
                 .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
-            fill_triangles: geom::triangulate(&bldg.points),
+            fill_polygon: Polygon::new(&bldg.points),
             boundary_polygons: PolyLine::new(bldg.points.clone())
                 .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
         }
@@ -54,13 +48,13 @@ impl DrawBuilding {
         for p in &self.boundary_polygons {
             g.draw_polygon(boundary_color, p);
         }
-        for p in &self.fill_triangles {
+        for p in &self.fill_polygon.for_drawing() {
             g.draw_polygon(fill_color, p);
         }
     }
 
     pub fn contains_pt(&self, x: f64, y: f64) -> bool {
-        geometry::point_in_polygon(x, y, &self.fill_polygon)
+        self.fill_polygon.contains_pt(Pt2D::new(x, y))
     }
 
     pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
@@ -76,10 +70,11 @@ impl DrawBuilding {
     }
 
     pub fn get_bbox(&self) -> Rect {
-        let mut polygons = vec![self.fill_polygon.clone()];
+        let mut b = self.fill_polygon.get_bounds();
         if let Some(line) = self.front_path {
-            polygons.push(vec![[line[0], line[1]], [line[2], line[3]]]);
+            b.update(line[0], line[1]);
+            b.update(line[2], line[3]);
         }
-        geometry::get_bbox_for_polygons(&polygons)
+        get_bbox(&b)
     }
 }

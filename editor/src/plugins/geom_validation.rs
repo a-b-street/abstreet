@@ -3,7 +3,7 @@ use ezgui::input::UserInput;
 use generator;
 use geo;
 use geo::prelude::Intersects;
-use geom::Pt2D;
+use geom::{Polygon, Pt2D};
 use graphics::math::Vec2d;
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
@@ -42,13 +42,13 @@ impl Validator {
             ));
         }
         for i in &draw_map.intersections {
-            objects.push((ID::Intersection(i.id), vec![make_poly(&i.polygon)]));
+            objects.push((ID::Intersection(i.id), vec![make_new_poly(&i.polygon)]));
         }
         for b in &draw_map.buildings {
-            objects.push((ID::Building(b.id), vec![make_poly(&b.fill_polygon)]));
+            objects.push((ID::Building(b.id), vec![make_new_poly(&b.fill_polygon)]));
         }
         for p in &draw_map.parcels {
-            objects.push((ID::Parcel(p.id), vec![make_poly(&p.fill_polygon)]));
+            objects.push((ID::Parcel(p.id), vec![make_new_poly(&p.fill_polygon)]));
         }
 
         println!(
@@ -135,6 +135,14 @@ fn make_poly(points: &Vec<Vec2d>) -> geo::Polygon<f64> {
     let exterior: Vec<geo::Point<f64>> = points
         .iter()
         .map(|pt| geo::Point::new(pt[0], pt[1]))
+        .collect();
+    geo::Polygon::new(exterior.into(), Vec::new())
+}
+
+fn make_new_poly(p: &Polygon) -> geo::Polygon<f64> {
+    let exterior: Vec<geo::Point<f64>> = p.pts
+        .iter()
+        .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();
     geo::Polygon::new(exterior.into(), Vec::new())
 }
