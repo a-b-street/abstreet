@@ -3,9 +3,11 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geom::{LonLat, Pt2D};
+use kml::{ExtraShape, ExtraShapeID};
 use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
 use plugins::selection::Hider;
 use render::building::DrawBuilding;
+use render::extra_shape::DrawExtraShape;
 use render::intersection::DrawIntersection;
 use render::lane::DrawLane;
 use render::parcel::DrawParcel;
@@ -18,16 +20,18 @@ pub struct DrawMap {
     pub turns: HashMap<TurnID, DrawTurn>,
     pub buildings: Vec<DrawBuilding>,
     pub parcels: Vec<DrawParcel>,
+    pub extra_shapes: Vec<DrawExtraShape>,
 
     lanes_quadtree: QuadTree<LaneID>,
     intersections_quadtree: QuadTree<IntersectionID>,
     buildings_quadtree: QuadTree<BuildingID>,
     parcels_quadtree: QuadTree<ParcelID>,
+    extra_shapes_quadtree: QuadTree<ExtraShapeID>,
 }
 
 impl DrawMap {
     // Also returns the center of the map in map-space
-    pub fn new(map: &Map) -> (DrawMap, Pt2D) {
+    pub fn new(map: &Map, raw_extra_shapes: Vec<ExtraShape>) -> (DrawMap, Pt2D) {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
             lanes.push(DrawLane::new(l, map));
@@ -54,6 +58,11 @@ impl DrawMap {
         let parcels: Vec<DrawParcel> = map.all_parcels()
             .iter()
             .map(|p| DrawParcel::new(p))
+            .collect();
+
+        let extra_shapes: Vec<DrawExtraShape> = raw_extra_shapes
+            .into_iter()
+            .map(|s| DrawExtraShape::new(s))
             .collect();
 
         // min_y here due to the wacky y inversion
@@ -84,6 +93,11 @@ impl DrawMap {
             parcels_quadtree.insert_with_box(p.id, p.get_bbox());
         }
 
+        let mut extra_shapes_quadtree = QuadTree::default(map_bbox);
+        for s in &extra_shapes {
+            extra_shapes_quadtree.insert_with_box(s.id, s.get_bbox());
+        }
+
         (
             DrawMap {
                 lanes,
@@ -91,11 +105,13 @@ impl DrawMap {
                 turns,
                 buildings,
                 parcels,
+                extra_shapes,
 
                 lanes_quadtree,
                 intersections_quadtree,
                 buildings_quadtree,
                 parcels_quadtree,
+                extra_shapes_quadtree,
             },
             Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
         )
@@ -159,6 +175,10 @@ impl DrawMap {
         &self.parcels[id.0]
     }
 
+    pub fn get_es(&self, id: ExtraShapeID) -> &DrawExtraShape {
+        &self.extra_shapes[id.0]
+    }
+
     pub fn get_loads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawLane> {
         let mut v = Vec::new();
         for &(id, _, _) in &self.lanes_quadtree.query(screen_bbox) {
@@ -197,6 +217,20 @@ impl DrawMap {
         let mut v = Vec::new();
         for &(id, _, _) in &self.parcels_quadtree.query(screen_bbox) {
             v.push(self.get_p(*id));
+        }
+        v
+    }
+
+    pub fn get_extra_shapes_onscreen(
+        &self,
+        screen_bbox: Rect,
+        hider: &Hider,
+    ) -> Vec<&DrawExtraShape> {
+        let mut v = Vec::new();
+        for &(id, _, _) in &self.extra_shapes_quadtree.query(screen_bbox) {
+            if hider.show_es(*id) {
+                v.push(self.get_es(*id));
+            }
         }
         v
     }

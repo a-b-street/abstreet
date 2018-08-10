@@ -41,6 +41,7 @@ pub enum Colors {
     NextQueued,
     TurnIconCircle,
     TurnIconInactive,
+    ExtraShape,
 
     MatchClassification,
     DontMatchClassification,

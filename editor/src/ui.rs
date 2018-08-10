@@ -13,6 +13,7 @@ use ezgui::{GfxCtx, ToggleableLayer};
 use geom::Pt2D;
 use graphics::types::Color;
 use gui;
+use kml;
 use map_model;
 use map_model::{Edits, IntersectionID};
 use piston::input::{Key, MouseCursorEvent};
@@ -50,6 +51,7 @@ pub struct UI {
     show_buildings: ToggleableLayer,
     show_intersections: ToggleableLayer,
     show_parcels: ToggleableLayer,
+    show_extra_shapes: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
     // This is a particularly special plugin, since it's always kind of active and other things
@@ -81,12 +83,20 @@ impl UI {
         window_size: Size,
         rng_seed: Option<u8>,
         parametric_sim: bool,
+        kml: Option<String>,
     ) -> UI {
         let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
         println!("Opening {}", abst_path);
         let map = map_model::Map::new(abst_path, &edits).expect("Couldn't load map");
-        let (draw_map, center_pt) = render::DrawMap::new(&map);
+
+        let extra_shapes = if let Some(path) = kml {
+            kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
+        } else {
+            Vec::new()
+        };
+
+        let (draw_map, center_pt) = render::DrawMap::new(&map, extra_shapes);
         let control_map = ControlMap::new(&map);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
@@ -110,6 +120,12 @@ impl UI {
                 Some(MIN_ZOOM_FOR_LANES),
             ),
             show_parcels: ToggleableLayer::new("parcels", Key::D4, "4", Some(MIN_ZOOM_FOR_PARCELS)),
+            show_extra_shapes: ToggleableLayer::new(
+                "extra KML shapes",
+                Key::D7,
+                "7",
+                Some(MIN_ZOOM_FOR_LANES),
+            ),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
 
             current_selection_state: SelectionState::Empty,
@@ -155,6 +171,7 @@ impl UI {
         self.show_buildings.handle_zoom(old_zoom, new_zoom);
         self.show_intersections.handle_zoom(old_zoom, new_zoom);
         self.show_parcels.handle_zoom(old_zoom, new_zoom);
+        self.show_extra_shapes.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
     }
 
@@ -207,6 +224,16 @@ impl UI {
 
                 if i.contains_pt(pt) {
                     return Some(ID::Intersection(i.id));
+                }
+            }
+        }
+
+        if self.show_extra_shapes.is_enabled() {
+            for s in &self.draw_map
+                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
+            {
+                if s.contains_pt(pt) {
+                    return Some(ID::ExtraShape(s.id));
                 }
             }
         }
@@ -447,6 +474,15 @@ impl gui::GUI for UI {
             }
             return gui::EventLoopMode::InputOnly;
         }
+        if self.show_extra_shapes.handle_event(input) {
+            if let SelectionState::SelectedExtraShape(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            if let SelectionState::Tooltip(ID::ExtraShape(_)) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            return gui::EventLoopMode::InputOnly;
+        }
 
         stop_if_done!(self.show_parcels.handle_event(input));
         stop_if_done!(self.debug_mode.handle_event(input));
@@ -608,6 +644,20 @@ impl gui::GUI for UI {
             }
             for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
                 p.draw(g, self.color_ped(p.id));
+            }
+        }
+
+        if self.show_extra_shapes.is_enabled() {
+            for s in &self.draw_map
+                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
+            {
+                // TODO no separate color method?
+                s.draw(
+                    g,
+                    self.current_selection_state
+                        .color_es(s.id, &self.cs)
+                        .unwrap_or(self.cs.get(Colors::ExtraShape)),
+                );
             }
         }
 

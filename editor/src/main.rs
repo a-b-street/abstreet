@@ -14,6 +14,7 @@ extern crate graphics;
 extern crate map_model;
 extern crate opengl_graphics;
 extern crate piston;
+extern crate quick_xml;
 #[macro_use]
 extern crate pretty_assertions;
 extern crate rand;
@@ -26,6 +27,14 @@ extern crate strum;
 #[macro_use]
 extern crate strum_macros;
 
+mod colors;
+mod experimental;
+mod gui;
+mod kml;
+mod plugins;
+mod render;
+mod ui;
+
 use ezgui::input::UserInput;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
@@ -33,13 +42,6 @@ use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
 use structopt::StructOpt;
-
-mod colors;
-mod experimental;
-mod gui;
-mod plugins;
-mod render;
-mod ui;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "editor")]
@@ -59,6 +61,10 @@ struct Flags {
     /// Use the old parametric sim
     #[structopt(long = "parametric_sim")]
     parametric_sim: bool,
+
+    /// Extra KML to display
+    #[structopt(long = "kml")]
+    kml: Option<String>,
 }
 
 fn main() {
@@ -103,6 +109,7 @@ fn main() {
                 window_size,
                 flags.rng_seed,
                 flags.parametric_sim,
+                flags.kml,
             ),
         );
     }

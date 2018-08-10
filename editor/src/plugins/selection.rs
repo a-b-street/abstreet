@@ -6,6 +6,7 @@ use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::GfxCtx;
 use graphics::types::Color;
+use kml::ExtraShapeID;
 use map_model;
 use map_model::{BuildingID, IntersectionID, LaneID, Map, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
@@ -21,6 +22,7 @@ pub enum ID {
     Building(BuildingID),
     Car(CarID),
     Pedestrian(PedestrianID),
+    ExtraShape(ExtraShapeID),
     //Parcel(ParcelID),
 }
 
@@ -36,6 +38,7 @@ pub enum SelectionState {
     SelectedTurn(TurnID),
     SelectedCar(CarID),
     SelectedPedestrian(PedestrianID),
+    SelectedExtraShape(ExtraShapeID),
     Tooltip(ID),
 }
 
@@ -135,6 +138,14 @@ impl SelectionState {
                     false
                 }
             }
+            SelectionState::SelectedExtraShape(id) => {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(ID::ExtraShape(*id)));
+                    true
+                } else {
+                    false
+                }
+            }
             SelectionState::Empty => false,
         };
         if let Some(s) = new_state {
@@ -158,7 +169,8 @@ impl SelectionState {
             | SelectionState::SelectedTurn(_)
             | SelectionState::SelectedBuilding(_)
             | SelectionState::SelectedCar(_)
-            | SelectionState::SelectedPedestrian(_) => {}
+            | SelectionState::SelectedPedestrian(_)
+            | SelectionState::SelectedExtraShape(_) => {}
             SelectionState::SelectedIntersection(id) => {
                 if let Some(signal) = control_map.traffic_signals.get(&id) {
                     let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
@@ -199,6 +211,7 @@ impl SelectionState {
                     ID::Pedestrian(id) => sim.ped_tooltip(id),
                     ID::Intersection(id) => vec![format!("{}", id)],
                     ID::Turn(id) => vec![format!("{}", id)],
+                    ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(),
                 };
                 canvas.draw_mouse_tooltip(g, &lines);
             }
@@ -259,6 +272,16 @@ impl SelectionState {
             _ => None,
         }
     }
+
+    pub fn color_es(&self, es: ExtraShapeID, cs: &ColorScheme) -> Option<Color> {
+        match *self {
+            SelectionState::SelectedExtraShape(id) if es == id => Some(cs.get(Colors::Selected)),
+            SelectionState::Tooltip(ID::ExtraShape(id)) if es == id => {
+                Some(cs.get(Colors::Selected))
+            }
+            _ => None,
+        }
+    }
 }
 
 fn selection_state_for(some_id: ID) -> SelectionState {
@@ -269,6 +292,7 @@ fn selection_state_for(some_id: ID) -> SelectionState {
         ID::Turn(id) => SelectionState::SelectedTurn(id),
         ID::Car(id) => SelectionState::SelectedCar(id),
         ID::Pedestrian(id) => SelectionState::SelectedPedestrian(id),
+        ID::ExtraShape(id) => SelectionState::SelectedExtraShape(id),
     }
 }
 
@@ -294,6 +318,7 @@ impl Hider {
             SelectionState::SelectedIntersection(id) => Some(ID::Intersection(*id)),
             SelectionState::SelectedLane(id, _) => Some(ID::Lane(*id)),
             SelectionState::SelectedBuilding(id) => Some(ID::Building(*id)),
+            SelectionState::SelectedExtraShape(id) => Some(ID::ExtraShape(*id)),
             _ => None,
         };
         if let Some(id) = item {
@@ -317,5 +342,9 @@ impl Hider {
 
     pub fn show_i(&self, id: IntersectionID) -> bool {
         !self.items.contains(&ID::Intersection(id))
+    }
+
+    pub fn show_es(&self, id: ExtraShapeID) -> bool {
+        !self.items.contains(&ID::ExtraShape(id))
     }
 }
