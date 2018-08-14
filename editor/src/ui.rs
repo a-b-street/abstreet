@@ -111,22 +111,20 @@ impl UI {
             turn_colors,
             sim_ctrl,
 
-            show_lanes: ToggleableLayer::new("lanes", Key::D3, "3", Some(MIN_ZOOM_FOR_LANES)),
-            show_buildings: ToggleableLayer::new("buildings", Key::D1, "1", Some(0.0)),
+            show_lanes: ToggleableLayer::new("lanes", Key::D3, Some(MIN_ZOOM_FOR_LANES)),
+            show_buildings: ToggleableLayer::new("buildings", Key::D1, Some(0.0)),
             show_intersections: ToggleableLayer::new(
                 "intersections",
                 Key::D2,
-                "2",
                 Some(MIN_ZOOM_FOR_LANES),
             ),
-            show_parcels: ToggleableLayer::new("parcels", Key::D4, "4", Some(MIN_ZOOM_FOR_PARCELS)),
+            show_parcels: ToggleableLayer::new("parcels", Key::D4, Some(MIN_ZOOM_FOR_PARCELS)),
             show_extra_shapes: ToggleableLayer::new(
                 "extra KML shapes",
                 Key::D7,
-                "7",
                 Some(MIN_ZOOM_FOR_LANES),
             ),
-            debug_mode: ToggleableLayer::new("debug mode", Key::G, "G", None),
+            debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
 
             current_selection_state: SelectionState::Empty,
             hider: Hider::new(),
