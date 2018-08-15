@@ -15,7 +15,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP, Distance};
+use {CarID, CarState, Distance, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 enum DrivingModel {
@@ -243,9 +243,13 @@ impl Sim {
             .unwrap();
         let dist_along = self.parking_state.get_dist_along_lane(car, parking_lane);
 
-        if self.driving_state
-            .start_car_on_lane(self.time, car, dist_along, VecDeque::from(steps), map)
-        {
+        if self.driving_state.start_car_on_lane(
+            self.time,
+            car,
+            dist_along,
+            VecDeque::from(steps),
+            map,
+        ) {
             self.parking_state.remove_parked_car(parking_lane, car);
             true
         } else {

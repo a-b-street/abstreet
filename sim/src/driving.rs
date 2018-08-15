@@ -9,7 +9,7 @@ use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick};
 
 // This represents an actively driving car, not a parked one
@@ -297,8 +297,16 @@ impl SimQueue {
             .map(|id| *id)
     }
 
-    fn insert_at(&mut self, car: CarID, dist_along: Distance, sim: &DrivingSimState) {
-        if let Some(idx) = self.cars_queue.iter().position(|id| sim.cars[id].dist_along < dist_along) {
+    fn insert_at(
+        &mut self,
+        car: CarID,
+        dist_along: Distance,
+        dist_per_car: HashMap<CarID, Distance>,
+    ) {
+        if let Some(idx) = self.cars_queue
+            .iter()
+            .position(|id| dist_per_car[id] < dist_along)
+        {
             self.cars_queue.insert(idx, car);
         } else {
             self.cars_queue.push(car);
@@ -523,7 +531,11 @@ impl DrivingSimState {
                 debug: false,
             },
         );
-        self.lanes[start.0].insert_at(car, dist_along, self);
+        let mut dist_per_car: HashMap<CarID, Distance> = HashMap::new();
+        for c in &self.lanes[start.0].cars_queue {
+            dist_per_car.insert(*c, self.cars[&c].dist_along);
+        }
+        self.lanes[start.0].insert_at(car, dist_along, dist_per_car);
         true
     }
 

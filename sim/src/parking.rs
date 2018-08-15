@@ -5,7 +5,7 @@ use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
 use rand::Rng;
 use std::iter;
-use {Distance, CarID};
+use {CarID, Distance};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct ParkingSimState {
@@ -103,7 +103,11 @@ impl ParkingSimState {
 
     // Of the front of the car
     pub fn get_dist_along_lane(&self, c: CarID, l: LaneID) -> Distance {
-        let idx = self.lanes[l.0].spots.iter().position(|x| *x == Some(c)).unwrap();
+        let idx = self.lanes[l.0]
+            .spots
+            .iter()
+            .position(|x| *x == Some(c))
+            .unwrap();
         // TODO some overlap
         let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
         spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0
