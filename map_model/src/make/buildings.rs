@@ -4,7 +4,7 @@ use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::BTreeMap;
-use {Building, BuildingID, Lane, LaneID, LaneType, Road};
+use {Building, BuildingID, Lane, LaneID, Road};
 
 pub(crate) fn make_building(
     b: &raw_data::Building,
@@ -47,9 +47,7 @@ fn find_front_path(
         let candidates: Vec<(LaneID, geo::Point<f64>)> = lanes
             .iter()
             .filter_map(|l| {
-                if l.lane_type == LaneType::Sidewalk
-                    && roads[l.parent.0].osm_tags.get("name") == Some(street_name)
-                {
+                if l.is_sidewalk() && roads[l.parent.0].osm_tags.get("name") == Some(street_name) {
                     if let geo::Closest::SinglePoint(pt) =
                         lane_to_line_string(&lanes[l.id.0]).closest_point(&center_pt)
                     {

@@ -26,12 +26,12 @@ fn make_driving_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let incoming: Vec<LaneID> = i.incoming_lanes
         .iter()
         // TODO why's this double borrow happen?
-        .filter(|id| m.get_l(**id).lane_type == LaneType::Driving)
+        .filter(|id| m.get_l(**id).is_driving())
         .map(|id| *id)
         .collect();
     let outgoing: Vec<LaneID> = i.outgoing_lanes
         .iter()
-        .filter(|id| m.get_l(**id).lane_type == LaneType::Driving)
+        .filter(|id| m.get_l(**id).is_driving())
         .map(|id| *id)
         .collect();
 
@@ -95,10 +95,7 @@ fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     // will create those, and duplicates are bad. Filter them out here.
     make_turns(m, i.id, &incoming, &outgoing)
         .into_iter()
-        .filter(|t| {
-            m.get_l(t.src).lane_type == LaneType::Biking
-                || m.get_l(t.dst).lane_type == LaneType::Biking
-        })
+        .filter(|t| m.get_l(t.src).is_biking() || m.get_l(t.dst).is_biking())
         .collect()
 }
 

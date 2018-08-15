@@ -523,11 +523,11 @@ impl gui::GUI for UI {
                     return gui::EventLoopMode::InputOnly;
                 }
 
-                if self.map.get_l(id).lane_type == map_model::LaneType::Sidewalk {
-                    if input.key_pressed(Key::A, "spawn a pedestrian here") {
-                        self.sim_ctrl.sim.spawn_pedestrian(&self.map, id);
-                        return gui::EventLoopMode::InputOnly;
-                    }
+                if self.map.get_l(id).is_sidewalk()
+                    && input.key_pressed(Key::A, "spawn a pedestrian here")
+                {
+                    self.sim_ctrl.sim.spawn_pedestrian(&self.map, id);
+                    return gui::EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedIntersection(id) => {

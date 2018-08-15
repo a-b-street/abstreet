@@ -61,7 +61,7 @@ impl RoadEdit {
         lane: &Lane,
         new_type: LaneType,
     ) -> Option<RoadEdit> {
-        if lane.lane_type == LaneType::Sidewalk {
+        if lane.is_sidewalk() {
             println!("Sidewalks are fixed; can't change their type");
             return None;
         }
@@ -98,7 +98,7 @@ impl RoadEdit {
 
     fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
         // Sidewalks are fixed
-        if lane.lane_type == LaneType::Sidewalk {
+        if lane.is_sidewalk() {
             println!("Can't delete sidewalks");
             return None;
         }

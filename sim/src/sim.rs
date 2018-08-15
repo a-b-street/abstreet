@@ -195,13 +195,7 @@ impl Sim {
 
         let driving_lanes: Vec<LaneID> = map.all_lanes()
             .iter()
-            .filter_map(|l| {
-                if l.lane_type == LaneType::Driving {
-                    Some(l.id)
-                } else {
-                    None
-                }
-            })
+            .filter_map(|l| if l.is_driving() { Some(l.id) } else { None })
             .collect();
         let mut requested_paths: Vec<(CarID, LaneID, LaneID)> = Vec::new();
         for i in 0..num_cars.min(cars_and_starts.len()) {
@@ -273,7 +267,7 @@ impl Sim {
     }
 
     pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) -> bool {
-        assert!(map.get_l(sidewalk).lane_type == LaneType::Sidewalk);
+        assert!(map.get_l(sidewalk).is_sidewalk());
 
         if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, sidewalk) {
             self.walking_state
@@ -290,7 +284,7 @@ impl Sim {
 
         let mut sidewalks: Vec<LaneID> = Vec::new();
         for l in map.all_lanes() {
-            if l.lane_type == LaneType::Sidewalk {
+            if l.is_sidewalk() {
                 sidewalks.push(l.id);
             }
         }

@@ -125,4 +125,20 @@ impl Lane {
             0
         }
     }
+
+    pub fn is_driving(&self) -> bool {
+        self.lane_type == LaneType::Driving
+    }
+
+    pub fn is_biking(&self) -> bool {
+        self.lane_type == LaneType::Biking
+    }
+
+    pub fn is_sidewalk(&self) -> bool {
+        self.lane_type == LaneType::Sidewalk
+    }
+
+    pub fn is_parking(&self) -> bool {
+        self.lane_type == LaneType::Parking
+    }
 }

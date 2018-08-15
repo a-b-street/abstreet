@@ -289,7 +289,7 @@ impl Map {
             .filter(|t| t.src == l)
             .collect();
         // Sidewalks are bidirectional
-        if lane.lane_type == LaneType::Sidewalk {
+        if lane.is_sidewalk() {
             for t in &self.get_i(lane.src_i).turns {
                 let turn = self.get_t(*t);
                 if turn.src == l {

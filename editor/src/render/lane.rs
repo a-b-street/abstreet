@@ -62,9 +62,7 @@ impl DrawLane {
             markings.push(m);
         }
         // TODO not all sides of the lane have to stop
-        if lane.lane_type == map_model::LaneType::Driving
-            && !map.get_i(lane.dst_i).has_traffic_signal
-        {
+        if lane.is_driving() && !map.get_i(lane.dst_i).has_traffic_signal {
             if let Some(m) = calculate_stop_sign_line(lane) {
                 markings.push(m);
             }
@@ -280,7 +278,7 @@ fn calculate_stop_sign_line(lane: &map_model::Lane) -> Option<Marking> {
 }
 
 fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
-    if lane.lane_type != map_model::LaneType::Driving {
+    if !lane.is_driving() {
         return None;
     }
 
