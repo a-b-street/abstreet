@@ -6,6 +6,7 @@ use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::geometry::LANE_THICKNESS;
+use geom::EPSILON_DIST;
 use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
@@ -253,7 +254,7 @@ impl Car {
             // into the turn and illegally enter the intersection in that case. The alternative
             // from AORTA, IIRC, is to make cars stop anywhere in a small buffer at the end of the
             // lane.
-            if leftover_dist <= 0.0 * si::M {
+            if leftover_dist <= EPSILON_DIST {
                 break;
             }
             let next_on = match self.on {

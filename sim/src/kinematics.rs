@@ -1,5 +1,6 @@
 use dimensioned::si;
 use models::FOLLOWING_DISTANCE;
+use geom::EPSILON_DIST;
 use std;
 use {Acceleration, Distance, Speed, Time, TIMESTEP};
 
@@ -53,9 +54,9 @@ impl Vehicle {
 
     // TODO this needs unit tests and some careful checking
     pub fn accel_to_stop_in_dist(&self, speed: Speed, dist: Distance) -> Acceleration {
-        assert_ge!(dist, 0.0 * si::M);
+        assert_ge!(dist, -EPSILON_DIST);
         // Don't NaN out
-        if dist == 0.0 * si::M {
+        if dist <= EPSILON_DIST {
             return 0.0 * si::MPS2;
         }
 

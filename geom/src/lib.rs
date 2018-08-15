@@ -24,7 +24,7 @@ pub use polyline::PolyLine;
 pub use pt::{HashablePt2D, Pt2D};
 use std::marker;
 
-pub(crate) const EPSILON_DIST: si::Meter<f64> = si::Meter {
+pub const EPSILON_DIST: si::Meter<f64> = si::Meter {
     value_unsafe: 0.00001,
     _marker: marker::PhantomData,
 };
