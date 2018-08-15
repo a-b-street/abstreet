@@ -55,8 +55,9 @@ impl Vehicle {
     // TODO this needs unit tests and some careful checking
     pub fn accel_to_stop_in_dist(&self, speed: Speed, dist: Distance) -> Acceleration {
         assert_ge!(dist, -EPSILON_DIST);
-        // Don't NaN out
-        if dist <= EPSILON_DIST {
+        // Don't NaN out. Don't check for <= EPSILON_DIST here -- it makes cars slightly overshoot
+        // sometimes.
+        if dist <= 0.0 * si::M {
             return 0.0 * si::MPS2;
         }
 
