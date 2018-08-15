@@ -4,6 +4,7 @@ use draw_car::DrawCar;
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
 use rand::Rng;
+use sim::CarStateTransitions;
 use std::iter;
 use {CarID, Distance};
 
@@ -102,7 +103,7 @@ impl ParkingSimState {
     }
 
     // Of the front of the car
-    pub fn get_dist_along_lane(&self, c: CarID, l: LaneID) -> Distance {
+    pub fn get_spot_and_dist_along_lane(&self, c: CarID, l: LaneID) -> (usize, Distance) {
         let idx = self.lanes[l.0]
             .spots
             .iter()
@@ -110,7 +111,10 @@ impl ParkingSimState {
             .unwrap();
         // TODO some overlap
         let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
-        spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0
+        (
+            idx,
+            spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
+        )
     }
 
     pub fn get_all_cars(&self) -> Vec<(CarID, LaneID)> {
@@ -123,6 +127,13 @@ impl ParkingSimState {
             }
         }
         result
+    }
+
+    pub fn handle_transitions(&mut self, transitions: CarStateTransitions) {
+        for p in transitions.finished_parking {
+            assert_eq!(self.lanes[p.lane.0].spots[p.spot_idx], None);
+            self.lanes[p.lane.0].spots[p.spot_idx] = Some(p.car);
+        }
     }
 }
 

@@ -95,6 +95,16 @@ impl Tick {
     }
 }
 
+impl std::ops::Add<Time> for Tick {
+    type Output = Tick;
+
+    fn add(self, other: Time) -> Tick {
+        let ticks = other.value_unsafe / TIMESTEP.value_unsafe;
+        // TODO check that there's no remainder!
+        Tick(self.0 + (ticks as u32))
+    }
+}
+
 impl std::ops::Sub for Tick {
     type Output = Tick;
 

@@ -13,6 +13,7 @@ use kinematics::Vehicle;
 use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
+use sim::{CarParking, CarStateTransitions};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick};
 
@@ -367,7 +368,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -448,7 +449,7 @@ impl DrivingSimState {
             }
         }
 
-        Ok(())
+        Ok(CarStateTransitions::new())
     }
 
     // TODO cars basically start in the intersection, with their front bumper right at the
@@ -460,6 +461,7 @@ impl DrivingSimState {
         time: Tick,
         car: CarID,
         _dist_along: Distance,
+        _parking: CarParking,
         mut path: VecDeque<LaneID>,
         map: &Map,
     ) -> bool {

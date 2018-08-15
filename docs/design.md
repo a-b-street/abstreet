@@ -285,6 +285,12 @@ parking -> parkd;
 	- master sim owns car state as an enum, calls high-level step-forward functions for driving and parking
 		- perf: cant iterate just the active cars?
 
+How to represent departing/parking states?
+- could have state in both driving and parking sims. hacks to make driving not advance the car state.
+- could represent it in the master sim state, but that's also a slight hack
+---> or, own it in the driving state, since thats the major place where we need to block other cars and make sure we dont hit things.
+	- should we tell parking state about the transitional cars or not? driving should render them. might make statistics and looking for free spots weird, but let's not tell parking about them yet!
+
 ## Representing map edits
 
 Two reasons for edits:

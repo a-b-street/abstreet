@@ -5,25 +5,45 @@ use draw_car::DrawCar;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
+use map_model::geometry::LANE_THICKNESS;
 use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
+use sim::{CarParking, CarStateTransitions};
+use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
-use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick};
+use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, Time};
 
-// This represents an actively driving car, not a parked one
+const TIME_TO_PARK_OR_DEPART: Time = si::Second {
+    value_unsafe: 10.0,
+    _marker: std::marker::PhantomData,
+};
+
+#[derive(Clone, Serialize, Deserialize)]
+struct ParkingState {
+    // False means departing
+    is_parking: bool,
+    started_at: Tick,
+    tuple: CarParking,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 struct Car {
     id: CarID,
     on: On,
     speed: Speed,
     dist_along: Distance,
+
+    // Invariant: When this is present, the same car is also registered in the parking simulation
+    parking: Option<ParkingState>,
+
     // TODO should this only be turns?
     waiting_for: Option<On>,
-    debug: bool,
     // Head is the next lane
     path: VecDeque<LaneID>,
+
+    debug: bool,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -36,6 +56,9 @@ impl PartialEq for Car {
 impl Eq for Car {}
 
 enum Action {
+    // Where are we going to park?
+    StartParking(LaneID, usize),
+    WorkOnParking,
     Vanish, // TODO start parking instead
     Continue(Acceleration, Vec<Request>),
 }
@@ -49,6 +72,12 @@ impl Car {
         sim: &DrivingSimState,
         intersections: &IntersectionSimState,
     ) -> Action {
+        if self.parking.is_some() {
+            // TODO right place for this check?
+            assert!(self.speed <= kinematics::EPSILON_SPEED);
+            return Action::WorkOnParking;
+        }
+
         if self.path.is_empty() && self.dist_along == self.on.length(map) {
             return Action::Vanish;
         }
@@ -281,10 +310,10 @@ impl SimQueue {
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map) -> Vec<DrawCar> {
+    fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map, time: Tick) -> Vec<DrawCar> {
         let mut results = Vec::new();
         for id in &self.cars_queue {
-            results.push(sim.get_draw_car(*id, Tick::zero(), map).unwrap())
+            results.push(sim.get_draw_car(*id, time, map).unwrap())
         }
         results
     }
@@ -433,7 +462,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -443,12 +472,34 @@ impl DrivingSimState {
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
 
+        let mut state_transitions = CarStateTransitions::new();
+
         // Apply moves. This should resolve in no conflicts because lookahead behavior works, so
         // this could be applied concurrently!
         for (id, act) in &requested_moves {
             match *act {
                 Action::Vanish => {
                     self.cars.remove(&id);
+                }
+                Action::StartParking(lane, spot_idx) => {
+                    let c = self.cars.get_mut(&id).unwrap();
+                    c.parking = Some(ParkingState {
+                        is_parking: true,
+                        started_at: time,
+                        tuple: CarParking::new(*id, lane, spot_idx),
+                    });
+                }
+                Action::WorkOnParking => {
+                    let state = self.cars.get_mut(&id).unwrap().parking.take().unwrap();
+                    if state.started_at + TIME_TO_PARK_OR_DEPART == time {
+                        if state.is_parking {
+                            state_transitions.finished_parking.push(state.tuple);
+                            // No longer need to represent the car in the driving state
+                            self.cars.remove(&id);
+                        }
+                    } else {
+                        self.cars.get_mut(&id).unwrap().parking = Some(state);
+                    }
                 }
                 Action::Continue(accel, ref requests) => {
                     let c = self.cars.get_mut(&id).unwrap();
@@ -501,15 +552,16 @@ impl DrivingSimState {
             }
         }
 
-        Ok(())
+        Ok(state_transitions)
     }
 
     // True if we spawned one
     pub fn start_car_on_lane(
         &mut self,
-        _time: Tick,
+        time: Tick,
         car: CarID,
         dist_along: Distance,
+        parking: CarParking,
         mut path: VecDeque<LaneID>,
         map: &Map,
     ) -> bool {
@@ -529,6 +581,11 @@ impl DrivingSimState {
                 on: On::Lane(start),
                 waiting_for: None,
                 debug: false,
+                parking: Some(ParkingState {
+                    is_parking: false,
+                    started_at: time,
+                    tuple: parking,
+                }),
             },
         );
         let mut dist_per_car: HashMap<CarID, Distance> = HashMap::new();
@@ -539,10 +596,27 @@ impl DrivingSimState {
         true
     }
 
-    pub fn get_draw_car(&self, id: CarID, _time: Tick, map: &Map) -> Option<DrawCar> {
+    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
         let c = self.cars.get(&id)?;
-        let (pos, angle) = c.on.dist_along(c.dist_along, map);
+        let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
         let stopping_dist = Vehicle::typical_car().stopping_distance(c.speed);
+
+        // TODO arguably, this math might belong in DrawCar.
+        let pos = if let Some(ref parking) = c.parking {
+            let progress: f64 =
+                ((time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART).value_unsafe;
+            assert!(progress >= 0.0 && progress <= 1.0);
+            let project_away_ratio = if parking.is_parking {
+                progress
+            } else {
+                1.0 - progress
+            };
+            // TODO we're assuming the parking lane is to the right of us!
+            base_pos.project_away(project_away_ratio * LANE_THICKNESS, angle.rotate_degs(90.0))
+        } else {
+            base_pos
+        };
+
         Some(DrawCar::new(
             c.id,
             c.waiting_for.and_then(|on| on.maybe_turn()),
@@ -553,13 +627,13 @@ impl DrivingSimState {
         ))
     }
 
-    pub fn get_draw_cars_on_lane(&self, lane: LaneID, _time: Tick, map: &Map) -> Vec<DrawCar> {
-        self.lanes[lane.0].get_draw_cars(self, map)
+    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
+        self.lanes[lane.0].get_draw_cars(self, map, time)
     }
 
-    pub fn get_draw_cars_on_turn(&self, turn: TurnID, _time: Tick, map: &Map) -> Vec<DrawCar> {
+    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
         if let Some(queue) = self.turns.get(&turn) {
-            return queue.get_draw_cars(self, map);
+            return queue.get_draw_cars(self, map, time);
         }
         return Vec::new();
     }

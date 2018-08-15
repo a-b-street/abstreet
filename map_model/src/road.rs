@@ -80,6 +80,7 @@ impl Road {
         lane == self.children_backwards[0].0
     }
 
+    // TODO actually, these should only do adjacent lanes
     pub fn find_driving_lane(&self, parking: LaneID) -> Option<LaneID> {
         // TODO find the closest one to the parking lane, if there are multiple
         //assert_eq!(l.lane_type, LaneType::Parking);

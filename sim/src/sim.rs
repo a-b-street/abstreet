@@ -85,12 +85,13 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) -> Result<(), InvariantViolated>);
+    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) -> Result<CarStateTransitions, InvariantViolated>);
     delegate!(fn start_car_on_lane(
         &mut self,
         time: Tick,
         car: CarID,
         dist_along: Distance,
+        parking: CarParking,
         path: VecDeque<LaneID>,
         map: &Map
     ) -> bool);
@@ -235,12 +236,14 @@ impl Sim {
         let parking_lane = map.get_parent(driving_lane)
             .find_parking_lane(driving_lane)
             .unwrap();
-        let dist_along = self.parking_state.get_dist_along_lane(car, parking_lane);
+        let (spot_idx, dist_along) = self.parking_state
+            .get_spot_and_dist_along_lane(car, parking_lane);
 
         if self.driving_state.start_car_on_lane(
             self.time,
             car,
             dist_along,
+            CarParking::new(car, parking_lane, spot_idx),
             VecDeque::from(steps),
             map,
         ) {
@@ -327,12 +330,13 @@ impl Sim {
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
-        // TODO Vanish action should become Park
-        if let Err(e) = self.driving_state
+        match self.driving_state
             .step(self.time, map, &mut self.intersection_state)
         {
-            panic!("At {}: {}", self.time, e);
-        }
+            Ok(transitions) => self.parking_state.handle_transitions(transitions),
+            Err(e) => panic!("At {}: {}", self.time, e),
+        };
+
         if let Err(e) = self.walking_state
             .step(TIMESTEP, map, &mut self.intersection_state)
         {
@@ -495,5 +499,39 @@ fn pick_goal_and_find_path<R: Rng + ?Sized>(
     } else {
         println!("No path from {} to {} ({:?})", start, goal, lane_type);
         None
+    }
+}
+
+// TODO better name?
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CarParking {
+    pub car: CarID,
+    // TODO maybe make a better way to address these
+    pub lane: LaneID,
+    pub spot_idx: usize,
+}
+
+impl CarParking {
+    pub fn new(car: CarID, lane: LaneID, spot_idx: usize) -> CarParking {
+        CarParking {
+            car,
+            lane,
+            spot_idx,
+        }
+    }
+}
+
+// For the driving sim to tell the parking sim about updates
+pub struct CarStateTransitions {
+    //pub started_parking: Vec<CarParking>,
+    pub finished_parking: Vec<CarParking>,
+    //pub finished_departing: Vec<CarParking>,
+}
+
+impl CarStateTransitions {
+    pub fn new() -> CarStateTransitions {
+        CarStateTransitions {
+            finished_parking: Vec::new(),
+        }
     }
 }
