@@ -2,11 +2,11 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
+use geom::EPSILON_DIST;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::geometry::LANE_THICKNESS;
-use geom::EPSILON_DIST;
 use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
@@ -64,10 +64,16 @@ enum Action {
 }
 
 impl Car {
-    fn find_parking_spot(&self, driving_lane: LaneID, dist_along: Distance, map: &Map, parking_sim: &ParkingSimState) -> Option<ParkingSpot> {
+    fn find_parking_spot(
+        &self,
+        driving_lane: LaneID,
+        dist_along: Distance,
+        map: &Map,
+        parking_sim: &ParkingSimState,
+    ) -> Option<ParkingSpot> {
         map.get_parent(driving_lane)
-                .find_parking_lane(driving_lane)
-                .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
+            .find_parking_lane(driving_lane)
+            .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
     }
 
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
@@ -86,7 +92,9 @@ impl Car {
         }
 
         if self.path.is_empty() && self.speed <= kinematics::EPSILON_SPEED {
-            if let Some(spot) = self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim) {
+            if let Some(spot) =
+                self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim)
+            {
                 if spot.dist_along == self.dist_along {
                     return Action::StartParking(spot);
                 }
@@ -109,7 +117,9 @@ impl Car {
 
         // TODO could wrap this state up
         let mut current_speed_limit = self.on.speed_limit(map);
-        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit);
+        // Of course we have to include FOLLOWING_DISTANCE
+        let mut dist_to_lookahead =
+            vehicle.max_lookahead_dist(self.speed, current_speed_limit) + FOLLOWING_DISTANCE;
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
@@ -166,7 +176,9 @@ impl Car {
             // Stop for intersections or a parking spot?
             if let On::Lane(id) = current_on {
                 let dist_to_maybe_stop_at = if current_path.is_empty() {
-                    if let Some(spot) = self.find_parking_spot(id, current_dist_along, map, parking_sim) {
+                    if let Some(spot) =
+                        self.find_parking_spot(id, current_dist_along, map, parking_sim)
+                    {
                         spot.dist_along
                     } else {
                         current_on.length(map)

@@ -1,6 +1,6 @@
 use dimensioned::si;
-use models::FOLLOWING_DISTANCE;
 use geom::EPSILON_DIST;
+use models::FOLLOWING_DISTANCE;
 use std;
 use {Acceleration, Distance, Speed, Time, TIMESTEP};
 
