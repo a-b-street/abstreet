@@ -1,10 +1,11 @@
 use dimensioned::si;
 use draw_car;
 use draw_car::DrawCar;
+use geom::{Angle, Pt2D};
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
 use rand::Rng;
-use sim::CarStateTransitions;
+use sim::{CarStateTransitions, ParkingSpot};
 use std::iter;
 use {CarID, Distance};
 
@@ -31,6 +32,7 @@ impl ParkingSimState {
         self.lanes[id.0] = ParkingLane {
             id: id,
             spots: Vec::new(),
+            spot_fronts: Vec::new(),
         };
     }
 
@@ -103,18 +105,17 @@ impl ParkingSimState {
     }
 
     // Of the front of the car
-    pub fn get_spot_and_dist_along_lane(&self, c: CarID, l: LaneID) -> (usize, Distance) {
+    pub fn get_spot_of_car(&self, c: CarID, l: LaneID) -> ParkingSpot {
         let idx = self.lanes[l.0]
             .spots
             .iter()
             .position(|x| *x == Some(c))
             .unwrap();
-        // TODO some overlap
-        let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
-        (
-            idx,
-            spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
-        )
+        ParkingSpot {
+            parking_lane: l,
+            spot_idx: idx,
+            dist_along: self.lanes[l.0].spot_fronts[idx].0,
+        }
     }
 
     pub fn get_all_cars(&self) -> Vec<(CarID, LaneID)> {
@@ -131,17 +132,43 @@ impl ParkingSimState {
 
     pub fn handle_transitions(&mut self, transitions: CarStateTransitions) {
         for p in transitions.finished_parking {
-            assert_eq!(self.lanes[p.lane.0].spots[p.spot_idx], None);
-            self.lanes[p.lane.0].spots[p.spot_idx] = Some(p.car);
+            assert_eq!(
+                self.lanes[p.spot.parking_lane.0].spots[p.spot.spot_idx],
+                None
+            );
+            self.lanes[p.spot.parking_lane.0].spots[p.spot.spot_idx] = Some(p.car);
         }
+    }
+
+    pub fn get_first_free_spot(&self, lane: LaneID, dist_along: Distance) -> Option<ParkingSpot> {
+        let l = &self.lanes[lane.0];
+        let idx = l.spots
+            .iter()
+            .enumerate()
+            .position(|(idx, x)| x.is_none() && l.spot_fronts[idx].0 >= dist_along)?;
+        Some(ParkingSpot {
+            parking_lane: lane,
+            spot_idx: idx,
+            dist_along: l.spot_fronts[idx].0,
+        })
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 struct ParkingLane {
     id: LaneID,
     spots: Vec<Option<CarID>>,
+    spot_fronts: Vec<(Distance, Pt2D, Angle)>,
 }
+
+// TODO the f64's prevent derivation
+impl PartialEq for ParkingLane {
+    fn eq(&self, other: &ParkingLane) -> bool {
+        self.id == other.id && self.spots == other.spots
+    }
+}
+
+impl Eq for ParkingLane {}
 
 impl ParkingLane {
     fn new(l: &Lane) -> ParkingLane {
@@ -149,12 +176,22 @@ impl ParkingLane {
             return ParkingLane {
                 id: l.id,
                 spots: Vec::new(),
+                spot_fronts: Vec::new(),
             };
         }
 
         ParkingLane {
             id: l.id,
             spots: iter::repeat(None).take(l.number_parking_spots()).collect(),
+            spot_fronts: (0..l.number_parking_spots())
+                .map(|idx| {
+                    let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
+                    let dist_along =
+                        spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0;
+                    let (pos, angle) = l.dist_along(dist_along);
+                    (dist_along, pos, angle)
+                })
+                .collect(),
         }
     }
 
@@ -164,18 +201,12 @@ impl ParkingLane {
     }
 
     fn get_draw_cars(&self, map: &Map) -> Vec<DrawCar> {
-        let l = map.get_l(self.id);
-        // TODO this is slow to do constantly! can we precompute for each spot or something like
-        // that?
         self.spots
             .iter()
             .enumerate()
             .filter_map(|(idx, maybe_id)| {
                 maybe_id.and_then(|id| {
-                    let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
-                    let (front, angle) = l.dist_along(
-                        spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0,
-                    );
+                    let (_, front, angle) = self.spot_fronts[idx];
                     Some(DrawCar::new(id, None, map, front, angle, 0.0 * si::M))
                 })
             })

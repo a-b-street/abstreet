@@ -291,6 +291,8 @@ How to represent departing/parking states?
 ---> or, own it in the driving state, since thats the major place where we need to block other cars and make sure we dont hit things.
 	- should we tell parking state about the transitional cars or not? driving should render them. might make statistics and looking for free spots weird, but let's not tell parking about them yet!
 
+How do we tell a driving car to aim for a particular parking spot? Seems like we need to pick it first...
+
 ## Representing map edits
 
 Two reasons for edits:

@@ -85,12 +85,11 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step(&mut self, time: Tick, map: &Map, intersections: &mut IntersectionSimState) -> Result<CarStateTransitions, InvariantViolated>);
+    delegate!(fn step(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState) -> Result<CarStateTransitions, InvariantViolated>);
     delegate!(fn start_car_on_lane(
         &mut self,
         time: Tick,
         car: CarID,
-        dist_along: Distance,
         parking: CarParking,
         path: VecDeque<LaneID>,
         map: &Map
@@ -236,14 +235,12 @@ impl Sim {
         let parking_lane = map.get_parent(driving_lane)
             .find_parking_lane(driving_lane)
             .unwrap();
-        let (spot_idx, dist_along) = self.parking_state
-            .get_spot_and_dist_along_lane(car, parking_lane);
+        let spot = self.parking_state.get_spot_of_car(car, parking_lane);
 
         if self.driving_state.start_car_on_lane(
             self.time,
             car,
-            dist_along,
-            CarParking::new(car, parking_lane, spot_idx),
+            CarParking::new(car, spot),
             VecDeque::from(steps),
             map,
         ) {
@@ -330,9 +327,12 @@ impl Sim {
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
-        match self.driving_state
-            .step(self.time, map, &mut self.intersection_state)
-        {
+        match self.driving_state.step(
+            self.time,
+            map,
+            &self.parking_state,
+            &mut self.intersection_state,
+        ) {
             Ok(transitions) => self.parking_state.handle_transitions(transitions),
             Err(e) => panic!("At {}: {}", self.time, e),
         };
@@ -502,22 +502,24 @@ fn pick_goal_and_find_path<R: Rng + ?Sized>(
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ParkingSpot {
+    pub parking_lane: LaneID,
+    pub spot_idx: usize,
+    // Of the front of the car
+    pub dist_along: Distance,
+}
+
 // TODO better name?
 #[derive(Clone, Serialize, Deserialize)]
 pub struct CarParking {
     pub car: CarID,
-    // TODO maybe make a better way to address these
-    pub lane: LaneID,
-    pub spot_idx: usize,
+    pub spot: ParkingSpot,
 }
 
 impl CarParking {
-    pub fn new(car: CarID, lane: LaneID, spot_idx: usize) -> CarParking {
-        CarParking {
-            car,
-            lane,
-            spot_idx,
-        }
+    pub fn new(car: CarID, spot: ParkingSpot) -> CarParking {
+        CarParking { car, spot }
     }
 }
 

@@ -10,7 +10,8 @@ use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use sim::{CarParking, CarStateTransitions};
+use parking::ParkingSimState;
+use sim::{CarParking, CarStateTransitions, ParkingSpot};
 use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, Time};
@@ -35,7 +36,6 @@ struct Car {
     speed: Speed,
     dist_along: Distance,
 
-    // Invariant: When this is present, the same car is also registered in the parking simulation
     parking: Option<ParkingState>,
 
     // TODO should this only be turns?
@@ -56,20 +56,26 @@ impl PartialEq for Car {
 impl Eq for Car {}
 
 enum Action {
-    // Where are we going to park?
-    StartParking(LaneID, usize),
+    StartParking(ParkingSpot),
     WorkOnParking,
     Vanish, // TODO start parking instead
     Continue(Acceleration, Vec<Request>),
 }
 
 impl Car {
+    fn find_parking_spot(&self, driving_lane: LaneID, dist_along: Distance, map: &Map, parking_sim: &ParkingSimState) -> Option<ParkingSpot> {
+        map.get_parent(driving_lane)
+                .find_parking_lane(driving_lane)
+                .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
+    }
+
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
     fn react(
         &self,
         map: &Map,
         time: Tick,
         sim: &DrivingSimState,
+        parking_sim: &ParkingSimState,
         intersections: &IntersectionSimState,
     ) -> Action {
         if self.parking.is_some() {
@@ -78,8 +84,24 @@ impl Car {
             return Action::WorkOnParking;
         }
 
-        if self.path.is_empty() && self.dist_along == self.on.length(map) {
-            return Action::Vanish;
+        if self.path.is_empty() && self.speed <= kinematics::EPSILON_SPEED {
+            if let Some(spot) = self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim) {
+                if spot.dist_along == self.dist_along {
+                    return Action::StartParking(spot);
+                }
+                println!(
+                    "uh oh, {} is stopped {} before their parking spot. keep going I guess.",
+                    self.id,
+                    spot.dist_along - self.dist_along
+                );
+            } else if self.dist_along == self.on.length(map) {
+                // TODO roam around for parking
+                println!(
+                    "no free parking spot for {} at {:?}. vanish for now.",
+                    self.id, self.on
+                );
+                return Action::Vanish;
+            }
         }
 
         let vehicle = Vehicle::typical_car();
@@ -140,13 +162,23 @@ impl Car {
                 }
             }
 
-            // Stop for intersections?
+            // Stop for intersections or a parking spot?
             if let On::Lane(id) = current_on {
-                // If our lookahead doesn't even hit the intersection, then ignore it. This means
-                // we won't request turns until we're close.
-                let dist_from_end = current_on.length(map) - current_dist_along;
-                if dist_to_lookahead >= dist_from_end {
-                    let stop_at_end = if current_path.is_empty() {
+                let dist_to_maybe_stop_at = if current_path.is_empty() {
+                    if let Some(spot) = self.find_parking_spot(id, current_dist_along, map, parking_sim) {
+                        spot.dist_along
+                    } else {
+                        current_on.length(map)
+                    }
+                } else {
+                    current_on.length(map)
+                };
+                let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
+
+                // If our lookahead doesn't even hit the intersection / parking spot, then ignore
+                // it. This means we won't request turns until we're close.
+                if dist_to_lookahead >= dist_from_stop {
+                    let should_stop = if current_path.is_empty() {
                         true
                     } else {
                         let req =
@@ -159,10 +191,10 @@ impl Car {
                         }
                         !granted
                     };
-                    if stop_at_end {
-                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_end);
+                    if should_stop {
+                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop);
                         if self.debug {
-                            println!("  {} needs {} to stop for the intersection that's currently {} away", self.id, accel, dist_from_end);
+                            println!("  {} needs {} to stop for the intersection or parking spot that's currently {} away", self.id, accel, dist_from_stop);
                         }
                         constraints.push(accel);
                         // No use in further lookahead.
@@ -461,12 +493,14 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         map: &Map,
+        // TODO not all of it, just for one query!
+        parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
     ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((c.id, c.react(map, time, self, intersections)));
+            requested_moves.push((c.id, c.react(map, time, self, parking_sim, intersections)));
         }
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
@@ -481,12 +515,12 @@ impl DrivingSimState {
                 Action::Vanish => {
                     self.cars.remove(&id);
                 }
-                Action::StartParking(lane, spot_idx) => {
+                Action::StartParking(ref spot) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.parking = Some(ParkingState {
                         is_parking: true,
                         started_at: time,
-                        tuple: CarParking::new(*id, lane, spot_idx),
+                        tuple: CarParking::new(*id, spot.clone()),
                     });
                 }
                 Action::WorkOnParking => {
@@ -560,12 +594,12 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         car: CarID,
-        dist_along: Distance,
         parking: CarParking,
         mut path: VecDeque<LaneID>,
         map: &Map,
     ) -> bool {
         let start = path.pop_front().unwrap();
+        let dist_along = parking.spot.dist_along;
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
 

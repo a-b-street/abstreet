@@ -13,6 +13,7 @@ use kinematics::Vehicle;
 use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
+use parking::ParkingSimState;
 use sim::{CarParking, CarStateTransitions};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick};
@@ -367,6 +368,7 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         map: &Map,
+        _parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
     ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
@@ -460,7 +462,6 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         car: CarID,
-        _dist_along: Distance,
         _parking: CarParking,
         mut path: VecDeque<LaneID>,
         map: &Map,
