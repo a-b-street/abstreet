@@ -155,8 +155,8 @@ impl On {
 
     fn speed_limit(&self, map: &Map) -> Speed {
         match self {
-            &On::Lane(id) => map.get_lane_and_parent(id).1.get_speed_limit(),
-            &On::Turn(id) => map.get_lane_and_parent(id.dst).1.get_speed_limit(),
+            &On::Lane(id) => map.get_parent(id).get_speed_limit(),
+            &On::Turn(id) => map.get_parent(id.dst).get_speed_limit(),
         }
     }
 }

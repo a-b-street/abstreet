@@ -5,7 +5,7 @@ use draw_car::DrawCar;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, LaneType, Map, TurnID};
+use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
@@ -296,6 +296,14 @@ impl SimQueue {
             .find(|id| sim.cars[id].dist_along > dist)
             .map(|id| *id)
     }
+
+    fn insert_at(&mut self, car: CarID, dist_along: Distance, sim: &DrivingSimState) {
+        if let Some(idx) = self.cars_queue.iter().position(|id| sim.cars[id].dist_along < dist_along) {
+            self.cars_queue.insert(idx, car);
+        } else {
+            self.cars_queue.push(car);
+        }
+    }
 }
 
 // This manages only actively driving cars
@@ -488,43 +496,35 @@ impl DrivingSimState {
         Ok(())
     }
 
-    // TODO cars basically start in the intersection, with their front bumper right at the
-    // beginning of the lane. later, we want cars starting at arbitrary points in the middle of the
-    // lane (from a building), so just ignore this problem for now.
     // True if we spawned one
     pub fn start_car_on_lane(
         &mut self,
         _time: Tick,
         car: CarID,
+        dist_along: Distance,
         mut path: VecDeque<LaneID>,
-        _map: &Map,
+        map: &Map,
     ) -> bool {
         let start = path.pop_front().unwrap();
+        // If not, we have a parking lane much longer than a driving lane...
+        assert!(dist_along <= map.get_l(start).length());
+
+        // TODO verify it's safe to appear here at dist_along and not cause a crash
 
         self.cars.insert(
             car,
             Car {
                 id: car,
                 path,
-                dist_along: 0.0 * si::M,
+                dist_along: dist_along,
                 speed: 0.0 * si::MPS,
                 on: On::Lane(start),
                 waiting_for: None,
                 debug: false,
             },
         );
-        self.lanes[start.0].cars_queue.push(car);
+        self.lanes[start.0].insert_at(car, dist_along, self);
         true
-    }
-
-    pub fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID> {
-        let mut lanes: Vec<LaneID> = Vec::new();
-        for (idx, queue) in self.lanes.iter().enumerate() {
-            if map.get_l(LaneID(idx)).lane_type == LaneType::Driving && queue.is_empty() {
-                lanes.push(queue.id.as_lane());
-            }
-        }
-        lanes
     }
 
     pub fn get_draw_car(&self, id: CarID, _time: Tick, map: &Map) -> Option<DrawCar> {

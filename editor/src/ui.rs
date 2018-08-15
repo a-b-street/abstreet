@@ -512,6 +512,10 @@ impl gui::GUI for UI {
                     self.sim_ctrl.sim.toggle_debug(id);
                     return gui::EventLoopMode::InputOnly;
                 }
+                if input.key_pressed(Key::A, "start this parked car") {
+                    self.sim_ctrl.sim.start_parked_car(&self.map, id);
+                    return gui::EventLoopMode::InputOnly;
+                }
             }
             SelectionState::SelectedLane(id, _) => {
                 if input.key_pressed(Key::F, "start floodfilling from this lane") {
@@ -519,9 +523,11 @@ impl gui::GUI for UI {
                     return gui::EventLoopMode::InputOnly;
                 }
 
-                if input.key_pressed(Key::A, "start something on this lane") {
-                    self.sim_ctrl.sim.start_agent(&self.map, id);
-                    return gui::EventLoopMode::InputOnly;
+                if self.map.get_l(id).lane_type == map_model::LaneType::Sidewalk {
+                    if input.key_pressed(Key::A, "spawn a pedestrian here") {
+                        self.sim_ctrl.sim.spawn_pedestrian(&self.map, id);
+                        return gui::EventLoopMode::InputOnly;
+                    }
                 }
             }
             SelectionState::SelectedIntersection(id) => {

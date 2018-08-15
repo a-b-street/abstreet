@@ -10,7 +10,7 @@ use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics::Vehicle;
-use map_model::{LaneID, LaneType, Map, TurnID};
+use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use std::collections::{BTreeMap, HashSet, VecDeque};
@@ -459,6 +459,7 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         car: CarID,
+        _dist_along: Distance,
         mut path: VecDeque<LaneID>,
         map: &Map,
     ) -> bool {
@@ -483,16 +484,6 @@ impl DrivingSimState {
         );
         self.lanes[start.0].cars_queue.push(car);
         true
-    }
-
-    pub fn get_empty_lanes(&self, map: &Map) -> Vec<LaneID> {
-        let mut lanes: Vec<LaneID> = Vec::new();
-        for (idx, queue) in self.lanes.iter().enumerate() {
-            if map.get_l(LaneID(idx)).lane_type == LaneType::Driving && queue.is_empty() {
-                lanes.push(queue.id.as_lane());
-            }
-        }
-        lanes
     }
 
     pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {

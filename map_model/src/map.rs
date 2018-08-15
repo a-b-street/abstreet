@@ -308,9 +308,9 @@ impl Map {
             .collect()
     }
 
-    pub fn get_lane_and_parent(&self, id: LaneID) -> (&Lane, &Road) {
+    pub fn get_parent(&self, id: LaneID) -> &Road {
         let l = self.get_l(id);
-        (l, self.get_r(l.parent))
+        self.get_r(l.parent)
     }
 
     // TODO can we return a borrow?

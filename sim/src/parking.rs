@@ -5,7 +5,7 @@ use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
 use rand::Rng;
 use std::iter;
-use CarID;
+use {Distance, CarID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct ParkingSimState {
@@ -28,7 +28,7 @@ impl ParkingSimState {
     pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
         self.lanes[id.0] = ParkingLane {
-            l: id,
+            id: id,
             spots: Vec::new(),
         };
     }
@@ -72,12 +72,8 @@ impl ParkingSimState {
         );
     }
 
-    pub fn get_last_parked_car(&self, id: LaneID) -> Option<CarID> {
-        self.lanes[id.0].get_last_parked_car()
-    }
-
-    pub fn remove_last_parked_car(&mut self, id: LaneID, car: CarID) {
-        self.lanes[id.0].remove_last_parked_car(car);
+    pub fn remove_parked_car(&mut self, id: LaneID, car: CarID) {
+        self.lanes[id.0].remove_parked_car(car);
         self.total_count -= 1;
     }
 
@@ -94,11 +90,41 @@ impl ParkingSimState {
         }
         None
     }
+
+    pub fn lane_of_car(&self, id: CarID) -> Option<LaneID> {
+        // TODO this is so horrendously slow :D
+        for l in &self.lanes {
+            if l.spots.contains(&Some(id)) {
+                return Some(l.id);
+            }
+        }
+        None
+    }
+
+    // Of the front of the car
+    pub fn get_dist_along_lane(&self, c: CarID, l: LaneID) -> Distance {
+        let idx = self.lanes[l.0].spots.iter().position(|x| *x == Some(c)).unwrap();
+        // TODO some overlap
+        let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
+        spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0
+    }
+
+    pub fn get_all_cars(&self) -> Vec<(CarID, LaneID)> {
+        let mut result = Vec::new();
+        for l in &self.lanes {
+            for maybe_car in &l.spots {
+                if let Some(car) = maybe_car {
+                    result.push((*car, l.id));
+                }
+            }
+        }
+        result
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct ParkingLane {
-    l: LaneID,
+    id: LaneID,
     spots: Vec<Option<CarID>>,
 }
 
@@ -106,35 +132,24 @@ impl ParkingLane {
     fn new(l: &Lane) -> ParkingLane {
         if l.lane_type != LaneType::Parking {
             return ParkingLane {
-                l: l.id,
+                id: l.id,
                 spots: Vec::new(),
             };
         }
 
         ParkingLane {
-            l: l.id,
+            id: l.id,
             spots: iter::repeat(None).take(l.number_parking_spots()).collect(),
         }
     }
 
-    fn get_last_parked_car(&self) -> Option<CarID> {
-        self.spots
-            .iter()
-            .rfind(|&&x| x.is_some())
-            .map(|l| l.unwrap())
-    }
-
-    fn remove_last_parked_car(&mut self, car: CarID) {
-        let idx = self.spots
-            .iter()
-            .rposition(|&x| x.is_some())
-            .expect("No parked cars at all now");
-        assert_eq!(self.spots[idx], Some(car));
+    fn remove_parked_car(&mut self, car: CarID) {
+        let idx = self.spots.iter().position(|x| *x == Some(car)).unwrap();
         self.spots[idx] = None;
     }
 
     fn get_draw_cars(&self, map: &Map) -> Vec<DrawCar> {
-        let l = map.get_l(self.l);
+        let l = map.get_l(self.id);
         // TODO this is slow to do constantly! can we precompute for each spot or something like
         // that?
         self.spots
@@ -152,7 +167,7 @@ impl ParkingLane {
             .collect()
     }
 
-    pub fn is_empty(&self) -> bool {
-        !self.get_last_parked_car().is_some()
+    fn is_empty(&self) -> bool {
+        !self.spots.iter().find(|&&x| x.is_some()).is_some()
     }
 }
