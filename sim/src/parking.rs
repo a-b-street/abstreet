@@ -185,7 +185,7 @@ impl ParkingLane {
             spots: iter::repeat(None).take(l.number_parking_spots()).collect(),
             spot_fronts: (0..l.number_parking_spots())
                 .map(|idx| {
-                    let spot_start = map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64);
+                    let spot_start = map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64);
                     let dist_along =
                         spot_start - (map_model::PARKING_SPOT_LENGTH - draw_car::CAR_LENGTH) / 2.0;
                     let (pos, angle) = l.dist_along(dist_along);

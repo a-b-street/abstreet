@@ -502,7 +502,7 @@ fn pick_goal_and_find_path<R: Rng + ?Sized>(
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ParkingSpot {
     pub parking_lane: LaneID,
     pub spot_idx: usize,
