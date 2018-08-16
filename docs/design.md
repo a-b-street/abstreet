@@ -437,6 +437,10 @@ the path outright, not even start/end. Stick the rng work in sim for the
 moment. This should let the start/goal selection and the parallelization of
 paths happen at a more outer layer, in the sim aggregator.
 
+... and now for scenarios / spawners. these get to run every step, trying to
+introduce new things in the different simulations. if a parked car can't
+currently begin departing, it'll keep trying every tick.
+
 ## Intersection policies for pedestrians ##
 
 Before figuring out how pedestrians will deterministically use intersections alongside cars, recall how cars currently work...

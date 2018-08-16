@@ -11,6 +11,7 @@ use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
+use spawn::Spawner;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
@@ -96,7 +97,7 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R) -> Result<CarStateTransitions, InvariantViolated>);
+    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R) -> Result<Vec<CarParking>, InvariantViolated>);
     delegate!(fn start_car_on_lane(
         &mut self,
         time: Tick,
@@ -118,8 +119,8 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     rng: XorShiftRng,
     pub time: Tick,
-    car_id_counter: usize,
 
+    spawner: Spawner,
     intersection_state: IntersectionSimState,
     driving_state: DrivingModel,
     parking_state: ParkingSimState,
@@ -142,11 +143,11 @@ impl Sim {
         Sim {
             rng,
             driving_state,
+            spawner: Spawner::empty(),
             intersection_state: IntersectionSimState::new(map),
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
             time: Tick::zero(),
-            car_id_counter: 0,
         }
     }
 
@@ -183,8 +184,8 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
-        self.parking_state
-            .seed_random_cars(&mut self.rng, percent, &mut self.car_id_counter)
+        self.spawner
+            .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng);
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
@@ -338,6 +339,8 @@ impl Sim {
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
         self.time.increment();
 
+        self.spawner.step(self.time, &mut self.parking_state);
+
         match self.driving_state.step(
             self.time,
             map,
@@ -345,7 +348,9 @@ impl Sim {
             &mut self.intersection_state,
             &mut self.rng,
         ) {
-            Ok(transitions) => self.parking_state.handle_transitions(transitions),
+            Ok(parked_cars) => for p in parked_cars {
+                self.parking_state.add_parked_car(p);
+            },
             Err(e) => panic!("At {}: {}", self.time, e),
         };
 
@@ -514,16 +519,18 @@ fn pick_goal_and_find_path<R: Rng + ?Sized>(
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct ParkingSpot {
     pub parking_lane: LaneID,
     pub spot_idx: usize,
     // Of the front of the car
+    #[derivative(PartialEq = "ignore")]
     pub dist_along: Distance,
 }
 
 // TODO better name?
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct CarParking {
     pub car: CarID,
     pub spot: ParkingSpot,
@@ -532,20 +539,5 @@ pub struct CarParking {
 impl CarParking {
     pub fn new(car: CarID, spot: ParkingSpot) -> CarParking {
         CarParking { car, spot }
-    }
-}
-
-// For the driving sim to tell the parking sim about updates
-pub struct CarStateTransitions {
-    //pub started_parking: Vec<CarParking>,
-    pub finished_parking: Vec<CarParking>,
-    //pub finished_departing: Vec<CarParking>,
-}
-
-impl CarStateTransitions {
-    pub fn new() -> CarStateTransitions {
-        CarStateTransitions {
-            finished_parking: Vec::new(),
-        }
     }
 }

@@ -15,7 +15,7 @@ use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use rand::Rng;
-use sim::{CarParking, CarStateTransitions};
+use sim::CarParking;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick};
 
@@ -372,7 +372,7 @@ impl DrivingSimState {
         _parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
         _rng: &mut R,
-    ) -> Result<CarStateTransitions, InvariantViolated> {
+    ) -> Result<Vec<CarParking>, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -453,7 +453,7 @@ impl DrivingSimState {
             }
         }
 
-        Ok(CarStateTransitions::new())
+        Ok(Vec::new())
     }
 
     // TODO cars basically start in the intersection, with their front bumper right at the

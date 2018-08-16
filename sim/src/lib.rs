@@ -30,6 +30,7 @@ mod models;
 mod parametric_driving;
 mod parking;
 mod sim;
+mod spawn;
 mod walking;
 
 use dimensioned::si;

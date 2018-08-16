@@ -13,7 +13,7 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
 use rand::Rng;
-use sim::{CarParking, CarStateTransitions, ParkingSpot};
+use sim::{CarParking, ParkingSpot};
 use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, Time};
@@ -528,7 +528,7 @@ impl DrivingSimState {
         parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
         rng: &mut R,
-    ) -> Result<CarStateTransitions, InvariantViolated> {
+    ) -> Result<Vec<CarParking>, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -538,7 +538,7 @@ impl DrivingSimState {
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
 
-        let mut state_transitions = CarStateTransitions::new();
+        let mut finished_parking: Vec<CarParking> = Vec::new();
 
         // Apply moves. This should resolve in no conflicts because lookahead behavior works, so
         // this could be applied concurrently!
@@ -556,7 +556,7 @@ impl DrivingSimState {
                     let state = self.cars.get_mut(&id).unwrap().parking.take().unwrap();
                     if state.started_at + TIME_TO_PARK_OR_DEPART == time {
                         if state.is_parking {
-                            state_transitions.finished_parking.push(state.tuple);
+                            finished_parking.push(state.tuple);
                             // No longer need to represent the car in the driving state
                             self.cars.remove(&id);
                         }
@@ -618,7 +618,7 @@ impl DrivingSimState {
             }
         }
 
-        Ok(state_transitions)
+        Ok(finished_parking)
     }
 
     // True if we spawned one
