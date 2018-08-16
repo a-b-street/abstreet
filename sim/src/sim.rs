@@ -278,68 +278,25 @@ impl Sim {
         }
     }
 
-    pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) -> bool {
-        assert!(map.get_l(sidewalk).is_sidewalk());
-
-        if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, sidewalk) {
-            self.walking_state
-                .seed_pedestrian(map, VecDeque::from(path));
-            println!("Spawned a pedestrian at {}", sidewalk);
-            true
-        } else {
-            false
-        }
+    pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {
+        self.spawner
+            .spawn_pedestrian(self.time.next(), map, sidewalk, &mut self.rng);
     }
 
     pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
-        use rayon::prelude::*;
-
-        let mut sidewalks: Vec<LaneID> = Vec::new();
-        for l in map.all_lanes() {
-            if l.is_sidewalk() {
-                sidewalks.push(l.id);
-            }
-        }
-
-        let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
-        for _i in 0..num {
-            let start = *self.rng.choose(&sidewalks).unwrap();
-            let goal = choose_different(&mut self.rng, &sidewalks, start);
-            requested_paths.push((start, goal));
-        }
-
-        println!("Calculating {} paths for pedestrians", num);
-        // TODO better timer macro
-        let timer = Instant::now();
-        let paths: Vec<Option<Vec<LaneID>>> = requested_paths
-            .par_iter()
-            .map(|(start, goal)| map_model::pathfind(map, *start, *goal))
-            .collect();
-
-        let mut actual = 0;
-        for path in paths.into_iter() {
-            if let Some(steps) = path {
-                self.walking_state
-                    .seed_pedestrian(map, VecDeque::from(steps));
-                actual += 1;
-            } else {
-                // zip with request to have start/goal?
-                //println!("Failed to pathfind for a pedestrian");
-            };
-        }
-
-        println!(
-            "Calculating {} pedestrian paths took {:?}",
-            num,
-            timer.elapsed()
-        );
-        println!("Spawned {} pedestrians of requested {}", actual, num);
+        self.spawner
+            .spawn_many_pedestrians(self.time.next(), map, num, &mut self.rng);
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
-        self.time.increment();
+        self.time = self.time.next();
 
-        self.spawner.step(self.time, &mut self.parking_state);
+        self.spawner.step(
+            self.time,
+            map,
+            &mut self.parking_state,
+            &mut self.walking_state,
+        );
 
         match self.driving_state.step(
             self.time,

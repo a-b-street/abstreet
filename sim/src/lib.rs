@@ -86,8 +86,8 @@ impl Tick {
         (self.0 as f64) * TIMESTEP
     }
 
-    pub fn increment(&mut self) {
-        self.0 += 1;
+    pub fn next(self) -> Tick {
+        Tick(self.0 + 1)
     }
 
     // TODO er, little weird

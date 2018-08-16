@@ -147,8 +147,6 @@ pub struct WalkingSimState {
     #[serde(serialize_with = "serialize_multimap")]
     #[serde(deserialize_with = "deserialize_multimap")]
     peds_per_turn: MultiMap<TurnID, PedestrianID>,
-
-    id_counter: usize,
 }
 
 impl WalkingSimState {
@@ -157,7 +155,6 @@ impl WalkingSimState {
             peds: BTreeMap::new(),
             peds_per_sidewalk: MultiMap::new(),
             peds_per_turn: MultiMap::new(),
-            id_counter: 0,
         }
     }
 
@@ -272,10 +269,7 @@ impl WalkingSimState {
         result
     }
 
-    pub fn seed_pedestrian(&mut self, map: &Map, mut path: VecDeque<LaneID>) {
-        let id = PedestrianID(self.id_counter);
-        self.id_counter += 1;
-
+    pub fn seed_pedestrian(&mut self, id: PedestrianID, map: &Map, mut path: VecDeque<LaneID>) {
         let start = path.pop_front().unwrap();
         let contraflow = is_contraflow(map, start, path[0]);
         self.peds.insert(
