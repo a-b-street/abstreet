@@ -14,6 +14,7 @@ use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, Action, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use parking::ParkingSimState;
+use rand::Rng;
 use sim::{CarParking, CarStateTransitions};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use {AgentID, CarID, CarState, Distance, InvariantViolated, On, Tick};
@@ -364,12 +365,13 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(
+    pub fn step<R: Rng + ?Sized>(
         &mut self,
         time: Tick,
         map: &Map,
         _parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
+        _rng: &mut R,
     ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();

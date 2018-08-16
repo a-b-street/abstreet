@@ -12,6 +12,7 @@ use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
+use rand::Rng;
 use sim::{CarParking, CarStateTransitions, ParkingSpot};
 use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
@@ -59,8 +60,8 @@ impl Eq for Car {}
 enum Action {
     StartParking(ParkingSpot),
     WorkOnParking,
-    Vanish, // TODO start parking instead
-    Continue(Acceleration, Vec<Request>),
+    // True means we need to look for parking
+    Continue(Acceleration, Vec<Request>, bool),
 }
 
 impl Car {
@@ -98,18 +99,12 @@ impl Car {
                 if spot.dist_along == self.dist_along {
                     return Action::StartParking(spot);
                 }
+                // This seems to never happen; TODO make it an InvariantViolated
                 println!(
                     "uh oh, {} is stopped {} before their parking spot. keep going I guess.",
                     self.id,
                     spot.dist_along - self.dist_along
                 );
-            } else if self.dist_along == self.on.length(map) {
-                // TODO roam around for parking
-                println!(
-                    "no free parking spot for {} at {:?}. vanish for now.",
-                    self.id, self.on
-                );
-                return Action::Vanish;
             }
         }
 
@@ -123,6 +118,7 @@ impl Car {
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
+        let mut need_parking = false;
         let mut current_on = self.on;
         let mut current_dist_along = self.dist_along;
         let mut current_path = self.path.clone();
@@ -181,6 +177,7 @@ impl Car {
                     {
                         spot.dist_along
                     } else {
+                        need_parking = true;
                         current_on.length(map)
                     }
                 } else {
@@ -246,7 +243,7 @@ impl Car {
             println!("At {}, {} chose {}", time, self.id, safe_accel);
         }
 
-        Action::Continue(safe_accel, requests)
+        Action::Continue(safe_accel, requests, need_parking)
     }
 
     fn step_continue(
@@ -295,6 +292,27 @@ impl Car {
             self.dist_along = leftover_dist;
         }
         Ok(())
+    }
+
+    fn look_for_parking<R: Rng + ?Sized>(&mut self, map: &Map, rng: &mut R) {
+        let last_lane = if self.path.is_empty() {
+            match self.on {
+                On::Turn(t) => t.dst,
+                On::Lane(l) => l,
+            }
+        } else {
+            *self.path.back().unwrap()
+        };
+
+        // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
+        // to physically see the spots), stay close to the original goal, avoid lanes we've
+        // visited, prefer easier turns...
+        let choice = rng.choose(&map.get_next_lanes(last_lane)).unwrap().id;
+        println!(
+            "{} can't find parking on {}, so wandering over to {}",
+            self.id, last_lane, choice
+        );
+        self.path.push_back(choice);
     }
 }
 
@@ -502,13 +520,14 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
-    pub fn step(
+    pub fn step<R: Rng + ?Sized>(
         &mut self,
         time: Tick,
         map: &Map,
         // TODO not all of it, just for one query!
         parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
+        rng: &mut R,
     ) -> Result<CarStateTransitions, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
@@ -525,9 +544,6 @@ impl DrivingSimState {
         // this could be applied concurrently!
         for (id, act) in &requested_moves {
             match *act {
-                Action::Vanish => {
-                    self.cars.remove(&id);
-                }
                 Action::StartParking(ref spot) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.parking = Some(ParkingState {
@@ -548,7 +564,7 @@ impl DrivingSimState {
                         self.cars.get_mut(&id).unwrap().parking = Some(state);
                     }
                 }
-                Action::Continue(accel, ref requests) => {
+                Action::Continue(accel, ref requests, need_parking) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.step_continue(accel, map, intersections)?;
                     // TODO maybe just return TurnID
@@ -564,6 +580,9 @@ impl DrivingSimState {
                         if On::Lane(req.turn.src) == c.on && c.speed <= kinematics::EPSILON_SPEED {
                             c.waiting_for = Some(On::Turn(req.turn));
                         }
+                    }
+                    if need_parking {
+                        c.look_for_parking(map, rng);
                     }
                 }
             }

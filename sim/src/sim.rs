@@ -64,6 +64,17 @@ macro_rules! delegate {
         }
     };
 
+    // TODO hack, hardcoding the generic type bounds, because I can't figure it out :(
+    // Mutable, arguments, return type
+    (fn $fxn_name:ident<R: Rng + ?Sized>(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
+        fn $fxn_name<R: Rng + ?Sized>(&mut self, $( $value: $type ),*) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+
     // Mutable, arguments, no return type
     (fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* )) => {
         fn $fxn_name(&mut self, $( $value: $type ),*) {
@@ -85,7 +96,7 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState) -> Result<CarStateTransitions, InvariantViolated>);
+    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R) -> Result<CarStateTransitions, InvariantViolated>);
     delegate!(fn start_car_on_lane(
         &mut self,
         time: Tick,
@@ -332,6 +343,7 @@ impl Sim {
             map,
             &self.parking_state,
             &mut self.intersection_state,
+            &mut self.rng,
         ) {
             Ok(transitions) => self.parking_state.handle_transitions(transitions),
             Err(e) => panic!("At {}: {}", self.time, e),
