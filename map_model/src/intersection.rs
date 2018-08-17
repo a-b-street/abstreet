@@ -25,7 +25,8 @@ pub struct Intersection {
     pub elevation: si::Meter<f64>,
     pub has_traffic_signal: bool,
 
-    // Some duplication that's proving convenient so far
+    // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
+    // TODO narrow down when and why. is it just sidewalks in weird cases?
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
 }

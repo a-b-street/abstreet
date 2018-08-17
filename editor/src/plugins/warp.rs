@@ -63,6 +63,10 @@ fn warp(
     canvas: &mut Canvas,
     selection_state: &mut SelectionState,
 ) {
+    if line.is_empty() {
+        return;
+    }
+
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         // TODO express this more succinctly
         Ok(idx) => match line.chars().next().unwrap() {

@@ -1,6 +1,6 @@
 use abstutil::MultiMap;
 use geom::Line;
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
 pub(crate) fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
@@ -16,7 +16,11 @@ fn check_dupes(turns: &Vec<Turn>) {
     let mut ids = HashSet::new();
     for t in turns {
         if ids.contains(&t.id) {
-            panic!("Duplicate turns! {:?}", turns);
+            println!("Duplicate turns!");
+            for turn in turns {
+                println!("  {:?}", turn);
+            }
+            panic!("Duplicate turn {:?}", t.id);
         }
         ids.insert(t.id);
     }
@@ -155,13 +159,19 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
 
     // TODO dedupe some of this logic render/intersection
 
+    // There are some weird cases where a sidewalk is present in both the incoming and outgoing
+    // lanes of an intersection. Dedupe here to avoid creating duplicate turns.
+    let mut all_sidewalks = BTreeSet::new();
+    for id in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
+        if m.get_l(*id).is_sidewalk() {
+            all_sidewalks.insert(*id);
+        }
+    }
+
     // First make all of the crosswalks -- from each incoming and outgoing sidewalk to its other
     // side
-    for id in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
+    for id in &all_sidewalks {
         let src = m.get_l(*id);
-        if src.lane_type != LaneType::Sidewalk {
-            continue;
-        }
         let dst = m.get_l(
             m.get_r(src.parent)
                 .get_opposite_lane(src.id, LaneType::Sidewalk)
@@ -179,21 +189,15 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
     }
 
     // Then all of the immediate connections onto the shared point
-    for id1 in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
+    for id1 in &all_sidewalks {
         let src = m.get_l(*id1);
-        if src.lane_type != LaneType::Sidewalk {
-            continue;
-        }
         let src_pt = src.endpoint(i.id);
-        for id2 in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
+        for id2 in &all_sidewalks {
             if id1 == id2 {
                 continue;
             }
 
             let dst = m.get_l(*id2);
-            if dst.lane_type != LaneType::Sidewalk {
-                continue;
-            }
             let dst_pt = dst.endpoint(i.id);
 
             if src_pt != dst_pt {

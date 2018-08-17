@@ -19,9 +19,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     } else if r.osm_tags.get("highway") == Some(&"primary".to_string())
         || r.osm_tags.get("highway") == Some(&"secondary".to_string())
     {
-        2
+        4
     } else {
-        1
+        2
     };
 
     if junction {
