@@ -294,7 +294,8 @@ impl Car {
         Ok(())
     }
 
-    fn look_for_parking<R: Rng + ?Sized>(&mut self, map: &Map, rng: &mut R) {
+    // Return true if we're just plain stuck :(
+    fn look_for_parking<R: Rng + ?Sized>(&mut self, map: &Map, rng: &mut R) -> bool {
         let last_lane = if self.path.is_empty() {
             match self.on {
                 On::Turn(t) => t.dst,
@@ -307,12 +308,18 @@ impl Car {
         // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
         // to physically see the spots), stay close to the original goal, avoid lanes we've
         // visited, prefer easier turns...
-        let choice = rng.choose(&map.get_next_lanes(last_lane)).unwrap().id;
+        let choices = map.get_next_lanes(last_lane);
+        if choices.is_empty() {
+            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", self.id, last_lane);
+            return true;
+        }
+        let choice = rng.choose(&choices).unwrap().id;
         println!(
             "{} can't find parking on {}, so wandering over to {}",
             self.id, last_lane, choice
         );
         self.path.push_back(choice);
+        false
     }
 }
 
@@ -565,24 +572,29 @@ impl DrivingSimState {
                     }
                 }
                 Action::Continue(accel, ref requests, need_parking) => {
-                    let c = self.cars.get_mut(&id).unwrap();
-                    c.step_continue(accel, map, intersections)?;
-                    // TODO maybe just return TurnID
-                    for req in requests {
-                        // Note this is idempotent and does NOT grant the request.
-                        // TODO should we check that the car is currently the lead vehicle?
-                        // intersection is assuming that! or relax that assumption.
-                        intersections.submit_request(req.clone())?;
+                    let should_remove = {
+                        let c = self.cars.get_mut(&id).unwrap();
+                        c.step_continue(accel, map, intersections)?;
+                        // TODO maybe just return TurnID
+                        for req in requests {
+                            // Note this is idempotent and does NOT grant the request.
+                            // TODO should we check that the car is currently the lead vehicle?
+                            // intersection is assuming that! or relax that assumption.
+                            intersections.submit_request(req.clone())?;
 
-                        // TODO kind of a weird way to figure out when to fill this out...
-                        // duplicated with stop sign's check, also. should check that they're a
-                        // leader vehicle...
-                        if On::Lane(req.turn.src) == c.on && c.speed <= kinematics::EPSILON_SPEED {
-                            c.waiting_for = Some(On::Turn(req.turn));
+                            // TODO kind of a weird way to figure out when to fill this out...
+                            // duplicated with stop sign's check, also. should check that they're a
+                            // leader vehicle...
+                            if On::Lane(req.turn.src) == c.on
+                                && c.speed <= kinematics::EPSILON_SPEED
+                            {
+                                c.waiting_for = Some(On::Turn(req.turn));
+                            }
                         }
-                    }
-                    if need_parking {
-                        c.look_for_parking(map, rng);
+                        need_parking && c.look_for_parking(map, rng)
+                    };
+                    if should_remove {
+                        self.cars.remove(&id);
                     }
                 }
             }
