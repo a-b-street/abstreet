@@ -396,6 +396,13 @@ impl SimQueue {
             .map(|id| *id)
     }
 
+    fn first_car_behind(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
+        self.cars_queue
+            .iter()
+            .find(|id| sim.cars[id].dist_along <= dist)
+            .map(|id| *id)
+    }
+
     fn insert_at(
         &mut self,
         car: CarID,
@@ -633,7 +640,7 @@ impl DrivingSimState {
         Ok(finished_parking)
     }
 
-    // True if we spawned one
+    // True if the car started, false if there wasn't currently room
     pub fn start_car_on_lane(
         &mut self,
         time: Tick,
@@ -647,7 +654,39 @@ impl DrivingSimState {
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
 
-        // TODO verify it's safe to appear here at dist_along and not cause a crash
+        // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
+        // don't hit somebody's back
+        if let Some(other) =
+            self.lanes[start.0].first_car_behind(dist_along + FOLLOWING_DISTANCE, self)
+        {
+            let other_dist = self.cars[&other].dist_along;
+            if other_dist >= dist_along {
+                println!(
+                    "{} can't spawn, because they'd wind up too close ({}) behind {}",
+                    car,
+                    other_dist - dist_along,
+                    other
+                );
+                return false;
+            }
+
+            let vehicle = Vehicle::typical_car();
+            let accel_for_other_to_stop = vehicle.accel_to_follow(
+                self.cars[&other].speed,
+                map.get_parent(start).get_speed_limit(),
+                &vehicle,
+                dist_along - other_dist,
+                0.0 * si::MPS,
+            );
+            if accel_for_other_to_stop <= vehicle.max_deaccel {
+                println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
+                return false;
+            }
+
+            // TODO check that there's not a car elsewhere that's about to wind up here. can check
+            // the intersection for accepted turns to this lane. or, enforce that no parking spots
+            // can exist before the worst-case entry distance (based on the speed limit).
+        }
 
         self.cars.insert(
             car,

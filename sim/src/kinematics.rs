@@ -16,7 +16,7 @@ pub struct Vehicle {
     // > 0
     max_accel: Acceleration,
     // < 0
-    max_deaccel: Acceleration,
+    pub max_deaccel: Acceleration,
 }
 
 impl Vehicle {

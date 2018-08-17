@@ -208,8 +208,13 @@ impl Sim {
     }
 
     pub fn start_parked_car(&mut self, map: &Map, car: CarID) {
-        self.spawner
-            .start_parked_car(self.time, map, car, &self.parking_state, &mut self.rng);
+        self.spawner.start_parked_car(
+            self.time.next(),
+            map,
+            car,
+            &self.parking_state,
+            &mut self.rng,
+        );
     }
 
     pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {

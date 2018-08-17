@@ -65,6 +65,10 @@ struct Flags {
     /// Extra KML to display
     #[structopt(long = "kml")]
     kml: Option<String>,
+
+    /// Optional savestate to load
+    #[structopt(long = "load_from")]
+    load_from: Option<String>,
 }
 
 fn main() {
@@ -110,6 +114,7 @@ fn main() {
                 flags.rng_seed,
                 flags.parametric_sim,
                 flags.kml,
+                flags.load_from,
             ),
         );
     }

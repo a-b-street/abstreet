@@ -8,7 +8,7 @@ use std::time::Instant;
 use walking::WalkingSimState;
 use {AgentID, CarID, PedestrianID, Tick};
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 struct Command {
     at: Tick,
     agent: AgentID,
@@ -99,8 +99,14 @@ impl Spawner {
                             parking_sim.remove_parked_car(parking_lane, *car);
                             spawned_agents += 1;
                         } else {
-                            // TODO try again next tick
-                            println!("No room to start parked {}", car);
+                            // Try again next tick. Because we already slurped up all the commands
+                            // for this tick, the front of the queue is the right spot.
+                            self.commands.push_front(Command {
+                                at: now.next(),
+                                agent: *agent,
+                                start: req.0,
+                                goal: req.1,
+                            });
                         }
                     }
                     AgentID::Pedestrian(ped) => {
@@ -170,6 +176,7 @@ impl Spawner {
             .expect("Parking lane has no driving lane");
 
         let goal = pick_goal(rng, map, driving_lane);
+        // TODO avoid dupe commands
         self.commands.push_back(Command {
             at,
             agent: AgentID::Car(car),

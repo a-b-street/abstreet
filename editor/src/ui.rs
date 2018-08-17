@@ -84,6 +84,7 @@ impl UI {
         rng_seed: Option<u8>,
         parametric_sim: bool,
         kml: Option<String>,
+        load_sim_from: Option<String>,
     ) -> UI {
         let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
@@ -101,7 +102,11 @@ impl UI {
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim_ctrl = SimController::new(&map, rng_seed, parametric_sim);
+        let mut sim_ctrl = SimController::new(&map, rng_seed, parametric_sim);
+        if let Some(path) = load_sim_from {
+            sim_ctrl.sim = abstutil::read_json(&path).expect("loading sim state failed");
+            println!("Loaded {}", path);
+        }
 
         let mut ui = UI {
             map,
