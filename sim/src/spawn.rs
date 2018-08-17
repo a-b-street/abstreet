@@ -8,25 +8,12 @@ use std::time::Instant;
 use walking::WalkingSimState;
 use {AgentID, CarID, PedestrianID, Tick};
 
-// TODO move the stuff in sim that does RNG stuff, picks goals, etc to here. make the UI commands
-// funnel into here and do stuff on the next tick.
-
-// TODO make it a struct, use AgentID ;)
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
-enum Command {
-    // start, goal lane
-    StartParkedCar(Tick, CarID, LaneID, LaneID),
-    // start, goal lanes
-    SpawnPedestrian(Tick, PedestrianID, LaneID, LaneID),
-}
-
-impl Command {
-    fn get_time(&self) -> Tick {
-        match self {
-            Command::StartParkedCar(time, _, _, _) => *time,
-            Command::SpawnPedestrian(time, _, _, _) => *time,
-        }
-    }
+struct Command {
+    at: Tick,
+    agent: AgentID,
+    start: LaneID,
+    goal: LaneID,
 }
 
 // This must get the car/ped IDs correct.
@@ -69,25 +56,12 @@ impl Spawner {
         let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
         loop {
             let pop = if let Some(cmd) = self.commands.front() {
-                match cmd {
-                    Command::StartParkedCar(time, car, start, goal) => {
-                        if now == *time {
-                            spawn_agents.push(AgentID::Car(*car));
-                            requested_paths.push((*start, *goal));
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    Command::SpawnPedestrian(time, ped, start, goal) => {
-                        if now == *time {
-                            spawn_agents.push(AgentID::Pedestrian(*ped));
-                            requested_paths.push((*start, *goal));
-                            true
-                        } else {
-                            false
-                        }
-                    }
+                if now == cmd.at {
+                    spawn_agents.push(cmd.agent);
+                    requested_paths.push((cmd.start, cmd.goal));
+                    true
+                } else {
+                    false
                 }
             } else {
                 false
@@ -187,7 +161,7 @@ impl Spawner {
         rng: &mut R,
     ) {
         if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.get_time());
+            assert!(at >= cmd.at);
         }
 
         let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
@@ -196,8 +170,12 @@ impl Spawner {
             .expect("Parking lane has no driving lane");
 
         let goal = pick_goal(rng, map, driving_lane);
-        self.commands
-            .push_back(Command::StartParkedCar(at, car, driving_lane, goal));
+        self.commands.push_back(Command {
+            at,
+            agent: AgentID::Car(car),
+            start: driving_lane,
+            goal,
+        });
     }
 
     pub fn start_many_parked_cars<R: Rng + ?Sized>(
@@ -235,17 +213,17 @@ impl Spawner {
         rng: &mut R,
     ) {
         if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.get_time());
+            assert!(at >= cmd.at);
         }
         assert!(map.get_l(sidewalk).is_sidewalk());
 
         let goal = pick_goal(rng, map, sidewalk);
-        self.commands.push_back(Command::SpawnPedestrian(
+        self.commands.push_back(Command {
             at,
-            PedestrianID(self.ped_id_counter),
-            sidewalk,
+            agent: AgentID::Pedestrian(PedestrianID(self.ped_id_counter)),
+            start: sidewalk,
             goal,
-        ));
+        });
         self.ped_id_counter += 1;
     }
 
@@ -296,10 +274,8 @@ fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Op
         .map(|(start, goal)| map_model::pathfind(map, *start, *goal))
         .collect();
 
-    println!(
-        "Calculating {} paths took {:?}",
-        paths.len(),
-        timer.elapsed()
-    );
+    let elapsed = timer.elapsed();
+    let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
+    println!("Calculating {} paths took {}s", paths.len(), dt,);
     paths
 }
