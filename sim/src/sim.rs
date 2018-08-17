@@ -6,7 +6,6 @@ use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving;
 use intersections::{AgentInfo, IntersectionSimState};
-use map_model;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
 use parking::ParkingSimState;
@@ -19,7 +18,7 @@ use walking::WalkingSimState;
 use {CarID, CarState, Distance, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
-enum DrivingModel {
+pub enum DrivingModel {
     V1(driving::DrivingSimState),
     V2(parametric_driving::DrivingSimState),
 }
@@ -65,6 +64,16 @@ macro_rules! delegate {
         }
     };
 
+    // Public, mutable, arguments, return type
+    (pub fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
+        pub fn $fxn_name(&mut self, $( $value: $type ),*) -> $ret {
+            match self {
+                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
+                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
+            }
+        }
+    };
+
     // TODO hack, hardcoding the generic type bounds, because I can't figure it out :(
     // Mutable, arguments, return type
     (fn $fxn_name:ident<R: Rng + ?Sized>(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
@@ -98,7 +107,7 @@ impl DrivingModel {
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
     delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R) -> Result<Vec<CarParking>, InvariantViolated>);
-    delegate!(fn start_car_on_lane(
+    delegate!(pub fn start_car_on_lane(
         &mut self,
         time: Tick,
         car: CarID,
@@ -189,93 +198,18 @@ impl Sim {
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        use rayon::prelude::*;
-
-        let mut cars_and_starts: Vec<(CarID, LaneID)> = self.parking_state
-            .get_all_cars()
-            .into_iter()
-            .filter_map(|(car, parking_lane)| {
-                map.get_parent(parking_lane)
-                    .find_driving_lane(parking_lane)
-                    .and_then(|driving_lane| Some((car, driving_lane)))
-            })
-            .collect();
-        if cars_and_starts.is_empty() {
-            return;
-        }
-        self.rng.shuffle(&mut cars_and_starts);
-
-        let driving_lanes: Vec<LaneID> = map.all_lanes()
-            .iter()
-            .filter_map(|l| if l.is_driving() { Some(l.id) } else { None })
-            .collect();
-        let mut requested_paths: Vec<(CarID, LaneID, LaneID)> = Vec::new();
-        for i in 0..num_cars.min(cars_and_starts.len()) {
-            let (car, start) = cars_and_starts[i];
-            let goal = choose_different(&mut self.rng, &driving_lanes, start);
-            requested_paths.push((car, start, goal));
-        }
-
-        println!("Calculating {} paths for cars", requested_paths.len());
-        let timer = Instant::now();
-        let paths: Vec<(CarID, Option<Vec<LaneID>>)> = requested_paths
-            .par_iter()
-            .map(|(car, start, goal)| (*car, map_model::pathfind(map, *start, *goal)))
-            .collect();
-
-        let mut actual = 0;
-        for (car, path) in paths.into_iter() {
-            if let Some(steps) = path {
-                if self.start_parked_car_with_path(car, map, steps) {
-                    actual += 1;
-                }
-            } else {
-                println!("Failed to pathfind for {}", car);
-            };
-        }
-
-        println!(
-            "Calculating {} car paths took {:?}",
-            requested_paths.len(),
-            timer.elapsed()
-        );
-        println!("Started {} parked cars of requested {}", actual, num_cars);
-    }
-
-    fn start_parked_car_with_path(&mut self, car: CarID, map: &Map, steps: Vec<LaneID>) -> bool {
-        let driving_lane = steps[0];
-        let parking_lane = map.get_parent(driving_lane)
-            .find_parking_lane(driving_lane)
-            .unwrap();
-        let spot = self.parking_state.get_spot_of_car(car, parking_lane);
-
-        if self.driving_state.start_car_on_lane(
-            self.time,
-            car,
-            CarParking::new(car, spot),
-            VecDeque::from(steps),
+        self.spawner.start_many_parked_cars(
+            self.time.next(),
             map,
-        ) {
-            self.parking_state.remove_parked_car(parking_lane, car);
-            true
-        } else {
-            false
-        }
+            num_cars,
+            &mut self.rng,
+            &self.parking_state,
+        );
     }
 
-    pub fn start_parked_car(&mut self, map: &Map, car: CarID) -> bool {
-        let parking_lane = self.parking_state
-            .lane_of_car(car)
-            .expect("Car isn't parked");
-        let road = map.get_parent(parking_lane);
-        let driving_lane = road.find_driving_lane(parking_lane)
-            .expect("Parking lane has no driving lane");
-
-        if let Some(path) = pick_goal_and_find_path(&mut self.rng, map, driving_lane) {
-            self.start_parked_car_with_path(car, map, path)
-        } else {
-            false
-        }
+    pub fn start_parked_car(&mut self, map: &Map, car: CarID) {
+        self.spawner
+            .start_parked_car(self.time, map, car, &self.parking_state, &mut self.rng);
     }
 
     pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {
@@ -296,6 +230,7 @@ impl Sim {
             map,
             &mut self.parking_state,
             &mut self.walking_state,
+            &mut self.driving_state,
         );
 
         match self.driving_state.step(
@@ -434,45 +369,6 @@ pub struct Benchmark {
 impl Benchmark {
     pub fn has_real_time_passed(&self, d: Duration) -> bool {
         self.last_real_time.elapsed() >= d
-    }
-}
-
-fn choose_different<R: Rng + ?Sized, T: PartialEq + Copy>(
-    rng: &mut R,
-    choices: &Vec<T>,
-    except: T,
-) -> T {
-    assert!(choices.len() > 1);
-    loop {
-        let choice = *rng.choose(choices).unwrap();
-        if choice != except {
-            return choice;
-        }
-    }
-}
-
-fn pick_goal_and_find_path<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    start: LaneID,
-) -> Option<Vec<LaneID>> {
-    let lane_type = map.get_l(start).lane_type;
-    let candidate_goals: Vec<LaneID> = map.all_lanes()
-        .iter()
-        .filter_map(|l| {
-            if l.lane_type != lane_type || l.id == start {
-                None
-            } else {
-                Some(l.id)
-            }
-        })
-        .collect();
-    let goal = rng.choose(&candidate_goals).unwrap();
-    if let Some(steps) = map_model::pathfind(map, start, *goal) {
-        Some(steps)
-    } else {
-        println!("No path from {} to {} ({:?})", start, goal, lane_type);
-        None
     }
 }
 

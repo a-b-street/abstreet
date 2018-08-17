@@ -2,19 +2,20 @@ use map_model;
 use map_model::{LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
-use sim::CarParking;
+use sim::{CarParking, DrivingModel};
 use std::collections::VecDeque;
 use std::time::Instant;
 use walking::WalkingSimState;
-use {CarID, PedestrianID, Tick};
+use {AgentID, CarID, PedestrianID, Tick};
 
 // TODO move the stuff in sim that does RNG stuff, picks goals, etc to here. make the UI commands
 // funnel into here and do stuff on the next tick.
 
+// TODO make it a struct, use AgentID ;)
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 enum Command {
-    // goal lane
-    StartParkedCar(Tick, CarID, LaneID),
+    // start, goal lane
+    StartParkedCar(Tick, CarID, LaneID, LaneID),
     // start, goal lanes
     SpawnPedestrian(Tick, PedestrianID, LaneID, LaneID),
 }
@@ -22,7 +23,7 @@ enum Command {
 impl Command {
     fn get_time(&self) -> Tick {
         match self {
-            Command::StartParkedCar(time, _, _) => *time,
+            Command::StartParkedCar(time, _, _, _) => *time,
             Command::SpawnPedestrian(time, _, _, _) => *time,
         }
     }
@@ -58,23 +59,29 @@ impl Spawner {
         map: &Map,
         parking_sim: &mut ParkingSimState,
         walking_sim: &mut WalkingSimState,
+        driving_sim: &mut DrivingModel,
     ) {
         for p in self.spawn_parked_cars.drain(0..) {
             parking_sim.add_parked_car(p);
         }
 
-        let mut spawn_peds: Vec<PedestrianID> = Vec::new();
+        let mut spawn_agents: Vec<AgentID> = Vec::new();
         let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
         loop {
             let pop = if let Some(cmd) = self.commands.front() {
                 match cmd {
-                    Command::StartParkedCar(time, car, goal) => {
-                        println!("TODO");
-                        false
+                    Command::StartParkedCar(time, car, start, goal) => {
+                        if now == *time {
+                            spawn_agents.push(AgentID::Car(*car));
+                            requested_paths.push((*start, *goal));
+                            true
+                        } else {
+                            false
+                        }
                     }
                     Command::SpawnPedestrian(time, ped, start, goal) => {
                         if now == *time {
-                            spawn_peds.push(*ped);
+                            spawn_agents.push(AgentID::Pedestrian(*ped));
                             requested_paths.push((*start, *goal));
                             true
                         } else {
@@ -91,25 +98,53 @@ impl Spawner {
                 break;
             }
         }
-
-        if requested_paths.is_empty() {
+        if spawn_agents.is_empty() {
             return;
         }
-
         let paths = calculate_paths(&requested_paths, map);
-        let mut spawned_peds = 0;
-        for (ped, (req, maybe_path)) in spawn_peds.iter().zip(requested_paths.iter().zip(paths)) {
+
+        let mut spawned_agents = 0;
+        for (agent, (req, maybe_path)) in spawn_agents.iter().zip(requested_paths.iter().zip(paths))
+        {
             if let Some(path) = maybe_path {
-                walking_sim.seed_pedestrian(*ped, map, VecDeque::from(path));
-                spawned_peds += 1;
+                match agent {
+                    AgentID::Car(car) => {
+                        let driving_lane = path[0];
+                        let parking_lane = map.get_parent(driving_lane)
+                            .find_parking_lane(driving_lane)
+                            .unwrap();
+                        let spot = parking_sim.get_spot_of_car(*car, parking_lane);
+
+                        if driving_sim.start_car_on_lane(
+                            now,
+                            *car,
+                            CarParking::new(*car, spot),
+                            VecDeque::from(path),
+                            map,
+                        ) {
+                            parking_sim.remove_parked_car(parking_lane, *car);
+                            spawned_agents += 1;
+                        } else {
+                            // TODO try again next tick
+                            println!("No room to start parked {}", car);
+                        }
+                    }
+                    AgentID::Pedestrian(ped) => {
+                        walking_sim.seed_pedestrian(*ped, map, VecDeque::from(path));
+                        spawned_agents += 1;
+                    }
+                };
             } else {
-                println!("Couldn't find path from {} to {} for {}", req.0, req.1, ped);
+                println!(
+                    "Couldn't find path from {} to {} for {:?}",
+                    req.0, req.1, agent
+                );
             }
         }
         println!(
-            "Spawned {} pedestrians of requested {}",
-            spawned_peds,
-            spawn_peds.len()
+            "Spawned {} agents of requested {}",
+            spawned_agents,
+            spawn_agents.len()
         );
     }
 
@@ -143,6 +178,55 @@ impl Spawner {
         );
     }
 
+    pub fn start_parked_car<R: Rng + ?Sized>(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        car: CarID,
+        parking_sim: &ParkingSimState,
+        rng: &mut R,
+    ) {
+        if let Some(cmd) = self.commands.back() {
+            assert!(at >= cmd.get_time());
+        }
+
+        let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
+        let road = map.get_parent(parking_lane);
+        let driving_lane = road.find_driving_lane(parking_lane)
+            .expect("Parking lane has no driving lane");
+
+        let goal = pick_goal(rng, map, driving_lane);
+        self.commands
+            .push_back(Command::StartParkedCar(at, car, driving_lane, goal));
+    }
+
+    pub fn start_many_parked_cars<R: Rng + ?Sized>(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        num: usize,
+        rng: &mut R,
+        parking_sim: &ParkingSimState,
+    ) {
+        let mut cars: Vec<CarID> = parking_sim
+            .get_all_cars()
+            .into_iter()
+            .filter_map(|(car, parking_lane)| {
+                map.get_parent(parking_lane)
+                    .find_driving_lane(parking_lane)
+                    .and_then(|_driving_lane| Some(car))
+            })
+            .collect();
+        if cars.is_empty() {
+            return;
+        }
+        rng.shuffle(&mut cars);
+
+        for car in &cars[0..num.min(cars.len())] {
+            self.start_parked_car(at, map, *car, parking_sim, rng);
+        }
+    }
+
     pub fn spawn_pedestrian<R: Rng + ?Sized>(
         &mut self,
         at: Tick,
@@ -163,7 +247,6 @@ impl Spawner {
             goal,
         ));
         self.ped_id_counter += 1;
-        println!("Spawned a pedestrian at {}", sidewalk);
     }
 
     pub fn spawn_many_pedestrians<R: Rng + ?Sized>(
@@ -173,10 +256,6 @@ impl Spawner {
         num: usize,
         rng: &mut R,
     ) {
-        if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.get_time());
-        }
-
         let mut sidewalks: Vec<LaneID> = Vec::new();
         for l in map.all_lanes() {
             if l.is_sidewalk() {
