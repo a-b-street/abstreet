@@ -169,6 +169,18 @@ impl Spawner {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at);
         }
+        // Don't add duplicate commands.
+        if self.commands
+            .iter()
+            .find(|cmd| cmd.agent == AgentID::Car(car))
+            .is_some()
+        {
+            println!(
+                "{} is already scheduled to start, ignoring new request",
+                car
+            );
+            return;
+        }
 
         let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
         let road = map.get_parent(parking_lane);
@@ -176,7 +188,6 @@ impl Spawner {
             .expect("Parking lane has no driving lane");
 
         let goal = pick_goal(rng, map, driving_lane);
-        // TODO avoid dupe commands
         self.commands.push_back(Command {
             at,
             agent: AgentID::Car(car),
