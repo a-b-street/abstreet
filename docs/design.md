@@ -531,3 +531,20 @@ everything (aka u8 or whatever).
 - acceleration
 	- can be negative
 	- what should the resolution be?
+
+## Simulation unit tests
+
+To encourage testing, it should be easy to:
+	- describe a setup
+	- assert what the outcome should be
+		- sometimes just that no runtime invariants are broken
+	- pop up a UI to interactively step through the test
+
+Some first tests to write:
+	= car starting with no path on road with no parking spots, ensure they wind up parking at the first spot on some
+	side street            
+	- car stops for departing car (winds up following it)
+	- departing car waits for other car (winds up following it)
+	- a line of cars moving through a stop sign looks jittery right now. correct or not?
+
+Unclear how to nicely let the test inspect stuff every tick.

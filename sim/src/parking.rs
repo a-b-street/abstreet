@@ -43,6 +43,18 @@ impl ParkingSimState {
         self.total_count
     }
 
+    pub fn get_all_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
+        let mut spots: Vec<ParkingSpot> = Vec::new();
+        for (idx, front) in self.lanes[lane.0].spot_fronts.iter().enumerate() {
+            spots.push(ParkingSpot {
+                parking_lane: lane,
+                spot_idx: idx,
+                dist_along: front.0,
+            });
+        }
+        spots
+    }
+
     pub fn get_all_free_spots(&self) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for l in &self.lanes {

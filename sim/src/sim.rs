@@ -197,6 +197,11 @@ impl Sim {
             .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng);
     }
 
+    pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
+        self.spawner
+            .seed_specific_parked_cars(lane, spots, &mut self.parking_state)
+    }
+
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
         self.spawner.start_many_parked_cars(
             self.time.next(),
@@ -217,6 +222,16 @@ impl Sim {
         );
     }
 
+    pub fn start_parked_car_with_goal(&mut self, map: &Map, car: CarID, goal: LaneID) {
+        self.spawner.start_parked_car_with_goal(
+            self.time.next(),
+            map,
+            car,
+            &self.parking_state,
+            goal,
+        );
+    }
+
     pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {
         self.spawner
             .spawn_pedestrian(self.time.next(), map, sidewalk, &mut self.rng);
@@ -227,7 +242,8 @@ impl Sim {
             .spawn_many_pedestrians(self.time.next(), map, num, &mut self.rng);
     }
 
-    pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
+    // TODO not sure returning info for tests like this is ideal
+    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<CarParking> {
         self.time = self.time.next();
 
         self.spawner.step(
@@ -238,6 +254,7 @@ impl Sim {
             &mut self.driving_state,
         );
 
+        let mut cars_parked_this_step: Vec<CarParking> = Vec::new();
         match self.driving_state.step(
             self.time,
             map,
@@ -246,6 +263,7 @@ impl Sim {
             &mut self.rng,
         ) {
             Ok(parked_cars) => for p in parked_cars {
+                cars_parked_this_step.push(p.clone());
                 self.parking_state.add_parked_car(p);
             },
             Err(e) => panic!("At {}: {}", self.time, e),
@@ -270,6 +288,8 @@ impl Sim {
 
         self.intersection_state
             .step(self.time, map, control_map, info);
+
+        cars_parked_this_step
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -377,7 +397,7 @@ impl Benchmark {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, Derivative)]
+#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
 pub struct ParkingSpot {
     pub parking_lane: LaneID,
@@ -388,7 +408,7 @@ pub struct ParkingSpot {
 }
 
 // TODO better name?
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct CarParking {
     pub car: CarID,
     pub spot: ParkingSpot,

@@ -31,7 +31,10 @@ pub struct Map {
 impl Map {
     pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
         let data: raw_data::Map = abstutil::read_binary(path)?;
+        Ok(Map::create_from_raw(data, edits))
+    }
 
+    pub fn create_from_raw(data: raw_data::Map, edits: &Edits) -> Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
             bounds,
@@ -165,7 +168,7 @@ impl Map {
             });
         }
 
-        Ok(m)
+        m
     }
 
     pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {

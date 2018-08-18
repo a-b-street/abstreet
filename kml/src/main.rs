@@ -23,6 +23,7 @@ fn main() {
         max_x: -122.2421,
         min_y: 47.5793,
         max_y: 47.7155,
+        represents_world_space: false,
     };
     // TODO could use a better output format now
     let mut map = map_model::raw_data::Map::blank();

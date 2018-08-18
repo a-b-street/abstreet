@@ -9,6 +9,9 @@ pub struct Bounds {
     pub min_y: f64,
     pub max_x: f64,
     pub max_y: f64,
+
+    // TODO hack to easily construct test maps
+    pub represents_world_space: bool,
 }
 
 impl Bounds {
@@ -18,6 +21,7 @@ impl Bounds {
             min_y: f64::MAX,
             max_x: f64::MIN,
             max_y: f64::MIN,
+            represents_world_space: false,
         }
     }
 

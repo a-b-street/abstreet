@@ -26,6 +26,11 @@ impl Pt2D {
     }
 
     pub fn from_gps(gps: &LonLat, b: &Bounds) -> Pt2D {
+        // TODO hack to construct test maps more easily
+        if b.represents_world_space {
+            return Pt2D::new(gps.longitude, gps.latitude);
+        }
+
         // If not, havoc ensues
         assert!(b.contains(gps.longitude, gps.latitude));
 

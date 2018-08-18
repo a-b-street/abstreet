@@ -158,13 +158,33 @@ impl Spawner {
         );
     }
 
-    pub fn start_parked_car<R: Rng + ?Sized>(
+    pub fn seed_specific_parked_cars(
+        &mut self,
+        lane: LaneID,
+        spot_indices: Vec<usize>,
+        parking_sim: &mut ParkingSimState,
+    ) -> Vec<CarID> {
+        assert!(self.spawn_parked_cars.is_empty());
+        let spots = parking_sim.get_all_spots(lane);
+        spot_indices
+            .into_iter()
+            .map(|idx| {
+                let id = CarID(self.car_id_counter);
+                parking_sim.add_parked_car(CarParking::new(id, spots[idx].clone()));
+                // TODO push onto spawn_parked_cars?
+                self.car_id_counter += 1;
+                id
+            })
+            .collect()
+    }
+
+    pub fn start_parked_car_with_goal(
         &mut self,
         at: Tick,
         map: &Map,
         car: CarID,
         parking_sim: &ParkingSimState,
-        rng: &mut R,
+        goal: LaneID,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at);
@@ -187,13 +207,29 @@ impl Spawner {
         let driving_lane = road.find_driving_lane(parking_lane)
             .expect("Parking lane has no driving lane");
 
-        let goal = pick_goal(rng, map, driving_lane);
         self.commands.push_back(Command {
             at,
             agent: AgentID::Car(car),
             start: driving_lane,
             goal,
         });
+    }
+
+    pub fn start_parked_car<R: Rng + ?Sized>(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        car: CarID,
+        parking_sim: &ParkingSimState,
+        rng: &mut R,
+    ) {
+        let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
+        let road = map.get_parent(parking_lane);
+        let driving_lane = road.find_driving_lane(parking_lane)
+            .expect("Parking lane has no driving lane");
+
+        let goal = pick_goal(rng, map, driving_lane);
+        self.start_parked_car_with_goal(at, map, car, parking_sim, goal);
     }
 
     pub fn start_many_parked_cars<R: Rng + ?Sized>(

@@ -8,6 +8,8 @@ pub struct Map {
     pub intersections: Vec<Intersection>,
     pub buildings: Vec<Building>,
     pub parcels: Vec<Parcel>,
+
+    pub coordinates_in_world_space: bool,
 }
 
 impl Map {
@@ -17,6 +19,7 @@ impl Map {
             intersections: Vec::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
+            coordinates_in_world_space: false,
         }
     }
 
@@ -41,6 +44,8 @@ impl Map {
                 bounds.update_coord(pt);
             }
         }
+
+        bounds.represents_world_space = self.coordinates_in_world_space;
 
         bounds
     }
