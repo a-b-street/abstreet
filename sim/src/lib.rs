@@ -81,6 +81,39 @@ impl Tick {
         Tick(ticks)
     }
 
+    pub fn parse(string: &str) -> Option<Tick> {
+        let parts: Vec<&str> = string.split(":").collect();
+        if parts.is_empty() {
+            return None;
+        }
+
+        let mut ticks: u32 = 0;
+        if parts.last().unwrap().contains(".") {
+            let last_parts: Vec<&str> = parts.last().unwrap().split(".").collect();
+            if last_parts.len() != 2 {
+                return None;
+            }
+            ticks += u32::from_str_radix(last_parts[1], 10).ok()?;
+            ticks += 10 * u32::from_str_radix(last_parts[0], 10).ok()?;
+        } else {
+            ticks += 10 * u32::from_str_radix(parts.last().unwrap(), 10).ok()?;
+        }
+
+        match parts.len() {
+            1 => Some(Tick(ticks)),
+            2 => {
+                ticks += 60 * 10 * u32::from_str_radix(parts[0], 10).ok()?;
+                Some(Tick(ticks))
+            }
+            3 => {
+                ticks += 60 * 10 * u32::from_str_radix(parts[1], 10).ok()?;
+                ticks += 60 * 60 * 10 * u32::from_str_radix(parts[0], 10).ok()?;
+                Some(Tick(ticks))
+            }
+            _ => None,
+        }
+    }
+
     pub fn as_time(&self) -> Time {
         (self.0 as f64) * TIMESTEP
     }
@@ -115,9 +148,34 @@ impl std::ops::Sub for Tick {
 
 impl std::fmt::Display for Tick {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        // TODO switch to minutes and hours when this gets big
-        write!(f, "{0:.1}s", (self.0 as f64) * TIMESTEP.value_unsafe)
+        // TODO hardcoding these to avoid floating point issues... urgh. :\
+        let ticks_per_second = 10;
+        let ticks_per_minute = 60 * ticks_per_second;
+        let ticks_per_hour = 60 * ticks_per_minute;
+
+        let hours = self.0 / ticks_per_hour;
+        let mut remainder = self.0 % ticks_per_hour;
+        let minutes = remainder / ticks_per_minute;
+        remainder = remainder % ticks_per_minute;
+        let seconds = remainder / ticks_per_second;
+        remainder = remainder % ticks_per_second;
+
+        write!(
+            f,
+            "{0:02}:{1:02}:{2:02}.{3}",
+            hours, minutes, seconds, remainder
+        )
     }
+}
+
+#[test]
+fn time_parsing() {
+    assert_eq!(Tick::parse("2.3"), Some(Tick(23)));
+    assert_eq!(Tick::parse("02.3"), Some(Tick(23)));
+    assert_eq!(Tick::parse("00:00:02.3"), Some(Tick(23)));
+
+    assert_eq!(Tick::parse("00:02:03.5"), Some(Tick(35 + 1200)));
+    assert_eq!(Tick::parse("01:02:03.5"), Some(Tick(35 + 1200 + 36000)));
 }
 
 // TODO this name isn't quite right :)

@@ -22,7 +22,7 @@ struct Flags {
 
     /// Optional time to savestate
     #[structopt(long = "save_at")]
-    save_at: Option<u32>,
+    save_at: Option<String>,
 
     /// Optional savestate to load
     #[structopt(long = "load_from")]
@@ -59,6 +59,16 @@ fn main() {
         }
     }
 
+    let save_at = if let Some(ref time_str) = flags.save_at {
+        if let Some(t) = sim::Tick::parse(time_str) {
+            Some(t)
+        } else {
+            panic!("Couldn't parse time {}", time_str);
+        }
+    } else {
+        None
+    };
+
     let mut benchmark = sim.start_benchmark();
     loop {
         sim.step(&map, &control_map);
@@ -66,11 +76,9 @@ fn main() {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }
-        if let Some(ticks) = flags.save_at {
-            if sim.time == sim::Tick::from_raw(ticks) {
-                abstutil::write_json("sim_state", &sim).expect("Writing sim state failed");
-                println!("Wrote sim_state at {}", sim.time);
-            }
+        if Some(sim.time) == save_at {
+            abstutil::write_json("sim_state", &sim).expect("Writing sim state failed");
+            println!("Wrote sim_state at {}", sim.time);
         }
     }
 }

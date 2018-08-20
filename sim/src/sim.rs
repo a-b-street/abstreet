@@ -247,7 +247,7 @@ impl Sim {
         let (waiting_cars, active_cars) = self.driving_state.get_active_and_waiting_count();
         let (waiting_peds, active_peds) = self.walking_state.get_active_and_waiting_count();
         format!(
-            "Time: {0:.2}, {1} / {2} active cars waiting, {3} cars parked, {4} / {5} pedestrians waiting",
+            "Time: {0}, {1} / {2} active cars waiting, {3} cars parked, {4} / {5} pedestrians waiting",
             self.time,
             waiting_cars,
             active_cars,
