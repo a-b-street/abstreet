@@ -15,9 +15,10 @@ const MAX_CAR_LENGTH: Distance = si::Meter {
     _marker: std::marker::PhantomData,
 };
 
-// At all speeds (including at rest), cars must be at least this far apart.
-pub const FOLLOWING_DISTANCE: Distance = si::Meter {
-    value_unsafe: 8.0,
+// At all speeds (including at rest), cars must be at least this far apart, measured from front of
+// one car to the back of the other.
+const FOLLOWING_DISTANCE: Distance = si::Meter {
+    value_unsafe: 1.0,
     _marker: std::marker::PhantomData,
 };
 
@@ -54,6 +55,10 @@ impl Vehicle {
             // TODO more realistic to have a few preset lengths and choose between them
             length: rng.gen_range(4.5, MAX_CAR_LENGTH.value_unsafe) * si::M,
         }
+    }
+
+    pub fn worst_case_following_dist() -> Distance {
+        MAX_CAR_LENGTH + FOLLOWING_DISTANCE
     }
 
     pub fn clamp_accel(&self, accel: Acceleration) -> Acceleration {
@@ -138,6 +143,11 @@ impl Vehicle {
         dist_at_constant_accel(self.max_deaccel, TIMESTEP, current_speed)
     }
 
+    // Relative to the front of the car
+    pub fn following_dist(&self) -> Distance {
+        self.length + FOLLOWING_DISTANCE
+    }
+
     pub fn accel_to_follow(
         &self,
         our_speed: Speed,
@@ -161,7 +171,7 @@ impl Vehicle {
         // TODO this optimizes for next tick, so we're playing it really
         // conservative here... will that make us fluctuate more?
         let projected_dist_from_them = dist_behind_other - most_we_could_go + least_they_could_go;
-        let desired_dist_btwn = us_worst_dist + FOLLOWING_DISTANCE;
+        let desired_dist_btwn = us_worst_dist + other.following_dist();
 
         // Positive = speed up, zero = go their speed, negative = slow down
         let delta_dist = projected_dist_from_them - desired_dist_btwn;

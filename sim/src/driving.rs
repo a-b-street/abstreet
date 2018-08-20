@@ -5,7 +5,7 @@ use draw_car::DrawCar;
 use geom::EPSILON_DIST;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
-use kinematics::{Vehicle, FOLLOWING_DISTANCE};
+use kinematics::Vehicle;
 use map_model::geometry::LANE_THICKNESS;
 use map_model::{LaneID, Map, TurnID};
 use multimap::MultiMap;
@@ -112,9 +112,8 @@ impl Car {
 
         // TODO could wrap this state up
         let mut current_speed_limit = self.on.speed_limit(map);
-        // Of course we have to include FOLLOWING_DISTANCE
-        let mut dist_to_lookahead =
-            vehicle.max_lookahead_dist(self.speed, current_speed_limit) + FOLLOWING_DISTANCE;
+        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit)
+            + Vehicle::worst_case_following_dist();
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
@@ -146,14 +145,15 @@ impl Car {
             if let Some(other) = sim.next_car_in_front_of(current_on, current_dist_along) {
                 assert!(self != other);
                 assert!(current_dist_along < other.dist_along);
+                let other_vehicle = &properties[&other.id];
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
                 // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
-                if dist_to_lookahead + FOLLOWING_DISTANCE >= dist_behind_other {
+                if dist_to_lookahead + other_vehicle.following_dist() >= dist_behind_other {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
                         current_speed_limit,
-                        &properties[&other.id],
+                        other_vehicle,
                         dist_behind_other,
                         other.speed,
                     );
@@ -335,7 +335,8 @@ impl SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
-            capacity: ((id.length(map) / FOLLOWING_DISTANCE).ceil() as usize).max(1),
+            capacity: ((id.length(map) / Vehicle::worst_case_following_dist()).ceil() as usize)
+                .max(1),
         }
     }
 
@@ -346,6 +347,7 @@ impl SimQueue {
         &mut self,
         ids: &Vec<CarID>,
         cars: &BTreeMap<CarID, Car>,
+        properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
 
@@ -365,9 +367,10 @@ impl SimQueue {
         // assert here we're not squished together too much
         for slice in self.cars_queue.windows(2) {
             let (c1, c2) = (slice[0], slice[1]);
+            let following_dist = properties[&c1].following_dist();
             let (dist1, dist2) = (cars[&c1].dist_along, cars[&c2].dist_along);
-            if dist1 - dist2 < FOLLOWING_DISTANCE {
-                return Err(InvariantViolated(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, FOLLOWING_DISTANCE, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
+            if dist1 - dist2 < following_dist {
+                return Err(InvariantViolated(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
             }
         }
         Ok(())
@@ -632,17 +635,16 @@ impl DrivingSimState {
         // Reset all queues
         for l in &mut self.lanes {
             if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
-                l.reset(v, &self.cars)?;
+                l.reset(v, &self.cars, properties)?;
             } else {
-                l.reset(&Vec::new(), &self.cars)?;
+                l.reset(&Vec::new(), &self.cars, properties)?;
             }
-            //l.reset(cars_per_lane.get_vec(&l.id).unwrap_or_else(|| &Vec::new()), &self.cars);
         }
         for t in self.turns.values_mut() {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
-                t.reset(v, &self.cars)?;
+                t.reset(v, &self.cars, properties)?;
             } else {
-                t.reset(&Vec::new(), &self.cars)?;
+                t.reset(&Vec::new(), &self.cars, properties)?;
             }
         }
 
@@ -669,8 +671,8 @@ impl DrivingSimState {
 
         // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
         // don't hit somebody's back
-        if let Some(other) =
-            self.lanes[start.0].first_car_behind(dist_along + FOLLOWING_DISTANCE, self)
+        if let Some(other) = self.lanes[start.0]
+            .first_car_behind(dist_along + Vehicle::worst_case_following_dist(), self)
         {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= dist_along {
