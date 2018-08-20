@@ -26,7 +26,6 @@ mod draw_ped;
 mod driving;
 mod intersections;
 mod kinematics;
-mod models;
 mod parking;
 mod sim;
 mod spawn;

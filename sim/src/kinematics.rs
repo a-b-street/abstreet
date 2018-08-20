@@ -1,6 +1,5 @@
 use dimensioned::si;
 use geom::EPSILON_DIST;
-use models::FOLLOWING_DISTANCE;
 use rand::Rng;
 use std;
 use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
@@ -11,8 +10,14 @@ pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
 };
 
 // This must be < PARKING_SPOT_LENGTH
-pub const MAX_CAR_LENGTH: Distance = si::Meter {
+const MAX_CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 6.5,
+    _marker: std::marker::PhantomData,
+};
+
+// At all speeds (including at rest), cars must be at least this far apart.
+pub const FOLLOWING_DISTANCE: Distance = si::Meter {
+    value_unsafe: 8.0,
     _marker: std::marker::PhantomData,
 };
 

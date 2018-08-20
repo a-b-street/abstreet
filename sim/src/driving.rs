@@ -5,10 +5,9 @@ use draw_car::DrawCar;
 use geom::EPSILON_DIST;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
-use kinematics::Vehicle;
+use kinematics::{Vehicle, FOLLOWING_DISTANCE};
 use map_model::geometry::LANE_THICKNESS;
 use map_model::{LaneID, Map, TurnID};
-use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::{ParkingSimState, ParkingSpot};
@@ -192,8 +191,7 @@ impl Car {
                     let should_stop = if current_path.is_empty() {
                         true
                     } else {
-                        let req =
-                            Request::for_car(self.id, choose_turn(&current_path, &None, id, map));
+                        let req = Request::for_car(self.id, choose_turn(&current_path, id, map));
                         let granted = intersections.request_granted(req.clone());
                         if !granted {
                             // Otherwise, we wind up submitting a request at the end of our step, after
@@ -225,7 +223,7 @@ impl Car {
                     current_path.pop_front();
                     On::Lane(map.get_t(t).dst)
                 }
-                On::Lane(l) => On::Turn(choose_turn(&current_path, &None, l, map)),
+                On::Lane(l) => On::Turn(choose_turn(&current_path, l, map)),
             };
             current_speed_limit = current_on.speed_limit(map);
             current_dist_along = 0.0 * si::M;
@@ -269,7 +267,7 @@ impl Car {
             }
             let next_on = match self.on {
                 On::Turn(t) => On::Lane(map.get_t(t).dst),
-                On::Lane(l) => On::Turn(choose_turn(&self.path, &None, l, map)),
+                On::Lane(l) => On::Turn(choose_turn(&self.path, l, map)),
             };
 
             if let On::Turn(t) = self.on {
@@ -795,4 +793,13 @@ impl DrivingSimState {
             On::Turn(id) => self.turns[&id].next_car_in_front_of(dist, self),
         }.map(|id| &self.cars[&id])
     }
+}
+
+fn choose_turn(path: &VecDeque<LaneID>, from: LaneID, map: &Map) -> TurnID {
+    for t in map.get_turns_from_lane(from) {
+        if t.dst == path[0] {
+            return t.id;
+        }
+    }
+    panic!("No turn from {} to {}", from, path[0]);
 }
