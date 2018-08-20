@@ -239,7 +239,10 @@ impl Car {
                 .unwrap(),
         );
         if self.debug {
-            println!("At {}, {} chose {}", time, self.id, safe_accel);
+            println!(
+                "At {}, {} chose {}, with current speed {}",
+                time, self.id, safe_accel, self.speed
+            );
         }
 
         Action::Continue(safe_accel, requests, need_parking)

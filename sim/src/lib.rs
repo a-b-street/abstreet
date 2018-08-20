@@ -25,7 +25,8 @@ mod draw_car;
 mod draw_ped;
 mod driving;
 mod intersections;
-mod kinematics;
+// TODO pub only for tests...
+pub mod kinematics;
 mod parking;
 mod sim;
 mod spawn;

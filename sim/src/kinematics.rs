@@ -34,7 +34,7 @@ pub struct Vehicle {
     pub id: CarID,
 
     // > 0
-    max_accel: Acceleration,
+    pub max_accel: Acceleration,
     // < 0
     pub max_deaccel: Acceleration,
 
@@ -111,7 +111,10 @@ impl Vehicle {
         let normal_case: Acceleration = (-1.0 * speed * speed) / (2.0 * dist);
         let required_time: Time = -1.0 * speed / normal_case;
 
-        if !required_time.value_unsafe.is_nan() {
+        // TODO If we don't restrict required_time from growing arbitrarily high, then it takes an
+        // absurd amount of time to finish, with tiny little steps. But need to tune and understand
+        // this value better.
+        if !required_time.value_unsafe.is_nan() && required_time < 10.0 * si::S {
             return normal_case;
         }
 

@@ -562,3 +562,11 @@ Wait, length of car affects parking pretty critically. A bunch of things plumb
 around the precomputed front of the spot, used for drawing and for cars to line
 up their front in the sim. I think we need to plumb the true start of the spot
 and have a method to interpolate and pick the true front.
+
+## Trips
+
+Time to get even more multi-modal / multi-phase!
+
+- all trips begin and end at a building
+	- so first lets make all building paths go to a sidewalk. ignoring st
+	  name seems reasonable, since some buildings lack names anyway.
