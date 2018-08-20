@@ -6,12 +6,13 @@ use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving;
 use intersections::{AgentInfo, IntersectionSimState};
+use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
 use parking::ParkingSimState;
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use spawn::Spawner;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
@@ -106,18 +107,19 @@ impl DrivingModel {
     delegate!(fn edit_add_lane(&mut self, id: LaneID));
     delegate!(fn edit_remove_turn(&mut self, id: TurnID));
     delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R) -> Result<Vec<CarParking>, InvariantViolated>);
+    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R, properties: &BTreeMap<CarID, Vehicle>) -> Result<Vec<CarParking>, InvariantViolated>);
     delegate!(pub fn start_car_on_lane(
         &mut self,
         time: Tick,
         car: CarID,
         parking: CarParking,
         path: VecDeque<LaneID>,
-        map: &Map
+        map: &Map,
+        properties: &BTreeMap<CarID, Vehicle>
     ) -> bool);
-    delegate!(fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar>);
-    delegate!(fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar>);
-    delegate!(fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar>);
+    delegate!(fn get_draw_car(&self, id: CarID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Option<DrawCar>);
+    delegate!(fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCar>);
+    delegate!(fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCar>);
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -134,6 +136,8 @@ pub struct Sim {
     driving_state: DrivingModel,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
+
+    car_properties: BTreeMap<CarID, Vehicle>,
 }
 
 impl Sim {
@@ -157,6 +161,7 @@ impl Sim {
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
             time: Tick::zero(),
+            car_properties: BTreeMap::new(),
         }
     }
 
@@ -193,13 +198,24 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
-        self.spawner
-            .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng);
+        for v in self.spawner
+            .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng)
+            .into_iter()
+        {
+            self.car_properties.insert(v.id, v);
+        }
     }
 
     pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
-        self.spawner
-            .seed_specific_parked_cars(lane, spots, &mut self.parking_state)
+        let mut ids = Vec::new();
+        for v in self.spawner
+            .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
+            .into_iter()
+        {
+            ids.push(v.id);
+            self.car_properties.insert(v.id, v);
+        }
+        ids
     }
 
     pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
@@ -252,6 +268,7 @@ impl Sim {
             &mut self.parking_state,
             &mut self.walking_state,
             &mut self.driving_state,
+            &self.car_properties,
         );
 
         let mut cars_parked_this_step: Vec<CarParking> = Vec::new();
@@ -261,6 +278,7 @@ impl Sim {
             &self.parking_state,
             &mut self.intersection_state,
             &mut self.rng,
+            &self.car_properties,
         ) {
             Ok(parked_cars) => for p in parked_cars {
                 cars_parked_this_step.push(p.clone());
@@ -298,7 +316,7 @@ impl Sim {
 
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
         self.driving_state
-            .get_draw_car(id, self.time, map)
+            .get_draw_car(id, self.time, map, &self.car_properties)
             .or_else(|| self.parking_state.get_draw_car(id, map))
     }
 
@@ -309,7 +327,10 @@ impl Sim {
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCar> {
         match map.get_l(l).lane_type {
-            LaneType::Driving => self.driving_state.get_draw_cars_on_lane(l, self.time, map),
+            LaneType::Driving => {
+                self.driving_state
+                    .get_draw_cars_on_lane(l, self.time, map, &self.car_properties)
+            }
             LaneType::Parking => self.parking_state.get_draw_cars(l, map),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
@@ -317,7 +338,8 @@ impl Sim {
     }
 
     pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
-        self.driving_state.get_draw_cars_on_turn(t, self.time, map)
+        self.driving_state
+            .get_draw_cars_on_turn(t, self.time, map, &self.car_properties)
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrian> {

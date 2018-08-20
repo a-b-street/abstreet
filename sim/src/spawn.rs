@@ -1,9 +1,10 @@
+use kinematics::Vehicle;
 use map_model;
 use map_model::{LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
 use sim::{CarParking, DrivingModel};
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use walking::WalkingSimState;
 use {AgentID, CarID, PedestrianID, Tick};
@@ -47,6 +48,7 @@ impl Spawner {
         parking_sim: &mut ParkingSimState,
         walking_sim: &mut WalkingSimState,
         driving_sim: &mut DrivingModel,
+        properties: &BTreeMap<CarID, Vehicle>,
     ) {
         for p in self.spawn_parked_cars.drain(0..) {
             parking_sim.add_parked_car(p);
@@ -95,6 +97,7 @@ impl Spawner {
                             CarParking::new(*car, spot),
                             VecDeque::from(path),
                             map,
+                            properties,
                         ) {
                             parking_sim.remove_parked_car(parking_lane, *car);
                             spawned_agents += 1;
@@ -134,36 +137,40 @@ impl Spawner {
         percent_capacity_to_fill: f64,
         parking_sim: &mut ParkingSimState,
         rng: &mut R,
-    ) {
+    ) -> Vec<Vehicle> {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
         assert!(self.spawn_parked_cars.is_empty());
 
         let mut total_capacity = 0;
-        let mut new_cars = 0;
+        let mut new_cars: Vec<Vehicle> = Vec::new();
         for spot in parking_sim.get_all_free_spots() {
             total_capacity += 1;
             if rng.gen_bool(percent_capacity_to_fill) {
-                new_cars += 1;
+                let id = CarID(self.car_id_counter);
                 // TODO since spawning applies during the next step, lots of stuff breaks without
                 // this :(
-                parking_sim.add_parked_car(CarParking::new(CarID(self.car_id_counter), spot));
+                parking_sim.add_parked_car(CarParking::new(id, spot));
                 //self.spawn_parked_cars.push(CarParking::new(CarID(self.car_id_counter), spot));
+                new_cars.push(Vehicle::generate_typical_car(id, rng));
                 self.car_id_counter += 1;
             }
         }
 
         println!(
             "Seeded {} of {} parking spots with cars",
-            new_cars, total_capacity
+            new_cars.len(),
+            total_capacity
         );
+        new_cars
     }
 
-    pub fn seed_specific_parked_cars(
+    pub fn seed_specific_parked_cars<R: Rng + ?Sized>(
         &mut self,
         lane: LaneID,
         spot_indices: Vec<usize>,
         parking_sim: &mut ParkingSimState,
-    ) -> Vec<CarID> {
+        rng: &mut R,
+    ) -> Vec<Vehicle> {
         assert!(self.spawn_parked_cars.is_empty());
         let spots = parking_sim.get_all_spots(lane);
         spot_indices
@@ -173,7 +180,7 @@ impl Spawner {
                 parking_sim.add_parked_car(CarParking::new(id, spots[idx].clone()));
                 // TODO push onto spawn_parked_cars?
                 self.car_id_counter += 1;
-                id
+                Vehicle::generate_typical_car(id, rng)
             })
             .collect()
     }

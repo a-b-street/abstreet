@@ -1,8 +1,9 @@
 use dimensioned::si;
 use geom::EPSILON_DIST;
 use models::FOLLOWING_DISTANCE;
+use rand::Rng;
 use std;
-use {Acceleration, Distance, Speed, Time, TIMESTEP};
+use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
 
 pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     value_unsafe: 0.00000001,
@@ -12,18 +13,31 @@ pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
 // TODO unit test all of this
 // TODO handle floating point issues uniformly here
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Vehicle {
+    pub id: CarID,
+
     // > 0
     max_accel: Acceleration,
     // < 0
     pub max_deaccel: Acceleration,
 }
 
+// TODO this is used for verifying sim state determinism, so it should actually check everything.
+// the f64 prevents this from being derived.
+impl PartialEq for Vehicle {
+    fn eq(&self, other: &Vehicle) -> bool {
+        self.id == other.id
+    }
+}
+impl Eq for Vehicle {}
+
 impl Vehicle {
-    pub fn typical_car() -> Vehicle {
+    pub fn generate_typical_car<R: Rng + ?Sized>(id: CarID, rng: &mut R) -> Vehicle {
         Vehicle {
-            max_accel: 2.7 * si::MPS2,
-            max_deaccel: -2.7 * si::MPS2,
+            id,
+            max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
+            max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
         }
     }
 

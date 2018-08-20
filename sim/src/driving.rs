@@ -85,6 +85,7 @@ impl Car {
         sim: &DrivingSimState,
         parking_sim: &ParkingSimState,
         intersections: &IntersectionSimState,
+        properties: &BTreeMap<CarID, Vehicle>,
     ) -> Action {
         if self.parking.is_some() {
             // TODO right place for this check?
@@ -108,7 +109,7 @@ impl Car {
             }
         }
 
-        let vehicle = Vehicle::typical_car();
+        let vehicle = &properties[&self.id];
 
         // TODO could wrap this state up
         let mut current_speed_limit = self.on.speed_limit(map);
@@ -153,7 +154,7 @@ impl Car {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
                         current_speed_limit,
-                        &vehicle,
+                        &properties[&other.id],
                         dist_behind_other,
                         other.speed,
                     );
@@ -380,10 +381,16 @@ impl SimQueue {
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map, time: Tick) -> Vec<DrawCar> {
+    fn get_draw_cars(
+        &self,
+        sim: &DrivingSimState,
+        map: &Map,
+        time: Tick,
+        properties: &BTreeMap<CarID, Vehicle>,
+    ) -> Vec<DrawCar> {
         let mut results = Vec::new();
         for id in &self.cars_queue {
-            results.push(sim.get_draw_car(*id, time, map).unwrap())
+            results.push(sim.get_draw_car(*id, time, map, properties).unwrap())
         }
         results
     }
@@ -542,11 +549,15 @@ impl DrivingSimState {
         parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
         rng: &mut R,
+        properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Vec<CarParking>, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
-            requested_moves.push((c.id, c.react(map, time, self, parking_sim, intersections)));
+            requested_moves.push((
+                c.id,
+                c.react(map, time, self, parking_sim, intersections, properties),
+            ));
         }
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
@@ -648,6 +659,7 @@ impl DrivingSimState {
         parking: CarParking,
         mut path: VecDeque<LaneID>,
         map: &Map,
+        properties: &BTreeMap<CarID, Vehicle>,
     ) -> bool {
         let start = path.pop_front().unwrap();
         let dist_along = parking.spot.dist_along;
@@ -670,11 +682,11 @@ impl DrivingSimState {
                 return false;
             }
 
-            let vehicle = Vehicle::typical_car();
+            let vehicle = &properties[&car];
             let accel_for_other_to_stop = vehicle.accel_to_follow(
                 self.cars[&other].speed,
                 map.get_parent(start).get_speed_limit(),
-                &vehicle,
+                &properties[&other],
                 dist_along - other_dist,
                 0.0 * si::MPS,
             );
@@ -713,10 +725,16 @@ impl DrivingSimState {
         true
     }
 
-    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCar> {
+    pub fn get_draw_car(
+        &self,
+        id: CarID,
+        time: Tick,
+        map: &Map,
+        properties: &BTreeMap<CarID, Vehicle>,
+    ) -> Option<DrawCar> {
         let c = self.cars.get(&id)?;
         let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
-        let stopping_dist = Vehicle::typical_car().stopping_distance(c.speed);
+        let stopping_dist = properties[&id].stopping_distance(c.speed);
 
         // TODO arguably, this math might belong in DrawCar.
         let pos = if let Some(ref parking) = c.parking {
@@ -744,13 +762,25 @@ impl DrivingSimState {
         ))
     }
 
-    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCar> {
-        self.lanes[lane.0].get_draw_cars(self, map, time)
+    pub fn get_draw_cars_on_lane(
+        &self,
+        lane: LaneID,
+        time: Tick,
+        map: &Map,
+        properties: &BTreeMap<CarID, Vehicle>,
+    ) -> Vec<DrawCar> {
+        self.lanes[lane.0].get_draw_cars(self, map, time, properties)
     }
 
-    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCar> {
+    pub fn get_draw_cars_on_turn(
+        &self,
+        turn: TurnID,
+        time: Tick,
+        map: &Map,
+        properties: &BTreeMap<CarID, Vehicle>,
+    ) -> Vec<DrawCar> {
         if let Some(queue) = self.turns.get(&turn) {
-            return queue.get_draw_cars(self, map, time);
+            return queue.get_draw_cars(self, map, time, properties);
         }
         return Vec::new();
     }
