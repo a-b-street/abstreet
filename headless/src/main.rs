@@ -27,6 +27,10 @@ struct Flags {
     /// Optional savestate to load
     #[structopt(long = "load_from")]
     load_from: Option<String>,
+
+    /// Big or large random scenario?
+    #[structopt(long = "big_sim")]
+    big_sim: bool,
 }
 
 fn main() {
@@ -44,9 +48,15 @@ fn main() {
         println!("Loaded {}", path);
     } else {
         // TODO need a notion of scenarios
-        sim.seed_parked_cars(0.5);
-        sim.seed_pedestrians(&map, 100);
-        sim.start_many_parked_cars(&map, 100);
+        if flags.big_sim {
+            sim.seed_parked_cars(0.95);
+            sim.seed_pedestrians(&map, 1000);
+            sim.start_many_parked_cars(&map, 1000);
+        } else {
+            sim.seed_parked_cars(0.5);
+            sim.seed_pedestrians(&map, 100);
+            sim.start_many_parked_cars(&map, 100);
+        }
     }
 
     let mut benchmark = sim.start_benchmark();

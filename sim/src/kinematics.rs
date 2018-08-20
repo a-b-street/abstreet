@@ -10,6 +10,10 @@ pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
 };
 
 // This must be < PARKING_SPOT_LENGTH
+const MIN_CAR_LENGTH: Distance = si::Meter {
+    value_unsafe: 4.5,
+    _marker: std::marker::PhantomData,
+};
 const MAX_CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 6.5,
     _marker: std::marker::PhantomData,
@@ -53,8 +57,12 @@ impl Vehicle {
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
             // TODO more realistic to have a few preset lengths and choose between them
-            length: rng.gen_range(4.5, MAX_CAR_LENGTH.value_unsafe) * si::M,
+            length: rng.gen_range(MIN_CAR_LENGTH.value_unsafe, MAX_CAR_LENGTH.value_unsafe) * si::M,
         }
+    }
+
+    pub fn best_case_following_dist() -> Distance {
+        MIN_CAR_LENGTH + FOLLOWING_DISTANCE
     }
 
     pub fn worst_case_following_dist() -> Distance {
