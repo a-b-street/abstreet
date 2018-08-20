@@ -20,10 +20,6 @@ struct Flags {
     #[structopt(long = "rng_seed")]
     rng_seed: Option<u8>,
 
-    /// Use the old parametric sim
-    #[structopt(long = "parametric_sim")]
-    parametric_sim: bool,
-
     /// Optional time to savestate
     #[structopt(long = "save_at")]
     save_at: Option<u32>,
@@ -41,7 +37,7 @@ fn main() {
         .expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
-    let mut sim = sim::Sim::new(&map, flags.rng_seed, flags.parametric_sim);
+    let mut sim = sim::Sim::new(&map, flags.rng_seed);
 
     if let Some(path) = flags.load_from {
         sim = abstutil::read_json(&path).expect("loading sim state failed");

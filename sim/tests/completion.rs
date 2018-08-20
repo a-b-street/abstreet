@@ -13,7 +13,7 @@ fn aorta_model_completes() {
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim = sim::Sim::new(&map, Some(rng_seed), false);
+    let mut sim = sim::Sim::new(&map, Some(rng_seed));
     sim.seed_pedestrians(&map, spawn_count);
     sim.seed_parked_cars(0.5);
     sim.start_many_parked_cars(&map, spawn_count);

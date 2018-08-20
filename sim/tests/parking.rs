@@ -66,7 +66,7 @@ fn wander_around_for_parking() {
 fn setup(map: map_model::Map) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
     let control_map = control::ControlMap::new(&map);
-    let sim = sim::Sim::new(&map, Some(rng_seed), false);
+    let sim = sim::Sim::new(&map, Some(rng_seed));
     (map, control_map, sim)
 }
 

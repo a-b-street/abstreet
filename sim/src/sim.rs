@@ -4,123 +4,18 @@ use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
-use driving;
+use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
-use parametric_driving;
 use parking::{ParkingSimState, ParkingSpot};
-use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
+use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
-
-#[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
-pub enum DrivingModel {
-    V1(driving::DrivingSimState),
-    V2(parametric_driving::DrivingSimState),
-}
-
-macro_rules! delegate {
-    // Immutable, no arguments, return type
-    (fn $fxn_name:ident(&self) -> $ret:ty) => {
-        fn $fxn_name(&self) -> $ret {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name(),
-                DrivingModel::V2(s) => s.$fxn_name(),
-            }
-        }
-    };
-
-    // Immutable, arguments, return type
-    (fn $fxn_name:ident(&self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
-        fn $fxn_name(&self, $( $value: $type ),*) -> $ret {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-
-    // Immutable, arguments, no return type
-    (fn $fxn_name:ident(&self, $($value:ident: $type:ty),* )) => {
-        fn $fxn_name(&self, $( $value: $type ),*) {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-
-    // Mutable, arguments, return type
-    (fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
-        fn $fxn_name(&mut self, $( $value: $type ),*) -> $ret {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-
-    // Public, mutable, arguments, return type
-    (pub fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
-        pub fn $fxn_name(&mut self, $( $value: $type ),*) -> $ret {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-
-    // TODO hack, hardcoding the generic type bounds, because I can't figure it out :(
-    // Mutable, arguments, return type
-    (fn $fxn_name:ident<R: Rng + ?Sized>(&mut self, $($value:ident: $type:ty),* ) -> $ret:ty) => {
-        fn $fxn_name<R: Rng + ?Sized>(&mut self, $( $value: $type ),*) -> $ret {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-
-    // Mutable, arguments, no return type
-    (fn $fxn_name:ident(&mut self, $($value:ident: $type:ty),* )) => {
-        fn $fxn_name(&mut self, $( $value: $type ),*) {
-            match self {
-                DrivingModel::V1(s) => s.$fxn_name($( $value ),*),
-                DrivingModel::V2(s) => s.$fxn_name($( $value ),*),
-            }
-        }
-    };
-}
-
-impl DrivingModel {
-    delegate!(fn populate_info_for_intersections(&self, info: &mut AgentInfo, map: &Map));
-    delegate!(fn get_car_state(&self, c: CarID) -> CarState);
-    delegate!(fn get_active_and_waiting_count(&self) -> (usize, usize));
-    delegate!(fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>>);
-    delegate!(fn toggle_debug(&mut self, id: CarID));
-    delegate!(fn edit_remove_lane(&mut self, id: LaneID));
-    delegate!(fn edit_add_lane(&mut self, id: LaneID));
-    delegate!(fn edit_remove_turn(&mut self, id: TurnID));
-    delegate!(fn edit_add_turn(&mut self, id: TurnID, map: &Map));
-    delegate!(fn step<R: Rng + ?Sized>(&mut self, time: Tick, map: &Map, parking: &ParkingSimState, intersections: &mut IntersectionSimState, rng: &mut R, properties: &BTreeMap<CarID, Vehicle>) -> Result<Vec<CarParking>, InvariantViolated>);
-    delegate!(pub fn start_car_on_lane(
-        &mut self,
-        time: Tick,
-        car: CarID,
-        parking: CarParking,
-        path: VecDeque<LaneID>,
-        map: &Map,
-        properties: &BTreeMap<CarID, Vehicle>
-    ) -> bool);
-    delegate!(fn get_draw_car(&self, id: CarID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Option<DrawCar>);
-    delegate!(fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCar>);
-    delegate!(fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCar>);
-}
+use {CarID, CarState, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -133,7 +28,7 @@ pub struct Sim {
 
     spawner: Spawner,
     intersection_state: IntersectionSimState,
-    driving_state: DrivingModel,
+    driving_state: DrivingSimState,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
 
@@ -141,21 +36,15 @@ pub struct Sim {
 }
 
 impl Sim {
-    pub fn new(map: &Map, rng_seed: Option<u8>, parametric_sim: bool) -> Sim {
+    pub fn new(map: &Map, rng_seed: Option<u8>) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
         }
 
-        let driving_state = if parametric_sim {
-            DrivingModel::V2(parametric_driving::DrivingSimState::new(map))
-        } else {
-            DrivingModel::V1(driving::DrivingSimState::new(map))
-        };
-
         Sim {
             rng,
-            driving_state,
+            driving_state: DrivingSimState::new(map),
             spawner: Spawner::empty(),
             intersection_state: IntersectionSimState::new(map),
             parking_state: ParkingSimState::new(map),

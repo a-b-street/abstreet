@@ -1,9 +1,10 @@
+use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model;
 use map_model::{LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
-use sim::{CarParking, DrivingModel};
+use sim::CarParking;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use walking::WalkingSimState;
@@ -47,7 +48,7 @@ impl Spawner {
         map: &Map,
         parking_sim: &mut ParkingSimState,
         walking_sim: &mut WalkingSimState,
-        driving_sim: &mut DrivingModel,
+        driving_sim: &mut DrivingSimState,
         properties: &BTreeMap<CarID, Vehicle>,
     ) {
         for p in self.spawn_parked_cars.drain(0..) {

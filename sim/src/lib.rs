@@ -27,7 +27,6 @@ mod driving;
 mod intersections;
 mod kinematics;
 mod models;
-mod parametric_driving;
 mod parking;
 mod sim;
 mod spawn;

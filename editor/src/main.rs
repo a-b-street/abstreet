@@ -58,10 +58,6 @@ struct Flags {
     #[structopt(long = "experimental")]
     experimental_gui: bool,
 
-    /// Use the old parametric sim
-    #[structopt(long = "parametric_sim")]
-    parametric_sim: bool,
-
     /// Extra KML to display
     #[structopt(long = "kml")]
     kml: Option<String>,
@@ -112,7 +108,6 @@ fn main() {
                 &flags.abst_input,
                 window_size,
                 flags.rng_seed,
-                flags.parametric_sim,
                 flags.kml,
                 flags.load_from,
             ),
