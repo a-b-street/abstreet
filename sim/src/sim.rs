@@ -9,14 +9,14 @@ use intersections::{AgentInfo, IntersectionSimState};
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parametric_driving;
-use parking::ParkingSimState;
+use parking::{ParkingSimState, ParkingSpot};
 use rand::{FromEntropy, Rng, SeedableRng, XorShiftRng};
 use spawn::Spawner;
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, Distance, InvariantViolated, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
 pub enum DrivingModel {
@@ -317,7 +317,10 @@ impl Sim {
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
         self.driving_state
             .get_draw_car(id, self.time, map, &self.car_properties)
-            .or_else(|| self.parking_state.get_draw_car(id, map))
+            .or_else(|| {
+                self.parking_state
+                    .get_draw_car(id, map, &self.car_properties)
+            })
     }
 
     pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrian> {
@@ -331,7 +334,8 @@ impl Sim {
                 self.driving_state
                     .get_draw_cars_on_lane(l, self.time, map, &self.car_properties)
             }
-            LaneType::Parking => self.parking_state.get_draw_cars(l, map),
+            LaneType::Parking => self.parking_state
+                .get_draw_cars(l, map, &self.car_properties),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
         }
@@ -417,16 +421,6 @@ impl Benchmark {
     pub fn has_real_time_passed(&self, d: Duration) -> bool {
         self.last_real_time.elapsed() >= d
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq, Eq)]
-pub struct ParkingSpot {
-    pub parking_lane: LaneID,
-    pub spot_idx: usize,
-    // Of the front of the car
-    #[derivative(PartialEq = "ignore")]
-    pub dist_along: Distance,
 }
 
 // TODO better name?

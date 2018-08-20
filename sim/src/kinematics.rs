@@ -10,6 +10,12 @@ pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
+// This must be < PARKING_SPOT_LENGTH
+pub const MAX_CAR_LENGTH: Distance = si::Meter {
+    value_unsafe: 6.5,
+    _marker: std::marker::PhantomData,
+};
+
 // TODO unit test all of this
 // TODO handle floating point issues uniformly here
 
@@ -21,6 +27,8 @@ pub struct Vehicle {
     max_accel: Acceleration,
     // < 0
     pub max_deaccel: Acceleration,
+
+    pub length: Distance,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -38,6 +46,8 @@ impl Vehicle {
             id,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
+            // TODO more realistic to have a few preset lengths and choose between them
+            length: rng.gen_range(4.5, MAX_CAR_LENGTH.value_unsafe) * si::M,
         }
     }
 

@@ -546,6 +546,7 @@ Some first tests to write:
 	- car stops for departing car (winds up following it)
 	- departing car waits for other car (winds up following it)
 	- a line of cars moving through a stop sign looks jittery right now. correct or not?
+	- following distances for cars of different lengths
 
 Unclear how to nicely let the test inspect stuff every tick.
 
@@ -556,3 +557,8 @@ Need to associate car length between driving and parking sims.
 ---> could store this in master Sim; after all, there will be some more permanentish stuff like agent/building/trip/owned car soon
 	- but soon need to bundle things together and pass less params everywhere
 - or stash in parking sim, transfer to driving, and back later
+
+Wait, length of car affects parking pretty critically. A bunch of things plumb
+around the precomputed front of the spot, used for drawing and for cars to line
+up their front in the sim. I think we need to plumb the true start of the spot
+and have a method to interpolate and pick the true front.

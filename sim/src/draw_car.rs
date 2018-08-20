@@ -4,16 +4,11 @@ use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Angle, Polygon, Pt2D};
 use graphics;
+use kinematics::Vehicle;
 use map_model::{geometry, Map, TurnID};
-use std;
 use {CarID, Distance};
 
 const CAR_WIDTH: f64 = 2.0;
-
-pub const CAR_LENGTH: Distance = si::Meter {
-    value_unsafe: 4.5,
-    _marker: std::marker::PhantomData,
-};
 
 // TODO should this live in editor/render?
 pub struct DrawCar {
@@ -32,6 +27,7 @@ pub struct DrawCar {
 impl DrawCar {
     pub fn new(
         id: CarID,
+        vehicle: &Vehicle,
         waiting_for_turn: Option<TurnID>,
         map: &Map,
         front: Pt2D,
@@ -40,7 +36,7 @@ impl DrawCar {
     ) -> DrawCar {
         let turn_arrow = if let Some(t) = waiting_for_turn {
             let angle = map.get_t(t).line.angle();
-            let arrow_pt = front.project_away(CAR_LENGTH.value_unsafe / 2.0, angle.opposite());
+            let arrow_pt = front.project_away(vehicle.length.value_unsafe / 2.0, angle.opposite());
             Some([arrow_pt.x(), arrow_pt.y(), front.x(), front.y()])
         } else {
             None
@@ -62,7 +58,7 @@ impl DrawCar {
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
             body_polygon: geometry::thick_line_from_angle(
                 CAR_WIDTH,
-                CAR_LENGTH.value_unsafe,
+                vehicle.length.value_unsafe,
                 front,
                 // find the back of the car relative to the front
                 angle.opposite(),
@@ -83,7 +79,7 @@ impl DrawCar {
                     front_window_thickness * 0.8,
                     CAR_WIDTH - 2.0 * front_window_length_gap,
                     front
-                        .project_away(CAR_LENGTH.value_unsafe - 1.0, angle.opposite())
+                        .project_away(vehicle.length.value_unsafe - 1.0, angle.opposite())
                         .project_away(
                             CAR_WIDTH / 2.0 - front_window_length_gap,
                             angle.rotate_degs(-90.0),

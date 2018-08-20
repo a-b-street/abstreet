@@ -11,9 +11,9 @@ use map_model::{LaneID, Map, TurnID};
 use models::{choose_turn, FOLLOWING_DISTANCE};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use parking::ParkingSimState;
+use parking::{ParkingSimState, ParkingSpot};
 use rand::Rng;
-use sim::{CarParking, ParkingSpot};
+use sim::CarParking;
 use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, Time};
@@ -93,23 +93,23 @@ impl Car {
             return Action::WorkOnParking;
         }
 
+        let vehicle = &properties[&self.id];
+
         if self.path.is_empty() && self.speed <= kinematics::EPSILON_SPEED {
             if let Some(spot) =
                 self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim)
             {
-                if spot.dist_along == self.dist_along {
+                if spot.dist_along_for_car(vehicle) == self.dist_along {
                     return Action::StartParking(spot);
                 }
                 // This seems to never happen; TODO make it an InvariantViolated
                 println!(
                     "uh oh, {} is stopped {} before their parking spot. keep going I guess.",
                     self.id,
-                    spot.dist_along - self.dist_along
+                    spot.dist_along_for_car(vehicle) - self.dist_along
                 );
             }
         }
-
-        let vehicle = &properties[&self.id];
 
         // TODO could wrap this state up
         let mut current_speed_limit = self.on.speed_limit(map);
@@ -176,7 +176,7 @@ impl Car {
                     if let Some(spot) =
                         self.find_parking_spot(id, current_dist_along, map, parking_sim)
                     {
-                        spot.dist_along
+                        spot.dist_along_for_car(vehicle)
                     } else {
                         need_parking = true;
                         current_on.length(map)
@@ -661,8 +661,11 @@ impl DrivingSimState {
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> bool {
+        let vehicle = &properties[&car];
         let start = path.pop_front().unwrap();
-        let dist_along = parking.spot.dist_along;
+        // TODO this looks like it jumps when the parking and driving lanes are different lengths
+        // due to diagonals
+        let dist_along = parking.spot.dist_along_for_car(vehicle);
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
 
@@ -682,7 +685,6 @@ impl DrivingSimState {
                 return false;
             }
 
-            let vehicle = &properties[&car];
             let accel_for_other_to_stop = vehicle.accel_to_follow(
                 self.cars[&other].speed,
                 map.get_parent(start).get_speed_limit(),
@@ -734,7 +736,8 @@ impl DrivingSimState {
     ) -> Option<DrawCar> {
         let c = self.cars.get(&id)?;
         let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
-        let stopping_dist = properties[&id].stopping_distance(c.speed);
+        let vehicle = &properties[&id];
+        let stopping_dist = vehicle.stopping_distance(c.speed);
 
         // TODO arguably, this math might belong in DrawCar.
         let pos = if let Some(ref parking) = c.parking {
@@ -754,6 +757,7 @@ impl DrivingSimState {
 
         Some(DrawCar::new(
             c.id,
+            vehicle,
             c.waiting_for.and_then(|on| on.maybe_turn()),
             map,
             pos,

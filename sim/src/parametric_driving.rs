@@ -206,14 +206,15 @@ impl SimQueue {
         }
 
         // TODO base this on actual speed and each vehicle ;)
-        let stopping_dist =
-            properties[&self.cars_queue[0]].stopping_distance(self.id.speed_limit(map));
+        let vehicle = &properties[&self.cars_queue[0]];
+        let stopping_dist = vehicle.stopping_distance(self.id.speed_limit(map));
 
         let mut results = Vec::new();
         let (pos1, angle1, dist_along1) =
             sim.cars[&self.cars_queue[0]].get_best_case_pos(time, map);
         results.push(DrawCar::new(
             self.cars_queue[0],
+            vehicle,
             sim.cars[&self.cars_queue[0]]
                 .waiting_for
                 .and_then(|on| on.maybe_turn()),
@@ -229,6 +230,7 @@ impl SimQueue {
             if dist_along_bound - FOLLOWING_DISTANCE > dist_along {
                 results.push(DrawCar::new(
                     *id,
+                    vehicle,
                     sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
                     map,
                     pos,
@@ -243,6 +245,7 @@ impl SimQueue {
                 let (pt, angle) = self.id.dist_along(dist_along_bound, map);
                 results.push(DrawCar::new(
                     *id,
+                    vehicle,
                     sim.cars[id].waiting_for.and_then(|on| on.maybe_turn()),
                     map,
                     pt,
