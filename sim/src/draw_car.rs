@@ -18,7 +18,8 @@ pub const CAR_LENGTH: Distance = si::Meter {
 // TODO should this live in editor/render?
 pub struct DrawCar {
     pub id: CarID,
-    polygon: Polygon,
+    body_polygon: Polygon,
+    window_polygons: Vec<Polygon>,
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<[f64; 4]>,
     front_pt: Pt2D,
@@ -52,24 +53,55 @@ impl DrawCar {
             Some([front.x(), front.y(), arrow_pt.x(), arrow_pt.y()])
         };
 
+        let front_window_length_gap = 0.2;
+        let front_window_thickness = 0.3;
+
         DrawCar {
             id: id,
             turn_arrow,
             // TODO the rounded corners from graphics::Line::new_round look kind of cool though
-            polygon: geometry::thick_line_from_angle(
+            body_polygon: geometry::thick_line_from_angle(
                 CAR_WIDTH,
                 CAR_LENGTH.value_unsafe,
                 front,
                 // find the back of the car relative to the front
                 angle.opposite(),
             ),
+            // TODO it's way too hard to understand and tune this. just wait and stick in sprites
+            // or something.
+            window_polygons: vec![
+                geometry::thick_line_from_angle(
+                    front_window_thickness,
+                    CAR_WIDTH - 2.0 * front_window_length_gap,
+                    front.project_away(1.0, angle.opposite()).project_away(
+                        CAR_WIDTH / 2.0 - front_window_length_gap,
+                        angle.rotate_degs(-90.0),
+                    ),
+                    angle.rotate_degs(90.0),
+                ),
+                geometry::thick_line_from_angle(
+                    front_window_thickness * 0.8,
+                    CAR_WIDTH - 2.0 * front_window_length_gap,
+                    front
+                        .project_away(CAR_LENGTH.value_unsafe - 1.0, angle.opposite())
+                        .project_away(
+                            CAR_WIDTH / 2.0 - front_window_length_gap,
+                            angle.rotate_degs(-90.0),
+                        ),
+                    angle.rotate_degs(90.0),
+                ),
+            ],
             front_pt: front,
             stopping_buffer_arrow,
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: graphics::types::Color) {
-        g.draw_polygon(color, &self.polygon);
+        g.draw_polygon(color, &self.body_polygon);
+        for p in &self.window_polygons {
+            g.draw_polygon([0.0, 0.0, 0.0, 1.0], p);
+        }
+
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {
             g.draw_arrow(
@@ -89,7 +121,7 @@ impl DrawCar {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.polygon.contains_pt(pt)
+        self.body_polygon.contains_pt(pt)
     }
 
     pub fn focus_pt(&self) -> Pt2D {

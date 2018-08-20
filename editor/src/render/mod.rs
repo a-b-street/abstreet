@@ -18,6 +18,7 @@ use std::f64;
 
 // These are all in meters
 const PARCEL_BOUNDARY_THICKNESS: f64 = 0.5;
+const BUILDING_BOUNDARY_THICKNESS: f64 = 1.5;
 const EXTRA_SHAPE_THICKNESS: f64 = 1.0;
 
 const TURN_ICON_ARROW_THICKNESS: f64 = geometry::BIG_ARROW_THICKNESS / 3.0;

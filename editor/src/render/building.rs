@@ -6,7 +6,7 @@ use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use graphics::types::Color;
 use map_model::{Building, BuildingID, Map};
-use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
+use render::{get_bbox, BUILDING_BOUNDARY_THICKNESS};
 use std::f64;
 
 #[derive(Debug)]
@@ -28,7 +28,7 @@ impl DrawBuilding {
                 .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
             fill_polygon: Polygon::new(&bldg.points),
             boundary_polygon: PolyLine::new(bldg.points.clone())
-                .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
+                .make_polygons_blindly(BUILDING_BOUNDARY_THICKNESS),
         }
     }
 
