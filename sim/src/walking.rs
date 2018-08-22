@@ -6,6 +6,7 @@ use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
+use parking::ParkingSpot;
 use std;
 use std::collections::{BTreeMap, VecDeque};
 use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time, TIMESTEP};
@@ -18,6 +19,31 @@ const SPEED: Speed = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
+// A pedestrian can start from a parking spot (after driving and parking) or at a building.
+// A pedestrian can end at a parking spot (to start driving) or at a building.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SidewalkSpot {
+    ParkingSpot(ParkingSpot),
+    Building(BuildingID),
+}
+
+impl SidewalkSpot {
+    fn get_sidewalk_pos(&self, map: &Map) -> (LaneID, Distance) {
+        match self {
+            SidewalkSpot::ParkingSpot(spot) => (
+                map.get_parent(spot.parking_lane)
+                    .find_sidewalk(spot.parking_lane)
+                    .unwrap(),
+                spot.dist_along_for_ped(),
+            ),
+            SidewalkSpot::Building(id) => {
+                let front_path = &map.get_b(*id).front_path;
+                (front_path.sidewalk, front_path.dist_along_sidewalk)
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct CrossingFrontPath {
     bldg: BuildingID,
@@ -27,7 +53,8 @@ struct CrossingFrontPath {
 }
 
 enum Action {
-    StartCrossingPath,
+    StartParkedCar(ParkingSpot),
+    StartCrossingPath(BuildingID),
     KeepCrossingPath,
     Continue,
     Goto(On),
@@ -48,7 +75,7 @@ struct Pedestrian {
     waiting_for: Option<On>,
 
     front_path: Option<CrossingFrontPath>,
-    goal: BuildingID,
+    goal: SidewalkSpot,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -70,7 +97,7 @@ impl Pedestrian {
         }
 
         if self.path.is_empty() {
-            let goal_dist = map.get_b(self.goal).front_path.dist_along_sidewalk;
+            let goal_dist = self.goal.get_sidewalk_pos(map).1;
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
             // Later distance will be non-negative, so don't attempt abs() or anything
@@ -80,7 +107,10 @@ impl Pedestrian {
                 goal_dist - self.dist_along
             };
             if dist_away <= 2.0 * SPEED * TIMESTEP {
-                return Action::StartCrossingPath;
+                return match self.goal {
+                    SidewalkSpot::ParkingSpot(ref spot) => Action::StartParkedCar(spot.clone()),
+                    SidewalkSpot::Building(id) => Action::StartCrossingPath(id),
+                };
             }
             return Action::Continue;
         }
@@ -275,14 +305,19 @@ impl WalkingSimState {
                         .unwrap()
                         .step_cross_path(delta_time, map)
                     {
+                        // TODO return to sim that id has reached spot
                         self.peds.remove(&id);
                     }
                 }
-                Action::StartCrossingPath => {
+                Action::StartParkedCar(ref _spot) => {
+                    self.peds.remove(&id);
+                    // TODO return something up to sim
+                }
+                Action::StartCrossingPath(bldg) => {
                     let p = self.peds.get_mut(&id).unwrap();
                     p.front_path = Some(CrossingFrontPath {
-                        bldg: p.goal,
-                        dist_along: map.get_b(p.goal).front_path.line.length(),
+                        bldg,
+                        dist_along: map.get_b(bldg).front_path.line.length(),
                         going_to_sidewalk: false,
                     });
                 }
@@ -363,33 +398,40 @@ impl WalkingSimState {
     pub fn seed_pedestrian(
         &mut self,
         id: PedestrianID,
-        start_bldg: BuildingID,
-        goal_bldg: BuildingID,
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
         map: &Map,
         mut path: VecDeque<LaneID>,
     ) {
-        let start = path.pop_front().unwrap();
-        let front_path = &map.get_b(start_bldg).front_path;
-        assert_eq!(start, front_path.sidewalk);
-        let contraflow = is_contraflow(map, start, path[0]);
+        let start_lane = path.pop_front().unwrap();
+        let (spot_start_lane, start_dist) = start.get_sidewalk_pos(map);
+        assert_eq!(start_lane, spot_start_lane);
+        assert_eq!(*path.back().unwrap(), goal.get_sidewalk_pos(map).0);
+        let front_path = if let SidewalkSpot::Building(id) = start {
+            Some(CrossingFrontPath {
+                bldg: id,
+                dist_along: 0.0 * si::M,
+                going_to_sidewalk: true,
+            })
+        } else {
+            None
+        };
+
+        let contraflow = is_contraflow(map, start_lane, path[0]);
         self.peds.insert(
             id,
             Pedestrian {
                 id,
                 path,
                 contraflow,
-                on: On::Lane(start),
-                dist_along: front_path.dist_along_sidewalk,
+                on: On::Lane(start_lane),
+                dist_along: start_dist,
                 waiting_for: None,
-                front_path: Some(CrossingFrontPath {
-                    bldg: start_bldg,
-                    dist_along: 0.0 * si::M,
-                    going_to_sidewalk: true,
-                }),
-                goal: goal_bldg,
+                front_path,
+                goal,
             },
         );
-        self.peds_per_sidewalk.insert(start, id);
+        self.peds_per_sidewalk.insert(start_lane, id);
     }
 
     pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {

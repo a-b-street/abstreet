@@ -234,6 +234,11 @@ pub struct ParkingSpot {
 }
 
 impl ParkingSpot {
+    pub fn dist_along_for_ped(&self) -> Distance {
+        // Always centered in the entire parking spot
+        self.dist_along - (map_model::PARKING_SPOT_LENGTH / 2.0)
+    }
+
     pub fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot
         let offset = (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0;

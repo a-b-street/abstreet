@@ -7,7 +7,7 @@ use rand::Rng;
 use sim::CarParking;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
-use walking::WalkingSimState;
+use walking::{SidewalkSpot, WalkingSimState};
 use {AgentID, CarID, PedestrianID, Tick};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -128,8 +128,8 @@ impl Spawner {
                     AgentID::Pedestrian(ped) => {
                         walking_sim.seed_pedestrian(
                             ped,
-                            start_bldg,
-                            goal_bldg,
+                            SidewalkSpot::Building(start_bldg),
+                            SidewalkSpot::Building(goal_bldg),
                             map,
                             VecDeque::from(path),
                         );

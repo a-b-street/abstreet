@@ -576,8 +576,23 @@ Leader vehicle is a bit vague; could be leader on current queue, which is still 
 Time to get even more multi-modal / multi-phase!
 
 - all trips begin and end at a building
-	- spawn peds at a building, make them first traverse the front path.
-		- could model another type of On
-		- or, just have a special state in the walking sim, just like the driving sim has a temporary parking/unparking state
+- spawn peds at a building, make them first traverse the front path.
+	- could model another type of On
+	- or, just have a special state in the walking sim, just like the driving sim has a temporary parking/unparking state
 
-	- now, make all car trips include a pedestrian component... and figure out some kind of identity to tie peds and cars together
+- the walking layer shouldnt care about the next layer of the trip. just tell
+  master sim when a ped has reached a bldg or a parking spot, as desired.
+
+- next, make a ped start a bldg and go to a parking spot. walking layer has two
+  types of starts and goals -- a bldg path or a parking spot.
+
+
+- next things
+	= make ped have a SidewalkSpot as a start.
+	= make ped have a SidewalkSpot as goal.
+	- when reaching a parking spot, return up to master sim layer. something needs to make peds at a parking spot become started cars
+	- something needs to make a newly parked car become a ped
+
+
+- by the end of this, the spawner should be pretty simple, right?
+- and draw the FSM. :P
