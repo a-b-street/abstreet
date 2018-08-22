@@ -2,6 +2,7 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
+use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
@@ -20,15 +21,17 @@ const SPEED: Speed = si::MeterPerSecond {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct CrossingFrontPath {
     bldg: BuildingID,
+    // Measured from the building to the sidewalk
     dist_along: Distance,
     going_to_sidewalk: bool,
 }
 
 enum Action {
-    Vanish,      // done with route (and transitioning to a different state isn't implemented yet)
-    Continue,    // need more time to cross the current spot
-    Goto(On),    // go somewhere
-    WaitFor(On), // ready to go somewhere, but can't yet for some reason
+    Vanish,
+    CrossingPath,
+    Continue,
+    Goto(On),
+    WaitFor(On),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -61,6 +64,10 @@ impl Pedestrian {
     // TODO Quite similar to car's state and logic! Maybe refactor. Following paths, same four
     // actions, same transitions between turns and lanes...
     fn react(&self, map: &Map, intersections: &IntersectionSimState) -> Action {
+        if self.front_path.is_some() {
+            return Action::CrossingPath;
+        }
+
         let desired_on: On = {
             if let Some(on) = self.waiting_for {
                 on
@@ -106,8 +113,29 @@ impl Pedestrian {
         panic!("No turn from {} to {}", from, self.path[0]);
     }
 
+    fn step_cross_path(&mut self, delta_time: Time, map: &Map) {
+        let new_dist = delta_time * SPEED;
+
+        // TODO arguably a different direction would make this easier
+        let done = if let Some(ref mut fp) = self.front_path {
+            if fp.going_to_sidewalk {
+                fp.dist_along += new_dist;
+                fp.dist_along >= map.get_b(fp.bldg).front_path.line.length()
+            } else {
+                // TODO
+                false
+            }
+        } else {
+            false
+        };
+        if done {
+            self.front_path = None;
+        }
+    }
+
     fn step_continue(&mut self, delta_time: Time, map: &Map) {
         let new_dist = delta_time * SPEED;
+
         if self.contraflow {
             self.dist_along -= new_dist;
             if self.dist_along < 0.0 * si::M {
@@ -160,6 +188,14 @@ impl Pedestrian {
         // TODO could calculate leftover (and deal with large timesteps, small
         // lanes)
         Ok(())
+    }
+
+    fn get_pos(&self, map: &Map) -> Pt2D {
+        if let Some(ref fp) = self.front_path {
+            map.get_b(fp.bldg).front_path.line.dist_along(fp.dist_along)
+        } else {
+            self.on.dist_along(self.dist_along, map).0
+        }
     }
 }
 
@@ -219,6 +255,10 @@ impl WalkingSimState {
                 Action::Vanish => {
                     self.peds.remove(&id);
                 }
+                Action::CrossingPath => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.step_cross_path(delta_time, map);
+                }
                 Action::Continue => {
                     let p = self.peds.get_mut(&id).unwrap();
                     p.step_continue(delta_time, map);
@@ -262,7 +302,7 @@ impl WalkingSimState {
         let ped = self.peds.get(&id)?;
         Some(DrawPedestrian::new(
             id,
-            ped.on.dist_along(ped.dist_along, map).0,
+            ped.get_pos(map),
             // TODO this isnt correct, but works right now because this is only called by warp
             None,
         ))
@@ -274,7 +314,7 @@ impl WalkingSimState {
             let ped = &self.peds[id];
             result.push(DrawPedestrian::new(
                 *id,
-                l.dist_along(ped.dist_along).0,
+                ped.get_pos(map),
                 ped.waiting_for.map(|on| map.get_t(on.as_turn())),
             ));
         }

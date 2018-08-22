@@ -21,6 +21,7 @@ impl fmt::Display for BuildingID {
 pub struct FrontPath {
     pub bldg: BuildingID,
     pub sidewalk: LaneID,
+    // Goes from the building to the sidewalk
     pub line: Line,
     pub dist_along_sidewalk: si::Meter<f64>,
 }
