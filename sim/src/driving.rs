@@ -101,12 +101,8 @@ impl Car {
                 if spot.dist_along_for_car(vehicle) == self.dist_along {
                     return Action::StartParking(spot);
                 }
-                // This seems to never happen; TODO make it an InvariantViolated
-                println!(
-                    "uh oh, {} is stopped {} before their parking spot. keep going I guess.",
-                    self.id,
-                    spot.dist_along_for_car(vehicle) - self.dist_along
-                );
+                // Being stopped before the parking spot is normal if the final road is clogged
+                // with other drivers.
             }
         }
 
@@ -312,14 +308,18 @@ impl Car {
         // visited, prefer easier turns...
         let choices = map.get_next_lanes(last_lane);
         if choices.is_empty() {
-            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", self.id, last_lane);
+            if self.debug {
+                println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", self.id, last_lane);
+            }
             return true;
         }
         let choice = rng.choose(&choices).unwrap().id;
-        println!(
-            "{} can't find parking on {}, so wandering over to {}",
-            self.id, last_lane, choice
-        );
+        if self.debug {
+            println!(
+                "{} can't find parking on {}, so wandering over to {}",
+                self.id, last_lane, choice
+            );
+        }
         self.path.push_back(choice);
         false
     }

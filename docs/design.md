@@ -563,6 +563,14 @@ around the precomputed front of the spot, used for drawing and for cars to line
 up their front in the sim. I think we need to plumb the true start of the spot
 and have a method to interpolate and pick the true front.
 
+## Intersection protocol
+
+Seeing lots of deadlock bugs from accepting non-leader vehicles. For now,
+switch to only considering leader vehicles, and later maybe relax to anybody
+following only accepted vehicles.
+
+Leader vehicle is a bit vague; could be leader on current queue, which is still a bit far away.
+
 ## Trips
 
 Time to get even more multi-modal / multi-phase!

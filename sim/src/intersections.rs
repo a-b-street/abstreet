@@ -252,6 +252,8 @@ impl StopSign {
                 println!("no speed for {:?}", req);
             }
 
+            // TODO and the agent is at the end? maybe easier than looking at their speed
+            // TODO with lane-changing, somebody could cut in front of them when they're stopped.
             if info.leaders.contains(&req.agent)
                 && info.speeds[&req.agent] <= kinematics::EPSILON_SPEED
             {
@@ -319,9 +321,7 @@ impl TrafficSignal {
         }
     }
 
-    // TODO determine if agents are staying in the intersection past the cycle time.
-
-    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, _info: &AgentInfo) {
+    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: &AgentInfo) {
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, _remaining_cycle_time) =
             signal.current_cycle_and_remaining_time(time.as_time());
@@ -346,7 +346,8 @@ impl TrafficSignal {
             assert_eq!(turn.parent, self.id);
             assert_eq!(self.accepted.contains_key(&agent), false);
 
-            if !cycle.contains(turn.id) {
+            // Don't accept cars unless they're in front. TODO or behind other accepted cars.
+            if !cycle.contains(turn.id) || !info.leaders.contains(&req.agent) {
                 keep_requests.insert(req.clone());
                 continue;
             }
