@@ -22,7 +22,7 @@ pub struct Building {
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
 
-    pub front_path: Option<Line>,
+    pub front_path: Line,
 }
 
 impl PartialEq for Building {

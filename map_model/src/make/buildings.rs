@@ -11,14 +11,15 @@ pub(crate) fn make_building(
     id: BuildingID,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
-    roads: &Vec<Road>,
+    _roads: &Vec<Road>,
 ) -> Building {
     // TODO consume data, so we dont have to clone tags?
     let points = b.points
         .iter()
         .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
-    let front_path = find_front_path(&points, &b.osm_tags, lanes, roads);
+    //let front_path = find_front_path_using_street_names(&points, &b.osm_tags, lanes, roads);
+    let front_path = find_front_path(&points, lanes);
 
     Building {
         points,
@@ -29,7 +30,37 @@ pub(crate) fn make_building(
     }
 }
 
-fn find_front_path(
+fn find_front_path(bldg_points: &Vec<Pt2D>, lanes: &Vec<Lane>) -> Line {
+    use geo::prelude::{ClosestPoint, EuclideanDistance};
+
+    // TODO start from the side of the building, not the center
+    let bldg_center = geometry::center(bldg_points);
+    let center_pt = geo::Point::new(bldg_center.x(), bldg_center.y());
+
+    // Find the closest point on ALL sidewalks
+    let candidates: Vec<(LaneID, geo::Point<f64>)> = lanes
+        .iter()
+        .filter_map(|l| {
+            if l.is_sidewalk() {
+                if let geo::Closest::SinglePoint(pt) =
+                    lane_to_line_string(&lanes[l.id.0]).closest_point(&center_pt)
+                {
+                    return Some((l.id, pt));
+                }
+            }
+            None
+        })
+        .collect();
+
+    let closest = candidates
+        .iter()
+        .min_by_key(|pair| NotNaN::new(pair.1.euclidean_distance(&center_pt)).unwrap())
+        .unwrap();
+    Line::new(bldg_center, Pt2D::new(closest.1.x(), closest.1.y()))
+}
+
+#[allow(dead_code)]
+fn find_front_path_using_street_names(
     bldg_points: &Vec<Pt2D>,
     bldg_osm_tags: &BTreeMap<String, String>,
     lanes: &Vec<Lane>,

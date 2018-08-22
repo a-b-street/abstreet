@@ -15,17 +15,17 @@ pub struct DrawBuilding {
     // TODO should just have one. use graphics::Line for now.
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
-    front_path: Option<[f64; 4]>,
+    front_path: [f64; 4],
 }
 
 impl DrawBuilding {
     pub fn new(bldg: &Building) -> DrawBuilding {
         DrawBuilding {
             id: bldg.id,
-            // TODO ideally start the path on a side of the building
-            front_path: bldg.front_path
-                .as_ref()
-                .map(|l| [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]),
+            front_path: {
+                let l = &bldg.front_path;
+                [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
+            },
             fill_polygon: Polygon::new(&bldg.points),
             boundary_polygon: PolyLine::new(bldg.points.clone())
                 .make_polygons_blindly(BUILDING_BOUNDARY_THICKNESS),
@@ -39,10 +39,8 @@ impl DrawBuilding {
         path_color: Color,
         boundary_color: Color,
     ) {
-        if let Some(line) = self.front_path {
-            // TODO tune width
-            g.draw_line(&graphics::Line::new_round(path_color, 1.0), line);
-        }
+        // TODO tune width
+        g.draw_line(&graphics::Line::new_round(path_color, 1.0), self.front_path);
 
         g.draw_polygon(boundary_color, &self.boundary_polygon);
         g.draw_polygon(fill_color, &self.fill_polygon);
@@ -66,10 +64,8 @@ impl DrawBuilding {
 
     pub fn get_bbox(&self) -> Rect {
         let mut b = self.fill_polygon.get_bounds();
-        if let Some(line) = self.front_path {
-            b.update(line[0], line[1]);
-            b.update(line[2], line[3]);
-        }
+        b.update(self.front_path[0], self.front_path[1]);
+        b.update(self.front_path[2], self.front_path[3]);
         get_bbox(&b)
     }
 }
