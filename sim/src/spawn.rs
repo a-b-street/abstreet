@@ -126,7 +126,13 @@ impl Spawner {
                         }
                     }
                     AgentID::Pedestrian(ped) => {
-                        walking_sim.seed_pedestrian(ped, start_bldg, map, VecDeque::from(path));
+                        walking_sim.seed_pedestrian(
+                            ped,
+                            start_bldg,
+                            goal_bldg,
+                            map,
+                            VecDeque::from(path),
+                        );
                         spawned_agents += 1;
                     }
                 };

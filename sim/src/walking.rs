@@ -8,7 +8,7 @@ use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time};
+use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time, TIMESTEP};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -27,8 +27,8 @@ struct CrossingFrontPath {
 }
 
 enum Action {
-    Vanish,
-    CrossingPath,
+    StartCrossingPath,
+    KeepCrossingPath,
     Continue,
     Goto(On),
     WaitFor(On),
@@ -48,6 +48,7 @@ struct Pedestrian {
     waiting_for: Option<On>,
 
     front_path: Option<CrossingFrontPath>,
+    goal: BuildingID,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -65,7 +66,23 @@ impl Pedestrian {
     // actions, same transitions between turns and lanes...
     fn react(&self, map: &Map, intersections: &IntersectionSimState) -> Action {
         if self.front_path.is_some() {
-            return Action::CrossingPath;
+            return Action::KeepCrossingPath;
+        }
+
+        if self.path.is_empty() {
+            let goal_dist = map.get_b(self.goal).front_path.dist_along_sidewalk;
+            // Since the walking model doesn't really have granular speed, just see if we're
+            // reasonably close to the path.
+            // Later distance will be non-negative, so don't attempt abs() or anything
+            let dist_away = if self.dist_along > goal_dist {
+                self.dist_along - goal_dist
+            } else {
+                goal_dist - self.dist_along
+            };
+            if dist_away <= 2.0 * SPEED * TIMESTEP {
+                return Action::StartCrossingPath;
+            }
+            return Action::Continue;
         }
 
         let desired_on: On = {
@@ -76,11 +93,6 @@ impl Pedestrian {
                     || (self.contraflow && self.dist_along > 0.0 * si::M)
                 {
                     return Action::Continue;
-                }
-
-                // Done!
-                if self.path.is_empty() {
-                    return Action::Vanish;
                 }
 
                 match self.on {
@@ -113,7 +125,8 @@ impl Pedestrian {
         panic!("No turn from {} to {}", from, self.path[0]);
     }
 
-    fn step_cross_path(&mut self, delta_time: Time, map: &Map) {
+    // If true, then we're completely done!
+    fn step_cross_path(&mut self, delta_time: Time, map: &Map) -> bool {
         let new_dist = delta_time * SPEED;
 
         // TODO arguably a different direction would make this easier
@@ -122,7 +135,10 @@ impl Pedestrian {
                 fp.dist_along += new_dist;
                 fp.dist_along >= map.get_b(fp.bldg).front_path.line.length()
             } else {
-                // TODO
+                fp.dist_along -= new_dist;
+                if fp.dist_along < 0.0 * si::M {
+                    return true;
+                }
                 false
             }
         } else {
@@ -131,6 +147,7 @@ impl Pedestrian {
         if done {
             self.front_path = None;
         }
+        false
     }
 
     fn step_continue(&mut self, delta_time: Time, map: &Map) {
@@ -252,12 +269,22 @@ impl WalkingSimState {
         // Apply moves. This can also be concurrent, since there are no possible conflicts.
         for (id, act) in &requested_moves {
             match *act {
-                Action::Vanish => {
-                    self.peds.remove(&id);
+                Action::KeepCrossingPath => {
+                    if self.peds
+                        .get_mut(&id)
+                        .unwrap()
+                        .step_cross_path(delta_time, map)
+                    {
+                        self.peds.remove(&id);
+                    }
                 }
-                Action::CrossingPath => {
+                Action::StartCrossingPath => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    p.step_cross_path(delta_time, map);
+                    p.front_path = Some(CrossingFrontPath {
+                        bldg: p.goal,
+                        dist_along: map.get_b(p.goal).front_path.line.length(),
+                        going_to_sidewalk: false,
+                    });
                 }
                 Action::Continue => {
                     let p = self.peds.get_mut(&id).unwrap();
@@ -337,6 +364,7 @@ impl WalkingSimState {
         &mut self,
         id: PedestrianID,
         start_bldg: BuildingID,
+        goal_bldg: BuildingID,
         map: &Map,
         mut path: VecDeque<LaneID>,
     ) {
@@ -358,6 +386,7 @@ impl WalkingSimState {
                     dist_along: 0.0 * si::M,
                     going_to_sidewalk: true,
                 }),
+                goal: goal_bldg,
             },
         );
         self.peds_per_sidewalk.insert(start, id);
