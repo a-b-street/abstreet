@@ -80,9 +80,7 @@ impl Road {
         lane == self.children_backwards[0].0
     }
 
-    // TODO actually, these should only do adjacent lanes
     pub fn find_driving_lane(&self, parking: LaneID) -> Option<LaneID> {
-        // TODO find the closest one to the parking lane, if there are multiple
         //assert_eq!(l.lane_type, LaneType::Parking);
         self.get_siblings(parking)
             .iter()
@@ -119,23 +117,30 @@ impl Road {
         panic!("{} doesn't contain {}", self.id, lane);
     }
 
-    fn get_siblings(&self, lane: LaneID) -> &Vec<(LaneID, LaneType)> {
-        // TODO rm lane from this list?
-        if self.children_forwards
+    // Only the immediately adjacent siblings -- so could be 0, 1, or 2 results.
+    fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)> {
+        let (list, idx) = if let Some(idx) = self.children_forwards
             .iter()
-            .find(|pair| pair.0 == lane)
-            .is_some()
+            .position(|pair| pair.0 == lane)
         {
-            return &self.children_forwards;
-        }
-        if self.children_backwards
+            (&self.children_forwards, idx)
+        } else if let Some(idx) = self.children_backwards
             .iter()
-            .find(|pair| pair.0 == lane)
-            .is_some()
+            .position(|pair| pair.0 == lane)
         {
-            return &self.children_backwards;
+            (&self.children_backwards, idx)
+        } else {
+            panic!("{} doesn't contain {}", self.id, lane)
+        };
+
+        let mut result = Vec::new();
+        if idx != 0 {
+            result.push(list[idx - 1]);
         }
-        panic!("{} doesn't contain {}", self.id, lane);
+        if idx != list.len() - 1 {
+            result.push(list[idx + 1]);
+        }
+        result
     }
 
     pub fn get_speed_limit(&self) -> si::MeterPerSecond<f64> {
