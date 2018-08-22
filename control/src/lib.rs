@@ -74,6 +74,7 @@ impl ControlMap {
 }
 
 // General problem: TurnIDs change as code does. Serialized state is kinda tied to code version.
+// TODO diffs are happening differently for roads
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ModifiedTrafficSignal {

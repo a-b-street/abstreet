@@ -12,7 +12,7 @@ const CYCLE_DURATION: si::Second<f64> = si::Second {
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlTrafficSignal {
     intersection: IntersectionID,
     pub cycles: Vec<Cycle>,
@@ -119,7 +119,7 @@ impl ControlTrafficSignal {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Cycle {
     pub turns: Vec<TurnID>,
     // in the future, what pedestrian crossings this cycle includes, etc

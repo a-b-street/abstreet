@@ -552,10 +552,12 @@ impl gui::GUI for UI {
         }
 
         // Do this one lastish, since it conflicts with lots of other stuff
-        stop_if_done!(
-            self.current_selection_state
-                .event(input, &self.map, &self.sim_ctrl.sim)
-        );
+        stop_if_done!(self.current_selection_state.event(
+            input,
+            &self.map,
+            &mut self.sim_ctrl.sim,
+            &self.control_map
+        ));
 
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             let state = EditorState {

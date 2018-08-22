@@ -41,6 +41,7 @@ impl Request {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct IntersectionSimState {
     intersections: Vec<IntersectionPolicy>,
+    debug: Option<IntersectionID>,
 }
 
 impl IntersectionSimState {
@@ -55,7 +56,10 @@ impl IntersectionSimState {
                 intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
             }
         }
-        IntersectionSimState { intersections }
+        IntersectionSimState {
+            intersections,
+            debug: None,
+        }
     }
 
     // This is just an immutable query.
@@ -109,8 +113,12 @@ impl IntersectionSimState {
     }
 
     pub fn on_enter(&self, req: Request) -> Result<(), InvariantViolated> {
-        let i = &self.intersections[req.turn.parent.0];
+        let id = req.turn.parent;
+        let i = &self.intersections[id.0];
         if i.accepted().contains_key(&req.agent) {
+            if self.debug == Some(id) {
+                println!("{:?} just entered", req);
+            }
             Ok(())
         } else {
             Err(InvariantViolated(format!(
@@ -121,13 +129,38 @@ impl IntersectionSimState {
     }
 
     pub fn on_exit(&mut self, req: Request) {
-        let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
+        let id = req.turn.parent;
+        let i = self.intersections.get_mut(id.0).unwrap();
         assert!(i.accepted().contains_key(&req.agent));
         i.accepted_mut().remove(&req.agent);
+        if self.debug == Some(id) {
+            println!("{:?} just exited", req);
+        }
     }
 
-    pub fn debug(&self, id: IntersectionID) {
+    pub fn debug(&mut self, id: IntersectionID, control_map: &ControlMap) {
+        if let Some(old) = self.debug {
+            match self.intersections.get_mut(old.0).unwrap() {
+                IntersectionPolicy::StopSignPolicy(ref mut p) => {
+                    p.debug = false;
+                }
+                IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+                    p.debug = false;
+                }
+            };
+        }
+
         println!("{}", abstutil::to_json(&self.intersections[id.0]));
+        match self.intersections.get_mut(id.0).unwrap() {
+            IntersectionPolicy::StopSignPolicy(ref mut p) => {
+                p.debug = true;
+                println!("{}", abstutil::to_json(&control_map.stop_signs[&id]));
+            }
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+                p.debug = true;
+                println!("{}", abstutil::to_json(&control_map.traffic_signals[&id]));
+            }
+        };
     }
 }
 
@@ -169,6 +202,8 @@ struct StopSign {
     #[serde(serialize_with = "serialize_btreemap")]
     #[serde(deserialize_with = "deserialize_btreemap")]
     accepted: BTreeMap<AgentID, TurnID>,
+
+    debug: bool,
 }
 
 impl StopSign {
@@ -178,6 +213,7 @@ impl StopSign {
             approaching_agents: BTreeSet::new(),
             started_waiting_at: BTreeMap::new(),
             accepted: BTreeMap::new(),
+            debug: false,
         }
     }
 
@@ -221,6 +257,9 @@ impl StopSign {
             {
                 self.started_waiting_at.insert(req.clone(), time);
                 newly_stopped.push(req.clone());
+                if self.debug {
+                    println!("{:?} is now considered stopped", req);
+                }
             }
         }
         for req in newly_stopped.into_iter() {
@@ -249,6 +288,9 @@ impl StopSign {
 
             newly_accepted.push(req.clone());
             self.accepted.insert(req.agent, req.turn);
+            if self.debug {
+                println!("{:?} has been approved", req);
+            }
         }
 
         for req in newly_accepted.into_iter() {
@@ -264,6 +306,7 @@ struct TrafficSignal {
     #[serde(deserialize_with = "deserialize_btreemap")]
     accepted: BTreeMap<AgentID, TurnID>,
     requests: BTreeSet<Request>,
+    debug: bool,
 }
 
 impl TrafficSignal {
@@ -272,6 +315,7 @@ impl TrafficSignal {
             id,
             accepted: BTreeMap::new(),
             requests: BTreeSet::new(),
+            debug: false,
         }
     }
 
@@ -299,6 +343,10 @@ impl TrafficSignal {
             //let crossing_time = turn.length() / speeds[&agent];
 
             self.accepted.insert(req.agent, turn.id);
+
+            if self.debug {
+                println!("{:?} has been accepted for this cycle", req);
+            }
         }
 
         self.requests = keep_requests;

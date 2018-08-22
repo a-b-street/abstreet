@@ -296,8 +296,8 @@ impl Sim {
         speed.value_unsafe
     }
 
-    pub fn debug_intersection(&self, id: IntersectionID) {
-        self.intersection_state.debug(id);
+    pub fn debug_intersection(&mut self, id: IntersectionID, control_map: &ControlMap) {
+        self.intersection_state.debug(id, control_map);
     }
 }
 

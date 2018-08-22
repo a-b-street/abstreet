@@ -20,10 +20,11 @@ pub enum TurnPriority {
 // 2) Yields - cars can do this immediately if there are no previously accepted conflicting turns.
 //    should maybe check that these turns originate from roads with priority turns.
 // 3) Stops - cars must stop before doing this turn, and they are accepted with the lowest priority
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlStopSign {
     intersection: IntersectionID,
     turns: HashMap<TurnID, TurnPriority>,
+    // TODO
     changed: bool,
 }
 

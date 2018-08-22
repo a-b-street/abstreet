@@ -57,7 +57,13 @@ impl SelectionState {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map, sim: &Sim) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        map: &Map,
+        sim: &mut Sim,
+        control_map: &ControlMap,
+    ) -> bool {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
             SelectionState::SelectedLane(id, current_turn_index) => {
@@ -105,7 +111,7 @@ impl SelectionState {
                     true
                 } else if input.key_pressed(Key::D, "debug") {
                     map.get_i(*id).dump_debug();
-                    sim.debug_intersection(*id);
+                    sim.debug_intersection(*id, control_map);
                     true
                 } else {
                     false
