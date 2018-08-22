@@ -162,6 +162,8 @@ impl Car {
                     }
 
                     constraints.push(accel);
+                } else if self.debug {
+                    println!("  {} is {} behind {}. Lookahead dist {} + following dist {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_to_lookahead, other_vehicle.following_dist());
                 }
             }
 
@@ -475,7 +477,9 @@ impl DrivingSimState {
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
         if let Some(driving) = self.cars.get(&c) {
-            if driving.speed > kinematics::EPSILON_SPEED {
+            if driving.debug {
+                CarState::Debug
+            } else if driving.speed > kinematics::EPSILON_SPEED {
                 CarState::Moving
             } else {
                 CarState::Stuck

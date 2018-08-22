@@ -55,6 +55,7 @@ pub enum Colors {
     YieldTurn,
     StopTurn,
 
+    DebugCar,
     MovingCar,
     StuckCar,
     ParkedCar,

@@ -233,6 +233,7 @@ pub enum CarState {
     Moving,
     Stuck,
     Parked,
+    Debug,
 }
 
 // TODO Don't just alias types; assert that time, dist, and speed are always positive

@@ -370,6 +370,7 @@ impl UI {
             return c;
         }
         match self.sim_ctrl.sim.get_car_state(id) {
+            CarState::Debug => ezgui::shift_color(self.cs.get(Colors::DebugCar), id.0),
             CarState::Moving => ezgui::shift_color(self.cs.get(Colors::MovingCar), id.0),
             CarState::Stuck => ezgui::shift_color(self.cs.get(Colors::StuckCar), id.0),
             CarState::Parked => ezgui::shift_color(self.cs.get(Colors::ParkedCar), id.0),
