@@ -1,10 +1,10 @@
 use geo;
-use geom::{Bounds, Line, Pt2D, PolyLine};
+use geom::{Bounds, Line, PolyLine, Pt2D};
 use geometry;
 use ordered_float::NotNaN;
 use raw_data;
 use std::collections::BTreeMap;
-use {Building, BuildingID, Lane, LaneID, Road};
+use {Building, BuildingID, FrontPath, Lane, LaneID, Road};
 
 pub(crate) fn make_building(
     b: &raw_data::Building,
@@ -19,7 +19,7 @@ pub(crate) fn make_building(
         .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
     //let front_path = find_front_path_using_street_names(&points, &b.osm_tags, lanes, roads);
-    let front_path = trim_front_path(&points, find_front_path(&points, lanes));
+    let front_path = find_front_path(id, &points, lanes);
 
     Building {
         points,
@@ -41,7 +41,7 @@ fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
     }
 }
 
-fn find_front_path(bldg_points: &Vec<Pt2D>, lanes: &Vec<Lane>) -> Line {
+fn find_front_path(bldg: BuildingID, bldg_points: &Vec<Pt2D>, lanes: &Vec<Lane>) -> FrontPath {
     use geo::prelude::{ClosestPoint, EuclideanDistance};
 
     // TODO start from the side of the building, not the center
@@ -67,7 +67,16 @@ fn find_front_path(bldg_points: &Vec<Pt2D>, lanes: &Vec<Lane>) -> Line {
         .iter()
         .min_by_key(|pair| NotNaN::new(pair.1.euclidean_distance(&center_pt)).unwrap())
         .unwrap();
-    Line::new(bldg_center, Pt2D::new(closest.1.x(), closest.1.y()))
+    let sidewalk = closest.0;
+    let sidewalk_pt = Pt2D::new(closest.1.x(), closest.1.y());
+    let line = trim_front_path(bldg_points, Line::new(bldg_center, sidewalk_pt));
+
+    FrontPath {
+        bldg,
+        sidewalk,
+        line,
+        dist_along_sidewalk: lanes[sidewalk.0].dist_along_of_point(sidewalk_pt).unwrap(),
+    }
 }
 
 #[allow(dead_code)]

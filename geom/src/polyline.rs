@@ -215,6 +215,19 @@ impl PolyLine {
             panic!("{} doesn't contain {}", self, pt);
         }
     }
+
+    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
+        let mut dist_along = 0.0 * si::M;
+        for pair in self.pts.windows(2) {
+            let l = Line::new(pair[0], pair[1]);
+            if let Some(dist) = l.dist_along_of_point(pt) {
+                return Some(dist_along + dist);
+            } else {
+                dist_along += l.length();
+            }
+        }
+        None
+    }
 }
 
 impl fmt::Display for PolyLine {

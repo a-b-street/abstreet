@@ -23,7 +23,7 @@ impl DrawBuilding {
         DrawBuilding {
             id: bldg.id,
             front_path: {
-                let l = &bldg.front_path;
+                let l = &bldg.front_path.line;
                 [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
             },
             fill_polygon: Polygon::new(&bldg.points),

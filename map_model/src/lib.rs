@@ -24,7 +24,7 @@ pub mod raw_data;
 mod road;
 mod turn;
 
-pub use building::{Building, BuildingID};
+pub use building::{Building, BuildingID, FrontPath};
 pub use edits::{EditReason, Edits};
 pub use intersection::{Intersection, IntersectionID};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
