@@ -117,6 +117,7 @@ impl Map {
                     dst_i,
                     lane_type: lane.lane_type,
                     parent: road_id,
+                    building_paths: Vec::new(),
                 });
                 if lane.reverse_pts {
                     m.roads[road_id.0]
@@ -148,13 +149,10 @@ impl Map {
         }
 
         for (idx, b) in data.buildings.iter().enumerate() {
-            m.buildings.push(make::make_building(
-                b,
-                BuildingID(idx),
-                &bounds,
-                &m.lanes,
-                &m.roads,
-            ));
+            let id = BuildingID(idx);
+            let bldg = make::make_building(b, id, &bounds, &m.lanes, &m.roads);
+            m.lanes[bldg.front_path.sidewalk.0].building_paths.push(id);
+            m.buildings.push(bldg);
         }
 
         for (idx, p) in data.parcels.iter().enumerate() {
@@ -319,5 +317,22 @@ impl Map {
     // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
         self.bounds.clone()
+    }
+
+    pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Option<LaneID> {
+        let sidewalk = self.get_b(bldg).front_path.sidewalk;
+        let road = self.get_parent(sidewalk);
+        let parking = road.find_parking_lane(sidewalk)?;
+        road.find_driving_lane(parking)
+    }
+
+    pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Option<LaneID> {
+        let road = self.get_parent(driving);
+        // No parking lane?
+        if let Some(l) = road.find_sidewalk(driving) {
+            return Some(l);
+        }
+        let parking = road.find_parking_lane(driving)?;
+        road.find_sidewalk(parking)
     }
 }

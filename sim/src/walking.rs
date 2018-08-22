@@ -3,7 +3,7 @@ use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use intersections::{AgentInfo, IntersectionSimState, Request};
-use map_model::{Lane, LaneID, Map, Turn, TurnID};
+use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use std;
 use std::collections::{BTreeMap, VecDeque};
@@ -17,6 +17,13 @@ const SPEED: Speed = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct CrossingFrontPath {
+    bldg: BuildingID,
+    dist_along: Distance,
+    going_to_sidewalk: bool,
+}
+
 enum Action {
     Vanish,      // done with route (and transitioning to a different state isn't implemented yet)
     Continue,    // need more time to cross the current spot
@@ -29,7 +36,6 @@ struct Pedestrian {
     id: PedestrianID,
 
     on: On,
-    // TODO since Tick is deliberately not f64, have a better type for Meters.
     dist_along: Distance,
     // Traveling along the lane/turn in its original direction or not?
     contraflow: bool,
@@ -37,6 +43,8 @@ struct Pedestrian {
     // Head is the next lane
     path: VecDeque<LaneID>,
     waiting_for: Option<On>,
+
+    front_path: Option<CrossingFrontPath>,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -285,8 +293,16 @@ impl WalkingSimState {
         result
     }
 
-    pub fn seed_pedestrian(&mut self, id: PedestrianID, map: &Map, mut path: VecDeque<LaneID>) {
+    pub fn seed_pedestrian(
+        &mut self,
+        id: PedestrianID,
+        start_bldg: BuildingID,
+        map: &Map,
+        mut path: VecDeque<LaneID>,
+    ) {
         let start = path.pop_front().unwrap();
+        let front_path = &map.get_b(start_bldg).front_path;
+        assert_eq!(start, front_path.sidewalk);
         let contraflow = is_contraflow(map, start, path[0]);
         self.peds.insert(
             id,
@@ -295,9 +311,13 @@ impl WalkingSimState {
                 path,
                 contraflow,
                 on: On::Lane(start),
-                // TODO start next to a building path, or at least some random position
-                dist_along: 0.0 * si::M,
+                dist_along: front_path.dist_along_sidewalk,
                 waiting_for: None,
+                front_path: Some(CrossingFrontPath {
+                    bldg: start_bldg,
+                    dist_along: 0.0 * si::M,
+                    going_to_sidewalk: true,
+                }),
             },
         );
         self.peds_per_sidewalk.insert(start, id);

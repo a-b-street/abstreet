@@ -1,7 +1,7 @@
 use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model;
-use map_model::{LaneID, Map};
+use map_model::{BuildingID, LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
 use sim::CarParking;
@@ -14,8 +14,8 @@ use {AgentID, CarID, PedestrianID, Tick};
 struct Command {
     at: Tick,
     agent: AgentID,
-    start: LaneID,
-    goal: LaneID,
+    start: BuildingID,
+    goal: BuildingID,
 }
 
 // This must get the car/ped IDs correct.
@@ -55,13 +55,23 @@ impl Spawner {
             parking_sim.add_parked_car(p);
         }
 
-        let mut spawn_agents: Vec<AgentID> = Vec::new();
+        let mut spawn_agents: Vec<(AgentID, BuildingID, BuildingID)> = Vec::new();
         let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
         loop {
             let pop = if let Some(cmd) = self.commands.front() {
                 if now == cmd.at {
-                    spawn_agents.push(cmd.agent);
-                    requested_paths.push((cmd.start, cmd.goal));
+                    spawn_agents.push((cmd.agent, cmd.start, cmd.goal));
+                    let (start_lane, goal_lane) = match cmd.agent {
+                        AgentID::Car(_) => (
+                            map.get_driving_lane_from_bldg(cmd.start).unwrap(),
+                            map.get_driving_lane_from_bldg(cmd.goal).unwrap(),
+                        ),
+                        AgentID::Pedestrian(_) => (
+                            map.get_b(cmd.start).front_path.sidewalk,
+                            map.get_b(cmd.goal).front_path.sidewalk,
+                        ),
+                    };
+                    requested_paths.push((start_lane, goal_lane));
                     true
                 } else {
                     false
@@ -81,7 +91,9 @@ impl Spawner {
         let paths = calculate_paths(&requested_paths, map);
 
         let mut spawned_agents = 0;
-        for (agent, (req, maybe_path)) in spawn_agents.iter().zip(requested_paths.iter().zip(paths))
+        for ((agent, start_bldg, goal_bldg), (req, maybe_path)) in spawn_agents
+            .into_iter()
+            .zip(requested_paths.iter().zip(paths))
         {
             if let Some(path) = maybe_path {
                 match agent {
@@ -90,31 +102,31 @@ impl Spawner {
                         let parking_lane = map.get_parent(driving_lane)
                             .find_parking_lane(driving_lane)
                             .unwrap();
-                        let spot = parking_sim.get_spot_of_car(*car, parking_lane);
+                        let spot = parking_sim.get_spot_of_car(car, parking_lane);
 
                         if driving_sim.start_car_on_lane(
                             now,
-                            *car,
-                            CarParking::new(*car, spot),
+                            car,
+                            CarParking::new(car, spot),
                             VecDeque::from(path),
                             map,
                             properties,
                         ) {
-                            parking_sim.remove_parked_car(parking_lane, *car);
+                            parking_sim.remove_parked_car(parking_lane, car);
                             spawned_agents += 1;
                         } else {
                             // Try again next tick. Because we already slurped up all the commands
                             // for this tick, the front of the queue is the right spot.
                             self.commands.push_front(Command {
                                 at: now.next(),
-                                agent: *agent,
-                                start: req.0,
-                                goal: req.1,
+                                agent: agent,
+                                start: start_bldg,
+                                goal: goal_bldg,
                             });
                         }
                     }
                     AgentID::Pedestrian(ped) => {
-                        walking_sim.seed_pedestrian(*ped, map, VecDeque::from(path));
+                        walking_sim.seed_pedestrian(ped, start_bldg, map, VecDeque::from(path));
                         spawned_agents += 1;
                     }
                 };
@@ -128,7 +140,7 @@ impl Spawner {
         println!(
             "Spawned {} agents of requested {}",
             spawned_agents,
-            spawn_agents.len()
+            requested_paths.len()
         );
     }
 
@@ -186,13 +198,14 @@ impl Spawner {
             .collect()
     }
 
-    pub fn start_parked_car_with_goal(
+    pub fn start_parked_car_with_goal<R: Rng + ?Sized>(
         &mut self,
         at: Tick,
         map: &Map,
         car: CarID,
         parking_sim: &ParkingSimState,
         goal: LaneID,
+        rng: &mut R,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at);
@@ -218,8 +231,8 @@ impl Spawner {
         self.commands.push_back(Command {
             at,
             agent: AgentID::Car(car),
-            start: driving_lane,
-            goal,
+            start: pick_bldg_from_driving_lane(rng, map, driving_lane),
+            goal: pick_bldg_from_driving_lane(rng, map, goal),
         });
     }
 
@@ -236,8 +249,8 @@ impl Spawner {
         let driving_lane = road.find_driving_lane(parking_lane)
             .expect("Parking lane has no driving lane");
 
-        let goal = pick_goal(rng, map, driving_lane);
-        self.start_parked_car_with_goal(at, map, car, parking_sim, goal);
+        let goal = pick_car_goal(rng, map, driving_lane);
+        self.start_parked_car_with_goal(at, map, car, parking_sim, goal, rng);
     }
 
     pub fn start_many_parked_cars<R: Rng + ?Sized>(
@@ -252,9 +265,17 @@ impl Spawner {
             .get_all_cars()
             .into_iter()
             .filter_map(|(car, parking_lane)| {
-                map.get_parent(parking_lane)
-                    .find_driving_lane(parking_lane)
-                    .and_then(|_driving_lane| Some(car))
+                let has_bldgs = map.get_parent(parking_lane)
+                    .find_sidewalk(parking_lane)
+                    .and_then(|sidewalk| Some(!map.get_l(sidewalk).building_paths.is_empty()))
+                    .unwrap_or(false);
+                if has_bldgs {
+                    map.get_parent(parking_lane)
+                        .find_driving_lane(parking_lane)
+                        .and_then(|_driving_lane| Some(car))
+                } else {
+                    None
+                }
             })
             .collect();
         if cars.is_empty() {
@@ -279,12 +300,11 @@ impl Spawner {
         }
         assert!(map.get_l(sidewalk).is_sidewalk());
 
-        let goal = pick_goal(rng, map, sidewalk);
         self.commands.push_back(Command {
             at,
             agent: AgentID::Pedestrian(PedestrianID(self.ped_id_counter)),
-            start: sidewalk,
-            goal,
+            start: pick_bldg_from_sidewalk(rng, map, sidewalk),
+            goal: pick_ped_goal(rng, map, sidewalk),
         });
         self.ped_id_counter += 1;
     }
@@ -298,7 +318,7 @@ impl Spawner {
     ) {
         let mut sidewalks: Vec<LaneID> = Vec::new();
         for l in map.all_lanes() {
-            if l.is_sidewalk() {
+            if l.is_sidewalk() && !l.building_paths.is_empty() {
                 sidewalks.push(l.id);
             }
         }
@@ -310,15 +330,31 @@ impl Spawner {
     }
 }
 
-fn pick_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {
-    let lane_type = map.get_l(start).lane_type;
+fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {
     let candidate_goals: Vec<LaneID> = map.all_lanes()
         .iter()
         .filter_map(|l| {
-            if l.lane_type != lane_type || l.id == start {
-                None
+            if l.id != start && l.is_driving() {
+                if let Some(sidewalk) = map.get_sidewalk_from_driving_lane(l.id) {
+                    if !map.get_l(sidewalk).building_paths.is_empty() {
+                        return Some(l.id);
+                    }
+                }
+            }
+            None
+        })
+        .collect();
+    *rng.choose(&candidate_goals).unwrap()
+}
+
+fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> BuildingID {
+    let candidate_goals: Vec<BuildingID> = map.all_buildings()
+        .iter()
+        .filter_map(|b| {
+            if b.front_path.sidewalk != start {
+                Some(b.id)
             } else {
-                Some(l.id)
+                None
             }
         })
         .collect();
@@ -340,4 +376,21 @@ fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Op
     let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
     println!("Calculating {} paths took {}s", paths.len(), dt,);
     paths
+}
+
+fn pick_bldg_from_sidewalk<R: Rng + ?Sized>(
+    rng: &mut R,
+    map: &Map,
+    sidewalk: LaneID,
+) -> BuildingID {
+    *rng.choose(&map.get_l(sidewalk).building_paths)
+        .expect(&format!("{} has no buildings", sidewalk))
+}
+
+fn pick_bldg_from_driving_lane<R: Rng + ?Sized>(
+    rng: &mut R,
+    map: &Map,
+    start: LaneID,
+) -> BuildingID {
+    pick_bldg_from_sidewalk(rng, map, map.get_sidewalk_from_driving_lane(start).unwrap())
 }

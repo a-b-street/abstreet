@@ -80,6 +80,13 @@ impl Road {
         lane == self.children_backwards[0].0
     }
 
+    pub fn find_sidewalk(&self, parking_or_driving: LaneID) -> Option<LaneID> {
+        self.get_siblings(parking_or_driving)
+            .iter()
+            .find(|pair| pair.1 == LaneType::Sidewalk)
+            .map(|pair| pair.0)
+    }
+
     pub fn find_driving_lane(&self, parking: LaneID) -> Option<LaneID> {
         //assert_eq!(l.lane_type, LaneType::Parking);
         self.get_siblings(parking)

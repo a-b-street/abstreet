@@ -134,6 +134,7 @@ impl Sim {
             car,
             &self.parking_state,
             goal,
+            &mut self.rng,
         );
     }
 

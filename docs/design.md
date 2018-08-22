@@ -576,8 +576,8 @@ Leader vehicle is a bit vague; could be leader on current queue, which is still 
 Time to get even more multi-modal / multi-phase!
 
 - all trips begin and end at a building
-	- so first lets make all building paths go to a sidewalk. ignoring st
-	  name seems reasonable, since some buildings lack names anyway.
-- sample trips...
-	- ped walks from bldg to sidewalk, to another sidewalk, then to another bldg
-	- ped walks from bldg to sidewalk, walks to their car, drives somewhere, parks, walks to right sidewalk and then a bldg
+	- spawn peds at a building, make them first traverse the front path.
+		- could model another type of On
+		- or, just have a special state in the walking sim, just like the driving sim has a temporary parking/unparking state
+
+	- now, make all car trips include a pedestrian component... and figure out some kind of identity to tie peds and cars together

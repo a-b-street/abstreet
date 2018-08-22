@@ -5,7 +5,7 @@ use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
 use std::f64;
 use std::fmt;
-use {IntersectionID, RoadID};
+use {BuildingID, IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
     // TODO look up a real value
@@ -45,6 +45,8 @@ pub struct Lane {
     // This is redundant with road, but kind of annoying to compute constantly, so leave it for now
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
+
+    pub building_paths: Vec<BuildingID>,
 }
 
 impl PartialEq for Lane {
