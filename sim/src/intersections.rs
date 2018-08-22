@@ -326,6 +326,19 @@ impl TrafficSignal {
         let (cycle, _remaining_cycle_time) =
             signal.current_cycle_and_remaining_time(time.as_time());
 
+        // For now, just maintain safety when agents over-run.
+        for (agent, turn) in self.accepted.iter() {
+            if !cycle.contains(*turn) {
+                if self.debug {
+                    println!(
+                        "{:?} is still doing {:?} after the cycle is over",
+                        agent, turn
+                    );
+                }
+                return;
+            }
+        }
+
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {
             let turn = map.get_t(req.turn);
