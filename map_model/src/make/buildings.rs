@@ -1,5 +1,5 @@
 use geo;
-use geom::{Bounds, Line, Pt2D};
+use geom::{Bounds, Line, Pt2D, PolyLine};
 use geometry;
 use ordered_float::NotNaN;
 use raw_data;
@@ -19,7 +19,7 @@ pub(crate) fn make_building(
         .map(|coord| Pt2D::from_gps(coord, bounds))
         .collect();
     //let front_path = find_front_path_using_street_names(&points, &b.osm_tags, lanes, roads);
-    let front_path = find_front_path(&points, lanes);
+    let front_path = trim_front_path(&points, find_front_path(&points, lanes));
 
     Building {
         points,
@@ -27,6 +27,17 @@ pub(crate) fn make_building(
         id,
         osm_way_id: b.osm_way_id,
         osm_tags: b.osm_tags.clone(),
+    }
+}
+
+// Adjust the path to start on the building's border, not center
+fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
+    let poly = PolyLine::new(bldg_points.clone());
+    if let Some(hit) = poly.intersection(&PolyLine::new(path.points())) {
+        Line::new(hit, path.pt2())
+    } else {
+        // Just give up
+        path
     }
 }
 

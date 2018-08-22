@@ -20,6 +20,10 @@ impl Line {
         self.1
     }
 
+    pub fn points(&self) -> Vec<Pt2D> {
+        vec![self.0, self.1]
+    }
+
     // TODO valid to do euclidean distance on world-space points that're formed from
     // Haversine?
     pub fn length(&self) -> si::Meter<f64> {
