@@ -335,4 +335,8 @@ impl Map {
         let parking = road.find_parking_lane(driving)?;
         road.find_sidewalk(parking)
     }
+
+    pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Option<LaneID> {
+        self.get_parent(parking).find_driving_lane(parking)
+    }
 }

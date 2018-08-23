@@ -107,8 +107,8 @@ impl Sim {
         ids
     }
 
-    pub fn start_many_parked_cars(&mut self, map: &Map, num_cars: usize) {
-        self.spawner.start_many_parked_cars(
+    pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
+        self.spawner.seed_driving_trips(
             self.time.next(),
             map,
             num_cars,
@@ -143,9 +143,9 @@ impl Sim {
             .spawn_pedestrian(self.time.next(), map, sidewalk, &mut self.rng);
     }
 
-    pub fn seed_pedestrians(&mut self, map: &Map, num: usize) {
+    pub fn seed_walking_trips(&mut self, map: &Map, num: usize) {
         self.spawner
-            .spawn_many_pedestrians(self.time.next(), map, num, &mut self.rng);
+            .seed_walking_trips(self.time.next(), map, num, &mut self.rng);
     }
 
     // TODO not sure returning info for tests like this is ideal
@@ -172,16 +172,21 @@ impl Sim {
         ) {
             Ok(parked_cars) => for p in parked_cars {
                 cars_parked_this_step.push(p.clone());
-                self.parking_state.add_parked_car(p);
+                self.parking_state.add_parked_car(p.clone());
+                self.spawner.car_reached_parking_spot(self.time, p);
             },
             Err(e) => panic!("At {}: {}", self.time, e),
         };
 
-        if let Err(e) = self.walking_state
+        match self.walking_state
             .step(TIMESTEP, map, &mut self.intersection_state)
         {
-            panic!("At {}: {}", self.time, e);
-        }
+            Ok(peds_ready_to_drive) => for (ped, spot) in peds_ready_to_drive {
+                self.spawner
+                    .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
+            },
+            Err(e) => panic!("At {}: {}", self.time, e),
+        };
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(

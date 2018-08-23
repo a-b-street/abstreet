@@ -5,8 +5,10 @@ use {LaneID, Map};
 
 // Returns an inclusive path, aka, [start, ..., end]
 pub fn pathfind(map: &Map, start: LaneID, end: LaneID) -> Option<Vec<LaneID>> {
-    assert_ne!(start, end);
     assert_eq!(map.get_l(start).lane_type, map.get_l(end).lane_type);
+    if start == end {
+        return Some(vec![start]);
+    }
 
     // This should be deterministic, since theoretical distance ties would be broken by LaneID.
     let mut queue: BinaryHeap<(NotNaN<f64>, LaneID)> = BinaryHeap::new();

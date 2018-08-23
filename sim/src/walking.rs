@@ -21,14 +21,14 @@ const SPEED: Speed = si::MeterPerSecond {
 
 // A pedestrian can start from a parking spot (after driving and parking) or at a building.
 // A pedestrian can end at a parking spot (to start driving) or at a building.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SidewalkSpot {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
 }
 
 impl SidewalkSpot {
-    fn get_sidewalk_pos(&self, map: &Map) -> (LaneID, Distance) {
+    pub fn get_sidewalk_pos(&self, map: &Map) -> (LaneID, Distance) {
         match self {
             SidewalkSpot::ParkingSpot(spot) => (
                 map.get_parent(spot.parking_lane)
@@ -281,12 +281,13 @@ impl WalkingSimState {
         // No-op
     }
 
+    // Return all the pedestrians that have reached a parking spot.
     pub fn step(
         &mut self,
         delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<Vec<(PedestrianID, ParkingSpot)>, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
@@ -295,6 +296,8 @@ impl WalkingSimState {
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
+
+        let mut results = Vec::new();
 
         // Apply moves. This can also be concurrent, since there are no possible conflicts.
         for (id, act) in &requested_moves {
@@ -305,13 +308,12 @@ impl WalkingSimState {
                         .unwrap()
                         .step_cross_path(delta_time, map)
                     {
-                        // TODO return to sim that id has reached spot
                         self.peds.remove(&id);
                     }
                 }
-                Action::StartParkedCar(ref _spot) => {
+                Action::StartParkedCar(ref spot) => {
                     self.peds.remove(&id);
-                    // TODO return something up to sim
+                    results.push((*id, spot.clone()));
                 }
                 Action::StartCrossingPath(bldg) => {
                     let p = self.peds.get_mut(&id).unwrap();
@@ -349,7 +351,7 @@ impl WalkingSimState {
             };
         }
 
-        Ok(())
+        Ok(results)
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -406,7 +408,9 @@ impl WalkingSimState {
         let start_lane = path.pop_front().unwrap();
         let (spot_start_lane, start_dist) = start.get_sidewalk_pos(map);
         assert_eq!(start_lane, spot_start_lane);
-        assert_eq!(*path.back().unwrap(), goal.get_sidewalk_pos(map).0);
+        if !path.is_empty() {
+            assert_eq!(*path.back().unwrap(), goal.get_sidewalk_pos(map).0);
+        }
         let front_path = if let SidewalkSpot::Building(id) = start {
             Some(CrossingFrontPath {
                 bldg: id,
@@ -417,7 +421,11 @@ impl WalkingSimState {
             None
         };
 
-        let contraflow = is_contraflow(map, start_lane, path[0]);
+        let contraflow = if path.is_empty() {
+            start_dist > goal.get_sidewalk_pos(map).1
+        } else {
+            is_contraflow(map, start_lane, path[0])
+        };
         self.peds.insert(
             id,
             Pedestrian {

@@ -141,6 +141,11 @@ impl ParkingSimState {
         })?;
         Some(l.spots[idx].clone())
     }
+
+    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<CarParking> {
+        let l = &self.lanes[spot.parking_lane.0];
+        l.occupants[spot.spot_idx].and_then(|car| Some(CarParking::new(car, spot)))
+    }
 }
 
 #[derive(Serialize, Deserialize)]

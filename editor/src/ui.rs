@@ -504,8 +504,8 @@ impl gui::GUI for UI {
         }
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
             self.sim_ctrl.sim.seed_parked_cars(0.5);
-            self.sim_ctrl.sim.seed_pedestrians(&self.map, 100);
-            self.sim_ctrl.sim.start_many_parked_cars(&self.map, 100);
+            self.sim_ctrl.sim.seed_walking_trips(&self.map, 100);
+            self.sim_ctrl.sim.seed_driving_trips(&self.map, 100);
             return gui::EventLoopMode::InputOnly;
         }
 

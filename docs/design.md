@@ -588,10 +588,10 @@ Time to get even more multi-modal / multi-phase!
 
 
 - next things
-	= make ped have a SidewalkSpot as a start.
-	= make ped have a SidewalkSpot as goal.
+	- make the spawner orchestrate everything!
+		- or should there be something else? spawner currently owns IDs. should maybe split out scenario generation and trip FSM management, but... not yet?
 	- when reaching a parking spot, return up to master sim layer. something needs to make peds at a parking spot become started cars
-	- something needs to make a newly parked car become a ped
+	- when a driving car finishes parking, also tell walking sim to spawn a pedestrian
 
 
 - by the end of this, the spawner should be pretty simple, right?

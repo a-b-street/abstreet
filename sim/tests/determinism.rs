@@ -13,9 +13,9 @@ fn serialization() {
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
 
     let mut sim = sim::Sim::new(&map, Some(rng_seed));
-    sim.seed_pedestrians(&map, spawn_count);
     sim.seed_parked_cars(0.5);
-    sim.start_many_parked_cars(&map, spawn_count);
+    sim.seed_walking_trips(&map, spawn_count);
+    sim.seed_driving_trips(&map, spawn_count);
 
     // Does savestating produce the same string?
     let save1 = abstutil::to_json(&sim);
@@ -36,12 +36,12 @@ fn from_scratch() {
 
     let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
     let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
-    sim1.seed_pedestrians(&map, spawn_count);
     sim1.seed_parked_cars(0.5);
-    sim1.start_many_parked_cars(&map, spawn_count);
-    sim2.seed_pedestrians(&map, spawn_count);
+    sim1.seed_walking_trips(&map, spawn_count);
+    sim1.seed_driving_trips(&map, spawn_count);
     sim2.seed_parked_cars(0.5);
-    sim2.start_many_parked_cars(&map, spawn_count);
+    sim2.seed_walking_trips(&map, spawn_count);
+    sim2.seed_driving_trips(&map, spawn_count);
 
     for _ in 1..600 {
         if sim1 != sim2 {
@@ -72,12 +72,12 @@ fn with_savestating() {
 
     let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
     let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
-    sim1.seed_pedestrians(&map, spawn_count);
     sim1.seed_parked_cars(0.5);
-    sim1.start_many_parked_cars(&map, spawn_count);
-    sim2.seed_pedestrians(&map, spawn_count);
+    sim1.seed_walking_trips(&map, spawn_count);
+    sim1.seed_driving_trips(&map, spawn_count);
     sim2.seed_parked_cars(0.5);
-    sim2.start_many_parked_cars(&map, spawn_count);
+    sim2.seed_walking_trips(&map, spawn_count);
+    sim2.seed_driving_trips(&map, spawn_count);
 
     for _ in 1..600 {
         sim1.step(&map, &control_map);
