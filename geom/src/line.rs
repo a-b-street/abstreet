@@ -114,9 +114,11 @@ impl Line {
         if !self.contains_pt(pt) {
             return None;
         }
+
         let percent1 = (pt.x() - self.pt1().x()) / (self.pt2().x() - self.pt1().x());
         let percent2 = (pt.y() - self.pt1().y()) / (self.pt2().y() - self.pt1().y());
-        if (percent1 - percent2).abs() < PERCENT_EPSILON {
+
+        if percent1.is_nan() || percent2.is_nan() || (percent1 - percent2).abs() < PERCENT_EPSILON {
             Some(self.length() * percent1)
         } else {
             None

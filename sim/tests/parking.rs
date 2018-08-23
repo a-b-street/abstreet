@@ -79,6 +79,9 @@ fn make_test_map() -> map_model::Map {
     let left = geom::LonLat::new(100.0, 50.0);
     let right = geom::LonLat::new(200.0, 50.0);
 
+    let north_pts = triangle_around(150.0, 10.0);
+    let south_pts = triangle_around(150.0, 90.0);
+
     let map = map_model::Map::create_from_raw(
         raw_data::Map {
             roads: vec![raw_data::Road {
@@ -98,7 +101,18 @@ fn make_test_map() -> map_model::Map {
                     has_traffic_signal: false,
                 },
             ],
-            buildings: Vec::new(),
+            buildings: vec![
+                raw_data::Building {
+                    points: north_pts,
+                    osm_tags: BTreeMap::new(),
+                    osm_way_id: 456,
+                },
+                raw_data::Building {
+                    points: south_pts,
+                    osm_tags: BTreeMap::new(),
+                    osm_way_id: 789,
+                },
+            ],
             parcels: Vec::new(),
             coordinates_in_world_space: true,
         },
@@ -123,4 +137,12 @@ fn make_test_map() -> map_model::Map {
         ]
     );
     map
+}
+
+fn triangle_around(x: f64, y: f64) -> Vec<geom::LonLat> {
+    vec![
+        geom::LonLat::new(x - 5.0, y - 5.0),
+        geom::LonLat::new(x + 5.0, y - 5.0),
+        geom::LonLat::new(x, y + 5.0),
+    ]
 }

@@ -50,12 +50,12 @@ fn main() {
         // TODO need a notion of scenarios
         if flags.big_sim {
             sim.seed_parked_cars(0.95);
-            sim.seed_pedestrians(&map, 1000);
-            sim.start_many_parked_cars(&map, 1000);
+            sim.seed_walking_trips(&map, 1000);
+            sim.seed_driving_trips(&map, 1000);
         } else {
             sim.seed_parked_cars(0.5);
-            sim.seed_pedestrians(&map, 100);
-            sim.start_many_parked_cars(&map, 100);
+            sim.seed_walking_trips(&map, 100);
+            sim.seed_driving_trips(&map, 100);
         }
     }
 
