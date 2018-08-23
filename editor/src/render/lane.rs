@@ -108,8 +108,8 @@ impl DrawLane {
         for pair in l.lane_center_pts.points().windows(2) {
             let (pt1, pt2) = (pair[0], pair[1]);
             g.draw_line(&line, [pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
-            g.draw_ellipse(circle_color, geometry::circle(pt1.x(), pt1.y(), 0.4));
-            g.draw_ellipse(circle_color, geometry::circle(pt2.x(), pt2.y(), 0.8));
+            g.draw_ellipse(circle_color, geometry::make_circle(pt1, 0.4));
+            g.draw_ellipse(circle_color, geometry::make_circle(pt2, 0.8));
         }
     }
 

@@ -594,3 +594,9 @@ CarParking
 	- rename to ParkedCar
 SidewalkSpot
 	- this should cache lane and distance. :)
+
+## Notes on King County GIS datasets
+
+- TODO: https://data-seattlecitygis.opendata.arcgis.com/datasets/channelization
+
+- https://data-seattlecitygis.opendata.arcgis.com/datasets/street-signs

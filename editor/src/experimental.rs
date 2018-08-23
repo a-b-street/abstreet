@@ -282,7 +282,7 @@ impl UI {
 
         let hit = vertical_pl.intersection(&horiz_pl).unwrap();
         if false {
-            g.draw_ellipse(BLUE, geometry::circle(hit.x(), hit.y(), 1.0));
+            g.draw_ellipse(BLUE, geometry::make_circle(hit, 1.0));
         } else {
             vertical_pl.trim_to_pt(hit);
             horiz_pl.trim_to_pt(hit);
@@ -325,7 +325,7 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     }
     let radius = 0.5;
     for pt in pts {
-        g.draw_ellipse(BLUE, geometry::circle(pt.x(), pt.y(), radius));
+        g.draw_ellipse(BLUE, geometry::make_circle(*pt, radius));
     }
 }
 

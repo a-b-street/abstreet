@@ -26,7 +26,7 @@ impl DrawPedestrian {
 
         DrawPedestrian {
             id,
-            circle: geometry::circle(pos.x(), pos.y(), RADIUS),
+            circle: geometry::make_circle(pos, RADIUS),
             turn_arrow,
         }
     }
@@ -45,16 +45,10 @@ impl DrawPedestrian {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        geometry::point_in_circle(
-            pt.x(),
-            pt.y(),
-            [self.circle[0] + RADIUS, self.circle[1] + RADIUS],
-            RADIUS,
-        )
+        geometry::point_in_circle(&self.circle, pt)
     }
 
     pub fn focus_pt(&self) -> Pt2D {
-        let radius = self.circle[2] / 2.0;
-        Pt2D::new(self.circle[0] + radius, self.circle[1] + radius)
+        geometry::center_of_circle(&self.circle)
     }
 }

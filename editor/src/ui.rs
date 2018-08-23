@@ -183,6 +183,16 @@ impl UI {
 
         let screen_bbox = self.canvas.get_screen_bbox();
 
+        if self.show_extra_shapes.is_enabled() {
+            for s in &self.draw_map
+                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
+            {
+                if s.contains_pt(pt) {
+                    return Some(ID::ExtraShape(s.id));
+                }
+            }
+        }
+
         let lanes_onscreen = if self.show_lanes.is_enabled() {
             self.draw_map.get_loads_onscreen(screen_bbox, &self.hider)
         } else {
@@ -226,16 +236,6 @@ impl UI {
 
                 if i.contains_pt(pt) {
                     return Some(ID::Intersection(i.id));
-                }
-            }
-        }
-
-        if self.show_extra_shapes.is_enabled() {
-            for s in &self.draw_map
-                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
-            {
-                if s.contains_pt(pt) {
-                    return Some(ID::ExtraShape(s.id));
                 }
             }
         }

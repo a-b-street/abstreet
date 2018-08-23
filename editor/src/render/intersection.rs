@@ -111,17 +111,17 @@ impl DrawIntersection {
 
         g.draw_ellipse(
             cs.get(Colors::TrafficSignalYellow),
-            geometry::circle(self.center.x(), self.center.y(), radius),
+            geometry::make_circle(self.center, radius),
         );
 
         g.draw_ellipse(
             cs.get(Colors::TrafficSignalGreen),
-            geometry::circle(self.center.x(), self.center.y() + (radius * 2.0), radius),
+            geometry::make_circle(self.center.offset(0.0, radius * 2.0), radius),
         );
 
         g.draw_ellipse(
             cs.get(Colors::TrafficSignalRed),
-            geometry::circle(self.center.x(), self.center.y() - (radius * 2.0), radius),
+            geometry::make_circle(self.center.offset(0.0, radius * -2.0), radius),
         );
     }
 }

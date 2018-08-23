@@ -1,7 +1,7 @@
 use geom::{Bounds, LonLat, PolyLine, Pt2D};
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::{f64, fmt, io};
 
@@ -17,8 +17,14 @@ impl fmt::Display for ExtraShapeID {
 #[derive(Debug)]
 pub struct ExtraShape {
     pub id: ExtraShapeID,
-    pub pts: PolyLine,
-    pub attributes: HashMap<String, String>,
+    pub geom: ExtraShapeGeom,
+    pub attributes: BTreeMap<String, String>,
+}
+
+#[derive(Debug)]
+pub enum ExtraShapeGeom {
+    Point(Pt2D),
+    Points(PolyLine),
 }
 
 pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::Error> {
@@ -33,7 +39,7 @@ pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::E
     // TODO uncomfortably stateful
     let mut shapes = Vec::new();
     let mut scanned_schema = false;
-    let mut attributes: HashMap<String, String> = HashMap::new();
+    let mut attributes: BTreeMap<String, String> = BTreeMap::new();
     let mut attrib_key: Option<String> = None;
 
     let mut skipped_count = 0;
@@ -75,11 +81,15 @@ pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::E
                                     break;
                                 }
                             }
-                            if ok {
+                            if ok && is_interesting_sign(&attributes) {
                                 let id = ExtraShapeID(shapes.len());
                                 shapes.push(ExtraShape {
                                     id,
-                                    pts: PolyLine::new(pts),
+                                    geom: if pts.len() == 1 {
+                                        ExtraShapeGeom::Point(pts[0])
+                                    } else {
+                                        ExtraShapeGeom::Points(PolyLine::new(pts))
+                                    },
                                     attributes: attributes.clone(),
                                 });
                             } else {
@@ -125,4 +135,9 @@ fn parse_pt(input: &str, gps_bounds: &Bounds) -> Option<Pt2D> {
         },
         _ => None,
     };
+}
+
+// TODO only for Street_Signs.kml; this is temporary to explore stuff
+fn is_interesting_sign(attributes: &BTreeMap<String, String>) -> bool {
+    attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
 }

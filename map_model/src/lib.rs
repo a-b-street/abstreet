@@ -3,7 +3,6 @@ extern crate abstutil;
 extern crate dimensioned;
 extern crate geo;
 extern crate geom;
-extern crate graphics;
 extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;

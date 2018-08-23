@@ -73,6 +73,10 @@ impl Pt2D {
         // DON'T invert y here
         Angle::new((to.y() - self.y()).atan2(to.x() - self.x()))
     }
+
+    pub fn offset(&self, dx: f64, dy: f64) -> Pt2D {
+        Pt2D::new(self.x() + dx, self.y() + dy)
+    }
 }
 
 impl fmt::Display for Pt2D {

@@ -45,11 +45,7 @@ impl DrawTurn {
             .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle)
             .to_vec();
 
-        let icon_circle = geometry::circle(
-            icon_center.x(),
-            icon_center.y(),
-            TURN_ICON_ARROW_LENGTH / 2.0,
-        );
+        let icon_circle = geometry::make_circle(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
 
         let icon_arrow = [icon_src[0], icon_src[1], icon_dst[0], icon_dst[1]];
 
@@ -87,12 +83,6 @@ impl DrawTurn {
 
     // for the icon
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        let radius = self.icon_circle[2] / 2.0;
-        geometry::point_in_circle(
-            pt.x(),
-            pt.y(),
-            [self.icon_circle[0] + radius, self.icon_circle[1] + radius],
-            radius,
-        )
+        geometry::point_in_circle(&self.icon_circle, pt)
     }
 }

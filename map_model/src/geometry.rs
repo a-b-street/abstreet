@@ -2,7 +2,6 @@
 
 use aabb_quadtree::geom::{Point, Rect};
 use geom::{Angle, PolyLine, Polygon, Pt2D};
-use graphics::math::Vec2d;
 use std::f64;
 
 pub const LANE_THICKNESS: f64 = 2.5;
@@ -14,15 +13,22 @@ pub fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: 
     PolyLine::new(vec![pt, pt2]).make_polygons_blindly(thickness)
 }
 
-pub fn point_in_circle(x: f64, y: f64, center: Vec2d, radius: f64) -> bool {
-    // avoid sqrt by squaring radius instead
-    (x - center[0]).powi(2) + (y - center[1]).powi(2) < radius.powi(2)
+pub fn center_of_circle(c: &[f64; 4]) -> Pt2D {
+    let radius = c[2] / 2.0;
+    Pt2D::new(c[0] + radius, c[1] + radius)
 }
 
-pub fn circle(center_x: f64, center_y: f64, radius: f64) -> [f64; 4] {
+pub fn point_in_circle(c: &[f64; 4], pt: Pt2D) -> bool {
+    let radius = c[2] / 2.0;
+    let center = center_of_circle(c);
+    // avoid sqrt by squaring radius instead
+    (pt.x() - center.x()).powi(2) + (pt.y() - center.y()).powi(2) < radius.powi(2)
+}
+
+pub fn make_circle(center: Pt2D, radius: f64) -> [f64; 4] {
     [
-        center_x - radius,
-        center_y - radius,
+        center.x() - radius,
+        center.y() - radius,
         2.0 * radius,
         2.0 * radius,
     ]
