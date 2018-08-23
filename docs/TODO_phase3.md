@@ -4,6 +4,9 @@
 
 - code cleanup
 	- figure out responsibility btwn agents and managers, then fix up visibility
+	- things like ParkingSimState have so many methods -- some are only
+	  meant for spawner, or driving/walking to query. separate out some
+          traits.
 	- on a lane vs turn permeates so many places
 
 - better visualization

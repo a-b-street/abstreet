@@ -23,8 +23,8 @@ fn park_on_goal_st() {
     loop {
         if let Some(p) = sim.step(&map, &control_map).first() {
             assert_eq!(p.car, car);
-            assert_eq!(p.spot.parking_lane, parking2);
-            assert_eq!(p.spot.spot_idx, 4);
+            assert_eq!(p.spot.lane, parking2);
+            assert_eq!(p.spot.idx, 4);
             break;
         }
         if sim.time.is_multiple_of_minute() {
@@ -51,8 +51,8 @@ fn wander_around_for_parking() {
     loop {
         if let Some(p) = sim.step(&map, &control_map).first() {
             assert_eq!(p.car, car);
-            assert_eq!(p.spot.parking_lane, parking1);
-            assert_eq!(p.spot.spot_idx, 0);
+            assert_eq!(p.spot.lane, parking1);
+            assert_eq!(p.spot.idx, 0);
             break;
         }
         if sim.time.is_multiple_of_minute() {

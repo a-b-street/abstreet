@@ -6,10 +6,10 @@ use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
-use parking::ParkingSpot;
+use parking::ParkingSimState;
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {AgentID, Distance, InvariantViolated, On, PedestrianID, Speed, Time, TIMESTEP};
+use {AgentID, Distance, InvariantViolated, On, ParkingSpot, PedestrianID, Speed, Time, TIMESTEP};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
@@ -21,27 +21,45 @@ const SPEED: Speed = si::MeterPerSecond {
 
 // A pedestrian can start from a parking spot (after driving and parking) or at a building.
 // A pedestrian can end at a parking spot (to start driving) or at a building.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum SidewalkSpot {
-    ParkingSpot(ParkingSpot),
-    Building(BuildingID),
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(PartialEq, Eq)]
+pub struct SidewalkSpot {
+    connection: SidewalkPOI,
+    pub sidewalk: LaneID,
+    #[derivative(PartialEq = "ignore")]
+    dist_along: Distance,
 }
 
 impl SidewalkSpot {
-    pub fn get_sidewalk_pos(&self, map: &Map) -> (LaneID, Distance) {
-        match self {
-            SidewalkSpot::ParkingSpot(spot) => (
-                map.get_parent(spot.parking_lane)
-                    .find_sidewalk(spot.parking_lane)
-                    .unwrap(),
-                spot.dist_along_for_ped(),
-            ),
-            SidewalkSpot::Building(id) => {
-                let front_path = &map.get_b(*id).front_path;
-                (front_path.sidewalk, front_path.dist_along_sidewalk)
-            }
+    pub fn parking_spot(
+        spot: ParkingSpot,
+        map: &Map,
+        parking_sim: &ParkingSimState,
+    ) -> SidewalkSpot {
+        let sidewalk = map.get_parent(spot.lane).find_sidewalk(spot.lane).unwrap();
+        let dist_along = parking_sim.dist_along_for_ped(spot);
+        SidewalkSpot {
+            connection: SidewalkPOI::ParkingSpot(spot),
+            sidewalk,
+            dist_along,
         }
     }
+
+    pub fn building(bldg: BuildingID, map: &Map) -> SidewalkSpot {
+        let front_path = &map.get_b(bldg).front_path;
+        SidewalkSpot {
+            connection: SidewalkPOI::Building(bldg),
+            sidewalk: front_path.sidewalk,
+            dist_along: front_path.dist_along_sidewalk,
+        }
+    }
+}
+
+// Point of interest, that is
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+enum SidewalkPOI {
+    ParkingSpot(ParkingSpot),
+    Building(BuildingID),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -97,7 +115,7 @@ impl Pedestrian {
         }
 
         if self.path.is_empty() {
-            let goal_dist = self.goal.get_sidewalk_pos(map).1;
+            let goal_dist = self.goal.dist_along;
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
             // Later distance will be non-negative, so don't attempt abs() or anything
@@ -107,9 +125,9 @@ impl Pedestrian {
                 goal_dist - self.dist_along
             };
             if dist_away <= 2.0 * SPEED * TIMESTEP {
-                return match self.goal {
-                    SidewalkSpot::ParkingSpot(ref spot) => Action::StartParkedCar(spot.clone()),
-                    SidewalkSpot::Building(id) => Action::StartCrossingPath(id),
+                return match self.goal.connection {
+                    SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
+                    SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
                 };
             }
             return Action::Continue;
@@ -313,7 +331,7 @@ impl WalkingSimState {
                 }
                 Action::StartParkedCar(ref spot) => {
                     self.peds.remove(&id);
-                    results.push((*id, spot.clone()));
+                    results.push((*id, *spot));
                 }
                 Action::StartCrossingPath(bldg) => {
                     let p = self.peds.get_mut(&id).unwrap();
@@ -406,12 +424,11 @@ impl WalkingSimState {
         mut path: VecDeque<LaneID>,
     ) {
         let start_lane = path.pop_front().unwrap();
-        let (spot_start_lane, start_dist) = start.get_sidewalk_pos(map);
-        assert_eq!(start_lane, spot_start_lane);
+        assert_eq!(start_lane, start.sidewalk);
         if !path.is_empty() {
-            assert_eq!(*path.back().unwrap(), goal.get_sidewalk_pos(map).0);
+            assert_eq!(*path.back().unwrap(), goal.sidewalk);
         }
-        let front_path = if let SidewalkSpot::Building(id) = start {
+        let front_path = if let SidewalkPOI::Building(id) = start.connection {
             Some(CrossingFrontPath {
                 bldg: id,
                 dist_along: 0.0 * si::M,
@@ -422,7 +439,7 @@ impl WalkingSimState {
         };
 
         let contraflow = if path.is_empty() {
-            start_dist > goal.get_sidewalk_pos(map).1
+            start.dist_along > goal.dist_along
         } else {
             is_contraflow(map, start_lane, path[0])
         };
@@ -433,7 +450,7 @@ impl WalkingSimState {
                 path,
                 contraflow,
                 on: On::Lane(start_lane),
-                dist_along: start_dist,
+                dist_along: start.dist_along,
                 waiting_for: None,
                 front_path,
                 goal,

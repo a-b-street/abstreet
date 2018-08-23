@@ -8,14 +8,14 @@ use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
-use parking::{ParkingSimState, ParkingSpot};
+use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, ParkedCar, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -149,7 +149,7 @@ impl Sim {
     }
 
     // TODO not sure returning info for tests like this is ideal
-    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<CarParking> {
+    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<ParkedCar> {
         self.time = self.time.next();
 
         self.spawner.step(
@@ -161,7 +161,7 @@ impl Sim {
             &self.car_properties,
         );
 
-        let mut cars_parked_this_step: Vec<CarParking> = Vec::new();
+        let mut cars_parked_this_step: Vec<ParkedCar> = Vec::new();
         match self.driving_state.step(
             self.time,
             map,
@@ -173,7 +173,8 @@ impl Sim {
             Ok(parked_cars) => for p in parked_cars {
                 cars_parked_this_step.push(p.clone());
                 self.parking_state.add_parked_car(p.clone());
-                self.spawner.car_reached_parking_spot(self.time, p);
+                self.spawner
+                    .car_reached_parking_spot(self.time, p, map, &self.parking_state);
             },
             Err(e) => panic!("At {}: {}", self.time, e),
         };
@@ -315,18 +316,5 @@ pub struct Benchmark {
 impl Benchmark {
     pub fn has_real_time_passed(&self, d: Duration) -> bool {
         self.last_real_time.elapsed() >= d
-    }
-}
-
-// TODO better name?
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
-pub struct CarParking {
-    pub car: CarID,
-    pub spot: ParkingSpot,
-}
-
-impl CarParking {
-    pub fn new(car: CarID, spot: ParkingSpot) -> CarParking {
-        CarParking { car, spot }
     }
 }

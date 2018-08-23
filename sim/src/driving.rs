@@ -10,12 +10,14 @@ use map_model::geometry::LANE_THICKNESS;
 use map_model::{LaneID, Map, TurnID};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use parking::{ParkingSimState, ParkingSpot};
+use parking::ParkingSimState;
 use rand::Rng;
-use sim::CarParking;
 use std;
 use std::collections::{BTreeMap, HashMap, VecDeque};
-use {Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, Speed, Tick, Time};
+use {
+    Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, ParkedCar,
+    ParkingSpot, Speed, Tick, Time,
+};
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
     value_unsafe: 10.0,
@@ -27,7 +29,7 @@ struct ParkingState {
     // False means departing
     is_parking: bool,
     started_at: Tick,
-    tuple: CarParking,
+    tuple: ParkedCar,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -98,7 +100,7 @@ impl Car {
             if let Some(spot) =
                 self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim)
             {
-                if spot.dist_along_for_car(vehicle) == self.dist_along {
+                if parking_sim.dist_along_for_car(spot, vehicle) == self.dist_along {
                     return Action::StartParking(spot);
                 }
                 // Being stopped before the parking spot is normal if the final road is clogged
@@ -173,7 +175,7 @@ impl Car {
                     if let Some(spot) =
                         self.find_parking_spot(id, current_dist_along, map, parking_sim)
                     {
-                        spot.dist_along_for_car(vehicle)
+                        parking_sim.dist_along_for_car(spot, vehicle)
                     } else {
                         need_parking = true;
                         current_on.length(map)
@@ -558,7 +560,7 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         rng: &mut R,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Result<Vec<CarParking>, InvariantViolated> {
+    ) -> Result<Vec<ParkedCar>, InvariantViolated> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
@@ -571,7 +573,7 @@ impl DrivingSimState {
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
 
-        let mut finished_parking: Vec<CarParking> = Vec::new();
+        let mut finished_parking: Vec<ParkedCar> = Vec::new();
 
         // Apply moves. This should resolve in no conflicts because lookahead behavior works, so
         // this could be applied concurrently!
@@ -582,7 +584,7 @@ impl DrivingSimState {
                     c.parking = Some(ParkingState {
                         is_parking: true,
                         started_at: time,
-                        tuple: CarParking::new(*id, spot.clone()),
+                        tuple: ParkedCar::new(*id, *spot),
                     });
                 }
                 Action::WorkOnParking => {
@@ -663,16 +665,13 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         car: CarID,
-        parking: CarParking,
+        parked_car: ParkedCar,
+        dist_along: Distance,
         mut path: VecDeque<LaneID>,
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> bool {
-        let vehicle = &properties[&car];
         let start = path.pop_front().unwrap();
-        // TODO this looks like it jumps when the parking and driving lanes are different lengths
-        // due to diagonals
-        let dist_along = parking.spot.dist_along_for_car(vehicle);
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
 
@@ -692,14 +691,15 @@ impl DrivingSimState {
                 return false;
             }
 
-            let accel_for_other_to_stop = vehicle.accel_to_follow(
+            let other_vehicle = &properties[&other];
+            let accel_for_other_to_stop = other_vehicle.accel_to_follow(
                 self.cars[&other].speed,
                 map.get_parent(start).get_speed_limit(),
-                &properties[&other],
+                &properties[&car],
                 dist_along - other_dist,
                 0.0 * si::MPS,
             );
-            if accel_for_other_to_stop <= vehicle.max_deaccel {
+            if accel_for_other_to_stop <= other_vehicle.max_deaccel {
                 println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
                 return false;
             }
@@ -722,7 +722,7 @@ impl DrivingSimState {
                 parking: Some(ParkingState {
                     is_parking: false,
                     started_at: time,
-                    tuple: parking,
+                    tuple: parked_car,
                 }),
             },
         );

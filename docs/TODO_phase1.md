@@ -42,6 +42,9 @@
 
 - draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
 
+- inspiration for overall art style
+	- https://gifer.com/en/2svr
+
 ## Intersection geometry brainstorm
 
 - can we merge adjacent polylines at intersections based on closest angle, and then use the existing stuff to get nice geometry?

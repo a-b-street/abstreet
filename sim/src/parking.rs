@@ -4,10 +4,9 @@ use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
-use sim::CarParking;
 use std::collections::BTreeMap;
 use std::iter;
-use {CarID, Distance};
+use {CarID, Distance, ParkedCar, ParkingSpot};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct ParkingSimState {
@@ -45,32 +44,31 @@ impl ParkingSimState {
     }
 
     pub fn get_all_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
-        self.lanes[lane.0].spots.clone()
+        (0..self.lanes[lane.0].spots.len())
+            .map(|idx| parking_spot(lane, idx))
+            .collect()
     }
 
     pub fn get_all_free_spots(&self) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for l in &self.lanes {
-            for (spot, occupant) in l.spots.iter().zip(l.occupants.iter()) {
+            for (idx, occupant) in l.occupants.iter().enumerate() {
                 if occupant.is_none() {
-                    spots.push(spot.clone());
+                    spots.push(parking_spot(l.id, idx));
                 }
             }
         }
         spots
     }
 
-    pub fn remove_parked_car(&mut self, id: LaneID, car: CarID) {
-        self.lanes[id.0].remove_parked_car(car);
+    pub fn remove_parked_car(&mut self, p: ParkedCar) {
+        self.lanes[p.spot.lane.0].remove_parked_car(p.car);
         self.total_count -= 1;
     }
 
-    pub fn add_parked_car(&mut self, p: CarParking) {
-        assert_eq!(
-            self.lanes[p.spot.parking_lane.0].occupants[p.spot.spot_idx],
-            None
-        );
-        self.lanes[p.spot.parking_lane.0].occupants[p.spot.spot_idx] = Some(p.car);
+    pub fn add_parked_car(&mut self, p: ParkedCar) {
+        assert_eq!(self.lanes[p.spot.lane.0].occupants[p.spot.idx], None);
+        self.lanes[p.spot.lane.0].occupants[p.spot.idx] = Some(p.car);
         self.total_count += 1;
     }
 
@@ -117,15 +115,15 @@ impl ParkingSimState {
             .iter()
             .position(|x| *x == Some(c))
             .unwrap();
-        self.lanes[l.0].spots[idx].clone()
+        parking_spot(l, idx)
     }
 
-    pub fn get_all_cars(&self) -> Vec<(CarID, LaneID)> {
+    pub fn get_all_parked_cars(&self) -> Vec<ParkedCar> {
         let mut result = Vec::new();
         for l in &self.lanes {
-            for maybe_car in &l.occupants {
+            for (idx, maybe_car) in l.occupants.iter().enumerate() {
                 if let Some(car) = maybe_car {
-                    result.push((*car, l.id));
+                    result.push(ParkedCar::new(*car, parking_spot(l.id, idx)));
                 }
             }
         }
@@ -139,19 +137,31 @@ impl ParkingSimState {
         let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
             x.is_none() && l.spots[idx].dist_along + map_model::PARKING_SPOT_LENGTH >= dist_along
         })?;
-        Some(l.spots[idx].clone())
+        Some(parking_spot(lane, idx))
     }
 
-    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<CarParking> {
-        let l = &self.lanes[spot.parking_lane.0];
-        l.occupants[spot.spot_idx].and_then(|car| Some(CarParking::new(car, spot)))
+    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
+        let l = &self.lanes[spot.lane.0];
+        l.occupants[spot.idx].and_then(|car| Some(ParkedCar::new(car, spot)))
+    }
+
+    pub fn dist_along_for_car(&self, spot: ParkingSpot, vehicle: &Vehicle) -> Distance {
+        self.get_spot(spot).dist_along_for_car(vehicle)
+    }
+
+    pub fn dist_along_for_ped(&self, spot: ParkingSpot) -> Distance {
+        self.get_spot(spot).dist_along_for_ped()
+    }
+
+    fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
+        &self.lanes[spot.lane.0].spots[spot.idx]
     }
 }
 
 #[derive(Serialize, Deserialize)]
 struct ParkingLane {
     id: LaneID,
-    spots: Vec<ParkingSpot>,
+    spots: Vec<ParkingSpotGeometry>,
     occupants: Vec<Option<CarID>>,
 }
 
@@ -181,9 +191,7 @@ impl ParkingLane {
                 .map(|idx| {
                     let spot_start = map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64);
                     let (pos, angle) = l.dist_along(spot_start);
-                    ParkingSpot {
-                        parking_lane: l.id,
-                        spot_idx: idx,
+                    ParkingSpotGeometry {
                         dist_along: spot_start,
                         pos,
                         angle,
@@ -227,9 +235,7 @@ impl ParkingLane {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
-pub struct ParkingSpot {
-    pub parking_lane: LaneID,
-    pub spot_idx: usize,
+struct ParkingSpotGeometry {
     // These 3 are of the front of the parking spot
     #[derivative(PartialEq = "ignore")]
     dist_along: Distance,
@@ -238,13 +244,13 @@ pub struct ParkingSpot {
     angle: Angle,
 }
 
-impl ParkingSpot {
-    pub fn dist_along_for_ped(&self) -> Distance {
+impl ParkingSpotGeometry {
+    fn dist_along_for_ped(&self) -> Distance {
         // Always centered in the entire parking spot
         self.dist_along - (map_model::PARKING_SPOT_LENGTH / 2.0)
     }
 
-    pub fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
+    fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot
         let offset = (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0;
         self.dist_along - offset
@@ -259,4 +265,8 @@ impl ParkingSpot {
             self.angle,
         )
     }
+}
+
+fn parking_spot(lane: LaneID, idx: usize) -> ParkingSpot {
+    ParkingSpot { lane, idx }
 }

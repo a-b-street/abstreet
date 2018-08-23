@@ -256,3 +256,30 @@ impl fmt::Display for InvariantViolated {
         write!(f, "InvariantViolated({0})", self.0)
     }
 }
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct TripID(pub usize);
+
+impl fmt::Display for TripID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TripID({0})", self.0)
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ParkingSpot {
+    pub lane: LaneID,
+    pub idx: usize,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+pub struct ParkedCar {
+    pub car: CarID,
+    pub spot: ParkingSpot,
+}
+
+impl ParkedCar {
+    pub fn new(car: CarID, spot: ParkingSpot) -> ParkedCar {
+        ParkedCar { car, spot }
+    }
+}

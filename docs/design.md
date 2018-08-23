@@ -583,16 +583,14 @@ Time to get even more multi-modal / multi-phase!
 - the walking layer shouldnt care about the next layer of the trip. just tell
   master sim when a ped has reached a bldg or a parking spot, as desired.
 
-- next, make a ped start a bldg and go to a parking spot. walking layer has two
-  types of starts and goals -- a bldg path or a parking spot.
+- need to draw the FSM for all of this!
 
 
-- next things
-	- make the spawner orchestrate everything!
-		- or should there be something else? spawner currently owns IDs. should maybe split out scenario generation and trip FSM management, but... not yet?
-	- when reaching a parking spot, return up to master sim layer. something needs to make peds at a parking spot become started cars
-	- when a driving car finishes parking, also tell walking sim to spawn a pedestrian
+maybe need to organize structs/enums a little...
 
-
-- by the end of this, the spawner should be pretty simple, right?
-- and draw the FSM. :P
+ParkingSpot
+	- change this to just lane and spot idx, move other stuff to queries for ParkingSim, make it copyable
+CarParking
+	- rename to ParkedCar
+SidewalkSpot
+	- this should cache lane and distance. :)
