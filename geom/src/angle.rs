@@ -1,3 +1,4 @@
+use std;
 use std::f64;
 use std::fmt;
 
@@ -34,5 +35,13 @@ impl Angle {
 impl fmt::Display for Angle {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Angle({} degrees)", self.normalized_degrees())
+    }
+}
+
+impl std::ops::Sub for Angle {
+    type Output = Angle;
+
+    fn sub(self, other: Angle) -> Angle {
+        Angle(self.0 - other.0)
     }
 }

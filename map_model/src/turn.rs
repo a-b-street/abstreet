@@ -4,8 +4,7 @@ use dimensioned::si;
 use geom::{Angle, Line, Pt2D};
 use std::f64;
 use std::fmt;
-use IntersectionID;
-use LaneID;
+use {IntersectionID, LaneID, Map};
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 // Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
@@ -45,6 +44,9 @@ impl PartialEq for Turn {
 
 impl Turn {
     pub fn conflicts_with(&self, other: &Turn) -> bool {
+        if self == other {
+            return false;
+        }
         if self.between_sidewalks && other.between_sidewalks {
             return false;
         }
@@ -65,5 +67,29 @@ impl Turn {
 
     pub fn length(&self) -> si::Meter<f64> {
         self.line.length()
+    }
+
+    // TODO all the stuff based on turn angle is a bit... wrong, especially for sidewalks. :\
+    // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
+    fn turn_angle(&self, map: &Map) -> Angle {
+        let lane_angle = map.get_l(self.src).end_line(self.parent).angle();
+        self.line.angle() - lane_angle
+    }
+
+    pub fn is_right_turn(&self, map: &Map) -> bool {
+        let a = self.turn_angle(map).normalized_degrees();
+        a < 95.0 && a > 20.0
+    }
+
+    pub fn is_straight_turn(&self, map: &Map) -> bool {
+        let a = self.turn_angle(map).normalized_degrees();
+        a <= 20.0 || a >= 320.0
+    }
+
+    pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+        vec![
+            format!("{}", self.id),
+            format!("Angle {}", self.turn_angle(map)),
+        ]
     }
 }

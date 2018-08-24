@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
+use control::ControlMap;
 use geom::{LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
@@ -31,10 +32,14 @@ pub struct DrawMap {
 
 impl DrawMap {
     // Also returns the center of the map in map-space
-    pub fn new(map: &Map, raw_extra_shapes: Vec<ExtraShape>) -> (DrawMap, Pt2D) {
+    pub fn new(
+        map: &Map,
+        control_map: &ControlMap,
+        raw_extra_shapes: Vec<ExtraShape>,
+    ) -> (DrawMap, Pt2D) {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
-            lanes.push(DrawLane::new(l, map));
+            lanes.push(DrawLane::new(l, map, control_map));
         }
 
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -137,9 +142,9 @@ impl DrawMap {
         }
     }
 
-    pub fn edit_lane_type(&mut self, id: LaneID, map: &Map) {
+    pub fn edit_lane_type(&mut self, id: LaneID, map: &Map, control_map: &ControlMap) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
-        self.lanes[id.0] = DrawLane::new(map.get_l(id), map);
+        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, control_map);
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {

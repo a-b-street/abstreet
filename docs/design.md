@@ -600,3 +600,7 @@ SidewalkSpot
 - TODO: https://data-seattlecitygis.opendata.arcgis.com/datasets/channelization
 
 - https://data-seattlecitygis.opendata.arcgis.com/datasets/street-signs
+
+## Stop sign priority
+
+Use OSM highway tags to rank. For all the turns on the higher priority road, detect priority/yield based on turn angle, I guess.

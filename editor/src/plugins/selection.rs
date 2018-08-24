@@ -216,7 +216,7 @@ impl SelectionState {
                     ID::Car(id) => sim.car_tooltip(id),
                     ID::Pedestrian(id) => sim.ped_tooltip(id),
                     ID::Intersection(id) => vec![format!("{}", id)],
-                    ID::Turn(id) => vec![format!("{}", id)],
+                    ID::Turn(id) => map.get_t(id).tooltip_lines(map),
                     ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(),
                 };
                 canvas.draw_mouse_tooltip(g, &lines);

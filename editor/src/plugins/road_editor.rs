@@ -1,3 +1,4 @@
+use control::ControlMap;
 use ezgui::input::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
 use piston::input::Key;
@@ -21,6 +22,7 @@ impl RoadEditor {
         current_selection: &SelectionState,
         map: &mut Map,
         draw_map: &mut DrawMap,
+        control_map: &ControlMap,
         sim: &mut Sim,
     ) -> bool {
         let mut new_state: Option<RoadEditor> = None;
@@ -97,9 +99,10 @@ impl RoadEditor {
                 }
             }
 
+            // TODO Pretty sure control map needs to recalculate based on the new turns
             let old_type = map.get_l(id).lane_type;
             map.edit_lane_type(id, new_type);
-            draw_map.edit_lane_type(id, map);
+            draw_map.edit_lane_type(id, map, control_map);
             sim.edit_lane_type(id, old_type, map);
 
             // Add turns back

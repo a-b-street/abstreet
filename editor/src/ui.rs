@@ -52,6 +52,7 @@ pub struct UI {
     show_intersections: ToggleableLayer,
     show_parcels: ToggleableLayer,
     show_extra_shapes: ToggleableLayer,
+    show_all_turn_icons: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
     // This is a particularly special plugin, since it's always kind of active and other things
@@ -96,8 +97,8 @@ impl UI {
             Vec::new()
         };
 
-        let (draw_map, center_pt) = render::DrawMap::new(&map, extra_shapes);
         let control_map = ControlMap::new(&map);
+        let (draw_map, center_pt) = render::DrawMap::new(&map, &control_map, extra_shapes);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
@@ -128,6 +129,7 @@ impl UI {
                 Key::D7,
                 Some(MIN_ZOOM_FOR_LANES),
             ),
+            show_all_turn_icons: ToggleableLayer::new("turn icons", Key::D9, None),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
 
             current_selection_state: SelectionState::Empty,
@@ -174,6 +176,7 @@ impl UI {
         self.show_intersections.handle_zoom(old_zoom, new_zoom);
         self.show_parcels.handle_zoom(old_zoom, new_zoom);
         self.show_extra_shapes.handle_zoom(old_zoom, new_zoom);
+        self.show_all_turn_icons.handle_zoom(old_zoom, new_zoom);
         self.debug_mode.handle_zoom(old_zoom, new_zoom);
     }
 
@@ -385,7 +388,9 @@ impl UI {
     }
 
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.stop_sign_editor.show_turn_icons(id) || self.traffic_signal_editor.show_turn_icons(id)
+        self.show_all_turn_icons.is_enabled()
+            || self.stop_sign_editor.show_turn_icons(id)
+            || self.traffic_signal_editor.show_turn_icons(id)
     }
 }
 
@@ -435,6 +440,7 @@ impl gui::GUI for UI {
             &self.current_selection_state,
             &mut self.map,
             &mut self.draw_map,
+            &self.control_map,
             &mut self.sim_ctrl.sim
         ));
         stop_if_done!(self.current_search_state.event(input));
@@ -482,6 +488,15 @@ impl gui::GUI for UI {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::ExtraShape(_)) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            return gui::EventLoopMode::InputOnly;
+        }
+        if self.show_all_turn_icons.handle_event(input) {
+            if let SelectionState::SelectedTurn(_) = self.current_selection_state {
+                self.current_selection_state = SelectionState::Empty;
+            }
+            if let SelectionState::Tooltip(ID::Turn(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             return gui::EventLoopMode::InputOnly;

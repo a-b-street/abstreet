@@ -1,7 +1,7 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::text_box::TextBox;
-use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
+use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 use sim::{CarID, PedestrianID, Sim};
@@ -70,6 +70,18 @@ fn warp(
     let pt = match usize::from_str_radix(&line[1..line.len()], 10) {
         // TODO express this more succinctly
         Ok(idx) => match line.chars().next().unwrap() {
+            'r' => {
+                let id = RoadID(idx);
+                if let Some(r) = map.maybe_get_r(id) {
+                    let l = map.get_l(r.children_forwards[0].0);
+                    println!("Warping to {}, which belongs to {}", l.id, id);
+                    *selection_state = SelectionState::SelectedLane(l.id, None);
+                    l.first_pt()
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
+            }
             'l' => {
                 let id = LaneID(idx);
                 if let Some(l) = map.maybe_get_l(id) {

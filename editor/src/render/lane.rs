@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
+use control::ControlMap;
 use dimensioned::si;
 use ezgui::canvas::Canvas;
 use ezgui::GfxCtx;
@@ -33,7 +34,7 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &map_model::Lane, map: &map_model::Map) -> DrawLane {
+    pub fn new(lane: &map_model::Lane, map: &map_model::Map, control_map: &ControlMap) -> DrawLane {
         let road = map.get_r(lane.parent);
         let start = new_perp_line(lane.first_line(), geometry::LANE_THICKNESS);
         let end = new_perp_line(lane.last_line().reverse(), geometry::LANE_THICKNESS);
@@ -61,9 +62,8 @@ impl DrawLane {
         } {
             markings.push(m);
         }
-        // TODO not all sides of the lane have to stop
         if lane.is_driving() && !map.get_i(lane.dst_i).has_traffic_signal {
-            if let Some(m) = calculate_stop_sign_line(lane) {
+            if let Some(m) = calculate_stop_sign_line(lane, control_map) {
                 markings.push(m);
             }
         }
@@ -264,7 +264,13 @@ fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> 
     })
 }
 
-fn calculate_stop_sign_line(lane: &map_model::Lane) -> Option<Marking> {
+fn calculate_stop_sign_line(lane: &map_model::Lane, control_map: &ControlMap) -> Option<Marking> {
+    if control_map.stop_signs[&lane.dst_i].is_priority_lane(lane.id) {
+        return None;
+    }
+
+    // TODO maybe draw the stop sign octagon on each lane?
+
     let (pt1, angle) =
         lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
     // Reuse perp_line. Project away an arbitrary amount
@@ -272,7 +278,7 @@ fn calculate_stop_sign_line(lane: &map_model::Lane) -> Option<Marking> {
     Some(Marking {
         lines: vec![perp_line(Line::new(pt1, pt2), geometry::LANE_THICKNESS)],
         color: Colors::StopSignMarking,
-        thickness: 0.25,
+        thickness: 0.45,
         round: true,
     })
 }
