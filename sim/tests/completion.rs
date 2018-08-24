@@ -28,3 +28,6 @@ fn aorta_model_completes() {
         }
     }
 }
+
+// TODO other tests (not completion) to add:
+// - different behavior (stopping or not) at stop signs

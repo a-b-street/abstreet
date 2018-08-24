@@ -243,24 +243,29 @@ impl StopSign {
     }
 
     fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: &AgentInfo) {
+        let ss = &control_map.stop_signs[&self.id];
+
         // If anybody is stopped, promote them.
         // TODO retain() would rock
         let mut newly_stopped: Vec<Request> = Vec::new();
         for req in self.approaching_agents.iter() {
-            // TODO tmpish debug
-            if !info.speeds.contains_key(&req.agent) {
-                println!("no speed for {:?}", req);
+            // TODO or not blocked by somebody unaccepted
+            if !info.leaders.contains(&req.agent) {
+                continue;
             }
 
-            // TODO and the agent is at the end? maybe easier than looking at their speed
-            // TODO with lane-changing, somebody could cut in front of them when they're stopped.
-            if info.leaders.contains(&req.agent)
-                && info.speeds[&req.agent] <= kinematics::EPSILON_SPEED
-            {
+            let should_promote = if ss.get_priority(req.turn) == TurnPriority::Stop {
+                // TODO and the agent is at the end? maybe easier than looking at their speed
+                // TODO with lane-changing, somebody could cut in front of them when they're stopped.
+                info.speeds[&req.agent] <= kinematics::EPSILON_SPEED
+            } else {
+                true
+            };
+            if should_promote {
                 self.started_waiting_at.insert(req.clone(), time);
                 newly_stopped.push(req.clone());
                 if self.debug {
-                    println!("{:?} is now considered stopped", req);
+                    println!("{:?} is promoted from approaching to waiting", req);
                 }
             }
         }
@@ -278,7 +283,6 @@ impl StopSign {
                 continue;
             }
 
-            let ss = &control_map.stop_signs[&self.id];
             if self.conflicts_with_waiting_with_higher_priority(turn, map, ss) {
                 continue;
             }
