@@ -27,7 +27,7 @@ fn park_on_goal_st() {
             assert_eq!(p.spot.idx, 4);
             break;
         }
-        if sim.time.is_multiple_of_minute() {
+        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
             println!("{}", sim.summary());
         }
         // TODO time limit
@@ -55,7 +55,7 @@ fn wander_around_for_parking() {
             assert_eq!(p.spot.idx, 0);
             break;
         }
-        if sim.time.is_multiple_of_minute() {
+        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
             println!("{}", sim.summary());
         }
         // TODO time limit
@@ -69,7 +69,7 @@ fn setup(
 ) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
     let control_map = control::ControlMap::new(&map);
-    let sim = sim::Sim::new(&map, scenario_name.to_string(), Some(rng_seed));
+    let sim = sim::Sim::new(&map, scenario_name.to_string(), Some(rng_seed), None);
     (map, control_map, sim)
 }
 

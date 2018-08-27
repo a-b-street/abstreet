@@ -5,17 +5,13 @@ extern crate sim;
 
 #[test]
 fn serialization() {
-    // This assumes this map has been built
-    let input = "../data/small.abst";
-    let rng_seed = 42;
-    let spawn_count = 10;
-
-    let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
-
-    let mut sim = sim::Sim::new(&map, "serialization".to_string(), Some(rng_seed));
-    sim.seed_parked_cars(0.5);
-    sim.seed_walking_trips(&map, spawn_count);
-    sim.seed_driving_trips(&map, spawn_count);
+    let (map, _, _, mut sim) = sim::init::load(
+        "../data/small.abst".to_string(),
+        "serialization".to_string(),
+        Some(42),
+        None,
+    );
+    sim::init::small_spawn(&mut sim, &map);
 
     // Does savestating produce the same string?
     let save1 = abstutil::to_json(&sim);
@@ -25,23 +21,16 @@ fn serialization() {
 
 #[test]
 fn from_scratch() {
-    // This assumes this map has been built
-    let input = "../data/small.abst";
-    let rng_seed = 42;
-    let spawn_count = 100;
-
     println!("Creating two simulations");
-    let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
-    let control_map = control::ControlMap::new(&map);
-
-    let mut sim1 = sim::Sim::new(&map, "from_scratch_1".to_string(), Some(rng_seed));
-    let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(rng_seed));
-    sim1.seed_parked_cars(0.5);
-    sim1.seed_walking_trips(&map, spawn_count);
-    sim1.seed_driving_trips(&map, spawn_count);
-    sim2.seed_parked_cars(0.5);
-    sim2.seed_walking_trips(&map, spawn_count);
-    sim2.seed_driving_trips(&map, spawn_count);
+    let (map, _, control_map, mut sim1) = sim::init::load(
+        "../data/small.abst".to_string(),
+        "from_scratch_1".to_string(),
+        Some(42),
+        None,
+    );
+    let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(42), None);
+    sim::init::small_spawn(&mut sim1, &map);
+    sim::init::small_spawn(&mut sim2, &map);
 
     for _ in 1..600 {
         if sim1 != sim2 {
@@ -59,23 +48,16 @@ fn from_scratch() {
 
 #[test]
 fn with_savestating() {
-    // This assumes this map has been built
-    let input = "../data/small.abst";
-    let rng_seed = 42;
-    let spawn_count = 100;
-
     println!("Creating two simulations");
-    let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
-    let control_map = control::ControlMap::new(&map);
-
-    let mut sim1 = sim::Sim::new(&map, "with_savestating_1".to_string(), Some(rng_seed));
-    let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(rng_seed));
-    sim1.seed_parked_cars(0.5);
-    sim1.seed_walking_trips(&map, spawn_count);
-    sim1.seed_driving_trips(&map, spawn_count);
-    sim2.seed_parked_cars(0.5);
-    sim2.seed_walking_trips(&map, spawn_count);
-    sim2.seed_driving_trips(&map, spawn_count);
+    let (map, _, control_map, mut sim1) = sim::init::load(
+        "../data/small.abst".to_string(),
+        "with_savestating_1".to_string(),
+        Some(42),
+        None,
+    );
+    let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(42), None);
+    sim::init::small_spawn(&mut sim1, &map);
+    sim::init::small_spawn(&mut sim2, &map);
 
     for _ in 1..600 {
         sim1.step(&map, &control_map);

@@ -87,7 +87,12 @@ impl UI {
         kml: Option<String>,
         window_size: Size,
     ) -> UI {
-        let (map, edits, control_map, sim) = sim::load(load, scenario_name, rng_seed);
+        let (map, edits, control_map, sim) = sim::init::load(
+            load,
+            scenario_name,
+            rng_seed,
+            Some(sim::Tick::from_seconds(30)),
+        );
 
         let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
@@ -511,9 +516,7 @@ impl gui::GUI for UI {
             return gui::EventLoopMode::InputOnly;
         }
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
-            self.sim_ctrl.sim.seed_parked_cars(0.5);
-            self.sim_ctrl.sim.seed_walking_trips(&self.map, 100);
-            self.sim_ctrl.sim.seed_driving_trips(&self.map, 100);
+            sim::init::small_spawn(&mut self.sim_ctrl.sim, &self.map);
             return gui::EventLoopMode::InputOnly;
         }
 

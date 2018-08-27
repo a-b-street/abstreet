@@ -36,18 +36,19 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
-    let (map, _, control_map, mut sim) = sim::load(flags.load, flags.scenario_name, flags.rng_seed);
+    let (map, _, control_map, mut sim) = sim::init::load(
+        flags.load,
+        flags.scenario_name,
+        flags.rng_seed,
+        Some(sim::Tick::from_seconds(30)),
+    );
 
     if sim.time == sim::Tick::zero() {
         // TODO need a notion of scenarios
         if flags.big_sim {
-            sim.seed_parked_cars(0.95);
-            sim.seed_walking_trips(&map, 1000);
-            sim.seed_driving_trips(&map, 1000);
+            sim::init::big_spawn(&mut sim, &map);
         } else {
-            sim.seed_parked_cars(0.5);
-            sim.seed_walking_trips(&map, 100);
-            sim.seed_driving_trips(&map, 100);
+            sim::init::small_spawn(&mut sim, &map);
         }
     }
 
@@ -64,7 +65,7 @@ fn main() {
     let mut benchmark = sim.start_benchmark();
     loop {
         sim.step(&map, &control_map);
-        if sim.time.is_multiple_of(sim::Tick::from_secs(60)) {
+        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }

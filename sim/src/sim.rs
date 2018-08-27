@@ -43,7 +43,12 @@ pub struct Sim {
 
 impl Sim {
     // TODO Options struct might be nicer, especially since we could glue it to structopt?
-    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>, savestate_every: Option<Tick>) -> Sim {
+    pub fn new(
+        map: &Map,
+        scenario_name: String,
+        rng_seed: Option<u8>,
+        savestate_every: Option<Tick>,
+    ) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);

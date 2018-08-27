@@ -46,6 +46,7 @@ impl SimController {
             match self.sim.load_most_recent() {
                 Ok(sim) => {
                     self.sim = sim;
+                    self.benchmark = None;
                 }
                 Err(e) => println!("Couldn't load savestate: {}", e),
             };
@@ -75,15 +76,10 @@ impl SimController {
                     self.last_step = Some(Instant::now());
                 }
 
-                if self.benchmark
-                    .as_ref()
-                    .unwrap()
-                    .has_real_time_passed(Duration::from_secs(1))
-                {
-                    self.sim_speed = format!(
-                        "{0:.2}x",
-                        self.sim.measure_speed(self.benchmark.as_mut().unwrap())
-                    );
+                if let Some(ref mut b) = self.benchmark {
+                    if b.has_real_time_passed(Duration::from_secs(1)) {
+                        self.sim_speed = format!("{0:.2}x", self.sim.measure_speed(b));
+                    }
                 }
             }
         }

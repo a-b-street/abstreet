@@ -24,10 +24,10 @@ extern crate serde_derive;
 mod draw_car;
 mod draw_ped;
 mod driving;
+pub mod init;
 mod intersections;
 // TODO pub only for tests...
 pub mod kinematics;
-mod load;
 mod parking;
 mod sim;
 mod spawn;
@@ -35,7 +35,6 @@ mod walking;
 
 use dimensioned::si;
 use geom::{Angle, Pt2D};
-pub use load::load;
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
 use std::error;
