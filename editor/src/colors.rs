@@ -23,6 +23,7 @@ pub enum Colors {
     Crosswalk,
     StopSignMarking,
     Biking,
+    BusStopMarking,
 
     UnchangedIntersection,
     ChangedIntersection,

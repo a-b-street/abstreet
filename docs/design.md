@@ -626,3 +626,20 @@ Basic problem: how do we show map edits/diffs?
 		- hold a button to show the original versions of things in a transparentish overlay
 
 How to show diffs for agents?
+
+## Bus
+
+Before even looking at the GTFS schema, how should we model buses? They're
+basically a special car that just goes from bus stop to bus stop (a
+SidewalkSpot) and then just stops for a little while. The route is fixed, but
+for now, since pathfinding ignores live traffic, probably fine to ignore this.
+
+- step 1: hardcode two BusStops and hardcode spawn a car that cycles between the two
+	- render a bus stop on the sidewalk
+		- this actually belongs to the map layer! associated with a sidewalk I guess.
+	- render the bus in a special color, and also, make it really long (adjust following dist, but not parking spot len)
+- step 2: make some peds pick a SINGLE bus to use for their route, if it helps
+- step 3: make peds load on the bus and get off at the correct stop. make buses usually wait a fixed time at each stop, but wait a littl extra if loading passengers takes a while.
+- step N: load in GTFS for seattle to get real routes and stops
+
+later: multiple transfers, dedicated bus lanes, light rail...

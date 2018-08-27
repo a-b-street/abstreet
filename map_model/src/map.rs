@@ -2,11 +2,12 @@
 
 use abstutil;
 use building::{Building, BuildingID};
+use dimensioned::si;
 use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use intersection::{Intersection, IntersectionID};
-use lane::{Lane, LaneID, LaneType};
+use lane::{BusStop, Lane, LaneID, LaneType};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
@@ -121,6 +122,21 @@ impl Map {
                     None => (unshifted_pts.shift_blindly(width), true),
                 };
 
+                let mut bus_stops = Vec::new();
+                // TODO load a GTFS, don't hardcode this
+                if id == LaneID(309) {
+                    bus_stops.push(BusStop {
+                        sidewalk: id,
+                        dist_along: 25.0 * si::M,
+                    });
+                }
+                if id == LaneID(840) {
+                    bus_stops.push(BusStop {
+                        sidewalk: id,
+                        dist_along: 50.0 * si::M,
+                    });
+                }
+
                 // lane_center_pts will get updated in the next pass
                 m.lanes.push(Lane {
                     id,
@@ -131,6 +147,7 @@ impl Map {
                     lane_type: lane.lane_type,
                     parent: road_id,
                     building_paths: Vec::new(),
+                    bus_stops,
                 });
                 if lane.reverse_pts {
                     m.roads[road_id.0]

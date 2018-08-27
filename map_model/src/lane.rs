@@ -32,6 +32,12 @@ pub enum LaneType {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct BusStop {
+    pub sidewalk: LaneID,
+    pub dist_along: si::Meter<f64>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {
     pub id: LaneID,
     pub parent: RoadID,
@@ -47,6 +53,7 @@ pub struct Lane {
     pub dst_i: IntersectionID,
 
     pub building_paths: Vec<BuildingID>,
+    pub bus_stops: Vec<BusStop>,
 }
 
 impl PartialEq for Lane {

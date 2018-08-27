@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::{Point, Rect};
-use geom::{Angle, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Line, PolyLine, Polygon, Pt2D};
 use std::f64;
 
 pub const LANE_THICKNESS: f64 = 2.5;
@@ -70,4 +70,8 @@ pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
     let first_pt = pts[0];
     pts.push(first_pt);
     Polygon::new(&pts)
+}
+
+pub fn drawing_line(l: &Line) -> [f64; 4] {
+    [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
 }

@@ -54,14 +54,23 @@ impl DrawLane {
                 round: true,
             });
         }
-        for m in match lane.lane_type {
-            map_model::LaneType::Sidewalk => Some(calculate_sidewalk_lines(lane)),
-            map_model::LaneType::Parking => Some(calculate_parking_lines(lane)),
-            map_model::LaneType::Driving => calculate_driving_lines(lane, road),
-            map_model::LaneType::Biking => None,
-        } {
-            markings.push(m);
-        }
+        match lane.lane_type {
+            map_model::LaneType::Sidewalk => {
+                markings.push(calculate_sidewalk_lines(lane));
+                for s in &lane.bus_stops {
+                    markings.push(calculate_bus_stop_lines(s, lane));
+                }
+            }
+            map_model::LaneType::Parking => {
+                markings.push(calculate_parking_lines(lane));
+            }
+            map_model::LaneType::Driving => {
+                for m in calculate_driving_lines(lane, road) {
+                    markings.push(m);
+                }
+            }
+            map_model::LaneType::Biking => {}
+        };
         if lane.is_driving() && !map.get_i(lane.dst_i).has_traffic_signal {
             if let Some(m) = calculate_stop_sign_line(lane, control_map) {
                 markings.push(m);
@@ -291,4 +300,22 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
     let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
     let (pt2, _) = lane.safe_dist_along(2.0 * geometry::LANE_THICKNESS * si::M)?;
     Some(vec![pt1, pt2])
+}
+
+fn calculate_bus_stop_lines(stop: &map_model::BusStop, lane: &map_model::Lane) -> Marking {
+    let radius = 2.0 * si::M;
+    // TODO this should maybe be a property of the map model; not sure what data sources will
+    // actually have
+    Marking {
+        // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the
+        // lookahead arrows and center points / dashed white, we really want to render an Interval
+        // or something.
+        lines: vec![geometry::drawing_line(&Line::new(
+            lane.dist_along(stop.dist_along - radius).0,
+            lane.dist_along(stop.dist_along + radius).0,
+        ))],
+        color: Colors::BusStopMarking,
+        thickness: 0.8 * geometry::LANE_THICKNESS,
+        round: true,
+    }
 }
