@@ -328,6 +328,28 @@ impl Sim {
         println!("Saved to {}", path);
         path
     }
+
+    pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
+        let mut paths: Vec<std::path::PathBuf> = Vec::new();
+        for entry in std::fs::read_dir(format!(
+            "../data/save/{}/{}/",
+            self.map_name, self.scenario_name
+        ))? {
+            let entry = entry?;
+            paths.push(entry.path());
+        }
+        paths.sort();
+        if let Some(p) = paths.last() {
+            let load = p.as_os_str().to_str().unwrap();
+            println!("Loading {}", load);
+            abstutil::read_json(load)
+        } else {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "empty directory",
+            ))
+        }
+    }
 }
 
 pub struct Benchmark {

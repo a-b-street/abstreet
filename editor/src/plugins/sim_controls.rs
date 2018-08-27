@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use abstutil;
 use control::ControlMap;
 use ezgui::input::UserInput;
 use map_model::Map;
@@ -44,8 +43,12 @@ impl SimController {
             self.sim.save();
         }
         if input.unimportant_key_pressed(Key::P, "load sim state") {
-            self.sim = abstutil::read_json("sim_state").expect("sim state failed");
-            println!("Loaded sim_state");
+            match self.sim.load_most_recent() {
+                Ok(sim) => {
+                    self.sim = sim;
+                }
+                Err(e) => println!("Couldn't load savestate: {}", e),
+            };
         }
         if self.last_step.is_some() {
             if input.unimportant_key_pressed(Key::Space, "pause sim") {
