@@ -604,3 +604,25 @@ SidewalkSpot
 ## Stop sign priority
 
 Use OSM highway tags to rank. For all the turns on the higher priority road, detect priority/yield based on turn angle, I guess.
+
+## Watch tests easily
+
+- need to organize savestate captures
+	- dedicated place: data/savestates/MAP/scenario/time
+		- plumb map name, scenario name
+		- should be able to just point to one of these saves, not refer to the map or RNG seed again
+	- also kinda needed for time traveling later
+
+- when a problem happens, we want to back up a little bit
+	- probably just need automatic occasional savestating, and to print a nice command to rerun from it
+
+## Diffing for A/B tests
+
+Basic problem: how do we show map edits/diffs?
+	- could be useful for debugging as new data sources come in
+	- and is vital part of the game
+	- UI
+		- highlight edited things
+		- hold a button to show the original versions of things in a transparentish overlay
+
+How to show diffs for agents?

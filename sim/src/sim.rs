@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
@@ -11,6 +12,7 @@ use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
+use std;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
@@ -25,6 +27,8 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     rng: XorShiftRng,
     pub time: Tick,
+    map_name: String,
+    scenario_name: String,
 
     spawner: Spawner,
     intersection_state: IntersectionSimState,
@@ -36,7 +40,7 @@ pub struct Sim {
 }
 
 impl Sim {
-    pub fn new(map: &Map, rng_seed: Option<u8>) -> Sim {
+    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
@@ -50,6 +54,8 @@ impl Sim {
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
             time: Tick::zero(),
+            map_name: map.get_name().to_string(),
+            scenario_name,
             car_properties: BTreeMap::new(),
         }
     }
@@ -305,6 +311,22 @@ impl Sim {
 
     pub fn debug_intersection(&mut self, id: IntersectionID, control_map: &ControlMap) {
         self.intersection_state.debug(id, control_map);
+    }
+
+    pub fn save(&self) -> String {
+        // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
+        // but that's overkill right now.
+        let path = format!(
+            "../data/save/{}/{}/{}",
+            self.map_name,
+            self.scenario_name,
+            self.time.as_filename()
+        );
+        std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap())
+            .expect("Creating parent dir failed");
+        abstutil::write_json(&path, &self).expect("Writing sim state failed");
+        println!("Saved to {}", path);
+        path
     }
 }
 

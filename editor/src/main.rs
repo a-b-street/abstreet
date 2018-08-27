@@ -65,6 +65,10 @@ struct Flags {
     /// Optional savestate to load
     #[structopt(long = "load_from")]
     load_from: Option<String>,
+
+    /// Scenario name for savestating
+    #[structopt(long = "scenario_name", default_value = "editor")]
+    scenario_name: String,
 }
 
 fn main() {
@@ -106,6 +110,7 @@ fn main() {
             glyphs,
             ui::UI::new(
                 &flags.abst_input,
+                flags.scenario_name,
                 window_size,
                 flags.rng_seed,
                 flags.kml,

@@ -12,7 +12,7 @@ fn serialization() {
 
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
 
-    let mut sim = sim::Sim::new(&map, Some(rng_seed));
+    let mut sim = sim::Sim::new(&map, "serialization".to_string(), Some(rng_seed));
     sim.seed_parked_cars(0.5);
     sim.seed_walking_trips(&map, spawn_count);
     sim.seed_driving_trips(&map, spawn_count);
@@ -34,8 +34,8 @@ fn from_scratch() {
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
-    let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
+    let mut sim1 = sim::Sim::new(&map, "from_scratch_1".to_string(), Some(rng_seed));
+    let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(rng_seed));
     sim1.seed_parked_cars(0.5);
     sim1.seed_walking_trips(&map, spawn_count);
     sim1.seed_driving_trips(&map, spawn_count);
@@ -45,13 +45,11 @@ fn from_scratch() {
 
     for _ in 1..600 {
         if sim1 != sim2 {
-            // TODO write to temporary files somewhere
             // TODO need to sort dicts in json output to compare
-            abstutil::write_json("sim1_state.json", &sim1).unwrap();
-            abstutil::write_json("sim2_state.json", &sim2).unwrap();
             panic!(
-                "sim state differs at {}. compare sim1_state.json and sim2_state.json",
-                sim1.time
+                "sim state differs between {} and {}",
+                sim1.save(),
+                sim2.save()
             );
         }
         sim1.step(&map, &control_map);
@@ -70,8 +68,8 @@ fn with_savestating() {
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim1 = sim::Sim::new(&map, Some(rng_seed));
-    let mut sim2 = sim::Sim::new(&map, Some(rng_seed));
+    let mut sim1 = sim::Sim::new(&map, "with_savestating_1".to_string(), Some(rng_seed));
+    let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(rng_seed));
     sim1.seed_parked_cars(0.5);
     sim1.seed_walking_trips(&map, spawn_count);
     sim1.seed_driving_trips(&map, spawn_count);
@@ -85,38 +83,35 @@ fn with_savestating() {
     }
 
     if sim1 != sim2 {
-        abstutil::write_json("sim1_state.json", &sim1).unwrap();
-        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!(
-            "sim state differs at {}. compare sim1_state.json and sim2_state.json",
-            sim1.time
+            "sim state differs between {} and {}",
+            sim1.save(),
+            sim2.save()
         );
     }
 
-    abstutil::write_json("sim1_savestate.json", &sim1).unwrap();
+    let sim1_save = sim1.save();
 
     for _ in 1..60 {
         sim1.step(&map, &control_map);
     }
 
     if sim1 == sim2 {
-        abstutil::write_json("sim1_state.json", &sim1).unwrap();
-        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!(
-            "sim state unexpectedly the same at {}. compare sim1_state.json and sim2_state.json",
-            sim1.time
+            "sim state unexpectly the same -- {} and {}",
+            sim1.save(),
+            sim2.save()
         );
     }
 
-    let sim3: sim::Sim = abstutil::read_json("sim1_savestate.json").unwrap();
+    let sim3: sim::Sim = abstutil::read_json(&sim1_save).unwrap();
     if sim3 != sim2 {
-        abstutil::write_json("sim3_state.json", &sim3).unwrap();
-        abstutil::write_json("sim2_state.json", &sim2).unwrap();
         panic!(
-            "sim state differs at {}. compare sim3_state.json and sim2_state.json",
-            sim1.time
+            "sim state differs between {} and {}",
+            sim3.save(),
+            sim2.save()
         );
     }
 
-    std::fs::remove_file("sim1_savestate.json").unwrap();
+    std::fs::remove_file(sim1_save).unwrap();
 }

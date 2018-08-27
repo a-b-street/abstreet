@@ -13,6 +13,7 @@ use raw_data;
 use road::{Road, RoadID};
 use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
+use std::path;
 use turn::{Turn, TurnID};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -26,17 +27,29 @@ pub struct Map {
 
     // TODO maybe dont need to retain GPS stuff later
     bounds: Bounds,
+
+    name: String,
 }
 
 impl Map {
     pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
         let data: raw_data::Map = abstutil::read_binary(path)?;
-        Ok(Map::create_from_raw(data, edits))
+        Ok(Map::create_from_raw(
+            path::Path::new(path)
+                .file_stem()
+                .unwrap()
+                .to_os_string()
+                .into_string()
+                .unwrap(),
+            data,
+            edits,
+        ))
     }
 
-    pub fn create_from_raw(data: raw_data::Map, edits: &Edits) -> Map {
+    pub fn create_from_raw(name: String, data: raw_data::Map, edits: &Edits) -> Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
+            name,
             bounds,
             roads: Vec::new(),
             lanes: Vec::new(),
@@ -338,5 +351,9 @@ impl Map {
 
     pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Option<LaneID> {
         self.get_parent(parking).find_driving_lane(parking)
+    }
+
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 }

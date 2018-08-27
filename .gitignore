@@ -4,7 +4,6 @@
 
 editor/editor_state
 editor/road_edits.json
-editor/sim_state
-headless/sim_state
 data/*.abst
 data/input/*
+data/save/*

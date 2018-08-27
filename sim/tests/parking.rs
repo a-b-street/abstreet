@@ -10,7 +10,7 @@ use map_model::LaneID;
 
 #[test]
 fn park_on_goal_st() {
-    let (map, control_map, mut sim) = setup(make_test_map());
+    let (map, control_map, mut sim) = setup("park_on_goal_st", make_test_map());
     let (parking1, parking2, driving2) = (LaneID(1), LaneID(4), LaneID(3));
 
     assert_eq!(map.get_l(parking1).number_parking_spots(), 8);
@@ -37,7 +37,7 @@ fn park_on_goal_st() {
 
 #[test]
 fn wander_around_for_parking() {
-    let (map, control_map, mut sim) = setup(make_test_map());
+    let (map, control_map, mut sim) = setup("wander_around_for_parking", make_test_map());
     let (parking1, parking2, driving2) = (LaneID(1), LaneID(4), LaneID(3));
 
     assert_eq!(map.get_l(parking1).number_parking_spots(), 8);
@@ -63,10 +63,13 @@ fn wander_around_for_parking() {
     println!("Expected conditions met at {}", sim.time);
 }
 
-fn setup(map: map_model::Map) -> (map_model::Map, control::ControlMap, sim::Sim) {
+fn setup(
+    scenario_name: &str,
+    map: map_model::Map,
+) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
     let control_map = control::ControlMap::new(&map);
-    let sim = sim::Sim::new(&map, Some(rng_seed));
+    let sim = sim::Sim::new(&map, scenario_name.to_string(), Some(rng_seed));
     (map, control_map, sim)
 }
 
@@ -83,6 +86,7 @@ fn make_test_map() -> map_model::Map {
     let south_pts = triangle_around(150.0, 90.0);
 
     let map = map_model::Map::create_from_raw(
+        "test_map".to_string(),
         raw_data::Map {
             roads: vec![raw_data::Road {
                 points: vec![left, right],

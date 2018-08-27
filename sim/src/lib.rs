@@ -126,6 +126,30 @@ impl Tick {
     pub fn is_multiple_of_minute(&self) -> bool {
         self.0 % 600 == 0
     }
+
+    fn get_parts(&self) -> (u32, u32, u32, u32) {
+        // TODO hardcoding these to avoid floating point issues... urgh. :\
+        let ticks_per_second = 10;
+        let ticks_per_minute = 60 * ticks_per_second;
+        let ticks_per_hour = 60 * ticks_per_minute;
+
+        let hours = self.0 / ticks_per_hour;
+        let mut remainder = self.0 % ticks_per_hour;
+        let minutes = remainder / ticks_per_minute;
+        remainder = remainder % ticks_per_minute;
+        let seconds = remainder / ticks_per_second;
+        remainder = remainder % ticks_per_second;
+
+        (hours, minutes, seconds, remainder)
+    }
+
+    pub fn as_filename(&self) -> String {
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        format!(
+            "{0:02}h{1:02}m{2:02}.{3}s",
+            hours, minutes, seconds, remainder
+        )
+    }
 }
 
 impl std::ops::Add<Time> for Tick {
@@ -148,18 +172,7 @@ impl std::ops::Sub for Tick {
 
 impl std::fmt::Display for Tick {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        // TODO hardcoding these to avoid floating point issues... urgh. :\
-        let ticks_per_second = 10;
-        let ticks_per_minute = 60 * ticks_per_second;
-        let ticks_per_hour = 60 * ticks_per_minute;
-
-        let hours = self.0 / ticks_per_hour;
-        let mut remainder = self.0 % ticks_per_hour;
-        let minutes = remainder / ticks_per_minute;
-        remainder = remainder % ticks_per_minute;
-        let seconds = remainder / ticks_per_second;
-        remainder = remainder % ticks_per_second;
-
+        let (hours, minutes, seconds, remainder) = self.get_parts();
         write!(
             f,
             "{0:02}:{1:02}:{2:02}.{3}",

@@ -81,6 +81,7 @@ pub struct UI {
 impl UI {
     pub fn new(
         abst_path: &str,
+        scenario_name: String,
         window_size: Size,
         rng_seed: Option<u8>,
         kml: Option<String>,
@@ -102,7 +103,7 @@ impl UI {
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let mut sim_ctrl = SimController::new(&map, rng_seed);
+        let mut sim_ctrl = SimController::new(&map, scenario_name, rng_seed);
         if let Some(path) = load_sim_from {
             sim_ctrl.sim = abstutil::read_json(&path).expect("loading sim state failed");
             println!("Loaded {}", path);

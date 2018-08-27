@@ -31,6 +31,10 @@ struct Flags {
     /// Big or large random scenario?
     #[structopt(long = "big_sim")]
     big_sim: bool,
+
+    /// Scenario name for savestating
+    #[structopt(long = "scenario_name", default_value = "editor")]
+    scenario_name: String,
 }
 
 fn main() {
@@ -41,7 +45,7 @@ fn main() {
         .expect("Couldn't load map");
     // TODO could load savestate
     let control_map = control::ControlMap::new(&map);
-    let mut sim = sim::Sim::new(&map, flags.rng_seed);
+    let mut sim = sim::Sim::new(&map, flags.scenario_name, flags.rng_seed);
 
     if let Some(path) = flags.load_from {
         sim = abstutil::read_json(&path).expect("loading sim state failed");
@@ -77,8 +81,7 @@ fn main() {
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }
         if Some(sim.time) == save_at {
-            abstutil::write_json("sim_state", &sim).expect("Writing sim state failed");
-            println!("Wrote sim_state at {}", sim.time);
+            sim.save();
         }
     }
 }

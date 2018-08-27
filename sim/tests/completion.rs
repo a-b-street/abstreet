@@ -13,7 +13,8 @@ fn aorta_model_completes() {
     let map = map_model::Map::new(input, &map_model::Edits::new()).expect("Couldn't load map");
     let control_map = control::ControlMap::new(&map);
 
-    let mut sim = sim::Sim::new(&map, Some(rng_seed));
+    // TODO need https://github.com/rust-lang/rfcs/issues/1743 to be less repetitive :(
+    let mut sim = sim::Sim::new(&map, "aorta_model_completes".to_string(), Some(rng_seed));
     sim.seed_parked_cars(0.5);
     sim.seed_walking_trips(&map, spawn_count);
     sim.seed_driving_trips(&map, spawn_count);

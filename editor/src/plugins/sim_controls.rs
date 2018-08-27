@@ -21,9 +21,9 @@ pub struct SimController {
 }
 
 impl SimController {
-    pub fn new(map: &Map, rng_seed: Option<u8>) -> SimController {
+    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>) -> SimController {
         SimController {
-            sim: Sim::new(map, rng_seed),
+            sim: Sim::new(map, scenario_name, rng_seed),
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,
@@ -41,8 +41,7 @@ impl SimController {
             self.desired_speed += ADJUST_SPEED;
         }
         if input.unimportant_key_pressed(Key::O, "save sim state") {
-            abstutil::write_json("sim_state", &self.sim).expect("Writing sim state failed");
-            println!("Wrote sim_state");
+            self.sim.save();
         }
         if input.unimportant_key_pressed(Key::P, "load sim state") {
             self.sim = abstutil::read_json("sim_state").expect("sim state failed");
