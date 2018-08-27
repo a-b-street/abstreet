@@ -1,7 +1,7 @@
 use abstutil;
 use control::ControlMap;
 use map_model::{Edits, Map};
-use {Sim, Tick};
+use {ParkedCar, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -45,14 +45,24 @@ pub fn big_spawn(sim: &mut Sim, map: &Map) {
 // TODO share the helpers for spawning specific parking spots and stuff?
 
 // TODO time limit and a callback for the step results?
-pub fn run_until_done(sim: &mut Sim, map: &Map, control_map: &ControlMap) {
+pub fn run_until_done<CB1, CB2>(
+    sim: &mut Sim,
+    map: &Map,
+    control_map: &ControlMap,
+    sim_cb: CB1,
+    handle_step: CB2,
+) where
+    CB1: Fn(&Sim),
+    CB2: Fn(Vec<ParkedCar>),
+{
     let mut benchmark = sim.start_benchmark();
     loop {
-        sim.step(&map, &control_map);
+        handle_step(sim.step(&map, &control_map));
         if sim.time.is_multiple_of(Tick::from_seconds(60)) {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }
+        sim_cb(sim);
         if sim.is_done() {
             break;
         }

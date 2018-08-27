@@ -29,7 +29,7 @@ struct Flags {
     big_sim: bool,
 
     /// Scenario name for savestating
-    #[structopt(long = "scenario_name", default_value = "editor")]
+    #[structopt(long = "scenario_name", default_value = "headless")]
     scenario_name: String,
 }
 
@@ -62,15 +62,15 @@ fn main() {
         None
     };
 
-    let mut benchmark = sim.start_benchmark();
-    loop {
-        sim.step(&map, &control_map);
-        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
-            let speed = sim.measure_speed(&mut benchmark);
-            println!("{0}, speed = {1:.2}x", sim.summary(), speed);
-        }
-        if Some(sim.time) == save_at {
-            sim.save();
-        }
-    }
+    sim::init::run_until_done(
+        &mut sim,
+        &map,
+        &control_map,
+        |sim| {
+            if Some(sim.time) == save_at {
+                sim.save();
+            }
+        },
+        |_parked| {},
+    );
 }

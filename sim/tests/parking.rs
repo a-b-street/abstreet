@@ -20,19 +20,19 @@ fn park_on_goal_st() {
     sim.seed_specific_parked_cars(parking2, (5..8).collect());
     sim.start_parked_car_with_goal(&map, car, driving2);
 
-    loop {
-        if let Some(p) = sim.step(&map, &control_map).first() {
-            assert_eq!(p.car, car);
-            assert_eq!(p.spot.lane, parking2);
-            assert_eq!(p.spot.idx, 4);
-            break;
-        }
-        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
-            println!("{}", sim.summary());
-        }
-        // TODO time limit
-    }
-    println!("Expected conditions met at {}", sim.time);
+    sim::init::run_until_done(
+        &mut sim,
+        &map,
+        &control_map,
+        |_sim| {},
+        |parked| {
+            if let Some(p) = parked.first() {
+                assert_eq!(p.car, car);
+                assert_eq!(p.spot.lane, parking2);
+                assert_eq!(p.spot.idx, 4);
+            }
+        },
+    );
 }
 
 #[test]
@@ -48,19 +48,19 @@ fn wander_around_for_parking() {
     sim.seed_specific_parked_cars(parking2, (0..8).collect());
     sim.start_parked_car_with_goal(&map, car, driving2);
 
-    loop {
-        if let Some(p) = sim.step(&map, &control_map).first() {
-            assert_eq!(p.car, car);
-            assert_eq!(p.spot.lane, parking1);
-            assert_eq!(p.spot.idx, 0);
-            break;
-        }
-        if sim.time.is_multiple_of(sim::Tick::from_seconds(60)) {
-            println!("{}", sim.summary());
-        }
-        // TODO time limit
-    }
-    println!("Expected conditions met at {}", sim.time);
+    sim::init::run_until_done(
+        &mut sim,
+        &map,
+        &control_map,
+        |_sim| {},
+        |parked| {
+            if let Some(p) = parked.first() {
+                assert_eq!(p.car, car);
+                assert_eq!(p.spot.lane, parking1);
+                assert_eq!(p.spot.idx, 0);
+            }
+        },
+    );
 }
 
 fn setup(
