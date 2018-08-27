@@ -20,9 +20,9 @@ pub struct SimController {
 }
 
 impl SimController {
-    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>) -> SimController {
+    pub fn new(sim: Sim) -> SimController {
         SimController {
-            sim: Sim::new(map, scenario_name, rng_seed),
+            sim,
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,

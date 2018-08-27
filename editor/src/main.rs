@@ -46,9 +46,9 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "editor")]
 struct Flags {
-    /// ABST input to load
-    #[structopt(name = "abst_input")]
-    abst_input: String,
+    /// Map or savestate to load
+    #[structopt(name = "load")]
+    load: String,
 
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
@@ -61,10 +61,6 @@ struct Flags {
     /// Extra KML to display
     #[structopt(long = "kml")]
     kml: Option<String>,
-
-    /// Optional savestate to load
-    #[structopt(long = "load_from")]
-    load_from: Option<String>,
 
     /// Scenario name for savestating
     #[structopt(long = "scenario_name", default_value = "editor")]
@@ -109,12 +105,11 @@ fn main() {
             gl,
             glyphs,
             ui::UI::new(
-                &flags.abst_input,
+                flags.load,
                 flags.scenario_name,
-                window_size,
                 flags.rng_seed,
                 flags.kml,
-                flags.load_from,
+                window_size,
             ),
         );
     }

@@ -15,7 +15,7 @@ use graphics::types::Color;
 use gui;
 use kml;
 use map_model;
-use map_model::{Edits, IntersectionID};
+use map_model::IntersectionID;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
@@ -32,6 +32,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::warp::WarpState;
 use render;
+use sim;
 use sim::{CarID, CarState, PedestrianID};
 use std::collections::HashMap;
 use std::process;
@@ -80,17 +81,13 @@ pub struct UI {
 
 impl UI {
     pub fn new(
-        abst_path: &str,
+        load: String,
         scenario_name: String,
-        window_size: Size,
         rng_seed: Option<u8>,
         kml: Option<String>,
-        load_sim_from: Option<String>,
+        window_size: Size,
     ) -> UI {
-        let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
-
-        println!("Opening {}", abst_path);
-        let map = map_model::Map::new(abst_path, &edits).expect("Couldn't load map");
+        let (map, edits, control_map, sim) = sim::load(load, scenario_name, rng_seed);
 
         let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
@@ -98,16 +95,11 @@ impl UI {
             Vec::new()
         };
 
-        let control_map = ControlMap::new(&map);
         let (draw_map, center_pt) = render::DrawMap::new(&map, &control_map, extra_shapes);
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let mut sim_ctrl = SimController::new(&map, scenario_name, rng_seed);
-        if let Some(path) = load_sim_from {
-            sim_ctrl.sim = abstutil::read_json(&path).expect("loading sim state failed");
-            println!("Loaded {}", path);
-        }
+        let sim_ctrl = SimController::new(sim);
 
         let mut ui = UI {
             map,

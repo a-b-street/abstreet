@@ -27,7 +27,7 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     rng: XorShiftRng,
     pub time: Tick,
-    map_name: String,
+    pub(crate) map_name: String,
     scenario_name: String,
 
     spawner: Spawner,

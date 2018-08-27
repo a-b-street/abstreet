@@ -12,9 +12,9 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "headless")]
 struct Flags {
-    /// ABST input to load
-    #[structopt(name = "abst_input")]
-    abst_input: String,
+    /// Map or savestate to load
+    #[structopt(name = "load")]
+    load: String,
 
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
@@ -23,10 +23,6 @@ struct Flags {
     /// Optional time to savestate
     #[structopt(long = "save_at")]
     save_at: Option<String>,
-
-    /// Optional savestate to load
-    #[structopt(long = "load_from")]
-    load_from: Option<String>,
 
     /// Big or large random scenario?
     #[structopt(long = "big_sim")]
@@ -40,17 +36,9 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
-    println!("Opening {}", flags.abst_input);
-    let map = map_model::Map::new(&flags.abst_input, &map_model::Edits::new())
-        .expect("Couldn't load map");
-    // TODO could load savestate
-    let control_map = control::ControlMap::new(&map);
-    let mut sim = sim::Sim::new(&map, flags.scenario_name, flags.rng_seed);
+    let (map, _, control_map, mut sim) = sim::load(flags.load, flags.scenario_name, flags.rng_seed);
 
-    if let Some(path) = flags.load_from {
-        sim = abstutil::read_json(&path).expect("loading sim state failed");
-        println!("Loaded {}", path);
-    } else {
+    if sim.time == sim::Tick::zero() {
         // TODO need a notion of scenarios
         if flags.big_sim {
             sim.seed_parked_cars(0.95);
