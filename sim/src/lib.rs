@@ -79,8 +79,8 @@ impl Tick {
         Tick(0)
     }
 
-    pub fn from_raw(ticks: u32) -> Tick {
-        Tick(ticks)
+    pub fn from_seconds(secs: u32) -> Tick {
+        Tick(10 * secs)
     }
 
     pub fn parse(string: &str) -> Option<Tick> {
@@ -124,9 +124,8 @@ impl Tick {
         Tick(self.0 + 1)
     }
 
-    // TODO er, little weird
-    pub fn is_multiple_of_minute(&self) -> bool {
-        self.0 % 600 == 0
+    pub fn is_multiple_of(&self, other: Tick) -> bool {
+        self.0 % other.0 == 0
     }
 
     fn get_parts(&self) -> (u32, u32, u32, u32) {

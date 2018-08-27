@@ -64,7 +64,7 @@ fn main() {
     let mut benchmark = sim.start_benchmark();
     loop {
         sim.step(&map, &control_map);
-        if sim.time.is_multiple_of_minute() {
+        if sim.time.is_multiple_of(sim::Tick::from_secs(60)) {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }

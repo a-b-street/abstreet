@@ -29,6 +29,8 @@ pub struct Sim {
     pub time: Tick,
     pub(crate) map_name: String,
     scenario_name: String,
+    // TODO not quite the right type to represent durations
+    savestate_every: Option<Tick>,
 
     spawner: Spawner,
     intersection_state: IntersectionSimState,
@@ -40,7 +42,8 @@ pub struct Sim {
 }
 
 impl Sim {
-    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>) -> Sim {
+    // TODO Options struct might be nicer, especially since we could glue it to structopt?
+    pub fn new(map: &Map, scenario_name: String, rng_seed: Option<u8>, savestate_every: Option<Tick>) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
             rng = XorShiftRng::from_seed([seed; 16]);
@@ -56,6 +59,7 @@ impl Sim {
             time: Tick::zero(),
             map_name: map.get_name().to_string(),
             scenario_name,
+            savestate_every,
             car_properties: BTreeMap::new(),
         }
     }
@@ -208,6 +212,13 @@ impl Sim {
 
         self.intersection_state
             .step(self.time, map, control_map, info);
+
+        // Savestate?
+        if let Some(t) = self.savestate_every {
+            if self.time.is_multiple_of(t) {
+                self.save();
+            }
+        }
 
         cars_parked_this_step
     }
