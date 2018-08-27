@@ -12,8 +12,9 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
 use rand::Rng;
+use router::Router;
 use std;
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, HashMap};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, ParkedCar,
     ParkingSpot, Speed, Tick, Time,
@@ -43,8 +44,6 @@ struct Car {
 
     // TODO should this only be turns?
     waiting_for: Option<On>,
-    // Head is the next lane
-    path: VecDeque<LaneID>,
 
     debug: bool,
 }
@@ -58,32 +57,23 @@ impl PartialEq for Car {
 }
 impl Eq for Car {}
 
-enum Action {
+pub enum Action {
     StartParking(ParkingSpot),
     WorkOnParking,
-    // True means we need to look for parking
-    Continue(Acceleration, Vec<Request>, bool),
+    Continue(Acceleration, Vec<Request>),
+    VanishAtDeadEnd,
 }
 
 impl Car {
-    fn find_parking_spot(
-        &self,
-        driving_lane: LaneID,
-        dist_along: Distance,
-        map: &Map,
-        parking_sim: &ParkingSimState,
-    ) -> Option<ParkingSpot> {
-        map.get_parent(driving_lane)
-            .find_parking_lane(driving_lane)
-            .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
-    }
-
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
-    fn react(
+    fn react<R: Rng + ?Sized>(
         &self,
+        // The high-level plan might change here.
+        router: &mut Router,
+        rng: &mut R,
         map: &Map,
         time: Tick,
-        sim: &DrivingSimState,
+        view: &WorldView,
         parking_sim: &ParkingSimState,
         intersections: &IntersectionSimState,
         properties: &BTreeMap<CarID, Vehicle>,
@@ -96,16 +86,10 @@ impl Car {
 
         let vehicle = &properties[&self.id];
 
-        if self.path.is_empty() && self.speed <= kinematics::EPSILON_SPEED {
-            if let Some(spot) =
-                self.find_parking_spot(self.on.as_lane(), self.dist_along, map, parking_sim)
-            {
-                if parking_sim.dist_along_for_car(spot, vehicle) == self.dist_along {
-                    return Action::StartParking(spot);
-                }
-                // Being stopped before the parking spot is normal if the final road is clogged
-                // with other drivers.
-            }
+        if let Some(act) =
+            router.react_before_lookahead(&view.cars[&self.id], vehicle, map, parking_sim, rng)
+        {
+            return act;
         }
 
         // TODO could wrap this state up
@@ -115,10 +99,9 @@ impl Car {
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
-        let mut need_parking = false;
         let mut current_on = self.on;
         let mut current_dist_along = self.dist_along;
-        let mut current_path = self.path.clone();
+        let mut current_router = router.clone();
         let mut dist_scanned_ahead = 0.0 * si::M;
 
         loop {
@@ -140,8 +123,8 @@ impl Car {
             }
 
             // Don't hit the vehicle in front of us
-            if let Some(other) = sim.next_car_in_front_of(current_on, current_dist_along) {
-                assert!(self != other);
+            if let Some(other) = view.next_car_in_front_of(current_on, current_dist_along) {
+                assert!(self.id != other.id);
                 assert!(current_dist_along < other.dist_along);
                 let other_vehicle = &properties[&other.id];
                 let dist_behind_other =
@@ -169,29 +152,25 @@ impl Car {
                 }
             }
 
-            // Stop for intersections or a parking spot?
+            // Stop for something?
             if let On::Lane(id) = current_on {
-                let dist_to_maybe_stop_at = if current_path.is_empty() {
-                    if let Some(spot) =
-                        self.find_parking_spot(id, current_dist_along, map, parking_sim)
-                    {
-                        parking_sim.dist_along_for_car(spot, vehicle)
-                    } else {
-                        need_parking = true;
-                        current_on.length(map)
-                    }
-                } else {
-                    current_on.length(map)
-                };
+                let maybe_stop_early = router.stop_early_at_dist(
+                    current_on,
+                    current_dist_along,
+                    vehicle,
+                    map,
+                    parking_sim,
+                );
+                let dist_to_maybe_stop_at = maybe_stop_early.unwrap_or(current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
 
                 // If our lookahead doesn't even hit the intersection / parking spot, then ignore
                 // it. This means we won't request turns until we're close.
                 if dist_to_lookahead >= dist_from_stop {
-                    let should_stop = if current_path.is_empty() {
+                    let should_stop = if maybe_stop_early.is_some() {
                         true
                     } else {
-                        let req = Request::for_car(self.id, choose_turn(&current_path, id, map));
+                        let req = Request::for_car(self.id, current_router.choose_turn(id, map));
                         let granted = intersections.request_granted(req.clone());
                         if !granted {
                             // Otherwise, we wind up submitting a request at the end of our step, after
@@ -220,10 +199,10 @@ impl Car {
             }
             current_on = match current_on {
                 On::Turn(t) => {
-                    current_path.pop_front();
-                    On::Lane(map.get_t(t).dst)
+                    current_router.advance_to(t.dst);
+                    On::Lane(t.dst)
                 }
-                On::Lane(l) => On::Turn(choose_turn(&current_path, l, map)),
+                On::Lane(l) => On::Turn(current_router.choose_turn(l, map)),
             };
             current_speed_limit = current_on.speed_limit(map);
             current_dist_along = 0.0 * si::M;
@@ -245,11 +224,12 @@ impl Car {
             );
         }
 
-        Action::Continue(safe_accel, requests, need_parking)
+        Action::Continue(safe_accel, requests)
     }
 
     fn step_continue(
         &mut self,
+        router: &mut Router,
         accel: Acceleration,
         map: &Map,
         intersections: &mut IntersectionSimState,
@@ -270,13 +250,12 @@ impl Car {
             }
             let next_on = match self.on {
                 On::Turn(t) => On::Lane(map.get_t(t).dst),
-                On::Lane(l) => On::Turn(choose_turn(&self.path, l, map)),
+                On::Lane(l) => On::Turn(router.choose_turn(l, map)),
             };
 
             if let On::Turn(t) = self.on {
                 intersections.on_exit(Request::for_car(self.id, t));
-                assert_eq!(self.path[0], map.get_t(t).dst);
-                self.path.pop_front();
+                router.advance_to(t.dst);
             }
             self.waiting_for = None;
             self.on = next_on;
@@ -295,41 +274,9 @@ impl Car {
         }
         Ok(())
     }
-
-    // Return true if we're just plain stuck :(
-    fn look_for_parking<R: Rng + ?Sized>(&mut self, map: &Map, rng: &mut R) -> bool {
-        let last_lane = if self.path.is_empty() {
-            match self.on {
-                On::Turn(t) => t.dst,
-                On::Lane(l) => l,
-            }
-        } else {
-            *self.path.back().unwrap()
-        };
-
-        // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
-        // to physically see the spots), stay close to the original goal, avoid lanes we've
-        // visited, prefer easier turns...
-        let choices = map.get_next_lanes(last_lane);
-        if choices.is_empty() {
-            if self.debug {
-                println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", self.id, last_lane);
-            }
-            return true;
-        }
-        let choice = rng.choose(&choices).unwrap().id;
-        if self.debug {
-            println!(
-                "{} can't find parking on {}, so wandering over to {}",
-                self.id, last_lane, choice
-            );
-        }
-        self.path.push_back(choice);
-        false
-    }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
 struct SimQueue {
     id: On,
     // First element is farthest along the queue; they have the greatest dist_along.
@@ -403,12 +350,12 @@ impl SimQueue {
         results
     }
 
-    fn next_car_in_front_of(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
+    fn next_car_in_front_of<'a>(&self, dist: Distance, view: &'a WorldView) -> Option<&'a CarView> {
         self.cars_queue
             .iter()
             .rev()
-            .find(|id| sim.cars[id].dist_along > dist)
-            .map(|id| *id)
+            .find(|id| view.cars[id].dist_along > dist)
+            .map(|id| &view.cars[id])
     }
 
     fn first_car_behind(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
@@ -440,6 +387,8 @@ impl SimQueue {
 pub struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic.
     cars: BTreeMap<CarID, Car>,
+    // Separate from cars so we can have different mutability in react()
+    routers: BTreeMap<CarID, Router>,
     lanes: Vec<SimQueue>,
     #[serde(serialize_with = "serialize_btreemap")]
     #[serde(deserialize_with = "deserialize_btreemap")]
@@ -451,6 +400,7 @@ impl DrivingSimState {
     pub fn new(map: &Map) -> DrivingSimState {
         let mut s = DrivingSimState {
             cars: BTreeMap::new(),
+            routers: BTreeMap::new(),
             // TODO only driving ones
             lanes: map.all_lanes()
                 .iter()
@@ -467,11 +417,13 @@ impl DrivingSimState {
         s
     }
 
+    // TODO remove this, just use WorldView
     pub fn populate_info_for_intersections(&self, info: &mut AgentInfo, _map: &Map) {
-        for c in self.cars.values() {
+        let view = self.get_view();
+        for c in view.cars.values() {
             let id = AgentID::Car(c.id);
             info.speeds.insert(id, c.speed);
-            if self.next_car_in_front_of(c.on, c.dist_along).is_none() {
+            if view.is_leader(c.id) {
                 info.leaders.insert(id);
             }
         }
@@ -509,7 +461,7 @@ impl DrivingSimState {
                     c.on, c.speed, c.dist_along
                 ),
                 format!("Committed to waiting for {:?}", c.waiting_for),
-                format!("{} lanes left in path", c.path.len()),
+                self.routers[&id].tooltip_line(),
             ])
         } else {
             None
@@ -561,12 +513,24 @@ impl DrivingSimState {
         rng: &mut R,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Vec<ParkedCar>, InvariantViolated> {
-        // Could be concurrent, since this is deterministic.
+        let view = self.get_view();
+
+        // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
+        // sometimes pick a next lane to try for parking.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
             requested_moves.push((
                 c.id,
-                c.react(map, time, self, parking_sim, intersections, properties),
+                c.react(
+                    self.routers.get_mut(&c.id).unwrap(),
+                    rng,
+                    map,
+                    time,
+                    &view,
+                    parking_sim,
+                    intersections,
+                    properties,
+                ),
             ));
         }
 
@@ -575,7 +539,7 @@ impl DrivingSimState {
 
         let mut finished_parking: Vec<ParkedCar> = Vec::new();
 
-        // Apply moves. This should resolve in no conflicts because lookahead behavior works, so
+        // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
         for (id, act) in &requested_moves {
             match *act {
@@ -594,36 +558,38 @@ impl DrivingSimState {
                             finished_parking.push(state.tuple);
                             // No longer need to represent the car in the driving state
                             self.cars.remove(&id);
+                            self.routers.remove(&id);
                         }
                     } else {
                         self.cars.get_mut(&id).unwrap().parking = Some(state);
                     }
                 }
-                Action::Continue(accel, ref requests, need_parking) => {
-                    let should_remove = {
-                        let c = self.cars.get_mut(&id).unwrap();
-                        c.step_continue(accel, map, intersections)?;
-                        // TODO maybe just return TurnID
-                        for req in requests {
-                            // Note this is idempotent and does NOT grant the request.
-                            // TODO should we check that the car is currently the lead vehicle?
-                            // intersection is assuming that! or relax that assumption.
-                            intersections.submit_request(req.clone())?;
+                Action::Continue(accel, ref requests) => {
+                    let c = self.cars.get_mut(&id).unwrap();
+                    c.step_continue(
+                        self.routers.get_mut(&id).unwrap(),
+                        accel,
+                        map,
+                        intersections,
+                    )?;
+                    // TODO maybe just return TurnID
+                    for req in requests {
+                        // Note this is idempotent and does NOT grant the request.
+                        // TODO should we check that the car is currently the lead vehicle?
+                        // intersection is assuming that! or relax that assumption.
+                        intersections.submit_request(req.clone())?;
 
-                            // TODO kind of a weird way to figure out when to fill this out...
-                            // duplicated with stop sign's check, also. should check that they're a
-                            // leader vehicle...
-                            if On::Lane(req.turn.src) == c.on
-                                && c.speed <= kinematics::EPSILON_SPEED
-                            {
-                                c.waiting_for = Some(On::Turn(req.turn));
-                            }
+                        // TODO kind of a weird way to figure out when to fill this out...
+                        // duplicated with stop sign's check, also. should check that they're a
+                        // leader vehicle...
+                        if On::Lane(req.turn.src) == c.on && c.speed <= kinematics::EPSILON_SPEED {
+                            c.waiting_for = Some(On::Turn(req.turn));
                         }
-                        need_parking && c.look_for_parking(map, rng)
-                    };
-                    if should_remove {
-                        self.cars.remove(&id);
                     }
+                }
+                Action::VanishAtDeadEnd => {
+                    self.cars.remove(&id);
+                    self.routers.remove(&id);
                 }
             }
         }
@@ -667,11 +633,11 @@ impl DrivingSimState {
         car: CarID,
         parked_car: ParkedCar,
         dist_along: Distance,
-        mut path: VecDeque<LaneID>,
+        start: LaneID,
+        router: Router,
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> bool {
-        let start = path.pop_front().unwrap();
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
 
@@ -713,7 +679,6 @@ impl DrivingSimState {
             car,
             Car {
                 id: car,
-                path,
                 dist_along: dist_along,
                 speed: 0.0 * si::MPS,
                 on: On::Lane(start),
@@ -726,6 +691,7 @@ impl DrivingSimState {
                 }),
             },
         );
+        self.routers.insert(car, router);
         let mut dist_per_car: HashMap<CarID, Distance> = HashMap::new();
         for c in &self.lanes[start.0].cars_queue {
             dist_per_car.insert(*c, self.cars[&c].dist_along);
@@ -796,19 +762,56 @@ impl DrivingSimState {
         return Vec::new();
     }
 
-    fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&Car> {
-        match on {
-            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist, self),
-            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist, self),
-        }.map(|id| &self.cars[&id])
+    fn get_view(&self) -> WorldView {
+        let mut view = WorldView {
+            cars: HashMap::new(),
+            lanes: self.lanes.clone(),
+            turns: self.turns.clone(),
+        };
+        for c in self.cars.values() {
+            view.cars.insert(
+                c.id,
+                CarView {
+                    id: c.id,
+                    debug: c.debug,
+                    on: c.on,
+                    dist_along: c.dist_along,
+                    speed: c.speed,
+                },
+            );
+        }
+        view
     }
 }
 
-fn choose_turn(path: &VecDeque<LaneID>, from: LaneID, map: &Map) -> TurnID {
-    for t in map.get_turns_from_lane(from) {
-        if t.dst == path[0] {
-            return t.id;
+// The immutable view that cars see of other cars.
+pub struct CarView {
+    pub id: CarID,
+    pub debug: bool,
+    pub(crate) on: On,
+    pub dist_along: Distance,
+    pub speed: Speed,
+}
+
+// TODO unify with AgentInfo at least, and then come up with a better pattern for all of this
+struct WorldView {
+    cars: HashMap<CarID, CarView>,
+    // TODO I want to borrow the SimQueues, not clone, but then react() still doesnt work to
+    // mutably borrow router and immutably borrow the queues for the view. :(
+    lanes: Vec<SimQueue>,
+    turns: BTreeMap<TurnID, SimQueue>,
+}
+
+impl WorldView {
+    fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&CarView> {
+        match on {
+            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist, self),
+            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist, self),
         }
     }
-    panic!("No turn from {} to {}", from, path[0]);
+
+    fn is_leader(&self, id: CarID) -> bool {
+        let c = &self.cars[&id];
+        self.next_car_in_front_of(c.on, c.dist_along).is_none()
+    }
 }

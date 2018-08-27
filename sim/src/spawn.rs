@@ -4,6 +4,7 @@ use map_model;
 use map_model::{BuildingID, LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
+use router::Router;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use walking::{SidewalkSpot, WalkingSimState};
@@ -106,19 +107,22 @@ impl Spawner {
         {
             if let Some(path) = maybe_path {
                 match cmd {
-                    Command::Drive(_, trip, ref parked_car, _) => {
+                    Command::Drive(_, trip, ref parked_car, goal_bldg) => {
                         let car = parked_car.car;
 
                         // TODO this looks like it jumps when the parking and driving lanes are different lengths
                         // due to diagonals
                         let dist_along =
                             parking_sim.dist_along_for_car(parked_car.spot, &properties[&car]);
+                        let mut path_queue = VecDeque::from(path);
+                        let start = path_queue.pop_front().unwrap();
                         if driving_sim.start_car_on_lane(
                             now,
                             car,
                             parked_car.clone(),
                             dist_along,
-                            VecDeque::from(path),
+                            start,
+                            Router::make_router_to_park(path_queue, goal_bldg),
                             map,
                             properties,
                         ) {

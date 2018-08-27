@@ -640,6 +640,58 @@ for now, since pathfinding ignores live traffic, probably fine to ignore this.
 	- render the bus in a special color, and also, make it really long (adjust following dist, but not parking spot len)
 - step 2: make some peds pick a SINGLE bus to use for their route, if it helps
 - step 3: make peds load on the bus and get off at the correct stop. make buses usually wait a fixed time at each stop, but wait a littl extra if loading passengers takes a while.
+	- will need to store transit state of what peds are on what bus somewhere... right? or can trips somehow do it? but will want to jump to a ped and spot the bus
 - step N: load in GTFS for seattle to get real routes and stops
 
 later: multiple transfers, dedicated bus lanes, light rail...
+
+
+
+Hmm, hard to figure out the interactions for the router. when should it get a
+chance to roam around for parking? should lookahead make copies of it (harder
+to then roam...) or should it index into one of them (preferred...)
+
+
+rethink cars as a much more careful FSM. on a lane, on a turn, on the LAST lane
+lining up for something, parking, unparking, idling at a bus stop. these states
+imply things like position (which queue to occupy space in). both lookahead and
+physically stepping forwards ought to be able to use the same code -- the
+routing, turn<->lane transitions, leftover dist calculation, etc shouldnt care
+if its real or projected
+
+
+Try this again, but with a much more careful interface for the router. But when do we get to mutate?
+
+- during react() when we up-front see the path is empty and theres no parking
+	- problem: what if lookahead earlier spots this case and doesnt know where to go?
+	- soln: who cares. when that happens, just recommend stopping at the
+	  end of the lane. when we physically get there, this case will trigger
+          and we can mutate.
+- during react() lookahead when we first try to go beyond the end
+	- problem: but then it's hard to actually do the lookahead; we cant
+	  clone the router and transition it along during lookahead. we would
+	  have to go update the original one somehow.
+- in react() lookahead, return an indicator and then have step() call another mutable method later.
+	- this is the confusing kind of split I'm trying to avoid.
+
+So I think the first solution works best.
+
+
+Urgh, we have a mutability mess again -- react() needs a mutable router, but
+immutable view into world state to query sim queues and find next car in front
+of. Similar to needing to know speed and leader vehicles for intersection sim.
+For now, should we do the same hack of copying things around?
+	- kinda awkward that routers and cars are separate; a router belongs to
+	  a car. maintaining the mappings in the same spots is gross. need to
+          express in react() that only one part of a car -- the router/plan -- is
+          mutable.
+	- it's also horrible that DrivingSimState is passed around to SimQueue to get car positions!
+		- an alt is to duplicate state into the simqueue and store the dist along. this would be pretty easy actually...
+	- and passing around properties / all the vehicles is awkward
+	- maybe it's time to cave and try an ECS?
+		- just start by listing out what needs to happen.
+		- car react needs mutable router, immutable queues of lanes and turns, immutable dist/speed of other cars
+		- intersections need to know car speed, whether cars are leaders (so simqueue positions)
+
+Short term solution: copy a huge nasty thing and pass it into react(). :\
+	- but I'm still not convinced any mutabulity in react() is good

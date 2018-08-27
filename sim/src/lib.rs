@@ -29,6 +29,7 @@ mod intersections;
 // TODO pub only for tests...
 pub mod kinematics;
 mod parking;
+mod router;
 mod sim;
 mod spawn;
 mod walking;
