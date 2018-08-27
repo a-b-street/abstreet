@@ -17,7 +17,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, ParkedCar, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, InvariantViolated, ParkedCar, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -165,6 +165,22 @@ impl Sim {
 
     // TODO not sure returning info for tests like this is ideal
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<ParkedCar> {
+        match self.inner_step(map, control_map) {
+            Ok(result) => result,
+            Err(e) => panic!(
+                "At {}: {}\n\nDebug from {:?}",
+                self.time,
+                e,
+                self.find_most_recent_savestate()
+            ),
+        }
+    }
+
+    fn inner_step(
+        &mut self,
+        map: &Map,
+        control_map: &ControlMap,
+    ) -> Result<Vec<ParkedCar>, InvariantViolated> {
         self.time = self.time.next();
 
         self.spawner.step(
@@ -177,32 +193,26 @@ impl Sim {
         );
 
         let mut cars_parked_this_step: Vec<ParkedCar> = Vec::new();
-        match self.driving_state.step(
+        for p in self.driving_state.step(
             self.time,
             map,
             &self.parking_state,
             &mut self.intersection_state,
             &mut self.rng,
             &self.car_properties,
-        ) {
-            Ok(parked_cars) => for p in parked_cars {
-                cars_parked_this_step.push(p.clone());
-                self.parking_state.add_parked_car(p.clone());
-                self.spawner
-                    .car_reached_parking_spot(self.time, p, map, &self.parking_state);
-            },
-            Err(e) => panic!("At {}: {}", self.time, e),
-        };
+        )? {
+            cars_parked_this_step.push(p.clone());
+            self.parking_state.add_parked_car(p.clone());
+            self.spawner
+                .car_reached_parking_spot(self.time, p, map, &self.parking_state);
+        }
 
-        match self.walking_state
-            .step(TIMESTEP, map, &mut self.intersection_state)
+        for (ped, spot) in self.walking_state
+            .step(TIMESTEP, map, &mut self.intersection_state)?
         {
-            Ok(peds_ready_to_drive) => for (ped, spot) in peds_ready_to_drive {
-                self.spawner
-                    .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
-            },
-            Err(e) => panic!("At {}: {}", self.time, e),
-        };
+            self.spawner
+                .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
+        }
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(
@@ -225,7 +235,7 @@ impl Sim {
             }
         }
 
-        cars_parked_this_step
+        Ok(cars_parked_this_step)
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -346,6 +356,12 @@ impl Sim {
     }
 
     pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
+        let load = self.find_most_recent_savestate()?;
+        println!("Loading {}", load);
+        abstutil::read_json(&load)
+    }
+
+    fn find_most_recent_savestate(&self) -> Result<String, std::io::Error> {
         let mut paths: Vec<std::path::PathBuf> = Vec::new();
         for entry in std::fs::read_dir(format!(
             "../data/save/{}/{}/",
@@ -356,9 +372,7 @@ impl Sim {
         }
         paths.sort();
         if let Some(p) = paths.last() {
-            let load = p.as_os_str().to_str().unwrap();
-            println!("Loading {}", load);
-            abstutil::read_json(load)
+            Ok(p.as_os_str().to_os_string().into_string().unwrap())
         } else {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
