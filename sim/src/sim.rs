@@ -28,6 +28,8 @@ pub struct Sim {
     rng: XorShiftRng,
     pub time: Tick,
     pub(crate) map_name: String,
+    // Some tests deliberately set different scenario names for comparisons.
+    #[derivative(PartialEq = "ignore")]
     scenario_name: String,
     // TODO not quite the right type to represent durations
     savestate_every: Option<Tick>,
