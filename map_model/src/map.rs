@@ -127,12 +127,14 @@ impl Map {
                 if id == LaneID(309) {
                     bus_stops.push(BusStop {
                         sidewalk: id,
+                        driving_lane: LaneID(307),
                         dist_along: 25.0 * si::M,
                     });
                 }
                 if id == LaneID(840) {
                     bus_stops.push(BusStop {
                         sidewalk: id,
+                        driving_lane: LaneID(838),
                         dist_along: 50.0 * si::M,
                     });
                 }

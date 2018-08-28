@@ -1,7 +1,7 @@
 use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model;
-use map_model::{BuildingID, LaneID, Map};
+use map_model::{BuildingID, BusStop, LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
@@ -119,7 +119,7 @@ impl Spawner {
                         if driving_sim.start_car_on_lane(
                             now,
                             car,
-                            parked_car.clone(),
+                            Some(parked_car.clone()),
                             dist_along,
                             start,
                             Router::make_router_to_park(path_queue, goal_bldg),
@@ -153,6 +153,47 @@ impl Spawner {
             spawned_agents,
             requested_paths.len()
         );
+    }
+
+    // This happens immediately; it isn't scheduled.
+    pub fn seed_bus<R: Rng + ?Sized>(
+        &mut self,
+        stops: Vec<BusStop>,
+        rng: &mut R,
+        map: &Map,
+        driving_sim: &mut DrivingSimState,
+        now: Tick,
+        properties: &BTreeMap<CarID, Vehicle>,
+    ) -> Option<Vehicle> {
+        assert!(stops.len() > 1);
+        let id = CarID(self.car_id_counter);
+        self.car_id_counter += 1;
+        let vehicle = Vehicle::generate_bus(id, rng);
+
+        let mut first_path = VecDeque::from(
+            map_model::pathfind(map, stops[0].driving_lane, stops[1].driving_lane).expect(
+                &format!(
+                    "No route between bus stops {:?} and {:?}",
+                    stops[0], stops[1]
+                ),
+            ),
+        );
+        let start = first_path.pop_front().unwrap();
+        if driving_sim.start_car_on_lane(
+            now,
+            id,
+            None,
+            stops[0].dist_along,
+            start,
+            Router::make_router_for_bus(first_path, stops),
+            map,
+            properties,
+        ) {
+            println!("Spawned bus {}", id);
+            return Some(vehicle);
+        }
+        println!("No room for bus, giving up");
+        None
     }
 
     // This happens immediately; it isn't scheduled.

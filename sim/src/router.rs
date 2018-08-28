@@ -1,15 +1,21 @@
+use dimensioned::si;
 use driving::{Action, CarView};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, TurnID};
+use map_model::{BuildingID, BusStop, LaneID, Map, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
-use {Distance, On, ParkingSpot};
+use {Distance, On, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {
     ParkNearBuilding(BuildingID),
+    // This is stateful -- first stop is the one we're aiming for now, and we might also be waiting
+    // at that stop for a little while.
+    // Buses really have a few states... GotoNextStop(list of stops), WaitAtStop(list of stops,
+    // tick)
+    CycleThroughStops(Vec<BusStop>, Option<Tick>),
 }
 
 // Gives higher-level instructions to a car.
@@ -29,6 +35,13 @@ impl Router {
         }
     }
 
+    pub fn make_router_for_bus(first_path: VecDeque<LaneID>, stops: Vec<BusStop>) -> Router {
+        Router {
+            path: first_path,
+            goal: Goal::CycleThroughStops(stops, None),
+        }
+    }
+
     pub fn tooltip_line(&self) -> String {
         format!("{} lanes left in path", self.path.len())
     }
@@ -40,6 +53,7 @@ impl Router {
         &mut self,
         view: &CarView,
         vehicle: &Vehicle,
+        time: Tick,
         map: &Map,
         parking_sim: &ParkingSimState,
         rng: &mut R,
@@ -58,6 +72,32 @@ impl Router {
                     // clogged with other drivers.
                     } else {
                         return self.look_for_parking(last_lane, view, map, rng);
+                    }
+                }
+                Goal::CycleThroughStops(ref mut stops, ref mut wait_until) => {
+                    if view.dist_along == stops[0].dist_along {
+                        if let Some(wait) = wait_until.clone() {
+                            if time == wait {
+                                if view.debug {
+                                    println!(
+                                        "{} finished waiting at bus stop, going to next stop",
+                                        view.id
+                                    );
+                                }
+                                let mut cycled_stops: Vec<BusStop> = stops[1..].to_vec();
+                                cycled_stops.push(stops[0].clone());
+                                stops.clear();
+                                stops.extend(cycled_stops);
+                                *wait_until = None;
+                            }
+                        } else {
+                            if view.debug {
+                                println!("{} reached bus stop, now waiting", view.id);
+                            }
+                            // TODO const
+                            *wait_until = Some(time + 10.0 * si::S);
+                            return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
+                        }
                     }
                 }
             }
@@ -87,6 +127,9 @@ impl Router {
                         // and then reroute when react_before_lookahead is called later.
                         return Some(on.length(map));
                     }
+                }
+                Goal::CycleThroughStops(ref stops, _) => {
+                    return Some(stops[0].dist_along);
                 }
             }
         }

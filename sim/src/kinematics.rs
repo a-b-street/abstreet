@@ -18,6 +18,11 @@ const MAX_CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 6.5,
     _marker: std::marker::PhantomData,
 };
+// Note this is more than MAX_CAR_LENGTH
+const BUS_LENGTH: Distance = si::Meter {
+    value_unsafe: 6.5,
+    _marker: std::marker::PhantomData,
+};
 
 // At all speeds (including at rest), cars must be at least this far apart, measured from front of
 // one car to the back of the other.
@@ -61,12 +66,21 @@ impl Vehicle {
         }
     }
 
+    pub fn generate_bus<R: Rng + ?Sized>(id: CarID, rng: &mut R) -> Vehicle {
+        Vehicle {
+            id,
+            max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
+            max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
+            length: BUS_LENGTH,
+        }
+    }
+
     pub fn best_case_following_dist() -> Distance {
         MIN_CAR_LENGTH + FOLLOWING_DISTANCE
     }
 
     pub fn worst_case_following_dist() -> Distance {
-        MAX_CAR_LENGTH + FOLLOWING_DISTANCE
+        BUS_LENGTH + FOLLOWING_DISTANCE
     }
 
     pub fn clamp_accel(&self, accel: Acceleration) -> Acceleration {

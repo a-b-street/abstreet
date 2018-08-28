@@ -86,9 +86,14 @@ impl Car {
 
         let vehicle = &properties[&self.id];
 
-        if let Some(act) =
-            router.react_before_lookahead(&view.cars[&self.id], vehicle, map, parking_sim, rng)
-        {
+        if let Some(act) = router.react_before_lookahead(
+            &view.cars[&self.id],
+            vehicle,
+            time,
+            map,
+            parking_sim,
+            rng,
+        ) {
             return act;
         }
 
@@ -166,8 +171,8 @@ impl Car {
                 let dist_to_maybe_stop_at = maybe_stop_early.unwrap_or(current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
 
-                // If our lookahead doesn't even hit the intersection / parking spot, then ignore
-                // it. This means we won't request turns until we're close.
+                // If our lookahead doesn't even hit the intersection / early stopping point, then
+                // ignore it. This means we won't request turns until we're close.
                 if dist_to_lookahead >= dist_from_stop {
                     let should_stop = if maybe_stop_early.is_some() {
                         true
@@ -184,7 +189,10 @@ impl Car {
                     if should_stop {
                         let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop);
                         if self.debug {
-                            println!("  {} needs {} to stop for the intersection or parking spot that's currently {} away", self.id, accel, dist_from_stop);
+                            println!(
+                                "  {} needs {} to stop for something that's currently {} away",
+                                self.id, accel, dist_from_stop
+                            );
                         }
                         constraints.push(accel);
                         // No use in further lookahead.
@@ -641,7 +649,7 @@ impl DrivingSimState {
         &mut self,
         time: Tick,
         car: CarID,
-        parked_car: ParkedCar,
+        maybe_parked_car: Option<ParkedCar>,
         dist_along: Distance,
         start: LaneID,
         router: Router,
@@ -694,10 +702,12 @@ impl DrivingSimState {
                 on: On::Lane(start),
                 waiting_for: None,
                 debug: false,
-                parking: Some(ParkingState {
-                    is_parking: false,
-                    started_at: time,
-                    tuple: parked_car,
+                parking: maybe_parked_car.and_then(|parked_car| {
+                    Some(ParkingState {
+                        is_parking: false,
+                        started_at: time,
+                        tuple: parked_car,
+                    })
                 }),
             },
         );

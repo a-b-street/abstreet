@@ -1,6 +1,6 @@
 use abstutil;
 use control::ControlMap;
-use map_model::{Edits, Map};
+use map_model::{Edits, LaneID, Map};
 use {ParkedCar, Sim, Tick};
 
 // Convenience method to setup everything.
@@ -34,6 +34,14 @@ pub fn small_spawn(sim: &mut Sim, map: &Map) {
     sim.seed_parked_cars(0.5);
     sim.seed_walking_trips(&map, 100);
     sim.seed_driving_trips(&map, 100);
+
+    sim.seed_bus(
+        vec![
+            map.get_l(LaneID(309)).bus_stops[0].clone(),
+            map.get_l(LaneID(840)).bus_stops[0].clone(),
+        ],
+        map,
+    );
 }
 
 pub fn big_spawn(sim: &mut Sim, map: &Map) {

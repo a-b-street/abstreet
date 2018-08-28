@@ -31,11 +31,21 @@ pub enum LaneType {
     Biking,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BusStop {
     pub sidewalk: LaneID,
+    pub driving_lane: LaneID,
     pub dist_along: si::Meter<f64>,
 }
+
+// TODO f64 meters
+impl PartialEq for BusStop {
+    fn eq(&self, other: &BusStop) -> bool {
+        self.sidewalk == other.sidewalk && self.dist_along == other.dist_along
+    }
+}
+
+impl Eq for BusStop {}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {

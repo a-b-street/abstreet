@@ -8,7 +8,7 @@ use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
 use kinematics::Vehicle;
-use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -108,6 +108,19 @@ impl Sim {
             .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng)
             .into_iter()
         {
+            self.car_properties.insert(v.id, v);
+        }
+    }
+
+    pub fn seed_bus(&mut self, stops: Vec<BusStop>, map: &Map) {
+        for v in self.spawner.seed_bus(
+            stops,
+            &mut self.rng,
+            map,
+            &mut self.driving_state,
+            self.time,
+            &self.car_properties,
+        ) {
             self.car_properties.insert(v.id, v);
         }
     }
