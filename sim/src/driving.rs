@@ -130,7 +130,9 @@ impl Car {
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
                 // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
-                if dist_to_lookahead + other_vehicle.following_dist() >= dist_behind_other {
+                let total_scanning_dist =
+                    dist_scanned_ahead + dist_to_lookahead + other_vehicle.following_dist();
+                if total_scanning_dist >= dist_behind_other {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
                         current_speed_limit,
@@ -148,7 +150,7 @@ impl Car {
 
                     constraints.push(accel);
                 } else if self.debug {
-                    println!("  {} is {} behind {}. Lookahead dist {} + following dist {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_to_lookahead, other_vehicle.following_dist());
+                    println!("  {} is {} behind {}. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_scanned_ahead, dist_to_lookahead, other_vehicle.following_dist(), total_scanning_dist);
                 }
             }
 
