@@ -141,18 +141,20 @@ impl Spawner {
                         spawned_agents += 1;
                     }
                 };
-            } else {
+            } else if false {
                 println!(
                     "Couldn't find path from {} to {} for {:?}",
                     req.0, req.1, cmd
                 );
             }
         }
-        println!(
-            "Spawned {} agents of requested {}",
-            spawned_agents,
-            requested_paths.len()
-        );
+        if false {
+            println!(
+                "Spawned {} agents of requested {}",
+                spawned_agents,
+                requested_paths.len()
+            );
+        }
     }
 
     // This happens immediately; it isn't scheduled.
@@ -477,7 +479,9 @@ fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Buil
 fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Option<Vec<LaneID>>> {
     use rayon::prelude::*;
 
-    println!("Calculating {} paths", requested_paths.len());
+    if false {
+        println!("Calculating {} paths", requested_paths.len())
+    };
     // TODO better timer macro
     let timer = Instant::now();
     let paths: Vec<Option<Vec<LaneID>>> = requested_paths
@@ -487,7 +491,9 @@ fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Op
 
     let elapsed = timer.elapsed();
     let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
-    println!("Calculating {} paths took {}s", paths.len(), dt,);
+    if false {
+        println!("Calculating {} paths took {}s", paths.len(), dt)
+    };
     paths
 }
 

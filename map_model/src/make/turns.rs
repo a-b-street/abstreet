@@ -111,11 +111,15 @@ fn make_turns(
 ) -> Vec<Turn> {
     // TODO: Figure out why this happens in the huge map
     if incoming.is_empty() {
-        println!("WARNING: {} has no incoming lanes of some type", parent);
+        if false {
+            println!("WARNING: {} has no incoming lanes of some type", parent);
+        }
         return Vec::new();
     }
     if outgoing.is_empty() {
-        println!("WARNING: {} has no outgoing lanes of some type", parent);
+        if false {
+            println!("WARNING: {} has no outgoing lanes of some type", parent);
+        }
         return Vec::new();
     }
 
