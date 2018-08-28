@@ -241,6 +241,11 @@ impl Car {
         self.speed = new_speed;
 
         loop {
+            let current_speed_limit = self.on.speed_limit(map);
+            if self.speed > current_speed_limit {
+                return Err(InvariantViolated(format!("{} is going {} on {:?}, which has a speed limit of {}", self.id, self.speed, self.on, current_speed_limit)));
+            }
+
             let leftover_dist = self.dist_along - self.on.length(map);
             // == 0.0 is important! If no floating point imprecision happens, cars will stop RIGHT
             // at the end of a lane, with exactly 0 leftover distance. We don't want to bump them
