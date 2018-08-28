@@ -254,7 +254,8 @@ impl StopSign {
                 continue;
             }
 
-            let should_promote = if ss.get_priority(req.turn) == TurnPriority::Stop {
+            // TODO make EVERYONE stop, until other bugs are solved. :(
+            let should_promote = if ss.get_priority(req.turn) == TurnPriority::Stop || true {
                 // TODO and the agent is at the end? maybe easier than looking at their speed
                 // TODO with lane-changing, somebody could cut in front of them when they're stopped.
                 info.speeds[&req.agent] <= kinematics::EPSILON_SPEED

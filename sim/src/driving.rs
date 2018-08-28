@@ -243,7 +243,10 @@ impl Car {
         loop {
             let current_speed_limit = self.on.speed_limit(map);
             if self.speed > current_speed_limit {
-                return Err(InvariantViolated(format!("{} is going {} on {:?}, which has a speed limit of {}", self.id, self.speed, self.on, current_speed_limit)));
+                return Err(InvariantViolated(format!(
+                    "{} is going {} on {:?}, which has a speed limit of {}",
+                    self.id, self.speed, self.on, current_speed_limit
+                )));
             }
 
             let leftover_dist = self.dist_along - self.on.length(map);
