@@ -36,9 +36,10 @@ impl Router {
     }
 
     pub fn make_router_for_bus(first_path: VecDeque<LaneID>, stops: Vec<BusStop>) -> Router {
+        assert_eq!(*first_path.back().unwrap(), stops[1].driving_lane);
         Router {
             path: first_path,
-            goal: Goal::CycleThroughStops(stops, None),
+            goal: Goal::CycleThroughStops(rotate_stops(&stops), None),
         }
     }
 
@@ -78,24 +79,27 @@ impl Router {
                     if view.dist_along == stops[0].dist_along {
                         if let Some(wait) = wait_until.clone() {
                             if time == wait {
-                                if view.debug {
+                                if view.debug || true {
                                     println!(
-                                        "{} finished waiting at bus stop, going to next stop",
-                                        view.id
+                                        "{} finished waiting at bus stop, going to next stop {:?}",
+                                        view.id, stops[1]
                                     );
                                 }
-                                let mut cycled_stops: Vec<BusStop> = stops[1..].to_vec();
-                                cycled_stops.push(stops[0].clone());
+                                let new_stops = rotate_stops(stops);
                                 stops.clear();
-                                stops.extend(cycled_stops);
+                                stops.extend(new_stops);
                                 *wait_until = None;
                             }
                         } else {
-                            if view.debug {
-                                println!("{} reached bus stop, now waiting", view.id);
-                            }
+                            assert_eq!(view.on.as_lane(), stops[0].driving_lane);
                             // TODO const
                             *wait_until = Some(time + 10.0 * si::S);
+                            if view.debug || true {
+                                println!(
+                                    "{} reached {:?}, now waiting until {:?}",
+                                    view.id, stops[0], wait_until
+                                );
+                            }
                             return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
                         }
                     }
@@ -188,4 +192,11 @@ fn find_parking_spot(
     map.get_parent(driving_lane)
         .find_parking_lane(driving_lane)
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
+}
+
+// TODO double-ended list can do this natively
+fn rotate_stops(stops: &Vec<BusStop>) -> Vec<BusStop> {
+    let mut cycled_stops: Vec<BusStop> = stops[1..].to_vec();
+    cycled_stops.push(stops[0].clone());
+    cycled_stops
 }

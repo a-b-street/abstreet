@@ -495,6 +495,7 @@ impl DrivingSimState {
 
         if let Some(car) = self.cars.get_mut(&id) {
             println!("{}", abstutil::to_json(car));
+            println!("{}", abstutil::to_json(self.routers[&id]));
             car.debug = !car.debug;
             self.debug = Some(id);
         } else {
