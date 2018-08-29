@@ -8,6 +8,7 @@ extern crate dimensioned;
 extern crate ezgui;
 extern crate geom;
 extern crate graphics;
+extern crate json;
 extern crate map_model;
 #[macro_use]
 extern crate more_asserts;

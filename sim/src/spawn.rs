@@ -443,6 +443,10 @@ impl Spawner {
             trip.goal_bldg,
         ));
     }
+
+    pub fn is_done(&self) -> bool {
+        self.commands.is_empty()
+    }
 }
 
 fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {

@@ -32,7 +32,7 @@ fn test_accel_to_stop_in_dist(orig_dist_left: Distance, orig_speed: Speed) {
     let mut dist_left = orig_dist_left;
 
     for step in 0..100 {
-        let desired_accel = vehicle.accel_to_stop_in_dist(speed, dist_left);
+        let desired_accel = vehicle.accel_to_stop_in_dist(speed, dist_left).unwrap();
         let accel = vehicle.clamp_accel(desired_accel);
         println!(
             "Step {}: speed {}, dist_left {}, want accel {} but doing {}",

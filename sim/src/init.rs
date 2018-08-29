@@ -1,7 +1,8 @@
 use abstutil;
 use control::ControlMap;
 use map_model::{Edits, LaneID, Map};
-use {ParkedCar, Sim, Tick};
+use std::iter;
+use {Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -52,27 +53,37 @@ pub fn big_spawn(sim: &mut Sim, map: &Map) {
 
 // TODO share the helpers for spawning specific parking spots and stuff?
 
-// TODO time limit and a callback for the step results?
-pub fn run_until_done<CB1, CB2>(
+// TODO time limit?
+pub fn run_until_done(
     sim: &mut Sim,
     map: &Map,
     control_map: &ControlMap,
-    sim_cb: CB1,
-    handle_step: CB2,
-) where
-    CB1: Fn(&Sim),
-    CB2: Fn(Vec<ParkedCar>),
-{
+    expectations: Vec<Box<Fn(&Sim) -> bool>>,
+) {
     let mut benchmark = sim.start_benchmark();
+    let mut expectations_met: Vec<bool> = iter::repeat(false).take(expectations.len()).collect();
     loop {
-        handle_step(sim.step(&map, &control_map));
+        sim.step(&map, &control_map);
         if sim.time.is_multiple_of(Tick::from_seconds(60)) {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }
-        sim_cb(sim);
+        for (idx, e) in expectations.iter().enumerate() {
+            if e(sim) {
+                expectations_met[idx] = true;
+            }
+        }
         if sim.is_done() {
             break;
         }
+    }
+    let satisfied = expectations_met.into_iter().filter(|b| *b).count();
+    if satisfied != expectations.len() {
+        panic!(
+            "Sim done at {}, but only satisfied {} of {} expectations",
+            sim.time,
+            satisfied,
+            expectations.len()
+        );
     }
 }

@@ -7,6 +7,7 @@ use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
+use json;
 use kinematics::Vehicle;
 use map_model::{BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
@@ -17,7 +18,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use walking::WalkingSimState;
-use {CarID, CarState, InvariantViolated, ParkedCar, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -178,24 +179,18 @@ impl Sim {
             .seed_walking_trips(self.time.next(), map, num, &mut self.rng);
     }
 
-    // TODO not sure returning info for tests like this is ideal
-    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<ParkedCar> {
-        match self.inner_step(map, control_map) {
-            Ok(result) => result,
-            Err(e) => panic!(
+    pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
+        if let Err(e) = self.inner_step(map, control_map) {
+            panic!(
                 "At {}: {}\n\nDebug from {:?}",
                 self.time,
                 e,
                 self.find_most_recent_savestate()
-            ),
+            );
         }
     }
 
-    fn inner_step(
-        &mut self,
-        map: &Map,
-        control_map: &ControlMap,
-    ) -> Result<Vec<ParkedCar>, InvariantViolated> {
+    fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(), InvariantViolated> {
         self.time = self.time.next();
 
         self.spawner.step(
@@ -207,7 +202,6 @@ impl Sim {
             &self.car_properties,
         );
 
-        let mut cars_parked_this_step: Vec<ParkedCar> = Vec::new();
         for p in self.driving_state.step(
             self.time,
             map,
@@ -216,7 +210,6 @@ impl Sim {
             &mut self.rng,
             &self.car_properties,
         )? {
-            cars_parked_this_step.push(p.clone());
             self.parking_state.add_parked_car(p.clone());
             self.spawner
                 .car_reached_parking_spot(self.time, p, map, &self.parking_state);
@@ -250,7 +243,7 @@ impl Sim {
             }
         }
 
-        Ok(cars_parked_this_step)
+        Ok(())
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -311,7 +304,7 @@ impl Sim {
     }
 
     pub fn is_done(&self) -> bool {
-        self.driving_state.is_done() && self.walking_state.is_done()
+        self.driving_state.is_done() && self.walking_state.is_done() && self.spawner.is_done()
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -392,6 +385,11 @@ impl Sim {
                 "empty directory",
             ))
         }
+    }
+
+    // For tests to assert deep pieces of state
+    pub fn to_json(&self) -> json::JsonValue {
+        json::parse(&abstutil::to_json(&self)).unwrap()
     }
 }
 

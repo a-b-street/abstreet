@@ -24,14 +24,9 @@ fn park_on_goal_st() {
         &mut sim,
         &map,
         &control_map,
-        |_sim| {},
-        |parked| {
-            if let Some(p) = parked.first() {
-                assert_eq!(p.car, car);
-                assert_eq!(p.spot.lane, parking2);
-                assert_eq!(p.spot.idx, 4);
-            }
-        },
+        vec![Box::new(move |sim| {
+            sim.to_json()["parking_state"]["lanes"][parking2.0]["occupants"][4] == car.0
+        })],
     );
 }
 
@@ -52,14 +47,9 @@ fn wander_around_for_parking() {
         &mut sim,
         &map,
         &control_map,
-        |_sim| {},
-        |parked| {
-            if let Some(p) = parked.first() {
-                assert_eq!(p.car, car);
-                assert_eq!(p.spot.lane, parking1);
-                assert_eq!(p.spot.idx, 0);
-            }
-        },
+        vec![Box::new(move |sim| {
+            sim.to_json()["parking_state"]["lanes"][parking1.0]["occupants"][0] == car.0
+        })],
     );
 }
 

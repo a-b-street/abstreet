@@ -25,7 +25,7 @@ const TIME_TO_PARK_OR_DEPART: Time = si::Second {
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct ParkingState {
     // False means departing
     is_parking: bool,
@@ -33,7 +33,7 @@ struct ParkingState {
     tuple: ParkedCar,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Car {
     id: CarID,
     on: On,
