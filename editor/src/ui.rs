@@ -21,6 +21,7 @@ use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
+use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
@@ -63,6 +64,7 @@ pub struct UI {
     hider: Hider,
     current_search_state: SearchState,
     warp: WarpState,
+    follow: FollowState,
     floodfiller: Floodfiller,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
@@ -134,6 +136,7 @@ impl UI {
             hider: Hider::new(),
             current_search_state: SearchState::Empty,
             warp: WarpState::Empty,
+            follow: FollowState::Empty,
             floodfiller: Floodfiller::new(),
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: TrafficSignalEditor::new(),
@@ -450,6 +453,10 @@ impl gui::GUI for UI {
             &mut self.current_selection_state,
         ));
         stop_if_done!(
+            self.follow
+                .event(input, &self.map, &self.sim_ctrl.sim, &mut self.canvas,)
+        );
+        stop_if_done!(
             self.color_picker
                 .handle_event(input, &mut self.canvas, &mut self.cs)
         );
@@ -530,6 +537,16 @@ impl gui::GUI for UI {
                 }
                 if input.key_pressed(Key::A, "start this parked car") {
                     self.sim_ctrl.sim.start_parked_car(&self.map, id);
+                    return gui::EventLoopMode::InputOnly;
+                }
+                if input.key_pressed(Key::F, "follow this car") {
+                    self.follow = FollowState::FollowingCar(id);
+                    return gui::EventLoopMode::InputOnly;
+                }
+            }
+            SelectionState::SelectedPedestrian(id) => {
+                if input.key_pressed(Key::F, "follow this pedestrian") {
+                    self.follow = FollowState::FollowingPedestrian(id);
                     return gui::EventLoopMode::InputOnly;
                 }
             }
