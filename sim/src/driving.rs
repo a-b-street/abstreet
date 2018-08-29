@@ -69,7 +69,7 @@ impl Car {
     fn react<R: Rng + ?Sized>(
         &self,
         // The high-level plan might change here.
-        router: &mut Router,
+        orig_router: &mut Router,
         rng: &mut R,
         map: &Map,
         time: Tick,
@@ -86,7 +86,7 @@ impl Car {
 
         let vehicle = &properties[&self.id];
 
-        if let Some(act) = router.react_before_lookahead(
+        if let Some(act) = orig_router.react_before_lookahead(
             &view.cars[&self.id],
             vehicle,
             time,
@@ -106,7 +106,7 @@ impl Car {
         let mut requests: Vec<Request> = Vec::new();
         let mut current_on = self.on;
         let mut current_dist_along = self.dist_along;
-        let mut current_router = router.clone();
+        let mut current_router = orig_router.clone();
         let mut dist_scanned_ahead = 0.0 * si::M;
 
         loop {
@@ -161,7 +161,7 @@ impl Car {
 
             // Stop for something?
             if let On::Lane(id) = current_on {
-                let maybe_stop_early = router.stop_early_at_dist(
+                let maybe_stop_early = current_router.stop_early_at_dist(
                     current_on,
                     current_dist_along,
                     vehicle,

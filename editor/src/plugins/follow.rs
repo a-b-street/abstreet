@@ -21,6 +21,8 @@ impl FollowState {
         let quit = match self {
             FollowState::Empty => false,
             // TODO be generic and take an AgentID
+            // TODO when an agent disappears, they sometimes become a car/ped -- follow them
+            // instead
             FollowState::FollowingCar(id) => {
                 if let Some(c) = sim.get_draw_car(*id, map) {
                     let pt = c.focus_pt();
