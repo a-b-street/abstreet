@@ -46,6 +46,8 @@ struct Car {
     waiting_for: Option<On>,
 
     debug: bool,
+    // TODO ew? :\
+    is_bus: bool,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -470,6 +472,10 @@ impl DrivingSimState {
         (waiting, self.cars.len())
     }
 
+    pub fn is_done(&self) -> bool {
+        self.cars.values().filter(|c| !c.is_bus).count() == 0
+    }
+
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         if let Some(c) = self.cars.get(&id) {
             Some(vec![
@@ -709,6 +715,7 @@ impl DrivingSimState {
                 on: On::Lane(start),
                 waiting_for: None,
                 debug: false,
+                is_bus: !maybe_parked_car.is_some(),
                 parking: maybe_parked_car.and_then(|parked_car| {
                     Some(ParkingState {
                         is_parking: false,

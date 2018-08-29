@@ -481,6 +481,10 @@ impl WalkingSimState {
             .count();
         (waiting, self.peds.len())
     }
+
+    pub fn is_done(&self) -> bool {
+        self.peds.is_empty()
+    }
 }
 
 fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
