@@ -373,6 +373,7 @@ impl UI {
         if let Some(c) = self.current_selection_state.color_c(id, &self.cs) {
             return c;
         }
+        // TODO if it's a bus, color it differently -- but how? :\
         match self.sim_ctrl.sim.get_car_state(id) {
             CarState::Debug => ezgui::shift_color(self.cs.get(Colors::DebugCar), id.0),
             CarState::Moving => ezgui::shift_color(self.cs.get(Colors::MovingCar), id.0),

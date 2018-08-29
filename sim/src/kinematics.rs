@@ -20,7 +20,7 @@ const MAX_CAR_LENGTH: Distance = si::Meter {
 };
 // Note this is more than MAX_CAR_LENGTH
 const BUS_LENGTH: Distance = si::Meter {
-    value_unsafe: 6.5,
+    value_unsafe: 12.5,
     _marker: std::marker::PhantomData,
 };
 
