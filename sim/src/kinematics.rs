@@ -2,7 +2,7 @@ use dimensioned::si;
 use geom::EPSILON_DIST;
 use rand::Rng;
 use std;
-use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
+use {Acceleration, CarID, Distance, InvariantViolated, Speed, Time, TIMESTEP};
 
 pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     value_unsafe: 0.00000001,
@@ -109,12 +109,22 @@ impl Vehicle {
     }
 
     // TODO this needs unit tests and some careful checking
-    pub fn accel_to_stop_in_dist(&self, speed: Speed, dist: Distance) -> Acceleration {
-        assert_ge!(dist, -EPSILON_DIST);
+    pub fn accel_to_stop_in_dist(
+        &self,
+        speed: Speed,
+        dist: Distance,
+    ) -> Result<Acceleration, InvariantViolated> {
+        if dist < -EPSILON_DIST {
+            return Err(InvariantViolated(format!(
+                "{} called accel_to_stop_in_dist({}, {}) with negative distance",
+                self.id, speed, dist
+            )));
+        }
+
         // Don't NaN out. Don't check for <= EPSILON_DIST here -- it makes cars slightly overshoot
         // sometimes.
         if dist <= 0.0 * si::M {
-            return 0.0 * si::MPS2;
+            return Ok(0.0 * si::MPS2);
         }
 
         // d = (v_1)(t) + (1/2)(a)(t^2)
@@ -129,31 +139,55 @@ impl Vehicle {
         // absurd amount of time to finish, with tiny little steps. But need to tune and understand
         // this value better.
         if !required_time.value_unsafe.is_nan() && required_time < 10.0 * si::S {
-            return normal_case;
+            return Ok(normal_case);
         }
 
         // We have to accelerate so that we can get going, but not enough so that we can't stop. Do
         // one tick of acceleration, one tick of deacceleration at that same rate. If the required
         // acceleration is then too high, we'll cap off and trigger a normal case next tick.
         // Want (1/2)(a)(dt^2) + (a dt)dt - (1/2)(a)(dt^2) = dist
-        dist / (TIMESTEP * TIMESTEP)
+        Ok(dist / (TIMESTEP * TIMESTEP))
     }
 
     // Assume we accelerate as much as possible this tick (restricted only by the speed limit),
     // then stop as fast as possible.
-    pub fn max_lookahead_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
-        assert_le!(current_speed, speed_limit);
+    pub fn max_lookahead_dist(
+        &self,
+        current_speed: Speed,
+        speed_limit: Speed,
+    ) -> Result<Distance, InvariantViolated> {
+        if current_speed > speed_limit {
+            return Err(InvariantViolated(format!(
+                "{} called max_lookahead_dist({}, {}) with current speed over the limit",
+                self.id, current_speed, speed_limit
+            )));
+        }
+
         let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
         let max_next_dist = dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed);
         let max_next_speed = current_speed + max_next_accel * TIMESTEP;
-        max_next_dist + self.stopping_distance(max_next_speed)
+        Ok(max_next_dist + self.stopping_distance(max_next_speed))
     }
 
     // TODO share with max_lookahead_dist
-    fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Distance {
-        assert_le!(current_speed, speed_limit);
+    fn max_next_dist(
+        &self,
+        current_speed: Speed,
+        speed_limit: Speed,
+    ) -> Result<Distance, InvariantViolated> {
+        if current_speed > speed_limit {
+            return Err(InvariantViolated(format!(
+                "{} called max_next_dist({}, {}) with current speed over the limit",
+                self.id, current_speed, speed_limit
+            )));
+        }
+
         let max_next_accel = min_accel(self.max_accel, (speed_limit - current_speed) / TIMESTEP);
-        dist_at_constant_accel(max_next_accel, TIMESTEP, current_speed)
+        Ok(dist_at_constant_accel(
+            max_next_accel,
+            TIMESTEP,
+            current_speed,
+        ))
     }
 
     /*fn min_next_speed(&self, current_speed: Speed) -> Speed {
@@ -180,7 +214,7 @@ impl Vehicle {
         other: &Vehicle,
         dist_behind_other: Distance,
         other_speed: Speed,
-    ) -> Acceleration {
+    ) -> Result<Acceleration, InvariantViolated> {
         /* A seemingly failed attempt at a simpler version:
 
         // What if they slam on their brakes right now?
@@ -189,8 +223,8 @@ impl Vehicle {
         self.accel_to_stop_in_dist(our_speed, worst_case_dist_away)
         */
 
-        let us_worst_dist = self.max_lookahead_dist(our_speed, our_speed_limit);
-        let most_we_could_go = self.max_next_dist(our_speed, our_speed_limit);
+        let us_worst_dist = self.max_lookahead_dist(our_speed, our_speed_limit)?;
+        let most_we_could_go = self.max_next_dist(our_speed, our_speed_limit)?;
         let least_they_could_go = other.min_next_dist(other_speed);
 
         // TODO this optimizes for next tick, so we're playing it really
@@ -202,7 +236,7 @@ impl Vehicle {
         let delta_dist = projected_dist_from_them - desired_dist_btwn;
 
         // Try to cover whatever the distance is
-        accel_to_cover_dist_in_one_tick(delta_dist, our_speed)
+        Ok(accel_to_cover_dist_in_one_tick(delta_dist, our_speed))
     }
 }
 

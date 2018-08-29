@@ -77,11 +77,11 @@ impl Car {
         parking_sim: &ParkingSimState,
         intersections: &IntersectionSimState,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Action {
+    ) -> Result<Action, InvariantViolated> {
         if self.parking.is_some() {
             // TODO right place for this check?
             assert!(self.speed <= kinematics::EPSILON_SPEED);
-            return Action::WorkOnParking;
+            return Ok(Action::WorkOnParking);
         }
 
         let vehicle = &properties[&self.id];
@@ -94,12 +94,12 @@ impl Car {
             parking_sim,
             rng,
         ) {
-            return act;
+            return Ok(act);
         }
 
         // TODO could wrap this state up
         let mut current_speed_limit = self.on.speed_limit(map);
-        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit)
+        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit)?
             + Vehicle::worst_case_following_dist();
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
@@ -144,7 +144,7 @@ impl Car {
                         other_vehicle,
                         dist_behind_other,
                         other.speed,
-                    );
+                    )?;
 
                     if self.debug {
                         println!(
@@ -187,7 +187,7 @@ impl Car {
                         !granted
                     };
                     if should_stop {
-                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop);
+                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop)?;
                         if self.debug {
                             println!(
                                 "  {} needs {} to stop for something that's currently {} away",
@@ -234,7 +234,7 @@ impl Car {
             );
         }
 
-        Action::Continue(safe_accel, requests)
+        Ok(Action::Continue(safe_accel, requests))
     }
 
     fn step_continue(
@@ -495,7 +495,7 @@ impl DrivingSimState {
 
         if let Some(car) = self.cars.get_mut(&id) {
             println!("{}", abstutil::to_json(car));
-            println!("{}", abstutil::to_json(self.routers[&id]));
+            println!("{}", abstutil::to_json(&self.routers[&id]));
             car.debug = !car.debug;
             self.debug = Some(id);
         } else {
@@ -549,7 +549,7 @@ impl DrivingSimState {
                     parking_sim,
                     intersections,
                     properties,
-                ),
+                )?,
             ));
         }
 
@@ -679,13 +679,15 @@ impl DrivingSimState {
             }
 
             let other_vehicle = &properties[&other];
-            let accel_for_other_to_stop = other_vehicle.accel_to_follow(
-                self.cars[&other].speed,
-                map.get_parent(start).get_speed_limit(),
-                &properties[&car],
-                dist_along - other_dist,
-                0.0 * si::MPS,
-            );
+            let accel_for_other_to_stop = other_vehicle
+                .accel_to_follow(
+                    self.cars[&other].speed,
+                    map.get_parent(start).get_speed_limit(),
+                    &properties[&car],
+                    dist_along - other_dist,
+                    0.0 * si::MPS,
+                )
+                .unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
                 if false {
                     println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
