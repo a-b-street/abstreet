@@ -2,6 +2,7 @@ use dimensioned::si;
 use driving::{Action, CarView};
 use kinematics;
 use kinematics::Vehicle;
+use map_model;
 use map_model::{BuildingID, BusStop, LaneID, Map, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
@@ -85,6 +86,20 @@ impl Router {
                                         view.id, stops[1]
                                     );
                                 }
+
+                                let mut new_path = VecDeque::from(
+                                    map_model::pathfind(
+                                        map,
+                                        stops[0].driving_lane,
+                                        stops[1].driving_lane,
+                                    ).expect(&format!(
+                                        "No route between bus stops {:?} and {:?}",
+                                        stops[0], stops[1]
+                                    )),
+                                );
+                                new_path.pop_front();
+                                self.path = new_path;
+
                                 let new_stops = rotate_stops(stops);
                                 stops.clear();
                                 stops.extend(new_stops);
