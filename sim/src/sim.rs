@@ -6,6 +6,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
+use events::Event;
 use intersections::{AgentInfo, IntersectionSimState};
 use json;
 use kinematics::Vehicle;
@@ -117,7 +118,10 @@ impl Sim {
     }
 
     pub fn seed_bus(&mut self, stops: Vec<BusStop>, map: &Map) -> Option<CarID> {
+        // TODO throw away the events? :(
+        let mut events: Vec<Event> = Vec::new();
         if let Some(v) = self.spawner.seed_bus(
+            &mut events,
             stops,
             &mut self.rng,
             map,
@@ -192,21 +196,29 @@ impl Sim {
             .seed_walking_trips(self.time.next(), map, num, &mut self.rng);
     }
 
-    pub fn step(&mut self, map: &Map, control_map: &ControlMap) {
-        if let Err(e) = self.inner_step(map, control_map) {
-            panic!(
+    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
+        match self.inner_step(map, control_map) {
+            Ok(events) => events,
+            Err(e) => panic!(
                 "At {}: {}\n\nDebug from {:?}",
                 self.time,
                 e,
                 self.find_most_recent_savestate()
-            );
+            ),
         }
     }
 
-    fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(), InvariantViolated> {
+    fn inner_step(
+        &mut self,
+        map: &Map,
+        control_map: &ControlMap,
+    ) -> Result<(Vec<Event>), InvariantViolated> {
         self.time = self.time.next();
 
+        let mut events: Vec<Event> = Vec::new();
+
         self.spawner.step(
+            &mut events,
             self.time,
             map,
             &mut self.parking_state,
@@ -216,6 +228,7 @@ impl Sim {
         );
 
         for p in self.driving_state.step(
+            &mut events,
             self.time,
             map,
             &self.parking_state,
@@ -224,14 +237,17 @@ impl Sim {
             &mut self.rng,
             &self.car_properties,
         )? {
+            events.push(Event::CarReachedParkingSpot(p.clone()));
             self.parking_state.add_parked_car(p.clone());
             self.spawner
                 .car_reached_parking_spot(self.time, p, map, &self.parking_state);
         }
 
-        for (ped, spot) in self.walking_state
-            .step(TIMESTEP, map, &mut self.intersection_state)?
+        for (ped, spot) in
+            self.walking_state
+                .step(&mut events, TIMESTEP, map, &mut self.intersection_state)?
         {
+            events.push(Event::PedReachedParkingSpot(ped, spot));
             self.spawner
                 .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
         }
@@ -248,7 +264,7 @@ impl Sim {
             .populate_info_for_intersections(&mut info);
 
         self.intersection_state
-            .step(self.time, map, control_map, info);
+            .step(&mut events, self.time, map, control_map, info);
 
         // Savestate?
         if let Some(t) = self.savestate_every {
@@ -257,7 +273,7 @@ impl Sim {
             }
         }
 
-        Ok(())
+        Ok(events)
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {

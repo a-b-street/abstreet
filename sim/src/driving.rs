@@ -2,6 +2,7 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
+use events::Event;
 use geom::EPSILON_DIST;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
@@ -71,6 +72,7 @@ impl Car {
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
     fn react<R: Rng + ?Sized>(
         &self,
+        events: &mut Vec<Event>,
         // The high-level plan might change here.
         orig_router: &mut Router,
         rng: &mut R,
@@ -92,6 +94,7 @@ impl Car {
         let vehicle = &properties[&self.id];
 
         if let Some(act) = orig_router.react_before_lookahead(
+            events,
             &view.cars[&self.id],
             vehicle,
             time,
@@ -245,6 +248,7 @@ impl Car {
 
     fn step_continue(
         &mut self,
+        events: &mut Vec<Event>,
         router: &mut Router,
         accel: Acceleration,
         map: &Map,
@@ -281,6 +285,14 @@ impl Car {
                 intersections.on_exit(Request::for_car(self.id, t));
                 router.advance_to(t.dst);
             }
+            events.push(Event::AgentLeavesTraversable(
+                AgentID::Car(self.id),
+                self.on,
+            ));
+            events.push(Event::AgentEntersTraversable(
+                AgentID::Car(self.id),
+                next_on,
+            ));
             self.waiting_for = None;
             self.on = next_on;
             if let On::Turn(t) = self.on {
@@ -534,6 +546,7 @@ impl DrivingSimState {
 
     pub fn step<R: Rng + ?Sized>(
         &mut self,
+        events: &mut Vec<Event>,
         time: Tick,
         map: &Map,
         // TODO not all of it, just for one query!
@@ -552,6 +565,7 @@ impl DrivingSimState {
             requested_moves.push((
                 c.id,
                 c.react(
+                    events,
                     self.routers.get_mut(&c.id).unwrap(),
                     rng,
                     map,
@@ -598,6 +612,7 @@ impl DrivingSimState {
                 Action::Continue(accel, ref requests) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.step_continue(
+                        events,
                         self.routers.get_mut(&id).unwrap(),
                         accel,
                         map,
@@ -660,6 +675,7 @@ impl DrivingSimState {
     // True if the car started, false if there wasn't currently room
     pub fn start_car_on_lane(
         &mut self,
+        events: &mut Vec<Event>,
         time: Tick,
         car: CarID,
         maybe_parked_car: Option<ParkedCar>,
@@ -737,6 +753,10 @@ impl DrivingSimState {
             dist_per_car.insert(*c, self.cars[&c].dist_along);
         }
         self.lanes[start.0].insert_at(car, dist_along, dist_per_car);
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Car(car),
+            On::Lane(start),
+        ));
         true
     }
 
@@ -828,7 +848,7 @@ impl DrivingSimState {
 pub struct CarView {
     pub id: CarID,
     pub debug: bool,
-    pub(crate) on: On,
+    pub on: On,
     pub dist_along: Distance,
     pub speed: Speed,
 }

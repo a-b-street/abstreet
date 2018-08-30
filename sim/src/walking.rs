@@ -2,6 +2,7 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
+use events::Event;
 use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
@@ -174,7 +175,7 @@ impl Pedestrian {
     }
 
     // If true, then we're completely done!
-    fn step_cross_path(&mut self, delta_time: Time, map: &Map) -> bool {
+    fn step_cross_path(&mut self, events: &mut Vec<Event>, delta_time: Time, map: &Map) -> bool {
         let new_dist = delta_time * SPEED;
 
         // TODO arguably a different direction would make this easier
@@ -185,6 +186,7 @@ impl Pedestrian {
             } else {
                 fp.dist_along -= new_dist;
                 if fp.dist_along < 0.0 * si::M {
+                    events.push(Event::PedReachedBuilding(self.id, fp.bldg));
                     return true;
                 }
                 false
@@ -217,6 +219,7 @@ impl Pedestrian {
 
     fn step_goto(
         &mut self,
+        events: &mut Vec<Event>,
         on: On,
         map: &Map,
         intersections: &mut IntersectionSimState,
@@ -227,6 +230,14 @@ impl Pedestrian {
             assert_eq!(self.path[0], map.get_t(t).dst);
             self.path.pop_front();
         }
+        events.push(Event::AgentLeavesTraversable(
+            AgentID::Pedestrian(self.id),
+            old_on,
+        ));
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Pedestrian(self.id),
+            on,
+        ));
         self.waiting_for = None;
         self.on = on;
         self.dist_along = 0.0 * si::M;
@@ -302,6 +313,7 @@ impl WalkingSimState {
     // Return all the pedestrians that have reached a parking spot.
     pub fn step(
         &mut self,
+        events: &mut Vec<Event>,
         delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
@@ -324,7 +336,7 @@ impl WalkingSimState {
                     if self.peds
                         .get_mut(&id)
                         .unwrap()
-                        .step_cross_path(delta_time, map)
+                        .step_cross_path(events, delta_time, map)
                     {
                         self.peds.remove(&id);
                     }
@@ -347,7 +359,7 @@ impl WalkingSimState {
                 }
                 Action::Goto(on) => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    p.step_goto(on, map, intersections)?;
+                    p.step_goto(events, on, map, intersections)?;
                 }
                 Action::WaitFor(on) => {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
@@ -417,6 +429,7 @@ impl WalkingSimState {
 
     pub fn seed_pedestrian(
         &mut self,
+        events: &mut Vec<Event>,
         id: PedestrianID,
         start: SidewalkSpot,
         goal: SidewalkSpot,
@@ -457,6 +470,10 @@ impl WalkingSimState {
             },
         );
         self.peds_per_sidewalk.insert(start_lane, id);
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Pedestrian(id),
+            On::Lane(start_lane),
+        ));
     }
 
     pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {

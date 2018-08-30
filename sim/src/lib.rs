@@ -25,6 +25,7 @@ extern crate serde_derive;
 mod draw_car;
 mod draw_ped;
 mod driving;
+mod events;
 pub mod init;
 mod intersections;
 // TODO pub only for tests...
@@ -196,7 +197,7 @@ fn time_parsing() {
 
 // TODO this name isn't quite right :)
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub(crate) enum On {
+pub enum On {
     Lane(LaneID),
     Turn(TurnID),
 }

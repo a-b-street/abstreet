@@ -550,6 +550,19 @@ Some first tests to write:
 
 Unclear how to nicely let the test inspect stuff every tick.
 
+Rejected ideas:
+- make every pub(crate) so a unit test can reach into state anywhere. It ruins viz for testing.
+- JSONify stuff and look at that. too slow, and walking the JSON structure is annoying and not type-safe.
+- make one-off accessors for interesting stuff. pollutes code and is tedious.
+
+The idea that's sticking:
+- every tick, accumulate a list of events that occurred. publish these from various places.
+	- most of the events are state transitions -- car leaves lane, intersection accepts ticket, car parks, bus departs
+	- beyond unit testing, this will be useful for building up a compressed schedule for the time traveler
+	- and already am kind of using this pattern to communicate between sim managers, spawners, etc
+	- will help compute trip statistics later
+	- would also be nice to log some of these
+
 ## Per-car properties
 
 Need to associate car length between driving and parking sims.

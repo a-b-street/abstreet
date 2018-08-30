@@ -1,4 +1,5 @@
 use driving::DrivingSimState;
+use events::Event;
 use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, BusStop, LaneID, Map};
@@ -76,6 +77,7 @@ impl Spawner {
 
     pub fn step(
         &mut self,
+        events: &mut Vec<Event>,
         now: Tick,
         map: &Map,
         parking_sim: &mut ParkingSimState,
@@ -118,6 +120,7 @@ impl Spawner {
                         let mut path_queue = VecDeque::from(path);
                         let start = path_queue.pop_front().unwrap();
                         if driving_sim.start_car_on_lane(
+                            events,
                             now,
                             car,
                             Some(parked_car.clone()),
@@ -138,7 +141,14 @@ impl Spawner {
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
                         self.trip_per_ped.insert(ped, trip);
-                        walking_sim.seed_pedestrian(ped, spot1, spot2, map, VecDeque::from(path));
+                        walking_sim.seed_pedestrian(
+                            events,
+                            ped,
+                            spot1,
+                            spot2,
+                            map,
+                            VecDeque::from(path),
+                        );
                         spawned_agents += 1;
                     }
                 };
@@ -161,6 +171,7 @@ impl Spawner {
     // This happens immediately; it isn't scheduled.
     pub fn seed_bus<R: Rng + ?Sized>(
         &mut self,
+        events: &mut Vec<Event>,
         stops: Vec<BusStop>,
         rng: &mut R,
         map: &Map,
@@ -184,6 +195,7 @@ impl Spawner {
         );
         let start = first_path.pop_front().unwrap();
         if driving_sim.start_car_on_lane(
+            events,
             now,
             id,
             None,

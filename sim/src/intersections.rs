@@ -5,6 +5,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
+use events::Event;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -99,14 +100,21 @@ impl IntersectionSimState {
         Ok(())
     }
 
-    pub fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: AgentInfo) {
+    pub fn step(
+        &mut self,
+        events: &mut Vec<Event>,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        info: AgentInfo,
+    ) {
         for i in self.intersections.iter_mut() {
             match i {
                 IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                    p.step(time, map, control_map, &info)
+                    p.step(events, time, map, control_map, &info)
                 }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(time, map, control_map, &info)
+                    p.step(events, time, map, control_map, &info)
                 }
             }
         }
@@ -242,7 +250,14 @@ impl StopSign {
             .is_some()
     }
 
-    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: &AgentInfo) {
+    fn step(
+        &mut self,
+        events: &mut Vec<Event>,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        info: &AgentInfo,
+    ) {
         let ss = &control_map.stop_signs[&self.id];
 
         // If anybody is stopped, promote them.
@@ -302,6 +317,7 @@ impl StopSign {
 
         for req in newly_accepted.into_iter() {
             self.started_waiting_at.remove(&req);
+            events.push(Event::IntersectionAcceptsRequest(req));
         }
     }
 }
@@ -326,7 +342,14 @@ impl TrafficSignal {
         }
     }
 
-    fn step(&mut self, time: Tick, map: &Map, control_map: &ControlMap, info: &AgentInfo) {
+    fn step(
+        &mut self,
+        events: &mut Vec<Event>,
+        time: Tick,
+        map: &Map,
+        control_map: &ControlMap,
+        info: &AgentInfo,
+    ) {
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, _remaining_cycle_time) =
             signal.current_cycle_and_remaining_time(time.as_time());
@@ -362,6 +385,7 @@ impl TrafficSignal {
             //let crossing_time = turn.length() / speeds[&agent];
 
             self.accepted.insert(req.agent, turn.id);
+            events.push(Event::IntersectionAcceptsRequest(req.clone()));
 
             if self.debug {
                 println!("{:?} has been accepted for this cycle", req);

@@ -1,5 +1,6 @@
 use dimensioned::si;
 use driving::{Action, CarView};
+use events::Event;
 use kinematics;
 use kinematics::Vehicle;
 use map_model;
@@ -54,6 +55,7 @@ impl Router {
     // and augmenting the plan, but not the car's actual state.
     pub fn react_before_lookahead<R: Rng + ?Sized>(
         &mut self,
+        events: &mut Vec<Event>,
         view: &CarView,
         vehicle: &Vehicle,
         time: Tick,
@@ -83,6 +85,11 @@ impl Router {
                     if view.dist_along == stops[0].dist_along {
                         if let Some(wait) = wait_until.clone() {
                             if time == wait {
+                                // TODO is this the right place to actually do the state
+                                // transition, or should we just indicate an event and let
+                                // something else handle it?
+                                events.push(Event::BusDepartedFromStop(view.id, stops[0].clone()));
+
                                 if view.debug || true {
                                     println!(
                                         "{} finished waiting at bus stop, going to next stop {:?}",
@@ -112,6 +119,7 @@ impl Router {
                             }
                         } else {
                             assert_eq!(view.on.as_lane(), stops[0].driving_lane);
+                            events.push(Event::BusArrivedAtStop(view.id, stops[0].clone()));
                             // TODO const
                             *wait_until = Some(time + 10.0 * si::S);
                             if view.debug || true {
@@ -131,7 +139,7 @@ impl Router {
     }
 
     // If we return None, then the caller will immediately ask what turn to do.
-    pub(crate) fn stop_early_at_dist(
+    pub fn stop_early_at_dist(
         &self,
         // TODO urgh, we cant reuse CarView here, because lookahead doesn't advance the view :(
         on: On,
