@@ -168,7 +168,7 @@ impl Spawner {
     }
 
     // This happens immediately; it isn't scheduled.
-    pub fn seed_bus<R: Rng + ?Sized>(
+    pub fn seed_bus_route<R: Rng + ?Sized>(
         &mut self,
         events: &mut Vec<Event>,
         stops: Vec<BusStop>,
@@ -178,38 +178,40 @@ impl Spawner {
         transit_sim: &mut TransitSimState,
         now: Tick,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Option<Vehicle> {
-        assert!(stops.len() > 1);
-        let id = CarID(self.car_id_counter);
-        self.car_id_counter += 1;
-        let vehicle = Vehicle::generate_bus(id, rng);
+    ) -> Vec<Vehicle> {
+        let route = transit_sim.create_empty_route(stops);
+        let mut vehicles: Vec<Vehicle> = Vec::new();
+        // Try to spawn a bus at each stop
+        for (next_stop_idx, start_dist_along, mut path) in
+            transit_sim.get_route_starts(route, map).into_iter()
+        {
+            let id = CarID(self.car_id_counter);
+            self.car_id_counter += 1;
+            let vehicle = Vehicle::generate_bus(id, rng);
 
-        let mut first_path = VecDeque::from(
-            map_model::pathfind(map, stops[0].driving_lane, stops[1].driving_lane).expect(
-                &format!(
-                    "No route between bus stops {:?} and {:?}",
-                    stops[0], stops[1]
-                ),
-            ),
-        );
-        let start = first_path.pop_front().unwrap();
-        if driving_sim.start_car_on_lane(
-            events,
-            now,
-            id,
-            None,
-            stops[0].dist_along,
-            start,
-            Router::make_router_for_bus(first_path, stops),
-            map,
-            properties,
-        ) {
-            transit_sim.bus_is_driving(id);
-            println!("Spawned bus {}", id);
-            return Some(vehicle);
+            let start = path.pop_front().unwrap();
+            if driving_sim.start_car_on_lane(
+                events,
+                now,
+                id,
+                None,
+                start_dist_along,
+                start,
+                Router::make_router_for_bus(path),
+                map,
+                properties,
+            ) {
+                transit_sim.bus_created(id, route, next_stop_idx);
+                println!("Spawned bus {} for route {}", id, route);
+                vehicles.push(vehicle);
+            } else {
+                println!(
+                    "No room for a bus headed towards stop {} of {}, giving up",
+                    next_stop_idx, route
+                );
+            }
         }
-        println!("No room for bus, giving up");
-        None
+        vehicles
     }
 
     // This happens immediately; it isn't scheduled.

@@ -2,8 +2,7 @@ use dimensioned::si;
 use driving::{Action, CarView};
 use kinematics;
 use kinematics::Vehicle;
-use map_model;
-use map_model::{BuildingID, BusStop, LaneID, Map, TurnID};
+use map_model::{BuildingID, LaneID, Map, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
@@ -13,11 +12,7 @@ use {Distance, Event, On, ParkingSpot, Tick};
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {
     ParkNearBuilding(BuildingID),
-    // This is stateful -- first stop is the one we're aiming for now, and we might also be waiting
-    // at that stop for a little while.
-    // Buses really have a few states... GotoNextStop(list of stops), WaitAtStop(list of stops,
-    // tick)
-    CycleThroughStops(Vec<BusStop>, Option<Tick>),
+    FollowBusRoute,
 }
 
 // Gives higher-level instructions to a car.
@@ -37,11 +32,10 @@ impl Router {
         }
     }
 
-    pub fn make_router_for_bus(first_path: VecDeque<LaneID>, stops: Vec<BusStop>) -> Router {
-        assert_eq!(*first_path.back().unwrap(), stops[1].driving_lane);
+    pub fn make_router_for_bus(first_path: VecDeque<LaneID>) -> Router {
         Router {
             path: first_path,
-            goal: Goal::CycleThroughStops(rotate_stops(&stops), None),
+            goal: Goal::FollowBusRoute,
         }
     }
 
@@ -64,73 +58,32 @@ impl Router {
         transit_sim: &mut TransitSimState,
         rng: &mut R,
     ) -> Option<Action> {
-        if self.path.is_empty() && view.speed <= kinematics::EPSILON_SPEED {
-            match self.goal {
-                Goal::ParkNearBuilding(_) => {
-                    let last_lane = view.on.as_lane();
-                    if let Some(spot) =
-                        find_parking_spot(last_lane, view.dist_along, map, parking_sim)
-                    {
-                        if parking_sim.dist_along_for_car(spot, vehicle) == view.dist_along {
-                            return Some(Action::StartParking(spot));
-                        }
-                    // Being stopped before the parking spot is normal if the final road is
-                    // clogged with other drivers.
-                    } else {
-                        return self.look_for_parking(last_lane, view, map, rng);
+        if !self.path.is_empty() || view.speed > kinematics::EPSILON_SPEED {
+            return None;
+        }
+
+        match self.goal {
+            Goal::ParkNearBuilding(_) => {
+                let last_lane = view.on.as_lane();
+                if let Some(spot) = find_parking_spot(last_lane, view.dist_along, map, parking_sim)
+                {
+                    if parking_sim.dist_along_for_car(spot, vehicle) == view.dist_along {
+                        return Some(Action::StartParking(spot));
                     }
+                // Being stopped before the parking spot is normal if the final road is
+                // clogged with other drivers.
+                } else {
+                    return self.look_for_parking(last_lane, view, map, rng);
                 }
-                Goal::CycleThroughStops(ref mut stops, ref mut wait_until) => {
-                    if view.dist_along == stops[0].dist_along {
-                        if let Some(wait) = wait_until.clone() {
-                            if time == wait {
-                                // TODO is this the right place to actually do the state
-                                // transition, or should we just indicate an event and let
-                                // something else handle it?
-                                events.push(Event::BusDepartedFromStop(view.id, stops[0].clone()));
-
-                                if view.debug || true {
-                                    println!(
-                                        "{} finished waiting at bus stop, going to next stop {:?}",
-                                        view.id, stops[1]
-                                    );
-                                }
-
-                                let mut new_path = VecDeque::from(
-                                    map_model::pathfind(
-                                        map,
-                                        stops[0].driving_lane,
-                                        stops[1].driving_lane,
-                                    ).expect(&format!(
-                                        "No route between bus stops {:?} and {:?}",
-                                        stops[0], stops[1]
-                                    )),
-                                );
-                                new_path.pop_front();
-                                self.path = new_path;
-
-                                let new_stops = rotate_stops(stops);
-                                stops.clear();
-                                stops.extend(new_stops);
-                                *wait_until = None;
-
-                                transit_sim.bus_is_driving(view.id);
-                            }
-                        } else {
-                            assert_eq!(view.on.as_lane(), stops[0].driving_lane);
-                            events.push(Event::BusArrivedAtStop(view.id, stops[0].clone()));
-                            // TODO const
-                            *wait_until = Some(time + 10.0 * si::S);
-                            if view.debug || true {
-                                println!(
-                                    "{} reached {:?}, now waiting until {:?}",
-                                    view.id, stops[0], wait_until
-                                );
-                            }
-                            transit_sim.bus_is_at_stop(view.id, stops[0].clone());
-                            return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
-                        }
-                    }
+            }
+            Goal::FollowBusRoute => {
+                let (should_idle, new_path) =
+                    transit_sim.get_action_when_stopped_at_end(events, view, time, map);
+                if let Some(p) = new_path {
+                    self.path = p;
+                }
+                if should_idle {
+                    return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
                 }
             }
         }
@@ -146,6 +99,7 @@ impl Router {
         vehicle: &Vehicle,
         map: &Map,
         parking_sim: &ParkingSimState,
+        transit_sim: &TransitSimState,
     ) -> Option<Distance> {
         if self.path.is_empty() {
             match self.goal {
@@ -160,8 +114,8 @@ impl Router {
                         return Some(on.length(map));
                     }
                 }
-                Goal::CycleThroughStops(ref stops, _) => {
-                    return Some(stops[0].dist_along);
+                Goal::FollowBusRoute => {
+                    return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on.as_lane()));
                 }
             }
         }
@@ -220,11 +174,4 @@ fn find_parking_spot(
     map.get_parent(driving_lane)
         .find_parking_lane(driving_lane)
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
-}
-
-// TODO double-ended list can do this natively
-fn rotate_stops(stops: &Vec<BusStop>) -> Vec<BusStop> {
-    let mut cycled_stops: Vec<BusStop> = stops[1..].to_vec();
-    cycled_stops.push(stops[0].clone());
-    cycled_stops
 }

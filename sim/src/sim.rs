@@ -115,10 +115,11 @@ impl Sim {
         }
     }
 
-    pub fn seed_bus(&mut self, stops: Vec<BusStop>, map: &Map) -> Option<CarID> {
+    pub fn seed_bus_route(&mut self, stops: Vec<BusStop>, map: &Map) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();
-        if let Some(v) = self.spawner.seed_bus(
+        let mut result: Vec<CarID> = Vec::new();
+        for v in self.spawner.seed_bus_route(
             &mut events,
             stops,
             &mut self.rng,
@@ -130,10 +131,9 @@ impl Sim {
         ) {
             let id = v.id;
             self.car_properties.insert(v.id, v);
-            Some(id)
-        } else {
-            None
+            result.push(id);
         }
+        result
     }
 
     pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {

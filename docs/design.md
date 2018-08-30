@@ -652,12 +652,31 @@ for now, since pathfinding ignores live traffic, probably fine to ignore this.
 		- this actually belongs to the map layer! associated with a sidewalk I guess.
 	- render the bus in a special color, and also, make it really long (adjust following dist, but not parking spot len)
 	- how to unit test that a bus has reached a stop and is waiting? how do we even know that a bus is at a stop for peds to soon board it? I think a transit state will happen soon...
+
 - step 2: make some peds pick a SINGLE bus to use for their route, if it helps
+
 - step 3: make peds load on the bus and get off at the correct stop. make buses usually wait a fixed time at each stop, but wait a littl extra if loading passengers takes a while.
-	- will need to store transit state of what peds are on what bus somewhere... right? or can trips somehow do it? but will want to jump to a ped and spot the bus
+	- should walking state own peds waiting for a bus?
+		- yes: easier drawing, later need to know how crowded a sidewalk is, it's just weird to keep indicating we're at a place. router for cars does this, and the transit sim holds the higher-level state. do the same for now.
+		- no: transit sim can also contribute DrawPeds. the walking layer has nothing left to do with them... right?
+
 - step N: load in GTFS for seattle to get real routes and stops
 
 later: multiple transfers, dedicated bus lanes, light rail...
+
+Actually, jump to step 3 and just hardcode a ped to use a route, for now. what should the setup be? hardcode what stop to go to, what route to use, what stop to get off at? trip plan is a sequence...
+
+- walk to a sidewalk POI (bldg, parking spot, bus stop)
+- drive somewhere and park
+- ride bus route until some stop
+
+for now, these trip sequences can be hardcoded, and planned later.
+
+## Everything as FSMs
+
+Driving and walking layer are both kind of broken, since they know about
+parking spots and bus stops. Feels like they need to be dumb, mechanical layers
+that're guided by higher-level behaviors, which understand trips and such.
 
 ## Routers, lookahead, cars as FSMs
 

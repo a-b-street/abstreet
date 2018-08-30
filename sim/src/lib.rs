@@ -62,6 +62,15 @@ impl fmt::Display for PedestrianID {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct RouteID(pub usize);
+
+impl fmt::Display for RouteID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RouteID({0})", self.0)
+    }
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
 pub enum AgentID {
     Car(CarID),

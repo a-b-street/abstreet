@@ -175,6 +175,7 @@ impl Car {
                     vehicle,
                     map,
                     parking_sim,
+                    transit_sim,
                 );
                 let dist_to_maybe_stop_at = maybe_stop_early.unwrap_or(current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;

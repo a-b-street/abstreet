@@ -36,13 +36,16 @@ pub fn small_spawn(sim: &mut Sim, map: &Map) {
     sim.seed_walking_trips(&map, 100);
     sim.seed_driving_trips(&map, 100);
 
-    sim.seed_bus(
+    if sim.seed_bus_route(
         vec![
             map.get_l(LaneID(309)).bus_stops[0].clone(),
             map.get_l(LaneID(840)).bus_stops[0].clone(),
         ],
         map,
-    ).expect("Bus didn't fit");
+    ).len() != 2
+    {
+        panic!("Two buses didn't fit");
+    }
 }
 
 pub fn big_spawn(sim: &mut Sim, map: &Map) {
