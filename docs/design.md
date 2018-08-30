@@ -638,6 +638,7 @@ for now, since pathfinding ignores live traffic, probably fine to ignore this.
 	- render a bus stop on the sidewalk
 		- this actually belongs to the map layer! associated with a sidewalk I guess.
 	- render the bus in a special color, and also, make it really long (adjust following dist, but not parking spot len)
+	- how to unit test that a bus has reached a stop and is waiting? how do we even know that a bus is at a stop for peds to soon board it? I think a transit state will happen soon...
 - step 2: make some peds pick a SINGLE bus to use for their route, if it helps
 - step 3: make peds load on the bus and get off at the correct stop. make buses usually wait a fixed time at each stop, but wait a littl extra if loading passengers takes a while.
 	- will need to store transit state of what peds are on what bus somewhere... right? or can trips somehow do it? but will want to jump to a ped and spot the bus
@@ -645,7 +646,7 @@ for now, since pathfinding ignores live traffic, probably fine to ignore this.
 
 later: multiple transfers, dedicated bus lanes, light rail...
 
-
+## Routers, lookahead, cars as FSMs
 
 Hmm, hard to figure out the interactions for the router. when should it get a
 chance to roam around for parking? should lookahead make copies of it (harder

@@ -9,7 +9,7 @@ use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
 use json;
 use kinematics::Vehicle;
-use map_model::{BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{BuildingID, BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -17,6 +17,7 @@ use std;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
+use transit::TransitSimState;
 use walking::WalkingSimState;
 use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
@@ -40,6 +41,7 @@ pub struct Sim {
     driving_state: DrivingSimState,
     parking_state: ParkingSimState,
     walking_state: WalkingSimState,
+    transit_state: TransitSimState,
 
     car_properties: BTreeMap<CarID, Vehicle>,
 }
@@ -64,6 +66,7 @@ impl Sim {
             intersection_state: IntersectionSimState::new(map),
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
+            transit_state: TransitSimState::new(),
             time: Tick::zero(),
             map_name: map.get_name().to_string(),
             scenario_name,
@@ -113,16 +116,21 @@ impl Sim {
         }
     }
 
-    pub fn seed_bus(&mut self, stops: Vec<BusStop>, map: &Map) {
-        for v in self.spawner.seed_bus(
+    pub fn seed_bus(&mut self, stops: Vec<BusStop>, map: &Map) -> Option<CarID> {
+        if let Some(v) = self.spawner.seed_bus(
             stops,
             &mut self.rng,
             map,
             &mut self.driving_state,
+            &mut self.transit_state,
             self.time,
             &self.car_properties,
         ) {
+            let id = v.id;
             self.car_properties.insert(v.id, v);
+            Some(id)
+        } else {
+            None
         }
     }
 
@@ -174,6 +182,11 @@ impl Sim {
             .spawn_pedestrian(self.time.next(), map, sidewalk, &mut self.rng);
     }
 
+    pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: BuildingID, to: BuildingID) {
+        self.spawner
+            .spawn_specific_pedestrian(self.time.next(), map, from, to);
+    }
+
     pub fn seed_walking_trips(&mut self, map: &Map, num: usize) {
         self.spawner
             .seed_walking_trips(self.time.next(), map, num, &mut self.rng);
@@ -207,6 +220,7 @@ impl Sim {
             map,
             &self.parking_state,
             &mut self.intersection_state,
+            &mut self.transit_state,
             &mut self.rng,
             &self.car_properties,
         )? {

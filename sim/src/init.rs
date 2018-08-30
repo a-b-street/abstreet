@@ -42,7 +42,7 @@ pub fn small_spawn(sim: &mut Sim, map: &Map) {
             map.get_l(LaneID(840)).bus_stops[0].clone(),
         ],
         map,
-    );
+    ).expect("Bus didn't fit");
 }
 
 pub fn big_spawn(sim: &mut Sim, map: &Map) {

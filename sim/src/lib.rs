@@ -33,6 +33,7 @@ mod parking;
 mod router;
 mod sim;
 mod spawn;
+mod transit;
 mod walking;
 
 use dimensioned::si;

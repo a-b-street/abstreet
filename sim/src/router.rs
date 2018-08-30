@@ -7,6 +7,7 @@ use map_model::{BuildingID, BusStop, LaneID, Map, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
+use transit::TransitSimState;
 use {Distance, On, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -58,6 +59,8 @@ impl Router {
         time: Tick,
         map: &Map,
         parking_sim: &ParkingSimState,
+        // Mutable so we can indicate state transitions
+        transit_sim: &mut TransitSimState,
         rng: &mut R,
     ) -> Option<Action> {
         if self.path.is_empty() && view.speed <= kinematics::EPSILON_SPEED {
@@ -104,6 +107,8 @@ impl Router {
                                 stops.clear();
                                 stops.extend(new_stops);
                                 *wait_until = None;
+
+                                transit_sim.bus_is_driving(view.id);
                             }
                         } else {
                             assert_eq!(view.on.as_lane(), stops[0].driving_lane);
@@ -115,6 +120,7 @@ impl Router {
                                     view.id, stops[0], wait_until
                                 );
                             }
+                            transit_sim.bus_is_at_stop(view.id, stops[0].clone());
                             return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
                         }
                     }

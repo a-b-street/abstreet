@@ -7,6 +7,7 @@ use rand::Rng;
 use router::Router;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
+use transit::TransitSimState;
 use walking::{SidewalkSpot, WalkingSimState};
 use {CarID, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
 
@@ -164,6 +165,7 @@ impl Spawner {
         rng: &mut R,
         map: &Map,
         driving_sim: &mut DrivingSimState,
+        transit_sim: &mut TransitSimState,
         now: Tick,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Option<Vehicle> {
@@ -191,6 +193,7 @@ impl Spawner {
             map,
             properties,
         ) {
+            transit_sim.bus_is_driving(id);
             println!("Spawned bus {}", id);
             return Some(vehicle);
         }
@@ -355,20 +358,17 @@ impl Spawner {
         }
     }
 
-    pub fn spawn_pedestrian<R: Rng + ?Sized>(
+    pub fn spawn_specific_pedestrian(
         &mut self,
         at: Tick,
         map: &Map,
-        sidewalk: LaneID,
-        rng: &mut R,
+        start_bldg: BuildingID,
+        goal_bldg: BuildingID,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at());
         }
-        assert!(map.get_l(sidewalk).is_sidewalk());
 
-        let start_bldg = pick_bldg_from_sidewalk(rng, map, sidewalk);
-        let goal_bldg = pick_ped_goal(rng, map, sidewalk);
         let trip_id = TripID(self.trips.len());
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
@@ -388,6 +388,19 @@ impl Spawner {
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),
         ));
+    }
+
+    pub fn spawn_pedestrian<R: Rng + ?Sized>(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        sidewalk: LaneID,
+        rng: &mut R,
+    ) {
+        assert!(map.get_l(sidewalk).is_sidewalk());
+        let start_bldg = pick_bldg_from_sidewalk(rng, map, sidewalk);
+        let goal_bldg = pick_ped_goal(rng, map, sidewalk);
+        self.spawn_specific_pedestrian(at, map, start_bldg, goal_bldg);
     }
 
     pub fn seed_walking_trips<R: Rng + ?Sized>(

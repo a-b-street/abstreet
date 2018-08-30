@@ -15,6 +15,7 @@ use rand::Rng;
 use router::Router;
 use std;
 use std::collections::{BTreeMap, HashMap};
+use transit::TransitSimState;
 use {
     Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, ParkedCar,
     ParkingSpot, Speed, Tick, Time,
@@ -77,6 +78,8 @@ impl Car {
         time: Tick,
         view: &WorldView,
         parking_sim: &ParkingSimState,
+        // State transitions might be indicated
+        transit_sim: &mut TransitSimState,
         intersections: &IntersectionSimState,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Action, InvariantViolated> {
@@ -94,6 +97,7 @@ impl Car {
             time,
             map,
             parking_sim,
+            transit_sim,
             rng,
         ) {
             return Ok(act);
@@ -535,6 +539,7 @@ impl DrivingSimState {
         // TODO not all of it, just for one query!
         parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
+        transit_sim: &mut TransitSimState,
         rng: &mut R,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Vec<ParkedCar>, InvariantViolated> {
@@ -553,6 +558,7 @@ impl DrivingSimState {
                     time,
                     &view,
                     parking_sim,
+                    transit_sim,
                     intersections,
                     properties,
                 )?,
