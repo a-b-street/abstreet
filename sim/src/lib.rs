@@ -8,7 +8,6 @@ extern crate dimensioned;
 extern crate ezgui;
 extern crate geom;
 extern crate graphics;
-extern crate json;
 extern crate map_model;
 #[macro_use]
 extern crate more_asserts;
@@ -38,6 +37,7 @@ mod transit;
 mod walking;
 
 use dimensioned::si;
+pub use events::Event;
 use geom::{Angle, Pt2D};
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
@@ -80,6 +80,10 @@ pub struct Tick(u32);
 impl Tick {
     pub fn zero() -> Tick {
         Tick(0)
+    }
+
+    pub fn from_minutes(secs: u32) -> Tick {
+        Tick(60 * 10 * secs)
     }
 
     pub fn from_seconds(secs: u32) -> Tick {
@@ -287,6 +291,12 @@ impl fmt::Display for TripID {
 pub struct ParkingSpot {
     pub lane: LaneID,
     pub idx: usize,
+}
+
+impl ParkingSpot {
+    pub fn new(lane: LaneID, idx: usize) -> ParkingSpot {
+        ParkingSpot { lane, idx }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]

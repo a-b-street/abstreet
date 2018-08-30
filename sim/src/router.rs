@@ -1,6 +1,5 @@
 use dimensioned::si;
 use driving::{Action, CarView};
-use events::Event;
 use kinematics;
 use kinematics::Vehicle;
 use map_model;
@@ -9,7 +8,7 @@ use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
 use transit::TransitSimState;
-use {Distance, On, ParkingSpot, Tick};
+use {Distance, Event, On, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {

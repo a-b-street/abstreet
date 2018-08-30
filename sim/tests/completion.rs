@@ -12,7 +12,7 @@ fn aorta_model_completes() {
         Some(sim::Tick::from_seconds(30)),
     );
     sim::init::small_spawn(&mut sim, &map);
-    sim::init::run_until_done(&mut sim, &map, &control_map, Vec::new());
+    sim::init::run_until_done(&mut sim, &map, &control_map, Box::new(|_sim| {}));
 }
 
 // TODO other tests (not completion) to add:

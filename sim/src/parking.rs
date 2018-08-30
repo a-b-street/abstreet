@@ -45,7 +45,7 @@ impl ParkingSimState {
 
     pub fn get_all_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
         (0..self.lanes[lane.0].spots.len())
-            .map(|idx| parking_spot(lane, idx))
+            .map(|idx| ParkingSpot::new(lane, idx))
             .collect()
     }
 
@@ -54,7 +54,7 @@ impl ParkingSimState {
         for l in &self.lanes {
             for (idx, occupant) in l.occupants.iter().enumerate() {
                 if occupant.is_none() {
-                    spots.push(parking_spot(l.id, idx));
+                    spots.push(ParkingSpot::new(l.id, idx));
                 }
             }
         }
@@ -115,7 +115,7 @@ impl ParkingSimState {
             .iter()
             .position(|x| *x == Some(c))
             .unwrap();
-        parking_spot(l, idx)
+        ParkingSpot::new(l, idx)
     }
 
     pub fn get_all_parked_cars(&self) -> Vec<ParkedCar> {
@@ -123,7 +123,7 @@ impl ParkingSimState {
         for l in &self.lanes {
             for (idx, maybe_car) in l.occupants.iter().enumerate() {
                 if let Some(car) = maybe_car {
-                    result.push(ParkedCar::new(*car, parking_spot(l.id, idx)));
+                    result.push(ParkedCar::new(*car, ParkingSpot::new(l.id, idx)));
                 }
             }
         }
@@ -137,7 +137,7 @@ impl ParkingSimState {
         let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
             x.is_none() && l.spots[idx].dist_along + map_model::PARKING_SPOT_LENGTH >= dist_along
         })?;
-        Some(parking_spot(lane, idx))
+        Some(ParkingSpot::new(lane, idx))
     }
 
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
@@ -265,8 +265,4 @@ impl ParkingSpotGeometry {
             self.angle,
         )
     }
-}
-
-fn parking_spot(lane: LaneID, idx: usize) -> ParkingSpot {
-    ParkingSpot { lane, idx }
 }

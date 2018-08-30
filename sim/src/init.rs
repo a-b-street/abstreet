@@ -1,8 +1,8 @@
 use abstutil;
 use control::ControlMap;
 use map_model::{Edits, LaneID, Map};
-use std::iter;
-use {Sim, Tick};
+use std::collections::VecDeque;
+use {Event, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -53,37 +53,52 @@ pub fn big_spawn(sim: &mut Sim, map: &Map) {
 
 // TODO share the helpers for spawning specific parking spots and stuff?
 
-// TODO time limit?
-pub fn run_until_done(
-    sim: &mut Sim,
-    map: &Map,
-    control_map: &ControlMap,
-    expectations: Vec<Box<Fn(&Sim) -> bool>>,
-) {
+pub fn run_until_done(sim: &mut Sim, map: &Map, control_map: &ControlMap, callback: Box<Fn(&Sim)>) {
     let mut benchmark = sim.start_benchmark();
-    let mut expectations_met: Vec<bool> = iter::repeat(false).take(expectations.len()).collect();
     loop {
         sim.step(&map, &control_map);
-        if sim.time.is_multiple_of(Tick::from_seconds(60)) {
+        if sim.time.is_multiple_of(Tick::from_minutes(1)) {
             let speed = sim.measure_speed(&mut benchmark);
             println!("{0}, speed = {1:.2}x", sim.summary(), speed);
         }
-        for (idx, e) in expectations.iter().enumerate() {
-            if e(sim) {
-                expectations_met[idx] = true;
-            }
-        }
+        callback(sim);
         if sim.is_done() {
             break;
         }
     }
-    let satisfied = expectations_met.into_iter().filter(|b| *b).count();
-    if satisfied != expectations.len() {
-        panic!(
-            "Sim done at {}, but only satisfied {} of {} expectations",
-            sim.time,
-            satisfied,
-            expectations.len()
-        );
+}
+
+pub fn run_until_expectations_met(
+    sim: &mut Sim,
+    map: &Map,
+    control_map: &ControlMap,
+    all_expectations: Vec<Event>,
+    time_limit: Tick,
+) {
+    let mut benchmark = sim.start_benchmark();
+    let mut expectations = VecDeque::from(all_expectations);
+    loop {
+        if expectations.is_empty() {
+            return;
+        }
+        for ev in sim.step(&map, &control_map).into_iter() {
+            if ev == *expectations.front().unwrap() {
+                println!("At {}, met expectation {:?}", sim.time, ev);
+                expectations.pop_front();
+                if expectations.is_empty() {
+                    return;
+                }
+            }
+        }
+        if sim.time.is_multiple_of(Tick::from_minutes(1)) {
+            let speed = sim.measure_speed(&mut benchmark);
+            println!("{0}, speed = {1:.2}x", sim.summary(), speed);
+        }
+        if sim.time == time_limit {
+            panic!(
+                "Time limit {} hit, but some expectations never met: {:?}",
+                sim.time, expectations
+            );
+        }
     }
 }

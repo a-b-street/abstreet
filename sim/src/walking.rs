@@ -2,7 +2,6 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
-use events::Event;
 use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
@@ -10,7 +9,10 @@ use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
 use std::collections::{BTreeMap, VecDeque};
-use {AgentID, Distance, InvariantViolated, On, ParkingSpot, PedestrianID, Speed, Time, TIMESTEP};
+use {
+    AgentID, Distance, Event, InvariantViolated, On, ParkingSpot, PedestrianID, Speed, Time,
+    TIMESTEP,
+};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these

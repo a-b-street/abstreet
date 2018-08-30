@@ -66,13 +66,10 @@ fn main() {
         &mut sim,
         &map,
         &control_map,
-        vec![Box::new(move |sim| {
+        Box::new(move |sim| {
             if Some(sim.time) == save_at {
                 sim.save();
-                true
-            } else {
-                false
             }
-        })],
+        }),
     );
 }

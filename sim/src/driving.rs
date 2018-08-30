@@ -2,7 +2,6 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
-use events::Event;
 use geom::EPSILON_DIST;
 use intersections::{AgentInfo, IntersectionSimState, Request};
 use kinematics;
@@ -18,7 +17,7 @@ use std;
 use std::collections::{BTreeMap, HashMap};
 use transit::TransitSimState;
 use {
-    Acceleration, AgentID, CarID, CarState, Distance, InvariantViolated, On, ParkedCar,
+    Acceleration, AgentID, CarID, CarState, Distance, Event, InvariantViolated, On, ParkedCar,
     ParkingSpot, Speed, Tick, Time,
 };
 

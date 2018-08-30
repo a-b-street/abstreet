@@ -5,11 +5,10 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
-use events::Event;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use {AgentID, CarID, InvariantViolated, PedestrianID, Speed, Tick, Time};
+use {AgentID, CarID, Event, InvariantViolated, PedestrianID, Speed, Tick, Time};
 
 use std;
 const WAIT_AT_STOP_SIGN: Time = si::Second {

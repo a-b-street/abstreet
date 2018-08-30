@@ -1,5 +1,4 @@
 use driving::DrivingSimState;
-use events::Event;
 use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, BusStop, LaneID, Map};
@@ -10,7 +9,7 @@ use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
 use walking::{SidewalkSpot, WalkingSimState};
-use {CarID, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
+use {CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {

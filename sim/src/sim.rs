@@ -6,9 +6,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
-use events::Event;
 use intersections::{AgentInfo, IntersectionSimState};
-use json;
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
@@ -20,7 +18,7 @@ use std::f64;
 use std::time::{Duration, Instant};
 use transit::TransitSimState;
 use walking::WalkingSimState;
-use {CarID, CarState, InvariantViolated, PedestrianID, Tick, TIMESTEP};
+use {CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -415,11 +413,6 @@ impl Sim {
                 "empty directory",
             ))
         }
-    }
-
-    // For tests to assert deep pieces of state
-    pub fn to_json(&self) -> json::JsonValue {
-        json::parse(&abstutil::to_json(&self)).unwrap()
     }
 }
 
