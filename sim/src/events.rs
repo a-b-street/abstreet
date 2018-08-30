@@ -14,6 +14,9 @@ pub enum Event {
     BusDepartedFromStop(CarID, BusStop),
 
     PedReachedBuilding(PedestrianID, BuildingID),
+    PedReachedBusStop(PedestrianID, BusStop),
+    PedEntersBus(PedestrianID, CarID),
+    PedLeavesBus(PedestrianID, CarID),
 
     // TODO split up into cases or not?
     AgentEntersTraversable(AgentID, On),

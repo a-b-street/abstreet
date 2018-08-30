@@ -4,7 +4,7 @@ use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use geom::Pt2D;
 use intersections::{AgentInfo, IntersectionSimState, Request};
-use map_model::{BuildingID, Lane, LaneID, Map, Turn, TurnID};
+use map_model::{BuildingID, BusStop, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -56,6 +56,14 @@ impl SidewalkSpot {
             dist_along: front_path.dist_along_sidewalk,
         }
     }
+
+    pub fn bus_stop(stop: BusStop) -> SidewalkSpot {
+        SidewalkSpot {
+            sidewalk: stop.sidewalk,
+            dist_along: stop.dist_along,
+            connection: SidewalkPOI::BusStop(stop),
+        }
+    }
 }
 
 // Point of interest, that is
@@ -63,6 +71,7 @@ impl SidewalkSpot {
 enum SidewalkPOI {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
+    BusStop(BusStop),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -75,6 +84,7 @@ struct CrossingFrontPath {
 
 enum Action {
     StartParkedCar(ParkingSpot),
+    WaitAtBusStop(BusStop),
     StartCrossingPath(BuildingID),
     KeepCrossingPath,
     Continue,
@@ -97,6 +107,9 @@ struct Pedestrian {
 
     front_path: Option<CrossingFrontPath>,
     goal: SidewalkSpot,
+
+    // If false, don't react() and step(). Waiting for a bus.
+    active: bool,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -131,6 +144,7 @@ impl Pedestrian {
                 return match self.goal.connection {
                     SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
                     SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
+                    SidewalkPOI::BusStop(ref stop) => Action::WaitAtBusStop(stop.clone()),
                 };
             }
             return Action::Continue;
@@ -285,6 +299,9 @@ pub struct WalkingSimState {
     #[serde(serialize_with = "serialize_multimap")]
     #[serde(deserialize_with = "deserialize_multimap")]
     peds_per_turn: MultiMap<TurnID, PedestrianID>,
+    #[serde(serialize_with = "serialize_multimap")]
+    #[serde(deserialize_with = "deserialize_multimap")]
+    peds_per_bus_stop: MultiMap<BusStop, PedestrianID>,
 }
 
 impl WalkingSimState {
@@ -293,6 +310,7 @@ impl WalkingSimState {
             peds: BTreeMap::new(),
             peds_per_sidewalk: MultiMap::new(),
             peds_per_turn: MultiMap::new(),
+            peds_per_bus_stop: MultiMap::new(),
         }
     }
 
@@ -323,7 +341,9 @@ impl WalkingSimState {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
-            requested_moves.push((p.id, p.react(map, intersections)));
+            if p.active {
+                requested_moves.push((p.id, p.react(map, intersections)));
+            }
         }
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
@@ -342,6 +362,11 @@ impl WalkingSimState {
                     {
                         self.peds.remove(&id);
                     }
+                }
+                Action::WaitAtBusStop(ref stop) => {
+                    self.peds.get_mut(&id).unwrap().active = false;
+                    events.push(Event::PedReachedBusStop(*id, stop.clone()));
+                    self.peds_per_bus_stop.insert(stop.clone(), *id);
                 }
                 Action::StartParkedCar(ref spot) => {
                     self.peds.remove(&id);
@@ -469,6 +494,7 @@ impl WalkingSimState {
                 waiting_for: None,
                 front_path,
                 goal,
+                active: true,
             },
         );
         self.peds_per_sidewalk.insert(start_lane, id);
@@ -509,6 +535,22 @@ impl WalkingSimState {
         self.peds
             .get(&id)
             .map(|p| p.path.iter().map(|id| *id).collect())
+    }
+
+    pub fn get_peds_waiting_at_stop(&self, stop: &BusStop) -> Vec<PedestrianID> {
+        // TODO ew, annoying multimap API and clone
+        self.peds_per_bus_stop
+            .get_vec(stop)
+            .unwrap_or(&Vec::new())
+            .clone()
+    }
+
+    pub fn ped_joined_bus(&mut self, id: PedestrianID, stop: &BusStop) {
+        self.peds.remove(&id);
+        self.peds_per_bus_stop
+            .get_vec_mut(stop)
+            .unwrap()
+            .retain(|&p| p != id);
     }
 }
 

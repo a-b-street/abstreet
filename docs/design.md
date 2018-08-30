@@ -480,6 +480,12 @@ How to share common state in intersections?
 - have one struct that then contains an enum
 	- when delegating to specialized thing, can pass this unpacked thing down, right?
 
+Seeing lots of deadlock bugs from accepting non-leader vehicles. For now,
+switch to only considering leader vehicles, and later maybe relax to anybody
+following only accepted vehicles.
+
+Leader vehicle is a bit vague; could be leader on current queue, which is still a bit far away.
+
 ## Notes on determinism ##
 
 - serde tricks
@@ -576,14 +582,6 @@ around the precomputed front of the spot, used for drawing and for cars to line
 up their front in the sim. I think we need to plumb the true start of the spot
 and have a method to interpolate and pick the true front.
 
-## Intersection protocol
-
-Seeing lots of deadlock bugs from accepting non-leader vehicles. For now,
-switch to only considering leader vehicles, and later maybe relax to anybody
-following only accepted vehicles.
-
-Leader vehicle is a bit vague; could be leader on current queue, which is still a bit far away.
-
 ## Trips
 
 Time to get even more multi-modal / multi-phase!
@@ -658,7 +656,13 @@ for now, since pathfinding ignores live traffic, probably fine to ignore this.
 - step 3: make peds load on the bus and get off at the correct stop. make buses usually wait a fixed time at each stop, but wait a littl extra if loading passengers takes a while.
 	- should walking state own peds waiting for a bus?
 		- yes: easier drawing, later need to know how crowded a sidewalk is, it's just weird to keep indicating we're at a place. router for cars does this, and the transit sim holds the higher-level state. do the same for now.
+			- kind of want walking sim to have a list of peds idling at bus stops. transit sim can let all of them know when a bus arrives!
 		- no: transit sim can also contribute DrawPeds. the walking layer has nothing left to do with them... right?
+
+		so:
+		1) ped reaches bus stop, writes event. walking sim flips a bit so they stop trying to step(). also has a multimap of bus stop -> waiting peds. they continue to exist on their sidewalk for rendering / crowding purposes.
+		2) transit sim gets a step(). for every bus that's waiting, it queries walking sim to see what peds are there. ??? trip thingy will decide if the ped takes the bus or not, but the ownership transfer of ped from walking to transit happens then.
+		3) when a bus initially arrives at a stop, it queries all passengers to see who wants to get off and join the walking sim again. the trip thingy decides that.
 
 - step N: load in GTFS for seattle to get real routes and stops
 
@@ -677,6 +681,43 @@ for now, these trip sequences can be hardcoded, and planned later.
 Driving and walking layer are both kind of broken, since they know about
 parking spots and bus stops. Feels like they need to be dumb, mechanical layers
 that're guided by higher-level behaviors, which understand trips and such.
+
+Could be simpler to flatten. Call each sim and dont affect other sims, then
+process all events last to do transitions. except maybe one sim expects the
+transition to happen immediately, so have to process events between each one?
+
+Just to kind of document the dependency/call-chain right now...
+
+- sim step
+	- TODO spawner step
+	- driving step
+		- router
+			- transit.get_action_when_stopped_at_end
+				- this changes bus state (wouldnt it be nicer to 
+		- foreach parked car as a result, add to parking sim and tell spawner that car reached spot
+
+
+ask: a way to statically or at runtime print the call-chain, stopping at std libs?
+	- whenever we push onto events, dump stack?
+
+for each api method in each sim, manually look at its call chain
+
+- transit
+	- create_empty_route, get_route_starts, bus_created
+		- spawn.seed_bus_route
+			- sim.seed_bus_route
+	- get_action_when_stopped_at_end (changes bus state, returns new path), get_dist_to_stop_at
+		- router.react_before_lookahead
+			- driving per car react
+				- driving step
+	- step (lots of state transitions happen here, but call stack is simple!)
+- walking
+	- ped_joined_bus
+		- transit.step
+
+A good measue of how well-structured the code is: how hard would it be to add a
+few more delays / states, like time after parking the car (out of the way of
+the driving sim) but before getting out of the car?
 
 ## Routers, lookahead, cars as FSMs
 

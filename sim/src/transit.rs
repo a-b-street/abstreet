@@ -4,6 +4,7 @@ use events::Event;
 use map_model;
 use map_model::{BusStop, LaneID, Map};
 use std::collections::{BTreeMap, VecDeque};
+use walking::WalkingSimState;
 use {CarID, Distance, PedestrianID, RouteID, Tick};
 
 type StopIdx = usize;
@@ -175,6 +176,43 @@ impl TransitSimState {
             }
             BusState::AtStop(_, _) => {
                 panic!("Shouldn't ask where to stop if the bus is already at a stop")
+            }
+        }
+    }
+
+    pub fn step(&mut self, events: &mut Vec<Event>, walking_sim: &mut WalkingSimState) {
+        for b in self.buses.values_mut() {
+            if let BusState::AtStop(stop_idx, _) = b.state {
+                let stop = self.routes[&b.route].stops[stop_idx].clone();
+
+                // Let anybody new on?
+                for p in walking_sim.get_peds_waiting_at_stop(&stop).into_iter() {
+                    println!("TODO should {} board bus {}?", p, b.car);
+                    if true {
+                        events.push(Event::PedEntersBus(p, b.car));
+                        b.passengers.push(p);
+                        walking_sim.ped_joined_bus(p, &stop);
+                    }
+                }
+
+                // Let anybody off?
+                // TODO ideally dont even ask if they just got on, but the trip planner things
+                // should be fine with this
+                // TODO only do this if we JUST arrived at the stop, and in fact, wait for everyone
+                // to leave, since it may take time.
+                // so actually, we shouldnt statechange mutably in get_action_when_stopped_at_end,
+                // which is called by router! thats convoluted
+                let car = b.car;
+                b.passengers.retain(|p| {
+                    println!("TODO should {} leave bus {}?", p, car);
+                    if false {
+                        events.push(Event::PedLeavesBus(*p, car));
+                        // TODO call something on the spawner to join the walking sim again
+                        false
+                    } else {
+                        true
+                    }
+                });
             }
         }
     }

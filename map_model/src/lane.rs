@@ -5,6 +5,7 @@ use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
 use std::f64;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use {BuildingID, IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
@@ -31,6 +32,7 @@ pub enum LaneType {
     Biking,
 }
 
+// TODO This should be a lightweight, copyable, hashable address, like ParkingSpot
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BusStop {
     pub sidewalk: LaneID,
@@ -46,6 +48,16 @@ impl PartialEq for BusStop {
 }
 
 impl Eq for BusStop {}
+
+impl Hash for BusStop {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.sidewalk.hash(state);
+        self.driving_lane.hash(state);
+        // TODO sadface. bus stops for a particular sidewalk won't be crowded, so 1m granularity is
+        // fine here.
+        (self.dist_along.value_unsafe as usize).hash(state);
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {

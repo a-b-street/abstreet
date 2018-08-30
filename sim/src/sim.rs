@@ -250,6 +250,9 @@ impl Sim {
                 .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
         }
 
+        self.transit_state
+            .step(&mut events, &mut self.walking_state);
+
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(
         let mut info = AgentInfo {
