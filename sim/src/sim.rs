@@ -18,7 +18,7 @@ use std::f64;
 use std::time::{Duration, Instant};
 use transit::TransitSimState;
 use walking::WalkingSimState;
-use {CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
+use {AgentID, CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -412,6 +412,13 @@ impl Sim {
                 std::io::ErrorKind::Other,
                 "empty directory",
             ))
+        }
+    }
+
+    pub fn get_current_route(&self, id: AgentID) -> Option<Vec<LaneID>> {
+        match id {
+            AgentID::Car(car) => self.driving_state.get_current_route(car),
+            AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped),
         }
     }
 }

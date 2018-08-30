@@ -842,6 +842,10 @@ impl DrivingSimState {
         }
         view
     }
+
+    pub fn get_current_route(&self, id: CarID) -> Option<Vec<LaneID>> {
+        self.routers.get(&id).map(|r| r.get_current_route())
+    }
 }
 
 // The immutable view that cars see of other cars.

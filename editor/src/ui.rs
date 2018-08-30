@@ -26,6 +26,7 @@ use plugins::geom_validation::Validator;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
 use plugins::selection::{Hider, SelectionState, ID};
+use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
@@ -34,8 +35,8 @@ use plugins::turn_colors::TurnColors;
 use plugins::warp::WarpState;
 use render;
 use sim;
-use sim::{CarID, CarState, PedestrianID};
-use std::collections::HashMap;
+use sim::{AgentID, CarID, CarState, PedestrianID};
+use std::collections::{HashMap, HashSet};
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -65,6 +66,7 @@ pub struct UI {
     current_search_state: SearchState,
     warp: WarpState,
     follow: FollowState,
+    show_route: ShowRouteState,
     floodfiller: Floodfiller,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
@@ -137,6 +139,7 @@ impl UI {
             current_search_state: SearchState::Empty,
             warp: WarpState::Empty,
             follow: FollowState::Empty,
+            show_route: ShowRouteState::Empty,
             floodfiller: Floodfiller::new(),
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: TrafficSignalEditor::new(),
@@ -281,6 +284,7 @@ impl UI {
         // chaining is harder to read. :(
         vec![
             self.current_selection_state.color_l(l, &self.cs),
+            self.show_route.color_l(l.id, &self.cs),
             self.current_search_state.color_l(l, &self.map, &self.cs),
             self.floodfiller.color_l(l, &self.cs),
             self.steepness_viz.color_l(&self.map, l),
@@ -457,6 +461,7 @@ impl gui::GUI for UI {
             self.follow
                 .event(input, &self.map, &self.sim_ctrl.sim, &mut self.canvas,)
         );
+        stop_if_done!(self.show_route.event(input, &self.sim_ctrl.sim));
         stop_if_done!(
             self.color_picker
                 .handle_event(input, &mut self.canvas, &mut self.cs)
@@ -544,10 +549,19 @@ impl gui::GUI for UI {
                     self.follow = FollowState::FollowingCar(id);
                     return gui::EventLoopMode::InputOnly;
                 }
+                if input.key_pressed(Key::R, "show this car's route") {
+                    self.show_route = ShowRouteState::Active(AgentID::Car(id), HashSet::new());
+                    return gui::EventLoopMode::InputOnly;
+                }
             }
             SelectionState::SelectedPedestrian(id) => {
                 if input.key_pressed(Key::F, "follow this pedestrian") {
                     self.follow = FollowState::FollowingPedestrian(id);
+                    return gui::EventLoopMode::InputOnly;
+                }
+                if input.key_pressed(Key::R, "show this pedestrian's route") {
+                    self.show_route =
+                        ShowRouteState::Active(AgentID::Pedestrian(id), HashSet::new());
                     return gui::EventLoopMode::InputOnly;
                 }
             }

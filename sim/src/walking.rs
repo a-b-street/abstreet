@@ -504,6 +504,12 @@ impl WalkingSimState {
     pub fn is_done(&self) -> bool {
         self.peds.is_empty()
     }
+
+    pub fn get_current_route(&self, id: PedestrianID) -> Option<Vec<LaneID>> {
+        self.peds
+            .get(&id)
+            .map(|p| p.path.iter().map(|id| *id).collect())
+    }
 }
 
 fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {

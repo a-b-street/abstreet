@@ -163,6 +163,10 @@ impl Router {
         self.path.push_back(choice);
         None
     }
+
+    pub fn get_current_route(&self) -> Vec<LaneID> {
+        self.path.iter().map(|id| *id).collect()
+    }
 }
 
 fn find_parking_spot(
