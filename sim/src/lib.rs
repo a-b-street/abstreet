@@ -25,7 +25,7 @@ mod draw_car;
 mod draw_ped;
 mod driving;
 mod events;
-pub mod init;
+mod helpers;
 mod intersections;
 // TODO pub only for tests...
 pub mod kinematics;
@@ -40,6 +40,7 @@ mod walking;
 use dimensioned::si;
 pub use events::Event;
 use geom::{Angle, Pt2D};
+pub use helpers::load;
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
 use std::error;

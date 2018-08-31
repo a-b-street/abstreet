@@ -5,13 +5,13 @@ extern crate sim;
 
 #[test]
 fn serialization() {
-    let (map, _, _, mut sim) = sim::init::load(
+    let (map, _, _, mut sim) = sim::load(
         "../data/small.abst".to_string(),
         "serialization".to_string(),
         Some(42),
         None,
     );
-    sim::init::small_spawn(&mut sim, &map);
+    sim.small_spawn(&map);
 
     // Does savestating produce the same string?
     let save1 = abstutil::to_json(&sim);
@@ -22,15 +22,15 @@ fn serialization() {
 #[test]
 fn from_scratch() {
     println!("Creating two simulations");
-    let (map, _, control_map, mut sim1) = sim::init::load(
+    let (map, _, control_map, mut sim1) = sim::load(
         "../data/small.abst".to_string(),
         "from_scratch_1".to_string(),
         Some(42),
         None,
     );
     let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(42), None);
-    sim::init::small_spawn(&mut sim1, &map);
-    sim::init::small_spawn(&mut sim2, &map);
+    sim1.small_spawn(&map);
+    sim2.small_spawn(&map);
 
     for _ in 1..600 {
         if sim1 != sim2 {
@@ -49,15 +49,15 @@ fn from_scratch() {
 #[test]
 fn with_savestating() {
     println!("Creating two simulations");
-    let (map, _, control_map, mut sim1) = sim::init::load(
+    let (map, _, control_map, mut sim1) = sim::load(
         "../data/small.abst".to_string(),
         "with_savestating_1".to_string(),
         Some(42),
         None,
     );
     let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(42), None);
-    sim::init::small_spawn(&mut sim1, &map);
-    sim::init::small_spawn(&mut sim2, &map);
+    sim1.small_spawn(&map);
+    sim2.small_spawn(&map);
 
     for _ in 1..600 {
         sim1.step(&map, &control_map);

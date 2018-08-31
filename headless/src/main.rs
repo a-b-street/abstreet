@@ -36,7 +36,7 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
-    let (map, _, control_map, mut sim) = sim::init::load(
+    let (map, _, control_map, mut sim) = sim::load(
         flags.load,
         flags.scenario_name,
         flags.rng_seed,
@@ -46,9 +46,9 @@ fn main() {
     if sim.time == sim::Tick::zero() {
         // TODO need a notion of scenarios
         if flags.big_sim {
-            sim::init::big_spawn(&mut sim, &map);
+            sim.big_spawn(&map);
         } else {
-            sim::init::small_spawn(&mut sim, &map);
+            sim.small_spawn(&map);
         }
     }
 
@@ -62,8 +62,7 @@ fn main() {
         None
     };
 
-    sim::init::run_until_done(
-        &mut sim,
+    sim.run_until_done(
         &map,
         &control_map,
         Box::new(move |sim| {

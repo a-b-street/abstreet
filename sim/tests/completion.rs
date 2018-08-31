@@ -5,14 +5,14 @@ extern crate sim;
 
 #[test]
 fn aorta_model_completes() {
-    let (map, _, control_map, mut sim) = sim::init::load(
+    let (map, _, control_map, mut sim) = sim::load(
         "../data/small.abst".to_string(),
         "aorta_model_completes".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),
     );
-    sim::init::small_spawn(&mut sim, &map);
-    sim::init::run_until_done(&mut sim, &map, &control_map, Box::new(|_sim| {}));
+    sim.small_spawn(&map);
+    sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
 }
 
 // TODO other tests (not completion) to add:

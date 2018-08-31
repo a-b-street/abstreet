@@ -5,7 +5,7 @@ extern crate sim;
 
 #[test]
 fn bus_reaches_stops() {
-    let (map, _, control_map, mut sim) = sim::init::load(
+    let (map, _, control_map, mut sim) = sim::load(
         "../data/small.abst".to_string(),
         "bus_reaches_stops".to_string(),
         Some(42),
@@ -17,8 +17,7 @@ fn bus_reaches_stops() {
     let buses = sim.seed_bus_route(vec![stop1.clone(), stop2.clone()], &map);
     let (bus1, bus2) = (buses[0], buses[1]);
 
-    sim::init::run_until_expectations_met(
-        &mut sim,
+    sim.run_until_expectations_met(
         &map,
         &control_map,
         // TODO assert stuff about bus2 as well, although the timing is a little unclear

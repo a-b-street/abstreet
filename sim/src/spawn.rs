@@ -60,7 +60,7 @@ pub struct Spawner {
 
     // No real use in being owned by Sim. All of the transitions will need us to spawn something.
     // TODO next step would be moving all of the methods that create trips (choosing random stuff
-    // or not) out into something else, probably init().
+    // or not) out into something else, probably helpers.
     trips: TripManager,
 }
 

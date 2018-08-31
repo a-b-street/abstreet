@@ -20,8 +20,7 @@ fn park_on_goal_st() {
     sim.seed_specific_parked_cars(parking2, (5..8).collect());
     sim.start_parked_car_with_goal(&map, car, driving2);
 
-    sim::init::run_until_expectations_met(
-        &mut sim,
+    sim.run_until_expectations_met(
         &map,
         &control_map,
         vec![sim::Event::CarReachedParkingSpot(sim::ParkedCar::new(
@@ -30,7 +29,7 @@ fn park_on_goal_st() {
         ))],
         sim::Tick::from_minutes(1),
     );
-    sim::init::run_until_done(&mut sim, &map, &control_map, Box::new(|_sim| {}));
+    sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
 }
 
 #[test]
@@ -46,8 +45,7 @@ fn wander_around_for_parking() {
     sim.seed_specific_parked_cars(parking2, (0..8).collect());
     sim.start_parked_car_with_goal(&map, car, driving2);
 
-    sim::init::run_until_expectations_met(
-        &mut sim,
+    sim.run_until_expectations_met(
         &map,
         &control_map,
         vec![sim::Event::CarReachedParkingSpot(sim::ParkedCar::new(
@@ -56,7 +54,7 @@ fn wander_around_for_parking() {
         ))],
         sim::Tick::from_minutes(2),
     );
-    sim::init::run_until_done(&mut sim, &map, &control_map, Box::new(|_sim| {}));
+    sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
 }
 
 fn setup(

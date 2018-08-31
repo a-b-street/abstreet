@@ -91,7 +91,7 @@ impl UI {
         kml: Option<String>,
         window_size: Size,
     ) -> UI {
-        let (map, edits, control_map, sim) = sim::init::load(
+        let (map, edits, control_map, sim) = sim::load(
             load,
             scenario_name,
             rng_seed,
@@ -529,7 +529,7 @@ impl gui::GUI for UI {
             return gui::EventLoopMode::InputOnly;
         }
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
-            sim::init::small_spawn(&mut self.sim_ctrl.sim, &self.map);
+            self.sim_ctrl.sim.small_spawn(&self.map);
             return gui::EventLoopMode::InputOnly;
         }
 
