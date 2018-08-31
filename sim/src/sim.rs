@@ -8,7 +8,7 @@ use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use intersections::{AgentInfo, IntersectionSimState};
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusStop, IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -23,10 +23,12 @@ use {AgentID, CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIM
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
 pub struct Sim {
+    // TODO all the pub(crate) stuff is for helpers. Find a better solution.
+
     // This is slightly dangerous, but since we'll be using comparisons based on savestating (which
     // captures the RNG), this should be OK for now.
     #[derivative(PartialEq = "ignore")]
-    rng: XorShiftRng,
+    pub(crate) rng: XorShiftRng,
     pub time: Tick,
     pub(crate) map_name: String,
     // Some tests deliberately set different scenario names for comparisons.
@@ -35,14 +37,14 @@ pub struct Sim {
     // TODO not quite the right type to represent durations
     savestate_every: Option<Tick>,
 
-    spawner: Spawner,
+    pub(crate) spawner: Spawner,
     intersection_state: IntersectionSimState,
-    driving_state: DrivingSimState,
-    parking_state: ParkingSimState,
-    walking_state: WalkingSimState,
-    transit_state: TransitSimState,
+    pub(crate) driving_state: DrivingSimState,
+    pub(crate) parking_state: ParkingSimState,
+    pub(crate) walking_state: WalkingSimState,
+    pub(crate) transit_state: TransitSimState,
 
-    car_properties: BTreeMap<CarID, Vehicle>,
+    pub(crate) car_properties: BTreeMap<CarID, Vehicle>,
 }
 
 impl Sim {
@@ -104,94 +106,6 @@ impl Sim {
         } else {
             self.driving_state.edit_add_turn(t.id, map);
         }
-    }
-
-    pub fn seed_parked_cars(&mut self, percent: f64) {
-        for v in self.spawner
-            .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng)
-            .into_iter()
-        {
-            self.car_properties.insert(v.id, v);
-        }
-    }
-
-    pub fn seed_bus_route(&mut self, stops: Vec<BusStop>, map: &Map) -> Vec<CarID> {
-        // TODO throw away the events? :(
-        let mut events: Vec<Event> = Vec::new();
-        let mut result: Vec<CarID> = Vec::new();
-        for v in self.spawner.seed_bus_route(
-            &mut events,
-            stops,
-            &mut self.rng,
-            map,
-            &mut self.driving_state,
-            &mut self.transit_state,
-            self.time,
-            &self.car_properties,
-        ) {
-            let id = v.id;
-            self.car_properties.insert(v.id, v);
-            result.push(id);
-        }
-        result
-    }
-
-    pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
-        let mut ids = Vec::new();
-        for v in self.spawner
-            .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
-            .into_iter()
-        {
-            ids.push(v.id);
-            self.car_properties.insert(v.id, v);
-        }
-        ids
-    }
-
-    pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
-        self.spawner.seed_driving_trips(
-            self.time.next(),
-            map,
-            num_cars,
-            &mut self.rng,
-            &self.parking_state,
-        );
-    }
-
-    pub fn start_parked_car(&mut self, map: &Map, car: CarID) {
-        self.spawner.start_parked_car(
-            self.time.next(),
-            map,
-            car,
-            &self.parking_state,
-            &mut self.rng,
-        );
-    }
-
-    pub fn start_parked_car_with_goal(&mut self, map: &Map, car: CarID, goal: LaneID) {
-        self.spawner.start_parked_car_with_goal(
-            self.time.next(),
-            map,
-            car,
-            &self.parking_state,
-            goal,
-            &mut self.rng,
-        );
-    }
-
-    pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {
-        self.spawner
-            .spawn_pedestrian(self.time.next(), map, sidewalk, &mut self.rng);
-    }
-
-    pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: BuildingID, to: BuildingID) {
-        self.spawner
-            .spawn_specific_pedestrian(self.time.next(), map, from, to);
-    }
-
-    pub fn seed_walking_trips(&mut self, map: &Map, num: usize) {
-        self.spawner
-            .seed_walking_trips(self.time.next(), map, num, &mut self.rng);
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
