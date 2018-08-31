@@ -8,8 +8,9 @@ use router::Router;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
+use trips::TripManager;
 use walking::{SidewalkSpot, WalkingSimState};
-use {CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
+use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
@@ -57,9 +58,10 @@ pub struct Spawner {
     car_id_counter: usize,
     ped_id_counter: usize,
 
-    trips: Vec<Trip>,
-    trip_per_ped: BTreeMap<PedestrianID, TripID>,
-    trip_per_car: BTreeMap<CarID, TripID>,
+    // No real use in being owned by Sim. All of the transitions will need us to spawn something.
+    // TODO next step would be moving all of the methods that create trips (choosing random stuff
+    // or not) out into something else, probably init().
+    trips: TripManager,
 }
 
 impl Spawner {
@@ -68,9 +70,7 @@ impl Spawner {
             commands: VecDeque::new(),
             car_id_counter: 0,
             ped_id_counter: 0,
-            trips: Vec::new(),
-            trip_per_ped: BTreeMap::new(),
-            trip_per_car: BTreeMap::new(),
+            trips: TripManager::new(),
         }
     }
 
@@ -129,7 +129,7 @@ impl Spawner {
                             map,
                             properties,
                         ) {
-                            self.trip_per_car.insert(car, trip);
+                            self.trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             parking_sim.remove_parked_car(parked_car.clone());
                             spawned_agents += 1;
                         } else {
@@ -139,7 +139,8 @@ impl Spawner {
                         }
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
-                        self.trip_per_ped.insert(ped, trip);
+                        self.trips
+                            .agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
                         walking_sim.seed_pedestrian(
                             events,
                             ped,
@@ -278,9 +279,9 @@ impl Spawner {
         }
 
         // Don't add duplicate commands.
-        if let Some(trip) = self.trips.iter().find(|t| t.use_car == Some(car)) {
+        if let Some(trip) = self.trips.get_trip_using_car(car) {
             println!(
-                "{} is already a part of {:?}, ignoring new request",
+                "{} is already a part of {}, ignoring new request",
                 car, trip
             );
             return;
@@ -293,21 +294,13 @@ impl Spawner {
         let start_bldg = pick_bldg_from_sidewalk(rng, map, sidewalk);
         let goal_bldg = pick_bldg_from_driving_lane(rng, map, goal);
 
-        let trip_id = TripID(self.trips.len());
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
-        self.trips.push(Trip {
-            id: trip_id,
-            ped: ped_id,
-            start_bldg,
-            use_car: Some(car),
-            goal_bldg,
-        });
-
         self.commands.push_back(Command::Walk(
             at,
-            trip_id,
+            self.trips
+                .new_trip(ped_id, start_bldg, Some(car), goal_bldg),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::parking_spot(
@@ -382,21 +375,12 @@ impl Spawner {
             assert!(at >= cmd.at());
         }
 
-        let trip_id = TripID(self.trips.len());
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
-        self.trips.push(Trip {
-            id: trip_id,
-            ped: ped_id,
-            start_bldg,
-            use_car: None,
-            goal_bldg,
-        });
-
         self.commands.push_back(Command::Walk(
             at,
-            trip_id,
+            self.trips.new_trip(ped_id, start_bldg, None, goal_bldg),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),
@@ -444,13 +428,13 @@ impl Spawner {
         map: &Map,
         parking_sim: &ParkingSimState,
     ) {
-        let trip = &self.trips[self.trip_per_car.remove(&p.car).unwrap().0];
+        let (trip, ped, goal_bldg) = self.trips.car_reached_parking_spot(p.car);
         self.commands.push_back(Command::Walk(
             at.next(),
-            trip.id,
-            trip.ped,
+            trip,
+            ped,
             SidewalkSpot::parking_spot(p.spot, map, parking_sim),
-            SidewalkSpot::building(trip.goal_bldg, map),
+            SidewalkSpot::building(goal_bldg, map),
         ));
     }
 
@@ -461,12 +445,12 @@ impl Spawner {
         spot: ParkingSpot,
         parking_sim: &ParkingSimState,
     ) {
-        let trip = &self.trips[self.trip_per_ped.remove(&ped).unwrap().0];
+        let (trip, goal_bldg) = self.trips.ped_reached_parking_spot(ped);
         self.commands.push_back(Command::Drive(
             at.next(),
-            trip.id,
+            trip,
             parking_sim.get_car_at_spot(spot).unwrap(),
-            trip.goal_bldg,
+            goal_bldg,
         ));
     }
 
@@ -542,14 +526,4 @@ fn pick_bldg_from_driving_lane<R: Rng + ?Sized>(
     start: LaneID,
 ) -> BuildingID {
     pick_bldg_from_sidewalk(rng, map, map.get_sidewalk_from_driving_lane(start).unwrap())
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-struct Trip {
-    id: TripID,
-    ped: PedestrianID,
-    start_bldg: BuildingID,
-    // Later, this could be an enum of mode choices, or something even more complicated
-    use_car: Option<CarID>,
-    goal_bldg: BuildingID,
 }

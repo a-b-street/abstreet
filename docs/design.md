@@ -676,6 +676,27 @@ Actually, jump to step 3 and just hardcode a ped to use a route, for now. what s
 
 for now, these trip sequences can be hardcoded, and planned later.
 
+What's the point of the spawner? It does a few things, and that feels messy:
+- vaguely specify a scenario later, with things happening over time.
+	- except this is unimplemented, and is probably easier to understand as a list of trips with start times
+- a way to retry parked->driving car, since it might not have room
+- a way to parallelize pathfinding for the ticks that happen to have lots of things spawning
+- a way to initially introduce stuff
+	- asap things like a bus route and parked cars
+	- indirect orders, like make some parked car start driving creates a trip to satisfy that
+- handling transitions to start the next leg of a trip
+	- this is the part I want to split out! it's very separate from the rest.
+
+
+step 1: move existing trip stuff to its own spot, but owned by spawner still
+step 2: move interactive and testish spawning stuff to init() or similar, leaving spawner as just mechanics and transitions
+	- spawner shouldnt have rng, right?
+	- sim needs to hand out its internals (spawner, each model) for the spawning
+		- separate methods that take sim and call a special method to get direct access to things?
+		- i just physically want the code in a separate file. can we implement a trait in a second file?
+step 3: enhance the trip stuff to have a concept of hardcoded legs, and make it choose how to use a bus
+
+
 ## Everything as FSMs
 
 Driving and walking layer are both kind of broken, since they know about

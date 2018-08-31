@@ -34,6 +34,7 @@ mod router;
 mod sim;
 mod spawn;
 mod transit;
+mod trips;
 mod walking;
 
 use dimensioned::si;
