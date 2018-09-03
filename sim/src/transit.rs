@@ -1,3 +1,4 @@
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use driving::CarView;
 use events::Event;
@@ -44,7 +45,11 @@ enum BusState {
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct TransitSimState {
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     buses: BTreeMap<CarID, Bus>,
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     routes: BTreeMap<RouteID, Route>,
 }
 

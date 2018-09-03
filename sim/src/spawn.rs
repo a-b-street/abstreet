@@ -265,34 +265,27 @@ impl Spawner {
             .collect()
     }
 
-    pub fn start_parked_car_with_goal<R: Rng + ?Sized>(
+    pub fn start_trip_using_parked_car(
         &mut self,
         at: Tick,
         map: &Map,
-        car: CarID,
+        parked: ParkedCar,
         parking_sim: &ParkingSimState,
-        goal: LaneID,
-        rng: &mut R,
+        start_bldg: BuildingID,
+        goal_bldg: BuildingID,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at());
         }
 
         // Don't add duplicate commands.
-        if let Some(trip) = self.trips.get_trip_using_car(car) {
+        if let Some(trip) = self.trips.get_trip_using_car(parked.car) {
             println!(
                 "{} is already a part of {}, ignoring new request",
-                car, trip
+                parked.car, trip
             );
             return;
         }
-
-        let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
-        let road = map.get_parent(parking_lane);
-        let sidewalk = road.find_sidewalk(parking_lane)
-            .expect("Parking lane has no sidewalk");
-        let start_bldg = pick_bldg_from_sidewalk(rng, map, sidewalk);
-        let goal_bldg = pick_bldg_from_driving_lane(rng, map, goal);
 
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
@@ -300,68 +293,11 @@ impl Spawner {
         self.commands.push_back(Command::Walk(
             at,
             self.trips
-                .new_trip(ped_id, start_bldg, Some(car), goal_bldg),
+                .new_trip(ped_id, start_bldg, Some(parked.car), goal_bldg),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::parking_spot(
-                parking_sim.get_spot_of_car(car, parking_lane),
-                map,
-                parking_sim,
-            ),
+            SidewalkSpot::parking_spot(parked.spot, map, parking_sim),
         ));
-    }
-
-    pub fn start_parked_car<R: Rng + ?Sized>(
-        &mut self,
-        at: Tick,
-        map: &Map,
-        car: CarID,
-        parking_sim: &ParkingSimState,
-        rng: &mut R,
-    ) {
-        let parking_lane = parking_sim.lane_of_car(car).expect("Car isn't parked");
-        let road = map.get_parent(parking_lane);
-        let driving_lane = road.find_driving_lane(parking_lane)
-            .expect("Parking lane has no driving lane");
-
-        let goal = pick_car_goal(rng, map, driving_lane);
-        self.start_parked_car_with_goal(at, map, car, parking_sim, goal, rng);
-    }
-
-    pub fn seed_driving_trips<R: Rng + ?Sized>(
-        &mut self,
-        at: Tick,
-        map: &Map,
-        num: usize,
-        rng: &mut R,
-        parking_sim: &ParkingSimState,
-    ) {
-        let mut cars: Vec<CarID> = parking_sim
-            .get_all_parked_cars()
-            .into_iter()
-            .filter_map(|parked_car| {
-                let lane = parked_car.spot.lane;
-                let has_bldgs = map.get_parent(lane)
-                    .find_sidewalk(lane)
-                    .and_then(|sidewalk| Some(!map.get_l(sidewalk).building_paths.is_empty()))
-                    .unwrap_or(false);
-                if has_bldgs {
-                    map.get_parent(lane)
-                        .find_driving_lane(lane)
-                        .and_then(|_driving_lane| Some(parked_car.car))
-                } else {
-                    None
-                }
-            })
-            .collect();
-        if cars.is_empty() {
-            return;
-        }
-        rng.shuffle(&mut cars);
-
-        for car in &cars[0..num.min(cars.len())] {
-            self.start_parked_car(at, map, *car, parking_sim, rng);
-        }
     }
 
     pub fn spawn_specific_pedestrian(
@@ -385,39 +321,6 @@ impl Spawner {
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),
         ));
-    }
-
-    pub fn spawn_pedestrian<R: Rng + ?Sized>(
-        &mut self,
-        at: Tick,
-        map: &Map,
-        sidewalk: LaneID,
-        rng: &mut R,
-    ) {
-        assert!(map.get_l(sidewalk).is_sidewalk());
-        let start_bldg = pick_bldg_from_sidewalk(rng, map, sidewalk);
-        let goal_bldg = pick_ped_goal(rng, map, sidewalk);
-        self.spawn_specific_pedestrian(at, map, start_bldg, goal_bldg);
-    }
-
-    pub fn seed_walking_trips<R: Rng + ?Sized>(
-        &mut self,
-        at: Tick,
-        map: &Map,
-        num: usize,
-        rng: &mut R,
-    ) {
-        let mut sidewalks: Vec<LaneID> = Vec::new();
-        for l in map.all_lanes() {
-            if l.is_sidewalk() && !l.building_paths.is_empty() {
-                sidewalks.push(l.id);
-            }
-        }
-
-        for _i in 0..num {
-            let start = *rng.choose(&sidewalks).unwrap();
-            self.spawn_pedestrian(at, map, start, rng);
-        }
     }
 
     // Trip transitions
@@ -459,37 +362,6 @@ impl Spawner {
     }
 }
 
-fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {
-    let candidate_goals: Vec<LaneID> = map.all_lanes()
-        .iter()
-        .filter_map(|l| {
-            if l.id != start && l.is_driving() {
-                if let Some(sidewalk) = map.get_sidewalk_from_driving_lane(l.id) {
-                    if !map.get_l(sidewalk).building_paths.is_empty() {
-                        return Some(l.id);
-                    }
-                }
-            }
-            None
-        })
-        .collect();
-    *rng.choose(&candidate_goals).unwrap()
-}
-
-fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> BuildingID {
-    let candidate_goals: Vec<BuildingID> = map.all_buildings()
-        .iter()
-        .filter_map(|b| {
-            if b.front_path.sidewalk != start {
-                Some(b.id)
-            } else {
-                None
-            }
-        })
-        .collect();
-    *rng.choose(&candidate_goals).unwrap()
-}
-
 fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Option<Vec<LaneID>>> {
     use rayon::prelude::*;
 
@@ -509,21 +381,4 @@ fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Op
         println!("Calculating {} paths took {}s", paths.len(), dt)
     };
     paths
-}
-
-fn pick_bldg_from_sidewalk<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    sidewalk: LaneID,
-) -> BuildingID {
-    *rng.choose(&map.get_l(sidewalk).building_paths)
-        .expect(&format!("{} has no buildings", sidewalk))
-}
-
-fn pick_bldg_from_driving_lane<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    start: LaneID,
-) -> BuildingID {
-    pick_bldg_from_sidewalk(rng, map, map.get_sidewalk_from_driving_lane(start).unwrap())
 }

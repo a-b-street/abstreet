@@ -98,24 +98,14 @@ impl ParkingSimState {
         None
     }
 
-    pub fn lane_of_car(&self, id: CarID) -> Option<LaneID> {
+    pub fn lookup_car(&self, id: CarID) -> Option<ParkedCar> {
         // TODO this is so horrendously slow :D
         for l in &self.lanes {
-            if l.occupants.contains(&Some(id)) {
-                return Some(l.id);
+            if let Some(idx) = l.occupants.iter().position(|x| *x == Some(id)) {
+                return Some(ParkedCar::new(id, ParkingSpot::new(l.id, idx)));
             }
         }
         None
-    }
-
-    // Of the front of the car
-    pub fn get_spot_of_car(&self, c: CarID, l: LaneID) -> ParkingSpot {
-        let idx = self.lanes[l.0]
-            .occupants
-            .iter()
-            .position(|x| *x == Some(c))
-            .unwrap();
-        ParkingSpot::new(l, idx)
     }
 
     pub fn get_all_parked_cars(&self) -> Vec<ParkedCar> {

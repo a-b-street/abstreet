@@ -1,3 +1,4 @@
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::BuildingID;
 use std::collections::BTreeMap;
 use {AgentID, CarID, PedestrianID, TripID};
@@ -6,6 +7,8 @@ use {AgentID, CarID, PedestrianID, TripID};
 pub struct TripManager {
     trips: Vec<Trip>,
     // For quick lookup of active agents
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     active_trip_mode: BTreeMap<AgentID, TripID>,
 }
 
