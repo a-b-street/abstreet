@@ -8,7 +8,7 @@ use router::Router;
 use std::collections::{BTreeMap, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
-use trips::TripManager;
+use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
 use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
 
@@ -59,8 +59,6 @@ pub struct Spawner {
     ped_id_counter: usize,
 
     // No real use in being owned by Sim. All of the transitions will need us to spawn something.
-    // TODO next step would be moving all of the methods that create trips (choosing random stuff
-    // or not) out into something else, probably helpers.
     trips: TripManager,
 }
 
@@ -290,13 +288,18 @@ impl Spawner {
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
+        let parking_spot = SidewalkSpot::parking_spot(parked.spot, map, parking_sim);
         self.commands.push_back(Command::Walk(
             at,
             self.trips
-                .new_trip(ped_id, start_bldg, Some(parked.car), goal_bldg),
+                .new_trip(map, ped_id, start_bldg, goal_bldg, vec![
+                          TripLeg::Walk(parking_spot.clone()),
+                          TripLeg::Drive(parked, goal_bldg),
+                          TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
+                ]),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::parking_spot(parked.spot, map, parking_sim),
+            parking_spot,
         ));
     }
 
@@ -316,7 +319,7 @@ impl Spawner {
 
         self.commands.push_back(Command::Walk(
             at,
-            self.trips.new_trip(ped_id, start_bldg, None, goal_bldg),
+            self.trips.new_trip(map, ped_id, start_bldg, goal_bldg, vec![TripLeg::Walk(SidewalkSpot::building(goal_bldg, map))]),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),

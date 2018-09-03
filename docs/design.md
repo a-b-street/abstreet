@@ -790,3 +790,10 @@ For now, should we do the same hack of copying things around?
 
 Short term solution: copy a huge nasty thing and pass it into react(). :\
 	- but I'm still not convinced any mutabulity in react() is good
+
+## Modeling choices
+
+Don't model sidewalk crowdedness or bike rack availability, because in
+practice, these things are never scarce resources or problematic. Finding a
+parking spot is difficult and impacts the quality of one trip and causes
+externality, so we should model that.

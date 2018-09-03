@@ -1,7 +1,8 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::BuildingID;
+use map_model::{BuildingID, BusStop, Map};
 use std::collections::BTreeMap;
-use {AgentID, CarID, PedestrianID, TripID};
+use walking::SidewalkSpot;
+use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct TripManager {
@@ -44,18 +45,25 @@ impl TripManager {
     // Creation from the interactive part of spawner
     pub fn new_trip(
         &mut self,
+        map: &Map,
         ped: PedestrianID,
         start_bldg: BuildingID,
-        use_car: Option<CarID>,
         goal_bldg: BuildingID,
+        legs: Vec<TripLeg>,
     ) -> TripID {
+        assert!(!legs.is_empty());
+        match legs.last().unwrap() {
+            TripLeg::Walk(to) => assert_eq!(*to, SidewalkSpot::building(goal_bldg, map)),
+            x => panic!("Last leg of trip isn't walking to the goal building; it's {:?}", x),
+        };
+
         let id = TripID(self.trips.len());
         self.trips.push(Trip {
             id,
             ped,
             start_bldg,
-            use_car,
             goal_bldg,
+            legs,
         });
         id
     }
@@ -64,7 +72,7 @@ impl TripManager {
     pub fn get_trip_using_car(&self, car: CarID) -> Option<TripID> {
         self.trips
             .iter()
-            .find(|t| t.use_car == Some(car))
+            .find(|t| t.legs.iter().find(|l| l.uses_car(car)).is_some())
             .map(|t| t.id)
     }
 }
@@ -74,7 +82,26 @@ struct Trip {
     id: TripID,
     ped: PedestrianID,
     start_bldg: BuildingID,
-    // Later, this could be an enum of mode choices, or something even more complicated
-    use_car: Option<CarID>,
     goal_bldg: BuildingID,
+    legs: Vec<TripLeg>,
+}
+
+// Except for Drive (which has to say what car to drive), these don't say where the leg starts.
+// That's because it might be unknown -- like when we drive and don't know where we'll wind up
+// parking.
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub enum TripLeg {
+    Walk(SidewalkSpot),
+    // Roads might be long -- what building do we ultimately want to park near?
+    Drive(ParkedCar, BuildingID),
+    RideBus(RouteID, BusStop),
+}
+
+impl TripLeg {
+    fn uses_car(&self, id: CarID) -> bool {
+        match self {
+            TripLeg::Drive(parked, _) => parked.car == id,
+            _ => false,
+        }
+    }
 }
