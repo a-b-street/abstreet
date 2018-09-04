@@ -345,7 +345,7 @@ impl Spawner {
         stop2: BusStop,
         route: RouteID,
         trips: &mut TripManager,
-    ) {
+    ) -> PedestrianID {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at());
         }
@@ -370,6 +370,7 @@ impl Spawner {
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::bus_stop(stop1),
         ));
+        ped_id
     }
 
     // Trip transitions

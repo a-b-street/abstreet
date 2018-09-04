@@ -3,7 +3,7 @@ use control::ControlMap;
 use map_model::{BuildingID, BusStop, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
-use {CarID, Event, RouteID, Sim, Tick};
+use {CarID, Event, PedestrianID, RouteID, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -105,15 +105,15 @@ impl Sim {
         {
             panic!("Three buses didn't fit");
         }
-        self.make_ped_using_bus(
+        // TODO this is introducing nondeterminism?!
+        /*self.make_ped_using_bus(
             map,
             LaneID(550),
             LaneID(727),
             RouteID(0),
             map.get_l(LaneID(325)).bus_stops[0].clone(),
             map.get_l(LaneID(840)).bus_stops[0].clone(),
-        );
-    }
+        );*/    }
 
     pub fn big_spawn(&mut self, map: &Map) {
         self.seed_parked_cars(0.95);
@@ -236,7 +236,7 @@ impl Sim {
         route: RouteID,
         stop1: BusStop,
         stop2: BusStop,
-    ) {
+    ) -> PedestrianID {
         let start_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, from);
         let goal_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, to);
 
@@ -249,7 +249,7 @@ impl Sim {
             stop2,
             route,
             &mut self.trips_state,
-        );
+        )
     }
 
     pub fn spawn_pedestrian(&mut self, map: &Map, sidewalk: LaneID) {
