@@ -3,7 +3,7 @@ use control::ControlMap;
 use map_model::{BuildingID, BusStop, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
-use {CarID, Event, Sim, Tick};
+use {CarID, Event, RouteID, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -97,13 +97,22 @@ impl Sim {
         if self.seed_bus_route(
             vec![
                 map.get_l(LaneID(309)).bus_stops[0].clone(),
+                map.get_l(LaneID(325)).bus_stops[0].clone(),
                 map.get_l(LaneID(840)).bus_stops[0].clone(),
             ],
             map,
-        ).len() != 2
+        ).len() != 3
         {
-            panic!("Two buses didn't fit");
+            panic!("Three buses didn't fit");
         }
+        self.make_ped_using_bus(
+            map,
+            LaneID(550),
+            LaneID(727),
+            RouteID(0),
+            map.get_l(LaneID(325)).bus_stops[0].clone(),
+            map.get_l(LaneID(840)).bus_stops[0].clone(),
+        );
     }
 
     pub fn big_spawn(&mut self, map: &Map) {
@@ -215,6 +224,30 @@ impl Sim {
             &self.parking_state,
             start_bldg,
             goal_bldg,
+            &mut self.trips_state,
+        );
+    }
+
+    pub fn make_ped_using_bus(
+        &mut self,
+        map: &Map,
+        from: LaneID,
+        to: LaneID,
+        route: RouteID,
+        stop1: BusStop,
+        stop2: BusStop,
+    ) {
+        let start_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, from);
+        let goal_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, to);
+
+        self.spawner.start_trip_using_bus(
+            self.time.next(),
+            map,
+            start_bldg,
+            goal_bldg,
+            stop1,
+            stop2,
+            route,
             &mut self.trips_state,
         );
     }

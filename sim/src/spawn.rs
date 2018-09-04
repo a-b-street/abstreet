@@ -10,7 +10,7 @@ use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
-use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
+use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
@@ -332,6 +332,43 @@ impl Spawner {
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),
+        ));
+    }
+
+    pub fn start_trip_using_bus(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        start_bldg: BuildingID,
+        goal_bldg: BuildingID,
+        stop1: BusStop,
+        stop2: BusStop,
+        route: RouteID,
+        trips: &mut TripManager,
+    ) {
+        if let Some(cmd) = self.commands.back() {
+            assert!(at >= cmd.at());
+        }
+
+        let ped_id = PedestrianID(self.ped_id_counter);
+        self.ped_id_counter += 1;
+
+        self.commands.push_back(Command::Walk(
+            at,
+            trips.new_trip(
+                map,
+                ped_id,
+                start_bldg,
+                goal_bldg,
+                vec![
+                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1.clone())),
+                    TripLeg::RideBus(route, stop2),
+                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
+                ],
+            ),
+            ped_id,
+            SidewalkSpot::building(start_bldg, map),
+            SidewalkSpot::bus_stop(stop1),
         ));
     }
 

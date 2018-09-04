@@ -131,6 +131,13 @@ impl Map {
                         dist_along: 25.0 * si::M,
                     });
                 }
+                if id == LaneID(325) {
+                    bus_stops.push(BusStop {
+                        sidewalk: id,
+                        driving_lane: LaneID(323),
+                        dist_along: 30.0 * si::M,
+                    });
+                }
                 if id == LaneID(840) {
                     bus_stops.push(BusStop {
                         sidewalk: id,

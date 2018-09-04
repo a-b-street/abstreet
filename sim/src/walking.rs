@@ -551,6 +551,10 @@ impl WalkingSimState {
             .get_vec_mut(stop)
             .unwrap()
             .retain(|&p| p != id);
+        self.peds_per_sidewalk
+            .get_vec_mut(&stop.sidewalk)
+            .unwrap()
+            .retain(|&p| p != id);
     }
 }
 

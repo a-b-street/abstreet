@@ -697,6 +697,7 @@ step 2: move interactive and testish spawning stuff to init() or similar, leavin
 step 3: enhance the trip stuff to have a concept of hardcoded legs, and make it choose how to use a bus
 	- seed a trip using a bus
 	- test a basic bus scenario
+	- make BusStop a lightweight, copyable address
 
 
 ## Everything as FSMs
