@@ -79,6 +79,13 @@ impl Sim {
         }
     }
 
+    pub fn load(path: String, new_scenario_name: String) -> Result<Sim, std::io::Error> {
+        abstutil::read_json(&path).map(|mut s: Sim| {
+            s.scenario_name = new_scenario_name;
+            s
+        })
+    }
+
     pub fn edit_lane_type(&mut self, id: LaneID, old_type: LaneType, map: &Map) {
         match old_type {
             LaneType::Driving => self.driving_state.edit_remove_lane(id),

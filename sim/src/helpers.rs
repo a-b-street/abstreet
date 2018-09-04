@@ -105,7 +105,8 @@ impl Sim {
         {
             panic!("Three buses didn't fit");
         }
-        // TODO this is introducing nondeterminism?!
+        // TODO this is introducing nondeterminism, because of slight floating point errors.
+        // fragile that this causes it, but true. :\
         /*self.make_ped_using_bus(
             map,
             LaneID(550),

@@ -86,7 +86,8 @@ fn with_savestating() {
         );
     }
 
-    let sim3: sim::Sim = abstutil::read_json(&sim1_save).unwrap();
+    let sim3: sim::Sim =
+        sim::Sim::load(sim1_save.clone(), "with_savestating_3".to_string()).unwrap();
     if sim3 != sim2 {
         panic!(
             "sim state differs between {} and {}",
