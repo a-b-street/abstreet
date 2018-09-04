@@ -1,6 +1,6 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{BuildingID, BusStop, Map};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, TripID};
 
@@ -29,17 +29,45 @@ impl TripManager {
         self.active_trip_mode.insert(agent, trip);
     }
 
-    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, BuildingID) {
-        let trip = &self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
-        (trip.id, trip.ped, trip.goal_bldg)
+    // Where are we walking next?
+    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+        let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
+
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Drive(parked, _) => assert_eq!(car, parked.car),
+            x => panic!(
+                "First trip leg {:?} doesn't match car_reached_parking_spot",
+                x
+            ),
+        };
+        // TODO there are only some valid sequences of trips. it'd be neat to guarantee these are
+        // valid by construction with a fluent API.
+        let walk_to = match trip.legs[0] {
+            TripLeg::Walk(ref to) => to,
+            ref x => panic!("Next trip leg is {:?}, not walking", x),
+        };
+        (trip.id, trip.ped, walk_to.clone())
     }
 
+    // Where are we driving next?
     pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, BuildingID) {
-        let trip = &self.trips[self.active_trip_mode
-                                   .remove(&AgentID::Pedestrian(ped))
-                                   .unwrap()
-                                   .0];
-        (trip.id, trip.goal_bldg)
+        let trip = &mut self.trips[self.active_trip_mode
+                                       .remove(&AgentID::Pedestrian(ped))
+                                       .unwrap()
+                                       .0];
+
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Walk(_) => {}
+            x => panic!(
+                "First trip leg {:?} doesn't match ped_reached_parking_spot",
+                x
+            ),
+        };
+        let drive_to = match trip.legs[0] {
+            TripLeg::Drive(_, ref to) => to,
+            ref x => panic!("Next trip leg is {:?}, not walking", x),
+        };
+        (trip.id, *drive_to)
     }
 
     // Creation from the interactive part of spawner
@@ -54,7 +82,10 @@ impl TripManager {
         assert!(!legs.is_empty());
         match legs.last().unwrap() {
             TripLeg::Walk(to) => assert_eq!(*to, SidewalkSpot::building(goal_bldg, map)),
-            x => panic!("Last leg of trip isn't walking to the goal building; it's {:?}", x),
+            x => panic!(
+                "Last leg of trip isn't walking to the goal building; it's {:?}",
+                x
+            ),
         };
 
         let id = TripID(self.trips.len());
@@ -63,7 +94,7 @@ impl TripManager {
             ped,
             start_bldg,
             goal_bldg,
-            legs,
+            legs: VecDeque::from(legs),
         });
         id
     }
@@ -83,7 +114,7 @@ struct Trip {
     ped: PedestrianID,
     start_bldg: BuildingID,
     goal_bldg: BuildingID,
-    legs: Vec<TripLeg>,
+    legs: VecDeque<TripLeg>,
 }
 
 // Except for Drive (which has to say what car to drive), these don't say where the leg starts.

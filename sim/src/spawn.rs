@@ -291,12 +291,17 @@ impl Spawner {
         let parking_spot = SidewalkSpot::parking_spot(parked.spot, map, parking_sim);
         self.commands.push_back(Command::Walk(
             at,
-            self.trips
-                .new_trip(map, ped_id, start_bldg, goal_bldg, vec![
-                          TripLeg::Walk(parking_spot.clone()),
-                          TripLeg::Drive(parked, goal_bldg),
-                          TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
-                ]),
+            self.trips.new_trip(
+                map,
+                ped_id,
+                start_bldg,
+                goal_bldg,
+                vec![
+                    TripLeg::Walk(parking_spot.clone()),
+                    TripLeg::Drive(parked, goal_bldg),
+                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
+                ],
+            ),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             parking_spot,
@@ -319,7 +324,13 @@ impl Spawner {
 
         self.commands.push_back(Command::Walk(
             at,
-            self.trips.new_trip(map, ped_id, start_bldg, goal_bldg, vec![TripLeg::Walk(SidewalkSpot::building(goal_bldg, map))]),
+            self.trips.new_trip(
+                map,
+                ped_id,
+                start_bldg,
+                goal_bldg,
+                vec![TripLeg::Walk(SidewalkSpot::building(goal_bldg, map))],
+            ),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             SidewalkSpot::building(goal_bldg, map),
@@ -334,13 +345,13 @@ impl Spawner {
         map: &Map,
         parking_sim: &ParkingSimState,
     ) {
-        let (trip, ped, goal_bldg) = self.trips.car_reached_parking_spot(p.car);
+        let (trip, ped, walk_to) = self.trips.car_reached_parking_spot(p.car);
         self.commands.push_back(Command::Walk(
             at.next(),
             trip,
             ped,
             SidewalkSpot::parking_spot(p.spot, map, parking_sim),
-            SidewalkSpot::building(goal_bldg, map),
+            walk_to,
         ));
     }
 
