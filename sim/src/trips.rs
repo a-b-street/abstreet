@@ -70,6 +70,26 @@ impl TripManager {
         (trip.id, *drive_to)
     }
 
+    // Combo query/transition from transit
+    pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: RouteID) -> bool {
+        let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+
+        let board = match trip.legs[1] {
+            TripLeg::RideBus(r, _) => r == route,
+            ref x => panic!("{} is at a bus stop, but next leg is {:?}", ped, x),
+        };
+        if !board {
+            return false;
+        }
+
+        // They're boarding!
+        self.active_trip_mode.remove(&AgentID::Pedestrian(ped));
+        // Could assert that the first leg is walking to the right bus stop
+        trip.legs.pop_front();
+
+        true
+    }
+
     // Creation from the interactive part of spawner
     pub fn new_trip(
         &mut self,

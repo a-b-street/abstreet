@@ -5,6 +5,7 @@ use events::Event;
 use map_model;
 use map_model::{BusStop, LaneID, Map};
 use std::collections::{BTreeMap, VecDeque};
+use trips::TripManager;
 use walking::WalkingSimState;
 use {CarID, Distance, PedestrianID, RouteID, Tick};
 
@@ -185,15 +186,19 @@ impl TransitSimState {
         }
     }
 
-    pub fn step(&mut self, events: &mut Vec<Event>, walking_sim: &mut WalkingSimState) {
+    pub fn step(
+        &mut self,
+        events: &mut Vec<Event>,
+        walking_sim: &mut WalkingSimState,
+        trips: &mut TripManager,
+    ) {
         for b in self.buses.values_mut() {
             if let BusState::AtStop(stop_idx, _) = b.state {
                 let stop = self.routes[&b.route].stops[stop_idx].clone();
 
                 // Let anybody new on?
                 for p in walking_sim.get_peds_waiting_at_stop(&stop).into_iter() {
-                    println!("TODO should {} board bus {}?", p, b.car);
-                    if true {
+                    if trips.should_ped_board_bus(p, b.route) {
                         events.push(Event::PedEntersBus(p, b.car));
                         b.passengers.push(p);
                         walking_sim.ped_joined_bus(p, &stop);

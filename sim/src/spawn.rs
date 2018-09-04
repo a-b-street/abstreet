@@ -57,9 +57,6 @@ pub struct Spawner {
 
     car_id_counter: usize,
     ped_id_counter: usize,
-
-    // No real use in being owned by Sim. All of the transitions will need us to spawn something.
-    trips: TripManager,
 }
 
 impl Spawner {
@@ -68,7 +65,6 @@ impl Spawner {
             commands: VecDeque::new(),
             car_id_counter: 0,
             ped_id_counter: 0,
-            trips: TripManager::new(),
         }
     }
 
@@ -80,6 +76,7 @@ impl Spawner {
         parking_sim: &mut ParkingSimState,
         walking_sim: &mut WalkingSimState,
         driving_sim: &mut DrivingSimState,
+        trips: &mut TripManager,
         properties: &BTreeMap<CarID, Vehicle>,
     ) {
         let mut commands: Vec<Command> = Vec::new();
@@ -127,7 +124,7 @@ impl Spawner {
                             map,
                             properties,
                         ) {
-                            self.trips.agent_starting_trip_leg(AgentID::Car(car), trip);
+                            trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             parking_sim.remove_parked_car(parked_car.clone());
                             spawned_agents += 1;
                         } else {
@@ -137,8 +134,7 @@ impl Spawner {
                         }
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
-                        self.trips
-                            .agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
+                        trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
                         walking_sim.seed_pedestrian(
                             events,
                             ped,
@@ -271,13 +267,14 @@ impl Spawner {
         parking_sim: &ParkingSimState,
         start_bldg: BuildingID,
         goal_bldg: BuildingID,
+        trips: &mut TripManager,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at());
         }
 
         // Don't add duplicate commands.
-        if let Some(trip) = self.trips.get_trip_using_car(parked.car) {
+        if let Some(trip) = trips.get_trip_using_car(parked.car) {
             println!(
                 "{} is already a part of {}, ignoring new request",
                 parked.car, trip
@@ -291,7 +288,7 @@ impl Spawner {
         let parking_spot = SidewalkSpot::parking_spot(parked.spot, map, parking_sim);
         self.commands.push_back(Command::Walk(
             at,
-            self.trips.new_trip(
+            trips.new_trip(
                 map,
                 ped_id,
                 start_bldg,
@@ -314,6 +311,7 @@ impl Spawner {
         map: &Map,
         start_bldg: BuildingID,
         goal_bldg: BuildingID,
+        trips: &mut TripManager,
     ) {
         if let Some(cmd) = self.commands.back() {
             assert!(at >= cmd.at());
@@ -324,7 +322,7 @@ impl Spawner {
 
         self.commands.push_back(Command::Walk(
             at,
-            self.trips.new_trip(
+            trips.new_trip(
                 map,
                 ped_id,
                 start_bldg,
@@ -344,8 +342,9 @@ impl Spawner {
         p: ParkedCar,
         map: &Map,
         parking_sim: &ParkingSimState,
+        trips: &mut TripManager,
     ) {
-        let (trip, ped, walk_to) = self.trips.car_reached_parking_spot(p.car);
+        let (trip, ped, walk_to) = trips.car_reached_parking_spot(p.car);
         self.commands.push_back(Command::Walk(
             at.next(),
             trip,
@@ -361,8 +360,9 @@ impl Spawner {
         ped: PedestrianID,
         spot: ParkingSpot,
         parking_sim: &ParkingSimState,
+        trips: &mut TripManager,
     ) {
-        let (trip, goal_bldg) = self.trips.ped_reached_parking_spot(ped);
+        let (trip, goal_bldg) = trips.ped_reached_parking_spot(ped);
         self.commands.push_back(Command::Drive(
             at.next(),
             trip,

@@ -215,6 +215,7 @@ impl Sim {
             &self.parking_state,
             start_bldg,
             goal_bldg,
+            &mut self.trips_state,
         );
     }
 
@@ -222,13 +223,17 @@ impl Sim {
         assert!(map.get_l(sidewalk).is_sidewalk());
         let start_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, sidewalk);
         let goal_bldg = pick_ped_goal(&mut self.rng, map, sidewalk);
-        self.spawner
-            .spawn_specific_pedestrian(self.time.next(), map, start_bldg, goal_bldg);
+        self.spawn_specific_pedestrian(map, start_bldg, goal_bldg);
     }
 
     pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: BuildingID, to: BuildingID) {
-        self.spawner
-            .spawn_specific_pedestrian(self.time.next(), map, from, to);
+        self.spawner.spawn_specific_pedestrian(
+            self.time.next(),
+            map,
+            from,
+            to,
+            &mut self.trips_state,
+        );
     }
 
     pub fn seed_walking_trips(&mut self, map: &Map, num: usize) {

@@ -17,6 +17,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64;
 use std::time::{Duration, Instant};
 use transit::TransitSimState;
+use trips::TripManager;
 use walking::WalkingSimState;
 use {AgentID, CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
@@ -43,6 +44,7 @@ pub struct Sim {
     pub(crate) parking_state: ParkingSimState,
     pub(crate) walking_state: WalkingSimState,
     pub(crate) transit_state: TransitSimState,
+    pub(crate) trips_state: TripManager,
 
     pub(crate) car_properties: BTreeMap<CarID, Vehicle>,
 }
@@ -64,6 +66,7 @@ impl Sim {
             rng,
             driving_state: DrivingSimState::new(map),
             spawner: Spawner::empty(),
+            trips_state: TripManager::new(),
             intersection_state: IntersectionSimState::new(map),
             parking_state: ParkingSimState::new(map),
             walking_state: WalkingSimState::new(),
@@ -136,6 +139,7 @@ impl Sim {
             &mut self.parking_state,
             &mut self.walking_state,
             &mut self.driving_state,
+            &mut self.trips_state,
             &self.car_properties,
         );
 
@@ -151,8 +155,13 @@ impl Sim {
         )? {
             events.push(Event::CarReachedParkingSpot(p.clone()));
             self.parking_state.add_parked_car(p.clone());
-            self.spawner
-                .car_reached_parking_spot(self.time, p, map, &self.parking_state);
+            self.spawner.car_reached_parking_spot(
+                self.time,
+                p,
+                map,
+                &self.parking_state,
+                &mut self.trips_state,
+            );
         }
 
         for (ped, spot) in
@@ -160,12 +169,17 @@ impl Sim {
                 .step(&mut events, TIMESTEP, map, &mut self.intersection_state)?
         {
             events.push(Event::PedReachedParkingSpot(ped, spot));
-            self.spawner
-                .ped_reached_parking_spot(self.time, ped, spot, &self.parking_state);
+            self.spawner.ped_reached_parking_spot(
+                self.time,
+                ped,
+                spot,
+                &self.parking_state,
+                &mut self.trips_state,
+            );
         }
 
         self.transit_state
-            .step(&mut events, &mut self.walking_state);
+            .step(&mut events, &mut self.walking_state, &mut self.trips_state);
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(
