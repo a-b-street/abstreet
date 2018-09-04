@@ -1,0 +1,7 @@
+[package]
+name = "analyze_code"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+
+[dependencies]
+syn = { version = "0.14.9", features = ["parsing", "full", "extra-traits"] }
