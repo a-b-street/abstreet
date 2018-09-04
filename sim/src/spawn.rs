@@ -336,6 +336,23 @@ impl Spawner {
     }
 
     // Trip transitions
+    pub fn ped_finished_bus_ride(
+        &mut self,
+        at: Tick,
+        ped: PedestrianID,
+        stop: BusStop,
+        trips: &mut TripManager,
+    ) {
+        let (trip, walk_to) = trips.ped_finished_bus_ride(ped);
+        self.commands.push_back(Command::Walk(
+            at.next(),
+            trip,
+            ped,
+            SidewalkSpot::bus_stop(stop),
+            walk_to,
+        ));
+    }
+
     pub fn car_reached_parking_spot(
         &mut self,
         at: Tick,

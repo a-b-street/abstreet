@@ -178,8 +178,13 @@ impl Sim {
             );
         }
 
-        self.transit_state
-            .step(&mut events, &mut self.walking_state, &mut self.trips_state);
+        self.transit_state.step(
+            self.time,
+            &mut events,
+            &mut self.walking_state,
+            &mut self.trips_state,
+            &mut self.spawner,
+        );
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
         // borrowed :(

@@ -696,7 +696,6 @@ step 2: move interactive and testish spawning stuff to init() or similar, leavin
 		- i just physically want the code in a separate file. can we implement a trait in a second file?
 step 3: enhance the trip stuff to have a concept of hardcoded legs, and make it choose how to use a bus
 	- seed a trip using a bus
-	- wire up the transitions to board and deboard the bus
 	- test a basic bus scenario
 
 

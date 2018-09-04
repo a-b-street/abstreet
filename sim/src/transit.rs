@@ -4,6 +4,7 @@ use driving::CarView;
 use events::Event;
 use map_model;
 use map_model::{BusStop, LaneID, Map};
+use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
 use walking::WalkingSimState;
@@ -188,9 +189,11 @@ impl TransitSimState {
 
     pub fn step(
         &mut self,
+        now: Tick,
         events: &mut Vec<Event>,
         walking_sim: &mut WalkingSimState,
         trips: &mut TripManager,
+        spawner: &mut Spawner,
     ) {
         for b in self.buses.values_mut() {
             if let BusState::AtStop(stop_idx, _) = b.state {
@@ -214,10 +217,11 @@ impl TransitSimState {
                 // which is called by router! thats convoluted
                 let car = b.car;
                 b.passengers.retain(|p| {
-                    println!("TODO should {} leave bus {}?", p, car);
-                    if false {
+                    if trips.should_ped_leave_bus(*p, &stop) {
                         events.push(Event::PedLeavesBus(*p, car));
-                        // TODO call something on the spawner to join the walking sim again
+                        // TODO would be a little cleaner to return this info up to sim and have it
+                        // plumb through to spawner? not sure
+                        spawner.ped_finished_bus_ride(now, *p, stop.clone(), trips);
                         false
                     } else {
                         true

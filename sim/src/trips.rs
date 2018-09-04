@@ -82,12 +82,42 @@ impl TripManager {
             return false;
         }
 
-        // They're boarding!
-        self.active_trip_mode.remove(&AgentID::Pedestrian(ped));
         // Could assert that the first leg is walking to the right bus stop
         trip.legs.pop_front();
+        // Leave active_trip_mode as Pedestrian, since the transit sim tracks passengers as
+        // PedestrianIDs.
 
         true
+    }
+
+    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: &BusStop) -> bool {
+        let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+
+        match trip.legs[0] {
+            TripLeg::RideBus(_, ref until_stop) => stop == until_stop,
+            ref x => panic!("{} is on a bus stop, but first leg is {:?}", ped, x),
+        }
+    }
+
+    // Where to walk next?
+    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, SidewalkSpot) {
+        // The spawner will call agent_starting_trip_leg, so briefly remove the active PedestrianID.
+        let trip = &mut self.trips[self.active_trip_mode
+                                       .remove(&AgentID::Pedestrian(ped))
+                                       .unwrap()
+                                       .0];
+
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::RideBus(_, _) => {}
+            x => panic!("First trip leg {:?} doesn't match ped_finished_bus_ride", x),
+        };
+        // TODO there are only some valid sequences of trips. it'd be neat to guarantee these are
+        // valid by construction with a fluent API.
+        let walk_to = match trip.legs[0] {
+            TripLeg::Walk(ref to) => to,
+            ref x => panic!("Next trip leg is {:?}, not walking", x),
+        };
+        (trip.id, walk_to.clone())
     }
 
     // Creation from the interactive part of spawner
