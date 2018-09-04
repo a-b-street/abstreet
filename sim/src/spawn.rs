@@ -174,7 +174,7 @@ impl Spawner {
         now: Tick,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Vec<Vehicle> {
-        let route = transit_sim.create_empty_route(stops);
+        let route = transit_sim.create_empty_route(stops, map);
         let mut vehicles: Vec<Vehicle> = Vec::new();
         // Try to spawn a bus at each stop
         for (next_stop_idx, start_dist_along, mut path) in
@@ -361,14 +361,14 @@ impl Spawner {
                 start_bldg,
                 goal_bldg,
                 vec![
-                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1.clone())),
+                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1, map)),
                     TripLeg::RideBus(route, stop2),
                     TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
                 ],
             ),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::bus_stop(stop1),
+            SidewalkSpot::bus_stop(stop1, map),
         ));
         ped_id
     }
@@ -380,13 +380,14 @@ impl Spawner {
         ped: PedestrianID,
         stop: BusStop,
         trips: &mut TripManager,
+        map: &Map,
     ) {
         let (trip, walk_to) = trips.ped_finished_bus_ride(ped);
         self.commands.push_back(Command::Walk(
             at.next(),
             trip,
             ped,
-            SidewalkSpot::bus_stop(stop),
+            SidewalkSpot::bus_stop(stop, map),
             walk_to,
         ));
     }

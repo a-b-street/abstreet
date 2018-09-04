@@ -90,11 +90,11 @@ impl TripManager {
         true
     }
 
-    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: &BusStop) -> bool {
+    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: BusStop) -> bool {
         let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
 
         match trip.legs[0] {
-            TripLeg::RideBus(_, ref until_stop) => stop == until_stop,
+            TripLeg::RideBus(_, until_stop) => stop == until_stop,
             ref x => panic!("{} is on a bus stop, but first leg is {:?}", ped, x),
         }
     }

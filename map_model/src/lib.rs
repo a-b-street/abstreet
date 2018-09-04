@@ -26,7 +26,7 @@ mod turn;
 pub use building::{Building, BuildingID, FrontPath};
 pub use edits::{EditReason, Edits};
 pub use intersection::{Intersection, IntersectionID};
-pub use lane::{BusStop, Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
+pub use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::pathfind;

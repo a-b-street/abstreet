@@ -3,20 +3,21 @@ use dimensioned::si;
 use driving::CarView;
 use events::Event;
 use map_model;
-use map_model::{BusStop, LaneID, Map};
+use map_model::{BusStop, BusStopDetails, LaneID, Map};
 use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
 use walking::WalkingSimState;
 use {CarID, Distance, PedestrianID, RouteID, Tick};
 
+// These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct Route {
     id: RouteID,
     buses: Vec<CarID>,
-    stops: Vec<BusStop>,
+    stops: Vec<BusStopDetails>,
     // TODO info on schedules
 }
 
@@ -63,7 +64,7 @@ impl TransitSimState {
         }
     }
 
-    pub fn create_empty_route(&mut self, stops: Vec<BusStop>) -> RouteID {
+    pub fn create_empty_route(&mut self, stops: Vec<BusStop>, map: &Map) -> RouteID {
         assert!(stops.len() > 1);
         let id = RouteID(self.routes.len());
         self.routes.insert(
@@ -71,7 +72,10 @@ impl TransitSimState {
             Route {
                 id,
                 buses: Vec::new(),
-                stops: stops.clone(),
+                stops: stops
+                    .into_iter()
+                    .map(|s| map.get_bus_stop(s).clone())
+                    .collect(),
             },
         );
         id
@@ -131,7 +135,7 @@ impl TransitSimState {
                     // TODO constant for stop time
                     self.buses.get_mut(&view.id).unwrap().state =
                         BusState::AtStop(stop_idx, time + 10.0 * si::S);
-                    events.push(Event::BusArrivedAtStop(view.id, stop.clone()));
+                    events.push(Event::BusArrivedAtStop(view.id, stop.id));
                     if view.debug {
                         println!("{} arrived at stop {:?}, now waiting", view.id, stop);
                     }
@@ -149,7 +153,7 @@ impl TransitSimState {
                     let next_stop = route.next_stop(stop_idx);
                     self.buses.get_mut(&view.id).unwrap().state =
                         BusState::DrivingToStop(next_stop);
-                    events.push(Event::BusDepartedFromStop(view.id, stop.clone()));
+                    events.push(Event::BusDepartedFromStop(view.id, stop.id));
                     if view.debug {
                         println!("{} departing from stop {:?}", view.id, stop);
                     }
@@ -194,17 +198,18 @@ impl TransitSimState {
         walking_sim: &mut WalkingSimState,
         trips: &mut TripManager,
         spawner: &mut Spawner,
+        map: &Map,
     ) {
         for b in self.buses.values_mut() {
             if let BusState::AtStop(stop_idx, _) = b.state {
-                let stop = self.routes[&b.route].stops[stop_idx].clone();
+                let stop = &self.routes[&b.route].stops[stop_idx];
 
                 // Let anybody new on?
-                for p in walking_sim.get_peds_waiting_at_stop(&stop).into_iter() {
+                for p in walking_sim.get_peds_waiting_at_stop(stop.id).into_iter() {
                     if trips.should_ped_board_bus(p, b.route) {
                         events.push(Event::PedEntersBus(p, b.car));
                         b.passengers.push(p);
-                        walking_sim.ped_joined_bus(p, &stop);
+                        walking_sim.ped_joined_bus(p, stop.id);
                     }
                 }
 
@@ -217,11 +222,11 @@ impl TransitSimState {
                 // which is called by router! thats convoluted
                 let car = b.car;
                 b.passengers.retain(|p| {
-                    if trips.should_ped_leave_bus(*p, &stop) {
+                    if trips.should_ped_leave_bus(*p, stop.id) {
                         events.push(Event::PedLeavesBus(*p, car));
                         // TODO would be a little cleaner to return this info up to sim and have it
                         // plumb through to spawner? not sure
-                        spawner.ped_finished_bus_ride(now, *p, stop.clone(), trips);
+                        spawner.ped_finished_bus_ride(now, *p, stop.id, trips, map);
                         false
                     } else {
                         true

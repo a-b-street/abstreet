@@ -57,10 +57,10 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn bus_stop(stop: BusStop) -> SidewalkSpot {
+    pub fn bus_stop(stop: BusStop, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
             sidewalk: stop.sidewalk,
-            dist_along: stop.dist_along,
+            dist_along: map.get_bus_stop(stop).dist_along,
             connection: SidewalkPOI::BusStop(stop),
         }
     }
@@ -144,7 +144,7 @@ impl Pedestrian {
                 return match self.goal.connection {
                     SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
                     SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
-                    SidewalkPOI::BusStop(ref stop) => Action::WaitAtBusStop(stop.clone()),
+                    SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
                 };
             }
             return Action::Continue;
@@ -363,10 +363,10 @@ impl WalkingSimState {
                         self.peds.remove(&id);
                     }
                 }
-                Action::WaitAtBusStop(ref stop) => {
+                Action::WaitAtBusStop(stop) => {
                     self.peds.get_mut(&id).unwrap().active = false;
-                    events.push(Event::PedReachedBusStop(*id, stop.clone()));
-                    self.peds_per_bus_stop.insert(stop.clone(), *id);
+                    events.push(Event::PedReachedBusStop(*id, stop));
+                    self.peds_per_bus_stop.insert(stop, *id);
                 }
                 Action::StartParkedCar(ref spot) => {
                     self.peds.remove(&id);
@@ -537,18 +537,18 @@ impl WalkingSimState {
             .map(|p| p.path.iter().map(|id| *id).collect())
     }
 
-    pub fn get_peds_waiting_at_stop(&self, stop: &BusStop) -> Vec<PedestrianID> {
+    pub fn get_peds_waiting_at_stop(&self, stop: BusStop) -> Vec<PedestrianID> {
         // TODO ew, annoying multimap API and clone
         self.peds_per_bus_stop
-            .get_vec(stop)
+            .get_vec(&stop)
             .unwrap_or(&Vec::new())
             .clone()
     }
 
-    pub fn ped_joined_bus(&mut self, id: PedestrianID, stop: &BusStop) {
+    pub fn ped_joined_bus(&mut self, id: PedestrianID, stop: BusStop) {
         self.peds.remove(&id);
         self.peds_per_bus_stop
-            .get_vec_mut(stop)
+            .get_vec_mut(&stop)
             .unwrap()
             .retain(|&p| p != id);
         self.peds_per_sidewalk

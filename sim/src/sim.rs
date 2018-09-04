@@ -191,6 +191,7 @@ impl Sim {
             &mut self.walking_state,
             &mut self.trips_state,
             &mut self.spawner,
+            map,
         );
 
         // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably

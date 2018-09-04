@@ -96,9 +96,9 @@ impl Sim {
 
         if self.seed_bus_route(
             vec![
-                map.get_l(LaneID(309)).bus_stops[0].clone(),
-                map.get_l(LaneID(325)).bus_stops[0].clone(),
-                map.get_l(LaneID(840)).bus_stops[0].clone(),
+                map.get_l(LaneID(309)).bus_stops[0].id,
+                map.get_l(LaneID(325)).bus_stops[0].id,
+                map.get_l(LaneID(840)).bus_stops[0].id,
             ],
             map,
         ).len() != 3
@@ -112,8 +112,8 @@ impl Sim {
             LaneID(550),
             LaneID(727),
             RouteID(0),
-            map.get_l(LaneID(325)).bus_stops[0].clone(),
-            map.get_l(LaneID(840)).bus_stops[0].clone(),
+            map.get_l(LaneID(325)).bus_stops[0].id,
+            map.get_l(LaneID(840)).bus_stops[0].id,
         );*/    }
 
     pub fn big_spawn(&mut self, map: &Map) {

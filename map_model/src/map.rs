@@ -7,7 +7,7 @@ use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use intersection::{Intersection, IntersectionID};
-use lane::{BusStop, Lane, LaneID, LaneType};
+use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType};
 use make;
 use parcel::{Parcel, ParcelID};
 use raw_data;
@@ -125,22 +125,31 @@ impl Map {
                 let mut bus_stops = Vec::new();
                 // TODO load a GTFS, don't hardcode this
                 if id == LaneID(309) {
-                    bus_stops.push(BusStop {
-                        sidewalk: id,
+                    bus_stops.push(BusStopDetails {
+                        id: BusStop {
+                            sidewalk: id,
+                            idx: 0,
+                        },
                         driving_lane: LaneID(307),
                         dist_along: 25.0 * si::M,
                     });
                 }
                 if id == LaneID(325) {
-                    bus_stops.push(BusStop {
-                        sidewalk: id,
+                    bus_stops.push(BusStopDetails {
+                        id: BusStop {
+                            sidewalk: id,
+                            idx: 0,
+                        },
                         driving_lane: LaneID(323),
                         dist_along: 30.0 * si::M,
                     });
                 }
                 if id == LaneID(840) {
-                    bus_stops.push(BusStop {
-                        sidewalk: id,
+                    bus_stops.push(BusStopDetails {
+                        id: BusStop {
+                            sidewalk: id,
+                            idx: 0,
+                        },
                         driving_lane: LaneID(838),
                         dist_along: 50.0 * si::M,
                     });
@@ -381,5 +390,9 @@ impl Map {
 
     pub fn get_name(&self) -> &String {
         &self.name
+    }
+
+    pub fn get_bus_stop(&self, stop: BusStop) -> &BusStopDetails {
+        &self.get_l(stop.sidewalk).bus_stops[stop.idx]
     }
 }
