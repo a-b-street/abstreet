@@ -6,6 +6,8 @@ extern crate control;
 extern crate derivative;
 extern crate dimensioned;
 extern crate ezgui;
+#[macro_use]
+extern crate failure;
 extern crate geom;
 extern crate graphics;
 extern crate map_model;
@@ -44,7 +46,6 @@ use geom::{Angle, Pt2D};
 pub use helpers::load;
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
-use std::error;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -293,18 +294,17 @@ pub type Distance = si::Meter<f64>;
 pub type Speed = si::MeterPerSecond<f64>;
 pub type Acceleration = si::MeterPerSecond2<f64>;
 
-#[derive(Debug)]
-pub struct InvariantViolated(String);
-
-impl error::Error for InvariantViolated {
-    fn description(&self) -> &str {
-        &self.0
-    }
+// TODO enum of different cases? not really interesting to distinguish different proble, and it
+// forces one central place to know lots of impl details
+#[derive(Debug, Fail)]
+#[fail(display = "{}", reason)]
+pub struct InvariantViolated {
+    reason: String,
 }
 
-impl fmt::Display for InvariantViolated {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "InvariantViolated({0})", self.0)
+impl InvariantViolated {
+    pub fn new(reason: String) -> InvariantViolated {
+        InvariantViolated { reason }
     }
 }
 

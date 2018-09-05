@@ -2,6 +2,7 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
+use failure::Error;
 use geom::{Line, Pt2D};
 use intersections::{IntersectionSimState, Request};
 use map_model::{BuildingID, BusStop, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
@@ -251,7 +252,7 @@ impl Pedestrian {
         on: On,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<(), Error> {
         // Detect if the ped just warped. Bidirectional sidewalks are confusing. :)
         if let On::Lane(l) = self.on {
             let l = map.get_l(l);
@@ -263,7 +264,7 @@ impl Pedestrian {
             let pt2 = map.get_t(on.as_turn()).line.pt1();
             let len = Line::new(pt1, pt2).length();
             if len > 0.0 * si::M {
-                return Err(InvariantViolated(format!(
+                bail!(InvariantViolated::new(format!(
                     "{} just warped {}",
                     self.id, len
                 )));
@@ -369,7 +370,7 @@ impl WalkingSimState {
         delta_time: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<Vec<(PedestrianID, ParkingSpot)>, InvariantViolated> {
+    ) -> Result<Vec<(PedestrianID, ParkingSpot)>, Error> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {

@@ -20,6 +20,7 @@
 	  what we're capable of. it might mask problems. but since things like
           accel_to_stop_in_dist don't have a careful notion of how much time will pass,
           they recommend big rates sometimes.
+	- no way for an agent to request a turn and ASAP have it granted. are there cases where they might slow down unnecessarily?
 
 ## bikes
 

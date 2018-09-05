@@ -1,4 +1,5 @@
 use dimensioned::si;
+use failure::Error;
 use geom::EPSILON_DIST;
 use rand::Rng;
 use std;
@@ -113,9 +114,9 @@ impl Vehicle {
         &self,
         speed: Speed,
         dist: Distance,
-    ) -> Result<Acceleration, InvariantViolated> {
+    ) -> Result<Acceleration, Error> {
         if dist < -EPSILON_DIST {
-            return Err(InvariantViolated(format!(
+            bail!(InvariantViolated::new(format!(
                 "{} called accel_to_stop_in_dist({}, {}) with negative distance",
                 self.id, speed, dist
             )));
@@ -155,9 +156,9 @@ impl Vehicle {
         &self,
         current_speed: Speed,
         speed_limit: Speed,
-    ) -> Result<Distance, InvariantViolated> {
+    ) -> Result<Distance, Error> {
         if current_speed > speed_limit {
-            return Err(InvariantViolated(format!(
+            bail!(InvariantViolated::new(format!(
                 "{} called max_lookahead_dist({}, {}) with current speed over the limit",
                 self.id, current_speed, speed_limit
             )));
@@ -170,13 +171,9 @@ impl Vehicle {
     }
 
     // TODO share with max_lookahead_dist
-    fn max_next_dist(
-        &self,
-        current_speed: Speed,
-        speed_limit: Speed,
-    ) -> Result<Distance, InvariantViolated> {
+    fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Result<Distance, Error> {
         if current_speed > speed_limit {
-            return Err(InvariantViolated(format!(
+            bail!(InvariantViolated::new(format!(
                 "{} called max_next_dist({}, {}) with current speed over the limit",
                 self.id, current_speed, speed_limit
             )));
@@ -214,7 +211,7 @@ impl Vehicle {
         other: &Vehicle,
         dist_behind_other: Distance,
         other_speed: Speed,
-    ) -> Result<Acceleration, InvariantViolated> {
+    ) -> Result<Acceleration, Error> {
         /* A seemingly failed attempt at a simpler version:
 
         // What if they slam on their brakes right now?

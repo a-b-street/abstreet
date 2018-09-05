@@ -6,6 +6,7 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
+use failure::Error;
 use intersections::IntersectionSimState;
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
@@ -15,12 +16,13 @@ use spawn::Spawner;
 use std;
 use std::collections::BTreeMap;
 use std::f64;
+use std::process;
 use std::time::{Duration, Instant};
 use transit::TransitSimState;
 use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
-use {AgentID, CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
+use {AgentID, CarID, CarState, Event, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -122,20 +124,23 @@ impl Sim {
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
         match self.inner_step(map, control_map) {
             Ok(events) => events,
-            Err(e) => panic!(
-                "At {}: {}\n\nDebug from {:?}",
-                self.time,
-                e,
-                self.find_most_recent_savestate()
-            ),
+            Err(e) => {
+                // The order of causes is funky and backwards.
+                let mut causes: Vec<String> = e.iter_chain().map(|c| c.to_string()).collect();
+                causes.reverse();
+                println!("\nAt {}: {}", self.time, causes[0]);
+                for c in &causes[1..] {
+                    println!("  {}", c);
+                }
+                if let Ok(s) = self.find_most_recent_savestate() {
+                    println!("Debug from {}", s);
+                }
+                process::exit(1);
+            }
         }
     }
 
-    fn inner_step(
-        &mut self,
-        map: &Map,
-        control_map: &ControlMap,
-    ) -> Result<(Vec<Event>), InvariantViolated> {
+    fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(Vec<Event>), Error> {
         self.time = self.time.next();
 
         let mut view = WorldView::new();

@@ -2,6 +2,7 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
+use failure::{Error, ResultExt};
 use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
@@ -84,7 +85,7 @@ impl Car {
         transit_sim: &mut TransitSimState,
         intersections: &IntersectionSimState,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Result<Action, InvariantViolated> {
+    ) -> Result<Action, Error> {
         if self.parking.is_some() {
             // TODO right place for this check?
             assert!(self.speed <= kinematics::EPSILON_SPEED);
@@ -262,7 +263,7 @@ impl Car {
         accel: Acceleration,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<(), Error> {
         let (dist, new_speed) = kinematics::results_of_accel_for_one_tick(self.speed, accel);
         self.dist_along += dist;
         self.speed = new_speed;
@@ -270,7 +271,7 @@ impl Car {
         loop {
             let current_speed_limit = self.on.speed_limit(map);
             if self.speed > current_speed_limit {
-                return Err(InvariantViolated(format!(
+                bail!(InvariantViolated::new(format!(
                     "{} is going {} on {:?}, which has a speed limit of {}",
                     self.id, self.speed, self.on, current_speed_limit
                 )));
@@ -305,15 +306,12 @@ impl Car {
             self.waiting_for = None;
             self.on = next_on;
             if let On::Turn(t) = self.on {
-                // TODO easier way to attach more debug info?
                 intersections
                     .on_enter(Request::for_car(self.id, t))
-                    .map_err(|e| {
-                        InvariantViolated(format!(
-                            "{}. new speed {}, leftover dist {}",
-                            e, self.speed, leftover_dist
-                        ))
-                    })?;
+                    .context(format!(
+                        "new speed {}, leftover dist {}",
+                        self.speed, leftover_dist
+                    ))?;
             }
             self.dist_along = leftover_dist;
         }
@@ -359,13 +357,13 @@ impl SimQueue {
         ids: &Vec<CarID>,
         cars: &BTreeMap<CarID, Car>,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Result<(), InvariantViolated> {
+    ) -> Result<(), Error> {
         let old_queue = self.cars_queue.clone();
         let new_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
 
         if new_queue.len() > self.capacity {
-            return Err(InvariantViolated(format!(
+            bail!(InvariantViolated::new(format!(
                 "on {:?}, reset to {:?} broke, because capacity is just {}.",
                 self.id, new_queue, self.capacity
             )));
@@ -381,7 +379,7 @@ impl SimQueue {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
             let following_dist = properties[&c1].following_dist();
             if dist1 - dist2 < following_dist {
-                return Err(InvariantViolated(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
+                bail!(InvariantViolated::new(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
             }
         }
         Ok(())
@@ -562,7 +560,7 @@ impl DrivingSimState {
         transit_sim: &mut TransitSimState,
         rng: &mut R,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Result<Vec<ParkedCar>, InvariantViolated> {
+    ) -> Result<Vec<ParkedCar>, Error> {
         self.populate_view(view);
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to

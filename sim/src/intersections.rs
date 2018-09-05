@@ -5,6 +5,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
+use failure::Error;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet};
@@ -74,11 +75,11 @@ impl IntersectionSimState {
     // MIGHT NOT be ready to enter the intersection (lookahead could send the request before the
     // agent is the leader vehicle and at the end of the lane). The request may have been
     // previously granted, but the agent might not have been able to start the turn.
-    pub fn submit_request(&mut self, req: Request) -> Result<(), InvariantViolated> {
+    pub fn submit_request(&mut self, req: Request) -> Result<(), Error> {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
             if *t != req.turn {
-                return Err(InvariantViolated(format!(
+                bail!(InvariantViolated::new(format!(
                     "{:?} made, but {} has already been accepted",
                     req, t
                 )));
@@ -120,7 +121,7 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn on_enter(&self, req: Request) -> Result<(), InvariantViolated> {
+    pub fn on_enter(&self, req: Request) -> Result<(), Error> {
         let id = req.turn.parent;
         let i = &self.intersections[id.0];
         if i.accepted().contains_key(&req.agent) {
@@ -129,7 +130,7 @@ impl IntersectionSimState {
             }
             Ok(())
         } else {
-            Err(InvariantViolated(format!(
+            bail!(InvariantViolated::new(format!(
                 "{:?} entered, but wasn't accepted by the intersection yet",
                 req
             )))
