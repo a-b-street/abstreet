@@ -1,6 +1,7 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use events::Event;
+use instrument::capture_backtrace;
 use map_model;
 use map_model::{BusStop, BusStopDetails, LaneID, Map};
 use spawn::Spawner;
@@ -137,6 +138,7 @@ impl TransitSimState {
                     self.buses.get_mut(&car).unwrap().state =
                         BusState::AtStop(stop_idx, time + 10.0 * si::S);
                     events.push(Event::BusArrivedAtStop(car, stop.id));
+                    capture_backtrace();
                     if view.debug {
                         println!("{} arrived at stop {:?}, now waiting", car, stop);
                     }

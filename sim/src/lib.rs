@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate abstutil;
+extern crate backtrace;
 extern crate control;
 #[macro_use]
 extern crate derivative;
@@ -10,6 +11,8 @@ extern crate ezgui;
 extern crate failure;
 extern crate geom;
 extern crate graphics;
+#[macro_use]
+extern crate lazy_static;
 extern crate map_model;
 #[macro_use]
 extern crate more_asserts;
@@ -28,6 +31,7 @@ mod draw_ped;
 mod driving;
 mod events;
 mod helpers;
+mod instrument;
 mod intersections;
 // TODO pub only for tests...
 pub mod kinematics;

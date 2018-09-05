@@ -747,6 +747,17 @@ A good measue of how well-structured the code is: how hard would it be to add a
 few more delays / states, like time after parking the car (out of the way of
 the driving sim) but before getting out of the car?
 
+### Notes on capturing this
+
+https://www.reddit.com/r/rust/comments/9d8gse/higher_level_api_than_syn_for_static_analysis/
+
+- figure out how to capture stacktraces kinda optionally
+	- manual call at a fxn to dump its stacktrace somewhere (to a file? ideally shared global state to dedupe stuff)
+	- macro to insert a call at the beginning of a fxn
+	- macro to apply a macro to all fxns in an impl
+	- then i can manually edit a few places when I want to gather data
+
+
 ## Routers, lookahead, cars as FSMs
 
 Hmm, hard to figure out the interactions for the router. when should it get a
