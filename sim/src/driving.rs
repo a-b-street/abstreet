@@ -320,13 +320,25 @@ impl Car {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct SimQueue {
     id: On,
     // First element is farthest along the queue; they have the greatest dist_along.
-    cars_queue: Vec<CarID>,
+    // Caching the current dist_along vastly simplifies the API of SimQueue.
+    cars_queue: Vec<(Distance, CarID)>,
     capacity: usize,
 }
+
+impl PartialEq for SimQueue {
+    fn eq(&self, other: &SimQueue) -> bool {
+        // TODO more reasons to use fixed pt types soon...
+        self.id == other.id
+            && self.capacity == other.capacity
+            && format!("{:?}", self.cars_queue) == format!("{:?}", other.cars_queue)
+    }
+}
+
+impl Eq for SimQueue {}
 
 impl SimQueue {
     fn new(id: On, map: &Map) -> SimQueue {
@@ -348,25 +360,25 @@ impl SimQueue {
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<(), InvariantViolated> {
         let old_queue = self.cars_queue.clone();
+        let new_queue: Vec<(Distance, CarID)> =
+            ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
 
-        if ids.len() > self.capacity {
-            let dists: Vec<Distance> = ids.iter().map(|id| cars[id].dist_along).collect();
+        if new_queue.len() > self.capacity {
             return Err(InvariantViolated(format!(
-                "on {:?}, reset to {:?} broke, because capacity is just {}. dist_alongs are {:?}",
-                self.id, ids, self.capacity, dists
+                "on {:?}, reset to {:?} broke, because capacity is just {}.",
+                self.id, new_queue, self.capacity
             )));
         }
         self.cars_queue.clear();
-        self.cars_queue.extend(ids);
+        self.cars_queue.extend(new_queue);
         // Sort descending.
         self.cars_queue
-            .sort_by_key(|id| -NotNaN::new(cars[id].dist_along.value_unsafe).unwrap());
+            .sort_by_key(|(dist, _)| -NotNaN::new(dist.value_unsafe).unwrap());
 
         // assert here we're not squished together too much
         for slice in self.cars_queue.windows(2) {
-            let (c1, c2) = (slice[0], slice[1]);
+            let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
             let following_dist = properties[&c1].following_dist();
-            let (dist1, dist2) = (cars[&c1].dist_along, cars[&c2].dist_along);
             if dist1 - dist2 < following_dist {
                 return Err(InvariantViolated(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
             }
@@ -388,40 +400,36 @@ impl SimQueue {
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Vec<DrawCar> {
         let mut results = Vec::new();
-        for id in &self.cars_queue {
+        for (_, id) in &self.cars_queue {
             results.push(sim.get_draw_car(*id, time, map, properties).unwrap())
         }
         results
     }
 
-    fn next_car_in_front_of<'a>(&self, dist: Distance, view: &'a WorldView) -> Option<&'a CarView> {
+    // TODO for these three, could use binary search
+    fn next_car_in_front_of(&self, dist: Distance) -> Option<CarID> {
         self.cars_queue
             .iter()
             .rev()
-            .find(|id| view.cars[id].dist_along > dist)
-            .map(|id| &view.cars[id])
+            .find(|(their_dist, _)| *their_dist > dist)
+            .map(|(_, id)| *id)
     }
 
-    fn first_car_behind(&self, dist: Distance, sim: &DrivingSimState) -> Option<CarID> {
+    fn first_car_behind(&self, dist: Distance) -> Option<CarID> {
         self.cars_queue
             .iter()
-            .find(|id| sim.cars[id].dist_along <= dist)
-            .map(|id| *id)
+            .find(|(their_dist, _)| *their_dist <= dist)
+            .map(|(_, id)| *id)
     }
 
-    fn insert_at(
-        &mut self,
-        car: CarID,
-        dist_along: Distance,
-        dist_per_car: HashMap<CarID, Distance>,
-    ) {
+    fn insert_at(&mut self, car: CarID, dist_along: Distance) {
         if let Some(idx) = self.cars_queue
             .iter()
-            .position(|id| dist_per_car[id] < dist_along)
+            .position(|(their_dist, _)| *their_dist < dist_along)
         {
-            self.cars_queue.insert(idx, car);
+            self.cars_queue.insert(idx, (dist_along, car));
         } else {
-            self.cars_queue.push(car);
+            self.cars_queue.push((dist_along, car));
         }
     }
 }
@@ -698,8 +706,8 @@ impl DrivingSimState {
 
         // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
         // don't hit somebody's back
-        if let Some(other) = self.lanes[start.0]
-            .first_car_behind(dist_along + Vehicle::worst_case_following_dist(), self)
+        if let Some(other) =
+            self.lanes[start.0].first_car_behind(dist_along + Vehicle::worst_case_following_dist())
         {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= dist_along {
@@ -756,11 +764,7 @@ impl DrivingSimState {
             },
         );
         self.routers.insert(car, router);
-        let mut dist_per_car: HashMap<CarID, Distance> = HashMap::new();
-        for c in &self.lanes[start.0].cars_queue {
-            dist_per_car.insert(*c, self.cars[&c].dist_along);
-        }
-        self.lanes[start.0].insert_at(car, dist_along, dist_per_car);
+        self.lanes[start.0].insert_at(car, dist_along);
         events.push(Event::AgentEntersTraversable(
             AgentID::Car(car),
             On::Lane(start),
@@ -876,10 +880,11 @@ struct WorldView {
 
 impl WorldView {
     fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&CarView> {
-        match on {
-            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist, self),
-            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist, self),
-        }
+        let maybe_id = match on {
+            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist),
+            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist),
+        };
+        maybe_id.map(|id| &self.cars[&id])
     }
 
     fn is_leader(&self, id: CarID) -> bool {
