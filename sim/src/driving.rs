@@ -3,7 +3,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use draw_car::DrawCar;
 use geom::EPSILON_DIST;
-use intersections::{AgentInfo, IntersectionSimState, Request};
+use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::geometry::LANE_THICKNESS;
@@ -14,8 +14,9 @@ use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
 use std;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use transit::TransitSimState;
+use view::{AgentView, WorldView};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, Event, InvariantViolated, On, ParkedCar,
     ParkingSpot, Speed, Tick, Time,
@@ -94,7 +95,7 @@ impl Car {
 
         if let Some(act) = orig_router.react_before_lookahead(
             events,
-            &view.cars[&self.id],
+            view.get_car(self.id),
             vehicle,
             time,
             map,
@@ -146,9 +147,9 @@ impl Car {
 
             // Don't hit the vehicle in front of us
             if let Some(other) = view.next_car_in_front_of(current_on, current_dist_along) {
-                assert!(self.id != other.id);
+                assert!(self.id != other.id.as_car());
                 assert!(current_dist_along < other.dist_along);
-                let other_vehicle = &properties[&other.id];
+                let other_vehicle = &properties[&other.id.as_car()];
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
                 // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
@@ -321,7 +322,7 @@ impl Car {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct SimQueue {
+pub struct SimQueue {
     id: On,
     // First element is farthest along the queue; they have the greatest dist_along.
     // Caching the current dist_along vastly simplifies the API of SimQueue.
@@ -407,7 +408,7 @@ impl SimQueue {
     }
 
     // TODO for these three, could use binary search
-    fn next_car_in_front_of(&self, dist: Distance) -> Option<CarID> {
+    pub fn next_car_in_front_of(&self, dist: Distance) -> Option<CarID> {
         self.cars_queue
             .iter()
             .rev()
@@ -467,18 +468,6 @@ impl DrivingSimState {
             }
         }
         s
-    }
-
-    // TODO remove this, just use WorldView
-    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo, _map: &Map) {
-        let view = self.get_view();
-        for c in view.cars.values() {
-            let id = AgentID::Car(c.id);
-            info.speeds.insert(id, c.speed);
-            if view.is_leader(c.id) {
-                info.leaders.insert(id);
-            }
-        }
     }
 
     pub fn get_car_state(&self, c: CarID) -> CarState {
@@ -560,8 +549,10 @@ impl DrivingSimState {
         self.turns.insert(id, SimQueue::new(On::Turn(id), map));
     }
 
+    // Note that this populates the view BEFORE the step is applied
     pub fn step<R: Rng + ?Sized>(
         &mut self,
+        view: &mut WorldView,
         events: &mut Vec<Event>,
         time: Tick,
         map: &Map,
@@ -572,7 +563,7 @@ impl DrivingSimState {
         rng: &mut R,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Vec<ParkedCar>, InvariantViolated> {
-        let view = self.get_view();
+        self.populate_view(view);
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
         // sometimes pick a next lane to try for parking.
@@ -834,17 +825,15 @@ impl DrivingSimState {
         return Vec::new();
     }
 
-    fn get_view(&self) -> WorldView {
-        let mut view = WorldView {
-            cars: HashMap::new(),
-            lanes: self.lanes.clone(),
-            turns: self.turns.clone(),
-        };
+    fn populate_view(&self, view: &mut WorldView) {
+        view.lanes = self.lanes.clone();
+        view.turns = self.turns.clone();
+
         for c in self.cars.values() {
-            view.cars.insert(
-                c.id,
-                CarView {
-                    id: c.id,
+            view.agents.insert(
+                AgentID::Car(c.id),
+                AgentView {
+                    id: AgentID::Car(c.id),
                     debug: c.debug,
                     on: c.on,
                     dist_along: c.dist_along,
@@ -852,43 +841,9 @@ impl DrivingSimState {
                 },
             );
         }
-        view
     }
 
     pub fn get_current_route(&self, id: CarID) -> Option<Vec<LaneID>> {
         self.routers.get(&id).map(|r| r.get_current_route())
-    }
-}
-
-// The immutable view that cars see of other cars.
-pub struct CarView {
-    pub id: CarID,
-    pub debug: bool,
-    pub on: On,
-    pub dist_along: Distance,
-    pub speed: Speed,
-}
-
-// TODO unify with AgentInfo at least, and then come up with a better pattern for all of this
-struct WorldView {
-    cars: HashMap<CarID, CarView>,
-    // TODO I want to borrow the SimQueues, not clone, but then react() still doesnt work to
-    // mutably borrow router and immutably borrow the queues for the view. :(
-    lanes: Vec<SimQueue>,
-    turns: BTreeMap<TurnID, SimQueue>,
-}
-
-impl WorldView {
-    fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&CarView> {
-        let maybe_id = match on {
-            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist),
-            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist),
-        };
-        maybe_id.map(|id| &self.cars[&id])
-    }
-
-    fn is_leader(&self, id: CarID) -> bool {
-        let c = &self.cars[&id];
-        self.next_car_in_front_of(c.on, c.dist_along).is_none()
     }
 }

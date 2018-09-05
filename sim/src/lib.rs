@@ -35,6 +35,7 @@ mod sim;
 mod spawn;
 mod transit;
 mod trips;
+mod view;
 mod walking;
 
 use dimensioned::si;
@@ -77,6 +78,24 @@ impl fmt::Display for RouteID {
 pub enum AgentID {
     Car(CarID),
     Pedestrian(PedestrianID),
+}
+
+impl AgentID {
+    pub fn as_car(self) -> CarID {
+        match self {
+            AgentID::Car(id) => id,
+            _ => panic!("Not a CarID: {:?}", self),
+        }
+    }
+}
+
+impl fmt::Display for AgentID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            AgentID::Car(id) => write!(f, "AgentID({})", id),
+            AgentID::Pedestrian(id) => write!(f, "AgentID({})", id),
+        }
+    }
 }
 
 pub const TIMESTEP: Time = si::Second {

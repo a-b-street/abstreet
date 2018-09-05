@@ -6,18 +6,19 @@ use dimensioned::si;
 use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
-use intersections::{AgentInfo, IntersectionSimState};
+use intersections::IntersectionSimState;
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
 use std;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::BTreeMap;
 use std::f64;
 use std::time::{Duration, Instant};
 use transit::TransitSimState;
 use trips::TripManager;
+use view::WorldView;
 use walking::WalkingSimState;
 use {AgentID, CarID, CarState, Event, InvariantViolated, PedestrianID, Tick, TIMESTEP};
 
@@ -137,6 +138,7 @@ impl Sim {
     ) -> Result<(Vec<Event>), InvariantViolated> {
         self.time = self.time.next();
 
+        let mut view = WorldView::new();
         let mut events: Vec<Event> = Vec::new();
 
         self.spawner.step(
@@ -151,6 +153,7 @@ impl Sim {
         );
 
         for p in self.driving_state.step(
+            &mut view,
             &mut events,
             self.time,
             map,
@@ -171,6 +174,7 @@ impl Sim {
             );
         }
 
+        self.walking_state.populate_view(&mut view);
         for (ped, spot) in
             self.walking_state
                 .step(&mut events, TIMESTEP, map, &mut self.intersection_state)?
@@ -194,19 +198,10 @@ impl Sim {
             map,
         );
 
-        // TODO want to pass self as a lazy QueryCar trait, but intersection_state is mutably
-        // borrowed :(
-        let mut info = AgentInfo {
-            speeds: HashMap::new(),
-            leaders: HashSet::new(),
-        };
-        self.driving_state
-            .populate_info_for_intersections(&mut info, map);
-        self.walking_state
-            .populate_info_for_intersections(&mut info);
-
+        // Note that the intersection sees the WorldView BEFORE the updates that just happened this
+        // tick.
         self.intersection_state
-            .step(&mut events, self.time, map, control_map, info);
+            .step(&mut events, self.time, map, control_map, &view);
 
         // Savestate?
         if let Some(t) = self.savestate_every {

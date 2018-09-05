@@ -7,8 +7,9 @@ use control::ControlMap;
 use dimensioned::si;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use {AgentID, CarID, Event, InvariantViolated, PedestrianID, Speed, Tick, Time};
+use std::collections::{BTreeMap, BTreeSet};
+use view::WorldView;
+use {AgentID, CarID, Event, InvariantViolated, PedestrianID, Tick, Time};
 
 use std;
 const WAIT_AT_STOP_SIGN: Time = si::Second {
@@ -105,15 +106,15 @@ impl IntersectionSimState {
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
-        info: AgentInfo,
+        view: &WorldView,
     ) {
         for i in self.intersections.iter_mut() {
             match i {
                 IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                    p.step(events, time, map, control_map, &info)
+                    p.step(events, time, map, control_map, view)
                 }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(events, time, map, control_map, &info)
+                    p.step(events, time, map, control_map, view)
                 }
             }
         }
@@ -255,7 +256,7 @@ impl StopSign {
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
-        info: &AgentInfo,
+        view: &WorldView,
     ) {
         let ss = &control_map.stop_signs[&self.id];
 
@@ -264,14 +265,14 @@ impl StopSign {
         let mut newly_stopped: Vec<Request> = Vec::new();
         for req in self.approaching_agents.iter() {
             // TODO or not blocked by somebody unaccepted
-            if !info.leaders.contains(&req.agent) {
+            if !view.is_leader(req.agent) {
                 continue;
             }
 
             let should_promote = if ss.get_priority(req.turn) == TurnPriority::Stop {
                 // TODO and the agent is at the end? maybe easier than looking at their speed
                 // TODO with lane-changing, somebody could cut in front of them when they're stopped.
-                info.speeds[&req.agent] <= kinematics::EPSILON_SPEED
+                view.get_speed(req.agent) <= kinematics::EPSILON_SPEED
             } else {
                 true
             };
@@ -346,7 +347,7 @@ impl TrafficSignal {
         time: Tick,
         map: &Map,
         control_map: &ControlMap,
-        info: &AgentInfo,
+        view: &WorldView,
     ) {
         let signal = &control_map.traffic_signals[&self.id];
         let (cycle, _remaining_cycle_time) =
@@ -373,7 +374,7 @@ impl TrafficSignal {
             assert_eq!(self.accepted.contains_key(&agent), false);
 
             // Don't accept cars unless they're in front. TODO or behind other accepted cars.
-            if !cycle.contains(turn.id) || !info.leaders.contains(&req.agent) {
+            if !cycle.contains(turn.id) || !view.is_leader(req.agent) {
                 keep_requests.insert(req.clone());
                 continue;
             }
@@ -392,10 +393,4 @@ impl TrafficSignal {
 
         self.requests = keep_requests;
     }
-}
-
-// TODO this is a kind of odd way to plumb info to intersections, but...
-pub struct AgentInfo {
-    pub speeds: HashMap<AgentID, Speed>,
-    pub leaders: HashSet<AgentID>,
 }

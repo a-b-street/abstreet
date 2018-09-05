@@ -1,5 +1,5 @@
 use dimensioned::si;
-use driving::{Action, CarView};
+use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
 use map_model::{BuildingID, LaneID, Map, TurnID};
@@ -7,6 +7,7 @@ use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
 use transit::TransitSimState;
+use view::AgentView;
 use {Distance, Event, On, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,7 +50,7 @@ impl Router {
     pub fn react_before_lookahead<R: Rng + ?Sized>(
         &mut self,
         events: &mut Vec<Event>,
-        view: &CarView,
+        view: &AgentView,
         vehicle: &Vehicle,
         time: Tick,
         map: &Map,
@@ -93,7 +94,7 @@ impl Router {
     // If we return None, then the caller will immediately ask what turn to do.
     pub fn stop_early_at_dist(
         &self,
-        // TODO urgh, we cant reuse CarView here, because lookahead doesn't advance the view :(
+        // TODO urgh, we cant reuse AgentView here, because lookahead doesn't advance the view :(
         on: On,
         dist_along: Distance,
         vehicle: &Vehicle,
@@ -139,7 +140,7 @@ impl Router {
     fn look_for_parking<R: Rng + ?Sized>(
         &mut self,
         last_lane: LaneID,
-        view: &CarView,
+        view: &AgentView,
         map: &Map,
         rng: &mut R,
     ) -> Option<Action> {

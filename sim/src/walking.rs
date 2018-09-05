@@ -3,12 +3,13 @@ use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use geom::Pt2D;
-use intersections::{AgentInfo, IntersectionSimState, Request};
+use intersections::{IntersectionSimState, Request};
 use map_model::{BuildingID, BusStop, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
 use std::collections::{BTreeMap, VecDeque};
+use view::{AgentView, WorldView};
 use {
     AgentID, Distance, Event, InvariantViolated, On, ParkingSpot, PedestrianID, Speed, Time,
     TIMESTEP,
@@ -504,18 +505,23 @@ impl WalkingSimState {
         ));
     }
 
-    pub fn populate_info_for_intersections(&self, info: &mut AgentInfo) {
+    pub fn populate_view(&self, view: &mut WorldView) {
         for p in self.peds.values() {
             let id = AgentID::Pedestrian(p.id);
-            info.speeds.insert(
+            view.agents.insert(
                 id,
-                if p.waiting_for.is_some() {
-                    0.0 * si::MPS
-                } else {
-                    SPEED
+                AgentView {
+                    id,
+                    debug: false,
+                    on: p.on,
+                    dist_along: p.dist_along,
+                    speed: if p.waiting_for.is_some() {
+                        0.0 * si::MPS
+                    } else {
+                        SPEED
+                    },
                 },
             );
-            info.leaders.insert(id);
         }
     }
 

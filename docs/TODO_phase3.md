@@ -15,6 +15,12 @@
 
 - reversible sim
 
+- be careful
+	- could see if we ever have a lookahead constraint to deaccel more than
+	  what we're capable of. it might mask problems. but since things like
+          accel_to_stop_in_dist don't have a careful notion of how much time will pass,
+          they recommend big rates sometimes.
+
 ## bikes
 
 - model bikes as slow cars

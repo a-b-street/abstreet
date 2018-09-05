@@ -1,12 +1,12 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
-use driving::CarView;
 use events::Event;
 use map_model;
 use map_model::{BusStop, BusStopDetails, LaneID, Map};
 use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
+use view::AgentView;
 use walking::WalkingSimState;
 use {CarID, Distance, PedestrianID, RouteID, Tick};
 
@@ -122,22 +122,23 @@ impl TransitSimState {
     pub fn get_action_when_stopped_at_end(
         &mut self,
         events: &mut Vec<Event>,
-        view: &CarView,
+        view: &AgentView,
         time: Tick,
         map: &Map,
     ) -> (bool, Option<VecDeque<LaneID>>) {
-        let route = &self.routes[&self.buses[&view.id].route];
-        match self.buses[&view.id].state {
+        let car = view.id.as_car();
+        let route = &self.routes[&self.buses[&car].route];
+        match self.buses[&car].state {
             BusState::DrivingToStop(stop_idx) => {
                 let stop = &route.stops[stop_idx];
                 assert_eq!(stop.driving_lane, view.on.as_lane());
                 if stop.dist_along == view.dist_along {
                     // TODO constant for stop time
-                    self.buses.get_mut(&view.id).unwrap().state =
+                    self.buses.get_mut(&car).unwrap().state =
                         BusState::AtStop(stop_idx, time + 10.0 * si::S);
-                    events.push(Event::BusArrivedAtStop(view.id, stop.id));
+                    events.push(Event::BusArrivedAtStop(car, stop.id));
                     if view.debug {
-                        println!("{} arrived at stop {:?}, now waiting", view.id, stop);
+                        println!("{} arrived at stop {:?}, now waiting", car, stop);
                     }
                     return (true, None);
                 }
@@ -151,11 +152,10 @@ impl TransitSimState {
 
                 if time == wait_until {
                     let next_stop = route.next_stop(stop_idx);
-                    self.buses.get_mut(&view.id).unwrap().state =
-                        BusState::DrivingToStop(next_stop);
-                    events.push(Event::BusDepartedFromStop(view.id, stop.id));
+                    self.buses.get_mut(&car).unwrap().state = BusState::DrivingToStop(next_stop);
+                    events.push(Event::BusDepartedFromStop(car, stop.id));
                     if view.debug {
-                        println!("{} departing from stop {:?}", view.id, stop);
+                        println!("{} departing from stop {:?}", car, stop);
                     }
 
                     let mut new_path = VecDeque::from(
