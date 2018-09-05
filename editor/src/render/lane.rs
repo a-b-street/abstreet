@@ -302,7 +302,7 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
     Some(vec![pt1, pt2])
 }
 
-fn calculate_bus_stop_lines(stop: &map_model::BusStop, lane: &map_model::Lane) -> Marking {
+fn calculate_bus_stop_lines(stop: &map_model::BusStopDetails, lane: &map_model::Lane) -> Marking {
     let radius = 2.0 * si::M;
     // TODO this should maybe be a property of the map model; not sure what data sources will
     // actually have

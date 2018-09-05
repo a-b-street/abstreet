@@ -32,16 +32,12 @@ impl DrawBuilding {
         }
     }
 
-    pub fn draw(
-        &self,
-        g: &mut GfxCtx,
-        fill_color: Color,
-        path_color: Color,
-        boundary_color: Color,
-    ) {
+    pub fn draw_front_path(&self, g: &mut GfxCtx, path_color: Color) {
         // TODO tune width
         g.draw_line(&graphics::Line::new_round(path_color, 1.0), self.front_path);
+    }
 
+    pub fn draw(&self, g: &mut GfxCtx, fill_color: Color, boundary_color: Color) {
         g.draw_polygon(boundary_color, &self.boundary_polygon);
         g.draw_polygon(fill_color, &self.fill_polygon);
     }

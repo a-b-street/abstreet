@@ -678,15 +678,22 @@ impl gui::GUI for UI {
             }
         }
 
-        // Building paths overlap sidewalks, so do these first to not look messy
+        // Building paths overlap sidewalks and also other buildings, so do separate layers
+        // TODO but pedestrians will then walk through buildings; the front paths should ideally
+        // zig-zag around if possible
         if self.show_buildings.is_enabled() {
+            for b in &self.draw_map
+                .get_buildings_onscreen(screen_bbox, &self.hider)
+            {
+                b.draw_front_path(g, self.cs.get(Colors::BuildingPath));
+            }
+
             for b in &self.draw_map
                 .get_buildings_onscreen(screen_bbox, &self.hider)
             {
                 b.draw(
                     g,
                     self.color_building(b.id),
-                    self.cs.get(Colors::BuildingPath),
                     self.cs.get(Colors::BuildingBoundary),
                 );
             }
