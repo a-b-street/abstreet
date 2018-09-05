@@ -105,9 +105,14 @@ impl Car {
             return Ok(act);
         }
 
+        // Use the speed limit of the current road for lookahead, including figuring out
+        // accel_to_follow. If we use the value from later lookahead lanes and it's lower, than our
+        // current speed will exceed it and cause issues. We guarantee we'll be slow enough by
+        // entry time to that next lane. This might make accel_to_follow too pessimistic.
+        let orig_speed_limit = self.on.speed_limit(map);
+
         // TODO could wrap this state up
-        let mut current_speed_limit = self.on.speed_limit(map);
-        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, current_speed_limit)?
+        let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, orig_speed_limit)?
             + Vehicle::worst_case_following_dist();
         // TODO when we add stuff here, optionally log stuff?
         let mut constraints: Vec<Acceleration> = Vec::new();
@@ -127,11 +132,15 @@ impl Car {
 
             // Don't exceed the speed limit
             {
+                let current_speed_limit = current_on.speed_limit(map);
                 let accel =
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
                 constraints.push(accel);
                 if self.debug {
-                    println!("  {} needs {} to match speed limit", self.id, accel);
+                    println!(
+                        "  {} needs {} to match speed limit of {}",
+                        self.id, accel, current_speed_limit
+                    );
                 }
             }
 
@@ -148,7 +157,7 @@ impl Car {
                 if total_scanning_dist >= dist_behind_other {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
-                        current_speed_limit,
+                        orig_speed_limit,
                         other_vehicle,
                         dist_behind_other,
                         other.speed,
@@ -223,7 +232,6 @@ impl Car {
                 }
                 On::Lane(l) => On::Turn(current_router.choose_turn(l, map)),
             };
-            current_speed_limit = current_on.speed_limit(map);
             current_dist_along = 0.0 * si::M;
             dist_scanned_ahead += dist_this_step;
         }

@@ -699,6 +699,10 @@ step 3: enhance the trip stuff to have a concept of hardcoded legs, and make it 
 	- test a basic bus scenario
 	- make BusStop a lightweight, copyable address
 
+loading GTFS is actually a bit unclear -- both the map layer and the sim layer
+have to parse the same GTFS? well, it's like RoadEdits -- we can pass it into
+the map constructor and physically just load it once.
+
 
 ## Everything as FSMs
 
@@ -800,3 +804,10 @@ Don't model sidewalk crowdedness or bike rack availability, because in
 practice, these things are never scarce resources or problematic. Finding a
 parking spot is difficult and impacts the quality of one trip and causes
 externality, so we should model that.
+
+## The lookahead exceeding-speed-limit bug
+
+It happens because a car was previously throttling itself due to somebody in
+the way, but as soon as they start a turn, the car eagerly jumps ahead.
+
+ah no, it's because we use max_lookahead_dist in accel_to_follow, and the speed limit we assert is the old road's speed.
