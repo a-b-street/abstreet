@@ -2,9 +2,9 @@ use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
 use draw_ped::DrawPedestrian;
-use geom::Pt2D;
+use geom::{Line, Pt2D};
 use intersections::{IntersectionSimState, Request};
-use map_model::{BuildingID, BusStop, Lane, LaneID, Map, Turn, TurnID};
+use map_model::{BuildingID, BusStop, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -162,7 +162,15 @@ impl Pedestrian {
                 }
 
                 match self.on {
-                    On::Lane(id) => On::Turn(self.choose_turn(id, map)),
+                    On::Lane(id) => {
+                        let l = map.get_l(id);
+                        let at = if self.contraflow {
+                            l.src_i
+                        } else {
+                            l.dst_i
+                        };
+                        On::Turn(self.choose_turn(id, at, map))
+                    }
                     On::Turn(id) => On::Lane(map.get_t(id).dst),
                 }
             }
@@ -181,14 +189,17 @@ impl Pedestrian {
         }
     }
 
-    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
+    fn choose_turn(&self, from: LaneID, endpoint: IntersectionID, map: &Map) -> TurnID {
         assert!(self.waiting_for.is_none());
         for t in map.get_turns_from_lane(from) {
-            if t.dst == self.path[0] {
+            if t.parent == endpoint && t.dst == self.path[0] {
                 return t.id;
             }
         }
-        panic!("No turn from {} to {}", from, self.path[0]);
+        panic!(
+            "No turn from {} ({} end) to {}",
+            from, endpoint, self.path[0]
+        );
     }
 
     // If true, then we're completely done!
@@ -241,6 +252,24 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<(), InvariantViolated> {
+        // Detect if the ped just warped. Bidirectional sidewalks are confusing. :)
+        if let On::Lane(l) = self.on {
+            let l = map.get_l(l);
+            let pt1 = if self.contraflow {
+                l.first_pt()
+            } else {
+                l.last_pt()
+            };
+            let pt2 = map.get_t(on.as_turn()).line.pt1();
+            let len = Line::new(pt1, pt2).length();
+            if len > 0.0 * si::M {
+                return Err(InvariantViolated(format!(
+                    "{} just warped {}",
+                    self.id, len
+                )));
+            }
+        }
+
         let old_on = self.on.clone();
         if let On::Turn(t) = self.on {
             intersections.on_exit(Request::for_ped(self.id, t));
@@ -265,16 +294,18 @@ impl Pedestrian {
             }
             On::Lane(l) => {
                 // Which end of the sidewalk are we entering?
-                // TODO are there cases where we should enter a new sidewalk and
-                // immediately enter a different turn, instead of always going to the
-                // other side of the sidealk? or are there enough turns to make that
-                // unnecessary?
                 let turn = map.get_t(old_on.as_turn());
                 let lane = map.get_l(l);
                 if turn.parent == lane.dst_i {
-                    self.contraflow = true;
                     self.dist_along = lane.length();
                 }
+                // We might already be done with the current lane. Contraflow depends on the next
+                // step.
+                self.contraflow = if self.path.is_empty() {
+                    self.dist_along > self.goal.dist_along
+                } else {
+                    is_contraflow(map, l, self.path[0])
+                };
             }
         }
 

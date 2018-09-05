@@ -1,9 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use ModifiedStopSign;
-
+use abstutil::serialize_btreemap;
 use map_model::{IntersectionID, LaneID, Map, TurnID};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use ModifiedStopSign;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
@@ -23,7 +23,8 @@ pub enum TurnPriority {
 #[derive(Debug, Serialize)]
 pub struct ControlStopSign {
     intersection: IntersectionID,
-    turns: HashMap<TurnID, TurnPriority>,
+    #[serde(serialize_with = "serialize_btreemap")]
+    turns: BTreeMap<TurnID, TurnPriority>,
     // TODO
     changed: bool,
 }
@@ -69,7 +70,7 @@ impl ControlStopSign {
 
         let mut ss = ControlStopSign {
             intersection,
-            turns: HashMap::new(),
+            turns: BTreeMap::new(),
             changed: false,
         };
         for t in &map.get_i(intersection).turns {
@@ -95,7 +96,7 @@ impl ControlStopSign {
     fn all_way_stop(map: &Map, intersection: IntersectionID) -> ControlStopSign {
         let mut ss = ControlStopSign {
             intersection,
-            turns: HashMap::new(),
+            turns: BTreeMap::new(),
             changed: false,
         };
         for t in &map.get_i(intersection).turns {

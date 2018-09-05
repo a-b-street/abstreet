@@ -811,3 +811,10 @@ It happens because a car was previously throttling itself due to somebody in
 the way, but as soon as they start a turn, the car eagerly jumps ahead.
 
 ah no, it's because we use max_lookahead_dist in accel_to_follow, and the speed limit we assert is the old road's speed.
+
+## Peds warping bug
+
+ped 60
+goes from 631 (contraflow)
+
+at least make sure that the turn they execute is the one on the correct side...

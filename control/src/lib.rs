@@ -1,12 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+extern crate abstutil;
 extern crate dimensioned;
 extern crate map_model;
 #[macro_use]
 extern crate serde_derive;
 
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{IntersectionID, Map, TurnID};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use stop_signs::{ControlStopSign, TurnPriority};
 use traffic_signals::ControlTrafficSignal;
 
@@ -88,5 +90,7 @@ pub struct CycleState {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ModifiedStopSign {
-    pub turns: HashMap<TurnID, TurnPriority>,
+    #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
+    pub turns: BTreeMap<TurnID, TurnPriority>,
 }

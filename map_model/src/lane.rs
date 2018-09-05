@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
@@ -134,6 +135,7 @@ impl Lane {
             "\nlet lane_center_r{}_pts = {}",
             self.id.0, self.lane_center_pts
         );
+        println!("{}", abstutil::to_json(self));
     }
 
     pub fn intersections(&self) -> Vec<IntersectionID> {
