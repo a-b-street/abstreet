@@ -518,6 +518,37 @@ epsilon and negative checks everywhere in kinematics, but why? Should research
 it more, but I think the better approach is to use fixed-point arithmetic for
 everything (aka u8 or whatever).
 
+Problems with floats:
+- they dont natively order
+- they arent PartialEq
+- serialization sometimes breaks
+- epsilon comparison issues
+
+Options:
+	- just to solve epsilon comparison issues
+		- https://crates.io/crates/float-cmp
+		- https://crates.io/crates/approx
+	- just to get Ord and Eq
+		- https://crates.io/crates/decorum
+		- https://crates.io/crates/ordered-float
+	- use rational / fraction types
+		- https://crates.io/crates/fraction
+		- https://crates.io/crates/rug
+		- this seems a bit overpowered
+	- use my own custom wrapper type around u8 or whatever size makes sense for each thing
+		- representing 0.1s or 0.1m or whatever
+	- use a fixed point arithmetic crate
+		- https://crates.io/crates/fpa
+		- https://crates.io/crates/fixed
+		- https://crates.io/crates/fix
+		- would want to wrap the types anyway; only some operations make sense
+
+
+- can we compare results with the prev float approach? make them store the
+  other thing, compare results? or compare the results of a sim?
+- is it possible to do this change gradually? unlikely...
+
+
 - moment in time (tick)
 	- resolution: 0.1s with u32, so about 13.5 years
 - duration
@@ -822,3 +853,10 @@ It happens because a car was previously throttling itself due to somebody in
 the way, but as soon as they start a turn, the car eagerly jumps ahead.
 
 ah no, it's because we use max_lookahead_dist in accel_to_follow, and the speed limit we assert is the old road's speed.
+
+## Moving away from piston
+
+- options
+	- gfx (pre-II or not?) + winit
+		- https://suhr.github.io/gsgt/
+	- glium (unmaintained)

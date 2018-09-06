@@ -48,6 +48,7 @@ use dimensioned::si;
 pub use events::Event;
 use geom::{Angle, Pt2D};
 pub use helpers::load;
+pub use instrument::save_backtraces;
 use map_model::{LaneID, Map, TurnID};
 pub use sim::{Benchmark, Sim};
 use std::fmt;

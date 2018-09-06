@@ -138,7 +138,7 @@ impl TransitSimState {
                     self.buses.get_mut(&car).unwrap().state =
                         BusState::AtStop(stop_idx, time + 10.0 * si::S);
                     events.push(Event::BusArrivedAtStop(car, stop.id));
-                    capture_backtrace();
+                    capture_backtrace("BusArrivedAtStop");
                     if view.debug {
                         println!("{} arrived at stop {:?}, now waiting", car, stop);
                     }
@@ -156,6 +156,7 @@ impl TransitSimState {
                     let next_stop = route.next_stop(stop_idx);
                     self.buses.get_mut(&car).unwrap().state = BusState::DrivingToStop(next_stop);
                     events.push(Event::BusDepartedFromStop(car, stop.id));
+                    capture_backtrace("BusDepartedFromStop");
                     if view.debug {
                         println!("{} departing from stop {:?}", car, stop);
                     }
@@ -210,6 +211,7 @@ impl TransitSimState {
                 for p in walking_sim.get_peds_waiting_at_stop(stop.id).into_iter() {
                     if trips.should_ped_board_bus(p, b.route) {
                         events.push(Event::PedEntersBus(p, b.car));
+                        capture_backtrace("PedEntersBus");
                         b.passengers.push(p);
                         walking_sim.ped_joined_bus(p, stop.id);
                     }
@@ -226,6 +228,7 @@ impl TransitSimState {
                 b.passengers.retain(|p| {
                     if trips.should_ped_leave_bus(*p, stop.id) {
                         events.push(Event::PedLeavesBus(*p, car));
+                        capture_backtrace("PedLeavesBus");
                         // TODO would be a little cleaner to return this info up to sim and have it
                         // plumb through to spawner? not sure
                         spawner.ped_finished_bus_ride(now, *p, stop.id, trips, map);

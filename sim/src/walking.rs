@@ -4,6 +4,7 @@ use dimensioned::si;
 use draw_ped::DrawPedestrian;
 use failure::Error;
 use geom::{Line, Pt2D};
+use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{BuildingID, BusStop, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
@@ -216,6 +217,7 @@ impl Pedestrian {
                 fp.dist_along -= new_dist;
                 if fp.dist_along < 0.0 * si::M {
                     events.push(Event::PedReachedBuilding(self.id, fp.bldg));
+                    capture_backtrace("PedReachedBuilding");
                     return true;
                 }
                 false
@@ -399,6 +401,7 @@ impl WalkingSimState {
                 Action::WaitAtBusStop(stop) => {
                     self.peds.get_mut(&id).unwrap().active = false;
                     events.push(Event::PedReachedBusStop(*id, stop));
+                    capture_backtrace("PedReachedBusStop");
                     self.peds_per_bus_stop.insert(stop, *id);
                 }
                 Action::StartParkedCar(ref spot) => {

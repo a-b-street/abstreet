@@ -1,20 +1,16 @@
+use abstutil;
 use backtrace::Backtrace;
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::sync::Mutex;
 
-#[derive(Debug)]
-struct CallStack {
-    calls: Vec<String>,
-}
-
 lazy_static! {
-    static ref BACKTRACES: Mutex<HashMap<String, CallStack>> = Mutex::new(HashMap::new());
+    static ref BACKTRACES: Mutex<HashSet<Vec<String>>> = Mutex::new(HashSet::new());
 }
 
-pub fn capture_backtrace() {
+pub fn capture_backtrace(event: &str) {
     let bt = Backtrace::new();
     let mut found_this_fxn = false;
-    let mut calls: Vec<String> = Vec::new();
+    let mut calls: Vec<String> = vec![event.to_string()];
     for f in bt.frames() {
         let raw_name = format!("{}", f.symbols()[0].name().unwrap());
         let mut raw_name_parts: Vec<&str> = raw_name.split("::").collect();
@@ -33,15 +29,14 @@ pub fn capture_backtrace() {
         }
     }
 
-    let caller = &calls[0];
-    let stack = CallStack {
-        calls: calls[1..].to_vec(),
-    };
-    println!("insert {}: {:?}", caller, stack);
-    let mut remember = BACKTRACES.lock().unwrap();
-    remember.insert(caller.to_string(), stack);
+    BACKTRACES.lock().unwrap().insert(calls);
 }
 
-// TODO dump to file
-// TODO manually call when events are created and at other interesting points
-// TODO compiler flag so capture_backtrace is usually a no-op
+pub fn save_backtraces(path: &str) {
+    abstutil::write_json(path, &(*BACKTRACES.lock().unwrap())).unwrap();
+}
+
+// TODO call from all interesting methods in a few different types; maybe use macros to help
+// TODO compiler flag so capture_backtrace is usually a no-op. actually, looks like this doesn't
+// work in --release mode, so use that.
+// TODO script to organize and visualize results

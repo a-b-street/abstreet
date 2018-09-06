@@ -71,4 +71,5 @@ fn main() {
             }
         }),
     );
+    sim::save_backtraces("call_graph.json");
 }

@@ -7,6 +7,7 @@ use draw_car::DrawCar;
 use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use failure::Error;
+use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
 use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
@@ -169,6 +170,7 @@ impl Sim {
             &self.car_properties,
         )? {
             events.push(Event::CarReachedParkingSpot(p.clone()));
+            capture_backtrace("CarReachedParkingSpot");
             self.parking_state.add_parked_car(p.clone());
             self.spawner.car_reached_parking_spot(
                 self.time,
@@ -185,6 +187,7 @@ impl Sim {
                 .step(&mut events, TIMESTEP, map, &mut self.intersection_state)?
         {
             events.push(Event::PedReachedParkingSpot(ped, spot));
+            capture_backtrace("PedReachedParkingSpot");
             self.spawner.ped_reached_parking_spot(
                 self.time,
                 ped,
