@@ -547,6 +547,7 @@ Options:
 - can we compare results with the prev float approach? make them store the
   other thing, compare results? or compare the results of a sim?
 - is it possible to do this change gradually? unlikely...
+	- stick all the types in geom, for now
 
 
 - moment in time (tick)

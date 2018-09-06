@@ -11,6 +11,7 @@ mkdir -p data/input
 # https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip
 # https://data.seattle.gov/api/views/77ms-czxg/rows.json?accessType=DOWNLOAD
 # Seattle bounding box is -b=-122.4416,47.5793,-122.2421,47.7155
+# https://metro.kingcounty.gov/GTFS/google_transit_2018_18_08.zip
 
 ELEVATION=../data/input/N47W122.hgt
 PARCELS_KML=../data/input/King_County_Parcels__parcel_area.kml

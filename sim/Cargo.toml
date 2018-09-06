@@ -12,6 +12,7 @@ dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa
 ezgui = { path = "../ezgui" }
 failure = "0.1.2"
 geom = { path = "../geom" }
+gtfs = { path = "../gtfs" }
 lazy_static = "1.1.0"
 map_model = { path = "../map_model" }
 more-asserts = "0.2.1"

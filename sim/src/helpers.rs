@@ -1,4 +1,5 @@
 use abstutil;
+use gtfs;
 use control::ControlMap;
 use map_model::{BuildingID, BusStop, Edits, LaneID, Map};
 use rand::Rng;
@@ -12,7 +13,11 @@ pub fn load(
     rng_seed: Option<u8>,
     savestate_every: Option<Tick>,
 ) -> (Map, Edits, ControlMap, Sim) {
+    // Hardcoded files for road edits and transit data.
     let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
+
+    gtfs::load("../data/input/google_transit_2018_18_08").unwrap();
+
 
     if input.contains("data/save/") {
         println!("Resuming from {}", input);

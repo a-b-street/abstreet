@@ -1,3 +1,16 @@
 [workspace]
 
-members = ["abstutil", "analyze_code", "control", "convert_osm", "editor", "ezgui", "geom", "headless", "kml", "map_model", "sim"]
+members = [
+  "abstutil",
+  "analyze_code",
+  "control",
+  "convert_osm",
+  "editor",
+  "ezgui",
+  "geom",
+  "gtfs",
+  "headless",
+  "kml",
+  "map_model",
+  "sim",
+]
