@@ -1,6 +1,6 @@
 use abstutil;
-use gtfs;
 use control::ControlMap;
+use gtfs;
 use map_model::{BuildingID, BusStop, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
@@ -16,8 +16,12 @@ pub fn load(
     // Hardcoded files for road edits and transit data.
     let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
-    gtfs::load("../data/input/google_transit_2018_18_08").unwrap();
-
+    println!(
+        "got {} routes",
+        gtfs::load("../data/input/google_transit_2018_18_08")
+            .unwrap()
+            .len()
+    );
 
     if input.contains("data/save/") {
         println!("Resuming from {}", input);

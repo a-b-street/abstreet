@@ -4,7 +4,7 @@ extern crate geom;
 
 use failure::Error;
 use geom::LonLat;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::time::Instant;
 
@@ -41,47 +41,59 @@ pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {
     // Each route has many trips. Ignore all but the first and assume the list of stops is the
     // same.
     let mut route_ids_used: HashSet<String> = HashSet::new();
-    let mut result: Vec<Route> = Vec::new();
-    let mut current_trip_id: Option<String> = None;
-    let mut current_stop_ids: Vec<String> = Vec::new();
-    for rec in csv::Reader::from_reader(File::open(format!("{}/stop_times.txt", dir_path))?).records() {
-        let rec = rec?;
-        // Assume the records are contiguous -- records for one trip are contiguous and sorted by
-        // stop_sequence already.
-        if let Some(trip) = current_trip_id.clone() {
-            if rec[0].to_string() == *trip {
-                current_stop_ids.push(rec[3].to_string());
-            } else {
-                // Save the current route?
-                let route_id = trip_id_to_route_id[&rec[0]].clone();
-                if !route_ids_used.contains(&route_id) {
-                    result.push(Route {
-                        name: route_id_to_name[&route_id].clone(),
-                        stops: current_stop_ids.iter().map(|stop_id| stop_id_to_pt[stop_id]).collect(),
-                    });
-                    route_ids_used.insert(route_id);
-                }
+    let mut results: Vec<Route> = Vec::new();
 
-                // Reset for the next trip
-                current_trip_id = Some(rec[0].to_string());
-                current_stop_ids = vec![rec[3].to_string()];
-            }
+    // TODO This isn't simple or fast. :(
+    // Try implementing an iterator that groups adjacent records matching a predicate.
+    let mut reader = csv::Reader::from_reader(File::open(format!("{}/stop_times.txt", dir_path))?);
+    let mut iter = reader.records();
+    let mut records: Vec<csv::StringRecord> = Vec::new();
+    loop {
+        if let Some(rec) = iter.next() {
+            records.push(rec?);
         } else {
-            current_trip_id = Some(rec[0].to_string());
-            current_stop_ids.push(rec[3].to_string());
+            // We shouldn't have 1 record from next_rec, because a trip shouldn't have just one
+            // stop.
+            assert!(records.is_empty());
+            break;
         }
-    }
-    // Handle the last one. TODO duplicates saving code :(
-    let last_route_id = trip_id_to_route_id[&current_trip_id.unwrap()].clone();
-    if !route_ids_used.contains(&last_route_id) {
-        result.push(Route {
-            name: route_id_to_name[&last_route_id].clone(),
-            stops: current_stop_ids.iter().map(|stop_id| stop_id_to_pt[stop_id]).collect(),
-        });
+
+        let route_id = trip_id_to_route_id[&records[0][0]].to_string();
+        let keep_records = !route_ids_used.contains(&route_id);
+
+        // Slurp all records with the same trip ID. Assume they're contiguous.
+        let mut next_rec: Option<csv::StringRecord> = None;
+        loop {
+            if let Some(rec) = iter.next() {
+                let rec = rec?;
+                if records[0][0] == rec[0] {
+                    if keep_records {
+                        records.push(rec);
+                    }
+                    continue;
+                } else {
+                    next_rec = Some(rec);
+                }
+            }
+            break;
+        }
+
+        if keep_records {
+            route_ids_used.insert(route_id.clone());
+            results.push(Route {
+                name: route_id_to_name[&route_id].to_string(),
+                stops: records.iter().map(|rec| stop_id_to_pt[&rec[3]]).collect(),
+            });
+        }
+
+        records.clear();
+        if let Some(rec) = next_rec {
+            records.push(rec);
+        }
     }
 
     let elapsed = timer.elapsed();
     let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
     println!("Loading GTFS took {}s", dt);
-    Ok(result)
+    Ok(results)
 }
