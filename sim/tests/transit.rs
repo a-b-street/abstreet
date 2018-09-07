@@ -12,24 +12,19 @@ fn bus_reaches_stops() {
         Some(sim::Tick::from_seconds(30)),
     );
 
-    let stop1 = map.get_l(map_model::LaneID(309)).bus_stops[0].id;
-    let stop2 = map.get_l(map_model::LaneID(325)).bus_stops[0].id;
-    let stop3 = map.get_l(map_model::LaneID(840)).bus_stops[0].id;
-    let buses = sim.seed_bus_route(vec![stop1, stop2, stop3], &map);
-    let (bus1, _, _) = (buses[0], buses[1], buses[2]);
+    let route = map.get_bus_route("48").unwrap();
+    let bus = sim.seed_bus_route(route, &map)[0];
+    let mut expectations: Vec<sim::Event> = Vec::new();
+    // TODO assert stuff about other buses as well, although the timing is a little unclear
+    for stop in route.stops.iter().skip(1) {
+        expectations.push(sim::Event::BusArrivedAtStop(bus, *stop));
+        expectations.push(sim::Event::BusDepartedFromStop(bus, *stop));
+    }
 
     sim.run_until_expectations_met(
         &map,
         &control_map,
-        // TODO assert stuff about other buses as well, although the timing is a little unclear
-        vec![
-            sim::Event::BusArrivedAtStop(bus1, stop2),
-            sim::Event::BusDepartedFromStop(bus1, stop2),
-            sim::Event::BusArrivedAtStop(bus1, stop3),
-            sim::Event::BusDepartedFromStop(bus1, stop3),
-            sim::Event::BusArrivedAtStop(bus1, stop1),
-            sim::Event::BusDepartedFromStop(bus1, stop1),
-        ],
+        expectations,
         sim::Tick::from_minutes(10),
     );
     sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
@@ -45,31 +40,30 @@ fn ped_uses_bus() {
         Some(sim::Tick::from_seconds(30)),
     );
 
-    let stop1 = map.get_l(map_model::LaneID(309)).bus_stops[0].id;
-    let stop2 = map.get_l(map_model::LaneID(325)).bus_stops[0].id;
-    let stop3 = map.get_l(map_model::LaneID(840)).bus_stops[0].id;
-    let buses = sim.seed_bus_route(vec![stop1, stop2, stop3], &map);
-    let (bus, _, _) = (buses[0], buses[1], buses[2]);
+    let route = map.get_bus_route("48").unwrap();
+    let bus = sim.seed_bus_route(route, &map)[0];
+    let ped_stop1 = route.stops[1];
+    let ped_stop2 = route.stops[2];
     let ped = sim.make_ped_using_bus(
         &map,
-        map_model::LaneID(550),
-        map_model::LaneID(727),
+        map_model::LaneID(283),
+        map_model::LaneID(553),
         sim::RouteID(0),
-        map.get_l(map_model::LaneID(325)).bus_stops[0].id,
-        map.get_l(map_model::LaneID(840)).bus_stops[0].id,
+        ped_stop1,
+        ped_stop2,
     );
 
     sim.run_until_expectations_met(
         &map,
         &control_map,
         vec![
-            sim::Event::BusArrivedAtStop(bus, stop2),
+            sim::Event::BusArrivedAtStop(bus, ped_stop1),
             sim::Event::PedEntersBus(ped, bus),
-            sim::Event::BusDepartedFromStop(bus, stop2),
-            sim::Event::BusArrivedAtStop(bus, stop3),
+            sim::Event::BusDepartedFromStop(bus, ped_stop1),
+            sim::Event::BusArrivedAtStop(bus, ped_stop2),
             sim::Event::PedLeavesBus(ped, bus),
-            sim::Event::BusDepartedFromStop(bus, stop3),
-            sim::Event::BusArrivedAtStop(bus, stop1),
+            sim::Event::BusDepartedFromStop(bus, ped_stop2),
+            sim::Event::BusArrivedAtStop(bus, route.stops[3]),
             // TODO PedReachedBuilding, once the seeding specifies a building instead of picking
         ],
         sim::Tick::from_minutes(10),

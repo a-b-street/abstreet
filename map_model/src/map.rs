@@ -367,4 +367,8 @@ impl Map {
     pub fn get_all_bus_routes(&self) -> &Vec<BusRoute> {
         &self.bus_routes
     }
+
+    pub fn get_bus_route(&self, name: &str) -> Option<&BusRoute> {
+        self.bus_routes.iter().find(|r| r.name == name)
+    }
 }

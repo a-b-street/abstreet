@@ -18,3 +18,9 @@
 	- with interactive mode?
 - try destructive approach for snake idea
 	- with interactive mode?
+
+## Generally useful rust stuff
+
+- better test runner
+	- summary of pass/fail at the end, with timings
+	- log output from failures to tmp files

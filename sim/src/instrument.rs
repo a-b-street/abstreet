@@ -12,7 +12,14 @@ pub fn capture_backtrace(event: &str) {
     let mut found_this_fxn = false;
     let mut calls: Vec<String> = vec![event.to_string()];
     for f in bt.frames() {
-        let raw_name = format!("{}", f.symbols()[0].name().unwrap());
+        // TODO compiler flag so capture_backtrace is usually a no-op. actually, looks like this
+        // doesn't work in --release mode, so use that.
+        let symbol_name = f.symbols()[0].name();
+        if !symbol_name.is_some() {
+            return;
+        }
+
+        let raw_name = format!("{}", symbol_name.unwrap());
         let mut raw_name_parts: Vec<&str> = raw_name.split("::").collect();
         raw_name_parts.pop();
         let name = raw_name_parts.join("::");
@@ -37,6 +44,4 @@ pub fn save_backtraces(path: &str) {
 }
 
 // TODO call from all interesting methods in a few different types; maybe use macros to help
-// TODO compiler flag so capture_backtrace is usually a no-op. actually, looks like this doesn't
-// work in --release mode, so use that.
 // TODO script to organize and visualize results
