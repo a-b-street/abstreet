@@ -3,7 +3,7 @@ use dimensioned::si;
 use events::Event;
 use instrument::capture_backtrace;
 use map_model;
-use map_model::{BusStop, BusStopDetails, LaneID, Map};
+use map_model::{BusRoute, BusStopDetails, LaneID, Map};
 use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
@@ -17,6 +17,7 @@ type StopIdx = usize;
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct Route {
     id: RouteID,
+    name: String,
     buses: Vec<CarID>,
     stops: Vec<BusStopDetails>,
     // TODO info on schedules
@@ -65,17 +66,19 @@ impl TransitSimState {
         }
     }
 
-    pub fn create_empty_route(&mut self, stops: Vec<BusStop>, map: &Map) -> RouteID {
-        assert!(stops.len() > 1);
+    pub fn create_empty_route(&mut self, route: &BusRoute, map: &Map) -> RouteID {
+        assert!(route.stops.len() > 1);
         let id = RouteID(self.routes.len());
         self.routes.insert(
             id,
             Route {
                 id,
+                name: route.name.clone(),
                 buses: Vec::new(),
-                stops: stops
-                    .into_iter()
-                    .map(|s| map.get_bus_stop(s).clone())
+                stops: route
+                    .stops
+                    .iter()
+                    .map(|s| map.get_bus_stop(*s).clone())
                     .collect(),
             },
         );

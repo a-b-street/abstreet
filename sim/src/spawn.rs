@@ -1,7 +1,7 @@
 use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model;
-use map_model::{BuildingID, BusStop, LaneID, Map};
+use map_model::{BuildingID, BusRoute, BusStop, LaneID, Map};
 use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
@@ -166,7 +166,7 @@ impl Spawner {
     pub fn seed_bus_route<R: Rng + ?Sized>(
         &mut self,
         events: &mut Vec<Event>,
-        stops: Vec<BusStop>,
+        route: &BusRoute,
         rng: &mut R,
         map: &Map,
         driving_sim: &mut DrivingSimState,
@@ -174,11 +174,11 @@ impl Spawner {
         now: Tick,
         properties: &BTreeMap<CarID, Vehicle>,
     ) -> Vec<Vehicle> {
-        let route = transit_sim.create_empty_route(stops, map);
+        let route_id = transit_sim.create_empty_route(route, map);
         let mut vehicles: Vec<Vehicle> = Vec::new();
         // Try to spawn a bus at each stop
         for (next_stop_idx, start_dist_along, mut path) in
-            transit_sim.get_route_starts(route, map).into_iter()
+            transit_sim.get_route_starts(route_id, map).into_iter()
         {
             let id = CarID(self.car_id_counter);
             self.car_id_counter += 1;
@@ -196,13 +196,13 @@ impl Spawner {
                 map,
                 properties,
             ) {
-                transit_sim.bus_created(id, route, next_stop_idx);
-                println!("Spawned bus {} for route {}", id, route);
+                transit_sim.bus_created(id, route_id, next_stop_idx);
+                println!("Spawned bus {} for route {} ({})", id, route.name, route_id);
                 vehicles.push(vehicle);
             } else {
                 println!(
-                    "No room for a bus headed towards stop {} of {}, giving up",
-                    next_stop_idx, route
+                    "No room for a bus headed towards stop {} of {} ({}), giving up",
+                    next_stop_idx, route.name, route_id
                 );
             }
         }

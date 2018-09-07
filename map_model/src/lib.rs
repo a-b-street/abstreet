@@ -34,3 +34,10 @@ pub use parcel::{Parcel, ParcelID};
 pub use pathfind::pathfind;
 pub use road::{Road, RoadID};
 pub use turn::{Turn, TurnID};
+
+// TODO This sort of doesn't fit in the map layer, but it's quite convenient to store it.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BusRoute {
+    pub name: String,
+    pub stops: Vec<BusStop>,
+}

@@ -1,6 +1,6 @@
 use abstutil;
 use control::ControlMap;
-use map_model::{BuildingID, BusStop, Edits, LaneID, Map};
+use map_model::{BuildingID, BusRoute, BusStop, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
 use {CarID, Event, PedestrianID, RouteID, Sim, Tick};
@@ -94,16 +94,8 @@ impl Sim {
         self.seed_walking_trips(&map, 100);
         self.seed_driving_trips(&map, 100);
 
-        if self.seed_bus_route(
-            vec![
-                map.get_l(LaneID(309)).bus_stops[0].id,
-                map.get_l(LaneID(325)).bus_stops[0].id,
-                map.get_l(LaneID(840)).bus_stops[0].id,
-            ],
-            map,
-        ).len() != 3
-        {
-            panic!("Three buses didn't fit");
+        for route in map.get_all_bus_routes() {
+            self.seed_bus_route(route, map);
         }
         // TODO this is introducing nondeterminism, because of slight floating point errors.
         // fragile that this causes it, but true. :\
@@ -131,13 +123,13 @@ impl Sim {
         }
     }
 
-    pub fn seed_bus_route(&mut self, stops: Vec<BusStop>, map: &Map) -> Vec<CarID> {
+    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();
         let mut result: Vec<CarID> = Vec::new();
         for v in self.spawner.seed_bus_route(
             &mut events,
-            stops,
+            route,
             &mut self.rng,
             map,
             &mut self.driving_state,

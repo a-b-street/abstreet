@@ -1,20 +1,18 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use building::{Building, BuildingID};
 use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
-use intersection::{Intersection, IntersectionID};
-use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType};
 use make;
-use parcel::{Parcel, ParcelID};
 use raw_data;
-use road::{Road, RoadID};
 use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 use std::path;
-use turn::{Turn, TurnID};
+use {
+    Building, BuildingID, BusRoute, BusStop, BusStopDetails, Intersection, IntersectionID, Lane,
+    LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Map {
@@ -24,6 +22,7 @@ pub struct Map {
     turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
+    bus_routes: Vec<BusRoute>,
 
     // TODO maybe dont need to retain GPS stuff later
     bounds: Bounds,
@@ -57,6 +56,7 @@ impl Map {
             turns: BTreeMap::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
+            bus_routes: Vec::new(),
         };
 
         let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
@@ -152,7 +152,7 @@ impl Map {
             }
         }
 
-        make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
+        m.bus_routes = make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
@@ -362,5 +362,9 @@ impl Map {
 
     pub fn get_bus_stop(&self, stop: BusStop) -> &BusStopDetails {
         &self.get_l(stop.sidewalk).bus_stops[stop.idx]
+    }
+
+    pub fn get_all_bus_routes(&self) -> &Vec<BusRoute> {
+        &self.bus_routes
     }
 }
