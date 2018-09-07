@@ -1,5 +1,6 @@
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, LonLat};
+use gtfs::Route;
 use std::collections::BTreeMap;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
@@ -8,6 +9,7 @@ pub struct Map {
     pub intersections: Vec<Intersection>,
     pub buildings: Vec<Building>,
     pub parcels: Vec<Parcel>,
+    pub bus_routes: Vec<Route>,
 
     pub coordinates_in_world_space: bool,
 }
@@ -19,6 +21,7 @@ impl Map {
             intersections: Vec::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
+            bus_routes: Vec::new(),
             coordinates_in_world_space: false,
         }
     }

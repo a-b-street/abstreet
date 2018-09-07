@@ -2,6 +2,9 @@ extern crate csv;
 extern crate failure;
 extern crate geom;
 extern crate itertools;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 
 use failure::Error;
 use geom::LonLat;
@@ -10,7 +13,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::time::Instant;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Route {
     pub name: String,
     pub stops: Vec<LonLat>,

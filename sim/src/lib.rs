@@ -11,7 +11,6 @@ extern crate ezgui;
 extern crate failure;
 extern crate geom;
 extern crate graphics;
-extern crate gtfs;
 #[macro_use]
 extern crate lazy_static;
 extern crate map_model;

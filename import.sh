@@ -16,6 +16,7 @@ mkdir -p data/input
 ELEVATION=../data/input/N47W122.hgt
 PARCELS_KML=../data/input/King_County_Parcels__parcel_area.kml
 TRAFFIC_SIGNALS=../data/input/TrafficSignals.shp
+GTFS=../data/input/google_transit_2018_18_08
 
 SMALL_OSM=../data/input/tiny_montlake.osm
 MEDIUM_OSM=../data/input/montlake.osm
@@ -28,7 +29,7 @@ if [ ! -f data/seattle_parcels.abst ]; then
 	cd ..
 fi
 
-COMMON="--elevation=$ELEVATION --traffic_signals=$TRAFFIC_SIGNALS --parcels=../data/seattle_parcels.abst"
+COMMON="--elevation=$ELEVATION --traffic_signals=$TRAFFIC_SIGNALS --parcels=../data/seattle_parcels.abst --gtfs=$GTFS"
 cd convert_osm
 time cargo run --release -- --osm=$SMALL_OSM $COMMON --output=../data/small.abst
 time cargo run --release -- --osm=$MEDIUM_OSM $COMMON --output=../data/medium.abst

@@ -10,11 +10,11 @@ use {BusStop, BusStopDetails, Lane, LaneID, Road};
 pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
     roads: &Vec<Road>,
-    bus_routes: Vec<gtfs::Route>,
+    bus_routes: &Vec<gtfs::Route>,
     bounds: &Bounds,
 ) {
     let mut bus_stop_pts: HashSet<HashablePt2D> = HashSet::new();
-    for route in &bus_routes {
+    for route in bus_routes {
         for gps in &route.stops {
             if bounds.contains(gps.longitude, gps.latitude) {
                 bus_stop_pts.insert(Pt2D::from_gps(&gps, bounds).into());

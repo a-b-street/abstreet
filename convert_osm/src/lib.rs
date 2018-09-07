@@ -4,6 +4,7 @@ extern crate byteorder;
 extern crate dimensioned;
 extern crate geo;
 extern crate geom;
+extern crate gtfs;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
@@ -43,6 +44,10 @@ pub struct Flags {
     /// .abst with parcels, produced using the kml crate
     #[structopt(long = "parcels")]
     pub parcels: String,
+
+    /// GTFS directory
+    #[structopt(long = "gtfs")]
+    pub gtfs: String,
 
     /// Output .abst path
     #[structopt(long = "output")]
@@ -97,6 +102,8 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
             }
         }
     }
+
+    map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
 
     map
 }
