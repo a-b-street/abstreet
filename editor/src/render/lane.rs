@@ -91,7 +91,7 @@ impl DrawLane {
         g.draw_polygon(color, &self.polygon);
     }
 
-    pub fn draw_detail(&self, g: &mut GfxCtx, canvas: &Canvas, cs: &ColorScheme) {
+    pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         for m in &self.markings {
             let line = if m.round {
                 graphics::Line::new_round(cs.get(m.color), m.thickness)
@@ -102,14 +102,15 @@ impl DrawLane {
                 g.draw_line(&line, *pts);
             }
         }
-
-        // TODO move to draw_debug
-        for pt in &self.draw_id_at {
-            canvas.draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
-        }
     }
 
-    pub fn draw_debug(&self, g: &mut GfxCtx, cs: &ColorScheme, l: &map_model::Lane) {
+    pub fn draw_debug(
+        &self,
+        g: &mut GfxCtx,
+        canvas: &Canvas,
+        cs: &ColorScheme,
+        l: &map_model::Lane,
+    ) {
         let line =
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle_color = cs.get(Colors::BrightDebug);
@@ -119,6 +120,10 @@ impl DrawLane {
             g.draw_line(&line, [pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
             g.draw_ellipse(circle_color, geometry::make_circle(pt1, 0.4));
             g.draw_ellipse(circle_color, geometry::make_circle(pt2, 0.8));
+        }
+
+        for pt in &self.draw_id_at {
+            canvas.draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
         }
     }
 

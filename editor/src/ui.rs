@@ -649,10 +649,10 @@ impl gui::GUI for UI {
         for l in &lanes_onscreen {
             l.draw(g, self.color_lane(l.id));
             if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
-                l.draw_detail(g, &self.canvas, &self.cs);
+                l.draw_detail(g, &self.cs);
             }
             if self.debug_mode.is_enabled() {
-                l.draw_debug(g, &self.cs, self.map.get_l(l.id));
+                l.draw_debug(g, &self.canvas, &self.cs, self.map.get_l(l.id));
             }
         }
 
