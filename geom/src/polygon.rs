@@ -7,11 +7,23 @@ pub struct Polygon {
     pub triangles: Vec<Triangle>,
 }
 
+// TODO The triangulation is a bit of a mess. Everything except for Polygon::new comes from
+// https://github.com/lionfish0/earclip/blob/master/earclip/__init__.py.
+
 impl Polygon {
+    // TODO Should the first and last points match or not?
     // Adapted from https://crates.io/crates/polygon2; couldn't use the crate directly because it
     // depends on nightly.
-    pub fn new(pts: &Vec<Pt2D>) -> Polygon {
-        assert!(pts.len() >= 3);
+    pub fn new(orig_pts: &Vec<Pt2D>) -> Polygon {
+        assert!(orig_pts.len() >= 3);
+
+        let pts = if is_clockwise_polygon(orig_pts) {
+            let mut new_pts = orig_pts.clone();
+            new_pts.reverse();
+            new_pts
+        } else {
+            orig_pts.clone()
+        };
 
         let mut tgs = Vec::new();
         let mut avl = Vec::with_capacity(pts.len());
@@ -111,28 +123,50 @@ impl Triangle {
     }
 
     fn is_convex(&self) -> bool {
-        ((self.pt1.y() - self.pt2.y()) * (self.pt3.x() - self.pt2.x())
-            + (self.pt2.x() - self.pt1.x()) * (self.pt3.y() - self.pt2.y())) >= 0.0
+        let x1 = self.pt1.x();
+        let y1 = self.pt1.y();
+        let x2 = self.pt2.x();
+        let y2 = self.pt2.y();
+        let x3 = self.pt3.x();
+        let y3 = self.pt3.y();
+
+        let cross_product = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+        cross_product >= 0.0
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
-        let v0x = self.pt3.x() - self.pt1.x();
-        let v0y = self.pt3.y() - self.pt1.y();
-        let v1x = self.pt2.x() - self.pt1.x();
-        let v1y = self.pt2.y() - self.pt1.y();
-        let v2x = pt.x() - self.pt1.x();
-        let v2y = pt.y() - self.pt1.y();
+        let x1 = self.pt1.x();
+        let y1 = self.pt1.y();
+        let x2 = self.pt2.x();
+        let y2 = self.pt2.y();
+        let x3 = self.pt3.x();
+        let y3 = self.pt3.y();
+        let px = pt.x();
+        let py = pt.y();
 
-        let dot00 = v0x * v0x + v0y * v0y;
-        let dot01 = v0x * v1x + v0y * v1y;
-        let dot02 = v0x * v2x + v0y * v2y;
-        let dot11 = v1x * v1x + v1y * v1y;
-        let dot12 = v1x * v2x + v1y * v2y;
+        // Barycentric coefficients for pt
+        // Use epsilon to deal with small denominators
+        let epsilon = 0.0000001;
+        let l0 = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3))
+            / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
+        let l1 = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3))
+            / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
+        let l2 = 1.0 - l0 - l1;
 
-        let denom = dot00 * dot11 - dot01 * dot01;
-        let u = (dot11 * dot02 - dot01 * dot12) / denom;
-        let v = (dot00 * dot12 - dot01 * dot02) / denom;
-
-        (u >= 0.0) && (v >= 0.0) && (u + v < 1.0)
+        for x in vec![l0, l1, l2] {
+            if x >= 1.0 || x <= 0.0 {
+                return false;
+            }
+        }
+        true
     }
+}
+
+fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
+    // Initialize with the last element
+    let mut sum = (pts[0].x() - pts.last().unwrap().x()) * (pts[0].y() + pts.last().unwrap().y());
+    for i in 0..pts.len() - 1 {
+        sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
+    }
+    sum > 0.0
 }

@@ -37,8 +37,6 @@
 
 - code cleanup
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
-	- also a polygon struct? for parcels and buildings. maybe have a form that's pre-triangulated?
-	- isolate vec2d
 
 - draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
 
