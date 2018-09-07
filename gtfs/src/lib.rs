@@ -10,8 +10,8 @@ use std::time::Instant;
 
 #[derive(Debug)]
 pub struct Route {
-    name: String,
-    stops: Vec<LonLat>,
+    pub name: String,
+    pub stops: Vec<LonLat>,
 }
 
 pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {

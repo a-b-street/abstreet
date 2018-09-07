@@ -15,26 +15,20 @@ pub fn load(
 ) -> (Map, Edits, ControlMap, Sim) {
     // Hardcoded files for road edits and transit data.
     let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
-
-    println!(
-        "got {} routes",
-        gtfs::load("../data/input/google_transit_2018_18_08")
-            .unwrap()
-            .len()
-    );
+    let bus_routes = gtfs::load("../data/input/google_transit_2018_18_08").unwrap();
 
     if input.contains("data/save/") {
         println!("Resuming from {}", input);
         let sim: Sim = abstutil::read_json(&input).expect("loading sim state failed");
         // TODO assuming the relative path :(
         let map_path = format!("../data/{}.abst", sim.map_name);
-        let map =
-            Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
+        let map = Map::new(&map_path, &edits, bus_routes)
+            .expect(&format!("Couldn't load map from {}", map_path));
         let control_map = ControlMap::new(&map);
         (map, edits, control_map, sim)
     } else {
         println!("Loading map {}", input);
-        let map = Map::new(&input, &edits).expect("Couldn't load map");
+        let map = Map::new(&input, &edits, bus_routes).expect("Couldn't load map");
         let control_map = ControlMap::new(&map);
         let sim = Sim::new(&map, scenario_name, rng_seed, savestate_every);
         (map, edits, control_map, sim)

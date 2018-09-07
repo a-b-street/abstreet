@@ -6,6 +6,7 @@ use dimensioned::si;
 use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
+use gtfs;
 use intersection::{Intersection, IntersectionID};
 use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType};
 use make;
@@ -33,7 +34,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
+    pub fn new(path: &str, edits: &Edits, bus_routes: Vec<gtfs::Route>) -> Result<Map, Error> {
         let data: raw_data::Map = abstutil::read_binary(path)?;
         Ok(Map::create_from_raw(
             path::Path::new(path)
@@ -44,10 +45,16 @@ impl Map {
                 .unwrap(),
             data,
             edits,
+            bus_routes,
         ))
     }
 
-    pub fn create_from_raw(name: String, data: raw_data::Map, edits: &Edits) -> Map {
+    pub fn create_from_raw(
+        name: String,
+        data: raw_data::Map,
+        edits: &Edits,
+        bus_routes: Vec<gtfs::Route>,
+    ) -> Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
             name,
@@ -186,6 +193,8 @@ impl Map {
             }
         }
 
+        make::make_bus_stops(&mut m.lanes, bus_routes, &bounds);
+
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
                 assert!(!m.turns.contains_key(&t.id));
@@ -198,7 +207,7 @@ impl Map {
 
         for (idx, b) in data.buildings.iter().enumerate() {
             let id = BuildingID(idx);
-            let bldg = make::make_building(b, id, &bounds, &m.lanes, &m.roads);
+            let bldg = make::make_building(b, id, &bounds, &m.lanes);
             m.lanes[bldg.front_path.sidewalk.0].building_paths.push(id);
             m.buildings.push(bldg);
         }
