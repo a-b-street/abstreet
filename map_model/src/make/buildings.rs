@@ -1,7 +1,8 @@
-use geom::{Bounds, Line, PolyLine, Pt2D};
+use geom::{Bounds, HashablePt2D, Line, PolyLine, Pt2D};
 use geometry;
 use make::sidewalk_finder::find_sidewalk_points;
 use raw_data;
+use std::collections::HashSet;
 use {Building, BuildingID, FrontPath, Lane};
 
 pub(crate) fn make_building(
@@ -39,7 +40,9 @@ fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
 
 fn find_front_path(bldg: BuildingID, bldg_points: &Vec<Pt2D>, lanes: &Vec<Lane>) -> FrontPath {
     let bldg_center = geometry::center(bldg_points);
-    let sidewalk_pts = find_sidewalk_points(vec![bldg_center], lanes);
+    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    query.insert(bldg_center.into());
+    let sidewalk_pts = find_sidewalk_points(query, lanes);
     let (sidewalk, dist_along) = sidewalk_pts.values().next().unwrap();
     let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(*dist_along);
     let line = trim_front_path(bldg_points, Line::new(bldg_center, sidewalk_pt));

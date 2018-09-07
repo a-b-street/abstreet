@@ -304,14 +304,16 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
 
 fn calculate_bus_stop_lines(stop: &map_model::BusStopDetails, lane: &map_model::Lane) -> Marking {
     let radius = 2.0 * si::M;
-    // TODO this should maybe be a property of the map model; not sure what data sources will
-    // actually have
     Marking {
         // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the
         // lookahead arrows and center points / dashed white, we really want to render an Interval
         // or something.
+        // Kinda sad that bus stops might be very close to the start of the lane, but it's
+        // happening.
         lines: vec![geometry::drawing_line(&Line::new(
-            lane.dist_along(stop.dist_along - radius).0,
+            lane.safe_dist_along(stop.dist_along - radius)
+                .map(|(pt, _)| pt)
+                .unwrap_or(lane.first_pt()),
             lane.dist_along(stop.dist_along + radius).0,
         ))],
         color: Colors::BusStopMarking,

@@ -2,7 +2,6 @@
 
 use abstutil;
 use building::{Building, BuildingID};
-use dimensioned::si;
 use edits::Edits;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
@@ -129,39 +128,6 @@ impl Map {
                     None => (unshifted_pts.shift_blindly(width), true),
                 };
 
-                let mut bus_stops = Vec::new();
-                // TODO load a GTFS, don't hardcode this
-                if id == LaneID(309) {
-                    bus_stops.push(BusStopDetails {
-                        id: BusStop {
-                            sidewalk: id,
-                            idx: 0,
-                        },
-                        driving_lane: LaneID(307),
-                        dist_along: 25.0 * si::M,
-                    });
-                }
-                if id == LaneID(325) {
-                    bus_stops.push(BusStopDetails {
-                        id: BusStop {
-                            sidewalk: id,
-                            idx: 0,
-                        },
-                        driving_lane: LaneID(323),
-                        dist_along: 30.0 * si::M,
-                    });
-                }
-                if id == LaneID(840) {
-                    bus_stops.push(BusStopDetails {
-                        id: BusStop {
-                            sidewalk: id,
-                            idx: 0,
-                        },
-                        driving_lane: LaneID(838),
-                        dist_along: 50.0 * si::M,
-                    });
-                }
-
                 // lane_center_pts will get updated in the next pass
                 m.lanes.push(Lane {
                     id,
@@ -172,7 +138,7 @@ impl Map {
                     lane_type: lane.lane_type,
                     parent: road_id,
                     building_paths: Vec::new(),
-                    bus_stops,
+                    bus_stops: Vec::new(),
                 });
                 if lane.reverse_pts {
                     m.roads[road_id.0]
@@ -193,7 +159,7 @@ impl Map {
             }
         }
 
-        make::make_bus_stops(&mut m.lanes, bus_routes, &bounds);
+        make::make_bus_stops(&mut m.lanes, &m.roads, bus_routes, &bounds);
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {

@@ -4,6 +4,7 @@ extern crate dimensioned;
 extern crate geo;
 extern crate geom;
 extern crate gtfs;
+extern crate multimap;
 extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;

@@ -3,11 +3,11 @@ use geo;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
 use geom::{HashablePt2D, Pt2D};
 use ordered_float::NotNaN;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use {Lane, LaneID};
 
 pub fn find_sidewalk_points(
-    pts: Vec<Pt2D>,
+    pts: HashSet<HashablePt2D>,
     lanes: &Vec<Lane>,
 ) -> HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> {
     // Get LineStrings of all lanes once.
