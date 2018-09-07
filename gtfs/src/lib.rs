@@ -1,9 +1,11 @@
 extern crate csv;
 extern crate failure;
 extern crate geom;
+extern crate itertools;
 
 use failure::Error;
 use geom::LonLat;
+use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::time::Instant;
@@ -39,57 +41,30 @@ pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {
     }
 
     // Each route has many trips. Ignore all but the first and assume the list of stops is the
-    // same.
+    // same. Also assume that records with the same trip are contiguous and that stop_sequence is
+    // monotonic.
     let mut route_ids_used: HashSet<String> = HashSet::new();
     let mut results: Vec<Route> = Vec::new();
 
-    // TODO This isn't simple or fast. :(
-    // Try implementing an iterator that groups adjacent records matching a predicate.
     let mut reader = csv::Reader::from_reader(File::open(format!("{}/stop_times.txt", dir_path))?);
-    let mut iter = reader.records();
-    let mut records: Vec<csv::StringRecord> = Vec::new();
-    loop {
-        if let Some(rec) = iter.next() {
-            records.push(rec?);
-        } else {
-            // We shouldn't have 1 record from next_rec, because a trip shouldn't have just one
-            // stop.
-            assert!(records.is_empty());
-            break;
+    for (key, group) in reader
+        .records()
+        .group_by(|rec| rec.as_ref().unwrap()[0].to_string())
+        .into_iter()
+    {
+        let route_id = trip_id_to_route_id[&key].to_string();
+        if route_ids_used.contains(&route_id) {
+            continue;
         }
+        route_ids_used.insert(route_id.clone());
 
-        let route_id = trip_id_to_route_id[&records[0][0]].to_string();
-        let keep_records = !route_ids_used.contains(&route_id);
-
-        // Slurp all records with the same trip ID. Assume they're contiguous.
-        let mut next_rec: Option<csv::StringRecord> = None;
-        loop {
-            if let Some(rec) = iter.next() {
-                let rec = rec?;
-                if records[0][0] == rec[0] {
-                    if keep_records {
-                        records.push(rec);
-                    }
-                    continue;
-                } else {
-                    next_rec = Some(rec);
-                }
-            }
-            break;
-        }
-
-        if keep_records {
-            route_ids_used.insert(route_id.clone());
-            results.push(Route {
-                name: route_id_to_name[&route_id].to_string(),
-                stops: records.iter().map(|rec| stop_id_to_pt[&rec[3]]).collect(),
-            });
-        }
-
-        records.clear();
-        if let Some(rec) = next_rec {
-            records.push(rec);
-        }
+        results.push(Route {
+            name: route_id_to_name[&route_id].to_string(),
+            stops: group
+                .into_iter()
+                .map(|rec| stop_id_to_pt[&rec.unwrap()[3]])
+                .collect(),
+        });
     }
 
     let elapsed = timer.elapsed();
