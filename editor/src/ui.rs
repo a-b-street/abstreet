@@ -92,6 +92,7 @@ impl UI {
         kml: Option<String>,
         window_size: Size,
     ) -> UI {
+        flame::start("setup");
         let (map, edits, control_map, sim) = sim::load(
             load,
             scenario_name,
@@ -109,6 +110,7 @@ impl UI {
         let (draw_map, center_pt) = render::DrawMap::new(&map, &control_map, extra_shapes);
         flame::end("draw_map");
 
+        flame::end("setup");
         flame::dump_stdout();
 
         let steepness_viz = SteepnessVisualizer::new(&map);

@@ -172,11 +172,9 @@ impl Map {
 
         {
             let _guard = flame::start_guard(format!("make {} buildings", data.buildings.len()));
-            for (idx, b) in data.buildings.iter().enumerate() {
-                let id = BuildingID(idx);
-                let bldg = make::make_building(b, id, &bounds, &m.lanes);
-                m.lanes[bldg.front_path.sidewalk.0].building_paths.push(id);
-                m.buildings.push(bldg);
+            make::make_all_buildings(&mut m.buildings, &data.buildings, &bounds, &m.lanes);
+            for b in &m.buildings {
+                m.lanes[b.front_path.sidewalk.0].building_paths.push(b.id);
             }
         }
 

@@ -85,6 +85,12 @@ impl fmt::Display for Pt2D {
     }
 }
 
+impl From<HashablePt2D> for Pt2D {
+    fn from(pt: HashablePt2D) -> Self {
+        Pt2D::new(pt.x(), pt.y())
+    }
+}
+
 // This isn't opinionated about what the (x, y) represents -- could be lat/lon or world space.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
