@@ -373,4 +373,31 @@ fn shift_short_polyline_equivalence() {
     );
 }
 
+#[test]
+fn trim_with_epsilon() {
+    /*
+    // EPSILON_DIST needs to be tuned correctly, or this point seems like it's not on the line.
+    let mut pl = PolyLine::new(vec![
+      Pt2D::new(1130.2653468611902, 2124.099702776818),
+      Pt2D::new(1175.9652436108408, 2124.1094748373457),
+      Pt2D::new(1225.8319649025132, 2124.120594334445),
+    ]);
+    let pt = Pt2D::new(1225.8319721124885, 2124.1205943360505);*/
+
+    let mut pl = PolyLine::new(vec![
+        Pt2D::new(1725.295220788561, 1414.2752785686052),
+        Pt2D::new(1724.6291929910137, 1414.8246144364846),
+        Pt2D::new(1723.888820814687, 1415.6240169312443),
+        Pt2D::new(1723.276510998312, 1416.4750455089877),
+        Pt2D::new(1722.7586731922217, 1417.4015448461048),
+        Pt2D::new(1722.353627188061, 1418.4238284182732),
+        Pt2D::new(1722.086748762076, 1419.4737997607863),
+        Pt2D::new(1721.9540106814163, 1420.5379609077854),
+        Pt2D::new(1721.954010681534, 1421.1267599802409),
+    ]);
+    let pt = Pt2D::new(1721.9540106813197, 1420.2372293808348);
+
+    pl.trim_to_pt(pt);
+}
+
 // TODO test that shifting lines and polylines is a reversible operation

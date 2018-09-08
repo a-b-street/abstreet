@@ -1,4 +1,5 @@
 use dimensioned::si;
+use std::fmt;
 use {line_intersection, Angle, Pt2D, EPSILON_DIST};
 
 // Segment, technically
@@ -138,6 +139,15 @@ impl Line {
                 None
             }
         }
+    }
+}
+
+impl fmt::Display for Line {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Line::new(\n")?;
+        write!(f, "  Pt2D::new({}, {}),\n", self.0.x(), self.0.y())?;
+        write!(f, "  Pt2D::new({}, {}),\n", self.1.x(), self.1.y())?;
+        write!(f, ")")
     }
 }
 
