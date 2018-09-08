@@ -1,3 +1,4 @@
+use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Line, PolyLine, Pt2D};
 use geometry;
 use make::sidewalk_finder::find_sidewalk_points;
@@ -28,13 +29,17 @@ pub(crate) fn make_all_buildings(
     let sidewalk_pts = find_sidewalk_points(query, lanes);
 
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {
-        let id = BuildingID(idx);
-
         let bldg_center = center_per_bldg[idx];
         let (sidewalk, dist_along) = sidewalk_pts[&bldg_center];
         let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(dist_along);
         let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
 
+        // Trim buildings that are too far away from their sidewalk
+        if line.length() > 200.0 * si::M {
+            continue;
+        }
+
+        let id = BuildingID(results.len());
         results.push(Building {
             id,
             points,
@@ -47,6 +52,14 @@ pub(crate) fn make_all_buildings(
                 dist_along_sidewalk: dist_along,
             },
         });
+    }
+
+    let discarded = input.len() - results.len();
+    if discarded > 0 {
+        println!(
+            "Discarded {} buildings that weren't close enough to a sidewalk",
+            discarded
+        );
     }
 }
 
