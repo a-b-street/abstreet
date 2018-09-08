@@ -95,6 +95,42 @@ impl Road {
             .map(|pair| pair.0)
     }
 
+    // Handles intermediate parking and bus lanes and such
+    // Additionally handles one-ways with a sidewalk on only one side.
+    // TODO but in reality, there probably isn't a sidewalk on the other side of the one-way. :\
+    pub fn find_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Option<LaneID> {
+        let (this_side, opposite, idx) = if let Some(idx) = self.children_forwards
+            .iter()
+            .position(|(l, _)| *l == sidewalk)
+        {
+            (&self.children_forwards, &self.children_backwards, idx)
+        } else if let Some(idx) = self.children_backwards
+            .iter()
+            .position(|(l, _)| *l == sidewalk)
+        {
+            (&self.children_backwards, &self.children_forwards, idx)
+        } else {
+            panic!("{} doesn't contain {}", self.id, sidewalk)
+        };
+        // Sidewalks are always at the end
+        assert!(idx == this_side.len() - 1);
+        // So is there a driving lane on this side?
+        if let Some(l) = this_side
+            .iter()
+            .rev()
+            .find(|(_, lt)| *lt == LaneType::Driving)
+            .map(|(l, _)| *l)
+        {
+            return Some(l);
+        }
+
+        // Is the sidewalk on a one-way with the other side having a driving lane?
+        if this_side.len() == 1 && opposite[0].1 == LaneType::Driving {
+            return Some(opposite[0].0);
+        }
+        None
+    }
+
     pub fn find_parking_lane(&self, driving: LaneID) -> Option<LaneID> {
         //assert_eq!(l.lane_type, LaneType::Driving);
         self.get_siblings(driving)
