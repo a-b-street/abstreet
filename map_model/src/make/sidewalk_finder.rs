@@ -38,13 +38,11 @@ pub fn find_sidewalk_points(
             .min_by_key(|(_, pt)| NotNaN::new(pt.euclidean_distance(&query_geo_pt)).unwrap())
             .unwrap();
         let sidewalk_pt = Pt2D::new(raw_pt.x(), raw_pt.y());
-        results.insert(
-            query_pt.into(),
-            (
-                *sidewalk,
-                lanes[sidewalk.0].dist_along_of_point(sidewalk_pt).unwrap(),
-            ),
-        );
+        if let Some(dist_along) = lanes[sidewalk.0].dist_along_of_point(sidewalk_pt) {
+            results.insert(query_pt.into(), (*sidewalk, dist_along));
+        } else {
+            panic!("{} isn't on {} according to dist_along_of_point, even though closest_point thinks it is.\n{}", sidewalk_pt, sidewalk, lanes[sidewalk.0].lane_center_pts);
+        }
     }
     results
 }

@@ -319,7 +319,9 @@ fn calculate_bus_stop_lines(stop: &map_model::BusStopDetails, lane: &map_model::
             lane.safe_dist_along(stop.dist_along - radius)
                 .map(|(pt, _)| pt)
                 .unwrap_or(lane.first_pt()),
-            lane.dist_along(stop.dist_along + radius).0,
+            lane.safe_dist_along(stop.dist_along + radius)
+                .map(|(pt, _)| pt)
+                .unwrap_or(lane.last_pt()),
         ))],
         color: Colors::BusStopMarking,
         thickness: 0.8 * geometry::LANE_THICKNESS,

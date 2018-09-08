@@ -38,30 +38,44 @@ pub fn make_bus_stops(
     for (id, dists) in stops_per_sidewalk.iter_all_mut() {
         // TODO duplicate a little logic from map, and also, this is fragile :)
         let road = &roads[lanes[id.0].parent.0];
-        let parking = road.find_parking_lane(*id).unwrap();
-        let driving_lane = road.find_driving_lane(parking).unwrap();
-
-        dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
-        for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
-            let stop_id = BusStop { sidewalk: *id, idx };
-            point_to_stop_idx.insert(*orig_pt, stop_id);
-            lanes[id.0].bus_stops.push(BusStopDetails {
-                id: stop_id,
-                driving_lane,
-                dist_along: *dist_along,
-            });
+        let maybe_driving_lane = if let Some(parking) = road.find_parking_lane(*id) {
+            road.find_driving_lane(parking)
+        } else {
+            road.find_driving_lane(*id)
+        };
+        if let Some(driving_lane) = maybe_driving_lane {
+            dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
+            for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
+                let stop_id = BusStop { sidewalk: *id, idx };
+                point_to_stop_idx.insert(*orig_pt, stop_id);
+                lanes[id.0].bus_stops.push(BusStopDetails {
+                    id: stop_id,
+                    driving_lane,
+                    dist_along: *dist_along,
+                });
+            }
+        } else {
+            println!(
+                "Can't find driving lane next to {}: {:?} and {:?}",
+                id, road.children_forwards, road.children_backwards
+            );
         }
     }
 
     let mut results: Vec<BusRoute> = Vec::new();
     for (route_name, stop_points) in route_lookups.iter_all() {
-        if stop_points.len() == 1 {
+        let stops: Vec<BusStop> = stop_points
+            .iter()
+            .filter_map(|pt| point_to_stop_idx.get(pt))
+            .map(|stop| *stop)
+            .collect();
+        if stops.len() == 1 {
             //println!("Skipping route {} since it only has 1 stop in the slice of the map", route_name);
             continue;
         }
         results.push(BusRoute {
             name: route_name.to_string(),
-            stops: stop_points.iter().map(|pt| point_to_stop_idx[pt]).collect(),
+            stops,
         });
     }
     results

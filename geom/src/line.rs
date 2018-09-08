@@ -108,6 +108,14 @@ impl Line {
         }
     }
 
+    fn is_horizontal(&self) -> bool {
+        (self.0.y() - self.1.y()).abs() < EPSILON_DIST.value_unsafe
+    }
+
+    fn is_vertical(&self) -> bool {
+        (self.0.x() - self.1.x()).abs() < EPSILON_DIST.value_unsafe
+    }
+
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
         const PERCENT_EPSILON: f64 = 0.00000000001;
 
@@ -121,11 +129,30 @@ impl Line {
         if percent1.is_nan() || percent2.is_nan() || (percent1 - percent2).abs() < PERCENT_EPSILON {
             Some(self.length() * percent1)
         } else {
-            None
+            // TODO Urgh, special cases. Probably projecting a point onto the line could help?
+            if self.is_horizontal() {
+                Some(self.length() * percent2)
+            } else if self.is_vertical() {
+                Some(self.length() * percent1)
+            } else {
+                None
+            }
         }
     }
 }
 
 fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
     (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
+}
+
+#[test]
+fn test_dist_along_horiz_line() {
+    let l = Line::new(
+        Pt2D::new(147.17832753158294, 1651.034235433578),
+        Pt2D::new(185.9754103560146, 1651.0342354335778),
+    );
+    let pt = Pt2D::new(179.1628455160347, 1651.0342354335778);
+
+    assert!(l.contains_pt(pt));
+    assert!(l.dist_along_of_point(pt).is_some());
 }
