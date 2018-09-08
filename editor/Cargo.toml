@@ -9,6 +9,7 @@ abstutil = { path = "../abstutil" }
 control = { path = "../control" }
 dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 ezgui = { path = "../ezgui" }
+flame = "0.2.2"
 generator = "0.6"
 geo = "0.9.1"
 geom = { path = "../geom" }

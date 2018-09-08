@@ -1,5 +1,6 @@
 use abstutil;
 use control::ControlMap;
+use flame;
 use map_model::{BuildingID, BusRoute, BusStop, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
@@ -16,7 +17,9 @@ pub fn load(
 
     if input.contains("data/save/") {
         println!("Resuming from {}", input);
+        flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&input).expect("loading sim state failed");
+        flame::end("read sim savestate");
         // TODO assuming the relative path :(
         let map_path = format!("../data/{}.abst", sim.map_name);
         let map =
@@ -27,7 +30,9 @@ pub fn load(
         println!("Loading map {}", input);
         let map = Map::new(&input, &edits).expect("Couldn't load map");
         let control_map = ControlMap::new(&map);
+        flame::start("create sim");
         let sim = Sim::new(&map, scenario_name, rng_seed, savestate_every);
+        flame::end("create sim");
         (map, edits, control_map, sim)
     }
 }

@@ -5,6 +5,7 @@ extern crate abstutil;
 extern crate control;
 extern crate dimensioned;
 extern crate ezgui;
+extern crate flame;
 #[macro_use]
 extern crate generator;
 extern crate geo;

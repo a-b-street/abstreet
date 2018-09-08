@@ -2,6 +2,7 @@
 
 use abstutil;
 use edits::Edits;
+use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use make;
@@ -32,7 +33,12 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
+        // TODO I think I want something a bit different than flame:
+        // - Print as each phase occurs
+        // - Print with nicely formatted durations
+        flame::start("read raw_data");
         let data: raw_data::Map = abstutil::read_binary(path)?;
+        flame::end("read raw_data");
         Ok(Map::create_from_raw(
             path::Path::new(path)
                 .file_stem()
@@ -164,11 +170,14 @@ impl Map {
             m.intersections[t.parent.0].turns.push(t.id);
         }
 
-        for (idx, b) in data.buildings.iter().enumerate() {
-            let id = BuildingID(idx);
-            let bldg = make::make_building(b, id, &bounds, &m.lanes);
-            m.lanes[bldg.front_path.sidewalk.0].building_paths.push(id);
-            m.buildings.push(bldg);
+        {
+            let _guard = flame::start_guard(format!("make {} buildings", data.buildings.len()));
+            for (idx, b) in data.buildings.iter().enumerate() {
+                let id = BuildingID(idx);
+                let bldg = make::make_building(b, id, &bounds, &m.lanes);
+                m.lanes[bldg.front_path.sidewalk.0].building_paths.push(id);
+                m.buildings.push(bldg);
+            }
         }
 
         for (idx, p) in data.parcels.iter().enumerate() {

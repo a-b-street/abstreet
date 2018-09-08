@@ -10,6 +10,7 @@ use ezgui;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::{GfxCtx, ToggleableLayer};
+use flame;
 use geom::Pt2D;
 use graphics::types::Color;
 use gui;
@@ -104,7 +105,11 @@ impl UI {
             Vec::new()
         };
 
+        flame::start("draw_map");
         let (draw_map, center_pt) = render::DrawMap::new(&map, &control_map, extra_shapes);
+        flame::end("draw_map");
+
+        flame::dump_stdout();
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);

@@ -9,6 +9,7 @@ extern crate dimensioned;
 extern crate ezgui;
 #[macro_use]
 extern crate failure;
+extern crate flame;
 extern crate geom;
 extern crate graphics;
 #[macro_use]
