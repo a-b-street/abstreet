@@ -735,6 +735,8 @@ loading GTFS is actually a bit unclear -- both the map layer and the sim layer
 have to parse the same GTFS? well, it's like RoadEdits -- we can pass it into
 the map constructor and physically just load it once.
 
+routing: https://stackoverflow.com/questions/483488/strategy-to-find-your-best-route-via-public-transportation-only
+
 
 ## Everything as FSMs
 

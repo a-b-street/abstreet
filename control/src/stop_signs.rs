@@ -51,10 +51,21 @@ impl ControlStopSign {
             let r = map.get_parent(*l);
             let rank = if let Some(highway) = r.osm_tags.get("highway") {
                 match highway.as_ref() {
+                    "motorway" => 20,
+                    "motorway_link" => 19,
+
+                    "primary" => 17,
+                    "primary_link" => 16,
+
+                    "secondary" => 14,
+                    "secondary_link" => 13,
+
                     "tertiary" => 10,
                     "tertiary_link" => 9,
-                    "secondary" => 8,
+
                     "residential" => 5,
+
+                    "unclassified" => 0,
                     _ => panic!("Unknown OSM highway {}", highway),
                 }
             } else {

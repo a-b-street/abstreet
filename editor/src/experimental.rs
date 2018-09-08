@@ -27,11 +27,11 @@ pub struct UI {
 
 impl UI {
     pub fn new(window_size: Size) -> UI {
-        let mut canvas = Canvas::new(window_size);
+        let canvas = Canvas::new(window_size);
         // TODO this is only for debug_intersection
         //canvas.cam_zoom = 7.5;
         //canvas.center_on_map_pt(1350.0, 400.0);
-        canvas.center_on_map_pt(800.0, 600.0);
+        //canvas.center_on_map_pt(800.0, 600.0);
 
         UI {
             canvas,
@@ -76,12 +76,12 @@ impl gui::GUI for UI {
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 
         if true {
-            self.debug_polygon_drawing(g, &mut labels);
+            self.moving_polyline(g, &mut labels);
         } else {
             self.trim_polyline(g, &mut labels);
             self.debug_intersection(g, &mut labels);
-            self.moving_polyline(g, &mut labels);
             self.debug_polyline(g, &mut labels);
+            self.debug_polygon_drawing(g, &mut labels);
         }
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
