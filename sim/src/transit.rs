@@ -2,8 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use events::Event;
 use instrument::capture_backtrace;
-use map_model;
-use map_model::{BusRoute, BusStopDetails, LaneID, Map};
+use map_model::{BusRoute, BusStopDetails, LaneID, Map, Pathfinder};
 use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
@@ -99,11 +98,12 @@ impl TransitSimState {
             .map(|(idx, stop1)| {
                 let next_stop = route.next_stop(idx);
                 let stop2 = &route.stops[next_stop];
-                let path = VecDeque::from(
-                    map_model::pathfind(map, stop1.driving_lane, stop2.driving_lane).expect(
-                        &format!("No route between bus stops {:?} and {:?}", stop1, stop2),
-                    ),
-                );
+                let path =
+                    Pathfinder::shortest_distance(map, stop1.driving_lane, stop2.driving_lane)
+                        .expect(&format!(
+                            "No route between bus stops {:?} and {:?}",
+                            stop1, stop2
+                        ));
                 (next_stop, stop1.dist_along, path)
             })
             .collect()
@@ -164,16 +164,14 @@ impl TransitSimState {
                         println!("{} departing from stop {:?}", car, stop);
                     }
 
-                    let mut new_path = VecDeque::from(
-                        map_model::pathfind(
-                            map,
-                            stop.driving_lane,
-                            route.stops[next_stop].driving_lane,
-                        ).expect(&format!(
-                            "No route between bus stops {:?} and {:?}",
-                            stop, route.stops[next_stop]
-                        )),
-                    );
+                    let mut new_path = Pathfinder::shortest_distance(
+                        map,
+                        stop.driving_lane,
+                        route.stops[next_stop].driving_lane,
+                    ).expect(&format!(
+                        "No route between bus stops {:?} and {:?}",
+                        stop, route.stops[next_stop]
+                    ));
                     new_path.pop_front();
 
                     return (true, Some(new_path));

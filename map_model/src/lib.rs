@@ -32,7 +32,7 @@ pub use intersection::{Intersection, IntersectionID};
 pub use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
-pub use pathfind::pathfind;
+pub use pathfind::Pathfinder;
 pub use road::{Road, RoadID};
 pub use turn::{Turn, TurnID};
 

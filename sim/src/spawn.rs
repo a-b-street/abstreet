@@ -1,7 +1,6 @@
 use driving::DrivingSimState;
 use kinematics::Vehicle;
-use map_model;
-use map_model::{BuildingID, BusRoute, BusStop, LaneID, Map};
+use map_model::{BuildingID, BusRoute, BusStop, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
@@ -102,7 +101,7 @@ impl Spawner {
         let mut spawned_agents = 0;
         for (cmd, (req, maybe_path)) in commands.into_iter().zip(requested_paths.iter().zip(paths))
         {
-            if let Some(path) = maybe_path {
+            if let Some(mut path) = maybe_path {
                 match cmd {
                     Command::Drive(_, trip, ref parked_car, goal_bldg) => {
                         let car = parked_car.car;
@@ -111,8 +110,7 @@ impl Spawner {
                         // due to diagonals
                         let dist_along =
                             parking_sim.dist_along_for_car(parked_car.spot, &properties[&car]);
-                        let mut path_queue = VecDeque::from(path);
-                        let start = path_queue.pop_front().unwrap();
+                        let start = path.pop_front().unwrap();
                         if driving_sim.start_car_on_lane(
                             events,
                             now,
@@ -120,7 +118,7 @@ impl Spawner {
                             Some(parked_car.clone()),
                             dist_along,
                             start,
-                            Router::make_router_to_park(path_queue, goal_bldg),
+                            Router::make_router_to_park(path, goal_bldg),
                             map,
                             properties,
                         ) {
@@ -135,14 +133,7 @@ impl Spawner {
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
                         trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(
-                            events,
-                            ped,
-                            spot1,
-                            spot2,
-                            map,
-                            VecDeque::from(path),
-                        );
+                        walking_sim.seed_pedestrian(events, ped, spot1, spot2, map, path);
                         spawned_agents += 1;
                     }
                 };
@@ -432,7 +423,10 @@ impl Spawner {
     }
 }
 
-fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Option<Vec<LaneID>>> {
+fn calculate_paths(
+    requested_paths: &Vec<(LaneID, LaneID)>,
+    map: &Map,
+) -> Vec<Option<VecDeque<LaneID>>> {
     use rayon::prelude::*;
 
     if false {
@@ -440,9 +434,9 @@ fn calculate_paths(requested_paths: &Vec<(LaneID, LaneID)>, map: &Map) -> Vec<Op
     };
     // TODO better timer macro
     let timer = Instant::now();
-    let paths: Vec<Option<Vec<LaneID>>> = requested_paths
+    let paths: Vec<Option<VecDeque<LaneID>>> = requested_paths
         .par_iter()
-        .map(|(start, goal)| map_model::pathfind(map, *start, *goal))
+        .map(|(start, goal)| Pathfinder::shortest_distance(map, *start, *goal))
         .collect();
 
     let elapsed = timer.elapsed();
