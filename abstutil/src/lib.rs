@@ -25,7 +25,7 @@ pub fn read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let obj: T = serde_json::from_str(&contents).unwrap();
+    let obj: T = serde_json::from_str(&contents)?;
     Ok(obj)
 }
 

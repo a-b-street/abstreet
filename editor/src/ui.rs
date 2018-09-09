@@ -160,7 +160,7 @@ impl UI {
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
-            Ok(state) => {
+            Ok(ref state) if *ui.map.get_name() == state.map_name => {
                 println!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
@@ -168,8 +168,8 @@ impl UI {
                 ui.control_map
                     .load_savestate(&state.traffic_signals, &state.stop_signs);
             }
-            Err(_) => {
-                println!("Couldn't load editor_state, just centering initial view");
+            _ => {
+                println!("Couldn't load editor_state or it's for a different map, so just centering initial view");
                 ui.canvas.center_on_map_pt(center_pt.x(), center_pt.y());
             }
         }
@@ -612,6 +612,7 @@ impl gui::GUI for UI {
 
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             let state = EditorState {
+                map_name: self.map.get_name().clone(),
                 cam_x: self.canvas.cam_x,
                 cam_y: self.canvas.cam_y,
                 cam_zoom: self.canvas.cam_zoom,
@@ -763,6 +764,7 @@ impl gui::GUI for UI {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EditorState {
+    pub map_name: String,
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
