@@ -54,11 +54,14 @@ impl ControlStopSign {
                     "motorway" => 20,
                     "motorway_link" => 19,
 
-                    "primary" => 17,
-                    "primary_link" => 16,
+                    "trunk" => 17,
+                    "trunk_link" => 16,
 
-                    "secondary" => 14,
-                    "secondary_link" => 13,
+                    "primary" => 15,
+                    "primary_link" => 14,
+
+                    "secondary" => 13,
+                    "secondary_link" => 12,
 
                     "tertiary" => 10,
                     "tertiary_link" => 9,

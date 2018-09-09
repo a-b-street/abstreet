@@ -261,6 +261,8 @@ impl PolyLine {
     }
 
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
+        assert_ne!(self, other);
+
         for pair1 in self.pts.windows(2) {
             let l1 = Line::new(pair1[0], pair1[1]);
             for pair2 in other.pts.windows(2) {
@@ -273,16 +275,19 @@ impl PolyLine {
         None
     }
 
-    // Starts trimming from the head. Assumes the pt is on the polyline somewhere.
-    pub fn trim_to_pt(&mut self, pt: Pt2D) {
+    // Starts trimming from the head. If the pt is not on the polyline, returns false -- but this
+    // is a bug somewhere else.
+    pub fn trim_to_pt(&mut self, pt: Pt2D) -> bool {
         if let Some(idx) = self.pts
             .windows(2)
             .position(|pair| Line::new(pair[0], pair[1]).contains_pt(pt))
         {
             self.pts.truncate(idx + 1);
             self.pts.push(pt);
+            true
         } else {
-            panic!("{} doesn't contain {}", self, pt);
+            println!("{} doesn't contain {}", self, pt);
+            false
         }
     }
 
