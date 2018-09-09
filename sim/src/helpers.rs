@@ -258,7 +258,7 @@ impl Sim {
     }
 
     pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: BuildingID, to: BuildingID) {
-        self.spawner.spawn_specific_pedestrian(
+        self.spawner.start_trip_just_walking(
             self.time.next(),
             map,
             from,

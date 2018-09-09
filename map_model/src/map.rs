@@ -7,7 +7,7 @@ use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use geometry;
 use make;
 use raw_data;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::Error;
 use std::path;
 use {
@@ -377,5 +377,17 @@ impl Map {
 
     pub fn get_bus_route(&self, name: &str) -> Option<&BusRoute> {
         self.bus_routes.iter().find(|r| r.name == name)
+    }
+
+    // Not including transfers
+    pub fn get_connected_bus_stops(&self, start: BusStop) -> BTreeSet<BusStop> {
+        let mut stops: BTreeSet<BusStop> = BTreeSet::new();
+        for r in &self.bus_routes {
+            if r.stops.contains(&start) {
+                stops.extend(r.stops.clone());
+            }
+        }
+        stops.remove(&start);
+        stops
     }
 }

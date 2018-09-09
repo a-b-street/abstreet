@@ -736,6 +736,10 @@ have to parse the same GTFS? well, it's like RoadEdits -- we can pass it into
 the map constructor and physically just load it once.
 
 routing: https://stackoverflow.com/questions/483488/strategy-to-find-your-best-route-via-public-transportation-only
+- how do we indicate that the trip uses a bus stop? how will this actually get used?
+	- in helpers, start trip from/to bldg maybe using transit. pathfind first using transit, then figure out the sequence of bus stops from the route, and turn that into the trip.
+	- so ideally it's easy to know (stop1, route, stop2) almost as a step of the path. can translate that into trip legs pretty easily.
+	- feels like a different interface, especially because the point is to just generate the stuff for the trip manager. throwing away the rest of the pathfinding stuff! hmm. same algorithm doesn't fit well at all.
 
 
 ## Everything as FSMs

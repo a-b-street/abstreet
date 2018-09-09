@@ -5,6 +5,9 @@ use {LaneID, Map};
 
 pub enum Pathfinder {
     ShortestDistance { goal_pt: Pt2D },
+    // TODO result isn't really lanes, we also want to know bus stops... post-process? remember
+    // more stuff? hmm.
+    UsingTransit,
 }
 
 impl Pathfinder {
@@ -27,6 +30,23 @@ impl Pathfinder {
                         (next.id, current_length + heuristic_dist)
                     })
                     .collect()
+            }
+            Pathfinder::UsingTransit => {
+                // No heuristic, because it's hard to make admissible.
+                // Cost is distance spent walking, so any jumps made using a bus are FREE. This is
+                // unrealistic, but a good way to start exercising peds using transit.
+                let current_lane = map.get_l(current);
+                let current_length = NotNaN::new(current_lane.length().value_unsafe).unwrap();
+                let mut results: Vec<(LaneID, NotNaN<f64>)> = Vec::new();
+                for next in &map.get_next_lanes(current) {
+                    results.push((next.id, current_length));
+                }
+                for stop1 in &current_lane.bus_stops {
+                    for stop2 in &map.get_connected_bus_stops(stop1.id) {
+                        results.push((stop2.sidewalk, current_length));
+                    }
+                }
+                results
             }
         }
     }

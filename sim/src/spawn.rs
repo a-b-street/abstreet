@@ -296,7 +296,7 @@ impl Spawner {
         ));
     }
 
-    pub fn spawn_specific_pedestrian(
+    pub fn start_trip_just_walking(
         &mut self,
         at: Tick,
         map: &Map,

@@ -32,7 +32,7 @@ pub enum LaneType {
     Biking,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStop {
     pub sidewalk: LaneID,
     pub idx: usize,
