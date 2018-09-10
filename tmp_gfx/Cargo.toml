@@ -1,0 +1,10 @@
+[package]
+name = "tmp_gfx"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+
+[dependencies]
+gfx = "0.17.1"
+gfx_device_gl = "0.15.3"
+gfx_window_glutin = "0.26.0"
+glutin = "0.18.0"
