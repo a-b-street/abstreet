@@ -867,6 +867,8 @@ ah no, it's because we use max_lookahead_dist in accel_to_follow, and the speed 
 	- gfx (pre-II or not?) + winit
 		- https://suhr.github.io/gsgt/
 	- glium (unmaintained)
+	- ggez: https://github.com/nical/lyon/blob/master/examples/gfx_basic/src/main.rs
+		- too much other stuff
 
 https://www.reddit.com/r/rust_gamedev/comments/7f7w60/auditioning_a_replacement_for_bearlibterminal/
 

@@ -25,7 +25,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new(window_size: Size) -> Canvas {
+    pub fn new() -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -35,7 +35,10 @@ impl Canvas {
             cursor_y: 0.0,
 
             left_mouse_drag_from: None,
-            window_size,
+            window_size: Size {
+                width: 0,
+                height: 0,
+            },
         }
     }
 

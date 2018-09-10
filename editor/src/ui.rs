@@ -9,11 +9,10 @@ use control::{ModifiedStopSign, ModifiedTrafficSignal};
 use ezgui;
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
-use ezgui::{GfxCtx, ToggleableLayer};
+use ezgui::{EventLoopMode, GfxCtx, ToggleableLayer, GUI};
 use flame;
 use geom::Pt2D;
 use graphics::types::Color;
-use gui;
 use kml;
 use map_model;
 use map_model::IntersectionID;
@@ -90,7 +89,6 @@ impl UI {
         scenario_name: String,
         rng_seed: Option<u8>,
         kml: Option<String>,
-        window_size: Size,
     ) -> UI {
         flame::start("setup");
         let (map, edits, control_map, sim) = sim::load(
@@ -155,7 +153,7 @@ impl UI {
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
 
-            canvas: Canvas::new(window_size),
+            canvas: Canvas::new(),
             cs: ColorScheme::load("color_scheme").unwrap(),
         };
 
@@ -407,8 +405,8 @@ impl UI {
     }
 }
 
-impl gui::GUI for UI {
-    fn event(&mut self, input: &mut UserInput) -> gui::EventLoopMode {
+impl GUI for UI {
+    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input.use_event_directly());
@@ -431,7 +429,7 @@ impl gui::GUI for UI {
         macro_rules! stop_if_done {
             ($plugin:expr) => {
                 if $plugin {
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
             };
         }
@@ -481,7 +479,7 @@ impl gui::GUI for UI {
             if let SelectionState::Tooltip(ID::Lane(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
         if self.show_buildings.handle_event(input) {
             if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
@@ -490,7 +488,7 @@ impl gui::GUI for UI {
             if let SelectionState::Tooltip(ID::Building(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
         if self.show_intersections.handle_event(input) {
             if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
@@ -499,7 +497,7 @@ impl gui::GUI for UI {
             if let SelectionState::Tooltip(ID::Intersection(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
         if self.show_extra_shapes.handle_event(input) {
             if let SelectionState::SelectedExtraShape(_) = self.current_selection_state {
@@ -508,7 +506,7 @@ impl gui::GUI for UI {
             if let SelectionState::Tooltip(ID::ExtraShape(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
         if self.show_all_turn_icons.handle_event(input) {
             if let SelectionState::SelectedTurn(_) = self.current_selection_state {
@@ -517,7 +515,7 @@ impl gui::GUI for UI {
             if let SelectionState::Tooltip(ID::Turn(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
 
         stop_if_done!(self.show_parcels.handle_event(input));
@@ -533,11 +531,11 @@ impl gui::GUI for UI {
 
         if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
             self.geom_validator = Validator::start(&self.draw_map);
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
             self.sim_ctrl.sim.small_spawn(&self.map);
-            return gui::EventLoopMode::InputOnly;
+            return EventLoopMode::InputOnly;
         }
 
         match self.current_selection_state {
@@ -546,56 +544,56 @@ impl gui::GUI for UI {
                 // layers representing an entity) or by using some scary global mutable singleton
                 if input.unimportant_key_pressed(Key::D, "debug") {
                     self.sim_ctrl.sim.toggle_debug(id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::A, "start this parked car") {
                     self.sim_ctrl.sim.start_parked_car(&self.map, id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::F, "follow this car") {
                     self.follow = FollowState::FollowingCar(id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::R, "show this car's route") {
                     self.show_route = ShowRouteState::Active(AgentID::Car(id), HashSet::new());
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedPedestrian(id) => {
                 if input.key_pressed(Key::F, "follow this pedestrian") {
                     self.follow = FollowState::FollowingPedestrian(id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::R, "show this pedestrian's route") {
                     self.show_route =
                         ShowRouteState::Active(AgentID::Pedestrian(id), HashSet::new());
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedLane(id, _) => {
                 if input.key_pressed(Key::F, "start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
 
                 if self.map.get_l(id).is_sidewalk()
                     && input.key_pressed(Key::A, "spawn a pedestrian here")
                 {
                     self.sim_ctrl.sim.spawn_pedestrian(&self.map, id);
-                    return gui::EventLoopMode::InputOnly;
+                    return EventLoopMode::InputOnly;
                 }
             }
             SelectionState::SelectedIntersection(id) => {
                 if self.control_map.traffic_signals.contains_key(&id) {
                     if input.key_pressed(Key::E, &format!("edit traffic signal for {:?}", id)) {
                         self.traffic_signal_editor = TrafficSignalEditor::start(id);
-                        return gui::EventLoopMode::InputOnly;
+                        return EventLoopMode::InputOnly;
                     }
                 }
                 if self.control_map.stop_signs.contains_key(&id) {
                     if input.key_pressed(Key::E, &format!("edit stop sign for {:?}", id)) {
                         self.stop_sign_editor = StopSignEditor::start(id);
-                        return gui::EventLoopMode::InputOnly;
+                        return EventLoopMode::InputOnly;
                     }
                 }
             }
@@ -630,9 +628,9 @@ impl gui::GUI for UI {
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
         if self.sim_ctrl.event(input, &self.map, &self.control_map) {
-            gui::EventLoopMode::Animation
+            EventLoopMode::Animation
         } else {
-            gui::EventLoopMode::InputOnly
+            EventLoopMode::InputOnly
         }
     }
 

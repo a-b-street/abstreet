@@ -16,8 +16,6 @@ geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 piston = "*"
 piston2d-graphics = "*"
-piston2d-opengl_graphics = "*"
-pistoncore-glutin_window = "*"
 pretty_assertions = "0.5.1"
 quick-xml = "0.10.0"
 rand = "0.5.1"

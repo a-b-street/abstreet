@@ -1,10 +1,9 @@
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
-use ezgui::GfxCtx;
+use ezgui::{EventLoopMode, GfxCtx, GUI};
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use graphics::types::Color;
-use gui;
 use map_model::geometry;
 use piston::input::Key;
 use piston::window::Size;
@@ -26,8 +25,8 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(window_size: Size) -> UI {
-        let canvas = Canvas::new(window_size);
+    pub fn new() -> UI {
+        let canvas = Canvas::new();
         // TODO this is only for debug_intersection
         //canvas.cam_zoom = 7.5;
         //canvas.center_on_map_pt(1350.0, 400.0);
@@ -41,8 +40,8 @@ impl UI {
     }
 }
 
-impl gui::GUI for UI {
-    fn event(&mut self, input: &mut UserInput) -> gui::EventLoopMode {
+impl GUI for UI {
+    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
@@ -65,7 +64,7 @@ impl gui::GUI for UI {
 
         self.canvas.handle_event(input.use_event_directly());
 
-        gui::EventLoopMode::InputOnly
+        EventLoopMode::InputOnly
     }
 
     // TODO Weird to mut self just to set window_size on the canvas

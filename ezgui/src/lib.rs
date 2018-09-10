@@ -2,6 +2,7 @@
 
 extern crate aabb_quadtree;
 extern crate geom;
+extern crate glutin_window;
 extern crate graphics;
 extern crate opengl_graphics;
 extern crate palette;
@@ -11,6 +12,7 @@ pub mod canvas;
 pub mod input;
 mod keys;
 pub mod menu;
+mod runner;
 pub mod text;
 pub mod text_box;
 
@@ -18,6 +20,7 @@ use graphics::character::CharacterCache;
 use graphics::types::Color;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
+pub use runner::{run, EventLoopMode, GUI};
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {
