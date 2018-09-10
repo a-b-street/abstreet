@@ -873,3 +873,10 @@ ah no, it's because we use max_lookahead_dist in accel_to_follow, and the speed 
 https://www.reddit.com/r/rust_gamedev/comments/7f7w60/auditioning_a_replacement_for_bearlibterminal/
 
 https://github.com/ggez/ggez/blob/master/examples/drawing.rs
+
+things to follow:
+	- https://suhr.github.io/gsgt/
+	- https://wiki.alopex.li/LearningGfx
+	- https://github.com/nical/lyon/blob/master/examples/gfx_basic/src/main.rs
+
+	- porting to wasm: https://aimlesslygoingforward.com/blog/2017/12/25/dose-response-ported-to-webassembly/

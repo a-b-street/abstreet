@@ -12,5 +12,6 @@ members = [
   "headless",
   "kml",
   "map_model",
+  "playground_gui",
   "sim",
 ]

@@ -27,7 +27,6 @@ extern crate strum;
 extern crate strum_macros;
 
 mod colors;
-mod experimental;
 mod kml;
 mod plugins;
 mod render;
@@ -46,10 +45,6 @@ struct Flags {
     #[structopt(long = "rng_seed")]
     rng_seed: Option<u8>,
 
-    /// Use the experimental GUI
-    #[structopt(long = "experimental")]
-    experimental_gui: bool,
-
     /// Extra KML to display
     #[structopt(long = "kml")]
     kml: Option<String>,
@@ -61,19 +56,10 @@ struct Flags {
 
 fn main() {
     let flags = Flags::from_args();
-    if flags.experimental_gui {
-        ezgui::run(
-            experimental::UI::new(),
-            "Experimental drawing mechanism",
-            1024,
-            768,
-        );
-    } else {
-        ezgui::run(
-            ui::UI::new(flags.load, flags.scenario_name, flags.rng_seed, flags.kml),
-            "A/B Street",
-            1024,
-            768,
-        );
-    }
+    ezgui::run(
+        ui::UI::new(flags.load, flags.scenario_name, flags.rng_seed, flags.kml),
+        "A/B Street",
+        1024,
+        768,
+    );
 }

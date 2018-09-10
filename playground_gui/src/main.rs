@@ -1,8 +1,13 @@
+extern crate ezgui;
+extern crate geom;
+extern crate graphics;
+extern crate map_model;
+extern crate piston;
+
 use ezgui::canvas::Canvas;
 use ezgui::input::UserInput;
 use ezgui::{EventLoopMode, GfxCtx, GUI};
 use geom::{PolyLine, Polygon, Pt2D};
-use graphics;
 use graphics::types::Color;
 use map_model::geometry;
 use piston::input::Key;
@@ -360,4 +365,8 @@ impl Iterator for RelatedColors {
             0.8,
         ])
     }
+}
+
+fn main() {
+    ezgui::run(UI::new(), "GUI Playground", 1024, 768);
 }

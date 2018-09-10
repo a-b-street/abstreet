@@ -1,0 +1,11 @@
+[package]
+name = "playground_gui"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+
+[dependencies]
+ezgui = { path = "../ezgui" }
+geom = { path = "../geom" }
+map_model = { path = "../map_model" }
+piston = "*"
+piston2d-graphics = "*"
