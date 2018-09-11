@@ -8,14 +8,13 @@ use geom::{Line, Polygon, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model;
-use map_model::geometry;
-use render::{get_bbox, DrawLane};
+use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
+use render::{get_bbox, DrawLane, Renderable};
 use std::f64;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
-    pub id: map_model::IntersectionID,
+    pub id: IntersectionID,
     pub polygon: Polygon,
     crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
     center: Pt2D,
@@ -23,11 +22,7 @@ pub struct DrawIntersection {
 }
 
 impl DrawIntersection {
-    pub fn new(
-        inter: &map_model::Intersection,
-        map: &map_model::Map,
-        lanes: &Vec<DrawLane>,
-    ) -> DrawIntersection {
+    pub fn new(inter: &Intersection, map: &Map, lanes: &Vec<DrawLane>) -> DrawIntersection {
         let mut pts: Vec<Pt2D> = Vec::new();
         for l in &inter.incoming_lanes {
             let line = lanes[l.0].get_end_crossing();
@@ -53,38 +48,6 @@ impl DrawIntersection {
             crosswalks: calculate_crosswalks(inter, map),
             has_traffic_signal: inter.has_traffic_signal,
         }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        g.draw_polygon(color, &self.polygon);
-
-        let crosswalk_marking = graphics::Line::new(
-            cs.get(Colors::Crosswalk),
-            // TODO move this somewhere
-            0.25,
-        );
-        for crosswalk in &self.crosswalks {
-            for pair in crosswalk {
-                g.draw_line(
-                    &crosswalk_marking,
-                    [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
-                );
-            }
-        }
-
-        if self.has_traffic_signal {
-            self.draw_traffic_signal(g, cs);
-        } else {
-            self.draw_stop_sign(g, cs);
-        }
-    }
-
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.polygon.contains_pt(pt)
-    }
-
-    pub fn get_bbox(&self) -> Rect {
-        get_bbox(&self.polygon.get_bounds())
     }
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {
@@ -126,10 +89,51 @@ impl DrawIntersection {
     }
 }
 
-fn calculate_crosswalks(
-    inter: &map_model::Intersection,
-    map: &map_model::Map,
-) -> Vec<Vec<(Vec2d, Vec2d)>> {
+impl Renderable for DrawIntersection {
+    type ID = IntersectionID;
+
+    fn get_id(&self) -> IntersectionID {
+        self.id
+    }
+
+    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
+        g.draw_polygon(color, &self.polygon);
+
+        let crosswalk_marking = graphics::Line::new(
+            cs.get(Colors::Crosswalk),
+            // TODO move this somewhere
+            0.25,
+        );
+        for crosswalk in &self.crosswalks {
+            for pair in crosswalk {
+                g.draw_line(
+                    &crosswalk_marking,
+                    [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
+                );
+            }
+        }
+
+        if self.has_traffic_signal {
+            self.draw_traffic_signal(g, cs);
+        } else {
+            self.draw_stop_sign(g, cs);
+        }
+    }
+
+    fn get_bbox(&self) -> Rect {
+        get_bbox(&self.polygon.get_bounds())
+    }
+
+    fn contains_pt(&self, pt: Pt2D) -> bool {
+        self.polygon.contains_pt(pt)
+    }
+
+    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
+        vec![self.id.to_string()]
+    }
+}
+
+fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<(Vec2d, Vec2d)>> {
     let mut crosswalks = Vec::new();
 
     for id in inter
@@ -138,12 +142,12 @@ fn calculate_crosswalks(
         .chain(inter.incoming_lanes.iter())
     {
         let l1 = map.get_l(*id);
-        if l1.lane_type != map_model::LaneType::Sidewalk {
+        if l1.lane_type != LaneType::Sidewalk {
             continue;
         }
         let l2 = map.get_l(
             map.get_r(l1.parent)
-                .get_opposite_lane(l1.id, map_model::LaneType::Sidewalk)
+                .get_opposite_lane(l1.id, LaneType::Sidewalk)
                 .unwrap(),
         );
         if l2.id < l1.id {

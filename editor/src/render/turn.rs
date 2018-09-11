@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use aabb_quadtree::geom::Rect;
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::GfxCtx;
@@ -7,11 +8,9 @@ use geom::Pt2D;
 use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
-use map_model;
-use map_model::geometry;
-use map_model::TurnID;
+use map_model::{geometry, Map, Turn, TurnID};
 use render::{
-    BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
+    Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
     TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
@@ -26,7 +25,7 @@ pub struct DrawTurn {
 }
 
 impl DrawTurn {
-    pub fn new(map: &map_model::Map, turn: &map_model::Turn, offset_along_lane: usize) -> DrawTurn {
+    pub fn new(map: &Map, turn: &Turn, offset_along_lane: usize) -> DrawTurn {
         let offset_along_lane = offset_along_lane as f64;
         let src_pt = turn.line.pt1();
         let dst_pt = turn.line.pt2();
@@ -70,8 +69,17 @@ impl DrawTurn {
             BIG_ARROW_TIP_LENGTH,
         );
     }
+}
 
-    pub fn draw_icon(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
+// Little weird, but this is focused on the turn icon, not the full visualization
+impl Renderable for DrawTurn {
+    type ID = TurnID;
+
+    fn get_id(&self) -> TurnID {
+        self.id
+    }
+
+    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
         g.draw_ellipse(cs.get(Colors::TurnIconCircle), self.icon_circle);
 
         g.draw_arrow(
@@ -81,8 +89,15 @@ impl DrawTurn {
         );
     }
 
-    // for the icon
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn get_bbox(&self) -> Rect {
+        geometry::circle_to_bbox(&self.icon_circle)
+    }
+
+    fn contains_pt(&self, pt: Pt2D) -> bool {
         geometry::point_in_circle(&self.icon_circle, pt)
+    }
+
+    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
+        vec![self.id.to_string()]
     }
 }

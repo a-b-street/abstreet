@@ -13,6 +13,7 @@ use render::intersection::DrawIntersection;
 use render::lane::DrawLane;
 use render::parcel::DrawParcel;
 use render::turn::DrawTurn;
+use render::Renderable;
 use std::collections::HashMap;
 
 pub struct DrawMap {
@@ -83,7 +84,7 @@ impl DrawMap {
 
         let mut lanes_quadtree = QuadTree::default(map_bbox);
         for l in &lanes {
-            lanes_quadtree.insert_with_box(l.id, l.get_bbox_for_lane());
+            lanes_quadtree.insert_with_box(l.id, l.get_bbox());
         }
         let mut intersections_quadtree = QuadTree::default(map_bbox);
         for i in &intersections {

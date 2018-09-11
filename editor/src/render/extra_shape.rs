@@ -1,10 +1,11 @@
 use aabb_quadtree::geom::Rect;
+use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 use graphics::types::Color;
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
-use map_model::geometry;
-use render::{get_bbox, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
+use map_model::{geometry, Map};
+use render::{get_bbox, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
@@ -35,29 +36,37 @@ impl DrawExtraShape {
             attributes: s.attributes,
         }
     }
+}
 
-    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
+impl Renderable for DrawExtraShape {
+    type ID = ExtraShapeID;
+
+    fn get_id(&self) -> ExtraShapeID {
+        self.id
+    }
+
+    fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(color, &p),
             Shape::Circle(c) => g.draw_ellipse(color, c),
         }
     }
 
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        match self.shape {
-            Shape::Polygon(ref p) => p.contains_pt(pt),
-            Shape::Circle(c) => geometry::point_in_circle(&c, pt),
-        }
-    }
-
-    pub fn get_bbox(&self) -> Rect {
+    fn get_bbox(&self) -> Rect {
         match self.shape {
             Shape::Polygon(ref p) => get_bbox(&p.get_bounds()),
             Shape::Circle(c) => geometry::circle_to_bbox(&c),
         }
     }
 
-    pub fn tooltip_lines(&self) -> Vec<String> {
+    fn contains_pt(&self, pt: Pt2D) -> bool {
+        match self.shape {
+            Shape::Polygon(ref p) => p.contains_pt(pt),
+            Shape::Circle(c) => geometry::point_in_circle(&c, pt),
+        }
+    }
+
+    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
         let mut lines = Vec::new();
         for (k, v) in &self.attributes {
             // Make interesting atributes easier to spot

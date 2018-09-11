@@ -9,6 +9,7 @@ use map_model;
 use map_model::{BuildingID, IntersectionID, LaneID, Map, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
+use render::Renderable;
 use sim::{CarID, PedestrianID, Sim};
 use std::collections::HashSet;
 
@@ -196,7 +197,7 @@ impl SelectionState {
                                 if t.conflicts_with(turn) {
                                     let draw_t = draw_map.get_t(t.id);
                                     // TODO should we instead change color_t?
-                                    draw_t.draw_icon(g, cs.get(Colors::ConflictingTurn), cs);
+                                    draw_t.draw(g, cs.get(Colors::ConflictingTurn), cs);
                                 }
                             }
                         }
@@ -215,7 +216,7 @@ impl SelectionState {
                     ID::Pedestrian(id) => sim.ped_tooltip(id),
                     ID::Intersection(id) => vec![format!("{}", id)],
                     ID::Turn(id) => map.get_t(id).tooltip_lines(map),
-                    ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(),
+                    ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(map),
                 };
                 canvas.draw_mouse_tooltip(g, &lines);
             }

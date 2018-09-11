@@ -10,7 +10,7 @@ use graphics;
 use graphics::types::Color;
 use map_model;
 use map_model::{geometry, LaneID};
-use render::{get_bbox, PARCEL_BOUNDARY_THICKNESS};
+use render::{get_bbox, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
 struct Marking {
@@ -86,10 +86,6 @@ impl DrawLane {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        g.draw_polygon(color, &self.polygon);
-    }
-
     pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
         for m in &self.markings {
             let line = if m.round {
@@ -126,15 +122,36 @@ impl DrawLane {
         }
     }
 
-    pub fn get_bbox_for_lane(&self) -> Rect {
+    // Get the line marking the end of the lane, perpendicular to the direction of the lane
+    pub fn get_end_crossing(&self) -> &Line {
+        &self.end_crossing
+    }
+
+    pub fn get_start_crossing(&self) -> &Line {
+        &self.start_crossing
+    }
+}
+
+impl Renderable for DrawLane {
+    type ID = LaneID;
+
+    fn get_id(&self) -> LaneID {
+        self.id
+    }
+
+    fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {
+        g.draw_polygon(color, &self.polygon);
+    }
+
+    fn get_bbox(&self) -> Rect {
         get_bbox(&self.polygon.get_bounds())
     }
 
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
     }
 
-    pub fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
         let l = map.get_l(self.id);
         let r = map.get_r(l.parent);
         let mut lines = vec![
@@ -155,15 +172,6 @@ impl DrawLane {
             lines.push(format!("{} = {}", k, v));
         }
         lines
-    }
-
-    // Get the line marking the end of the lane, perpendicular to the direction of the lane
-    pub(crate) fn get_end_crossing(&self) -> &Line {
-        &self.end_crossing
-    }
-
-    pub(crate) fn get_start_crossing(&self) -> &Line {
-        &self.start_crossing
     }
 }
 

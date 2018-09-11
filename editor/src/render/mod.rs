@@ -9,12 +9,16 @@ mod parcel;
 mod turn;
 
 use aabb_quadtree::geom::{Point, Rect};
-use geom::Bounds;
-use map_model::geometry;
+use colors::ColorScheme;
+use ezgui::GfxCtx;
+use geom::{Bounds, Pt2D};
+use graphics::types::Color;
+use map_model::{geometry, Map};
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::turn::DrawTurn;
 use std::f64;
+use std::fmt;
 
 // These are all in meters
 const PARCEL_BOUNDARY_THICKNESS: f64 = 0.5;
@@ -38,4 +42,18 @@ pub fn get_bbox(b: &Bounds) -> Rect {
             y: b.max_y as f32,
         },
     }
+}
+
+pub trait Renderable {
+    type ID: fmt::Display;
+
+    fn get_id(&self) -> Self::ID;
+    // TODO Building needs two colors
+    // TODO maybe each renderable should decide color logic, using the colorscheme. pass in info
+    // from other plugins like 'selected?'
+    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme);
+    // TODO Maybe return Bounds
+    fn get_bbox(&self) -> Rect;
+    fn contains_pt(&self, pt: Pt2D) -> bool;
+    fn tooltip_lines(&self, map: &Map) -> Vec<String>;
 }

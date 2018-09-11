@@ -31,6 +31,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::warp::WarpState;
 use render;
+use render::Renderable;
 use sim;
 use sim::{AgentID, CarID, CarState, PedestrianID};
 use std::collections::{HashMap, HashSet};
@@ -350,7 +351,7 @@ impl UI {
     }
 
     // Returns (boundary, fill) color
-    fn color_parcel(&self, id: map_model::ParcelID) -> (Color, Color) {
+    fn color_parcel(&self, id: map_model::ParcelID) -> Color {
         const COLORS: [Color; 14] = [
             // TODO these are awful choices
             [1.0, 1.0, 0.0, 1.0],
@@ -369,10 +370,11 @@ impl UI {
             [0.8, 0.2, 0.5, 0.5],
         ];
         let p = self.map.get_p(id);
-        (
+        /*(
             self.cs.get(Colors::ParcelBoundary),
             COLORS[p.block % COLORS.len()],
-        )
+        )*/
+        COLORS[p.block % COLORS.len()]
     }
 
     fn color_car(&self, id: CarID) -> Color {
@@ -640,7 +642,7 @@ impl GUI for UI {
 
         if self.show_parcels.is_enabled() {
             for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                p.draw(g, self.color_parcel(p.id));
+                p.draw(g, self.color_parcel(p.id), &self.cs);
             }
         }
 
@@ -650,7 +652,7 @@ impl GUI for UI {
             Vec::new()
         };
         for l in &lanes_onscreen {
-            l.draw(g, self.color_lane(l.id));
+            l.draw(g, self.color_lane(l.id), &self.cs);
             if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
                 l.draw_detail(g, &self.cs);
             }
@@ -669,7 +671,7 @@ impl GUI for UI {
                     if show_icons {
                         self.draw_map
                             .get_t(*t)
-                            .draw_icon(g, self.color_turn_icon(*t), &self.cs);
+                            .draw(g, self.color_turn_icon(*t), &self.cs);
                     }
                     for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
                         c.draw(g, self.color_car(c.id));
@@ -697,7 +699,8 @@ impl GUI for UI {
                 b.draw(
                     g,
                     self.color_building(b.id),
-                    self.cs.get(Colors::BuildingBoundary),
+                    &self.cs,
+                    //self.cs.get(Colors::BuildingBoundary),
                 );
             }
         }
@@ -721,6 +724,7 @@ impl GUI for UI {
                     self.current_selection_state
                         .color_es(s.id, &self.cs)
                         .unwrap_or(self.cs.get(Colors::ExtraShape)),
+                    &self.cs,
                 );
             }
         }

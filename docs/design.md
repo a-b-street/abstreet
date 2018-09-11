@@ -880,3 +880,31 @@ things to follow:
 	- https://github.com/nical/lyon/blob/master/examples/gfx_basic/src/main.rs
 
 	- porting to wasm: https://aimlesslygoingforward.com/blog/2017/12/25/dose-response-ported-to-webassembly/
+
+## Refactoring UI
+
+I want to make bus stops be a selectable layer, and I want to add lake/park
+areas soon. What did
+https://github.com/dabreegster/abstreet/commit/b55e0ae263fcfe4621765a7d4a8d208ab5b89e76#diff-8257d0ba4a304de185c0125ff99e353b
+have to add?
+
+- color scheme entry
+- an ID (displayable)
+- boilerplate in selection plugin
+	- a way to ask for tooltip lines
+- boilerplate in the hider plugin
+- DrawExtraShape
+	- draw, contains_pt, get_bbox, tooltip_lines
+- DrawMap
+	- list of stuff, with ID lookup
+	- a quadtree and way to get onscreen stuff
+- UI
+	- a toggleablelayer for it
+		- and clearing selection state maybe
+	- are we mouseover it? (right order)
+	- draw it (right order)
+
+try a quadtree with any type of object.
+
+
+alright, time to move color logic. let's see what it takes for each Renderable to decide its own color -- what state do they need?

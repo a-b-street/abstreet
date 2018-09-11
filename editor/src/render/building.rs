@@ -1,12 +1,13 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
+use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use graphics::types::Color;
 use map_model::{Building, BuildingID, Map};
-use render::{get_bbox, BUILDING_BOUNDARY_THICKNESS};
+use render::{get_bbox, Renderable, BUILDING_BOUNDARY_THICKNESS};
 use std::f64;
 
 #[derive(Debug)]
@@ -36,17 +37,41 @@ impl DrawBuilding {
         // TODO tune width
         g.draw_line(&graphics::Line::new_round(path_color, 1.0), self.front_path);
     }
+}
 
-    pub fn draw(&self, g: &mut GfxCtx, fill_color: Color, boundary_color: Color) {
-        g.draw_polygon(boundary_color, &self.boundary_polygon);
-        g.draw_polygon(fill_color, &self.fill_polygon);
+impl Renderable for DrawBuilding {
+    type ID = BuildingID;
+
+    fn get_id(&self) -> BuildingID {
+        self.id
     }
 
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+    // TODO need two colors here
+    fn draw(&self, g: &mut GfxCtx, fill_color: Color, _cs: &ColorScheme) {
+        g.draw_polygon(fill_color, &self.fill_polygon);
+    }
+    /*fn draw(&self, g: &mut GfxCtx, fill_color: Color, boundary_color: Color) {
+        g.draw_polygon(boundary_color, &self.boundary_polygon);
+        g.draw_polygon(fill_color, &self.fill_polygon);
+    }*/
+    /*
+            self.current_selection_state.color_b(b, &self.cs),
+            self.current_search_state.color_b(b, &self.cs),
+            self.osm_classifier.color_b(b, &self.cs),
+            */
+
+    fn get_bbox(&self) -> Rect {
+        let mut b = self.fill_polygon.get_bounds();
+        b.update(self.front_path[0], self.front_path[1]);
+        b.update(self.front_path[2], self.front_path[3]);
+        get_bbox(&b)
+    }
+
+    fn contains_pt(&self, pt: Pt2D) -> bool {
         self.fill_polygon.contains_pt(pt)
     }
 
-    pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
         let b = map.get_b(self.id);
         let mut lines = vec![format!(
             "Building #{:?} (from OSM way {})",
@@ -56,12 +81,5 @@ impl DrawBuilding {
             lines.push(format!("{} = {}", k, v));
         }
         lines
-    }
-
-    pub fn get_bbox(&self) -> Rect {
-        let mut b = self.fill_polygon.get_bounds();
-        b.update(self.front_path[0], self.front_path[1]);
-        b.update(self.front_path[2], self.front_path[3]);
-        get_bbox(&b)
     }
 }
