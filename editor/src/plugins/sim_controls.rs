@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::input::UserInput;
+use ezgui::UserInput;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
 use sim;

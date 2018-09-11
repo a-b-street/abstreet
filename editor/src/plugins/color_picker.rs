@@ -1,10 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
-use ezgui::menu;
-use ezgui::GfxCtx;
+use ezgui::{Canvas, GfxCtx, Menu, MenuResult, UserInput};
 use graphics;
 use piston::input::{Key, MouseCursorEvent};
 use std::str::FromStr;
@@ -19,7 +16,7 @@ const TILE_DIMS: u32 = 2;
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
     Inactive,
-    Choosing(menu::Menu),
+    Choosing(Menu),
     // Remember the original color, in case we revert
     PickingColor(Colors, graphics::types::Color),
 }
@@ -39,7 +36,7 @@ impl ColorPicker {
         let active = match self {
             ColorPicker::Inactive => {
                 if input.unimportant_key_pressed(Key::D8, "configure colors") {
-                    new_state = Some(ColorPicker::Choosing(menu::Menu::new(
+                    new_state = Some(ColorPicker::Choosing(Menu::new(
                         Colors::iter().map(|c| c.to_string()).collect(),
                     )));
                     true
@@ -50,11 +47,11 @@ impl ColorPicker {
             ColorPicker::Choosing(ref mut menu) => {
                 // TODO arrow keys scroll canvas too
                 match menu.event(input.use_event_directly()) {
-                    menu::Result::Canceled => {
+                    MenuResult::Canceled => {
                         new_state = Some(ColorPicker::Inactive);
                     }
-                    menu::Result::StillActive => {}
-                    menu::Result::Done(choice) => {
+                    MenuResult::StillActive => {}
+                    MenuResult::Done(choice) => {
                         let c = Colors::from_str(&choice).unwrap();
                         new_state = Some(ColorPicker::PickingColor(c, cs.get(c)));
                     }

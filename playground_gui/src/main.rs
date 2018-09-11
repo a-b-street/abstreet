@@ -4,9 +4,7 @@ extern crate graphics;
 extern crate map_model;
 extern crate piston;
 
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
-use ezgui::{EventLoopMode, GfxCtx, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::geometry;

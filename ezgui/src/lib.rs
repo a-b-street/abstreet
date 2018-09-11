@@ -8,19 +8,23 @@ extern crate opengl_graphics;
 extern crate palette;
 extern crate piston;
 
-pub mod canvas;
-pub mod input;
+mod canvas;
+mod input;
 mod keys;
-pub mod menu;
+mod menu;
 mod runner;
-pub mod text;
-pub mod text_box;
+mod text;
+mod text_box;
 
+pub use canvas::Canvas;
 use graphics::character::CharacterCache;
 use graphics::types::Color;
+pub use input::UserInput;
+pub use menu::{Menu, MenuResult};
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, EventLoopMode, GUI};
+pub use text_box::TextBox;
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {

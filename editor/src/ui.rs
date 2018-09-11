@@ -6,10 +6,7 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui;
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
-use ezgui::{EventLoopMode, GfxCtx, ToggleableLayer, GUI};
+use ezgui::{shift_color, Canvas, EventLoopMode, GfxCtx, ToggleableLayer, UserInput, GUI};
 use flame;
 use geom::Pt2D;
 use graphics::types::Color;
@@ -384,10 +381,10 @@ impl UI {
         }
         // TODO if it's a bus, color it differently -- but how? :\
         match self.sim_ctrl.sim.get_car_state(id) {
-            CarState::Debug => ezgui::shift_color(self.cs.get(Colors::DebugCar), id.0),
-            CarState::Moving => ezgui::shift_color(self.cs.get(Colors::MovingCar), id.0),
-            CarState::Stuck => ezgui::shift_color(self.cs.get(Colors::StuckCar), id.0),
-            CarState::Parked => ezgui::shift_color(self.cs.get(Colors::ParkedCar), id.0),
+            CarState::Debug => shift_color(self.cs.get(Colors::DebugCar), id.0),
+            CarState::Moving => shift_color(self.cs.get(Colors::MovingCar), id.0),
+            CarState::Stuck => shift_color(self.cs.get(Colors::StuckCar), id.0),
+            CarState::Parked => shift_color(self.cs.get(Colors::ParkedCar), id.0),
         }
     }
 
@@ -395,7 +392,7 @@ impl UI {
         if let Some(c) = self.current_selection_state.color_p(id, &self.cs) {
             return c;
         }
-        ezgui::shift_color(self.cs.get(Colors::Pedestrian), id.0)
+        shift_color(self.cs.get(Colors::Pedestrian), id.0)
     }
 
     fn show_icons_for(&self, id: IntersectionID) -> bool {

@@ -43,7 +43,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, lines: &[String], x1: f64, y1: f64) {
     }
 }
 
-pub(crate) fn dims(g: &mut GfxCtx, lines: &[String]) -> (f64, f64) {
+pub fn dims(g: &mut GfxCtx, lines: &[String]) -> (f64, f64) {
     let longest_line = lines.iter().max_by_key(|l| l.len()).unwrap();
     let width = g.glyphs.width(FONT_SIZE, longest_line).unwrap();
     let height = (lines.len() as f64) * LINE_HEIGHT;

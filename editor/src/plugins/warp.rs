@@ -1,6 +1,4 @@
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
-use ezgui::text_box::TextBox;
+use ezgui::{Canvas, TextBox, UserInput};
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use piston::input::Key;
 use plugins::selection::SelectionState;

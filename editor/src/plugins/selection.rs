@@ -2,9 +2,7 @@
 
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
-use ezgui::GfxCtx;
+use ezgui::{Canvas, GfxCtx, UserInput};
 use graphics::types::Color;
 use kml::ExtraShapeID;
 use map_model;

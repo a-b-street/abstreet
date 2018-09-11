@@ -4,7 +4,7 @@
 
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::input::UserInput;
+use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::Map;
 use map_model::{IntersectionID, Turn};

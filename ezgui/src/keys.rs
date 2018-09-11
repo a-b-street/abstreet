@@ -1,6 +1,6 @@
 use piston::input::Key;
 
-pub(crate) fn describe_key(key: Key) -> String {
+pub fn describe_key(key: Key) -> String {
     match key {
         Key::Space => "Space".to_string(),
         Key::Escape => "Escape".to_string(),
@@ -17,7 +17,7 @@ pub(crate) fn describe_key(key: Key) -> String {
 }
 
 // Returns uppercase form
-pub(crate) fn key_to_char(key: Key) -> Option<char> {
+pub fn key_to_char(key: Key) -> Option<char> {
     match key {
         Key::Space => Some(' '),
         Key::A => Some('A'),

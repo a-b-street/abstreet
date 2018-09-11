@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::input::UserInput;
-use ezgui::text_box::TextBox;
+use ezgui::{TextBox, UserInput};
 use graphics::types::Color;
 use map_model;
 use piston::input::Key;

@@ -2,7 +2,7 @@
 
 use piston::input::{Button, Event, Key, PressEvent};
 
-pub enum Result {
+pub enum MenuResult {
     Canceled,
     StillActive,
     Done(String),
@@ -21,13 +21,13 @@ impl Menu {
         }
     }
 
-    pub fn event(&mut self, ev: &Event) -> Result {
+    pub fn event(&mut self, ev: &Event) -> MenuResult {
         if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
-            return Result::Canceled;
+            return MenuResult::Canceled;
         }
 
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return Result::Done(self.choices[self.current_idx].clone());
+            return MenuResult::Done(self.choices[self.current_idx].clone());
         }
 
         if let Some(Button::Keyboard(Key::Up)) = ev.press_args() {
@@ -41,7 +41,7 @@ impl Menu {
             }
         }
 
-        Result::StillActive
+        MenuResult::StillActive
     }
 
     pub fn lines_to_display(&self) -> Vec<String> {

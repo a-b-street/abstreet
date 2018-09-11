@@ -1,5 +1,4 @@
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
+use ezgui::{Canvas, UserInput};
 use map_model::Map;
 use piston::input::Key;
 use sim::{CarID, PedestrianID, Sim};

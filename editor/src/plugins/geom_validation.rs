@@ -1,5 +1,4 @@
-use ezgui::canvas::Canvas;
-use ezgui::input::UserInput;
+use ezgui::{Canvas, UserInput};
 use generator;
 use geo;
 use geo::prelude::Intersects;

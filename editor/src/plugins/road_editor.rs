@@ -1,5 +1,5 @@
 use control::ControlMap;
-use ezgui::input::UserInput;
+use ezgui::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
 use piston::input::Key;
 use plugins::selection::SelectionState;
