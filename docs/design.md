@@ -903,8 +903,29 @@ have to add?
 		- and clearing selection state maybe
 	- are we mouseover it? (right order)
 	- draw it (right order)
+	- pick the color for it
 
 try a quadtree with any type of object.
 
 
 alright, time to move color logic. let's see what it takes for each Renderable to decide its own color -- what state do they need?
+- dont forget: search active and lane not a match does yield a color.
+- woops, sim Draw{Car,Ped} doesnt implement Renderable. but it'll be nested anyway... we dont want to move stuff in the quadtree constantly. the 'get everything onscreen' routine should do that, interpreting Lanes and Intersections in initial pass of results correctly by querying for more stuff.
+- actually, still undecided about color and RenderOptions...
+	- the whole motivation -- one draw() interface can only return a single color. and dont want to add code to UI for every single object type.
+		- maybe send in Option<Box<Plugin>> of the current thing, and then it can have a more specific method for each object type? or is that too far the other direction again?
+	- send in Option<Color>, letting each plugin vote?
+	- maybe if we only have one or two active plugins, it'll be easier to understand?
+	- would it be weird to invert and send in all the plugins? the point is
+	  kinda for there to be one place to handle interactions between
+          plugins -- UI. having a strong concept of one active at a time would probably
+          _really_ help.
+	- maybe plugins do have a single color_obj(enum of IDs) -> Option<Color>?
+- make it easier to fill out RenderOptions for things generically
+- next step: extra things like draw_front_path also take cs, not a specific color -- if it makes sense.
+
+
+- refactor selection plugin's color_something
+- selection plugin currently has this weird case where it can cycle through turns at an intersection. MOVE THAT out.
+	- more generally, move out all custom logic. make other things know if something is selected and do special stuff if so.
+	- and make it act generic at last! \o/

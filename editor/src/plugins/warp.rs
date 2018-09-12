@@ -73,7 +73,7 @@ fn warp(
                 if let Some(r) = map.maybe_get_r(id) {
                     let l = map.get_l(r.children_forwards[0].0);
                     println!("Warping to {}, which belongs to {}", l.id, id);
-                    *selection_state = SelectionState::SelectedLane(l.id, None);
+                    *selection_state = SelectionState::SelectedLane(l.id);
                     l.first_pt()
                 } else {
                     println!("{} doesn't exist", id);
@@ -84,7 +84,7 @@ fn warp(
                 let id = LaneID(idx);
                 if let Some(l) = map.maybe_get_l(id) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedLane(id, None);
+                    *selection_state = SelectionState::SelectedLane(id);
                     l.first_pt()
                 } else {
                     println!("{} doesn't exist", id);

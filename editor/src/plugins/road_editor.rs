@@ -45,7 +45,7 @@ impl RoadEditor {
             RoadEditor::Active(edits) => {
                 if input.key_pressed(Key::Return, "stop editing roads") {
                     new_state = Some(RoadEditor::Inactive(edits.clone()));
-                } else if let SelectionState::SelectedLane(id, _) = *current_selection {
+                } else if let SelectionState::SelectedLane(id) = *current_selection {
                     let lane = map.get_l(id);
                     let road = map.get_r(lane.parent);
                     let reason = EditReason::BasemapWrong; // TODO be able to choose

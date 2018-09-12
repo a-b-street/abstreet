@@ -12,4 +12,5 @@ pub mod steep;
 pub mod stop_sign_editor;
 pub mod traffic_signal_editor;
 pub mod turn_colors;
+pub mod turn_cycler;
 pub mod warp;

@@ -30,8 +30,7 @@ pub enum ID {
 pub enum SelectionState {
     Empty,
     SelectedIntersection(IntersectionID),
-    // Second param is the current_turn_index
-    SelectedLane(LaneID, Option<usize>),
+    SelectedLane(LaneID),
     SelectedBuilding(BuildingID),
     SelectedTurn(TurnID),
     SelectedCar(CarID),
@@ -64,16 +63,9 @@ impl SelectionState {
     ) -> bool {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
-            SelectionState::SelectedLane(id, current_turn_index) => {
+            SelectionState::SelectedLane(id) => {
                 if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
                     new_state = Some(SelectionState::Tooltip(ID::Lane(*id)));
-                    true
-                } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
-                    let idx = match *current_turn_index {
-                        Some(i) => i + 1,
-                        None => 0,
-                    };
-                    new_state = Some(SelectionState::SelectedLane(*id, Some(idx)));
                     true
                 } else if input.key_pressed(Key::D, "debug") {
                     map.get_l(*id).dump_debug();
@@ -174,7 +166,8 @@ impl SelectionState {
             | SelectionState::SelectedBuilding(_)
             | SelectionState::SelectedCar(_)
             | SelectionState::SelectedPedestrian(_)
-            | SelectionState::SelectedExtraShape(_) => {}
+            | SelectionState::SelectedExtraShape(_)
+            | SelectionState::SelectedLane(_) => {}
             SelectionState::SelectedIntersection(id) => {
                 if let Some(signal) = control_map.traffic_signals.get(&id) {
                     let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
@@ -182,30 +175,6 @@ impl SelectionState {
                         draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
                     }
                 }
-            }
-            SelectionState::SelectedLane(id, current_turn_index) => {
-                let relevant_turns = map.get_turns_from_lane(id);
-                if !relevant_turns.is_empty() {
-                    match current_turn_index {
-                        Some(idx) => {
-                            let turn = relevant_turns[idx % relevant_turns.len()];
-                            let draw_turn = draw_map.get_t(turn.id);
-                            draw_turn.draw_full(g, cs.get(Colors::Turn));
-
-                            for t in map.get_turns_in_intersection(turn.parent) {
-                                if t.conflicts_with(turn) {
-                                    let draw_t = draw_map.get_t(t.id);
-                                    // TODO should we instead change color_t?
-                                    draw_t.draw(g, cs.get(Colors::ConflictingTurn), cs);
-                                }
-                            }
-                        }
-                        None => for turn in &relevant_turns {
-                            draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
-                        },
-                    }
-                }
-                //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
             SelectionState::Tooltip(some_id) => {
                 let lines = match some_id {
@@ -225,7 +194,7 @@ impl SelectionState {
     pub fn color_for(&self, id: ID, cs: &ColorScheme) -> Option<Color> {
         let selected = match (self, id) {
             (SelectionState::SelectedIntersection(x), ID::Intersection(y)) => *x == y,
-            (SelectionState::SelectedLane(x, _), ID::Lane(y)) => *x == y,
+            (SelectionState::SelectedLane(x), ID::Lane(y)) => *x == y,
             (SelectionState::SelectedBuilding(x), ID::Building(y)) => *x == y,
             (SelectionState::SelectedTurn(x), ID::Turn(y)) => *x == y,
             (SelectionState::SelectedCar(x), ID::Car(y)) => *x == y,
@@ -245,7 +214,7 @@ impl SelectionState {
 fn selection_state_for(some_id: ID) -> SelectionState {
     match some_id {
         ID::Intersection(id) => SelectionState::SelectedIntersection(id),
-        ID::Lane(id) => SelectionState::SelectedLane(id, None),
+        ID::Lane(id) => SelectionState::SelectedLane(id),
         ID::Building(id) => SelectionState::SelectedBuilding(id),
         ID::Turn(id) => SelectionState::SelectedTurn(id),
         ID::Car(id) => SelectionState::SelectedCar(id),
@@ -274,7 +243,7 @@ impl Hider {
 
         let item = match state {
             SelectionState::SelectedIntersection(id) => Some(ID::Intersection(*id)),
-            SelectionState::SelectedLane(id, _) => Some(ID::Lane(*id)),
+            SelectionState::SelectedLane(id) => Some(ID::Lane(*id)),
             SelectionState::SelectedBuilding(id) => Some(ID::Building(*id)),
             SelectionState::SelectedExtraShape(id) => Some(ID::ExtraShape(*id)),
             _ => None,

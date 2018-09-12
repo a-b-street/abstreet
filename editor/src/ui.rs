@@ -29,6 +29,7 @@ use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
+use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
 use render;
 use render::Renderable;
@@ -75,6 +76,7 @@ pub struct UI {
     sim_ctrl: SimController,
     color_picker: ColorPicker,
     geom_validator: Validator,
+    turn_cycler: TurnCyclerState,
 
     canvas: Canvas,
     // TODO maybe never pass this to other places? Always resolve colors here?
@@ -150,6 +152,7 @@ impl UI {
             road_editor: RoadEditor::new(edits),
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
+            turn_cycler: TurnCyclerState::new(),
 
             canvas: Canvas::new(),
             cs: ColorScheme::load("color_scheme").unwrap(),
@@ -478,7 +481,7 @@ impl GUI for UI {
         );
 
         if self.show_lanes.handle_event(input) {
-            if let SelectionState::SelectedLane(_, _) = self.current_selection_state {
+            if let SelectionState::SelectedLane(_) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::Lane(_)) = self.current_selection_state {
@@ -533,6 +536,7 @@ impl GUI for UI {
             self.geom_validator
                 .event(input, &mut self.canvas, &self.map)
         );
+        stop_if_done!(self.turn_cycler.event(input, &self.current_selection_state));
 
         if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
             self.geom_validator = Validator::start(&self.draw_map);
@@ -575,7 +579,7 @@ impl GUI for UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::SelectedLane(id, _) => {
+            SelectionState::SelectedLane(id) => {
                 if input.key_pressed(Key::F, "start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
                     return EventLoopMode::InputOnly;
@@ -735,6 +739,8 @@ impl GUI for UI {
             }
         }
 
+        self.turn_cycler
+            .draw(&self.map, &self.draw_map, &self.cs, g);
         self.current_selection_state.draw(
             &self.map,
             &self.canvas,
