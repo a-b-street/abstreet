@@ -1,16 +1,19 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
+use control::ControlMap;
 use ezgui::{GfxCtx, UserInput};
-use map_model::{LaneID, Map};
+use map_model::{IntersectionID, LaneID, Map};
 use piston::input::Key;
 use plugins::selection::SelectionState;
 use render::{DrawMap, Renderable};
+use sim::Sim;
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
     Inactive,
     Active(LaneID, Option<usize>),
+    Intersection(IntersectionID),
 }
 
 impl TurnCyclerState {
@@ -21,6 +24,10 @@ impl TurnCyclerState {
     pub fn event(&mut self, input: &mut UserInput, current_selection: &SelectionState) -> bool {
         let current_id = match current_selection {
             SelectionState::SelectedLane(id) => *id,
+            SelectionState::SelectedIntersection(id) => {
+                *self = TurnCyclerState::Intersection(*id);
+                return false;
+            }
             _ => {
                 *self = TurnCyclerState::Inactive;
                 return false;
@@ -29,7 +36,7 @@ impl TurnCyclerState {
 
         let mut new_state: Option<TurnCyclerState> = None;
         let active = match self {
-            TurnCyclerState::Inactive => {
+            TurnCyclerState::Inactive | TurnCyclerState::Intersection(_) => {
                 new_state = Some(TurnCyclerState::Active(current_id, None));
                 false
             }
@@ -55,7 +62,15 @@ impl TurnCyclerState {
         active
     }
 
-    pub fn draw(&self, map: &Map, draw_map: &DrawMap, cs: &ColorScheme, g: &mut GfxCtx) {
+    pub fn draw(
+        &self,
+        map: &Map,
+        draw_map: &DrawMap,
+        control_map: &ControlMap,
+        sim: &Sim,
+        cs: &ColorScheme,
+        g: &mut GfxCtx,
+    ) {
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -81,6 +96,14 @@ impl TurnCyclerState {
                     }
                 }
                 //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
+            }
+            TurnCyclerState::Intersection(id) => {
+                if let Some(signal) = control_map.traffic_signals.get(&id) {
+                    let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
+                    for t in &cycle.turns {
+                        draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
+                    }
+                }
             }
         }
     }

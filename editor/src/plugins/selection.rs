@@ -155,9 +155,7 @@ impl SelectionState {
         map: &Map,
         canvas: &Canvas,
         draw_map: &render::DrawMap,
-        control_map: &ControlMap,
         sim: &Sim,
-        cs: &ColorScheme,
         g: &mut GfxCtx,
     ) {
         match *self {
@@ -167,15 +165,8 @@ impl SelectionState {
             | SelectionState::SelectedCar(_)
             | SelectionState::SelectedPedestrian(_)
             | SelectionState::SelectedExtraShape(_)
-            | SelectionState::SelectedLane(_) => {}
-            SelectionState::SelectedIntersection(id) => {
-                if let Some(signal) = control_map.traffic_signals.get(&id) {
-                    let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
-                    for t in &cycle.turns {
-                        draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
-                    }
-                }
-            }
+            | SelectionState::SelectedLane(_)
+            | SelectionState::SelectedIntersection(_) => {}
             SelectionState::Tooltip(some_id) => {
                 let lines = match some_id {
                     ID::Lane(id) => draw_map.get_l(id).tooltip_lines(map),

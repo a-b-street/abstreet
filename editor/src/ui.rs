@@ -739,15 +739,19 @@ impl GUI for UI {
             }
         }
 
-        self.turn_cycler
-            .draw(&self.map, &self.draw_map, &self.cs, g);
-        self.current_selection_state.draw(
+        self.turn_cycler.draw(
             &self.map,
-            &self.canvas,
             &self.draw_map,
             &self.control_map,
             &self.sim_ctrl.sim,
             &self.cs,
+            g,
+        );
+        self.current_selection_state.draw(
+            &self.map,
+            &self.canvas,
+            &self.draw_map,
+            &self.sim_ctrl.sim,
             g,
         );
 
