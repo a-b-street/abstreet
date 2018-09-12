@@ -286,7 +286,8 @@ impl UI {
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
-            self.current_selection_state.color_l(l, &self.cs),
+            self.current_selection_state
+                .color_for(ID::Lane(l.id), &self.cs),
             self.show_route.color_l(l.id, &self.cs),
             self.current_search_state.color_l(l, &self.map, &self.cs),
             self.floodfiller.color_l(l, &self.cs),
@@ -314,7 +315,7 @@ impl UI {
         };
 
         self.current_selection_state
-            .color_i(i, &self.cs)
+            .color_for(ID::Intersection(i.id), &self.cs)
             .unwrap_or(default_color)
     }
 
@@ -322,7 +323,7 @@ impl UI {
         let t = self.map.get_t(id);
         // TODO traffic signal selection logic maybe moves here
         self.current_selection_state
-            .color_t(t, &self.cs)
+            .color_for(ID::Turn(t.id), &self.cs)
             .unwrap_or_else(|| {
                 self.stop_sign_editor
                     .color_t(t, &self.control_map, &self.cs)
@@ -341,7 +342,8 @@ impl UI {
     fn color_building(&self, id: map_model::BuildingID) -> Color {
         let b = self.map.get_b(id);
         vec![
-            self.current_selection_state.color_b(b, &self.cs),
+            self.current_selection_state
+                .color_for(ID::Building(b.id), &self.cs),
             self.current_search_state.color_b(b, &self.cs),
             self.osm_classifier.color_b(b, &self.cs),
         ].iter()
@@ -378,7 +380,9 @@ impl UI {
     }
 
     fn color_car(&self, id: CarID) -> Color {
-        if let Some(c) = self.current_selection_state.color_c(id, &self.cs) {
+        if let Some(c) = self.current_selection_state
+            .color_for(ID::Car(id), &self.cs)
+        {
             return c;
         }
         // TODO if it's a bus, color it differently -- but how? :\
@@ -391,7 +395,9 @@ impl UI {
     }
 
     fn color_ped(&self, id: PedestrianID) -> Color {
-        if let Some(c) = self.current_selection_state.color_p(id, &self.cs) {
+        if let Some(c) = self.current_selection_state
+            .color_for(ID::Pedestrian(id), &self.cs)
+        {
             return c;
         }
         shift_color(self.cs.get(Colors::Pedestrian), id.0)
@@ -722,7 +728,7 @@ impl GUI for UI {
                 s.draw(
                     g,
                     self.current_selection_state
-                        .color_es(s.id, &self.cs)
+                        .color_for(ID::ExtraShape(s.id), &self.cs)
                         .unwrap_or(self.cs.get(Colors::ExtraShape)),
                     &self.cs,
                 );

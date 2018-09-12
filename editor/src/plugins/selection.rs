@@ -5,7 +5,6 @@ use control::ControlMap;
 use ezgui::{Canvas, GfxCtx, UserInput};
 use graphics::types::Color;
 use kml::ExtraShapeID;
-use map_model;
 use map_model::{BuildingID, IntersectionID, LaneID, Map, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
 use render;
@@ -223,68 +222,22 @@ impl SelectionState {
         }
     }
 
-    // TODO instead, since color logic is complicated anyway, just have a way to ask "are we
-    // selecting this generic ID?"
-
-    pub fn color_l(&self, l: &map_model::Lane, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedLane(id, _) if l.id == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::Lane(id)) if l.id == id => Some(cs.get(Colors::Selected)),
-            _ => None,
-        }
-    }
-    pub fn color_i(&self, i: &map_model::Intersection, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedIntersection(id) if i.id == id => {
-                Some(cs.get(Colors::Selected))
-            }
-            SelectionState::Tooltip(ID::Intersection(id)) if i.id == id => {
-                Some(cs.get(Colors::Selected))
-            }
-            _ => None,
-        }
-    }
-    pub fn color_t(&self, t: &map_model::Turn, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedTurn(id) if t.id == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::Turn(id)) if t.id == id => Some(cs.get(Colors::Selected)),
-            _ => None,
-        }
-    }
-    pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedBuilding(id) if b.id == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::Building(id)) if b.id == id => {
-                Some(cs.get(Colors::Selected))
-            }
-            _ => None,
-        }
-    }
-    pub fn color_c(&self, c: CarID, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedCar(id) if c == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::Car(id)) if c == id => Some(cs.get(Colors::Selected)),
-            _ => None,
-        }
-    }
-
-    pub fn color_p(&self, p: PedestrianID, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedPedestrian(id) if p == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::Pedestrian(id)) if p == id => {
-                Some(cs.get(Colors::Selected))
-            }
-            _ => None,
-        }
-    }
-
-    pub fn color_es(&self, es: ExtraShapeID, cs: &ColorScheme) -> Option<Color> {
-        match *self {
-            SelectionState::SelectedExtraShape(id) if es == id => Some(cs.get(Colors::Selected)),
-            SelectionState::Tooltip(ID::ExtraShape(id)) if es == id => {
-                Some(cs.get(Colors::Selected))
-            }
-            _ => None,
+    pub fn color_for(&self, id: ID, cs: &ColorScheme) -> Option<Color> {
+        let selected = match (self, id) {
+            (SelectionState::SelectedIntersection(x), ID::Intersection(y)) => *x == y,
+            (SelectionState::SelectedLane(x, _), ID::Lane(y)) => *x == y,
+            (SelectionState::SelectedBuilding(x), ID::Building(y)) => *x == y,
+            (SelectionState::SelectedTurn(x), ID::Turn(y)) => *x == y,
+            (SelectionState::SelectedCar(x), ID::Car(y)) => *x == y,
+            (SelectionState::SelectedPedestrian(x), ID::Pedestrian(y)) => *x == y,
+            (SelectionState::SelectedExtraShape(x), ID::ExtraShape(y)) => *x == y,
+            (SelectionState::Tooltip(x), y) => *x == y,
+            _ => false,
+        };
+        if selected {
+            Some(cs.get(Colors::Selected))
+        } else {
+            None
         }
     }
 }
