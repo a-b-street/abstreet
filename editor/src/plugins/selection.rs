@@ -7,8 +7,7 @@ use graphics::types::Color;
 use kml::ExtraShapeID;
 use map_model::{BuildingID, IntersectionID, LaneID, Map, TurnID};
 use piston::input::{Button, Key, ReleaseEvent};
-use render;
-use render::Renderable;
+use render::{DrawMap, Renderable};
 use sim::{CarID, PedestrianID, Sim};
 use std::collections::HashSet;
 
@@ -24,18 +23,46 @@ pub enum ID {
     //Parcel(ParcelID),
 }
 
-// TODO lots of code duplication here, but haven't quite worked out how to improve it...
+// TODO maybe move to Renderable?
+impl ID {
+    fn debug(&self, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
+        match self {
+            ID::Lane(id) => {
+                map.get_l(*id).dump_debug();
+            }
+            ID::Intersection(id) => {
+                map.get_i(*id).dump_debug();
+                sim.debug_intersection(*id, control_map);
+            }
+            ID::Turn(_) => {}
+            ID::Building(id) => {
+                map.get_b(*id).dump_debug();
+            }
+            ID::Car(_) => {}
+            ID::Pedestrian(id) => {
+                sim.debug_ped(*id);
+            }
+            ID::ExtraShape(_) => {}
+        }
+    }
+
+    fn tooltip_lines(&self, map: &Map, draw_map: &DrawMap, sim: &Sim) -> Vec<String> {
+        match self {
+            ID::Lane(id) => draw_map.get_l(*id).tooltip_lines(map),
+            ID::Building(id) => draw_map.get_b(*id).tooltip_lines(map),
+            ID::Car(id) => sim.car_tooltip(*id),
+            ID::Pedestrian(id) => sim.ped_tooltip(*id),
+            ID::Intersection(id) => vec![format!("{}", id)],
+            ID::Turn(id) => map.get_t(*id).tooltip_lines(map),
+            ID::ExtraShape(id) => draw_map.get_es(*id).tooltip_lines(map),
+        }
+    }
+}
 
 #[derive(Clone)]
 pub enum SelectionState {
     Empty,
-    SelectedIntersection(IntersectionID),
-    SelectedLane(LaneID),
-    SelectedBuilding(BuildingID),
-    SelectedTurn(TurnID),
-    SelectedCar(CarID),
-    SelectedPedestrian(PedestrianID),
-    SelectedExtraShape(ExtraShapeID),
+    Selected(ID),
     Tooltip(ID),
 }
 
@@ -47,7 +74,7 @@ impl SelectionState {
             if let SelectionState::Tooltip(_) = *self {
                 SelectionState::Tooltip(some_id)
             } else {
-                selection_state_for(some_id)
+                SelectionState::Selected(some_id)
             }
         } else {
             SelectionState::Empty
@@ -63,12 +90,13 @@ impl SelectionState {
     ) -> bool {
         let mut new_state: Option<SelectionState> = None;
         let active = match self {
-            SelectionState::SelectedLane(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Lane(*id)));
+            SelectionState::Empty => false,
+            SelectionState::Selected(id) => {
+                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id)) {
+                    new_state = Some(SelectionState::Tooltip(*id));
                     true
                 } else if input.key_pressed(Key::D, "debug") {
-                    map.get_l(*id).dump_debug();
+                    id.debug(map, control_map, sim);
                     true
                 } else {
                     false
@@ -78,71 +106,12 @@ impl SelectionState {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    new_state = Some(selection_state_for(*id));
+                    new_state = Some(SelectionState::Selected(*id));
                     true
                 } else {
                     false
                 }
             }
-            SelectionState::SelectedPedestrian(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Pedestrian(*id)));
-                    true
-                } else if input.key_pressed(Key::D, "debug") {
-                    sim.debug_ped(*id);
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::SelectedIntersection(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Intersection(*id)));
-                    true
-                } else if input.key_pressed(Key::D, "debug") {
-                    map.get_i(*id).dump_debug();
-                    sim.debug_intersection(*id, control_map);
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::SelectedBuilding(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Building(*id)));
-                    true
-                } else if input.key_pressed(Key::D, "debug") {
-                    map.get_b(*id).dump_debug();
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::SelectedTurn(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Turn(*id)));
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::SelectedCar(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::Car(*id)));
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::SelectedExtraShape(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {}'s tooltip", id)) {
-                    new_state = Some(SelectionState::Tooltip(ID::ExtraShape(*id)));
-                    true
-                } else {
-                    false
-                }
-            }
-            SelectionState::Empty => false,
         };
         if let Some(s) = new_state {
             *self = s;
@@ -150,48 +119,20 @@ impl SelectionState {
         active
     }
 
-    pub fn draw(
-        &self,
-        map: &Map,
-        canvas: &Canvas,
-        draw_map: &render::DrawMap,
-        sim: &Sim,
-        g: &mut GfxCtx,
-    ) {
+    pub fn draw(&self, map: &Map, canvas: &Canvas, draw_map: &DrawMap, sim: &Sim, g: &mut GfxCtx) {
         match *self {
-            SelectionState::Empty
-            | SelectionState::SelectedTurn(_)
-            | SelectionState::SelectedBuilding(_)
-            | SelectionState::SelectedCar(_)
-            | SelectionState::SelectedPedestrian(_)
-            | SelectionState::SelectedExtraShape(_)
-            | SelectionState::SelectedLane(_)
-            | SelectionState::SelectedIntersection(_) => {}
+            SelectionState::Empty => {}
+            SelectionState::Selected(_) => {}
             SelectionState::Tooltip(some_id) => {
-                let lines = match some_id {
-                    ID::Lane(id) => draw_map.get_l(id).tooltip_lines(map),
-                    ID::Building(id) => draw_map.get_b(id).tooltip_lines(map),
-                    ID::Car(id) => sim.car_tooltip(id),
-                    ID::Pedestrian(id) => sim.ped_tooltip(id),
-                    ID::Intersection(id) => vec![format!("{}", id)],
-                    ID::Turn(id) => map.get_t(id).tooltip_lines(map),
-                    ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(map),
-                };
-                canvas.draw_mouse_tooltip(g, &lines);
+                canvas.draw_mouse_tooltip(g, &some_id.tooltip_lines(map, draw_map, sim));
             }
         }
     }
 
     pub fn color_for(&self, id: ID, cs: &ColorScheme) -> Option<Color> {
-        let selected = match (self, id) {
-            (SelectionState::SelectedIntersection(x), ID::Intersection(y)) => *x == y,
-            (SelectionState::SelectedLane(x), ID::Lane(y)) => *x == y,
-            (SelectionState::SelectedBuilding(x), ID::Building(y)) => *x == y,
-            (SelectionState::SelectedTurn(x), ID::Turn(y)) => *x == y,
-            (SelectionState::SelectedCar(x), ID::Car(y)) => *x == y,
-            (SelectionState::SelectedPedestrian(x), ID::Pedestrian(y)) => *x == y,
-            (SelectionState::SelectedExtraShape(x), ID::ExtraShape(y)) => *x == y,
-            (SelectionState::Tooltip(x), y) => *x == y,
+        let selected = match self {
+            SelectionState::Selected(x) => *x == id,
+            SelectionState::Tooltip(x) => *x == id,
             _ => false,
         };
         if selected {
@@ -199,18 +140,6 @@ impl SelectionState {
         } else {
             None
         }
-    }
-}
-
-fn selection_state_for(some_id: ID) -> SelectionState {
-    match some_id {
-        ID::Intersection(id) => SelectionState::SelectedIntersection(id),
-        ID::Lane(id) => SelectionState::SelectedLane(id),
-        ID::Building(id) => SelectionState::SelectedBuilding(id),
-        ID::Turn(id) => SelectionState::SelectedTurn(id),
-        ID::Car(id) => SelectionState::SelectedCar(id),
-        ID::Pedestrian(id) => SelectionState::SelectedPedestrian(id),
-        ID::ExtraShape(id) => SelectionState::SelectedExtraShape(id),
     }
 }
 
@@ -233,19 +162,25 @@ impl Hider {
         }
 
         let item = match state {
-            SelectionState::SelectedIntersection(id) => Some(ID::Intersection(*id)),
-            SelectionState::SelectedLane(id) => Some(ID::Lane(*id)),
-            SelectionState::SelectedBuilding(id) => Some(ID::Building(*id)),
-            SelectionState::SelectedExtraShape(id) => Some(ID::ExtraShape(*id)),
-            _ => None,
-        };
-        if let Some(id) = item {
-            if input.unimportant_key_pressed(Key::H, &format!("hide {:?}", id)) {
-                self.items.insert(id);
-                println!("Hiding {:?}", id);
-                *state = SelectionState::Empty;
-                return true;
+            // TODO why not be able to hide anything?
+            SelectionState::Selected(id) => match id.clone() {
+                ID::Intersection(_) => id.clone(),
+                ID::Lane(_) => id.clone(),
+                ID::Building(_) => id.clone(),
+                ID::ExtraShape(_) => id.clone(),
+                _ => {
+                    return false;
+                }
+            },
+            _ => {
+                return false;
             }
+        };
+        if input.unimportant_key_pressed(Key::H, &format!("hide {:?}", item)) {
+            self.items.insert(item);
+            println!("Hiding {:?}", item);
+            *state = SelectionState::Empty;
+            return true;
         }
         false
     }

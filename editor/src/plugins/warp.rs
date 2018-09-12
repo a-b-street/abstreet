@@ -1,7 +1,7 @@
 use ezgui::{Canvas, TextBox, UserInput};
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use piston::input::Key;
-use plugins::selection::SelectionState;
+use plugins::selection::{SelectionState, ID};
 use sim::{CarID, PedestrianID, Sim};
 use std::usize;
 
@@ -73,7 +73,7 @@ fn warp(
                 if let Some(r) = map.maybe_get_r(id) {
                     let l = map.get_l(r.children_forwards[0].0);
                     println!("Warping to {}, which belongs to {}", l.id, id);
-                    *selection_state = SelectionState::SelectedLane(l.id);
+                    *selection_state = SelectionState::Selected(ID::Lane(l.id));
                     l.first_pt()
                 } else {
                     println!("{} doesn't exist", id);
@@ -84,7 +84,7 @@ fn warp(
                 let id = LaneID(idx);
                 if let Some(l) = map.maybe_get_l(id) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedLane(id);
+                    *selection_state = SelectionState::Selected(ID::Lane(id));
                     l.first_pt()
                 } else {
                     println!("{} doesn't exist", id);
@@ -95,7 +95,7 @@ fn warp(
                 let id = IntersectionID(idx);
                 if let Some(i) = map.maybe_get_i(id) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedIntersection(id);
+                    *selection_state = SelectionState::Selected(ID::Intersection(id));
                     i.point
                 } else {
                     println!("{} doesn't exist", id);
@@ -106,7 +106,7 @@ fn warp(
                 let id = BuildingID(idx);
                 if let Some(b) = map.maybe_get_b(id) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedBuilding(id);
+                    *selection_state = SelectionState::Selected(ID::Building(id));
                     geometry::center(&b.points)
                 } else {
                     println!("{} doesn't exist", id);
@@ -128,7 +128,7 @@ fn warp(
                 let id = PedestrianID(idx);
                 if let Some(p) = sim.get_draw_ped(id, map) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedPedestrian(id);
+                    *selection_state = SelectionState::Selected(ID::Pedestrian(id));
                     p.focus_pt()
                 } else {
                     println!("{} doesn't exist", id);
@@ -139,7 +139,7 @@ fn warp(
                 let id = CarID(idx);
                 if let Some(c) = sim.get_draw_car(id, map) {
                     println!("Warping to {}", id);
-                    *selection_state = SelectionState::SelectedCar(id);
+                    *selection_state = SelectionState::Selected(ID::Car(id));
                     c.focus_pt()
                 } else {
                     println!("{} doesn't exist", id);

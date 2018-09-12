@@ -9,7 +9,7 @@ use graphics::types::Color;
 use map_model::Map;
 use map_model::{IntersectionID, Turn};
 use piston::input::Key;
-use plugins::selection::SelectionState;
+use plugins::selection::{SelectionState, ID};
 
 pub enum TrafficSignalEditor {
     Inactive,
@@ -62,7 +62,7 @@ impl TrafficSignalEditor {
                     }
 
                     // Change turns
-                    if let SelectionState::SelectedTurn(id) = *current_selection {
+                    if let SelectionState::Selected(ID::Turn(id)) = *current_selection {
                         if map.get_t(id).parent == *i {
                             let cycle =
                                 &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles

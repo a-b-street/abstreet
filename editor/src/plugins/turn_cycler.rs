@@ -5,7 +5,7 @@ use control::ControlMap;
 use ezgui::{GfxCtx, UserInput};
 use map_model::{IntersectionID, LaneID, Map};
 use piston::input::Key;
-use plugins::selection::SelectionState;
+use plugins::selection::{SelectionState, ID};
 use render::{DrawMap, Renderable};
 use sim::Sim;
 
@@ -23,8 +23,8 @@ impl TurnCyclerState {
 
     pub fn event(&mut self, input: &mut UserInput, current_selection: &SelectionState) -> bool {
         let current_id = match current_selection {
-            SelectionState::SelectedLane(id) => *id,
-            SelectionState::SelectedIntersection(id) => {
+            SelectionState::Selected(ID::Lane(id)) => *id,
+            SelectionState::Selected(ID::Intersection(id)) => {
                 *self = TurnCyclerState::Intersection(*id);
                 return false;
             }

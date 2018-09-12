@@ -890,8 +890,8 @@ have to add?
 
 - color scheme entry
 - an ID (displayable)
-- boilerplate in selection plugin
-	- a way to ask for tooltip lines
+= boilerplate in selection plugin
+	= a way to ask for tooltip lines
 - boilerplate in the hider plugin
 - DrawExtraShape
 	- draw, contains_pt, get_bbox, tooltip_lines
@@ -929,3 +929,10 @@ alright, time to move color logic. let's see what it takes for each Renderable t
 - selection plugin currently has this weird case where it can cycle through turns at an intersection. MOVE THAT out.
 	- more generally, move out all custom logic. make other things know if something is selected and do special stuff if so.
 	- and make it act generic at last! \o/
+
+
+OK, so where was I?
+- colors are still currently missing for things that need two of them.
+- having one active plugin at a time simplifies the color problem and solves a few others, so try that now.
+- make car and ped also Renderable, for great consistency!
+- work on generic quadtree idea

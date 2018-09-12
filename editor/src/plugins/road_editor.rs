@@ -2,7 +2,7 @@ use control::ControlMap;
 use ezgui::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
 use piston::input::Key;
-use plugins::selection::SelectionState;
+use plugins::selection::{SelectionState, ID};
 use render::DrawMap;
 use sim::Sim;
 
@@ -45,7 +45,7 @@ impl RoadEditor {
             RoadEditor::Active(edits) => {
                 if input.key_pressed(Key::Return, "stop editing roads") {
                     new_state = Some(RoadEditor::Inactive(edits.clone()));
-                } else if let SelectionState::SelectedLane(id) = *current_selection {
+                } else if let SelectionState::Selected(ID::Lane(id)) = *current_selection {
                     let lane = map.get_l(id);
                     let road = map.get_r(lane.parent);
                     let reason = EditReason::BasemapWrong; // TODO be able to choose

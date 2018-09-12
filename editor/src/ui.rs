@@ -481,7 +481,7 @@ impl GUI for UI {
         );
 
         if self.show_lanes.handle_event(input) {
-            if let SelectionState::SelectedLane(_) = self.current_selection_state {
+            if let SelectionState::Selected(ID::Lane(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::Lane(_)) = self.current_selection_state {
@@ -490,7 +490,7 @@ impl GUI for UI {
             return EventLoopMode::InputOnly;
         }
         if self.show_buildings.handle_event(input) {
-            if let SelectionState::SelectedBuilding(_) = self.current_selection_state {
+            if let SelectionState::Selected(ID::Building(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::Building(_)) = self.current_selection_state {
@@ -499,7 +499,7 @@ impl GUI for UI {
             return EventLoopMode::InputOnly;
         }
         if self.show_intersections.handle_event(input) {
-            if let SelectionState::SelectedIntersection(_) = self.current_selection_state {
+            if let SelectionState::Selected(ID::Intersection(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::Intersection(_)) = self.current_selection_state {
@@ -508,7 +508,7 @@ impl GUI for UI {
             return EventLoopMode::InputOnly;
         }
         if self.show_extra_shapes.handle_event(input) {
-            if let SelectionState::SelectedExtraShape(_) = self.current_selection_state {
+            if let SelectionState::Selected(ID::ExtraShape(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::ExtraShape(_)) = self.current_selection_state {
@@ -517,7 +517,7 @@ impl GUI for UI {
             return EventLoopMode::InputOnly;
         }
         if self.show_all_turn_icons.handle_event(input) {
-            if let SelectionState::SelectedTurn(_) = self.current_selection_state {
+            if let SelectionState::Selected(ID::Turn(_)) = self.current_selection_state {
                 self.current_selection_state = SelectionState::Empty;
             }
             if let SelectionState::Tooltip(ID::Turn(_)) = self.current_selection_state {
@@ -548,7 +548,7 @@ impl GUI for UI {
         }
 
         match self.current_selection_state {
-            SelectionState::SelectedCar(id) => {
+            SelectionState::Selected(ID::Car(id)) => {
                 // TODO not sure if we should debug like this (pushing the bit down to all the
                 // layers representing an entity) or by using some scary global mutable singleton
                 if input.unimportant_key_pressed(Key::D, "debug") {
@@ -568,7 +568,7 @@ impl GUI for UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::SelectedPedestrian(id) => {
+            SelectionState::Selected(ID::Pedestrian(id)) => {
                 if input.key_pressed(Key::F, "follow this pedestrian") {
                     self.follow = FollowState::FollowingPedestrian(id);
                     return EventLoopMode::InputOnly;
@@ -579,7 +579,7 @@ impl GUI for UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::SelectedLane(id) => {
+            SelectionState::Selected(ID::Lane(id)) => {
                 if input.key_pressed(Key::F, "start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
                     return EventLoopMode::InputOnly;
@@ -592,7 +592,7 @@ impl GUI for UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::SelectedIntersection(id) => {
+            SelectionState::Selected(ID::Intersection(id)) => {
                 if self.control_map.traffic_signals.contains_key(&id) {
                     if input.key_pressed(Key::E, &format!("edit traffic signal for {:?}", id)) {
                         self.traffic_signal_editor = TrafficSignalEditor::start(id);

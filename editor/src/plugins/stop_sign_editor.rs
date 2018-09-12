@@ -8,7 +8,7 @@ use graphics::types::Color;
 use map_model::IntersectionID;
 use map_model::{Map, Turn};
 use piston::input::Key;
-use plugins::selection::SelectionState;
+use plugins::selection::{SelectionState, ID};
 
 pub enum StopSignEditor {
     Inactive,
@@ -37,7 +37,7 @@ impl StopSignEditor {
             StopSignEditor::Active(i) => {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(StopSignEditor::Inactive);
-                } else if let SelectionState::SelectedTurn(id) = *current_selection {
+                } else if let SelectionState::Selected(ID::Turn(id)) = *current_selection {
                     if map.get_t(id).parent == *i {
                         let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
                         match sign.get_priority(id) {
