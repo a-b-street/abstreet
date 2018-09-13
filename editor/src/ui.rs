@@ -36,8 +36,8 @@ use plugins::warp::WarpState;
 use render;
 use render::Renderable;
 use sim;
-use sim::{AgentID, CarID, CarState, PedestrianID, Sim};
-use std::collections::{HashMap, HashSet};
+use sim::{CarID, CarState, PedestrianID, Sim};
+use std::collections::HashMap;
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -128,7 +128,7 @@ impl UIWrapper {
 
             hider: Hider::new(),
             debug_objects: DebugObjectsState::new(),
-            current_search_state: SearchState::Empty,
+            search_state: SearchState::Empty,
             warp: WarpState::Empty,
             follow: FollowState::Empty,
             show_route: ShowRouteState::Empty,
@@ -196,7 +196,7 @@ impl UIWrapper {
                         &mut ui.sim,
                     )
                 }),
-                Box::new(|ui, input| ui.current_search_state.event(input)),
+                Box::new(|ui, input| ui.search_state.event(input)),
                 Box::new(|ui, input| {
                     ui.warp.event(
                         input,
@@ -206,8 +206,16 @@ impl UIWrapper {
                         &mut ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input| ui.follow.event(input, &ui.map, &ui.sim, &mut ui.canvas)),
-                Box::new(|ui, input| ui.show_route.event(input, &ui.sim)),
+                Box::new(|ui, input| {
+                    ui.follow.event(
+                        input,
+                        &ui.map,
+                        &ui.sim,
+                        &mut ui.canvas,
+                        ui.current_selection,
+                    )
+                }),
+                Box::new(|ui, input| ui.show_route.event(input, &ui.sim, ui.current_selection)),
                 Box::new(|ui, input| ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)),
                 Box::new(|ui, input| ui.steepness_viz.event(input)),
                 Box::new(|ui, input| ui.osm_classifier.event(input)),
@@ -221,8 +229,11 @@ impl UIWrapper {
                         &ui.control_map,
                     )
                 }),
-                Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
-                Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
+                Box::new(|ui, input| ui.floodfiller.event(&ui.map, input, ui.current_selection)),
+                Box::new(|ui, input| {
+                    ui.geom_validator
+                        .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
+                }),
                 Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
             ],
         }
@@ -247,7 +258,7 @@ struct UI {
 
     hider: Hider,
     debug_objects: DebugObjectsState,
-    current_search_state: SearchState,
+    search_state: SearchState,
     warp: WarpState,
     follow: FollowState,
     show_route: ShowRouteState,
@@ -387,7 +398,7 @@ impl UI {
         vec![
             self.color_for_selected(ID::Lane(l.id)),
             self.show_route.color_l(l.id, &self.cs),
-            self.current_search_state.color_l(l, &self.map, &self.cs),
+            self.search_state.color_l(l, &self.map, &self.cs),
             self.floodfiller.color_l(l, &self.cs),
             self.steepness_viz.color_l(&self.map, l),
             self.osm_classifier.color_l(l, &self.map, &self.cs),
@@ -438,7 +449,7 @@ impl UI {
         let b = self.map.get_b(id);
         vec![
             self.color_for_selected(ID::Building(b.id)),
-            self.current_search_state.color_b(b, &self.cs),
+            self.search_state.color_b(b, &self.cs),
             self.osm_classifier.color_b(b, &self.cs),
         ].iter()
             .filter_map(|c| *c)
@@ -561,88 +572,7 @@ impl UI {
         };
         if layer_changed {
             self.current_selection = self.mouseover_something();
-            // TODO is it even necessary to update this here? shouldnt all plugins potentilly need
-            // to know? dont we need to also do this when warp/follow/other things potentially move
-            // stuff?
-            self.debug_objects.event(
-                self.current_selection,
-                input,
-                &self.map,
-                &mut self.sim,
-                &self.control_map,
-            );
             return EventLoopMode::InputOnly;
-        }
-
-        if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
-            self.geom_validator = Validator::start(&self.draw_map);
-            return EventLoopMode::InputOnly;
-        }
-        if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
-            self.sim.small_spawn(&self.map);
-            return EventLoopMode::InputOnly;
-        }
-
-        match self.current_selection {
-            Some(ID::Car(id)) => {
-                // TODO not sure if we should debug like this (pushing the bit down to all the
-                // layers representing an entity) or by using some scary global mutable singleton
-                if input.unimportant_key_pressed(Key::D, "debug") {
-                    self.sim.toggle_debug(id);
-                    return EventLoopMode::InputOnly;
-                }
-                if input.key_pressed(Key::A, "start this parked car") {
-                    self.sim.start_parked_car(&self.map, id);
-                    return EventLoopMode::InputOnly;
-                }
-                if input.key_pressed(Key::F, "follow this car") {
-                    self.follow = FollowState::FollowingCar(id);
-                    return EventLoopMode::InputOnly;
-                }
-                if input.key_pressed(Key::R, "show this car's route") {
-                    self.show_route = ShowRouteState::Active(AgentID::Car(id), HashSet::new());
-                    return EventLoopMode::InputOnly;
-                }
-            }
-            Some(ID::Pedestrian(id)) => {
-                if input.key_pressed(Key::F, "follow this pedestrian") {
-                    self.follow = FollowState::FollowingPedestrian(id);
-                    return EventLoopMode::InputOnly;
-                }
-                if input.key_pressed(Key::R, "show this pedestrian's route") {
-                    self.show_route =
-                        ShowRouteState::Active(AgentID::Pedestrian(id), HashSet::new());
-                    return EventLoopMode::InputOnly;
-                }
-            }
-            Some(ID::Lane(id)) => {
-                if input.key_pressed(Key::F, "start floodfilling from this lane") {
-                    self.floodfiller = Floodfiller::start(id);
-                    return EventLoopMode::InputOnly;
-                }
-
-                if self.map.get_l(id).is_sidewalk()
-                    && input.key_pressed(Key::A, "spawn a pedestrian here")
-                {
-                    self.sim.spawn_pedestrian(&self.map, id);
-                    return EventLoopMode::InputOnly;
-                }
-            }
-            Some(ID::Intersection(id)) => {
-                if self.control_map.traffic_signals.contains_key(&id) {
-                    if input.key_pressed(Key::E, &format!("edit traffic signal for {:?}", id)) {
-                        self.traffic_signal_editor = TrafficSignalEditor::start(id);
-                        return EventLoopMode::InputOnly;
-                    }
-                }
-                if self.control_map.stop_signs.contains_key(&id) {
-                    if input.key_pressed(Key::E, &format!("edit stop sign for {:?}", id)) {
-                        self.stop_sign_editor = StopSignEditor::start(id);
-                        return EventLoopMode::InputOnly;
-                    }
-                }
-            }
-            _ => {}
         }
 
         if input.unimportant_key_pressed(Key::Escape, "quit") {
@@ -664,8 +594,13 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        self.sim_ctrl
-            .event(input, &self.map, &self.control_map, &mut self.sim)
+        self.sim_ctrl.event(
+            input,
+            &self.map,
+            &self.control_map,
+            &mut self.sim,
+            self.current_selection,
+        )
     }
 
     fn draw(&self, g: &mut GfxCtx, input: UserInput) {
@@ -780,7 +715,7 @@ impl UI {
             osd_lines.push(String::from(""));
             osd_lines.extend(action_lines);
         }
-        let search_lines = self.current_search_state.get_osd_lines();
+        let search_lines = self.search_state.get_osd_lines();
         if !search_lines.is_empty() {
             osd_lines.push(String::from(""));
             osd_lines.extend(search_lines);

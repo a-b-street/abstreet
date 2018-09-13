@@ -296,7 +296,7 @@ impl Sim {
             .unwrap_or(vec![format!("{} is parked", car)])
     }
 
-    pub fn toggle_debug(&mut self, id: CarID) {
+    pub fn debug_car(&mut self, id: CarID) {
         self.driving_state.toggle_debug(id);
     }
 

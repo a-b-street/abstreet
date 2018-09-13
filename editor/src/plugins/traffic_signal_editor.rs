@@ -11,6 +11,7 @@ use map_model::{IntersectionID, Turn};
 use objects::ID;
 use piston::input::Key;
 
+#[derive(PartialEq)]
 pub enum TrafficSignalEditor {
     Inactive,
     Active {
@@ -24,13 +25,6 @@ impl TrafficSignalEditor {
         TrafficSignalEditor::Inactive
     }
 
-    pub fn start(i: IntersectionID) -> TrafficSignalEditor {
-        TrafficSignalEditor::Active {
-            i,
-            current_cycle: 0,
-        }
-    }
-
     pub fn event(
         &mut self,
         input: &mut UserInput,
@@ -38,6 +32,23 @@ impl TrafficSignalEditor {
         control_map: &mut ControlMap,
         selected: Option<ID>,
     ) -> bool {
+        if *self == TrafficSignalEditor::Inactive {
+            match selected {
+                Some(ID::Intersection(id)) => {
+                    if control_map.traffic_signals.contains_key(&id)
+                        && input.key_pressed(Key::E, &format!("edit traffic signal for {}", id))
+                    {
+                        *self = TrafficSignalEditor::Active {
+                            i: id,
+                            current_cycle: 0,
+                        };
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
         let mut new_state: Option<TrafficSignalEditor> = None;
         match self {
             TrafficSignalEditor::Inactive => {}

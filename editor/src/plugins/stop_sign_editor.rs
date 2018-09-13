@@ -10,6 +10,7 @@ use map_model::{Map, Turn};
 use objects::ID;
 use piston::input::Key;
 
+#[derive(PartialEq)]
 pub enum StopSignEditor {
     Inactive,
     Active(IntersectionID),
@@ -20,10 +21,6 @@ impl StopSignEditor {
         StopSignEditor::Inactive
     }
 
-    pub fn start(i: IntersectionID) -> StopSignEditor {
-        StopSignEditor::Active(i)
-    }
-
     pub fn event(
         &mut self,
         input: &mut UserInput,
@@ -31,6 +28,20 @@ impl StopSignEditor {
         control_map: &mut ControlMap,
         selected: Option<ID>,
     ) -> bool {
+        if *self == StopSignEditor::Inactive {
+            match selected {
+                Some(ID::Intersection(id)) => {
+                    if control_map.stop_signs.contains_key(&id)
+                        && input.key_pressed(Key::E, &format!("edit stop signs for {}", id))
+                    {
+                        *self = StopSignEditor::Active(id);
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
         let mut new_state: Option<StopSignEditor> = None;
         match self {
             StopSignEditor::Inactive => {}

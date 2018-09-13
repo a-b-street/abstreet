@@ -4,10 +4,12 @@ use colors::{ColorScheme, Colors};
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::{Lane, LaneID, Map};
+use objects::ID;
 use piston::input::Key;
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
+#[derive(PartialEq)]
 pub enum Floodfiller {
     Inactive,
     Active {
@@ -24,7 +26,7 @@ impl Floodfiller {
 
     // TODO doesn't guarantee all visited lanes are connected? are dead-ends possible with the
     // current turn definitions?
-    pub fn start(start: LaneID) -> Floodfiller {
+    fn start(start: LaneID) -> Floodfiller {
         let mut queue = VecDeque::new();
         queue.push_back(start);
         Floodfiller::Active {
@@ -35,7 +37,19 @@ impl Floodfiller {
 
     // TODO step backwards!
 
-    pub fn event(&mut self, map: &Map, input: &mut UserInput) -> bool {
+    pub fn event(&mut self, map: &Map, input: &mut UserInput, selected: Option<ID>) -> bool {
+        if *self == Floodfiller::Inactive {
+            match selected {
+                Some(ID::Lane(id)) => {
+                    if input.key_pressed(Key::F, "start floodfilling from this lane") {
+                        *self = Floodfiller::start(id);
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
         let mut new_state: Option<Floodfiller> = None;
         match self {
             Floodfiller::Inactive => {}

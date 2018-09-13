@@ -900,7 +900,7 @@ have to add?
 	- a quadtree and way to get onscreen stuff
 - UI
 	- a toggleablelayer for it
-		- and clearing selection state maybe
+		= and clearing selection state maybe
 	- are we mouseover it? (right order)
 	- draw it (right order)
 	- pick the color for it
@@ -976,5 +976,11 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	= refactor the toggleablelayer stuff, then move them to list of plugins too
 	= clean up selection state... should warp and hider be able to modify it, or just rerun mouseover_something?
 
-	- initiate plugins in the plugin's event; stop doing stuff directly in UI
+	= initiate plugins in the plugin's event; stop doing stuff directly in UI
 	- basically, make UI.event() just the active plugin list thing as much as possible.
+	- deal with overlapping keys that still kinda happen (sim ctrl, escape game)
+	- bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
+	
+	- then rethink colors, with simplified single plugin
+	- then finally try out a unified quadtree!
+	- and see how much boilerplate a new type would need.

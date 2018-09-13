@@ -3,6 +3,7 @@
 use control::ControlMap;
 use ezgui::{EventLoopMode, UserInput};
 use map_model::Map;
+use objects::ID;
 use piston::input::{Key, UpdateEvent};
 use sim::{Benchmark, Sim, TIMESTEP};
 use std::time::{Duration, Instant};
@@ -33,7 +34,11 @@ impl SimController {
         map: &Map,
         control_map: &ControlMap,
         sim: &mut Sim,
+        selected: Option<ID>,
     ) -> EventLoopMode {
+        if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
+            sim.small_spawn(map);
+        }
         if input.unimportant_key_pressed(Key::LeftBracket, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
@@ -66,6 +71,22 @@ impl SimController {
             } else if input.unimportant_key_pressed(Key::M, "run one step") {
                 sim.step(map, control_map);
             }
+        }
+
+        match selected {
+            Some(ID::Car(id)) => {
+                if input.key_pressed(Key::A, "start this parked car") {
+                    sim.start_parked_car(map, id);
+                }
+            }
+            Some(ID::Lane(id)) => {
+                if map.get_l(id).is_sidewalk()
+                    && input.key_pressed(Key::A, "spawn a pedestrian here")
+                {
+                    sim.spawn_pedestrian(map, id);
+                }
+            }
+            _ => {}
         }
 
         if input.use_event_directly().update_args().is_some() {

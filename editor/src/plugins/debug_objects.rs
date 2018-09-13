@@ -91,7 +91,9 @@ fn debug(id: &ID, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
         ID::Building(id) => {
             map.get_b(*id).dump_debug();
         }
-        ID::Car(_) => {}
+        ID::Car(id) => {
+            sim.debug_car(*id);
+        }
         ID::Pedestrian(id) => {
             sim.debug_ped(*id);
         }

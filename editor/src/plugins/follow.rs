@@ -1,8 +1,10 @@
 use ezgui::{Canvas, UserInput};
 use map_model::Map;
+use objects::ID;
 use piston::input::Key;
 use sim::{CarID, PedestrianID, Sim};
 
+#[derive(PartialEq)]
 pub enum FollowState {
     Empty,
     FollowingCar(CarID),
@@ -16,7 +18,26 @@ impl FollowState {
         map: &Map,
         sim: &Sim,
         canvas: &mut Canvas,
+        selected: Option<ID>,
     ) -> bool {
+        if *self == FollowState::Empty {
+            match selected {
+                Some(ID::Car(id)) => {
+                    if input.key_pressed(Key::F, "follow this car") {
+                        *self = FollowState::FollowingCar(id);
+                        return true;
+                    }
+                }
+                Some(ID::Pedestrian(id)) => {
+                    if input.key_pressed(Key::F, "follow this pedestrian") {
+                        *self = FollowState::FollowingPedestrian(id);
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
         let quit = match self {
             FollowState::Empty => false,
             // TODO be generic and take an AgentID

@@ -5,7 +5,7 @@ use geo::prelude::Intersects;
 use geom::{Polygon, Pt2D};
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
-use render;
+use render::DrawMap;
 
 // TODO just have one of these
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
@@ -31,7 +31,7 @@ impl Validator {
         Validator::Inactive
     }
 
-    pub fn start(draw_map: &render::DrawMap) -> Validator {
+    fn start(draw_map: &DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
         for l in &draw_map.lanes {
             objects.push((ID::Lane(l.id), make_polys(&l.polygon)));
@@ -88,10 +88,20 @@ impl Validator {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &mut Canvas, map: &Map) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        canvas: &mut Canvas,
+        map: &Map,
+        draw_map: &DrawMap,
+    ) -> bool {
         let mut new_state: Option<Validator> = None;
         match self {
-            Validator::Inactive => {}
+            Validator::Inactive => {
+                if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
+                    new_state = Some(Validator::start(draw_map));
+                }
+            }
             Validator::Active {
                 gen,
                 current_problem,
