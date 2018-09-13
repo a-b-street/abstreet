@@ -970,5 +970,8 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	- then figure out the implications for color
 
 	tomorrow:
-	- maybe dont make event() return if active or not, maybe have a separate method? or just in event, do stuff first, and then have this query at the end.
-	- another refactor to do -- initiate plugins based on current_selection_state in UI or the plugin, but stop mixing so much
+	- implement exclusive active plugin thing
+	- rethink if existing plugins are active or not. maybe dont make event() return if active or not, maybe have a separate method? or just in event, do stuff first, and then have this query at the end.
+	- initiate plugins in the plugin's event; stop doing stuff directly in UI
+	- refactor the toggleablelayer stuff, then move them to list of plugins too
+	- basically, move 

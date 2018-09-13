@@ -137,6 +137,8 @@ impl UIWrapper {
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
 
+            active_plugin: None,
+
             canvas: Canvas::new(),
             cs: ColorScheme::load("color_scheme").unwrap(),
         };
@@ -208,10 +210,7 @@ impl UIWrapper {
                 Box::new(|ui, input| ui.osm_classifier.handle_event(input)),
                 Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
                 Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
-                Box::new(|ui, input| {
-                    ui.geom_validator
-                        .event(input, &mut ui.canvas, &ui.map)
-                }),
+                Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
                 Box::new(|ui, input| ui.turn_cycler.event(input, &ui.current_selection_state)),
             ],
         }
@@ -251,6 +250,9 @@ struct UI {
     color_picker: ColorPicker,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
+
+    // An index into UIWrapper.plugins.
+    active_plugin: Option<usize>,
 
     // Not really a plugin; it doesn't react to anything.
     turn_colors: TurnColors,
@@ -517,11 +519,18 @@ impl UI {
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
 
-        // Run each plugin, short-circuiting if the plugin claimed it was active.
-        for (_idx, plugin) in plugins.iter().enumerate() {
-            if plugin(self, input) {
-                // TODO remember this one is active
-                break;
+        // If there's an active plugin, just run it.
+        if let Some(idx) = self.active_plugin {
+            if !plugins[idx](self, input) {
+                self.active_plugin = None;
+            }
+        } else {
+            // Run each plugin, short-circuiting if the plugin claimed it was active.
+            for (idx, plugin) in plugins.iter().enumerate() {
+                if plugin(self, input) {
+                    self.active_plugin = Some(idx);
+                    break;
+                }
             }
         }
 
