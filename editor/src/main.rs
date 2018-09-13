@@ -57,7 +57,7 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
     ezgui::run(
-        ui::UI::new(flags.load, flags.scenario_name, flags.rng_seed, flags.kml),
+        ui::UIWrapper::new(flags.load, flags.scenario_name, flags.rng_seed, flags.kml),
         "A/B Street",
         1024,
         768,

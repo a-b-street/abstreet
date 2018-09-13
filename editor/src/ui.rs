@@ -44,55 +44,33 @@ const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 1.0;
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
-pub struct UI {
-    map: map_model::Map,
-    draw_map: render::DrawMap,
-    control_map: ControlMap,
-    sim: Sim,
-
-    show_lanes: ToggleableLayer,
-    show_buildings: ToggleableLayer,
-    show_intersections: ToggleableLayer,
-    show_parcels: ToggleableLayer,
-    show_extra_shapes: ToggleableLayer,
-    show_all_turn_icons: ToggleableLayer,
-    debug_mode: ToggleableLayer,
-
-    // This is a particularly special plugin, since it's always kind of active and other things
-    // read/write it.
-    current_selection_state: SelectionState,
-
-    hider: Hider,
-    current_search_state: SearchState,
-    warp: WarpState,
-    follow: FollowState,
-    show_route: ShowRouteState,
-    floodfiller: Floodfiller,
-    steepness_viz: SteepnessVisualizer,
-    osm_classifier: OsmClassifier,
-    traffic_signal_editor: TrafficSignalEditor,
-    stop_sign_editor: StopSignEditor,
-    road_editor: RoadEditor,
-    sim_ctrl: SimController,
-    color_picker: ColorPicker,
-    geom_validator: Validator,
-    turn_cycler: TurnCyclerState,
-
-    // Not really a plugin; it doesn't react to anything.
-    turn_colors: TurnColors,
-
-    canvas: Canvas,
-    // TODO maybe never pass this to other places? Always resolve colors here?
-    cs: ColorScheme,
+// Necessary so we can iterate over and run the plugins, which mutably borrow UI.
+pub struct UIWrapper {
+    ui: UI,
+    plugins: Vec<Box<Fn(&mut UI, &mut UserInput) -> bool>>,
 }
 
-impl UI {
+impl GUI for UIWrapper {
+    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
+        self.ui.event(input, &self.plugins)
+    }
+
+    fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size) {
+        // Since self is mut here, we can set window_size on the canvas, but then let the real
+        // draw() be immutable.
+        self.ui.canvas.start_drawing(g, window_size);
+        self.ui.draw(g, input);
+    }
+}
+
+impl UIWrapper {
+    // nit: lots of this logic could live in UI, if it mattered
     pub fn new(
         load: String,
         scenario_name: String,
         rng_seed: Option<u8>,
         kml: Option<String>,
-    ) -> UI {
+    ) -> UIWrapper {
         flame::start("setup");
         let (map, edits, control_map, sim) = sim::load(
             load,
@@ -181,9 +159,108 @@ impl UI {
         let new_zoom = ui.canvas.cam_zoom;
         ui.zoom_for_toggleable_layers(-1.0, new_zoom);
 
-        ui
+        UIWrapper {
+            ui,
+            plugins: vec![
+                Box::new(|ui, input| {
+                    ui.traffic_signal_editor.event(
+                        input,
+                        &ui.map,
+                        &mut ui.control_map,
+                        &ui.current_selection_state,
+                    )
+                }),
+                Box::new(|ui, input| {
+                    ui.stop_sign_editor.event(
+                        input,
+                        &ui.map,
+                        &mut ui.control_map,
+                        &ui.current_selection_state,
+                    )
+                }),
+                Box::new(|ui, input| {
+                    ui.road_editor.event(
+                        input,
+                        &ui.current_selection_state,
+                        &mut ui.map,
+                        &mut ui.draw_map,
+                        &ui.control_map,
+                        &mut ui.sim,
+                    )
+                }),
+                Box::new(|ui, input| ui.current_search_state.event(input)),
+                Box::new(|ui, input| {
+                    ui.warp.event(
+                        input,
+                        &ui.map,
+                        &ui.sim,
+                        &mut ui.canvas,
+                        &mut ui.current_selection_state,
+                    )
+                }),
+                Box::new(|ui, input| ui.follow.event(input, &ui.map, &ui.sim, &mut ui.canvas)),
+                Box::new(|ui, input| ui.show_route.event(input, &ui.sim)),
+                Box::new(|ui, input| {
+                    ui.color_picker
+                        .handle_event(input, &mut ui.canvas, &mut ui.cs)
+                }),
+                Box::new(|ui, input| ui.steepness_viz.handle_event(input)),
+                Box::new(|ui, input| ui.osm_classifier.handle_event(input)),
+                Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
+                Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
+                Box::new(|ui, input| {
+                    ui.geom_validator
+                        .event(input, &mut ui.canvas, &ui.map)
+                }),
+                Box::new(|ui, input| ui.turn_cycler.event(input, &ui.current_selection_state)),
+            ],
+        }
     }
+}
 
+struct UI {
+    map: map_model::Map,
+    draw_map: render::DrawMap,
+    control_map: ControlMap,
+    sim: Sim,
+
+    show_lanes: ToggleableLayer,
+    show_buildings: ToggleableLayer,
+    show_intersections: ToggleableLayer,
+    show_parcels: ToggleableLayer,
+    show_extra_shapes: ToggleableLayer,
+    show_all_turn_icons: ToggleableLayer,
+    debug_mode: ToggleableLayer,
+
+    // This is a particularly special plugin, since it's always kind of active and other things
+    // read/write it.
+    current_selection_state: SelectionState,
+
+    hider: Hider,
+    current_search_state: SearchState,
+    warp: WarpState,
+    follow: FollowState,
+    show_route: ShowRouteState,
+    floodfiller: Floodfiller,
+    steepness_viz: SteepnessVisualizer,
+    osm_classifier: OsmClassifier,
+    traffic_signal_editor: TrafficSignalEditor,
+    stop_sign_editor: StopSignEditor,
+    road_editor: RoadEditor,
+    sim_ctrl: SimController,
+    color_picker: ColorPicker,
+    geom_validator: Validator,
+    turn_cycler: TurnCyclerState,
+
+    // Not really a plugin; it doesn't react to anything.
+    turn_colors: TurnColors,
+
+    canvas: Canvas,
+    // TODO maybe never pass this to other places? Always resolve colors here?
+    cs: ColorScheme,
+}
+
+impl UI {
     // TODO or make a custom event for zoom change
     fn zoom_for_toggleable_layers(&mut self, old_zoom: f64, new_zoom: f64) {
         self.show_lanes.handle_zoom(old_zoom, new_zoom);
@@ -416,10 +493,12 @@ impl UI {
             || self.stop_sign_editor.show_turn_icons(id)
             || self.traffic_signal_editor.show_turn_icons(id)
     }
-}
 
-impl GUI for UI {
-    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
+    fn event(
+        &mut self,
+        input: &mut UserInput,
+        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput) -> bool>>,
+    ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input.use_event_directly());
@@ -439,6 +518,13 @@ impl GUI for UI {
         }
 
         // Run each plugin, short-circuiting if the plugin claimed it was active.
+        for (_idx, plugin) in plugins.iter().enumerate() {
+            if plugin(self, input) {
+                // TODO remember this one is active
+                break;
+            }
+        }
+
         macro_rules! stop_if_done {
             ($plugin:expr) => {
                 if $plugin {
@@ -446,44 +532,6 @@ impl GUI for UI {
                 }
             };
         }
-
-        stop_if_done!(self.traffic_signal_editor.event(
-            input,
-            &self.map,
-            &mut self.control_map,
-            &self.current_selection_state,
-        ));
-        stop_if_done!(self.stop_sign_editor.event(
-            input,
-            &self.map,
-            &mut self.control_map,
-            &self.current_selection_state,
-        ));
-        stop_if_done!(self.road_editor.event(
-            input,
-            &self.current_selection_state,
-            &mut self.map,
-            &mut self.draw_map,
-            &self.control_map,
-            &mut self.sim
-        ));
-        stop_if_done!(self.current_search_state.event(input));
-        stop_if_done!(self.warp.event(
-            input,
-            &self.map,
-            &self.sim,
-            &mut self.canvas,
-            &mut self.current_selection_state,
-        ));
-        stop_if_done!(
-            self.follow
-                .event(input, &self.map, &self.sim, &mut self.canvas,)
-        );
-        stop_if_done!(self.show_route.event(input, &self.sim));
-        stop_if_done!(
-            self.color_picker
-                .handle_event(input, &mut self.canvas, &mut self.cs)
-        );
 
         if self.show_lanes.handle_event(input) {
             if let SelectionState::Selected(ID::Lane(_)) = self.current_selection_state {
@@ -533,15 +581,6 @@ impl GUI for UI {
 
         stop_if_done!(self.show_parcels.handle_event(input));
         stop_if_done!(self.debug_mode.handle_event(input));
-        stop_if_done!(self.steepness_viz.handle_event(input));
-        stop_if_done!(self.osm_classifier.handle_event(input));
-        stop_if_done!(self.hider.event(input, &mut self.current_selection_state));
-        stop_if_done!(self.floodfiller.event(&self.map, input));
-        stop_if_done!(
-            self.geom_validator
-                .event(input, &mut self.canvas, &self.map)
-        );
-        stop_if_done!(self.turn_cycler.event(input, &self.current_selection_state));
 
         if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
             self.geom_validator = Validator::start(&self.draw_map);
@@ -650,10 +689,8 @@ impl GUI for UI {
         }
     }
 
-    // TODO Weird to mut self just to set window_size on the canvas
-    fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size) {
+    fn draw(&self, g: &mut GfxCtx, input: UserInput) {
         g.clear(self.cs.get(Colors::Background));
-        self.canvas.start_drawing(g, window_size);
 
         let screen_bbox = self.canvas.get_screen_bbox();
 
