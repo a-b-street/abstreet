@@ -977,10 +977,11 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	= clean up selection state... should warp and hider be able to modify it, or just rerun mouseover_something?
 
 	= initiate plugins in the plugin's event; stop doing stuff directly in UI
-	- basically, make UI.event() just the active plugin list thing as much as possible.
+	= basically, make UI.event() just the active plugin list thing as much as possible.
 	- deal with overlapping keys that still kinda happen (sim ctrl, escape game)
 	- bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
 	
 	- then rethink colors, with simplified single plugin
 	- then finally try out a unified quadtree!
-	- and see how much boilerplate a new type would need.
+		- make parcels selectable as usual?
+	- and see how much boilerplate a new type would need, by adding bus stops and water/parks

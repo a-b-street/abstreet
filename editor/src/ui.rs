@@ -171,6 +171,24 @@ impl UIWrapper {
             ui,
             plugins: vec![
                 Box::new(|ui, input| {
+                    let layer_changed = {
+                        let mut changed = false;
+                        for layer in ui.toggleable_layers().into_iter() {
+                            if layer.event(input) {
+                                changed = true;
+                                break;
+                            }
+                        }
+                        changed
+                    };
+                    if layer_changed {
+                        ui.current_selection = ui.mouseover_something();
+                        true
+                    } else {
+                        false
+                    }
+                }),
+                Box::new(|ui, input| {
                     ui.traffic_signal_editor.event(
                         input,
                         &ui.map,
@@ -558,21 +576,6 @@ impl UI {
                     break;
                 }
             }
-        }
-
-        let layer_changed = {
-            let mut changed = false;
-            for layer in self.toggleable_layers().into_iter() {
-                if layer.event(input) {
-                    changed = true;
-                    break;
-                }
-            }
-            changed
-        };
-        if layer_changed {
-            self.current_selection = self.mouseover_something();
-            return EventLoopMode::InputOnly;
         }
 
         if input.unimportant_key_pressed(Key::Escape, "quit") {
