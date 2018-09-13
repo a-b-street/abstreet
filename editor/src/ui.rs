@@ -396,6 +396,14 @@ impl UI {
             }
         }
 
+        if self.show_parcels.is_enabled() {
+            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
+                if p.contains_pt(pt) {
+                    return Some(ID::Parcel(p.id));
+                }
+            }
+        }
+
         None
     }
 
@@ -499,7 +507,8 @@ impl UI {
             self.cs.get(Colors::ParcelBoundary),
             COLORS[p.block % COLORS.len()],
         )*/
-        COLORS[p.block % COLORS.len()]
+        self.color_for_selected(ID::Parcel(p.id))
+            .unwrap_or(COLORS[p.block % COLORS.len()])
     }
 
     fn color_car(&self, id: CarID) -> Color {

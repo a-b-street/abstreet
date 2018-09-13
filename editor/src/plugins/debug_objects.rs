@@ -98,6 +98,9 @@ fn debug(id: &ID, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
             sim.debug_ped(*id);
         }
         ID::ExtraShape(_) => {}
+        ID::Parcel(id) => {
+            map.get_p(*id).dump_debug();
+        }
     }
 }
 
@@ -110,5 +113,6 @@ fn tooltip_lines(id: ID, map: &Map, draw_map: &DrawMap, sim: &Sim) -> Vec<String
         ID::Intersection(id) => vec![format!("{}", id)],
         ID::Turn(id) => map.get_t(id).tooltip_lines(map),
         ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(map),
+        ID::Parcel(id) => vec![format!("{}", id)],
     }
 }

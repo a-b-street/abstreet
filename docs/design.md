@@ -983,5 +983,5 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	
 	- then rethink colors, with simplified single plugin
 	- then finally try out a unified quadtree!
-		- make parcels selectable as usual?
+		= make parcels selectable as well?
 	- and see how much boilerplate a new type would need, by adding bus stops and water/parks

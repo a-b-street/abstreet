@@ -1,6 +1,5 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
-use geom::Pt2D;
+use abstutil;
+use geom::{PolyLine, Pt2D};
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
@@ -24,5 +23,12 @@ pub struct Parcel {
 impl PartialEq for Parcel {
     fn eq(&self, other: &Parcel) -> bool {
         self.id == other.id
+    }
+}
+
+impl Parcel {
+    pub fn dump_debug(&self) {
+        println!("{}", abstutil::to_json(self));
+        println!("{}", PolyLine::new(self.points.clone()));
     }
 }
