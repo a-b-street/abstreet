@@ -1,8 +1,8 @@
 use control::ControlMap;
 use ezgui::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
+use objects::ID;
 use piston::input::Key;
-use plugins::selection::{SelectionState, ID};
 use render::DrawMap;
 use sim::Sim;
 
@@ -19,7 +19,7 @@ impl RoadEditor {
     pub fn event(
         &mut self,
         input: &mut UserInput,
-        current_selection: &SelectionState,
+        selected: Option<ID>,
         map: &mut Map,
         draw_map: &mut DrawMap,
         control_map: &ControlMap,
@@ -30,8 +30,8 @@ impl RoadEditor {
         let mut changed: Option<(LaneID, LaneType)> = None;
 
         match self {
-            RoadEditor::Inactive(edits) => match current_selection {
-                SelectionState::Empty => {
+            RoadEditor::Inactive(edits) => match selected {
+                None => {
                     if input.unimportant_key_pressed(Key::E, "Start editing roads") {
                         // TODO cloning edits sucks! want to consume self
                         new_state = Some(RoadEditor::Active(edits.clone()));
@@ -42,7 +42,7 @@ impl RoadEditor {
             RoadEditor::Active(edits) => {
                 if input.key_pressed(Key::Return, "stop editing roads") {
                     new_state = Some(RoadEditor::Inactive(edits.clone()));
-                } else if let SelectionState::Selected(ID::Lane(id)) = *current_selection {
+                } else if let Some(ID::Lane(id)) = selected {
                     let lane = map.get_l(id);
                     let road = map.get_r(lane.parent);
                     let reason = EditReason::BasemapWrong; // TODO be able to choose

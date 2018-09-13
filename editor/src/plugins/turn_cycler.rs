@@ -4,8 +4,8 @@ use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::{GfxCtx, UserInput};
 use map_model::{IntersectionID, LaneID, Map};
+use objects::ID;
 use piston::input::Key;
-use plugins::selection::{SelectionState, ID};
 use render::{DrawMap, Renderable};
 use sim::Sim;
 
@@ -21,11 +21,11 @@ impl TurnCyclerState {
         TurnCyclerState::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, current_selection: &SelectionState) -> bool {
-        let current_id = match current_selection {
-            SelectionState::Selected(ID::Lane(id)) => *id,
-            SelectionState::Selected(ID::Intersection(id)) => {
-                *self = TurnCyclerState::Intersection(*id);
+    pub fn event(&mut self, input: &mut UserInput, selected: Option<ID>) -> bool {
+        let current_id = match selected {
+            Some(ID::Lane(id)) => id,
+            Some(ID::Intersection(id)) => {
+                *self = TurnCyclerState::Intersection(id);
                 return false;
             }
             _ => {

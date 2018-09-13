@@ -1,8 +1,8 @@
 use control::ControlMap;
 use ezgui::{Canvas, GfxCtx, UserInput};
 use map_model::Map;
+use objects::ID;
 use piston::input::{Button, Key, ReleaseEvent};
-use plugins::selection::ID;
 use render::{DrawMap, Renderable};
 use sim::Sim;
 
@@ -19,13 +19,13 @@ impl DebugObjectsState {
 
     pub fn event(
         &mut self,
-        current_selection: Option<ID>,
+        selected: Option<ID>,
         input: &mut UserInput,
         map: &Map,
         sim: &mut Sim,
         control_map: &ControlMap,
     ) -> bool {
-        let new_state = if let Some(id) = current_selection {
+        let new_state = if let Some(id) = selected {
             // Don't break out of the tooltip state
             if let DebugObjectsState::Tooltip(_) = self {
                 DebugObjectsState::Tooltip(id)

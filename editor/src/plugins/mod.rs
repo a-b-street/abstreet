@@ -7,7 +7,6 @@ pub mod geom_validation;
 pub mod hider;
 pub mod road_editor;
 pub mod search;
-pub mod selection;
 pub mod show_route;
 pub mod sim_controls;
 pub mod steep;

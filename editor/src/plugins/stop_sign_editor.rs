@@ -7,8 +7,8 @@ use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::IntersectionID;
 use map_model::{Map, Turn};
+use objects::ID;
 use piston::input::Key;
-use plugins::selection::{SelectionState, ID};
 
 pub enum StopSignEditor {
     Inactive,
@@ -29,7 +29,7 @@ impl StopSignEditor {
         input: &mut UserInput,
         map: &Map,
         control_map: &mut ControlMap,
-        current_selection: &SelectionState,
+        selected: Option<ID>,
     ) -> bool {
         let mut new_state: Option<StopSignEditor> = None;
         match self {
@@ -37,7 +37,7 @@ impl StopSignEditor {
             StopSignEditor::Active(i) => {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(StopSignEditor::Inactive);
-                } else if let SelectionState::Selected(ID::Turn(id)) = *current_selection {
+                } else if let Some(ID::Turn(id)) = selected {
                     if map.get_t(id).parent == *i {
                         let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
                         match sign.get_priority(id) {

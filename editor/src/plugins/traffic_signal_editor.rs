@@ -8,8 +8,8 @@ use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::Map;
 use map_model::{IntersectionID, Turn};
+use objects::ID;
 use piston::input::Key;
-use plugins::selection::{SelectionState, ID};
 
 pub enum TrafficSignalEditor {
     Inactive,
@@ -36,7 +36,7 @@ impl TrafficSignalEditor {
         input: &mut UserInput,
         map: &Map,
         control_map: &mut ControlMap,
-        current_selection: &SelectionState,
+        selected: Option<ID>,
     ) -> bool {
         let mut new_state: Option<TrafficSignalEditor> = None;
         match self {
@@ -62,7 +62,7 @@ impl TrafficSignalEditor {
                     }
 
                     // Change turns
-                    if let SelectionState::Selected(ID::Turn(id)) = *current_selection {
+                    if let Some(ID::Turn(id)) = selected {
                         if map.get_t(id).parent == *i {
                             let cycle =
                                 &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles

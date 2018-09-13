@@ -13,6 +13,7 @@ use graphics::types::Color;
 use kml;
 use map_model;
 use map_model::IntersectionID;
+use objects::ID;
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
@@ -24,7 +25,6 @@ use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
-use plugins::selection::{SelectionState, ID};
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
@@ -124,7 +124,8 @@ impl UIWrapper {
             show_all_turn_icons: ToggleableLayer::new("turn icons", Key::D9, None),
             debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
 
-            current_selection_state: SelectionState::Empty,
+            current_selection: None,
+
             hider: Hider::new(),
             debug_objects: DebugObjectsState::new(),
             current_search_state: SearchState::Empty,
@@ -174,7 +175,7 @@ impl UIWrapper {
                         input,
                         &ui.map,
                         &mut ui.control_map,
-                        &ui.current_selection_state,
+                        ui.current_selection,
                     )
                 }),
                 Box::new(|ui, input| {
@@ -182,13 +183,13 @@ impl UIWrapper {
                         input,
                         &ui.map,
                         &mut ui.control_map,
-                        &ui.current_selection_state,
+                        ui.current_selection,
                     )
                 }),
                 Box::new(|ui, input| {
                     ui.road_editor.event(
                         input,
-                        &ui.current_selection_state,
+                        ui.current_selection,
                         &mut ui.map,
                         &mut ui.draw_map,
                         &ui.control_map,
@@ -202,7 +203,7 @@ impl UIWrapper {
                         &ui.map,
                         &ui.sim,
                         &mut ui.canvas,
-                        &mut ui.current_selection_state,
+                        &mut ui.current_selection,
                     )
                 }),
                 Box::new(|ui, input| ui.follow.event(input, &ui.map, &ui.sim, &mut ui.canvas)),
@@ -210,18 +211,19 @@ impl UIWrapper {
                 Box::new(|ui, input| ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)),
                 Box::new(|ui, input| ui.steepness_viz.event(input)),
                 Box::new(|ui, input| ui.osm_classifier.event(input)),
-                Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
+                Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection)),
                 Box::new(|ui, input| {
-                    let obj = match ui.current_selection_state {
-                        SelectionState::Empty => None,
-                        SelectionState::Selected(id) => Some(id),
-                    };
-                    ui.debug_objects
-                        .event(obj, input, &ui.map, &mut ui.sim, &ui.control_map)
+                    ui.debug_objects.event(
+                        ui.current_selection,
+                        input,
+                        &ui.map,
+                        &mut ui.sim,
+                        &ui.control_map,
+                    )
                 }),
                 Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
                 Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
-                Box::new(|ui, input| ui.turn_cycler.event(input, &ui.current_selection_state)),
+                Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
             ],
         }
     }
@@ -241,9 +243,7 @@ struct UI {
     show_all_turn_icons: ToggleableLayer,
     debug_mode: ToggleableLayer,
 
-    // This is a particularly special plugin, since it's always kind of active and other things
-    // read/write it.
-    current_selection_state: SelectionState,
+    current_selection: Option<ID>,
 
     hider: Hider,
     debug_objects: DebugObjectsState,
@@ -385,8 +385,7 @@ impl UI {
         // TODO This evaluates all the color methods, which may be expensive. But the option
         // chaining is harder to read. :(
         vec![
-            self.current_selection_state
-                .color_for(ID::Lane(l.id), &self.cs),
+            self.color_for_selected(ID::Lane(l.id)),
             self.show_route.color_l(l.id, &self.cs),
             self.current_search_state.color_l(l, &self.map, &self.cs),
             self.floodfiller.color_l(l, &self.cs),
@@ -413,36 +412,32 @@ impl UI {
             self.cs.get(Colors::UnchangedIntersection)
         };
 
-        self.current_selection_state
-            .color_for(ID::Intersection(i.id), &self.cs)
+        self.color_for_selected(ID::Intersection(i.id))
             .unwrap_or(default_color)
     }
 
     fn color_turn_icon(&self, id: map_model::TurnID) -> Color {
         let t = self.map.get_t(id);
         // TODO traffic signal selection logic maybe moves here
-        self.current_selection_state
-            .color_for(ID::Turn(t.id), &self.cs)
-            .unwrap_or_else(|| {
-                self.stop_sign_editor
-                    .color_t(t, &self.control_map, &self.cs)
-                    .unwrap_or_else(|| {
-                        self.traffic_signal_editor
-                            .color_t(t, &self.map, &self.control_map, &self.cs)
-                            .unwrap_or_else(|| {
-                                self.turn_colors
-                                    .color_t(t)
-                                    .unwrap_or(self.cs.get(Colors::TurnIconInactive))
-                            })
-                    })
-            })
+        self.color_for_selected(ID::Turn(t.id)).unwrap_or_else(|| {
+            self.stop_sign_editor
+                .color_t(t, &self.control_map, &self.cs)
+                .unwrap_or_else(|| {
+                    self.traffic_signal_editor
+                        .color_t(t, &self.map, &self.control_map, &self.cs)
+                        .unwrap_or_else(|| {
+                            self.turn_colors
+                                .color_t(t)
+                                .unwrap_or(self.cs.get(Colors::TurnIconInactive))
+                        })
+                })
+        })
     }
 
     fn color_building(&self, id: map_model::BuildingID) -> Color {
         let b = self.map.get_b(id);
         vec![
-            self.current_selection_state
-                .color_for(ID::Building(b.id), &self.cs),
+            self.color_for_selected(ID::Building(b.id)),
             self.current_search_state.color_b(b, &self.cs),
             self.osm_classifier.color_b(b, &self.cs),
         ].iter()
@@ -479,9 +474,7 @@ impl UI {
     }
 
     fn color_car(&self, id: CarID) -> Color {
-        if let Some(c) = self.current_selection_state
-            .color_for(ID::Car(id), &self.cs)
-        {
+        if let Some(c) = self.color_for_selected(ID::Car(id)) {
             return c;
         }
         // TODO if it's a bus, color it differently -- but how? :\
@@ -494,12 +487,18 @@ impl UI {
     }
 
     fn color_ped(&self, id: PedestrianID) -> Color {
-        if let Some(c) = self.current_selection_state
-            .color_for(ID::Pedestrian(id), &self.cs)
-        {
+        if let Some(c) = self.color_for_selected(ID::Pedestrian(id)) {
             return c;
         }
         shift_color(self.cs.get(Colors::Pedestrian), id.0)
+    }
+
+    fn color_for_selected(&self, id: ID) -> Option<Color> {
+        if Some(id) == self.current_selection {
+            Some(self.cs.get(Colors::Selected))
+        } else {
+            None
+        }
     }
 
     fn show_icons_for(&self, id: IntersectionID) -> bool {
@@ -523,14 +522,13 @@ impl UI {
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.current_selection_state = SelectionState::Empty;
+            self.current_selection = None;
         }
         if !self.canvas.is_dragging()
             && input.use_event_directly().mouse_cursor_args().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            let item = self.mouseover_something();
-            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
+            self.current_selection = self.mouseover_something();
         }
 
         // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
@@ -562,10 +560,17 @@ impl UI {
             changed
         };
         if layer_changed {
-            let item = self.mouseover_something();
-            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
-            self.debug_objects
-                .event(item, input, &self.map, &mut self.sim, &self.control_map);
+            self.current_selection = self.mouseover_something();
+            // TODO is it even necessary to update this here? shouldnt all plugins potentilly need
+            // to know? dont we need to also do this when warp/follow/other things potentially move
+            // stuff?
+            self.debug_objects.event(
+                self.current_selection,
+                input,
+                &self.map,
+                &mut self.sim,
+                &self.control_map,
+            );
             return EventLoopMode::InputOnly;
         }
 
@@ -578,8 +583,8 @@ impl UI {
             return EventLoopMode::InputOnly;
         }
 
-        match self.current_selection_state {
-            SelectionState::Selected(ID::Car(id)) => {
+        match self.current_selection {
+            Some(ID::Car(id)) => {
                 // TODO not sure if we should debug like this (pushing the bit down to all the
                 // layers representing an entity) or by using some scary global mutable singleton
                 if input.unimportant_key_pressed(Key::D, "debug") {
@@ -599,7 +604,7 @@ impl UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::Selected(ID::Pedestrian(id)) => {
+            Some(ID::Pedestrian(id)) => {
                 if input.key_pressed(Key::F, "follow this pedestrian") {
                     self.follow = FollowState::FollowingPedestrian(id);
                     return EventLoopMode::InputOnly;
@@ -610,7 +615,7 @@ impl UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::Selected(ID::Lane(id)) => {
+            Some(ID::Lane(id)) => {
                 if input.key_pressed(Key::F, "start floodfilling from this lane") {
                     self.floodfiller = Floodfiller::start(id);
                     return EventLoopMode::InputOnly;
@@ -623,7 +628,7 @@ impl UI {
                     return EventLoopMode::InputOnly;
                 }
             }
-            SelectionState::Selected(ID::Intersection(id)) => {
+            Some(ID::Intersection(id)) => {
                 if self.control_map.traffic_signals.contains_key(&id) {
                     if input.key_pressed(Key::E, &format!("edit traffic signal for {:?}", id)) {
                         self.traffic_signal_editor = TrafficSignalEditor::start(id);
@@ -749,8 +754,7 @@ impl UI {
                 // TODO no separate color method?
                 s.draw(
                     g,
-                    self.current_selection_state
-                        .color_for(ID::ExtraShape(s.id), &self.cs)
+                    self.color_for_selected(ID::ExtraShape(s.id))
                         .unwrap_or(self.cs.get(Colors::ExtraShape)),
                     &self.cs,
                 );

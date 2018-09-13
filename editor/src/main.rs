@@ -28,6 +28,7 @@ extern crate strum_macros;
 
 mod colors;
 mod kml;
+mod objects;
 mod plugins;
 mod render;
 mod ui;
