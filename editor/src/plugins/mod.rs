@@ -1,5 +1,6 @@
 pub mod classification;
 pub mod color_picker;
+pub mod debug_objects;
 pub mod floodfill;
 pub mod follow;
 pub mod geom_validation;

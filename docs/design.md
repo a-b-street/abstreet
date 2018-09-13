@@ -973,6 +973,7 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	= implement exclusive active plugin thing
 	= rethink if existing plugins are active or not. maybe dont make event() return if active or not, maybe have a separate method? or just in event, do stuff first, and then have this query at the end.
 	- tooltips shouldnt be shown while a random plugin is active; move that out to its own plugin! same for debugging. selection plugin should have NO logic.
-	- initiate plugins in the plugin's event; stop doing stuff directly in UI
 	- refactor the toggleablelayer stuff, then move them to list of plugins too
+
+	- initiate plugins in the plugin's event; stop doing stuff directly in UI
 	- basically, make UI.event() just the active plugin list thing as much as possible.

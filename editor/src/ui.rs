@@ -17,6 +17,7 @@ use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
+use plugins::debug_objects::DebugObjectsState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
@@ -125,6 +126,7 @@ impl UIWrapper {
 
             current_selection_state: SelectionState::Empty,
             hider: Hider::new(),
+            debug_objects: DebugObjectsState::new(),
             current_search_state: SearchState::Empty,
             warp: WarpState::Empty,
             follow: FollowState::Empty,
@@ -207,6 +209,14 @@ impl UIWrapper {
                 Box::new(|ui, input| ui.steepness_viz.event(input)),
                 Box::new(|ui, input| ui.osm_classifier.event(input)),
                 Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
+                Box::new(|ui, input| {
+                    let obj = match ui.current_selection_state {
+                        SelectionState::Empty => None,
+                        SelectionState::Selected(id) => Some(id),
+                    };
+                    ui.debug_objects
+                        .event(obj, input, &ui.map, &mut ui.sim, &ui.control_map)
+                }),
                 Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
                 Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
                 Box::new(|ui, input| ui.turn_cycler.event(input, &ui.current_selection_state)),
@@ -234,6 +244,7 @@ struct UI {
     current_selection_state: SelectionState,
 
     hider: Hider,
+    debug_objects: DebugObjectsState,
     current_search_state: SearchState,
     warp: WarpState,
     follow: FollowState,
@@ -543,48 +554,50 @@ impl UI {
             };
         }
 
+        // TODO can refactor this just be doing mouseover_something() and passing it into
+        // debug_objects again.
         if self.show_lanes.handle_event(input) {
-            if let SelectionState::Selected(ID::Lane(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Selected(ID::Lane(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let SelectionState::Tooltip(ID::Lane(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Tooltip(ID::Lane(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
             return EventLoopMode::InputOnly;
         }
         if self.show_buildings.handle_event(input) {
-            if let SelectionState::Selected(ID::Building(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Selected(ID::Building(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let SelectionState::Tooltip(ID::Building(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Tooltip(ID::Building(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
             return EventLoopMode::InputOnly;
         }
         if self.show_intersections.handle_event(input) {
-            if let SelectionState::Selected(ID::Intersection(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Selected(ID::Intersection(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let SelectionState::Tooltip(ID::Intersection(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Tooltip(ID::Intersection(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
             return EventLoopMode::InputOnly;
         }
         if self.show_extra_shapes.handle_event(input) {
-            if let SelectionState::Selected(ID::ExtraShape(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Selected(ID::ExtraShape(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let SelectionState::Tooltip(ID::ExtraShape(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Tooltip(ID::ExtraShape(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
             return EventLoopMode::InputOnly;
         }
         if self.show_all_turn_icons.handle_event(input) {
-            if let SelectionState::Selected(ID::Turn(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Selected(ID::Turn(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let SelectionState::Tooltip(ID::Turn(_)) = self.current_selection_state {
-                self.current_selection_state = SelectionState::Empty;
+            if let DebugObjectsState::Tooltip(ID::Turn(_)) = self.debug_objects {
+                self.debug_objects = DebugObjectsState::Empty;
             }
             return EventLoopMode::InputOnly;
         }
@@ -662,14 +675,6 @@ impl UI {
             }
             _ => {}
         }
-
-        // Do this one lastish, since it conflicts with lots of other stuff
-        stop_if_done!(self.current_selection_state.event(
-            input,
-            &self.map,
-            &mut self.sim,
-            &self.control_map
-        ));
 
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             let state = EditorState {
@@ -796,7 +801,7 @@ impl UI {
             &self.cs,
             g,
         );
-        self.current_selection_state
+        self.debug_objects
             .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
 
         self.color_picker.draw(&self.canvas, g);
