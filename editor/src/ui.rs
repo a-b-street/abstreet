@@ -202,12 +202,9 @@ impl UIWrapper {
                 }),
                 Box::new(|ui, input| ui.follow.event(input, &ui.map, &ui.sim, &mut ui.canvas)),
                 Box::new(|ui, input| ui.show_route.event(input, &ui.sim)),
-                Box::new(|ui, input| {
-                    ui.color_picker
-                        .handle_event(input, &mut ui.canvas, &mut ui.cs)
-                }),
-                Box::new(|ui, input| ui.steepness_viz.handle_event(input)),
-                Box::new(|ui, input| ui.osm_classifier.handle_event(input)),
+                Box::new(|ui, input| ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)),
+                Box::new(|ui, input| ui.steepness_viz.event(input)),
+                Box::new(|ui, input| ui.osm_classifier.event(input)),
                 Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection_state)),
                 Box::new(|ui, input| ui.floodfiller.event(&ui.map, input)),
                 Box::new(|ui, input| ui.geom_validator.event(input, &mut ui.canvas, &ui.map)),
@@ -689,13 +686,8 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        if self.sim_ctrl
+        self.sim_ctrl
             .event(input, &self.map, &self.control_map, &mut self.sim)
-        {
-            EventLoopMode::Animation
-        } else {
-            EventLoopMode::InputOnly
-        }
     }
 
     fn draw(&self, g: &mut GfxCtx, input: UserInput) {

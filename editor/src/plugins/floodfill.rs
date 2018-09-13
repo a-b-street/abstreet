@@ -35,11 +35,10 @@ impl Floodfiller {
 
     // TODO step backwards!
 
-    // returns true if active
     pub fn event(&mut self, map: &Map, input: &mut UserInput) -> bool {
         let mut new_state: Option<Floodfiller> = None;
-        let active = match self {
-            Floodfiller::Inactive => false,
+        match self {
+            Floodfiller::Inactive => {}
             Floodfiller::Active { visited, queue } => {
                 if input.key_pressed(Key::Return, "quit floodfilling") {
                     new_state = Some(Floodfiller::Inactive);
@@ -55,13 +54,15 @@ impl Floodfiller {
                         }
                     }
                 }
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+        match self {
+            Floodfiller::Inactive => false,
+            _ => true,
+        }
     }
 
     pub fn color_l(&self, l: &Lane, cs: &ColorScheme) -> Option<Color> {

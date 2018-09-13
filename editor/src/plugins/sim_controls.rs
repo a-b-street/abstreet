@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::UserInput;
+use ezgui::{EventLoopMode, UserInput};
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
 use sim::{Benchmark, Sim, TIMESTEP};
@@ -27,14 +27,13 @@ impl SimController {
         }
     }
 
-    // true if the sim is running
     pub fn event(
         &mut self,
         input: &mut UserInput,
         map: &Map,
         control_map: &ControlMap,
         sim: &mut Sim,
-    ) -> bool {
+    ) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::LeftBracket, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
@@ -86,7 +85,11 @@ impl SimController {
                 }
             }
         }
-        self.last_step.is_some()
+        if self.last_step.is_some() {
+            EventLoopMode::Animation
+        } else {
+            EventLoopMode::InputOnly
+        }
     }
 
     pub fn get_osd_lines(&self, sim: &Sim) -> Vec<String> {

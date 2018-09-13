@@ -46,6 +46,9 @@ impl FollowState {
         if quit {
             *self = FollowState::Empty;
         }
-        quit
+        match self {
+            FollowState::Empty => false,
+            _ => true,
+        }
     }
 }

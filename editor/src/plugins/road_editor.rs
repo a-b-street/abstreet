@@ -29,18 +29,15 @@ impl RoadEditor {
         // TODO a bit awkward that we can't pull this info from Edits easily
         let mut changed: Option<(LaneID, LaneType)> = None;
 
-        let active = match self {
+        match self {
             RoadEditor::Inactive(edits) => match current_selection {
                 SelectionState::Empty => {
                     if input.unimportant_key_pressed(Key::E, "Start editing roads") {
                         // TODO cloning edits sucks! want to consume self
                         new_state = Some(RoadEditor::Active(edits.clone()));
-                        true
-                    } else {
-                        false
                     }
                 }
-                _ => false,
+                _ => {}
             },
             RoadEditor::Active(edits) => {
                 if input.key_pressed(Key::Return, "stop editing roads") {
@@ -77,8 +74,6 @@ impl RoadEditor {
                         }
                     }
                 }
-
-                true
             }
         };
         if let Some(s) = new_state {
@@ -113,7 +108,11 @@ impl RoadEditor {
                 }
             }
         }
-        active
+
+        match self {
+            RoadEditor::Inactive(_) => false,
+            _ => true,
+        }
     }
 
     pub fn get_edits(&self) -> &Edits {

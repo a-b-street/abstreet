@@ -39,8 +39,8 @@ impl TrafficSignalEditor {
         current_selection: &SelectionState,
     ) -> bool {
         let mut new_state: Option<TrafficSignalEditor> = None;
-        let active = match self {
-            TrafficSignalEditor::Inactive => false,
+        match self {
+            TrafficSignalEditor::Inactive => {}
             TrafficSignalEditor::Active { i, current_cycle } => {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(TrafficSignalEditor::Inactive);
@@ -81,14 +81,16 @@ impl TrafficSignalEditor {
                         }
                     }
                 }
-
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+
+        match self {
+            TrafficSignalEditor::Inactive => false,
+            _ => true,
+        }
     }
 
     pub fn color_t(

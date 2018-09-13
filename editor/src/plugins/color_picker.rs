@@ -26,22 +26,14 @@ impl ColorPicker {
         ColorPicker::Inactive
     }
 
-    pub fn handle_event(
-        &mut self,
-        input: &mut UserInput,
-        canvas: &Canvas,
-        cs: &mut ColorScheme,
-    ) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas, cs: &mut ColorScheme) -> bool {
         let mut new_state: Option<ColorPicker> = None;
-        let active = match self {
+        match self {
             ColorPicker::Inactive => {
                 if input.unimportant_key_pressed(Key::D8, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(Menu::new(
                         Colors::iter().map(|c| c.to_string()).collect(),
                     )));
-                    true
-                } else {
-                    false
                 }
             }
             ColorPicker::Choosing(ref mut menu) => {
@@ -56,7 +48,6 @@ impl ColorPicker {
                         new_state = Some(ColorPicker::PickingColor(c, cs.get(c)));
                     }
                 };
-                true
             }
             ColorPicker::PickingColor(c, orig_color) => {
                 if input.key_pressed(
@@ -80,14 +71,15 @@ impl ColorPicker {
                         cs.set(*c, get_color(x as f32, y as f32));
                     }
                 }
-
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+        match self {
+            ColorPicker::Inactive => false,
+            _ => true,
+        }
     }
 
     pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {

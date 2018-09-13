@@ -39,13 +39,10 @@ impl SearchState {
 
     pub fn event(&mut self, input: &mut UserInput) -> bool {
         let mut new_state: Option<SearchState> = None;
-        let active = match self {
+        match self {
             SearchState::Empty => {
                 if input.unimportant_key_pressed(Key::Slash, "start searching") {
                     new_state = Some(SearchState::EnteringSearch(TextBox::new()));
-                    true
-                } else {
-                    false
                 }
             }
             SearchState::EnteringSearch(tb) => {
@@ -53,7 +50,6 @@ impl SearchState {
                     new_state = Some(SearchState::FilterOSM(tb.line.clone()));
                 }
                 input.consume_event();
-                true
             }
             SearchState::FilterOSM(filter) => {
                 if input.key_pressed(
@@ -62,13 +58,15 @@ impl SearchState {
                 ) {
                     new_state = Some(SearchState::Empty);
                 }
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+        match self {
+            SearchState::Empty => false,
+            _ => true,
+        }
     }
 
     pub fn get_osd_lines(&self) -> Vec<String> {

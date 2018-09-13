@@ -32,8 +32,8 @@ impl StopSignEditor {
         current_selection: &SelectionState,
     ) -> bool {
         let mut new_state: Option<StopSignEditor> = None;
-        let active = match self {
-            StopSignEditor::Inactive => false,
+        match self {
+            StopSignEditor::Inactive => {}
             StopSignEditor::Active(i) => {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(StopSignEditor::Inactive);
@@ -72,14 +72,16 @@ impl StopSignEditor {
                         };
                     }
                 }
-
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+
+        match self {
+            StopSignEditor::Inactive => false,
+            _ => true,
+        }
     }
 
     pub fn color_t(&self, t: &Turn, control_map: &ControlMap, cs: &ColorScheme) -> Option<Color> {

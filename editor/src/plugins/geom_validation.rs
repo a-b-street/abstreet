@@ -90,8 +90,8 @@ impl Validator {
 
     pub fn event(&mut self, input: &mut UserInput, canvas: &mut Canvas, map: &Map) -> bool {
         let mut new_state: Option<Validator> = None;
-        let active = match self {
-            Validator::Inactive => false,
+        match self {
+            Validator::Inactive => {}
             Validator::Active {
                 gen,
                 current_problem,
@@ -114,15 +114,15 @@ impl Validator {
                     println!("Quit geometry validator");
                     new_state = Some(Validator::Inactive);
                 }
-
-                // Later, keys for resolving problems
-                true
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+        match self {
+            Validator::Inactive => false,
+            _ => true,
+        }
     }
 }
 

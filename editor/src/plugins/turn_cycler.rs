@@ -35,31 +35,30 @@ impl TurnCyclerState {
         };
 
         let mut new_state: Option<TurnCyclerState> = None;
-        let active = match self {
+        match self {
             TurnCyclerState::Inactive | TurnCyclerState::Intersection(_) => {
                 new_state = Some(TurnCyclerState::Active(current_id, None));
-                false
             }
             TurnCyclerState::Active(old_id, current_turn_index) => {
                 if current_id != *old_id {
                     new_state = Some(TurnCyclerState::Inactive);
-                    false
                 } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
                     let idx = match *current_turn_index {
                         Some(i) => i + 1,
                         None => 0,
                     };
                     new_state = Some(TurnCyclerState::Active(current_id, Some(idx)));
-                    true
-                } else {
-                    false
                 }
             }
         };
         if let Some(s) = new_state {
             *self = s;
         }
-        active
+        match self {
+            TurnCyclerState::Inactive => false,
+            TurnCyclerState::Active(_, _) => true,
+            TurnCyclerState::Intersection(_) => false,
+        }
     }
 
     pub fn draw(

@@ -33,7 +33,10 @@ impl ShowRouteState {
         if quit {
             *self = ShowRouteState::Empty;
         }
-        quit
+        match self {
+            ShowRouteState::Empty => false,
+            _ => true,
+        }
     }
 
     pub fn color_l(&self, l: LaneID, cs: &ColorScheme) -> Option<Color> {
