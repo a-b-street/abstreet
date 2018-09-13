@@ -933,6 +933,38 @@ alright, time to move color logic. let's see what it takes for each Renderable t
 
 OK, so where was I?
 - colors are still currently missing for things that need two of them.
-- having one active plugin at a time simplifies the color problem and solves a few others, so try that now.
+** having one active plugin at a time simplifies the color problem and solves a few others, so try that now.
+	- another refactor to do -- initiate plugins based on current_selection_state in UI or the plugin, but stop mixing so much
 - make car and ped also Renderable, for great consistency!
 - work on generic quadtree idea
+
+### One active plugin at a time
+
+I wonder if the UI will have a need to reach into plugins beyond event(). Let's find out!
+- exceptions
+	- hider needs to given to finding onscreen stuff
+	- search can specify colors and OSD lines
+	- warp can add OSD lines
+	- show_route can color
+	- floodfiller can color
+	- steepness can color
+	- osm can color
+	- signal and stop sign editor can color and indicate what icons are onscreen
+	- road editor can be asked for state to serialize
+	- sim ctrl can contribute OSD lines (and everything grabs sim from it directly too -- maybe sim should live in UI directly)
+	- color picker can draw
+	- turn cycler can draw
+
+- the stuff they take in event() is different. hmm.
+	- box lil closures
+
+so it feels like we implicitly have a big enum of active plugin, with each of their states kinda hidden inside.
+
+- the simple idea
+	- UI keeps having a bunch of separate plugins with their real type
+	- have a list of closures that take UI and do event(). return true if that plugin is active
+		NOT if something was done with the input
+	- in event(), go through the list and stop when something becomes
+	  active. remember it's active and just call it directly next time in
+          event(), until it says its no longer active.
+	- then figure out the implications for color

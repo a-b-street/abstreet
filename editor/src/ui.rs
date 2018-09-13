@@ -34,7 +34,7 @@ use plugins::warp::WarpState;
 use render;
 use render::Renderable;
 use sim;
-use sim::{AgentID, CarID, CarState, PedestrianID};
+use sim::{AgentID, CarID, CarState, PedestrianID, Sim};
 use std::collections::{HashMap, HashSet};
 use std::process;
 
@@ -48,6 +48,7 @@ pub struct UI {
     map: map_model::Map,
     draw_map: render::DrawMap,
     control_map: ControlMap,
+    sim: Sim,
 
     show_lanes: ToggleableLayer,
     show_buildings: ToggleableLayer,
@@ -69,7 +70,6 @@ pub struct UI {
     floodfiller: Floodfiller,
     steepness_viz: SteepnessVisualizer,
     osm_classifier: OsmClassifier,
-    turn_colors: TurnColors,
     traffic_signal_editor: TrafficSignalEditor,
     stop_sign_editor: StopSignEditor,
     road_editor: RoadEditor,
@@ -77,6 +77,9 @@ pub struct UI {
     color_picker: ColorPicker,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
+
+    // Not really a plugin; it doesn't react to anything.
+    turn_colors: TurnColors,
 
     canvas: Canvas,
     // TODO maybe never pass this to other places? Always resolve colors here?
@@ -113,15 +116,17 @@ impl UI {
 
         let steepness_viz = SteepnessVisualizer::new(&map);
         let turn_colors = TurnColors::new(&control_map);
-        let sim_ctrl = SimController::new(sim);
 
         let mut ui = UI {
+            // TODO organize this by section
             map,
             draw_map,
             control_map,
+            sim,
+
             steepness_viz,
             turn_colors,
-            sim_ctrl,
+            sim_ctrl: SimController::new(),
 
             show_lanes: ToggleableLayer::new("lanes", Key::D3, Some(MIN_ZOOM_FOR_LANES)),
             show_buildings: ToggleableLayer::new("buildings", Key::D1, Some(0.0)),
@@ -212,12 +217,12 @@ impl UI {
             Vec::new()
         };
         for l in &lanes_onscreen {
-            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
+            for c in &self.sim.get_draw_cars_on_lane(l.id, &self.map) {
                 if c.contains_pt(pt) {
                     return Some(ID::Car(c.id));
                 }
             }
-            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
+            for p in &self.sim.get_draw_peds_on_lane(l.id, &self.map) {
                 if p.contains_pt(pt) {
                     return Some(ID::Pedestrian(p.id));
                 }
@@ -235,12 +240,12 @@ impl UI {
                         return Some(ID::Turn(*t));
                     }
 
-                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
+                    for c in &self.sim.get_draw_cars_on_turn(*t, &self.map) {
                         if c.contains_pt(pt) {
                             return Some(ID::Car(c.id));
                         }
                     }
-                    for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(*t, &self.map) {
+                    for p in &self.sim.get_draw_peds_on_turn(*t, &self.map) {
                         if p.contains_pt(pt) {
                             return Some(ID::Pedestrian(p.id));
                         }
@@ -389,7 +394,7 @@ impl UI {
             return c;
         }
         // TODO if it's a bus, color it differently -- but how? :\
-        match self.sim_ctrl.sim.get_car_state(id) {
+        match self.sim.get_car_state(id) {
             CarState::Debug => shift_color(self.cs.get(Colors::DebugCar), id.0),
             CarState::Moving => shift_color(self.cs.get(Colors::MovingCar), id.0),
             CarState::Stuck => shift_color(self.cs.get(Colors::StuckCar), id.0),
@@ -460,21 +465,21 @@ impl GUI for UI {
             &mut self.map,
             &mut self.draw_map,
             &self.control_map,
-            &mut self.sim_ctrl.sim
+            &mut self.sim
         ));
         stop_if_done!(self.current_search_state.event(input));
         stop_if_done!(self.warp.event(
             input,
             &self.map,
-            &self.sim_ctrl.sim,
+            &self.sim,
             &mut self.canvas,
             &mut self.current_selection_state,
         ));
         stop_if_done!(
             self.follow
-                .event(input, &self.map, &self.sim_ctrl.sim, &mut self.canvas,)
+                .event(input, &self.map, &self.sim, &mut self.canvas,)
         );
-        stop_if_done!(self.show_route.event(input, &self.sim_ctrl.sim));
+        stop_if_done!(self.show_route.event(input, &self.sim));
         stop_if_done!(
             self.color_picker
                 .handle_event(input, &mut self.canvas, &mut self.cs)
@@ -543,7 +548,7 @@ impl GUI for UI {
             return EventLoopMode::InputOnly;
         }
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
-            self.sim_ctrl.sim.small_spawn(&self.map);
+            self.sim.small_spawn(&self.map);
             return EventLoopMode::InputOnly;
         }
 
@@ -552,11 +557,11 @@ impl GUI for UI {
                 // TODO not sure if we should debug like this (pushing the bit down to all the
                 // layers representing an entity) or by using some scary global mutable singleton
                 if input.unimportant_key_pressed(Key::D, "debug") {
-                    self.sim_ctrl.sim.toggle_debug(id);
+                    self.sim.toggle_debug(id);
                     return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::A, "start this parked car") {
-                    self.sim_ctrl.sim.start_parked_car(&self.map, id);
+                    self.sim.start_parked_car(&self.map, id);
                     return EventLoopMode::InputOnly;
                 }
                 if input.key_pressed(Key::F, "follow this car") {
@@ -588,7 +593,7 @@ impl GUI for UI {
                 if self.map.get_l(id).is_sidewalk()
                     && input.key_pressed(Key::A, "spawn a pedestrian here")
                 {
-                    self.sim_ctrl.sim.spawn_pedestrian(&self.map, id);
+                    self.sim.spawn_pedestrian(&self.map, id);
                     return EventLoopMode::InputOnly;
                 }
             }
@@ -613,7 +618,7 @@ impl GUI for UI {
         stop_if_done!(self.current_selection_state.event(
             input,
             &self.map,
-            &mut self.sim_ctrl.sim,
+            &mut self.sim,
             &self.control_map
         ));
 
@@ -636,7 +641,9 @@ impl GUI for UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        if self.sim_ctrl.event(input, &self.map, &self.control_map) {
+        if self.sim_ctrl
+            .event(input, &self.map, &self.control_map, &mut self.sim)
+        {
             EventLoopMode::Animation
         } else {
             EventLoopMode::InputOnly
@@ -683,10 +690,10 @@ impl GUI for UI {
                             .get_t(*t)
                             .draw(g, self.color_turn_icon(*t), &self.cs);
                     }
-                    for c in &self.sim_ctrl.sim.get_draw_cars_on_turn(*t, &self.map) {
+                    for c in &self.sim.get_draw_cars_on_turn(*t, &self.map) {
                         c.draw(g, self.color_car(c.id));
                     }
-                    for p in &self.sim_ctrl.sim.get_draw_peds_on_turn(*t, &self.map) {
+                    for p in &self.sim.get_draw_peds_on_turn(*t, &self.map) {
                         p.draw(g, self.color_ped(p.id));
                     }
                 }
@@ -716,10 +723,10 @@ impl GUI for UI {
         }
 
         for l in &lanes_onscreen {
-            for c in &self.sim_ctrl.sim.get_draw_cars_on_lane(l.id, &self.map) {
+            for c in &self.sim.get_draw_cars_on_lane(l.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
             }
-            for p in &self.sim_ctrl.sim.get_draw_peds_on_lane(l.id, &self.map) {
+            for p in &self.sim.get_draw_peds_on_lane(l.id, &self.map) {
                 p.draw(g, self.color_ped(p.id));
             }
         }
@@ -743,21 +750,16 @@ impl GUI for UI {
             &self.map,
             &self.draw_map,
             &self.control_map,
-            &self.sim_ctrl.sim,
+            &self.sim,
             &self.cs,
             g,
         );
-        self.current_selection_state.draw(
-            &self.map,
-            &self.canvas,
-            &self.draw_map,
-            &self.sim_ctrl.sim,
-            g,
-        );
+        self.current_selection_state
+            .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
 
         self.color_picker.draw(&self.canvas, g);
 
-        let mut osd_lines = self.sim_ctrl.get_osd_lines();
+        let mut osd_lines = self.sim_ctrl.get_osd_lines(&self.sim);
         let action_lines = input.get_possible_actions();
         if !action_lines.is_empty() {
             osd_lines.push(String::from(""));

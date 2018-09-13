@@ -4,14 +4,12 @@ use control::ControlMap;
 use ezgui::UserInput;
 use map_model::Map;
 use piston::input::{Key, UpdateEvent};
-use sim;
-use sim::{Benchmark, Sim};
+use sim::{Benchmark, Sim, TIMESTEP};
 use std::time::{Duration, Instant};
 
 const ADJUST_SPEED: f64 = 0.1;
 
 pub struct SimController {
-    pub sim: Sim,
     desired_speed: f64, // sim seconds per real second
     // If None, then the sim is paused
     last_step: Option<Instant>,
@@ -20,9 +18,8 @@ pub struct SimController {
 }
 
 impl SimController {
-    pub fn new(sim: Sim) -> SimController {
+    pub fn new() -> SimController {
         SimController {
-            sim,
             desired_speed: 1.0,
             last_step: None,
             benchmark: None,
@@ -31,7 +28,13 @@ impl SimController {
     }
 
     // true if the sim is running
-    pub fn event(&mut self, input: &mut UserInput, map: &Map, control_map: &ControlMap) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        map: &Map,
+        control_map: &ControlMap,
+        sim: &mut Sim,
+    ) -> bool {
         if input.unimportant_key_pressed(Key::LeftBracket, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
@@ -40,12 +43,12 @@ impl SimController {
             self.desired_speed += ADJUST_SPEED;
         }
         if input.unimportant_key_pressed(Key::O, "save sim state") {
-            self.sim.save();
+            sim.save();
         }
         if input.unimportant_key_pressed(Key::P, "load sim state") {
-            match self.sim.load_most_recent() {
-                Ok(sim) => {
-                    self.sim = sim;
+            match sim.load_most_recent() {
+                Ok(new_sim) => {
+                    *sim = new_sim;
                     self.benchmark = None;
                 }
                 Err(e) => println!("Couldn't load savestate: {}", e),
@@ -60,9 +63,9 @@ impl SimController {
         } else {
             if input.unimportant_key_pressed(Key::Space, "run sim") {
                 self.last_step = Some(Instant::now());
-                self.benchmark = Some(self.sim.start_benchmark());
+                self.benchmark = Some(sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, "run one step") {
-                self.sim.step(map, control_map);
+                sim.step(map, control_map);
             }
         }
 
@@ -71,14 +74,14 @@ impl SimController {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt = tick.elapsed();
                 let dt_s = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
-                if dt_s >= sim::TIMESTEP.value_unsafe / self.desired_speed {
-                    self.sim.step(map, control_map);
+                if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
+                    sim.step(map, control_map);
                     self.last_step = Some(Instant::now());
                 }
 
                 if let Some(ref mut b) = self.benchmark {
                     if b.has_real_time_passed(Duration::from_secs(1)) {
-                        self.sim_speed = format!("{0:.2}x", self.sim.measure_speed(b));
+                        self.sim_speed = format!("{0:.2}x", sim.measure_speed(b));
                     }
                 }
             }
@@ -86,9 +89,9 @@ impl SimController {
         self.last_step.is_some()
     }
 
-    pub fn get_osd_lines(&self) -> Vec<String> {
+    pub fn get_osd_lines(&self, sim: &Sim) -> Vec<String> {
         vec![
-            self.sim.summary(),
+            sim.summary(),
             format!(
                 "Speed: {0} / desired {1:.2}x",
                 self.sim_speed, self.desired_speed
