@@ -131,7 +131,8 @@ impl ToggleableLayer {
         }
     }
 
-    pub fn handle_event(&mut self, input: &mut input::UserInput) -> bool {
+    // True if there was a change
+    pub fn event(&mut self, input: &mut input::UserInput) -> bool {
         if input.unimportant_key_pressed(
             self.key,
             &format!(

@@ -162,7 +162,9 @@ impl UIWrapper {
         }
 
         let new_zoom = ui.canvas.cam_zoom;
-        ui.zoom_for_toggleable_layers(-1.0, new_zoom);
+        for layer in ui.toggleable_layers().into_iter() {
+            layer.handle_zoom(-1.0, new_zoom);
+        }
 
         UIWrapper {
             ui,
@@ -272,15 +274,16 @@ struct UI {
 }
 
 impl UI {
-    // TODO or make a custom event for zoom change
-    fn zoom_for_toggleable_layers(&mut self, old_zoom: f64, new_zoom: f64) {
-        self.show_lanes.handle_zoom(old_zoom, new_zoom);
-        self.show_buildings.handle_zoom(old_zoom, new_zoom);
-        self.show_intersections.handle_zoom(old_zoom, new_zoom);
-        self.show_parcels.handle_zoom(old_zoom, new_zoom);
-        self.show_extra_shapes.handle_zoom(old_zoom, new_zoom);
-        self.show_all_turn_icons.handle_zoom(old_zoom, new_zoom);
-        self.debug_mode.handle_zoom(old_zoom, new_zoom);
+    fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {
+        vec![
+            &mut self.show_lanes,
+            &mut self.show_buildings,
+            &mut self.show_intersections,
+            &mut self.show_parcels,
+            &mut self.show_extra_shapes,
+            &mut self.show_all_turn_icons,
+            &mut self.debug_mode,
+        ]
     }
 
     fn mouseover_something(&self) -> Option<ID> {
@@ -514,7 +517,9 @@ impl UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input.use_event_directly());
         let new_zoom = self.canvas.cam_zoom;
-        self.zoom_for_toggleable_layers(old_zoom, new_zoom);
+        for layer in self.toggleable_layers().into_iter() {
+            layer.handle_zoom(old_zoom, new_zoom);
+        }
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -546,64 +551,23 @@ impl UI {
             }
         }
 
-        macro_rules! stop_if_done {
-            ($plugin:expr) => {
-                if $plugin {
-                    return EventLoopMode::InputOnly;
+        let layer_changed = {
+            let mut changed = false;
+            for layer in self.toggleable_layers().into_iter() {
+                if layer.event(input) {
+                    changed = true;
+                    break;
                 }
-            };
-        }
-
-        // TODO can refactor this just be doing mouseover_something() and passing it into
-        // debug_objects again.
-        if self.show_lanes.handle_event(input) {
-            if let DebugObjectsState::Selected(ID::Lane(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
             }
-            if let DebugObjectsState::Tooltip(ID::Lane(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
+            changed
+        };
+        if layer_changed {
+            let item = self.mouseover_something();
+            self.current_selection_state = self.current_selection_state.handle_mouseover(item);
+            self.debug_objects
+                .event(item, input, &self.map, &mut self.sim, &self.control_map);
             return EventLoopMode::InputOnly;
         }
-        if self.show_buildings.handle_event(input) {
-            if let DebugObjectsState::Selected(ID::Building(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            if let DebugObjectsState::Tooltip(ID::Building(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            return EventLoopMode::InputOnly;
-        }
-        if self.show_intersections.handle_event(input) {
-            if let DebugObjectsState::Selected(ID::Intersection(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            if let DebugObjectsState::Tooltip(ID::Intersection(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            return EventLoopMode::InputOnly;
-        }
-        if self.show_extra_shapes.handle_event(input) {
-            if let DebugObjectsState::Selected(ID::ExtraShape(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            if let DebugObjectsState::Tooltip(ID::ExtraShape(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            return EventLoopMode::InputOnly;
-        }
-        if self.show_all_turn_icons.handle_event(input) {
-            if let DebugObjectsState::Selected(ID::Turn(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            if let DebugObjectsState::Tooltip(ID::Turn(_)) = self.debug_objects {
-                self.debug_objects = DebugObjectsState::Empty;
-            }
-            return EventLoopMode::InputOnly;
-        }
-
-        stop_if_done!(self.show_parcels.handle_event(input));
-        stop_if_done!(self.debug_mode.handle_event(input));
 
         if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
             self.geom_validator = Validator::start(&self.draw_map);
