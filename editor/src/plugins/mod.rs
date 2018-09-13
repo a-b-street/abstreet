@@ -3,6 +3,7 @@ pub mod color_picker;
 pub mod floodfill;
 pub mod follow;
 pub mod geom_validation;
+pub mod hider;
 pub mod road_editor;
 pub mod search;
 pub mod selection;

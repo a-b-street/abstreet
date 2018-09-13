@@ -6,7 +6,7 @@ use control::ControlMap;
 use geom::{LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
-use plugins::selection::Hider;
+use plugins::hider::Hider;
 use render::building::DrawBuilding;
 use render::extra_shape::DrawExtraShape;
 use render::intersection::DrawIntersection;

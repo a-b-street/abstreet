@@ -20,9 +20,10 @@ use plugins::color_picker::ColorPicker;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
+use plugins::hider::Hider;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
-use plugins::selection::{Hider, SelectionState, ID};
+use plugins::selection::{SelectionState, ID};
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
@@ -515,6 +516,9 @@ impl UI {
             let item = self.mouseover_something();
             self.current_selection_state = self.current_selection_state.handle_mouseover(item);
         }
+
+        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
+        // want some keys to always be pressable (sim controller stuff, quitting the game?)
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
