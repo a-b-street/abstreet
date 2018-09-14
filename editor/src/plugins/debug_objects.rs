@@ -3,6 +3,7 @@ use ezgui::{Canvas, GfxCtx, UserInput};
 use map_model::Map;
 use objects::ID;
 use piston::input::{Button, Key, ReleaseEvent};
+use plugins::Colorizer;
 use render::{DrawMap, Renderable};
 use sim::Sim;
 
@@ -76,6 +77,8 @@ impl DebugObjectsState {
         }
     }
 }
+
+impl Colorizer for DebugObjectsState {}
 
 // TODO move to Renderable or ID?
 fn debug(id: &ID, map: &Map, control_map: &ControlMap, sim: &mut Sim) {

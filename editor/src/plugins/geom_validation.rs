@@ -5,6 +5,7 @@ use geo::prelude::Intersects;
 use geom::{Polygon, Pt2D};
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
+use plugins::Colorizer;
 use render::DrawMap;
 
 // TODO just have one of these
@@ -135,6 +136,8 @@ impl Validator {
         }
     }
 }
+
+impl Colorizer for Validator {}
 
 fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
     let mut result = Vec::new();

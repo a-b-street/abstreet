@@ -3,6 +3,7 @@ use ezgui::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
 use objects::ID;
 use piston::input::Key;
+use plugins::Colorizer;
 use render::DrawMap;
 use sim::Sim;
 
@@ -122,3 +123,5 @@ impl RoadEditor {
         }
     }
 }
+
+impl Colorizer for RoadEditor {}

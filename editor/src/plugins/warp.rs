@@ -2,6 +2,7 @@ use ezgui::{Canvas, TextBox, UserInput};
 use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
 use piston::input::Key;
+use plugins::Colorizer;
 use sim::{CarID, PedestrianID, Sim};
 use std::usize;
 
@@ -52,6 +53,8 @@ impl WarpState {
         Vec::new()
     }
 }
+
+impl Colorizer for WarpState {}
 
 fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut Option<ID>) {
     if line.is_empty() {

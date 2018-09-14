@@ -3,6 +3,7 @@
 use ezgui::UserInput;
 use objects::ID;
 use piston::input::Key;
+use plugins::Colorizer;
 use std::collections::HashSet;
 
 pub struct Hider {
@@ -51,3 +52,5 @@ impl Hider {
         !self.items.contains(&id)
     }
 }
+
+impl Colorizer for Hider {}

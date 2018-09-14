@@ -2,14 +2,14 @@
 
 // TODO how to edit cycle time?
 
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use control::ControlMap;
 use ezgui::UserInput;
 use graphics::types::Color;
-use map_model::Map;
-use map_model::{IntersectionID, Turn};
+use map_model::{IntersectionID, Map};
 use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 
 #[derive(PartialEq)]
 pub enum TrafficSignalEditor {
@@ -104,34 +104,6 @@ impl TrafficSignalEditor {
         }
     }
 
-    pub fn color_t(
-        &self,
-        t: &Turn,
-        map: &Map,
-        control_map: &ControlMap,
-        cs: &ColorScheme,
-    ) -> Option<Color> {
-        match self {
-            TrafficSignalEditor::Inactive => None,
-            TrafficSignalEditor::Active { i, current_cycle } => {
-                if t.parent != *i {
-                    return Some(cs.get(Colors::TurnIrrelevant));
-                }
-
-                let cycle = &control_map.traffic_signals[&i].cycles[*current_cycle];
-
-                if cycle.contains(t.id) {
-                    Some(cs.get(Colors::SignalEditorTurnInCurrentCycle))
-                } else if !cycle.conflicts_with(t.id, map) {
-                    Some(cs.get(Colors::SignalEditorTurnCompatibleWithCurrentCycle))
-                } else {
-                    Some(cs.get(Colors::SignalEditorTurnConflictsWithCurrentCycle))
-                }
-                // TODO maybe something to indicate unused in any cycle so far
-            }
-        }
-    }
-
     pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
         match self {
             TrafficSignalEditor::Active {
@@ -139,6 +111,36 @@ impl TrafficSignalEditor {
                 current_cycle: _,
             } => *i == id,
             TrafficSignalEditor::Inactive => false,
+        }
+    }
+}
+
+impl Colorizer for TrafficSignalEditor {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match (self, obj) {
+            (TrafficSignalEditor::Active { i, current_cycle }, ID::Turn(t)) => {
+                if t.parent != *i {
+                    return Some(ctx.cs.get(Colors::TurnIrrelevant));
+                }
+
+                let cycle = &ctx.control_map.traffic_signals[&i].cycles[*current_cycle];
+
+                if cycle.contains(t) {
+                    Some(ctx.cs.get(Colors::SignalEditorTurnInCurrentCycle))
+                } else if !cycle.conflicts_with(t, ctx.map) {
+                    Some(
+                        ctx.cs
+                            .get(Colors::SignalEditorTurnCompatibleWithCurrentCycle),
+                    )
+                } else {
+                    Some(
+                        ctx.cs
+                            .get(Colors::SignalEditorTurnConflictsWithCurrentCycle),
+                    )
+                }
+                // TODO maybe something to indicate unused in any cycle so far
+            }
+            _ => None,
         }
     }
 }

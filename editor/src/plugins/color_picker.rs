@@ -4,6 +4,7 @@ use colors::{ColorScheme, Colors};
 use ezgui::{Canvas, GfxCtx, Menu, MenuResult, UserInput};
 use graphics;
 use piston::input::{Key, MouseCursorEvent};
+use plugins::Colorizer;
 use std::str::FromStr;
 use std::string::ToString;
 use strum::IntoEnumIterator;
@@ -112,6 +113,8 @@ impl ColorPicker {
         }
     }
 }
+
+impl Colorizer for ColorPicker {}
 
 fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
     let total_width = TILE_DIMS * WIDTH;

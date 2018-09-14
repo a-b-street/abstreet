@@ -3,10 +3,12 @@
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use ezgui::{GfxCtx, UserInput};
+use graphics::types::Color;
 use map_model::{IntersectionID, LaneID, Map};
 use objects::ID;
 use piston::input::Key;
-use render::{DrawMap, RenderOptions, Renderable};
+use plugins::{Colorizer, Ctx};
+use render::DrawMap;
 use sim::Sim;
 
 #[derive(Clone, Debug)]
@@ -80,23 +82,6 @@ impl TurnCyclerState {
                             let turn = relevant_turns[idx % relevant_turns.len()];
                             let draw_turn = draw_map.get_t(turn.id);
                             draw_turn.draw_full(g, cs.get(Colors::Turn));
-
-                            for t in map.get_turns_in_intersection(turn.parent) {
-                                if t.conflicts_with(turn) {
-                                    let draw_t = draw_map.get_t(t.id);
-                                    // TODO should we instead change color_t?
-                                    draw_t.draw(
-                                        g,
-                                        RenderOptions {
-                                            color: cs.get(Colors::ConflictingTurn),
-                                            // These don't matter here?
-                                            cam_zoom: 0.0,
-                                            debug_mode: false,
-                                        },
-                                        cs,
-                                    );
-                                }
-                            }
                         }
                         None => for turn in &relevant_turns {
                             draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
@@ -113,6 +98,24 @@ impl TurnCyclerState {
                     }
                 }
             }
+        }
+    }
+}
+
+impl Colorizer for TurnCyclerState {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match (self, obj) {
+            (TurnCyclerState::Active(l, Some(idx)), ID::Turn(t)) => {
+                // TODO quickly prune if t doesnt go from or to l
+
+                let relevant_turns = ctx.map.get_turns_from_lane(*l);
+                if relevant_turns[idx % relevant_turns.len()].conflicts_with(ctx.map.get_t(t)) {
+                    Some(ctx.cs.get(Colors::ConflictingTurn))
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
     }
 }

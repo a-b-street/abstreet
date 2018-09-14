@@ -4,7 +4,7 @@
 
 use control::ControlMap;
 use graphics::types::Color;
-use map_model::{Turn, TurnID};
+use map_model::TurnID;
 use std::collections::HashMap;
 
 const CYCLE_COLORS: [Color; 14] = [
@@ -51,8 +51,8 @@ impl TurnColors {
         }
     }
 
-    pub fn color_t(&self, t: &Turn) -> Option<Color> {
-        if let Some(cycle) = self.cycle_idx_per_turn.get(&t.id) {
+    pub fn color_t(&self, t: TurnID) -> Option<Color> {
+        if let Some(cycle) = self.cycle_idx_per_turn.get(&t) {
             return Some(CYCLE_COLORS[*cycle]);
         }
         None

@@ -5,7 +5,9 @@
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::{Lane, Map};
+use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 use std::f64;
 
 pub struct SteepnessVisualizer {
@@ -50,23 +52,21 @@ impl SteepnessVisualizer {
         let e2 = map.get_destination_intersection(l.id).elevation;
         (e1 - e2).value_unsafe.abs()
     }
+}
 
-    pub fn color_l(&self, map: &Map, l: &Lane) -> Option<Color> {
+impl Colorizer for SteepnessVisualizer {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         if !self.active {
             return None;
         }
 
-        let normalized = (self.get_delta(map, l) - self.min_difference)
-            / (self.max_difference - self.min_difference);
-        Some([normalized as f32, 0.0, 0.0, 1.0])
+        match obj {
+            ID::Lane(l) => {
+                let normalized = (self.get_delta(ctx.map, ctx.map.get_l(l)) - self.min_difference)
+                    / (self.max_difference - self.min_difference);
+                Some([normalized as f32, 0.0, 0.0, 1.0])
+            }
+            _ => None,
+        }
     }
 }
-
-// TODO uh oh, we need Map again
-/*impl ColorChooser for SteepnessVisualizer {
-    fn color_l(&self, l: &Lane) -> Option<Color> {
-        let normalized = (self.get_delta(&l) - self.min_difference) /
-          (self.max_difference - self.min_difference);
-        return Some([normalized as f32, 0.0, 0.0, 1.0]);
-    }
-}*/

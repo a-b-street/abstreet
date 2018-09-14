@@ -3,8 +3,9 @@
 use colors::{ColorScheme, Colors};
 use ezgui::{TextBox, UserInput};
 use graphics::types::Color;
-use map_model;
+use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 use std::collections::BTreeMap;
 
 pub enum SearchState {
@@ -14,18 +15,6 @@ pub enum SearchState {
 }
 
 impl SearchState {
-    pub fn color_l(
-        &self,
-        l: &map_model::Lane,
-        map: &map_model::Map,
-        cs: &ColorScheme,
-    ) -> Option<Color> {
-        self.choose_color(&map.get_r(l.parent).osm_tags, cs)
-    }
-    pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
-        self.choose_color(&b.osm_tags, cs)
-    }
-
     fn choose_color(&self, osm_tags: &BTreeMap<String, String>, cs: &ColorScheme) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             for (k, v) in osm_tags {
@@ -75,5 +64,15 @@ impl SearchState {
             return vec![text_box.line.clone()];
         }
         Vec::new()
+    }
+}
+
+impl Colorizer for SearchState {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match obj {
+            ID::Lane(l) => self.choose_color(&ctx.map.get_parent(l).osm_tags, ctx.cs),
+            ID::Building(b) => self.choose_color(&ctx.map.get_b(b).osm_tags, ctx.cs),
+            _ => None,
+        }
     }
 }

@@ -33,6 +33,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
+use plugins::{Colorizer, Ctx};
 use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{CarID, CarState, PedestrianID, Sim};
@@ -321,6 +322,23 @@ impl UI {
     }
 
     fn color_lane(&self, id: map_model::LaneID) -> Color {
+        if let Some(c) = self.color_for_selected(ID::Lane(id)) {
+            return c;
+        }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Lane(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
+        // TODO move the default to each render thing, and make this function generic
         let l = self.map.get_l(id);
         let mut default = match l.lane_type {
             map_model::LaneType::Driving => self.cs.get(Colors::Road),
@@ -331,23 +349,26 @@ impl UI {
         if l.probably_broken {
             default = self.cs.get(Colors::Broken);
         }
-
-        // TODO This evaluates all the color methods, which may be expensive. But the option
-        // chaining is harder to read. :(
-        vec![
-            self.color_for_selected(ID::Lane(l.id)),
-            self.show_route.color_l(l.id, &self.cs),
-            self.search_state.color_l(l, &self.map, &self.cs),
-            self.floodfiller.color_l(l, &self.cs),
-            self.steepness_viz.color_l(&self.map, l),
-            self.osm_classifier.color_l(l, &self.map, &self.cs),
-        ].iter()
-            .filter_map(|c| *c)
-            .next()
-            .unwrap_or(default)
+        default
     }
 
     fn color_intersection(&self, id: map_model::IntersectionID) -> Color {
+        if let Some(c) = self.color_for_selected(ID::Intersection(id)) {
+            return c;
+        }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Intersection(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
         let i = self.map.get_i(id);
         let changed = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
             s.changed()
@@ -356,48 +377,72 @@ impl UI {
         } else {
             false
         };
-        let default_color = if changed {
+        if changed {
             self.cs.get(Colors::ChangedIntersection)
         } else {
             self.cs.get(Colors::UnchangedIntersection)
-        };
-
-        self.color_for_selected(ID::Intersection(i.id))
-            .unwrap_or(default_color)
+        }
     }
 
     fn color_turn_icon(&self, id: map_model::TurnID) -> Color {
-        let t = self.map.get_t(id);
-        // TODO traffic signal selection logic maybe moves here
-        self.color_for_selected(ID::Turn(t.id)).unwrap_or_else(|| {
-            self.stop_sign_editor
-                .color_t(t, &self.control_map, &self.cs)
-                .unwrap_or_else(|| {
-                    self.traffic_signal_editor
-                        .color_t(t, &self.map, &self.control_map, &self.cs)
-                        .unwrap_or_else(|| {
-                            self.turn_colors
-                                .color_t(t)
-                                .unwrap_or(self.cs.get(Colors::TurnIconInactive))
-                        })
-                })
-        })
+        if let Some(c) = self.color_for_selected(ID::Turn(id)) {
+            return c;
+        }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Turn(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
+        self.turn_colors
+            .color_t(id)
+            .unwrap_or(self.cs.get(Colors::TurnIconInactive))
     }
 
     fn color_building(&self, id: map_model::BuildingID) -> Color {
-        let b = self.map.get_b(id);
-        vec![
-            self.color_for_selected(ID::Building(b.id)),
-            self.search_state.color_b(b, &self.cs),
-            self.osm_classifier.color_b(b, &self.cs),
-        ].iter()
-            .filter_map(|c| *c)
-            .next()
-            .unwrap_or(self.cs.get(Colors::Building))
+        if let Some(c) = self.color_for_selected(ID::Building(id)) {
+            return c;
+        }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Building(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
+        self.cs.get(Colors::Building)
     }
 
-    // Returns (boundary, fill) color
     fn color_parcel(&self, id: map_model::ParcelID) -> Color {
+        if let Some(c) = self.color_for_selected(ID::Parcel(id)) {
+            return c;
+        }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Parcel(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
         const COLORS: [Color; 14] = [
             // TODO these are awful choices
             [1.0, 1.0, 0.0, 1.0],
@@ -415,19 +460,28 @@ impl UI {
             [0.7, 0.2, 0.5, 0.5],
             [0.8, 0.2, 0.5, 0.5],
         ];
-        let p = self.map.get_p(id);
-        /*(
-            self.cs.get(Colors::ParcelBoundary),
-            COLORS[p.block % COLORS.len()],
-        )*/
-        self.color_for_selected(ID::Parcel(p.id))
-            .unwrap_or(COLORS[p.block % COLORS.len()])
+        let block = self.map.get_p(id).block;
+        // TODO also ParcelBoundary
+        COLORS[block % COLORS.len()]
     }
 
     fn color_car(&self, id: CarID) -> Color {
         if let Some(c) = self.color_for_selected(ID::Car(id)) {
             return c;
         }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Car(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
         // TODO if it's a bus, color it differently -- but how? :\
         match self.sim.get_car_state(id) {
             CarState::Debug => shift_color(self.cs.get(Colors::DebugCar), id.0),
@@ -441,6 +495,19 @@ impl UI {
         if let Some(c) = self.color_for_selected(ID::Pedestrian(id)) {
             return c;
         }
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                ID::Pedestrian(id),
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                },
+            ) {
+                return c;
+            }
+        }
+
         shift_color(self.cs.get(Colors::Pedestrian), id.0)
     }
 
@@ -599,6 +666,32 @@ impl UI {
             osd_lines.extend(warp_lines);
         }
         self.canvas.draw_osd_notification(g, &osd_lines);
+    }
+
+    fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
+        let idx = self.active_plugin?;
+        // Match instead of array, because can't move the Box out of the temporary vec. :\
+        // This must line up with the list of plugins in UIWrapper::new.
+        match idx {
+            // The first plugin is all the ToggleableLayers, which doesn't implement Colorizer.
+            0 => None,
+            1 => Some(Box::new(&self.traffic_signal_editor)),
+            2 => Some(Box::new(&self.stop_sign_editor)),
+            3 => Some(Box::new(&self.road_editor)),
+            4 => Some(Box::new(&self.search_state)),
+            5 => Some(Box::new(&self.warp)),
+            6 => Some(Box::new(&self.follow)),
+            7 => Some(Box::new(&self.show_route)),
+            8 => Some(Box::new(&self.color_picker)),
+            9 => Some(Box::new(&self.steepness_viz)),
+            10 => Some(Box::new(&self.osm_classifier)),
+            11 => Some(Box::new(&self.hider)),
+            12 => Some(Box::new(&self.debug_objects)),
+            13 => Some(Box::new(&self.floodfiller)),
+            14 => Some(Box::new(&self.geom_validator)),
+            15 => Some(Box::new(&self.turn_cycler)),
+            _ => panic!("Active plugin {} is too high", idx),
+        }
     }
 }
 

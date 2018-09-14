@@ -1,9 +1,10 @@
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::LaneID;
 use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
 
@@ -58,16 +59,23 @@ impl ShowRouteState {
             _ => true,
         }
     }
+}
 
-    pub fn color_l(&self, l: LaneID, cs: &ColorScheme) -> Option<Color> {
-        let highlight = match self {
-            ShowRouteState::Empty => false,
-            ShowRouteState::Active(_, lanes) => lanes.contains(&l),
-        };
-        if highlight {
-            Some(cs.get(Colors::Queued))
-        } else {
-            None
+impl Colorizer for ShowRouteState {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match obj {
+            ID::Lane(l) => {
+                let highlight = match self {
+                    ShowRouteState::Empty => false,
+                    ShowRouteState::Active(_, lanes) => lanes.contains(&l),
+                };
+                if highlight {
+                    Some(ctx.cs.get(Colors::Queued))
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
     }
 }

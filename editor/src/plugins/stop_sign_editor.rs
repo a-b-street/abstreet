@@ -1,14 +1,15 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use control::stop_signs::TurnPriority;
 use control::ControlMap;
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::IntersectionID;
-use map_model::{Map, Turn};
+use map_model::Map;
 use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 
 #[derive(PartialEq)]
 pub enum StopSignEditor {
@@ -95,26 +96,28 @@ impl StopSignEditor {
         }
     }
 
-    pub fn color_t(&self, t: &Turn, control_map: &ControlMap, cs: &ColorScheme) -> Option<Color> {
-        match self {
-            StopSignEditor::Inactive => None,
-            StopSignEditor::Active(i) => {
-                if t.parent != *i {
-                    return Some(cs.get(Colors::TurnIrrelevant));
-                }
-                match control_map.stop_signs[i].get_priority(t.id) {
-                    TurnPriority::Priority => Some(cs.get(Colors::PriorityTurn)),
-                    TurnPriority::Yield => Some(cs.get(Colors::YieldTurn)),
-                    TurnPriority::Stop => Some(cs.get(Colors::StopTurn)),
-                }
-            }
-        }
-    }
-
     pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
         match self {
             StopSignEditor::Active(i) => *i == id,
             StopSignEditor::Inactive => false,
+        }
+    }
+}
+
+impl Colorizer for StopSignEditor {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match (self, obj) {
+            (StopSignEditor::Active(i), ID::Turn(t)) => {
+                if t.parent != *i {
+                    return Some(ctx.cs.get(Colors::TurnIrrelevant));
+                }
+                match ctx.control_map.stop_signs[i].get_priority(t) {
+                    TurnPriority::Priority => Some(ctx.cs.get(Colors::PriorityTurn)),
+                    TurnPriority::Yield => Some(ctx.cs.get(Colors::YieldTurn)),
+                    TurnPriority::Stop => Some(ctx.cs.get(Colors::StopTurn)),
+                }
+            }
+            _ => None,
         }
     }
 }

@@ -1,11 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
-use map_model::{Lane, LaneID, Map};
+use map_model::{LaneID, Map};
 use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
@@ -78,23 +79,25 @@ impl Floodfiller {
             _ => true,
         }
     }
+}
 
-    pub fn color_l(&self, l: &Lane, cs: &ColorScheme) -> Option<Color> {
-        match self {
-            Floodfiller::Inactive => None,
-            Floodfiller::Active { visited, queue } => {
-                if visited.contains(&l.id) {
-                    return Some(cs.get(Colors::Visited));
+impl Colorizer for Floodfiller {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match (self, obj) {
+            (Floodfiller::Active { visited, queue }, ID::Lane(l)) => {
+                if visited.contains(&l) {
+                    return Some(ctx.cs.get(Colors::Visited));
                 }
-                if !queue.is_empty() && *queue.front().unwrap() == l.id {
-                    return Some(cs.get(Colors::NextQueued));
+                if !queue.is_empty() && *queue.front().unwrap() == l {
+                    return Some(ctx.cs.get(Colors::NextQueued));
                 }
                 // TODO linear search shouldnt suck too much for interactive mode
-                if queue.contains(&l.id) {
-                    return Some(cs.get(Colors::Queued));
+                if queue.contains(&l) {
+                    return Some(ctx.cs.get(Colors::Queued));
                 }
                 None
             }
+            _ => None,
         }
     }
 }

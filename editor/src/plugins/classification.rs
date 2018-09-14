@@ -1,10 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
-use map_model;
+use objects::ID;
 use piston::input::Key;
+use plugins::{Colorizer, Ctx};
 
 // TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {
@@ -27,35 +28,31 @@ impl OsmClassifier {
         }
         self.active
     }
+}
 
-    pub fn color_l(
-        &self,
-        l: &map_model::Lane,
-        map: &map_model::Map,
-        cs: &ColorScheme,
-    ) -> Option<Color> {
+impl Colorizer for OsmClassifier {
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         if !self.active {
             return None;
         }
 
-        if match map.get_r(l.parent).osm_tags.get("highway") {
-            Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
-            None => false,
-        } {
-            Some(cs.get(Colors::MatchClassification))
-        } else {
-            Some(cs.get(Colors::DontMatchClassification))
-        }
-    }
-    pub fn color_b(&self, b: &map_model::Building, cs: &ColorScheme) -> Option<Color> {
-        if !self.active {
-            return None;
-        }
-
-        if b.osm_tags.contains_key("addr:housenumber") {
-            Some(cs.get(Colors::MatchClassification))
-        } else {
-            None
+        match obj {
+            ID::Lane(l) => {
+                if match ctx.map.get_parent(l).osm_tags.get("highway") {
+                    Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
+                    None => false,
+                } {
+                    Some(ctx.cs.get(Colors::MatchClassification))
+                } else {
+                    Some(ctx.cs.get(Colors::DontMatchClassification))
+                }
+            }
+            ID::Building(b) => if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
+                Some(ctx.cs.get(Colors::MatchClassification))
+            } else {
+                None
+            },
+            _ => None,
         }
     }
 }

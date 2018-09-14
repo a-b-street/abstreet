@@ -2,6 +2,7 @@ use ezgui::{Canvas, UserInput};
 use map_model::Map;
 use objects::ID;
 use piston::input::Key;
+use plugins::Colorizer;
 use sim::{CarID, PedestrianID, Sim};
 
 #[derive(PartialEq)]
@@ -73,3 +74,5 @@ impl FollowState {
         }
     }
 }
+
+impl Colorizer for FollowState {}
