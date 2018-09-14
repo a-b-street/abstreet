@@ -42,7 +42,7 @@ use std::process;
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
 const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
-const MIN_ZOOM_FOR_MOUSEOVER: f64 = 1.0;
+const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
