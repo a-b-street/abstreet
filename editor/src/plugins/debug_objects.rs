@@ -104,6 +104,7 @@ fn debug(id: &ID, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
     }
 }
 
+// TODO Renderable has tooltip_lines... decide what goes where
 fn tooltip_lines(id: ID, map: &Map, draw_map: &DrawMap, sim: &Sim) -> Vec<String> {
     match id {
         ID::Lane(id) => draw_map.get_l(id).tooltip_lines(map),

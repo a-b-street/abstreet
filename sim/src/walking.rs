@@ -1,7 +1,6 @@
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap};
 use dimensioned::si;
-use draw_ped::DrawPedestrian;
 use failure::Error;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
@@ -13,8 +12,8 @@ use std;
 use std::collections::{BTreeMap, VecDeque};
 use view::{AgentView, WorldView};
 use {
-    AgentID, Distance, Event, InvariantViolated, On, ParkingSpot, PedestrianID, Speed, Time,
-    TIMESTEP,
+    AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, On, ParkingSpot,
+    PedestrianID, Speed, Time, TIMESTEP,
 };
 
 // TODO tune these!
@@ -455,37 +454,37 @@ impl WalkingSimState {
         }
     }
 
-    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrian> {
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
         let ped = self.peds.get(&id)?;
-        Some(DrawPedestrian::new(
+        Some(DrawPedestrianInput {
             id,
-            ped.get_pos(map),
+            pos: ped.get_pos(map),
             // TODO this isnt correct, but works right now because this is only called by warp
-            None,
-        ))
+            waiting_for_turn: None,
+        })
     }
 
-    pub fn get_draw_peds_on_lane(&self, l: &Lane, map: &Map) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_lane(&self, l: &Lane, map: &Map) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
         for id in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
             let ped = &self.peds[id];
-            result.push(DrawPedestrian::new(
-                *id,
-                ped.get_pos(map),
-                ped.waiting_for.map(|on| map.get_t(on.as_turn())),
-            ));
+            result.push(DrawPedestrianInput {
+                id: *id,
+                pos: ped.get_pos(map),
+                waiting_for_turn: ped.waiting_for.map(|on| on.as_turn()),
+            });
         }
         result
     }
 
-    pub fn get_draw_peds_on_turn(&self, t: &Turn) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_turn(&self, t: &Turn) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
         for id in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
-            result.push(DrawPedestrian::new(
-                *id,
-                t.dist_along(self.peds[id].dist_along).0,
-                None,
-            ));
+            result.push(DrawPedestrianInput {
+                id: *id,
+                pos: t.dist_along(self.peds[id].dist_along).0,
+                waiting_for_turn: None,
+            });
         }
         result
     }

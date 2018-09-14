@@ -4,7 +4,6 @@ use abstutil;
 use control::ControlMap;
 use dimensioned::si;
 use draw_car::DrawCar;
-use draw_ped::DrawPedestrian;
 use driving::DrivingSimState;
 use failure::Error;
 use instrument::capture_backtrace;
@@ -23,7 +22,7 @@ use transit::TransitSimState;
 use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
-use {AgentID, CarID, CarState, Event, PedestrianID, Tick, TIMESTEP};
+use {AgentID, CarID, CarState, DrawPedestrianInput, Event, PedestrianID, Tick, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -234,7 +233,7 @@ impl Sim {
             })
     }
 
-    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrian> {
+    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
         self.walking_state.get_draw_ped(id, map)
     }
 
@@ -257,11 +256,11 @@ impl Sim {
             .get_draw_cars_on_turn(t, self.time, map, &self.car_properties)
     }
 
-    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
         self.walking_state.get_draw_peds_on_lane(map.get_l(l), map)
     }
 
-    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrian> {
+    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
         self.walking_state.get_draw_peds_on_turn(map.get_t(t))
     }
 

@@ -6,6 +6,7 @@ mod intersection;
 mod lane;
 mod map;
 mod parcel;
+mod pedestrian;
 mod turn;
 
 use aabb_quadtree::geom::{Point, Rect};
@@ -16,6 +17,7 @@ use graphics::types::Color;
 use map_model::{geometry, Map};
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
+pub use render::pedestrian::DrawPedestrian;
 pub use render::turn::DrawTurn;
 use std::f64;
 use std::fmt;

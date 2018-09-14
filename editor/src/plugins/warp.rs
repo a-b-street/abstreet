@@ -122,7 +122,7 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 if let Some(p) = sim.get_draw_ped(id, map) {
                     println!("Warping to {}", id);
                     *selected = Some(ID::Pedestrian(id));
-                    p.focus_pt()
+                    p.pos
                 } else {
                     println!("{} doesn't exist", id);
                     return;

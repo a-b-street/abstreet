@@ -28,7 +28,6 @@ extern crate serde;
 extern crate serde_derive;
 
 mod draw_car;
-mod draw_ped;
 mod driving;
 mod events;
 mod helpers;
@@ -345,4 +344,11 @@ impl ParkedCar {
     pub fn new(car: CarID, spot: ParkingSpot) -> ParkedCar {
         ParkedCar { car, spot }
     }
+}
+
+// Intermediate structures so that sim and editor crates don't have a cyclic dependency.
+pub struct DrawPedestrianInput {
+    pub id: PedestrianID,
+    pub pos: Pt2D,
+    pub waiting_for_turn: Option<TurnID>,
 }

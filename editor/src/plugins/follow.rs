@@ -55,7 +55,7 @@ impl FollowState {
             }
             FollowState::FollowingPedestrian(id) => {
                 if let Some(p) = sim.get_draw_ped(*id, map) {
-                    let pt = p.focus_pt();
+                    let pt = p.pos;
                     canvas.center_on_map_pt(pt.x(), pt.y());
                     input.key_pressed(Key::Return, "stop following")
                 } else {

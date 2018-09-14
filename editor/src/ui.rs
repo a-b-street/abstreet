@@ -342,7 +342,8 @@ impl UI {
                     return Some(ID::Car(c.id));
                 }
             }
-            for p in &self.sim.get_draw_peds_on_lane(l.id, &self.map) {
+            for p in self.sim.get_draw_peds_on_lane(l.id, &self.map).into_iter() {
+                let p = render::DrawPedestrian::new(p, &self.map);
                 if p.contains_pt(pt) {
                     return Some(ID::Pedestrian(p.id));
                 }
@@ -365,7 +366,8 @@ impl UI {
                             return Some(ID::Car(c.id));
                         }
                     }
-                    for p in &self.sim.get_draw_peds_on_turn(*t, &self.map) {
+                    for p in self.sim.get_draw_peds_on_turn(*t, &self.map).into_iter() {
+                        let p = render::DrawPedestrian::new(p, &self.map);
                         if p.contains_pt(pt) {
                             return Some(ID::Pedestrian(p.id));
                         }
@@ -656,8 +658,9 @@ impl UI {
                     for c in &self.sim.get_draw_cars_on_turn(*t, &self.map) {
                         c.draw(g, self.color_car(c.id));
                     }
-                    for p in &self.sim.get_draw_peds_on_turn(*t, &self.map) {
-                        p.draw(g, self.color_ped(p.id));
+                    for p in self.sim.get_draw_peds_on_turn(*t, &self.map).into_iter() {
+                        let p = render::DrawPedestrian::new(p, &self.map);
+                        p.draw(g, self.color_ped(p.id), &self.cs);
                     }
                 }
             }
@@ -689,8 +692,9 @@ impl UI {
             for c in &self.sim.get_draw_cars_on_lane(l.id, &self.map) {
                 c.draw(g, self.color_car(c.id));
             }
-            for p in &self.sim.get_draw_peds_on_lane(l.id, &self.map) {
-                p.draw(g, self.color_ped(p.id));
+            for p in self.sim.get_draw_peds_on_lane(l.id, &self.map).into_iter() {
+                let p = render::DrawPedestrian::new(p, &self.map);
+                p.draw(g, self.color_ped(p.id), &self.cs);
             }
         }
 
