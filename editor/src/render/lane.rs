@@ -7,11 +7,12 @@ use dimensioned::si;
 use ezgui::{Canvas, GfxCtx};
 use geom::{Line, Polygon, Pt2D};
 use graphics;
-use graphics::types::Color;
 use map_model;
 use map_model::{geometry, LaneID};
 use objects::ID;
-use render::{get_bbox, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use render::{get_bbox, RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
+
+const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 #[derive(Debug)]
 struct Marking {
@@ -87,26 +88,9 @@ impl DrawLane {
         }
     }
 
-    pub fn draw_detail(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        for m in &self.markings {
-            let line = if m.round {
-                graphics::Line::new_round(cs.get(m.color), m.thickness)
-            } else {
-                graphics::Line::new(cs.get(m.color), m.thickness)
-            };
-            for pts in &m.lines {
-                g.draw_line(&line, *pts);
-            }
-        }
-    }
-
-    pub fn draw_debug(
-        &self,
-        g: &mut GfxCtx,
-        canvas: &Canvas,
-        cs: &ColorScheme,
-        l: &map_model::Lane,
-    ) {
+    // TODO can't easily call this with generic quadtree
+    #[allow(dead_code)]
+    fn draw_debug(&self, g: &mut GfxCtx, canvas: &Canvas, cs: &ColorScheme, l: &map_model::Lane) {
         let line =
             graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle_color = cs.get(Colors::BrightDebug);
@@ -138,8 +122,26 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {
-        g.draw_polygon(color, &self.polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+        g.draw_polygon(opts.color, &self.polygon);
+
+        if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
+            for m in &self.markings {
+                let line = if m.round {
+                    graphics::Line::new_round(cs.get(m.color), m.thickness)
+                } else {
+                    graphics::Line::new(cs.get(m.color), m.thickness)
+                };
+                for pts in &m.lines {
+                    g.draw_line(&line, *pts);
+                }
+            }
+        }
+
+        if opts.debug_mode {
+            // TODO Don't have canvas and map available in draw()...
+            //self.draw_debug(g, canvas, cs, map.get_l(self.id));
+        }
     }
 
     fn get_bbox(&self) -> Rect {

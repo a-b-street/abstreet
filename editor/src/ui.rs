@@ -33,7 +33,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
-use render;
+use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{CarID, CarState, PedestrianID, Sim};
 use std::collections::HashMap;
@@ -43,7 +43,6 @@ use std::process;
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
 const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 1.0;
-const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
@@ -87,7 +86,7 @@ impl UIWrapper {
         };
 
         flame::start("draw_map");
-        let (draw_map, center_pt) = render::DrawMap::new(&map, &control_map, extra_shapes);
+        let (draw_map, center_pt) = DrawMap::new(&map, &control_map, extra_shapes);
         flame::end("draw_map");
 
         flame::end("setup");
@@ -245,7 +244,7 @@ impl UIWrapper {
 
 struct UI {
     map: map_model::Map,
-    draw_map: render::DrawMap,
+    draw_map: DrawMap,
     control_map: ControlMap,
     sim: Sim,
 
@@ -549,7 +548,12 @@ impl UI {
                     panic!("Dynamic {:?} in statics list", obj.get_id())
                 }
             };
-            obj.draw(g, color, &self.cs);
+            let opts = RenderOptions {
+                color,
+                cam_zoom: self.canvas.cam_zoom,
+                debug_mode: self.layers.debug_mode.is_enabled(),
+            };
+            obj.draw(g, opts, &self.cs);
         }
         for obj in dynamics.into_iter() {
             let color = match obj.get_id() {
@@ -557,17 +561,13 @@ impl UI {
                 ID::Pedestrian(id) => self.color_ped(id),
                 _ => panic!("Static {:?} in dynamics list", obj.get_id()),
             };
-            obj.draw(g, color, &self.cs);
+            let opts = RenderOptions {
+                color,
+                cam_zoom: self.canvas.cam_zoom,
+                debug_mode: self.layers.debug_mode.is_enabled(),
+            };
+            obj.draw(g, opts, &self.cs);
         }
-
-        /*
-        if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
-            l.draw_detail(g, &self.cs);
-        }
-        if self.debug_mode.is_enabled() {
-            l.draw_debug(g, &self.canvas, &self.cs, self.map.get_l(l.id));
-        }
-        */
 
         self.turn_cycler.draw(
             &self.map,

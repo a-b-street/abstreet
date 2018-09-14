@@ -50,12 +50,19 @@ pub fn get_bbox(b: &Bounds) -> Rect {
 
 pub trait Renderable {
     fn get_id(&self) -> ID;
-    // TODO Building needs two colors
-    // TODO maybe each renderable should decide color logic, using the colorscheme. pass in info
-    // from other plugins like 'selected?'
-    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme);
     // TODO Maybe return Bounds
     fn get_bbox(&self) -> Rect;
     fn contains_pt(&self, pt: Pt2D) -> bool;
     fn tooltip_lines(&self, map: &Map) -> Vec<String>;
+}
+
+pub struct RenderOptions {
+    // The "main" color for the object, whatever that means
+    // TODO Building needs two colors
+    // TODO maybe each renderable should decide color logic, using the colorscheme. pass in info
+    // from other plugins like 'selected?'
+    pub color: Color,
+    pub cam_zoom: f64,
+    pub debug_mode: bool,
 }

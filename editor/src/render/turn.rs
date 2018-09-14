@@ -11,8 +11,8 @@ use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
 use objects::ID;
 use render::{
-    Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
-    TURN_ICON_ARROW_TIP_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
+    TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
 
@@ -78,11 +78,11 @@ impl Renderable for DrawTurn {
         ID::Turn(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
         g.draw_ellipse(cs.get(Colors::TurnIconCircle), self.icon_circle);
 
         g.draw_arrow(
-            &graphics::Line::new_round(color, TURN_ICON_ARROW_THICKNESS),
+            &graphics::Line::new_round(opts.color, TURN_ICON_ARROW_THICKNESS),
             self.icon_arrow,
             TURN_ICON_ARROW_TIP_LENGTH,
         );

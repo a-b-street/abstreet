@@ -6,7 +6,7 @@ use ezgui::{GfxCtx, UserInput};
 use map_model::{IntersectionID, LaneID, Map};
 use objects::ID;
 use piston::input::Key;
-use render::{DrawMap, Renderable};
+use render::{DrawMap, RenderOptions, Renderable};
 use sim::Sim;
 
 #[derive(Clone, Debug)]
@@ -85,7 +85,16 @@ impl TurnCyclerState {
                                 if t.conflicts_with(turn) {
                                     let draw_t = draw_map.get_t(t.id);
                                     // TODO should we instead change color_t?
-                                    draw_t.draw(g, cs.get(Colors::ConflictingTurn), cs);
+                                    draw_t.draw(
+                                        g,
+                                        RenderOptions {
+                                            color: cs.get(Colors::ConflictingTurn),
+                                            // These don't matter here?
+                                            cam_zoom: 0.0,
+                                            debug_mode: false,
+                                        },
+                                        cs,
+                                    );
                                 }
                             }
                         }

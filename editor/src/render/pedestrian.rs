@@ -3,10 +3,9 @@ use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::Pt2D;
 use graphics;
-use graphics::types::Color;
 use map_model::{geometry, Map};
 use objects::ID;
-use render::Renderable;
+use render::{RenderOptions, Renderable};
 use sim::{DrawPedestrianInput, PedestrianID};
 
 const RADIUS: f64 = 1.0;
@@ -42,8 +41,8 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {
-        g.draw_ellipse(color, self.circle);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _cs: &ColorScheme) {
+        g.draw_ellipse(opts.color, self.circle);
 
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {

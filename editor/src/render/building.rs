@@ -5,10 +5,9 @@ use colors::{ColorScheme, Colors};
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
-use graphics::types::Color;
 use map_model::{Building, BuildingID, Map};
 use objects::ID;
-use render::{get_bbox, Renderable, BUILDING_BOUNDARY_THICKNESS};
+use render::{get_bbox, RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
 use std::f64;
 
 #[derive(Debug)]
@@ -41,8 +40,9 @@ impl Renderable for DrawBuilding {
     }
 
     // TODO need two colors here
-    fn draw(&self, g: &mut GfxCtx, fill_color: Color, cs: &ColorScheme) {
-        g.draw_polygon(fill_color, &self.fill_polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+        //g.draw_polygon(boundary_color, &self.boundary_polygon);
+        g.draw_polygon(opts.color, &self.fill_polygon);
 
         // TODO tune width
         g.draw_line(
@@ -50,10 +50,6 @@ impl Renderable for DrawBuilding {
             self.front_path,
         );
     }
-    /*fn draw(&self, g: &mut GfxCtx, fill_color: Color, boundary_color: Color) {
-        g.draw_polygon(boundary_color, &self.boundary_polygon);
-        g.draw_polygon(fill_color, &self.fill_polygon);
-    }*/
 
     fn get_bbox(&self) -> Rect {
         let mut b = self.fill_polygon.get_bounds();

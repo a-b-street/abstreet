@@ -4,10 +4,9 @@ use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 use graphics;
-use graphics::types::Color;
 use map_model::{geometry, Map};
 use objects::ID;
-use render::{get_bbox, Renderable};
+use render::{get_bbox, RenderOptions, Renderable};
 use sim::{CarID, DrawCarInput};
 
 const CAR_WIDTH: f64 = 2.0;
@@ -100,8 +99,8 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {
-        g.draw_polygon(color, &self.body_polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _cs: &ColorScheme) {
+        g.draw_polygon(opts.color, &self.body_polygon);
         for p in &self.window_polygons {
             g.draw_polygon([0.0, 0.0, 0.0, 1.0], p);
         }

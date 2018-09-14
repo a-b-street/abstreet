@@ -4,10 +4,9 @@ use aabb_quadtree::geom::Rect;
 use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
-use graphics::types::Color;
 use map_model::{Map, Parcel, ParcelID};
 use objects::ID;
-use render::{get_bbox, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use render::{get_bbox, RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
 pub struct DrawParcel {
@@ -33,8 +32,8 @@ impl Renderable for DrawParcel {
         ID::Parcel(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, fill_color: Color, _cs: &ColorScheme) {
-        g.draw_polygon(fill_color, &self.fill_polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _cs: &ColorScheme) {
+        g.draw_polygon(opts.color, &self.fill_polygon);
     }
 
     /*fn draw(&self, g: &mut GfxCtx, (boundary_color, fill_color): (Color, Color)) {

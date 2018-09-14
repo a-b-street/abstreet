@@ -7,10 +7,9 @@ use ezgui::GfxCtx;
 use geom::{Line, Polygon, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
-use graphics::types::Color;
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
 use objects::ID;
-use render::{get_bbox, DrawLane, Renderable};
+use render::{get_bbox, DrawLane, RenderOptions, Renderable};
 use std::f64;
 
 #[derive(Debug)]
@@ -95,8 +94,8 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
-        g.draw_polygon(color, &self.polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+        g.draw_polygon(opts.color, &self.polygon);
 
         let crosswalk_marking = graphics::Line::new(
             cs.get(Colors::Crosswalk),
