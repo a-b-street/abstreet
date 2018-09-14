@@ -9,6 +9,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
+use objects::ID;
 use render::{
     Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
     TURN_ICON_ARROW_TIP_LENGTH,
@@ -73,10 +74,8 @@ impl DrawTurn {
 
 // Little weird, but this is focused on the turn icon, not the full visualization
 impl Renderable for DrawTurn {
-    type ID = TurnID;
-
-    fn get_id(&self) -> TurnID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Turn(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {

@@ -5,6 +5,7 @@ use geom::{Polygon, Pt2D};
 use graphics::types::Color;
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
 use map_model::{geometry, Map};
+use objects::ID;
 use render::{get_bbox, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
 
@@ -39,10 +40,8 @@ impl DrawExtraShape {
 }
 
 impl Renderable for DrawExtraShape {
-    type ID = ExtraShapeID;
-
-    fn get_id(&self) -> ExtraShapeID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::ExtraShape(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {

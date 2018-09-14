@@ -6,6 +6,7 @@ use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::{Map, Parcel, ParcelID};
+use objects::ID;
 use render::{get_bbox, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
@@ -28,10 +29,8 @@ impl DrawParcel {
 }
 
 impl Renderable for DrawParcel {
-    type ID = ParcelID;
-
-    fn get_id(&self) -> ParcelID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Parcel(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, fill_color: Color, _cs: &ColorScheme) {

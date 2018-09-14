@@ -5,6 +5,7 @@ use geom::Pt2D;
 use graphics;
 use graphics::types::Color;
 use map_model::{geometry, Map};
+use objects::ID;
 use render::Renderable;
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -37,10 +38,8 @@ impl DrawPedestrian {
 }
 
 impl Renderable for DrawPedestrian {
-    type ID = PedestrianID;
-
-    fn get_id(&self) -> PedestrianID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Pedestrian(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {

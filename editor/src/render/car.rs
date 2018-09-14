@@ -6,6 +6,7 @@ use geom::{Polygon, Pt2D};
 use graphics;
 use graphics::types::Color;
 use map_model::{geometry, Map};
+use objects::ID;
 use render::{get_bbox, Renderable};
 use sim::{CarID, DrawCarInput};
 
@@ -95,10 +96,8 @@ impl DrawCar {
 }
 
 impl Renderable for DrawCar {
-    type ID = CarID;
-
-    fn get_id(&self) -> CarID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Car(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {

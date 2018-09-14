@@ -10,6 +10,7 @@ use graphics;
 use graphics::types::Color;
 use map_model;
 use map_model::{geometry, LaneID};
+use objects::ID;
 use render::{get_bbox, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
@@ -133,10 +134,8 @@ impl DrawLane {
 }
 
 impl Renderable for DrawLane {
-    type ID = LaneID;
-
-    fn get_id(&self) -> LaneID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Lane(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, _cs: &ColorScheme) {

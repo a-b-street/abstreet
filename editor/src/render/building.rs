@@ -7,6 +7,7 @@ use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use graphics::types::Color;
 use map_model::{Building, BuildingID, Map};
+use objects::ID;
 use render::{get_bbox, Renderable, BUILDING_BOUNDARY_THICKNESS};
 use std::f64;
 
@@ -40,10 +41,8 @@ impl DrawBuilding {
 }
 
 impl Renderable for DrawBuilding {
-    type ID = BuildingID;
-
-    fn get_id(&self) -> BuildingID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Building(self.id)
     }
 
     // TODO need two colors here

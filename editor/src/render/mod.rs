@@ -16,13 +16,13 @@ use ezgui::GfxCtx;
 use geom::{Bounds, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map};
+use objects::ID;
 pub use render::car::DrawCar;
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;
 pub use render::turn::DrawTurn;
 use std::f64;
-use std::fmt;
 
 // These are all in meters
 const PARCEL_BOUNDARY_THICKNESS: f64 = 0.5;
@@ -49,9 +49,7 @@ pub fn get_bbox(b: &Bounds) -> Rect {
 }
 
 pub trait Renderable {
-    type ID: fmt::Display;
-
-    fn get_id(&self) -> Self::ID;
+    fn get_id(&self) -> ID;
     // TODO Building needs two colors
     // TODO maybe each renderable should decide color logic, using the colorscheme. pass in info
     // from other plugins like 'selected?'

@@ -9,6 +9,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
+use objects::ID;
 use render::{get_bbox, DrawLane, Renderable};
 use std::f64;
 
@@ -90,10 +91,8 @@ impl DrawIntersection {
 }
 
 impl Renderable for DrawIntersection {
-    type ID = IntersectionID;
-
-    fn get_id(&self) -> IntersectionID {
-        self.id
+    fn get_id(&self) -> ID {
+        ID::Intersection(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, color: Color, cs: &ColorScheme) {
