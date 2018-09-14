@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
-use colors::ColorScheme;
+use colors::{ColorScheme, Colors};
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
@@ -33,11 +33,6 @@ impl DrawBuilding {
                 .make_polygons_blindly(BUILDING_BOUNDARY_THICKNESS),
         }
     }
-
-    pub fn draw_front_path(&self, g: &mut GfxCtx, path_color: Color) {
-        // TODO tune width
-        g.draw_line(&graphics::Line::new_round(path_color, 1.0), self.front_path);
-    }
 }
 
 impl Renderable for DrawBuilding {
@@ -46,18 +41,19 @@ impl Renderable for DrawBuilding {
     }
 
     // TODO need two colors here
-    fn draw(&self, g: &mut GfxCtx, fill_color: Color, _cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, fill_color: Color, cs: &ColorScheme) {
         g.draw_polygon(fill_color, &self.fill_polygon);
+
+        // TODO tune width
+        g.draw_line(
+            &graphics::Line::new_round(cs.get(Colors::BuildingPath), 1.0),
+            self.front_path,
+        );
     }
     /*fn draw(&self, g: &mut GfxCtx, fill_color: Color, boundary_color: Color) {
         g.draw_polygon(boundary_color, &self.boundary_polygon);
         g.draw_polygon(fill_color, &self.fill_polygon);
     }*/
-    /*
-            self.current_selection_state.color_b(b, &self.cs),
-            self.current_search_state.color_b(b, &self.cs),
-            self.osm_classifier.color_b(b, &self.cs),
-            */
 
     fn get_bbox(&self) -> Rect {
         let mut b = self.fill_polygon.get_bounds();

@@ -34,7 +34,6 @@ use plugins::turn_colors::TurnColors;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
 use render;
-use render::Renderable;
 use sim;
 use sim::{CarID, CarState, PedestrianID, Sim};
 use std::collections::HashMap;
@@ -568,8 +567,6 @@ impl UI {
         if self.debug_mode.is_enabled() {
             l.draw_debug(g, &self.canvas, &self.cs, self.map.get_l(l.id));
         }
-
-        b.draw_front_path(g, self.cs.get(Colors::BuildingPath));
         */
 
         self.turn_cycler.draw(
