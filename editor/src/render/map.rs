@@ -19,6 +19,7 @@ use render::turn::DrawTurn;
 use render::Renderable;
 use sim::Sim;
 use std::collections::HashMap;
+use ui::ToggleableLayers;
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
@@ -191,6 +192,7 @@ impl DrawMap {
         hider: &Hider,
         map: &Map,
         sim: &Sim,
+        layers: &ToggleableLayers,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
@@ -204,8 +206,7 @@ impl DrawMap {
         let mut peds: Vec<Box<Renderable>> = Vec::new();
 
         for &(id, _, _) in &self.quadtree.query(screen_bbox) {
-            // TODO also check the ToggleableLayers
-            if hider.show(*id) {
+            if hider.show(*id) && layers.show(*id) {
                 match id {
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {

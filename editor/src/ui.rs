@@ -108,21 +108,7 @@ impl UIWrapper {
             turn_colors,
             sim_ctrl: SimController::new(),
 
-            show_lanes: ToggleableLayer::new("lanes", Key::D3, Some(MIN_ZOOM_FOR_LANES)),
-            show_buildings: ToggleableLayer::new("buildings", Key::D1, Some(0.0)),
-            show_intersections: ToggleableLayer::new(
-                "intersections",
-                Key::D2,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_parcels: ToggleableLayer::new("parcels", Key::D4, Some(MIN_ZOOM_FOR_PARCELS)),
-            show_extra_shapes: ToggleableLayer::new(
-                "extra KML shapes",
-                Key::D7,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_all_turn_icons: ToggleableLayer::new("turn icons", Key::D9, None),
-            debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
+            layers: ToggleableLayers::new(),
 
             current_selection: None,
 
@@ -264,13 +250,7 @@ struct UI {
     control_map: ControlMap,
     sim: Sim,
 
-    show_lanes: ToggleableLayer,
-    show_buildings: ToggleableLayer,
-    show_intersections: ToggleableLayer,
-    show_parcels: ToggleableLayer,
-    show_extra_shapes: ToggleableLayer,
-    show_all_turn_icons: ToggleableLayer,
-    debug_mode: ToggleableLayer,
+    layers: ToggleableLayers,
 
     current_selection: Option<ID>,
 
@@ -305,13 +285,13 @@ struct UI {
 impl UI {
     fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {
         vec![
-            &mut self.show_lanes,
-            &mut self.show_buildings,
-            &mut self.show_intersections,
-            &mut self.show_parcels,
-            &mut self.show_extra_shapes,
-            &mut self.show_all_turn_icons,
-            &mut self.debug_mode,
+            &mut self.layers.show_lanes,
+            &mut self.layers.show_buildings,
+            &mut self.layers.show_intersections,
+            &mut self.layers.show_parcels,
+            &mut self.layers.show_extra_shapes,
+            &mut self.layers.show_all_turn_icons,
+            &mut self.layers.debug_mode,
         ]
     }
 
@@ -324,6 +304,7 @@ impl UI {
             &self.hider,
             &self.map,
             &self.sim,
+            &self.layers,
         );
         // Check front-to-back
         for obj in dynamics.into_iter() {
@@ -473,7 +454,7 @@ impl UI {
     }
 
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.show_all_turn_icons.is_enabled()
+        self.layers.show_all_turn_icons.is_enabled()
             || self.stop_sign_editor.show_turn_icons(id)
             || self.traffic_signal_editor.show_turn_icons(id)
     }
@@ -556,6 +537,7 @@ impl UI {
             &self.hider,
             &self.map,
             &self.sim,
+            &self.layers,
         );
         for obj in statics.into_iter() {
             let color = match obj.get_id() {
@@ -636,4 +618,47 @@ pub struct EditorState {
 
     pub traffic_signals: HashMap<IntersectionID, ModifiedTrafficSignal>,
     pub stop_signs: HashMap<IntersectionID, ModifiedStopSign>,
+}
+
+pub struct ToggleableLayers {
+    pub show_lanes: ToggleableLayer,
+    pub show_buildings: ToggleableLayer,
+    pub show_intersections: ToggleableLayer,
+    pub show_parcels: ToggleableLayer,
+    pub show_extra_shapes: ToggleableLayer,
+    pub show_all_turn_icons: ToggleableLayer,
+    pub debug_mode: ToggleableLayer,
+}
+
+impl ToggleableLayers {
+    fn new() -> ToggleableLayers {
+        ToggleableLayers {
+            show_lanes: ToggleableLayer::new("lanes", Key::D3, Some(MIN_ZOOM_FOR_LANES)),
+            show_buildings: ToggleableLayer::new("buildings", Key::D1, Some(0.0)),
+            show_intersections: ToggleableLayer::new(
+                "intersections",
+                Key::D2,
+                Some(MIN_ZOOM_FOR_LANES),
+            ),
+            show_parcels: ToggleableLayer::new("parcels", Key::D4, Some(MIN_ZOOM_FOR_PARCELS)),
+            show_extra_shapes: ToggleableLayer::new(
+                "extra KML shapes",
+                Key::D7,
+                Some(MIN_ZOOM_FOR_LANES),
+            ),
+            show_all_turn_icons: ToggleableLayer::new("turn icons", Key::D9, None),
+            debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
+        }
+    }
+
+    pub fn show(&self, id: ID) -> bool {
+        match id {
+            ID::Lane(_) => self.show_lanes.is_enabled(),
+            ID::Building(_) => self.show_buildings.is_enabled(),
+            ID::Intersection(_) => self.show_intersections.is_enabled(),
+            ID::Parcel(_) => self.show_parcels.is_enabled(),
+            ID::ExtraShape(_) => self.show_extra_shapes.is_enabled(),
+            _ => true,
+        }
+    }
 }
