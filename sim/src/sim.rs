@@ -3,7 +3,6 @@
 use abstutil;
 use control::ControlMap;
 use dimensioned::si;
-use draw_car::DrawCar;
 use driving::DrivingSimState;
 use failure::Error;
 use instrument::capture_backtrace;
@@ -22,7 +21,10 @@ use transit::TransitSimState;
 use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
-use {AgentID, CarID, CarState, DrawPedestrianInput, Event, PedestrianID, Tick, TIMESTEP};
+use {
+    AgentID, CarID, CarState, DrawCarInput, DrawPedestrianInput, Event, PedestrianID, Tick,
+    TIMESTEP,
+};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -224,13 +226,10 @@ impl Sim {
         self.driving_state.get_car_state(c)
     }
 
-    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCar> {
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         self.driving_state
             .get_draw_car(id, self.time, map, &self.car_properties)
-            .or_else(|| {
-                self.parking_state
-                    .get_draw_car(id, map, &self.car_properties)
-            })
+            .or_else(|| self.parking_state.get_draw_car(id, &self.car_properties))
     }
 
     pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
@@ -238,20 +237,19 @@ impl Sim {
     }
 
     // TODO maybe just DrawAgent instead? should caller care?
-    pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCar> {
+    pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
         match map.get_l(l).lane_type {
             LaneType::Driving => {
                 self.driving_state
                     .get_draw_cars_on_lane(l, self.time, map, &self.car_properties)
             }
-            LaneType::Parking => self.parking_state
-                .get_draw_cars(l, map, &self.car_properties),
+            LaneType::Parking => self.parking_state.get_draw_cars(l, &self.car_properties),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
         }
     }
 
-    pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCar> {
+    pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCarInput> {
         self.driving_state
             .get_draw_cars_on_turn(t, self.time, map, &self.car_properties)
     }

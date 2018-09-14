@@ -27,7 +27,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-mod draw_car;
 mod driving;
 mod events;
 mod helpers;
@@ -351,4 +350,13 @@ pub struct DrawPedestrianInput {
     pub id: PedestrianID,
     pub pos: Pt2D,
     pub waiting_for_turn: Option<TurnID>,
+}
+
+pub struct DrawCarInput {
+    pub id: CarID,
+    pub vehicle_length: Distance,
+    pub waiting_for_turn: Option<TurnID>,
+    pub front: Pt2D,
+    pub angle: Angle,
+    pub stopping_dist: Distance,
 }

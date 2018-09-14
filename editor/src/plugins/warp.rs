@@ -133,7 +133,7 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 if let Some(c) = sim.get_draw_car(id, map) {
                     println!("Warping to {}", id);
                     *selected = Some(ID::Car(id));
-                    c.focus_pt()
+                    c.front
                 } else {
                     println!("{} doesn't exist", id);
                     return;

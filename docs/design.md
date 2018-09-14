@@ -981,8 +981,8 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	- deal with overlapping keys that still kinda happen (sim ctrl, escape game)
 	- bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
 
-	- make draw car/ped implement renderable.
-		- move Draw* to editor crate, and have an intermediate thing exposed from sim and do the translation in get_blah_onscreen.
+	= make draw car/ped implement renderable.
+		= move Draw* to editor crate, and have an intermediate thing exposed from sim and do the translation in get_blah_onscreen.
 	
 	- then rethink colors, with simplified single plugin
 	= then finally try out a unified quadtree!

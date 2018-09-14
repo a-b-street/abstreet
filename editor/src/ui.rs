@@ -337,7 +337,8 @@ impl UI {
             Vec::new()
         };
         for l in &lanes_onscreen {
-            for c in &self.sim.get_draw_cars_on_lane(l.id, &self.map) {
+            for c in self.sim.get_draw_cars_on_lane(l.id, &self.map).into_iter() {
+                let c = render::DrawCar::new(c, &self.map);
                 if c.contains_pt(pt) {
                     return Some(ID::Car(c.id));
                 }
@@ -361,7 +362,8 @@ impl UI {
                         return Some(ID::Turn(*t));
                     }
 
-                    for c in &self.sim.get_draw_cars_on_turn(*t, &self.map) {
+                    for c in self.sim.get_draw_cars_on_turn(*t, &self.map).into_iter() {
+                        let c = render::DrawCar::new(c, &self.map);
                         if c.contains_pt(pt) {
                             return Some(ID::Car(c.id));
                         }
@@ -655,8 +657,9 @@ impl UI {
                             .get_t(*t)
                             .draw(g, self.color_turn_icon(*t), &self.cs);
                     }
-                    for c in &self.sim.get_draw_cars_on_turn(*t, &self.map) {
-                        c.draw(g, self.color_car(c.id));
+                    for c in self.sim.get_draw_cars_on_turn(*t, &self.map).into_iter() {
+                        let c = render::DrawCar::new(c, &self.map);
+                        c.draw(g, self.color_car(c.id), &self.cs);
                     }
                     for p in self.sim.get_draw_peds_on_turn(*t, &self.map).into_iter() {
                         let p = render::DrawPedestrian::new(p, &self.map);
@@ -689,8 +692,9 @@ impl UI {
         }
 
         for l in &lanes_onscreen {
-            for c in &self.sim.get_draw_cars_on_lane(l.id, &self.map) {
-                c.draw(g, self.color_car(c.id));
+            for c in self.sim.get_draw_cars_on_lane(l.id, &self.map).into_iter() {
+                let c = render::DrawCar::new(c, &self.map);
+                c.draw(g, self.color_car(c.id), &self.cs);
             }
             for p in self.sim.get_draw_peds_on_lane(l.id, &self.map).into_iter() {
                 let p = render::DrawPedestrian::new(p, &self.map);

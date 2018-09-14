@@ -1,12 +1,11 @@
 use dimensioned::si;
-use draw_car::DrawCar;
 use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
 use std::collections::BTreeMap;
 use std::iter;
-use {CarID, Distance, ParkedCar, ParkingSpot};
+use {CarID, Distance, DrawCarInput, ParkedCar, ParkingSpot};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct ParkingSimState {
@@ -75,24 +74,20 @@ impl ParkingSimState {
     pub fn get_draw_cars(
         &self,
         id: LaneID,
-        map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCar> {
-        self.lanes[id.0].get_draw_cars(map, properties)
+    ) -> Vec<DrawCarInput> {
+        self.lanes[id.0].get_draw_cars(properties)
     }
 
     pub fn get_draw_car(
         &self,
         id: CarID,
-        map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Option<DrawCar> {
+    ) -> Option<DrawCarInput> {
         // TODO this is so horrendously slow :D
         for l in &self.lanes {
             if l.occupants.contains(&Some(id)) {
-                return l.get_draw_cars(map, properties)
-                    .into_iter()
-                    .find(|c| c.id == id);
+                return l.get_draw_cars(properties).into_iter().find(|c| c.id == id);
             }
         }
         None
@@ -196,7 +191,7 @@ impl ParkingLane {
         self.occupants[idx] = None;
     }
 
-    fn get_draw_cars(&self, map: &Map, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCar> {
+    fn get_draw_cars(&self, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCarInput> {
         self.occupants
             .iter()
             .enumerate()
@@ -204,15 +199,14 @@ impl ParkingLane {
                 maybe_id.and_then(|id| {
                     let vehicle = &properties[&id];
                     let (front, angle) = self.spots[idx].front_of_car(vehicle);
-                    Some(DrawCar::new(
-                        id,
-                        vehicle,
-                        None,
-                        map,
-                        front,
-                        angle,
-                        0.0 * si::M,
-                    ))
+                    Some(DrawCarInput {
+                        id: id,
+                        vehicle_length: vehicle.length,
+                        waiting_for_turn: None,
+                        front: front,
+                        angle: angle,
+                        stopping_dist: 0.0 * si::M,
+                    })
                 })
             })
             .collect()

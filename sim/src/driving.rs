@@ -1,7 +1,6 @@
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
-use draw_car::DrawCar;
 use failure::{Error, ResultExt};
 use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
@@ -19,8 +18,8 @@ use std::collections::BTreeMap;
 use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
-    Acceleration, AgentID, CarID, CarState, Distance, Event, InvariantViolated, On, ParkedCar,
-    ParkingSpot, Speed, Tick, Time,
+    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, InvariantViolated, On,
+    ParkedCar, ParkingSpot, Speed, Tick, Time,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
@@ -397,7 +396,7 @@ impl SimQueue {
         map: &Map,
         time: Tick,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCar> {
+    ) -> Vec<DrawCarInput> {
         let mut results = Vec::new();
         for (_, id) in &self.cars_queue {
             results.push(sim.get_draw_car(*id, time, map, properties).unwrap())
@@ -767,7 +766,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Option<DrawCar> {
+    ) -> Option<DrawCarInput> {
         let c = self.cars.get(&id)?;
         let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
         let vehicle = &properties[&id];
@@ -789,15 +788,14 @@ impl DrivingSimState {
             base_pos
         };
 
-        Some(DrawCar::new(
-            c.id,
-            vehicle,
-            c.waiting_for.and_then(|on| on.maybe_turn()),
-            map,
-            pos,
+        Some(DrawCarInput {
+            id: c.id,
+            vehicle_length: vehicle.length,
+            waiting_for_turn: c.waiting_for.and_then(|on| on.maybe_turn()),
+            front: pos,
             angle,
             stopping_dist,
-        ))
+        })
     }
 
     pub fn get_draw_cars_on_lane(
@@ -806,7 +804,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCar> {
+    ) -> Vec<DrawCarInput> {
         self.lanes[lane.0].get_draw_cars(self, map, time, properties)
     }
 
@@ -816,7 +814,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCar> {
+    ) -> Vec<DrawCarInput> {
         if let Some(queue) = self.turns.get(&turn) {
             return queue.get_draw_cars(self, map, time, properties);
         }

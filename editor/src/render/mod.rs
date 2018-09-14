@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 mod building;
+mod car;
 mod extra_shape;
 mod intersection;
 mod lane;
@@ -15,6 +16,7 @@ use ezgui::GfxCtx;
 use geom::{Bounds, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map};
+pub use render::car::DrawCar;
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;
