@@ -6,14 +6,18 @@ use control::ControlMap;
 use geom::{LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
+use objects::ID;
 use plugins::hider::Hider;
 use render::building::DrawBuilding;
+use render::car::DrawCar;
 use render::extra_shape::DrawExtraShape;
 use render::intersection::DrawIntersection;
 use render::lane::DrawLane;
 use render::parcel::DrawParcel;
+use render::pedestrian::DrawPedestrian;
 use render::turn::DrawTurn;
 use render::Renderable;
+use sim::Sim;
 use std::collections::HashMap;
 
 pub struct DrawMap {
@@ -24,11 +28,7 @@ pub struct DrawMap {
     pub parcels: Vec<DrawParcel>,
     pub extra_shapes: Vec<DrawExtraShape>,
 
-    lanes_quadtree: QuadTree<LaneID>,
-    intersections_quadtree: QuadTree<IntersectionID>,
-    buildings_quadtree: QuadTree<BuildingID>,
-    parcels_quadtree: QuadTree<ParcelID>,
-    extra_shapes_quadtree: QuadTree<ExtraShapeID>,
+    quadtree: QuadTree<ID>,
 }
 
 impl DrawMap {
@@ -82,26 +82,22 @@ impl DrawMap {
             },
         };
 
-        let mut lanes_quadtree = QuadTree::default(map_bbox);
-        for l in &lanes {
-            lanes_quadtree.insert_with_box(l.id, l.get_bbox());
+        let mut quadtree = QuadTree::default(map_bbox);
+        // TODO use iter chain if everything was boxed as a renderable...
+        for obj in &lanes {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
-        let mut intersections_quadtree = QuadTree::default(map_bbox);
-        for i in &intersections {
-            intersections_quadtree.insert_with_box(i.id, i.get_bbox());
+        for obj in &intersections {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
-        let mut buildings_quadtree = QuadTree::default(map_bbox);
-        for b in &buildings {
-            buildings_quadtree.insert_with_box(b.id, b.get_bbox());
+        for obj in &buildings {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
-        let mut parcels_quadtree = QuadTree::default(map_bbox);
-        for p in &parcels {
-            parcels_quadtree.insert_with_box(p.id, p.get_bbox());
+        for obj in &parcels {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
-
-        let mut extra_shapes_quadtree = QuadTree::default(map_bbox);
-        for s in &extra_shapes {
-            extra_shapes_quadtree.insert_with_box(s.id, s.get_bbox());
+        for obj in &extra_shapes {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
 
         (
@@ -113,11 +109,7 @@ impl DrawMap {
                 parcels,
                 extra_shapes,
 
-                lanes_quadtree,
-                intersections_quadtree,
-                buildings_quadtree,
-                parcels_quadtree,
-                extra_shapes_quadtree,
+                quadtree,
             },
             Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
         )
@@ -185,59 +177,86 @@ impl DrawMap {
         &self.extra_shapes[id.0]
     }
 
-    pub fn get_loads_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawLane> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.lanes_quadtree.query(screen_bbox) {
-            if hider.show_l(*id) {
-                v.push(self.get_l(*id));
-            }
-        }
-        v
-    }
-
-    pub fn get_intersections_onscreen(
+    // Returns in back-to-front order
+    // The second pair is ephemeral objects (cars, pedestrians) that we can't borrow --
+    // conveniently they're the front-most layer, so the caller doesn't have to do anything strange
+    // to merge.
+    // TODO alternatively, we could return IDs in order, then the caller could turn around and call
+    // a getter... except they still have to deal with DrawCar and DrawPedestrian not being
+    // borrowable. Could move contains_pt and draw calls here directly, but that might be weird?
+    // But maybe not.
+    pub fn get_objects_onscreen(
         &self,
         screen_bbox: Rect,
         hider: &Hider,
-    ) -> Vec<&DrawIntersection> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.intersections_quadtree.query(screen_bbox) {
-            if hider.show_i(*id) {
-                v.push(self.get_i(*id));
+        map: &Map,
+        sim: &Sim,
+    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
+        // From background to foreground Z-order
+        let mut parcels: Vec<Box<&Renderable>> = Vec::new();
+        let mut lanes: Vec<Box<&Renderable>> = Vec::new();
+        let mut intersections: Vec<Box<&Renderable>> = Vec::new();
+        let mut buildings: Vec<Box<&Renderable>> = Vec::new();
+        let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
+        let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
+
+        let mut cars: Vec<Box<Renderable>> = Vec::new();
+        let mut peds: Vec<Box<Renderable>> = Vec::new();
+
+        for &(id, _, _) in &self.quadtree.query(screen_bbox) {
+            // TODO also check the ToggleableLayers
+            if hider.show(*id) {
+                match id {
+                    ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
+                    ID::Lane(id) => {
+                        lanes.push(Box::new(self.get_l(*id)));
+                        for c in sim.get_draw_cars_on_lane(*id, map).into_iter() {
+                            cars.push(Box::new(DrawCar::new(c, map)));
+                        }
+                        for p in sim.get_draw_peds_on_lane(*id, map).into_iter() {
+                            peds.push(Box::new(DrawPedestrian::new(p, map)));
+                        }
+                    }
+                    ID::Intersection(id) => {
+                        intersections.push(Box::new(self.get_i(*id)));
+                        for t in &map.get_i(*id).turns {
+                            if false {
+                                // TODO if show_icons_for(id)
+                                turn_icons.push(Box::new(self.get_t(*t)));
+                            }
+                            for c in sim.get_draw_cars_on_turn(*t, map).into_iter() {
+                                cars.push(Box::new(DrawCar::new(c, map)));
+                            }
+                            for p in sim.get_draw_peds_on_turn(*t, map).into_iter() {
+                                peds.push(Box::new(DrawPedestrian::new(p, map)));
+                            }
+                        }
+                    }
+                    // TODO front paths will get drawn over buildings, depending on quadtree order.
+                    // probably just need to make them go around other buildings instead of having
+                    // two passes through buildings.
+                    ID::Building(id) => buildings.push(Box::new(self.get_b(*id))),
+                    ID::ExtraShape(id) => extra_shapes.push(Box::new(self.get_es(*id))),
+
+                    ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) => {
+                        panic!("{:?} shouldn't be in the quadtree", id)
+                    }
+                }
             }
         }
-        v
-    }
 
-    pub fn get_buildings_onscreen(&self, screen_bbox: Rect, hider: &Hider) -> Vec<&DrawBuilding> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.buildings_quadtree.query(screen_bbox) {
-            if hider.show_b(*id) {
-                v.push(self.get_b(*id));
-            }
-        }
-        v
-    }
+        let mut borrows: Vec<Box<&Renderable>> = Vec::new();
+        borrows.extend(parcels);
+        borrows.extend(lanes);
+        borrows.extend(intersections);
+        borrows.extend(buildings);
+        borrows.extend(extra_shapes);
+        borrows.extend(turn_icons);
 
-    pub fn get_parcels_onscreen(&self, screen_bbox: Rect) -> Vec<&DrawParcel> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.parcels_quadtree.query(screen_bbox) {
-            v.push(self.get_p(*id));
-        }
-        v
-    }
+        let mut returns: Vec<Box<Renderable>> = Vec::new();
+        returns.extend(cars);
+        returns.extend(peds);
 
-    pub fn get_extra_shapes_onscreen(
-        &self,
-        screen_bbox: Rect,
-        hider: &Hider,
-    ) -> Vec<&DrawExtraShape> {
-        let mut v = Vec::new();
-        for &(id, _, _) in &self.extra_shapes_quadtree.query(screen_bbox) {
-            if hider.show_es(*id) {
-                v.push(self.get_es(*id));
-            }
-        }
-        v
+        (borrows, returns)
     }
 }

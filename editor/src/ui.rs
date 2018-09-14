@@ -319,92 +319,21 @@ impl UI {
         let (x, y) = self.canvas.get_cursor_in_map_space();
         let pt = Pt2D::new(x, y);
 
-        let screen_bbox = self.canvas.get_screen_bbox();
-
-        if self.show_extra_shapes.is_enabled() {
-            for s in &self.draw_map
-                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
-            {
-                if s.contains_pt(pt) {
-                    return Some(ID::ExtraShape(s.id));
-                }
+        let (statics, dynamics) = self.draw_map.get_objects_onscreen(
+            self.canvas.get_screen_bbox(),
+            &self.hider,
+            &self.map,
+            &self.sim,
+        );
+        // Check front-to-back
+        for obj in dynamics.into_iter() {
+            if obj.contains_pt(pt) {
+                return Some(obj.get_id());
             }
         }
-
-        let lanes_onscreen = if self.show_lanes.is_enabled() {
-            self.draw_map.get_loads_onscreen(screen_bbox, &self.hider)
-        } else {
-            Vec::new()
-        };
-        for l in &lanes_onscreen {
-            for c in self.sim.get_draw_cars_on_lane(l.id, &self.map).into_iter() {
-                let c = render::DrawCar::new(c, &self.map);
-                if c.contains_pt(pt) {
-                    return Some(ID::Car(c.id));
-                }
-            }
-            for p in self.sim.get_draw_peds_on_lane(l.id, &self.map).into_iter() {
-                let p = render::DrawPedestrian::new(p, &self.map);
-                if p.contains_pt(pt) {
-                    return Some(ID::Pedestrian(p.id));
-                }
-            }
-        }
-
-        if self.show_intersections.is_enabled() {
-            for i in &self.draw_map
-                .get_intersections_onscreen(screen_bbox, &self.hider)
-            {
-                let show_icons = self.show_icons_for(i.id);
-
-                for t in &self.map.get_i(i.id).turns {
-                    if show_icons && self.draw_map.get_t(*t).contains_pt(pt) {
-                        return Some(ID::Turn(*t));
-                    }
-
-                    for c in self.sim.get_draw_cars_on_turn(*t, &self.map).into_iter() {
-                        let c = render::DrawCar::new(c, &self.map);
-                        if c.contains_pt(pt) {
-                            return Some(ID::Car(c.id));
-                        }
-                    }
-                    for p in self.sim.get_draw_peds_on_turn(*t, &self.map).into_iter() {
-                        let p = render::DrawPedestrian::new(p, &self.map);
-                        if p.contains_pt(pt) {
-                            return Some(ID::Pedestrian(p.id));
-                        }
-                    }
-                }
-
-                if i.contains_pt(pt) {
-                    return Some(ID::Intersection(i.id));
-                }
-            }
-        }
-
-        if self.show_lanes.is_enabled() {
-            for l in &lanes_onscreen {
-                if l.contains_pt(pt) {
-                    return Some(ID::Lane(l.id));
-                }
-            }
-        }
-
-        if self.show_buildings.is_enabled() {
-            for b in &self.draw_map
-                .get_buildings_onscreen(screen_bbox, &self.hider)
-            {
-                if b.contains_pt(pt) {
-                    return Some(ID::Building(b.id));
-                }
-            }
-        }
-
-        if self.show_parcels.is_enabled() {
-            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                if p.contains_pt(pt) {
-                    return Some(ID::Parcel(p.id));
-                }
+        for obj in statics.into_iter().rev() {
+            if obj.contains_pt(pt) {
+                return Some(obj.get_id());
             }
         }
 
@@ -622,99 +551,48 @@ impl UI {
     fn draw(&self, g: &mut GfxCtx, input: UserInput) {
         g.clear(self.cs.get(Colors::Background));
 
-        let screen_bbox = self.canvas.get_screen_bbox();
+        let (statics, dynamics) = self.draw_map.get_objects_onscreen(
+            self.canvas.get_screen_bbox(),
+            &self.hider,
+            &self.map,
+            &self.sim,
+        );
+        for obj in statics.into_iter() {
+            let color = match obj.get_id() {
+                ID::Parcel(id) => self.color_parcel(id),
+                ID::Lane(id) => self.color_lane(id),
+                ID::Intersection(id) => self.color_intersection(id),
+                ID::Turn(id) => self.color_turn_icon(id),
+                // TODO and self.cs.get(Colors::BuildingBoundary),
+                ID::Building(id) => self.color_building(id),
+                ID::ExtraShape(id) => self.color_for_selected(ID::ExtraShape(id))
+                    .unwrap_or(self.cs.get(Colors::ExtraShape)),
 
-        if self.show_parcels.is_enabled() {
-            for p in &self.draw_map.get_parcels_onscreen(screen_bbox) {
-                p.draw(g, self.color_parcel(p.id), &self.cs);
-            }
-        }
-
-        let lanes_onscreen = if self.show_lanes.is_enabled() {
-            self.draw_map.get_loads_onscreen(screen_bbox, &self.hider)
-        } else {
-            Vec::new()
-        };
-        for l in &lanes_onscreen {
-            l.draw(g, self.color_lane(l.id), &self.cs);
-            if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
-                l.draw_detail(g, &self.cs);
-            }
-            if self.debug_mode.is_enabled() {
-                l.draw_debug(g, &self.canvas, &self.cs, self.map.get_l(l.id));
-            }
-        }
-
-        if self.show_intersections.is_enabled() {
-            for i in &self.draw_map
-                .get_intersections_onscreen(screen_bbox, &self.hider)
-            {
-                i.draw(g, self.color_intersection(i.id), &self.cs);
-                let show_icons = self.show_icons_for(i.id);
-                for t in &self.map.get_i(i.id).turns {
-                    if show_icons {
-                        self.draw_map
-                            .get_t(*t)
-                            .draw(g, self.color_turn_icon(*t), &self.cs);
-                    }
-                    for c in self.sim.get_draw_cars_on_turn(*t, &self.map).into_iter() {
-                        let c = render::DrawCar::new(c, &self.map);
-                        c.draw(g, self.color_car(c.id), &self.cs);
-                    }
-                    for p in self.sim.get_draw_peds_on_turn(*t, &self.map).into_iter() {
-                        let p = render::DrawPedestrian::new(p, &self.map);
-                        p.draw(g, self.color_ped(p.id), &self.cs);
-                    }
+                ID::Car(_) | ID::Pedestrian(_) => {
+                    panic!("Dynamic {:?} in statics list", obj.get_id())
                 }
-            }
+            };
+            obj.draw(g, color, &self.cs);
+        }
+        for obj in dynamics.into_iter() {
+            let color = match obj.get_id() {
+                ID::Car(id) => self.color_car(id),
+                ID::Pedestrian(id) => self.color_ped(id),
+                _ => panic!("Static {:?} in dynamics list", obj.get_id()),
+            };
+            obj.draw(g, color, &self.cs);
         }
 
-        // Building paths overlap sidewalks and also other buildings, so do separate layers
-        // TODO but pedestrians will then walk through buildings; the front paths should ideally
-        // zig-zag around if possible
-        if self.show_buildings.is_enabled() {
-            for b in &self.draw_map
-                .get_buildings_onscreen(screen_bbox, &self.hider)
-            {
-                b.draw_front_path(g, self.cs.get(Colors::BuildingPath));
-            }
-
-            for b in &self.draw_map
-                .get_buildings_onscreen(screen_bbox, &self.hider)
-            {
-                b.draw(
-                    g,
-                    self.color_building(b.id),
-                    &self.cs,
-                    //self.cs.get(Colors::BuildingBoundary),
-                );
-            }
+        /*
+        if self.canvas.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
+            l.draw_detail(g, &self.cs);
+        }
+        if self.debug_mode.is_enabled() {
+            l.draw_debug(g, &self.canvas, &self.cs, self.map.get_l(l.id));
         }
 
-        for l in &lanes_onscreen {
-            for c in self.sim.get_draw_cars_on_lane(l.id, &self.map).into_iter() {
-                let c = render::DrawCar::new(c, &self.map);
-                c.draw(g, self.color_car(c.id), &self.cs);
-            }
-            for p in self.sim.get_draw_peds_on_lane(l.id, &self.map).into_iter() {
-                let p = render::DrawPedestrian::new(p, &self.map);
-                p.draw(g, self.color_ped(p.id), &self.cs);
-            }
-        }
-
-        if self.show_extra_shapes.is_enabled() {
-            for s in &self.draw_map
-                .get_extra_shapes_onscreen(screen_bbox, &self.hider)
-            {
-                // TODO no separate color method?
-                s.draw(
-                    g,
-                    self.color_for_selected(ID::ExtraShape(s.id))
-                        .unwrap_or(self.cs.get(Colors::ExtraShape)),
-                    &self.cs,
-                );
-            }
-        }
+        b.draw_front_path(g, self.cs.get(Colors::BuildingPath));
+        */
 
         self.turn_cycler.draw(
             &self.map,

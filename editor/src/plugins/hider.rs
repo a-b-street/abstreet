@@ -1,8 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use ezgui::UserInput;
-use kml::ExtraShapeID;
-use map_model::{BuildingID, IntersectionID, LaneID};
 use objects::ID;
 use piston::input::Key;
 use std::collections::HashSet;
@@ -49,19 +47,7 @@ impl Hider {
         false
     }
 
-    pub fn show_l(&self, id: LaneID) -> bool {
-        !self.items.contains(&ID::Lane(id))
-    }
-
-    pub fn show_b(&self, id: BuildingID) -> bool {
-        !self.items.contains(&ID::Building(id))
-    }
-
-    pub fn show_i(&self, id: IntersectionID) -> bool {
-        !self.items.contains(&ID::Intersection(id))
-    }
-
-    pub fn show_es(&self, id: ExtraShapeID) -> bool {
-        !self.items.contains(&ID::ExtraShape(id))
+    pub fn show(&self, id: ID) -> bool {
+        !self.items.contains(&id)
     }
 }
