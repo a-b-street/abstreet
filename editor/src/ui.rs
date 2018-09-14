@@ -305,6 +305,7 @@ impl UI {
             &self.map,
             &self.sim,
             &self.layers,
+            self,
         );
         // Check front-to-back
         for obj in dynamics.into_iter() {
@@ -453,12 +454,6 @@ impl UI {
         }
     }
 
-    fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.layers.show_all_turn_icons.is_enabled()
-            || self.stop_sign_editor.show_turn_icons(id)
-            || self.traffic_signal_editor.show_turn_icons(id)
-    }
-
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -538,6 +533,7 @@ impl UI {
             &self.map,
             &self.sim,
             &self.layers,
+            self,
         );
         for obj in statics.into_iter() {
             let color = match obj.get_id() {
@@ -660,5 +656,17 @@ impl ToggleableLayers {
             ID::ExtraShape(_) => self.show_extra_shapes.is_enabled(),
             _ => true,
         }
+    }
+}
+
+pub trait ShowTurnIcons {
+    fn show_icons_for(&self, id: IntersectionID) -> bool;
+}
+
+impl ShowTurnIcons for UI {
+    fn show_icons_for(&self, id: IntersectionID) -> bool {
+        self.layers.show_all_turn_icons.is_enabled()
+            || self.stop_sign_editor.show_turn_icons(id)
+            || self.traffic_signal_editor.show_turn_icons(id)
     }
 }

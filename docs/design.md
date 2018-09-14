@@ -987,8 +987,6 @@ so it feels like we implicitly have a big enum of active plugin, with each of th
 	- then rethink colors, with simplified single plugin
 	= then finally try out a unified quadtree!
 		= make parcels selectable as well?
-		- toggleable layers
-		- show_icons_for
 		- zoom, debug mode, etc
 
 

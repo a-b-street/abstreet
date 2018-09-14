@@ -19,7 +19,7 @@ use render::turn::DrawTurn;
 use render::Renderable;
 use sim::Sim;
 use std::collections::HashMap;
-use ui::ToggleableLayers;
+use ui::{ShowTurnIcons, ToggleableLayers};
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
@@ -186,13 +186,14 @@ impl DrawMap {
     // a getter... except they still have to deal with DrawCar and DrawPedestrian not being
     // borrowable. Could move contains_pt and draw calls here directly, but that might be weird?
     // But maybe not.
-    pub fn get_objects_onscreen(
+    pub fn get_objects_onscreen<T: ShowTurnIcons>(
         &self,
         screen_bbox: Rect,
         hider: &Hider,
         map: &Map,
         sim: &Sim,
         layers: &ToggleableLayers,
+        show_turn_icons: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
@@ -221,8 +222,7 @@ impl DrawMap {
                     ID::Intersection(id) => {
                         intersections.push(Box::new(self.get_i(*id)));
                         for t in &map.get_i(*id).turns {
-                            if false {
-                                // TODO if show_icons_for(id)
+                            if show_turn_icons.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
                             }
                             for c in sim.get_draw_cars_on_turn(*t, map).into_iter() {
