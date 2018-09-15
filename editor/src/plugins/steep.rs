@@ -5,9 +5,9 @@
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::{Lane, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 use std::f64;
 
 pub struct SteepnessVisualizer {

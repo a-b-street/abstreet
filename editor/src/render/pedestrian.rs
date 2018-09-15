@@ -1,10 +1,9 @@
 use aabb_quadtree::geom::Rect;
-use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::Pt2D;
 use graphics;
 use map_model::{geometry, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -41,7 +40,7 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
         g.draw_ellipse(opts.color, self.circle);
 
         // TODO tune color, sizes

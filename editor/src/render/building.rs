@@ -1,12 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use ezgui::GfxCtx;
 use geom::{PolyLine, Polygon, Pt2D};
 use graphics;
 use map_model::{Building, BuildingID, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{get_bbox, RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
 use std::f64;
 
@@ -40,13 +40,13 @@ impl Renderable for DrawBuilding {
     }
 
     // TODO need two colors here
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         //g.draw_polygon(boundary_color, &self.boundary_polygon);
         g.draw_polygon(opts.color, &self.fill_polygon);
 
         // TODO tune width
         g.draw_line(
-            &graphics::Line::new_round(cs.get(Colors::BuildingPath), 1.0),
+            &graphics::Line::new_round(ctx.cs.get(Colors::BuildingPath), 1.0),
             self.front_path,
         );
     }

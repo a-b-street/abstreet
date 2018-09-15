@@ -1,15 +1,15 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use control::ControlMap;
 use dimensioned::si;
-use ezgui::{Canvas, GfxCtx};
+use ezgui::GfxCtx;
 use geom::{Line, Polygon, Pt2D};
 use graphics;
 use map_model;
 use map_model::{geometry, LaneID};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{get_bbox, RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
@@ -88,14 +88,12 @@ impl DrawLane {
         }
     }
 
-    // TODO can't easily call this with generic quadtree
-    #[allow(dead_code)]
-    fn draw_debug(&self, g: &mut GfxCtx, canvas: &Canvas, cs: &ColorScheme, l: &map_model::Lane) {
+    fn draw_debug(&self, g: &mut GfxCtx, ctx: Ctx) {
         let line =
-            graphics::Line::new_round(cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
-        let circle_color = cs.get(Colors::BrightDebug);
+            graphics::Line::new_round(ctx.cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
+        let circle_color = ctx.cs.get(Colors::BrightDebug);
 
-        for pair in l.lane_center_pts.points().windows(2) {
+        for pair in ctx.map.get_l(self.id).lane_center_pts.points().windows(2) {
             let (pt1, pt2) = (pair[0], pair[1]);
             g.draw_line(&line, [pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
             g.draw_ellipse(circle_color, geometry::make_circle(pt1, 0.4));
@@ -103,7 +101,8 @@ impl DrawLane {
         }
 
         for pt in &self.draw_id_at {
-            canvas.draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
+            ctx.canvas
+                .draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
         }
     }
 
@@ -122,15 +121,15 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         g.draw_polygon(opts.color, &self.polygon);
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {
                 let line = if m.round {
-                    graphics::Line::new_round(cs.get(m.color), m.thickness)
+                    graphics::Line::new_round(ctx.cs.get(m.color), m.thickness)
                 } else {
-                    graphics::Line::new(cs.get(m.color), m.thickness)
+                    graphics::Line::new(ctx.cs.get(m.color), m.thickness)
                 };
                 for pts in &m.lines {
                     g.draw_line(&line, *pts);
@@ -139,8 +138,7 @@ impl Renderable for DrawLane {
         }
 
         if opts.debug_mode {
-            // TODO Don't have canvas and map available in draw()...
-            //self.draw_debug(g, canvas, cs, map.get_l(self.id));
+            self.draw_debug(g, ctx);
         }
     }
 

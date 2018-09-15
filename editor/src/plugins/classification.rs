@@ -3,9 +3,9 @@
 use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 
 // TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {

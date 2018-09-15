@@ -11,12 +11,11 @@ mod pedestrian;
 mod turn;
 
 use aabb_quadtree::geom::{Point, Rect};
-use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::{Bounds, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 pub use render::car::DrawCar;
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
@@ -50,7 +49,7 @@ pub fn get_bbox(b: &Bounds) -> Rect {
 
 pub trait Renderable {
     fn get_id(&self) -> ID;
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx);
     // TODO Maybe return Bounds
     fn get_bbox(&self) -> Rect;
     fn contains_pt(&self, pt: Pt2D) -> bool;

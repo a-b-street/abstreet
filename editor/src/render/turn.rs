@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::Pt2D;
@@ -9,7 +9,7 @@ use graphics;
 use graphics::math::Vec2d;
 use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{
     RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
@@ -78,8 +78,8 @@ impl Renderable for DrawTurn {
         ID::Turn(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
-        g.draw_ellipse(cs.get(Colors::TurnIconCircle), self.icon_circle);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+        g.draw_ellipse(ctx.cs.get(Colors::TurnIconCircle), self.icon_circle);
 
         g.draw_arrow(
             &graphics::Line::new_round(opts.color, TURN_ICON_ARROW_THICKNESS),

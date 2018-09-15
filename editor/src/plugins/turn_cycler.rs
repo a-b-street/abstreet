@@ -5,9 +5,9 @@ use control::ControlMap;
 use ezgui::{GfxCtx, UserInput};
 use graphics::types::Color;
 use map_model::{IntersectionID, LaneID, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 use render::DrawMap;
 use sim::Sim;
 

@@ -13,7 +13,7 @@ use graphics::types::Color;
 use kml;
 use map_model;
 use map_model::IntersectionID;
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
@@ -33,7 +33,7 @@ use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_colors::TurnColors;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{CarID, CarState, PedestrianID, Sim};
@@ -332,6 +332,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -363,6 +364,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -395,6 +397,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -417,6 +420,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -437,6 +441,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -476,6 +481,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -502,6 +508,7 @@ impl UI {
                     cs: &self.cs,
                     map: &self.map,
                     control_map: &self.control_map,
+                    canvas: &self.canvas,
                 },
             ) {
                 return c;
@@ -620,7 +627,16 @@ impl UI {
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.layers.debug_mode.is_enabled(),
             };
-            obj.draw(g, opts, &self.cs);
+            obj.draw(
+                g,
+                opts,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                    canvas: &self.canvas,
+                },
+            );
         }
         for obj in dynamics.into_iter() {
             let color = match obj.get_id() {
@@ -633,7 +649,16 @@ impl UI {
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.layers.debug_mode.is_enabled(),
             };
-            obj.draw(g, opts, &self.cs);
+            obj.draw(
+                g,
+                opts,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                    canvas: &self.canvas,
+                },
+            );
         }
 
         self.turn_cycler.draw(

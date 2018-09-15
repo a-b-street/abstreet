@@ -4,9 +4,9 @@ use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::{LaneID, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized

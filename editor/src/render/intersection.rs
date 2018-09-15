@@ -1,14 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use aabb_quadtree::geom::Rect;
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Line, Polygon, Pt2D};
 use graphics;
 use graphics::math::Vec2d;
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{get_bbox, DrawLane, RenderOptions, Renderable};
 use std::f64;
 
@@ -50,20 +50,20 @@ impl DrawIntersection {
         }
     }
 
-    fn draw_stop_sign(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: Ctx) {
         // TODO rotate it
         g.draw_polygon(
-            cs.get(Colors::StopSignBackground),
+            ctx.cs.get(Colors::StopSignBackground),
             &geometry::regular_polygon(self.center, 8, 1.5),
         );
         // TODO draw "STOP"
     }
 
-    fn draw_traffic_signal(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: Ctx) {
         let radius = 0.5;
 
         g.draw_rectangle(
-            cs.get(Colors::TrafficSignalBox),
+            ctx.cs.get(Colors::TrafficSignalBox),
             [
                 self.center.x() - (2.0 * radius),
                 self.center.y() - (4.0 * radius),
@@ -73,17 +73,17 @@ impl DrawIntersection {
         );
 
         g.draw_ellipse(
-            cs.get(Colors::TrafficSignalYellow),
+            ctx.cs.get(Colors::TrafficSignalYellow),
             geometry::make_circle(self.center, radius),
         );
 
         g.draw_ellipse(
-            cs.get(Colors::TrafficSignalGreen),
+            ctx.cs.get(Colors::TrafficSignalGreen),
             geometry::make_circle(self.center.offset(0.0, radius * 2.0), radius),
         );
 
         g.draw_ellipse(
-            cs.get(Colors::TrafficSignalRed),
+            ctx.cs.get(Colors::TrafficSignalRed),
             geometry::make_circle(self.center.offset(0.0, radius * -2.0), radius),
         );
     }
@@ -94,11 +94,11 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         g.draw_polygon(opts.color, &self.polygon);
 
         let crosswalk_marking = graphics::Line::new(
-            cs.get(Colors::Crosswalk),
+            ctx.cs.get(Colors::Crosswalk),
             // TODO move this somewhere
             0.25,
         );
@@ -112,9 +112,9 @@ impl Renderable for DrawIntersection {
         }
 
         if self.has_traffic_signal {
-            self.draw_traffic_signal(g, cs);
+            self.draw_traffic_signal(g, ctx);
         } else {
-            self.draw_stop_sign(g, cs);
+            self.draw_stop_sign(g, ctx);
         }
     }
 

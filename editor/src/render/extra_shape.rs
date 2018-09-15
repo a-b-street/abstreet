@@ -1,10 +1,9 @@
 use aabb_quadtree::geom::Rect;
-use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
 use map_model::{geometry, Map};
-use objects::ID;
+use objects::{Ctx, ID};
 use render::{
     get_bbox, RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
 };
@@ -45,7 +44,7 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _cs: &ColorScheme) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(opts.color, &p),
             Shape::Circle(c) => g.draw_ellipse(opts.color, c),

@@ -2,9 +2,9 @@ use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::LaneID;
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, Ctx};
+use plugins::Colorizer;
 use sim::{AgentID, Sim};
 use std::collections::HashSet;
 
