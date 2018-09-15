@@ -421,7 +421,8 @@ impl SimQueue {
     }
 
     fn insert_at(&mut self, car: CarID, dist_along: Distance) {
-        if let Some(idx) = self.cars_queue
+        if let Some(idx) = self
+            .cars_queue
             .iter()
             .position(|(their_dist, _)| *their_dist < dist_along)
         {
@@ -452,7 +453,8 @@ impl DrivingSimState {
             cars: BTreeMap::new(),
             routers: BTreeMap::new(),
             // TODO only driving ones
-            lanes: map.all_lanes()
+            lanes: map
+                .all_lanes()
                 .iter()
                 .map(|l| SimQueue::new(On::Lane(l.id), map))
                 .collect(),
@@ -483,7 +485,8 @@ impl DrivingSimState {
     }
 
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
-        let waiting = self.cars
+        let waiting = self
+            .cars
             .values()
             .filter(|c| c.speed <= kinematics::EPSILON_SPEED)
             .count();
@@ -718,8 +721,7 @@ impl DrivingSimState {
                     &properties[&car],
                     dist_along - other_dist,
                     0.0 * si::MPS,
-                )
-                .unwrap();
+                ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
                 if false {
                     println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);

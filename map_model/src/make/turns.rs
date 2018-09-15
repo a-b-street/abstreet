@@ -33,7 +33,8 @@ fn make_driving_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
         .filter(|id| m.get_l(**id).is_driving())
         .map(|id| *id)
         .collect();
-    let outgoing: Vec<LaneID> = i.outgoing_lanes
+    let outgoing: Vec<LaneID> = i
+        .outgoing_lanes
         .iter()
         .filter(|id| m.get_l(**id).is_driving())
         .map(|id| *id)

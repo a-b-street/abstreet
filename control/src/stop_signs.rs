@@ -43,7 +43,8 @@ impl ControlStopSign {
         let mut ranks: HashSet<usize> = HashSet::new();
         let mut highest_rank = 0;
         // TODO should just be incoming, but because of weirdness with sidewalks...
-        for l in map.get_i(intersection)
+        for l in map
+            .get_i(intersection)
             .incoming_lanes
             .iter()
             .chain(map.get_i(intersection).outgoing_lanes.iter())
@@ -176,7 +177,8 @@ impl ControlStopSign {
         }
 
         // Do any of the priority turns conflict?
-        let priority_turns: Vec<TurnID> = self.turns
+        let priority_turns: Vec<TurnID> = self
+            .turns
             .iter()
             .filter_map(|(turn, pri)| {
                 if *pri == TurnPriority::Priority {
@@ -184,8 +186,7 @@ impl ControlStopSign {
                 } else {
                     None
                 }
-            })
-            .collect();
+            }).collect();
         for t1 in &priority_turns {
             for t2 in &priority_turns {
                 if map.get_t(*t1).conflicts_with(map.get_t(*t2)) {

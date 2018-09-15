@@ -54,15 +54,18 @@ impl DrawMap {
         for t in map.all_turns().values() {
             turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
         }
-        let intersections: Vec<DrawIntersection> = map.all_intersections()
+        let intersections: Vec<DrawIntersection> = map
+            .all_intersections()
             .iter()
             .map(|i| DrawIntersection::new(i, map, &lanes))
             .collect();
-        let buildings: Vec<DrawBuilding> = map.all_buildings()
+        let buildings: Vec<DrawBuilding> = map
+            .all_buildings()
             .iter()
             .map(|b| DrawBuilding::new(b))
             .collect();
-        let parcels: Vec<DrawParcel> = map.all_parcels()
+        let parcels: Vec<DrawParcel> = map
+            .all_parcels()
             .iter()
             .map(|p| DrawParcel::new(p))
             .collect();
@@ -118,7 +121,8 @@ impl DrawMap {
 
     fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {
         // Split into two groups, based on the endpoint
-        let mut pair: (Vec<&Turn>, Vec<&Turn>) = map.get_turns_from_lane(l.id)
+        let mut pair: (Vec<&Turn>, Vec<&Turn>) = map
+            .get_turns_from_lane(l.id)
             .iter()
             .partition(|t| t.parent == l.dst_i);
 

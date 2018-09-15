@@ -81,7 +81,8 @@ impl Spawner {
         let mut commands: Vec<Command> = Vec::new();
         let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
         loop {
-            if self.commands
+            if self
+                .commands
                 .front()
                 .and_then(|cmd| Some(now == cmd.at()))
                 .unwrap_or(false)
@@ -246,8 +247,7 @@ impl Spawner {
                 parking_sim.add_parked_car(ParkedCar::new(car, spots[idx]));
                 self.car_id_counter += 1;
                 Vehicle::generate_typical_car(car, rng)
-            })
-            .collect()
+            }).collect()
     }
 
     pub fn start_trip_using_parked_car(

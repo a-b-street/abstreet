@@ -11,7 +11,8 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
     let big_highway = r.osm_tags.get("highway") == Some(&"motorway".to_string());
     let bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
-    let num_driving_lanes = if let Some(n) = r.osm_tags
+    let num_driving_lanes = if let Some(n) = r
+        .osm_tags
         .get("lanes")
         .and_then(|num| num.parse::<usize>().ok())
     {

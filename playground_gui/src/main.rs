@@ -121,8 +121,8 @@ impl UI {
                 Pt2D::new(2610.979416102837, 1164.2392149291984),
                 //Pt2D::new(2572.5481805300115, 1164.2059309889344),
             ].iter()
-                .map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0))
-                .collect(),
+            .map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0))
+            .collect(),
         );
         draw_polyline(g, &center_pts, thin, RED);
         for (idx, pt) in center_pts.points().iter().enumerate() {

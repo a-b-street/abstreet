@@ -60,7 +60,8 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
             map.roads.push(raw_data::Road {
                 osm_way_id: way.id,
                 points: pts,
-                osm_tags: way.tags
+                osm_tags: way
+                    .tags
                     .iter()
                     .map(|tag| (tag.key.clone(), tag.val.clone()))
                     .collect(),
@@ -69,7 +70,8 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
             map.buildings.push(raw_data::Building {
                 osm_way_id: way.id,
                 points: pts,
-                osm_tags: way.tags
+                osm_tags: way
+                    .tags
                     .iter()
                     .map(|tag| (tag.key.clone(), tag.val.clone()))
                     .collect(),

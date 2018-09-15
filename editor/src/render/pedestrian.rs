@@ -42,7 +42,8 @@ impl Renderable for DrawPedestrian {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        let color = opts.color
+        let color = opts
+            .color
             .unwrap_or(shift_color(ctx.cs.get(Colors::Pedestrian), self.id.0));
         g.draw_ellipse(color, self.circle);
 

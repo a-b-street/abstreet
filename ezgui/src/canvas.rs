@@ -72,7 +72,8 @@ impl Canvas {
 
     pub fn start_drawing(&mut self, g: &mut GfxCtx, window_size: Size) {
         self.window_size = window_size;
-        g.ctx = g.orig_ctx
+        g.ctx = g
+            .orig_ctx
             .trans(-self.cam_x, -self.cam_y)
             .zoom(self.cam_zoom)
     }

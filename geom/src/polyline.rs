@@ -226,7 +226,8 @@ impl PolyLine {
     // This could fail by needing too much width for sharp angles
     pub fn make_polygons(&self, width: f64) -> Option<Polygon> {
         let side1 = self.shift_with_sharp_angles(width / 2.0)?;
-        let side2 = self.reversed()
+        let side2 = self
+            .reversed()
             .shift_with_sharp_angles(width / 2.0)?
             .reversed();
         Some(self.polygons_from_sides(&side1, &side2))
@@ -234,7 +235,8 @@ impl PolyLine {
 
     pub fn make_polygons_blindly(&self, width: f64) -> Polygon {
         let side1 = self.shift_blindly_with_sharp_angles(width / 2.0);
-        let side2 = self.reversed()
+        let side2 = self
+            .reversed()
             .shift_blindly_with_sharp_angles(width / 2.0)
             .reversed();
         self.polygons_from_sides(&side1, &side2)
@@ -278,7 +280,8 @@ impl PolyLine {
     // Starts trimming from the head. If the pt is not on the polyline, returns false -- but this
     // is a bug somewhere else.
     pub fn trim_to_pt(&mut self, pt: Pt2D) -> bool {
-        if let Some(idx) = self.pts
+        if let Some(idx) = self
+            .pts
             .windows(2)
             .position(|pair| Line::new(pair[0], pair[1]).contains_pt(pt))
         {

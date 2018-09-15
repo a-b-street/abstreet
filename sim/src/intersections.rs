@@ -247,8 +247,7 @@ impl StopSign {
             .find(|req| {
                 base_t.conflicts_with(map.get_t(req.turn))
                     && ss.get_priority(req.turn) > base_priority
-            })
-            .is_some()
+            }).is_some()
     }
 
     fn step(

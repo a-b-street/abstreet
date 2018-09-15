@@ -16,7 +16,8 @@ pub(crate) fn make_all_buildings(
     let mut center_per_bldg: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     for b in input {
-        let pts = b.points
+        let pts = b
+            .points
             .iter()
             .map(|coord| Pt2D::from_gps(coord, bounds))
             .collect();

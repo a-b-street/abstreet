@@ -47,8 +47,7 @@ fn main() {
             gfx::Primitive::TriangleList,
             gfx::state::Rasterizer::new_fill(),
             fill_pipeline::new(),
-        )
-        .unwrap();
+        ).unwrap();
 
     // The geometry!
     let vertices = vec![

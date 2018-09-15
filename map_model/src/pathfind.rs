@@ -24,12 +24,11 @@ impl Pathfinder {
                 map.get_next_lanes(current)
                     .iter()
                     .map(|next| {
-                        let heuristic_dist = NotNaN::new(
-                            Line::new(next.first_pt(), *goal_pt).length().value_unsafe,
-                        ).unwrap();
+                        let heuristic_dist =
+                            NotNaN::new(Line::new(next.first_pt(), *goal_pt).length().value_unsafe)
+                                .unwrap();
                         (next.id, current_length + heuristic_dist)
-                    })
-                    .collect()
+                    }).collect()
             }
             Pathfinder::UsingTransit => {
                 // No heuristic, because it's hard to make admissible.

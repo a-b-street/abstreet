@@ -39,13 +39,15 @@ impl DrawLane {
         let road = map.get_r(lane.parent);
         let start = new_perp_line(lane.first_line(), geometry::LANE_THICKNESS);
         let end = new_perp_line(lane.last_line().reverse(), geometry::LANE_THICKNESS);
-        let polygon = lane.lane_center_pts
+        let polygon = lane
+            .lane_center_pts
             .make_polygons_blindly(geometry::LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
             markings.push(Marking {
-                lines: road.center_pts
+                lines: road
+                    .center_pts
                     .points()
                     .windows(2)
                     .map(|pair| [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()])
@@ -321,7 +323,8 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
         return None;
     }
 
-    let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
+    let (pt1, _) =
+        lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
     let (pt2, _) = lane.safe_dist_along(2.0 * geometry::LANE_THICKNESS * si::M)?;
     Some(vec![pt1, pt2])
 }

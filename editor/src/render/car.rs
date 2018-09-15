@@ -81,8 +81,7 @@ impl DrawCar {
                         .project_away(
                             input.vehicle_length.value_unsafe - 1.0,
                             input.angle.opposite(),
-                        )
-                        .project_away(
+                        ).project_away(
                             CAR_WIDTH / 2.0 - front_window_length_gap,
                             input.angle.rotate_degs(-90.0),
                         ),

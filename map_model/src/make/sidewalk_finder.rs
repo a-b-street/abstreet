@@ -19,8 +19,7 @@ pub fn find_sidewalk_points(
             } else {
                 None
             }
-        })
-        .collect();
+        }).collect();
 
     // For each point, find the closest point to any sidewalk
     let mut results: HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> = HashMap::new();
@@ -34,8 +33,7 @@ pub fn find_sidewalk_points(
                 } else {
                     None
                 }
-            })
-            .min_by_key(|(_, pt)| NotNaN::new(pt.euclidean_distance(&query_geo_pt)).unwrap())
+            }).min_by_key(|(_, pt)| NotNaN::new(pt.euclidean_distance(&query_geo_pt)).unwrap())
             .unwrap();
         let sidewalk_pt = Pt2D::new(raw_pt.x(), raw_pt.y());
         if let Some(dist_along) = lanes[sidewalk.0].dist_along_of_point(sidewalk_pt) {
@@ -48,7 +46,8 @@ pub fn find_sidewalk_points(
 }
 
 fn lane_to_line_string(l: &Lane) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = l.lane_center_pts
+    let pts: Vec<geo::Point<f64>> = l
+        .lane_center_pts
         .points()
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))

@@ -36,12 +36,12 @@ impl ControlTrafficSignal {
             return None;
         }
         Some(ModifiedTrafficSignal {
-            cycles: self.cycles
+            cycles: self
+                .cycles
                 .iter()
                 .map(|c| CycleState {
                     turns: c.turns.clone(),
-                })
-                .collect(),
+                }).collect(),
         })
     }
 
@@ -53,8 +53,7 @@ impl ControlTrafficSignal {
                 turns: c.turns.clone(),
                 changed: true,
                 duration: CYCLE_DURATION,
-            })
-            .collect();
+            }).collect();
     }
 
     pub fn current_cycle_and_remaining_time(
@@ -121,7 +120,8 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
     let mut cycles = Vec::new();
 
     // Greedily partition turns into cycles. More clever things later.
-    let mut remaining_turns: Vec<TurnID> = map.get_turns_in_intersection(intersection)
+    let mut remaining_turns: Vec<TurnID> = map
+        .get_turns_in_intersection(intersection)
         .iter()
         .map(|t| t.id)
         .collect();
@@ -157,7 +157,8 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
 
 // Add all legal turns to existing cycles.
 fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: IntersectionID) {
-    let all_turns: Vec<TurnID> = map.get_turns_in_intersection(intersection)
+    let all_turns: Vec<TurnID> = map
+        .get_turns_in_intersection(intersection)
         .iter()
         .map(|t| t.id)
         .collect();

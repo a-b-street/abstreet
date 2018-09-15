@@ -105,8 +105,7 @@ impl TransitSimState {
                             stop1, stop2
                         ));
                 (next_stop, stop1.dist_along, path)
-            })
-            .collect()
+            }).collect()
     }
 
     pub fn bus_created(&mut self, bus: CarID, route: RouteID, next_stop_idx: StopIdx) {

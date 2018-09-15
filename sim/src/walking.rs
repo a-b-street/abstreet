@@ -165,11 +165,7 @@ impl Pedestrian {
                 match self.on {
                     On::Lane(id) => {
                         let l = map.get_l(id);
-                        let at = if self.contraflow {
-                            l.src_i
-                        } else {
-                            l.dst_i
-                        };
+                        let at = if self.contraflow { l.src_i } else { l.dst_i };
                         On::Turn(self.choose_turn(id, at, map))
                     }
                     On::Turn(id) => On::Lane(map.get_t(id).dst),
@@ -389,7 +385,8 @@ impl WalkingSimState {
         for (id, act) in &requested_moves {
             match *act {
                 Action::KeepCrossingPath => {
-                    if self.peds
+                    if self
+                        .peds
                         .get_mut(&id)
                         .unwrap()
                         .step_cross_path(events, delta_time, map)
@@ -560,7 +557,8 @@ impl WalkingSimState {
     }
 
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
-        let waiting = self.peds
+        let waiting = self
+            .peds
             .values()
             .filter(|p| p.waiting_for.is_some())
             .count();

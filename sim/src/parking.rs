@@ -17,7 +17,8 @@ pub struct ParkingSimState {
 impl ParkingSimState {
     pub fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
-            lanes: map.all_lanes()
+            lanes: map
+                .all_lanes()
                 .iter()
                 .map(|l| ParkingLane::new(l))
                 .collect(),
@@ -181,8 +182,7 @@ impl ParkingLane {
                         pos,
                         angle,
                     }
-                })
-                .collect(),
+                }).collect(),
         }
     }
 
@@ -208,8 +208,7 @@ impl ParkingLane {
                         stopping_dist: 0.0 * si::M,
                     })
                 })
-            })
-            .collect()
+            }).collect()
     }
 
     fn is_empty(&self) -> bool {

@@ -181,7 +181,8 @@ impl Map {
         for (idx, p) in data.parcels.iter().enumerate() {
             m.parcels.push(Parcel {
                 id: ParcelID(idx),
-                points: p.points
+                points: p
+                    .points
                     .iter()
                     .map(|coord| Pt2D::from_gps(coord, &bounds))
                     .collect(),
@@ -306,7 +307,8 @@ impl Map {
     // The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
-        let mut turns: Vec<&Turn> = self.get_i(lane.dst_i)
+        let mut turns: Vec<&Turn> = self
+            .get_i(lane.dst_i)
             .turns
             .iter()
             .map(|t| self.get_t(*t))

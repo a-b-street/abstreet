@@ -120,7 +120,8 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
-        for v in self.spawner
+        for v in self
+            .spawner
             .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng)
             .into_iter()
         {
@@ -151,7 +152,8 @@ impl Sim {
 
     pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
         let mut ids = Vec::new();
-        for v in self.spawner
+        for v in self
+            .spawner
             .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
             .into_iter()
         {
@@ -162,12 +164,14 @@ impl Sim {
     }
 
     pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
-        let mut cars: Vec<CarID> = self.parking_state
+        let mut cars: Vec<CarID> = self
+            .parking_state
             .get_all_parked_cars()
             .into_iter()
             .filter_map(|parked_car| {
                 let lane = parked_car.spot.lane;
-                let has_bldgs = map.get_parent(lane)
+                let has_bldgs = map
+                    .get_parent(lane)
                     .find_sidewalk(lane)
                     .and_then(|sidewalk| Some(!map.get_l(sidewalk).building_paths.is_empty()))
                     .unwrap_or(false);
@@ -178,8 +182,7 @@ impl Sim {
                 } else {
                     None
                 }
-            })
-            .collect();
+            }).collect();
         if cars.is_empty() {
             return;
         }
@@ -191,13 +194,15 @@ impl Sim {
     }
 
     pub fn start_parked_car(&mut self, map: &Map, car: CarID) {
-        let parking_lane = self.parking_state
+        let parking_lane = self
+            .parking_state
             .lookup_car(car)
             .expect("Car isn't parked")
             .spot
             .lane;
         let road = map.get_parent(parking_lane);
-        let driving_lane = road.find_driving_lane(parking_lane)
+        let driving_lane = road
+            .find_driving_lane(parking_lane)
             .expect("Parking lane has no driving lane");
 
         let goal = pick_car_goal(&mut self.rng, map, driving_lane);
@@ -205,11 +210,13 @@ impl Sim {
     }
 
     pub fn start_parked_car_with_goal(&mut self, map: &Map, car: CarID, goal: LaneID) {
-        let parked = self.parking_state
+        let parked = self
+            .parking_state
             .lookup_car(car)
             .expect("Car isn't parked");
         let road = map.get_parent(parked.spot.lane);
-        let sidewalk = road.find_sidewalk(parked.spot.lane)
+        let sidewalk = road
+            .find_sidewalk(parked.spot.lane)
             .expect("Parking lane has no sidewalk");
 
         let start_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, sidewalk);
@@ -283,7 +290,8 @@ impl Sim {
 }
 
 fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {
-    let candidate_goals: Vec<LaneID> = map.all_lanes()
+    let candidate_goals: Vec<LaneID> = map
+        .all_lanes()
         .iter()
         .filter_map(|l| {
             if l.id != start && l.is_driving() {
@@ -294,13 +302,13 @@ fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Lane
                 }
             }
             None
-        })
-        .collect();
+        }).collect();
     *rng.choose(&candidate_goals).unwrap()
 }
 
 fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> BuildingID {
-    let candidate_goals: Vec<BuildingID> = map.all_buildings()
+    let candidate_goals: Vec<BuildingID> = map
+        .all_buildings()
         .iter()
         .filter_map(|b| {
             if b.front_path.sidewalk != start {
@@ -308,8 +316,7 @@ fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Buil
             } else {
                 None
             }
-        })
-        .collect();
+        }).collect();
     *rng.choose(&candidate_goals).unwrap()
 }
 

@@ -89,7 +89,8 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
 
             // TODO use a quadtree or some better way to match signals to the closest
             // intersection
-            let closest_intersection = map.intersections
+            let closest_intersection = map
+                .intersections
                 .iter_mut()
                 .min_by_key(|i| NotNaN::new(distance(i)).unwrap())
                 .unwrap();

@@ -51,7 +51,8 @@ impl TripManager {
 
     // Where are we driving next?
     pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, BuildingID) {
-        let trip = &mut self.trips[self.active_trip_mode
+        let trip = &mut self.trips[self
+                                       .active_trip_mode
                                        .remove(&AgentID::Pedestrian(ped))
                                        .unwrap()
                                        .0];
@@ -102,7 +103,8 @@ impl TripManager {
     // Where to walk next?
     pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, SidewalkSpot) {
         // The spawner will call agent_starting_trip_leg, so briefly remove the active PedestrianID.
-        let trip = &mut self.trips[self.active_trip_mode
+        let trip = &mut self.trips[self
+                                       .active_trip_mode
                                        .remove(&AgentID::Pedestrian(ped))
                                        .unwrap()
                                        .0];

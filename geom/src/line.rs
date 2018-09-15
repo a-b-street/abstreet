@@ -29,7 +29,8 @@ impl Line {
     // Haversine?
     pub fn length(&self) -> si::Meter<f64> {
         ((self.pt1().x() - self.pt2().x()).powi(2) + (self.pt1().y() - self.pt2().y()).powi(2))
-            .sqrt() * si::M
+            .sqrt()
+            * si::M
     }
 
     pub fn intersection(&self, other: &Line) -> Option<Pt2D> {

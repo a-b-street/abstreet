@@ -56,13 +56,15 @@ impl Road {
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there. Returns true for the forwards direction, false for backwards.
     pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {
-        if let Some(idx) = self.children_forwards
+        if let Some(idx) = self
+            .children_forwards
             .iter()
             .position(|pair| pair.0 == lane)
         {
             return (true, idx);
         }
-        if let Some(idx) = self.children_backwards
+        if let Some(idx) = self
+            .children_backwards
             .iter()
             .position(|pair| pair.0 == lane)
         {
@@ -99,12 +101,14 @@ impl Road {
     // Additionally handles one-ways with a sidewalk on only one side.
     // TODO but in reality, there probably isn't a sidewalk on the other side of the one-way. :\
     pub fn find_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Option<LaneID> {
-        let (this_side, opposite, idx) = if let Some(idx) = self.children_forwards
+        let (this_side, opposite, idx) = if let Some(idx) = self
+            .children_forwards
             .iter()
             .position(|(l, _)| *l == sidewalk)
         {
             (&self.children_forwards, &self.children_backwards, idx)
-        } else if let Some(idx) = self.children_backwards
+        } else if let Some(idx) = self
+            .children_backwards
             .iter()
             .position(|(l, _)| *l == sidewalk)
         {
@@ -140,12 +144,14 @@ impl Road {
     }
 
     pub fn get_opposite_lane(&self, lane: LaneID, lane_type: LaneType) -> Option<LaneID> {
-        let forwards: Vec<LaneID> = self.children_forwards
+        let forwards: Vec<LaneID> = self
+            .children_forwards
             .iter()
             .filter(|pair| pair.1 == lane_type)
             .map(|pair| pair.0)
             .collect();
-        let backwards: Vec<LaneID> = self.children_backwards
+        let backwards: Vec<LaneID> = self
+            .children_backwards
             .iter()
             .filter(|pair| pair.1 == lane_type)
             .map(|pair| pair.0)
@@ -162,12 +168,14 @@ impl Road {
 
     // Only the immediately adjacent siblings -- so could be 0, 1, or 2 results.
     fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)> {
-        let (list, idx) = if let Some(idx) = self.children_forwards
+        let (list, idx) = if let Some(idx) = self
+            .children_forwards
             .iter()
             .position(|pair| pair.0 == lane)
         {
             (&self.children_forwards, idx)
-        } else if let Some(idx) = self.children_backwards
+        } else if let Some(idx) = self
+            .children_backwards
             .iter()
             .position(|pair| pair.0 == lane)
         {

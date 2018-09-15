@@ -7,8 +7,20 @@ use std::collections::BTreeMap;
 use std::io::Error;
 use strum::IntoEnumIterator;
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, EnumIter, EnumString, ToString,
-         PartialOrd, Ord, Clone, Copy)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    EnumIter,
+    EnumString,
+    ToString,
+    PartialOrd,
+    Ord,
+    Clone,
+    Copy,
+)]
 pub enum Colors {
     Background,
     Debug,
