@@ -35,7 +35,7 @@ use plugins::warp::WarpState;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::{CarID, PedestrianID, Sim};
+use sim::Sim;
 use std::collections::HashMap;
 use std::process;
 
@@ -314,166 +314,6 @@ impl UI {
         None
     }
 
-    fn color_lane(&self, id: map_model::LaneID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Lane(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Lane(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-        None
-    }
-
-    fn color_intersection(&self, id: map_model::IntersectionID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Intersection(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Intersection(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-        None
-    }
-
-    fn color_turn_icon(&self, id: map_model::TurnID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Turn(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Turn(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn color_building(&self, id: map_model::BuildingID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Building(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Building(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn color_parcel(&self, id: map_model::ParcelID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Parcel(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Parcel(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn color_car(&self, id: CarID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Car(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Car(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn color_ped(&self, id: PedestrianID) -> Option<Color> {
-        if let Some(c) = self.color_for_selected(ID::Pedestrian(id)) {
-            return Some(c);
-        }
-        if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                ID::Pedestrian(id),
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.map,
-                    control_map: &self.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.sim,
-                },
-            ) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn color_for_selected(&self, id: ID) -> Option<Color> {
-        if Some(id) == self.current_selection {
-            Some(self.cs.get(Colors::Selected))
-        } else {
-            None
-        }
-    }
-
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -556,21 +396,8 @@ impl UI {
             self,
         );
         for obj in statics.into_iter() {
-            let color = match obj.get_id() {
-                ID::Parcel(id) => self.color_parcel(id),
-                ID::Lane(id) => self.color_lane(id),
-                ID::Intersection(id) => self.color_intersection(id),
-                ID::Turn(id) => self.color_turn_icon(id),
-                ID::Building(id) => self.color_building(id),
-                // TODO do the whole generic thing too
-                ID::ExtraShape(id) => self.color_for_selected(ID::ExtraShape(id)),
-
-                ID::Car(_) | ID::Pedestrian(_) => {
-                    panic!("Dynamic {:?} in statics list", obj.get_id())
-                }
-            };
             let opts = RenderOptions {
-                color,
+                color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.layers.debug_mode.is_enabled(),
             };
@@ -587,13 +414,8 @@ impl UI {
             );
         }
         for obj in dynamics.into_iter() {
-            let color = match obj.get_id() {
-                ID::Car(id) => self.color_car(id),
-                ID::Pedestrian(id) => self.color_ped(id),
-                _ => panic!("Static {:?} in dynamics list", obj.get_id()),
-            };
             let opts = RenderOptions {
-                color,
+                color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.layers.debug_mode.is_enabled(),
             };
@@ -640,6 +462,29 @@ impl UI {
             osd_lines.extend(warp_lines);
         }
         self.canvas.draw_osd_notification(g, &osd_lines);
+    }
+
+    fn color_obj(&self, id: ID) -> Option<Color> {
+        if Some(id) == self.current_selection {
+            return Some(self.cs.get(Colors::Selected));
+        }
+
+        if let Some(p) = self.get_active_plugin() {
+            if let Some(c) = p.color_for(
+                id,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.map,
+                    control_map: &self.control_map,
+                    canvas: &self.canvas,
+                    sim: &self.sim,
+                },
+            ) {
+                return Some(c);
+            }
+        }
+
+        None
     }
 
     fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
