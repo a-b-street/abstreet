@@ -57,11 +57,8 @@ pub trait Renderable {
 }
 
 pub struct RenderOptions {
-    // The "main" color for the object, whatever that means
-    // TODO Building needs two colors
-    // TODO maybe each renderable should decide color logic, using the colorscheme. pass in info
-    // from other plugins like 'selected?'
-    pub color: Color,
+    // The "main" color for the object, if available.
+    pub color: Option<Color>,
     pub cam_zoom: f64,
     pub debug_mode: bool,
 }

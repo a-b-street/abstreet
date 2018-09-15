@@ -39,10 +39,12 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    // TODO need two colors here
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        //g.draw_polygon(boundary_color, &self.boundary_polygon);
-        g.draw_polygon(opts.color, &self.fill_polygon);
+        g.draw_polygon(ctx.cs.get(Colors::BuildingBoundary), &self.boundary_polygon);
+        g.draw_polygon(
+            opts.color.unwrap_or(ctx.cs.get(Colors::Building)),
+            &self.fill_polygon,
+        );
 
         // TODO tune width
         g.draw_line(

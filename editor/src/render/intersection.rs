@@ -95,7 +95,21 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        g.draw_polygon(opts.color, &self.polygon);
+        let color = opts.color.unwrap_or_else(|| {
+            let changed = if let Some(s) = ctx.control_map.traffic_signals.get(&self.id) {
+                s.changed()
+            } else if let Some(s) = ctx.control_map.stop_signs.get(&self.id) {
+                s.changed()
+            } else {
+                false
+            };
+            if changed {
+                ctx.cs.get(Colors::ChangedIntersection)
+            } else {
+                ctx.cs.get(Colors::UnchangedIntersection)
+            }
+        });
+        g.draw_polygon(color, &self.polygon);
 
         let crosswalk_marking = graphics::Line::new(
             ctx.cs.get(Colors::Crosswalk),

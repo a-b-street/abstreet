@@ -3,7 +3,7 @@ use control::ControlMap;
 use ezgui::Canvas;
 use kml::ExtraShapeID;
 use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID, TurnID};
-use sim::{CarID, PedestrianID};
+use sim::{CarID, PedestrianID, Sim};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum ID {
@@ -23,4 +23,5 @@ pub struct Ctx<'a> {
     pub map: &'a Map,
     pub control_map: &'a ControlMap,
     pub canvas: &'a Canvas,
+    pub sim: &'a Sim,
 }

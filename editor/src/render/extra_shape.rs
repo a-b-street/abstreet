@@ -1,4 +1,5 @@
 use aabb_quadtree::geom::Rect;
+use colors::Colors;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
@@ -44,10 +45,11 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+        let color = opts.color.unwrap_or(ctx.cs.get(Colors::ExtraShape));
         match self.shape {
-            Shape::Polygon(ref p) => g.draw_polygon(opts.color, &p),
-            Shape::Circle(c) => g.draw_ellipse(opts.color, c),
+            Shape::Polygon(ref p) => g.draw_polygon(color, &p),
+            Shape::Circle(c) => g.draw_ellipse(color, c),
         }
     }
 

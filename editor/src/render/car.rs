@@ -1,12 +1,13 @@
 use aabb_quadtree::geom::Rect;
+use colors::Colors;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{shift_color, GfxCtx};
 use geom::{Polygon, Pt2D};
 use graphics;
 use map_model::{geometry, Map};
 use objects::{Ctx, ID};
 use render::{get_bbox, RenderOptions, Renderable};
-use sim::{CarID, DrawCarInput};
+use sim::{CarID, CarState, DrawCarInput};
 
 const CAR_WIDTH: f64 = 2.0;
 
@@ -98,8 +99,17 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
-        g.draw_polygon(opts.color, &self.body_polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+        let color = opts.color.unwrap_or_else(|| {
+            // TODO if it's a bus, color it differently -- but how? :\
+            match ctx.sim.get_car_state(self.id) {
+                CarState::Debug => shift_color(ctx.cs.get(Colors::DebugCar), self.id.0),
+                CarState::Moving => shift_color(ctx.cs.get(Colors::MovingCar), self.id.0),
+                CarState::Stuck => shift_color(ctx.cs.get(Colors::StuckCar), self.id.0),
+                CarState::Parked => shift_color(ctx.cs.get(Colors::ParkedCar), self.id.0),
+            }
+        });
+        g.draw_polygon(color, &self.body_polygon);
         for p in &self.window_polygons {
             g.draw_polygon([0.0, 0.0, 0.0, 1.0], p);
         }

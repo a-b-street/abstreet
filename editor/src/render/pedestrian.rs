@@ -1,5 +1,6 @@
 use aabb_quadtree::geom::Rect;
-use ezgui::GfxCtx;
+use colors::Colors;
+use ezgui::{shift_color, GfxCtx};
 use geom::Pt2D;
 use graphics;
 use map_model::{geometry, Map};
@@ -40,8 +41,10 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
-        g.draw_ellipse(opts.color, self.circle);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+        let color = opts.color
+            .unwrap_or(shift_color(ctx.cs.get(Colors::Pedestrian), self.id.0));
+        g.draw_ellipse(color, self.circle);
 
         // TODO tune color, sizes
         if let Some(a) = self.turn_arrow {

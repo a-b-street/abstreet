@@ -122,7 +122,20 @@ impl Renderable for DrawLane {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        g.draw_polygon(opts.color, &self.polygon);
+        let color = opts.color.unwrap_or_else(|| {
+            let l = ctx.map.get_l(self.id);
+            let mut default = match l.lane_type {
+                map_model::LaneType::Driving => ctx.cs.get(Colors::Road),
+                map_model::LaneType::Parking => ctx.cs.get(Colors::Parking),
+                map_model::LaneType::Sidewalk => ctx.cs.get(Colors::Sidewalk),
+                map_model::LaneType::Biking => ctx.cs.get(Colors::Biking),
+            };
+            if l.probably_broken {
+                default = ctx.cs.get(Colors::Broken);
+            }
+            default
+        });
+        g.draw_polygon(color, &self.polygon);
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {

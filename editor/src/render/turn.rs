@@ -82,7 +82,10 @@ impl Renderable for DrawTurn {
         g.draw_ellipse(ctx.cs.get(Colors::TurnIconCircle), self.icon_circle);
 
         g.draw_arrow(
-            &graphics::Line::new_round(opts.color, TURN_ICON_ARROW_THICKNESS),
+            &graphics::Line::new_round(
+                opts.color.unwrap_or(ctx.cs.get(Colors::TurnIconInactive)),
+                TURN_ICON_ARROW_THICKNESS,
+            ),
             self.icon_arrow,
             TURN_ICON_ARROW_TIP_LENGTH,
         );

@@ -6,7 +6,7 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui::{shift_color, Canvas, EventLoopMode, GfxCtx, ToggleableLayer, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, ToggleableLayer, UserInput, GUI};
 use flame;
 use geom::Pt2D;
 use graphics::types::Color;
@@ -30,13 +30,12 @@ use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
-use plugins::turn_colors::TurnColors;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::{CarID, CarState, PedestrianID, Sim};
+use sim::{CarID, PedestrianID, Sim};
 use std::collections::HashMap;
 use std::process;
 
@@ -94,7 +93,6 @@ impl UIWrapper {
         flame::dump_stdout();
 
         let steepness_viz = SteepnessVisualizer::new(&map);
-        let turn_colors = TurnColors::new(&control_map);
 
         let mut ui = UI {
             // TODO organize this by section
@@ -104,7 +102,6 @@ impl UIWrapper {
             sim,
 
             steepness_viz,
-            turn_colors,
             sim_ctrl: SimController::new(),
 
             layers: ToggleableLayers::new(),
@@ -273,11 +270,7 @@ struct UI {
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
 
-    // Not really a plugin; it doesn't react to anything.
-    turn_colors: TurnColors,
-
     canvas: Canvas,
-    // TODO maybe never pass this to other places? Always resolve colors here?
     cs: ColorScheme,
 }
 
@@ -321,9 +314,9 @@ impl UI {
         None
     }
 
-    fn color_lane(&self, id: map_model::LaneID) -> Color {
+    fn color_lane(&self, id: map_model::LaneID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Lane(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -333,29 +326,18 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
-
-        // TODO move the default to each render thing, and make this function generic
-        let l = self.map.get_l(id);
-        let mut default = match l.lane_type {
-            map_model::LaneType::Driving => self.cs.get(Colors::Road),
-            map_model::LaneType::Parking => self.cs.get(Colors::Parking),
-            map_model::LaneType::Sidewalk => self.cs.get(Colors::Sidewalk),
-            map_model::LaneType::Biking => self.cs.get(Colors::Biking),
-        };
-        if l.probably_broken {
-            default = self.cs.get(Colors::Broken);
-        }
-        default
+        None
     }
 
-    fn color_intersection(&self, id: map_model::IntersectionID) -> Color {
+    fn color_intersection(&self, id: map_model::IntersectionID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Intersection(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -365,30 +347,18 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
-
-        let i = self.map.get_i(id);
-        let changed = if let Some(s) = self.control_map.traffic_signals.get(&i.id) {
-            s.changed()
-        } else if let Some(s) = self.control_map.stop_signs.get(&i.id) {
-            s.changed()
-        } else {
-            false
-        };
-        if changed {
-            self.cs.get(Colors::ChangedIntersection)
-        } else {
-            self.cs.get(Colors::UnchangedIntersection)
-        }
+        None
     }
 
-    fn color_turn_icon(&self, id: map_model::TurnID) -> Color {
+    fn color_turn_icon(&self, id: map_model::TurnID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Turn(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -398,20 +368,19 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
 
-        self.turn_colors
-            .color_t(id)
-            .unwrap_or(self.cs.get(Colors::TurnIconInactive))
+        None
     }
 
-    fn color_building(&self, id: map_model::BuildingID) -> Color {
+    fn color_building(&self, id: map_model::BuildingID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Building(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -421,18 +390,19 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
 
-        self.cs.get(Colors::Building)
+        None
     }
 
-    fn color_parcel(&self, id: map_model::ParcelID) -> Color {
+    fn color_parcel(&self, id: map_model::ParcelID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Parcel(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -442,37 +412,19 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
 
-        const COLORS: [Color; 14] = [
-            // TODO these are awful choices
-            [1.0, 1.0, 0.0, 1.0],
-            [1.0, 0.0, 1.0, 1.0],
-            [0.0, 1.0, 1.0, 1.0],
-            [0.5, 0.2, 0.7, 1.0],
-            [0.5, 0.5, 0.0, 0.5],
-            [0.5, 0.0, 0.5, 0.5],
-            [0.0, 0.5, 0.5, 0.5],
-            [0.0, 0.0, 0.5, 0.5],
-            [0.3, 0.2, 0.5, 0.5],
-            [0.4, 0.2, 0.5, 0.5],
-            [0.5, 0.2, 0.5, 0.5],
-            [0.6, 0.2, 0.5, 0.5],
-            [0.7, 0.2, 0.5, 0.5],
-            [0.8, 0.2, 0.5, 0.5],
-        ];
-        let block = self.map.get_p(id).block;
-        // TODO also ParcelBoundary
-        COLORS[block % COLORS.len()]
+        None
     }
 
-    fn color_car(&self, id: CarID) -> Color {
+    fn color_car(&self, id: CarID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Car(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -482,24 +434,19 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
 
-        // TODO if it's a bus, color it differently -- but how? :\
-        match self.sim.get_car_state(id) {
-            CarState::Debug => shift_color(self.cs.get(Colors::DebugCar), id.0),
-            CarState::Moving => shift_color(self.cs.get(Colors::MovingCar), id.0),
-            CarState::Stuck => shift_color(self.cs.get(Colors::StuckCar), id.0),
-            CarState::Parked => shift_color(self.cs.get(Colors::ParkedCar), id.0),
-        }
+        None
     }
 
-    fn color_ped(&self, id: PedestrianID) -> Color {
+    fn color_ped(&self, id: PedestrianID) -> Option<Color> {
         if let Some(c) = self.color_for_selected(ID::Pedestrian(id)) {
-            return c;
+            return Some(c);
         }
         if let Some(p) = self.get_active_plugin() {
             if let Some(c) = p.color_for(
@@ -509,13 +456,14 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             ) {
-                return c;
+                return Some(c);
             }
         }
 
-        shift_color(self.cs.get(Colors::Pedestrian), id.0)
+        None
     }
 
     fn color_for_selected(&self, id: ID) -> Option<Color> {
@@ -613,10 +561,9 @@ impl UI {
                 ID::Lane(id) => self.color_lane(id),
                 ID::Intersection(id) => self.color_intersection(id),
                 ID::Turn(id) => self.color_turn_icon(id),
-                // TODO and self.cs.get(Colors::BuildingBoundary),
                 ID::Building(id) => self.color_building(id),
-                ID::ExtraShape(id) => self.color_for_selected(ID::ExtraShape(id))
-                    .unwrap_or(self.cs.get(Colors::ExtraShape)),
+                // TODO do the whole generic thing too
+                ID::ExtraShape(id) => self.color_for_selected(ID::ExtraShape(id)),
 
                 ID::Car(_) | ID::Pedestrian(_) => {
                     panic!("Dynamic {:?} in statics list", obj.get_id())
@@ -635,6 +582,7 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             );
         }
@@ -657,6 +605,7 @@ impl UI {
                     map: &self.map,
                     control_map: &self.control_map,
                     canvas: &self.canvas,
+                    sim: &self.sim,
                 },
             );
         }
