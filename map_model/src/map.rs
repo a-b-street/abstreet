@@ -11,8 +11,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::Error;
 use std::path;
 use {
-    Building, BuildingID, BusRoute, BusStop, BusStopDetails, Intersection, IntersectionID, Lane,
-    LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
+    Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID, Lane, LaneID,
+    LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -23,6 +23,7 @@ pub struct Map {
     turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
+    bus_stops: BTreeMap<BusStopID, BusStop>,
     bus_routes: Vec<BusRoute>,
 
     // TODO maybe dont need to retain GPS stuff later
@@ -62,6 +63,7 @@ impl Map {
             turns: BTreeMap::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
+            bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
         };
 
@@ -158,7 +160,10 @@ impl Map {
             }
         }
 
-        m.bus_routes = make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
+        let (stops, routes) =
+            make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
+        m.bus_stops = stops;
+        m.bus_routes = routes;
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
@@ -369,8 +374,12 @@ impl Map {
         &self.name
     }
 
-    pub fn get_bus_stop(&self, stop: BusStop) -> &BusStopDetails {
-        &self.get_l(stop.sidewalk).bus_stops[stop.idx]
+    pub fn all_bus_stops(&self) -> &BTreeMap<BusStopID, BusStop> {
+        &self.bus_stops
+    }
+
+    pub fn get_bus_stop(&self, stop: BusStopID) -> &BusStop {
+        &self.bus_stops[&stop]
     }
 
     pub fn get_all_bus_routes(&self) -> &Vec<BusRoute> {
@@ -382,8 +391,8 @@ impl Map {
     }
 
     // Not including transfers
-    pub fn get_connected_bus_stops(&self, start: BusStop) -> BTreeSet<BusStop> {
-        let mut stops: BTreeSet<BusStop> = BTreeSet::new();
+    pub fn get_connected_bus_stops(&self, start: BusStopID) -> BTreeSet<BusStopID> {
+        let mut stops: BTreeSet<BusStopID> = BTreeSet::new();
         for r in &self.bus_routes {
             if r.stops.contains(&start) {
                 stops.extend(r.stops.clone());

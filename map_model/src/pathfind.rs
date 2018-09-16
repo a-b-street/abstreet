@@ -41,7 +41,7 @@ impl Pathfinder {
                     results.push((next.id, current_length));
                 }
                 for stop1 in &current_lane.bus_stops {
-                    for stop2 in &map.get_connected_bus_stops(stop1.id) {
+                    for stop2 in &map.get_connected_bus_stops(*stop1) {
                         results.push((stop2.sidewalk, current_length));
                     }
                 }

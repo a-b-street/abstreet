@@ -5,7 +5,7 @@ use failure::Error;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
-use map_model::{BuildingID, BusStop, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
+use map_model::{BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -59,7 +59,7 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn bus_stop(stop: BusStop, map: &Map) -> SidewalkSpot {
+    pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
             sidewalk: stop.sidewalk,
             dist_along: map.get_bus_stop(stop).dist_along,
@@ -73,7 +73,7 @@ impl SidewalkSpot {
 enum SidewalkPOI {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
-    BusStop(BusStop),
+    BusStop(BusStopID),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -86,7 +86,7 @@ struct CrossingFrontPath {
 
 enum Action {
     StartParkedCar(ParkingSpot),
-    WaitAtBusStop(BusStop),
+    WaitAtBusStop(BusStopID),
     StartCrossingPath(BuildingID),
     KeepCrossingPath,
     Continue,
@@ -331,7 +331,7 @@ pub struct WalkingSimState {
     peds_per_turn: MultiMap<TurnID, PedestrianID>,
     #[serde(serialize_with = "serialize_multimap")]
     #[serde(deserialize_with = "deserialize_multimap")]
-    peds_per_bus_stop: MultiMap<BusStop, PedestrianID>,
+    peds_per_bus_stop: MultiMap<BusStopID, PedestrianID>,
 }
 
 impl WalkingSimState {
@@ -575,7 +575,7 @@ impl WalkingSimState {
             .map(|p| p.path.iter().map(|id| *id).collect())
     }
 
-    pub fn get_peds_waiting_at_stop(&self, stop: BusStop) -> Vec<PedestrianID> {
+    pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {
         // TODO ew, annoying multimap API and clone
         self.peds_per_bus_stop
             .get_vec(&stop)
@@ -583,7 +583,7 @@ impl WalkingSimState {
             .clone()
     }
 
-    pub fn ped_joined_bus(&mut self, id: PedestrianID, stop: BusStop) {
+    pub fn ped_joined_bus(&mut self, id: PedestrianID, stop: BusStopID) {
         self.peds.remove(&id);
         self.peds_per_bus_stop
             .get_vec_mut(&stop)

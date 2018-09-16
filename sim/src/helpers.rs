@@ -1,7 +1,7 @@
 use abstutil;
 use control::ControlMap;
 use flame;
-use map_model::{BuildingID, BusRoute, BusStop, Edits, LaneID, Map};
+use map_model::{BuildingID, BusRoute, BusStopID, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
 use {CarID, Event, PedestrianID, RouteID, Sim, Tick};
@@ -239,8 +239,8 @@ impl Sim {
         from: LaneID,
         to: LaneID,
         route: RouteID,
-        stop1: BusStop,
-        stop2: BusStop,
+        stop1: BusStopID,
+        stop2: BusStopID,
     ) -> PedestrianID {
         let start_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, from);
         let goal_bldg = pick_bldg_from_sidewalk(&mut self.rng, map, to);

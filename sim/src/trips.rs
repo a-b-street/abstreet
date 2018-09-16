@@ -1,5 +1,5 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{BuildingID, BusStop, Map};
+use map_model::{BuildingID, BusStopID, Map};
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, TripID};
@@ -91,7 +91,7 @@ impl TripManager {
         true
     }
 
-    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: BusStop) -> bool {
+    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: BusStopID) -> bool {
         let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
 
         match trip.legs[0] {
@@ -177,7 +177,7 @@ pub enum TripLeg {
     Walk(SidewalkSpot),
     // Roads might be long -- what building do we ultimately want to park near?
     Drive(ParkedCar, BuildingID),
-    RideBus(RouteID, BusStop),
+    RideBus(RouteID, BusStopID),
 }
 
 impl TripLeg {

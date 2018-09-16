@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use events::Event;
 use instrument::capture_backtrace;
-use map_model::{BusRoute, BusStopDetails, LaneID, Map, Pathfinder};
+use map_model::{BusRoute, BusStop, LaneID, Map, Pathfinder};
 use spawn::Spawner;
 use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
@@ -18,7 +18,8 @@ struct Route {
     id: RouteID,
     name: String,
     buses: Vec<CarID>,
-    stops: Vec<BusStopDetails>,
+    // Just copy the info over here for convenience
+    stops: Vec<BusStop>,
     // TODO info on schedules
 }
 

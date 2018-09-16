@@ -1,5 +1,5 @@
 use intersections::Request;
-use map_model::{BuildingID, BusStop};
+use map_model::{BuildingID, BusStopID};
 use {AgentID, CarID, On, ParkedCar, ParkingSpot, PedestrianID};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -10,11 +10,11 @@ pub enum Event {
     // TODO and the car / trip?
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
     // TODO CarFinishedUnparking
-    BusArrivedAtStop(CarID, BusStop),
-    BusDepartedFromStop(CarID, BusStop),
+    BusArrivedAtStop(CarID, BusStopID),
+    BusDepartedFromStop(CarID, BusStopID),
 
     PedReachedBuilding(PedestrianID, BuildingID),
-    PedReachedBusStop(PedestrianID, BusStop),
+    PedReachedBusStop(PedestrianID, BusStopID),
     PedEntersBus(PedestrianID, CarID),
     PedLeavesBus(PedestrianID, CarID),
 

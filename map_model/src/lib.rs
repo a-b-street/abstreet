@@ -14,6 +14,7 @@ extern crate serde;
 extern crate serde_derive;
 
 mod building;
+mod bus_stop;
 mod edits;
 pub mod geometry;
 mod intersection;
@@ -27,18 +28,12 @@ mod road;
 mod turn;
 
 pub use building::{Building, BuildingID, FrontPath};
+pub use bus_stop::{BusRoute, BusStop, BusStopID};
 pub use edits::{EditReason, Edits};
 pub use intersection::{Intersection, IntersectionID};
-pub use lane::{BusStop, BusStopDetails, Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
+pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::Pathfinder;
 pub use road::{Road, RoadID};
 pub use turn::{Turn, TurnID};
-
-// TODO This sort of doesn't fit in the map layer, but it's quite convenient to store it.
-#[derive(Serialize, Deserialize, Debug)]
-pub struct BusRoute {
-    pub name: String,
-    pub stops: Vec<BusStop>,
-}

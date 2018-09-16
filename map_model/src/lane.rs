@@ -6,7 +6,7 @@ use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
 use std::f64;
 use std::fmt;
-use {BuildingID, IntersectionID, RoadID};
+use {BuildingID, BusStopID, IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
     // TODO look up a real value
@@ -32,27 +32,6 @@ pub enum LaneType {
     Biking,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-pub struct BusStop {
-    pub sidewalk: LaneID,
-    pub idx: usize,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct BusStopDetails {
-    pub id: BusStop,
-    pub driving_lane: LaneID,
-    pub dist_along: si::Meter<f64>,
-}
-
-impl PartialEq for BusStopDetails {
-    fn eq(&self, other: &BusStopDetails) -> bool {
-        self.id == other.id
-    }
-}
-
-impl Eq for BusStopDetails {}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {
     pub id: LaneID,
@@ -69,7 +48,7 @@ pub struct Lane {
     pub dst_i: IntersectionID,
 
     pub building_paths: Vec<BuildingID>,
-    pub bus_stops: Vec<BusStopDetails>,
+    pub bus_stops: Vec<BusStopID>,
 }
 
 impl PartialEq for Lane {

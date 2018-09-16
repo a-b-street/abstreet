@@ -61,7 +61,7 @@ impl DrawLane {
             map_model::LaneType::Sidewalk => {
                 markings.push(calculate_sidewalk_lines(lane));
                 for s in &lane.bus_stops {
-                    markings.push(calculate_bus_stop_lines(s, lane));
+                    markings.push(calculate_bus_stop_lines(map.get_bus_stop(*s), lane));
                 }
             }
             map_model::LaneType::Parking => {
@@ -329,7 +329,7 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
     Some(vec![pt1, pt2])
 }
 
-fn calculate_bus_stop_lines(stop: &map_model::BusStopDetails, lane: &map_model::Lane) -> Marking {
+fn calculate_bus_stop_lines(stop: &map_model::BusStop, lane: &map_model::Lane) -> Marking {
     let radius = 2.0 * si::M;
     Marking {
         // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the

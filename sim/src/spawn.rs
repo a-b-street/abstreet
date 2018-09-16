@@ -1,6 +1,6 @@
 use driving::DrivingSimState;
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusRoute, BusStop, LaneID, Map, Pathfinder};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
@@ -332,8 +332,8 @@ impl Spawner {
         map: &Map,
         start_bldg: BuildingID,
         goal_bldg: BuildingID,
-        stop1: BusStop,
-        stop2: BusStop,
+        stop1: BusStopID,
+        stop2: BusStopID,
         route: RouteID,
         trips: &mut TripManager,
     ) -> PedestrianID {
@@ -369,7 +369,7 @@ impl Spawner {
         &mut self,
         at: Tick,
         ped: PedestrianID,
-        stop: BusStop,
+        stop: BusStopID,
         trips: &mut TripManager,
         map: &Map,
     ) {
