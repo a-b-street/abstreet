@@ -16,6 +16,7 @@ impl fmt::Display for AreaID {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum AreaType {
     Park,
+    Swamp,
     Water,
 }
 

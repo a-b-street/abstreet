@@ -198,7 +198,6 @@ impl Map {
         }
 
         for (idx, a) in data.areas.iter().enumerate() {
-            assert_eq!(a.points[0], *a.points.last().unwrap());
             m.areas.push(Area {
                 id: AreaID(idx),
                 area_type: a.area_type,

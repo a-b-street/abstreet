@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use geom::LonLat;
-use map_model::raw_data;
+use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::HashMap;
 use std::fs::File;
@@ -76,6 +76,24 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
                     .map(|tag| (tag.key.clone(), tag.val.clone()))
                     .collect(),
             });
+        } else if let Some(at) = get_area_type(&way.tags) {
+            // TODO need to handle inner/outer relations from OSM
+            // TODO waterway with non-closed points is a polyline creek... draw with some amount of
+            // thickness
+            if pts.len() < 3 || pts[0] != *pts.last().unwrap() {
+                println!("Skipping area {:?} with weird points", way.tags);
+                continue;
+            }
+            map.areas.push(raw_data::Area {
+                area_type: at,
+                osm_way_id: way.id,
+                points: pts,
+                osm_tags: way
+                    .tags
+                    .iter()
+                    .map(|tag| (tag.key.clone(), tag.val.clone()))
+                    .collect(),
+            });
         }
     }
     map
@@ -128,4 +146,22 @@ fn is_bldg(tags: &[osm_xml::Tag]) -> bool {
         }
     }
     false
+}
+
+fn get_area_type(tags: &[osm_xml::Tag]) -> Option<AreaType> {
+    for tag in tags {
+        if tag.key == "leisure" && tag.val == "park" {
+            return Some(AreaType::Park);
+        }
+        if tag.key == "natural" && tag.val == "wood" {
+            return Some(AreaType::Park);
+        }
+        if tag.key == "natural" && tag.val == "wetland" {
+            return Some(AreaType::Swamp);
+        }
+        if tag.key == "waterway" {
+            return Some(AreaType::Water);
+        }
+    }
+    None
 }

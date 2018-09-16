@@ -83,6 +83,7 @@ pub enum Colors {
     StopSignBackground,
 
     ParkArea,
+    SwampArea,
     WaterArea,
 }
 

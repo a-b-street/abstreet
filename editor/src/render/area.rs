@@ -20,6 +20,7 @@ impl DrawArea {
             fill_polygon: Polygon::new(&area.points),
             color: match area.area_type {
                 AreaType::Park => Colors::ParkArea,
+                AreaType::Swamp => Colors::SwampArea,
                 AreaType::Water => Colors::WaterArea,
             },
         }
@@ -33,7 +34,7 @@ impl Renderable for DrawArea {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         g.draw_polygon(
-            opts.color.unwrap_or(ctx.cs.get(Colors::Building)),
+            opts.color.unwrap_or(ctx.cs.get(self.color)),
             &self.fill_polygon,
         );
     }

@@ -30,6 +30,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
 
     let mut map = raw_data::Map::blank();
     map.buildings.extend(input.buildings.clone());
+    map.areas.extend(input.areas.clone());
 
     for pt in &intersections {
         map.intersections.push(raw_data::Intersection {
