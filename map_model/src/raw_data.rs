@@ -2,6 +2,7 @@ use dimensioned::si;
 use geom::{Bounds, HashablePt2D, LonLat};
 use gtfs::Route;
 use std::collections::BTreeMap;
+use AreaType;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Map {
@@ -10,6 +11,7 @@ pub struct Map {
     pub buildings: Vec<Building>,
     pub parcels: Vec<Parcel>,
     pub bus_routes: Vec<Route>,
+    pub areas: Vec<Area>,
 
     pub coordinates_in_world_space: bool,
 }
@@ -22,6 +24,7 @@ impl Map {
             buildings: Vec::new(),
             parcels: Vec::new(),
             bus_routes: Vec::new(),
+            areas: Vec::new(),
             coordinates_in_world_space: false,
         }
     }
@@ -39,6 +42,11 @@ impl Map {
         }
         for b in &self.buildings {
             for pt in &b.points {
+                bounds.update_coord(pt);
+            }
+        }
+        for a in &self.areas {
+            for pt in &a.points {
                 bounds.update_coord(pt);
             }
         }
@@ -81,6 +89,15 @@ pub struct Intersection {
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Building {
     // last point never the first?
+    pub points: Vec<LonLat>,
+    pub osm_tags: BTreeMap<String, String>,
+    pub osm_way_id: i64,
+}
+
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+pub struct Area {
+    pub area_type: AreaType,
+    // last point is always the same as the first
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,

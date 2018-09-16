@@ -13,6 +13,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+mod area;
 mod building;
 mod bus_stop;
 mod edits;
@@ -27,6 +28,7 @@ pub mod raw_data;
 mod road;
 mod turn;
 
+pub use area::{Area, AreaID, AreaType};
 pub use building::{Building, BuildingID, FrontPath};
 pub use bus_stop::{BusRoute, BusStop, BusStopID};
 pub use edits::{EditReason, Edits};

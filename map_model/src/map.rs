@@ -11,8 +11,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::Error;
 use std::path;
 use {
-    Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID, Lane, LaneID,
-    LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
+    Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
+    Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -25,6 +25,7 @@ pub struct Map {
     parcels: Vec<Parcel>,
     bus_stops: BTreeMap<BusStopID, BusStop>,
     bus_routes: Vec<BusRoute>,
+    areas: Vec<Area>,
 
     // TODO maybe dont need to retain GPS stuff later
     bounds: Bounds,
@@ -65,6 +66,7 @@ impl Map {
             parcels: Vec::new(),
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
+            areas: Vec::new(),
         };
 
         let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
@@ -195,6 +197,20 @@ impl Map {
             });
         }
 
+        for (idx, a) in data.areas.iter().enumerate() {
+            m.areas.push(Area {
+                id: AreaID(idx),
+                area_type: a.area_type,
+                points: a
+                    .points
+                    .iter()
+                    .map(|coord| Pt2D::from_gps(coord, &bounds))
+                    .collect(),
+                osm_tags: a.osm_tags.clone(),
+                osm_way_id: a.osm_way_id,
+            });
+        }
+
         m
     }
 
@@ -243,6 +259,10 @@ impl Map {
         &self.parcels
     }
 
+    pub fn all_areas(&self) -> &Vec<Area> {
+        &self.areas
+    }
+
     pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {
         self.roads.get(id.0)
     }
@@ -289,6 +309,10 @@ impl Map {
 
     pub fn get_p(&self, id: ParcelID) -> &Parcel {
         &self.parcels[id.0]
+    }
+
+    pub fn get_a(&self, id: AreaID) -> &Area {
+        &self.areas[id.0]
     }
 
     // All these helpers should take IDs and return objects.

@@ -997,8 +997,11 @@ Alright, replan yet again.
 	= plugin trait, color(id) -> Option<Color>. parallel list of box plugins (or, a fxn that takes the idx)
 	= refactor to one color_blah method
 	= handle the two color things... just buildings?
+= and see how much boilerplate a new type would need, by adding bus stops and water/parks
+
+- load water/parks and stuff
 - deal with overlapping keys that still kinda happen (sim ctrl, escape game)
 - bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
-= and see how much boilerplate a new type would need, by adding bus stops and water/parks
 - consider merging control map into map
 - see how hard it is to render textures onto cars or something
+- refactor debug and tooltip lines for objects
