@@ -25,16 +25,14 @@ impl Hider {
         }
 
         let item = match selected {
-            // TODO why not be able to hide anything?
-            Some(id) => match id {
-                ID::Intersection(_) => id.clone(),
-                ID::Lane(_) => id.clone(),
-                ID::Building(_) => id.clone(),
-                ID::ExtraShape(_) => id.clone(),
-                _ => {
-                    return false;
-                }
-            },
+            // No real use case for hiding moving stuff
+            Some(ID::Car(_)) => {
+                return false;
+            }
+            Some(ID::Pedestrian(_)) => {
+                return false;
+            }
+            Some(id) => id.clone(),
             _ => {
                 return false;
             }

@@ -78,12 +78,6 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
             });
         } else if let Some(at) = get_area_type(&way.tags) {
             // TODO need to handle inner/outer relations from OSM
-            // TODO waterway with non-closed points is a polyline creek... draw with some amount of
-            // thickness
-            if pts.len() < 3 || pts[0] != *pts.last().unwrap() {
-                println!("Skipping area {:?} with weird points", way.tags);
-                continue;
-            }
             map.areas.push(raw_data::Area {
                 area_type: at,
                 osm_way_id: way.id,

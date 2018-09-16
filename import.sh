@@ -31,7 +31,7 @@ fi
 
 COMMON="--elevation=$ELEVATION --traffic_signals=$TRAFFIC_SIGNALS --parcels=../data/seattle_parcels.abst --gtfs=$GTFS"
 cd convert_osm
-time cargo run -- --osm=$SMALL_OSM $COMMON --output=../data/small.abst
-#time cargo run --release -- --osm=$MEDIUM_OSM $COMMON --output=../data/medium.abst
-#time cargo run --release -- --osm=$LARGE_OSM $COMMON --output=../data/large.abst
-#time cargo run --release -- --osm=$HUGE_OSM $COMMON --output=../data/huge.abst
+time cargo run --release -- --osm=$SMALL_OSM $COMMON --output=../data/small.abst
+time cargo run --release -- --osm=$MEDIUM_OSM $COMMON --output=../data/medium.abst
+time cargo run --release -- --osm=$LARGE_OSM $COMMON --output=../data/large.abst
+time cargo run --release -- --osm=$HUGE_OSM $COMMON --output=../data/huge.abst

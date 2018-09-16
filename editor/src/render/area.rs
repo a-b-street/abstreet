@@ -17,7 +17,7 @@ impl DrawArea {
     pub fn new(area: &Area) -> DrawArea {
         DrawArea {
             id: area.id,
-            fill_polygon: Polygon::new(&area.points),
+            fill_polygon: area.get_polygon(),
             color: match area.area_type {
                 AreaType::Park => Colors::ParkArea,
                 AreaType::Swamp => Colors::SwampArea,

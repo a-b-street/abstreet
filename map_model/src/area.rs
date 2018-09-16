@@ -1,5 +1,6 @@
 use abstutil;
-use geom::{PolyLine, Pt2D};
+use geom::{PolyLine, Polygon, Pt2D};
+use geometry::LANE_THICKNESS;
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -24,6 +25,7 @@ pub enum AreaType {
 pub struct Area {
     pub id: AreaID,
     pub area_type: AreaType,
+    // Might be a closed loop or not -- waterways can be linear.
     pub points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
@@ -39,5 +41,12 @@ impl Area {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
         println!("{}", PolyLine::new(self.points.clone()));
+    }
+
+    pub fn get_polygon(&self) -> Polygon {
+        if self.points[0] == *self.points.last().unwrap() {
+            return Polygon::new(&self.points);
+        }
+        PolyLine::new(self.points.clone()).make_polygons_blindly(LANE_THICKNESS)
     }
 }
