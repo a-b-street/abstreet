@@ -1,5 +1,5 @@
 use ezgui::{Canvas, TextBox, UserInput};
-use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
+use map_model::{geometry, AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
 use piston::input::Key;
 use plugins::Colorizer;
@@ -104,6 +104,17 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                     println!("Warping to {}", id);
                     *selected = Some(ID::Building(id));
                     geometry::center(&b.points)
+                } else {
+                    println!("{} doesn't exist", id);
+                    return;
+                }
+            }
+            'a' => {
+                let id = AreaID(idx);
+                if let Some(a) = map.maybe_get_a(id) {
+                    println!("Warping to {}", id);
+                    *selected = Some(ID::Area(id));
+                    geometry::center(&a.points)
                 } else {
                     println!("{} doesn't exist", id);
                     return;

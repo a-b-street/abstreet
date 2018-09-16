@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+mod area;
 mod building;
 mod bus_stop;
 mod car;
@@ -17,6 +18,7 @@ use geom::{Bounds, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map};
 use objects::{Ctx, ID};
+pub use render::area::DrawArea;
 pub use render::car::DrawCar;
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;

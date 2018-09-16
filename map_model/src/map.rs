@@ -198,6 +198,7 @@ impl Map {
         }
 
         for (idx, a) in data.areas.iter().enumerate() {
+            assert_eq!(a.points[0], *a.points.last().unwrap());
             m.areas.push(Area {
                 id: AreaID(idx),
                 area_type: a.area_type,
@@ -285,6 +286,10 @@ impl Map {
 
     pub fn maybe_get_p(&self, id: ParcelID) -> Option<&Parcel> {
         self.parcels.get(id.0)
+    }
+
+    pub fn maybe_get_a(&self, id: AreaID) -> Option<&Area> {
+        self.areas.get(id.0)
     }
 
     pub fn get_r(&self, id: RoadID) -> &Road {

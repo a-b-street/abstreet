@@ -5,9 +5,12 @@ use aabb_quadtree::QuadTree;
 use control::ControlMap;
 use geom::{LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
-use map_model::{BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
+};
 use objects::ID;
 use plugins::hider::Hider;
+use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;
 use render::car::DrawCar;
@@ -30,6 +33,7 @@ pub struct DrawMap {
     pub parcels: Vec<DrawParcel>,
     pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
+    pub areas: Vec<DrawArea>,
 
     quadtree: QuadTree<ID>,
 }
@@ -79,6 +83,7 @@ impl DrawMap {
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map));
         }
+        let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
 
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
@@ -111,6 +116,9 @@ impl DrawMap {
         for obj in bus_stops.values() {
             quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
+        for obj in &areas {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+        }
 
         (
             DrawMap {
@@ -121,6 +129,7 @@ impl DrawMap {
                 parcels,
                 extra_shapes,
                 bus_stops,
+                areas,
 
                 quadtree,
             },
@@ -195,6 +204,10 @@ impl DrawMap {
         &self.bus_stops[&id]
     }
 
+    pub fn get_a(&self, id: AreaID) -> &DrawArea {
+        &self.areas[id.0]
+    }
+
     // Returns in back-to-front order
     // The second pair is ephemeral objects (cars, pedestrians) that we can't borrow --
     // conveniently they're the front-most layer, so the caller doesn't have to do anything strange
@@ -213,6 +226,7 @@ impl DrawMap {
         show_turn_icons: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order
+        let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
         let mut intersections: Vec<Box<&Renderable>> = Vec::new();
@@ -227,6 +241,7 @@ impl DrawMap {
         for &(id, _, _) in &self.quadtree.query(screen_bbox) {
             if hider.show(*id) && layers.show(*id) {
                 match id {
+                    ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
@@ -266,6 +281,7 @@ impl DrawMap {
         }
 
         let mut borrows: Vec<Box<&Renderable>> = Vec::new();
+        borrows.extend(areas);
         borrows.extend(parcels);
         borrows.extend(lanes);
         borrows.extend(intersections);

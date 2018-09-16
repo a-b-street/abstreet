@@ -2,7 +2,7 @@ use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::Canvas;
 use kml::ExtraShapeID;
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
+use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::{DrawMap, Renderable};
 use sim::{CarID, PedestrianID, Sim};
 
@@ -17,6 +17,7 @@ pub enum ID {
     ExtraShape(ExtraShapeID),
     Parcel(ParcelID),
     BusStop(BusStopID),
+    Area(AreaID),
 }
 
 impl ID {
@@ -46,6 +47,9 @@ impl ID {
             ID::BusStop(id) => {
                 map.get_bs(id).dump_debug();
             }
+            ID::Area(id) => {
+                map.get_a(id).dump_debug();
+            }
         }
     }
 
@@ -61,6 +65,7 @@ impl ID {
             ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(map),
             ID::BusStop(id) => draw_map.get_bs(id).tooltip_lines(map),
             ID::Parcel(id) => vec![format!("{}", id)],
+            ID::Area(id) => vec![format!("{}", id)],
         }
     }
 }
