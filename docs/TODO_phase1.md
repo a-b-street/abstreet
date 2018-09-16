@@ -12,8 +12,6 @@
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/curb-ramps
 	- high quality thick roads: https://seattlecitygis.maps.arcgis.com/apps/webappviewer/index.html?id=86cb6824307c4d63b8e180ebcff58ce2
 
-- trim parcels that're nowhere near roads (aka, the bbox is kinda wrong)
-
 - maybe also the time to split into different lane types? what's similar/not between them?
 	- graph querying?
 	- rendering (and other UI/editor interactions)?

@@ -36,7 +36,7 @@ pub(crate) fn make_all_buildings(
         let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
 
         // Trim buildings that are too far away from their sidewalk
-        if line.length() > 200.0 * si::M {
+        if line.length() > 100.0 * si::M {
             continue;
         }
 

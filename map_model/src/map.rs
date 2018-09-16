@@ -185,16 +185,9 @@ impl Map {
             }
         }
 
-        for (idx, p) in data.parcels.iter().enumerate() {
-            m.parcels.push(Parcel {
-                id: ParcelID(idx),
-                points: p
-                    .points
-                    .iter()
-                    .map(|coord| Pt2D::from_gps(coord, &bounds))
-                    .collect(),
-                block: p.block,
-            });
+        {
+            let _guard = flame::start_guard(format!("make {} parcels", data.parcels.len()));
+            make::make_all_parcels(&mut m.parcels, &data.parcels, &bounds, &m.lanes);
         }
 
         for (idx, a) in data.areas.iter().enumerate() {
