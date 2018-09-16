@@ -1,5 +1,10 @@
 # TODO for Phase 1 (Basemap)
 
+- huge maps
+	- manually mark polygon for the part of seattle to simulate
+	- maybe need a quadtree for sidewalk finding to actually work (slightly weird, because no render layer -- use center points only)
+	- look into all the warnings (trim failing, no driving lane for buses, duplicate turns)
+
 - lots more data
 	- lanes: https://data-seattlecitygis.opendata.arcgis.com/datasets/49d417979fec452981a068ca078e7070_3
 	- traffic circles: https://data-seattlecitygis.opendata.arcgis.com/datasets/717b10434d4945658355eba78b66971a_6
@@ -7,7 +12,7 @@
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/curb-ramps
 	- high quality thick roads: https://seattlecitygis.maps.arcgis.com/apps/webappviewer/index.html?id=86cb6824307c4d63b8e180ebcff58ce2
 
-- trim buidings and parcels that're nowhere near roads (aka, the bbox is kinda wrong)
+- trim parcels that're nowhere near roads (aka, the bbox is kinda wrong)
 
 - maybe also the time to split into different lane types? what's similar/not between them?
 	- graph querying?
@@ -15,7 +20,7 @@
 	- sim state?
 
 - more data
-	- draw water and greenery areas
+	- draw ALL water and greenery areas
 	- draw benches, bike racks
 		- more generally, a way to display random GIS data from seattle site (kml)
 	- render trees
@@ -37,35 +42,11 @@
 
 - code cleanup
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
+	- merge control map into one of the other layers?
 
-- draw detailed turns better, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
-
-- inspiration for overall art style
+- better drawing
+	- detailed turns, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
+	- rooftops
+		- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg
+		- https://thumbs.dreamstime.com/z/top-view-city-seamless-pattern-streets-roads-houses-cars-68652655.jpg
 	- https://gifer.com/en/2svr
-
-## Intersection geometry brainstorm
-
-- can we merge adjacent polylines at intersections based on closest angle, and then use the existing stuff to get nice geometry?
-	- i think we still have to trim back correctly
-	- first figure out all the trimming cases for the T, outside and inside lanes, etc
-
-
-- before trimming back lines, project out the correct width. sort all those points by angle from the center. thats the intersection polygon? then somehow trim back lines to hit that nicely.
-- do the current trim_lines thing, but with lines, not segments? no, there'd be many almost-parallel lines.
-
-- at a T intersection, some lines aren't trimmed back at all
-
-- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf pg38
-
-- just make polygons around center lines, then intersect?
-
-
-
-
-
-
-morning thoughts!
-
-- trim lines based on outermost POLYGON border line, not lane center lines or anything
-- the ascending angle and skipping existing lines in the thesis seems to make sense
-- find where infinite line intersects line segment for some cases?

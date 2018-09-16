@@ -12,7 +12,9 @@
 
 - easy UI bugs
 	- big maps start centered over emptiness
-	- warping to something with an 8 triggers color picker. execute the already-active plugin FIRST.
+	- deal with overlapping keys that still kinda happen (sim ctrl, escape game)
+		- and missing keys, like no tooltip for turns, since they're only shown in editors now
+	- bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
 
 - traffic signal editor
 	- button to reset intersection to original cycles

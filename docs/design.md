@@ -1005,4 +1005,31 @@ Alright, replan yet again.
 - bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
 - consider merging control map into map
 - see how hard it is to render textures onto cars or something
-- refactor debug and tooltip lines for objects
+= refactor debug and tooltip lines for objects
+
+## Intersection geometry brainstorm
+
+- can we merge adjacent polylines at intersections based on closest angle, and then use the existing stuff to get nice geometry?
+	- i think we still have to trim back correctly
+	- first figure out all the trimming cases for the T, outside and inside lanes, etc
+
+
+- before trimming back lines, project out the correct width. sort all those points by angle from the center. thats the intersection polygon? then somehow trim back lines to hit that nicely.
+- do the current trim_lines thing, but with lines, not segments? no, there'd be many almost-parallel lines.
+
+- at a T intersection, some lines aren't trimmed back at all
+
+- https://www.politesi.polimi.it/bitstream/10589/112826/4/2015_10_TOPTAS.pdf pg38
+
+- just make polygons around center lines, then intersect?
+
+
+
+
+
+
+morning thoughts!
+
+- trim lines based on outermost POLYGON border line, not lane center lines or anything
+- the ascending angle and skipping existing lines in the thesis seems to make sense
+- find where infinite line intersects line segment for some cases?

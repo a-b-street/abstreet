@@ -2,6 +2,10 @@
 
 ## cars
 
+- features
+	- different lookahead reaction times
+	- figure out lanechanging (and turns that dont make sense)
+
 - code cleanup
 	- figure out responsibility btwn agents and managers, then fix up visibility
 	- things like ParkingSimState have so many methods -- some are only
@@ -12,6 +16,7 @@
 - better visualization
 	- draw moving / blocked colors (gradually more red as they wait longer)
 	- make lookahead buffer follow the shape of the road and extend into other lanes and stuff
+	- render cars with textures?
 
 - reversible sim
 
@@ -38,3 +43,14 @@
 	- will need programmatic diffs later for pointing out changes to players in A/B tests
 - consider refactoring car/ped sim
 	- basic structure with actions, react, stepping is same. SimQueue, lookahead, can goto? differs.
+
+- handle map borders
+	- manually mark them?
+	- be able to start/end trips there
+	- start to model demand data with manually selecting a source/dest area
+
+- figure out how to capture stacktraces kinda optionally
+	- manual call at a fxn to dump its stacktrace somewhere (to a file? ideally shared global state to dedupe stuff)
+	- macro to insert a call at the beginning of a fxn
+	- macro to apply a macro to all fxns in an impl
+	- then i can manually edit a few places when I want to gather data
