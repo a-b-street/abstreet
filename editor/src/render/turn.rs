@@ -99,7 +99,10 @@ impl Renderable for DrawTurn {
         geometry::point_in_circle(&self.icon_circle, pt)
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
-        vec![self.id.to_string()]
+    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+        vec![
+            format!("{}", self.id),
+            format!("Angle {}", map.get_t(self.id).turn_angle(map)),
+        ]
     }
 }

@@ -71,7 +71,7 @@ impl Turn {
 
     // TODO all the stuff based on turn angle is a bit... wrong, especially for sidewalks. :\
     // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
-    fn turn_angle(&self, map: &Map) -> Angle {
+    pub fn turn_angle(&self, map: &Map) -> Angle {
         let lane_angle = map.get_l(self.src).end_line(self.parent).angle();
         self.line.angle() - lane_angle
     }
@@ -84,12 +84,5 @@ impl Turn {
     pub fn is_straight_turn(&self, map: &Map) -> bool {
         let a = self.turn_angle(map).normalized_degrees();
         a <= 20.0 || a >= 320.0
-    }
-
-    pub fn tooltip_lines(&self, map: &Map) -> Vec<String> {
-        vec![
-            format!("{}", self.id),
-            format!("Angle {}", self.turn_angle(map)),
-        ]
     }
 }

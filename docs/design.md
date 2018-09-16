@@ -1001,6 +1001,7 @@ Alright, replan yet again.
 
 - load water/parks and stuff
 - deal with overlapping keys that still kinda happen (sim ctrl, escape game)
+	- and missing keys, like no tooltip for turns, since they're only shown in editors now
 - bug: do need to recalculate current_selection whenever anything potentially changes camera, like follow
 - consider merging control map into map
 - see how hard it is to render textures onto cars or something

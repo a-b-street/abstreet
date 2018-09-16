@@ -3,7 +3,7 @@ use control::ControlMap;
 use ezgui::Canvas;
 use kml::ExtraShapeID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
-use render::{DrawMap, Renderable};
+use render::DrawMap;
 use sim::{CarID, PedestrianID, Sim};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
@@ -53,19 +53,11 @@ impl ID {
         }
     }
 
-    // TODO Renderable has tooltip_lines... decide what goes where
     pub fn tooltip_lines(&self, map: &Map, draw_map: &DrawMap, sim: &Sim) -> Vec<String> {
         match *self {
-            ID::Lane(id) => draw_map.get_l(id).tooltip_lines(map),
-            ID::Building(id) => draw_map.get_b(id).tooltip_lines(map),
             ID::Car(id) => sim.car_tooltip(id),
             ID::Pedestrian(id) => sim.ped_tooltip(id),
-            ID::Intersection(id) => vec![format!("{}", id)],
-            ID::Turn(id) => map.get_t(id).tooltip_lines(map),
-            ID::ExtraShape(id) => draw_map.get_es(id).tooltip_lines(map),
-            ID::BusStop(id) => draw_map.get_bs(id).tooltip_lines(map),
-            ID::Parcel(id) => vec![format!("{}", id)],
-            ID::Area(id) => vec![format!("{}", id)],
+            x => draw_map.get_obj(x).tooltip_lines(map),
         }
     }
 }
