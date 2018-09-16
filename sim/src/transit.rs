@@ -75,11 +75,7 @@ impl TransitSimState {
                 id,
                 name: route.name.clone(),
                 buses: Vec::new(),
-                stops: route
-                    .stops
-                    .iter()
-                    .map(|s| map.get_bus_stop(*s).clone())
-                    .collect(),
+                stops: route.stops.iter().map(|s| map.get_bs(*s).clone()).collect(),
             },
         );
         id

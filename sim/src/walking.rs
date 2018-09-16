@@ -62,7 +62,7 @@ impl SidewalkSpot {
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
             sidewalk: stop.sidewalk,
-            dist_along: map.get_bus_stop(stop).dist_along,
+            dist_along: map.get_bs(stop).dist_along,
             connection: SidewalkPOI::BusStop(stop),
         }
     }

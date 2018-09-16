@@ -2,7 +2,7 @@ use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::Canvas;
 use kml::ExtraShapeID;
-use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID, TurnID};
+use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use sim::{CarID, PedestrianID, Sim};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
@@ -15,6 +15,7 @@ pub enum ID {
     Pedestrian(PedestrianID),
     ExtraShape(ExtraShapeID),
     Parcel(ParcelID),
+    BusStop(BusStopID),
 }
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.

@@ -60,9 +60,6 @@ impl DrawLane {
         match lane.lane_type {
             map_model::LaneType::Sidewalk => {
                 markings.push(calculate_sidewalk_lines(lane));
-                for s in &lane.bus_stops {
-                    markings.push(calculate_bus_stop_lines(map.get_bus_stop(*s), lane));
-                }
             }
             map_model::LaneType::Parking => {
                 markings.push(calculate_parking_lines(lane));
@@ -327,26 +324,4 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
         lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
     let (pt2, _) = lane.safe_dist_along(2.0 * geometry::LANE_THICKNESS * si::M)?;
     Some(vec![pt1, pt2])
-}
-
-fn calculate_bus_stop_lines(stop: &map_model::BusStop, lane: &map_model::Lane) -> Marking {
-    let radius = 2.0 * si::M;
-    Marking {
-        // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the
-        // lookahead arrows and center points / dashed white, we really want to render an Interval
-        // or something.
-        // Kinda sad that bus stops might be very close to the start of the lane, but it's
-        // happening.
-        lines: vec![geometry::drawing_line(&Line::new(
-            lane.safe_dist_along(stop.dist_along - radius)
-                .map(|(pt, _)| pt)
-                .unwrap_or(lane.first_pt()),
-            lane.safe_dist_along(stop.dist_along + radius)
-                .map(|(pt, _)| pt)
-                .unwrap_or(lane.last_pt()),
-        ))],
-        color: Colors::BusStopMarking,
-        thickness: 0.8 * geometry::LANE_THICKNESS,
-        round: true,
-    }
 }

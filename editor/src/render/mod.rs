@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 mod building;
+mod bus_stop;
 mod car;
 mod extra_shape;
 mod intersection;

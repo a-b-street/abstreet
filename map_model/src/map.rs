@@ -378,7 +378,7 @@ impl Map {
         &self.bus_stops
     }
 
-    pub fn get_bus_stop(&self, stop: BusStopID) -> &BusStop {
+    pub fn get_bs(&self, stop: BusStopID) -> &BusStop {
         &self.bus_stops[&stop]
     }
 

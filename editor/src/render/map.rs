@@ -5,10 +5,11 @@ use aabb_quadtree::QuadTree;
 use control::ControlMap;
 use geom::{LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
-use map_model::{BuildingID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
+use map_model::{BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID};
 use objects::ID;
 use plugins::hider::Hider;
 use render::building::DrawBuilding;
+use render::bus_stop::DrawBusStop;
 use render::car::DrawCar;
 use render::extra_shape::DrawExtraShape;
 use render::intersection::DrawIntersection;
@@ -28,6 +29,7 @@ pub struct DrawMap {
     pub buildings: Vec<DrawBuilding>,
     pub parcels: Vec<DrawParcel>,
     pub extra_shapes: Vec<DrawExtraShape>,
+    pub bus_stops: HashMap<BusStopID, DrawBusStop>,
 
     quadtree: QuadTree<ID>,
 }
@@ -69,11 +71,14 @@ impl DrawMap {
             .iter()
             .map(|p| DrawParcel::new(p))
             .collect();
-
         let extra_shapes: Vec<DrawExtraShape> = raw_extra_shapes
             .into_iter()
             .map(|s| DrawExtraShape::new(s))
             .collect();
+        let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
+        for s in map.all_bus_stops().values() {
+            bus_stops.insert(s.id, DrawBusStop::new(s, map));
+        }
 
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
@@ -103,6 +108,9 @@ impl DrawMap {
         for obj in &extra_shapes {
             quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
         }
+        for obj in bus_stops.values() {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+        }
 
         (
             DrawMap {
@@ -112,6 +120,7 @@ impl DrawMap {
                 buildings,
                 parcels,
                 extra_shapes,
+                bus_stops,
 
                 quadtree,
             },
@@ -182,6 +191,10 @@ impl DrawMap {
         &self.extra_shapes[id.0]
     }
 
+    pub fn get_bs(&self, id: BusStopID) -> &DrawBusStop {
+        &self.bus_stops[&id]
+    }
+
     // Returns in back-to-front order
     // The second pair is ephemeral objects (cars, pedestrians) that we can't borrow --
     // conveniently they're the front-most layer, so the caller doesn't have to do anything strange
@@ -205,6 +218,7 @@ impl DrawMap {
         let mut intersections: Vec<Box<&Renderable>> = Vec::new();
         let mut buildings: Vec<Box<&Renderable>> = Vec::new();
         let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
+        let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
         let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
 
         let mut cars: Vec<Box<Renderable>> = Vec::new();
@@ -242,6 +256,7 @@ impl DrawMap {
                     // two passes through buildings.
                     ID::Building(id) => buildings.push(Box::new(self.get_b(*id))),
                     ID::ExtraShape(id) => extra_shapes.push(Box::new(self.get_es(*id))),
+                    ID::BusStop(id) => bus_stops.push(Box::new(self.get_bs(*id))),
 
                     ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) => {
                         panic!("{:?} shouldn't be in the quadtree", id)
@@ -256,6 +271,7 @@ impl DrawMap {
         borrows.extend(intersections);
         borrows.extend(buildings);
         borrows.extend(extra_shapes);
+        borrows.extend(bus_stops);
         borrows.extend(turn_icons);
 
         let mut returns: Vec<Box<Renderable>> = Vec::new();
