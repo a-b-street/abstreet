@@ -45,7 +45,7 @@
 	- basic structure with actions, react, stepping is same. SimQueue, lookahead, can goto? differs.
 
 - handle map borders
-	- manually mark them?
+	- manually mark polygon, not a bbox, as the border
 	- be able to start/end trips there
 	- start to model demand data with manually selecting a source/dest area
 
@@ -54,3 +54,4 @@
 	- macro to insert a call at the beginning of a fxn
 	- macro to apply a macro to all fxns in an impl
 	- then i can manually edit a few places when I want to gather data
+	- https://en.wikipedia.org/wiki/File:A_Call_Graph_generated_by_pycallgraph.png

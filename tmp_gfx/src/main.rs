@@ -27,10 +27,12 @@ gfx_defines!{
 fn main() {
     let mut events_loop = glutin::EventsLoop::new();
 
+    let (initial_width, initial_height) = (700.0, 700.0);
+
     let glutin_builder = glutin::WindowBuilder::new()
-        .with_dimensions(LogicalSize::new(700.0, 700.0))
+        .with_dimensions(LogicalSize::new(initial_width, initial_height))
         .with_decorations(true)
-        .with_title("Simple tessellation".to_string());
+        .with_title("gfx playground".to_string());
 
     let context = glutin::ContextBuilder::new().with_vsync(true);
 
@@ -51,26 +53,35 @@ fn main() {
 
     // The geometry!
     let vertices = vec![
+        // 0 = Top-left
         GpuFillVertex {
-            position: [-1.0, -1.0],
+            position: [-1.0, 0.7],
         },
-        GpuFillVertex {
-            position: [1.0, -1.0],
-        },
-        GpuFillVertex {
-            position: [-1.0, 1.0],
-        },
+        // 1 = Top-right
         GpuFillVertex {
             position: [1.0, 1.0],
         },
+        // 2 = Bottom-left
+        GpuFillVertex {
+            position: [-1.0, -1.0],
+        },
+        // 3 = Bottom-right
+        GpuFillVertex {
+            position: [1.0, -1.0],
+        },
     ];
-    let indices: Vec<u16> = vec![0, 1, 2, 2, 3, 0];
+    let indices: Vec<u16> = vec![0, 1, 2, 1, 2, 3];
     let (vbo, ibo) = factory.create_vertex_buffer_with_slice(&vertices, &indices[..]);
 
     let mut cmd_queue: gfx::Encoder<_, _> = factory.create_command_buffer().into();
 
+    let mut cam = Camera {
+        center_x: initial_width / 2.0,
+        center_y: initial_height / 2.0,
+        zoom: 1.0,
+    };
     loop {
-        if !update_inputs(&mut events_loop) {
+        if !handle_input(&mut events_loop, &mut cam) {
             break;
         }
 
@@ -93,12 +104,19 @@ fn main() {
     }
 }
 
-fn update_inputs(event_loop: &mut glutin::EventsLoop) -> bool {
+struct Camera {
+    // Center on some point
+    center_x: f64,
+    center_y: f64,
+    zoom: f64,
+}
+
+fn handle_input(event_loop: &mut glutin::EventsLoop, cam: &mut Camera) -> bool {
     use glutin::ElementState::Pressed;
     use glutin::Event;
     use glutin::VirtualKeyCode;
 
-    let mut status = true;
+    let mut keep_running = true;
 
     event_loop.poll_events(|event| match event {
         Event::WindowEvent {
@@ -106,7 +124,7 @@ fn update_inputs(event_loop: &mut glutin::EventsLoop) -> bool {
             ..
         } => {
             println!("Window Closed!");
-            status = false;
+            keep_running = false;
         }
         Event::WindowEvent {
             event:
@@ -122,15 +140,29 @@ fn update_inputs(event_loop: &mut glutin::EventsLoop) -> bool {
             ..
         } => match key {
             VirtualKeyCode::Escape => {
-                status = false;
+                keep_running = false;
             }
-            _key => {}
+            VirtualKeyCode::Left => {
+                cam.center_x -= 1.0;
+            }
+            VirtualKeyCode::Right => {
+                cam.center_x += 1.0;
+            }
+            VirtualKeyCode::Up => {
+                cam.center_y += 1.0;
+            }
+            VirtualKeyCode::Down => {
+                cam.center_y -= 1.0;
+            }
+            _ => {}
         },
         _ => {}
     });
 
-    status
+    keep_running
 }
+
+// Coordinate system is math-like -- Y increases up.
 
 static VERTEX_SHADER: &'static str = "
     #version 140
@@ -140,7 +172,7 @@ static VERTEX_SHADER: &'static str = "
 
     void main() {
         gl_Position = vec4(a_position, 0.0, 1.0);
-        gl_Position.y *= -1.0;
+        // gl_Position.y *= -1.0;
         v_color = vec4(1.0, 0.0, 0.0, 0.5);
     }
 ";

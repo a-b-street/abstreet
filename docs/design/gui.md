@@ -180,3 +180,11 @@ One UI plugin at a time:
 - alright, atfer the current cleanup with short-circuiting... express as a more abstract monadish thing? or since there are side effects sometimes and inconsistent arguments and such, maybe not?
 	- consistently mutate a plugin or return a copy
 	- the Optionals might be annoying.
+
+## OpenGL camera transforms
+
+- https://crates.io/crates/cgmath
+- https://www.nalgebra.org/cg_recipes/
+- https://docs.rs/euclid/0.19.0/euclid/struct.TypedTransform2D.html
+- https://www.reddit.com/r/rust/comments/6sukcw/is_it_possible_to_to_create_an_ortho_view_in_glium/ has a direct example of affine transformation
+- https://www.reddit.com/r/gamedev/comments/4mn9ly/3d_matrix_transformation_question_rotating/
