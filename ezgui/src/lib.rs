@@ -54,15 +54,9 @@ impl<'a> GfxCtx<'a> {
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
-    // TODO refactor line -> coordinates
     pub fn draw_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
         graphics::Line::new(color, thickness).draw(
-            [
-                line.pt1().x(),
-                line.pt1().y(),
-                line.pt2().x(),
-                line.pt2().y(),
-            ],
+            line_to_array(line),
             &self.ctx.draw_state,
             self.ctx.transform,
             self.gfx,
@@ -71,12 +65,7 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
         graphics::Line::new_round(color, thickness).draw(
-            [
-                line.pt1().x(),
-                line.pt1().y(),
-                line.pt2().x(),
-                line.pt2().y(),
-            ],
+            line_to_array(line),
             &self.ctx.draw_state,
             self.ctx.transform,
             self.gfx,
@@ -85,12 +74,7 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, head_size: f64, line: &geom::Line) {
         graphics::Line::new(color, thickness).draw_arrow(
-            [
-                line.pt1().x(),
-                line.pt1().y(),
-                line.pt2().x(),
-                line.pt2().y(),
-            ],
+            line_to_array(line),
             head_size,
             &self.ctx.draw_state,
             self.ctx.transform,
@@ -106,12 +90,7 @@ impl<'a> GfxCtx<'a> {
         line: &geom::Line,
     ) {
         graphics::Line::new_round(color, thickness).draw_arrow(
-            [
-                line.pt1().x(),
-                line.pt1().y(),
-                line.pt2().x(),
-                line.pt2().y(),
-            ],
+            line_to_array(line),
             head_size,
             &self.ctx.draw_state,
             self.ctx.transform,
@@ -223,4 +202,8 @@ pub fn shift_color(c: Color, id: usize) -> Color {
         color.darken(scale * ((modulo - half_variants) as f32))
     };
     [new_color.red, new_color.green, new_color.blue, 1.0]
+}
+
+fn line_to_array(l: &geom::Line) -> [f64; 4] {
+    [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
 }

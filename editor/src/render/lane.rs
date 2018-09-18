@@ -45,12 +45,7 @@ impl DrawLane {
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
             markings.push(Marking {
-                lines: road
-                    .center_pts
-                    .points()
-                    .windows(2)
-                    .map(|pair| Line::new(pair[0], pair[1]))
-                    .collect(),
+                lines: road.center_pts.lines(),
                 color: Colors::RoadOrientation,
                 thickness: geometry::BIG_ARROW_THICKNESS,
                 round: true,
@@ -89,15 +84,14 @@ impl DrawLane {
     fn draw_debug(&self, g: &mut GfxCtx, ctx: Ctx) {
         let circle_color = ctx.cs.get(Colors::BrightDebug);
 
-        for pair in ctx.map.get_l(self.id).lane_center_pts.points().windows(2) {
-            let (pt1, pt2) = (pair[0], pair[1]);
+        for l in ctx.map.get_l(self.id).lane_center_pts.lines() {
             g.draw_line(
                 ctx.cs.get(Colors::Debug),
                 PARCEL_BOUNDARY_THICKNESS / 2.0,
-                &Line::new(pt1, pt2),
+                &l,
             );
-            g.draw_ellipse(circle_color, geometry::make_circle(pt1, 0.4));
-            g.draw_ellipse(circle_color, geometry::make_circle(pt2, 0.8));
+            g.draw_ellipse(circle_color, geometry::make_circle(l.pt1(), 0.4));
+            g.draw_ellipse(circle_color, geometry::make_circle(l.pt2(), 0.8));
         }
 
         for pt in &self.draw_id_at {

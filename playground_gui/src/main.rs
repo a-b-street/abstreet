@@ -312,12 +312,12 @@ impl UI {
 }
 
 fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
-    let pts = pl.points();
-    assert!(pts.len() >= 2);
-    for pair in pts.windows(2) {
-        g.draw_line(color, thickness, Line::new(pair[0], pair[1]));
+    for l in pl.lines() {
+        g.draw_line(color, thickness, l);
     }
     let radius = 0.5;
+    let pts = pl.points();
+    assert!(pts.len() >= 2);
     for pt in pts {
         g.draw_ellipse(BLUE, geometry::make_circle(*pt, radius));
     }

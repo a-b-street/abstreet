@@ -9,9 +9,6 @@ pub struct PolyLine {
 }
 
 impl PolyLine {
-    // TODO helper for lines() would be nice, so we dont have to spam windows(2) and deal with
-    // pairs
-
     pub fn new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
         PolyLine { pts }
@@ -41,10 +38,18 @@ impl PolyLine {
         &self.pts
     }
 
+    // Makes a copy :\
+    pub fn lines(&self) -> Vec<Line> {
+        self.pts
+            .windows(2)
+            .map(|pair| Line::new(pair[0], pair[1]))
+            .collect()
+    }
+
     pub fn length(&self) -> si::Meter<f64> {
-        self.pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-            so_far + Line::new(pair[0], pair[1]).length()
-        })
+        self.lines()
+            .iter()
+            .fold(0.0 * si::M, |so_far, l| so_far + l.length())
     }
 
     // TODO return result with an error message
@@ -54,8 +59,7 @@ impl PolyLine {
         }
 
         let mut dist_left = dist_along;
-        for (idx, pair) in self.pts.windows(2).enumerate() {
-            let l = Line::new(pair[0], pair[1]);
+        for (idx, l) in self.lines().iter().enumerate() {
             let length = l.length();
             let epsilon = if idx == self.pts.len() - 2 {
                 EPSILON_DIST
@@ -206,11 +210,9 @@ impl PolyLine {
         let result = self.shift_blindly(width);
 
         // Check that the angles roughly match up between the original and shifted line
-        for (orig_pair, shifted_pair) in self.pts.windows(2).zip(result.pts.windows(2)) {
-            let orig_angle = orig_pair[0].angle_to(orig_pair[1]).normalized_degrees();
-            let shifted_angle = shifted_pair[0]
-                .angle_to(shifted_pair[1])
-                .normalized_degrees();
+        for (orig_l, shifted_l) in self.lines().iter().zip(result.lines().iter()) {
+            let orig_angle = orig_l.angle().normalized_degrees();
+            let shifted_angle = shifted_l.angle().normalized_degrees();
             let delta = (shifted_angle - orig_angle).abs();
             if delta > 0.00001 {
                 /*println!(
@@ -265,10 +267,8 @@ impl PolyLine {
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
         assert_ne!(self, other);
 
-        for pair1 in self.pts.windows(2) {
-            let l1 = Line::new(pair1[0], pair1[1]);
-            for pair2 in other.pts.windows(2) {
-                let l2 = Line::new(pair2[0], pair2[1]);
+        for l1 in self.lines() {
+            for l2 in other.lines() {
                 if let Some(pt) = l1.intersection(&l2) {
                     return Some(pt);
                 }
@@ -280,11 +280,7 @@ impl PolyLine {
     // Starts trimming from the head. If the pt is not on the polyline, returns false -- but this
     // is a bug somewhere else.
     pub fn trim_to_pt(&mut self, pt: Pt2D) -> bool {
-        if let Some(idx) = self
-            .pts
-            .windows(2)
-            .position(|pair| Line::new(pair[0], pair[1]).contains_pt(pt))
-        {
+        if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             self.pts.truncate(idx + 1);
             self.pts.push(pt);
             true
@@ -296,8 +292,7 @@ impl PolyLine {
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
         let mut dist_along = 0.0 * si::M;
-        for pair in self.pts.windows(2) {
-            let l = Line::new(pair[0], pair[1]);
+        for l in self.lines() {
             if let Some(dist) = l.dist_along_of_point(pt) {
                 return Some(dist_along + dist);
             } else {
