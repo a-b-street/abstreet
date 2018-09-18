@@ -25,6 +25,7 @@ use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
+use plugins::select_polygon::SelectPolygonState;
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
@@ -122,6 +123,7 @@ impl UIWrapper {
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
+            select_polygon: SelectPolygonState::new(),
 
             active_plugin: None,
 
@@ -235,6 +237,7 @@ impl UIWrapper {
                         .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
                 }),
                 Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
+                Box::new(|ui, input| ui.select_polygon.event(input, &ui.canvas)),
             ],
         }
     }
@@ -266,6 +269,7 @@ struct UI {
     color_picker: ColorPicker,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
+    select_polygon: SelectPolygonState,
 
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
@@ -432,6 +436,7 @@ impl UI {
             );
         }
 
+        // TODO Only if active?
         self.turn_cycler.draw(
             &self.map,
             &self.draw_map,
@@ -442,9 +447,10 @@ impl UI {
         );
         self.debug_objects
             .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
-
         self.color_picker.draw(&self.canvas, g);
+        self.select_polygon.draw(g);
 
+        // TODO Only if active (except for the weird sim_ctrl)?
         let mut osd_lines = self.sim_ctrl.get_osd_lines(&self.sim);
         let action_lines = input.get_possible_actions();
         if !action_lines.is_empty() {
@@ -460,6 +466,11 @@ impl UI {
         if !warp_lines.is_empty() {
             osd_lines.push(String::from(""));
             osd_lines.extend(warp_lines);
+        }
+        let select_lines = self.select_polygon.get_osd_lines();
+        if !select_lines.is_empty() {
+            osd_lines.push(String::from(""));
+            osd_lines.extend(select_lines);
         }
         self.canvas.draw_osd_notification(g, &osd_lines);
     }
@@ -509,6 +520,7 @@ impl UI {
             13 => Some(Box::new(&self.floodfiller)),
             14 => Some(Box::new(&self.geom_validator)),
             15 => Some(Box::new(&self.turn_cycler)),
+            16 => Some(Box::new(&self.select_polygon)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
