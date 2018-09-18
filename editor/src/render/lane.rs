@@ -6,7 +6,6 @@ use control::ControlMap;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Line, Polygon, Pt2D};
-use graphics;
 use map_model;
 use map_model::{geometry, LaneID};
 use objects::{Ctx, ID};
@@ -16,7 +15,7 @@ const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 #[derive(Debug)]
 struct Marking {
-    lines: Vec<[f64; 4]>,
+    lines: Vec<Line>,
     color: Colors,
     thickness: f64,
     round: bool,
@@ -50,7 +49,7 @@ impl DrawLane {
                     .center_pts
                     .points()
                     .windows(2)
-                    .map(|pair| [pair[0].x(), pair[0].y(), pair[1].x(), pair[1].y()])
+                    .map(|pair| Line::new(pair[0], pair[1]))
                     .collect(),
                 color: Colors::RoadOrientation,
                 thickness: geometry::BIG_ARROW_THICKNESS,
@@ -88,13 +87,15 @@ impl DrawLane {
     }
 
     fn draw_debug(&self, g: &mut GfxCtx, ctx: Ctx) {
-        let line =
-            graphics::Line::new_round(ctx.cs.get(Colors::Debug), PARCEL_BOUNDARY_THICKNESS / 2.0);
         let circle_color = ctx.cs.get(Colors::BrightDebug);
 
         for pair in ctx.map.get_l(self.id).lane_center_pts.points().windows(2) {
             let (pt1, pt2) = (pair[0], pair[1]);
-            g.draw_line(&line, [pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
+            g.draw_line(
+                ctx.cs.get(Colors::Debug),
+                PARCEL_BOUNDARY_THICKNESS / 2.0,
+                &Line::new(pt1, pt2),
+            );
             g.draw_ellipse(circle_color, geometry::make_circle(pt1, 0.4));
             g.draw_ellipse(circle_color, geometry::make_circle(pt2, 0.8));
         }
@@ -138,13 +139,12 @@ impl Renderable for DrawLane {
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {
-                let line = if m.round {
-                    graphics::Line::new_round(ctx.cs.get(m.color), m.thickness)
-                } else {
-                    graphics::Line::new(ctx.cs.get(m.color), m.thickness)
-                };
-                for pts in &m.lines {
-                    g.draw_line(&line, *pts);
+                for line in &m.lines {
+                    if m.round {
+                        g.draw_rounded_line(ctx.cs.get(m.color), m.thickness, line);
+                    } else {
+                        g.draw_line(ctx.cs.get(m.color), m.thickness, line);
+                    }
                 }
             }
         }
@@ -187,11 +187,10 @@ impl Renderable for DrawLane {
 }
 
 // TODO this always does it at pt1
-// TODO move to Line or reimplement differently
-fn perp_line(l: Line, length: f64) -> [f64; 4] {
+fn perp_line(l: Line, length: f64) -> Line {
     let pt1 = l.shift(length / 2.0).pt1();
     let pt2 = l.reverse().shift(length / 2.0).pt2();
-    [pt1.x(), pt1.y(), pt2.x(), pt2.y()]
+    Line::new(pt1, pt2)
 }
 
 fn new_perp_line(l: Line, length: f64) -> Line {
@@ -241,13 +240,13 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
             let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-            lines.push([t_pt.x(), t_pt.y(), p1.x(), p1.y()]);
+            lines.push(Line::new(t_pt, p1));
             // Upper leg
             let p2 = t_pt.project_away(leg_length, lane_angle);
-            lines.push([t_pt.x(), t_pt.y(), p2.x(), p2.y()]);
+            lines.push(Line::new(t_pt, p2));
             // Lower leg
             let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-            lines.push([t_pt.x(), t_pt.y(), p3.x(), p3.y()]);
+            lines.push(Line::new(t_pt, p3));
         }
     }
 
@@ -284,7 +283,7 @@ fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> 
 
         let (pt1, _) = lane_edge_pts.dist_along(start);
         let (pt2, _) = lane_edge_pts.dist_along(start + dash_len);
-        lines.push([pt1.x(), pt1.y(), pt2.x(), pt2.y()]);
+        lines.push(Line::new(pt1, pt2));
         start += dash_len + dash_separation;
     }
 

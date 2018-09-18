@@ -1,5 +1,5 @@
 use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
-use geom::{Polygon, Pt2D};
+use geom::{Line, Polygon, Pt2D};
 use map_model::geometry;
 use piston::input::Key;
 use plugins::Colorizer;
@@ -78,16 +78,17 @@ impl SelectPolygonState {
         let green = [0.0, 1.0, 0.0, 1.0];
         let blue = [0.0, 0.0, 1.0, 1.0];
         let radius = 2.0;
-        for pt in pts {
-            g.draw_ellipse(red, geometry::make_circle(*pt, radius));
-        }
-        g.draw_ellipse(green, geometry::make_circle(*pts.last().unwrap(), radius));
+
         if pts.len() == 2 {
-            // TODO draw line
+            g.draw_line(red, radius / 2.0, &Line::new(pts[0], pts[1]));
         }
         if pts.len() >= 3 {
             g.draw_polygon(blue, &Polygon::new(pts));
         }
+        for pt in pts {
+            g.draw_ellipse(red, geometry::make_circle(*pt, radius));
+        }
+        g.draw_ellipse(green, geometry::make_circle(*pts.last().unwrap(), radius));
     }
 }
 

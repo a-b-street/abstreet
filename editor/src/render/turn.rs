@@ -4,9 +4,7 @@ use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::Pt2D;
-use graphics;
-use graphics::math::Vec2d;
+use geom::{Line, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
 use objects::{Ctx, ID};
@@ -19,10 +17,10 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawTurn {
     pub id: TurnID,
-    src_pt: Vec2d,
-    pub dst_pt: Vec2d,
+    src_pt: Pt2D,
+    dst_pt: Pt2D,
     icon_circle: [f64; 4],
-    icon_arrow: [f64; 4],
+    icon_arrow: Line,
 }
 
 impl DrawTurn {
@@ -38,36 +36,27 @@ impl DrawTurn {
             .reverse()
             .unbounded_dist_along((offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
 
-        let icon_src = icon_center
-            .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite())
-            .to_vec();
-        let icon_dst = icon_center
-            .project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle)
-            .to_vec();
-
         let icon_circle = geometry::make_circle(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
 
-        let icon_arrow = [icon_src[0], icon_src[1], icon_dst[0], icon_dst[1]];
+        let icon_src = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite());
+        let icon_dst = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle);
+        let icon_arrow = Line::new(icon_src, icon_dst);
 
         DrawTurn {
             id: turn.id,
-            src_pt: src_pt.to_vec(),
-            dst_pt: dst_pt.to_vec(),
+            src_pt,
+            dst_pt,
             icon_circle,
             icon_arrow,
         }
     }
 
     pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
-        g.draw_arrow(
-            &graphics::Line::new_round(color, geometry::BIG_ARROW_THICKNESS),
-            [
-                self.src_pt[0],
-                self.src_pt[1],
-                self.dst_pt[0],
-                self.dst_pt[1],
-            ],
+        g.draw_rounded_arrow(
+            color,
+            geometry::BIG_ARROW_THICKNESS,
             BIG_ARROW_TIP_LENGTH,
+            &Line::new(self.src_pt, self.dst_pt),
         );
     }
 }
@@ -82,12 +71,10 @@ impl Renderable for DrawTurn {
         g.draw_ellipse(ctx.cs.get(Colors::TurnIconCircle), self.icon_circle);
 
         g.draw_arrow(
-            &graphics::Line::new_round(
-                opts.color.unwrap_or(ctx.cs.get(Colors::TurnIconInactive)),
-                TURN_ICON_ARROW_THICKNESS,
-            ),
-            self.icon_arrow,
+            opts.color.unwrap_or(ctx.cs.get(Colors::TurnIconInactive)),
+            TURN_ICON_ARROW_THICKNESS,
             TURN_ICON_ARROW_TIP_LENGTH,
+            &self.icon_arrow,
         );
     }
 

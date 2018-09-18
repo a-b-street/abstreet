@@ -5,8 +5,6 @@ use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Line, Polygon, Pt2D};
-use graphics;
-use graphics::math::Vec2d;
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
 use objects::{Ctx, ID};
 use render::{get_bbox, DrawLane, RenderOptions, Renderable};
@@ -16,7 +14,7 @@ use std::f64;
 pub struct DrawIntersection {
     pub id: IntersectionID,
     pub polygon: Polygon,
-    crosswalks: Vec<Vec<(Vec2d, Vec2d)>>,
+    crosswalks: Vec<Vec<Line>>,
     center: Pt2D,
     has_traffic_signal: bool,
 }
@@ -111,16 +109,13 @@ impl Renderable for DrawIntersection {
         });
         g.draw_polygon(color, &self.polygon);
 
-        let crosswalk_marking = graphics::Line::new(
-            ctx.cs.get(Colors::Crosswalk),
-            // TODO move this somewhere
-            0.25,
-        );
         for crosswalk in &self.crosswalks {
-            for pair in crosswalk {
+            for line in crosswalk {
                 g.draw_line(
-                    &crosswalk_marking,
-                    [pair.0[0], pair.0[1], pair.1[0], pair.1[1]],
+                    ctx.cs.get(Colors::Crosswalk),
+                    // TODO move this somewhere
+                    0.25,
+                    line,
                 );
             }
         }
@@ -145,7 +140,7 @@ impl Renderable for DrawIntersection {
     }
 }
 
-fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<(Vec2d, Vec2d)>> {
+fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<Line>> {
     let mut crosswalks = Vec::new();
 
     for id in inter
@@ -192,8 +187,8 @@ fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<(Vec2d, Vec2
 }
 
 // TODO copied from DrawLane
-fn perp_line(l: Line, length: f64) -> (Vec2d, Vec2d) {
+fn perp_line(l: Line, length: f64) -> Line {
     let pt1 = l.shift(length / 2.0).pt1();
     let pt2 = l.reverse().shift(length / 2.0).pt2();
-    (pt1.to_vec(), pt2.to_vec())
+    Line::new(pt1, pt2)
 }

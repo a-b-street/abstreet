@@ -2,8 +2,7 @@ use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::{shift_color, GfxCtx};
-use geom::{Polygon, Pt2D};
-use graphics;
+use geom::{Line, Polygon, Pt2D};
 use map_model::{geometry, Map};
 use objects::{Ctx, ID};
 use render::{get_bbox, RenderOptions, Renderable};
@@ -16,11 +15,11 @@ pub struct DrawCar {
     body_polygon: Polygon,
     window_polygons: Vec<Polygon>,
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
-    turn_arrow: Option<[f64; 4]>,
+    turn_arrow: Option<Line>,
     // TODO maybe also draw lookahead buffer to know what the car is considering
     // TODO it would be really neat to project the stopping buffer onto the actual route that'll be
     // taken
-    stopping_buffer_arrow: Option<[f64; 4]>,
+    stopping_buffer_arrow: Option<Line>,
 }
 
 impl DrawCar {
@@ -30,7 +29,7 @@ impl DrawCar {
             let arrow_pt = input
                 .front
                 .project_away(input.vehicle_length.value_unsafe / 2.0, angle.opposite());
-            Some([arrow_pt.x(), arrow_pt.y(), input.front.x(), input.front.y()])
+            Some(Line::new(arrow_pt, input.front))
         } else {
             None
         };
@@ -41,7 +40,7 @@ impl DrawCar {
             let arrow_pt = input
                 .front
                 .project_away(input.stopping_dist.value_unsafe, input.angle);
-            Some([input.front.x(), input.front.y(), arrow_pt.x(), arrow_pt.y()])
+            Some(Line::new(input.front, arrow_pt))
         };
 
         let front_window_length_gap = 0.2;
@@ -50,7 +49,6 @@ impl DrawCar {
         DrawCar {
             id: input.id,
             turn_arrow,
-            // TODO the rounded corners from graphics::Line::new_round look kind of cool though
             body_polygon: geometry::thick_line_from_angle(
                 CAR_WIDTH,
                 input.vehicle_length.value_unsafe,
@@ -114,20 +112,12 @@ impl Renderable for DrawCar {
         }
 
         // TODO tune color, sizes
-        if let Some(a) = self.turn_arrow {
-            g.draw_arrow(
-                &graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25),
-                a,
-                1.0,
-            );
+        if let Some(ref a) = self.turn_arrow {
+            g.draw_arrow([0.0, 1.0, 1.0, 1.0], 0.25, 1.0, a);
         }
 
-        if let Some(a) = self.stopping_buffer_arrow {
-            g.draw_arrow(
-                &graphics::Line::new_round([1.0, 0.0, 0.0, 0.7], 0.25),
-                a,
-                1.0,
-            );
+        if let Some(ref a) = self.stopping_buffer_arrow {
+            g.draw_arrow([1.0, 0.0, 0.0, 0.7], 0.25, 1.0, a);
         }
     }
 

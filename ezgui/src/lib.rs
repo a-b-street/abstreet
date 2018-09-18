@@ -52,13 +52,66 @@ impl<'a> GfxCtx<'a> {
         graphics::clear(color, self.gfx);
     }
 
-    pub fn draw_line(&mut self, style: &graphics::Line, pts: [f64; 4]) {
-        style.draw(pts, &self.ctx.draw_state, self.ctx.transform, self.gfx);
+    // Use graphics::Line internally for now, but make it easy to switch to something else by
+    // picking this API now.
+    // TODO refactor line -> coordinates
+    pub fn draw_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+        graphics::Line::new(color, thickness).draw(
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
     }
 
-    pub fn draw_arrow(&mut self, style: &graphics::Line, pts: [f64; 4], head_size: f64) {
-        style.draw_arrow(
-            pts,
+    pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+        graphics::Line::new_round(color, thickness).draw(
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
+    }
+
+    pub fn draw_arrow(&mut self, color: Color, thickness: f64, head_size: f64, line: &geom::Line) {
+        graphics::Line::new(color, thickness).draw_arrow(
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
+            head_size,
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
+    }
+
+    pub fn draw_rounded_arrow(
+        &mut self,
+        color: Color,
+        thickness: f64,
+        head_size: f64,
+        line: &geom::Line,
+    ) {
+        graphics::Line::new_round(color, thickness).draw_arrow(
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
             head_size,
             &self.ctx.draw_state,
             self.ctx.transform,

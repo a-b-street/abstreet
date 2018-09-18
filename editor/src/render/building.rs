@@ -3,30 +3,25 @@
 use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{PolyLine, Polygon, Pt2D};
-use graphics;
+use geom::{Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map};
 use objects::{Ctx, ID};
 use render::{get_bbox, RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
-use std::f64;
 
 #[derive(Debug)]
 pub struct DrawBuilding {
     pub id: BuildingID,
-    // TODO should just have one. use graphics::Line for now.
+    // TODO bit wasteful to keep both
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
-    front_path: [f64; 4],
+    front_path: Line,
 }
 
 impl DrawBuilding {
     pub fn new(bldg: &Building) -> DrawBuilding {
         DrawBuilding {
             id: bldg.id,
-            front_path: {
-                let l = &bldg.front_path.line;
-                [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
-            },
+            front_path: bldg.front_path.line.clone(),
             fill_polygon: Polygon::new(&bldg.points),
             boundary_polygon: PolyLine::new(bldg.points.clone())
                 .make_polygons_blindly(BUILDING_BOUNDARY_THICKNESS),
@@ -48,16 +43,13 @@ impl Renderable for DrawBuilding {
         );
 
         // TODO tune width
-        g.draw_line(
-            &graphics::Line::new_round(ctx.cs.get(Colors::BuildingPath), 1.0),
-            self.front_path,
-        );
+        g.draw_rounded_line(ctx.cs.get(Colors::BuildingPath), 1.0, &self.front_path);
     }
 
     fn get_bbox(&self) -> Rect {
         let mut b = self.fill_polygon.get_bounds();
-        b.update(self.front_path[0], self.front_path[1]);
-        b.update(self.front_path[2], self.front_path[3]);
+        b.update_pt(self.front_path.pt1());
+        b.update_pt(self.front_path.pt2());
         get_bbox(&b)
     }
 

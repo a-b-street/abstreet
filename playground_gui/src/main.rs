@@ -311,18 +311,11 @@ impl UI {
     }
 }
 
-fn draw_line(g: &mut GfxCtx, pt1: Pt2D, pt2: Pt2D, thickness: f64, color: Color) {
-    g.draw_line(
-        &graphics::Line::new(color, thickness),
-        [pt1.x(), pt1.y(), pt2.x(), pt2.y()],
-    );
-}
-
 fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     let pts = pl.points();
     assert!(pts.len() >= 2);
     for pair in pts.windows(2) {
-        draw_line(g, pair[0], pair[1], thickness, color);
+        g.draw_line(color, thickness, Line::new(pair[0], pair[1]));
     }
     let radius = 0.5;
     for pt in pts {

@@ -3,7 +3,7 @@ use std::fmt;
 use {line_intersection, Angle, Pt2D, EPSILON_DIST};
 
 // Segment, technically
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {

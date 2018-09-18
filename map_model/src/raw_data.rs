@@ -34,25 +34,25 @@ impl Map {
 
         for r in &self.roads {
             for pt in &r.points {
-                bounds.update_coord(pt);
+                bounds.update_coord(*pt);
             }
         }
         for i in &self.intersections {
-            bounds.update_coord(&i.point);
+            bounds.update_coord(i.point);
         }
         for b in &self.buildings {
             for pt in &b.points {
-                bounds.update_coord(pt);
+                bounds.update_coord(*pt);
             }
         }
         for a in &self.areas {
             for pt in &a.points {
-                bounds.update_coord(pt);
+                bounds.update_coord(*pt);
             }
         }
         for p in &self.parcels {
             for pt in &p.points {
-                bounds.update_coord(pt);
+                bounds.update_coord(*pt);
             }
         }
 

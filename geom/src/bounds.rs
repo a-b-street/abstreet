@@ -32,11 +32,11 @@ impl Bounds {
         self.max_y = self.max_y.max(y);
     }
 
-    pub fn update_pt(&mut self, pt: &Pt2D) {
+    pub fn update_pt(&mut self, pt: Pt2D) {
         self.update(pt.x(), pt.y());
     }
 
-    pub fn update_coord(&mut self, coord: &LonLat) {
+    pub fn update_coord(&mut self, coord: LonLat) {
         self.update(coord.longitude, coord.latitude);
     }
 

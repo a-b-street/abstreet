@@ -30,7 +30,7 @@ const COLORS: [Color; 14] = [
 #[derive(Debug)]
 pub struct DrawParcel {
     pub id: ParcelID,
-    // TODO should just have one. use graphics::Line for now.
+    // TODO bit wasteful to keep both
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
 }

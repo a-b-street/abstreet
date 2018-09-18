@@ -1,8 +1,7 @@
 use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::{shift_color, GfxCtx};
-use geom::Pt2D;
-use graphics;
+use geom::{Line, Pt2D};
 use map_model::{geometry, Map};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
@@ -14,7 +13,7 @@ const RADIUS: f64 = 1.0;
 pub struct DrawPedestrian {
     pub id: PedestrianID,
     circle: [f64; 4],
-    turn_arrow: Option<[f64; 4]>,
+    turn_arrow: Option<Line>,
 }
 
 impl DrawPedestrian {
@@ -23,7 +22,7 @@ impl DrawPedestrian {
             // TODO this isn't quite right, but good enough for now
             let angle = map.get_t(t).line.angle();
             let arrow_pt = input.pos.project_away(RADIUS, angle.opposite());
-            Some([arrow_pt.x(), arrow_pt.y(), input.pos.x(), input.pos.y()])
+            Some(Line::new(arrow_pt, input.pos))
         } else {
             None
         };
@@ -48,12 +47,8 @@ impl Renderable for DrawPedestrian {
         g.draw_ellipse(color, self.circle);
 
         // TODO tune color, sizes
-        if let Some(a) = self.turn_arrow {
-            g.draw_arrow(
-                &graphics::Line::new_round([0.0, 1.0, 1.0, 1.0], 0.25),
-                a,
-                0.3,
-            );
+        if let Some(ref a) = self.turn_arrow {
+            g.draw_rounded_arrow([0.0, 1.0, 1.0, 1.0], 0.25, 0.3, a);
         }
     }
 
