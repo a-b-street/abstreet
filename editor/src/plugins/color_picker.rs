@@ -98,14 +98,13 @@ impl ColorPicker {
                 for x in 0..WIDTH {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
+                        let corner = canvas.screen_to_map((
+                            (x * TILE_DIMS + start_x) as f64,
+                            (y * TILE_DIMS + start_y) as f64,
+                        ));
                         g.draw_rectangle(
                             color,
-                            [
-                                canvas.screen_to_map_x((x * TILE_DIMS + start_x) as f64),
-                                canvas.screen_to_map_y((y * TILE_DIMS + start_y) as f64),
-                                TILE_DIMS as f64,
-                                TILE_DIMS as f64,
-                            ],
+                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
                         );
                     }
                 }

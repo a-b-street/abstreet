@@ -12,7 +12,7 @@ const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
 const LINE_HEIGHT: f64 = 22.0;
 
-pub fn draw_text_bubble(g: &mut GfxCtx, lines: &[String], x1: f64, y1: f64) {
+pub fn draw_text_bubble(g: &mut GfxCtx, lines: &[String], (x1, y1): (f64, f64)) {
     let (width, height) = dims(g, lines);
     let tooltip = graphics::Rectangle::new(TEXT_BG_COLOR);
     tooltip.draw(

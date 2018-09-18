@@ -101,8 +101,7 @@ impl GUI for UI {
 
 impl UI {
     fn label(&self, g: &mut GfxCtx, pt: Pt2D, text: &str) {
-        self.canvas
-            .draw_text_at(g, &vec![text.to_string()], pt.x(), pt.y());
+        self.canvas.draw_text_at(g, &vec![text.to_string()], pt);
     }
 
     fn debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
@@ -313,7 +312,7 @@ impl UI {
 
 fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     for l in pl.lines() {
-        g.draw_line(color, thickness, l);
+        g.draw_line(color, thickness, &l);
     }
     let radius = 0.5;
     let pts = pl.points();

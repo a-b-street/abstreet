@@ -114,8 +114,7 @@ impl Validator {
 
                     if let Some((id1, id2)) = current_problem {
                         println!("{:?} and {:?} intersect", id1, id2);
-                        let pt = get_pt(map, *id1);
-                        canvas.center_on_map_pt(pt.x(), pt.y());
+                        canvas.center_on_map_pt(get_pt(map, *id1));
                     // TODO also modify selection state to highlight stuff?
                     } else {
                         println!("No more problems!");

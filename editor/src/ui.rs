@@ -8,7 +8,6 @@ use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
 use ezgui::{Canvas, EventLoopMode, GfxCtx, ToggleableLayer, UserInput, GUI};
 use flame;
-use geom::Pt2D;
 use graphics::types::Color;
 use kml;
 use map_model;
@@ -142,7 +141,7 @@ impl UIWrapper {
             }
             _ => {
                 println!("Couldn't load editor_state or it's for a different map, so just centering initial view");
-                ui.canvas.center_on_map_pt(center_pt.x(), center_pt.y());
+                ui.canvas.center_on_map_pt(center_pt);
             }
         }
 
@@ -292,8 +291,7 @@ impl UI {
     }
 
     fn mouseover_something(&self) -> Option<ID> {
-        let (x, y) = self.canvas.get_cursor_in_map_space();
-        let pt = Pt2D::new(x, y);
+        let pt = self.canvas.get_cursor_in_map_space();
 
         let (statics, dynamics) = self.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),

@@ -163,5 +163,5 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
             return;
         }
     };
-    canvas.center_on_map_pt(pt.x(), pt.y());
+    canvas.center_on_map_pt(pt);
 }

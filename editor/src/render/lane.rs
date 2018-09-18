@@ -93,7 +93,7 @@ impl DrawLane {
 
         for pt in &self.draw_id_at {
             ctx.canvas
-                .draw_text_at(g, &vec![format!("{}", self.id.0)], pt.x(), pt.y());
+                .draw_text_at(g, &vec![format!("{}", self.id.0)], *pt);
         }
     }
 

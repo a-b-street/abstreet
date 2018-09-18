@@ -46,8 +46,7 @@ impl FollowState {
             // instead
             FollowState::FollowingCar(id) => {
                 if let Some(c) = sim.get_draw_car(*id, map) {
-                    let pt = c.front;
-                    canvas.center_on_map_pt(pt.x(), pt.y());
+                    canvas.center_on_map_pt(c.front);
                     input.key_pressed(Key::Return, "stop following")
                 } else {
                     println!("{} is gone, no longer following", id);
@@ -56,8 +55,7 @@ impl FollowState {
             }
             FollowState::FollowingPedestrian(id) => {
                 if let Some(p) = sim.get_draw_ped(*id, map) {
-                    let pt = p.pos;
-                    canvas.center_on_map_pt(pt.x(), pt.y());
+                    canvas.center_on_map_pt(p.pos);
                     input.key_pressed(Key::Return, "stop following")
                 } else {
                     println!("{} is gone, no longer following", id);

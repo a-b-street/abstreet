@@ -113,6 +113,7 @@ fn make_test_map() -> map_model::Map {
             ],
             parcels: Vec::new(),
             bus_routes: Vec::new(),
+            areas: Vec::new(),
             coordinates_in_world_space: true,
         },
         &map_model::Edits::new(),

@@ -26,8 +26,7 @@ impl SelectPolygonState {
                 if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
                     new_state = Some(SelectPolygonState::Empty);
                 } else if input.key_pressed(Key::P, "add a new point here") {
-                    let (x, y) = canvas.get_cursor_in_map_space();
-                    pts.push(Pt2D::new(x, y));
+                    pts.push(canvas.get_cursor_in_map_space());
                 } else if pts.len() >= 3
                     && input.key_pressed(Key::Return, "confirm the polygon's shape")
                 {

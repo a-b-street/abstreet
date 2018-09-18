@@ -123,6 +123,7 @@ impl<'a> GfxCtx<'a> {
         );
     }
 
+    // TODO probably better to have a Polygon::make_rectangle helper or something
     pub fn draw_rectangle(&mut self, color: Color, rect: [f64; 4]) {
         graphics::Rectangle::new(color).draw(
             rect,
