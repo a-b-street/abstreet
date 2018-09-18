@@ -1,4 +1,3 @@
-use graphics::math::Vec2d;
 use ordered_float::NotNaN;
 use std::f64;
 use std::fmt;
@@ -52,11 +51,6 @@ impl Pt2D {
 
     pub fn y(&self) -> f64 {
         self.y
-    }
-
-    // TODO probably remove this
-    pub fn to_vec(&self) -> Vec2d {
-        [self.x(), self.y()]
     }
 
     // TODO better name

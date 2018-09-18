@@ -88,7 +88,7 @@ impl Polygon {
     pub fn for_drawing(&self) -> Vec<Vec<Vec2d>> {
         self.triangles
             .iter()
-            .map(|tri| vec![tri.pt1.to_vec(), tri.pt2.to_vec(), tri.pt3.to_vec()])
+            .map(|tri| vec![to_vec(tri.pt1), to_vec(tri.pt2), to_vec(tri.pt3)])
             .collect()
     }
 
@@ -169,4 +169,8 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
         sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
     }
     sum > 0.0
+}
+
+fn to_vec(pt: Pt2D) -> Vec2d {
+    [pt.x(), pt.y()]
 }

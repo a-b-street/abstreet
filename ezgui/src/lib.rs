@@ -98,8 +98,6 @@ impl<'a> GfxCtx<'a> {
         );
     }
 
-    // TODO triangulate the points here, or remove this and just have a version that draws
-    // triangles
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
         for pts in poly.for_drawing().iter() {
             graphics::Polygon::new(color).draw(

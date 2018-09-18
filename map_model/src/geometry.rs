@@ -71,7 +71,3 @@ pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
     pts.push(first_pt);
     Polygon::new(&pts)
 }
-
-pub fn drawing_line(l: &Line) -> [f64; 4] {
-    [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
-}
