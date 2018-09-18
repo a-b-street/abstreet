@@ -1,11 +1,10 @@
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{PolyLine, Polygon, Pt2D};
+use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{geometry, BusStop, BusStopID, Map};
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable};
+use render::{RenderOptions, Renderable};
 
 pub struct DrawBusStop {
     pub id: BusStopID,
@@ -48,8 +47,8 @@ impl Renderable for DrawBusStop {
         );
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.polygon.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

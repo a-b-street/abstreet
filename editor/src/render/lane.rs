@@ -1,15 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use control::ControlMap;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Circle, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model;
 use map_model::{geometry, LaneID};
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
@@ -148,8 +147,8 @@ impl Renderable for DrawLane {
         }
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.polygon.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

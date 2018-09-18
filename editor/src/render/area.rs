@@ -1,10 +1,9 @@
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Area, AreaID, AreaType, Map};
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable};
+use render::{RenderOptions, Renderable};
 
 #[derive(Debug)]
 pub struct DrawArea {
@@ -39,8 +38,8 @@ impl Renderable for DrawArea {
         );
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.fill_polygon.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.fill_polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

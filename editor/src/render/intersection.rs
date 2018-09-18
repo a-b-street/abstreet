@@ -1,13 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Circle, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
 use objects::{Ctx, ID};
-use render::{get_bbox, DrawLane, RenderOptions, Renderable};
+use render::{DrawLane, RenderOptions, Renderable};
 use std::f64;
 
 #[derive(Debug)]
@@ -127,8 +126,8 @@ impl Renderable for DrawIntersection {
         }
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.polygon.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

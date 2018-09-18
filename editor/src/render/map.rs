@@ -3,7 +3,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use control::ControlMap;
-use geom::{LonLat, Pt2D};
+use geom::{Bounds, LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
@@ -99,25 +99,25 @@ impl DrawMap {
         let mut quadtree = QuadTree::default(map_bbox);
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &lanes {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in &intersections {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in &buildings {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in &parcels {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in &extra_shapes {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in bus_stops.values() {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
         for obj in &areas {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bbox());
+            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
 
         (
@@ -309,5 +309,18 @@ impl DrawMap {
         returns.extend(peds);
 
         (borrows, returns)
+    }
+}
+
+fn get_bbox(b: Bounds) -> Rect {
+    Rect {
+        top_left: Point {
+            x: b.min_x as f32,
+            y: b.min_y as f32,
+        },
+        bottom_right: Point {
+            x: b.max_x as f32,
+            y: b.max_y as f32,
+        },
     }
 }

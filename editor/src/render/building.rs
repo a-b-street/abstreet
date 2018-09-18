@@ -1,12 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{Line, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map};
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
+use render::{RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
 
 #[derive(Debug)]
 pub struct DrawBuilding {
@@ -46,11 +45,11 @@ impl Renderable for DrawBuilding {
         g.draw_rounded_line(ctx.cs.get(Colors::BuildingPath), 1.0, &self.front_path);
     }
 
-    fn get_bbox(&self) -> Rect {
+    fn get_bounds(&self) -> Bounds {
         let mut b = self.fill_polygon.get_bounds();
         b.update_pt(self.front_path.pt1());
         b.update_pt(self.front_path.pt2());
-        get_bbox(&b)
+        b
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

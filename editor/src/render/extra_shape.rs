@@ -1,13 +1,10 @@
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{Circle, Polygon, Pt2D};
+use geom::{Bounds, Circle, Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
 use map_model::Map;
 use objects::{Ctx, ID};
-use render::{
-    get_bbox, RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
-};
+use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
@@ -53,10 +50,10 @@ impl Renderable for DrawExtraShape {
         }
     }
 
-    fn get_bbox(&self) -> Rect {
+    fn get_bounds(&self) -> Bounds {
         match self.shape {
-            Shape::Polygon(ref p) => get_bbox(&p.get_bounds()),
-            Shape::Circle(ref c) => get_bbox(&c.get_bounds()),
+            Shape::Polygon(ref p) => p.get_bounds(),
+            Shape::Circle(ref c) => c.get_bounds(),
         }
     }
 

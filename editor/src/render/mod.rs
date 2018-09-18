@@ -12,7 +12,6 @@ mod parcel;
 mod pedestrian;
 mod turn;
 
-use aabb_quadtree::geom::{Point, Rect};
 use ezgui::GfxCtx;
 use geom::{Bounds, Pt2D};
 use graphics::types::Color;
@@ -37,24 +36,10 @@ const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
 
-pub fn get_bbox(b: &Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
-    }
-}
-
 pub trait Renderable {
     fn get_id(&self) -> ID;
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx);
-    // TODO Maybe return Bounds
-    fn get_bbox(&self) -> Rect;
+    fn get_bounds(&self) -> Bounds;
     fn contains_pt(&self, pt: Pt2D) -> bool;
     fn tooltip_lines(&self, map: &Map) -> Vec<String>;
 }

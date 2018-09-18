@@ -1,10 +1,9 @@
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::{shift_color, GfxCtx};
-use geom::{Circle, Line, Pt2D};
+use geom::{Bounds, Circle, Line, Pt2D};
 use map_model::Map;
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable};
+use render::{RenderOptions, Renderable};
 use sim::{DrawPedestrianInput, PedestrianID};
 
 const RADIUS: f64 = 1.0;
@@ -51,8 +50,8 @@ impl Renderable for DrawPedestrian {
         }
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.circle.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.circle.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

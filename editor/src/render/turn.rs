@@ -1,15 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Circle, Line, Pt2D};
+use geom::{Bounds, Circle, Line, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
 use objects::{Ctx, ID};
 use render::{
-    get_bbox, RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
@@ -78,8 +77,8 @@ impl Renderable for DrawTurn {
         );
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.icon_circle.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.icon_circle.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {

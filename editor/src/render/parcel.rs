@@ -1,13 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{PolyLine, Polygon, Pt2D};
+use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::{Map, Parcel, ParcelID};
 use objects::{Ctx, ID};
-use render::{get_bbox, RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 const COLORS: [Color; 14] = [
     // TODO these are awful choices
@@ -61,8 +60,8 @@ impl Renderable for DrawParcel {
         g.draw_polygon(ctx.cs.get(Colors::ParcelBoundary), &self.boundary_polygon);
     }
 
-    fn get_bbox(&self) -> Rect {
-        get_bbox(&self.fill_polygon.get_bounds())
+    fn get_bounds(&self) -> Bounds {
+        self.fill_polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
