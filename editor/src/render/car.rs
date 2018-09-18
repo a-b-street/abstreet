@@ -1,8 +1,8 @@
 use colors::Colors;
 use dimensioned::si;
 use ezgui::{shift_color, GfxCtx};
-use geom::{Bounds, Line, Polygon, Pt2D};
-use map_model::{geometry, Map};
+use geom::{Angle, Bounds, Line, PolyLine, Polygon, Pt2D};
+use map_model::Map;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
 use sim::{CarID, CarState, DrawCarInput};
@@ -48,7 +48,7 @@ impl DrawCar {
         DrawCar {
             id: input.id,
             turn_arrow,
-            body_polygon: geometry::thick_line_from_angle(
+            body_polygon: thick_line_from_angle(
                 CAR_WIDTH,
                 input.vehicle_length.value_unsafe,
                 input.front,
@@ -58,7 +58,7 @@ impl DrawCar {
             // TODO it's way too hard to understand and tune this. just wait and stick in sprites
             // or something.
             window_polygons: vec![
-                geometry::thick_line_from_angle(
+                thick_line_from_angle(
                     front_window_thickness,
                     CAR_WIDTH - 2.0 * front_window_length_gap,
                     input
@@ -70,7 +70,7 @@ impl DrawCar {
                         ),
                     input.angle.rotate_degs(90.0),
                 ),
-                geometry::thick_line_from_angle(
+                thick_line_from_angle(
                     front_window_thickness * 0.8,
                     CAR_WIDTH - 2.0 * front_window_length_gap,
                     input
@@ -131,4 +131,10 @@ impl Renderable for DrawCar {
     fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
         vec![self.id.to_string()]
     }
+}
+
+fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: Angle) -> Polygon {
+    let pt2 = pt.project_away(line_length, angle);
+    // Shouldn't ever fail for a single line
+    PolyLine::new(vec![pt, pt2]).make_polygons_blindly(thickness)
 }

@@ -4,7 +4,7 @@ use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
-use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
+use map_model::{Intersection, IntersectionID, LaneType, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{DrawLane, RenderOptions, Renderable};
 use std::f64;
@@ -32,7 +32,7 @@ impl DrawIntersection {
             pts.push(line.pt2());
         }
 
-        let center = geometry::center(&pts);
+        let center = Pt2D::center(&pts);
         // Sort points by angle from the center
         pts.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
         let first_pt = pts[0].clone();
@@ -51,7 +51,7 @@ impl DrawIntersection {
         // TODO rotate it
         g.draw_polygon(
             ctx.cs.get(Colors::StopSignBackground),
-            &geometry::regular_polygon(self.center, 8, 1.5),
+            &Polygon::regular_polygon(self.center, 8, 1.5),
         );
         // TODO draw "STOP"
     }
@@ -170,13 +170,13 @@ fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<Line>> {
         // TODO awkward to express it this way
 
         let mut markings = Vec::new();
-        let tile_every = (geometry::LANE_THICKNESS * 0.6) * si::M;
+        let tile_every = (LANE_THICKNESS * 0.6) * si::M;
         let mut dist_along = tile_every;
         while dist_along < length - tile_every {
             let pt1 = line.dist_along(dist_along);
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(1.0, angle);
-            markings.push(perp_line(Line::new(pt1, pt2), geometry::LANE_THICKNESS));
+            markings.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
             dist_along += tile_every;
         }
         crosswalks.push(markings);

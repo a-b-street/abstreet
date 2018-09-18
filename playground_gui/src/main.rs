@@ -7,7 +7,7 @@ extern crate piston;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
 use geom::{Circle, PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
-use map_model::geometry;
+use map_model::LANE_THICKNESS;
 use piston::input::Key;
 use piston::window::Size;
 use std::f64;
@@ -228,8 +228,8 @@ impl UI {
 
     fn debug_intersection(&self, g: &mut GfxCtx, _labels: &mut Vec<(Pt2D, String)>) {
         let thin = 0.25;
-        let shift1_width = geometry::LANE_THICKNESS * 0.5;
-        let shift2_width = geometry::LANE_THICKNESS * 1.5;
+        let shift1_width = LANE_THICKNESS * 0.5;
+        let shift2_width = LANE_THICKNESS * 1.5;
 
         // All the center lines are expressed as incoming to the intersection
         let shared_pt = Pt2D::new(1983.3524141911557, 1260.9463599480669);
@@ -324,7 +324,7 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
 }
 
 fn draw_lane(g: &mut GfxCtx, pl: &PolyLine, color: Color) {
-    g.draw_polygon(color, &pl.make_polygons(geometry::LANE_THICKNESS).unwrap());
+    g.draw_polygon(color, &pl.make_polygons(LANE_THICKNESS).unwrap());
 
     // Debug the center points
     draw_polyline(g, pl, 0.25, SOLID_BLACK);

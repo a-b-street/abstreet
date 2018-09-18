@@ -1,6 +1,5 @@
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Line, Pt2D};
-use geometry;
 use make::sidewalk_finder::find_sidewalk_points;
 use raw_data;
 use std::collections::HashSet;
@@ -21,7 +20,7 @@ pub(crate) fn make_all_parcels(
             .iter()
             .map(|coord| Pt2D::from_gps(coord, bounds))
             .collect();
-        let center: HashablePt2D = geometry::center(&pts).into();
+        let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_parcel.push(pts);
         center_per_parcel.push(center);
         query.insert(center);

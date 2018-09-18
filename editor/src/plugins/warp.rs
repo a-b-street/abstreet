@@ -1,5 +1,6 @@
 use ezgui::{Canvas, TextBox, UserInput};
-use map_model::{geometry, AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
+use geom::Pt2D;
+use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
 use piston::input::Key;
 use plugins::Colorizer;
@@ -103,7 +104,7 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 if let Some(b) = map.maybe_get_b(id) {
                     println!("Warping to {}", id);
                     *selected = Some(ID::Building(id));
-                    geometry::center(&b.points)
+                    Pt2D::center(&b.points)
                 } else {
                     println!("{} doesn't exist", id);
                     return;
@@ -114,7 +115,7 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 if let Some(a) = map.maybe_get_a(id) {
                     println!("Warping to {}", id);
                     *selected = Some(ID::Area(id));
-                    geometry::center(&a.points)
+                    Pt2D::center(&a.points)
                 } else {
                     println!("{} doesn't exist", id);
                     return;
@@ -125,7 +126,7 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 let id = ParcelID(idx);
                 if let Some(p) = map.maybe_get_p(id) {
                     println!("Warping to {}", id);
-                    geometry::center(&p.points)
+                    Pt2D::center(&p.points)
                 } else {
                     println!("{} doesn't exist", id);
                     return;

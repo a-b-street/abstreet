@@ -5,10 +5,10 @@ use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Bounds, Circle, Line, Pt2D};
 use graphics::types::Color;
-use map_model::{geometry, Map, Turn, TurnID};
+use map_model::{Map, Turn, TurnID};
 use objects::{Ctx, ID};
 use render::{
-    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
@@ -53,7 +53,7 @@ impl DrawTurn {
     pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
         g.draw_rounded_arrow(
             color,
-            geometry::BIG_ARROW_THICKNESS,
+            BIG_ARROW_THICKNESS,
             BIG_ARROW_TIP_LENGTH,
             &Line::new(self.src_pt, self.dst_pt),
         );

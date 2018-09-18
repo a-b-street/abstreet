@@ -71,6 +71,17 @@ impl Pt2D {
     pub fn offset(&self, dx: f64, dy: f64) -> Pt2D {
         Pt2D::new(self.x() + dx, self.y() + dy)
     }
+
+    pub fn center(pts: &Vec<Pt2D>) -> Pt2D {
+        let mut x = 0.0;
+        let mut y = 0.0;
+        for pt in pts {
+            x += pt.x();
+            y += pt.y();
+        }
+        let len = pts.len() as f64;
+        Pt2D::new(x / len, y / len)
+    }
 }
 
 impl fmt::Display for Pt2D {

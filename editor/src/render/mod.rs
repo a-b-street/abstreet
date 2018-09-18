@@ -15,7 +15,7 @@ mod turn;
 use ezgui::GfxCtx;
 use geom::{Bounds, Pt2D};
 use graphics::types::Color;
-use map_model::{geometry, Map};
+use map_model::Map;
 use objects::{Ctx, ID};
 pub use render::area::DrawArea;
 pub use render::car::DrawCar;
@@ -31,7 +31,8 @@ const BUILDING_BOUNDARY_THICKNESS: f64 = 1.5;
 const EXTRA_SHAPE_THICKNESS: f64 = 1.0;
 const EXTRA_SHAPE_POINT_RADIUS: f64 = 1.0;
 
-const TURN_ICON_ARROW_THICKNESS: f64 = geometry::BIG_ARROW_THICKNESS / 3.0;
+pub const BIG_ARROW_THICKNESS: f64 = 0.5;
+const TURN_ICON_ARROW_THICKNESS: f64 = BIG_ARROW_THICKNESS / 3.0;
 const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;

@@ -16,7 +16,6 @@ mod area;
 mod building;
 mod bus_stop;
 mod edits;
-pub mod geometry;
 mod intersection;
 mod lane;
 mod make;
@@ -38,3 +37,5 @@ pub use parcel::{Parcel, ParcelID};
 pub use pathfind::Pathfinder;
 pub use road::{Road, RoadID};
 pub use turn::{Turn, TurnID};
+
+pub const LANE_THICKNESS: f64 = 2.5;

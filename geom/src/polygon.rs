@@ -1,4 +1,5 @@
 use graphics::math::Vec2d;
+use std::f64;
 use {Bounds, Pt2D};
 
 #[derive(Debug)]
@@ -107,6 +108,20 @@ impl Polygon {
             b.update_pt(tri.pt3);
         }
         b
+    }
+
+    pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
+        let mut pts = Vec::new();
+        for i in 0..sides {
+            let theta = (i as f64) * 2.0 * f64::consts::PI / (sides as f64);
+            pts.push(Pt2D::new(
+                length * theta.cos() + center.x(),
+                length * theta.sin() + center.y(),
+            ));
+        }
+        let first_pt = pts[0];
+        pts.push(first_pt);
+        Polygon::new(&pts)
     }
 }
 

@@ -3,7 +3,7 @@ use generator;
 use geo;
 use geo::prelude::Intersects;
 use geom::{Polygon, Pt2D};
-use map_model::{geometry, BuildingID, IntersectionID, LaneID, Map, ParcelID};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
@@ -157,7 +157,7 @@ fn get_pt(map: &Map, id: ID) -> Pt2D {
     match id {
         ID::Lane(id) => map.get_l(id).first_pt(),
         ID::Intersection(id) => map.get_i(id).point,
-        ID::Building(id) => geometry::center(&map.get_b(id).points),
-        ID::Parcel(id) => geometry::center(&map.get_p(id).points),
+        ID::Building(id) => Pt2D::center(&map.get_b(id).points),
+        ID::Parcel(id) => Pt2D::center(&map.get_p(id).points),
     }
 }

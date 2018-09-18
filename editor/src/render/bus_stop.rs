@@ -2,7 +2,7 @@ use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
-use map_model::{geometry, BusStop, BusStopID, Map};
+use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
 
@@ -27,7 +27,7 @@ impl DrawBusStop {
             lane.safe_dist_along(stop.dist_along + radius)
                 .map(|(pt, _)| pt)
                 .unwrap_or(lane.last_pt()),
-        ]).make_polygons_blindly(0.8 * geometry::LANE_THICKNESS);
+        ]).make_polygons_blindly(0.8 * LANE_THICKNESS);
         DrawBusStop {
             id: stop.id,
             polygon,

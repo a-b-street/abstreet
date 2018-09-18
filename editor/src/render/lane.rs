@@ -6,9 +6,9 @@ use dimensioned::si;
 use ezgui::GfxCtx;
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model;
-use map_model::{geometry, LaneID};
+use map_model::{LaneID, LANE_THICKNESS};
 use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
@@ -35,18 +35,16 @@ pub struct DrawLane {
 impl DrawLane {
     pub fn new(lane: &map_model::Lane, map: &map_model::Map, control_map: &ControlMap) -> DrawLane {
         let road = map.get_r(lane.parent);
-        let start = new_perp_line(lane.first_line(), geometry::LANE_THICKNESS);
-        let end = new_perp_line(lane.last_line().reverse(), geometry::LANE_THICKNESS);
-        let polygon = lane
-            .lane_center_pts
-            .make_polygons_blindly(geometry::LANE_THICKNESS);
+        let start = new_perp_line(lane.first_line(), LANE_THICKNESS);
+        let end = new_perp_line(lane.last_line().reverse(), LANE_THICKNESS);
+        let polygon = lane.lane_center_pts.make_polygons_blindly(LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
             markings.push(Marking {
                 lines: road.center_pts.lines(),
                 color: Colors::RoadOrientation,
-                thickness: geometry::BIG_ARROW_THICKNESS,
+                thickness: BIG_ARROW_THICKNESS,
                 round: true,
             });
         }
@@ -193,7 +191,7 @@ fn new_perp_line(l: Line, length: f64) -> Line {
 }
 
 fn calculate_sidewalk_lines(lane: &map_model::Lane) -> Marking {
-    let tile_every = geometry::LANE_THICKNESS * si::M;
+    let tile_every = LANE_THICKNESS * si::M;
 
     let length = lane.length();
 
@@ -204,7 +202,7 @@ fn calculate_sidewalk_lines(lane: &map_model::Lane) -> Marking {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(1.0, angle);
-        lines.push(perp_line(Line::new(pt, pt2), geometry::LANE_THICKNESS));
+        lines.push(perp_line(Line::new(pt, pt2), LANE_THICKNESS));
         dist_along += tile_every;
     }
 
@@ -230,7 +228,7 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
             let perp_angle = lane_angle.rotate_degs(270.0);
             // Find the outside of the lane. Actually, shift inside a little bit, since the line will
             // have thickness, but shouldn't really intersect the adjacent line when drawn.
-            let t_pt = pt.project_away(geometry::LANE_THICKNESS * 0.4, perp_angle);
+            let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
             lines.push(Line::new(t_pt, p1));
@@ -259,7 +257,7 @@ fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> 
 
     // Project left, so reverse the points.
     let center_pts = lane.lane_center_pts.reversed();
-    let lane_edge_pts = center_pts.shift_blindly(geometry::LANE_THICKNESS / 2.0);
+    let lane_edge_pts = center_pts.shift_blindly(LANE_THICKNESS / 2.0);
 
     // This is an incredibly expensive way to compute dashed polyines, and it doesn't follow bends
     // properly. Just a placeholder.
@@ -295,12 +293,11 @@ fn calculate_stop_sign_line(lane: &map_model::Lane, control_map: &ControlMap) ->
 
     // TODO maybe draw the stop sign octagon on each lane?
 
-    let (pt1, angle) =
-        lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
+    let (pt1, angle) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
     // Reuse perp_line. Project away an arbitrary amount
     let pt2 = pt1.project_away(1.0, angle);
     Some(Marking {
-        lines: vec![perp_line(Line::new(pt1, pt2), geometry::LANE_THICKNESS)],
+        lines: vec![perp_line(Line::new(pt1, pt2), LANE_THICKNESS)],
         color: Colors::StopSignMarking,
         thickness: 0.45,
         round: true,
@@ -312,8 +309,7 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
         return None;
     }
 
-    let (pt1, _) =
-        lane.safe_dist_along(lane.length() - (2.0 * geometry::LANE_THICKNESS * si::M))?;
-    let (pt2, _) = lane.safe_dist_along(2.0 * geometry::LANE_THICKNESS * si::M)?;
+    let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
+    let (pt2, _) = lane.safe_dist_along(2.0 * LANE_THICKNESS * si::M)?;
     Some(vec![pt1, pt2])
 }

@@ -4,7 +4,6 @@ use abstutil;
 use edits::Edits;
 use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
-use geometry;
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -12,7 +11,7 @@ use std::io::Error;
 use std::path;
 use {
     Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
-    Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
+    Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -124,7 +123,7 @@ impl Map {
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 // Reverse points for British-style driving on the left
-                let width = geometry::LANE_THICKNESS * ((lane.offset as f64) + 0.5);
+                let width = LANE_THICKNESS * ((lane.offset as f64) + 0.5);
                 let (lane_center_pts, probably_broken) = match unshifted_pts.shift(width) {
                     Some(pts) => (pts, false),
                     // TODO wasteful to calculate again, but eh
