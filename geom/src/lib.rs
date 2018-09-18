@@ -8,6 +8,7 @@ extern crate serde_derive;
 
 mod angle;
 mod bounds;
+mod circle;
 mod gps;
 mod line;
 mod polygon;
@@ -16,6 +17,7 @@ mod pt;
 
 pub use angle::Angle;
 pub use bounds::Bounds;
+pub use circle::Circle;
 use dimensioned::si;
 pub use gps::LonLat;
 pub use line::Line;

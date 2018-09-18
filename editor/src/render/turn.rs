@@ -4,12 +4,12 @@ use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Line, Pt2D};
+use geom::{Circle, Line, Pt2D};
 use graphics::types::Color;
 use map_model::{geometry, Map, Turn, TurnID};
 use objects::{Ctx, ID};
 use render::{
-    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
+    get_bbox, RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
@@ -19,7 +19,7 @@ pub struct DrawTurn {
     pub id: TurnID,
     src_pt: Pt2D,
     dst_pt: Pt2D,
-    icon_circle: [f64; 4],
+    icon_circle: Circle,
     icon_arrow: Line,
 }
 
@@ -36,7 +36,7 @@ impl DrawTurn {
             .reverse()
             .unbounded_dist_along((offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
 
-        let icon_circle = geometry::make_circle(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
+        let icon_circle = Circle::new(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
 
         let icon_src = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite());
         let icon_dst = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle);
@@ -68,7 +68,7 @@ impl Renderable for DrawTurn {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        g.draw_ellipse(ctx.cs.get(Colors::TurnIconCircle), self.icon_circle);
+        g.draw_circle(ctx.cs.get(Colors::TurnIconCircle), &self.icon_circle);
 
         g.draw_arrow(
             opts.color.unwrap_or(ctx.cs.get(Colors::TurnIconInactive)),
@@ -79,11 +79,11 @@ impl Renderable for DrawTurn {
     }
 
     fn get_bbox(&self) -> Rect {
-        geometry::circle_to_bbox(&self.icon_circle)
+        get_bbox(&self.icon_circle.get_bounds())
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
-        geometry::point_in_circle(&self.icon_circle, pt)
+        self.icon_circle.contains_pt(pt)
     }
 
     fn tooltip_lines(&self, map: &Map) -> Vec<String> {

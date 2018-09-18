@@ -5,7 +5,6 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-aabb-quadtree = "0.1.0"
 dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 flame = "0.2.2"
 geo = "0.9.1"

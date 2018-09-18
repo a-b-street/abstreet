@@ -4,7 +4,7 @@ use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Line, Polygon, Pt2D};
+use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::{geometry, Intersection, IntersectionID, LaneType, Map};
 use objects::{Ctx, ID};
 use render::{get_bbox, DrawLane, RenderOptions, Renderable};
@@ -70,19 +70,19 @@ impl DrawIntersection {
             ],
         );
 
-        g.draw_ellipse(
+        g.draw_circle(
             ctx.cs.get(Colors::TrafficSignalYellow),
-            geometry::make_circle(self.center, radius),
+            &Circle::new(self.center, radius),
         );
 
-        g.draw_ellipse(
+        g.draw_circle(
             ctx.cs.get(Colors::TrafficSignalGreen),
-            geometry::make_circle(self.center.offset(0.0, radius * 2.0), radius),
+            &Circle::new(self.center.offset(0.0, radius * 2.0), radius),
         );
 
-        g.draw_ellipse(
+        g.draw_circle(
             ctx.cs.get(Colors::TrafficSignalRed),
-            geometry::make_circle(self.center.offset(0.0, radius * -2.0), radius),
+            &Circle::new(self.center.offset(0.0, radius * -2.0), radius),
         );
     }
 }

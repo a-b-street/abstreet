@@ -1,9 +1,9 @@
 use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::GfxCtx;
-use geom::{Polygon, Pt2D};
+use geom::{Circle, Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
-use map_model::{geometry, Map};
+use map_model::Map;
 use objects::{Ctx, ID};
 use render::{
     get_bbox, RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 #[derive(Debug)]
 enum Shape {
     Polygon(Polygon),
-    Circle([f64; 4]),
+    Circle(Circle),
 }
 
 #[derive(Debug)]
@@ -29,7 +29,7 @@ impl DrawExtraShape {
             id: s.id,
             shape: match s.geom {
                 ExtraShapeGeom::Point(pt) => {
-                    Shape::Circle(geometry::make_circle(pt, EXTRA_SHAPE_POINT_RADIUS))
+                    Shape::Circle(Circle::new(pt, EXTRA_SHAPE_POINT_RADIUS))
                 }
                 ExtraShapeGeom::Points(pl) => {
                     Shape::Polygon(pl.make_polygons(EXTRA_SHAPE_THICKNESS).unwrap())
@@ -49,21 +49,21 @@ impl Renderable for DrawExtraShape {
         let color = opts.color.unwrap_or(ctx.cs.get(Colors::ExtraShape));
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(color, &p),
-            Shape::Circle(c) => g.draw_ellipse(color, c),
+            Shape::Circle(ref c) => g.draw_circle(color, c),
         }
     }
 
     fn get_bbox(&self) -> Rect {
         match self.shape {
             Shape::Polygon(ref p) => get_bbox(&p.get_bounds()),
-            Shape::Circle(c) => geometry::circle_to_bbox(&c),
+            Shape::Circle(ref c) => get_bbox(&c.get_bounds()),
         }
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         match self.shape {
             Shape::Polygon(ref p) => p.contains_pt(pt),
-            Shape::Circle(c) => geometry::point_in_circle(&c, pt),
+            Shape::Circle(ref c) => c.contains_pt(pt),
         }
     }
 

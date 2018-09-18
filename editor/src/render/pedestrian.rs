@@ -1,18 +1,17 @@
 use aabb_quadtree::geom::Rect;
 use colors::Colors;
 use ezgui::{shift_color, GfxCtx};
-use geom::{Line, Pt2D};
-use map_model::{geometry, Map};
+use geom::{Circle, Line, Pt2D};
+use map_model::Map;
 use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
+use render::{get_bbox, RenderOptions, Renderable};
 use sim::{DrawPedestrianInput, PedestrianID};
 
 const RADIUS: f64 = 1.0;
 
-// TODO should this live in editor/render?
 pub struct DrawPedestrian {
     pub id: PedestrianID,
-    circle: [f64; 4],
+    circle: Circle,
     turn_arrow: Option<Line>,
 }
 
@@ -29,7 +28,7 @@ impl DrawPedestrian {
 
         DrawPedestrian {
             id: input.id,
-            circle: geometry::make_circle(input.pos, RADIUS),
+            circle: Circle::new(input.pos, RADIUS),
             turn_arrow,
         }
     }
@@ -44,7 +43,7 @@ impl Renderable for DrawPedestrian {
         let color = opts
             .color
             .unwrap_or(shift_color(ctx.cs.get(Colors::Pedestrian), self.id.0));
-        g.draw_ellipse(color, self.circle);
+        g.draw_circle(color, &self.circle);
 
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
@@ -53,11 +52,11 @@ impl Renderable for DrawPedestrian {
     }
 
     fn get_bbox(&self) -> Rect {
-        geometry::circle_to_bbox(&self.circle)
+        get_bbox(&self.circle.get_bounds())
     }
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
-        geometry::point_in_circle(&self.circle, pt)
+        self.circle.contains_pt(pt)
     }
 
     fn tooltip_lines(&self, _map: &Map) -> Vec<String> {

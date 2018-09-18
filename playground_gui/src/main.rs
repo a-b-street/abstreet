@@ -5,7 +5,7 @@ extern crate map_model;
 extern crate piston;
 
 use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
-use geom::{PolyLine, Polygon, Pt2D};
+use geom::{Circle, PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::geometry;
 use piston::input::Key;
@@ -284,7 +284,7 @@ impl UI {
 
         let hit = vertical_pl.intersection(&horiz_pl).unwrap();
         if false {
-            g.draw_ellipse(BLUE, geometry::make_circle(hit, 1.0));
+            g.draw_circle(BLUE, &Circle::new(hit, 1.0));
         } else {
             vertical_pl.trim_to_pt(hit);
             horiz_pl.trim_to_pt(hit);
@@ -319,7 +319,7 @@ fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
     let pts = pl.points();
     assert!(pts.len() >= 2);
     for pt in pts {
-        g.draw_ellipse(BLUE, geometry::make_circle(*pt, radius));
+        g.draw_circle(BLUE, &Circle::new(*pt, radius));
     }
 }
 

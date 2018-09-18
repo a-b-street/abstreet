@@ -5,7 +5,7 @@ use colors::Colors;
 use control::ControlMap;
 use dimensioned::si;
 use ezgui::GfxCtx;
-use geom::{Line, Polygon, Pt2D};
+use geom::{Circle, Line, Polygon, Pt2D};
 use map_model;
 use map_model::{geometry, LaneID};
 use objects::{Ctx, ID};
@@ -90,8 +90,8 @@ impl DrawLane {
                 PARCEL_BOUNDARY_THICKNESS / 2.0,
                 &l,
             );
-            g.draw_ellipse(circle_color, geometry::make_circle(l.pt1(), 0.4));
-            g.draw_ellipse(circle_color, geometry::make_circle(l.pt2(), 0.8));
+            g.draw_circle(circle_color, &Circle::new(l.pt1(), 0.4));
+            g.draw_circle(circle_color, &Circle::new(l.pt2(), 0.8));
         }
 
         for pt in &self.draw_id_at {

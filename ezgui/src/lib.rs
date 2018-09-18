@@ -109,9 +109,14 @@ impl<'a> GfxCtx<'a> {
         }
     }
 
-    pub fn draw_ellipse(&mut self, color: Color, ellipse: [f64; 4]) {
+    pub fn draw_circle(&mut self, color: Color, circle: &geom::Circle) {
         graphics::Ellipse::new(color).draw(
-            ellipse,
+            [
+                circle.center.x() - circle.radius,
+                circle.center.y() - circle.radius,
+                2.0 * circle.radius,
+                2.0 * circle.radius,
+            ],
             &self.ctx.draw_state,
             self.ctx.transform,
             self.gfx,
