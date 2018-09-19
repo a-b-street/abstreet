@@ -6,7 +6,7 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui::{Canvas, EventLoopMode, GfxCtx, ToggleableLayer, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, ToggleableLayer, UserInput, GUI};
 use flame;
 use graphics::types::Color;
 use kml;
@@ -449,28 +449,13 @@ impl UI {
         self.draw_polygon.draw(g);
 
         // TODO Only if active (except for the weird sim_ctrl)?
-        let mut osd_lines = self.sim_ctrl.get_osd_lines(&self.sim);
-        let action_lines = input.get_possible_actions();
-        if !action_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(action_lines);
-        }
-        let search_lines = self.search_state.get_osd_lines();
-        if !search_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(search_lines);
-        }
-        let warp_lines = self.warp.get_osd_lines();
-        if !warp_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(warp_lines);
-        }
-        let draw_poly_lines = self.draw_polygon.get_osd_lines();
-        if !draw_poly_lines.is_empty() {
-            osd_lines.push(String::from(""));
-            osd_lines.extend(draw_poly_lines);
-        }
-        self.canvas.draw_osd_notification(g, &osd_lines);
+        let mut osd = TextOSD::new();
+        input.populate_osd(&mut osd);
+        self.sim_ctrl.populate_osd(&self.sim, &mut osd);
+        self.search_state.populate_osd(&mut osd);
+        self.warp.populate_osd(&mut osd);
+        self.draw_polygon.populate_osd(&mut osd);
+        self.canvas.draw_osd_notification(g, osd);
     }
 
     fn color_obj(&self, id: ID) -> Option<Color> {

@@ -24,6 +24,7 @@ pub use menu::{Menu, MenuResult};
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, EventLoopMode, GUI};
+pub use text::TextOSD;
 pub use text_box::TextBox;
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {

@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{TextBox, UserInput};
+use ezgui::{TextBox, TextOSD, UserInput};
 use graphics::types::Color;
 use objects::{Ctx, ID};
 use piston::input::Key;
@@ -58,12 +58,11 @@ impl SearchState {
         }
     }
 
-    pub fn get_osd_lines(&self) -> Vec<String> {
-        // TODO draw the cursor
-        if let SearchState::EnteringSearch(text_box) = self {
-            return vec![text_box.line.clone()];
+    pub fn populate_osd(&self, osd: &mut TextOSD) {
+        if let SearchState::EnteringSearch(tb) = self {
+            osd.pad_if_nonempty();
+            tb.populate_osd(osd);
         }
-        Vec::new()
     }
 }
 

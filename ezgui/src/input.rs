@@ -3,6 +3,7 @@
 use keys::describe_key;
 use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
 use std::collections::HashMap;
+use TextOSD;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -155,9 +156,11 @@ impl UserInput {
         self.event_consumed = true;
     }
 
-    pub fn get_possible_actions(self) -> Vec<String> {
+    pub fn populate_osd(self, osd: &mut TextOSD) {
         // TODO have a way to toggle showing all actions!
-        self.important_actions
+        for a in self.important_actions.into_iter() {
+            osd.add_line(a);
+        }
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {

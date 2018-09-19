@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::{EventLoopMode, UserInput};
+use ezgui::{EventLoopMode, TextOSD, UserInput};
 use map_model::Map;
 use objects::ID;
 use piston::input::{Key, UpdateEvent};
@@ -113,13 +113,12 @@ impl SimController {
         }
     }
 
-    pub fn get_osd_lines(&self, sim: &Sim) -> Vec<String> {
-        vec![
-            sim.summary(),
-            format!(
-                "Speed: {0} / desired {1:.2}x",
-                self.sim_speed, self.desired_speed
-            ),
-        ]
+    pub fn populate_osd(&self, sim: &Sim, osd: &mut TextOSD) {
+        osd.pad_if_nonempty();
+        osd.add_line(sim.summary());
+        osd.add_line(format!(
+            "Speed: {0} / desired {1:.2}x",
+            self.sim_speed, self.desired_speed
+        ));
     }
 }

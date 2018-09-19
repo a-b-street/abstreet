@@ -1,4 +1,4 @@
-use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
+use ezgui::{Canvas, GfxCtx, TextBox, TextOSD, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
@@ -76,12 +76,11 @@ impl DrawPolygonState {
         }
     }
 
-    pub fn get_osd_lines(&self) -> Vec<String> {
-        // TODO draw the cursor
+    pub fn populate_osd(&self, osd: &mut TextOSD) {
         if let DrawPolygonState::NamingPolygon(tb, _) = self {
-            return vec![tb.line.clone()];
+            osd.pad_if_nonempty();
+            tb.populate_osd(osd);
         }
-        Vec::new()
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

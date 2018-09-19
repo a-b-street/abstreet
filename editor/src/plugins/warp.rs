@@ -1,4 +1,4 @@
-use ezgui::{Canvas, TextBox, UserInput};
+use ezgui::{Canvas, TextBox, TextOSD, UserInput};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
@@ -46,12 +46,11 @@ impl WarpState {
         }
     }
 
-    pub fn get_osd_lines(&self) -> Vec<String> {
-        // TODO draw the cursor
-        if let WarpState::EnteringSearch(text_box) = self {
-            return vec![text_box.line.clone()];
+    pub fn populate_osd(&self, osd: &mut TextOSD) {
+        if let WarpState::EnteringSearch(tb) = self {
+            osd.pad_if_nonempty();
+            tb.populate_osd(osd);
         }
-        Vec::new()
     }
 }
 

@@ -7,7 +7,7 @@ use piston::input::{
     Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
 };
 use piston::window::Size;
-use {text, GfxCtx};
+use {text, GfxCtx, TextOSD};
 
 const ZOOM_SPEED: f64 = 0.1;
 
@@ -84,21 +84,21 @@ impl Canvas {
         let (width, height) = text::dims(g, lines);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        text::draw_text_bubble(g, lines, (x1, y1));
+        text::draw_text_bubble(g, lines, (x1, y1), None);
     }
 
     // at the bottom-left of the screen
-    pub fn draw_osd_notification(&self, g: &mut GfxCtx, lines: &[String]) {
-        if lines.is_empty() {
+    pub fn draw_osd_notification(&self, g: &mut GfxCtx, osd: TextOSD) {
+        if osd.is_empty() {
             return;
         }
-        let (_, height) = text::dims(g, lines);
+        let (_, height) = text::dims(g, &osd.lines);
         let y1 = f64::from(self.window_size.height) - height;
-        text::draw_text_bubble(g, lines, (0.0, y1));
+        text::draw_text_bubble(g, &osd.lines, (0.0, y1), osd.highlight_char);
     }
 
     pub fn draw_text_at(&self, g: &mut GfxCtx, lines: &[String], pt: Pt2D) {
-        text::draw_text_bubble(g, lines, self.map_to_screen(pt));
+        text::draw_text_bubble(g, lines, self.map_to_screen(pt), None);
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

@@ -2,6 +2,7 @@
 
 use keys::key_to_char;
 use piston::input::{Button, Event, Key, PressEvent, ReleaseEvent};
+use TextOSD;
 
 // TODO right now, only a single line
 
@@ -19,6 +20,10 @@ impl TextBox {
             cursor_x: 0,
             shift_pressed: false,
         }
+    }
+
+    pub fn populate_osd(&self, osd: &mut TextOSD) {
+        osd.add_line_with_cursor(self.line.clone(), self.cursor_x);
     }
 
     // Returns true if the user confirmed their entry.
