@@ -21,6 +21,7 @@ impl Menu {
         }
     }
 
+    // TODO take UserInput
     pub fn event(&mut self, ev: &Event) -> MenuResult {
         if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
             return MenuResult::Canceled;

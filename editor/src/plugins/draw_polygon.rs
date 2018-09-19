@@ -1,9 +1,10 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
+use std;
 
 const POINT_RADIUS: f64 = 2.0;
 
@@ -13,6 +14,7 @@ pub enum DrawPolygonState {
     DrawingPoints(Vec<Pt2D>, Option<usize>),
     MovingPoint(Vec<Pt2D>, usize),
     NamingPolygon(TextBox, Vec<Pt2D>),
+    ListingPolygons(Menu),
 }
 
 impl DrawPolygonState {
@@ -29,7 +31,14 @@ impl DrawPolygonState {
                 }
             }
             DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx) => {
-                if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
+                if input.key_pressed(Key::Tab, "list existing polygons") {
+                    let list = list_polygons(map.get_name()).expect("couldn't list polygons");
+                    if list.is_empty() {
+                        println!("Oops, no existing polygons");
+                    } else {
+                        new_state = Some(DrawPolygonState::ListingPolygons(Menu::new(list)));
+                    }
+                } else if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
                     new_state = Some(DrawPolygonState::Empty);
                 } else if input.key_pressed(Key::P, "add a new point here") {
                     pts.push(canvas.get_cursor_in_map_space());
@@ -76,6 +85,18 @@ impl DrawPolygonState {
                 }
                 input.consume_event();
             }
+            DrawPolygonState::ListingPolygons(ref mut menu) => {
+                match menu.event(input.use_event_directly()) {
+                    MenuResult::Canceled => {
+                        new_state = Some(DrawPolygonState::Empty);
+                    }
+                    MenuResult::StillActive => {}
+                    MenuResult::Done(choice) => {
+                        println!("let's load {}", choice);
+                        // TODO
+                    }
+                };
+            }
         }
         if let Some(s) = new_state {
             *self = s;
@@ -93,7 +114,7 @@ impl DrawPolygonState {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         // TODO add colorscheme entries
         let red = [1.0, 0.0, 0.0, 1.0];
         let green = [0.0, 1.0, 0.0, 1.0];
@@ -108,6 +129,11 @@ impl DrawPolygonState {
             DrawPolygonState::MovingPoint(pts, idx) => (pts, Some(*idx)),
             DrawPolygonState::NamingPolygon(_, pts) => {
                 g.draw_polygon(blue, &Polygon::new(pts));
+                return;
+            }
+            DrawPolygonState::ListingPolygons(menu) => {
+                // TODO urgh, dont do this
+                canvas.draw_mouse_tooltip(g, &menu.lines_to_display());
                 return;
             }
         };
@@ -136,4 +162,14 @@ impl Colorizer for DrawPolygonState {}
 struct PolygonSelection {
     name: String,
     points: Vec<Pt2D>,
+}
+
+fn list_polygons(map_name: &str) -> Result<Vec<String>, std::io::Error> {
+    let mut results: Vec<String> = Vec::new();
+    for entry in std::fs::read_dir(format!("../data/polygons/{}/", map_name))? {
+        let entry = entry?;
+        results.push(entry.file_name().into_string().unwrap());
+    }
+    results.sort();
+    Ok(results)
 }

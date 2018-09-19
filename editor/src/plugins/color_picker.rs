@@ -38,7 +38,6 @@ impl ColorPicker {
                 }
             }
             ColorPicker::Choosing(ref mut menu) => {
-                // TODO arrow keys scroll canvas too
                 match menu.event(input.use_event_directly()) {
                     MenuResult::Canceled => {
                         new_state = Some(ColorPicker::Inactive);

@@ -446,7 +446,7 @@ impl UI {
         self.debug_objects
             .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
         self.color_picker.draw(&self.canvas, g);
-        self.draw_polygon.draw(g);
+        self.draw_polygon.draw(g, &self.canvas);
 
         // TODO Only if active (except for the weird sim_ctrl)?
         let mut osd = TextOSD::new();
