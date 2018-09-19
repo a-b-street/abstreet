@@ -10,9 +10,10 @@ const POINT_RADIUS: f64 = 2.0;
 
 pub enum DrawPolygonState {
     Empty,
-    // Option<usize> is the point currently being hovered over
-    DrawingPoints(Vec<Pt2D>, Option<usize>),
-    MovingPoint(Vec<Pt2D>, usize),
+    // Option<usize> is the point currently being hovered over, String is the possibly empty
+    // pre-chosen name
+    DrawingPoints(Vec<Pt2D>, Option<usize>, String),
+    MovingPoint(Vec<Pt2D>, usize, String),
     NamingPolygon(TextBox, Vec<Pt2D>),
     ListingPolygons(Menu),
 }
@@ -27,10 +28,14 @@ impl DrawPolygonState {
         match self {
             DrawPolygonState::Empty => {
                 if input.unimportant_key_pressed(Key::N, "start drawing a polygon") {
-                    new_state = Some(DrawPolygonState::DrawingPoints(Vec::new(), None));
+                    new_state = Some(DrawPolygonState::DrawingPoints(
+                        Vec::new(),
+                        None,
+                        "".to_string(),
+                    ));
                 }
             }
-            DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx) => {
+            DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
                 if input.key_pressed(Key::Tab, "list existing polygons") {
                     let list = list_polygons(map.get_name()).expect("couldn't list polygons");
                     if list.is_empty() {
@@ -45,7 +50,10 @@ impl DrawPolygonState {
                 } else if pts.len() >= 3
                     && input.key_pressed(Key::Return, "confirm the polygon's shape")
                 {
-                    new_state = Some(DrawPolygonState::NamingPolygon(TextBox::new(), pts.clone()));
+                    new_state = Some(DrawPolygonState::NamingPolygon(
+                        TextBox::new_prefilled(name.clone()),
+                        pts.clone(),
+                    ));
                 }
 
                 if new_state.is_none() {
@@ -57,17 +65,25 @@ impl DrawPolygonState {
                         // TODO mouse dragging might be more intuitive, but it's unclear how to
                         // override part of canvas.handle_event
                         if input.key_pressed(Key::LCtrl, "hold to move this point") {
-                            new_state = Some(DrawPolygonState::MovingPoint(pts.clone(), *idx));
+                            new_state = Some(DrawPolygonState::MovingPoint(
+                                pts.clone(),
+                                *idx,
+                                name.clone(),
+                            ));
                         }
                     }
                 }
             }
-            DrawPolygonState::MovingPoint(ref mut pts, idx) => {
+            DrawPolygonState::MovingPoint(ref mut pts, idx, name) => {
                 pts[*idx] = canvas.get_cursor_in_map_space();
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    new_state = Some(DrawPolygonState::DrawingPoints(pts.clone(), Some(*idx)));
+                    new_state = Some(DrawPolygonState::DrawingPoints(
+                        pts.clone(),
+                        Some(*idx),
+                        name.clone(),
+                    ));
                 }
             }
             DrawPolygonState::NamingPolygon(tb, pts) => {
@@ -92,8 +108,16 @@ impl DrawPolygonState {
                     }
                     MenuResult::StillActive => {}
                     MenuResult::Done(choice) => {
-                        println!("let's load {}", choice);
-                        // TODO
+                        let load: PolygonSelection = abstutil::read_json(&format!(
+                            "../data/polygons/{}/{}",
+                            map.get_name(),
+                            choice
+                        )).unwrap();
+                        new_state = Some(DrawPolygonState::DrawingPoints(
+                            load.points,
+                            None,
+                            load.name,
+                        ));
                     }
                 };
             }
@@ -108,9 +132,17 @@ impl DrawPolygonState {
     }
 
     pub fn populate_osd(&self, osd: &mut TextOSD) {
-        if let DrawPolygonState::NamingPolygon(tb, _) = self {
-            osd.pad_if_nonempty();
-            tb.populate_osd(osd);
+        match self {
+            DrawPolygonState::NamingPolygon(tb, _) => {
+                osd.pad_if_nonempty();
+                tb.populate_osd(osd);
+            }
+            DrawPolygonState::DrawingPoints(_, _, name)
+            | DrawPolygonState::MovingPoint(_, _, name) => {
+                osd.pad_if_nonempty();
+                osd.add_line(format!("Currently editing {}", name));
+            }
+            _ => {}
         }
     }
 
@@ -125,8 +157,8 @@ impl DrawPolygonState {
             DrawPolygonState::Empty => {
                 return;
             }
-            DrawPolygonState::DrawingPoints(pts, current_idx) => (pts, *current_idx),
-            DrawPolygonState::MovingPoint(pts, idx) => (pts, Some(*idx)),
+            DrawPolygonState::DrawingPoints(pts, current_idx, _) => (pts, *current_idx),
+            DrawPolygonState::MovingPoint(pts, idx, _) => (pts, Some(*idx)),
             DrawPolygonState::NamingPolygon(_, pts) => {
                 g.draw_polygon(blue, &Polygon::new(pts));
                 return;

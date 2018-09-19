@@ -15,8 +15,12 @@ pub struct TextBox {
 
 impl TextBox {
     pub fn new() -> TextBox {
+        TextBox::new_prefilled(String::from(""))
+    }
+
+    pub fn new_prefilled(line: String) -> TextBox {
         TextBox {
-            line: String::from(""),
+            line,
             cursor_x: 0,
             shift_pressed: false,
         }
