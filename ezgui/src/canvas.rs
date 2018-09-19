@@ -81,10 +81,15 @@ impl Canvas {
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, lines: &[String]) {
-        let (width, height) = text::dims(g, lines);
+        let mut osd = TextOSD::new();
+        for l in lines {
+            osd.add_line(l.clone());
+        }
+
+        let (width, height) = osd.dims(g);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        text::draw_text_bubble(g, lines, (x1, y1), None);
+        text::draw_text_bubble(g, (x1, y1), osd);
     }
 
     // at the bottom-left of the screen
@@ -92,13 +97,27 @@ impl Canvas {
         if osd.is_empty() {
             return;
         }
-        let (_, height) = text::dims(g, &osd.lines);
+        let (_, height) = osd.dims(g);
         let y1 = f64::from(self.window_size.height) - height;
-        text::draw_text_bubble(g, &osd.lines, (0.0, y1), osd.highlight_char);
+        text::draw_text_bubble(g, (0.0, y1), osd);
+    }
+
+    pub fn draw_centered_text(&self, g: &mut GfxCtx, osd: TextOSD) {
+        if osd.is_empty() {
+            return;
+        }
+        let (width, height) = osd.dims(g);
+        let x1 = (f64::from(self.window_size.width) - width) / 2.0;
+        let y1 = (f64::from(self.window_size.height) - height) / 2.0;
+        text::draw_text_bubble(g, (x1, y1), osd);
     }
 
     pub fn draw_text_at(&self, g: &mut GfxCtx, lines: &[String], pt: Pt2D) {
-        text::draw_text_bubble(g, lines, self.map_to_screen(pt), None);
+        let mut osd = TextOSD::new();
+        for l in lines {
+            osd.add_line(l.clone());
+        }
+        text::draw_text_bubble(g, self.map_to_screen(pt), osd);
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

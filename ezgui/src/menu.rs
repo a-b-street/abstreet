@@ -1,6 +1,5 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use piston::input::{Button, Event, Key, PressEvent};
+use TextOSD;
 
 pub enum MenuResult {
     Canceled,
@@ -45,10 +44,17 @@ impl Menu {
         MenuResult::StillActive
     }
 
-    pub fn lines_to_display(&self) -> Vec<String> {
-        // TODO dont copy
-        let mut copy = self.choices.clone();
-        copy[self.current_idx] = format!("---> {}", copy[self.current_idx]);
-        copy
+    // TODO different API... handle menus bigger than the screen, actually do scroll. maybe always
+    // display one size for the menu, just dont fill everything out
+    pub fn get_osd(&self) -> TextOSD {
+        let mut osd = TextOSD::new();
+        for (idx, line) in self.choices.iter().enumerate() {
+            if self.current_idx == idx {
+                osd.add_highlighted_line(line.clone());
+            } else {
+                osd.add_line(line.clone());
+            }
+        }
+        osd
     }
 }

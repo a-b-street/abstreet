@@ -86,10 +86,7 @@ impl ColorPicker {
         match self {
             ColorPicker::Inactive => {}
             ColorPicker::Choosing(menu) => {
-                // TODO sloppy to use a mouse tooltip. ideally should be easy to figure out how
-                // many lines to display and center it.
-                // TODO would be nice to display the text in the current color
-                canvas.draw_mouse_tooltip(g, &menu.lines_to_display());
+                canvas.draw_centered_text(g, menu.get_osd());
             }
             ColorPicker::PickingColor(_, _) => {
                 let (start_x, start_y) = get_screen_offset(canvas);

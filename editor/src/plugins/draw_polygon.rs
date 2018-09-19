@@ -164,8 +164,8 @@ impl DrawPolygonState {
                 return;
             }
             DrawPolygonState::ListingPolygons(menu) => {
-                // TODO urgh, dont do this
-                canvas.draw_mouse_tooltip(g, &menu.lines_to_display());
+                canvas.draw_centered_text(g, menu.get_osd());
+                // TODO display the current polygon
                 return;
             }
         };
