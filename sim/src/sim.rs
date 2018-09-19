@@ -326,8 +326,6 @@ impl Sim {
             self.scenario_name,
             self.time.as_filename()
         );
-        std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap())
-            .expect("Creating parent dir failed");
         abstutil::write_json(&path, &self).expect("Writing sim state failed");
         println!("Saved to {}", path);
         path

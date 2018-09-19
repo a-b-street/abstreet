@@ -1,5 +1,7 @@
+use abstutil;
 use ezgui::{Canvas, GfxCtx, TextBox, TextOSD, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
+use map_model::Map;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
 
@@ -18,7 +20,7 @@ impl DrawPolygonState {
         DrawPolygonState::Empty
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas, map: &Map) -> bool {
         let mut new_state: Option<DrawPolygonState> = None;
         match self {
             DrawPolygonState::Empty => {
@@ -61,7 +63,15 @@ impl DrawPolygonState {
             }
             DrawPolygonState::NamingPolygon(tb, pts) => {
                 if tb.event(input.use_event_directly()) {
-                    println!("TODO: save neighborhood {} with points {:?}", tb.line, pts);
+                    let path = format!("../data/polygons/{}/{}", map.get_name(), tb.line);
+                    abstutil::write_json(
+                        &path,
+                        &PolygonSelection {
+                            name: tb.line.clone(),
+                            points: pts.clone(),
+                        },
+                    ).expect("Saving polygon selection failed");
+                    println!("Saved {}", path);
                     new_state = Some(DrawPolygonState::Empty);
                 }
                 input.consume_event();
@@ -87,7 +97,7 @@ impl DrawPolygonState {
         // TODO add colorscheme entries
         let red = [1.0, 0.0, 0.0, 1.0];
         let green = [0.0, 1.0, 0.0, 1.0];
-        let blue = [0.0, 0.0, 1.0, 1.0];
+        let blue = [0.0, 0.0, 1.0, 0.6];
         let cyan = [0.0, 1.0, 1.0, 1.0];
 
         let (pts, current_idx) = match self {
@@ -121,3 +131,9 @@ impl DrawPolygonState {
 }
 
 impl Colorizer for DrawPolygonState {}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct PolygonSelection {
+    name: String,
+    points: Vec<Pt2D>,
+}

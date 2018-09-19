@@ -16,6 +16,9 @@ pub fn to_json<T: Serialize>(obj: &T) -> String {
 }
 
 pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+    std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
+        .expect("Creating parent dir failed");
+
     let mut file = File::create(path)?;
     file.write_all(to_json(obj).as_bytes())?;
     Ok(())
@@ -30,6 +33,9 @@ pub fn read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
 }
 
 pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+    std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
+        .expect("Creating parent dir failed");
+
     let mut file = File::create(path)?;
     serde_cbor::to_writer(&mut file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }

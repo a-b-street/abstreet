@@ -236,7 +236,7 @@ impl UIWrapper {
                         .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
                 }),
                 Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
-                Box::new(|ui, input| ui.draw_polygon.event(input, &ui.canvas)),
+                Box::new(|ui, input| ui.draw_polygon.event(input, &ui.canvas, &ui.map)),
             ],
         }
     }
