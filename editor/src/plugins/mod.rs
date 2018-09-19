@@ -1,13 +1,13 @@
 pub mod classification;
 pub mod color_picker;
 pub mod debug_objects;
+pub mod draw_polygon;
 pub mod floodfill;
 pub mod follow;
 pub mod geom_validation;
 pub mod hider;
 pub mod road_editor;
 pub mod search;
-pub mod select_polygon;
 pub mod show_route;
 pub mod sim_controls;
 pub mod steep;
