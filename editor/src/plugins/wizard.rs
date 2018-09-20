@@ -126,45 +126,42 @@ impl Wizard {
         input: &mut UserInput,
         osd: &mut TextOSD,
     ) -> Option<usize> {
-        assert!(self.alive);
-
-        // Otherwise, we try to use one event for two inputs potentially
-        if input.has_been_consumed() {
-            return None;
-        }
-
-        if self.tb.is_none() {
-            self.tb = Some(TextBox::new());
-        }
-
-        let done = self.tb.as_mut().unwrap().event(input.use_event_directly());
-        input.consume_event();
-        if done {
-            let line = self.tb.as_ref().unwrap().line.clone();
-            self.tb = None;
-            if let Some(num) = line.parse::<usize>().ok() {
-                self.state_usize.push(num);
-                Some(num)
-            } else {
-                println!("Invalid number {} -- assuming you meant to abort", line);
-                self.alive = false;
-                None
-            }
+        if let Some(num) = self.input_with_text_box(
+            query,
+            input,
+            osd,
+            Box::new(|line| line.parse::<usize>().ok()),
+        ) {
+            self.state_usize.push(num);
+            Some(num)
         } else {
-            osd.pad_if_nonempty();
-            osd.add_line(query.to_string());
-            self.tb.as_ref().unwrap().populate_osd(osd);
             None
         }
     }
 
-    // TODO refactor
     fn input_tick(
         &mut self,
         query: &str,
         input: &mut UserInput,
         osd: &mut TextOSD,
     ) -> Option<Tick> {
+        if let Some(tick) =
+            self.input_with_text_box(query, input, osd, Box::new(|line| Tick::parse(&line)))
+        {
+            self.state_tick.push(tick);
+            Some(tick)
+        } else {
+            None
+        }
+    }
+
+    fn input_with_text_box<R>(
+        &mut self,
+        query: &str,
+        input: &mut UserInput,
+        osd: &mut TextOSD,
+        parser: Box<Fn(String) -> Option<R>>,
+    ) -> Option<R> {
         assert!(self.alive);
 
         // Otherwise, we try to use one event for two inputs potentially
@@ -181,11 +178,10 @@ impl Wizard {
         if done {
             let line = self.tb.as_ref().unwrap().line.clone();
             self.tb = None;
-            if let Some(tick) = Tick::parse(&line) {
-                self.state_tick.push(tick);
-                Some(tick)
+            if let Some(result) = parser(line.clone()) {
+                Some(result)
             } else {
-                println!("Invalid tick {} -- assuming you meant to abort", line);
+                println!("Invalid input {} -- assuming you meant to abort", line);
                 self.alive = false;
                 None
             }
@@ -198,7 +194,8 @@ impl Wizard {
     }
 }
 
-// Lives only for one frame -- bundles up temporary things like UserInput
+// Lives only for one frame -- bundles up temporary things like UserInput and statefully serve
+// prior results.
 struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
