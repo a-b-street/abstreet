@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct SpawnOverTime {
+    pub tmp_choice: String, // TODO remove
     pub num_agents: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
@@ -59,7 +60,11 @@ impl WizardSample {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        // TODO nothing yet, but do show neighborhood preview later
+        if let WizardSample::Active(wizard) = self {
+            if let Some(ref menu) = wizard.menu {
+                canvas.draw_centered_text(g, menu.get_osd());
+            }
+        }
     }
 }
 
@@ -69,6 +74,7 @@ impl Colorizer for WizardSample {}
 // distinguish.
 fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
     Some(SpawnOverTime {
+        tmp_choice: wizard.choose("Choose your poison", vec!["foo", "bar", "baz", "bork"])?,
         num_agents: wizard.input_usize("Spawn how many agents?")?,
         start_tick: wizard.input_tick("Start spawning when?")?,
         // TODO input interval, or otherwise enforce stop_tick > start_tick
@@ -82,9 +88,12 @@ fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
+    menu: Option<Menu>,
+
     state_usize: Vec<usize>,
     state_tick: Vec<Tick>,
     state_percent: Vec<f64>,
+    state_choices: Vec<String>,
 }
 
 impl Wizard {
@@ -92,9 +101,11 @@ impl Wizard {
         Wizard {
             alive: true,
             tb: None,
+            menu: None,
             state_usize: Vec::new(),
             state_tick: Vec::new(),
             state_percent: Vec::new(),
+            state_choices: Vec::new(),
         }
     }
 
@@ -109,6 +120,7 @@ impl Wizard {
         let ready_usize = VecDeque::from(self.state_usize.clone());
         let ready_tick = VecDeque::from(self.state_tick.clone());
         let ready_percent = VecDeque::from(self.state_percent.clone());
+        let ready_choices = VecDeque::from(self.state_choices.clone());
         WrappedWizard {
             wizard: self,
             input,
@@ -117,11 +129,56 @@ impl Wizard {
             ready_usize,
             ready_tick,
             ready_percent,
+            ready_choices,
         }
     }
 
     fn aborted(&self) -> bool {
         !self.alive
+    }
+
+    fn input_with_menu(
+        &mut self,
+        query: &str,
+        choices: Vec<String>,
+        input: &mut UserInput,
+        osd: &mut TextOSD,
+    ) -> Option<String> {
+        assert!(self.alive);
+
+        // Otherwise, we try to use one event for two inputs potentially
+        if input.has_been_consumed() {
+            return None;
+        }
+
+        if self.menu.is_none() {
+            self.menu = Some(Menu::new(choices));
+        }
+
+        let result = self
+            .menu
+            .as_mut()
+            .unwrap()
+            .event(input.use_event_directly());
+        input.consume_event();
+        match result {
+            MenuResult::Canceled => {
+                self.menu = None;
+                self.alive = false;
+                None
+            }
+            MenuResult::StillActive => {
+                // TODO We want to draw this at the top of the menu with choices. Menu should
+                // probably itself have an optional header line?
+                osd.pad_if_nonempty();
+                osd.add_line(query.to_string());
+                None
+            }
+            MenuResult::Done(choice) => {
+                self.menu = None;
+                Some(choice)
+            }
+        }
     }
 
     fn input_with_text_box<R>(
@@ -174,6 +231,7 @@ struct WrappedWizard<'a> {
     ready_usize: VecDeque<usize>,
     ready_tick: VecDeque<Tick>,
     ready_percent: VecDeque<f64>,
+    ready_choices: VecDeque<String>,
 }
 
 impl<'a> WrappedWizard<'a> {
@@ -231,6 +289,23 @@ impl<'a> WrappedWizard<'a> {
         ) {
             self.wizard.state_percent.push(percent);
             Some(percent)
+        } else {
+            None
+        }
+    }
+
+    fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
+        if !self.ready_choices.is_empty() {
+            return self.ready_choices.pop_front();
+        }
+        if let Some(choice) = self.wizard.input_with_menu(
+            query,
+            choices.iter().map(|s| s.to_string()).collect(),
+            self.input,
+            self.osd,
+        ) {
+            self.wizard.state_choices.push(choice.clone());
+            Some(choice)
         } else {
             None
         }

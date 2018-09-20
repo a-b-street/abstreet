@@ -59,6 +59,7 @@ pub fn key_to_char(key: Key) -> Option<char> {
         Key::Slash => Some('/'),
         Key::LeftBracket => Some('['),
         Key::RightBracket => Some(']'),
+        Key::Period => Some('.'),
         _ => None,
     }
 }
