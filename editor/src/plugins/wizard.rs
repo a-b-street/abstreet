@@ -124,69 +124,6 @@ impl Wizard {
         !self.alive
     }
 
-    // TODO push this boilerplate to WrappedWizard
-    fn input_usize(
-        &mut self,
-        query: &str,
-        input: &mut UserInput,
-        osd: &mut TextOSD,
-    ) -> Option<usize> {
-        if let Some(num) = self.input_with_text_box(
-            query,
-            input,
-            osd,
-            Box::new(|line| line.parse::<usize>().ok()),
-        ) {
-            self.state_usize.push(num);
-            Some(num)
-        } else {
-            None
-        }
-    }
-
-    fn input_tick(
-        &mut self,
-        query: &str,
-        input: &mut UserInput,
-        osd: &mut TextOSD,
-    ) -> Option<Tick> {
-        if let Some(tick) =
-            self.input_with_text_box(query, input, osd, Box::new(|line| Tick::parse(&line)))
-        {
-            self.state_tick.push(tick);
-            Some(tick)
-        } else {
-            None
-        }
-    }
-
-    fn input_percent(
-        &mut self,
-        query: &str,
-        input: &mut UserInput,
-        osd: &mut TextOSD,
-    ) -> Option<f64> {
-        if let Some(percent) = self.input_with_text_box(
-            query,
-            input,
-            osd,
-            Box::new(|line| {
-                line.parse::<f64>().ok().and_then(|num| {
-                    if num >= 0.0 && num <= 1.0 {
-                        Some(num)
-                    } else {
-                        None
-                    }
-                })
-            }),
-        ) {
-            self.state_percent.push(percent);
-            Some(percent)
-        } else {
-            None
-        }
-    }
-
     fn input_with_text_box<R>(
         &mut self,
         query: &str,
@@ -244,20 +181,58 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_usize.is_empty() {
             return self.ready_usize.pop_front();
         }
-        self.wizard.input_usize(query, self.input, self.osd)
+        if let Some(num) = self.wizard.input_with_text_box(
+            query,
+            self.input,
+            self.osd,
+            Box::new(|line| line.parse::<usize>().ok()),
+        ) {
+            self.wizard.state_usize.push(num);
+            Some(num)
+        } else {
+            None
+        }
     }
 
     fn input_tick(&mut self, query: &str) -> Option<Tick> {
         if !self.ready_tick.is_empty() {
             return self.ready_tick.pop_front();
         }
-        self.wizard.input_tick(query, self.input, self.osd)
+        if let Some(tick) = self.wizard.input_with_text_box(
+            query,
+            self.input,
+            self.osd,
+            Box::new(|line| Tick::parse(&line)),
+        ) {
+            self.wizard.state_tick.push(tick);
+            Some(tick)
+        } else {
+            None
+        }
     }
 
     fn input_percent(&mut self, query: &str) -> Option<f64> {
         if !self.ready_percent.is_empty() {
             return self.ready_percent.pop_front();
         }
-        self.wizard.input_percent(query, self.input, self.osd)
+        if let Some(percent) = self.wizard.input_with_text_box(
+            query,
+            self.input,
+            self.osd,
+            Box::new(|line| {
+                line.parse::<f64>().ok().and_then(|num| {
+                    if num >= 0.0 && num <= 1.0 {
+                        Some(num)
+                    } else {
+                        None
+                    }
+                })
+            }),
+        ) {
+            self.wizard.state_percent.push(percent);
+            Some(percent)
+        } else {
+            None
+        }
     }
 }
