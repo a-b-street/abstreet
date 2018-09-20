@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use keys::key_to_char;
-use piston::input::{Button, Event, Key, PressEvent, ReleaseEvent};
+use piston::input::{Button, ButtonEvent, Event, Key, PressEvent, ReleaseEvent};
 use TextOSD;
 
 // TODO right now, only a single line
@@ -72,6 +72,12 @@ impl TextBox {
                     c = c.to_lowercase().next().unwrap();
                 }
                 self.line.insert(self.cursor_x, c);
+                self.cursor_x += 1;
+            }
+        } else if let Some(args) = ev.button_args() {
+            // TODO Need to re-frame key_to_char to understand scancodes. Yay. ><
+            if self.shift_pressed && args.scancode == Some(39) {
+                self.line.insert(self.cursor_x, ':');
                 self.cursor_x += 1;
             }
         }
