@@ -30,6 +30,7 @@ impl TextBox {
         osd.add_line_with_cursor(self.line.clone(), self.cursor_x);
     }
 
+    // TODO a way to abort out
     // Returns true if the user confirmed their entry.
     pub fn event(&mut self, ev: &Event) -> bool {
         // Done?

@@ -156,6 +156,11 @@ impl UserInput {
         self.event_consumed = true;
     }
 
+    // TODO Not sure this is a good idea
+    pub fn has_been_consumed(&self) -> bool {
+        self.event_consumed
+    }
+
     pub fn populate_osd(self, osd: &mut TextOSD) {
         // TODO have a way to toggle showing all actions!
         for a in self.important_actions.into_iter() {

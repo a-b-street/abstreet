@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 const POINT_RADIUS: f64 = 2.0;
 
-pub(crate) enum DrawPolygonState {
+pub enum DrawPolygonState {
     Empty,
     // Option<usize> is the point currently being hovered over, String is the possibly empty
     // pre-chosen name
@@ -190,7 +190,7 @@ impl DrawPolygonState {
 impl Colorizer for DrawPolygonState {}
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct PolygonSelection {
+pub struct PolygonSelection {
     name: String,
     points: Vec<Pt2D>,
 }

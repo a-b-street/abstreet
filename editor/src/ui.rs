@@ -21,6 +21,7 @@ use plugins::debug_objects::DebugObjectsState;
 use plugins::draw_polygon::DrawPolygonState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
+use plugins::wizard::WizardSample;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::road_editor::RoadEditor;
@@ -123,6 +124,7 @@ impl UIWrapper {
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
             draw_polygon: DrawPolygonState::new(),
+            wizard_sample: WizardSample::new(),
 
             active_plugin: None,
 
@@ -237,6 +239,7 @@ impl UIWrapper {
                 }),
                 Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
                 Box::new(|ui, input| ui.draw_polygon.event(input, &ui.canvas, &ui.map)),
+                Box::new(|ui, input| ui.wizard_sample.event(input, &ui.map)),
             ],
         }
     }
@@ -269,6 +272,7 @@ struct UI {
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
     draw_polygon: DrawPolygonState,
+    wizard_sample: WizardSample,
 
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
@@ -447,6 +451,7 @@ impl UI {
             .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
         self.color_picker.draw(&self.canvas, g);
         self.draw_polygon.draw(g, &self.canvas);
+        self.wizard_sample.draw(g, &self.canvas);
 
         // TODO Only if active (except for the weird sim_ctrl)?
         let mut osd = TextOSD::new();
@@ -455,6 +460,7 @@ impl UI {
         self.search_state.populate_osd(&mut osd);
         self.warp.populate_osd(&mut osd);
         self.draw_polygon.populate_osd(&mut osd);
+        self.wizard_sample.populate_osd(&mut osd);
         self.canvas.draw_osd_notification(g, osd);
     }
 
@@ -504,6 +510,7 @@ impl UI {
             14 => Some(Box::new(&self.geom_validator)),
             15 => Some(Box::new(&self.turn_cycler)),
             16 => Some(Box::new(&self.draw_polygon)),
+            17 => Some(Box::new(&self.wizard_sample)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }

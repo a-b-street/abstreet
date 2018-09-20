@@ -15,6 +15,7 @@ pub mod stop_sign_editor;
 pub mod traffic_signal_editor;
 pub mod turn_cycler;
 pub mod warp;
+pub mod wizard;
 
 use graphics::types::Color;
 use objects::{Ctx, ID};
