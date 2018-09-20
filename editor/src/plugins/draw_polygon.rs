@@ -5,17 +5,19 @@ use map_model::Map;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
 use std;
+use std::collections::HashMap;
 
 const POINT_RADIUS: f64 = 2.0;
 
-pub enum DrawPolygonState {
+pub(crate) enum DrawPolygonState {
     Empty,
     // Option<usize> is the point currently being hovered over, String is the possibly empty
     // pre-chosen name
     DrawingPoints(Vec<Pt2D>, Option<usize>, String),
     MovingPoint(Vec<Pt2D>, usize, String),
     NamingPolygon(TextBox, Vec<Pt2D>),
-    ListingPolygons(Menu),
+    // String name to each choice, pre-loaded
+    ListingPolygons(Menu, HashMap<String, PolygonSelection>),
 }
 
 impl DrawPolygonState {
@@ -37,11 +39,14 @@ impl DrawPolygonState {
             }
             DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
                 if input.key_pressed(Key::Tab, "list existing polygons") {
-                    let list = list_polygons(map.get_name()).expect("couldn't list polygons");
-                    if list.is_empty() {
-                        println!("Oops, no existing polygons");
+                    let (names, polygons) = load_all_polygons(map.get_name());
+                    if names.is_empty() {
+                        println!("Sorry, no existing polygons");
                     } else {
-                        new_state = Some(DrawPolygonState::ListingPolygons(Menu::new(list)));
+                        new_state = Some(DrawPolygonState::ListingPolygons(
+                            Menu::new(names),
+                            polygons,
+                        ));
                     }
                 } else if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
                     new_state = Some(DrawPolygonState::Empty);
@@ -101,22 +106,17 @@ impl DrawPolygonState {
                 }
                 input.consume_event();
             }
-            DrawPolygonState::ListingPolygons(ref mut menu) => {
+            DrawPolygonState::ListingPolygons(ref mut menu, polygons) => {
                 match menu.event(input.use_event_directly()) {
                     MenuResult::Canceled => {
                         new_state = Some(DrawPolygonState::Empty);
                     }
                     MenuResult::StillActive => {}
                     MenuResult::Done(choice) => {
-                        let load: PolygonSelection = abstutil::read_json(&format!(
-                            "../data/polygons/{}/{}",
-                            map.get_name(),
-                            choice
-                        )).unwrap();
                         new_state = Some(DrawPolygonState::DrawingPoints(
-                            load.points,
+                            polygons[&choice].points.clone(),
                             None,
-                            load.name,
+                            choice,
                         ));
                     }
                 };
@@ -163,10 +163,9 @@ impl DrawPolygonState {
                 g.draw_polygon(blue, &Polygon::new(pts));
                 return;
             }
-            DrawPolygonState::ListingPolygons(menu) => {
+            DrawPolygonState::ListingPolygons(menu, polygons) => {
                 canvas.draw_centered_text(g, menu.get_osd());
-                // TODO display the current polygon
-                return;
+                (&polygons[menu.current_choice()].points, None)
             }
         };
 
@@ -191,17 +190,21 @@ impl DrawPolygonState {
 impl Colorizer for DrawPolygonState {}
 
 #[derive(Serialize, Deserialize, Debug)]
-struct PolygonSelection {
+pub(crate) struct PolygonSelection {
     name: String,
     points: Vec<Pt2D>,
 }
 
-fn list_polygons(map_name: &str) -> Result<Vec<String>, std::io::Error> {
-    let mut results: Vec<String> = Vec::new();
-    for entry in std::fs::read_dir(format!("../data/polygons/{}/", map_name))? {
-        let entry = entry?;
-        results.push(entry.file_name().into_string().unwrap());
+fn load_all_polygons(map_name: &str) -> (Vec<String>, HashMap<String, PolygonSelection>) {
+    let mut names: Vec<String> = Vec::new();
+    let mut polygons: HashMap<String, PolygonSelection> = HashMap::new();
+    for entry in std::fs::read_dir(format!("../data/polygons/{}/", map_name)).unwrap() {
+        let name = entry.unwrap().file_name().into_string().unwrap();
+        names.push(name.clone());
+        let load: PolygonSelection =
+            abstutil::read_json(&format!("../data/polygons/{}/{}", map_name, name)).unwrap();
+        polygons.insert(name, load);
     }
-    results.sort();
-    Ok(results)
+    names.sort();
+    (names, polygons)
 }

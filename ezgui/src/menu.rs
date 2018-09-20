@@ -57,4 +57,8 @@ impl Menu {
         }
         osd
     }
+
+    pub fn current_choice(&self) -> &String {
+        &self.choices[self.current_idx]
+    }
 }
