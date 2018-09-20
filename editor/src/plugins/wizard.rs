@@ -11,9 +11,9 @@ struct SpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
-    /*
     // [0, 1]. The rest will walk, using transit if useful.
     pub percent_drive: f64,
+    /*
     pub start_from_neighborhood: String,
     pub go_to_neighborhood: String,
     */
@@ -73,8 +73,8 @@ fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
         start_tick: wizard.input_tick("Start spawning when?")?,
         // TODO input interval, or otherwise enforce stop_tick > start_tick
         stop_tick: wizard.input_tick("Stop spawning when?")?,
-        /*percent_drive: wizard.input_percent("What percent should drive?")?,
-        start_from_neighborhood: wizard.input_polygon("Where should the agents start?")?,
+        percent_drive: wizard.input_percent("What percent should drive?")?,
+        /*start_from_neighborhood: wizard.input_polygon("Where should the agents start?")?,
         go_to_neighborhood: wizard.input_polygon("Where should the agents go?")?,*/
     })
 }
@@ -84,6 +84,7 @@ pub struct Wizard {
     tb: Option<TextBox>,
     state_usize: Vec<usize>,
     state_tick: Vec<Tick>,
+    state_percent: Vec<f64>,
 }
 
 impl Wizard {
@@ -93,6 +94,7 @@ impl Wizard {
             tb: None,
             state_usize: Vec::new(),
             state_tick: Vec::new(),
+            state_percent: Vec::new(),
         }
     }
 
@@ -106,6 +108,7 @@ impl Wizard {
 
         let ready_usize = VecDeque::from(self.state_usize.clone());
         let ready_tick = VecDeque::from(self.state_tick.clone());
+        let ready_percent = VecDeque::from(self.state_percent.clone());
         WrappedWizard {
             wizard: self,
             input,
@@ -113,6 +116,7 @@ impl Wizard {
             osd,
             ready_usize,
             ready_tick,
+            ready_percent,
         }
     }
 
@@ -120,6 +124,7 @@ impl Wizard {
         !self.alive
     }
 
+    // TODO push this boilerplate to WrappedWizard
     fn input_usize(
         &mut self,
         query: &str,
@@ -150,6 +155,33 @@ impl Wizard {
         {
             self.state_tick.push(tick);
             Some(tick)
+        } else {
+            None
+        }
+    }
+
+    fn input_percent(
+        &mut self,
+        query: &str,
+        input: &mut UserInput,
+        osd: &mut TextOSD,
+    ) -> Option<f64> {
+        if let Some(percent) = self.input_with_text_box(
+            query,
+            input,
+            osd,
+            Box::new(|line| {
+                line.parse::<f64>().ok().and_then(|num| {
+                    if num >= 0.0 && num <= 1.0 {
+                        Some(num)
+                    } else {
+                        None
+                    }
+                })
+            }),
+        ) {
+            self.state_percent.push(percent);
+            Some(percent)
         } else {
             None
         }
@@ -204,6 +236,7 @@ struct WrappedWizard<'a> {
 
     ready_usize: VecDeque<usize>,
     ready_tick: VecDeque<Tick>,
+    ready_percent: VecDeque<f64>,
 }
 
 impl<'a> WrappedWizard<'a> {
@@ -219,5 +252,12 @@ impl<'a> WrappedWizard<'a> {
             return self.ready_tick.pop_front();
         }
         self.wizard.input_tick(query, self.input, self.osd)
+    }
+
+    fn input_percent(&mut self, query: &str) -> Option<f64> {
+        if !self.ready_percent.is_empty() {
+            return self.ready_percent.pop_front();
+        }
+        self.wizard.input_percent(query, self.input, self.osd)
     }
 }
