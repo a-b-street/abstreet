@@ -26,7 +26,7 @@ impl SearchState {
         None
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, osd: &mut TextOSD) -> bool {
         let mut new_state: Option<SearchState> = None;
         match self {
             SearchState::Empty => {
@@ -37,6 +37,9 @@ impl SearchState {
             SearchState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
                     new_state = Some(SearchState::FilterOSM(tb.line.clone()));
+                } else {
+                    osd.pad_if_nonempty();
+                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -55,13 +58,6 @@ impl SearchState {
         match self {
             SearchState::Empty => false,
             _ => true,
-        }
-    }
-
-    pub fn populate_osd(&self, osd: &mut TextOSD) {
-        if let SearchState::EnteringSearch(tb) = self {
-            osd.pad_if_nonempty();
-            tb.populate_osd(osd);
         }
     }
 }

@@ -35,6 +35,7 @@ impl SimController {
         control_map: &ControlMap,
         sim: &mut Sim,
         selected: Option<ID>,
+        osd: &mut TextOSD,
     ) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
             sim.small_spawn(map);
@@ -106,19 +107,18 @@ impl SimController {
                 }
             }
         }
-        if self.last_step.is_some() {
-            EventLoopMode::Animation
-        } else {
-            EventLoopMode::InputOnly
-        }
-    }
 
-    pub fn populate_osd(&self, sim: &Sim, osd: &mut TextOSD) {
         osd.pad_if_nonempty();
         osd.add_line(sim.summary());
         osd.add_line(format!(
             "Speed: {0} / desired {1:.2}x",
             self.sim_speed, self.desired_speed
         ));
+
+        if self.last_step.is_some() {
+            EventLoopMode::Animation
+        } else {
+            EventLoopMode::InputOnly
+        }
     }
 }

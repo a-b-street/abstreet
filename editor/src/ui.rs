@@ -21,7 +21,6 @@ use plugins::debug_objects::DebugObjectsState;
 use plugins::draw_polygon::DrawPolygonState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
-use plugins::wizard::WizardSample;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::road_editor::RoadEditor;
@@ -33,6 +32,7 @@ use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
+use plugins::wizard::WizardSample;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
@@ -48,19 +48,19 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
     ui: UI,
-    plugins: Vec<Box<Fn(&mut UI, &mut UserInput) -> bool>>,
+    plugins: Vec<Box<Fn(&mut UI, &mut UserInput, &mut TextOSD) -> bool>>,
 }
 
 impl GUI for UIWrapper {
-    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
-        self.ui.event(input, &self.plugins)
+    fn event(&mut self, input: UserInput, osd: &mut TextOSD) -> EventLoopMode {
+        self.ui.event(input, osd, &self.plugins)
     }
 
-    fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size) {
+    fn draw(&mut self, g: &mut GfxCtx, osd: TextOSD, window_size: Size) {
         // Since self is mut here, we can set window_size on the canvas, but then let the real
         // draw() be immutable.
         self.ui.canvas.start_drawing(g, window_size);
-        self.ui.draw(g, input);
+        self.ui.draw(g, osd);
     }
 }
 
@@ -155,7 +155,7 @@ impl UIWrapper {
         UIWrapper {
             ui,
             plugins: vec![
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
                     let layer_changed = {
                         let mut changed = false;
                         for layer in ui.toggleable_layers().into_iter() {
@@ -173,7 +173,7 @@ impl UIWrapper {
                         false
                     }
                 }),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
                     ui.traffic_signal_editor.event(
                         input,
                         &ui.map,
@@ -181,7 +181,7 @@ impl UIWrapper {
                         ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
                     ui.stop_sign_editor.event(
                         input,
                         &ui.map,
@@ -189,7 +189,7 @@ impl UIWrapper {
                         ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
                     ui.road_editor.event(
                         input,
                         ui.current_selection,
@@ -199,17 +199,18 @@ impl UIWrapper {
                         &mut ui.sim,
                     )
                 }),
-                Box::new(|ui, input| ui.search_state.event(input)),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, osd| ui.search_state.event(input, osd)),
+                Box::new(|ui, input, osd| {
                     ui.warp.event(
                         input,
                         &ui.map,
                         &ui.sim,
                         &mut ui.canvas,
                         &mut ui.current_selection,
+                        osd,
                     )
                 }),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
                     ui.follow.event(
                         input,
                         &ui.map,
@@ -218,12 +219,16 @@ impl UIWrapper {
                         ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input| ui.show_route.event(input, &ui.sim, ui.current_selection)),
-                Box::new(|ui, input| ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)),
-                Box::new(|ui, input| ui.steepness_viz.event(input)),
-                Box::new(|ui, input| ui.osm_classifier.event(input)),
-                Box::new(|ui, input| ui.hider.event(input, &mut ui.current_selection)),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
+                    ui.show_route.event(input, &ui.sim, ui.current_selection)
+                }),
+                Box::new(|ui, input, _osd| {
+                    ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)
+                }),
+                Box::new(|ui, input, _osd| ui.steepness_viz.event(input)),
+                Box::new(|ui, input, _osd| ui.osm_classifier.event(input)),
+                Box::new(|ui, input, _osd| ui.hider.event(input, &mut ui.current_selection)),
+                Box::new(|ui, input, _osd| {
                     ui.debug_objects.event(
                         ui.current_selection,
                         input,
@@ -232,14 +237,16 @@ impl UIWrapper {
                         &ui.control_map,
                     )
                 }),
-                Box::new(|ui, input| ui.floodfiller.event(&ui.map, input, ui.current_selection)),
-                Box::new(|ui, input| {
+                Box::new(|ui, input, _osd| {
+                    ui.floodfiller.event(&ui.map, input, ui.current_selection)
+                }),
+                Box::new(|ui, input, _osd| {
                     ui.geom_validator
                         .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
                 }),
-                Box::new(|ui, input| ui.turn_cycler.event(input, ui.current_selection)),
-                Box::new(|ui, input| ui.draw_polygon.event(input, &ui.canvas, &ui.map)),
-                Box::new(|ui, input| ui.wizard_sample.event(input, &ui.map)),
+                Box::new(|ui, input, _osd| ui.turn_cycler.event(input, ui.current_selection)),
+                Box::new(|ui, input, osd| ui.draw_polygon.event(input, &ui.canvas, &ui.map, osd)),
+                Box::new(|ui, input, osd| ui.wizard_sample.event(input, &ui.map, osd)),
             ],
         }
     }
@@ -322,8 +329,9 @@ impl UI {
 
     fn event(
         &mut self,
-        input: &mut UserInput,
-        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput) -> bool>>,
+        mut input: UserInput,
+        osd: &mut TextOSD,
+        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput, &mut TextOSD) -> bool>>,
     ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
@@ -349,13 +357,13 @@ impl UI {
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
-            if !plugins[idx](self, input) {
+            if !plugins[idx](self, &mut input, osd) {
                 self.active_plugin = None;
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
             for (idx, plugin) in plugins.iter().enumerate() {
-                if plugin(self, input) {
+                if plugin(self, &mut input, osd) {
                     self.active_plugin = Some(idx);
                     break;
                 }
@@ -381,16 +389,19 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        self.sim_ctrl.event(
-            input,
+        let result = self.sim_ctrl.event(
+            &mut input,
             &self.map,
             &self.control_map,
             &mut self.sim,
             self.current_selection,
-        )
+            osd,
+        );
+        input.populate_osd(osd);
+        result
     }
 
-    fn draw(&self, g: &mut GfxCtx, input: UserInput) {
+    fn draw(&self, g: &mut GfxCtx, osd: TextOSD) {
         g.clear(self.cs.get(Colors::Background));
 
         let (statics, dynamics) = self.draw_map.get_objects_onscreen(
@@ -453,14 +464,6 @@ impl UI {
         self.draw_polygon.draw(g, &self.canvas);
         self.wizard_sample.draw(g, &self.canvas);
 
-        // TODO Only if active (except for the weird sim_ctrl)?
-        let mut osd = TextOSD::new();
-        input.populate_osd(&mut osd);
-        self.sim_ctrl.populate_osd(&self.sim, &mut osd);
-        self.search_state.populate_osd(&mut osd);
-        self.warp.populate_osd(&mut osd);
-        self.draw_polygon.populate_osd(&mut osd);
-        self.wizard_sample.populate_osd(&mut osd);
         self.canvas.draw_osd_notification(g, osd);
     }
 

@@ -4,13 +4,11 @@ use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::{Size, Window, WindowSettings};
-use GfxCtx;
+use {GfxCtx, TextOSD};
 
 pub trait GUI {
-    fn event(&mut self, input: &mut UserInput) -> EventLoopMode;
-
-    // TODO just take OSD stuff, not all of the input
-    fn draw(&mut self, g: &mut GfxCtx, input: UserInput, window_size: Size);
+    fn event(&mut self, input: UserInput, osd: &mut TextOSD) -> EventLoopMode;
+    fn draw(&mut self, g: &mut GfxCtx, osd: TextOSD, window_size: Size);
 }
 
 #[derive(PartialEq)]
@@ -41,8 +39,8 @@ pub fn run<T: GUI>(mut gui: T, window_title: &str, initial_width: u32, initial_h
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     while let Some(ev) = events.next(&mut window) {
-        let mut input = UserInput::new(ev.clone());
-        let new_event_mode = gui.event(&mut input);
+        let mut osd = TextOSD::new();
+        let new_event_mode = gui.event(UserInput::new(ev.clone()), &mut osd);
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
             events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
@@ -51,11 +49,7 @@ pub fn run<T: GUI>(mut gui: T, window_title: &str, initial_width: u32, initial_h
 
         if let Some(args) = ev.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                gui.draw(
-                    &mut GfxCtx::new(&mut glyphs, g, c),
-                    input,
-                    window.draw_size(),
-                );
+                gui.draw(&mut GfxCtx::new(&mut glyphs, g, c), osd, window.draw_size());
             });
         }
     }

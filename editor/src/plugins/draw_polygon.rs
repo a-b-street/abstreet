@@ -25,7 +25,13 @@ impl DrawPolygonState {
         DrawPolygonState::Empty
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas, map: &Map) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        canvas: &Canvas,
+        map: &Map,
+        osd: &mut TextOSD,
+    ) -> bool {
         let mut new_state: Option<DrawPolygonState> = None;
         match self {
             DrawPolygonState::Empty => {
@@ -38,6 +44,9 @@ impl DrawPolygonState {
                 }
             }
             DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
+                osd.pad_if_nonempty();
+                osd.add_line(format!("Currently editing {}", name));
+
                 if input.key_pressed(Key::Tab, "list existing polygons") {
                     let (names, polygons) = load_all_polygons(map.get_name());
                     if names.is_empty() {
@@ -80,6 +89,9 @@ impl DrawPolygonState {
                 }
             }
             DrawPolygonState::MovingPoint(ref mut pts, idx, name) => {
+                osd.pad_if_nonempty();
+                osd.add_line(format!("Currently editing {}", name));
+
                 pts[*idx] = canvas.get_cursor_in_map_space();
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
@@ -103,6 +115,9 @@ impl DrawPolygonState {
                     ).expect("Saving polygon selection failed");
                     println!("Saved {}", path);
                     new_state = Some(DrawPolygonState::Empty);
+                } else {
+                    osd.pad_if_nonempty();
+                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -128,21 +143,6 @@ impl DrawPolygonState {
         match self {
             DrawPolygonState::Empty => false,
             _ => true,
-        }
-    }
-
-    pub fn populate_osd(&self, osd: &mut TextOSD) {
-        match self {
-            DrawPolygonState::NamingPolygon(tb, _) => {
-                osd.pad_if_nonempty();
-                tb.populate_osd(osd);
-            }
-            DrawPolygonState::DrawingPoints(_, _, name)
-            | DrawPolygonState::MovingPoint(_, _, name) => {
-                osd.pad_if_nonempty();
-                osd.add_line(format!("Currently editing {}", name));
-            }
-            _ => {}
         }
     }
 

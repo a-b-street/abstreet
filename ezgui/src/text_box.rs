@@ -32,6 +32,7 @@ impl TextBox {
 
     // TODO a way to abort out
     // Returns true if the user confirmed their entry.
+    // TODO return the entered string if done...
     pub fn event(&mut self, ev: &Event) -> bool {
         // Done?
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {

@@ -1,9 +1,9 @@
-use ezgui::{GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput, Canvas};
+use ezgui::{Canvas, GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput};
 use map_model::Map;
 use piston::input::Key;
+use plugins::Colorizer;
 use sim::Tick;
 use std::collections::VecDeque;
-use plugins::Colorizer;
 
 #[derive(Debug)]
 struct SpawnOverTime {
@@ -35,7 +35,7 @@ impl WizardSample {
         WizardSample::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map, osd: &mut TextOSD) -> bool {
         let mut new_state: Option<WizardSample> = None;
         match self {
             WizardSample::Inactive => {
@@ -44,7 +44,7 @@ impl WizardSample {
                 }
             }
             WizardSample::Active(ref mut wizard) => {
-                if let Some(spec) = workflow(wizard.wrap(input, map)) {
+                if let Some(spec) = workflow(wizard.wrap(input, map, osd)) {
                     println!("Got answer: {:?}", spec);
                     new_state = Some(WizardSample::Inactive);
                 } else if wizard.aborted() {
@@ -59,18 +59,6 @@ impl WizardSample {
         match self {
             WizardSample::Inactive => false,
             _ => true,
-        }
-    }
-
-    pub fn populate_osd(&self, osd: &mut TextOSD) {
-        match self {
-            WizardSample::Active(wizard) => {
-                if let Some(ref tb) = wizard.tb {
-                    osd.pad_if_nonempty();
-                    tb.populate_osd(osd);
-                }
-            }
-            _ => {}
         }
     }
 
@@ -120,7 +108,12 @@ impl Wizard {
         }
     }
 
-    fn wrap<'a>(&'a mut self, input: &'a mut UserInput, map: &'a Map) -> WrappedWizard<'a> {
+    fn wrap<'a>(
+        &'a mut self,
+        input: &'a mut UserInput,
+        map: &'a Map,
+        osd: &'a mut TextOSD,
+    ) -> WrappedWizard<'a> {
         assert!(self.alive);
 
         let ready_usize = VecDeque::from(self.state_usize.clone());
@@ -128,6 +121,7 @@ impl Wizard {
             wizard: self,
             input,
             map,
+            osd,
             ready_usize,
         }
     }
@@ -136,7 +130,12 @@ impl Wizard {
         !self.alive
     }
 
-    fn input_usize(&mut self, query: &str, input: &mut UserInput) -> Option<usize> {
+    fn input_usize(
+        &mut self,
+        query: &str,
+        input: &mut UserInput,
+        osd: &mut TextOSD,
+    ) -> Option<usize> {
         assert!(self.alive);
 
         // Otherwise, we try to use one event for two inputs potentially
@@ -148,21 +147,23 @@ impl Wizard {
             self.tb = Some(TextBox::new());
         }
 
-        if self.tb.as_mut().unwrap().event(input.use_event_directly()) {
-            input.consume_event();
+        let done = self.tb.as_mut().unwrap().event(input.use_event_directly());
+        input.consume_event();
+        if done {
             let line = self.tb.as_ref().unwrap().line.clone();
+            self.tb = None;
             if let Some(num) = line.parse::<usize>().ok() {
-                self.tb = None;
                 self.state_usize.push(num);
                 Some(num)
             } else {
                 println!("Invalid number {} -- assuming you meant to abort", line);
-                self.tb = None;
                 self.alive = false;
                 None
             }
         } else {
-            input.consume_event();
+            osd.pad_if_nonempty();
+            osd.add_line(query.to_string());
+            self.tb.as_ref().unwrap().populate_osd(osd);
             None
         }
     }
@@ -173,6 +174,7 @@ struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
     map: &'a Map,
+    osd: &'a mut TextOSD,
 
     ready_usize: VecDeque<usize>,
 }
@@ -182,6 +184,6 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_usize.is_empty() {
             return self.ready_usize.pop_front();
         }
-        self.wizard.input_usize(query, self.input)
+        self.wizard.input_usize(query, self.input, self.osd)
     }
 }

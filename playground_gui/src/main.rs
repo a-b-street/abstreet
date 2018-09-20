@@ -4,7 +4,7 @@ extern crate graphics;
 extern crate map_model;
 extern crate piston;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput, GUI};
 use geom::{Circle, PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::LANE_THICKNESS;
@@ -44,7 +44,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, input: &mut UserInput) -> EventLoopMode {
+    fn event(&mut self, mut input: UserInput, _osd: &mut TextOSD) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
@@ -71,7 +71,7 @@ impl GUI for UI {
     }
 
     // TODO Weird to mut self just to set window_size on the canvas
-    fn draw(&mut self, g: &mut GfxCtx, _input: UserInput, window_size: Size) {
+    fn draw(&mut self, g: &mut GfxCtx, _osd: TextOSD, window_size: Size) {
         g.clear(WHITE);
         self.canvas.start_drawing(g, window_size);
 

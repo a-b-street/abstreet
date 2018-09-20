@@ -20,6 +20,7 @@ impl WarpState {
         sim: &Sim,
         canvas: &mut Canvas,
         selected: &mut Option<ID>,
+        osd: &mut TextOSD,
     ) -> bool {
         let mut new_state: Option<WarpState> = None;
         match self {
@@ -33,6 +34,9 @@ impl WarpState {
                 if tb.event(input.use_event_directly()) {
                     warp(tb.line.clone(), map, sim, canvas, selected);
                     new_state = Some(WarpState::Empty);
+                } else {
+                    osd.pad_if_nonempty();
+                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -43,13 +47,6 @@ impl WarpState {
         match self {
             WarpState::Empty => false,
             _ => true,
-        }
-    }
-
-    pub fn populate_osd(&self, osd: &mut TextOSD) {
-        if let WarpState::EnteringSearch(tb) = self {
-            osd.pad_if_nonempty();
-            tb.populate_osd(osd);
         }
     }
 }
