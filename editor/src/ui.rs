@@ -245,7 +245,7 @@ impl UIWrapper {
                 }),
                 Box::new(|ui, input, _osd| ui.turn_cycler.event(input, ui.current_selection)),
                 Box::new(|ui, input, osd| ui.draw_polygon.event(input, &ui.canvas, &ui.map, osd)),
-                Box::new(|ui, input, osd| ui.wizard_sample.event(input, &ui.map, osd)),
+                Box::new(|ui, input, _osd| ui.wizard_sample.event(input, &ui.map)),
             ],
         }
     }

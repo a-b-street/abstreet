@@ -196,3 +196,5 @@ previous answers. The caller could even build a branching workflow -- as long
 as the calls to the wizard are deterministic.
 
 Menus are super awkward -- drawing extra effects, mainly.
+
+cursive crate is good inspiration for the API

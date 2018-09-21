@@ -53,7 +53,7 @@ impl DrawPolygonState {
                         println!("Sorry, no existing polygons");
                     } else {
                         new_state = Some(DrawPolygonState::ListingPolygons(
-                            Menu::new(polygons.keys().cloned().collect()),
+                            Menu::new("Load which polygon?", polygons.keys().cloned().collect()),
                             polygons,
                         ));
                     }

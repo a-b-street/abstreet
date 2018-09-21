@@ -33,6 +33,7 @@ impl ColorPicker {
             ColorPicker::Inactive => {
                 if input.unimportant_key_pressed(Key::D8, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(Menu::new(
+                        "Pick a color to change",
                         Colors::iter().map(|c| c.to_string()).collect(),
                     )));
                 }

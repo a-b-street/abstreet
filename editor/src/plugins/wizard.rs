@@ -1,4 +1,4 @@
-use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 use geom::Polygon;
 use map_model::Map;
 use piston::input::Key;
@@ -32,7 +32,7 @@ impl WizardSample {
         WizardSample::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map, osd: &mut TextOSD) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
         let mut new_state: Option<WizardSample> = None;
         match self {
             WizardSample::Inactive => {
@@ -41,7 +41,7 @@ impl WizardSample {
                 }
             }
             WizardSample::Active(ref mut wizard) => {
-                if let Some(spec) = workflow(wizard.wrap(input, map, osd)) {
+                if let Some(spec) = workflow(wizard.wrap(input, map)) {
                     println!("Got answer: {:?}", spec);
                     new_state = Some(WizardSample::Inactive);
                 } else if wizard.aborted() {
@@ -120,12 +120,7 @@ impl Wizard {
         }
     }
 
-    fn wrap<'a>(
-        &'a mut self,
-        input: &'a mut UserInput,
-        map: &'a Map,
-        osd: &'a mut TextOSD,
-    ) -> WrappedWizard<'a> {
+    fn wrap<'a>(&'a mut self, input: &'a mut UserInput, map: &'a Map) -> WrappedWizard<'a> {
         assert!(self.alive);
 
         let ready_usize = VecDeque::from(self.state_usize.clone());
@@ -136,7 +131,6 @@ impl Wizard {
             wizard: self,
             input,
             map,
-            osd,
             ready_usize,
             ready_tick,
             ready_percent,
@@ -153,7 +147,6 @@ impl Wizard {
         query: &str,
         choices: Vec<String>,
         input: &mut UserInput,
-        osd: &mut TextOSD,
     ) -> Option<String> {
         assert!(self.alive);
 
@@ -163,7 +156,7 @@ impl Wizard {
         }
 
         if self.menu.is_none() {
-            self.menu = Some(Menu::new(choices));
+            self.menu = Some(Menu::new(query, choices));
         }
 
         match self.menu.as_mut().unwrap().event(input) {
@@ -172,13 +165,7 @@ impl Wizard {
                 self.alive = false;
                 None
             }
-            InputResult::StillActive => {
-                // TODO We want to draw this at the top of the menu with choices. Menu should
-                // probably itself have an optional header line?
-                osd.pad_if_nonempty();
-                osd.add_line(query.to_string());
-                None
-            }
+            InputResult::StillActive => None,
             InputResult::Done(choice) => {
                 self.menu = None;
                 Some(choice)
@@ -228,7 +215,6 @@ struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
     map: &'a Map,
-    osd: &'a mut TextOSD,
 
     ready_usize: VecDeque<usize>,
     ready_tick: VecDeque<Tick>,
@@ -292,6 +278,7 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         if !self.ready_choices.is_empty() {
             return self.ready_choices.pop_front();
@@ -300,7 +287,6 @@ impl<'a> WrappedWizard<'a> {
             query,
             choices.iter().map(|s| s.to_string()).collect(),
             self.input,
-            self.osd,
         ) {
             self.wizard.state_choices.push(choice.clone());
             Some(choice)
@@ -324,10 +310,7 @@ impl<'a> WrappedWizard<'a> {
             .keys()
             .cloned()
             .collect();
-        let result = if let Some(choice) = self
-            .wizard
-            .input_with_menu(query, names, self.input, self.osd)
-        {
+        let result = if let Some(choice) = self.wizard.input_with_menu(query, names, self.input) {
             self.wizard.state_choices.push(choice.clone());
             Some(choice)
         } else {

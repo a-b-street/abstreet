@@ -2,13 +2,15 @@ use piston::input::{Button, Key, PressEvent};
 use {InputResult, TextOSD, UserInput};
 
 pub struct Menu {
+    prompt: String,
     choices: Vec<String>,
     current_idx: usize,
 }
 
 impl Menu {
-    pub fn new(choices: Vec<String>) -> Menu {
+    pub fn new(prompt: &str, choices: Vec<String>) -> Menu {
         Menu {
+            prompt: prompt.to_string(),
             choices,
             current_idx: 0,
         }
@@ -44,6 +46,8 @@ impl Menu {
     // display one size for the menu, just dont fill everything out
     pub fn get_osd(&self) -> TextOSD {
         let mut osd = TextOSD::new();
+        // TODO different color
+        osd.add_line(self.prompt.clone());
         for (idx, line) in self.choices.iter().enumerate() {
             if self.current_idx == idx {
                 osd.add_highlighted_line(line.clone());
