@@ -13,6 +13,8 @@ flame = "0.2.2"
 generator = "0.6"
 geo = "0.9.1"
 geom = { path = "../geom" }
+lazy_static = "1.1.0"
+log = "0.4.5"
 map_model = { path = "../map_model" }
 piston = "*"
 piston2d-graphics = "*"

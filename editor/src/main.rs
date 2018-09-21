@@ -11,6 +11,10 @@ extern crate generator;
 extern crate geo;
 extern crate geom;
 extern crate graphics;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate log;
 extern crate map_model;
 extern crate piston;
 extern crate quick_xml;

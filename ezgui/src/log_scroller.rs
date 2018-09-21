@@ -84,7 +84,7 @@ impl LogScroller {
         if !self.lines.is_empty() {
             // TODO VecDeque can't be sliced, argh
             let copy: Vec<&String> = self.lines.iter().collect();
-            for line in &copy[low_idx .. high_idx] {
+            for line in &copy[low_idx..high_idx] {
                 osd.add_line(line.to_string());
             }
         }

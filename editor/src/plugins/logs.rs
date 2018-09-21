@@ -1,55 +1,71 @@
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
+use log;
+use log::{LevelFilter, Log, Metadata, Record};
 use objects::ROOT_MENU;
 use piston::input::Key;
 use plugins::Colorizer;
+use std::sync::Mutex;
 
-// TODO This is all total boilerplate!
-pub enum DisplayLogs {
-    Inactive,
-    Active(LogScroller),
+lazy_static! {
+    static ref LOGGER: Mutex<LogScroller> = Mutex::new(LogScroller::new_with_capacity(100));
+}
+
+static LOG_ADAPTER: LogAdapter = LogAdapter;
+
+pub struct DisplayLogs {
+    active: bool,
 }
 
 impl DisplayLogs {
     pub fn new() -> DisplayLogs {
-        DisplayLogs::Inactive
+        log::set_max_level(LevelFilter::Debug);
+        log::set_logger(&LOG_ADAPTER).unwrap();
+        DisplayLogs { active: false }
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> bool {
-        let mut new_state: Option<DisplayLogs> = None;
-        match self {
-            DisplayLogs::Inactive => {
-                if input.unimportant_key_pressed(
-                    Key::Comma,
-                    ROOT_MENU,
-                    "show logs",
-                ) {
-                    let mut scroller = LogScroller::new_with_capacity(100);
-                    for i in 0..150 {
-                        scroller.add_line(&format!("Sup line {}", i));
-                    }
-                    new_state = Some(DisplayLogs::Active(scroller));
-                }
-            }
-            DisplayLogs::Active(ref mut scroller) => {
-                if scroller.event(input) {
-                    new_state = Some(DisplayLogs::Inactive);
-                }
+        if !self.active {
+            if input.unimportant_key_pressed(Key::Comma, ROOT_MENU, "show logs") {
+                self.active = true;
+                return true;
+            } else {
+                return false;
             }
         }
-        if let Some(s) = new_state {
-            *self = s;
+
+        if LOGGER.lock().unwrap().event(input) {
+            self.active = false;
         }
-        match self {
-            DisplayLogs::Inactive => false,
-            _ => true,
-        }
+        self.active
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let DisplayLogs::Active(scroller) = self {
-            scroller.draw(g, canvas);
+        if self.active {
+            LOGGER.lock().unwrap().draw(g, canvas);
         }
     }
 }
 
 impl Colorizer for DisplayLogs {}
+
+struct LogAdapter;
+
+impl Log for LogAdapter {
+    fn enabled(&self, _metadata: &Metadata) -> bool {
+        true
+    }
+
+    fn log(&self, record: &Record) {
+        let line = format!(
+            "[{}] [{}] {}",
+            record.level(),
+            record.target(),
+            record.args()
+        );
+        println!("{}", line);
+        // TODO could handle newlines here
+        LOGGER.lock().unwrap().add_line(&line);
+    }
+
+    fn flush(&self) {}
+}

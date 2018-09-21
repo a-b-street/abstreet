@@ -173,7 +173,7 @@ impl UserInput {
             osd.add_line(a);
         }
 
-        println!("{}", self.unimportant_actions_tree);
+        //println!("{}", self.unimportant_actions_tree);
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {

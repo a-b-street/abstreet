@@ -17,13 +17,13 @@ use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
-use plugins::logs::DisplayLogs;
 use plugins::debug_objects::DebugObjectsState;
 use plugins::draw_polygon::DrawPolygonState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
+use plugins::logs::DisplayLogs;
 use plugins::road_editor::RoadEditor;
 use plugins::search::SearchState;
 use plugins::show_route::ShowRouteState;
@@ -136,7 +136,7 @@ impl UIWrapper {
 
         match abstutil::read_json::<EditorState>("editor_state") {
             Ok(ref state) if *ui.map.get_name() == state.map_name => {
-                println!("Loaded previous editor_state");
+                info!(target: "UI", "Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
                 ui.canvas.cam_zoom = state.cam_zoom;
@@ -144,7 +144,7 @@ impl UIWrapper {
                     .load_savestate(&state.traffic_signals, &state.stop_signs);
             }
             _ => {
-                println!("Couldn't load editor_state or it's for a different map, so just centering initial view");
+                warn!(target: "UI", "Couldn't load editor_state or it's for a different map, so just centering initial view");
                 ui.canvas.center_on_map_pt(center_pt);
             }
         }

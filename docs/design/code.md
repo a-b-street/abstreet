@@ -97,3 +97,9 @@ nice UI features:
 - filter by area
 - remember where the log scroller is, even when hidden
 - jump to end or beginning quickly
+- start at the end
+
+log crate is annoying -- cant initialize it, but also have something else hold
+onto it. probably have to use lazy static. not even sure I'll use this implicit
+style long-term -- when two sims are running side-by-side, might be very
+necessary to plumb more log context anyway.
