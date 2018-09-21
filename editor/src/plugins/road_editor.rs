@@ -1,7 +1,7 @@
 use control::ControlMap;
 use ezgui::UserInput;
 use map_model::{EditReason, Edits, LaneID, LaneType, Map};
-use objects::ID;
+use objects::{EDIT_MAP, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
@@ -33,7 +33,7 @@ impl RoadEditor {
         match self {
             RoadEditor::Inactive(edits) => match selected {
                 None => {
-                    if input.unimportant_key_pressed(Key::E, "Start editing roads") {
+                    if input.unimportant_key_pressed(Key::E, EDIT_MAP, "Start editing roads") {
                         // TODO cloning edits sucks! want to consume self
                         new_state = Some(RoadEditor::Active(edits.clone()));
                     }

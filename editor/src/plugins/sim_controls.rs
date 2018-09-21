@@ -3,7 +3,7 @@
 use control::ControlMap;
 use ezgui::{EventLoopMode, TextOSD, UserInput};
 use map_model::Map;
-use objects::ID;
+use objects::{ID, SIM};
 use piston::input::{Key, UpdateEvent};
 use sim::{Benchmark, Sim, TIMESTEP};
 use std::time::{Duration, Instant};
@@ -37,20 +37,20 @@ impl SimController {
         selected: Option<ID>,
         osd: &mut TextOSD,
     ) -> EventLoopMode {
-        if input.unimportant_key_pressed(Key::S, "Seed the map with agents") {
+        if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
             sim.small_spawn(map);
         }
-        if input.unimportant_key_pressed(Key::LeftBracket, "slow down sim") {
+        if input.unimportant_key_pressed(Key::LeftBracket, SIM, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
         }
-        if input.unimportant_key_pressed(Key::RightBracket, "speed up sim") {
+        if input.unimportant_key_pressed(Key::RightBracket, SIM, "speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
-        if input.unimportant_key_pressed(Key::O, "save sim state") {
+        if input.unimportant_key_pressed(Key::O, SIM, "save sim state") {
             sim.save();
         }
-        if input.unimportant_key_pressed(Key::P, "load sim state") {
+        if input.unimportant_key_pressed(Key::P, SIM, "load sim state") {
             match sim.load_most_recent() {
                 Ok(new_sim) => {
                     *sim = new_sim;
@@ -60,16 +60,16 @@ impl SimController {
             };
         }
         if self.last_step.is_some() {
-            if input.unimportant_key_pressed(Key::Space, "pause sim") {
+            if input.unimportant_key_pressed(Key::Space, SIM, "pause sim") {
                 self.last_step = None;
                 self.benchmark = None;
                 self.sim_speed = String::from("paused");
             }
         } else {
-            if input.unimportant_key_pressed(Key::Space, "run sim") {
+            if input.unimportant_key_pressed(Key::Space, SIM, "run sim") {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(sim.start_benchmark());
-            } else if input.unimportant_key_pressed(Key::M, "run one step") {
+            } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
                 sim.step(map, control_map);
             }
         }

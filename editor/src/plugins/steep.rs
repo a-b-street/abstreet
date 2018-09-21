@@ -5,7 +5,7 @@
 use ezgui::UserInput;
 use graphics::types::Color;
 use map_model::{Lane, Map};
-use objects::{Ctx, ID};
+use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use std::f64;
@@ -41,7 +41,7 @@ impl SteepnessVisualizer {
         } else {
             "visualize steepness"
         };
-        if input.unimportant_key_pressed(Key::D5, msg) {
+        if input.unimportant_key_pressed(Key::D5, DEBUG_EXTRA, msg) {
             self.active = !self.active;
         }
         self.active

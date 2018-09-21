@@ -198,3 +198,62 @@ as the calls to the wizard are deterministic.
 Menus are super awkward -- drawing extra effects, mainly.
 
 cursive crate is good inspiration for the API
+
+## Menus
+
+Dynamically populating the TreeMenu every frame while possible input keys are collected has problems.
+
+- How do we remember the permanent state between frames?
+- What if the possible actions change between frames, screwing up that state anyway?
+	- stop handing events to the game entirely?
+
+Rethink assumptions. Is it nice to dynamically populate the menu in a bunch of different places?
+
+- Won't have any control whatsoever for order of entries, and I'll definitely want that.
+- Hard to understand all the things that could happen; it'd be nice to see them in one place
+- Lots of plugins have boilerplate code for state management. Even if they keep
+  it, might be cool to at least peel out the code to activate the plugin.
+	- all plugins become Optional; dont have to represent the nil state
+	- or more extreme: enum of active plugin
+- Similarly, might be nice to have kind of a static list of context-sensitive, right click menu actions for each type of object?
+
+
+
+
+current TreeMenu:
+- Debug ()
+    - Show extra ()
+        - hide Intersection(IntersectionID(59)) (H)
+        - start searching (/)
+        - to show OSM classifications (6)
+        - unhide everything (K)
+        - visualize steepness (5)
+    - Show layers ()
+        - toggle buildings (1)
+        - toggle debug mode (G)
+        - toggle extra KML shapes (7)
+        - toggle intersections (2)
+        - toggle lanes (3)
+        - toggle parcels (4)
+        - toggle turn icons (9)
+    - Validate map geometry (I)
+    - start searching for something to warp to (J)
+- Edit map ()
+    - start drawing a polygon (N)
+- Settings ()
+    - configure colors (8)
+- Sim ()
+    - Seed the map with agents (S)
+    - Setup ()
+        - spawn some agents for a scenario (W)
+    - load sim state (P)
+    - run one step (M)
+    - run sim (Space)
+    - save sim state (O)
+    - slow down sim ([)
+    - speed up sim (])
+- quit (Escape)
+
+
+
+Back up and think about ideal for these background controls...

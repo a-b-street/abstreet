@@ -1,6 +1,7 @@
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 use geom::Polygon;
 use map_model::Map;
+use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
 use polygons;
@@ -36,7 +37,11 @@ impl WizardSample {
         let mut new_state: Option<WizardSample> = None;
         match self {
             WizardSample::Inactive => {
-                if input.unimportant_key_pressed(Key::W, "spawn some agents for a scenario") {
+                if input.unimportant_key_pressed(
+                    Key::W,
+                    SIM_SETUP,
+                    "spawn some agents for a scenario",
+                ) {
                     new_state = Some(WizardSample::Active(Wizard::new()));
                 }
             }

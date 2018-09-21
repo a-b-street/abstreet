@@ -15,6 +15,7 @@ mod menu;
 mod runner;
 mod text;
 mod text_box;
+mod tree_menu;
 
 pub use canvas::Canvas;
 use graphics::character::CharacterCache;
@@ -136,6 +137,7 @@ impl<'a> GfxCtx<'a> {
 }
 
 pub struct ToggleableLayer {
+    category: String,
     layer_name: String,
     key: Key,
     // If None, never automatically enable at a certain zoom level.
@@ -145,11 +147,17 @@ pub struct ToggleableLayer {
 }
 
 impl ToggleableLayer {
-    pub fn new(layer_name: &str, key: Key, min_zoom: Option<f64>) -> ToggleableLayer {
+    pub fn new(
+        category: &str,
+        layer_name: &str,
+        key: Key,
+        min_zoom: Option<f64>,
+    ) -> ToggleableLayer {
         ToggleableLayer {
             key,
             min_zoom,
-            layer_name: String::from(layer_name),
+            category: category.to_string(),
+            layer_name: layer_name.to_string(),
             enabled: false,
         }
     }
@@ -172,11 +180,8 @@ impl ToggleableLayer {
     pub fn event(&mut self, input: &mut input::UserInput) -> bool {
         if input.unimportant_key_pressed(
             self.key,
-            &format!(
-                "Press {} to toggle {}",
-                keys::describe_key(self.key),
-                self.layer_name
-            ),
+            &self.category,
+            &format!("toggle {}", self.layer_name),
         ) {
             self.enabled = !self.enabled;
             return true;

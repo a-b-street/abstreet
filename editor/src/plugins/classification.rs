@@ -3,7 +3,7 @@
 use colors::Colors;
 use ezgui::UserInput;
 use graphics::types::Color;
-use objects::{Ctx, ID};
+use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 
@@ -23,7 +23,7 @@ impl OsmClassifier {
         } else {
             "to show OSM classifications"
         };
-        if input.unimportant_key_pressed(Key::D6, msg) {
+        if input.unimportant_key_pressed(Key::D6, DEBUG_EXTRA, msg) {
             self.active = !self.active;
         }
         self.active

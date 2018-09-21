@@ -3,7 +3,7 @@
 use colors::{ColorScheme, Colors};
 use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
 use graphics::types::Color;
-use objects::{Ctx, ID};
+use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use std::collections::BTreeMap;
@@ -30,7 +30,7 @@ impl SearchState {
         let mut new_state: Option<SearchState> = None;
         match self {
             SearchState::Empty => {
-                if input.unimportant_key_pressed(Key::Slash, "start searching") {
+                if input.unimportant_key_pressed(Key::Slash, DEBUG_EXTRA, "start searching") {
                     new_state = Some(SearchState::EnteringSearch(TextBox::new(
                         "Search for what?",
                     )));

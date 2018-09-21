@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use ezgui::UserInput;
-use objects::ID;
+use objects::{DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use std::collections::HashSet;
@@ -18,7 +18,7 @@ impl Hider {
     }
 
     pub fn event(&mut self, input: &mut UserInput, selected: &mut Option<ID>) -> bool {
-        if input.unimportant_key_pressed(Key::K, "unhide everything") {
+        if input.unimportant_key_pressed(Key::K, DEBUG_EXTRA, "unhide everything") {
             println!("Unhiding {} things", self.items.len());
             self.items.clear();
             return true;
@@ -37,7 +37,7 @@ impl Hider {
                 return false;
             }
         };
-        if input.unimportant_key_pressed(Key::H, &format!("hide {:?}", item)) {
+        if input.unimportant_key_pressed(Key::H, DEBUG_EXTRA, &format!("hide {:?}", item)) {
             self.items.insert(item);
             println!("Hiding {:?}", item);
             *selected = None;

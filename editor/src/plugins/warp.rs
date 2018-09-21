@@ -1,7 +1,7 @@
 use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
-use objects::ID;
+use objects::{DEBUG, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use sim::{CarID, PedestrianID, Sim};
@@ -24,8 +24,11 @@ impl WarpState {
         let mut new_state: Option<WarpState> = None;
         match self {
             WarpState::Empty => {
-                if input.unimportant_key_pressed(Key::J, "start searching for something to warp to")
-                {
+                if input.unimportant_key_pressed(
+                    Key::J,
+                    DEBUG,
+                    "start searching for something to warp to",
+                ) {
                     new_state = Some(WarpState::EnteringSearch(TextBox::new("Warp to what?")));
                 }
             }

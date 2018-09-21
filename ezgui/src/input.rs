@@ -3,6 +3,7 @@
 use keys::describe_key;
 use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
 use std::collections::HashMap;
+use tree_menu::TreeMenu;
 use TextOSD;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -18,6 +19,8 @@ pub struct UserInput {
 
     // TODO hack :(
     empty_event: Event,
+
+    unimportant_actions_tree: TreeMenu,
 }
 
 // TODO it'd be nice to automatically detect cases where two callers are trying to check for the
@@ -32,6 +35,7 @@ impl UserInput {
             important_actions: Vec::new(),
             reserved_keys: HashMap::new(),
             empty_event: Event::from(IdleArgs { dt: 0.0 }),
+            unimportant_actions_tree: TreeMenu::new(),
         }
     }
 
@@ -117,7 +121,7 @@ impl UserInput {
         false
     }
 
-    pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
+    pub fn unimportant_key_pressed(&mut self, key: Key, category: &str, action: &str) -> bool {
         self.reserve_key(key, action);
 
         if self.event_consumed {
@@ -132,6 +136,8 @@ impl UserInput {
         }
         self.unimportant_actions
             .push(format!("Press {} to {}", describe_key(key), action));
+        self.unimportant_actions_tree
+            .add_action(Some(key), category, action);
         false
     }
 
@@ -166,6 +172,8 @@ impl UserInput {
         for a in self.important_actions.into_iter() {
             osd.add_line(a);
         }
+
+        println!("{}", self.unimportant_actions_tree);
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {

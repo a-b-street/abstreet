@@ -3,6 +3,7 @@
 use colors::{ColorScheme, Colors};
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, UserInput};
 use graphics;
+use objects::SETTINGS;
 use piston::input::{Key, MouseCursorEvent};
 use plugins::Colorizer;
 use std::str::FromStr;
@@ -31,7 +32,7 @@ impl ColorPicker {
         let mut new_state: Option<ColorPicker> = None;
         match self {
             ColorPicker::Inactive => {
-                if input.unimportant_key_pressed(Key::D8, "configure colors") {
+                if input.unimportant_key_pressed(Key::D8, SETTINGS, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(Menu::new(
                         "Pick a color to change",
                         Colors::iter().map(|c| c.to_string()).collect(),

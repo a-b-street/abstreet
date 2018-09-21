@@ -2,6 +2,7 @@ use abstutil;
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, TextOSD, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
+use objects::EDIT_MAP;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
 use polygons;
@@ -35,7 +36,7 @@ impl DrawPolygonState {
         let mut new_state: Option<DrawPolygonState> = None;
         match self {
             DrawPolygonState::Empty => {
-                if input.unimportant_key_pressed(Key::N, "start drawing a polygon") {
+                if input.unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a polygon") {
                     new_state = Some(DrawPolygonState::DrawingPoints(
                         Vec::new(),
                         None,

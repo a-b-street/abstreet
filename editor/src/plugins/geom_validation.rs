@@ -4,6 +4,7 @@ use geo;
 use geo::prelude::Intersects;
 use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID};
+use objects::DEBUG;
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
@@ -99,7 +100,7 @@ impl Validator {
         let mut new_state: Option<Validator> = None;
         match self {
             Validator::Inactive => {
-                if input.unimportant_key_pressed(Key::I, "Validate map geometry") {
+                if input.unimportant_key_pressed(Key::I, DEBUG, "Validate map geometry") {
                     new_state = Some(Validator::start(draw_map));
                 }
             }

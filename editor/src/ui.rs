@@ -12,7 +12,7 @@ use graphics::types::Color;
 use kml;
 use map_model;
 use map_model::IntersectionID;
-use objects::{Ctx, ID};
+use objects::{Ctx, DEBUG_LAYERS, ID, ROOT_MENU};
 use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
@@ -369,7 +369,7 @@ impl UI {
             }
         }
 
-        if input.unimportant_key_pressed(Key::Escape, "quit") {
+        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
             let state = EditorState {
                 map_name: self.map.get_name().clone(),
                 cam_x: self.canvas.cam_x,
@@ -544,21 +544,33 @@ pub struct ToggleableLayers {
 impl ToggleableLayers {
     fn new() -> ToggleableLayers {
         ToggleableLayers {
-            show_lanes: ToggleableLayer::new("lanes", Key::D3, Some(MIN_ZOOM_FOR_LANES)),
-            show_buildings: ToggleableLayer::new("buildings", Key::D1, Some(0.0)),
+            show_lanes: ToggleableLayer::new(
+                DEBUG_LAYERS,
+                "lanes",
+                Key::D3,
+                Some(MIN_ZOOM_FOR_LANES),
+            ),
+            show_buildings: ToggleableLayer::new(DEBUG_LAYERS, "buildings", Key::D1, Some(0.0)),
             show_intersections: ToggleableLayer::new(
+                DEBUG_LAYERS,
                 "intersections",
                 Key::D2,
                 Some(MIN_ZOOM_FOR_LANES),
             ),
-            show_parcels: ToggleableLayer::new("parcels", Key::D4, Some(MIN_ZOOM_FOR_PARCELS)),
+            show_parcels: ToggleableLayer::new(
+                DEBUG_LAYERS,
+                "parcels",
+                Key::D4,
+                Some(MIN_ZOOM_FOR_PARCELS),
+            ),
             show_extra_shapes: ToggleableLayer::new(
+                DEBUG_LAYERS,
                 "extra KML shapes",
                 Key::D7,
                 Some(MIN_ZOOM_FOR_LANES),
             ),
-            show_all_turn_icons: ToggleableLayer::new("turn icons", Key::D9, None),
-            debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
+            show_all_turn_icons: ToggleableLayer::new(DEBUG_LAYERS, "turn icons", Key::D9, None),
+            debug_mode: ToggleableLayer::new(DEBUG_LAYERS, "debug mode", Key::G, None),
         }
     }
 
