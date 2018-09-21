@@ -1,33 +1,37 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use keys::key_to_char;
 use piston::input::{Button, ButtonEvent, Event, Key, PressEvent, ReleaseEvent};
-use TextOSD;
+use {Canvas, GfxCtx, TextOSD};
 
 // TODO right now, only a single line
 
 pub struct TextBox {
+    prompt: String,
     // TODO A rope would be cool.
+    // TODO dont be pub
     pub line: String,
     cursor_x: usize,
     shift_pressed: bool,
 }
 
 impl TextBox {
-    pub fn new() -> TextBox {
-        TextBox::new_prefilled(String::from(""))
+    pub fn new(prompt: &str) -> TextBox {
+        TextBox::new_prefilled(prompt, String::from(""))
     }
 
-    pub fn new_prefilled(line: String) -> TextBox {
+    pub fn new_prefilled(prompt: &str, line: String) -> TextBox {
         TextBox {
+            prompt: prompt.to_string(),
             line,
             cursor_x: 0,
             shift_pressed: false,
         }
     }
 
-    pub fn populate_osd(&self, osd: &mut TextOSD) {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        let mut osd = TextOSD::new();
+        osd.add_highlighted_line(self.prompt.clone());
         osd.add_line_with_cursor(self.line.clone(), self.cursor_x);
+        canvas.draw_centered_text(g, osd);
     }
 
     // TODO a way to abort out

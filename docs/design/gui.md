@@ -188,3 +188,11 @@ One UI plugin at a time:
 - https://docs.rs/euclid/0.19.0/euclid/struct.TypedTransform2D.html
 - https://www.reddit.com/r/rust/comments/6sukcw/is_it_possible_to_to_create_an_ortho_view_in_glium/ has a direct example of affine transformation
 - https://www.reddit.com/r/gamedev/comments/4mn9ly/3d_matrix_transformation_question_rotating/
+
+## Wizard
+
+API looks like coroutines/continuations, but it just works by replaying
+previous answers. The caller could even build a branching workflow -- as long
+as the calls to the wizard are deterministic.
+
+Menus are super awkward -- drawing extra effects, mainly.

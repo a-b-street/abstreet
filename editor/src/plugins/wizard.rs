@@ -70,6 +70,9 @@ impl WizardSample {
                     );
                 }
             }
+            if let Some(ref tb) = wizard.tb {
+                tb.draw(g, canvas);
+            }
         }
     }
 }
@@ -193,7 +196,6 @@ impl Wizard {
         &mut self,
         query: &str,
         input: &mut UserInput,
-        osd: &mut TextOSD,
         parser: Box<Fn(String) -> Option<R>>,
     ) -> Option<R> {
         assert!(self.alive);
@@ -204,7 +206,7 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new());
+            self.tb = Some(TextBox::new(query));
         }
 
         let done = self.tb.as_mut().unwrap().event(input.use_event_directly());
@@ -220,9 +222,6 @@ impl Wizard {
                 None
             }
         } else {
-            osd.pad_if_nonempty();
-            osd.add_line(query.to_string());
-            self.tb.as_ref().unwrap().populate_osd(osd);
             None
         }
     }
@@ -250,7 +249,6 @@ impl<'a> WrappedWizard<'a> {
         if let Some(num) = self.wizard.input_with_text_box(
             query,
             self.input,
-            self.osd,
             Box::new(|line| line.parse::<usize>().ok()),
         ) {
             self.wizard.state_usize.push(num);
@@ -264,12 +262,10 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_tick.is_empty() {
             return self.ready_tick.pop_front();
         }
-        if let Some(tick) = self.wizard.input_with_text_box(
-            query,
-            self.input,
-            self.osd,
-            Box::new(|line| Tick::parse(&line)),
-        ) {
+        if let Some(tick) =
+            self.wizard
+                .input_with_text_box(query, self.input, Box::new(|line| Tick::parse(&line)))
+        {
             self.wizard.state_tick.push(tick);
             Some(tick)
         } else {
@@ -284,7 +280,6 @@ impl<'a> WrappedWizard<'a> {
         if let Some(percent) = self.wizard.input_with_text_box(
             query,
             self.input,
-            self.osd,
             Box::new(|line| {
                 line.parse::<f64>().ok().and_then(|num| {
                     if num >= 0.0 && num <= 1.0 {

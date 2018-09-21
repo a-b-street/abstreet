@@ -1,4 +1,4 @@
-use ezgui::{Canvas, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
@@ -20,23 +20,19 @@ impl WarpState {
         sim: &Sim,
         canvas: &mut Canvas,
         selected: &mut Option<ID>,
-        osd: &mut TextOSD,
     ) -> bool {
         let mut new_state: Option<WarpState> = None;
         match self {
             WarpState::Empty => {
                 if input.unimportant_key_pressed(Key::J, "start searching for something to warp to")
                 {
-                    new_state = Some(WarpState::EnteringSearch(TextBox::new()));
+                    new_state = Some(WarpState::EnteringSearch(TextBox::new("Warp to what?")));
                 }
             }
             WarpState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
                     warp(tb.line.clone(), map, sim, canvas, selected);
                     new_state = Some(WarpState::Empty);
-                } else {
-                    osd.pad_if_nonempty();
-                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -47,6 +43,12 @@ impl WarpState {
         match self {
             WarpState::Empty => false,
             _ => true,
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if let WarpState::EnteringSearch(tb) = self {
+            tb.draw(g, canvas);
         }
     }
 }

@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
 use graphics::types::Color;
 use objects::{Ctx, ID};
 use piston::input::Key;
@@ -26,20 +26,19 @@ impl SearchState {
         None
     }
 
-    pub fn event(&mut self, input: &mut UserInput, osd: &mut TextOSD) -> bool {
+    pub fn event(&mut self, input: &mut UserInput) -> bool {
         let mut new_state: Option<SearchState> = None;
         match self {
             SearchState::Empty => {
                 if input.unimportant_key_pressed(Key::Slash, "start searching") {
-                    new_state = Some(SearchState::EnteringSearch(TextBox::new()));
+                    new_state = Some(SearchState::EnteringSearch(TextBox::new(
+                        "Search for what?",
+                    )));
                 }
             }
             SearchState::EnteringSearch(tb) => {
                 if tb.event(input.use_event_directly()) {
                     new_state = Some(SearchState::FilterOSM(tb.line.clone()));
-                } else {
-                    osd.pad_if_nonempty();
-                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -58,6 +57,12 @@ impl SearchState {
         match self {
             SearchState::Empty => false,
             _ => true,
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if let SearchState::EnteringSearch(tb) = self {
+            tb.draw(g, canvas);
         }
     }
 }

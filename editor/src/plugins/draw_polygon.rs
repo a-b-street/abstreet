@@ -65,7 +65,7 @@ impl DrawPolygonState {
                     && input.key_pressed(Key::Return, "confirm the polygon's shape")
                 {
                     new_state = Some(DrawPolygonState::NamingPolygon(
-                        TextBox::new_prefilled(name.clone()),
+                        TextBox::new_prefilled("Name this polygon", name.clone()),
                         pts.clone(),
                     ));
                 }
@@ -115,9 +115,6 @@ impl DrawPolygonState {
                     ).expect("Saving polygon selection failed");
                     println!("Saved {}", path);
                     new_state = Some(DrawPolygonState::Empty);
-                } else {
-                    osd.pad_if_nonempty();
-                    tb.populate_osd(osd);
                 }
                 input.consume_event();
             }
@@ -159,8 +156,9 @@ impl DrawPolygonState {
             }
             DrawPolygonState::DrawingPoints(pts, current_idx, _) => (pts, *current_idx),
             DrawPolygonState::MovingPoint(pts, idx, _) => (pts, Some(*idx)),
-            DrawPolygonState::NamingPolygon(_, pts) => {
+            DrawPolygonState::NamingPolygon(tb, pts) => {
                 g.draw_polygon(blue, &Polygon::new(pts));
+                tb.draw(g, canvas);
                 return;
             }
             DrawPolygonState::ListingPolygons(menu, polygons) => {

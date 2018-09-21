@@ -199,15 +199,14 @@ impl UIWrapper {
                         &mut ui.sim,
                     )
                 }),
-                Box::new(|ui, input, osd| ui.search_state.event(input, osd)),
-                Box::new(|ui, input, osd| {
+                Box::new(|ui, input, _osd| ui.search_state.event(input)),
+                Box::new(|ui, input, _osd| {
                     ui.warp.event(
                         input,
                         &ui.map,
                         &ui.sim,
                         &mut ui.canvas,
                         &mut ui.current_selection,
-                        osd,
                     )
                 }),
                 Box::new(|ui, input, _osd| {
@@ -463,6 +462,8 @@ impl UI {
         self.color_picker.draw(&self.canvas, g);
         self.draw_polygon.draw(g, &self.canvas);
         self.wizard_sample.draw(g, &self.canvas);
+        self.search_state.draw(g, &self.canvas);
+        self.warp.draw(g, &self.canvas);
 
         self.canvas.draw_osd_notification(g, osd);
     }
