@@ -1,5 +1,5 @@
 use control::ControlMap;
-use ezgui::{Canvas, GfxCtx, UserInput};
+use ezgui::{Canvas, GfxCtx, TextOSD, UserInput};
 use map_model::Map;
 use objects::ID;
 use piston::input::{Button, Key, ReleaseEvent};
@@ -72,7 +72,11 @@ impl DebugObjectsState {
             DebugObjectsState::Empty => {}
             DebugObjectsState::Selected(_) => {}
             DebugObjectsState::Tooltip(id) => {
-                canvas.draw_mouse_tooltip(g, &id.tooltip_lines(map, draw_map, sim));
+                let mut osd = TextOSD::new();
+                for line in id.tooltip_lines(map, draw_map, sim) {
+                    osd.add_line(line);
+                }
+                canvas.draw_mouse_tooltip(g, osd);
             }
         }
     }

@@ -80,12 +80,7 @@ impl Canvas {
             .zoom(self.cam_zoom)
     }
 
-    pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, lines: &[String]) {
-        let mut osd = TextOSD::new();
-        for l in lines {
-            osd.add_line(l.clone());
-        }
-
+    pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, osd: TextOSD) {
         let (width, height) = osd.dims(g);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
@@ -112,11 +107,7 @@ impl Canvas {
         text::draw_text_bubble(g, (x1, y1), osd);
     }
 
-    pub fn draw_text_at(&self, g: &mut GfxCtx, lines: &[String], pt: Pt2D) {
-        let mut osd = TextOSD::new();
-        for l in lines {
-            osd.add_line(l.clone());
-        }
+    pub fn draw_text_at(&self, g: &mut GfxCtx, osd: TextOSD, pt: Pt2D) {
         text::draw_text_bubble(g, self.map_to_screen(pt), osd);
     }
 

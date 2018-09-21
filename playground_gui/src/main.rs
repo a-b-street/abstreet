@@ -101,7 +101,9 @@ impl GUI for UI {
 
 impl UI {
     fn label(&self, g: &mut GfxCtx, pt: Pt2D, text: &str) {
-        self.canvas.draw_text_at(g, &vec![text.to_string()], pt);
+        let mut osd = TextOSD::new();
+        osd.add_line(text.to_string());
+        self.canvas.draw_text_at(g, osd, pt);
     }
 
     fn debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
