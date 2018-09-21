@@ -1,6 +1,6 @@
 use keys::key_to_char;
-use piston::input::{Button, ButtonEvent, Event, Key, PressEvent, ReleaseEvent};
-use {Canvas, GfxCtx, InputResult, TextOSD};
+use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
+use {Canvas, GfxCtx, InputResult, TextOSD, UserInput};
 
 // TODO right now, only a single line
 
@@ -34,7 +34,10 @@ impl TextBox {
         canvas.draw_centered_text(g, osd);
     }
 
-    pub fn event(&mut self, ev: &Event) -> InputResult {
+    pub fn event(&mut self, input: &mut UserInput) -> InputResult {
+        let ev = input.use_event_directly().clone();
+        input.consume_event();
+
         if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
             return InputResult::Canceled;
         }

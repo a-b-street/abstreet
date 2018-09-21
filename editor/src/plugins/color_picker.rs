@@ -38,7 +38,7 @@ impl ColorPicker {
                 }
             }
             ColorPicker::Choosing(ref mut menu) => {
-                match menu.event(input.use_event_directly()) {
+                match menu.event(input) {
                     InputResult::Canceled => {
                         new_state = Some(ColorPicker::Inactive);
                     }

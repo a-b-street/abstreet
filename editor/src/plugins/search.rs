@@ -36,18 +36,15 @@ impl SearchState {
                     )));
                 }
             }
-            SearchState::EnteringSearch(tb) => {
-                match tb.event(input.use_event_directly()) {
-                    InputResult::Canceled => {
-                        new_state = Some(SearchState::Empty);
-                    }
-                    InputResult::Done(filter) => {
-                        new_state = Some(SearchState::FilterOSM(filter));
-                    }
-                    InputResult::StillActive => {}
+            SearchState::EnteringSearch(tb) => match tb.event(input) {
+                InputResult::Canceled => {
+                    new_state = Some(SearchState::Empty);
                 }
-                input.consume_event();
-            }
+                InputResult::Done(filter) => {
+                    new_state = Some(SearchState::FilterOSM(filter));
+                }
+                InputResult::StillActive => {}
+            },
             SearchState::FilterOSM(filter) => {
                 if input.key_pressed(
                     Key::Return,

@@ -29,19 +29,16 @@ impl WarpState {
                     new_state = Some(WarpState::EnteringSearch(TextBox::new("Warp to what?")));
                 }
             }
-            WarpState::EnteringSearch(tb) => {
-                match tb.event(input.use_event_directly()) {
-                    InputResult::Canceled => {
-                        new_state = Some(WarpState::Empty);
-                    }
-                    InputResult::Done(to) => {
-                        warp(to, map, sim, canvas, selected);
-                        new_state = Some(WarpState::Empty);
-                    }
-                    InputResult::StillActive => {}
+            WarpState::EnteringSearch(tb) => match tb.event(input) {
+                InputResult::Canceled => {
+                    new_state = Some(WarpState::Empty);
                 }
-                input.consume_event();
-            }
+                InputResult::Done(to) => {
+                    warp(to, map, sim, canvas, selected);
+                    new_state = Some(WarpState::Empty);
+                }
+                InputResult::StillActive => {}
+            },
         };
         if let Some(s) = new_state {
             *self = s;

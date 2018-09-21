@@ -151,7 +151,7 @@ impl UserInput {
     }
 
     // Should only be called publicly after using event directly
-    pub fn consume_event(&mut self) {
+    pub(crate) fn consume_event(&mut self) {
         assert!(!self.event_consumed);
         self.event_consumed = true;
     }

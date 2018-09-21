@@ -103,30 +103,27 @@ impl DrawPolygonState {
                     ));
                 }
             }
-            DrawPolygonState::NamingPolygon(tb, pts) => {
-                match tb.event(input.use_event_directly()) {
-                    InputResult::Canceled => {
-                        println!("Never mind!");
-                        new_state = Some(DrawPolygonState::Empty);
-                    }
-                    InputResult::Done(name) => {
-                        let path = format!("../data/polygons/{}/{}", map.get_name(), name);
-                        abstutil::write_json(
-                            &path,
-                            &polygons::PolygonSelection {
-                                name,
-                                points: pts.clone(),
-                            },
-                        ).expect("Saving polygon selection failed");
-                        println!("Saved {}", path);
-                        new_state = Some(DrawPolygonState::Empty);
-                    }
-                    InputResult::StillActive => {}
+            DrawPolygonState::NamingPolygon(tb, pts) => match tb.event(input) {
+                InputResult::Canceled => {
+                    println!("Never mind!");
+                    new_state = Some(DrawPolygonState::Empty);
                 }
-                input.consume_event();
-            }
+                InputResult::Done(name) => {
+                    let path = format!("../data/polygons/{}/{}", map.get_name(), name);
+                    abstutil::write_json(
+                        &path,
+                        &polygons::PolygonSelection {
+                            name,
+                            points: pts.clone(),
+                        },
+                    ).expect("Saving polygon selection failed");
+                    println!("Saved {}", path);
+                    new_state = Some(DrawPolygonState::Empty);
+                }
+                InputResult::StillActive => {}
+            },
             DrawPolygonState::ListingPolygons(ref mut menu, polygons) => {
-                match menu.event(input.use_event_directly()) {
+                match menu.event(input) {
                     InputResult::Canceled => {
                         new_state = Some(DrawPolygonState::Empty);
                     }

@@ -166,13 +166,7 @@ impl Wizard {
             self.menu = Some(Menu::new(choices));
         }
 
-        let result = self
-            .menu
-            .as_mut()
-            .unwrap()
-            .event(input.use_event_directly());
-        input.consume_event();
-        match result {
+        match self.menu.as_mut().unwrap().event(input) {
             InputResult::Canceled => {
                 self.menu = None;
                 self.alive = false;
@@ -209,18 +203,13 @@ impl Wizard {
             self.tb = Some(TextBox::new(query));
         }
 
-        match self.tb.as_mut().unwrap().event(input.use_event_directly()) {
-            InputResult::StillActive => {
-                input.consume_event();
-                None
-            }
+        match self.tb.as_mut().unwrap().event(input) {
+            InputResult::StillActive => None,
             InputResult::Canceled => {
-                input.consume_event();
                 self.alive = false;
                 None
             }
             InputResult::Done(line) => {
-                input.consume_event();
                 self.tb = None;
                 if let Some(result) = parser(line.clone()) {
                     Some(result)
