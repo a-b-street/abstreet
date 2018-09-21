@@ -4,8 +4,8 @@ use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
-use std;
-use std::collections::HashMap;
+use polygons;
+use std::collections::BTreeMap;
 
 const POINT_RADIUS: f64 = 2.0;
 
@@ -17,7 +17,7 @@ pub enum DrawPolygonState {
     MovingPoint(Vec<Pt2D>, usize, String),
     NamingPolygon(TextBox, Vec<Pt2D>),
     // String name to each choice, pre-loaded
-    ListingPolygons(Menu, HashMap<String, PolygonSelection>),
+    ListingPolygons(Menu, BTreeMap<String, polygons::PolygonSelection>),
 }
 
 impl DrawPolygonState {
@@ -48,12 +48,12 @@ impl DrawPolygonState {
                 osd.add_line(format!("Currently editing {}", name));
 
                 if input.key_pressed(Key::Tab, "list existing polygons") {
-                    let (names, polygons) = load_all_polygons(map.get_name());
-                    if names.is_empty() {
+                    let polygons = polygons::load_all_polygons(map.get_name());
+                    if polygons.is_empty() {
                         println!("Sorry, no existing polygons");
                     } else {
                         new_state = Some(DrawPolygonState::ListingPolygons(
-                            Menu::new(names),
+                            Menu::new(polygons.keys().cloned().collect()),
                             polygons,
                         ));
                     }
@@ -108,7 +108,7 @@ impl DrawPolygonState {
                     let path = format!("../data/polygons/{}/{}", map.get_name(), tb.line);
                     abstutil::write_json(
                         &path,
-                        &PolygonSelection {
+                        &polygons::PolygonSelection {
                             name: tb.line.clone(),
                             points: pts.clone(),
                         },
@@ -188,23 +188,3 @@ impl DrawPolygonState {
 }
 
 impl Colorizer for DrawPolygonState {}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PolygonSelection {
-    name: String,
-    points: Vec<Pt2D>,
-}
-
-fn load_all_polygons(map_name: &str) -> (Vec<String>, HashMap<String, PolygonSelection>) {
-    let mut names: Vec<String> = Vec::new();
-    let mut polygons: HashMap<String, PolygonSelection> = HashMap::new();
-    for entry in std::fs::read_dir(format!("../data/polygons/{}/", map_name)).unwrap() {
-        let name = entry.unwrap().file_name().into_string().unwrap();
-        names.push(name.clone());
-        let load: PolygonSelection =
-            abstutil::read_json(&format!("../data/polygons/{}/{}", map_name, name)).unwrap();
-        polygons.insert(name, load);
-    }
-    names.sort();
-    (names, polygons)
-}
