@@ -166,7 +166,7 @@ impl DrawPolygonState {
                 return;
             }
             DrawPolygonState::ListingPolygons(menu, polygons) => {
-                canvas.draw_centered_text(g, menu.get_osd());
+                menu.draw(g, canvas);
                 (&polygons[menu.current_choice()].points, None)
             }
         };

@@ -62,7 +62,7 @@ impl WizardSample {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         if let WizardSample::Active(wizard) = self {
             if let Some(ref menu) = wizard.menu {
-                canvas.draw_centered_text(g, menu.get_osd());
+                menu.draw(g, canvas);
                 if let Some(ref polygons) = wizard.polygons {
                     g.draw_polygon(
                         [0.0, 0.0, 1.0, 0.6],

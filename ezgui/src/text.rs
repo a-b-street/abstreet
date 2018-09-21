@@ -12,7 +12,7 @@ const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];
 
 const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
-const LINE_HEIGHT: f64 = 22.0;
+pub const LINE_HEIGHT: f64 = 22.0;
 
 struct TextSpan {
     text: String,

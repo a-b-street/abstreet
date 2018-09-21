@@ -87,7 +87,7 @@ impl ColorPicker {
         match self {
             ColorPicker::Inactive => {}
             ColorPicker::Choosing(menu) => {
-                canvas.draw_centered_text(g, menu.get_osd());
+                menu.draw(g, canvas);
             }
             ColorPicker::PickingColor(_, _) => {
                 let (start_x, start_y) = get_screen_offset(canvas);

@@ -1,5 +1,5 @@
 use piston::input::{Button, Key, PressEvent};
-use {text, InputResult, TextOSD, UserInput};
+use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput};
 
 pub struct Menu {
     prompt: String,
@@ -42,16 +42,47 @@ impl Menu {
         InputResult::StillActive
     }
 
-    // TODO different API... handle menus bigger than the screen, actually do scroll. maybe always
-    // display one size for the menu, just dont fill everything out
-    pub fn get_osd(&self) -> TextOSD {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut osd = TextOSD::new();
         osd.add_styled_line(
             self.prompt.clone(),
             text::TEXT_FG_COLOR,
             Some(text::TEXT_QUERY_COLOR),
         );
+
+        // TODO Silly results from doing this:
+        // - The menu width changes as we scroll
+        // - Some off-by-one / usize rounding bugs causing menu height to change a bit
+
+        // How many lines can we fit on the screen?
+        let can_fit = {
+            // Subtract 1 for the prompt, and an additional TODO hacky
+            // few to avoid the bottom OSD and stuff.
+            let n =
+                (f64::from(canvas.window_size.height) / text::LINE_HEIGHT).floor() as isize - 1 - 6;
+            if n <= 0 {
+                // Weird small window, just display the prompt and bail out.
+                canvas.draw_centered_text(g, osd);
+                return;
+            }
+            n as usize
+        };
+
+        let low_idx = if self.choices.len() <= can_fit {
+            0
+        } else {
+            let middle = can_fit / 2;
+            if self.current_idx >= middle {
+                (self.current_idx - middle).min(self.choices.len() - (middle * 2))
+            } else {
+                0
+            }
+        };
+
         for (idx, line) in self.choices.iter().enumerate() {
+            if idx < low_idx || idx > low_idx + can_fit {
+                continue;
+            }
             if self.current_idx == idx {
                 osd.add_styled_line(
                     line.clone(),
@@ -62,7 +93,8 @@ impl Menu {
                 osd.add_line(line.clone());
             }
         }
-        osd
+
+        canvas.draw_centered_text(g, osd);
     }
 
     pub fn current_choice(&self) -> &String {
