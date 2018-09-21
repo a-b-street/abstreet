@@ -87,3 +87,13 @@ Wait, length of car affects parking pretty critically. A bunch of things plumb
 around the precomputed front of the spot, used for drawing and for cars to line
 up their front in the sim. I think we need to plumb the true start of the spot
 and have a method to interpolate and pick the true front.
+
+## Logging
+
+Libraries will do it too -- that's fine
+
+nice UI features:
+- highlight what general area publishes a message
+- filter by area
+- remember where the log scroller is, even when hidden
+- jump to end or beginning quickly

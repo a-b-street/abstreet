@@ -17,6 +17,7 @@ use piston::input::{Key, MouseCursorEvent};
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
+use plugins::logs::DisplayLogs;
 use plugins::debug_objects::DebugObjectsState;
 use plugins::draw_polygon::DrawPolygonState;
 use plugins::floodfill::Floodfiller;
@@ -125,6 +126,7 @@ impl UIWrapper {
             turn_cycler: TurnCyclerState::new(),
             draw_polygon: DrawPolygonState::new(),
             wizard_sample: WizardSample::new(),
+            logs: DisplayLogs::new(),
 
             active_plugin: None,
 
@@ -246,6 +248,7 @@ impl UIWrapper {
                 Box::new(|ui, input, _osd| ui.turn_cycler.event(input, ui.current_selection)),
                 Box::new(|ui, input, osd| ui.draw_polygon.event(input, &ui.canvas, &ui.map, osd)),
                 Box::new(|ui, input, _osd| ui.wizard_sample.event(input, &ui.map)),
+                Box::new(|ui, input, _osd| ui.logs.event(input)),
             ],
         }
     }
@@ -279,6 +282,7 @@ struct UI {
     turn_cycler: TurnCyclerState,
     draw_polygon: DrawPolygonState,
     wizard_sample: WizardSample,
+    logs: DisplayLogs,
 
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
@@ -462,6 +466,7 @@ impl UI {
         self.color_picker.draw(&self.canvas, g);
         self.draw_polygon.draw(g, &self.canvas);
         self.wizard_sample.draw(g, &self.canvas);
+        self.logs.draw(g, &self.canvas);
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
 
@@ -515,6 +520,7 @@ impl UI {
             15 => Some(Box::new(&self.turn_cycler)),
             16 => Some(Box::new(&self.draw_polygon)),
             17 => Some(Box::new(&self.wizard_sample)),
+            18 => Some(Box::new(&self.logs)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
