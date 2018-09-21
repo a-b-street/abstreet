@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, GfxCtx, Menu, MenuResult, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, Menu, UserInput};
 use graphics;
 use piston::input::{Key, MouseCursorEvent};
 use plugins::Colorizer;
@@ -39,11 +39,11 @@ impl ColorPicker {
             }
             ColorPicker::Choosing(ref mut menu) => {
                 match menu.event(input.use_event_directly()) {
-                    MenuResult::Canceled => {
+                    InputResult::Canceled => {
                         new_state = Some(ColorPicker::Inactive);
                     }
-                    MenuResult::StillActive => {}
-                    MenuResult::Done(choice) => {
+                    InputResult::StillActive => {}
+                    InputResult::Done(choice) => {
                         let c = Colors::from_str(&choice).unwrap();
                         new_state = Some(ColorPicker::PickingColor(c, cs.get(c)));
                     }

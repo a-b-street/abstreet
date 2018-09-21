@@ -1,4 +1,4 @@
-use ezgui::{Canvas, GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, TextOSD, UserInput};
 use geom::Polygon;
 use map_model::Map;
 use piston::input::Key;
@@ -173,19 +173,19 @@ impl Wizard {
             .event(input.use_event_directly());
         input.consume_event();
         match result {
-            MenuResult::Canceled => {
+            InputResult::Canceled => {
                 self.menu = None;
                 self.alive = false;
                 None
             }
-            MenuResult::StillActive => {
+            InputResult::StillActive => {
                 // TODO We want to draw this at the top of the menu with choices. Menu should
                 // probably itself have an optional header line?
                 osd.pad_if_nonempty();
                 osd.add_line(query.to_string());
                 None
             }
-            MenuResult::Done(choice) => {
+            InputResult::Done(choice) => {
                 self.menu = None;
                 Some(choice)
             }
@@ -209,20 +209,26 @@ impl Wizard {
             self.tb = Some(TextBox::new(query));
         }
 
-        let done = self.tb.as_mut().unwrap().event(input.use_event_directly());
-        input.consume_event();
-        if done {
-            let line = self.tb.as_ref().unwrap().line.clone();
-            self.tb = None;
-            if let Some(result) = parser(line.clone()) {
-                Some(result)
-            } else {
-                println!("Invalid input {} -- assuming you meant to abort", line);
+        match self.tb.as_mut().unwrap().event(input.use_event_directly()) {
+            InputResult::StillActive => {
+                input.consume_event();
+                None
+            }
+            InputResult::Canceled => {
+                input.consume_event();
                 self.alive = false;
                 None
             }
-        } else {
-            None
+            InputResult::Done(line) => {
+                input.consume_event();
+                self.tb = None;
+                if let Some(result) = parser(line.clone()) {
+                    Some(result)
+                } else {
+                    println!("Invalid input {}", line);
+                    None
+                }
+            }
         }
     }
 }

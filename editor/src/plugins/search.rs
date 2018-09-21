@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
 use graphics::types::Color;
 use objects::{Ctx, ID};
 use piston::input::Key;
@@ -37,8 +37,14 @@ impl SearchState {
                 }
             }
             SearchState::EnteringSearch(tb) => {
-                if tb.event(input.use_event_directly()) {
-                    new_state = Some(SearchState::FilterOSM(tb.line.clone()));
+                match tb.event(input.use_event_directly()) {
+                    InputResult::Canceled => {
+                        new_state = Some(SearchState::Empty);
+                    }
+                    InputResult::Done(filter) => {
+                        new_state = Some(SearchState::FilterOSM(filter));
+                    }
+                    InputResult::StillActive => {}
                 }
                 input.consume_event();
             }

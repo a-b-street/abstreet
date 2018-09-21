@@ -1,4 +1,4 @@
-use ezgui::{Canvas, GfxCtx, TextBox, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::ID;
@@ -30,9 +30,15 @@ impl WarpState {
                 }
             }
             WarpState::EnteringSearch(tb) => {
-                if tb.event(input.use_event_directly()) {
-                    warp(tb.line.clone(), map, sim, canvas, selected);
-                    new_state = Some(WarpState::Empty);
+                match tb.event(input.use_event_directly()) {
+                    InputResult::Canceled => {
+                        new_state = Some(WarpState::Empty);
+                    }
+                    InputResult::Done(to) => {
+                        warp(to, map, sim, canvas, selected);
+                        new_state = Some(WarpState::Empty);
+                    }
+                    InputResult::StillActive => {}
                 }
                 input.consume_event();
             }

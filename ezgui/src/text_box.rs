@@ -1,6 +1,6 @@
 use keys::key_to_char;
 use piston::input::{Button, ButtonEvent, Event, Key, PressEvent, ReleaseEvent};
-use {Canvas, GfxCtx, TextOSD};
+use {Canvas, GfxCtx, InputResult, TextOSD};
 
 // TODO right now, only a single line
 
@@ -34,13 +34,14 @@ impl TextBox {
         canvas.draw_centered_text(g, osd);
     }
 
-    // TODO a way to abort out
-    // Returns true if the user confirmed their entry.
-    // TODO return the entered string if done...
-    pub fn event(&mut self, ev: &Event) -> bool {
+    pub fn event(&mut self, ev: &Event) -> InputResult {
+        if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
+            return InputResult::Canceled;
+        }
+
         // Done?
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return true;
+            return InputResult::Done(self.line.clone());
         }
 
         // Key state tracking
@@ -85,6 +86,6 @@ impl TextBox {
                 self.cursor_x += 1;
             }
         }
-        false
+        InputResult::StillActive
     }
 }

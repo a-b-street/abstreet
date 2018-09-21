@@ -20,7 +20,7 @@ pub use canvas::Canvas;
 use graphics::character::CharacterCache;
 use graphics::types::Color;
 pub use input::UserInput;
-pub use menu::{Menu, MenuResult};
+pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, EventLoopMode, GUI};
@@ -211,4 +211,10 @@ pub fn shift_color(c: Color, id: usize) -> Color {
 
 fn line_to_array(l: &geom::Line) -> [f64; 4] {
     [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
+}
+
+pub enum InputResult {
+    Canceled,
+    StillActive,
+    Done(String),
 }

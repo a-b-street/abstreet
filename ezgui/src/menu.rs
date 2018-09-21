@@ -1,11 +1,5 @@
 use piston::input::{Button, Event, Key, PressEvent};
-use TextOSD;
-
-pub enum MenuResult {
-    Canceled,
-    StillActive,
-    Done(String),
-}
+use {InputResult, TextOSD};
 
 pub struct Menu {
     choices: Vec<String>,
@@ -21,13 +15,13 @@ impl Menu {
     }
 
     // TODO take UserInput
-    pub fn event(&mut self, ev: &Event) -> MenuResult {
+    pub fn event(&mut self, ev: &Event) -> InputResult {
         if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
-            return MenuResult::Canceled;
+            return InputResult::Canceled;
         }
 
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return MenuResult::Done(self.choices[self.current_idx].clone());
+            return InputResult::Done(self.choices[self.current_idx].clone());
         }
 
         if let Some(Button::Keyboard(Key::Up)) = ev.press_args() {
@@ -41,7 +35,7 @@ impl Menu {
             }
         }
 
-        MenuResult::StillActive
+        InputResult::StillActive
     }
 
     // TODO different API... handle menus bigger than the screen, actually do scroll. maybe always

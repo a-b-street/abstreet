@@ -1,5 +1,5 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, TextOSD, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
 use piston::input::{Button, Key, ReleaseEvent};
@@ -104,27 +104,34 @@ impl DrawPolygonState {
                 }
             }
             DrawPolygonState::NamingPolygon(tb, pts) => {
-                if tb.event(input.use_event_directly()) {
-                    let path = format!("../data/polygons/{}/{}", map.get_name(), tb.line);
-                    abstutil::write_json(
-                        &path,
-                        &polygons::PolygonSelection {
-                            name: tb.line.clone(),
-                            points: pts.clone(),
-                        },
-                    ).expect("Saving polygon selection failed");
-                    println!("Saved {}", path);
-                    new_state = Some(DrawPolygonState::Empty);
+                match tb.event(input.use_event_directly()) {
+                    InputResult::Canceled => {
+                        println!("Never mind!");
+                        new_state = Some(DrawPolygonState::Empty);
+                    }
+                    InputResult::Done(name) => {
+                        let path = format!("../data/polygons/{}/{}", map.get_name(), name);
+                        abstutil::write_json(
+                            &path,
+                            &polygons::PolygonSelection {
+                                name,
+                                points: pts.clone(),
+                            },
+                        ).expect("Saving polygon selection failed");
+                        println!("Saved {}", path);
+                        new_state = Some(DrawPolygonState::Empty);
+                    }
+                    InputResult::StillActive => {}
                 }
                 input.consume_event();
             }
             DrawPolygonState::ListingPolygons(ref mut menu, polygons) => {
                 match menu.event(input.use_event_directly()) {
-                    MenuResult::Canceled => {
+                    InputResult::Canceled => {
                         new_state = Some(DrawPolygonState::Empty);
                     }
-                    MenuResult::StillActive => {}
-                    MenuResult::Done(choice) => {
+                    InputResult::StillActive => {}
+                    InputResult::Done(choice) => {
                         new_state = Some(DrawPolygonState::DrawingPoints(
                             polygons[&choice].points.clone(),
                             None,
