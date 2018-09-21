@@ -1,6 +1,6 @@
 use keys::key_to_char;
 use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
-use {Canvas, GfxCtx, InputResult, TextOSD, UserInput};
+use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput};
 
 // TODO right now, only a single line
 
@@ -29,8 +29,32 @@ impl TextBox {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut osd = TextOSD::new();
-        osd.add_highlighted_line(self.prompt.clone());
-        osd.add_line_with_cursor(self.line.clone(), self.cursor_x);
+        osd.add_styled_line(
+            self.prompt.clone(),
+            text::TEXT_FG_COLOR,
+            Some(text::TEXT_QUERY_COLOR),
+        );
+
+        osd.add_line(self.line[0..self.cursor_x].to_string());
+        if self.cursor_x < self.line.len() {
+            osd.append(
+                self.line[self.cursor_x..=self.cursor_x].to_string(),
+                text::TEXT_FG_COLOR,
+                Some(text::TEXT_FOCUS_COLOR),
+            );
+            osd.append(
+                self.line[self.cursor_x + 1..].to_string(),
+                text::TEXT_FG_COLOR,
+                None,
+            );
+        } else {
+            osd.append(
+                " ".to_string(),
+                text::TEXT_FG_COLOR,
+                Some(text::TEXT_FOCUS_COLOR),
+            );
+        }
+
         canvas.draw_centered_text(g, osd);
     }
 

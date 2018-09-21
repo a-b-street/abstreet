@@ -1,5 +1,5 @@
 use piston::input::{Button, Key, PressEvent};
-use {InputResult, TextOSD, UserInput};
+use {text, InputResult, TextOSD, UserInput};
 
 pub struct Menu {
     prompt: String,
@@ -46,11 +46,18 @@ impl Menu {
     // display one size for the menu, just dont fill everything out
     pub fn get_osd(&self) -> TextOSD {
         let mut osd = TextOSD::new();
-        // TODO different color
-        osd.add_line(self.prompt.clone());
+        osd.add_styled_line(
+            self.prompt.clone(),
+            text::TEXT_FG_COLOR,
+            Some(text::TEXT_QUERY_COLOR),
+        );
         for (idx, line) in self.choices.iter().enumerate() {
             if self.current_idx == idx {
-                osd.add_highlighted_line(line.clone());
+                osd.add_styled_line(
+                    line.clone(),
+                    text::TEXT_FG_COLOR,
+                    Some(text::TEXT_FOCUS_COLOR),
+                );
             } else {
                 osd.add_line(line.clone());
             }
