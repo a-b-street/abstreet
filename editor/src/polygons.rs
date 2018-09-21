@@ -20,3 +20,5 @@ pub fn load_all_polygons(map_name: &str) -> BTreeMap<String, PolygonSelection> {
     }
     results
 }
+
+// TODO maybe a wrapper type for the BTreeMap or a way to hook it up easily to a Menu

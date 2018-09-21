@@ -1,23 +1,23 @@
 use ezgui::{Canvas, GfxCtx, Menu, MenuResult, TextBox, TextOSD, UserInput};
+use geom::Polygon;
 use map_model::Map;
 use piston::input::Key;
 use plugins::Colorizer;
+use polygons;
 use sim::Tick;
+use std::collections::BTreeMap;
 use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct SpawnOverTime {
-    pub tmp_choice: String, // TODO remove
     pub num_agents: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
     // [0, 1]. The rest will walk, using transit if useful.
     pub percent_drive: f64,
-    /*
     pub start_from_neighborhood: String,
     pub go_to_neighborhood: String,
-    */
 }
 
 // TODO really, this should be specific to scenario definition or something
@@ -63,6 +63,12 @@ impl WizardSample {
         if let WizardSample::Active(wizard) = self {
             if let Some(ref menu) = wizard.menu {
                 canvas.draw_centered_text(g, menu.get_osd());
+                if let Some(ref polygons) = wizard.polygons {
+                    g.draw_polygon(
+                        [0.0, 0.0, 1.0, 0.6],
+                        &Polygon::new(&polygons[menu.current_choice()].points),
+                    );
+                }
             }
         }
     }
@@ -74,14 +80,13 @@ impl Colorizer for WizardSample {}
 // distinguish.
 fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
     Some(SpawnOverTime {
-        tmp_choice: wizard.choose("Choose your poison", vec!["foo", "bar", "baz", "bork"])?,
         num_agents: wizard.input_usize("Spawn how many agents?")?,
         start_tick: wizard.input_tick("Start spawning when?")?,
         // TODO input interval, or otherwise enforce stop_tick > start_tick
         stop_tick: wizard.input_tick("Stop spawning when?")?,
         percent_drive: wizard.input_percent("What percent should drive?")?,
-        /*start_from_neighborhood: wizard.input_polygon("Where should the agents start?")?,
-        go_to_neighborhood: wizard.input_polygon("Where should the agents go?")?,*/
+        start_from_neighborhood: wizard.choose_polygon("Where should the agents start?")?,
+        go_to_neighborhood: wizard.choose_polygon("Where should the agents go?")?,
     })
 }
 
@@ -89,6 +94,8 @@ pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
     menu: Option<Menu>,
+    // If this is present, menu also is.
+    polygons: Option<BTreeMap<String, polygons::PolygonSelection>>,
 
     state_usize: Vec<usize>,
     state_tick: Vec<Tick>,
@@ -102,6 +109,7 @@ impl Wizard {
             alive: true,
             tb: None,
             menu: None,
+            polygons: None,
             state_usize: Vec::new(),
             state_tick: Vec::new(),
             state_percent: Vec::new(),
@@ -309,5 +317,37 @@ impl<'a> WrappedWizard<'a> {
         } else {
             None
         }
+    }
+
+    fn choose_polygon(&mut self, query: &str) -> Option<String> {
+        if !self.ready_choices.is_empty() {
+            return self.ready_choices.pop_front();
+        }
+        if self.wizard.polygons.is_none() {
+            self.wizard.polygons = Some(polygons::load_all_polygons(self.map.get_name()));
+        }
+        let names = self
+            .wizard
+            .polygons
+            .as_ref()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect();
+        let result = if let Some(choice) = self
+            .wizard
+            .input_with_menu(query, names, self.input, self.osd)
+        {
+            self.wizard.state_choices.push(choice.clone());
+            Some(choice)
+        } else {
+            None
+        };
+        // TODO Very weird to manage this coupled state like this...
+        if self.wizard.menu.is_none() {
+            self.wizard.polygons = None;
+        }
+
+        result
     }
 }
