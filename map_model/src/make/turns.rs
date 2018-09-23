@@ -17,7 +17,7 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
     for t in turns.into_iter() {
         if ids.contains(&t.id) {
             // TODO Disable panic so large.abst works :(
-            println!("Duplicate turns {}!", t.id);
+            error!("Duplicate turns {}!", t.id);
         } else {
             ids.insert(t.id);
             keep.push(t);
@@ -113,13 +113,13 @@ fn make_turns(
     // TODO: Figure out why this happens in the huge map
     if incoming.is_empty() {
         if false {
-            println!("WARNING: {} has no incoming lanes of some type", parent);
+            warn!("{} has no incoming lanes of some type", parent);
         }
         return Vec::new();
     }
     if outgoing.is_empty() {
         if false {
-            println!("WARNING: {} has no outgoing lanes of some type", parent);
+            warn!("{} has no outgoing lanes of some type", parent);
         }
         return Vec::new();
     }

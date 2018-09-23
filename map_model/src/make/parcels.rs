@@ -46,7 +46,7 @@ pub(crate) fn make_all_parcels(
     }
     let discarded = input.len() - results.len();
     if discarded > 0 {
-        println!(
+        info!(
             "Discarded {} parcels that weren't close enough to a sidewalk",
             discarded
         );

@@ -99,6 +99,7 @@ nice UI features:
 - jump to end or beginning quickly
 - start at the end
 - show new messages in OSD briefly, then vanish
+- wrap long lines
 
 log crate is annoying -- cant initialize it, but also have something else hold
 onto it. probably have to use lazy static. not even sure I'll use this implicit

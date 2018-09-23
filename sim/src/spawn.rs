@@ -145,11 +145,11 @@ impl Spawner {
                 );
             }
         }
-            debug!(
-                "Spawned {} agents of requested {}",
-                spawned_agents,
-                requested_paths.len()
-            );
+        debug!(
+            "Spawned {} agents of requested {}",
+            spawned_agents,
+            requested_paths.len()
+        );
     }
 
     // This happens immediately; it isn't scheduled.

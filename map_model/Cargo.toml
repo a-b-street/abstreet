@@ -10,6 +10,7 @@ flame = "0.2.2"
 geo = "0.9.1"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
+log = "0.4.5"
 multimap = "0.4.0"
 ordered-float = "0.5.0"
 pretty_assertions = "0.5.1"

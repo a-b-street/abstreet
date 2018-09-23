@@ -77,7 +77,7 @@ impl LaneSpec {
 
 pub(crate) fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &Edits) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = if let Some(e) = edits.roads.get(&id) {
-        println!("Using edits for {}", id);
+        info!("Using edits for {}", id);
         (e.forwards_lanes.clone(), e.backwards_lanes.clone())
     } else {
         get_lanes(r)

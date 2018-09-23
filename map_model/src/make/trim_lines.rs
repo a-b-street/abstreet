@@ -45,7 +45,7 @@ pub(crate) fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
 
             // TODO how does this happen?
             if pl1 == pl2 {
-                println!("Both {} and {} have same pts?! {}", incoming, outgoing, pl1);
+                error!("Both {} and {} have same pts?! {}", incoming, outgoing, pl1);
                 continue;
             }
 

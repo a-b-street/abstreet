@@ -62,7 +62,7 @@ impl RoadEdit {
         new_type: LaneType,
     ) -> Option<RoadEdit> {
         if lane.is_sidewalk() {
-            println!("Sidewalks are fixed; can't change their type");
+            error!("Sidewalks are fixed; can't change their type");
             return None;
         }
 
@@ -70,7 +70,7 @@ impl RoadEdit {
         let (is_fwd, idx) = r.dir_and_offset(lane.id);
         if is_fwd {
             if forwards[idx] == new_type {
-                println!("{} is already {:?}", lane.id, new_type);
+                error!("{} is already {:?}", lane.id, new_type);
                 return None;
             }
             forwards[idx] = new_type;
@@ -79,7 +79,7 @@ impl RoadEdit {
             }
         } else {
             if backwards[idx] == new_type {
-                println!("{} is already {:?}", lane.id, new_type);
+                error!("{} is already {:?}", lane.id, new_type);
                 return None;
             }
             backwards[idx] = new_type;
@@ -99,7 +99,7 @@ impl RoadEdit {
     fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
         // Sidewalks are fixed
         if lane.is_sidewalk() {
-            println!("Can't delete sidewalks");
+            error!("Can't delete sidewalks");
             return None;
         }
 
@@ -124,14 +124,14 @@ fn are_lanes_valid(lanes: &Vec<LaneType>) -> bool {
     // TODO this check doesn't seem to be working
     for pair in lanes.windows(2) {
         if pair[0] == LaneType::Parking && pair[1] == LaneType::Parking {
-            println!("Can't have two adjacent parking lanes");
+            error!("Can't have two adjacent parking lanes");
             return false;
         }
     }
 
     // Can't have two sidewalks on one side of a road
     if lanes.iter().filter(|&&lt| lt == LaneType::Sidewalk).count() > 1 {
-        println!("Can't have two sidewalks on one side of a road");
+        error!("Can't have two sidewalks on one side of a road");
         return false;
     }
 

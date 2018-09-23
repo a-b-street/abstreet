@@ -50,7 +50,7 @@ pub fn make_bus_stops(
                 );
             }
         } else {
-            println!(
+            warn!(
                 "Can't find driving lane next to {}: {:?} and {:?}",
                 id, road.children_forwards, road.children_backwards
             );
@@ -65,7 +65,10 @@ pub fn make_bus_stops(
             .map(|stop| *stop)
             .collect();
         if stops.len() == 1 {
-            //println!("Skipping route {} since it only has 1 stop in the slice of the map", route_name);
+            debug!(
+                "Skipping route {} since it only has 1 stop in the slice of the map",
+                route_name
+            );
             continue;
         }
         routes.push(BusRoute {

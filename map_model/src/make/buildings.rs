@@ -56,7 +56,7 @@ pub(crate) fn make_all_buildings(
 
     let discarded = input.len() - results.len();
     if discarded > 0 {
-        println!(
+        info!(
             "Discarded {} buildings that weren't close enough to a sidewalk",
             discarded
         );
