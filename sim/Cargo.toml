@@ -14,6 +14,7 @@ failure = "0.1.2"
 flame = "0.2.2"
 geom = { path = "../geom" }
 lazy_static = "1.1.0"
+log = "0.4.5"
 map_model = { path = "../map_model" }
 more-asserts = "0.2.1"
 multimap = "0.4.0"

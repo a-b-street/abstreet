@@ -138,20 +138,18 @@ impl Spawner {
                         spawned_agents += 1;
                     }
                 };
-            } else if false {
-                println!(
+            } else {
+                debug!(
                     "Couldn't find path from {} to {} for {:?}",
                     req.0, req.1, cmd
                 );
             }
         }
-        if false {
-            println!(
+            debug!(
                 "Spawned {} agents of requested {}",
                 spawned_agents,
                 requested_paths.len()
             );
-        }
     }
 
     // This happens immediately; it isn't scheduled.
@@ -189,10 +187,10 @@ impl Spawner {
                 properties,
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);
-                println!("Spawned bus {} for route {} ({})", id, route.name, route_id);
+                info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
                 vehicles.push(vehicle);
             } else {
-                println!(
+                warn!(
                     "No room for a bus headed towards stop {} of {} ({}), giving up",
                     next_stop_idx, route.name, route_id
                 );
@@ -224,7 +222,7 @@ impl Spawner {
             }
         }
 
-        println!(
+        info!(
             "Seeded {} of {} parking spots with cars",
             new_cars.len(),
             total_capacity
@@ -266,7 +264,7 @@ impl Spawner {
 
         // Don't add duplicate commands.
         if let Some(trip) = trips.get_trip_using_car(parked.car) {
-            println!(
+            warn!(
                 "{} is already a part of {}, ignoring new request",
                 parked.car, trip
             );
@@ -429,9 +427,7 @@ fn calculate_paths(
 ) -> Vec<Option<VecDeque<LaneID>>> {
     use rayon::prelude::*;
 
-    if false {
-        println!("Calculating {} paths", requested_paths.len())
-    };
+    debug!("Calculating {} paths", requested_paths.len());
     // TODO better timer macro
     let timer = Instant::now();
     let paths: Vec<Option<VecDeque<LaneID>>> = requested_paths
@@ -441,8 +437,6 @@ fn calculate_paths(
 
     let elapsed = timer.elapsed();
     let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
-    if false {
-        println!("Calculating {} paths took {}s", paths.len(), dt)
-    };
+    debug!("Calculating {} paths took {}s", paths.len(), dt);
     paths
 }

@@ -14,6 +14,9 @@ extern crate geom;
 extern crate graphics;
 #[macro_use]
 extern crate lazy_static;
+// Order matters -- this must be before 'mod macros'
+#[macro_use]
+extern crate log;
 extern crate map_model;
 #[macro_use]
 extern crate more_asserts;
@@ -26,6 +29,9 @@ extern crate rayon;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+
+#[macro_use]
+mod macros;
 
 mod driving;
 mod events;

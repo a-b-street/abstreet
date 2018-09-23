@@ -139,7 +139,7 @@ impl TransitSimState {
                     events.push(Event::BusArrivedAtStop(car, stop.id));
                     capture_backtrace("BusArrivedAtStop");
                     if view.debug {
-                        println!("{} arrived at stop {:?}, now waiting", car, stop);
+                        debug!("{} arrived at stop {:?}, now waiting", car, stop);
                     }
                     return (true, None);
                 }
@@ -157,7 +157,7 @@ impl TransitSimState {
                     events.push(Event::BusDepartedFromStop(car, stop.id));
                     capture_backtrace("BusDepartedFromStop");
                     if view.debug {
-                        println!("{} departing from stop {:?}", car, stop);
+                        debug!("{} departing from stop {:?}", car, stop);
                     }
 
                     let mut new_path = Pathfinder::shortest_distance(

@@ -16,7 +16,7 @@ pub fn load(
     let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
 
     if input.contains("data/save/") {
-        println!("Resuming from {}", input);
+        info!("Resuming from {}", input);
         flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&input).expect("loading sim state failed");
         flame::end("read sim savestate");
@@ -27,7 +27,7 @@ pub fn load(
         let control_map = ControlMap::new(&map);
         (map, edits, control_map, sim)
     } else {
-        println!("Loading map {}", input);
+        info!("Loading map {}", input);
         let map = Map::new(&input, &edits).expect("Couldn't load map");
         let control_map = ControlMap::new(&map);
         flame::start("create sim");
@@ -47,7 +47,7 @@ impl Sim {
             self.step(&map, &control_map);
             if self.time.is_multiple_of(Tick::from_minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
-                println!("{0}, speed = {1:.2}x", self.summary(), speed);
+                info!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             callback(self);
             if self.is_done() {
@@ -71,7 +71,7 @@ impl Sim {
             }
             for ev in self.step(&map, &control_map).into_iter() {
                 if ev == *expectations.front().unwrap() {
-                    println!("At {}, met expectation {:?}", self.time, ev);
+                    info!("At {}, met expectation {:?}", self.time, ev);
                     expectations.pop_front();
                     if expectations.is_empty() {
                         return;
@@ -80,7 +80,7 @@ impl Sim {
             }
             if self.time.is_multiple_of(Tick::from_minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
-                println!("{0}, speed = {1:.2}x", self.summary(), speed);
+                info!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             if self.time == time_limit {
                 panic!(

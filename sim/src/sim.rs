@@ -130,12 +130,12 @@ impl Sim {
                 // The order of causes is funky and backwards.
                 let mut causes: Vec<String> = e.iter_chain().map(|c| c.to_string()).collect();
                 causes.reverse();
-                println!("\nAt {}: {}", self.time, causes[0]);
+                error!("\nAt {}: {}", self.time, causes[0]);
                 for c in &causes[1..] {
-                    println!("  {}", c);
+                    error!("  {}", c);
                 }
                 if let Ok(s) = self.find_most_recent_savestate() {
-                    println!("Debug from {}", s);
+                    error!("Debug from {}", s);
                 }
                 process::exit(1);
             }
@@ -327,13 +327,13 @@ impl Sim {
             self.time.as_filename()
         );
         abstutil::write_json(&path, &self).expect("Writing sim state failed");
-        println!("Saved to {}", path);
+        info!("Saved to {}", path);
         path
     }
 
     pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
         let load = self.find_most_recent_savestate()?;
-        println!("Loading {}", load);
+        info!("Loading {}", load);
         abstutil::read_json(&load)
     }
 

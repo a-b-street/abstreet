@@ -150,13 +150,13 @@ impl Router {
         let choices = map.get_next_lanes(last_lane);
         if choices.is_empty() {
             if view.debug {
-                println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);
+                debug!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);
             }
             return Some(Action::VanishAtDeadEnd);
         }
         let choice = rng.choose(&choices).unwrap().id;
         if view.debug {
-            println!(
+            debug!(
                 "{} can't find parking on {}, so wandering over to {}",
                 view.id, last_lane, choice
             );

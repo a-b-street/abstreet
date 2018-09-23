@@ -124,7 +124,7 @@ impl Car {
 
         loop {
             if self.debug {
-                println!(
+                debug!(
                     "  -- {} looking ahead to {:?} with {} left to scan",
                     self.id, current_on, dist_to_lookahead
                 );
@@ -137,7 +137,7 @@ impl Car {
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
                 constraints.push(accel);
                 if self.debug {
-                    println!(
+                    debug!(
                         "  {} needs {} to match speed limit of {}",
                         self.id, accel, current_speed_limit
                     );
@@ -164,7 +164,7 @@ impl Car {
                     )?;
 
                     if self.debug {
-                        println!(
+                        debug!(
                             "  {} needs {} to not hit {}. Currently {} behind them",
                             self.id, accel, other.id, dist_behind_other
                         );
@@ -172,7 +172,7 @@ impl Car {
 
                     constraints.push(accel);
                 } else if self.debug {
-                    println!("  {} is {} behind {}. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_scanned_ahead, dist_to_lookahead, other_vehicle.following_dist(), total_scanning_dist);
+                    debug!("  {} is {} behind {}. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_scanned_ahead, dist_to_lookahead, other_vehicle.following_dist(), total_scanning_dist);
                 }
             }
 
@@ -207,7 +207,7 @@ impl Car {
                     if should_stop {
                         let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop)?;
                         if self.debug {
-                            println!(
+                            debug!(
                                 "  {} needs {} to stop for something that's currently {} away",
                                 self.id, accel, dist_from_stop
                             );
@@ -245,7 +245,7 @@ impl Car {
                 .unwrap(),
         );
         if self.debug {
-            println!(
+            debug!(
                 "At {}, {} chose {}, with current speed {}",
                 time, self.id, safe_accel, self.speed
             );
@@ -701,14 +701,12 @@ impl DrivingSimState {
         {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= dist_along {
-                if false {
-                    println!(
+                    debug!(
                         "{} can't spawn, because they'd wind up too close ({}) behind {}",
                         car,
                         other_dist - dist_along,
                         other
                     );
-                }
                 return false;
             }
 
@@ -722,9 +720,7 @@ impl DrivingSimState {
                     0.0 * si::MPS,
                 ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
-                if false {
-                    println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
-                }
+                    debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
                 return false;
             }
 
