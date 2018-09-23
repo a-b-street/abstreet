@@ -60,7 +60,7 @@ impl ColorPicker {
                     new_state = Some(ColorPicker::Inactive);
                 } else if input.key_pressed(Key::Return, &format!("finalize new color for {:?}", c))
                 {
-                    println!("Setting color for {:?}", c);
+                    info!("Setting color for {:?}", c);
                     new_state = Some(ColorPicker::Inactive);
                 }
 

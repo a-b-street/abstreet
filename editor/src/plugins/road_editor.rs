@@ -71,7 +71,7 @@ impl RoadEditor {
                     }
                     if input.key_pressed(Key::Backspace, "delete this lane") {
                         if edits.delete_lane(road, lane) {
-                            println!("Have to reload the map from scratch to pick up this change!");
+                            warn!("Have to reload the map from scratch to pick up this change!");
                         }
                     }
                 }

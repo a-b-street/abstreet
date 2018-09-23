@@ -98,6 +98,7 @@ nice UI features:
 - remember where the log scroller is, even when hidden
 - jump to end or beginning quickly
 - start at the end
+- show new messages in OSD briefly, then vanish
 
 log crate is annoying -- cant initialize it, but also have something else hold
 onto it. probably have to use lazy static. not even sure I'll use this implicit

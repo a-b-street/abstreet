@@ -30,6 +30,9 @@ extern crate strum;
 #[macro_use]
 extern crate strum_macros;
 
+#[macro_use]
+mod macros;
+
 mod colors;
 mod kml;
 mod objects;

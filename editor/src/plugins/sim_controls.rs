@@ -56,7 +56,7 @@ impl SimController {
                     *sim = new_sim;
                     self.benchmark = None;
                 }
-                Err(e) => println!("Couldn't load savestate: {}", e),
+                Err(e) => error!("Couldn't load savestate: {}", e),
             };
         }
         if self.last_step.is_some() {

@@ -47,10 +47,10 @@ impl WizardSample {
             }
             WizardSample::Active(ref mut wizard) => {
                 if let Some(spec) = workflow(wizard.wrap(input, map)) {
-                    println!("Got answer: {:?}", spec);
+                    info!("Got answer: {:?}", spec);
                     new_state = Some(WizardSample::Inactive);
                 } else if wizard.aborted() {
-                    println!("User aborted the workflow");
+                    info!("User aborted the workflow");
                     new_state = Some(WizardSample::Inactive);
                 }
             }
@@ -206,7 +206,7 @@ impl Wizard {
                 if let Some(result) = parser(line.clone()) {
                     Some(result)
                 } else {
-                    println!("Invalid input {}", line);
+                    warn!("Invalid input {}", line);
                     None
                 }
             }

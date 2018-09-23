@@ -98,7 +98,7 @@ impl ColorScheme {
 
         for color in Colors::iter() {
             if !scheme.map.contains_key(&color) {
-                println!(
+                warn!(
                     "No color for {:?} defined, initializing with a random one",
                     color
                 );

@@ -28,7 +28,7 @@ pub enum ExtraShapeGeom {
 }
 
 pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::Error> {
-    println!("Opening {}", path);
+    info!("Opening {}", path);
     let f = File::open(path).unwrap();
     let mut reader = Reader::from_reader(io::BufReader::new(f));
     reader.trim_text(true);
@@ -47,7 +47,7 @@ pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::E
     loop {
         if reader.buffer_position() - last_progress_byte >= 1024 * 1024 * 10 {
             last_progress_byte = reader.buffer_position();
-            println!(
+            info!(
                 "Processed {} MB of {}",
                 last_progress_byte / (1024 * 1024),
                 path
@@ -113,7 +113,7 @@ pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::E
         buf.clear();
     }
 
-    println!(
+    info!(
         "Got {} shapes from {} and skipped {} shapes",
         shapes.len(),
         path,

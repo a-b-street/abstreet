@@ -51,7 +51,7 @@ impl DrawPolygonState {
                 if input.key_pressed(Key::Tab, "list existing polygons") {
                     let polygons = polygons::load_all_polygons(map.get_name());
                     if polygons.is_empty() {
-                        println!("Sorry, no existing polygons");
+                        warn!("Sorry, no existing polygons");
                     } else {
                         new_state = Some(DrawPolygonState::ListingPolygons(
                             Menu::new("Load which polygon?", polygons.keys().cloned().collect()),
@@ -106,7 +106,7 @@ impl DrawPolygonState {
             }
             DrawPolygonState::NamingPolygon(tb, pts) => match tb.event(input) {
                 InputResult::Canceled => {
-                    println!("Never mind!");
+                    info!("Never mind!");
                     new_state = Some(DrawPolygonState::Empty);
                 }
                 InputResult::Done(name) => {
@@ -118,7 +118,7 @@ impl DrawPolygonState {
                             points: pts.clone(),
                         },
                     ).expect("Saving polygon selection failed");
-                    println!("Saved {}", path);
+                    info!("Saved {}", path);
                     new_state = Some(DrawPolygonState::Empty);
                 }
                 InputResult::StillActive => {}

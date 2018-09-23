@@ -49,7 +49,7 @@ impl FollowState {
                     canvas.center_on_map_pt(c.front);
                     input.key_pressed(Key::Return, "stop following")
                 } else {
-                    println!("{} is gone, no longer following", id);
+                    warn!("{} is gone, no longer following", id);
                     true
                 }
             }
@@ -58,7 +58,7 @@ impl FollowState {
                     canvas.center_on_map_pt(p.pos);
                     input.key_pressed(Key::Return, "stop following")
                 } else {
-                    println!("{} is gone, no longer following", id);
+                    warn!("{} is gone, no longer following", id);
                     true
                 }
             }

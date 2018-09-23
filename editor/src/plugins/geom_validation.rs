@@ -48,7 +48,7 @@ impl Validator {
             objects.push((ID::Parcel(p.id), make_polys(&p.fill_polygon)));
         }
 
-        println!(
+        info!(
             "{} objects total. About {} possible overlaps",
             objects.len(),
             objects.len().pow(2)
@@ -114,15 +114,14 @@ impl Validator {
                     *current_problem = gen.next();
 
                     if let Some((id1, id2)) = current_problem {
-                        println!("{:?} and {:?} intersect", id1, id2);
+                        info!("{:?} and {:?} intersect", id1, id2);
                         canvas.center_on_map_pt(get_pt(map, *id1));
                     // TODO also modify selection state to highlight stuff?
                     } else {
-                        println!("No more problems!");
+                        info!("No more problems!");
                         new_state = Some(Validator::Inactive);
                     }
                 } else if input.key_pressed(Key::Escape, "stop looking at problems") {
-                    println!("Quit geometry validator");
                     new_state = Some(Validator::Inactive);
                 }
             }

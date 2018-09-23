@@ -73,55 +73,55 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
                 let id = RoadID(idx);
                 if let Some(r) = map.maybe_get_r(id) {
                     let l = map.get_l(r.children_forwards[0].0);
-                    info!(target: "UI", "Warping to {}, which belongs to {}", l.id, id);
+                    info!("Warping to {}, which belongs to {}", l.id, id);
                     *selected = Some(ID::Lane(l.id));
                     l.first_pt()
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'l' => {
                 let id = LaneID(idx);
                 if let Some(l) = map.maybe_get_l(id) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Lane(id));
                     l.first_pt()
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'i' => {
                 let id = IntersectionID(idx);
                 if let Some(i) = map.maybe_get_i(id) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Intersection(id));
                     i.point
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'b' => {
                 let id = BuildingID(idx);
                 if let Some(b) = map.maybe_get_b(id) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Building(id));
                     Pt2D::center(&b.points)
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'a' => {
                 let id = AreaID(idx);
                 if let Some(a) = map.maybe_get_a(id) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Area(id));
                     Pt2D::center(&a.points)
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
@@ -129,37 +129,37 @@ fn warp(line: String, map: &Map, sim: &Sim, canvas: &mut Canvas, selected: &mut 
             'e' => {
                 let id = ParcelID(idx);
                 if let Some(p) = map.maybe_get_p(id) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     Pt2D::center(&p.points)
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'p' => {
                 let id = PedestrianID(idx);
                 if let Some(p) = sim.get_draw_ped(id, map) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Pedestrian(id));
                     p.pos
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             'c' => {
                 let id = CarID(idx);
                 if let Some(c) = sim.get_draw_car(id, map) {
-                    info!(target: "UI", "Warping to {}", id);
+                    info!("Warping to {}", id);
                     *selected = Some(ID::Car(id));
                     c.front
                 } else {
-                    warn!(target: "UI", "{} doesn't exist", id);
+                    warn!("{} doesn't exist", id);
                     return;
                 }
             }
             _ => {
-                warn!(target: "UI", "{} isn't a valid ID; Should be [libepc][0-9]+", line);
+                warn!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
                 return;
             }
         },

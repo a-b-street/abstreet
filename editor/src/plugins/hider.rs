@@ -19,7 +19,7 @@ impl Hider {
 
     pub fn event(&mut self, input: &mut UserInput, selected: &mut Option<ID>) -> bool {
         if input.unimportant_key_pressed(Key::K, DEBUG_EXTRA, "unhide everything") {
-            println!("Unhiding {} things", self.items.len());
+            info!("Unhiding {} things", self.items.len());
             self.items.clear();
             return true;
         }
@@ -39,7 +39,7 @@ impl Hider {
         };
         if input.unimportant_key_pressed(Key::H, DEBUG_EXTRA, &format!("hide {:?}", item)) {
             self.items.insert(item);
-            println!("Hiding {:?}", item);
+            info!("Hiding {:?}", item);
             *selected = None;
             return true;
         }
