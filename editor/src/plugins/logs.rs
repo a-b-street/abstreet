@@ -56,10 +56,17 @@ impl Log for LogAdapter {
     }
 
     fn log(&self, record: &Record) {
+        use yansi::Paint;
+
         let line = format!(
             "[{}] [{}] {}",
-            record.level(),
-            record.target(),
+            Paint::white(record.level()),
+            match record.target() {
+                "UI" => Paint::red("UI"),
+                "sim" => Paint::green("sim"),
+                "map" => Paint::blue("map"),
+                x => Paint::cyan(x),
+            },
             record.args()
         );
         println!("{}", line);

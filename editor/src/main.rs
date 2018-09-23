@@ -29,6 +29,7 @@ extern crate structopt;
 extern crate strum;
 #[macro_use]
 extern crate strum_macros;
+extern crate yansi;
 
 #[macro_use]
 mod macros;

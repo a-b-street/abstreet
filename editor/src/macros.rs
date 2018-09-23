@@ -1,5 +1,6 @@
 // Call the log crate, but pre-set the target.
 
+#[allow(unused_macros)]
 macro_rules! debug {
     ( $( $x:expr ),* ) => {
         {
