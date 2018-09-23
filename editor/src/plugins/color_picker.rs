@@ -6,7 +6,6 @@ use graphics;
 use objects::SETTINGS;
 use piston::input::{Key, MouseCursorEvent};
 use plugins::Colorizer;
-use std::str::FromStr;
 use std::string::ToString;
 use strum::IntoEnumIterator;
 
@@ -18,7 +17,7 @@ const TILE_DIMS: u32 = 2;
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
     Inactive,
-    Choosing(Menu),
+    Choosing(Menu<Colors>),
     // Remember the original color, in case we revert
     PickingColor(Colors, graphics::types::Color),
 }
@@ -35,7 +34,7 @@ impl ColorPicker {
                 if input.unimportant_key_pressed(Key::D8, SETTINGS, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(Menu::new(
                         "Pick a color to change",
-                        Colors::iter().map(|c| c.to_string()).collect(),
+                        Colors::iter().map(|c| (c.to_string(), c)).collect(),
                     )));
                 }
             }
@@ -45,9 +44,8 @@ impl ColorPicker {
                         new_state = Some(ColorPicker::Inactive);
                     }
                     InputResult::StillActive => {}
-                    InputResult::Done(choice) => {
-                        let c = Colors::from_str(&choice).unwrap();
-                        new_state = Some(ColorPicker::PickingColor(c, cs.get(c)));
+                    InputResult::Done(_, color) => {
+                        new_state = Some(ColorPicker::PickingColor(color, cs.get(color)));
                     }
                 };
             }

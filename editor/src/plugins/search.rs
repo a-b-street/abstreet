@@ -40,7 +40,7 @@ impl SearchState {
                 InputResult::Canceled => {
                     new_state = Some(SearchState::Empty);
                 }
-                InputResult::Done(filter) => {
+                InputResult::Done(filter, _) => {
                     new_state = Some(SearchState::FilterOSM(filter));
                 }
                 InputResult::StillActive => {}

@@ -6,7 +6,6 @@ use objects::EDIT_MAP;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
 use polygons;
-use std::collections::BTreeMap;
 
 const POINT_RADIUS: f64 = 2.0;
 
@@ -18,7 +17,7 @@ pub enum DrawPolygonState {
     MovingPoint(Vec<Pt2D>, usize, String),
     NamingPolygon(TextBox, Vec<Pt2D>),
     // String name to each choice, pre-loaded
-    ListingPolygons(Menu, BTreeMap<String, polygons::PolygonSelection>),
+    ListingPolygons(Menu<polygons::PolygonSelection>),
 }
 
 impl DrawPolygonState {
@@ -53,10 +52,10 @@ impl DrawPolygonState {
                     if polygons.is_empty() {
                         warn!("Sorry, no existing polygons");
                     } else {
-                        new_state = Some(DrawPolygonState::ListingPolygons(
-                            Menu::new("Load which polygon?", polygons.keys().cloned().collect()),
+                        new_state = Some(DrawPolygonState::ListingPolygons(Menu::new(
+                            "Load which polygon?",
                             polygons,
-                        ));
+                        )));
                     }
                 } else if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
                     new_state = Some(DrawPolygonState::Empty);
@@ -109,7 +108,7 @@ impl DrawPolygonState {
                     info!("Never mind!");
                     new_state = Some(DrawPolygonState::Empty);
                 }
-                InputResult::Done(name) => {
+                InputResult::Done(name, _) => {
                     let path = format!("../data/polygons/{}/{}", map.get_name(), name);
                     abstutil::write_json(
                         &path,
@@ -123,17 +122,17 @@ impl DrawPolygonState {
                 }
                 InputResult::StillActive => {}
             },
-            DrawPolygonState::ListingPolygons(ref mut menu, polygons) => {
+            DrawPolygonState::ListingPolygons(ref mut menu) => {
                 match menu.event(input) {
                     InputResult::Canceled => {
                         new_state = Some(DrawPolygonState::Empty);
                     }
                     InputResult::StillActive => {}
-                    InputResult::Done(choice) => {
+                    InputResult::Done(name, poly) => {
                         new_state = Some(DrawPolygonState::DrawingPoints(
-                            polygons[&choice].points.clone(),
+                            poly.points.clone(),
                             None,
-                            choice,
+                            name,
                         ));
                     }
                 };
@@ -166,9 +165,9 @@ impl DrawPolygonState {
                 tb.draw(g, canvas);
                 return;
             }
-            DrawPolygonState::ListingPolygons(menu, polygons) => {
+            DrawPolygonState::ListingPolygons(menu) => {
                 menu.draw(g, canvas);
-                (&polygons[menu.current_choice()].points, None)
+                (&menu.current_choice().points, None)
             }
         };
 

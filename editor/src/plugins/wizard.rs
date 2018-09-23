@@ -6,7 +6,6 @@ use piston::input::Key;
 use plugins::Colorizer;
 use polygons;
 use sim::Tick;
-use std::collections::BTreeMap;
 use std::collections::VecDeque;
 
 #[derive(Debug)]
@@ -66,14 +65,15 @@ impl WizardSample {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         if let WizardSample::Active(wizard) = self {
-            if let Some(ref menu) = wizard.menu {
+            if let Some(ref menu) = wizard.string_menu {
                 menu.draw(g, canvas);
-                if let Some(ref polygons) = wizard.polygons {
-                    g.draw_polygon(
-                        [0.0, 0.0, 1.0, 0.6],
-                        &Polygon::new(&polygons[menu.current_choice()].points),
-                    );
-                }
+            }
+            if let Some(ref menu) = wizard.polygon_menu {
+                menu.draw(g, canvas);
+                g.draw_polygon(
+                    [0.0, 0.0, 1.0, 0.6],
+                    &Polygon::new(&menu.current_choice().points),
+                );
             }
             if let Some(ref tb) = wizard.tb {
                 tb.draw(g, canvas);
@@ -101,9 +101,8 @@ fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<Menu>,
-    // If this is present, menu also is.
-    polygons: Option<BTreeMap<String, polygons::PolygonSelection>>,
+    string_menu: Option<Menu<()>>,
+    polygon_menu: Option<Menu<polygons::PolygonSelection>>,
 
     state_usize: Vec<usize>,
     state_tick: Vec<Tick>,
@@ -116,8 +115,8 @@ impl Wizard {
         Wizard {
             alive: true,
             tb: None,
-            menu: None,
-            polygons: None,
+            string_menu: None,
+            polygon_menu: None,
             state_usize: Vec::new(),
             state_tick: Vec::new(),
             state_percent: Vec::new(),
@@ -147,37 +146,6 @@ impl Wizard {
         !self.alive
     }
 
-    fn input_with_menu(
-        &mut self,
-        query: &str,
-        choices: Vec<String>,
-        input: &mut UserInput,
-    ) -> Option<String> {
-        assert!(self.alive);
-
-        // Otherwise, we try to use one event for two inputs potentially
-        if input.has_been_consumed() {
-            return None;
-        }
-
-        if self.menu.is_none() {
-            self.menu = Some(Menu::new(query, choices));
-        }
-
-        match self.menu.as_mut().unwrap().event(input) {
-            InputResult::Canceled => {
-                self.menu = None;
-                self.alive = false;
-                None
-            }
-            InputResult::StillActive => None,
-            InputResult::Done(choice) => {
-                self.menu = None;
-                Some(choice)
-            }
-        }
-    }
-
     fn input_with_text_box<R>(
         &mut self,
         query: &str,
@@ -201,7 +169,7 @@ impl Wizard {
                 self.alive = false;
                 None
             }
-            InputResult::Done(line) => {
+            InputResult::Done(line, _) => {
                 self.tb = None;
                 if let Some(result) = parser(line.clone()) {
                     Some(result)
@@ -288,9 +256,17 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_choices.is_empty() {
             return self.ready_choices.pop_front();
         }
-        if let Some(choice) = self.wizard.input_with_menu(
-            query,
-            choices.iter().map(|s| s.to_string()).collect(),
+
+        if self.wizard.string_menu.is_none() {
+            self.wizard.string_menu = Some(Menu::new(
+                query,
+                choices.into_iter().map(|s| (s.to_string(), ())).collect(),
+            ));
+        }
+
+        if let Some((choice, _)) = input_with_menu(
+            &mut self.wizard.string_menu,
+            &mut self.wizard.alive,
             self.input,
         ) {
             self.wizard.state_choices.push(choice.clone());
@@ -304,28 +280,51 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_choices.is_empty() {
             return self.ready_choices.pop_front();
         }
-        if self.wizard.polygons.is_none() {
-            self.wizard.polygons = Some(polygons::load_all_polygons(self.map.get_name()));
-        }
-        let names = self
-            .wizard
-            .polygons
-            .as_ref()
-            .unwrap()
-            .keys()
-            .cloned()
-            .collect();
-        let result = if let Some(choice) = self.wizard.input_with_menu(query, names, self.input) {
-            self.wizard.state_choices.push(choice.clone());
-            Some(choice)
-        } else {
-            None
-        };
-        // TODO Very weird to manage this coupled state like this...
-        if self.wizard.menu.is_none() {
-            self.wizard.polygons = None;
+
+        if self.wizard.polygon_menu.is_none() {
+            self.wizard.polygon_menu = Some(Menu::new(
+                query,
+                polygons::load_all_polygons(self.map.get_name()),
+            ));
         }
 
-        result
+        if let Some((name, _)) = input_with_menu(
+            &mut self.wizard.polygon_menu,
+            &mut self.wizard.alive,
+            self.input,
+        ) {
+            self.wizard.state_choices.push(name.clone());
+            Some(name)
+        } else {
+            None
+        }
+    }
+}
+
+// The caller initializes the menu, if needed. Pass in Option that must be Some().
+// Bit weird to be a free function, but need to borrow a different menu and also the alive bit.
+fn input_with_menu<T: Clone>(
+    menu: &mut Option<Menu<T>>,
+    alive: &mut bool,
+    input: &mut UserInput,
+) -> Option<(String, T)> {
+    assert!(*alive);
+
+    // Otherwise, we try to use one event for two inputs potentially
+    if input.has_been_consumed() {
+        return None;
+    }
+
+    match menu.as_mut().unwrap().event(input) {
+        InputResult::Canceled => {
+            *menu = None;
+            *alive = false;
+            None
+        }
+        InputResult::StillActive => None,
+        InputResult::Done(name, poly) => {
+            *menu = None;
+            Some((name, poly))
+        }
     }
 }

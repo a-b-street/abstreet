@@ -4,21 +4,19 @@ use std;
 use std::collections::BTreeMap;
 
 // Named polygonal regions
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PolygonSelection {
     pub name: String,
     pub points: Vec<Pt2D>,
 }
 
-pub fn load_all_polygons(map_name: &str) -> BTreeMap<String, PolygonSelection> {
-    let mut results: BTreeMap<String, PolygonSelection> = BTreeMap::new();
+pub fn load_all_polygons(map_name: &str) -> Vec<(String, PolygonSelection)> {
+    let mut tree: BTreeMap<String, PolygonSelection> = BTreeMap::new();
     for entry in std::fs::read_dir(format!("../data/polygons/{}/", map_name)).unwrap() {
         let name = entry.unwrap().file_name().into_string().unwrap();
         let load: PolygonSelection =
             abstutil::read_json(&format!("../data/polygons/{}/{}", map_name, name)).unwrap();
-        results.insert(name, load);
+        tree.insert(name, load);
     }
-    results
+    tree.into_iter().collect()
 }
-
-// TODO maybe a wrapper type for the BTreeMap or a way to hook it up easily to a Menu

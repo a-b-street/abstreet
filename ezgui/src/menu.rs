@@ -1,14 +1,15 @@
 use piston::input::{Button, Key, PressEvent};
 use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput};
 
-pub struct Menu {
+// Stores some associated data with each choice
+pub struct Menu<T: Clone> {
     prompt: String,
-    choices: Vec<String>,
+    choices: Vec<(String, T)>,
     current_idx: usize,
 }
 
-impl Menu {
-    pub fn new(prompt: &str, choices: Vec<String>) -> Menu {
+impl<T: Clone> Menu<T> {
+    pub fn new(prompt: &str, choices: Vec<(String, T)>) -> Menu<T> {
         Menu {
             prompt: prompt.to_string(),
             choices,
@@ -16,7 +17,7 @@ impl Menu {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> InputResult {
+    pub fn event(&mut self, input: &mut UserInput) -> InputResult<T> {
         let ev = input.use_event_directly().clone();
         input.consume_event();
 
@@ -25,7 +26,10 @@ impl Menu {
         }
 
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return InputResult::Done(self.choices[self.current_idx].clone());
+            // TODO instead of requiring clone, we could drain choices to take ownership of the
+            // item. but without consuming self here, it's a bit sketchy to do that.
+            let (name, item) = self.choices[self.current_idx].clone();
+            return InputResult::Done(name, item);
         }
 
         if let Some(Button::Keyboard(Key::Up)) = ev.press_args() {
@@ -79,7 +83,7 @@ impl Menu {
             }
         };
 
-        for (idx, line) in self.choices.iter().enumerate() {
+        for (idx, (line, _)) in self.choices.iter().enumerate() {
             if idx < low_idx || idx > low_idx + can_fit {
                 continue;
             }
@@ -97,7 +101,7 @@ impl Menu {
         canvas.draw_centered_text(g, osd);
     }
 
-    pub fn current_choice(&self) -> &String {
-        &self.choices[self.current_idx]
+    pub fn current_choice(&self) -> &T {
+        &self.choices[self.current_idx].1
     }
 }

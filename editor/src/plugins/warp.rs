@@ -36,7 +36,7 @@ impl WarpState {
                 InputResult::Canceled => {
                     new_state = Some(WarpState::Empty);
                 }
-                InputResult::Done(to) => {
+                InputResult::Done(to, _) => {
                     warp(to, map, sim, canvas, selected);
                     new_state = Some(WarpState::Empty);
                 }

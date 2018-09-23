@@ -220,8 +220,8 @@ fn line_to_array(l: &geom::Line) -> [f64; 4] {
     [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
 }
 
-pub enum InputResult {
+pub enum InputResult<T: Clone> {
     Canceled,
     StillActive,
-    Done(String),
+    Done(String, T),
 }

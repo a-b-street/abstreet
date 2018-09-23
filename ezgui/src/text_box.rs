@@ -58,7 +58,7 @@ impl TextBox {
         canvas.draw_centered_text(g, osd);
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> InputResult {
+    pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {
         let ev = input.use_event_directly().clone();
         input.consume_event();
 
@@ -68,7 +68,7 @@ impl TextBox {
 
         // Done?
         if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return InputResult::Done(self.line.clone());
+            return InputResult::Done(self.line.clone(), ());
         }
 
         // Key state tracking
