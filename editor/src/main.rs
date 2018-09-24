@@ -38,7 +38,6 @@ mod colors;
 mod kml;
 mod objects;
 mod plugins;
-mod polygons;
 mod render;
 mod ui;
 mod wizard;

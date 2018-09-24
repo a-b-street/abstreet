@@ -5,7 +5,6 @@ use map_model::Map;
 use objects::EDIT_MAP;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
-use polygons;
 use sim::Neighborhood;
 
 const POINT_RADIUS: f64 = 2.0;
@@ -49,7 +48,8 @@ impl DrawNeighborhoodState {
                 osd.add_line(format!("Currently editing {}", name));
 
                 if input.key_pressed(Key::Tab, "list existing neighborhoods") {
-                    let neighborhoods = polygons::load_all_polygons(map.get_name());
+                    let neighborhoods: Vec<(String, Neighborhood)> =
+                        abstutil::load_all_objects("neighborhoods", map.get_name());
                     if neighborhoods.is_empty() {
                         warn!("Sorry, no existing neighborhoods");
                     } else {

@@ -8,6 +8,6 @@ mod io;
 
 pub use abst_multimap::MultiMap;
 pub use io::{
-    deserialize_btreemap, deserialize_multimap, read_binary, read_json, serialize_btreemap,
-    serialize_multimap, to_json, write_binary, write_json,
+    deserialize_btreemap, deserialize_multimap, load_all_objects, read_binary, read_json,
+    serialize_btreemap, serialize_multimap, to_json, write_binary, write_json,
 };

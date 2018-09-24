@@ -1,7 +1,7 @@
+use abstutil;
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 use geom::Polygon;
 use map_model::Map;
-use polygons;
 use sim::{Neighborhood, Tick};
 use std::collections::VecDeque;
 
@@ -207,7 +207,7 @@ impl<'a> WrappedWizard<'a> {
         if self.wizard.neighborhood_menu.is_none() {
             self.wizard.neighborhood_menu = Some(Menu::new(
                 query,
-                polygons::load_all_polygons(self.map.get_name()),
+                abstutil::load_all_objects("neighborhoods", self.map.get_name()),
             ));
         }
 

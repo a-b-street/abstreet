@@ -100,3 +100,14 @@ pub fn deserialize_multimap<
     }
     Ok(map)
 }
+
+// Load all serialized things from a directory, return sorted by name.
+pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
+    let mut tree: BTreeMap<String, T> = BTreeMap::new();
+    for entry in std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)).unwrap() {
+        let name = entry.unwrap().file_name().into_string().unwrap();
+        let load: T = read_json(&format!("../data/{}/{}/{}", dir, map_name, name)).unwrap();
+        tree.insert(name, load);
+    }
+    tree.into_iter().collect()
+}
