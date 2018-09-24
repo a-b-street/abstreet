@@ -2,12 +2,17 @@
 
 extern crate abstutil;
 extern crate control;
+extern crate log;
 extern crate map_model;
 extern crate sim;
 #[macro_use]
 extern crate structopt;
+extern crate yansi;
 
+use log::{LevelFilter, Log, Metadata, Record};
 use structopt::StructOpt;
+
+static LOG_ADAPTER: LogAdapter = LogAdapter;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "headless")]
@@ -35,6 +40,9 @@ struct Flags {
 
 fn main() {
     let flags = Flags::from_args();
+
+    log::set_max_level(LevelFilter::Debug);
+    log::set_logger(&LOG_ADAPTER).unwrap();
 
     let (map, _, control_map, mut sim) = sim::load(
         flags.load,
@@ -72,4 +80,32 @@ fn main() {
         }),
     );
     sim::save_backtraces("call_graph.json");
+}
+
+// TODO This is copied from editor; dedupe how?
+struct LogAdapter;
+
+impl Log for LogAdapter {
+    fn enabled(&self, _metadata: &Metadata) -> bool {
+        true
+    }
+
+    fn log(&self, record: &Record) {
+        use yansi::Paint;
+
+        let line = format!(
+            "[{}] [{}] {}",
+            Paint::white(record.level()),
+            match record.target() {
+                "UI" => Paint::red("UI"),
+                "sim" => Paint::green("sim"),
+                "map" => Paint::blue("map"),
+                x => Paint::cyan(x),
+            },
+            record.args()
+        );
+        println!("{}", line);
+    }
+
+    fn flush(&self) {}
 }
