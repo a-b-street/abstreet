@@ -37,6 +37,9 @@ pub struct Neighborhood {
 
 impl Scenario {
     pub fn describe(&self) -> Vec<String> {
-        abstutil::to_json(self).split("\n").map(|s| s.to_string()).collect()
+        abstutil::to_json(self)
+            .split("\n")
+            .map(|s| s.to_string())
+            .collect()
     }
 }

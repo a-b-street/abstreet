@@ -129,11 +129,10 @@ impl<'a> WrappedWizard<'a> {
         if !self.ready_string.is_empty() {
             return self.ready_string.pop_front();
         }
-        if let Some(s) = self.wizard.input_with_text_box(
-            query,
-            self.input,
-            Box::new(|line| Some(line)),
-        ) {
+        if let Some(s) =
+            self.wizard
+                .input_with_text_box(query, self.input, Box::new(|line| Some(line)))
+        {
             self.wizard.state_string.push(s.clone());
             Some(s)
         } else {

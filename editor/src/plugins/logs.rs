@@ -71,7 +71,12 @@ impl Log for LogAdapter {
         );
         println!("{}", line);
         // TODO could handle newlines here
-        LOGGER.lock().unwrap().add_line(&line);
+        LOGGER.lock().unwrap().add_line(&format!(
+            "[{}] [{}] {}",
+            record.level(),
+            record.target(),
+            record.args()
+        ));
     }
 
     fn flush(&self) {}

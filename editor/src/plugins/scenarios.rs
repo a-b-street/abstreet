@@ -1,10 +1,10 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, UserInput, LogScroller};
+use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{SeedParkedCars, Scenario, SpawnOverTime};
+use sim::{Scenario, SeedParkedCars, SpawnOverTime};
 use wizard::{Wizard, WrappedWizard};
 
 pub enum ScenarioManager {
@@ -22,11 +22,7 @@ impl ScenarioManager {
         let mut new_state: Option<ScenarioManager> = None;
         match self {
             ScenarioManager::Inactive => {
-                if input.unimportant_key_pressed(
-                    Key::W,
-                    SIM_SETUP,
-                    "manage scenarios",
-                ) {
+                if input.unimportant_key_pressed(Key::W, SIM_SETUP, "manage scenarios") {
                     new_state = Some(ScenarioManager::PickScenario(Wizard::new()));
                 }
             }
@@ -75,10 +71,20 @@ fn pick_scenario(mut wizard: WrappedWizard) -> Option<Scenario> {
 
     if wizard.choose("What scenario to edit?", vec![load_existing, create_new])? == load_existing {
         // TODO Constantly load them?! Urgh...
-        let scenarios: Vec<(String, Scenario)> = abstutil::load_all_objects("scenarios", wizard.map.get_name());
-        let name = wizard.choose("Load which scenario?", scenarios.iter().map(|(n, _)| n.as_str()).collect())?;
+        let scenarios: Vec<(String, Scenario)> =
+            abstutil::load_all_objects("scenarios", wizard.map.get_name());
+        let name = wizard.choose(
+            "Load which scenario?",
+            scenarios.iter().map(|(n, _)| n.as_str()).collect(),
+        )?;
         // TODO But we want to store the associated data in the wizard and get it out!
-        Some(scenarios.into_iter().find(|(n, _)| name == *n).map(|(_, s)| s).unwrap())
+        Some(
+            scenarios
+                .into_iter()
+                .find(|(n, _)| name == *n)
+                .map(|(_, s)| s)
+                .unwrap(),
+        )
     } else {
         let scenario_name = wizard.input_string("Name the scenario")?;
         Some(Scenario {
