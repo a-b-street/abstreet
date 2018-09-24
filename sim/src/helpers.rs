@@ -21,7 +21,7 @@ pub fn load(
         let sim: Sim = abstutil::read_json(&input).expect("loading sim state failed");
         flame::end("read sim savestate");
         // TODO assuming the relative path :(
-        let map_path = format!("../data/{}.abst", sim.map_name);
+        let map_path = format!("../data/maps/{}.abst", sim.map_name);
         let map =
             Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
         let control_map = ControlMap::new(&map);

@@ -3,7 +3,7 @@
 set -e
 
 # Download raw data if needed.
-mkdir -p data/input
+mkdir -p data/input data/maps
 # TODO Fill these out:
 # http://download.bbbike.org/osm/bbbike/Seattle/
 # https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
@@ -23,15 +23,15 @@ MEDIUM_OSM=../data/input/montlake.osm
 LARGE_OSM=../data/input/small_seattle.osm
 HUGE_OSM=../data/input/seattle.osm
 
-if [ ! -f data/seattle_parcels.abst ]; then
+if [ ! -f data/maps/seattle_parcels.abst ]; then
 	cd kml
-	time cargo run --release $PARCELS_KML ../data/seattle_parcels.abst
+	time cargo run --release $PARCELS_KML ../data/maps/seattle_parcels.abst
 	cd ..
 fi
 
 COMMON="--elevation=$ELEVATION --traffic_signals=$TRAFFIC_SIGNALS --parcels=../data/seattle_parcels.abst --gtfs=$GTFS"
 cd convert_osm
-time cargo run --release -- --osm=$SMALL_OSM $COMMON --output=../data/small.abst
-time cargo run --release -- --osm=$MEDIUM_OSM $COMMON --output=../data/medium.abst
-time cargo run --release -- --osm=$LARGE_OSM $COMMON --output=../data/large.abst
-time cargo run --release -- --osm=$HUGE_OSM $COMMON --output=../data/huge.abst
+time cargo run --release -- --osm=$SMALL_OSM $COMMON --output=../data/maps/small.abst
+time cargo run --release -- --osm=$MEDIUM_OSM $COMMON --output=../data/maps/medium.abst
+time cargo run --release -- --osm=$LARGE_OSM $COMMON --output=../data/maps/large.abst
+time cargo run --release -- --osm=$HUGE_OSM $COMMON --output=../data/maps/huge.abst

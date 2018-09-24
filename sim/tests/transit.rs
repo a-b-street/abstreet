@@ -6,7 +6,7 @@ extern crate sim;
 #[test]
 fn bus_reaches_stops() {
     let (map, _, control_map, mut sim) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "bus_reaches_stops".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),
@@ -34,7 +34,7 @@ fn bus_reaches_stops() {
 #[test]
 fn ped_uses_bus() {
     let (map, _, control_map, mut sim) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "bus_reaches_stops".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),

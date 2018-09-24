@@ -6,7 +6,7 @@ extern crate sim;
 #[test]
 fn serialization() {
     let (map, _, _, mut sim) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "serialization".to_string(),
         Some(42),
         None,
@@ -23,7 +23,7 @@ fn serialization() {
 fn from_scratch() {
     println!("Creating two simulations");
     let (map, _, control_map, mut sim1) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "from_scratch_1".to_string(),
         Some(42),
         None,
@@ -50,7 +50,7 @@ fn from_scratch() {
 fn with_savestating() {
     println!("Creating two simulations");
     let (map, _, control_map, mut sim1) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "with_savestating_1".to_string(),
         Some(42),
         None,

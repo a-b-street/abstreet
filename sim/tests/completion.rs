@@ -6,7 +6,7 @@ extern crate sim;
 #[test]
 fn aorta_model_completes() {
     let (map, _, control_map, mut sim) = sim::load(
-        "../data/small.abst".to_string(),
+        "../data/maps/small.abst".to_string(),
         "aorta_model_completes".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),

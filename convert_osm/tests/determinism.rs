@@ -7,7 +7,7 @@ fn convert_twice() {
         osm: "../data/input/tiny_montlake.osm".to_string(),
         elevation: "../data/input/N47W122.hgt".to_string(),
         traffic_signals: "../data/input/TrafficSignals.shp".to_string(),
-        parcels: "../data/seattle_parcels.abst".to_string(),
+        parcels: "../data/maps/seattle_parcels.abst".to_string(),
         gtfs: "../data/input/google_transit_2018_18_08".to_string(),
         output: "".to_string(),
     };
