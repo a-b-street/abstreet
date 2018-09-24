@@ -41,6 +41,7 @@ mod intersections;
 pub mod kinematics;
 mod parking;
 mod router;
+mod scenario;
 mod sim;
 mod spawn;
 mod transit;
@@ -54,6 +55,7 @@ use geom::{Angle, Pt2D};
 pub use helpers::load;
 pub use instrument::save_backtraces;
 use map_model::{LaneID, Map, TurnID};
+pub use scenario::{SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
 

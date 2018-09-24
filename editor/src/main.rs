@@ -41,6 +41,7 @@ mod plugins;
 mod polygons;
 mod render;
 mod ui;
+mod wizard;
 
 use structopt::StructOpt;
 

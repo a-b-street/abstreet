@@ -1,3 +1,6 @@
+// TODO This doesn't belong in ezgui. But until there's a better way to handle generic wizards, do
+// this.
+
 use abstutil;
 use geom::Pt2D;
 use std;
