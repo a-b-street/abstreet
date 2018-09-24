@@ -15,6 +15,7 @@ pub struct Wizard {
     state_tick: Vec<Tick>,
     state_percent: Vec<f64>,
     state_choices: Vec<String>,
+    state_string: Vec<String>,
 }
 
 impl Wizard {
@@ -28,6 +29,7 @@ impl Wizard {
             state_tick: Vec::new(),
             state_percent: Vec::new(),
             state_choices: Vec::new(),
+            state_string: Vec::new(),
         }
     }
 
@@ -54,6 +56,7 @@ impl Wizard {
         let ready_tick = VecDeque::from(self.state_tick.clone());
         let ready_percent = VecDeque::from(self.state_percent.clone());
         let ready_choices = VecDeque::from(self.state_choices.clone());
+        let ready_string = VecDeque::from(self.state_string.clone());
         WrappedWizard {
             wizard: self,
             input,
@@ -62,6 +65,7 @@ impl Wizard {
             ready_tick,
             ready_percent,
             ready_choices,
+            ready_string,
         }
     }
 
@@ -110,15 +114,33 @@ impl Wizard {
 pub struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
-    map: &'a Map,
+    // TODO a workflow needs the map name. fine?
+    pub map: &'a Map,
 
     ready_usize: VecDeque<usize>,
     ready_tick: VecDeque<Tick>,
     ready_percent: VecDeque<f64>,
     ready_choices: VecDeque<String>,
+    ready_string: VecDeque<String>,
 }
 
 impl<'a> WrappedWizard<'a> {
+    pub fn input_string(&mut self, query: &str) -> Option<String> {
+        if !self.ready_string.is_empty() {
+            return self.ready_string.pop_front();
+        }
+        if let Some(s) = self.wizard.input_with_text_box(
+            query,
+            self.input,
+            Box::new(|line| Some(line)),
+        ) {
+            self.wizard.state_string.push(s.clone());
+            Some(s)
+        } else {
+            None
+        }
+    }
+
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {
         if !self.ready_usize.is_empty() {
             return self.ready_usize.pop_front();
@@ -174,7 +196,6 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
-    #[allow(dead_code)]
     pub fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         if !self.ready_choices.is_empty() {
             return self.ready_choices.pop_front();

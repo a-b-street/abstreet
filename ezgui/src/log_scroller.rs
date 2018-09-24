@@ -19,6 +19,15 @@ impl LogScroller {
         }
     }
 
+    pub fn new_from_lines(lines: Vec<String>) -> LogScroller {
+        let capacity = lines.len();
+        LogScroller {
+            lines: VecDeque::from(lines),
+            capacity,
+            y_offset: 0,
+        }
+    }
+
     // TODO take and store styled text
     pub fn add_line(&mut self, line: &str) {
         if self.lines.len() == self.capacity {

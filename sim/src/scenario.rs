@@ -1,3 +1,4 @@
+use abstutil;
 use geom::Pt2D;
 use Tick;
 
@@ -32,4 +33,10 @@ pub struct SeedParkedCars {
 pub struct Neighborhood {
     pub name: String,
     pub points: Vec<Pt2D>,
+}
+
+impl Scenario {
+    pub fn describe(&self) -> Vec<String> {
+        abstutil::to_json(self).split("\n").map(|s| s.to_string()).collect()
+    }
 }

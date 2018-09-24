@@ -1,14 +1,16 @@
-use ezgui::{Canvas, GfxCtx, UserInput};
+use abstutil;
+use ezgui::{Canvas, GfxCtx, UserInput, LogScroller};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{SeedParkedCars, SpawnOverTime};
+use sim::{SeedParkedCars, Scenario, SpawnOverTime};
 use wizard::{Wizard, WrappedWizard};
 
 pub enum ScenarioManager {
     Inactive,
-    Active(Wizard),
+    PickScenario(Wizard),
+    EditScenario(Scenario, LogScroller),
 }
 
 impl ScenarioManager {
@@ -23,19 +25,24 @@ impl ScenarioManager {
                 if input.unimportant_key_pressed(
                     Key::W,
                     SIM_SETUP,
-                    "spawn some agents for a scenario",
+                    "manage scenarios",
                 ) {
-                    new_state = Some(ScenarioManager::Active(Wizard::new()));
+                    new_state = Some(ScenarioManager::PickScenario(Wizard::new()));
                 }
             }
-            ScenarioManager::Active(ref mut wizard) => {
-                if let Some(spec) = workflow(wizard.wrap(input, map)) {
-                    info!("Got answer: {:?}", spec);
-                    new_state = Some(ScenarioManager::Inactive);
+            ScenarioManager::PickScenario(ref mut wizard) => {
+                if let Some(scenario) = pick_scenario(wizard.wrap(input, map)) {
+                    let scroller = LogScroller::new_from_lines(scenario.describe());
+                    new_state = Some(ScenarioManager::EditScenario(scenario, scroller));
                 } else if wizard.aborted() {
-                    info!("User aborted the workflow");
                     new_state = Some(ScenarioManager::Inactive);
                 }
+            }
+            ScenarioManager::EditScenario(_, ref mut scroller) => {
+                if scroller.event(input) {
+                    new_state = Some(ScenarioManager::Inactive);
+                }
+                // TODO edit it
             }
         }
         if let Some(s) = new_state {
@@ -48,16 +55,41 @@ impl ScenarioManager {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let ScenarioManager::Active(wizard) = self {
-            wizard.draw(g, canvas);
+        match self {
+            ScenarioManager::Inactive => {}
+            ScenarioManager::PickScenario(wizard) => {
+                wizard.draw(g, canvas);
+            }
+            ScenarioManager::EditScenario(_, scroller) => {
+                scroller.draw(g, canvas);
+            }
         }
     }
 }
 
 impl Colorizer for ScenarioManager {}
 
-// None could mean the workflow has been aborted, or just isn't done yet. Have to ask the wizard to
-// distinguish.
+fn pick_scenario(mut wizard: WrappedWizard) -> Option<Scenario> {
+    let load_existing = "Load existing scenario";
+    let create_new = "Create new scenario";
+
+    if wizard.choose("What scenario to edit?", vec![load_existing, create_new])? == load_existing {
+        // TODO Constantly load them?! Urgh...
+        let scenarios: Vec<(String, Scenario)> = abstutil::load_all_objects("scenarios", wizard.map.get_name());
+        let name = wizard.choose("Load which scenario?", scenarios.iter().map(|(n, _)| n.as_str()).collect())?;
+        // TODO But we want to store the associated data in the wizard and get it out!
+        Some(scenarios.into_iter().find(|(n, _)| name == *n).map(|(_, s)| s).unwrap())
+    } else {
+        let scenario_name = wizard.input_string("Name the scenario")?;
+        Some(Scenario {
+            scenario_name,
+            map_name: wizard.map.get_name().to_string(),
+            seed_parked_cars: Vec::new(),
+            spawn_over_time: Vec::new(),
+        })
+    }
+}
+
 fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
     Some(SpawnOverTime {
         num_agents: wizard.input_usize("Spawn how many agents?")?,
