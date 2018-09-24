@@ -21,6 +21,8 @@ const BLACK: Color = [0.0, 0.0, 0.0, 0.3];
 const SOLID_BLACK: Color = [0.0, 0.0, 0.0, 0.9];
 const YELLOW: Color = [1.0, 1.0, 0.0, 0.8];
 
+const KEY_CATEGORY: &str = "";
+
 pub struct UI {
     canvas: Canvas,
     p3_offset: (f64, f64),
@@ -45,23 +47,23 @@ impl UI {
 
 impl GUI for UI {
     fn event(&mut self, mut input: UserInput, _osd: &mut TextOSD) -> EventLoopMode {
-        if input.unimportant_key_pressed(Key::Escape, "quit") {
+        if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
         let speed = 5.0;
-        if input.unimportant_key_pressed(Key::H, "left") {
+        if input.unimportant_key_pressed(Key::H, KEY_CATEGORY, "left") {
             self.p3_offset.0 -= speed;
         }
-        if input.unimportant_key_pressed(Key::J, "down") {
+        if input.unimportant_key_pressed(Key::J, KEY_CATEGORY, "down") {
             self.p3_offset.1 += speed;
         }
-        if input.unimportant_key_pressed(Key::K, "up") {
+        if input.unimportant_key_pressed(Key::K, KEY_CATEGORY, "up") {
             self.p3_offset.1 -= speed;
         }
-        if input.unimportant_key_pressed(Key::L, "right") {
+        if input.unimportant_key_pressed(Key::L, KEY_CATEGORY, "right") {
             self.p3_offset.0 += speed;
         }
-        if input.unimportant_key_pressed(Key::P, "toggle labels") {
+        if input.unimportant_key_pressed(Key::P, KEY_CATEGORY, "toggle labels") {
             self.show_labels = !self.show_labels;
         }
 
