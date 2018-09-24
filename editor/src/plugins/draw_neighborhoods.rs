@@ -6,23 +6,24 @@ use objects::EDIT_MAP;
 use piston::input::{Button, Key, ReleaseEvent};
 use plugins::Colorizer;
 use polygons;
+use sim::Neighborhood;
 
 const POINT_RADIUS: f64 = 2.0;
 
-pub enum DrawPolygonState {
+pub enum DrawNeighborhoodState {
     Empty,
     // Option<usize> is the point currently being hovered over, String is the possibly empty
     // pre-chosen name
     DrawingPoints(Vec<Pt2D>, Option<usize>, String),
     MovingPoint(Vec<Pt2D>, usize, String),
-    NamingPolygon(TextBox, Vec<Pt2D>),
+    NamingNeighborhood(TextBox, Vec<Pt2D>),
     // String name to each choice, pre-loaded
-    ListingPolygons(Menu<polygons::PolygonSelection>),
+    ListingNeighborhoods(Menu<Neighborhood>),
 }
 
-impl DrawPolygonState {
-    pub fn new() -> DrawPolygonState {
-        DrawPolygonState::Empty
+impl DrawNeighborhoodState {
+    pub fn new() -> DrawNeighborhoodState {
+        DrawNeighborhoodState::Empty
     }
 
     pub fn event(
@@ -32,40 +33,40 @@ impl DrawPolygonState {
         map: &Map,
         osd: &mut TextOSD,
     ) -> bool {
-        let mut new_state: Option<DrawPolygonState> = None;
+        let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {
-            DrawPolygonState::Empty => {
-                if input.unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a polygon") {
-                    new_state = Some(DrawPolygonState::DrawingPoints(
+            DrawNeighborhoodState::Empty => {
+                if input.unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a neighborhood") {
+                    new_state = Some(DrawNeighborhoodState::DrawingPoints(
                         Vec::new(),
                         None,
                         "".to_string(),
                     ));
                 }
             }
-            DrawPolygonState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
+            DrawNeighborhoodState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
                 osd.pad_if_nonempty();
                 osd.add_line(format!("Currently editing {}", name));
 
-                if input.key_pressed(Key::Tab, "list existing polygons") {
-                    let polygons = polygons::load_all_polygons(map.get_name());
-                    if polygons.is_empty() {
-                        warn!("Sorry, no existing polygons");
+                if input.key_pressed(Key::Tab, "list existing neighborhoods") {
+                    let neighborhoods = polygons::load_all_polygons(map.get_name());
+                    if neighborhoods.is_empty() {
+                        warn!("Sorry, no existing neighborhoods");
                     } else {
-                        new_state = Some(DrawPolygonState::ListingPolygons(Menu::new(
-                            "Load which polygon?",
-                            polygons,
+                        new_state = Some(DrawNeighborhoodState::ListingNeighborhoods(Menu::new(
+                            "Load which neighborhood?",
+                            neighborhoods,
                         )));
                     }
-                } else if input.key_pressed(Key::Escape, "throw away this neighborhood polygon") {
-                    new_state = Some(DrawPolygonState::Empty);
+                } else if input.key_pressed(Key::Escape, "throw away this neighborhood") {
+                    new_state = Some(DrawNeighborhoodState::Empty);
                 } else if input.key_pressed(Key::P, "add a new point here") {
                     pts.push(canvas.get_cursor_in_map_space());
                 } else if pts.len() >= 3
-                    && input.key_pressed(Key::Return, "confirm the polygon's shape")
+                    && input.key_pressed(Key::Return, "confirm the neighborhood's shape")
                 {
-                    new_state = Some(DrawPolygonState::NamingPolygon(
-                        TextBox::new_prefilled("Name this polygon", name.clone()),
+                    new_state = Some(DrawNeighborhoodState::NamingNeighborhood(
+                        TextBox::new_prefilled("Name this neighborhood", name.clone()),
                         pts.clone(),
                     ));
                 }
@@ -79,7 +80,7 @@ impl DrawPolygonState {
                         // TODO mouse dragging might be more intuitive, but it's unclear how to
                         // override part of canvas.handle_event
                         if input.key_pressed(Key::LCtrl, "hold to move this point") {
-                            new_state = Some(DrawPolygonState::MovingPoint(
+                            new_state = Some(DrawNeighborhoodState::MovingPoint(
                                 pts.clone(),
                                 *idx,
                                 name.clone(),
@@ -88,7 +89,7 @@ impl DrawPolygonState {
                     }
                 }
             }
-            DrawPolygonState::MovingPoint(ref mut pts, idx, name) => {
+            DrawNeighborhoodState::MovingPoint(ref mut pts, idx, name) => {
                 osd.pad_if_nonempty();
                 osd.add_line(format!("Currently editing {}", name));
 
@@ -96,40 +97,40 @@ impl DrawPolygonState {
                 if let Some(Button::Keyboard(Key::LCtrl)) =
                     input.use_event_directly().release_args()
                 {
-                    new_state = Some(DrawPolygonState::DrawingPoints(
+                    new_state = Some(DrawNeighborhoodState::DrawingPoints(
                         pts.clone(),
                         Some(*idx),
                         name.clone(),
                     ));
                 }
             }
-            DrawPolygonState::NamingPolygon(tb, pts) => match tb.event(input) {
+            DrawNeighborhoodState::NamingNeighborhood(tb, pts) => match tb.event(input) {
                 InputResult::Canceled => {
                     info!("Never mind!");
-                    new_state = Some(DrawPolygonState::Empty);
+                    new_state = Some(DrawNeighborhoodState::Empty);
                 }
                 InputResult::Done(name, _) => {
-                    let path = format!("../data/polygons/{}/{}", map.get_name(), name);
+                    let path = format!("../data/neighborhoods/{}/{}", map.get_name(), name);
                     abstutil::write_json(
                         &path,
-                        &polygons::PolygonSelection {
+                        &Neighborhood {
                             name,
                             points: pts.clone(),
                         },
-                    ).expect("Saving polygon selection failed");
+                    ).expect("Saving neighborhood failed");
                     info!("Saved {}", path);
-                    new_state = Some(DrawPolygonState::Empty);
+                    new_state = Some(DrawNeighborhoodState::Empty);
                 }
                 InputResult::StillActive => {}
             },
-            DrawPolygonState::ListingPolygons(ref mut menu) => {
+            DrawNeighborhoodState::ListingNeighborhoods(ref mut menu) => {
                 match menu.event(input) {
                     InputResult::Canceled => {
-                        new_state = Some(DrawPolygonState::Empty);
+                        new_state = Some(DrawNeighborhoodState::Empty);
                     }
                     InputResult::StillActive => {}
                     InputResult::Done(name, poly) => {
-                        new_state = Some(DrawPolygonState::DrawingPoints(
+                        new_state = Some(DrawNeighborhoodState::DrawingPoints(
                             poly.points.clone(),
                             None,
                             name,
@@ -142,7 +143,7 @@ impl DrawPolygonState {
             *self = s;
         }
         match self {
-            DrawPolygonState::Empty => false,
+            DrawNeighborhoodState::Empty => false,
             _ => true,
         }
     }
@@ -155,17 +156,17 @@ impl DrawPolygonState {
         let cyan = [0.0, 1.0, 1.0, 1.0];
 
         let (pts, current_idx) = match self {
-            DrawPolygonState::Empty => {
+            DrawNeighborhoodState::Empty => {
                 return;
             }
-            DrawPolygonState::DrawingPoints(pts, current_idx, _) => (pts, *current_idx),
-            DrawPolygonState::MovingPoint(pts, idx, _) => (pts, Some(*idx)),
-            DrawPolygonState::NamingPolygon(tb, pts) => {
+            DrawNeighborhoodState::DrawingPoints(pts, current_idx, _) => (pts, *current_idx),
+            DrawNeighborhoodState::MovingPoint(pts, idx, _) => (pts, Some(*idx)),
+            DrawNeighborhoodState::NamingNeighborhood(tb, pts) => {
                 g.draw_polygon(blue, &Polygon::new(pts));
                 tb.draw(g, canvas);
                 return;
             }
-            DrawPolygonState::ListingPolygons(menu) => {
+            DrawNeighborhoodState::ListingNeighborhoods(menu) => {
                 menu.draw(g, canvas);
                 (&menu.current_choice().points, None)
             }
@@ -189,4 +190,4 @@ impl DrawPolygonState {
     }
 }
 
-impl Colorizer for DrawPolygonState {}
+impl Colorizer for DrawNeighborhoodState {}

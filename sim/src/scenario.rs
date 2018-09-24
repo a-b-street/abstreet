@@ -1,3 +1,4 @@
+use geom::Pt2D;
 use Tick;
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -25,4 +26,10 @@ pub struct SpawnOverTime {
 pub struct SeedParkedCars {
     pub neighborhood: String,
     pub percent_to_fill: f64,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct Neighborhood {
+    pub name: String,
+    pub points: Vec<Pt2D>,
 }

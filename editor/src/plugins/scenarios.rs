@@ -6,37 +6,35 @@ use plugins::Colorizer;
 use sim::{SeedParkedCars, SpawnOverTime};
 use wizard::{Wizard, WrappedWizard};
 
-// TODO really, this should be specific to scenario definition or something
-// may even want a convenience wrapper for this plugin
-pub enum WizardSample {
+pub enum ScenarioManager {
     Inactive,
     Active(Wizard),
 }
 
-impl WizardSample {
-    pub fn new() -> WizardSample {
-        WizardSample::Inactive
+impl ScenarioManager {
+    pub fn new() -> ScenarioManager {
+        ScenarioManager::Inactive
     }
 
     pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
-        let mut new_state: Option<WizardSample> = None;
+        let mut new_state: Option<ScenarioManager> = None;
         match self {
-            WizardSample::Inactive => {
+            ScenarioManager::Inactive => {
                 if input.unimportant_key_pressed(
                     Key::W,
                     SIM_SETUP,
                     "spawn some agents for a scenario",
                 ) {
-                    new_state = Some(WizardSample::Active(Wizard::new()));
+                    new_state = Some(ScenarioManager::Active(Wizard::new()));
                 }
             }
-            WizardSample::Active(ref mut wizard) => {
+            ScenarioManager::Active(ref mut wizard) => {
                 if let Some(spec) = workflow(wizard.wrap(input, map)) {
                     info!("Got answer: {:?}", spec);
-                    new_state = Some(WizardSample::Inactive);
+                    new_state = Some(ScenarioManager::Inactive);
                 } else if wizard.aborted() {
                     info!("User aborted the workflow");
-                    new_state = Some(WizardSample::Inactive);
+                    new_state = Some(ScenarioManager::Inactive);
                 }
             }
         }
@@ -44,19 +42,19 @@ impl WizardSample {
             *self = s;
         }
         match self {
-            WizardSample::Inactive => false,
+            ScenarioManager::Inactive => false,
             _ => true,
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let WizardSample::Active(wizard) = self {
+        if let ScenarioManager::Active(wizard) = self {
             wizard.draw(g, canvas);
         }
     }
 }
 
-impl Colorizer for WizardSample {}
+impl Colorizer for ScenarioManager {}
 
 // None could mean the workflow has been aborted, or just isn't done yet. Have to ask the wizard to
 // distinguish.
@@ -67,14 +65,14 @@ fn workflow(mut wizard: WrappedWizard) -> Option<SpawnOverTime> {
         // TODO input interval, or otherwise enforce stop_tick > start_tick
         stop_tick: wizard.input_tick("Stop spawning when?")?,
         percent_drive: wizard.input_percent("What percent should drive?")?,
-        start_from_neighborhood: wizard.choose_polygon("Where should the agents start?")?,
-        go_to_neighborhood: wizard.choose_polygon("Where should the agents go?")?,
+        start_from_neighborhood: wizard.choose_neighborhood("Where should the agents start?")?,
+        go_to_neighborhood: wizard.choose_neighborhood("Where should the agents go?")?,
     })
 }
 
 fn workflow2(mut wizard: WrappedWizard) -> Option<SeedParkedCars> {
     Some(SeedParkedCars {
-        neighborhood: wizard.choose_polygon("Seed parked cars in what area?")?,
+        neighborhood: wizard.choose_neighborhood("Seed parked cars in what area?")?,
         percent_to_fill: wizard.input_percent("What percent of parking spots to populate?")?,
     })
 }

@@ -55,7 +55,7 @@ use geom::{Angle, Pt2D};
 pub use helpers::load;
 pub use instrument::save_backtraces;
 use map_model::{LaneID, Map, TurnID};
-pub use scenario::{SeedParkedCars, SpawnOverTime};
+pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
 

@@ -5,6 +5,7 @@
 editor/editor_state
 editor/road_edits.json
 data/*.abst
-data/polygons/*
+data/neighborhoods/*
 data/input/*
 data/save/*
+data/scenarios/*

@@ -18,13 +18,14 @@ use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::debug_objects::DebugObjectsState;
-use plugins::draw_polygon::DrawPolygonState;
+use plugins::draw_neighborhoods::DrawNeighborhoodState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::logs::DisplayLogs;
 use plugins::road_editor::RoadEditor;
+use plugins::scenarios::ScenarioManager;
 use plugins::search::SearchState;
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
@@ -33,7 +34,6 @@ use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
-use plugins::wizard::WizardSample;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
@@ -124,8 +124,8 @@ impl UIWrapper {
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
-            draw_polygon: DrawPolygonState::new(),
-            wizard_sample: WizardSample::new(),
+            draw_neighborhoods: DrawNeighborhoodState::new(),
+            scenarios: ScenarioManager::new(),
             logs: DisplayLogs::new(),
 
             active_plugin: None,
@@ -246,8 +246,10 @@ impl UIWrapper {
                         .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
                 }),
                 Box::new(|ui, input, _osd| ui.turn_cycler.event(input, ui.current_selection)),
-                Box::new(|ui, input, osd| ui.draw_polygon.event(input, &ui.canvas, &ui.map, osd)),
-                Box::new(|ui, input, _osd| ui.wizard_sample.event(input, &ui.map)),
+                Box::new(|ui, input, osd| {
+                    ui.draw_neighborhoods.event(input, &ui.canvas, &ui.map, osd)
+                }),
+                Box::new(|ui, input, _osd| ui.scenarios.event(input, &ui.map)),
                 Box::new(|ui, input, _osd| ui.logs.event(input)),
             ],
         }
@@ -280,8 +282,8 @@ struct UI {
     color_picker: ColorPicker,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
-    draw_polygon: DrawPolygonState,
-    wizard_sample: WizardSample,
+    draw_neighborhoods: DrawNeighborhoodState,
+    scenarios: ScenarioManager,
     logs: DisplayLogs,
 
     // An index into UIWrapper.plugins.
@@ -464,8 +466,8 @@ impl UI {
         self.debug_objects
             .draw(&self.map, &self.canvas, &self.draw_map, &self.sim, g);
         self.color_picker.draw(&self.canvas, g);
-        self.draw_polygon.draw(g, &self.canvas);
-        self.wizard_sample.draw(g, &self.canvas);
+        self.draw_neighborhoods.draw(g, &self.canvas);
+        self.scenarios.draw(g, &self.canvas);
         self.logs.draw(g, &self.canvas);
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
@@ -518,8 +520,8 @@ impl UI {
             13 => Some(Box::new(&self.floodfiller)),
             14 => Some(Box::new(&self.geom_validator)),
             15 => Some(Box::new(&self.turn_cycler)),
-            16 => Some(Box::new(&self.draw_polygon)),
-            17 => Some(Box::new(&self.wizard_sample)),
+            16 => Some(Box::new(&self.draw_neighborhoods)),
+            17 => Some(Box::new(&self.scenarios)),
             18 => Some(Box::new(&self.logs)),
             _ => panic!("Active plugin {} is too high", idx),
         }

@@ -2,14 +2,14 @@ use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 use geom::Polygon;
 use map_model::Map;
 use polygons;
-use sim::Tick;
+use sim::{Neighborhood, Tick};
 use std::collections::VecDeque;
 
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
     string_menu: Option<Menu<()>>,
-    polygon_menu: Option<Menu<polygons::PolygonSelection>>,
+    neighborhood_menu: Option<Menu<Neighborhood>>,
 
     state_usize: Vec<usize>,
     state_tick: Vec<Tick>,
@@ -23,7 +23,7 @@ impl Wizard {
             alive: true,
             tb: None,
             string_menu: None,
-            polygon_menu: None,
+            neighborhood_menu: None,
             state_usize: Vec::new(),
             state_tick: Vec::new(),
             state_percent: Vec::new(),
@@ -35,7 +35,7 @@ impl Wizard {
         if let Some(ref menu) = self.string_menu {
             menu.draw(g, canvas);
         }
-        if let Some(ref menu) = self.polygon_menu {
+        if let Some(ref menu) = self.neighborhood_menu {
             menu.draw(g, canvas);
             g.draw_polygon(
                 [0.0, 0.0, 1.0, 0.6],
@@ -199,20 +199,20 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
-    pub fn choose_polygon(&mut self, query: &str) -> Option<String> {
+    pub fn choose_neighborhood(&mut self, query: &str) -> Option<String> {
         if !self.ready_choices.is_empty() {
             return self.ready_choices.pop_front();
         }
 
-        if self.wizard.polygon_menu.is_none() {
-            self.wizard.polygon_menu = Some(Menu::new(
+        if self.wizard.neighborhood_menu.is_none() {
+            self.wizard.neighborhood_menu = Some(Menu::new(
                 query,
                 polygons::load_all_polygons(self.map.get_name()),
             ));
         }
 
         if let Some((name, _)) = input_with_menu(
-            &mut self.wizard.polygon_menu,
+            &mut self.wizard.neighborhood_menu,
             &mut self.wizard.alive,
             self.input,
         ) {
