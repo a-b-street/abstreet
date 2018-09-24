@@ -34,8 +34,17 @@ impl ScenarioManager {
                     new_state = Some(ScenarioManager::Inactive);
                 }
             }
-            ScenarioManager::EditScenario(_, ref mut scroller) => {
-                if scroller.event(input) {
+            ScenarioManager::EditScenario(scenario, ref mut scroller) => {
+                // TODO Keys on top of the scroller? Weird...
+                // TODO Would use S for save, except sim controls always runs... maybe it shouldnt'
+                // do that after all.
+                if input.key_pressed(Key::Q, "save this scenario") {
+                    let path = format!("../data/scenarios/{}/{}", scenario.map_name, scenario.scenario_name);
+                    abstutil::write_json(
+                        &path,
+                        scenario).expect("Saving scenario failed");
+                    info!("Saved {}", path);
+                } else if scroller.event(input) {
                     new_state = Some(ScenarioManager::Inactive);
                 }
                 // TODO edit it
