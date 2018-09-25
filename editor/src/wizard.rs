@@ -1,7 +1,4 @@
-use abstutil;
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
-use map_model::Map;
-use sim::{Neighborhood, Tick};
 use std::any::Any;
 use std::collections::VecDeque;
 
@@ -33,14 +30,13 @@ impl Wizard {
         }
     }
 
-    pub fn wrap<'a>(&'a mut self, input: &'a mut UserInput, map: &'a Map) -> WrappedWizard<'a> {
+    pub fn wrap<'a>(&'a mut self, input: &'a mut UserInput) -> WrappedWizard<'a> {
         assert!(self.alive);
 
         let ready_results = VecDeque::from(self.confirmed_state.clone());
         WrappedWizard {
             wizard: self,
             input,
-            map,
             ready_results,
         }
     }
@@ -99,8 +95,6 @@ impl Wizard {
 pub struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
-    // TODO a workflow needs the map name. fine?
-    pub map: &'a Map,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<Cloneable>>,
@@ -132,10 +126,6 @@ impl<'a> WrappedWizard<'a> {
 
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {
         self.input_something(query, Box::new(|line| line.parse::<usize>().ok()))
-    }
-
-    pub fn input_tick(&mut self, query: &str) -> Option<Tick> {
-        self.input_something(query, Box::new(|line| Tick::parse(&line)))
     }
 
     pub fn input_percent(&mut self, query: &str) -> Option<f64> {
@@ -200,17 +190,6 @@ impl<'a> WrappedWizard<'a> {
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)
     }
-
-    pub fn choose_neighborhood(&mut self, query: &str) -> Option<String> {
-        // The closure's lifetime is the same as WrappedWizard (it doesn't live past the call to
-        // choose_something), but I'm not quite sure how to express that yet, so clone the
-        // map_name.
-        let map_name = self.map.get_name().to_string();
-        self.choose_something::<Neighborhood>(
-            query,
-            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
-        ).map(|(n, _)| n)
-    }
 }
 
 // The caller initializes the menu, if needed. Pass in Option that must be Some().
@@ -272,8 +251,6 @@ impl Clone for Box<Cloneable> {
 
 impl Cloneable for String {}
 impl Cloneable for usize {}
-impl Cloneable for Tick {}
 impl Cloneable for f64 {}
 impl Cloneable for () {}
-impl Cloneable for Neighborhood {}
 impl Cloneable for (String, Box<Cloneable>) {}
