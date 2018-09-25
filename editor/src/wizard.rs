@@ -59,7 +59,7 @@ impl Wizard {
         !self.alive
     }
 
-    fn input_with_text_box<R>(
+    fn input_with_text_box<R: Cloneable>(
         &mut self,
         query: &str,
         input: &mut UserInput,
@@ -108,91 +108,39 @@ pub struct WrappedWizard<'a> {
 }
 
 impl<'a> WrappedWizard<'a> {
-    pub fn input_string(&mut self, query: &str) -> Option<String> {
+    fn input_something<R: 'static + Clone + Cloneable>(
+        &mut self,
+        query: &str,
+        parser: Box<Fn(String) -> Option<R>>,
+    ) -> Option<R> {
         if !self.ready_results.is_empty() {
-            return Some(
-                self.ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<String>()
-                    .unwrap()
-                    .clone(),
-            );
+            let first = self.ready_results.pop_front().unwrap();
+            let item: &R = first.as_any().downcast_ref::<R>().unwrap();
+            return Some(item.clone());
         }
-        if let Some(s) =
-            self.wizard
-                .input_with_text_box(query, self.input, Box::new(|line| Some(line)))
-        {
-            self.wizard.confirmed_state.push(Box::new(s.clone()));
-            Some(s)
+        if let Some(obj) = self.wizard.input_with_text_box(query, self.input, parser) {
+            self.wizard.confirmed_state.push(Box::new(obj.clone()));
+            Some(obj)
         } else {
             None
         }
+    }
+
+    pub fn input_string(&mut self, query: &str) -> Option<String> {
+        self.input_something(query, Box::new(|line| Some(line)))
     }
 
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {
-        if !self.ready_results.is_empty() {
-            return Some(
-                *self
-                    .ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<usize>()
-                    .unwrap(),
-            );
-        }
-        if let Some(num) = self.wizard.input_with_text_box(
-            query,
-            self.input,
-            Box::new(|line| line.parse::<usize>().ok()),
-        ) {
-            self.wizard.confirmed_state.push(Box::new(num));
-            Some(num)
-        } else {
-            None
-        }
+        self.input_something(query, Box::new(|line| line.parse::<usize>().ok()))
     }
 
     pub fn input_tick(&mut self, query: &str) -> Option<Tick> {
-        if !self.ready_results.is_empty() {
-            return Some(
-                *self
-                    .ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<Tick>()
-                    .unwrap(),
-            );
-        }
-        if let Some(tick) =
-            self.wizard
-                .input_with_text_box(query, self.input, Box::new(|line| Tick::parse(&line)))
-        {
-            self.wizard.confirmed_state.push(Box::new(tick));
-            Some(tick)
-        } else {
-            None
-        }
+        self.input_something(query, Box::new(|line| Tick::parse(&line)))
     }
 
     pub fn input_percent(&mut self, query: &str) -> Option<f64> {
-        if !self.ready_results.is_empty() {
-            return Some(
-                *self
-                    .ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<f64>()
-                    .unwrap(),
-            );
-        }
-        if let Some(percent) = self.wizard.input_with_text_box(
+        self.input_something(
             query,
-            self.input,
             Box::new(|line| {
                 line.parse::<f64>().ok().and_then(|num| {
                     if num >= 0.0 && num <= 1.0 {
@@ -202,12 +150,7 @@ impl<'a> WrappedWizard<'a> {
                     }
                 })
             }),
-        ) {
-            self.wizard.confirmed_state.push(Box::new(percent));
-            Some(percent)
-        } else {
-            None
-        }
+        )
     }
 
     pub fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
