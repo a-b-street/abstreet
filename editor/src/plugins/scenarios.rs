@@ -6,7 +6,9 @@ use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
 use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
-use wizard::{Wizard, WrappedWizard};
+use wizard::{Cloneable, Wizard, WrappedWizard};
+
+impl Cloneable for Scenario {}
 
 pub enum ScenarioManager {
     Inactive,
@@ -104,21 +106,12 @@ fn pick_scenario(mut wizard: WrappedWizard) -> Option<Scenario> {
     if wizard.choose_string("What scenario to edit?", vec![load_existing, create_new])?
         == load_existing
     {
-        // TODO Constantly load them?! Urgh...
-        let scenarios: Vec<(String, Scenario)> =
-            abstutil::load_all_objects("scenarios", wizard.map.get_name());
-        let name = wizard.choose_string(
-            "Load which scenario?",
-            scenarios.iter().map(|(n, _)| n.as_str()).collect(),
-        )?;
-        // TODO But we want to store the associated data in the wizard and get it out!
-        Some(
-            scenarios
-                .into_iter()
-                .find(|(n, _)| name == *n)
-                .map(|(_, s)| s)
-                .unwrap(),
-        )
+        let map_name = wizard.map.get_name().to_string();
+        wizard
+            .choose_something::<Scenario>(
+                "Load which scenario?",
+                Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
+            ).map(|(_, s)| s)
     } else {
         let scenario_name = wizard.input_string("Name the scenario")?;
         Some(Scenario {
