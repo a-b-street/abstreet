@@ -1,6 +1,6 @@
-use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
-use std::any::Any;
+use abstutil::Cloneable;
 use std::collections::VecDeque;
+use {Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 
 pub struct Wizard {
     alive: bool,
@@ -82,7 +82,7 @@ impl Wizard {
                 if let Some(result) = parser(line.clone()) {
                     Some(result)
                 } else {
-                    warn!("Invalid input {}", line);
+                    warn!(target: "UI", "Invalid input {}", line);
                     None
                 }
             }
@@ -119,7 +119,6 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
-    // Conveniently predefined things
     pub fn input_string(&mut self, query: &str) -> Option<String> {
         self.input_something(query, Box::new(|line| Some(line)))
     }
@@ -181,7 +180,6 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
-    // Conveniently predefined things
     pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         // Clone the choices outside of the closure to get around the fact that choices_generator's
         // lifetime isn't correctly specified.
@@ -219,38 +217,3 @@ fn input_with_menu<T: Clone>(
         }
     }
 }
-
-// Trick to make a cloneable Any from
-// https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928.
-
-pub trait Cloneable: CloneableImpl {}
-
-pub trait CloneableImpl {
-    fn clone_box(&self) -> Box<Cloneable>;
-    fn as_any(&self) -> &Any;
-}
-
-impl<T> CloneableImpl for T
-where
-    T: 'static + Cloneable + Clone,
-{
-    fn clone_box(&self) -> Box<Cloneable> {
-        Box::new(self.clone())
-    }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-}
-
-impl Clone for Box<Cloneable> {
-    fn clone(&self) -> Box<Cloneable> {
-        self.clone_box()
-    }
-}
-
-impl Cloneable for String {}
-impl Cloneable for usize {}
-impl Cloneable for f64 {}
-impl Cloneable for () {}
-impl Cloneable for (String, Box<Cloneable>) {}

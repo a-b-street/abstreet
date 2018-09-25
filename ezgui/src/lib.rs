@@ -1,9 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate aabb_quadtree;
+extern crate abstutil;
 extern crate geom;
 extern crate glutin_window;
 extern crate graphics;
+#[macro_use]
+extern crate log;
 extern crate opengl_graphics;
 extern crate palette;
 extern crate piston;
@@ -17,6 +20,7 @@ mod runner;
 mod text;
 mod text_box;
 mod tree_menu;
+mod wizard;
 
 pub use canvas::Canvas;
 use graphics::character::CharacterCache;
@@ -29,6 +33,7 @@ use piston::input::Key;
 pub use runner::{run, EventLoopMode, GUI};
 pub use text::TextOSD;
 pub use text_box::TextBox;
+pub use wizard::{Wizard, WrappedWizard};
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {

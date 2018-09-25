@@ -1,16 +1,11 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
+use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
 use geom::Polygon;
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
 use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime, Tick};
-use wizard::{Cloneable, Wizard, WrappedWizard};
-
-impl Cloneable for Neighborhood {}
-impl Cloneable for Scenario {}
-impl Cloneable for Tick {}
 
 pub enum ScenarioManager {
     Inactive,

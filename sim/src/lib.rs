@@ -49,6 +49,7 @@ mod trips;
 mod view;
 mod walking;
 
+use abstutil::Cloneable;
 use dimensioned::si;
 pub use events::Event;
 use geom::{Angle, Pt2D};
@@ -367,3 +368,9 @@ pub struct DrawCarInput {
     pub angle: Angle,
     pub stopping_dist: Distance,
 }
+
+// We have to do this in the crate where these types are defined. Bit annoying, since it's really
+// kind of an ezgui concept.
+impl Cloneable for Neighborhood {}
+impl Cloneable for Scenario {}
+impl Cloneable for Tick {}
