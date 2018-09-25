@@ -3,6 +3,7 @@ use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
 use geom::Polygon;
 use map_model::Map;
 use sim::{Neighborhood, Tick};
+use std::any::Any;
 use std::collections::VecDeque;
 
 pub struct Wizard {
@@ -11,11 +12,8 @@ pub struct Wizard {
     string_menu: Option<Menu<()>>,
     neighborhood_menu: Option<Menu<Neighborhood>>,
 
-    state_usize: Vec<usize>,
-    state_tick: Vec<Tick>,
-    state_percent: Vec<f64>,
-    state_choices: Vec<String>,
-    state_string: Vec<String>,
+    // In the order of queries made
+    confirmed_state: Vec<Box<Cloneable>>,
 }
 
 impl Wizard {
@@ -25,11 +23,7 @@ impl Wizard {
             tb: None,
             string_menu: None,
             neighborhood_menu: None,
-            state_usize: Vec::new(),
-            state_tick: Vec::new(),
-            state_percent: Vec::new(),
-            state_choices: Vec::new(),
-            state_string: Vec::new(),
+            confirmed_state: Vec::new(),
         }
     }
 
@@ -52,20 +46,12 @@ impl Wizard {
     pub fn wrap<'a>(&'a mut self, input: &'a mut UserInput, map: &'a Map) -> WrappedWizard<'a> {
         assert!(self.alive);
 
-        let ready_usize = VecDeque::from(self.state_usize.clone());
-        let ready_tick = VecDeque::from(self.state_tick.clone());
-        let ready_percent = VecDeque::from(self.state_percent.clone());
-        let ready_choices = VecDeque::from(self.state_choices.clone());
-        let ready_string = VecDeque::from(self.state_string.clone());
+        let ready_results = VecDeque::from(self.confirmed_state.clone());
         WrappedWizard {
             wizard: self,
             input,
             map,
-            ready_usize,
-            ready_tick,
-            ready_percent,
-            ready_choices,
-            ready_string,
+            ready_results,
         }
     }
 
@@ -117,23 +103,28 @@ pub struct WrappedWizard<'a> {
     // TODO a workflow needs the map name. fine?
     pub map: &'a Map,
 
-    ready_usize: VecDeque<usize>,
-    ready_tick: VecDeque<Tick>,
-    ready_percent: VecDeque<f64>,
-    ready_choices: VecDeque<String>,
-    ready_string: VecDeque<String>,
+    // The downcasts are safe iff the queries made to the wizard are deterministic.
+    ready_results: VecDeque<Box<Cloneable>>,
 }
 
 impl<'a> WrappedWizard<'a> {
     pub fn input_string(&mut self, query: &str) -> Option<String> {
-        if !self.ready_string.is_empty() {
-            return self.ready_string.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                self.ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<String>()
+                    .unwrap()
+                    .clone(),
+            );
         }
         if let Some(s) =
             self.wizard
                 .input_with_text_box(query, self.input, Box::new(|line| Some(line)))
         {
-            self.wizard.state_string.push(s.clone());
+            self.wizard.confirmed_state.push(Box::new(s.clone()));
             Some(s)
         } else {
             None
@@ -141,15 +132,23 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {
-        if !self.ready_usize.is_empty() {
-            return self.ready_usize.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                *self
+                    .ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<usize>()
+                    .unwrap(),
+            );
         }
         if let Some(num) = self.wizard.input_with_text_box(
             query,
             self.input,
             Box::new(|line| line.parse::<usize>().ok()),
         ) {
-            self.wizard.state_usize.push(num);
+            self.wizard.confirmed_state.push(Box::new(num));
             Some(num)
         } else {
             None
@@ -157,14 +156,22 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn input_tick(&mut self, query: &str) -> Option<Tick> {
-        if !self.ready_tick.is_empty() {
-            return self.ready_tick.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                *self
+                    .ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<Tick>()
+                    .unwrap(),
+            );
         }
         if let Some(tick) =
             self.wizard
                 .input_with_text_box(query, self.input, Box::new(|line| Tick::parse(&line)))
         {
-            self.wizard.state_tick.push(tick);
+            self.wizard.confirmed_state.push(Box::new(tick));
             Some(tick)
         } else {
             None
@@ -172,8 +179,16 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn input_percent(&mut self, query: &str) -> Option<f64> {
-        if !self.ready_percent.is_empty() {
-            return self.ready_percent.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                *self
+                    .ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<f64>()
+                    .unwrap(),
+            );
         }
         if let Some(percent) = self.wizard.input_with_text_box(
             query,
@@ -188,7 +203,7 @@ impl<'a> WrappedWizard<'a> {
                 })
             }),
         ) {
-            self.wizard.state_percent.push(percent);
+            self.wizard.confirmed_state.push(Box::new(percent));
             Some(percent)
         } else {
             None
@@ -196,8 +211,16 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
-        if !self.ready_choices.is_empty() {
-            return self.ready_choices.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                self.ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<String>()
+                    .unwrap()
+                    .clone(),
+            );
         }
 
         if self.wizard.string_menu.is_none() {
@@ -212,7 +235,7 @@ impl<'a> WrappedWizard<'a> {
             &mut self.wizard.alive,
             self.input,
         ) {
-            self.wizard.state_choices.push(choice.clone());
+            self.wizard.confirmed_state.push(Box::new(choice.clone()));
             Some(choice)
         } else {
             None
@@ -220,8 +243,16 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn choose_neighborhood(&mut self, query: &str) -> Option<String> {
-        if !self.ready_choices.is_empty() {
-            return self.ready_choices.pop_front();
+        if !self.ready_results.is_empty() {
+            return Some(
+                self.ready_results
+                    .pop_front()
+                    .unwrap()
+                    .as_any()
+                    .downcast_ref::<String>()
+                    .unwrap()
+                    .clone(),
+            );
         }
 
         if self.wizard.neighborhood_menu.is_none() {
@@ -236,7 +267,7 @@ impl<'a> WrappedWizard<'a> {
             &mut self.wizard.alive,
             self.input,
         ) {
-            self.wizard.state_choices.push(name.clone());
+            self.wizard.confirmed_state.push(Box::new(name.clone()));
             Some(name)
         } else {
             None
@@ -271,3 +302,37 @@ fn input_with_menu<T: Clone>(
         }
     }
 }
+
+// Trick to make a cloneable Any from
+// https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928.
+
+trait Cloneable: CloneableImpl {}
+
+trait CloneableImpl {
+    fn clone_box(&self) -> Box<Cloneable>;
+    fn as_any(&self) -> &Any;
+}
+
+impl<T> CloneableImpl for T
+where
+    T: 'static + Cloneable + Clone,
+{
+    fn clone_box(&self) -> Box<Cloneable> {
+        Box::new(self.clone())
+    }
+
+    fn as_any(&self) -> &Any {
+        self
+    }
+}
+
+impl Clone for Box<Cloneable> {
+    fn clone(&self) -> Box<Cloneable> {
+        self.clone_box()
+    }
+}
+
+impl Cloneable for String {}
+impl Cloneable for usize {}
+impl Cloneable for Tick {}
+impl Cloneable for f64 {}
