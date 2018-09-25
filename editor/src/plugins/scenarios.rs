@@ -1,10 +1,11 @@
 use abstutil;
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
+use geom::Polygon;
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{Scenario, SeedParkedCars, SpawnOverTime};
+use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 use wizard::{Wizard, WrappedWizard};
 
 pub enum ScenarioManager {
@@ -86,6 +87,9 @@ impl ScenarioManager {
                 scroller.draw(g, canvas);
             }
             ScenarioManager::EditScenario(_, wizard) => {
+                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
+                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
+                }
                 wizard.draw(g, canvas);
             }
         }
@@ -97,11 +101,13 @@ impl Colorizer for ScenarioManager {}
 fn pick_scenario(mut wizard: WrappedWizard) -> Option<Scenario> {
     let load_existing = "Load existing scenario";
     let create_new = "Create new scenario";
-    if wizard.choose("What scenario to edit?", vec![load_existing, create_new])? == load_existing {
+    if wizard.choose_string("What scenario to edit?", vec![load_existing, create_new])?
+        == load_existing
+    {
         // TODO Constantly load them?! Urgh...
         let scenarios: Vec<(String, Scenario)> =
             abstutil::load_all_objects("scenarios", wizard.map.get_name());
-        let name = wizard.choose(
+        let name = wizard.choose_string(
             "Load which scenario?",
             scenarios.iter().map(|(n, _)| n.as_str()).collect(),
         )?;
@@ -127,7 +133,7 @@ fn pick_scenario(mut wizard: WrappedWizard) -> Option<Scenario> {
 fn edit_scenario(scenario: &mut Scenario, mut wizard: WrappedWizard) -> Option<()> {
     let seed_parked = "Seed parked cars";
     let spawn = "Spawn agents";
-    if wizard.choose("What kind of edit?", vec![seed_parked, spawn])? == seed_parked {
+    if wizard.choose_string("What kind of edit?", vec![seed_parked, spawn])? == seed_parked {
         scenario.seed_parked_cars.push(SeedParkedCars {
             neighborhood: wizard.choose_neighborhood("Seed parked cars in what area?")?,
             percent_to_fill: wizard.input_percent("What percent of parking spots to populate?")?,

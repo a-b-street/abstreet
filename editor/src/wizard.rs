@@ -1,6 +1,5 @@
 use abstutil;
 use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
-use geom::Polygon;
 use map_model::Map;
 use sim::{Neighborhood, Tick};
 use std::any::Any;
@@ -9,8 +8,7 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    string_menu: Option<Menu<()>>,
-    neighborhood_menu: Option<Menu<Neighborhood>>,
+    menu: Option<Menu<Box<Cloneable>>>,
 
     // In the order of queries made
     confirmed_state: Vec<Box<Cloneable>>,
@@ -21,22 +19,14 @@ impl Wizard {
         Wizard {
             alive: true,
             tb: None,
-            string_menu: None,
-            neighborhood_menu: None,
+            menu: None,
             confirmed_state: Vec::new(),
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let Some(ref menu) = self.string_menu {
+        if let Some(ref menu) = self.menu {
             menu.draw(g, canvas);
-        }
-        if let Some(ref menu) = self.neighborhood_menu {
-            menu.draw(g, canvas);
-            g.draw_polygon(
-                [0.0, 0.0, 1.0, 0.6],
-                &Polygon::new(&menu.current_choice().points),
-            );
         }
         if let Some(ref tb) = self.tb {
             tb.draw(g, canvas);
@@ -57,6 +47,15 @@ impl Wizard {
 
     pub fn aborted(&self) -> bool {
         !self.alive
+    }
+
+    // The caller can ask for any type at any time
+    pub fn current_menu_choice<R: 'static + Cloneable>(&self) -> Option<&R> {
+        if let Some(ref menu) = self.menu {
+            let item: &R = menu.current_choice().as_any().downcast_ref::<R>()?;
+            return Some(item);
+        }
+        None
     }
 
     fn input_with_text_box<R: Cloneable>(
@@ -108,7 +107,7 @@ pub struct WrappedWizard<'a> {
 }
 
 impl<'a> WrappedWizard<'a> {
-    fn input_something<R: 'static + Clone + Cloneable>(
+    pub fn input_something<R: 'static + Clone + Cloneable>(
         &mut self,
         query: &str,
         parser: Box<Fn(String) -> Option<R>>,
@@ -126,6 +125,7 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
+    // Conveniently predefined things
     pub fn input_string(&mut self, query: &str) -> Option<String> {
         self.input_something(query, Box::new(|line| Some(line)))
     }
@@ -153,68 +153,63 @@ impl<'a> WrappedWizard<'a> {
         )
     }
 
-    pub fn choose(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
+    pub fn choose_something<R: 'static + Clone + Cloneable>(
+        &mut self,
+        query: &str,
+        choices_generator: Box<Fn() -> Vec<(String, R)>>,
+    ) -> Option<(String, R)> {
         if !self.ready_results.is_empty() {
-            return Some(
-                self.ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<String>()
-                    .unwrap()
-                    .clone(),
-            );
+            let first = self.ready_results.pop_front().unwrap();
+            // We have to downcast twice! \o/
+            let pair: &(String, Box<Cloneable>) = first
+                .as_any()
+                .downcast_ref::<(String, Box<Cloneable>)>()
+                .unwrap();
+            let item: &R = pair.1.as_any().downcast_ref::<R>().unwrap();
+            return Some((pair.0.to_string(), item.clone()));
         }
 
-        if self.wizard.string_menu.is_none() {
-            self.wizard.string_menu = Some(Menu::new(
-                query,
-                choices.into_iter().map(|s| (s.to_string(), ())).collect(),
-            ));
+        if self.wizard.menu.is_none() {
+            let choices: Vec<(String, R)> = choices_generator();
+            let boxed_choices: Vec<(String, Box<Cloneable>)> = choices
+                .iter()
+                .map(|(s, item)| (s.to_string(), item.clone_box()))
+                .collect();
+            self.wizard.menu = Some(Menu::new(query, boxed_choices));
         }
 
-        if let Some((choice, _)) = input_with_menu(
-            &mut self.wizard.string_menu,
-            &mut self.wizard.alive,
-            self.input,
-        ) {
-            self.wizard.confirmed_state.push(Box::new(choice.clone()));
-            Some(choice)
+        if let Some((choice, item)) =
+            input_with_menu(&mut self.wizard.menu, &mut self.wizard.alive, self.input)
+        {
+            self.wizard
+                .confirmed_state
+                .push(Box::new((choice.to_string(), item.clone())));
+            let downcasted_item: &R = item.as_any().downcast_ref::<R>().unwrap();
+            Some((choice, downcasted_item.clone()))
         } else {
             None
         }
     }
 
+    // Conveniently predefined things
+    pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
+        // Clone the choices outside of the closure to get around the fact that choices_generator's
+        // lifetime isn't correctly specified.
+        let copied_choices: Vec<(String, ())> =
+            choices.into_iter().map(|s| (s.to_string(), ())).collect();
+        self.choose_something(query, Box::new(move || copied_choices.clone()))
+            .map(|(s, _)| s)
+    }
+
     pub fn choose_neighborhood(&mut self, query: &str) -> Option<String> {
-        if !self.ready_results.is_empty() {
-            return Some(
-                self.ready_results
-                    .pop_front()
-                    .unwrap()
-                    .as_any()
-                    .downcast_ref::<String>()
-                    .unwrap()
-                    .clone(),
-            );
-        }
-
-        if self.wizard.neighborhood_menu.is_none() {
-            self.wizard.neighborhood_menu = Some(Menu::new(
-                query,
-                abstutil::load_all_objects("neighborhoods", self.map.get_name()),
-            ));
-        }
-
-        if let Some((name, _)) = input_with_menu(
-            &mut self.wizard.neighborhood_menu,
-            &mut self.wizard.alive,
-            self.input,
-        ) {
-            self.wizard.confirmed_state.push(Box::new(name.clone()));
-            Some(name)
-        } else {
-            None
-        }
+        // The closure's lifetime is the same as WrappedWizard (it doesn't live past the call to
+        // choose_something), but I'm not quite sure how to express that yet, so clone the
+        // map_name.
+        let map_name = self.map.get_name().to_string();
+        self.choose_something::<Neighborhood>(
+            query,
+            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+        ).map(|(n, _)| n)
     }
 }
 
@@ -249,9 +244,9 @@ fn input_with_menu<T: Clone>(
 // Trick to make a cloneable Any from
 // https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928.
 
-trait Cloneable: CloneableImpl {}
+pub trait Cloneable: CloneableImpl {}
 
-trait CloneableImpl {
+pub trait CloneableImpl {
     fn clone_box(&self) -> Box<Cloneable>;
     fn as_any(&self) -> &Any;
 }
@@ -279,3 +274,6 @@ impl Cloneable for String {}
 impl Cloneable for usize {}
 impl Cloneable for Tick {}
 impl Cloneable for f64 {}
+impl Cloneable for () {}
+impl Cloneable for Neighborhood {}
+impl Cloneable for (String, Box<Cloneable>) {}
