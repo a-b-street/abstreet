@@ -48,3 +48,9 @@ CarParking
 	- rename to ParkedCar
 SidewalkSpot
 	- this should cache lane and distance. :)
+
+## Scenarios
+
+Awkward to turn neighborhoods into buildings/streets; we kind of need the
+quadtree and stuff for that, which is the Renderable layer right now.
+Originally there was a separate geometry layer, probably for stuff like this.

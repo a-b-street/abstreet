@@ -5,7 +5,7 @@ use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime, Tick};
+use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime, Tick, Sim};
 
 pub enum ScenarioManager {
     Inactive,
@@ -19,7 +19,7 @@ impl ScenarioManager {
         ScenarioManager::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
+    pub fn event(&mut self, input: &mut UserInput, map: &Map, sim: &mut Sim) -> bool {
         let mut new_state: Option<ScenarioManager> = None;
         match self {
             ScenarioManager::Inactive => {
@@ -51,10 +51,11 @@ impl ScenarioManager {
                         scenario.clone(),
                         Wizard::new(),
                     ));
+                } else if input.key_pressed(Key::I, "instantiate this scenario") {
+                    scenario.instantiate(sim);
                 } else if scroller.event(input) {
                     new_state = Some(ScenarioManager::Inactive);
                 }
-                // TODO instantiate it
             }
             ScenarioManager::EditScenario(ref mut scenario, ref mut wizard) => {
                 if let Some(()) = edit_scenario(map, scenario, wizard.wrap(input)) {

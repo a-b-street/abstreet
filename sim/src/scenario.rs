@@ -1,6 +1,8 @@
 use abstutil;
-use geom::Pt2D;
-use Tick;
+use map_model::{Map, BuildingID};
+use geom::{Polygon, Pt2D};
+use std::collections::HashMap;
+use {Sim, Tick};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -32,7 +34,23 @@ pub struct SeedParkedCars {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Neighborhood {
     pub name: String,
+    // TODO Polygon would be more natural
     pub points: Vec<Pt2D>,
+}
+
+impl Neighborhood {
+    // TODO This should use quadtrees and/or not just match the center of each building.
+    fn find_matching_buildings(&self, map: &Map) -> Vec<BuildingID> {
+        let poly = Polygon::new(&self.points);
+
+        let mut results: Vec<BuildingID> = Vec::new();
+        for b in map.all_buildings() {
+            if poly.contains_pt(Pt2D::center(&b.points)) {
+                results.push(b.id);
+            }
+        }
+        results
+    }
 }
 
 impl Scenario {
@@ -41,5 +59,16 @@ impl Scenario {
             .split("\n")
             .map(|s| s.to_string())
             .collect()
+    }
+
+    pub fn instantiate(&self, sim: &mut Sim) {
+        info!("Instantiating {}", self.scenario_name);
+
+        let neighborhoods: HashMap<String, Neighborhood> = abstutil::load_all_objects("neighborhoods", &self.map_name).into_iter().collect();
+
+        for s in &self.seed_parked_cars {
+            //sim.seed_parked_cars_in_polygon(&Polygon::new(&neighborhoods[&s.neighborhood].points), s.percent_to_fill);
+        }
+        // TODO spawn o'er time
     }
 }

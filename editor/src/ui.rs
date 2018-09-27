@@ -249,7 +249,7 @@ impl UIWrapper {
                 Box::new(|ui, input, osd| {
                     ui.draw_neighborhoods.event(input, &ui.canvas, &ui.map, osd)
                 }),
-                Box::new(|ui, input, _osd| ui.scenarios.event(input, &ui.map)),
+                Box::new(|ui, input, _osd| ui.scenarios.event(input, &ui.map, &mut ui.sim)),
                 Box::new(|ui, input, _osd| ui.logs.event(input)),
             ],
         }
