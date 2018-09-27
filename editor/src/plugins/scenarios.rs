@@ -52,7 +52,7 @@ impl ScenarioManager {
                         Wizard::new(),
                     ));
                 } else if input.key_pressed(Key::I, "instantiate this scenario") {
-                    scenario.instantiate(sim);
+                    scenario.instantiate(sim, map);
                 } else if scroller.event(input) {
                     new_state = Some(ScenarioManager::Inactive);
                 }

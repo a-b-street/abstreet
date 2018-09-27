@@ -1,6 +1,7 @@
 use abstutil;
 use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, Map};
+use rand::Rng;
 use std::collections::HashMap;
 use {Sim, Tick};
 
@@ -61,13 +62,19 @@ impl Scenario {
             .collect()
     }
 
-    pub fn instantiate(&self, sim: &mut Sim) {
+    pub fn instantiate(&self, sim: &mut Sim, map: &Map) {
         info!("Instantiating {}", self.scenario_name);
+        assert!(sim.time == Tick::zero());
 
         let neighborhoods: HashMap<String, Neighborhood> =
             abstutil::load_all_objects("neighborhoods", &self.map_name)
                 .into_iter()
                 .collect();
+        let mut bldgs_per_neighborhood: HashMap<String, Vec<BuildingID>> = HashMap::new();
+        for (name, neighborhood) in &neighborhoods {
+            bldgs_per_neighborhood
+                .insert(name.to_string(), neighborhood.find_matching_buildings(map));
+        }
 
         for s in &self.seed_parked_cars {
             sim.seed_parked_cars(
@@ -75,6 +82,32 @@ impl Scenario {
                 s.percent_to_fill,
             );
         }
-        // TODO spawn o'er time
+
+        for s in &self.spawn_over_time {
+            for _ in 0..s.num_agents {
+                // TODO normal distribution, not uniform
+                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                if sim.rng.gen_bool(s.percent_drive) {
+                    // TODO
+                } else {
+                    let from = *sim
+                        .rng
+                        .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
+                        .unwrap();
+                    let to = *sim
+                        .rng
+                        .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
+                        .unwrap();
+
+                    sim.spawner.start_trip_just_walking(
+                        spawn_time,
+                        map,
+                        from,
+                        to,
+                        &mut sim.trips_state,
+                    );
+                }
+            }
+        }
     }
 }
