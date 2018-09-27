@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{BuildingID, BusStopID, Map};
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
-use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, TripID};
+use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct TripManager {
@@ -71,6 +71,21 @@ impl TripManager {
         (trip.id, *drive_to)
     }
 
+    pub fn ped_reached_building(&mut self, ped: PedestrianID, now: Tick) {
+        let trip = &mut self.trips[self
+                                       .active_trip_mode
+                                       .remove(&AgentID::Pedestrian(ped))
+                                       .unwrap()
+                                       .0];
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Walk(_) => {}
+            x => panic!("Last trip leg {:?} doesn't match ped_reached_building", x),
+        };
+        assert!(trip.legs.is_empty());
+        assert!(!trip.finished_at.is_some());
+        trip.finished_at = Some(now);
+    }
+
     // Combo query/transition from transit
     pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: RouteID) -> bool {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
@@ -125,6 +140,7 @@ impl TripManager {
     // Creation from the interactive part of spawner
     pub fn new_trip(
         &mut self,
+        spawned_at: Tick,
         map: &Map,
         ped: PedestrianID,
         start_bldg: BuildingID,
@@ -143,9 +159,17 @@ impl TripManager {
         let id = TripID(self.trips.len());
         self.trips.push(Trip {
             id,
+            spawned_at,
+            finished_at: None,
             ped,
             start_bldg,
             goal_bldg,
+            uses_car: legs
+                .iter()
+                .find(|l| match l {
+                    TripLeg::Drive(_, _) => true,
+                    _ => false,
+                }).is_some(),
             legs: VecDeque::from(legs),
         });
         id
@@ -158,11 +182,47 @@ impl TripManager {
             .find(|t| t.legs.iter().find(|l| l.uses_car(car)).is_some())
             .map(|t| t.id)
     }
+
+    pub fn get_score(&self, now: Tick) -> ScoreSummary {
+        let mut summary = ScoreSummary {
+            pending_walking_trips: 0,
+            total_walking_trips: 0,
+            total_walking_trip_time: Tick::zero(),
+
+            pending_driving_trips: 0,
+            total_driving_trips: 0,
+            total_driving_trip_time: Tick::zero(),
+        };
+        // TODO or would it make more sense to aggregate events as they happen?
+        for t in &self.trips {
+            if t.uses_car {
+                if let Some(at) = t.finished_at {
+                    summary.total_driving_trip_time += at - t.spawned_at;
+                } else {
+                    summary.pending_driving_trips += 1;
+                    summary.total_driving_trip_time += now - t.spawned_at;
+                }
+                summary.total_driving_trips += 1;
+            } else {
+                if let Some(at) = t.finished_at {
+                    summary.total_walking_trip_time += at - t.spawned_at;
+                } else {
+                    summary.pending_walking_trips += 1;
+                    summary.total_walking_trip_time += now - t.spawned_at;
+                }
+                summary.total_walking_trips += 1;
+            }
+        }
+        summary
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 struct Trip {
     id: TripID,
+    spawned_at: Tick,
+    finished_at: Option<Tick>,
+    uses_car: bool,
     ped: PedestrianID,
     start_bldg: BuildingID,
     goal_bldg: BuildingID,
@@ -187,4 +247,18 @@ impl TripLeg {
             _ => false,
         }
     }
+}
+
+// As of a moment in time, not necessarily the end of the simulation
+#[derive(Debug)]
+pub struct ScoreSummary {
+    pub pending_walking_trips: usize,
+    pub total_walking_trips: usize,
+    // TODO this is actually a duration
+    pub total_walking_trip_time: Tick,
+
+    pub pending_driving_trips: usize,
+    pub total_driving_trips: usize,
+    // TODO this is actually a duration
+    pub total_driving_trip_time: Tick,
 }

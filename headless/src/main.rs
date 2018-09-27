@@ -80,6 +80,7 @@ fn main() {
         }),
     );
     sim::save_backtraces("call_graph.json");
+    println!("{:?}", sim.get_score());
 }
 
 // TODO This is copied from editor; dedupe how?

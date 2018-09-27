@@ -10,10 +10,11 @@ use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
 use std::collections::{BTreeMap, VecDeque};
+use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
     AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, On, ParkingSpot,
-    PedestrianID, Speed, Time, TIMESTEP,
+    PedestrianID, Speed, Tick, Time, TIMESTEP,
 };
 
 // TODO tune these!
@@ -365,8 +366,10 @@ impl WalkingSimState {
         &mut self,
         events: &mut Vec<Event>,
         delta_time: Time,
+        now: Tick,
         map: &Map,
         intersections: &mut IntersectionSimState,
+        trips: &mut TripManager,
     ) -> Result<Vec<(PedestrianID, ParkingSpot)>, Error> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
@@ -392,6 +395,8 @@ impl WalkingSimState {
                         .step_cross_path(events, delta_time, map)
                     {
                         self.peds.remove(&id);
+                        // TODO Should we return stuff to sim, or do the interaction here?
+                        trips.ped_reached_building(*id, now);
                     }
                 }
                 Action::WaitAtBusStop(stop) => {

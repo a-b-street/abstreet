@@ -58,3 +58,28 @@ Originally there was a separate geometry layer, probably for stuff like this.
 ## Scores
 
 Alright, getting much closer to this being a game! Let's return to the idea of utility functions for agents.
+
+- everyone cares about total trip time
+- everyone kind of cares about time spent waiting at intersections
+- drivers (anybody using a car for part of their trip)
+	- easiness of parking... partly this is time spent walking (from start bldg or to goal bldg), and partly time spent driving after initially reaching destination lane
+- bikes (woops, not implemented yet :P)
+	- climbing up hills
+	- amount of time on busy roads
+		- dedicated lanes are fine
+		- even dedicated lanes too close to parking are bad -- stress from possibiliy of being doored
+		- driving lanes with few actual cars passing are bad
+- peds
+	- hills up OR down
+	- amount of greenery along route
+	- amount of amenities like cafes along route
+	- Seattle greenways had more factors that make a road pleasant or not
+
+Per agent, this score is some kind of a linear combination of factors. Coefficients vary per agent -- some people like hills, don't care about busy roads, etc.
+
+But let's start super simple: just track total trip time for all agents. What's the live UI view we want?
+
+- per population type (peds, drivers), number of pending and completed trips. sum score so far (can use time so far for pending trips)
+	- note that sum score alone is a bit meaningless, even between population types. need to A/B test to meaningfully compare.
+- In headless mode, print scores at the end
+- in UI, have an optional OSD to pop up on the right with scores so far

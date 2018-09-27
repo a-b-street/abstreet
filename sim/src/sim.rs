@@ -22,8 +22,8 @@ use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
 use {
-    AgentID, CarID, CarState, DrawCarInput, DrawPedestrianInput, Event, PedestrianID, Tick,
-    TIMESTEP,
+    AgentID, CarID, CarState, DrawCarInput, DrawPedestrianInput, Event, PedestrianID, ScoreSummary,
+    Tick, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -183,10 +183,14 @@ impl Sim {
         }
 
         self.walking_state.populate_view(&mut view);
-        for (ped, spot) in
-            self.walking_state
-                .step(&mut events, TIMESTEP, map, &mut self.intersection_state)?
-        {
+        for (ped, spot) in self.walking_state.step(
+            &mut events,
+            TIMESTEP,
+            self.time,
+            map,
+            &mut self.intersection_state,
+            &mut self.trips_state,
+        )? {
             events.push(Event::PedReachedParkingSpot(ped, spot));
             capture_backtrace("PedReachedParkingSpot");
             self.spawner.ped_reached_parking_spot(
@@ -362,6 +366,10 @@ impl Sim {
             AgentID::Car(car) => self.driving_state.get_current_route(car),
             AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped),
         }
+    }
+
+    pub fn get_score(&self) -> ScoreSummary {
+        self.trips_state.get_score(self.time)
     }
 }
 

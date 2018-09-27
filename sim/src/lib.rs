@@ -59,6 +59,7 @@ use map_model::{LaneID, Map, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
+pub use trips::ScoreSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(pub usize);
@@ -210,6 +211,12 @@ impl std::ops::Add<Time> for Tick {
         let ticks = other.value_unsafe / TIMESTEP.value_unsafe;
         // TODO check that there's no remainder!
         Tick(self.0 + (ticks as u32))
+    }
+}
+
+impl std::ops::AddAssign<Tick> for Tick {
+    fn add_assign(&mut self, other: Tick) {
+        *self = Tick(self.0 + other.0)
     }
 }
 

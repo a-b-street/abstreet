@@ -277,6 +277,7 @@ impl Spawner {
         self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
+                at,
                 map,
                 ped_id,
                 start_bldg,
@@ -307,6 +308,7 @@ impl Spawner {
         self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
+                at,
                 map,
                 ped_id,
                 start_bldg,
@@ -336,6 +338,7 @@ impl Spawner {
         self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
+                at,
                 map,
                 ped_id,
                 start_bldg,
