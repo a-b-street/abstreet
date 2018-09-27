@@ -45,14 +45,14 @@ fn main() {
     log::set_logger(&LOG_ADAPTER).unwrap();
 
     let (map, _, control_map, mut sim) = sim::load(
-        flags.load,
+        flags.load.clone(),
         flags.scenario_name,
         flags.rng_seed,
         Some(sim::Tick::from_seconds(30)),
     );
 
-    if sim.time == sim::Tick::zero() {
-        // TODO need a notion of scenarios
+    // TODO not the ideal way to distinguish what thing we loaded
+    if flags.load.contains("data/maps/") {
         if flags.big_sim {
             sim.big_spawn(&map);
         } else {

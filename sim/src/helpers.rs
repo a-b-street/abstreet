@@ -5,7 +5,7 @@ use geom::Polygon;
 use map_model::{BuildingID, BusRoute, BusStopID, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
-use {CarID, Event, PedestrianID, RouteID, Sim, Tick};
+use {CarID, Event, PedestrianID, RouteID, Scenario, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -26,6 +26,21 @@ pub fn load(
         let map =
             Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
         let control_map = ControlMap::new(&map);
+        (map, edits, control_map, sim)
+    } else if input.contains("data/scenarios/") {
+        info!("Seeding the simulation from scenario {}", input);
+        let scenario: Scenario = abstutil::read_json(&input).expect("loading scenario failed");
+        let map_path = format!("../data/maps/{}.abst", scenario.map_name);
+        let map =
+            Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
+        let control_map = ControlMap::new(&map);
+        let mut sim = Sim::new(
+            &map,
+            scenario.scenario_name.clone(),
+            rng_seed,
+            savestate_every,
+        );
+        scenario.instantiate(&mut sim, &map);
         (map, edits, control_map, sim)
     } else {
         info!("Loading map {}", input);
