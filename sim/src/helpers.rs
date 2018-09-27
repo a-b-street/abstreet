@@ -1,6 +1,7 @@
 use abstutil;
 use control::ControlMap;
 use flame;
+use geom::Polygon;
 use map_model::{BuildingID, BusRoute, BusStopID, Edits, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
@@ -95,7 +96,7 @@ impl Sim {
 // Spawning helpers
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
-        self.seed_parked_cars(0.5);
+        self.seed_parked_cars(None, 0.5);
         self.seed_walking_trips(&map, 100);
         self.seed_driving_trips(&map, 100);
 
@@ -114,14 +115,15 @@ impl Sim {
         );*/    }
 
     pub fn big_spawn(&mut self, map: &Map) {
-        self.seed_parked_cars(0.95);
+        self.seed_parked_cars(None, 0.95);
         self.seed_walking_trips(&map, 1000);
         self.seed_driving_trips(&map, 1000);
     }
 
-    pub fn seed_parked_cars(&mut self, percent: f64) {
+    pub fn seed_parked_cars(&mut self, in_poly: Option<&Polygon>, percent: f64) {
         self.spawner.seed_parked_cars(
             percent,
+            in_poly,
             &mut self.parking_state,
             &mut self.car_properties,
             &mut self.rng,

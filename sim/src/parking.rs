@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Angle, Pt2D};
+use geom::{Angle, Polygon, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
@@ -49,12 +49,18 @@ impl ParkingSimState {
             .collect()
     }
 
-    pub fn get_all_free_spots(&self) -> Vec<ParkingSpot> {
+    pub fn get_all_free_spots(&self, in_poly: Option<&Polygon>) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for l in &self.lanes {
             for (idx, occupant) in l.occupants.iter().enumerate() {
                 if occupant.is_none() {
-                    spots.push(ParkingSpot::new(l.id, idx));
+                    // Just match based on the front of the spot
+                    if in_poly
+                        .map(|p| p.contains_pt(l.spots[idx].pos))
+                        .unwrap_or(true)
+                    {
+                        spots.push(ParkingSpot::new(l.id, idx));
+                    }
                 }
             }
         }

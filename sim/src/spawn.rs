@@ -1,4 +1,5 @@
 use driving::DrivingSimState;
+use geom::Polygon;
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
@@ -204,6 +205,7 @@ impl Spawner {
     pub fn seed_parked_cars<R: Rng + ?Sized>(
         &mut self,
         percent_capacity_to_fill: f64,
+        in_poly: Option<&Polygon>,
         parking_sim: &mut ParkingSimState,
         car_properties: &mut BTreeMap<CarID, Vehicle>,
         rng: &mut R,
@@ -212,7 +214,7 @@ impl Spawner {
 
         let mut total_capacity = 0;
         let mut new_cars = 0;
-        for spot in parking_sim.get_all_free_spots() {
+        for spot in parking_sim.get_all_free_spots(in_poly) {
             total_capacity += 1;
             if rng.gen_bool(percent_capacity_to_fill) {
                 new_cars += 1;

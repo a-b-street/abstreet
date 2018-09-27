@@ -70,7 +70,10 @@ impl Scenario {
                 .collect();
 
         for s in &self.seed_parked_cars {
-            //sim.seed_parked_cars_in_polygon(&Polygon::new(&neighborhoods[&s.neighborhood].points), s.percent_to_fill);
+            sim.seed_parked_cars(
+                Some(&Polygon::new(&neighborhoods[&s.neighborhood].points)),
+                s.percent_to_fill,
+            );
         }
         // TODO spawn o'er time
     }
