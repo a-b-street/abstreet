@@ -52,8 +52,8 @@ impl Command {
 // This owns car/ped IDs.
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct Spawner {
-    // Ordered by time
-    commands: VecDeque<Command>,
+    // Ordered descending by time
+    commands: Vec<Command>,
 
     car_id_counter: usize,
     ped_id_counter: usize,
@@ -62,7 +62,7 @@ pub struct Spawner {
 impl Spawner {
     pub fn empty() -> Spawner {
         Spawner {
-            commands: VecDeque::new(),
+            commands: Vec::new(),
             car_id_counter: 0,
             ped_id_counter: 0,
         }
@@ -84,11 +84,11 @@ impl Spawner {
         loop {
             if self
                 .commands
-                .front()
+                .last()
                 .and_then(|cmd| Some(now == cmd.at()))
                 .unwrap_or(false)
             {
-                let cmd = self.commands.pop_front().unwrap();
+                let cmd = self.commands.pop().unwrap();
                 requested_paths.push(cmd.get_pathfinding_lanes(map));
                 commands.push(cmd);
             } else {
@@ -128,9 +128,7 @@ impl Spawner {
                             parking_sim.remove_parked_car(parked_car.clone());
                             spawned_agents += 1;
                         } else {
-                            // Try again next tick. Because we already slurped up all the commands
-                            // for this tick, the front of the queue is the right spot.
-                            self.commands.push_front(cmd.retry_next_tick());
+                            self.enqueue_command(cmd.retry_next_tick());
                         }
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
@@ -263,10 +261,6 @@ impl Spawner {
         goal_bldg: BuildingID,
         trips: &mut TripManager,
     ) {
-        if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.at());
-        }
-
         // Don't add duplicate commands.
         if let Some(trip) = trips.get_trip_using_car(parked.car) {
             warn!(
@@ -280,7 +274,7 @@ impl Spawner {
         self.ped_id_counter += 1;
 
         let parking_spot = SidewalkSpot::parking_spot(parked.spot, map, parking_sim);
-        self.commands.push_back(Command::Walk(
+        self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
                 map,
@@ -307,14 +301,10 @@ impl Spawner {
         goal_bldg: BuildingID,
         trips: &mut TripManager,
     ) {
-        if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.at());
-        }
-
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
-        self.commands.push_back(Command::Walk(
+        self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
                 map,
@@ -340,14 +330,10 @@ impl Spawner {
         route: RouteID,
         trips: &mut TripManager,
     ) -> PedestrianID {
-        if let Some(cmd) = self.commands.back() {
-            assert!(at >= cmd.at());
-        }
-
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
-        self.commands.push_back(Command::Walk(
+        self.enqueue_command(Command::Walk(
             at,
             trips.new_trip(
                 map,
@@ -377,7 +363,7 @@ impl Spawner {
         map: &Map,
     ) {
         let (trip, walk_to) = trips.ped_finished_bus_ride(ped);
-        self.commands.push_back(Command::Walk(
+        self.enqueue_command(Command::Walk(
             at.next(),
             trip,
             ped,
@@ -395,7 +381,7 @@ impl Spawner {
         trips: &mut TripManager,
     ) {
         let (trip, ped, walk_to) = trips.car_reached_parking_spot(p.car);
-        self.commands.push_back(Command::Walk(
+        self.enqueue_command(Command::Walk(
             at.next(),
             trip,
             ped,
@@ -413,7 +399,7 @@ impl Spawner {
         trips: &mut TripManager,
     ) {
         let (trip, goal_bldg) = trips.ped_reached_parking_spot(ped);
-        self.commands.push_back(Command::Drive(
+        self.enqueue_command(Command::Drive(
             at.next(),
             trip,
             parking_sim.get_car_at_spot(spot).unwrap(),
@@ -423,6 +409,13 @@ impl Spawner {
 
     pub fn is_done(&self) -> bool {
         self.commands.is_empty()
+    }
+
+    fn enqueue_command(&mut self, cmd: Command) {
+        // TODO Use some kind of priority queue that's serializable
+        self.commands.push(cmd);
+        // Note the reverse sorting
+        self.commands.sort_by(|a, b| b.at().cmp(&a.at()));
     }
 }
 
