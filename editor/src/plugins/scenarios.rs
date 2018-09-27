@@ -5,7 +5,7 @@ use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime, Tick, Sim};
+use sim::{Neighborhood, Scenario, SeedParkedCars, Sim, SpawnOverTime, Tick};
 
 pub enum ScenarioManager {
     Inactive,

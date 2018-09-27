@@ -162,10 +162,10 @@ impl Spawner {
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
         now: Tick,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<Vehicle> {
+        car_properties: &mut BTreeMap<CarID, Vehicle>,
+    ) -> Vec<CarID> {
         let route_id = transit_sim.create_empty_route(route, map);
-        let mut vehicles: Vec<Vehicle> = Vec::new();
+        let mut results: Vec<CarID> = Vec::new();
         // Try to spawn a bus at each stop
         for (next_stop_idx, start_dist_along, mut path) in
             transit_sim.get_route_starts(route_id, map).into_iter()
@@ -184,11 +184,12 @@ impl Spawner {
                 start,
                 Router::make_router_for_bus(path),
                 map,
-                properties,
+                car_properties,
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);
                 info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
-                vehicles.push(vehicle);
+                car_properties.insert(id, vehicle);
+                results.push(id);
             } else {
                 warn!(
                     "No room for a bus headed towards stop {} of {} ({}), giving up",
@@ -196,7 +197,7 @@ impl Spawner {
                 );
             }
         }
-        vehicles
+        results
     }
 
     // This happens immediately; it isn't scheduled.
@@ -204,30 +205,30 @@ impl Spawner {
         &mut self,
         percent_capacity_to_fill: f64,
         parking_sim: &mut ParkingSimState,
+        car_properties: &mut BTreeMap<CarID, Vehicle>,
         rng: &mut R,
-    ) -> Vec<Vehicle> {
+    ) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
         let mut total_capacity = 0;
-        let mut new_cars: Vec<Vehicle> = Vec::new();
+        let mut new_cars = 0;
         for spot in parking_sim.get_all_free_spots() {
             total_capacity += 1;
             if rng.gen_bool(percent_capacity_to_fill) {
+                new_cars += 1;
                 let car = CarID(self.car_id_counter);
                 // TODO since spawning applies during the next step, lots of stuff breaks without
                 // this :(
                 parking_sim.add_parked_car(ParkedCar::new(car, spot));
-                new_cars.push(Vehicle::generate_typical_car(car, rng));
+                car_properties.insert(car, Vehicle::generate_typical_car(car, rng));
                 self.car_id_counter += 1;
             }
         }
 
         info!(
             "Seeded {} of {} parking spots with cars",
-            new_cars.len(),
-            total_capacity
+            new_cars, total_capacity
         );
-        new_cars
     }
 
     pub fn seed_specific_parked_cars<R: Rng + ?Sized>(
@@ -235,8 +236,9 @@ impl Spawner {
         lane: LaneID,
         spot_indices: Vec<usize>,
         parking_sim: &mut ParkingSimState,
+        car_properties: &mut BTreeMap<CarID, Vehicle>,
         rng: &mut R,
-    ) -> Vec<Vehicle> {
+    ) -> Vec<CarID> {
         let spots = parking_sim.get_all_spots(lane);
         spot_indices
             .into_iter()
@@ -244,7 +246,8 @@ impl Spawner {
                 let car = CarID(self.car_id_counter);
                 parking_sim.add_parked_car(ParkedCar::new(car, spots[idx]));
                 self.car_id_counter += 1;
-                Vehicle::generate_typical_car(car, rng)
+                car_properties.insert(car, Vehicle::generate_typical_car(car, rng));
+                car
             }).collect()
     }
 

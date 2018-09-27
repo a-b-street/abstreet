@@ -1,6 +1,6 @@
 use abstutil;
-use map_model::{Map, BuildingID};
 use geom::{Polygon, Pt2D};
+use map_model::{BuildingID, Map};
 use std::collections::HashMap;
 use {Sim, Tick};
 
@@ -64,7 +64,10 @@ impl Scenario {
     pub fn instantiate(&self, sim: &mut Sim) {
         info!("Instantiating {}", self.scenario_name);
 
-        let neighborhoods: HashMap<String, Neighborhood> = abstutil::load_all_objects("neighborhoods", &self.map_name).into_iter().collect();
+        let neighborhoods: HashMap<String, Neighborhood> =
+            abstutil::load_all_objects("neighborhoods", &self.map_name)
+                .into_iter()
+                .collect();
 
         for s in &self.seed_parked_cars {
             //sim.seed_parked_cars_in_polygon(&Polygon::new(&neighborhoods[&s.neighborhood].points), s.percent_to_fill);

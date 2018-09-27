@@ -120,20 +120,18 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, percent: f64) {
-        for v in self
-            .spawner
-            .seed_parked_cars(percent, &mut self.parking_state, &mut self.rng)
-            .into_iter()
-        {
-            self.car_properties.insert(v.id, v);
-        }
+        self.spawner.seed_parked_cars(
+            percent,
+            &mut self.parking_state,
+            &mut self.car_properties,
+            &mut self.rng,
+        );
     }
 
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();
-        let mut result: Vec<CarID> = Vec::new();
-        for v in self.spawner.seed_bus_route(
+        self.spawner.seed_bus_route(
             &mut events,
             route,
             &mut self.rng,
@@ -141,26 +139,18 @@ impl Sim {
             &mut self.driving_state,
             &mut self.transit_state,
             self.time,
-            &self.car_properties,
-        ) {
-            let id = v.id;
-            self.car_properties.insert(v.id, v);
-            result.push(id);
-        }
-        result
+            &mut self.car_properties,
+        )
     }
 
     pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
-        let mut ids = Vec::new();
-        for v in self
-            .spawner
-            .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
-            .into_iter()
-        {
-            ids.push(v.id);
-            self.car_properties.insert(v.id, v);
-        }
-        ids
+        self.spawner.seed_specific_parked_cars(
+            lane,
+            spots,
+            &mut self.parking_state,
+            &mut self.car_properties,
+            &mut self.rng,
+        )
     }
 
     pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
