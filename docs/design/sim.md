@@ -54,3 +54,7 @@ SidewalkSpot
 Awkward to turn neighborhoods into buildings/streets; we kind of need the
 quadtree and stuff for that, which is the Renderable layer right now.
 Originally there was a separate geometry layer, probably for stuff like this.
+
+## Scores
+
+Alright, getting much closer to this being a game! Let's return to the idea of utility functions for agents.

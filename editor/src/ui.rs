@@ -73,6 +73,9 @@ impl UIWrapper {
         rng_seed: Option<u8>,
         kml: Option<String>,
     ) -> UIWrapper {
+        // Do this first, so anything logged by sim::load isn't lost.
+        let logs = DisplayLogs::new();
+
         flame::start("setup");
         let (map, edits, control_map, sim) = sim::load(
             load,
@@ -126,7 +129,7 @@ impl UIWrapper {
             turn_cycler: TurnCyclerState::new(),
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
-            logs: DisplayLogs::new(),
+            logs,
 
             active_plugin: None,
 
