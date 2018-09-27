@@ -3,7 +3,7 @@ use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, Map};
 use rand::Rng;
 use std::collections::HashMap;
-use {Sim, Tick};
+use {ParkedCar, Sim, Tick};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -83,27 +83,63 @@ impl Scenario {
             );
         }
 
+        let mut parked_cars_per_neighborhood: HashMap<String, Vec<ParkedCar>> = HashMap::new();
+        for (name, neighborhood) in &neighborhoods {
+            parked_cars_per_neighborhood.insert(
+                name.to_string(),
+                sim.parking_state
+                    .get_all_parked_cars(Some(&Polygon::new(&neighborhood.points))),
+            );
+        }
+
         for s in &self.spawn_over_time {
             for _ in 0..s.num_agents {
                 // TODO normal distribution, not uniform
                 let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
-                if sim.rng.gen_bool(s.percent_drive) {
-                    // TODO
-                } else {
-                    let from = *sim
-                        .rng
-                        .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
-                        .unwrap();
-                    let to = *sim
-                        .rng
-                        .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
-                        .unwrap();
+                // Note that it's fine for agents to start/end at the same building. Later we might
+                // want a better assignment of people per household, or workers per office building.
+                let from_bldg = *sim
+                    .rng
+                    .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
+                    .unwrap();
+                let to_bldg = *sim
+                    .rng
+                    .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
+                    .unwrap();
 
+                if sim.rng.gen_bool(s.percent_drive) {
+                    if parked_cars_per_neighborhood[&s.start_from_neighborhood].is_empty() {
+                        panic!(
+                            "{} has no parked cars; can't instantiate {}",
+                            s.start_from_neighborhood, self.scenario_name
+                        );
+                    }
+                    // TODO Probably prefer parked cars close to from_bldg, unless the particular
+                    // area is tight on parking. :)
+                    let idx = sim.rng.gen_range(
+                        0,
+                        parked_cars_per_neighborhood[&s.start_from_neighborhood].len(),
+                    );
+                    let parked_car = parked_cars_per_neighborhood
+                        .get_mut(&s.start_from_neighborhood)
+                        .unwrap()
+                        .remove(idx);
+
+                    sim.spawner.start_trip_using_parked_car(
+                        spawn_time,
+                        map,
+                        parked_car,
+                        &sim.parking_state,
+                        from_bldg,
+                        to_bldg,
+                        &mut sim.trips_state,
+                    );
+                } else {
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
                         map,
-                        from,
-                        to,
+                        from_bldg,
+                        to_bldg,
                         &mut sim.trips_state,
                     );
                 }

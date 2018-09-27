@@ -158,7 +158,7 @@ impl Sim {
     pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
         let mut cars: Vec<CarID> = self
             .parking_state
-            .get_all_parked_cars()
+            .get_all_parked_cars(None)
             .into_iter()
             .filter_map(|parked_car| {
                 let lane = parked_car.spot.lane;
