@@ -4,7 +4,7 @@ extern crate graphics;
 extern crate map_model;
 extern crate piston;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
 use geom::{Circle, PolyLine, Polygon, Pt2D};
 use graphics::types::Color;
 use map_model::LANE_THICKNESS;
@@ -46,7 +46,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, _osd: &mut TextOSD) -> EventLoopMode {
+    fn event(&mut self, mut input: UserInput, _osd: &mut Text) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
@@ -73,7 +73,7 @@ impl GUI for UI {
     }
 
     // TODO Weird to mut self just to set window_size on the canvas
-    fn draw(&mut self, g: &mut GfxCtx, _osd: TextOSD, window_size: Size) {
+    fn draw(&mut self, g: &mut GfxCtx, _osd: Text, window_size: Size) {
         g.clear(WHITE);
         self.canvas.start_drawing(g, window_size);
 
@@ -103,9 +103,9 @@ impl GUI for UI {
 
 impl UI {
     fn label(&self, g: &mut GfxCtx, pt: Pt2D, text: &str) {
-        let mut osd = TextOSD::new();
-        osd.add_line(text.to_string());
-        self.canvas.draw_text_at(g, osd, pt);
+        let mut txt = Text::new();
+        txt.add_line(text.to_string());
+        self.canvas.draw_text_at(g, txt, pt);
     }
 
     fn debug_polyline(&self, g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {

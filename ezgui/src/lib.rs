@@ -33,7 +33,7 @@ pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, EventLoopMode, GUI};
-pub use text::TextOSD;
+pub use text::Text;
 pub use text_box::TextBox;
 pub use wizard::{Wizard, WrappedWizard};
 

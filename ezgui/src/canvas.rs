@@ -7,7 +7,7 @@ use piston::input::{
     Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
 };
 use piston::window::Size;
-use {text, GfxCtx, TextOSD};
+use {text, GfxCtx, Text};
 
 const ZOOM_SPEED: f64 = 0.1;
 
@@ -80,27 +80,27 @@ impl Canvas {
             .zoom(self.cam_zoom)
     }
 
-    pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, osd: TextOSD) {
-        let (width, height) = osd.dims(g);
+    pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
+        let (width, height) = txt.dims(g);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        text::draw_text_bubble(g, (x1, y1), osd);
+        text::draw_text_bubble(g, (x1, y1), txt);
     }
 
-    pub fn draw_text_at(&self, g: &mut GfxCtx, osd: TextOSD, pt: Pt2D) {
-        text::draw_text_bubble(g, self.map_to_screen(pt), osd);
+    pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
+        text::draw_text_bubble(g, self.map_to_screen(pt), txt);
     }
 
     pub fn draw_text(
         &self,
         g: &mut GfxCtx,
-        osd: TextOSD,
+        txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        if osd.is_empty() {
+        if txt.is_empty() {
             return;
         }
-        let (width, height) = osd.dims(g);
+        let (width, height) = txt.dims(g);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (f64::from(self.window_size.width) - width) / 2.0,
@@ -111,7 +111,7 @@ impl Canvas {
             VerticalAlignment::Center => (f64::from(self.window_size.height) - height) / 2.0,
             VerticalAlignment::Bottom => f64::from(self.window_size.height) - height,
         };
-        text::draw_text_bubble(g, (x1, y1), osd);
+        text::draw_text_bubble(g, (x1, y1), txt);
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

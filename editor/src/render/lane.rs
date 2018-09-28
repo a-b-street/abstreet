@@ -3,7 +3,7 @@
 use colors::Colors;
 use control::ControlMap;
 use dimensioned::si;
-use ezgui::{GfxCtx, TextOSD};
+use ezgui::{GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model;
 use map_model::{LaneID, LANE_THICKNESS};
@@ -92,9 +92,9 @@ impl DrawLane {
         }
 
         for pt in &self.draw_id_at {
-            let mut osd = TextOSD::new();
-            osd.add_line(format!("{}", self.id.0));
-            ctx.canvas.draw_text_at(g, osd, *pt);
+            let mut txt = Text::new();
+            txt.add_line(format!("{}", self.id.0));
+            ctx.canvas.draw_text_at(g, txt, *pt);
         }
     }
 

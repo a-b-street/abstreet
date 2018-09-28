@@ -1,5 +1,5 @@
 use piston::input::{Button, Key, PressEvent};
-use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput, CENTERED};
+use {text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -47,8 +47,8 @@ impl<T: Clone> Menu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        let mut osd = TextOSD::new();
-        osd.add_styled_line(
+        let mut txt = Text::new();
+        txt.add_styled_line(
             self.prompt.clone(),
             text::TEXT_FG_COLOR,
             Some(text::TEXT_QUERY_COLOR),
@@ -66,7 +66,7 @@ impl<T: Clone> Menu<T> {
                 (f64::from(canvas.window_size.height) / text::LINE_HEIGHT).floor() as isize - 1 - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
-                canvas.draw_text(g, osd, CENTERED);
+                canvas.draw_text(g, txt, CENTERED);
                 return;
             }
             n as usize
@@ -88,17 +88,17 @@ impl<T: Clone> Menu<T> {
                 continue;
             }
             if self.current_idx == idx {
-                osd.add_styled_line(
+                txt.add_styled_line(
                     line.clone(),
                     text::TEXT_FG_COLOR,
                     Some(text::TEXT_FOCUS_COLOR),
                 );
             } else {
-                osd.add_line(line.clone());
+                txt.add_line(line.clone());
             }
         }
 
-        canvas.draw_text(g, osd, CENTERED);
+        canvas.draw_text(g, txt, CENTERED);
     }
 
     pub fn current_choice(&self) -> &T {

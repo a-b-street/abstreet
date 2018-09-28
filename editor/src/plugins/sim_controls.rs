@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput, TOP_RIGHT};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use map_model::Map;
 use objects::{ID, SIM};
 use piston::input::{Key, UpdateEvent};
@@ -39,7 +39,7 @@ impl SimController {
         control_map: &ControlMap,
         sim: &mut Sim,
         selected: Option<ID>,
-        osd: &mut TextOSD,
+        osd: &mut Text,
     ) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
             self.show_side_panel = !self.show_side_panel;
@@ -137,33 +137,33 @@ impl SimController {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         if let Some(ref summary) = self.last_summary {
-            let mut osd = TextOSD::new();
+            let mut txt = Text::new();
 
-            osd.add_styled_line(
+            txt.add_styled_line(
                 "Walking".to_string(),
                 [0.0, 0.0, 0.0, 1.0],
                 Some([1.0, 0.0, 0.0, 0.8]),
             );
-            osd.add_line(format!(
+            txt.add_line(format!(
                 "  {}/{} trips done",
                 (summary.total_walking_trips - summary.pending_walking_trips),
                 summary.pending_walking_trips
             ));
-            osd.add_line(format!("  {} total", summary.total_walking_trip_time));
+            txt.add_line(format!("  {} total", summary.total_walking_trip_time));
 
-            osd.add_styled_line(
+            txt.add_styled_line(
                 "Driving".to_string(),
                 [0.0, 0.0, 0.0, 1.0],
                 Some([0.0, 0.0, 1.0, 0.8]),
             );
-            osd.add_line(format!(
+            txt.add_line(format!(
                 "  {}/{} trips done",
                 (summary.total_driving_trips - summary.pending_driving_trips),
                 summary.pending_driving_trips
             ));
-            osd.add_line(format!("  {} total", summary.total_driving_trip_time));
+            txt.add_line(format!("  {} total", summary.total_driving_trip_time));
 
-            canvas.draw_text(g, osd, TOP_RIGHT);
+            canvas.draw_text(g, txt, TOP_RIGHT);
         }
     }
 }

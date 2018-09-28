@@ -17,8 +17,7 @@ pub const LINE_HEIGHT: f64 = 22.0;
 struct TextSpan {
     text: String,
     fg_color: Color,
-    // The TextOSD's bg_color will cover the entire block, but some parts can have extra
-    // highlighting.
+    // The Text's bg_color will cover the entire block, but some parts can have extra highlighting.
     highlight_color: Option<Color>,
     // TODO bold, italic, font size, font style
 }
@@ -33,16 +32,15 @@ impl TextSpan {
     }
 }
 
-// TODO rename "RichText" or something?
 // TODO parse style from markup tags
-pub struct TextOSD {
+pub struct Text {
     lines: Vec<Vec<TextSpan>>,
     bg_color: Color,
 }
 
-impl TextOSD {
-    pub fn new() -> TextOSD {
-        TextOSD {
+impl Text {
+    pub fn new() -> Text {
+        Text {
             lines: Vec::new(),
             bg_color: TEXT_BG_COLOR,
         }
@@ -99,9 +97,9 @@ impl TextOSD {
     }
 }
 
-pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), osd: TextOSD) {
-    let (total_width, total_height) = osd.dims(g);
-    graphics::Rectangle::new(osd.bg_color).draw(
+pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
+    let (total_width, total_height) = txt.dims(g);
+    graphics::Rectangle::new(txt.bg_color).draw(
         [x1, y1, total_width, total_height],
         &g.orig_ctx.draw_state,
         g.orig_ctx.transform,
@@ -109,7 +107,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), osd: TextOSD) {
     );
 
     let mut y = y1 + LINE_HEIGHT;
-    for line in &osd.lines {
+    for line in &txt.lines {
         let mut x = x1;
 
         for span in line {

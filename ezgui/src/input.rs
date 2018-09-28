@@ -4,7 +4,7 @@ use keys::describe_key;
 use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
 use std::collections::HashMap;
 use tree_menu::TreeMenu;
-use TextOSD;
+use Text;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -167,7 +167,7 @@ impl UserInput {
         self.event_consumed
     }
 
-    pub fn populate_osd(self, osd: &mut TextOSD) {
+    pub fn populate_osd(self, osd: &mut Text) {
         // TODO have a way to toggle showing all actions!
         for a in self.important_actions.into_iter() {
             osd.add_line(a);

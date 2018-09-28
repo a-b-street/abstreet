@@ -1,5 +1,5 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, InputResult, Menu, TextBox, TextOSD, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, Menu, Text, TextBox, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
 use objects::EDIT_MAP;
@@ -30,7 +30,7 @@ impl DrawNeighborhoodState {
         input: &mut UserInput,
         canvas: &Canvas,
         map: &Map,
-        osd: &mut TextOSD,
+        osd: &mut Text,
     ) -> bool {
         let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {

@@ -1,6 +1,6 @@
 use keys::key_to_char;
 use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
-use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput, CENTERED};
+use {text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 
 // TODO right now, only a single line
 
@@ -28,34 +28,34 @@ impl TextBox {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        let mut osd = TextOSD::new();
-        osd.add_styled_line(
+        let mut txt = Text::new();
+        txt.add_styled_line(
             self.prompt.clone(),
             text::TEXT_FG_COLOR,
             Some(text::TEXT_QUERY_COLOR),
         );
 
-        osd.add_line(self.line[0..self.cursor_x].to_string());
+        txt.add_line(self.line[0..self.cursor_x].to_string());
         if self.cursor_x < self.line.len() {
-            osd.append(
+            txt.append(
                 self.line[self.cursor_x..=self.cursor_x].to_string(),
                 text::TEXT_FG_COLOR,
                 Some(text::TEXT_FOCUS_COLOR),
             );
-            osd.append(
+            txt.append(
                 self.line[self.cursor_x + 1..].to_string(),
                 text::TEXT_FG_COLOR,
                 None,
             );
         } else {
-            osd.append(
+            txt.append(
                 " ".to_string(),
                 text::TEXT_FG_COLOR,
                 Some(text::TEXT_FOCUS_COLOR),
             );
         }
 
-        canvas.draw_text(g, osd, CENTERED);
+        canvas.draw_text(g, txt, CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

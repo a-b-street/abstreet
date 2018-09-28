@@ -1,6 +1,6 @@
 use piston::input::{Button, Key, PressEvent};
 use std::collections::VecDeque;
-use {text, Canvas, GfxCtx, TextOSD, UserInput, CENTERED};
+use {text, Canvas, GfxCtx, Text, UserInput, CENTERED};
 
 pub struct LogScroller {
     // TODO store SpanText or similar
@@ -59,9 +59,9 @@ impl LogScroller {
 
     // TODO overlapping logic with Menu
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        let mut osd = TextOSD::new();
+        let mut txt = Text::new();
         // TODO Force padding of everything to a fixed 80% of the screen or so
-        osd.add_styled_line(
+        txt.add_styled_line(
             "Logs".to_string(),
             text::TEXT_FG_COLOR,
             Some(text::TEXT_QUERY_COLOR),
@@ -94,10 +94,10 @@ impl LogScroller {
             // TODO VecDeque can't be sliced, argh
             let copy: Vec<&String> = self.lines.iter().collect();
             for line in &copy[low_idx..high_idx] {
-                osd.add_line(line.to_string());
+                txt.add_line(line.to_string());
             }
         }
 
-        canvas.draw_text(g, osd, CENTERED);
+        canvas.draw_text(g, txt, CENTERED);
     }
 }

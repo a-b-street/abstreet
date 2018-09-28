@@ -6,7 +6,7 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI};
 use flame;
 use graphics::types::Color;
 use kml;
@@ -49,15 +49,15 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
     ui: UI,
-    plugins: Vec<Box<Fn(&mut UI, &mut UserInput, &mut TextOSD) -> bool>>,
+    plugins: Vec<Box<Fn(&mut UI, &mut UserInput, &mut Text) -> bool>>,
 }
 
 impl GUI for UIWrapper {
-    fn event(&mut self, input: UserInput, osd: &mut TextOSD) -> EventLoopMode {
+    fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
         self.ui.event(input, osd, &self.plugins)
     }
 
-    fn draw(&mut self, g: &mut GfxCtx, osd: TextOSD, window_size: Size) {
+    fn draw(&mut self, g: &mut GfxCtx, osd: Text, window_size: Size) {
         // Since self is mut here, we can set window_size on the canvas, but then let the real
         // draw() be immutable.
         self.ui.canvas.start_drawing(g, window_size);
@@ -338,8 +338,8 @@ impl UI {
     fn event(
         &mut self,
         mut input: UserInput,
-        osd: &mut TextOSD,
-        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput, &mut TextOSD) -> bool>>,
+        osd: &mut Text,
+        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput, &mut Text) -> bool>>,
     ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
@@ -409,7 +409,7 @@ impl UI {
         result
     }
 
-    fn draw(&self, g: &mut GfxCtx, osd: TextOSD) {
+    fn draw(&self, g: &mut GfxCtx, osd: Text) {
         g.clear(self.cs.get(Colors::Background));
 
         let (statics, dynamics) = self.draw_map.get_objects_onscreen(
