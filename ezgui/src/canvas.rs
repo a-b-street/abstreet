@@ -87,39 +87,31 @@ impl Canvas {
         text::draw_text_bubble(g, (x1, y1), osd);
     }
 
-    // at the bottom-left of the screen
-    pub fn draw_osd_notification(&self, g: &mut GfxCtx, osd: TextOSD) {
-        if osd.is_empty() {
-            return;
-        }
-        let (_, height) = osd.dims(g);
-        let y1 = f64::from(self.window_size.height) - height;
-        text::draw_text_bubble(g, (0.0, y1), osd);
+    pub fn draw_text_at(&self, g: &mut GfxCtx, osd: TextOSD, pt: Pt2D) {
+        text::draw_text_bubble(g, self.map_to_screen(pt), osd);
     }
 
-    // Top-right corner
-    // TODO refactor these, just take some kind of Alignment enum!
-    pub fn draw_right_aligned_text(&self, g: &mut GfxCtx, osd: TextOSD) {
-        if osd.is_empty() {
-            return;
-        }
-        let (width, _) = osd.dims(g);
-        let x1 = f64::from(self.window_size.width) - width;
-        text::draw_text_bubble(g, (x1, 0.0), osd);
-    }
-
-    pub fn draw_centered_text(&self, g: &mut GfxCtx, osd: TextOSD) {
+    pub fn draw_text(
+        &self,
+        g: &mut GfxCtx,
+        osd: TextOSD,
+        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
+    ) {
         if osd.is_empty() {
             return;
         }
         let (width, height) = osd.dims(g);
-        let x1 = (f64::from(self.window_size.width) - width) / 2.0;
-        let y1 = (f64::from(self.window_size.height) - height) / 2.0;
+        let x1 = match horiz {
+            HorizontalAlignment::Left => 0.0,
+            HorizontalAlignment::Center => (f64::from(self.window_size.width) - width) / 2.0,
+            HorizontalAlignment::Right => f64::from(self.window_size.width) - width,
+        };
+        let y1 = match vert {
+            VerticalAlignment::Top => 0.0,
+            VerticalAlignment::Center => (f64::from(self.window_size.height) - height) / 2.0,
+            VerticalAlignment::Bottom => f64::from(self.window_size.height) - height,
+        };
         text::draw_text_bubble(g, (x1, y1), osd);
-    }
-
-    pub fn draw_text_at(&self, g: &mut GfxCtx, osd: TextOSD, pt: Pt2D) {
-        text::draw_text_bubble(g, self.map_to_screen(pt), osd);
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {
@@ -177,3 +169,22 @@ impl Canvas {
         }
     }
 }
+
+pub enum HorizontalAlignment {
+    Left,
+    Center,
+    Right,
+}
+
+pub enum VerticalAlignment {
+    Top,
+    Center,
+    Bottom,
+}
+
+pub const BOTTOM_LEFT: (HorizontalAlignment, VerticalAlignment) =
+    (HorizontalAlignment::Left, VerticalAlignment::Bottom);
+pub const TOP_RIGHT: (HorizontalAlignment, VerticalAlignment) =
+    (HorizontalAlignment::Right, VerticalAlignment::Top);
+pub const CENTERED: (HorizontalAlignment, VerticalAlignment) =
+    (HorizontalAlignment::Center, VerticalAlignment::Center);

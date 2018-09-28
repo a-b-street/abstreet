@@ -1,5 +1,5 @@
 use piston::input::{Button, Key, PressEvent};
-use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput};
+use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput, CENTERED};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -66,7 +66,7 @@ impl<T: Clone> Menu<T> {
                 (f64::from(canvas.window_size.height) / text::LINE_HEIGHT).floor() as isize - 1 - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
-                canvas.draw_centered_text(g, osd);
+                canvas.draw_text(g, osd, CENTERED);
                 return;
             }
             n as usize
@@ -98,7 +98,7 @@ impl<T: Clone> Menu<T> {
             }
         }
 
-        canvas.draw_centered_text(g, osd);
+        canvas.draw_text(g, osd, CENTERED);
     }
 
     pub fn current_choice(&self) -> &T {

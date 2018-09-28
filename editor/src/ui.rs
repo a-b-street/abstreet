@@ -6,7 +6,7 @@ use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
 use control::{ModifiedStopSign, ModifiedTrafficSignal};
-use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, ToggleableLayer, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI};
 use flame;
 use graphics::types::Color;
 use kml;
@@ -476,7 +476,7 @@ impl UI {
         self.warp.draw(g, &self.canvas);
         self.sim_ctrl.draw(g, &self.canvas);
 
-        self.canvas.draw_osd_notification(g, osd);
+        self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
 
     fn color_obj(&self, id: ID) -> Option<Color> {

@@ -1,6 +1,6 @@
 use piston::input::{Button, Key, PressEvent};
 use std::collections::VecDeque;
-use {text, Canvas, GfxCtx, TextOSD, UserInput};
+use {text, Canvas, GfxCtx, TextOSD, UserInput, CENTERED};
 
 pub struct LogScroller {
     // TODO store SpanText or similar
@@ -98,6 +98,6 @@ impl LogScroller {
             }
         }
 
-        canvas.draw_centered_text(g, osd);
+        canvas.draw_text(g, osd, CENTERED);
     }
 }

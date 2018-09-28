@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput, TOP_RIGHT};
 use map_model::Map;
 use objects::{ID, SIM};
 use piston::input::{Key, UpdateEvent};
@@ -163,7 +163,7 @@ impl SimController {
             ));
             osd.add_line(format!("  {} total", summary.total_driving_trip_time));
 
-            canvas.draw_right_aligned_text(g, osd);
+            canvas.draw_text(g, osd, TOP_RIGHT);
         }
     }
 }

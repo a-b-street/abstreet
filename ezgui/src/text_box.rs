@@ -1,6 +1,6 @@
 use keys::key_to_char;
 use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
-use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput};
+use {text, Canvas, GfxCtx, InputResult, TextOSD, UserInput, CENTERED};
 
 // TODO right now, only a single line
 
@@ -55,7 +55,7 @@ impl TextBox {
             );
         }
 
-        canvas.draw_centered_text(g, osd);
+        canvas.draw_text(g, osd, CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

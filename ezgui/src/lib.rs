@@ -22,7 +22,9 @@ mod text_box;
 mod tree_menu;
 mod wizard;
 
-pub use canvas::Canvas;
+pub use canvas::{
+    Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
+};
 use graphics::character::CharacterCache;
 use graphics::types::Color;
 pub use input::UserInput;
