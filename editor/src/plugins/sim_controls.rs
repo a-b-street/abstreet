@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use control::ControlMap;
-use ezgui::{EventLoopMode, TextOSD, UserInput};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, TextOSD, UserInput};
 use map_model::Map;
 use objects::{ID, SIM};
 use piston::input::{Key, UpdateEvent};
-use sim::{Benchmark, Sim, TIMESTEP};
+use sim::{Benchmark, ScoreSummary, Sim, TIMESTEP};
 use std::time::{Duration, Instant};
 
 const ADJUST_SPEED: f64 = 0.1;
@@ -16,6 +16,8 @@ pub struct SimController {
     last_step: Option<Instant>,
     benchmark: Option<Benchmark>,
     sim_speed: String,
+    show_side_panel: bool,
+    last_summary: Option<ScoreSummary>,
 }
 
 impl SimController {
@@ -25,6 +27,8 @@ impl SimController {
             last_step: None,
             benchmark: None,
             sim_speed: String::from("paused"),
+            show_side_panel: false,
+            last_summary: None,
         }
     }
 
@@ -37,6 +41,9 @@ impl SimController {
         selected: Option<ID>,
         osd: &mut TextOSD,
     ) -> EventLoopMode {
+        if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
+            self.show_side_panel = !self.show_side_panel;
+        }
         if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
             sim.small_spawn(map);
         }
@@ -115,10 +122,48 @@ impl SimController {
             self.sim_speed, self.desired_speed
         ));
 
+        if self.show_side_panel {
+            self.last_summary = Some(sim.get_score());
+        } else {
+            self.last_summary = None;
+        }
+
         if self.last_step.is_some() {
             EventLoopMode::Animation
         } else {
             EventLoopMode::InputOnly
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if let Some(ref summary) = self.last_summary {
+            let mut osd = TextOSD::new();
+
+            osd.add_styled_line(
+                "Walking".to_string(),
+                [0.0, 0.0, 0.0, 1.0],
+                Some([1.0, 0.0, 0.0, 0.8]),
+            );
+            osd.add_line(format!(
+                "  {}/{} trips done",
+                (summary.total_walking_trips - summary.pending_walking_trips),
+                summary.pending_walking_trips
+            ));
+            osd.add_line(format!("  {} total", summary.total_walking_trip_time));
+
+            osd.add_styled_line(
+                "Driving".to_string(),
+                [0.0, 0.0, 0.0, 1.0],
+                Some([0.0, 0.0, 1.0, 0.8]),
+            );
+            osd.add_line(format!(
+                "  {}/{} trips done",
+                (summary.total_driving_trips - summary.pending_driving_trips),
+                summary.pending_driving_trips
+            ));
+            osd.add_line(format!("  {} total", summary.total_driving_trip_time));
+
+            canvas.draw_right_aligned_text(g, osd);
         }
     }
 }

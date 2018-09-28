@@ -200,7 +200,9 @@ impl TripManager {
                     summary.total_driving_trip_time += at - t.spawned_at;
                 } else {
                     summary.pending_driving_trips += 1;
-                    summary.total_driving_trip_time += now - t.spawned_at;
+                    if now >= t.spawned_at {
+                        summary.total_driving_trip_time += now - t.spawned_at;
+                    }
                 }
                 summary.total_driving_trips += 1;
             } else {
@@ -208,7 +210,9 @@ impl TripManager {
                     summary.total_walking_trip_time += at - t.spawned_at;
                 } else {
                     summary.pending_walking_trips += 1;
-                    summary.total_walking_trip_time += now - t.spawned_at;
+                    if now >= t.spawned_at {
+                        summary.total_walking_trip_time += now - t.spawned_at;
+                    }
                 }
                 summary.total_walking_trips += 1;
             }

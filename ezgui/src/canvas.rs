@@ -97,6 +97,17 @@ impl Canvas {
         text::draw_text_bubble(g, (0.0, y1), osd);
     }
 
+    // Top-right corner
+    // TODO refactor these, just take some kind of Alignment enum!
+    pub fn draw_right_aligned_text(&self, g: &mut GfxCtx, osd: TextOSD) {
+        if osd.is_empty() {
+            return;
+        }
+        let (width, _) = osd.dims(g);
+        let x1 = f64::from(self.window_size.width) - width;
+        text::draw_text_bubble(g, (x1, 0.0), osd);
+    }
+
     pub fn draw_centered_text(&self, g: &mut GfxCtx, osd: TextOSD) {
         if osd.is_empty() {
             return;

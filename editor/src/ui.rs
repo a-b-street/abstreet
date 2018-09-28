@@ -474,6 +474,7 @@ impl UI {
         self.logs.draw(g, &self.canvas);
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
+        self.sim_ctrl.draw(g, &self.canvas);
 
         self.canvas.draw_osd_notification(g, osd);
     }
