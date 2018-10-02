@@ -33,9 +33,9 @@ struct Flags {
     #[structopt(long = "big_sim")]
     big_sim: bool,
 
-    /// Scenario name for savestating
-    #[structopt(long = "scenario_name", default_value = "headless")]
-    scenario_name: String,
+    /// Run name for savestating
+    #[structopt(long = "run_name", default_value = "headless")]
+    run_name: String,
 
     /// Name of map edits
     #[structopt(long = "edits_name", default_value = "no_edits")]
@@ -50,7 +50,7 @@ fn main() {
 
     let (map, control_map, mut sim) = sim::load(
         flags.load.clone(),
-        flags.scenario_name,
+        flags.run_name,
         flags.edits_name,
         flags.rng_seed,
         Some(sim::Tick::from_seconds(30)),

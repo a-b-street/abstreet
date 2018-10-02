@@ -39,7 +39,7 @@ pub struct Sim {
     pub(crate) map_name: String,
     // Some tests deliberately set different scenario names for comparisons.
     #[derivative(PartialEq = "ignore")]
-    scenario_name: String,
+    run_name: String,
     // TODO not quite the right type to represent durations
     savestate_every: Option<Tick>,
 
@@ -58,7 +58,7 @@ impl Sim {
     // TODO Options struct might be nicer, especially since we could glue it to structopt?
     pub fn new(
         map: &Map,
-        scenario_name: String,
+        run_name: String,
         rng_seed: Option<u8>,
         savestate_every: Option<Tick>,
     ) -> Sim {
@@ -78,15 +78,15 @@ impl Sim {
             transit_state: TransitSimState::new(),
             time: Tick::zero(),
             map_name: map.get_name().to_string(),
-            scenario_name,
+            run_name,
             savestate_every,
             car_properties: BTreeMap::new(),
         }
     }
 
-    pub fn load(path: String, new_scenario_name: String) -> Result<Sim, std::io::Error> {
+    pub fn load(path: String, new_run_name: String) -> Result<Sim, std::io::Error> {
         abstutil::read_json(&path).map(|mut s: Sim| {
-            s.scenario_name = new_scenario_name;
+            s.run_name = new_run_name;
             s
         })
     }
@@ -327,7 +327,7 @@ impl Sim {
         let path = format!(
             "../data/save/{}/{}/{}",
             self.map_name,
-            self.scenario_name,
+            self.run_name,
             self.time.as_filename()
         );
         abstutil::write_json(&path, &self).expect("Writing sim state failed");
@@ -343,10 +343,9 @@ impl Sim {
 
     fn find_most_recent_savestate(&self) -> Result<String, std::io::Error> {
         let mut paths: Vec<std::path::PathBuf> = Vec::new();
-        for entry in std::fs::read_dir(format!(
-            "../data/save/{}/{}/",
-            self.map_name, self.scenario_name
-        ))? {
+        for entry in
+            std::fs::read_dir(format!("../data/save/{}/{}/", self.map_name, self.run_name))?
+        {
             let entry = entry?;
             paths.push(entry.path());
         }

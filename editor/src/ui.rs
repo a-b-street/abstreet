@@ -67,7 +67,7 @@ impl UIWrapper {
     // nit: lots of this logic could live in UI, if it mattered
     pub fn new(
         load: String,
-        scenario_name: String,
+        run_name: String,
         edits_name: String,
         rng_seed: Option<u8>,
         kml: Option<String>,
@@ -78,7 +78,7 @@ impl UIWrapper {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(
             load,
-            scenario_name,
+            run_name,
             edits_name,
             rng_seed,
             Some(sim::Tick::from_seconds(30)),

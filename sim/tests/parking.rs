@@ -58,13 +58,10 @@ fn wander_around_for_parking() {
     sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
 }
 
-fn setup(
-    scenario_name: &str,
-    map: map_model::Map,
-) -> (map_model::Map, control::ControlMap, sim::Sim) {
+fn setup(run_name: &str, map: map_model::Map) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
     let control_map = control::ControlMap::new(&map, &BTreeMap::new(), &BTreeMap::new());
-    let sim = sim::Sim::new(&map, scenario_name.to_string(), Some(rng_seed), None);
+    let sim = sim::Sim::new(&map, run_name.to_string(), Some(rng_seed), None);
     (map, control_map, sim)
 }
 

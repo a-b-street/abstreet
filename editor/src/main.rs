@@ -58,9 +58,9 @@ struct Flags {
     #[structopt(long = "kml")]
     kml: Option<String>,
 
-    /// Scenario name for savestating
-    #[structopt(long = "scenario_name", default_value = "editor")]
-    scenario_name: String,
+    /// Run name for savestating
+    #[structopt(long = "run_name", default_value = "editor")]
+    run_name: String,
 
     /// Name of map edits
     #[structopt(long = "edits_name", default_value = "no_edits")]
@@ -72,7 +72,7 @@ fn main() {
     ezgui::run(
         ui::UIWrapper::new(
             flags.load,
-            flags.scenario_name,
+            flags.run_name,
             flags.edits_name,
             flags.rng_seed,
             flags.kml,

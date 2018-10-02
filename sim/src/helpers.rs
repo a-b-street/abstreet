@@ -10,7 +10,7 @@ use {CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, Sim, Tick};
 // Convenience method to setup everything.
 pub fn load(
     input: String,
-    scenario_name: String,
+    run_name: String,
     edits_name: String,
     rng_seed: Option<u8>,
     savestate_every: Option<Tick>,
@@ -62,7 +62,8 @@ pub fn load(
         let map = Map::new(&input, edits.road_edits.clone()).expect("Couldn't load map");
         let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
         flame::start("create sim");
-        let sim = Sim::new(&map, scenario_name, rng_seed, savestate_every);
+        // Note this is the only time we actually use the run name!
+        let sim = Sim::new(&map, run_name, rng_seed, savestate_every);
         flame::end("create sim");
         (map, control_map, sim)
     }
