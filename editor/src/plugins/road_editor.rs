@@ -1,20 +1,23 @@
 use control::ControlMap;
 use ezgui::UserInput;
-use map_model::{EditReason, Edits, LaneID, LaneType, Map};
+use map_model::{EditReason, LaneID, LaneType, Map, RoadEdits};
 use objects::{EDIT_MAP, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
 use sim::Sim;
 
-pub enum RoadEditor {
-    Inactive(Edits),
-    Active(Edits),
+pub struct RoadEditor {
+    edits: RoadEdits,
+    active: bool,
 }
 
 impl RoadEditor {
-    pub fn new(edits: Edits) -> RoadEditor {
-        RoadEditor::Inactive(edits)
+    pub fn new(edits: RoadEdits) -> RoadEditor {
+        RoadEditor {
+            edits,
+            active: false,
+        }
     }
 
     pub fn event(
@@ -26,63 +29,60 @@ impl RoadEditor {
         control_map: &ControlMap,
         sim: &mut Sim,
     ) -> bool {
-        let mut new_state: Option<RoadEditor> = None;
-        // TODO a bit awkward that we can't pull this info from Edits easily
+        // TODO a bit awkward that we can't pull this info from RoadEdits easily
         let mut changed: Option<(LaneID, LaneType)> = None;
 
-        match self {
-            RoadEditor::Inactive(edits) => match selected {
-                None => {
-                    if input.unimportant_key_pressed(Key::E, EDIT_MAP, "Start editing roads") {
-                        // TODO cloning edits sucks! want to consume self
-                        new_state = Some(RoadEditor::Active(edits.clone()));
-                    }
-                }
-                _ => {}
-            },
-            RoadEditor::Active(edits) => {
-                if input.key_pressed(Key::Return, "stop editing roads") {
-                    new_state = Some(RoadEditor::Inactive(edits.clone()));
-                } else if let Some(ID::Lane(id)) = selected {
-                    let lane = map.get_l(id);
-                    let road = map.get_r(lane.parent);
-                    let reason = EditReason::BasemapWrong; // TODO be able to choose
+        if !self.active && selected.is_none() {
+            if input.unimportant_key_pressed(Key::E, EDIT_MAP, "Start editing roads") {
+                self.active = true;
+            }
+        }
+        if self.active {
+            if input.key_pressed(Key::Return, "stop editing roads") {
+                self.active = false;
+            } else if let Some(ID::Lane(id)) = selected {
+                let lane = map.get_l(id);
+                let road = map.get_r(lane.parent);
+                let reason = EditReason::BasemapWrong; // TODO be able to choose
 
-                    if lane.lane_type != LaneType::Sidewalk {
-                        if lane.lane_type != LaneType::Driving
-                            && input.key_pressed(Key::D, "make this a driving lane")
+                if lane.lane_type != LaneType::Sidewalk {
+                    if lane.lane_type != LaneType::Driving
+                        && input.key_pressed(Key::D, "make this a driving lane")
+                    {
+                        if self
+                            .edits
+                            .change_lane_type(reason, road, lane, LaneType::Driving)
                         {
-                            if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
-                                changed = Some((lane.id, LaneType::Driving));
-                            }
+                            changed = Some((lane.id, LaneType::Driving));
                         }
-                        if lane.lane_type != LaneType::Parking
-                            && input.key_pressed(Key::P, "make this a parking lane")
+                    }
+                    if lane.lane_type != LaneType::Parking
+                        && input.key_pressed(Key::P, "make this a parking lane")
+                    {
+                        if self
+                            .edits
+                            .change_lane_type(reason, road, lane, LaneType::Parking)
                         {
-                            if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
-                                changed = Some((lane.id, LaneType::Parking));
-                            }
+                            changed = Some((lane.id, LaneType::Parking));
                         }
-                        if lane.lane_type != LaneType::Biking
-                            && input.key_pressed(Key::B, "make this a bike lane")
+                    }
+                    if lane.lane_type != LaneType::Biking
+                        && input.key_pressed(Key::B, "make this a bike lane")
+                    {
+                        if self
+                            .edits
+                            .change_lane_type(reason, road, lane, LaneType::Biking)
                         {
-                            if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
-                                changed = Some((lane.id, LaneType::Biking));
-                            }
+                            changed = Some((lane.id, LaneType::Biking));
                         }
-                        if input.key_pressed(Key::Backspace, "delete this lane") {
-                            if edits.delete_lane(road, lane) {
-                                warn!(
-                                    "Have to reload the map from scratch to pick up this change!"
-                                );
-                            }
+                    }
+                    if input.key_pressed(Key::Backspace, "delete this lane") {
+                        if self.edits.delete_lane(road, lane) {
+                            warn!("Have to reload the map from scratch to pick up this change!");
                         }
                     }
                 }
             }
-        };
-        if let Some(s) = new_state {
-            *self = s;
         }
         if let Some((id, new_type)) = changed {
             let intersections = map.get_l(id).intersections();
@@ -114,17 +114,11 @@ impl RoadEditor {
             }
         }
 
-        match self {
-            RoadEditor::Inactive(_) => false,
-            _ => true,
-        }
+        self.active
     }
 
-    pub fn get_edits(&self) -> &Edits {
-        match self {
-            RoadEditor::Inactive(edits) => edits,
-            RoadEditor::Active(edits) => edits,
-        }
+    pub fn get_edits(&self) -> &RoadEdits {
+        &self.edits
     }
 }
 

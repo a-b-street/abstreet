@@ -5,7 +5,6 @@
 use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use control::{ModifiedStopSign, ModifiedTrafficSignal};
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI};
 use flame;
 use graphics::types::Color;
@@ -37,8 +36,7 @@ use plugins::warp::WarpState;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::Sim;
-use std::collections::HashMap;
+use sim::{MapEdits, Sim};
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -77,13 +75,12 @@ impl UIWrapper {
         let logs = DisplayLogs::new();
 
         flame::start("setup");
-        let (map, edits, control_map, sim) = sim::load(
+        let (map, control_map, sim) = sim::load(
             load,
             scenario_name,
             rng_seed,
             Some(sim::Tick::from_seconds(30)),
         );
-
         let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
         } else {
@@ -98,6 +95,7 @@ impl UIWrapper {
         flame::dump_stdout();
 
         let steepness_viz = SteepnessVisualizer::new(&map);
+        let road_editor = RoadEditor::new(map.get_road_edits().clone());
 
         let mut ui = UI {
             // TODO organize this by section
@@ -107,6 +105,7 @@ impl UIWrapper {
             sim,
 
             steepness_viz,
+            road_editor,
             sim_ctrl: SimController::new(),
 
             layers: ToggleableLayers::new(),
@@ -123,7 +122,6 @@ impl UIWrapper {
             osm_classifier: OsmClassifier::new(),
             traffic_signal_editor: TrafficSignalEditor::new(),
             stop_sign_editor: StopSignEditor::new(),
-            road_editor: RoadEditor::new(edits),
             color_picker: ColorPicker::new(),
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
@@ -143,8 +141,6 @@ impl UIWrapper {
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
                 ui.canvas.cam_zoom = state.cam_zoom;
-                ui.control_map
-                    .load_savestate(&state.traffic_signals, &state.stop_signs);
             }
             _ => {
                 warn!("Couldn't load editor_state or it's for a different map, so just centering initial view");
@@ -384,15 +380,21 @@ impl UI {
                 cam_x: self.canvas.cam_x,
                 cam_y: self.canvas.cam_y,
                 cam_zoom: self.canvas.cam_zoom,
-                traffic_signals: self.control_map.get_traffic_signals_savestate(),
-                stop_signs: self.control_map.get_stop_signs_savestate(),
             };
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
             abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
-            abstutil::write_json("road_edits.json", self.road_editor.get_edits())
-                .expect("Saving road_edits.json failed");
-            info!("Saved editor_state, color_scheme, and road_edits.json");
+            abstutil::write_json(
+                "map_edits.json",
+                &MapEdits {
+                    edits_name: "nameless".to_string(),
+                    map_name: self.map.get_name().to_string(),
+                    road_edits: self.road_editor.get_edits().clone(),
+                    stop_signs: self.control_map.get_stop_signs_savestate(),
+                    traffic_signals: self.control_map.get_traffic_signals_savestate(),
+                },
+            ).expect("Saving map_edits.json failed");
+            info!("Saved editor_state, color_scheme, and map_edits.json");
             process::exit(0);
         }
 
@@ -538,9 +540,6 @@ pub struct EditorState {
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
-
-    pub traffic_signals: HashMap<IntersectionID, ModifiedTrafficSignal>,
-    pub stop_signs: HashMap<IntersectionID, ModifiedStopSign>,
 }
 
 pub struct ToggleableLayers {

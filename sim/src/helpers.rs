@@ -2,10 +2,10 @@ use abstutil;
 use control::ControlMap;
 use flame;
 use geom::Polygon;
-use map_model::{BuildingID, BusRoute, BusStopID, Edits, LaneID, Map};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map};
 use rand::Rng;
 use std::collections::VecDeque;
-use {CarID, Event, PedestrianID, RouteID, Scenario, Sim, Tick};
+use {CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, Sim, Tick};
 
 // Convenience method to setup everything.
 pub fn load(
@@ -13,8 +13,9 @@ pub fn load(
     scenario_name: String,
     rng_seed: Option<u8>,
     savestate_every: Option<Tick>,
-) -> (Map, Edits, ControlMap, Sim) {
-    let edits: Edits = abstutil::read_json("road_edits.json").unwrap_or(Edits::new());
+) -> (Map, ControlMap, Sim) {
+    // TODO read a specific one
+    let edits: MapEdits = abstutil::read_json("map_edits.json").unwrap_or(MapEdits::new());
 
     if input.contains("data/save/") {
         info!("Resuming from {}", input);
@@ -23,17 +24,17 @@ pub fn load(
         flame::end("read sim savestate");
         // TODO assuming the relative path :(
         let map_path = format!("../data/maps/{}.abst", sim.map_name);
-        let map =
-            Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
-        let control_map = ControlMap::new(&map);
-        (map, edits, control_map, sim)
+        let map = Map::new(&map_path, edits.road_edits.clone())
+            .expect(&format!("Couldn't load map from {}", map_path));
+        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
+        (map, control_map, sim)
     } else if input.contains("data/scenarios/") {
         info!("Seeding the simulation from scenario {}", input);
         let scenario: Scenario = abstutil::read_json(&input).expect("loading scenario failed");
         let map_path = format!("../data/maps/{}.abst", scenario.map_name);
-        let map =
-            Map::new(&map_path, &edits).expect(&format!("Couldn't load map from {}", map_path));
-        let control_map = ControlMap::new(&map);
+        let map = Map::new(&map_path, edits.road_edits.clone())
+            .expect(&format!("Couldn't load map from {}", map_path));
+        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
         let mut sim = Sim::new(
             &map,
             scenario.scenario_name.clone(),
@@ -41,15 +42,15 @@ pub fn load(
             savestate_every,
         );
         scenario.instantiate(&mut sim, &map);
-        (map, edits, control_map, sim)
+        (map, control_map, sim)
     } else {
         info!("Loading map {}", input);
-        let map = Map::new(&input, &edits).expect("Couldn't load map");
-        let control_map = ControlMap::new(&map);
+        let map = Map::new(&input, edits.road_edits.clone()).expect("Couldn't load map");
+        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
         flame::start("create sim");
         let sim = Sim::new(&map, scenario_name, rng_seed, savestate_every);
         flame::end("create sim");
-        (map, edits, control_map, sim)
+        (map, control_map, sim)
     }
 }
 

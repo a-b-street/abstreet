@@ -5,6 +5,7 @@ extern crate map_model;
 extern crate sim;
 
 use map_model::LaneID;
+use std::collections::BTreeMap;
 
 // TODO refactor a few more things to make these more succinct?
 
@@ -62,7 +63,7 @@ fn setup(
     map: map_model::Map,
 ) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
-    let control_map = control::ControlMap::new(&map);
+    let control_map = control::ControlMap::new(&map, &BTreeMap::new(), &BTreeMap::new());
     let sim = sim::Sim::new(&map, scenario_name.to_string(), Some(rng_seed), None);
     (map, control_map, sim)
 }
@@ -71,7 +72,6 @@ fn setup(
 fn make_test_map() -> map_model::Map {
     use dimensioned::si;
     use map_model::{raw_data, LaneType};
-    use std::collections::BTreeMap;
 
     let left = geom::LonLat::new(100.0, 50.0);
     let right = geom::LonLat::new(200.0, 50.0);
@@ -116,7 +116,7 @@ fn make_test_map() -> map_model::Map {
             areas: Vec::new(),
             coordinates_in_world_space: true,
         },
-        &map_model::Edits::new(),
+        map_model::RoadEdits::new(),
     );
 
     assert_eq!(map.all_roads().len(), 1);

@@ -4,14 +4,14 @@ use {Lane, LaneType, Road, RoadID};
 // TODO bring in the intersection modifications from the control crate here. for now, road edits
 // are here, since map construction maybe needs to know these?
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Edits {
+pub struct RoadEdits {
     // TODO detect when we wind up editing back to the original thing
     pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
 }
 
-impl Edits {
-    pub fn new() -> Edits {
-        Edits {
+impl RoadEdits {
+    pub fn new() -> RoadEdits {
+        RoadEdits {
             roads: BTreeMap::new(),
         }
     }

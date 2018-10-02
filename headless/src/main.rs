@@ -44,7 +44,7 @@ fn main() {
     log::set_max_level(LevelFilter::Debug);
     log::set_logger(&LOG_ADAPTER).unwrap();
 
-    let (map, _, control_map, mut sim) = sim::load(
+    let (map, control_map, mut sim) = sim::load(
         flags.load.clone(),
         flags.scenario_name,
         flags.rng_seed,

@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use edits::Edits;
+use edits::RoadEdits;
 use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use make;
@@ -30,10 +30,11 @@ pub struct Map {
     bounds: Bounds,
 
     name: String,
+    road_edits: RoadEdits,
 }
 
 impl Map {
-    pub fn new(path: &str, edits: &Edits) -> Result<Map, Error> {
+    pub fn new(path: &str, road_edits: RoadEdits) -> Result<Map, Error> {
         // TODO I think I want something a bit different than flame:
         // - Print as each phase occurs
         // - Print with nicely formatted durations
@@ -48,14 +49,15 @@ impl Map {
                 .into_string()
                 .unwrap(),
             data,
-            edits,
+            road_edits,
         ))
     }
 
-    pub fn create_from_raw(name: String, data: raw_data::Map, edits: &Edits) -> Map {
+    pub fn create_from_raw(name: String, data: raw_data::Map, road_edits: RoadEdits) -> Map {
         let bounds = data.get_gps_bounds();
         let mut m = Map {
             name,
+            road_edits,
             bounds,
             roads: Vec::new(),
             lanes: Vec::new(),
@@ -108,7 +110,7 @@ impl Map {
             let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
 
             // TODO move this to make/lanes.rs too
-            for lane in make::get_lane_specs(r, road_id, edits) {
+            for lane in make::get_lane_specs(r, road_id, &m.road_edits) {
                 let id = LaneID(counter);
                 counter += 1;
 
@@ -392,6 +394,10 @@ impl Map {
 
     pub fn get_name(&self) -> &String {
         &self.name
+    }
+
+    pub fn get_road_edits(&self) -> &RoadEdits {
+        &self.road_edits
     }
 
     pub fn all_bus_stops(&self) -> &BTreeMap<BusStopID, BusStop> {

@@ -257,3 +257,23 @@ current TreeMenu:
 
 
 Back up and think about ideal for these background controls...
+
+## Managing different map edits
+
+Should be simple -- I want to bundle together map edits as named things, to
+prep for A/B tests. But loading a different set of edits could be kind of
+tough...
+
+- new control map state has to propagate to intersection editors.
+	- easy fix: pass them mut ref from control map every tick. then just have to reload control map.
+- road edits have to propogate
+	- theres a way to do that live right now, but it's kind of brittle and funky. probably safer to load from scratch.
+		- but then have to reload things like steepness visualizer plugin... actually, just that, seemingly.
+		- er, but also the hider plugin -- it holds onto laneIDs, which may change!
+
+Alright, I think this is the sequence of things to do:
+
+1) make a few plugins less stateful anyway, by taking refs to map/control map stuff instead of caching stuff. thats useful regardless.
+	- but wait, then road editor kind of cant work, because mut borrow edits from map while holding immutable lane/road refs. theyre really indep things, so cant store together.
+2) make it possible to completely reload UI and everything from scratch, from a plugin. rationale: it'd be nice to switch maps from inside the editor anyway. not necessary, but useful.
+3) make road edits propogate correctly, and somehow have a strategy for ensuring nothing is forgotten. impl today is VERY incomplete.

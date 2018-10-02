@@ -34,7 +34,7 @@ mod turn;
 pub use area::{Area, AreaID, AreaType};
 pub use building::{Building, BuildingID, FrontPath};
 pub use bus_stop::{BusRoute, BusStop, BusStopID};
-pub use edits::{EditReason, Edits};
+pub use edits::{EditReason, RoadEdits};
 pub use intersection::{Intersection, IntersectionID};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;

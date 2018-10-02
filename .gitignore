@@ -3,7 +3,7 @@
 *.swp
 
 editor/editor_state
-editor/road_edits.json
+editor/map_edits.json
 
 data/input/*
 data/maps/*.abst

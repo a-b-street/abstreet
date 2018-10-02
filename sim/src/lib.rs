@@ -33,6 +33,7 @@ extern crate serde_derive;
 mod macros;
 
 mod driving;
+mod edits;
 mod events;
 mod helpers;
 mod instrument;
@@ -51,6 +52,7 @@ mod walking;
 
 use abstutil::Cloneable;
 use dimensioned::si;
+pub use edits::MapEdits;
 pub use events::Event;
 use geom::{Angle, Pt2D};
 pub use helpers::load;

@@ -22,7 +22,11 @@ pub struct ControlMap {
 }
 
 impl ControlMap {
-    pub fn new(map: &Map) -> ControlMap {
+    pub fn new(
+        map: &Map,
+        stop_signs: &BTreeMap<IntersectionID, ModifiedStopSign>,
+        traffic_signals: &BTreeMap<IntersectionID, ModifiedTrafficSignal>,
+    ) -> ControlMap {
         let mut ctrl = ControlMap {
             traffic_signals: HashMap::new(),
             stop_signs: HashMap::new(),
@@ -38,11 +42,18 @@ impl ControlMap {
             }
         }
 
+        for (i, s) in traffic_signals {
+            ctrl.traffic_signals.get_mut(i).unwrap().load_savestate(s);
+        }
+        for (i, s) in stop_signs {
+            ctrl.stop_signs.get_mut(i).unwrap().load_savestate(s);
+        }
+
         ctrl
     }
 
-    pub fn get_traffic_signals_savestate(&self) -> HashMap<IntersectionID, ModifiedTrafficSignal> {
-        let mut h = HashMap::new();
+    pub fn get_traffic_signals_savestate(&self) -> BTreeMap<IntersectionID, ModifiedTrafficSignal> {
+        let mut h = BTreeMap::new();
         for (i, s) in &self.traffic_signals {
             if let Some(state) = s.get_savestate() {
                 h.insert(*i, state);
@@ -51,27 +62,14 @@ impl ControlMap {
         h
     }
 
-    pub fn get_stop_signs_savestate(&self) -> HashMap<IntersectionID, ModifiedStopSign> {
-        let mut h = HashMap::new();
+    pub fn get_stop_signs_savestate(&self) -> BTreeMap<IntersectionID, ModifiedStopSign> {
+        let mut h = BTreeMap::new();
         for (i, s) in &self.stop_signs {
             if let Some(state) = s.get_savestate() {
                 h.insert(*i, state);
             }
         }
         h
-    }
-
-    pub fn load_savestate(
-        &mut self,
-        traffic_signals: &HashMap<IntersectionID, ModifiedTrafficSignal>,
-        stop_signs: &HashMap<IntersectionID, ModifiedStopSign>,
-    ) {
-        for (i, s) in traffic_signals {
-            self.traffic_signals.get_mut(i).unwrap().load_savestate(s);
-        }
-        for (i, s) in stop_signs {
-            self.stop_signs.get_mut(i).unwrap().load_savestate(s);
-        }
     }
 }
 
