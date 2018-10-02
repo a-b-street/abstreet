@@ -48,30 +48,34 @@ impl RoadEditor {
                     let road = map.get_r(lane.parent);
                     let reason = EditReason::BasemapWrong; // TODO be able to choose
 
-                    if lane.lane_type != LaneType::Driving
-                        && input.key_pressed(Key::D, "make this a driving lane")
-                    {
-                        if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
-                            changed = Some((lane.id, LaneType::Driving));
+                    if lane.lane_type != LaneType::Sidewalk {
+                        if lane.lane_type != LaneType::Driving
+                            && input.key_pressed(Key::D, "make this a driving lane")
+                        {
+                            if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
+                                changed = Some((lane.id, LaneType::Driving));
+                            }
                         }
-                    }
-                    if lane.lane_type != LaneType::Parking
-                        && input.key_pressed(Key::P, "make this a parking lane")
-                    {
-                        if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
-                            changed = Some((lane.id, LaneType::Parking));
+                        if lane.lane_type != LaneType::Parking
+                            && input.key_pressed(Key::P, "make this a parking lane")
+                        {
+                            if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
+                                changed = Some((lane.id, LaneType::Parking));
+                            }
                         }
-                    }
-                    if lane.lane_type != LaneType::Biking
-                        && input.key_pressed(Key::B, "make this a bike lane")
-                    {
-                        if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
-                            changed = Some((lane.id, LaneType::Biking));
+                        if lane.lane_type != LaneType::Biking
+                            && input.key_pressed(Key::B, "make this a bike lane")
+                        {
+                            if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
+                                changed = Some((lane.id, LaneType::Biking));
+                            }
                         }
-                    }
-                    if input.key_pressed(Key::Backspace, "delete this lane") {
-                        if edits.delete_lane(road, lane) {
-                            warn!("Have to reload the map from scratch to pick up this change!");
+                        if input.key_pressed(Key::Backspace, "delete this lane") {
+                            if edits.delete_lane(road, lane) {
+                                warn!(
+                                    "Have to reload the map from scratch to pick up this change!"
+                                );
+                            }
                         }
                     }
                 }
