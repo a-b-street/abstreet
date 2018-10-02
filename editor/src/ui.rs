@@ -36,7 +36,7 @@ use plugins::warp::WarpState;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::{MapEdits, Sim};
+use sim::{MapEdits, Sim, SimFlags};
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -65,24 +65,12 @@ impl GUI for UIWrapper {
 
 impl UIWrapper {
     // nit: lots of this logic could live in UI, if it mattered
-    pub fn new(
-        load: String,
-        run_name: String,
-        edits_name: String,
-        rng_seed: Option<u8>,
-        kml: Option<String>,
-    ) -> UIWrapper {
+    pub fn new(flags: SimFlags, kml: Option<String>) -> UIWrapper {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = DisplayLogs::new();
 
         flame::start("setup");
-        let (map, control_map, sim) = sim::load(
-            load,
-            run_name,
-            edits_name,
-            rng_seed,
-            Some(sim::Tick::from_seconds(30)),
-        );
+        let (map, control_map, sim) = sim::load(flags, Some(sim::Tick::from_seconds(30)));
         let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
         } else {

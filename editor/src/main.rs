@@ -41,42 +41,24 @@ mod plugins;
 mod render;
 mod ui;
 
+use sim::SimFlags;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "editor")]
 struct Flags {
-    /// Map or savestate to load
-    #[structopt(name = "load")]
-    load: String,
-
-    /// Optional RNG seed
-    #[structopt(long = "rng_seed")]
-    rng_seed: Option<u8>,
+    #[structopt(flatten)]
+    sim_flags: SimFlags,
 
     /// Extra KML to display
     #[structopt(long = "kml")]
     kml: Option<String>,
-
-    /// Run name for savestating
-    #[structopt(long = "run_name", default_value = "editor")]
-    run_name: String,
-
-    /// Name of map edits
-    #[structopt(long = "edits_name", default_value = "no_edits")]
-    edits_name: String,
 }
 
 fn main() {
     let flags = Flags::from_args();
     ezgui::run(
-        ui::UIWrapper::new(
-            flags.load,
-            flags.run_name,
-            flags.edits_name,
-            flags.rng_seed,
-            flags.kml,
-        ),
+        ui::UIWrapper::new(flags.sim_flags, flags.kml),
         "A/B Street",
         1024,
         768,

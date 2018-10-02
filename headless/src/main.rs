@@ -10,6 +10,7 @@ extern crate structopt;
 extern crate yansi;
 
 use log::{LevelFilter, Log, Metadata, Record};
+use sim::SimFlags;
 use structopt::StructOpt;
 
 static LOG_ADAPTER: LogAdapter = LogAdapter;
@@ -17,13 +18,8 @@ static LOG_ADAPTER: LogAdapter = LogAdapter;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "headless")]
 struct Flags {
-    /// Map or savestate to load
-    #[structopt(name = "load")]
-    load: String,
-
-    /// Optional RNG seed
-    #[structopt(long = "rng_seed")]
-    rng_seed: Option<u8>,
+    #[structopt(flatten)]
+    sim_flags: SimFlags,
 
     /// Optional time to savestate
     #[structopt(long = "save_at")]
@@ -32,14 +28,6 @@ struct Flags {
     /// Big or large random scenario?
     #[structopt(long = "big_sim")]
     big_sim: bool,
-
-    /// Run name for savestating
-    #[structopt(long = "run_name", default_value = "headless")]
-    run_name: String,
-
-    /// Name of map edits
-    #[structopt(long = "edits_name", default_value = "no_edits")]
-    edits_name: String,
 }
 
 fn main() {
@@ -48,16 +36,11 @@ fn main() {
     log::set_max_level(LevelFilter::Debug);
     log::set_logger(&LOG_ADAPTER).unwrap();
 
-    let (map, control_map, mut sim) = sim::load(
-        flags.load.clone(),
-        flags.run_name,
-        flags.edits_name,
-        flags.rng_seed,
-        Some(sim::Tick::from_seconds(30)),
-    );
-
     // TODO not the ideal way to distinguish what thing we loaded
-    if flags.load.contains("data/maps/") {
+    let load = flags.sim_flags.load.clone();
+    let (map, control_map, mut sim) = sim::load(flags.sim_flags, Some(sim::Tick::from_seconds(30)));
+
+    if load.contains("data/maps/") {
         if flags.big_sim {
             sim.big_spawn(&map);
         } else {

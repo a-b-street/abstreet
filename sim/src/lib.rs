@@ -28,6 +28,8 @@ extern crate rayon;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate structopt;
 
 #[macro_use]
 mod macros;
@@ -55,7 +57,7 @@ use dimensioned::si;
 pub use edits::MapEdits;
 pub use events::Event;
 use geom::{Angle, Pt2D};
-pub use helpers::load;
+pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
 use map_model::{LaneID, Map, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
