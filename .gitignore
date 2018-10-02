@@ -3,8 +3,8 @@
 *.swp
 
 editor/editor_state
-editor/map_edits.json
 
+data/edits/*
 data/input/*
 data/maps/*.abst
 data/neighborhoods/*
