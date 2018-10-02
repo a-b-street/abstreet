@@ -7,6 +7,7 @@ pub mod follow;
 pub mod geom_validation;
 pub mod hider;
 pub mod logs;
+pub mod map_edits;
 pub mod road_editor;
 pub mod scenarios;
 pub mod search;

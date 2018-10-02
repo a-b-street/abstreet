@@ -7,7 +7,7 @@ use rand::Rng;
 use std::collections::VecDeque;
 use {CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, Sim, Tick};
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "sim_flags")]
 pub struct SimFlags {
     /// Map, scenario, or savestate to load

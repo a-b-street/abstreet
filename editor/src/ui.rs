@@ -23,6 +23,7 @@ use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
 use plugins::logs::DisplayLogs;
+use plugins::map_edits::EditsManager;
 use plugins::road_editor::RoadEditor;
 use plugins::scenarios::ScenarioManager;
 use plugins::search::SearchState;
@@ -48,6 +49,10 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 pub struct UIWrapper {
     ui: UI,
     plugins: Vec<Box<Fn(&mut UI, &mut UserInput, &mut Text) -> bool>>,
+
+    // Remember these to support loading a new UIWrapper
+    flags: SimFlags,
+    kml: Option<String>,
 }
 
 impl GUI for UIWrapper {
@@ -70,8 +75,8 @@ impl UIWrapper {
         let logs = DisplayLogs::new();
 
         flame::start("setup");
-        let (map, control_map, sim) = sim::load(flags, Some(sim::Tick::from_seconds(30)));
-        let extra_shapes = if let Some(path) = kml {
+        let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
+        let extra_shapes = if let Some(path) = kml.clone() {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
         } else {
             Vec::new()
@@ -117,6 +122,7 @@ impl UIWrapper {
             turn_cycler: TurnCyclerState::new(),
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
+            edits_manager: EditsManager::new(),
             logs,
 
             active_plugin: None,
@@ -239,8 +245,12 @@ impl UIWrapper {
                     ui.draw_neighborhoods.event(input, &ui.canvas, &ui.map, osd)
                 }),
                 Box::new(|ui, input, _osd| ui.scenarios.event(input, &ui.map, &mut ui.sim)),
+                Box::new(|ui, input, _osd| ui.edits_manager.event(input, &ui.map, &ui.control_map)),
                 Box::new(|ui, input, _osd| ui.logs.event(input)),
             ],
+
+            flags,
+            kml,
         }
     }
 }
@@ -273,6 +283,7 @@ struct UI {
     turn_cycler: TurnCyclerState,
     draw_neighborhoods: DrawNeighborhoodState,
     scenarios: ScenarioManager,
+    edits_manager: EditsManager,
     logs: DisplayLogs,
 
     // An index into UIWrapper.plugins.
@@ -464,6 +475,7 @@ impl UI {
         self.color_picker.draw(&self.canvas, g);
         self.draw_neighborhoods.draw(g, &self.canvas);
         self.scenarios.draw(g, &self.canvas);
+        self.edits_manager.draw(g, &self.canvas);
         self.logs.draw(g, &self.canvas);
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
@@ -519,7 +531,8 @@ impl UI {
             15 => Some(Box::new(&self.turn_cycler)),
             16 => Some(Box::new(&self.draw_neighborhoods)),
             17 => Some(Box::new(&self.scenarios)),
-            18 => Some(Box::new(&self.logs)),
+            18 => Some(Box::new(&self.edits_manager)),
+            19 => Some(Box::new(&self.logs)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
