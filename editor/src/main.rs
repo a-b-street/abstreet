@@ -61,12 +61,22 @@ struct Flags {
     /// Scenario name for savestating
     #[structopt(long = "scenario_name", default_value = "editor")]
     scenario_name: String,
+
+    /// Name of map edits
+    #[structopt(long = "edits_name", default_value = "no_edits")]
+    edits_name: String,
 }
 
 fn main() {
     let flags = Flags::from_args();
     ezgui::run(
-        ui::UIWrapper::new(flags.load, flags.scenario_name, flags.rng_seed, flags.kml),
+        ui::UIWrapper::new(
+            flags.load,
+            flags.scenario_name,
+            flags.edits_name,
+            flags.rng_seed,
+            flags.kml,
+        ),
         "A/B Street",
         1024,
         768,

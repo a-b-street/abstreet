@@ -8,6 +8,7 @@ fn bus_reaches_stops() {
     let (map, control_map, mut sim) = sim::load(
         "../data/maps/small.abst".to_string(),
         "bus_reaches_stops".to_string(),
+        "no_edits".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),
     );
@@ -36,6 +37,7 @@ fn ped_uses_bus() {
     let (map, control_map, mut sim) = sim::load(
         "../data/maps/small.abst".to_string(),
         "bus_reaches_stops".to_string(),
+        "no_edits".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),
     );

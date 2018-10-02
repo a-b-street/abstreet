@@ -15,7 +15,7 @@ pub struct MapEdits {
 impl MapEdits {
     pub fn new() -> MapEdits {
         MapEdits {
-            edits_name: "unnamed".to_string(),
+            edits_name: "no_edits".to_string(),
             map_name: "TODO".to_string(), // TODO er
             road_edits: RoadEdits::new(),
             stop_signs: BTreeMap::new(),

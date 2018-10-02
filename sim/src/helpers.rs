@@ -11,18 +11,20 @@ use {CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, Sim, Tick};
 pub fn load(
     input: String,
     scenario_name: String,
+    edits_name: String,
     rng_seed: Option<u8>,
     savestate_every: Option<Tick>,
 ) -> (Map, ControlMap, Sim) {
-    // TODO read a specific one
-    let edits: MapEdits = abstutil::read_json("map_edits.json").unwrap_or(MapEdits::new());
-
     if input.contains("data/save/") {
         info!("Resuming from {}", input);
         flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&input).expect("loading sim state failed");
         flame::end("read sim savestate");
         // TODO assuming the relative path :(
+        let edits: MapEdits = abstutil::read_json(&format!(
+            "../data/edits/{}/{}.json",
+            sim.map_name, edits_name
+        )).unwrap_or(MapEdits::new());
         let map_path = format!("../data/maps/{}.abst", sim.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
@@ -31,6 +33,10 @@ pub fn load(
     } else if input.contains("data/scenarios/") {
         info!("Seeding the simulation from scenario {}", input);
         let scenario: Scenario = abstutil::read_json(&input).expect("loading scenario failed");
+        let edits: MapEdits = abstutil::read_json(&format!(
+            "../data/edits/{}/{}.json",
+            scenario.map_name, edits_name
+        )).unwrap_or(MapEdits::new());
         let map_path = format!("../data/maps/{}.abst", scenario.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
@@ -44,7 +50,15 @@ pub fn load(
         scenario.instantiate(&mut sim, &map);
         (map, control_map, sim)
     } else {
+        // TODO relative dir is brittle; match more cautiously
+        let map_name = input
+            .trim_left_matches("../data/maps/")
+            .trim_right_matches(".abst")
+            .to_string();
         info!("Loading map {}", input);
+        let edits: MapEdits =
+            abstutil::read_json(&format!("../data/edits/{}/{}.json", map_name, edits_name))
+                .unwrap_or(MapEdits::new());
         let map = Map::new(&input, edits.road_edits.clone()).expect("Couldn't load map");
         let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
         flame::start("create sim");

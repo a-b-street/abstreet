@@ -8,6 +8,7 @@ fn aorta_model_completes() {
     let (map, control_map, mut sim) = sim::load(
         "../data/maps/small.abst".to_string(),
         "aorta_model_completes".to_string(),
+        "no_edits".to_string(),
         Some(42),
         Some(sim::Tick::from_seconds(30)),
     );

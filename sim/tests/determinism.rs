@@ -8,6 +8,7 @@ fn serialization() {
     let (map, _, mut sim) = sim::load(
         "../data/maps/small.abst".to_string(),
         "serialization".to_string(),
+        "no_edits".to_string(),
         Some(42),
         None,
     );
@@ -25,6 +26,7 @@ fn from_scratch() {
     let (map, control_map, mut sim1) = sim::load(
         "../data/maps/small.abst".to_string(),
         "from_scratch_1".to_string(),
+        "no_edits".to_string(),
         Some(42),
         None,
     );
@@ -52,6 +54,7 @@ fn with_savestating() {
     let (map, control_map, mut sim1) = sim::load(
         "../data/maps/small.abst".to_string(),
         "with_savestating_1".to_string(),
+        "no_edits".to_string(),
         Some(42),
         None,
     );

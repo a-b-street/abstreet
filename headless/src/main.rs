@@ -36,6 +36,10 @@ struct Flags {
     /// Scenario name for savestating
     #[structopt(long = "scenario_name", default_value = "headless")]
     scenario_name: String,
+
+    /// Name of map edits
+    #[structopt(long = "edits_name", default_value = "no_edits")]
+    edits_name: String,
 }
 
 fn main() {
@@ -47,6 +51,7 @@ fn main() {
     let (map, control_map, mut sim) = sim::load(
         flags.load.clone(),
         flags.scenario_name,
+        flags.edits_name,
         flags.rng_seed,
         Some(sim::Tick::from_seconds(30)),
     );

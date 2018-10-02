@@ -68,6 +68,7 @@ impl UIWrapper {
     pub fn new(
         load: String,
         scenario_name: String,
+        edits_name: String,
         rng_seed: Option<u8>,
         kml: Option<String>,
     ) -> UIWrapper {
@@ -78,6 +79,7 @@ impl UIWrapper {
         let (map, control_map, sim) = sim::load(
             load,
             scenario_name,
+            edits_name,
             rng_seed,
             Some(sim::Tick::from_seconds(30)),
         );
@@ -384,10 +386,11 @@ impl UI {
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
             abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
+            // TODO do this from a plugin!
             abstutil::write_json(
-                "map_edits.json",
+                &format!("../data/edits/{}/ui.json", self.map.get_name()),
                 &MapEdits {
-                    edits_name: "nameless".to_string(),
+                    edits_name: "ui".to_string(),
                     map_name: self.map.get_name().to_string(),
                     road_edits: self.road_editor.get_edits().clone(),
                     stop_signs: self.control_map.get_stop_signs_savestate(),
