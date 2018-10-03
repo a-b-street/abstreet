@@ -2,6 +2,12 @@
 
 set -e
 
+function get_if_needed {
+	if [ ! -f $2 ]; then
+		wget $1 -O $2;
+	fi
+}
+
 # Download raw data if needed.
 mkdir -p data/input data/maps
 # TODO Fill these out:

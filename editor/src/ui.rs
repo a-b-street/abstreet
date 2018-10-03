@@ -37,7 +37,7 @@ use plugins::warp::WarpState;
 use plugins::Colorizer;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::{MapEdits, Sim, SimFlags};
+use sim::{Sim, SimFlags};
 use std::process;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -48,16 +48,22 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
     ui: UI,
-    plugins: Vec<Box<Fn(&mut UI, &mut UserInput, &mut Text) -> bool>>,
+    plugins: Vec<Box<Fn(PluginCtx) -> bool>>,
 
-    // Remember these to support loading a new UIWrapper
-    flags: SimFlags,
+    // Remember this to support loading a new UIWrapper
     kml: Option<String>,
 }
 
 impl GUI for UIWrapper {
     fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
-        self.ui.event(input, osd, &self.plugins)
+        // If we should start over and load something new, fill this out.
+        let mut new_flags: Option<SimFlags> = None;
+        let result = self.ui.event(input, osd, &self.plugins, &mut new_flags);
+        if let Some(flags) = new_flags {
+            info!("Reloading everything...");
+            *self = UIWrapper::new(flags, self.kml.clone());
+        }
+        result
     }
 
     fn draw(&mut self, g: &mut GfxCtx, osd: Text, window_size: Size) {
@@ -122,7 +128,7 @@ impl UIWrapper {
             turn_cycler: TurnCyclerState::new(),
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
-            edits_manager: EditsManager::new(),
+            edits_manager: EditsManager::new(flags),
             logs,
 
             active_plugin: None,
@@ -152,11 +158,11 @@ impl UIWrapper {
         UIWrapper {
             ui,
             plugins: vec![
-                Box::new(|ui, input, _osd| {
+                Box::new(|ctx| {
                     let layer_changed = {
                         let mut changed = false;
-                        for layer in ui.toggleable_layers().into_iter() {
-                            if layer.event(input) {
+                        for layer in ctx.ui.toggleable_layers().into_iter() {
+                            if layer.event(ctx.input) {
                                 changed = true;
                                 break;
                             }
@@ -164,92 +170,119 @@ impl UIWrapper {
                         changed
                     };
                     if layer_changed {
-                        ui.current_selection = ui.mouseover_something();
+                        ctx.ui.current_selection = ctx.ui.mouseover_something();
                         true
                     } else {
                         false
                     }
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.traffic_signal_editor.event(
-                        input,
-                        &ui.map,
-                        &mut ui.control_map,
-                        ui.current_selection,
+                Box::new(|ctx| {
+                    ctx.ui.traffic_signal_editor.event(
+                        ctx.input,
+                        &ctx.ui.map,
+                        &mut ctx.ui.control_map,
+                        ctx.ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.stop_sign_editor.event(
-                        input,
-                        &ui.map,
-                        &mut ui.control_map,
-                        ui.current_selection,
+                Box::new(|ctx| {
+                    ctx.ui.stop_sign_editor.event(
+                        ctx.input,
+                        &ctx.ui.map,
+                        &mut ctx.ui.control_map,
+                        ctx.ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.road_editor.event(
-                        input,
-                        ui.current_selection,
-                        &mut ui.map,
-                        &mut ui.draw_map,
-                        &ui.control_map,
-                        &mut ui.sim,
+                Box::new(|ctx| {
+                    ctx.ui.road_editor.event(
+                        ctx.input,
+                        ctx.ui.current_selection,
+                        &mut ctx.ui.map,
+                        &mut ctx.ui.draw_map,
+                        &ctx.ui.control_map,
+                        &mut ctx.ui.sim,
                     )
                 }),
-                Box::new(|ui, input, _osd| ui.search_state.event(input)),
-                Box::new(|ui, input, _osd| {
-                    ui.warp.event(
-                        input,
-                        &ui.map,
-                        &ui.sim,
-                        &mut ui.canvas,
-                        &mut ui.current_selection,
+                Box::new(|ctx| ctx.ui.search_state.event(ctx.input)),
+                Box::new(|ctx| {
+                    ctx.ui.warp.event(
+                        ctx.input,
+                        &ctx.ui.map,
+                        &ctx.ui.sim,
+                        &mut ctx.ui.canvas,
+                        &mut ctx.ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.follow.event(
-                        input,
-                        &ui.map,
-                        &ui.sim,
-                        &mut ui.canvas,
-                        ui.current_selection,
+                Box::new(|ctx| {
+                    ctx.ui.follow.event(
+                        ctx.input,
+                        &ctx.ui.map,
+                        &ctx.ui.sim,
+                        &mut ctx.ui.canvas,
+                        ctx.ui.current_selection,
                     )
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.show_route.event(input, &ui.sim, ui.current_selection)
+                Box::new(|ctx| {
+                    ctx.ui
+                        .show_route
+                        .event(ctx.input, &ctx.ui.sim, ctx.ui.current_selection)
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.color_picker.event(input, &mut ui.canvas, &mut ui.cs)
+                Box::new(|ctx| {
+                    ctx.ui
+                        .color_picker
+                        .event(ctx.input, &mut ctx.ui.canvas, &mut ctx.ui.cs)
                 }),
-                Box::new(|ui, input, _osd| ui.steepness_viz.event(input)),
-                Box::new(|ui, input, _osd| ui.osm_classifier.event(input)),
-                Box::new(|ui, input, _osd| ui.hider.event(input, &mut ui.current_selection)),
-                Box::new(|ui, input, _osd| {
-                    ui.debug_objects.event(
-                        ui.current_selection,
-                        input,
-                        &ui.map,
-                        &mut ui.sim,
-                        &ui.control_map,
+                Box::new(|ctx| ctx.ui.steepness_viz.event(ctx.input)),
+                Box::new(|ctx| ctx.ui.osm_classifier.event(ctx.input)),
+                Box::new(|ctx| ctx.ui.hider.event(ctx.input, &mut ctx.ui.current_selection)),
+                Box::new(|ctx| {
+                    ctx.ui.debug_objects.event(
+                        ctx.ui.current_selection,
+                        ctx.input,
+                        &ctx.ui.map,
+                        &mut ctx.ui.sim,
+                        &ctx.ui.control_map,
                     )
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.floodfiller.event(&ui.map, input, ui.current_selection)
+                Box::new(|ctx| {
+                    ctx.ui
+                        .floodfiller
+                        .event(&ctx.ui.map, ctx.input, ctx.ui.current_selection)
                 }),
-                Box::new(|ui, input, _osd| {
-                    ui.geom_validator
-                        .event(input, &mut ui.canvas, &ui.map, &ui.draw_map)
+                Box::new(|ctx| {
+                    ctx.ui.geom_validator.event(
+                        ctx.input,
+                        &mut ctx.ui.canvas,
+                        &ctx.ui.map,
+                        &ctx.ui.draw_map,
+                    )
                 }),
-                Box::new(|ui, input, _osd| ui.turn_cycler.event(input, ui.current_selection)),
-                Box::new(|ui, input, osd| {
-                    ui.draw_neighborhoods.event(input, &ui.canvas, &ui.map, osd)
+                Box::new(|ctx| {
+                    ctx.ui
+                        .turn_cycler
+                        .event(ctx.input, ctx.ui.current_selection)
                 }),
-                Box::new(|ui, input, _osd| ui.scenarios.event(input, &ui.map, &mut ui.sim)),
-                Box::new(|ui, input, _osd| ui.edits_manager.event(input, &ui.map, &ui.control_map)),
-                Box::new(|ui, input, _osd| ui.logs.event(input)),
+                Box::new(|ctx| {
+                    ctx.ui
+                        .draw_neighborhoods
+                        .event(ctx.input, &ctx.ui.canvas, &ctx.ui.map, ctx.osd)
+                }),
+                Box::new(|ctx| {
+                    ctx.ui
+                        .scenarios
+                        .event(ctx.input, &ctx.ui.map, &mut ctx.ui.sim)
+                }),
+                Box::new(|ctx| {
+                    ctx.ui.edits_manager.event(
+                        ctx.input,
+                        &ctx.ui.map,
+                        &ctx.ui.control_map,
+                        &ctx.ui.road_editor,
+                        ctx.new_flags,
+                    )
+                }),
+                Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
             ],
 
-            flags,
             kml,
         }
     }
@@ -336,7 +369,8 @@ impl UI {
         &mut self,
         mut input: UserInput,
         osd: &mut Text,
-        plugins: &Vec<Box<Fn(&mut UI, &mut UserInput, &mut Text) -> bool>>,
+        plugins: &Vec<Box<Fn(PluginCtx) -> bool>>,
+        new_flags: &mut Option<SimFlags>,
     ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
@@ -362,13 +396,23 @@ impl UI {
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
-            if !plugins[idx](self, &mut input, osd) {
+            if !plugins[idx](PluginCtx {
+                ui: self,
+                input: &mut input,
+                osd,
+                new_flags,
+            }) {
                 self.active_plugin = None;
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
             for (idx, plugin) in plugins.iter().enumerate() {
-                if plugin(self, &mut input, osd) {
+                if plugin(PluginCtx {
+                    ui: self,
+                    input: &mut input,
+                    osd,
+                    new_flags,
+                }) {
                     self.active_plugin = Some(idx);
                     break;
                 }
@@ -385,18 +429,7 @@ impl UI {
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
             abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
-            // TODO do this from a plugin!
-            abstutil::write_json(
-                &format!("../data/edits/{}/ui.json", self.map.get_name()),
-                &MapEdits {
-                    edits_name: "ui".to_string(),
-                    map_name: self.map.get_name().to_string(),
-                    road_edits: self.road_editor.get_edits().clone(),
-                    stop_signs: self.control_map.get_stop_signs_savestate(),
-                    traffic_signals: self.control_map.get_traffic_signals_savestate(),
-                },
-            ).expect("Saving map_edits.json failed");
-            info!("Saved editor_state, color_scheme, and map_edits.json");
+            info!("Saved editor_state and color_scheme");
             process::exit(0);
         }
 
@@ -611,4 +644,11 @@ impl ShowTurnIcons for UI {
             || self.stop_sign_editor.show_turn_icons(id)
             || self.traffic_signal_editor.show_turn_icons(id)
     }
+}
+
+struct PluginCtx<'a> {
+    ui: &'a mut UI,
+    input: &'a mut UserInput,
+    osd: &'a mut Text,
+    new_flags: &'a mut Option<SimFlags>,
 }

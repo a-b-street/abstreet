@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_cbor;
 use serde_json;
 use std;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::hash::Hash;
 use std::io::{Error, ErrorKind, Read, Write};
@@ -99,6 +99,16 @@ pub fn deserialize_multimap<
         }
     }
     Ok(map)
+}
+
+// Just list all things from a directory, return sorted by name.
+pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
+    let mut results: BTreeSet<String> = BTreeSet::new();
+    for entry in std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)).unwrap() {
+        let name = entry.unwrap().file_name().into_string().unwrap();
+        results.insert(name);
+    }
+    results.into_iter().collect()
 }
 
 // Load all serialized things from a directory, return sorted by name.
