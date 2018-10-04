@@ -8,6 +8,7 @@ use std::sync::Mutex;
 
 lazy_static! {
     static ref LOGGER: Mutex<LogScroller> = Mutex::new(LogScroller::new_with_capacity(100));
+    static ref LOGGER_STARTED: Mutex<bool> = Mutex::new(false);
 }
 
 static LOG_ADAPTER: LogAdapter = LogAdapter;
@@ -18,8 +19,13 @@ pub struct DisplayLogs {
 
 impl DisplayLogs {
     pub fn new() -> DisplayLogs {
-        log::set_max_level(LevelFilter::Debug);
-        log::set_logger(&LOG_ADAPTER).unwrap();
+        // Even when the rest of the UI is ripped out, retain this static state.
+        let mut lock = LOGGER_STARTED.lock().unwrap();
+        if !*lock {
+            log::set_max_level(LevelFilter::Debug);
+            log::set_logger(&LOG_ADAPTER).unwrap();
+            *lock = true;
+        }
         DisplayLogs { active: false }
     }
 
