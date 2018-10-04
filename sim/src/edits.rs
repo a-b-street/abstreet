@@ -22,4 +22,14 @@ impl MapEdits {
             traffic_signals: BTreeMap::new(),
         }
     }
+
+    pub fn describe(&self) -> String {
+        format!(
+            "map edits \"{}\" ({} roads, {} stop signs, {} traffic signals",
+            self.edits_name,
+            self.road_edits.len(),
+            self.stop_signs.len(),
+            self.traffic_signals.len()
+        )
+    }
 }

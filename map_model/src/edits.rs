@@ -37,6 +37,10 @@ impl RoadEdits {
         }
         false
     }
+
+    pub fn len(&self) -> usize {
+        self.roads.len()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

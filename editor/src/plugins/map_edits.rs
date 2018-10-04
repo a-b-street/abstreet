@@ -94,16 +94,40 @@ fn manage_edits(
     } else {
         vec![save_existing, load]
     };
-    match wizard.choose_string("Manage map edits", choices)?.as_str() {
+
+    // Slow to create this every tick just to get the description? It's actually frozen once the
+    // wizard is started...
+    let edits = MapEdits {
+        edits_name: current_flags.edits_name.to_string(),
+        map_name: map.get_name().to_string(),
+        road_edits: road_editor.get_edits().clone(),
+        stop_signs: control_map.get_changed_stop_signs(),
+        traffic_signals: control_map.get_changed_traffic_signals(),
+    };
+
+    match wizard
+        .choose_string(&format!("Manage {}", edits.describe()), choices)?
+        .as_str()
+    {
         x if x == save_new => {
             let name = wizard.input_string("Name the map edits")?;
-            save(&name, map, control_map, road_editor);
+            abstutil::write_json(
+                &format!("../data/edits/{}/{}.json", map.get_name(), name),
+                &edits,
+            ).expect("Saving map edits failed");
             // No need to reload everything
             current_flags.edits_name = name;
             Some(())
         }
         x if x == save_existing => {
-            save(&current_flags.edits_name, map, control_map, road_editor);
+            abstutil::write_json(
+                &format!(
+                    "../data/edits/{}/{}.json",
+                    map.get_name(),
+                    &current_flags.edits_name
+                ),
+                &edits,
+            ).expect("Saving map edits failed");
             Some(())
         }
         x if x == load => {
@@ -118,17 +142,4 @@ fn manage_edits(
         }
         _ => unreachable!(),
     }
-}
-
-fn save(edits_name: &str, map: &Map, control_map: &ControlMap, road_editor: &RoadEditor) {
-    abstutil::write_json(
-        &format!("../data/edits/{}/{}.json", map.get_name(), edits_name),
-        &MapEdits {
-            edits_name: edits_name.to_string(),
-            map_name: map.get_name().to_string(),
-            road_edits: road_editor.get_edits().clone(),
-            stop_signs: control_map.get_changed_stop_signs(),
-            traffic_signals: control_map.get_changed_traffic_signals(),
-        },
-    ).expect("Saving map edits failed");
 }
