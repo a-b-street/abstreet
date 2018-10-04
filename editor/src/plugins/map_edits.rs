@@ -51,6 +51,7 @@ impl EditsManager {
                     wizard.wrap(input),
                 ).is_some()
                 {
+                    new_state = Some(State::Inactive);
                 } else if wizard.aborted() {
                     new_state = Some(State::Inactive);
                 }
