@@ -4,6 +4,7 @@
 
 editor/editor_state
 
+data/seattle_parcels.abst
 data/edits/*
 data/input/*
 data/maps/*.abst
