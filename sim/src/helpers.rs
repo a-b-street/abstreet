@@ -53,7 +53,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let map_path = format!("../data/maps/{}.abst", sim.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
-        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
+        let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         (map, control_map, sim)
     } else if flags.load.contains("data/scenarios/") {
         info!("Seeding the simulation from scenario {}", flags.load);
@@ -65,7 +65,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let map_path = format!("../data/maps/{}.abst", scenario.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
-        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
+        let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         let mut sim = Sim::new(
             &map,
             scenario.scenario_name.clone(),
@@ -87,7 +87,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
             map_name, flags.edits_name
         )).unwrap_or(MapEdits::new());
         let map = Map::new(&flags.load, edits.road_edits.clone()).expect("Couldn't load map");
-        let control_map = ControlMap::new(&map, &edits.stop_signs, &edits.traffic_signals);
+        let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         flame::start("create sim");
         // Note this is the only time we actually use the run name!
         let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);

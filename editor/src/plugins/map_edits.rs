@@ -127,8 +127,8 @@ fn save(edits_name: &str, map: &Map, control_map: &ControlMap, road_editor: &Roa
             edits_name: edits_name.to_string(),
             map_name: map.get_name().to_string(),
             road_edits: road_editor.get_edits().clone(),
-            stop_signs: control_map.get_stop_signs_savestate(),
-            traffic_signals: control_map.get_traffic_signals_savestate(),
+            stop_signs: control_map.get_changed_stop_signs(),
+            traffic_signals: control_map.get_changed_traffic_signals(),
         },
     ).expect("Saving map edits failed");
 }

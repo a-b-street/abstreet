@@ -1,4 +1,4 @@
-use control::{ModifiedStopSign, ModifiedTrafficSignal};
+use control::{ControlStopSign, ControlTrafficSignal};
 use map_model::{IntersectionID, RoadEdits};
 use std::collections::BTreeMap;
 
@@ -8,8 +8,8 @@ pub struct MapEdits {
     pub map_name: String,
 
     pub road_edits: RoadEdits,
-    pub stop_signs: BTreeMap<IntersectionID, ModifiedStopSign>,
-    pub traffic_signals: BTreeMap<IntersectionID, ModifiedTrafficSignal>,
+    pub stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
+    pub traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
 }
 
 impl MapEdits {

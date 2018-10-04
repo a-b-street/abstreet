@@ -1,9 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use abstutil::serialize_btreemap;
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{IntersectionID, LaneID, Map, TurnID};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use ModifiedStopSign;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
@@ -20,10 +19,11 @@ pub enum TurnPriority {
 // 2) Yields - cars can do this immediately if there are no previously accepted conflicting turns.
 //    should maybe check that these turns originate from roads with priority turns.
 // 3) Stops - cars must stop before doing this turn, and they are accepted with the lowest priority
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {
     intersection: IntersectionID,
     #[serde(serialize_with = "serialize_btreemap")]
+    #[serde(deserialize_with = "deserialize_btreemap")]
     turns: BTreeMap<TurnID, TurnPriority>,
     // TODO
     changed: bool,
@@ -141,7 +141,7 @@ impl ControlStopSign {
         true
     }
 
-    pub fn changed(&self) -> bool {
+    pub fn is_changed(&self) -> bool {
         // TODO detect edits that've been undone, equivalent to original
         self.changed
     }
@@ -151,21 +151,6 @@ impl ControlStopSign {
             .iter()
             .find(|(turn, pri)| turn.src == lane && **pri > TurnPriority::Stop)
             .is_some()
-    }
-
-    pub fn get_savestate(&self) -> Option<ModifiedStopSign> {
-        if !self.changed() {
-            return None;
-        }
-
-        Some(ModifiedStopSign {
-            turns: self.turns.clone(),
-        })
-    }
-
-    pub fn load_savestate(&mut self, state: &ModifiedStopSign) {
-        self.changed = true;
-        self.turns = state.turns.clone();
     }
 
     fn validate(&self, map: &Map, intersection: IntersectionID) {

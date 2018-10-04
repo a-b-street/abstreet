@@ -6,11 +6,10 @@ extern crate map_model;
 #[macro_use]
 extern crate serde_derive;
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{IntersectionID, Map, TurnID};
+use map_model::{IntersectionID, Map};
 use std::collections::{BTreeMap, HashMap};
-use stop_signs::{ControlStopSign, TurnPriority};
-use traffic_signals::ControlTrafficSignal;
+pub use stop_signs::ControlStopSign;
+pub use traffic_signals::ControlTrafficSignal;
 
 pub mod stop_signs;
 pub mod traffic_signals;
@@ -24,8 +23,8 @@ pub struct ControlMap {
 impl ControlMap {
     pub fn new(
         map: &Map,
-        stop_signs: &BTreeMap<IntersectionID, ModifiedStopSign>,
-        traffic_signals: &BTreeMap<IntersectionID, ModifiedTrafficSignal>,
+        stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
+        traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
     ) -> ControlMap {
         let mut ctrl = ControlMap {
             traffic_signals: HashMap::new(),
@@ -42,53 +41,33 @@ impl ControlMap {
             }
         }
 
-        for (i, s) in traffic_signals {
-            ctrl.traffic_signals.get_mut(i).unwrap().load_savestate(s);
+        for (i, s) in stop_signs.into_iter() {
+            ctrl.stop_signs.insert(i, s);
         }
-        for (i, s) in stop_signs {
-            ctrl.stop_signs.get_mut(i).unwrap().load_savestate(s);
+        for (i, s) in traffic_signals.into_iter() {
+            ctrl.traffic_signals.insert(i, s);
         }
 
         ctrl
     }
 
-    pub fn get_traffic_signals_savestate(&self) -> BTreeMap<IntersectionID, ModifiedTrafficSignal> {
+    pub fn get_changed_stop_signs(&self) -> BTreeMap<IntersectionID, ControlStopSign> {
+        let mut h: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
+        for (i, s) in &self.stop_signs {
+            if s.is_changed() {
+                h.insert(*i, s.clone());
+            }
+        }
+        h
+    }
+
+    pub fn get_changed_traffic_signals(&self) -> BTreeMap<IntersectionID, ControlTrafficSignal> {
         let mut h = BTreeMap::new();
         for (i, s) in &self.traffic_signals {
-            if let Some(state) = s.get_savestate() {
-                h.insert(*i, state);
+            if s.is_changed() {
+                h.insert(*i, s.clone());
             }
         }
         h
     }
-
-    pub fn get_stop_signs_savestate(&self) -> BTreeMap<IntersectionID, ModifiedStopSign> {
-        let mut h = BTreeMap::new();
-        for (i, s) in &self.stop_signs {
-            if let Some(state) = s.get_savestate() {
-                h.insert(*i, state);
-            }
-        }
-        h
-    }
-}
-
-// General problem: TurnIDs change as code does. Serialized state is kinda tied to code version.
-// TODO diffs are happening differently for roads
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ModifiedTrafficSignal {
-    pub cycles: Vec<CycleState>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CycleState {
-    pub turns: Vec<TurnID>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ModifiedStopSign {
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
-    pub turns: BTreeMap<TurnID, TurnPriority>,
 }

@@ -1,18 +1,15 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use CycleState;
-use ModifiedTrafficSignal;
-
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
-
 use std;
+
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,
     _marker: std::marker::PhantomData,
 };
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlTrafficSignal {
     intersection: IntersectionID,
     pub cycles: Vec<Cycle>,
@@ -27,33 +24,8 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn changed(&self) -> bool {
+    pub fn is_changed(&self) -> bool {
         self.cycles.iter().find(|c| c.changed).is_some()
-    }
-
-    pub fn get_savestate(&self) -> Option<ModifiedTrafficSignal> {
-        if !self.changed() {
-            return None;
-        }
-        Some(ModifiedTrafficSignal {
-            cycles: self
-                .cycles
-                .iter()
-                .map(|c| CycleState {
-                    turns: c.turns.clone(),
-                }).collect(),
-        })
-    }
-
-    pub fn load_savestate(&mut self, state: &ModifiedTrafficSignal) {
-        self.cycles = state
-            .cycles
-            .iter()
-            .map(|c| Cycle {
-                turns: c.turns.clone(),
-                changed: true,
-                duration: CYCLE_DURATION,
-            }).collect();
     }
 
     pub fn current_cycle_and_remaining_time(
@@ -68,7 +40,7 @@ impl ControlTrafficSignal {
     }
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cycle {
     pub turns: Vec<TurnID>,
     // in the future, what pedestrian crossings this cycle includes, etc

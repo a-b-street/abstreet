@@ -94,9 +94,9 @@ impl Renderable for DrawIntersection {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             let changed = if let Some(s) = ctx.control_map.traffic_signals.get(&self.id) {
-                s.changed()
+                s.is_changed()
             } else if let Some(s) = ctx.control_map.stop_signs.get(&self.id) {
-                s.changed()
+                s.is_changed()
             } else {
                 false
             };
