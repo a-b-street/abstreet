@@ -65,7 +65,7 @@ impl GUI for UI {
             self.show_labels = !self.show_labels;
         }
 
-        self.canvas.handle_event(input.use_event_directly());
+        self.canvas.handle_event(&mut input);
 
         EventLoopMode::InputOnly
     }

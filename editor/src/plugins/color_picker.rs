@@ -3,7 +3,7 @@
 use colors::{ColorScheme, Colors};
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu, UserInput};
 use objects::SETTINGS;
-use piston::input::{Key, MouseCursorEvent};
+use piston::input::Key;
 use plugins::Colorizer;
 use std::string::ToString;
 use strum::IntoEnumIterator;
@@ -61,11 +61,11 @@ impl ColorPicker {
                     new_state = Some(ColorPicker::Inactive);
                 }
 
-                if let Some(pos) = input.use_event_directly().mouse_cursor_args() {
+                if let Some((m_x, m_y)) = input.get_moved_mouse() {
                     // TODO argh too much casting
                     let (start_x, start_y) = get_screen_offset(canvas);
-                    let x = (pos[0] - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
-                    let y = (pos[1] - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
+                    let x = (m_x - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
+                    let y = (m_y - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
                         cs.set(*c, get_color(x as f32, y as f32));
                     }

@@ -3,7 +3,7 @@ use ezgui::{Canvas, GfxCtx, InputResult, Menu, Text, TextBox, UserInput};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
 use objects::EDIT_MAP;
-use piston::input::{Button, Key, ReleaseEvent};
+use piston::input::Key;
 use plugins::Colorizer;
 use sim::Neighborhood;
 
@@ -94,9 +94,7 @@ impl DrawNeighborhoodState {
                 osd.add_line(format!("Currently editing {}", name));
 
                 pts[*idx] = canvas.get_cursor_in_map_space();
-                if let Some(Button::Keyboard(Key::LCtrl)) =
-                    input.use_event_directly().release_args()
-                {
+                if input.key_released(Key::LCtrl) {
                     new_state = Some(DrawNeighborhoodState::DrawingPoints(
                         pts.clone(),
                         Some(*idx),

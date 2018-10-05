@@ -1,7 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use keys::describe_key;
-use piston::input::{Button, Event, IdleArgs, Key, PressEvent};
+use piston::input::{
+    Button, Event, IdleArgs, Key, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
+    ReleaseEvent, UpdateEvent,
+};
 use std::collections::HashMap;
 use tree_menu::TreeMenu;
 use Text;
@@ -141,23 +144,73 @@ impl UserInput {
         false
     }
 
-    pub fn use_event_directly(&self) -> &Event {
+    pub fn key_released(&mut self, key: Key) -> bool {
+        if self.event_consumed {
+            return false;
+        }
+
+        if let Some(Button::Keyboard(released)) = self.event.release_args() {
+            if key == released {
+                self.consume_event();
+                return true;
+            }
+        }
+        false
+    }
+
+    // No consuming for these?
+    pub fn button_pressed(&mut self, btn: MouseButton) -> bool {
+        if let Some(Button::Mouse(pressed)) = self.event.press_args() {
+            btn == pressed
+        } else {
+            false
+        }
+    }
+
+    pub fn button_released(&mut self, btn: MouseButton) -> bool {
+        if let Some(Button::Mouse(released)) = self.event.release_args() {
+            btn == released
+        } else {
+            false
+        }
+    }
+
+    pub fn get_moved_mouse(&self) -> Option<(f64, f64)> {
+        self.event
+            .mouse_cursor_args()
+            .map(|pair| (pair[0], pair[1]))
+    }
+
+    pub fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
+        self.event
+            .mouse_scroll_args()
+            .map(|pair| (pair[0], pair[1]))
+    }
+
+    pub fn is_update_event(&mut self) -> bool {
+        if self.event_consumed {
+            return false;
+        }
+
+        if self.event.update_args().is_some() {
+            self.consume_event();
+            return true;
+        }
+
+        false
+    }
+
+    // The point of hiding this is to make it easy to migrate between Piston and gfx+winit, but
+    // within this crate, everything has to be adjusted anyway.
+    pub(crate) fn use_event_directly(&mut self) -> &Event {
         if self.event_consumed {
             return &self.empty_event;
         }
+        self.consume_event();
         &self.event
     }
 
-    pub fn use_event_directly_for_important_action(&mut self, action: &str) -> &Event {
-        if self.event_consumed {
-            return &self.empty_event;
-        }
-        self.important_actions.push(String::from(action));
-        &self.event
-    }
-
-    // Should only be called publicly after using event directly
-    pub(crate) fn consume_event(&mut self) {
+    fn consume_event(&mut self) {
         assert!(!self.event_consumed);
         self.event_consumed = true;
     }

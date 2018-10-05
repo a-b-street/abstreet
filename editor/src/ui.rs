@@ -13,7 +13,7 @@ use kml;
 use map_model;
 use map_model::IntersectionID;
 use objects::{Ctx, DEBUG_LAYERS, ID, ROOT_MENU};
-use piston::input::{Key, MouseCursorEvent};
+use piston::input::Key;
 use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
@@ -375,7 +375,7 @@ impl UI {
     ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(input.use_event_directly());
+        self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
         for layer in self.toggleable_layers().into_iter() {
             layer.handle_zoom(old_zoom, new_zoom);
@@ -386,7 +386,7 @@ impl UI {
             self.current_selection = None;
         }
         if !self.canvas.is_dragging()
-            && input.use_event_directly().mouse_cursor_args().is_some()
+            && input.get_moved_mouse().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
             self.current_selection = self.mouseover_something();

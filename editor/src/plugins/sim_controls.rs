@@ -4,7 +4,7 @@ use control::ControlMap;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use map_model::Map;
 use objects::{ID, SIM};
-use piston::input::{Key, UpdateEvent};
+use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, Sim, TIMESTEP};
 use std::time::{Duration, Instant};
 
@@ -97,7 +97,7 @@ impl SimController {
             _ => {}
         }
 
-        if input.use_event_directly().update_args().is_some() {
+        if input.is_update_event() {
             if let Some(tick) = self.last_step {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt = tick.elapsed();

@@ -2,7 +2,7 @@ use control::ControlMap;
 use ezgui::{Canvas, GfxCtx, Text, UserInput};
 use map_model::Map;
 use objects::ID;
-use piston::input::{Button, Key, ReleaseEvent};
+use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
 use sim::Sim;
@@ -49,9 +49,7 @@ impl DebugObjectsState {
                 }
             }
             DebugObjectsState::Tooltip(id) => {
-                if let Some(Button::Keyboard(Key::LCtrl)) =
-                    input.use_event_directly().release_args()
-                {
+                if input.key_released(Key::LCtrl) {
                     new_state = Some(DebugObjectsState::Selected(*id));
                 }
             }

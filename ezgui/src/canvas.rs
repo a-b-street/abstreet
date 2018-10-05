@@ -3,11 +3,9 @@
 use aabb_quadtree::geom::{Point, Rect};
 use geom::Pt2D;
 use graphics::Transformed;
-use piston::input::{
-    Button, Event, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
-};
+use piston::input::MouseButton;
 use piston::window::Size;
-use {text, GfxCtx, Text};
+use {text, GfxCtx, Text, UserInput};
 
 const ZOOM_SPEED: f64 = 0.1;
 
@@ -21,7 +19,7 @@ pub struct Canvas {
     cursor_x: f64,
     cursor_y: f64,
 
-    left_mouse_drag_from: Option<[f64; 2]>,
+    left_mouse_drag_from: Option<(f64, f64)>,
 
     pub window_size: Size,
 }
@@ -48,26 +46,26 @@ impl Canvas {
         self.left_mouse_drag_from.is_some()
     }
 
-    pub fn handle_event(&mut self, ev: &Event) {
-        if let Some(pos) = ev.mouse_cursor_args() {
-            self.cursor_x = pos[0];
-            self.cursor_y = pos[1];
+    pub fn handle_event(&mut self, input: &mut UserInput) {
+        if let Some((m_x, m_y)) = input.get_moved_mouse() {
+            self.cursor_x = m_x;
+            self.cursor_y = m_y;
 
-            if let Some(click) = self.left_mouse_drag_from {
-                self.cam_x += click[0] - pos[0];
-                self.cam_y += click[1] - pos[1];
-                self.left_mouse_drag_from = Some(pos);
+            if let Some((click_x, click_y)) = self.left_mouse_drag_from {
+                self.cam_x += click_x - m_x;
+                self.cam_y += click_y - m_y;
+                self.left_mouse_drag_from = Some((m_x, m_y));
             }
         }
-        if let Some(Button::Mouse(MouseButton::Left)) = ev.press_args() {
-            self.left_mouse_drag_from = Some([self.cursor_x, self.cursor_y]);
+        if input.button_pressed(MouseButton::Left) {
+            self.left_mouse_drag_from = Some((self.cursor_x, self.cursor_y));
         }
-        if let Some(Button::Mouse(MouseButton::Left)) = ev.release_args() {
+        if input.button_released(MouseButton::Left) {
             self.left_mouse_drag_from = None;
         }
-        if let Some(scroll) = ev.mouse_scroll_args() {
+        if let Some((_, scroll)) = input.get_mouse_scroll() {
             // Zoom slower at low zooms, faster at high.
-            let delta = scroll[1] * ZOOM_SPEED * self.cam_zoom;
+            let delta = scroll * ZOOM_SPEED * self.cam_zoom;
             self.zoom_towards_mouse(delta);
         }
     }

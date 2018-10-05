@@ -39,7 +39,6 @@ impl LogScroller {
     // True if done
     pub fn event(&mut self, input: &mut UserInput) -> bool {
         let ev = input.use_event_directly().clone();
-        input.consume_event();
 
         if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
             return true;
