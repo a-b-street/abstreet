@@ -22,7 +22,7 @@ pub struct SimFlags {
     #[structopt(long = "run_name", default_value = "unnamed")]
     pub run_name: String,
 
-    /// Name of map edits
+    /// Name of map edits. Shouldn't be a full path or have the ".json"
     #[structopt(long = "edits_name", default_value = "no_edits")]
     pub edits_name: String,
 }
@@ -45,11 +45,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         flame::end("read sim savestate");
-        // TODO assuming the relative path :(
-        let edits: MapEdits = abstutil::read_json(&format!(
-            "../data/edits/{}/{}.json",
-            sim.map_name, flags.edits_name
-        )).unwrap_or(MapEdits::new());
+        let edits = load_edits(&sim.map_name, &flags);
         let map_path = format!("../data/maps/{}.abst", sim.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
@@ -58,10 +54,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
     } else if flags.load.contains("data/scenarios/") {
         info!("Seeding the simulation from scenario {}", flags.load);
         let scenario: Scenario = abstutil::read_json(&flags.load).expect("loading scenario failed");
-        let edits: MapEdits = abstutil::read_json(&format!(
-            "../data/edits/{}/{}.json",
-            scenario.map_name, flags.edits_name
-        )).unwrap_or(MapEdits::new());
+        let edits = load_edits(&scenario.map_name, &flags);
         let map_path = format!("../data/maps/{}.abst", scenario.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
@@ -82,10 +75,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
             .trim_right_matches(".abst")
             .to_string();
         info!("Loading map {}", flags.load);
-        let edits: MapEdits = abstutil::read_json(&format!(
-            "../data/edits/{}/{}.json",
-            map_name, flags.edits_name
-        )).unwrap_or(MapEdits::new());
+        let edits = load_edits(&map_name, &flags);
         let map = Map::new(&flags.load, edits.road_edits.clone()).expect("Couldn't load map");
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         flame::start("create sim");
@@ -385,4 +375,21 @@ fn pick_bldg_from_driving_lane<R: Rng + ?Sized>(
     start: LaneID,
 ) -> BuildingID {
     pick_bldg_from_sidewalk(rng, map, map.get_sidewalk_from_driving_lane(start).unwrap())
+}
+
+fn load_edits(map_name: &str, flags: &SimFlags) -> MapEdits {
+    if flags.edits_name == "no_edits" {
+        return MapEdits::new();
+    }
+    if flags.edits_name.contains("data/") || flags.edits_name.contains(".json") {
+        panic!(
+            "{} should just be a plain name, not a full path",
+            flags.edits_name
+        );
+    }
+    let edits: MapEdits = abstutil::read_json(&format!(
+        "../data/edits/{}/{}.json",
+        map_name, flags.edits_name
+    )).unwrap();
+    edits
 }

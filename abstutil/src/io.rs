@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::hash::Hash;
 use std::io::{Error, ErrorKind, Read, Write};
+use std::path::Path;
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
@@ -101,11 +102,16 @@ pub fn deserialize_multimap<
     Ok(map)
 }
 
-// Just list all things from a directory, return sorted by name.
+// Just list all things from a directory, return sorted by name, with file extension removed.
 pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
     let mut results: BTreeSet<String> = BTreeSet::new();
     for entry in std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)).unwrap() {
-        let name = entry.unwrap().file_name().into_string().unwrap();
+        let name = Path::new(&entry.unwrap().file_name())
+            .file_stem()
+            .unwrap()
+            .to_os_string()
+            .into_string()
+            .unwrap();
         results.insert(name);
     }
     results.into_iter().collect()
