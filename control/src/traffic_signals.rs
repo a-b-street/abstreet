@@ -137,7 +137,7 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
     for cycle in cycles.iter_mut() {
         for t in &all_turns {
             if !cycle.contains(*t) && !cycle.conflicts_with(*t, map) {
-                cycle.add(*t);
+                cycle.turns.push(*t);
             }
         }
     }
