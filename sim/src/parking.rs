@@ -3,7 +3,6 @@ use geom::{Angle, Polygon, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{Lane, LaneID, LaneType, Map};
-use std::collections::BTreeMap;
 use std::iter;
 use {CarID, Distance, DrawCarInput, ParkedCar, ParkingSpot};
 
@@ -52,8 +51,8 @@ impl ParkingSimState {
     pub fn get_all_free_spots(&self, in_poly: Option<&Polygon>) -> Vec<ParkingSpot> {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for l in &self.lanes {
-            for (idx, occupant) in l.occupants.iter().enumerate() {
-                if occupant.is_none() {
+            for (idx, maybe_occupant) in l.occupants.iter().enumerate() {
+                if maybe_occupant.is_none() {
                     // Just match based on the front of the spot
                     if in_poly
                         .map(|p| p.contains_pt(l.spots[idx].pos))
@@ -68,43 +67,36 @@ impl ParkingSimState {
     }
 
     pub fn remove_parked_car(&mut self, p: ParkedCar) {
-        self.lanes[p.spot.lane.0].remove_parked_car(p.car);
+        self.lanes[p.spot.lane.0].remove_parked_car(p);
         self.total_count -= 1;
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
-        assert_eq!(self.lanes[p.spot.lane.0].occupants[p.spot.idx], None);
-        self.lanes[p.spot.lane.0].occupants[p.spot.idx] = Some(p.car);
+        let spot = p.spot;
+        assert_eq!(self.lanes[spot.lane.0].occupants[spot.idx], None);
+        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p);
         self.total_count += 1;
     }
 
-    pub fn get_draw_cars(
-        &self,
-        id: LaneID,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCarInput> {
-        self.lanes[id.0].get_draw_cars(properties)
+    pub fn get_draw_cars(&self, id: LaneID) -> Vec<DrawCarInput> {
+        self.lanes[id.0].get_draw_cars()
     }
 
-    pub fn get_draw_car(
-        &self,
-        id: CarID,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, id: CarID) -> Option<DrawCarInput> {
         // TODO this is so horrendously slow :D
         for l in &self.lanes {
-            if l.occupants.contains(&Some(id)) {
-                return l.get_draw_cars(properties).into_iter().find(|c| c.id == id);
+            if l.occupants.iter().find(|x| is_car(x, id)).is_some() {
+                return l.get_draw_cars().into_iter().find(|c| c.id == id);
             }
         }
         None
     }
 
-    pub fn lookup_car(&self, id: CarID) -> Option<ParkedCar> {
+    pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
         // TODO this is so horrendously slow :D
         for l in &self.lanes {
-            if let Some(idx) = l.occupants.iter().position(|x| *x == Some(id)) {
-                return Some(ParkedCar::new(id, ParkingSpot::new(l.id, idx)));
+            if let Some(p) = l.occupants.iter().find(|x| is_car(x, id)) {
+                return p.as_ref();
             }
         }
         None
@@ -113,14 +105,14 @@ impl ParkingSimState {
     pub fn get_all_parked_cars(&self, in_poly: Option<&Polygon>) -> Vec<ParkedCar> {
         let mut result = Vec::new();
         for l in &self.lanes {
-            for (idx, maybe_car) in l.occupants.iter().enumerate() {
-                if let Some(car) = maybe_car {
+            for maybe_occupant in &l.occupants {
+                if let Some(occupant) = maybe_occupant {
                     // Just match based on the front of the spot
                     if in_poly
-                        .map(|p| p.contains_pt(l.spots[idx].pos))
+                        .map(|p| p.contains_pt(l.spots[occupant.spot.idx].pos))
                         .unwrap_or(true)
                     {
-                        result.push(ParkedCar::new(*car, ParkingSpot::new(l.id, idx)));
+                        result.push(occupant.clone());
                     }
                 }
             }
@@ -140,7 +132,7 @@ impl ParkingSimState {
 
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
         let l = &self.lanes[spot.lane.0];
-        l.occupants[spot.idx].and_then(|car| Some(ParkedCar::new(car, spot)))
+        l.occupants[spot.idx].clone()
     }
 
     pub fn dist_along_for_car(&self, spot: ParkingSpot, vehicle: &Vehicle) -> Distance {
@@ -160,7 +152,7 @@ impl ParkingSimState {
 struct ParkingLane {
     id: LaneID,
     spots: Vec<ParkingSpotGeometry>,
-    occupants: Vec<Option<CarID>>,
+    occupants: Vec<Option<ParkedCar>>,
 }
 
 // TODO the f64's prevent derivation
@@ -198,22 +190,25 @@ impl ParkingLane {
         }
     }
 
-    fn remove_parked_car(&mut self, car: CarID) {
-        let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
+    fn remove_parked_car(&mut self, p: ParkedCar) {
+        let match_against = Some(p.clone());
+        let idx = self
+            .occupants
+            .iter()
+            .position(|x| *x == match_against)
+            .unwrap();
         self.occupants[idx] = None;
     }
 
-    fn get_draw_cars(&self, properties: &BTreeMap<CarID, Vehicle>) -> Vec<DrawCarInput> {
+    fn get_draw_cars(&self) -> Vec<DrawCarInput> {
         self.occupants
             .iter()
-            .enumerate()
-            .filter_map(|(idx, maybe_id)| {
-                maybe_id.and_then(|id| {
-                    let vehicle = &properties[&id];
-                    let (front, angle) = self.spots[idx].front_of_car(vehicle);
+            .filter_map(|maybe_occupant| {
+                maybe_occupant.as_ref().and_then(|p| {
+                    let (front, angle) = self.spots[p.spot.idx].front_of_car(&p.vehicle);
                     Some(DrawCarInput {
-                        id: id,
-                        vehicle_length: vehicle.length,
+                        id: p.car,
+                        vehicle_length: p.vehicle.length,
                         waiting_for_turn: None,
                         front: front,
                         angle: angle,
@@ -224,7 +219,7 @@ impl ParkingLane {
     }
 
     fn is_empty(&self) -> bool {
-        !self.occupants.iter().find(|&&x| x.is_some()).is_some()
+        !self.occupants.iter().find(|x| x.is_some()).is_some()
     }
 }
 
@@ -259,5 +254,12 @@ impl ParkingSpotGeometry {
                 .project_away(offset.value_unsafe, self.angle.opposite()),
             self.angle,
         )
+    }
+}
+
+fn is_car(maybe_occupant: &&Option<ParkedCar>, car: CarID) -> bool {
+    match maybe_occupant {
+        Some(p) => p.car == car,
+        None => false,
     }
 }

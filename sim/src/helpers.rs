@@ -169,13 +169,8 @@ impl Sim {
     }
 
     pub fn seed_parked_cars(&mut self, in_poly: Option<&Polygon>, percent: f64) {
-        self.spawner.seed_parked_cars(
-            percent,
-            in_poly,
-            &mut self.parking_state,
-            &mut self.car_properties,
-            &mut self.rng,
-        );
+        self.spawner
+            .seed_parked_cars(percent, in_poly, &mut self.parking_state, &mut self.rng);
     }
 
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
@@ -189,18 +184,12 @@ impl Sim {
             &mut self.driving_state,
             &mut self.transit_state,
             self.time,
-            &mut self.car_properties,
         )
     }
 
     pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
-        self.spawner.seed_specific_parked_cars(
-            lane,
-            spots,
-            &mut self.parking_state,
-            &mut self.car_properties,
-            &mut self.rng,
-        )
+        self.spawner
+            .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
     }
 
     pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {
@@ -253,7 +242,8 @@ impl Sim {
         let parked = self
             .parking_state
             .lookup_car(car)
-            .expect("Car isn't parked");
+            .expect("Car isn't parked")
+            .clone();
         let road = map.get_parent(parked.spot.lane);
         let sidewalk = road
             .find_sidewalk(parked.spot.lane)

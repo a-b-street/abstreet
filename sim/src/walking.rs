@@ -556,6 +556,7 @@ impl WalkingSimState {
                     } else {
                         SPEED
                     },
+                    vehicle: None,
                 },
             );
         }

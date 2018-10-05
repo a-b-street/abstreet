@@ -35,7 +35,7 @@ const FOLLOWING_DISTANCE: Distance = si::Meter {
 // TODO unit test all of this
 // TODO handle floating point issues uniformly here
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vehicle {
     pub id: CarID,
 

@@ -1,4 +1,5 @@
 use driving::SimQueue;
+use kinematics::Vehicle;
 use map_model::TurnID;
 use std::collections::{BTreeMap, HashMap};
 use {AgentID, CarID, Distance, On, Speed};
@@ -10,6 +11,7 @@ pub struct AgentView {
     pub on: On,
     pub dist_along: Distance,
     pub speed: Speed,
+    pub vehicle: Option<Vehicle>,
 }
 
 pub struct WorldView {

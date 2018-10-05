@@ -7,13 +7,11 @@ use driving::DrivingSimState;
 use failure::Error;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use kinematics::Vehicle;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
 use std;
-use std::collections::BTreeMap;
 use std::f64;
 use std::process;
 use std::time::{Duration, Instant};
@@ -50,8 +48,6 @@ pub struct Sim {
     pub(crate) walking_state: WalkingSimState,
     pub(crate) transit_state: TransitSimState,
     pub(crate) trips_state: TripManager,
-
-    pub(crate) car_properties: BTreeMap<CarID, Vehicle>,
 }
 
 impl Sim {
@@ -80,7 +76,6 @@ impl Sim {
             map_name: map.get_name().to_string(),
             run_name,
             savestate_every,
-            car_properties: BTreeMap::new(),
         }
     }
 
@@ -156,7 +151,6 @@ impl Sim {
             &mut self.walking_state,
             &mut self.driving_state,
             &mut self.trips_state,
-            &self.car_properties,
         );
 
         for p in self.driving_state.step(
@@ -168,9 +162,8 @@ impl Sim {
             &mut self.intersection_state,
             &mut self.transit_state,
             &mut self.rng,
-            &self.car_properties,
         )? {
-            events.push(Event::CarReachedParkingSpot(p.clone()));
+            events.push(Event::CarReachedParkingSpot(p.car, p.spot));
             capture_backtrace("CarReachedParkingSpot");
             self.parking_state.add_parked_car(p.clone());
             self.spawner.car_reached_parking_spot(
@@ -232,8 +225,8 @@ impl Sim {
 
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         self.driving_state
-            .get_draw_car(id, self.time, map, &self.car_properties)
-            .or_else(|| self.parking_state.get_draw_car(id, &self.car_properties))
+            .get_draw_car(id, self.time, map)
+            .or_else(|| self.parking_state.get_draw_car(id))
     }
 
     pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
@@ -243,19 +236,15 @@ impl Sim {
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
         match map.get_l(l).lane_type {
-            LaneType::Driving => {
-                self.driving_state
-                    .get_draw_cars_on_lane(l, self.time, map, &self.car_properties)
-            }
-            LaneType::Parking => self.parking_state.get_draw_cars(l, &self.car_properties),
+            LaneType::Driving => self.driving_state.get_draw_cars_on_lane(l, self.time, map),
+            LaneType::Parking => self.parking_state.get_draw_cars(l),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),
         }
     }
 
     pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCarInput> {
-        self.driving_state
-            .get_draw_cars_on_turn(t, self.time, map, &self.car_properties)
+        self.driving_state.get_draw_cars_on_turn(t, self.time, map)
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {

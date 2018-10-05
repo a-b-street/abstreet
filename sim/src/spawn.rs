@@ -5,7 +5,7 @@ use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
 use rand::Rng;
 use router::Router;
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::VecDeque;
 use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
@@ -77,7 +77,6 @@ impl Spawner {
         walking_sim: &mut WalkingSimState,
         driving_sim: &mut DrivingSimState,
         trips: &mut TripManager,
-        properties: &BTreeMap<CarID, Vehicle>,
     ) {
         let mut commands: Vec<Command> = Vec::new();
         let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
@@ -111,18 +110,18 @@ impl Spawner {
                         // TODO this looks like it jumps when the parking and driving lanes are different lengths
                         // due to diagonals
                         let dist_along =
-                            parking_sim.dist_along_for_car(parked_car.spot, &properties[&car]);
+                            parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle);
                         let start = path.pop_front().unwrap();
                         if driving_sim.start_car_on_lane(
                             events,
                             now,
                             car,
                             Some(parked_car.clone()),
+                            parked_car.vehicle.clone(),
                             dist_along,
                             start,
                             Router::make_router_to_park(path, goal_bldg),
                             map,
-                            properties,
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             parking_sim.remove_parked_car(parked_car.clone());
@@ -161,7 +160,6 @@ impl Spawner {
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
         now: Tick,
-        car_properties: &mut BTreeMap<CarID, Vehicle>,
     ) -> Vec<CarID> {
         let route_id = transit_sim.create_empty_route(route, map);
         let mut results: Vec<CarID> = Vec::new();
@@ -179,15 +177,14 @@ impl Spawner {
                 now,
                 id,
                 None,
+                vehicle,
                 start_dist_along,
                 start,
                 Router::make_router_for_bus(path),
                 map,
-                car_properties,
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);
                 info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
-                car_properties.insert(id, vehicle);
                 results.push(id);
             } else {
                 warn!(
@@ -205,7 +202,6 @@ impl Spawner {
         percent_capacity_to_fill: f64,
         in_poly: Option<&Polygon>,
         parking_sim: &mut ParkingSimState,
-        car_properties: &mut BTreeMap<CarID, Vehicle>,
         rng: &mut R,
     ) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
@@ -219,8 +215,11 @@ impl Spawner {
                 let car = CarID(self.car_id_counter);
                 // TODO since spawning applies during the next step, lots of stuff breaks without
                 // this :(
-                parking_sim.add_parked_car(ParkedCar::new(car, spot));
-                car_properties.insert(car, Vehicle::generate_typical_car(car, rng));
+                parking_sim.add_parked_car(ParkedCar::new(
+                    car,
+                    spot,
+                    Vehicle::generate_typical_car(car, rng),
+                ));
                 self.car_id_counter += 1;
             }
         }
@@ -236,7 +235,6 @@ impl Spawner {
         lane: LaneID,
         spot_indices: Vec<usize>,
         parking_sim: &mut ParkingSimState,
-        car_properties: &mut BTreeMap<CarID, Vehicle>,
         rng: &mut R,
     ) -> Vec<CarID> {
         let spots = parking_sim.get_all_spots(lane);
@@ -244,9 +242,12 @@ impl Spawner {
             .into_iter()
             .map(|idx| {
                 let car = CarID(self.car_id_counter);
-                parking_sim.add_parked_car(ParkedCar::new(car, spots[idx]));
+                parking_sim.add_parked_car(ParkedCar::new(
+                    car,
+                    spots[idx],
+                    Vehicle::generate_typical_car(car, rng),
+                ));
                 self.car_id_counter += 1;
-                car_properties.insert(car, Vehicle::generate_typical_car(car, rng));
                 car
             }).collect()
     }

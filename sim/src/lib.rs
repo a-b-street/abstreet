@@ -356,11 +356,12 @@ impl ParkingSpot {
 pub struct ParkedCar {
     pub car: CarID,
     pub spot: ParkingSpot,
+    pub vehicle: kinematics::Vehicle,
 }
 
 impl ParkedCar {
-    pub fn new(car: CarID, spot: ParkingSpot) -> ParkedCar {
-        ParkedCar { car, spot }
+    pub fn new(car: CarID, spot: ParkingSpot, vehicle: kinematics::Vehicle) -> ParkedCar {
+        ParkedCar { car, spot, vehicle }
     }
 }
 

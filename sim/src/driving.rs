@@ -40,6 +40,7 @@ struct Car {
     on: On,
     speed: Speed,
     dist_along: Distance,
+    vehicle: Vehicle,
 
     parking: Option<ParkingState>,
 
@@ -82,7 +83,6 @@ impl Car {
         // State transitions might be indicated
         transit_sim: &mut TransitSimState,
         intersections: &IntersectionSimState,
-        properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Action, Error> {
         if self.parking.is_some() {
             // TODO right place for this check?
@@ -90,7 +90,7 @@ impl Car {
             return Ok(Action::WorkOnParking);
         }
 
-        let vehicle = &properties[&self.id];
+        let vehicle = &self.vehicle;
 
         if let Some(act) = orig_router.react_before_lookahead(
             events,
@@ -148,7 +148,7 @@ impl Car {
             if let Some(other) = view.next_car_in_front_of(current_on, current_dist_along) {
                 assert!(self.id != other.id.as_car());
                 assert!(current_dist_along < other.dist_along);
-                let other_vehicle = &properties[&other.id.as_car()];
+                let other_vehicle = other.vehicle.as_ref().unwrap();
                 let dist_behind_other =
                     dist_scanned_ahead + (other.dist_along - current_dist_along);
                 // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
@@ -350,12 +350,7 @@ impl SimQueue {
     // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
     // tooltip
 
-    fn reset(
-        &mut self,
-        ids: &Vec<CarID>,
-        cars: &BTreeMap<CarID, Car>,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Result<(), Error> {
+    fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) -> Result<(), Error> {
         let old_queue = self.cars_queue.clone();
         let new_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
@@ -375,7 +370,7 @@ impl SimQueue {
         // assert here we're not squished together too much
         for slice in self.cars_queue.windows(2) {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
-            let following_dist = properties[&c1].following_dist();
+            let following_dist = cars[&c1].vehicle.following_dist();
             if dist1 - dist2 < following_dist {
                 bail!(InvariantViolated::new(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
             }
@@ -389,16 +384,10 @@ impl SimQueue {
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
-    fn get_draw_cars(
-        &self,
-        sim: &DrivingSimState,
-        map: &Map,
-        time: Tick,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCarInput> {
+    fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map, time: Tick) -> Vec<DrawCarInput> {
         let mut results = Vec::new();
         for (_, id) in &self.cars_queue {
-            results.push(sim.get_draw_car(*id, time, map, properties).unwrap())
+            results.push(sim.get_draw_car(*id, time, map).unwrap())
         }
         results
     }
@@ -560,7 +549,6 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         transit_sim: &mut TransitSimState,
         rng: &mut R,
-        properties: &BTreeMap<CarID, Vehicle>,
     ) -> Result<Vec<ParkedCar>, Error> {
         self.populate_view(view);
 
@@ -580,7 +568,6 @@ impl DrivingSimState {
                     parking_sim,
                     transit_sim,
                     intersections,
-                    properties,
                 )?,
             ));
         }
@@ -599,7 +586,7 @@ impl DrivingSimState {
                     c.parking = Some(ParkingState {
                         is_parking: true,
                         started_at: time,
-                        tuple: ParkedCar::new(*id, *spot),
+                        tuple: ParkedCar::new(*id, *spot, c.vehicle.clone()),
                     });
                 }
                 Action::WorkOnParking => {
@@ -662,16 +649,16 @@ impl DrivingSimState {
         // Reset all queues
         for l in &mut self.lanes {
             if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
-                l.reset(v, &self.cars, properties)?;
+                l.reset(v, &self.cars)?;
             } else {
-                l.reset(&Vec::new(), &self.cars, properties)?;
+                l.reset(&Vec::new(), &self.cars)?;
             }
         }
         for t in self.turns.values_mut() {
             if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
-                t.reset(v, &self.cars, properties)?;
+                t.reset(v, &self.cars)?;
             } else {
-                t.reset(&Vec::new(), &self.cars, properties)?;
+                t.reset(&Vec::new(), &self.cars)?;
             }
         }
 
@@ -685,11 +672,11 @@ impl DrivingSimState {
         time: Tick,
         car: CarID,
         maybe_parked_car: Option<ParkedCar>,
+        vehicle: Vehicle,
         dist_along: Distance,
         start: LaneID,
         router: Router,
         map: &Map,
-        properties: &BTreeMap<CarID, Vehicle>,
     ) -> bool {
         // If not, we have a parking lane much longer than a driving lane...
         assert!(dist_along <= map.get_l(start).length());
@@ -710,12 +697,12 @@ impl DrivingSimState {
                 return false;
             }
 
-            let other_vehicle = &properties[&other];
+            let other_vehicle = &self.cars[&other].vehicle;
             let accel_for_other_to_stop = other_vehicle
                 .accel_to_follow(
                     self.cars[&other].speed,
                     map.get_parent(start).get_speed_limit(),
-                    &properties[&car],
+                    &vehicle,
                     dist_along - other_dist,
                     0.0 * si::MPS,
                 ).unwrap();
@@ -736,6 +723,7 @@ impl DrivingSimState {
                 dist_along: dist_along,
                 speed: 0.0 * si::MPS,
                 on: On::Lane(start),
+                vehicle,
                 waiting_for: None,
                 debug: false,
                 is_bus: !maybe_parked_car.is_some(),
@@ -757,17 +745,10 @@ impl DrivingSimState {
         true
     }
 
-    pub fn get_draw_car(
-        &self,
-        id: CarID,
-        time: Tick,
-        map: &Map,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCarInput> {
         let c = self.cars.get(&id)?;
         let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
-        let vehicle = &properties[&id];
-        let stopping_dist = vehicle.stopping_distance(c.speed);
+        let stopping_dist = c.vehicle.stopping_distance(c.speed);
 
         // TODO arguably, this math might belong in DrawCar.
         let pos = if let Some(ref parking) = c.parking {
@@ -787,7 +768,7 @@ impl DrivingSimState {
 
         Some(DrawCarInput {
             id: c.id,
-            vehicle_length: vehicle.length,
+            vehicle_length: c.vehicle.length,
             waiting_for_turn: c.waiting_for.and_then(|on| on.maybe_turn()),
             front: pos,
             angle,
@@ -795,25 +776,13 @@ impl DrivingSimState {
         })
     }
 
-    pub fn get_draw_cars_on_lane(
-        &self,
-        lane: LaneID,
-        time: Tick,
-        map: &Map,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCarInput> {
-        self.lanes[lane.0].get_draw_cars(self, map, time, properties)
+    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
+        self.lanes[lane.0].get_draw_cars(self, map, time)
     }
 
-    pub fn get_draw_cars_on_turn(
-        &self,
-        turn: TurnID,
-        time: Tick,
-        map: &Map,
-        properties: &BTreeMap<CarID, Vehicle>,
-    ) -> Vec<DrawCarInput> {
+    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
         if let Some(queue) = self.turns.get(&turn) {
-            return queue.get_draw_cars(self, map, time, properties);
+            return queue.get_draw_cars(self, map, time);
         }
         return Vec::new();
     }
@@ -831,6 +800,7 @@ impl DrivingSimState {
                     on: c.on,
                     dist_along: c.dist_along,
                     speed: c.speed,
+                    vehicle: Some(c.vehicle.clone()),
                 },
             );
         }

@@ -1,12 +1,12 @@
 use intersections::Request;
 use map_model::{BuildingID, BusStopID};
-use {AgentID, CarID, On, ParkedCar, ParkingSpot, PedestrianID};
+use {AgentID, CarID, On, ParkingSpot, PedestrianID};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
     // TODO CarFinishedParking
     // TODO and the pedestrian / trip associated with it?
-    CarReachedParkingSpot(ParkedCar),
+    CarReachedParkingSpot(CarID, ParkingSpot),
     // TODO and the car / trip?
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
     // TODO CarFinishedUnparking

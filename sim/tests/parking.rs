@@ -24,10 +24,10 @@ fn park_on_goal_st() {
     sim.run_until_expectations_met(
         &map,
         &control_map,
-        vec![sim::Event::CarReachedParkingSpot(sim::ParkedCar::new(
+        vec![sim::Event::CarReachedParkingSpot(
             car,
             sim::ParkingSpot::new(parking2, 4),
-        ))],
+        )],
         sim::Tick::from_minutes(1),
     );
     sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
@@ -49,10 +49,10 @@ fn wander_around_for_parking() {
     sim.run_until_expectations_met(
         &map,
         &control_map,
-        vec![sim::Event::CarReachedParkingSpot(sim::ParkedCar::new(
+        vec![sim::Event::CarReachedParkingSpot(
             car,
             sim::ParkingSpot::new(parking1, 0),
-        ))],
+        )],
         sim::Tick::from_minutes(2),
     );
     sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
@@ -60,7 +60,7 @@ fn wander_around_for_parking() {
 
 fn setup(run_name: &str, map: map_model::Map) -> (map_model::Map, control::ControlMap, sim::Sim) {
     let rng_seed = 123;
-    let control_map = control::ControlMap::new(&map, &BTreeMap::new(), &BTreeMap::new());
+    let control_map = control::ControlMap::new(&map, BTreeMap::new(), BTreeMap::new());
     let sim = sim::Sim::new(&map, run_name.to_string(), Some(rng_seed), None);
     (map, control_map, sim)
 }

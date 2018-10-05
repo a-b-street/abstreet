@@ -88,6 +88,11 @@ around the precomputed front of the spot, used for drawing and for cars to line
 up their front in the sim. I think we need to plumb the true start of the spot
 and have a method to interpolate and pick the true front.
 
+Now trying the other way -- plumbing back and forth. How do we represent this for parked cars?
+- store Vehicle in ParkedCar
+	- I remember there was some reason this refactor broke last time, but let's try it again
+- and store ParkedCar's directly in ParkingLane
+
 ## Logging
 
 Libraries will do it too -- that's fine
