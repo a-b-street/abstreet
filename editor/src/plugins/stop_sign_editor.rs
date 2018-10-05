@@ -3,8 +3,7 @@
 use colors::Colors;
 use control::stop_signs::TurnPriority;
 use control::ControlMap;
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use map_model::IntersectionID;
 use map_model::Map;
 use objects::{Ctx, ID};

@@ -1,4 +1,3 @@
-use graphics::math::Vec2d;
 use std::f64;
 use {Bounds, Pt2D};
 
@@ -84,13 +83,6 @@ impl Polygon {
             triangles.push(Triangle::new(pts[tri[0]], pts[tri[1]], pts[tri[2]]));
         }
         Polygon { triangles }
-    }
-
-    pub fn for_drawing(&self) -> Vec<Vec<Vec2d>> {
-        self.triangles
-            .iter()
-            .map(|tri| vec![to_vec(tri.pt1), to_vec(tri.pt2), to_vec(tri.pt3)])
-            .collect()
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
@@ -184,8 +176,4 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
         sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
     }
     sum > 0.0
-}
-
-fn to_vec(pt: Pt2D) -> Vec2d {
-    [pt.x(), pt.y()]
 }

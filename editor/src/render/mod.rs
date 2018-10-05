@@ -12,9 +12,8 @@ mod parcel;
 mod pedestrian;
 mod turn;
 
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Pt2D};
-use graphics::types::Color;
 use map_model::Map;
 use objects::{Ctx, ID};
 pub use render::area::DrawArea;

@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
-use graphics::types::Color;
+use ezgui::{Canvas, Color, GfxCtx, InputResult, TextBox, UserInput};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;

@@ -2,8 +2,7 @@
 
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use map_model::{Lane, Map};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;

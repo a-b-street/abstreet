@@ -2,8 +2,7 @@
 
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::{GfxCtx, UserInput};
-use graphics::types::Color;
+use ezgui::{Color, GfxCtx, UserInput};
 use map_model::{IntersectionID, LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;

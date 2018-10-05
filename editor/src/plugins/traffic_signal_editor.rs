@@ -4,8 +4,7 @@
 
 use colors::Colors;
 use control::ControlMap;
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;

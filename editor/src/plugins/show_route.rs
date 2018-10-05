@@ -1,6 +1,5 @@
 use colors::Colors;
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use map_model::LaneID;
 use objects::{Ctx, ID};
 use piston::input::Key;

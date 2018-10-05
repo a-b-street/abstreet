@@ -1,9 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::Colors;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
-use graphics::types::Color;
 use map_model::{Map, Parcel, ParcelID};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};

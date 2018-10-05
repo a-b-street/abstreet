@@ -26,7 +26,6 @@ pub use canvas::{
     Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
 };
 use graphics::character::CharacterCache;
-use graphics::types::Color;
 pub use input::UserInput;
 pub use log_scroller::LogScroller;
 pub use menu::Menu;
@@ -110,9 +109,13 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
-        for pts in poly.for_drawing().iter() {
+        for tri in &poly.triangles {
             graphics::Polygon::new(color).draw(
-                pts,
+                &vec![
+                    [tri.pt1.x(), tri.pt1.y()],
+                    [tri.pt2.x(), tri.pt2.y()],
+                    [tri.pt3.x(), tri.pt3.y()],
+                ],
                 &self.ctx.draw_state,
                 self.ctx.transform,
                 self.gfx,
@@ -232,3 +235,5 @@ pub enum InputResult<T: Clone> {
     StillActive,
     Done(String, T),
 }
+
+pub type Color = [f32; 4];

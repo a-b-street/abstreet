@@ -10,7 +10,6 @@ extern crate dimensioned;
 extern crate failure;
 extern crate flame;
 extern crate geom;
-extern crate graphics;
 #[macro_use]
 extern crate lazy_static;
 // Order matters -- this must be before 'mod macros'

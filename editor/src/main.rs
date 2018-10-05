@@ -10,7 +10,6 @@ extern crate flame;
 extern crate generator;
 extern crate geo;
 extern crate geom;
-extern crate graphics;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]

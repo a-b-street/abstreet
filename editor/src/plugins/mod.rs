@@ -19,7 +19,7 @@ pub mod traffic_signal_editor;
 pub mod turn_cycler;
 pub mod warp;
 
-use graphics::types::Color;
+use ezgui::Color;
 use objects::{Ctx, ID};
 
 pub trait Colorizer {

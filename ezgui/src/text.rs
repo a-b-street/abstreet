@@ -1,9 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use graphics;
-use graphics::types::Color;
-use graphics::{Image, Transformed};
-use GfxCtx;
+use graphics::{Image, Rectangle, Transformed};
+use {Color, GfxCtx};
 
 pub const TEXT_FG_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
 pub const TEXT_QUERY_COLOR: Color = [0.0, 0.0, 1.0, 0.5];
@@ -99,7 +97,7 @@ impl Text {
 
 pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
     let (total_width, total_height) = txt.dims(g);
-    graphics::Rectangle::new(txt.bg_color).draw(
+    Rectangle::new(txt.bg_color).draw(
         [x1, y1, total_width, total_height],
         &g.orig_ctx.draw_state,
         g.orig_ctx.transform,
@@ -114,7 +112,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
             if let Some(color) = span.highlight_color {
                 // TODO do we ever want to use total_width?
                 let width = g.glyphs.width(FONT_SIZE, &span.text).unwrap();
-                graphics::Rectangle::new(color).draw(
+                Rectangle::new(color).draw(
                     [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
                     &g.orig_ctx.draw_state,
                     g.orig_ctx.transform,

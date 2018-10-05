@@ -1,12 +1,10 @@
 extern crate ezgui;
 extern crate geom;
-extern crate graphics;
 extern crate map_model;
 extern crate piston;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, GUI};
 use geom::{Circle, PolyLine, Polygon, Pt2D};
-use graphics::types::Color;
 use map_model::LANE_THICKNESS;
 use piston::input::Key;
 use piston::window::Size;

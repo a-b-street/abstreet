@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::Colors;
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use map_model::{LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;

@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, GfxCtx, InputResult, Menu, UserInput};
-use graphics;
+use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu, UserInput};
 use objects::SETTINGS;
 use piston::input::{Key, MouseCursorEvent};
 use plugins::Colorizer;
@@ -19,7 +18,7 @@ pub enum ColorPicker {
     Inactive,
     Choosing(Menu<Colors>),
     // Remember the original color, in case we revert
-    PickingColor(Colors, graphics::types::Color),
+    PickingColor(Colors, Color),
 }
 
 impl ColorPicker {
@@ -119,7 +118,7 @@ fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
     (start_x, start_y)
 }
 
-fn get_color(x: f32, y: f32) -> graphics::types::Color {
+fn get_color(x: f32, y: f32) -> Color {
     assert!(x >= 0.0 && x <= 1.0);
     assert!(y >= 0.0 && y <= 1.0);
     [x, y, (x + y) / 2.0, 1.0]

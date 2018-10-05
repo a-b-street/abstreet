@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::Colors;
-use ezgui::UserInput;
-use graphics::types::Color;
+use ezgui::{Color, UserInput};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::Colorizer;

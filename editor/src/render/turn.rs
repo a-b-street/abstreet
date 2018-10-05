@@ -2,9 +2,8 @@
 
 use colors::Colors;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Pt2D};
-use graphics::types::Color;
 use map_model::{Map, Turn, TurnID};
 use objects::{Ctx, ID};
 use render::{

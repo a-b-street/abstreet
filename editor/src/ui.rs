@@ -5,9 +5,10 @@
 use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI};
+use ezgui::{
+    Canvas, Color, EventLoopMode, GfxCtx, Text, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI,
+};
 use flame;
-use graphics::types::Color;
 use kml;
 use map_model;
 use map_model::IntersectionID;

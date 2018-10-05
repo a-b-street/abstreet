@@ -1,5 +1,4 @@
 extern crate dimensioned;
-extern crate graphics;
 extern crate ordered_float;
 extern crate rand;
 extern crate serde;
