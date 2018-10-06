@@ -7,7 +7,6 @@ use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, GUI};
 use geom::{Circle, PolyLine, Polygon, Pt2D};
 use map_model::LANE_THICKNESS;
 use piston::input::Key;
-use piston::window::Size;
 use std::f64;
 use std::process;
 
@@ -70,10 +69,12 @@ impl GUI for UI {
         EventLoopMode::InputOnly
     }
 
-    // TODO Weird to mut self just to set window_size on the canvas
-    fn draw(&mut self, g: &mut GfxCtx, _osd: Text, window_size: Size) {
+    fn get_mut_canvas(&mut self) -> &mut Canvas {
+        &mut self.canvas
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _osd: Text) {
         g.clear(WHITE);
-        self.canvas.start_drawing(g, window_size);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 

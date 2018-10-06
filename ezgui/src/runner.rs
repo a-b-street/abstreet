@@ -3,12 +3,13 @@ use input::UserInput;
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
-use piston::window::{Size, Window, WindowSettings};
-use {GfxCtx, Text};
+use piston::window::{Window, WindowSettings};
+use {Canvas, GfxCtx, Text};
 
 pub trait GUI {
     fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode;
-    fn draw(&mut self, g: &mut GfxCtx, osd: Text, window_size: Size);
+    fn get_mut_canvas(&mut self) -> &mut Canvas;
+    fn draw(&self, g: &mut GfxCtx, osd: Text);
 }
 
 #[derive(PartialEq)]
@@ -49,7 +50,10 @@ pub fn run<T: GUI>(mut gui: T, window_title: &str, initial_width: u32, initial_h
 
         if let Some(args) = ev.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                gui.draw(&mut GfxCtx::new(&mut glyphs, g, c), osd, window.draw_size());
+                let mut g = GfxCtx::new(&mut glyphs, g, c);
+                gui.get_mut_canvas()
+                    .start_drawing(&mut g, window.draw_size());
+                gui.draw(&mut g, osd);
             });
         }
     }

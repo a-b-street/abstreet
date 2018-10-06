@@ -70,7 +70,7 @@ impl Canvas {
         }
     }
 
-    pub fn start_drawing(&mut self, g: &mut GfxCtx, window_size: Size) {
+    pub(crate) fn start_drawing(&mut self, g: &mut GfxCtx, window_size: Size) {
         self.window_size = window_size;
         g.ctx = g
             .orig_ctx

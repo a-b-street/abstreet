@@ -14,7 +14,6 @@ use map_model;
 use map_model::IntersectionID;
 use objects::{Ctx, DEBUG_LAYERS, ID, ROOT_MENU};
 use piston::input::Key;
-use piston::window::Size;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::debug_objects::DebugObjectsState;
@@ -67,10 +66,11 @@ impl GUI for UIWrapper {
         result
     }
 
-    fn draw(&mut self, g: &mut GfxCtx, osd: Text, window_size: Size) {
-        // Since self is mut here, we can set window_size on the canvas, but then let the real
-        // draw() be immutable.
-        self.ui.canvas.start_drawing(g, window_size);
+    fn get_mut_canvas(&mut self) -> &mut Canvas {
+        &mut self.ui.canvas
+    }
+
+    fn draw(&self, g: &mut GfxCtx, osd: Text) {
         self.ui.draw(g, osd);
     }
 }
