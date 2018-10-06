@@ -299,7 +299,7 @@ impl Sim {
 
     pub fn measure_speed(&self, b: &mut Benchmark) -> f64 {
         let elapsed = b.last_real_time.elapsed();
-        let dt = (elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9) * si::S;
+        let dt = abstutil::elapsed_seconds(b.last_real_time) * si::S;
         let speed = (self.time - b.last_sim_time).as_time() / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;

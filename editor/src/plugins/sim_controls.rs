@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil::elapsed_seconds;
 use control::ControlMap;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use map_model::Map;
@@ -100,8 +101,7 @@ impl SimController {
         if input.is_update_event() {
             if let Some(tick) = self.last_step {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
-                let dt = tick.elapsed();
-                let dt_s = dt.as_secs() as f64 + f64::from(dt.subsec_nanos()) * 1e-9;
+                let dt_s = elapsed_seconds(tick);
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
                     sim.step(map, control_map);
                     self.last_step = Some(Instant::now());

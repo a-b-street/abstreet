@@ -1,5 +1,5 @@
 use ezgui::GfxCtx;
-use geom::{Line, Polygon};
+use geom::{Line, Polygon, Pt2D};
 use map_model::{Building, Map, Road, LANE_THICKNESS};
 
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
@@ -26,14 +26,14 @@ impl DrawMap {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, timer: f64) {
         g.clear(WHITE);
         // TODO no pruning yet
         for r in &self.roads {
             r.draw(g);
         }
         for b in &self.buildings {
-            b.draw(g);
+            b.draw(g, timer);
         }
     }
 }
@@ -60,6 +60,7 @@ impl DrawRoad {
 
 struct DrawBuilding {
     polygon: Polygon,
+    // pt1 is fixed, to the road
     line: Line,
 }
 
@@ -67,12 +68,20 @@ impl DrawBuilding {
     fn new(b: &Building) -> DrawBuilding {
         DrawBuilding {
             polygon: Polygon::new(&b.points),
-            line: b.front_path.line.clone(),
+            line: b.front_path.line.reverse(),
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx, timer: f64) {
         g.draw_polygon(RED, &self.polygon);
-        g.draw_rounded_line(BLUE, LINE_WIDTH, &self.line);
+        let percent = timer;
+        let new_line = Line::new(
+            self.line.pt1(),
+            Pt2D::new(
+                self.line.pt1().x() + percent * (self.line.pt2().x() - self.line.pt1().x()),
+                self.line.pt1().y() + percent * (self.line.pt2().y() - self.line.pt1().y()),
+            ),
+        );
+        g.draw_rounded_line(BLUE, LINE_WIDTH, &new_line);
     }
 }

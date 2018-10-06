@@ -1,3 +1,4 @@
+extern crate abstutil;
 extern crate ezgui;
 extern crate geom;
 extern crate map_model;
@@ -6,6 +7,7 @@ extern crate piston;
 extern crate structopt;
 
 mod render;
+mod timer;
 
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
 use map_model::{Map, RoadEdits};
@@ -13,6 +15,7 @@ use piston::input::Key;
 use render::DrawMap;
 use std::process;
 use structopt::StructOpt;
+use timer::Cycler;
 
 #[derive(StructOpt)]
 #[structopt(name = "halloween")]
@@ -23,10 +26,12 @@ struct Flags {
 }
 
 const KEY_CATEGORY: &str = "";
+const ANIMATION_PERIOD_S: f64 = 2.0;
 
 struct UI {
     canvas: Canvas,
     draw_map: DrawMap,
+    cycler: Cycler,
 }
 
 impl UI {
@@ -35,6 +40,7 @@ impl UI {
         UI {
             canvas: Canvas::new(),
             draw_map: DrawMap::new(map),
+            cycler: Cycler::new(ANIMATION_PERIOD_S),
         }
     }
 }
@@ -44,10 +50,8 @@ impl GUI for UI {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
-
         self.canvas.handle_event(&mut input);
-
-        EventLoopMode::InputOnly
+        EventLoopMode::Animation
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
@@ -55,7 +59,7 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, _osd: Text) {
-        self.draw_map.draw(g);
+        self.draw_map.draw(g, self.cycler.value());
     }
 }
 

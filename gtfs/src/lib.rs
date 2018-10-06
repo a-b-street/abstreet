@@ -1,3 +1,4 @@
+extern crate abstutil;
 extern crate csv;
 extern crate failure;
 extern crate geom;
@@ -6,6 +7,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+use abstutil::elapsed_seconds;
 use failure::Error;
 use geom::LonLat;
 use itertools::Itertools;
@@ -70,8 +72,6 @@ pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {
         });
     }
 
-    let elapsed = timer.elapsed();
-    let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
-    println!("Loading GTFS took {}s", dt);
+    println!("Loading GTFS took {}s", elapsed_seconds(timer));
     Ok(results)
 }

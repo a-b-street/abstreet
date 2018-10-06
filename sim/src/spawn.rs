@@ -1,3 +1,4 @@
+use abstutil::elapsed_seconds;
 use driving::DrivingSimState;
 use geom::Polygon;
 use kinematics::Vehicle;
@@ -437,8 +438,10 @@ fn calculate_paths(
         .map(|(start, goal)| Pathfinder::shortest_distance(map, *start, *goal))
         .collect();
 
-    let elapsed = timer.elapsed();
-    let dt = elapsed.as_secs() as f64 + f64::from(elapsed.subsec_nanos()) * 1e-9;
-    debug!("Calculating {} paths took {}s", paths.len(), dt);
+    debug!(
+        "Calculating {} paths took {}s",
+        paths.len(),
+        elapsed_seconds(timer)
+    );
     paths
 }

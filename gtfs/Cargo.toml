@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+abstutil = { path = "../abstutil" }
 csv = "1.0.1"
 failure = "0.1.2"
 geom = { path = "../geom" }
