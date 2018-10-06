@@ -277,3 +277,10 @@ Alright, I think this is the sequence of things to do:
 	- but wait, then road editor kind of cant work, because mut borrow edits from map while holding immutable lane/road refs. theyre really indep things, so cant store together.
 2) make it possible to completely reload UI and everything from scratch, from a plugin. rationale: it'd be nice to switch maps from inside the editor anyway. not necessary, but useful.
 3) make road edits propogate correctly, and somehow have a strategy for ensuring nothing is forgotten. impl today is VERY incomplete.
+
+## Rendering a map differently
+
+For "Project Halloween", I want to draw the map model in a very different
+visual style. Stuff like intersections are ignored, rendering roads instead of
+lanes, and making animated buildings. Let's just start, and see what kind of
+common code makes sense to keep.

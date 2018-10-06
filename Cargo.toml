@@ -9,6 +9,7 @@ members = [
   "ezgui",
   "geom",
   "gtfs",
+  "halloween",
   "headless",
   "kml",
   "map_model",
