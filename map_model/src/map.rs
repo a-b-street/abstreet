@@ -166,7 +166,6 @@ impl Map {
         let (stops, routes) =
             make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
         m.bus_stops = stops;
-        m.bus_routes = routes;
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
@@ -203,6 +202,11 @@ impl Map {
                 osm_tags: a.osm_tags.clone(),
                 osm_way_id: a.osm_way_id,
             });
+        }
+
+        {
+            let _guard = flame::start_guard(format!("verify {} bus routes", routes.len()));
+            m.bus_routes = make::verify_bus_routes(&m, routes);
         }
 
         m

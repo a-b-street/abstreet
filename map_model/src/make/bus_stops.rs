@@ -5,7 +5,8 @@ use make::sidewalk_finder::find_sidewalk_points;
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use {BusRoute, BusStop, BusStopID, Lane, LaneID, Road};
+use std::iter;
+use {BusRoute, BusStop, BusStopID, Lane, LaneID, Map, Pathfinder, Road};
 
 pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
@@ -77,4 +78,31 @@ pub fn make_bus_stops(
         });
     }
     (bus_stops, routes)
+}
+
+pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>) -> Vec<BusRoute> {
+    routes
+        .into_iter()
+        .filter(|r| {
+            let mut ok = true;
+            for (stop1, stop2) in r
+                .stops
+                .iter()
+                .zip(r.stops.iter().skip(1))
+                .chain(iter::once((r.stops.last().unwrap(), &r.stops[0])))
+            {
+                let bs1 = map.get_bs(*stop1);
+                let bs2 = map.get_bs(*stop2);
+                if Pathfinder::shortest_distance(map, bs1.driving_lane, bs2.driving_lane).is_none()
+                {
+                    debug!(
+                        "Removing route {} since {:?} and {:?} aren't connected",
+                        r.name, bs1, bs2
+                    );
+                    ok = false;
+                    break;
+                }
+            }
+            ok
+        }).collect()
 }
