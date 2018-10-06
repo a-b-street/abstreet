@@ -55,8 +55,6 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, _osd: Text) {
-        g.clear([1.0; 4]);
-
         self.draw_map.draw(g);
     }
 }
