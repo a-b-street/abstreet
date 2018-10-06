@@ -66,7 +66,7 @@ pub fn make_bus_stops(
             .map(|stop| *stop)
             .collect();
         if stops.len() == 1 {
-            debug!(
+            warn!(
                 "Skipping route {} since it only has 1 stop in the slice of the map",
                 route_name
             );
@@ -95,7 +95,7 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>) -> Vec<BusRoute> {
                 let bs2 = map.get_bs(*stop2);
                 if Pathfinder::shortest_distance(map, bs1.driving_lane, bs2.driving_lane).is_none()
                 {
-                    debug!(
+                    warn!(
                         "Removing route {} since {:?} and {:?} aren't connected",
                         r.name, bs1, bs2
                     );

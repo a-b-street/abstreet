@@ -33,7 +33,7 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
-    log::set_max_level(LevelFilter::Debug);
+    log::set_max_level(LevelFilter::Info);
     log::set_logger(&LOG_ADAPTER).unwrap();
 
     // TODO not the ideal way to distinguish what thing we loaded

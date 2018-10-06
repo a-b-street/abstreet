@@ -1,5 +1,6 @@
 // Call the log crate, but pre-set the target.
 
+/*
 macro_rules! debug {
     ( $( $x:expr ),* ) => {
         {
@@ -8,6 +9,7 @@ macro_rules! debug {
         }
     }
 }
+*/
 
 macro_rules! info {
     ( $( $x:expr ),* ) => {
