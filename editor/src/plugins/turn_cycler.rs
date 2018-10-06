@@ -57,7 +57,8 @@ impl TurnCyclerState {
         }
         match self {
             TurnCyclerState::Inactive => false,
-            TurnCyclerState::Active(_, _) => true,
+            // Only once they start tabbing through turns does this plugin block other input.
+            TurnCyclerState::Active(_, current_turn_index) => current_turn_index.is_some(),
             TurnCyclerState::Intersection(_) => false,
         }
     }
