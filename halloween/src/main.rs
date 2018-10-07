@@ -1,3 +1,4 @@
+extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate ezgui;
 extern crate geom;
@@ -59,7 +60,8 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, _osd: Text) {
-        self.draw_map.draw(g, self.cycler.value());
+        self.draw_map
+            .draw(g, self.cycler.value(), self.canvas.get_screen_bbox());
     }
 }
 

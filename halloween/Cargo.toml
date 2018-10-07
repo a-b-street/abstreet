@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }

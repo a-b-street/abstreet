@@ -295,4 +295,6 @@ original bbox is fine! The bldg only shrinks closer to the sidewalk when
 animating.
 
 So, try adding the quadtree for roads and buildings (diff quadtrees or one
-unified? hmm) and see what looks common.
+unified? hmm) and see what looks common. Remember we could use quadtrees in map
+model construction for building/sidewalk pruning, but there's the awkwardness
+of quadtrees _kind of_ being a UI concept.
