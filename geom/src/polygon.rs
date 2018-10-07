@@ -102,6 +102,21 @@ impl Polygon {
         b
     }
 
+    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+        Polygon {
+            triangles: self
+                .triangles
+                .iter()
+                .map(|t| {
+                    Triangle::new(
+                        t.pt1.offset(dx, dy),
+                        t.pt2.offset(dx, dy),
+                        t.pt3.offset(dx, dy),
+                    )
+                }).collect(),
+        }
+    }
+
     pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
         let mut pts = Vec::new();
         for i in 0..sides {

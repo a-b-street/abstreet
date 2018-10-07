@@ -284,3 +284,15 @@ For "Project Halloween", I want to draw the map model in a very different
 visual style. Stuff like intersections are ignored, rendering roads instead of
 lanes, and making animated buildings. Let's just start, and see what kind of
 common code makes sense to keep.
+
+OK, so far nothing extra to share -- the existing abstractions work well. But
+now I think we need a quadtree just to avoid rendering too much stuff. The
+Renderable trait from editor is a bit too much -- selection and tooltips, nah.
+(Or not yet?) And then since the buildings move, what do we do about the
+quadtree? Constantly updating it is silly -- it'd be best to capture the full
+extent of the bounding box, the worst case. Actually wait, it's easy -- the
+original bbox is fine! The bldg only shrinks closer to the sidewalk when
+animating.
+
+So, try adding the quadtree for roads and buildings (diff quadtrees or one
+unified? hmm) and see what looks common.

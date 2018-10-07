@@ -59,6 +59,7 @@ impl DrawRoad {
 }
 
 struct DrawBuilding {
+    // The points when the line is full.
     polygon: Polygon,
     // pt1 is fixed, to the road
     line: Line,
@@ -73,13 +74,23 @@ impl DrawBuilding {
     }
 
     fn draw(&self, g: &mut GfxCtx, timer: f64) {
-        g.draw_polygon(RED, &self.polygon);
         let percent = timer;
+        let dx = self.line.pt2().x() - self.line.pt1().x();
+        let dy = self.line.pt2().y() - self.line.pt1().y();
+
+        // TODO or modify g's ctx
+        g.draw_polygon(
+            RED,
+            &self
+                .polygon
+                .translate(-1.0 * (1.0 - percent) * dx, -1.0 * (1.0 - percent) * dy),
+        );
+
         let new_line = Line::new(
             self.line.pt1(),
             Pt2D::new(
-                self.line.pt1().x() + percent * (self.line.pt2().x() - self.line.pt1().x()),
-                self.line.pt1().y() + percent * (self.line.pt2().y() - self.line.pt1().y()),
+                self.line.pt1().x() + percent * dx,
+                self.line.pt1().y() + percent * dy,
             ),
         );
         g.draw_rounded_line(BLUE, LINE_WIDTH, &new_line);
