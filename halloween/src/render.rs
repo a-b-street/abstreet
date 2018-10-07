@@ -4,10 +4,14 @@ use ezgui::GfxCtx;
 use geom::{Bounds, Line, LonLat, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, Road, RoadID, LANE_THICKNESS};
 
-const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+// black
+const BACKGROUND: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
+// light orange
+const ROAD: [f32; 4] = [1.0, 154.0 / 255.0, 0.0, 1.0];
+// purple
+const BUILDING: [f32; 4] = [136.0 / 255.0, 30.0 / 255.0, 228.0 / 255.0, 1.0];
+// dark orange / red
+const PATH: [f32; 4] = [247.0 / 255.0, 95.0 / 255.0, 28.0 / 255.0, 1.0];
 
 const LINE_WIDTH: f64 = 1.0;
 
@@ -59,7 +63,7 @@ impl DrawMap {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, timer: f64, screen_bbox: Rect) {
-        g.clear(WHITE);
+        g.clear(BACKGROUND);
 
         for &(id, _, _) in &self.road_quadtree.query(screen_bbox) {
             self.roads[id.0].draw(g);
@@ -88,7 +92,7 @@ impl DrawRoad {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.draw_polygon(BLACK, &self.polygon);
+        g.draw_polygon(ROAD, &self.polygon);
     }
 
     fn get_bounds(&self) -> Bounds {
@@ -120,7 +124,7 @@ impl DrawBuilding {
 
         // TODO or modify g's ctx
         g.draw_polygon(
-            RED,
+            BUILDING,
             &self
                 .polygon
                 .translate(-1.0 * (1.0 - percent) * dx, -1.0 * (1.0 - percent) * dy),
@@ -133,7 +137,7 @@ impl DrawBuilding {
                 self.line.pt1().y() + percent * dy,
             ),
         );
-        g.draw_rounded_line(BLUE, LINE_WIDTH, &new_line);
+        g.draw_rounded_line(PATH, LINE_WIDTH, &new_line);
     }
 
     fn get_bounds(&self) -> Bounds {
