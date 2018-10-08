@@ -255,7 +255,17 @@ impl UIWrapper {
                     }
                     active
                 }),
-                Box::new(|ctx| ctx.ui.ab_test_manager.event(ctx.input, &ctx.ui.primary.map)),
+                Box::new(|ctx| {
+                    let (active, new_ui) =
+                        ctx.ui
+                            .ab_test_manager
+                            .event(ctx.input, &ctx.ui.primary.map, &ctx.ui.kml);
+                    if let Some((new_primary, new_secondary)) = new_ui {
+                        ctx.ui.primary = new_primary;
+                        ctx.ui.secondary = Some(new_secondary);
+                    }
+                    active
+                }),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
             ],
         }

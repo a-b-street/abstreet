@@ -3,7 +3,8 @@ use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer};
-use sim::ABTest;
+use sim::{ABTest, SimFlags};
+use ui::PerMapUI;
 
 pub enum ABTestManager {
     Inactive,
@@ -16,7 +17,14 @@ impl ABTestManager {
         ABTestManager::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map) -> bool {
+    // May return a new primary and secondary UI
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        map: &Map,
+        kml: &Option<String>,
+    ) -> (bool, Option<(PerMapUI, PerMapUI)>) {
+        let mut new_ui: Option<(PerMapUI, PerMapUI)> = None;
         let mut new_state: Option<ABTestManager> = None;
         match self {
             ABTestManager::Inactive => {
@@ -32,8 +40,10 @@ impl ABTestManager {
                     new_state = Some(ABTestManager::Inactive);
                 }
             }
-            ABTestManager::ManageABTest(_, ref mut scroller) => {
-                // TODO Some key to run the test
+            ABTestManager::ManageABTest(test, ref mut scroller) => {
+                if input.key_pressed(Key::R, "run this A/B test") {
+                    new_ui = Some(launch_test(test, kml));
+                }
                 if scroller.event(input) {
                     new_state = Some(ABTestManager::Inactive);
                 }
@@ -42,10 +52,11 @@ impl ABTestManager {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
+        let active = match self {
             ABTestManager::Inactive => false,
             _ => true,
-        }
+        };
+        (active, new_ui)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
@@ -82,4 +93,32 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
         ab_test.save();
         Some(ab_test)
     }
+}
+
+fn launch_test(test: &ABTest, kml: &Option<String>) -> (PerMapUI, PerMapUI) {
+    info!("Launching A/B test {}...", test.test_name);
+    let load = format!("../data/scenarios/{}/{}", test.map_name, test.scenario_name);
+    // TODO plumb from original flags
+    let rng_seed = Some(42);
+
+    let primary = PerMapUI::new(
+        SimFlags {
+            load: load.clone(),
+            rng_seed,
+            run_name: format!("{} with {}", test.test_name, test.edits1_name),
+            edits_name: test.edits1_name.clone(),
+        },
+        kml,
+    );
+    let secondary = PerMapUI::new(
+        SimFlags {
+            load,
+            rng_seed,
+            run_name: format!("{} with {}", test.test_name, test.edits2_name),
+            edits_name: test.edits2_name.clone(),
+        },
+        kml,
+    );
+    // That's all! The scenario will be instantiated.
+    (primary, secondary)
 }
