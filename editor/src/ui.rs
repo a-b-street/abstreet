@@ -49,21 +49,11 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 pub struct UIWrapper {
     ui: UI,
     plugins: Vec<Box<Fn(PluginCtx) -> bool>>,
-
-    // Remember this to support loading a new UIWrapper
-    kml: Option<String>,
 }
 
 impl GUI for UIWrapper {
     fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
-        // If we should start over and load something new, fill this out.
-        let mut new_flags: Option<SimFlags> = None;
-        let result = self.ui.event(input, osd, &self.plugins, &mut new_flags);
-        if let Some(flags) = new_flags {
-            info!("Reloading everything...");
-            *self = UIWrapper::new(flags, self.kml.clone());
-        }
-        result
+        self.ui.event(input, osd, &self.plugins)
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
@@ -82,7 +72,7 @@ impl UIWrapper {
         let logs = DisplayLogs::new();
 
         let mut ui = UI {
-            primary: PerMapUI::new(flags, kml.clone()),
+            primary: PerMapUI::new(flags, &kml),
             secondary: None,
 
             layers: ToggleableLayers::new(),
@@ -98,6 +88,8 @@ impl UIWrapper {
 
             canvas: Canvas::new(),
             cs: ColorScheme::load("color_scheme").unwrap(),
+
+            kml,
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
@@ -261,8 +253,6 @@ impl UIWrapper {
                 Box::new(|ctx| ctx.ui.ab_test_manager.event(ctx.input, &ctx.ui.primary.map)),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
             ],
-
-            kml,
         }
     }
 }
@@ -296,10 +286,10 @@ struct PerMapUI {
 }
 
 impl PerMapUI {
-    fn new(flags: SimFlags, kml: Option<String>) -> PerMapUI {
+    fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
-        let extra_shapes = if let Some(path) = kml.clone() {
+        let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
         } else {
             Vec::new()
@@ -361,6 +351,9 @@ struct UI {
 
     canvas: Canvas,
     cs: ColorScheme,
+
+    // Remember this to support loading a new PerMapUI
+    kml: Option<String>,
 }
 
 impl UI {
@@ -407,7 +400,6 @@ impl UI {
         mut input: UserInput,
         osd: &mut Text,
         plugins: &Vec<Box<Fn(PluginCtx) -> bool>>,
-        new_flags: &mut Option<SimFlags>,
     ) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
@@ -431,13 +423,16 @@ impl UI {
         // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
         // want some keys to always be pressable (sim controller stuff, quitting the game?)
 
+        // If we should start over and load something new, fill this out.
+        let mut new_flags: Option<SimFlags> = None;
+
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !plugins[idx](PluginCtx {
                 ui: self,
                 input: &mut input,
                 osd,
-                new_flags,
+                new_flags: &mut new_flags,
             }) {
                 self.active_plugin = None;
             }
@@ -448,12 +443,17 @@ impl UI {
                     ui: self,
                     input: &mut input,
                     osd,
-                    new_flags,
+                    new_flags: &mut new_flags,
                 }) {
                     self.active_plugin = Some(idx);
                     break;
                 }
             }
+        }
+
+        if let Some(flags) = new_flags {
+            info!("Reloading everything...");
+            self.primary = PerMapUI::new(flags, &self.kml);
         }
 
         if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
