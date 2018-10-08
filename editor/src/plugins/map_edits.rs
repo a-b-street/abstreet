@@ -8,23 +8,14 @@ use plugins::{choose_edits, Colorizer};
 use sim::{MapEdits, SimFlags};
 use ui::PerMapUI;
 
-pub struct EditsManager {
-    // TODO Is it weird to store this here and not in the outer PerMapUI?
-    current_flags: SimFlags,
-    state: State,
-}
-
-enum State {
+pub enum EditsManager {
     Inactive,
     ManageEdits(Wizard),
 }
 
 impl EditsManager {
-    pub fn new(current_flags: SimFlags) -> EditsManager {
-        EditsManager {
-            current_flags,
-            state: State::Inactive,
-        }
+    pub fn new() -> EditsManager {
+        EditsManager::Inactive
     }
 
     // May return a new PerMapUI to replace the current primary.
@@ -34,19 +25,20 @@ impl EditsManager {
         map: &Map,
         control_map: &ControlMap,
         road_editor: &RoadEditor,
+        current_flags: &mut SimFlags,
         kml: &Option<String>,
     ) -> (bool, Option<PerMapUI>) {
         let mut new_primary: Option<PerMapUI> = None;
-        let mut new_state: Option<State> = None;
-        match self.state {
-            State::Inactive => {
+        let mut new_state: Option<EditsManager> = None;
+        match self {
+            EditsManager::Inactive => {
                 if input.unimportant_key_pressed(Key::Q, SIM_SETUP, "manage map edits") {
-                    new_state = Some(State::ManageEdits(Wizard::new()));
+                    new_state = Some(EditsManager::ManageEdits(Wizard::new()));
                 }
             }
-            State::ManageEdits(ref mut wizard) => {
+            EditsManager::ManageEdits(ref mut wizard) => {
                 if manage_edits(
-                    &mut self.current_flags,
+                    current_flags,
                     map,
                     control_map,
                     road_editor,
@@ -55,25 +47,25 @@ impl EditsManager {
                     wizard.wrap(input),
                 ).is_some()
                 {
-                    new_state = Some(State::Inactive);
+                    new_state = Some(EditsManager::Inactive);
                 } else if wizard.aborted() {
-                    new_state = Some(State::Inactive);
+                    new_state = Some(EditsManager::Inactive);
                 }
             }
         }
         if let Some(s) = new_state {
-            self.state = s;
+            *self = s;
         }
-        let active = match self.state {
-            State::Inactive => false,
+        let active = match self {
+            EditsManager::Inactive => false,
             _ => true,
         };
         (active, new_primary)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        match self.state {
-            State::ManageEdits(ref wizard) => {
+        match self {
+            EditsManager::ManageEdits(ref wizard) => {
                 wizard.draw(g, canvas);
             }
             _ => {}

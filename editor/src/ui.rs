@@ -247,6 +247,7 @@ impl UIWrapper {
                         &ctx.ui.primary.map,
                         &ctx.ui.primary.control_map,
                         &ctx.ui.primary.road_editor,
+                        &mut ctx.ui.primary.current_flags,
                         &ctx.ui.kml,
                     );
                     if new_primary.is_some() {
@@ -271,6 +272,7 @@ pub struct PerMapUI {
     sim: Sim,
 
     current_selection: Option<ID>,
+    current_flags: SimFlags,
 
     // Anything that holds onto any kind of ID has to live here!
     hider: Hider,
@@ -316,6 +318,7 @@ impl PerMapUI {
             sim,
 
             current_selection: None,
+            current_flags: flags,
 
             hider: Hider::new(),
             debug_objects: DebugObjectsState::new(),
@@ -330,7 +333,7 @@ impl PerMapUI {
             turn_cycler: TurnCyclerState::new(),
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
-            edits_manager: EditsManager::new(flags),
+            edits_manager: EditsManager::new(),
         }
     }
 }
