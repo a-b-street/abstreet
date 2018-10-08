@@ -35,6 +35,13 @@ impl DrawExtraShape {
             attributes: s.attributes,
         }
     }
+
+    pub fn center(&self) -> Pt2D {
+        match self.shape {
+            Shape::Polygon(ref p) => Pt2D::center(&p.points()),
+            Shape::Circle(ref c) => c.center,
+        }
+    }
 }
 
 impl Renderable for DrawExtraShape {

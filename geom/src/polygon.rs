@@ -117,6 +117,17 @@ impl Polygon {
         }
     }
 
+    // Lots of repeats...
+    pub fn points(&self) -> Vec<Pt2D> {
+        let mut points = Vec::new();
+        for t in &self.triangles {
+            points.push(t.pt1);
+            points.push(t.pt2);
+            points.push(t.pt3);
+        }
+        points
+    }
+
     pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
         let mut pts = Vec::new();
         for i in 0..sides {

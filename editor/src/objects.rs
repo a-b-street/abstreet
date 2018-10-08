@@ -1,12 +1,13 @@
 use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::Canvas;
+use geom::Pt2D;
 use kml::ExtraShapeID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::DrawMap;
 use sim::{CarID, PedestrianID, Sim};
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
     Lane(LaneID),
     Intersection(IntersectionID),
@@ -50,6 +51,24 @@ impl ID {
             ID::Area(id) => {
                 map.get_a(id).dump_debug();
             }
+        }
+    }
+
+    pub fn canonical_point(&self, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<Pt2D> {
+        match *self {
+            ID::Lane(id) => map.maybe_get_l(id).map(|l| l.first_pt()),
+            ID::Intersection(id) => map.maybe_get_i(id).map(|i| i.point),
+            ID::Turn(id) => map.maybe_get_i(id.parent).map(|i| i.point),
+            ID::Building(id) => map.maybe_get_b(id).map(|b| Pt2D::center(&b.points)),
+            ID::Car(id) => sim.get_draw_car(id, map).map(|c| c.front),
+            ID::Pedestrian(id) => sim.get_draw_ped(id, map).map(|p| p.pos),
+            // TODO maybe_get_es
+            ID::ExtraShape(id) => Some(draw_map.get_es(id).center()),
+            ID::Parcel(id) => map.maybe_get_p(id).map(|p| Pt2D::center(&p.points)),
+            ID::BusStop(id) => map
+                .maybe_get_bs(id)
+                .map(|bs| map.get_l(id.sidewalk).dist_along(bs.dist_along).0),
+            ID::Area(id) => map.maybe_get_a(id).map(|a| Pt2D::center(&a.points)),
         }
     }
 

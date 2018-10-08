@@ -163,6 +163,7 @@ impl UIWrapper {
                         ctx.input,
                         &ctx.ui.primary.map,
                         &ctx.ui.primary.sim,
+                        &ctx.ui.primary.draw_map,
                         &mut ctx.ui.canvas,
                         &mut ctx.ui.primary.current_selection,
                     )
@@ -217,6 +218,7 @@ impl UIWrapper {
                         ctx.input,
                         &mut ctx.ui.canvas,
                         &ctx.ui.primary.map,
+                        &ctx.ui.primary.sim,
                         &ctx.ui.primary.draw_map,
                     )
                 }),

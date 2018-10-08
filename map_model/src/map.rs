@@ -289,6 +289,10 @@ impl Map {
         self.areas.get(id.0)
     }
 
+    pub fn maybe_get_bs(&self, id: BusStopID) -> Option<&BusStop> {
+        self.bus_stops.get(&id)
+    }
+
     pub fn get_r(&self, id: RoadID) -> &Road {
         &self.roads[id.0]
     }

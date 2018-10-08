@@ -2,21 +2,13 @@ use ezgui::{Canvas, UserInput};
 use generator;
 use geo;
 use geo::prelude::Intersects;
-use geom::{Polygon, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, ParcelID};
-use objects::DEBUG;
+use geom::Polygon;
+use map_model::Map;
+use objects::{DEBUG, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
-
-// TODO just have one of these
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
-pub enum ID {
-    Lane(LaneID),
-    Intersection(IntersectionID),
-    Building(BuildingID),
-    Parcel(ParcelID),
-}
+use sim::Sim;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
@@ -95,6 +87,7 @@ impl Validator {
         input: &mut UserInput,
         canvas: &mut Canvas,
         map: &Map,
+        sim: &Sim,
         draw_map: &DrawMap,
     ) -> bool {
         let mut new_state: Option<Validator> = None;
@@ -115,7 +108,7 @@ impl Validator {
 
                     if let Some((id1, id2)) = current_problem {
                         info!("{:?} and {:?} intersect", id1, id2);
-                        canvas.center_on_map_pt(get_pt(map, *id1));
+                        canvas.center_on_map_pt(id1.canonical_point(map, sim, draw_map).unwrap());
                     // TODO also modify selection state to highlight stuff?
                     } else {
                         info!("No more problems!");
@@ -149,14 +142,4 @@ fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
         result.push(geo::Polygon::new(exterior.into(), Vec::new()));
     }
     result
-}
-
-// TODO duplicated with warp. generic handling of object types?
-fn get_pt(map: &Map, id: ID) -> Pt2D {
-    match id {
-        ID::Lane(id) => map.get_l(id).first_pt(),
-        ID::Intersection(id) => map.get_i(id).point,
-        ID::Building(id) => Pt2D::center(&map.get_b(id).points),
-        ID::Parcel(id) => Pt2D::center(&map.get_p(id).points),
-    }
 }
