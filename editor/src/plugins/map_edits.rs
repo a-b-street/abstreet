@@ -6,8 +6,10 @@ use piston::input::Key;
 use plugins::road_editor::RoadEditor;
 use plugins::{choose_edits, Colorizer};
 use sim::{MapEdits, SimFlags};
+use ui::PerMapUI;
 
 pub struct EditsManager {
+    // TODO Is it weird to store this here and not in the outer PerMapUI?
     current_flags: SimFlags,
     state: State,
 }
@@ -25,14 +27,16 @@ impl EditsManager {
         }
     }
 
+    // May return a new PerMapUI to replace the current primary.
     pub fn event(
         &mut self,
         input: &mut UserInput,
         map: &Map,
         control_map: &ControlMap,
         road_editor: &RoadEditor,
-        new_flags: &mut Option<SimFlags>,
-    ) -> bool {
+        kml: &Option<String>,
+    ) -> (bool, Option<PerMapUI>) {
+        let mut new_primary: Option<PerMapUI> = None;
         let mut new_state: Option<State> = None;
         match self.state {
             State::Inactive => {
@@ -46,7 +50,8 @@ impl EditsManager {
                     map,
                     control_map,
                     road_editor,
-                    new_flags,
+                    &mut new_primary,
+                    kml,
                     wizard.wrap(input),
                 ).is_some()
                 {
@@ -59,10 +64,11 @@ impl EditsManager {
         if let Some(s) = new_state {
             self.state = s;
         }
-        match self.state {
+        let active = match self.state {
             State::Inactive => false,
             _ => true,
-        }
+        };
+        (active, new_primary)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
@@ -82,7 +88,8 @@ fn manage_edits(
     map: &Map,
     control_map: &ControlMap,
     road_editor: &RoadEditor,
-    new_flags: &mut Option<SimFlags>,
+    new_primary: &mut Option<PerMapUI>,
+    kml: &Option<String>,
     mut wizard: WrappedWizard,
 ) -> Option<()> {
     // TODO Indicate how many edits are there / if there are any unsaved edits
@@ -125,7 +132,9 @@ fn manage_edits(
             let load_name = choose_edits(map, &mut wizard, "Load which map edits?")?;
             let mut flags = current_flags.clone();
             flags.edits_name = load_name;
-            *new_flags = Some(flags);
+
+            info!("Reloading everything...");
+            *new_primary = Some(PerMapUI::new(flags, kml));
             Some(())
         }
         _ => unreachable!(),

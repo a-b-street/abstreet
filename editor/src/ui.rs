@@ -242,13 +242,17 @@ impl UIWrapper {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.edits_manager.event(
+                    let (active, new_primary) = ctx.ui.primary.edits_manager.event(
                         ctx.input,
                         &ctx.ui.primary.map,
                         &ctx.ui.primary.control_map,
                         &ctx.ui.primary.road_editor,
-                        ctx.new_flags,
-                    )
+                        &ctx.ui.kml,
+                    );
+                    if new_primary.is_some() {
+                        ctx.ui.primary = new_primary.unwrap();
+                    }
+                    active
                 }),
                 Box::new(|ctx| ctx.ui.ab_test_manager.event(ctx.input, &ctx.ui.primary.map)),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
@@ -260,7 +264,7 @@ impl UIWrapper {
 // All of the state that's bound to a specific map+edit has to live here.
 // TODO How can we arrange the code so that we statically know that we don't pass anything from UI
 // to something in PerMapUI?
-struct PerMapUI {
+pub struct PerMapUI {
     map: Map,
     draw_map: DrawMap,
     control_map: ControlMap,
@@ -286,7 +290,7 @@ struct PerMapUI {
 }
 
 impl PerMapUI {
-    fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
+    pub fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
         let extra_shapes = if let Some(path) = kml {
@@ -423,16 +427,12 @@ impl UI {
         // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
         // want some keys to always be pressable (sim controller stuff, quitting the game?)
 
-        // If we should start over and load something new, fill this out.
-        let mut new_flags: Option<SimFlags> = None;
-
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !plugins[idx](PluginCtx {
                 ui: self,
                 input: &mut input,
                 osd,
-                new_flags: &mut new_flags,
             }) {
                 self.active_plugin = None;
             }
@@ -443,17 +443,11 @@ impl UI {
                     ui: self,
                     input: &mut input,
                     osd,
-                    new_flags: &mut new_flags,
                 }) {
                     self.active_plugin = Some(idx);
                     break;
                 }
             }
-        }
-
-        if let Some(flags) = new_flags {
-            info!("Reloading everything...");
-            self.primary = PerMapUI::new(flags, &self.kml);
         }
 
         if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
@@ -694,5 +688,4 @@ struct PluginCtx<'a> {
     ui: &'a mut UI,
     input: &'a mut UserInput,
     osd: &'a mut Text,
-    new_flags: &'a mut Option<SimFlags>,
 }
