@@ -7,6 +7,7 @@ pub mod floodfill;
 pub mod follow;
 pub mod geom_validation;
 pub mod hider;
+pub mod layers;
 pub mod logs;
 pub mod map_edits;
 pub mod road_editor;

@@ -5,13 +5,11 @@
 use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::{
-    Canvas, Color, EventLoopMode, GfxCtx, Text, ToggleableLayer, UserInput, BOTTOM_LEFT, GUI,
-};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use flame;
 use kml;
 use map_model::{IntersectionID, Map};
-use objects::{Ctx, DEBUG_LAYERS, ID, ROOT_MENU};
+use objects::{Ctx, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins::a_b_tests::ABTestManager;
 use plugins::classification::OsmClassifier;
@@ -22,6 +20,7 @@ use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
 use plugins::geom_validation::Validator;
 use plugins::hider::Hider;
+use plugins::layers::ToggleableLayers;
 use plugins::logs::DisplayLogs;
 use plugins::map_edits::EditsManager;
 use plugins::road_editor::RoadEditor;
@@ -40,9 +39,6 @@ use sim;
 use sim::{Sim, SimFlags};
 use std::process;
 
-// TODO ideally these would be tuned kind of dynamically based on rendering speed
-const MIN_ZOOM_FOR_LANES: f64 = 0.15;
-const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
@@ -105,26 +101,13 @@ impl UIWrapper {
             }
         }
 
-        let new_zoom = ui.canvas.cam_zoom;
-        for layer in ui.toggleable_layers().into_iter() {
-            layer.handle_zoom(-1.0, new_zoom);
-        }
+        ui.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
 
         UIWrapper {
             ui,
             plugins: vec![
                 Box::new(|ctx| {
-                    let layer_changed = {
-                        let mut changed = false;
-                        for layer in ctx.ui.toggleable_layers().into_iter() {
-                            if layer.event(ctx.input) {
-                                changed = true;
-                                break;
-                            }
-                        }
-                        changed
-                    };
-                    if layer_changed {
+                    if ctx.ui.layers.event(ctx.input) {
                         ctx.ui.primary.current_selection = ctx.ui.mouseover_something();
                         true
                     } else {
@@ -376,18 +359,6 @@ struct UI {
 }
 
 impl UI {
-    fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {
-        vec![
-            &mut self.layers.show_lanes,
-            &mut self.layers.show_buildings,
-            &mut self.layers.show_intersections,
-            &mut self.layers.show_parcels,
-            &mut self.layers.show_extra_shapes,
-            &mut self.layers.show_all_turn_icons,
-            &mut self.layers.debug_mode,
-        ]
-    }
-
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space();
 
@@ -424,9 +395,7 @@ impl UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
-        for layer in self.toggleable_layers().into_iter() {
-            layer.handle_zoom(old_zoom, new_zoom);
-        }
+        self.layers.handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -597,8 +566,7 @@ impl UI {
         // Match instead of array, because can't move the Box out of the temporary vec. :\
         // This must line up with the list of plugins in UIWrapper::new.
         match idx {
-            // The first plugin is all the ToggleableLayers, which doesn't implement Colorizer.
-            0 => None,
+            0 => Some(Box::new(&self.layers)),
             1 => Some(Box::new(&self.primary.traffic_signal_editor)),
             2 => Some(Box::new(&self.primary.stop_sign_editor)),
             3 => Some(Box::new(&self.primary.road_editor)),
@@ -630,61 +598,6 @@ pub struct EditorState {
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
-}
-
-pub struct ToggleableLayers {
-    pub show_lanes: ToggleableLayer,
-    pub show_buildings: ToggleableLayer,
-    pub show_intersections: ToggleableLayer,
-    pub show_parcels: ToggleableLayer,
-    pub show_extra_shapes: ToggleableLayer,
-    pub show_all_turn_icons: ToggleableLayer,
-    pub debug_mode: ToggleableLayer,
-}
-
-impl ToggleableLayers {
-    fn new() -> ToggleableLayers {
-        ToggleableLayers {
-            show_lanes: ToggleableLayer::new(
-                DEBUG_LAYERS,
-                "lanes",
-                Key::D3,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_buildings: ToggleableLayer::new(DEBUG_LAYERS, "buildings", Key::D1, Some(0.0)),
-            show_intersections: ToggleableLayer::new(
-                DEBUG_LAYERS,
-                "intersections",
-                Key::D2,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_parcels: ToggleableLayer::new(
-                DEBUG_LAYERS,
-                "parcels",
-                Key::D4,
-                Some(MIN_ZOOM_FOR_PARCELS),
-            ),
-            show_extra_shapes: ToggleableLayer::new(
-                DEBUG_LAYERS,
-                "extra KML shapes",
-                Key::D7,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_all_turn_icons: ToggleableLayer::new(DEBUG_LAYERS, "turn icons", Key::D9, None),
-            debug_mode: ToggleableLayer::new(DEBUG_LAYERS, "debug mode", Key::G, None),
-        }
-    }
-
-    pub fn show(&self, id: ID) -> bool {
-        match id {
-            ID::Lane(_) => self.show_lanes.is_enabled(),
-            ID::Building(_) => self.show_buildings.is_enabled(),
-            ID::Intersection(_) => self.show_intersections.is_enabled(),
-            ID::Parcel(_) => self.show_parcels.is_enabled(),
-            ID::ExtraShape(_) => self.show_extra_shapes.is_enabled(),
-            _ => true,
-        }
-    }
 }
 
 pub trait ShowTurnIcons {

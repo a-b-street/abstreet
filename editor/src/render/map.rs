@@ -10,6 +10,7 @@ use map_model::{
 };
 use objects::ID;
 use plugins::hider::Hider;
+use plugins::layers::ToggleableLayers;
 use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;
@@ -23,7 +24,7 @@ use render::turn::DrawTurn;
 use render::Renderable;
 use sim::Sim;
 use std::collections::HashMap;
-use ui::{ShowTurnIcons, ToggleableLayers};
+use ui::ShowTurnIcons;
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
