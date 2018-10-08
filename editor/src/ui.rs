@@ -14,6 +14,7 @@ use map_model;
 use map_model::IntersectionID;
 use objects::{Ctx, DEBUG_LAYERS, ID, ROOT_MENU};
 use piston::input::Key;
+use plugins::a_b_tests::ABTestManager;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::debug_objects::DebugObjectsState;
@@ -26,7 +27,6 @@ use plugins::logs::DisplayLogs;
 use plugins::map_edits::EditsManager;
 use plugins::road_editor::RoadEditor;
 use plugins::scenarios::ScenarioManager;
-use plugins::a_b_tests::ABTestManager;
 use plugins::search::SearchState;
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
@@ -283,11 +283,7 @@ impl UIWrapper {
                         ctx.new_flags,
                     )
                 }),
-                Box::new(|ctx| {
-                    ctx.ui
-                        .ab_test_manager
-                        .event(ctx.input, &ctx.ui.map)
-                }),
+                Box::new(|ctx| ctx.ui.ab_test_manager.event(ctx.input, &ctx.ui.map)),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
             ],
 

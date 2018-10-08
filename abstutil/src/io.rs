@@ -105,25 +105,37 @@ pub fn deserialize_multimap<
 // Just list all things from a directory, return sorted by name, with file extension removed.
 pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
     let mut results: BTreeSet<String> = BTreeSet::new();
-    for entry in std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)).unwrap() {
-        let name = Path::new(&entry.unwrap().file_name())
-            .file_stem()
-            .unwrap()
-            .to_os_string()
-            .into_string()
-            .unwrap();
-        results.insert(name);
-    }
+    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
+        Ok(iter) => {
+            for entry in iter {
+                let name = Path::new(&entry.unwrap().file_name())
+                    .file_stem()
+                    .unwrap()
+                    .to_os_string()
+                    .into_string()
+                    .unwrap();
+                results.insert(name);
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!(e),
+    };
     results.into_iter().collect()
 }
 
 // Load all serialized things from a directory, return sorted by name.
 pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
-    for entry in std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)).unwrap() {
-        let name = entry.unwrap().file_name().into_string().unwrap();
-        let load: T = read_json(&format!("../data/{}/{}/{}", dir, map_name, name)).unwrap();
-        tree.insert(name, load);
-    }
+    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
+        Ok(iter) => {
+            for entry in iter {
+                let name = entry.unwrap().file_name().into_string().unwrap();
+                let load: T = read_json(&format!("../data/{}/{}/{}", dir, map_name, name)).unwrap();
+                tree.insert(name, load);
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!(e),
+    };
     tree.into_iter().collect()
 }

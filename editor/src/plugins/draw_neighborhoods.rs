@@ -51,6 +51,7 @@ impl DrawNeighborhoodState {
                     let neighborhoods: Vec<(String, Neighborhood)> =
                         abstutil::load_all_objects("neighborhoods", map.get_name());
                     if neighborhoods.is_empty() {
+                        // TODO ideally, pop up a little box here?
                         warn!("Sorry, no existing neighborhoods");
                     } else {
                         new_state = Some(DrawNeighborhoodState::ListingNeighborhoods(Menu::new(

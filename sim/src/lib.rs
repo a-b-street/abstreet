@@ -52,6 +52,7 @@ mod trips;
 mod view;
 mod walking;
 
+pub use a_b_test::{ABTest, ABTestResults};
 use abstutil::Cloneable;
 use dimensioned::si;
 pub use edits::MapEdits;
@@ -63,7 +64,6 @@ use map_model::{LaneID, Map, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
-pub use a_b_test::{ABTest, ABTestResults};
 pub use trips::ScoreSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

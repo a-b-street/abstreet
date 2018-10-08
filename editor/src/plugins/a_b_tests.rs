@@ -4,7 +4,7 @@ use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{Scenario, ABTest, MapEdits};
+use sim::{ABTest, MapEdits, Scenario};
 
 pub enum ABTestManager {
     Inactive,

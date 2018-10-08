@@ -160,6 +160,12 @@ impl<'a> WrappedWizard<'a> {
 
         if self.wizard.menu.is_none() {
             let choices: Vec<(String, R)> = choices_generator();
+            if choices.is_empty() {
+                // TODO textbox instead would be cooler
+                warn!("No choices for \"{}\", canceling wizard", query);
+                self.wizard.alive = false;
+                return None;
+            }
             let boxed_choices: Vec<(String, Box<Cloneable>)> = choices
                 .iter()
                 .map(|(s, item)| (s.to_string(), item.clone_box()))

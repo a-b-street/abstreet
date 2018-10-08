@@ -10,6 +10,9 @@ pub struct Menu<T: Clone> {
 
 impl<T: Clone> Menu<T> {
     pub fn new(prompt: &str, choices: Vec<(String, T)>) -> Menu<T> {
+        if choices.is_empty() {
+            panic!("Can't create a menu without choices for \"{}\"", prompt);
+        }
         Menu {
             prompt: prompt.to_string(),
             choices,
