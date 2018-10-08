@@ -261,12 +261,12 @@ impl UIWrapper {
 // TODO How can we arrange the code so that we statically know that we don't pass anything from UI
 // to something in PerMapUI?
 pub struct PerMapUI {
-    map: Map,
+    pub map: Map,
     draw_map: DrawMap,
-    control_map: ControlMap,
-    sim: Sim,
+    pub control_map: ControlMap,
+    pub sim: Sim,
 
-    current_selection: Option<ID>,
+    pub current_selection: Option<ID>,
     current_flags: SimFlags,
 
     // Anything that holds onto any kind of ID has to live here!
@@ -342,7 +342,6 @@ struct UI {
     search_state: SearchState,
     warp: WarpState,
     osm_classifier: OsmClassifier,
-    // TODO This one has per-sim state right now, but soon will understand how to handle two sims.
     sim_ctrl: SimController,
     color_picker: ColorPicker,
     ab_test_manager: ABTestManager,
@@ -449,14 +448,9 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result = self.sim_ctrl.event(
-            &mut input,
-            &self.primary.map,
-            &self.primary.control_map,
-            &mut self.primary.sim,
-            self.primary.current_selection,
-            osd,
-        );
+        let result = self
+            .sim_ctrl
+            .event(&mut input, &mut self.primary, &mut self.secondary, osd);
         input.populate_osd(osd);
         result
     }

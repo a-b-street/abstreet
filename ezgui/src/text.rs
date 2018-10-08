@@ -12,6 +12,7 @@ const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
 pub const LINE_HEIGHT: f64 = 22.0;
 
+#[derive(Clone)]
 struct TextSpan {
     text: String,
     fg_color: Color,
@@ -31,6 +32,7 @@ impl TextSpan {
 }
 
 // TODO parse style from markup tags
+#[derive(Clone)]
 pub struct Text {
     lines: Vec<Vec<TextSpan>>,
     bg_color: Color,

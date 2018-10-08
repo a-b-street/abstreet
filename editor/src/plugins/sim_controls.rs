@@ -1,13 +1,10 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use abstutil::elapsed_seconds;
-use control::ControlMap;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
-use map_model::Map;
 use objects::{ID, SIM};
 use piston::input::Key;
-use sim::{Benchmark, ScoreSummary, Sim, TIMESTEP};
+use sim::{Benchmark, ScoreSummary, TIMESTEP};
 use std::time::{Duration, Instant};
+use ui::PerMapUI;
 
 const ADJUST_SPEED: f64 = 0.1;
 
@@ -18,7 +15,7 @@ pub struct SimController {
     benchmark: Option<Benchmark>,
     sim_speed: String,
     show_side_panel: bool,
-    last_summary: Option<ScoreSummary>,
+    last_summary: Option<Text>,
 }
 
 impl SimController {
@@ -36,17 +33,12 @@ impl SimController {
     pub fn event(
         &mut self,
         input: &mut UserInput,
-        map: &Map,
-        control_map: &ControlMap,
-        sim: &mut Sim,
-        selected: Option<ID>,
+        primary: &mut PerMapUI,
+        secondary: &mut Option<PerMapUI>,
         osd: &mut Text,
     ) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
             self.show_side_panel = !self.show_side_panel;
-        }
-        if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
-            sim.small_spawn(map);
         }
         if input.unimportant_key_pressed(Key::LeftBracket, SIM, "slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
@@ -55,14 +47,22 @@ impl SimController {
         if input.unimportant_key_pressed(Key::RightBracket, SIM, "speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
+
         if input.unimportant_key_pressed(Key::O, SIM, "save sim state") {
-            sim.save();
+            primary.sim.save();
+            if let Some(s) = secondary {
+                s.sim.save();
+            }
         }
         if input.unimportant_key_pressed(Key::P, SIM, "load sim state") {
-            match sim.load_most_recent() {
+            match primary.sim.load_most_recent() {
                 Ok(new_sim) => {
-                    *sim = new_sim;
+                    primary.sim = new_sim;
                     self.benchmark = None;
+
+                    if let Some(s) = secondary {
+                        s.sim = s.sim.load_most_recent().unwrap();
+                    }
                 }
                 Err(e) => error!("Couldn't load savestate: {}", e),
             };
@@ -76,26 +76,35 @@ impl SimController {
         } else {
             if input.unimportant_key_pressed(Key::Space, SIM, "run sim") {
                 self.last_step = Some(Instant::now());
-                self.benchmark = Some(sim.start_benchmark());
+                self.benchmark = Some(primary.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
-                sim.step(map, control_map);
+                primary.sim.step(&primary.map, &primary.control_map);
+                if let Some(s) = secondary {
+                    s.sim.step(&s.map, &s.control_map);
+                }
             }
         }
 
-        match selected {
-            Some(ID::Car(id)) => {
-                if input.key_pressed(Key::A, "start this parked car") {
-                    sim.start_parked_car(map, id);
-                }
+        // Interactively spawning stuff would ruin an A/B test, don't allow it
+        if secondary.is_none() {
+            if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
+                primary.sim.small_spawn(&primary.map);
             }
-            Some(ID::Lane(id)) => {
-                if map.get_l(id).is_sidewalk()
-                    && input.key_pressed(Key::A, "spawn a pedestrian here")
-                {
-                    sim.spawn_pedestrian(map, id);
+            match primary.current_selection {
+                Some(ID::Car(id)) => {
+                    if input.key_pressed(Key::A, "start this parked car") {
+                        primary.sim.start_parked_car(&primary.map, id);
+                    }
                 }
+                Some(ID::Lane(id)) => {
+                    if primary.map.get_l(id).is_sidewalk()
+                        && input.key_pressed(Key::A, "spawn a pedestrian here")
+                    {
+                        primary.sim.spawn_pedestrian(&primary.map, id);
+                    }
+                }
+                _ => {}
             }
-            _ => {}
         }
 
         if input.is_update_event() {
@@ -103,27 +112,47 @@ impl SimController {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt_s = elapsed_seconds(tick);
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
-                    sim.step(map, control_map);
+                    primary.sim.step(&primary.map, &primary.control_map);
+                    if let Some(s) = secondary {
+                        s.sim.step(&s.map, &s.control_map);
+                    }
                     self.last_step = Some(Instant::now());
                 }
 
                 if let Some(ref mut b) = self.benchmark {
                     if b.has_real_time_passed(Duration::from_secs(1)) {
-                        self.sim_speed = format!("{0:.2}x", sim.measure_speed(b));
+                        // I think the benchmark should naturally account for the delay of the
+                        // secondary sim.
+                        self.sim_speed = format!("{0:.2}x", primary.sim.measure_speed(b));
                     }
                 }
             }
         }
 
         osd.pad_if_nonempty();
-        osd.add_line(sim.summary());
+        osd.add_line(primary.sim.summary());
+        if let Some(s) = secondary {
+            osd.add_line("A/B test running!".to_string());
+            osd.add_line(s.sim.summary());
+        }
         osd.add_line(format!(
             "Speed: {0} / desired {1:.2}x",
             self.sim_speed, self.desired_speed
         ));
 
         if self.show_side_panel {
-            self.last_summary = Some(sim.get_score());
+            let mut txt = Text::new();
+            if let Some(s) = secondary {
+                // TODO More coloring
+                txt.add_line("Primary sim".to_string());
+                summarize(&mut txt, primary.sim.get_score());
+                txt.add_line("".to_string());
+                txt.add_line("Secondary sim".to_string());
+                summarize(&mut txt, s.sim.get_score());
+            } else {
+                summarize(&mut txt, primary.sim.get_score());
+            }
+            self.last_summary = Some(txt);
         } else {
             self.last_summary = None;
         }
@@ -136,34 +165,34 @@ impl SimController {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let Some(ref summary) = self.last_summary {
-            let mut txt = Text::new();
-
-            txt.add_styled_line(
-                "Walking".to_string(),
-                [0.0, 0.0, 0.0, 1.0],
-                Some([1.0, 0.0, 0.0, 0.8]),
-            );
-            txt.add_line(format!(
-                "  {}/{} trips done",
-                (summary.total_walking_trips - summary.pending_walking_trips),
-                summary.pending_walking_trips
-            ));
-            txt.add_line(format!("  {} total", summary.total_walking_trip_time));
-
-            txt.add_styled_line(
-                "Driving".to_string(),
-                [0.0, 0.0, 0.0, 1.0],
-                Some([0.0, 0.0, 1.0, 0.8]),
-            );
-            txt.add_line(format!(
-                "  {}/{} trips done",
-                (summary.total_driving_trips - summary.pending_driving_trips),
-                summary.pending_driving_trips
-            ));
-            txt.add_line(format!("  {} total", summary.total_driving_trip_time));
-
-            canvas.draw_text(g, txt, TOP_RIGHT);
+        if let Some(ref txt) = self.last_summary {
+            canvas.draw_text(g, txt.clone(), TOP_RIGHT);
         }
     }
+}
+
+fn summarize(txt: &mut Text, summary: ScoreSummary) {
+    txt.add_styled_line(
+        "Walking".to_string(),
+        [0.0, 0.0, 0.0, 1.0],
+        Some([1.0, 0.0, 0.0, 0.8]),
+    );
+    txt.add_line(format!(
+        "  {}/{} trips done",
+        (summary.total_walking_trips - summary.pending_walking_trips),
+        summary.pending_walking_trips
+    ));
+    txt.add_line(format!("  {} total", summary.total_walking_trip_time));
+
+    txt.add_styled_line(
+        "Driving".to_string(),
+        [0.0, 0.0, 0.0, 1.0],
+        Some([0.0, 0.0, 1.0, 0.8]),
+    );
+    txt.add_line(format!(
+        "  {}/{} trips done",
+        (summary.total_driving_trips - summary.pending_driving_trips),
+        summary.pending_driving_trips
+    ));
+    txt.add_line(format!("  {} total", summary.total_driving_trip_time));
 }
