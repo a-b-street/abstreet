@@ -40,12 +40,7 @@ impl ScenarioManager {
                 // TODO Would use S for save, except sim controls always runs... maybe it shouldnt'
                 // do that after all.
                 if input.key_pressed(Key::Q, "save this scenario") {
-                    let path = format!(
-                        "../data/scenarios/{}/{}",
-                        scenario.map_name, scenario.scenario_name
-                    );
-                    abstutil::write_json(&path, scenario).expect("Saving scenario failed");
-                    info!("Saved {}", path);
+                    scenario.save();
                 } else if input.key_pressed(Key::E, "edit this scenario") {
                     new_state = Some(ScenarioManager::EditScenario(
                         scenario.clone(),

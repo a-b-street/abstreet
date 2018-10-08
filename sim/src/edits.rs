@@ -1,3 +1,4 @@
+use abstutil;
 use control::{ControlStopSign, ControlTrafficSignal};
 use map_model::{IntersectionID, RoadEdits};
 use std::collections::BTreeMap;
@@ -31,5 +32,9 @@ impl MapEdits {
             self.stop_signs.len(),
             self.traffic_signals.len()
         )
+    }
+
+    pub fn save(&self) {
+        abstutil::save_object("edits", &self.map_name, &self.edits_name, self);
     }
 }

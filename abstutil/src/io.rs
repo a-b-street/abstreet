@@ -139,3 +139,9 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
     };
     tree.into_iter().collect()
 }
+
+pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
+    let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
+    write_json(&path, obj).expect(&format!("Saving {} failed", path));
+    println!("Saved {}", path);
+}

@@ -5,9 +5,10 @@
 editor/editor_state
 
 data/seattle_parcels.abst
+data/ab_tests/*
 data/edits/*
 data/input/*
-data/maps/*.abst
+data/maps/*
 data/neighborhoods/*
 data/save/*
 data/scenarios/*

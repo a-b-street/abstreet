@@ -98,7 +98,7 @@ fn manage_edits(
 
     // Slow to create this every tick just to get the description? It's actually frozen once the
     // wizard is started...
-    let edits = MapEdits {
+    let mut edits = MapEdits {
         edits_name: current_flags.edits_name.to_string(),
         map_name: map.get_name().to_string(),
         road_edits: road_editor.get_edits().clone(),
@@ -112,23 +112,14 @@ fn manage_edits(
     {
         x if x == save_new => {
             let name = wizard.input_string("Name the map edits")?;
-            abstutil::write_json(
-                &format!("../data/edits/{}/{}.json", map.get_name(), name),
-                &edits,
-            ).expect("Saving map edits failed");
+            edits.edits_name = name.clone();
+            edits.save();
             // No need to reload everything
             current_flags.edits_name = name;
             Some(())
         }
         x if x == save_existing => {
-            abstutil::write_json(
-                &format!(
-                    "../data/edits/{}/{}.json",
-                    map.get_name(),
-                    &current_flags.edits_name
-                ),
-                &edits,
-            ).expect("Saving map edits failed");
+            edits.save();
             Some(())
         }
         x if x == load => {

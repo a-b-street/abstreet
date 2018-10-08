@@ -34,6 +34,7 @@ pub struct SeedParkedCars {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Neighborhood {
+    pub map_name: String,
     pub name: String,
     // TODO Polygon would be more natural
     pub points: Vec<Pt2D>,
@@ -51,6 +52,10 @@ impl Neighborhood {
             }
         }
         results
+    }
+
+    pub fn save(&self) {
+        abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
     }
 }
 
@@ -145,5 +150,9 @@ impl Scenario {
                 }
             }
         }
+    }
+
+    pub fn save(&self) {
+        abstutil::save_object("scenarios", &self.map_name, &self.scenario_name, self);
     }
 }

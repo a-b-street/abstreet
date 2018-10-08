@@ -18,6 +18,10 @@ impl ABTest {
             .map(|s| s.to_string())
             .collect()
     }
+
+    pub fn save(&self) {
+        abstutil::save_object("ab_tests", &self.map_name, &self.test_name, self);
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

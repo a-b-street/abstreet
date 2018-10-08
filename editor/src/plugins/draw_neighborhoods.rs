@@ -109,15 +109,12 @@ impl DrawNeighborhoodState {
                     new_state = Some(DrawNeighborhoodState::Empty);
                 }
                 InputResult::Done(name, _) => {
-                    let path = format!("../data/neighborhoods/{}/{}", map.get_name(), name);
-                    abstutil::write_json(
-                        &path,
-                        &Neighborhood {
-                            name,
-                            points: pts.clone(),
-                        },
-                    ).expect("Saving neighborhood failed");
-                    info!("Saved {}", path);
+                    let n = Neighborhood {
+                        name,
+                        map_name: map.get_name().to_string(),
+                        points: pts.clone(),
+                    };
+                    n.save();
                     new_state = Some(DrawNeighborhoodState::Empty);
                 }
                 InputResult::StillActive => {}

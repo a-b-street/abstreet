@@ -78,13 +78,15 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
             ).map(|(_, t)| t)
     } else {
         let test_name = wizard.input_string("Name the A/B test")?;
-        Some(ABTest {
+        let ab_test = ABTest {
             test_name,
             map_name: map.get_name().to_string(),
             scenario_name: choose_scenario(map, &mut wizard, "What scenario to run?")?,
             edits1_name: choose_edits(map, &mut wizard, "For the 1st run, what map edits to use?")?,
             edits2_name: choose_edits(map, &mut wizard, "For the 2nd run, what map edits to use?")?,
-        })
+        };
+        ab_test.save();
+        Some(ab_test)
     }
 }
 
