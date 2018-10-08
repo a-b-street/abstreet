@@ -1,6 +1,6 @@
 use abstutil;
-use ezgui::{Canvas, GfxCtx, InputResult, Menu, Text, TextBox, UserInput};
-use geom::{Circle, Line, Polygon, Pt2D};
+use ezgui::{Canvas, GfxCtx, Text, UserInput, Wizard, WrappedWizard};
+use geom::{Circle, Line, Polygon};
 use map_model::Map;
 use objects::EDIT_MAP;
 use piston::input::Key;
@@ -9,20 +9,20 @@ use sim::Neighborhood;
 
 const POINT_RADIUS: f64 = 2.0;
 
+// load or new -> edit (drawing pts) -> MovingPt
+
 pub enum DrawNeighborhoodState {
-    Empty,
-    // Option<usize> is the point currently being hovered over, String is the possibly empty
-    // pre-chosen name
-    DrawingPoints(Vec<Pt2D>, Option<usize>, String),
-    MovingPoint(Vec<Pt2D>, usize, String),
-    NamingNeighborhood(TextBox, Vec<Pt2D>),
-    // String name to each choice, pre-loaded
-    ListingNeighborhoods(Menu<Neighborhood>),
+    Inactive,
+    PickNeighborhood(Wizard),
+    // Option<usize> is the point currently being hovered over
+    EditNeighborhood(Neighborhood, Option<usize>),
+    // usize is the point being moved
+    MovingPoint(Neighborhood, usize),
 }
 
 impl DrawNeighborhoodState {
     pub fn new() -> DrawNeighborhoodState {
-        DrawNeighborhoodState::Empty
+        DrawNeighborhoodState::Inactive
     }
 
     pub fn event(
@@ -34,112 +34,64 @@ impl DrawNeighborhoodState {
     ) -> bool {
         let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {
-            DrawNeighborhoodState::Empty => {
+            DrawNeighborhoodState::Inactive => {
                 if input.unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a neighborhood") {
-                    new_state = Some(DrawNeighborhoodState::DrawingPoints(
-                        Vec::new(),
-                        None,
-                        "".to_string(),
-                    ));
+                    new_state = Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
                 }
             }
-            DrawNeighborhoodState::DrawingPoints(ref mut pts, ref mut current_idx, name) => {
+            DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
+                if let Some(n) = pick_neighborhood(map, wizard.wrap(input)) {
+                    new_state = Some(DrawNeighborhoodState::EditNeighborhood(n, None));
+                } else if wizard.aborted() {
+                    new_state = Some(DrawNeighborhoodState::Inactive);
+                }
+            }
+            DrawNeighborhoodState::EditNeighborhood(ref mut n, ref mut current_idx) => {
                 osd.pad_if_nonempty();
-                osd.add_line(format!("Currently editing {}", name));
+                osd.add_line(format!("Currently editing {}", n.name));
 
-                if input.key_pressed(Key::Tab, "list existing neighborhoods") {
-                    let neighborhoods: Vec<(String, Neighborhood)> =
-                        abstutil::load_all_objects("neighborhoods", map.get_name());
-                    if neighborhoods.is_empty() {
-                        // TODO ideally, pop up a little box here?
-                        warn!("Sorry, no existing neighborhoods");
-                    } else {
-                        new_state = Some(DrawNeighborhoodState::ListingNeighborhoods(Menu::new(
-                            "Load which neighborhood?",
-                            neighborhoods,
-                        )));
-                    }
-                } else if input.key_pressed(Key::Escape, "throw away this neighborhood") {
-                    new_state = Some(DrawNeighborhoodState::Empty);
+                if input.key_pressed(Key::Escape, "quit") {
+                    new_state = Some(DrawNeighborhoodState::Inactive);
                 } else if input.key_pressed(Key::P, "add a new point here") {
-                    pts.push(canvas.get_cursor_in_map_space());
-                } else if pts.len() >= 3
-                    && input.key_pressed(Key::Return, "confirm the neighborhood's shape")
-                {
-                    new_state = Some(DrawNeighborhoodState::NamingNeighborhood(
-                        TextBox::new_prefilled("Name this neighborhood", name.clone()),
-                        pts.clone(),
-                    ));
+                    n.points.push(canvas.get_cursor_in_map_space());
+                } else if n.points.len() >= 3 && input.key_pressed(Key::Return, "save") {
+                    n.save();
+                    new_state = Some(DrawNeighborhoodState::Inactive);
                 }
 
                 if new_state.is_none() {
                     let cursor = canvas.get_cursor_in_map_space();
-                    *current_idx = pts
+                    *current_idx = n
+                        .points
                         .iter()
                         .position(|pt| Circle::new(*pt, POINT_RADIUS).contains_pt(cursor));
                     if let Some(idx) = current_idx {
                         // TODO mouse dragging might be more intuitive, but it's unclear how to
                         // override part of canvas.handle_event
                         if input.key_pressed(Key::LCtrl, "hold to move this point") {
-                            new_state = Some(DrawNeighborhoodState::MovingPoint(
-                                pts.clone(),
-                                *idx,
-                                name.clone(),
-                            ));
+                            new_state = Some(DrawNeighborhoodState::MovingPoint(n.clone(), *idx));
                         }
                     }
                 }
             }
-            DrawNeighborhoodState::MovingPoint(ref mut pts, idx, name) => {
+            DrawNeighborhoodState::MovingPoint(ref mut n, idx) => {
                 osd.pad_if_nonempty();
-                osd.add_line(format!("Currently editing {}", name));
+                osd.add_line(format!("Currently editing {}", n.name));
 
-                pts[*idx] = canvas.get_cursor_in_map_space();
+                n.points[*idx] = canvas.get_cursor_in_map_space();
                 if input.key_released(Key::LCtrl) {
-                    new_state = Some(DrawNeighborhoodState::DrawingPoints(
-                        pts.clone(),
+                    new_state = Some(DrawNeighborhoodState::EditNeighborhood(
+                        n.clone(),
                         Some(*idx),
-                        name.clone(),
                     ));
                 }
-            }
-            DrawNeighborhoodState::NamingNeighborhood(tb, pts) => match tb.event(input) {
-                InputResult::Canceled => {
-                    info!("Never mind!");
-                    new_state = Some(DrawNeighborhoodState::Empty);
-                }
-                InputResult::Done(name, _) => {
-                    let n = Neighborhood {
-                        name,
-                        map_name: map.get_name().to_string(),
-                        points: pts.clone(),
-                    };
-                    n.save();
-                    new_state = Some(DrawNeighborhoodState::Empty);
-                }
-                InputResult::StillActive => {}
-            },
-            DrawNeighborhoodState::ListingNeighborhoods(ref mut menu) => {
-                match menu.event(input) {
-                    InputResult::Canceled => {
-                        new_state = Some(DrawNeighborhoodState::Empty);
-                    }
-                    InputResult::StillActive => {}
-                    InputResult::Done(name, poly) => {
-                        new_state = Some(DrawNeighborhoodState::DrawingPoints(
-                            poly.points.clone(),
-                            None,
-                            name,
-                        ));
-                    }
-                };
             }
         }
         if let Some(s) = new_state {
             *self = s;
         }
         match self {
-            DrawNeighborhoodState::Empty => false,
+            DrawNeighborhoodState::Inactive => false,
             _ => true,
         }
     }
@@ -152,20 +104,20 @@ impl DrawNeighborhoodState {
         let cyan = [0.0, 1.0, 1.0, 1.0];
 
         let (pts, current_idx) = match self {
-            DrawNeighborhoodState::Empty => {
+            DrawNeighborhoodState::Inactive => {
                 return;
             }
-            DrawNeighborhoodState::DrawingPoints(pts, current_idx, _) => (pts, *current_idx),
-            DrawNeighborhoodState::MovingPoint(pts, idx, _) => (pts, Some(*idx)),
-            DrawNeighborhoodState::NamingNeighborhood(tb, pts) => {
-                g.draw_polygon(blue, &Polygon::new(pts));
-                tb.draw(g, canvas);
-                return;
+            DrawNeighborhoodState::PickNeighborhood(wizard) => {
+                // TODO is this order wrong?
+                wizard.draw(g, canvas);
+                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
+                    (&neighborhood.points, None)
+                } else {
+                    return;
+                }
             }
-            DrawNeighborhoodState::ListingNeighborhoods(menu) => {
-                menu.draw(g, canvas);
-                (&menu.current_choice().points, None)
-            }
+            DrawNeighborhoodState::EditNeighborhood(n, current_idx) => (&n.points, *current_idx),
+            DrawNeighborhoodState::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
         };
 
         if pts.len() == 2 {
@@ -187,3 +139,27 @@ impl DrawNeighborhoodState {
 }
 
 impl Colorizer for DrawNeighborhoodState {}
+
+fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<Neighborhood> {
+    let load_existing = "Load existing neighborhood";
+    let create_new = "Create new neighborhood";
+    if wizard.choose_string(
+        "What neighborhood to edit?",
+        vec![load_existing, create_new],
+    )? == load_existing
+    {
+        let map_name = map.get_name().to_string();
+        wizard
+            .choose_something::<Neighborhood>(
+                "Load which neighborhood?",
+                Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+            ).map(|(_, n)| n)
+    } else {
+        let name = wizard.input_string("Name the neighborhood")?;
+        Some(Neighborhood {
+            name,
+            map_name: map.get_name().to_string(),
+            points: Vec::new(),
+        })
+    }
+}
