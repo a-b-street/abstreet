@@ -1,10 +1,9 @@
-use abstutil;
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::Colorizer;
-use sim::{ABTest, MapEdits, Scenario};
+use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer};
+use sim::ABTest;
 
 pub enum ABTestManager {
     Inactive,
@@ -70,12 +69,7 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
     if wizard.choose_string("What A/B test to manage?", vec![load_existing, create_new])?
         == load_existing
     {
-        let map_name = map.get_name().to_string();
-        wizard
-            .choose_something::<ABTest>(
-                "Load which A/B test?",
-                Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
-            ).map(|(_, t)| t)
+        load_ab_test(map, &mut wizard, "Load which A/B test?")
     } else {
         let test_name = wizard.input_string("Name the A/B test")?;
         let ab_test = ABTest {
@@ -88,26 +82,4 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
         ab_test.save();
         Some(ab_test)
     }
-}
-
-// TODO it'd be neat to instead register parsers and choice generators on a wizard, then call them?
-// these file-loading ones are especially boilerplate. maybe even just refactor that in the editor
-// crate.
-
-fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something::<Scenario>(
-            query,
-            Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
-        ).map(|(n, _)| n)
-}
-
-fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something::<MapEdits>(
-            query,
-            Box::new(move || abstutil::load_all_objects("edits", &map_name)),
-        ).map(|(n, _)| n)
 }

@@ -1,10 +1,9 @@
-use abstutil;
 use ezgui::{Canvas, GfxCtx, Text, UserInput, Wizard, WrappedWizard};
 use geom::{Circle, Line, Polygon};
 use map_model::Map;
 use objects::EDIT_MAP;
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{load_neighborhood, Colorizer};
 use sim::Neighborhood;
 
 const POINT_RADIUS: f64 = 2.0;
@@ -148,12 +147,7 @@ fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<Neighborhoo
         vec![load_existing, create_new],
     )? == load_existing
     {
-        let map_name = map.get_name().to_string();
-        wizard
-            .choose_something::<Neighborhood>(
-                "Load which neighborhood?",
-                Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
-            ).map(|(_, n)| n)
+        load_neighborhood(map, &mut wizard, "Load which neighborhood?")
     } else {
         let name = wizard.input_string("Name the neighborhood")?;
         Some(Neighborhood {

@@ -1,11 +1,10 @@
-use abstutil;
 use control::ControlMap;
 use ezgui::{Canvas, GfxCtx, UserInput, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::road_editor::RoadEditor;
-use plugins::Colorizer;
+use plugins::{choose_edits, Colorizer};
 use sim::{MapEdits, SimFlags};
 
 pub struct EditsManager {
@@ -123,10 +122,7 @@ fn manage_edits(
             Some(())
         }
         x if x == load => {
-            let map_name = map.get_name().to_string();
-            let edits = abstutil::list_all_objects("edits", &map_name);
-            let edit_refs = edits.iter().map(|s| s.as_str()).collect();
-            let load_name = wizard.choose_string("Load which map edits?", edit_refs)?;
+            let load_name = choose_edits(map, &mut wizard, "Load which map edits?")?;
             let mut flags = current_flags.clone();
             flags.edits_name = load_name;
             *new_flags = Some(flags);

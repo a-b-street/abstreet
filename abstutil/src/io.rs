@@ -103,8 +103,9 @@ pub fn deserialize_multimap<
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.
-pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
-    let mut results: BTreeSet<String> = BTreeSet::new();
+// Pretty hacky that we return a (String, String).
+pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
+    let mut results: BTreeSet<(String, String)> = BTreeSet::new();
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
@@ -114,7 +115,7 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
                     .to_os_string()
                     .into_string()
                     .unwrap();
-                results.insert(name);
+                results.insert((name.clone(), name));
             }
         }
         Err(ref e) if e.kind() == ErrorKind::NotFound => {}

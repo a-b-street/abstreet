@@ -1,11 +1,10 @@
-use abstutil;
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
 use geom::Polygon;
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::Colorizer;
-use sim::{Neighborhood, Scenario, SeedParkedCars, Sim, SpawnOverTime, Tick};
+use plugins::{choose_neighborhood, input_tick, load_scenario, Colorizer};
+use sim::{Neighborhood, Scenario, SeedParkedCars, Sim, SpawnOverTime};
 
 pub enum ScenarioManager {
     Inactive,
@@ -99,12 +98,7 @@ fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
     if wizard.choose_string("What scenario to edit?", vec![load_existing, create_new])?
         == load_existing
     {
-        let map_name = map.get_name().to_string();
-        wizard
-            .choose_something::<Scenario>(
-                "Load which scenario?",
-                Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
-            ).map(|(_, s)| s)
+        load_scenario(map, &mut wizard, "Load which scenario?")
     } else {
         let scenario_name = wizard.input_string("Name the scenario")?;
         Some(Scenario {
@@ -145,19 +139,4 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
         });
         Some(())
     }
-}
-
-// TODO it'd be neat to instead register parsers and choice generators on a wizard, then call them?
-
-fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something::<Neighborhood>(
-            query,
-            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
-        ).map(|(n, _)| n)
-}
-
-fn input_tick(wizard: &mut WrappedWizard, query: &str) -> Option<Tick> {
-    wizard.input_something(query, Box::new(|line| Tick::parse(&line)))
 }
