@@ -1,11 +1,12 @@
 use abstutil::Cloneable;
 use std::collections::VecDeque;
-use {Canvas, GfxCtx, InputResult, Menu, TextBox, UserInput};
+use {Canvas, GfxCtx, InputResult, LogScroller, Menu, TextBox, UserInput};
 
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
     menu: Option<Menu<Box<Cloneable>>>,
+    log_scroller: Option<LogScroller>,
 
     // In the order of queries made
     confirmed_state: Vec<Box<Cloneable>>,
@@ -17,6 +18,7 @@ impl Wizard {
             alive: true,
             tb: None,
             menu: None,
+            log_scroller: None,
             confirmed_state: Vec::new(),
         }
     }
@@ -27,6 +29,9 @@ impl Wizard {
         }
         if let Some(ref tb) = self.tb {
             tb.draw(g, canvas);
+        }
+        if let Some(ref s) = self.log_scroller {
+            s.draw(g, canvas);
         }
     }
 
@@ -158,12 +163,23 @@ impl<'a> WrappedWizard<'a> {
             return Some((pair.0.to_string(), item.clone()));
         }
 
+        // If the menu was empty, wait for the user to acknowledge the text-box before aborting the
+        // wizard.
+        if self.wizard.log_scroller.is_some() {
+            if self.wizard.log_scroller.as_mut().unwrap().event(self.input) {
+                self.wizard.log_scroller = None;
+                self.wizard.alive = false;
+            }
+            return None;
+        }
+
         if self.wizard.menu.is_none() {
             let choices: Vec<(String, R)> = choices_generator();
             if choices.is_empty() {
-                // TODO textbox instead would be cooler
-                warn!("No choices for \"{}\", canceling wizard", query);
-                self.wizard.alive = false;
+                self.wizard.log_scroller = Some(LogScroller::new_from_lines(vec![format!(
+                    "No choices for \"{}\", canceling wizard",
+                    query
+                )]));
                 return None;
             }
             let boxed_choices: Vec<(String, Box<Cloneable>)> = choices
