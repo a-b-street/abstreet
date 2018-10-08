@@ -33,6 +33,7 @@ extern crate structopt;
 #[macro_use]
 mod macros;
 
+mod a_b_test;
 mod driving;
 mod edits;
 mod events;
@@ -62,6 +63,7 @@ use map_model::{LaneID, Map, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
+pub use a_b_test::{ABTest, ABTestResults};
 pub use trips::ScoreSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -385,3 +387,5 @@ pub struct DrawCarInput {
 impl Cloneable for Neighborhood {}
 impl Cloneable for Scenario {}
 impl Cloneable for Tick {}
+impl Cloneable for MapEdits {}
+impl Cloneable for ABTest {}

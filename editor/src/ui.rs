@@ -26,6 +26,7 @@ use plugins::logs::DisplayLogs;
 use plugins::map_edits::EditsManager;
 use plugins::road_editor::RoadEditor;
 use plugins::scenarios::ScenarioManager;
+use plugins::a_b_tests::ABTestManager;
 use plugins::search::SearchState;
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
@@ -130,6 +131,7 @@ impl UIWrapper {
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
             edits_manager: EditsManager::new(flags),
+            ab_test_manager: ABTestManager::new(),
             logs,
 
             active_plugin: None,
@@ -281,6 +283,11 @@ impl UIWrapper {
                         ctx.new_flags,
                     )
                 }),
+                Box::new(|ctx| {
+                    ctx.ui
+                        .ab_test_manager
+                        .event(ctx.input, &ctx.ui.map)
+                }),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
             ],
 
@@ -318,6 +325,7 @@ struct UI {
     draw_neighborhoods: DrawNeighborhoodState,
     scenarios: ScenarioManager,
     edits_manager: EditsManager,
+    ab_test_manager: ABTestManager,
     logs: DisplayLogs,
 
     // An index into UIWrapper.plugins.
@@ -510,6 +518,7 @@ impl UI {
         self.draw_neighborhoods.draw(g, &self.canvas);
         self.scenarios.draw(g, &self.canvas);
         self.edits_manager.draw(g, &self.canvas);
+        self.ab_test_manager.draw(g, &self.canvas);
         self.logs.draw(g, &self.canvas);
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
@@ -566,7 +575,8 @@ impl UI {
             16 => Some(Box::new(&self.draw_neighborhoods)),
             17 => Some(Box::new(&self.scenarios)),
             18 => Some(Box::new(&self.edits_manager)),
-            19 => Some(Box::new(&self.logs)),
+            19 => Some(Box::new(&self.ab_test_manager)),
+            20 => Some(Box::new(&self.logs)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }

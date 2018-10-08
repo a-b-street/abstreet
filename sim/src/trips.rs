@@ -192,6 +192,8 @@ impl TripManager {
             pending_driving_trips: 0,
             total_driving_trips: 0,
             total_driving_trip_time: Tick::zero(),
+
+            completion_time: None,
         };
         // TODO or would it make more sense to aggregate events as they happen?
         for t in &self.trips {
@@ -254,7 +256,7 @@ impl TripLeg {
 }
 
 // As of a moment in time, not necessarily the end of the simulation
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ScoreSummary {
     pub pending_walking_trips: usize,
     pub total_walking_trips: usize,
@@ -265,4 +267,9 @@ pub struct ScoreSummary {
     pub total_driving_trips: usize,
     // TODO this is actually a duration
     pub total_driving_trip_time: Tick,
+
+    // If filled out, the sim took this long to complete.
+    // TODO This is maybe not a useful thing to measure; the agents moving at the end don't have
+    // others around, so things are stranger for them.
+    pub completion_time: Option<Tick>,
 }

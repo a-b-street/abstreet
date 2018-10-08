@@ -298,7 +298,6 @@ impl Sim {
     }
 
     pub fn measure_speed(&self, b: &mut Benchmark) -> f64 {
-        let elapsed = b.last_real_time.elapsed();
         let dt = abstutil::elapsed_seconds(b.last_real_time) * si::S;
         let speed = (self.time - b.last_sim_time).as_time() / dt;
         b.last_real_time = Instant::now();
@@ -357,7 +356,11 @@ impl Sim {
     }
 
     pub fn get_score(&self) -> ScoreSummary {
-        self.trips_state.get_score(self.time)
+        let mut s = self.trips_state.get_score(self.time);
+        if self.is_done() {
+            s.completion_time = Some(self.time);
+        }
+        s
     }
 }
 

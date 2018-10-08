@@ -1,3 +1,4 @@
+pub mod a_b_tests;
 pub mod classification;
 pub mod color_picker;
 pub mod debug_objects;

@@ -2,7 +2,7 @@ use control::{ControlStopSign, ControlTrafficSignal};
 use map_model::{IntersectionID, RoadEdits};
 use std::collections::BTreeMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct MapEdits {
     pub edits_name: String,
     pub map_name: String,
