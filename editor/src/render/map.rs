@@ -35,16 +35,13 @@ pub struct DrawMap {
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
 
+    pub center_pt: Pt2D,
+
     quadtree: QuadTree<ID>,
 }
 
 impl DrawMap {
-    // Also returns the center of the map in map-space
-    pub fn new(
-        map: &Map,
-        control_map: &ControlMap,
-        raw_extra_shapes: Vec<ExtraShape>,
-    ) -> (DrawMap, Pt2D) {
+    pub fn new(map: &Map, control_map: &ControlMap, raw_extra_shapes: Vec<ExtraShape>) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
             lanes.push(DrawLane::new(l, map, control_map));
@@ -120,21 +117,20 @@ impl DrawMap {
             quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
 
-        (
-            DrawMap {
-                lanes,
-                intersections,
-                turns,
-                buildings,
-                parcels,
-                extra_shapes,
-                bus_stops,
-                areas,
+        DrawMap {
+            lanes,
+            intersections,
+            turns,
+            buildings,
+            parcels,
+            extra_shapes,
+            bus_stops,
+            areas,
 
-                quadtree,
-            },
-            Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
-        )
+            center_pt: Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
+
+            quadtree,
+        }
     }
 
     fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {

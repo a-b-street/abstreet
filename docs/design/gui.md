@@ -278,6 +278,16 @@ Alright, I think this is the sequence of things to do:
 2) make it possible to completely reload UI and everything from scratch, from a plugin. rationale: it'd be nice to switch maps from inside the editor anyway. not necessary, but useful.
 3) make road edits propogate correctly, and somehow have a strategy for ensuring nothing is forgotten. impl today is VERY incomplete.
 
+Thinking about this again now that we need two copies of everything to be alive at a time and switch between them...
+
+- very tied together: map, control map, draw map, sim
+- current selection is UI state that has to refresh when changing maps
+- which plugins have state tied to the map?
+	- have a method on UI to switch map+edits? no, dont want to reload all this stuff every time...
+		- bundle that state together, including the plugins!
+		- make the existing 'load new edits' thing use this new mechanism
+		- then go back to managing a second sim...
+
 ## Rendering a map differently
 
 For "Project Halloween", I want to draw the map model in a very different
@@ -298,3 +308,48 @@ So, try adding the quadtree for roads and buildings (diff quadtrees or one
 unified? hmm) and see what looks common. Remember we could use quadtrees in map
 model construction for building/sidewalk pruning, but there's the awkwardness
 of quadtrees _kind of_ being a UI concept.
+
+## Side-by-side
+
+What should this feature do? Is it easier to watch two maps side-by-side moving
+in lockstep, with the same camera? Or would a ghostly trace overlay on one map
+be easier to understand? The use cases:
+
+- Glancing at a vague overview of how the two runs are doing. Watching graphs
+  side-by-side might even be more useful here. But for a zoomed out view,
+  side-by-side with reasonably clear pockets of color (weather model style,
+  almost) seems nice.
+- Detailed inspection of a fixed area. Side-by-side view with full detail seems
+  nice.
+- Detailed inspection of a specific agent, following it. Side-by-side would
+  have to trace it in both canvases.
+- Looking for differences... what are these? For a single agent, wanting to
+  know are they farther along their journey at some point in time? That could
+  be visualized nicely with a red or green thick route in front or behind them.
+  Maybe they're ahead of the baseline by some amount, or behind it. This could
+  use relative score or relative distance to goal or something. Would it trace
+  ahead by pure distance or by anticipated distance in a given time?
+
+The side-by-side canvas seems incredibly difficult -- have to revamp everything
+to dispatch mouse events, maybe synchronize cameras, other plugins
+arbitrarily... No way.
+
+Let's start with two concrete things:
+
+- Start running an A/B test sets up a second optional simulation in the UI.
+  Some keys can toggle between showing one of the two, for now. Stepping will
+  step BOTH of them. Have to adjust the OSD and other sim control things.
+  Possibly even sim control should own the second sim?
+	- Q: how to prevent scenario instatiation or adding new agents while an
+	  A/B test is in progress? need plugin groups / modes!
+	- road editing during an A/B test is _definitely_ not k
+	- argh!! wait, we need a different map, since we need different edits!
+		- that means also a different control map
+			- should the Sim own map and control_map to make it clear they're tied? I think so!
+		- practically all of the UI touches the map...
+			- wait wait draw map also needs to be duplicated then.
+			- we're back to the problem of loading map edits
+- Make a visual trace abstraction to show something in front of or behind an
+  agent. It follows bends in the road, crosses intersections, etc. Could be
+  used for lookahead debugging right now, and this relative ghost comparison
+  thing next.

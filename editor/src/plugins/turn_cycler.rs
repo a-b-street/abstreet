@@ -8,7 +8,7 @@ use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
-use sim::Sim;
+use sim::Tick;
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -68,7 +68,7 @@ impl TurnCyclerState {
         map: &Map,
         draw_map: &DrawMap,
         control_map: &ControlMap,
-        sim: &Sim,
+        time: Tick,
         cs: &ColorScheme,
         g: &mut GfxCtx,
     ) {
@@ -92,7 +92,7 @@ impl TurnCyclerState {
             }
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = control_map.traffic_signals.get(&id) {
-                    let (cycle, _) = signal.current_cycle_and_remaining_time(sim.time.as_time());
+                    let (cycle, _) = signal.current_cycle_and_remaining_time(time.as_time());
                     for t in &cycle.turns {
                         draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
                     }
