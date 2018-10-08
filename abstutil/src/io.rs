@@ -124,14 +124,20 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
     results.into_iter().collect()
 }
 
-// Load all serialized things from a directory, return sorted by name.
+// Load all serialized things from a directory, return sorted by name, with file extension removed.
 pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
-                let name = entry.unwrap().file_name().into_string().unwrap();
-                let load: T = read_json(&format!("../data/{}/{}/{}", dir, map_name, name)).unwrap();
+                let name = Path::new(&entry.unwrap().file_name())
+                    .file_stem()
+                    .unwrap()
+                    .to_os_string()
+                    .into_string()
+                    .unwrap();
+                let load: T =
+                    read_json(&format!("../data/{}/{}/{}.json", dir, map_name, name)).unwrap();
                 tree.insert(name, load);
             }
         }

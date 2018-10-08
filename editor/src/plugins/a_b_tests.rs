@@ -43,6 +43,7 @@ impl ABTestManager {
             ABTestManager::ManageABTest(test, ref mut scroller) => {
                 if input.key_pressed(Key::R, "run this A/B test") {
                     new_ui = Some(launch_test(test, kml));
+                    new_state = Some(ABTestManager::Inactive);
                 }
                 if scroller.event(input) {
                     new_state = Some(ABTestManager::Inactive);
