@@ -7,7 +7,7 @@ use driving::DrivingSimState;
 use failure::Error;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{IntersectionID, LaneID, LaneType, Map, Traversable, Turn, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -21,7 +21,7 @@ use view::WorldView;
 use walking::WalkingSimState;
 use {
     AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, PedestrianID,
-    ScoreSummary, Tick, TIMESTEP,
+    ScoreSummary, Tick, Trace, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -348,15 +348,10 @@ impl Sim {
         }
     }
 
-    // Also returns current distance along the first element of the route
-    pub fn get_current_route(
-        &self,
-        id: AgentID,
-        map: &Map,
-    ) -> Option<(Vec<Traversable>, Distance)> {
+    pub fn trace_route(&self, id: AgentID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         match id {
-            AgentID::Car(car) => self.driving_state.get_current_route(car, map),
-            AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped, map),
+            AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
+            AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),
         }
     }
 

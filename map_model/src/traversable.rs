@@ -49,13 +49,19 @@ impl Traversable {
     // Returns None if the traversable is actually 0 length, as some turns are.
     pub fn slice(
         &self,
+        reverse: bool,
         map: &Map,
         start: si::Meter<f64>,
         end: si::Meter<f64>,
     ) -> Option<(PolyLine, si::Meter<f64>)> {
         match self {
-            &Traversable::Lane(id) => Some(map.get_l(id).lane_center_pts.slice(start, end)),
+            &Traversable::Lane(id) => if reverse {
+                Some(map.get_l(id).lane_center_pts.reversed().slice(start, end))
+            } else {
+                Some(map.get_l(id).lane_center_pts.slice(start, end))
+            },
             &Traversable::Turn(id) => {
+                assert!(!reverse);
                 let t = map.get_t(id);
                 if t.line.length() <= EPSILON_DIST {
                     None

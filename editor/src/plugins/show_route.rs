@@ -1,11 +1,11 @@
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::{GfxCtx, UserInput};
-use map_model::{Map, Trace, LANE_THICKNESS};
+use map_model::{Map, LANE_THICKNESS};
 use objects::ID;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{AgentID, Sim};
+use sim::{AgentID, Sim, Trace};
 use std::f64;
 
 pub enum ShowRouteState {
@@ -48,13 +48,10 @@ impl ShowRouteState {
             }
         };
         if let Some(agent) = maybe_agent {
-            match sim.get_current_route(agent, map) {
-                Some((route, dist_along)) => {
-                    // Trace along the entire route by passing in max distance
-                    *self = ShowRouteState::Active(
-                        agent,
-                        Trace::new(dist_along, &route, f64::MAX * si::M, map),
-                    );
+            // Trace along the entire route by passing in max distance
+            match sim.trace_route(agent, map, f64::MAX * si::M) {
+                Some(trace) => {
+                    *self = ShowRouteState::Active(agent, trace);
                 }
                 None => {
                     *self = ShowRouteState::Empty;
@@ -74,7 +71,7 @@ impl ShowRouteState {
         if let ShowRouteState::Active(_, trace) = self {
             g.draw_polygon(
                 cs.get(Colors::Queued),
-                &trace.polyline.make_polygons_blindly(LANE_THICKNESS),
+                &trace.make_polygons_blindly(LANE_THICKNESS),
             );
         }
     }

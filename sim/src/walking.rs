@@ -14,7 +14,7 @@ use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
     AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, ParkingSpot, PedestrianID,
-    Speed, Tick, Time, TIMESTEP,
+    Speed, Tick, Time, Trace, TIMESTEP,
 };
 
 // TODO tune these!
@@ -563,24 +563,48 @@ impl WalkingSimState {
         self.peds.is_empty()
     }
 
-    pub fn get_current_route(
-        &self,
-        id: PedestrianID,
-        map: &Map,
-    ) -> Option<(Vec<Traversable>, Distance)> {
+    // TODO share impl with router... contraflow is the only difference
+    pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         let p = self.peds.get(&id)?;
 
-        let mut route = vec![p.on];
+        // TODO Assuming we can't ever be called while on a 0-length turn
+        let (mut result, mut dist_left) = p.on
+            // TODO will this break if we pass in max for dist_along?
+            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)
+            .unwrap();
 
         let mut last_lane = p.on.maybe_lane();
-        for next in &p.path {
+        let mut idx = 0;
+        while dist_left > 0.0 * si::M && idx < p.path.len() {
+            let next_lane = p.path[idx];
             if let Some(prev) = last_lane {
-                route.push(Traversable::Turn(pick_turn(prev, *next, map)));
+                // Never contraflow on turns
+                if let Some((piece, new_dist_left)) = Traversable::Turn(pick_turn(
+                    prev, next_lane, map,
+                )).slice(false, map, 0.0 * si::M, dist_left)
+                {
+                    result.extend(piece);
+                    dist_left = new_dist_left;
+                    if dist_left <= 0.0 * si::M {
+                        break;
+                    }
+                }
             }
-            route.push(Traversable::Lane(*next));
-            last_lane = Some(*next);
+
+            // TODO ooh this is _really_ cheating. ;)
+            let contraflow = *result.points().last().unwrap() != map.get_l(next_lane).first_pt();
+            let (piece, new_dist_left) = Traversable::Lane(next_lane)
+                .slice(contraflow, map, 0.0 * si::M, dist_left)
+                .unwrap();
+            result.extend(piece);
+            dist_left = new_dist_left;
+            last_lane = Some(next_lane);
+
+            idx += 1;
         }
-        Some((route, p.dist_along))
+
+        // Excess dist_left is just ignored
+        Some(result)
     }
 
     pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {

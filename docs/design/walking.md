@@ -41,3 +41,10 @@ if we're looking at turns from a road that's a sidewalk, bake in some extra logi
   most reasonable sidewalk cases, this is true. Don't need to model more
   detailed movement. As a consequence of this, crosswalk turns never conflict.
   Assume people can weave.
+
+## Cost of contraflow
+
+Either duplicate sidewalks in both directions (extra rendering and memory, etc)
+or have complicated turns and contraflow logic. Making trace_route is example
+of time wasted on contraflow mess. Maybe having two directional sides of a
+sidewalk is nice anyway?

@@ -8,7 +8,7 @@ use rand::Rng;
 use std::collections::VecDeque;
 use transit::TransitSimState;
 use view::AgentView;
-use {Distance, Event, ParkingSpot, Tick};
+use {Distance, Event, ParkingSpot, Tick, Trace};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {
@@ -160,18 +160,48 @@ impl Router {
         None
     }
 
-    pub fn get_current_route(&self, start: Traversable, map: &Map) -> Vec<Traversable> {
-        let mut route = vec![start];
+    pub fn trace_route(
+        &self,
+        start: Traversable,
+        start_dist: Distance,
+        map: &Map,
+        dist_along: Distance,
+    ) -> Trace {
+        // TODO Assuming we can't ever be called while on a 0-length turn
+        let (mut result, mut dist_left) = start
+            // TODO will this break if we pass in max for dist_along?
+            .slice(false, map, start_dist, start_dist + dist_along)
+            .unwrap();
 
         let mut last_lane = start.maybe_lane();
-        for next in &self.path {
+        let mut idx = 0;
+        while dist_left > 0.0 * si::M && idx < self.path.len() {
+            let next_lane = self.path[idx];
             if let Some(prev) = last_lane {
-                route.push(Traversable::Turn(pick_turn(prev, *next, map)));
+                if let Some((piece, new_dist_left)) = Traversable::Turn(pick_turn(
+                    prev, next_lane, map,
+                )).slice(false, map, 0.0 * si::M, dist_left)
+                {
+                    result.extend(piece);
+                    dist_left = new_dist_left;
+                    if dist_left <= 0.0 * si::M {
+                        break;
+                    }
+                }
             }
-            route.push(Traversable::Lane(*next));
-            last_lane = Some(*next);
+
+            let (piece, new_dist_left) = Traversable::Lane(next_lane)
+                .slice(false, map, 0.0 * si::M, dist_left)
+                .unwrap();
+            result.extend(piece);
+            dist_left = new_dist_left;
+            last_lane = Some(next_lane);
+
+            idx += 1;
         }
-        route
+
+        // Excess dist_left is just ignored
+        result
     }
 }
 

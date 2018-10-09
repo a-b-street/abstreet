@@ -6,7 +6,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -18,7 +18,7 @@ use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, InvariantViolated,
-    ParkedCar, ParkingSpot, Speed, Tick, Time,
+    ParkedCar, ParkingSpot, Speed, Tick, Time, Trace,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
@@ -769,21 +769,13 @@ impl DrivingSimState {
             base_pos
         };
 
-        let stopping_dist = c.vehicle.stopping_distance(c.speed);
-        let stopping_trace = if stopping_dist <= EPSILON_DIST {
-            None
-        } else {
-            let (route, dist_along) = self.get_current_route(id, map).unwrap();
-            Some(Trace::new(dist_along, &route, stopping_dist, map))
-        };
-
         Some(DrawCarInput {
             id: c.id,
             vehicle_length: c.vehicle.length,
             waiting_for_turn: c.waiting_for.and_then(|on| on.maybe_turn()),
             front: pos,
             angle,
-            stopping_trace,
+            stopping_trace: self.trace_route(id, map, c.vehicle.stopping_distance(c.speed)),
         })
     }
 
@@ -817,9 +809,12 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_current_route(&self, id: CarID, map: &Map) -> Option<(Vec<Traversable>, Distance)> {
+    pub fn trace_route(&self, id: CarID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
+        if dist_ahead <= EPSILON_DIST {
+            return None;
+        }
         let r = self.routers.get(&id)?;
         let c = &self.cars[&id];
-        Some((r.get_current_route(c.on, map), c.dist_along))
+        Some(r.trace_route(c.on, c.dist_along, map, dist_ahead))
     }
 }
