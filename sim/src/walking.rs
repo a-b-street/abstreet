@@ -5,9 +5,7 @@ use failure::Error;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
-use map_model::{
-    BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, Traversable, Turn, TurnID,
-};
+use map_model::{BuildingID, BusStopID, Lane, LaneID, Map, Traversable, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -166,11 +164,7 @@ impl Pedestrian {
                 }
 
                 match self.on {
-                    Traversable::Lane(id) => {
-                        let l = map.get_l(id);
-                        let at = if self.contraflow { l.src_i } else { l.dst_i };
-                        Traversable::Turn(self.choose_turn(id, at, map))
-                    }
+                    Traversable::Lane(id) => Traversable::Turn(self.choose_turn(id, map)),
                     Traversable::Turn(id) => Traversable::Lane(map.get_t(id).dst),
                 }
             }
@@ -189,17 +183,9 @@ impl Pedestrian {
         }
     }
 
-    fn choose_turn(&self, from: LaneID, endpoint: IntersectionID, map: &Map) -> TurnID {
+    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
         assert!(self.waiting_for.is_none());
-        for t in map.get_turns_from_lane(from) {
-            if t.parent == endpoint && t.dst == self.path[0] {
-                return t.id;
-            }
-        }
-        panic!(
-            "No turn from {} ({} end) to {}",
-            from, endpoint, self.path[0]
-        );
+        pick_turn(from, self.path[0], map)
     }
 
     // If true, then we're completely done!
@@ -577,12 +563,22 @@ impl WalkingSimState {
         self.peds.is_empty()
     }
 
-    pub fn get_current_route(&self, id: PedestrianID) -> Option<(Vec<Traversable>, Distance)> {
-        // TODO turns. will be hard because of contraflow.
+    pub fn get_current_route(
+        &self,
+        id: PedestrianID,
+        map: &Map,
+    ) -> Option<(Vec<Traversable>, Distance)> {
         let p = self.peds.get(&id)?;
+
         let mut route = vec![p.on];
-        for l in &p.path {
-            route.push(Traversable::Lane(*l));
+
+        let mut last_lane = p.on.maybe_lane();
+        for next in &p.path {
+            if let Some(prev) = last_lane {
+                route.push(Traversable::Turn(pick_turn(prev, *next, map)));
+            }
+            route.push(Traversable::Lane(*next));
+            last_lane = Some(*next);
         }
         Some((route, p.dist_along))
     }
@@ -610,4 +606,20 @@ impl WalkingSimState {
 
 fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
     map.get_l(from).dst_i != map.get_l(to).src_i
+}
+
+fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
+    let l = map.get_l(from);
+    let endpoint = if is_contraflow(map, from, to) {
+        l.src_i
+    } else {
+        l.dst_i
+    };
+
+    for t in map.get_turns_from_lane(from) {
+        if t.parent == endpoint && t.dst == to {
+            return t.id;
+        }
+    }
+    panic!("No turn from {} ({} end) to {}", from, endpoint, to);
 }

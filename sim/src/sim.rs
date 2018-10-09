@@ -356,7 +356,7 @@ impl Sim {
     ) -> Option<(Vec<Traversable>, Distance)> {
         match id {
             AgentID::Car(car) => self.driving_state.get_current_route(car, map),
-            AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped),
+            AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped, map),
         }
     }
 
