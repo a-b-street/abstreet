@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Angle, Pt2D};
+use geom::{Angle, PolyLine, Pt2D};
 use {LaneID, Map, TurnID};
 
 // TODO also building paths?
@@ -31,10 +31,33 @@ impl Traversable {
         }
     }
 
+    pub fn maybe_lane(&self) -> Option<LaneID> {
+        match self {
+            &Traversable::Turn(_) => None,
+            &Traversable::Lane(id) => Some(id),
+        }
+    }
+
+    // TODO Just expose the PolyLine instead of all these layers of helpers
     pub fn length(&self, map: &Map) -> si::Meter<f64> {
         match self {
             &Traversable::Lane(id) => map.get_l(id).length(),
             &Traversable::Turn(id) => map.get_t(id).length(),
+        }
+    }
+
+    pub fn slice(
+        &self,
+        map: &Map,
+        start: si::Meter<f64>,
+        end: si::Meter<f64>,
+    ) -> (PolyLine, si::Meter<f64>) {
+        match self {
+            &Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
+            &Traversable::Turn(id) => {
+                let t = map.get_t(id);
+                PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end)
+            }
         }
     }
 

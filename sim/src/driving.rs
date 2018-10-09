@@ -776,7 +776,7 @@ impl DrivingSimState {
             // TODO amend the route?
             Some(Trace::new(
                 c.dist_along,
-                &self.get_current_route(id).unwrap(),
+                &self.get_current_route(id, map).unwrap(),
                 stopping_dist,
                 map,
             ))
@@ -822,7 +822,8 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_current_route(&self, id: CarID) -> Option<Vec<LaneID>> {
-        self.routers.get(&id).map(|r| r.get_current_route())
+    pub fn get_current_route(&self, id: CarID, map: &Map) -> Option<Vec<Traversable>> {
+        let r = self.routers.get(&id)?;
+        Some(r.get_current_route(self.cars[&id].on, map))
     }
 }

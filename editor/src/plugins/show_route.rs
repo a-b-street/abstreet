@@ -1,6 +1,6 @@
 use colors::Colors;
 use ezgui::{Color, UserInput};
-use map_model::LaneID;
+use map_model::{LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::Colorizer;
@@ -14,7 +14,13 @@ pub enum ShowRouteState {
 }
 
 impl ShowRouteState {
-    pub fn event(&mut self, input: &mut UserInput, sim: &Sim, selected: Option<ID>) -> bool {
+    pub fn event(
+        &mut self,
+        input: &mut UserInput,
+        sim: &Sim,
+        map: &Map,
+        selected: Option<ID>,
+    ) -> bool {
         if *self == ShowRouteState::Empty {
             match selected {
                 Some(ID::Car(id)) => {
@@ -39,10 +45,14 @@ impl ShowRouteState {
                 if input.key_pressed(Key::Return, "stop showing route") {
                     true
                 } else {
-                    match sim.get_current_route(*agent) {
+                    match sim.get_current_route(*agent, map) {
                         Some(route) => {
                             lanes.clear();
-                            lanes.extend(route);
+                            for tr in &route {
+                                if let Some(l) = tr.maybe_lane() {
+                                    lanes.insert(l);
+                                }
+                            }
                             false
                         }
                         None => true,

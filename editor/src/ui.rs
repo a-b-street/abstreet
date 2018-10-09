@@ -164,6 +164,7 @@ impl UIWrapper {
                     ctx.ui.primary.show_route.event(
                         ctx.input,
                         &ctx.ui.primary.sim,
+                        &ctx.ui.primary.map,
                         ctx.ui.primary.current_selection,
                     )
                 }),

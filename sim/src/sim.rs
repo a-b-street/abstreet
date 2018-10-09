@@ -7,7 +7,7 @@ use driving::DrivingSimState;
 use failure::Error;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, Traversable, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -348,9 +348,9 @@ impl Sim {
         }
     }
 
-    pub fn get_current_route(&self, id: AgentID) -> Option<Vec<LaneID>> {
+    pub fn get_current_route(&self, id: AgentID, map: &Map) -> Option<Vec<Traversable>> {
         match id {
-            AgentID::Car(car) => self.driving_state.get_current_route(car),
+            AgentID::Car(car) => self.driving_state.get_current_route(car, map),
             AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped),
         }
     }

@@ -577,10 +577,14 @@ impl WalkingSimState {
         self.peds.is_empty()
     }
 
-    pub fn get_current_route(&self, id: PedestrianID) -> Option<Vec<LaneID>> {
-        self.peds
-            .get(&id)
-            .map(|p| p.path.iter().map(|id| *id).collect())
+    pub fn get_current_route(&self, id: PedestrianID) -> Option<Vec<Traversable>> {
+        // TODO turns. will be hard because of contraflow.
+        let p = self.peds.get(&id)?;
+        let mut route = vec![p.on];
+        for l in &p.path {
+            route.push(Traversable::Lane(*l));
+        }
+        Some(route)
     }
 
     pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {

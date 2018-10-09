@@ -124,12 +124,7 @@ impl Router {
     }
 
     pub fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
-        for t in map.get_turns_from_lane(from) {
-            if t.dst == self.path[0] {
-                return t.id;
-            }
-        }
-        panic!("No turn from {} to {}", from, self.path[0]);
+        pick_turn(from, self.path[0], map)
     }
 
     pub fn advance_to(&mut self, next_lane: LaneID) {
@@ -165,8 +160,18 @@ impl Router {
         None
     }
 
-    pub fn get_current_route(&self) -> Vec<LaneID> {
-        self.path.iter().map(|id| *id).collect()
+    pub fn get_current_route(&self, start: Traversable, map: &Map) -> Vec<Traversable> {
+        let mut route = vec![start];
+
+        let mut last_lane = start.maybe_lane();
+        for next in &self.path {
+            if let Some(prev) = last_lane {
+                route.push(Traversable::Turn(pick_turn(prev, *next, map)));
+            }
+            route.push(Traversable::Lane(*next));
+            last_lane = Some(*next);
+        }
+        route
     }
 }
 
@@ -179,4 +184,13 @@ fn find_parking_spot(
     map.get_parent(driving_lane)
         .find_parking_lane(driving_lane)
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
+}
+
+fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
+    for t in map.get_turns_from_lane(from) {
+        if t.dst == to {
+            return t.id;
+        }
+    }
+    panic!("No turn from {} to {}", from, to);
 }
