@@ -60,7 +60,7 @@ pub use events::Event;
 use geom::{Angle, Pt2D};
 pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
-use map_model::{LaneID, Map, TurnID};
+use map_model::{LaneID, Map, Trace, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
@@ -379,7 +379,7 @@ pub struct DrawCarInput {
     pub waiting_for_turn: Option<TurnID>,
     pub front: Pt2D,
     pub angle: Angle,
-    pub stopping_dist: Distance,
+    pub stopping_trace: Option<Trace>,
 }
 
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really

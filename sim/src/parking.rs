@@ -1,4 +1,3 @@
-use dimensioned::si;
 use geom::{Angle, Polygon, Pt2D};
 use kinematics::Vehicle;
 use map_model;
@@ -212,7 +211,7 @@ impl ParkingLane {
                         waiting_for_turn: None,
                         front: front,
                         angle: angle,
-                        stopping_dist: 0.0 * si::M,
+                        stopping_trace: None,
                     })
                 })
             }).collect()

@@ -6,7 +6,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, Map, TurnID, LANE_THICKNESS};
+use map_model::{LaneID, Map, Trace, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -748,7 +748,6 @@ impl DrivingSimState {
     pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCarInput> {
         let c = self.cars.get(&id)?;
         let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
-        let stopping_dist = c.vehicle.stopping_distance(c.speed);
 
         // TODO arguably, this math might belong in DrawCar.
         let pos = if let Some(ref parking) = c.parking {
@@ -766,13 +765,26 @@ impl DrivingSimState {
             base_pos
         };
 
+        let stopping_dist = c.vehicle.stopping_distance(c.speed);
+        let stopping_trace = if stopping_dist <= EPSILON_DIST {
+            None
+        } else {
+            // TODO amend the route?
+            Some(Trace::new(
+                c.dist_along,
+                &self.get_current_route(id).unwrap(),
+                stopping_dist,
+                map,
+            ))
+        };
+
         Some(DrawCarInput {
             id: c.id,
             vehicle_length: c.vehicle.length,
             waiting_for_turn: c.waiting_for.and_then(|on| on.maybe_turn()),
             front: pos,
             angle,
-            stopping_dist,
+            stopping_trace,
         })
     }
 

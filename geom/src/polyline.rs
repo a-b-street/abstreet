@@ -34,6 +34,11 @@ impl PolyLine {
         self.pts[len - 1] = pt2;
     }
 
+    pub fn extend(&mut self, other: PolyLine) {
+        assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
+        self.pts.extend(other.pts.iter().skip(1));
+    }
+
     pub fn points(&self) -> &Vec<Pt2D> {
         &self.pts
     }
@@ -50,6 +55,49 @@ impl PolyLine {
         self.lines()
             .iter()
             .fold(0.0 * si::M, |so_far, l| so_far + l.length())
+    }
+
+    // Returns the excess distance left over from the end.
+    pub fn slice(&self, start: si::Meter<f64>, end: si::Meter<f64>) -> (PolyLine, si::Meter<f64>) {
+        if start >= end {
+            panic!("Can't get a polyline slice [{}, {}]", start, end);
+        }
+
+        let mut result: Vec<Pt2D> = Vec::new();
+        let mut dist_so_far = 0.0 * si::M;
+
+        for line in self.lines().iter() {
+            let length = line.length();
+
+            // Does this line contain the first point of the slice?
+            if result.is_empty() && dist_so_far + length >= start {
+                result.push(line.dist_along(start - dist_so_far));
+            }
+
+            // Does this line contain the last point of the slice?
+            if dist_so_far + length >= end {
+                result.push(line.dist_along(end - dist_so_far));
+                return (PolyLine::new(result), 0.0 * si::M);
+            }
+
+            // If we're in the middle, just collect the endpoint.
+            if !result.is_empty() {
+                result.push(line.pt2());
+            }
+
+            dist_so_far += length;
+        }
+
+        if result.is_empty() {
+            panic!(
+                "Slice [{}, {}] has a start too big for polyline of length {}",
+                start,
+                end,
+                self.length()
+            );
+        }
+
+        (PolyLine::new(result), end - dist_so_far)
     }
 
     // TODO return result with an error message

@@ -1,5 +1,4 @@
 use colors::Colors;
-use dimensioned::si;
 use ezgui::{shift_color, GfxCtx};
 use geom::{Angle, Bounds, Line, PolyLine, Polygon, Pt2D};
 use map_model::Map;
@@ -16,9 +15,7 @@ pub struct DrawCar {
     // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
     turn_arrow: Option<Line>,
     // TODO maybe also draw lookahead buffer to know what the car is considering
-    // TODO it would be really neat to project the stopping buffer onto the actual route that'll be
-    // taken
-    stopping_buffer_arrow: Option<Line>,
+    stopping_buffer: Option<Polygon>,
 }
 
 impl DrawCar {
@@ -33,14 +30,9 @@ impl DrawCar {
             None
         };
 
-        let stopping_buffer_arrow = if input.stopping_dist == 0.0 * si::M {
-            None
-        } else {
-            let arrow_pt = input
-                .front
-                .project_away(input.stopping_dist.value_unsafe, input.angle);
-            Some(Line::new(input.front, arrow_pt))
-        };
+        let stopping_buffer = input
+            .stopping_trace
+            .map(|t| t.polyline.make_polygons_blindly(CAR_WIDTH));
 
         let front_window_length_gap = 0.2;
         let front_window_thickness = 0.3;
@@ -85,7 +77,7 @@ impl DrawCar {
                     input.angle.rotate_degs(90.0),
                 ),
             ],
-            stopping_buffer_arrow,
+            stopping_buffer,
         }
     }
 }
@@ -115,8 +107,8 @@ impl Renderable for DrawCar {
             g.draw_arrow([0.0, 1.0, 1.0, 1.0], 0.25, 1.0, a);
         }
 
-        if let Some(ref a) = self.stopping_buffer_arrow {
-            g.draw_arrow([1.0, 0.0, 0.0, 0.7], 0.25, 1.0, a);
+        if let Some(ref t) = self.stopping_buffer {
+            g.draw_polygon([1.0, 0.0, 0.0, 0.7], t);
         }
     }
 

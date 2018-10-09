@@ -32,7 +32,6 @@ pub struct Turn {
     pub dst: LaneID,
     pub between_sidewalks: bool,
 
-    /// GeomTurn stuff
     pub line: Line,
 }
 
