@@ -1,6 +1,6 @@
 use intersections::Request;
-use map_model::{BuildingID, BusStopID};
-use {AgentID, CarID, On, ParkingSpot, PedestrianID};
+use map_model::{BuildingID, BusStopID, Traversable};
+use {AgentID, CarID, ParkingSpot, PedestrianID};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
@@ -19,8 +19,8 @@ pub enum Event {
     PedLeavesBus(PedestrianID, CarID),
 
     // TODO split up into cases or not?
-    AgentEntersTraversable(AgentID, On),
-    AgentLeavesTraversable(AgentID, On),
+    AgentEntersTraversable(AgentID, Traversable),
+    AgentLeavesTraversable(AgentID, Traversable),
 
     // TODO maybe AgentRequestsTurn?
     IntersectionAcceptsRequest(Request),

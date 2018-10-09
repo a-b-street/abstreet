@@ -5,7 +5,9 @@ use failure::Error;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
-use map_model::{BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, Turn, TurnID};
+use map_model::{
+    BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, Traversable, Turn, TurnID,
+};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -13,8 +15,8 @@ use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
-    AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, On, ParkingSpot,
-    PedestrianID, Speed, Tick, Time, TIMESTEP,
+    AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, ParkingSpot, PedestrianID,
+    Speed, Tick, Time, TIMESTEP,
 };
 
 // TODO tune these!
@@ -91,22 +93,22 @@ enum Action {
     StartCrossingPath(BuildingID),
     KeepCrossingPath,
     Continue,
-    Goto(On),
-    WaitFor(On),
+    Goto(Traversable),
+    WaitFor(Traversable),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Pedestrian {
     id: PedestrianID,
 
-    on: On,
+    on: Traversable,
     dist_along: Distance,
     // Traveling along the lane/turn in its original direction or not?
     contraflow: bool,
 
     // Head is the next lane
     path: VecDeque<LaneID>,
-    waiting_for: Option<On>,
+    waiting_for: Option<Traversable>,
 
     front_path: Option<CrossingFrontPath>,
     goal: SidewalkSpot,
@@ -153,7 +155,7 @@ impl Pedestrian {
             return Action::Continue;
         }
 
-        let desired_on: On = {
+        let desired_on: Traversable = {
             if let Some(on) = self.waiting_for {
                 on
             } else {
@@ -164,12 +166,12 @@ impl Pedestrian {
                 }
 
                 match self.on {
-                    On::Lane(id) => {
+                    Traversable::Lane(id) => {
                         let l = map.get_l(id);
                         let at = if self.contraflow { l.src_i } else { l.dst_i };
-                        On::Turn(self.choose_turn(id, at, map))
+                        Traversable::Turn(self.choose_turn(id, at, map))
                     }
-                    On::Turn(id) => On::Lane(map.get_t(id).dst),
+                    Traversable::Turn(id) => Traversable::Lane(map.get_t(id).dst),
                 }
             }
         };
@@ -177,8 +179,8 @@ impl Pedestrian {
         // Can we actually go there right now?
         let intersection_req_granted = match desired_on {
             // Already doing a turn, finish it!
-            On::Lane(_) => true,
-            On::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id)),
+            Traversable::Lane(_) => true,
+            Traversable::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id)),
         };
         if intersection_req_granted {
             Action::Goto(desired_on)
@@ -247,12 +249,12 @@ impl Pedestrian {
     fn step_goto(
         &mut self,
         events: &mut Vec<Event>,
-        on: On,
+        on: Traversable,
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<(), Error> {
         // Detect if the ped just warped. Bidirectional sidewalks are confusing. :)
-        if let On::Lane(l) = self.on {
+        if let Traversable::Lane(l) = self.on {
             let l = map.get_l(l);
             let pt1 = if self.contraflow {
                 l.first_pt()
@@ -270,7 +272,7 @@ impl Pedestrian {
         }
 
         let old_on = self.on.clone();
-        if let On::Turn(t) = self.on {
+        if let Traversable::Turn(t) = self.on {
             intersections.on_exit(Request::for_ped(self.id, t));
             assert_eq!(self.path[0], map.get_t(t).dst);
             self.path.pop_front();
@@ -288,10 +290,10 @@ impl Pedestrian {
         self.dist_along = 0.0 * si::M;
         self.contraflow = false;
         match self.on {
-            On::Turn(t) => {
+            Traversable::Turn(t) => {
                 intersections.on_enter(Request::for_ped(self.id, t))?;
             }
-            On::Lane(l) => {
+            Traversable::Lane(l) => {
                 // Which end of the sidewalk are we entering?
                 let turn = map.get_t(old_on.as_turn());
                 let lane = map.get_l(l);
@@ -427,7 +429,7 @@ impl WalkingSimState {
                 }
                 Action::WaitFor(on) => {
                     self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
-                    if let On::Turn(t) = on {
+                    if let Traversable::Turn(t) = on {
                         // Note this is idempotent and does NOT grant the request.
                         intersections.submit_request(Request::for_ped(*id, t))?;
                     }
@@ -440,8 +442,8 @@ impl WalkingSimState {
         self.peds_per_turn.clear();
         for p in self.peds.values() {
             match p.on {
-                On::Lane(id) => self.peds_per_sidewalk.insert(id, p.id),
-                On::Turn(id) => self.peds_per_turn.insert(id, p.id),
+                Traversable::Lane(id) => self.peds_per_sidewalk.insert(id, p.id),
+                Traversable::Turn(id) => self.peds_per_turn.insert(id, p.id),
             };
         }
 
@@ -526,7 +528,7 @@ impl WalkingSimState {
                 id,
                 path,
                 contraflow,
-                on: On::Lane(start_lane),
+                on: Traversable::Lane(start_lane),
                 dist_along: start.dist_along,
                 waiting_for: None,
                 front_path,
@@ -537,7 +539,7 @@ impl WalkingSimState {
         self.peds_per_sidewalk.insert(start_lane, id);
         events.push(Event::AgentEntersTraversable(
             AgentID::Pedestrian(id),
-            On::Lane(start_lane),
+            Traversable::Lane(start_lane),
         ));
     }
 

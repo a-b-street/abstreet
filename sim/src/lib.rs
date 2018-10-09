@@ -60,7 +60,7 @@ pub use events::Event;
 use geom::{Angle, Pt2D};
 pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
-use map_model::{LaneID, Map, Trace, TurnID};
+use map_model::{LaneID, Trace, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
@@ -252,57 +252,6 @@ fn time_parsing() {
 
     assert_eq!(Tick::parse("00:02:03.5"), Some(Tick(35 + 1200)));
     assert_eq!(Tick::parse("01:02:03.5"), Some(Tick(35 + 1200 + 36000)));
-}
-
-// TODO this name isn't quite right :)
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum On {
-    Lane(LaneID),
-    Turn(TurnID),
-}
-
-impl On {
-    pub fn as_lane(&self) -> LaneID {
-        match self {
-            &On::Lane(id) => id,
-            &On::Turn(_) => panic!("not a lane"),
-        }
-    }
-
-    pub fn as_turn(&self) -> TurnID {
-        match self {
-            &On::Turn(id) => id,
-            &On::Lane(_) => panic!("not a turn"),
-        }
-    }
-
-    fn maybe_turn(&self) -> Option<TurnID> {
-        match self {
-            &On::Turn(id) => Some(id),
-            &On::Lane(_) => None,
-        }
-    }
-
-    fn length(&self, map: &Map) -> Distance {
-        match self {
-            &On::Lane(id) => map.get_l(id).length(),
-            &On::Turn(id) => map.get_t(id).length(),
-        }
-    }
-
-    fn dist_along(&self, dist: Distance, map: &Map) -> (Pt2D, Angle) {
-        match self {
-            &On::Lane(id) => map.get_l(id).dist_along(dist),
-            &On::Turn(id) => map.get_t(id).dist_along(dist),
-        }
-    }
-
-    fn speed_limit(&self, map: &Map) -> Speed {
-        match self {
-            &On::Lane(id) => map.get_parent(id).get_speed_limit(),
-            &On::Turn(id) => map.get_parent(id.dst).get_speed_limit(),
-        }
-    }
 }
 
 pub enum CarState {

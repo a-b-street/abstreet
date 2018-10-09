@@ -1,14 +1,14 @@
 use driving::SimQueue;
 use kinematics::Vehicle;
-use map_model::TurnID;
+use map_model::{Traversable, TurnID};
 use std::collections::{BTreeMap, HashMap};
-use {AgentID, CarID, Distance, On, Speed};
+use {AgentID, CarID, Distance, Speed};
 
 // An immutable view that agents and intersection controllers see of agents.
 pub struct AgentView {
     pub id: AgentID,
     pub debug: bool,
-    pub on: On,
+    pub on: Traversable,
     pub dist_along: Distance,
     pub speed: Speed,
     pub vehicle: Option<Vehicle>,
@@ -38,10 +38,10 @@ impl WorldView {
         }
     }
 
-    pub fn next_car_in_front_of(&self, on: On, dist: Distance) -> Option<&AgentView> {
+    pub fn next_car_in_front_of(&self, on: Traversable, dist: Distance) -> Option<&AgentView> {
         let maybe_id = match on {
-            On::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist),
-            On::Turn(id) => self.turns[&id].next_car_in_front_of(dist),
+            Traversable::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist),
+            Traversable::Turn(id) => self.turns[&id].next_car_in_front_of(dist),
         };
         maybe_id.map(|id| &self.agents[&AgentID::Car(id)])
     }

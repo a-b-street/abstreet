@@ -30,6 +30,7 @@ mod pathfind;
 pub mod raw_data;
 mod road;
 mod trace;
+mod traversable;
 mod turn;
 
 pub use area::{Area, AreaID, AreaType};
@@ -43,6 +44,7 @@ pub use parcel::{Parcel, ParcelID};
 pub use pathfind::Pathfinder;
 pub use road::{Road, RoadID};
 pub use trace::Trace;
+pub use traversable::Traversable;
 pub use turn::{Turn, TurnID};
 
 pub const LANE_THICKNESS: f64 = 2.5;

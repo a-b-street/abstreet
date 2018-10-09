@@ -6,7 +6,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, Map, Trace, TurnID, LANE_THICKNESS};
+use map_model::{LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -17,7 +17,7 @@ use std::collections::BTreeMap;
 use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
-    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, InvariantViolated, On,
+    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, InvariantViolated,
     ParkedCar, ParkingSpot, Speed, Tick, Time,
 };
 
@@ -37,7 +37,7 @@ struct ParkingState {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Car {
     id: CarID,
-    on: On,
+    on: Traversable,
     speed: Speed,
     dist_along: Distance,
     vehicle: Vehicle,
@@ -45,7 +45,7 @@ struct Car {
     parking: Option<ParkingState>,
 
     // TODO should this only be turns?
-    waiting_for: Option<On>,
+    waiting_for: Option<Traversable>,
 
     debug: bool,
     // TODO ew? :\
@@ -177,7 +177,7 @@ impl Car {
             }
 
             // Stop for something?
-            if let On::Lane(id) = current_on {
+            if let Traversable::Lane(id) = current_on {
                 let maybe_stop_early = current_router.stop_early_at_dist(
                     current_on,
                     current_dist_along,
@@ -226,11 +226,11 @@ impl Car {
                 break;
             }
             current_on = match current_on {
-                On::Turn(t) => {
+                Traversable::Turn(t) => {
                     current_router.advance_to(t.dst);
-                    On::Lane(t.dst)
+                    Traversable::Lane(t.dst)
                 }
-                On::Lane(l) => On::Turn(current_router.choose_turn(l, map)),
+                Traversable::Lane(l) => Traversable::Turn(current_router.choose_turn(l, map)),
             };
             current_dist_along = 0.0 * si::M;
             dist_scanned_ahead += dist_this_step;
@@ -285,11 +285,11 @@ impl Car {
                 break;
             }
             let next_on = match self.on {
-                On::Turn(t) => On::Lane(map.get_t(t).dst),
-                On::Lane(l) => On::Turn(router.choose_turn(l, map)),
+                Traversable::Turn(t) => Traversable::Lane(map.get_t(t).dst),
+                Traversable::Lane(l) => Traversable::Turn(router.choose_turn(l, map)),
             };
 
-            if let On::Turn(t) = self.on {
+            if let Traversable::Turn(t) = self.on {
                 intersections.on_exit(Request::for_car(self.id, t));
                 router.advance_to(t.dst);
             }
@@ -303,7 +303,7 @@ impl Car {
             ));
             self.waiting_for = None;
             self.on = next_on;
-            if let On::Turn(t) = self.on {
+            if let Traversable::Turn(t) = self.on {
                 intersections
                     .on_enter(Request::for_car(self.id, t))
                     .context(format!(
@@ -319,7 +319,7 @@ impl Car {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SimQueue {
-    id: On,
+    id: Traversable,
     // First element is farthest along the queue; they have the greatest dist_along.
     // Caching the current dist_along vastly simplifies the API of SimQueue.
     cars_queue: Vec<(Distance, CarID)>,
@@ -338,7 +338,7 @@ impl PartialEq for SimQueue {
 impl Eq for SimQueue {}
 
 impl SimQueue {
-    fn new(id: On, map: &Map) -> SimQueue {
+    fn new(id: Traversable, map: &Map) -> SimQueue {
         SimQueue {
             id,
             cars_queue: Vec::new(),
@@ -444,14 +444,15 @@ impl DrivingSimState {
             lanes: map
                 .all_lanes()
                 .iter()
-                .map(|l| SimQueue::new(On::Lane(l.id), map))
+                .map(|l| SimQueue::new(Traversable::Lane(l.id), map))
                 .collect(),
             turns: BTreeMap::new(),
             debug: None,
         };
         for t in map.all_turns().values() {
             if !t.between_sidewalks {
-                s.turns.insert(t.id, SimQueue::new(On::Turn(t.id), map));
+                s.turns
+                    .insert(t.id, SimQueue::new(Traversable::Turn(t.id), map));
             }
         }
         s
@@ -534,7 +535,8 @@ impl DrivingSimState {
     }
 
     pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
-        self.turns.insert(id, SimQueue::new(On::Turn(id), map));
+        self.turns
+            .insert(id, SimQueue::new(Traversable::Turn(id), map));
     }
 
     // Note that this populates the view BEFORE the step is applied
@@ -621,8 +623,10 @@ impl DrivingSimState {
                         // TODO kind of a weird way to figure out when to fill this out...
                         // duplicated with stop sign's check, also. should check that they're a
                         // leader vehicle...
-                        if On::Lane(req.turn.src) == c.on && c.speed <= kinematics::EPSILON_SPEED {
-                            c.waiting_for = Some(On::Turn(req.turn));
+                        if Traversable::Lane(req.turn.src) == c.on
+                            && c.speed <= kinematics::EPSILON_SPEED
+                        {
+                            c.waiting_for = Some(Traversable::Turn(req.turn));
                         }
                     }
                 }
@@ -636,13 +640,13 @@ impl DrivingSimState {
         // TODO could simplify this by only adjusting the SimQueues we need above
 
         // Group cars by lane and turn
-        // TODO ideally, just hash On
+        // TODO ideally, just hash Traversable
         let mut cars_per_lane = MultiMap::new();
         let mut cars_per_turn = MultiMap::new();
         for c in self.cars.values() {
             match c.on {
-                On::Lane(id) => cars_per_lane.insert(id, c.id),
-                On::Turn(id) => cars_per_turn.insert(id, c.id),
+                Traversable::Lane(id) => cars_per_lane.insert(id, c.id),
+                Traversable::Turn(id) => cars_per_turn.insert(id, c.id),
             };
         }
 
@@ -722,7 +726,7 @@ impl DrivingSimState {
                 id: car,
                 dist_along: dist_along,
                 speed: 0.0 * si::MPS,
-                on: On::Lane(start),
+                on: Traversable::Lane(start),
                 vehicle,
                 waiting_for: None,
                 debug: false,
@@ -740,7 +744,7 @@ impl DrivingSimState {
         self.lanes[start.0].insert_at(car, dist_along);
         events.push(Event::AgentEntersTraversable(
             AgentID::Car(car),
-            On::Lane(start),
+            Traversable::Lane(start),
         ));
         true
     }

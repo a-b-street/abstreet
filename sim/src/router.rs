@@ -2,13 +2,13 @@ use dimensioned::si;
 use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, TurnID};
+use map_model::{BuildingID, LaneID, Map, Traversable, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
 use transit::TransitSimState;
 use view::AgentView;
-use {Distance, Event, On, ParkingSpot, Tick};
+use {Distance, Event, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {
@@ -95,7 +95,7 @@ impl Router {
     pub fn stop_early_at_dist(
         &self,
         // TODO urgh, we cant reuse AgentView here, because lookahead doesn't advance the view :(
-        on: On,
+        on: Traversable,
         dist_along: Distance,
         vehicle: &Vehicle,
         map: &Map,
