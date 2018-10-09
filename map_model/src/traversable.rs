@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, PolyLine, Pt2D, EPSILON_DIST};
 use {LaneID, Map, TurnID};
 
 // TODO also building paths?
@@ -46,17 +46,22 @@ impl Traversable {
         }
     }
 
+    // Returns None if the traversable is actually 0 length, as some turns are.
     pub fn slice(
         &self,
         map: &Map,
         start: si::Meter<f64>,
         end: si::Meter<f64>,
-    ) -> (PolyLine, si::Meter<f64>) {
+    ) -> Option<(PolyLine, si::Meter<f64>)> {
         match self {
-            &Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
+            &Traversable::Lane(id) => Some(map.get_l(id).lane_center_pts.slice(start, end)),
             &Traversable::Turn(id) => {
                 let t = map.get_t(id);
-                PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end)
+                if t.line.length() <= EPSILON_DIST {
+                    None
+                } else {
+                    Some(PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end))
+                }
             }
         }
     }

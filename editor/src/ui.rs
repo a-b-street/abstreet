@@ -529,6 +529,7 @@ impl UI {
         self.search_state.draw(g, &self.canvas);
         self.warp.draw(g, &self.canvas);
         self.sim_ctrl.draw(g, &self.canvas);
+        self.primary.show_route.draw(g, &self.cs);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }

@@ -12,6 +12,10 @@ pub struct Pt2D {
 
 impl Pt2D {
     pub fn new(x: f64, y: f64) -> Pt2D {
+        if !x.is_finite() || !y.is_finite() {
+            panic!("Bad Pt2D {}, {}", x, y);
+        }
+
         // TODO enforce after fixing:
         // - shift_polyline goes OOB sometimes
         // - convert_map uses this for GPS I think?

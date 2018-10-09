@@ -72,6 +72,10 @@ impl Line {
         if dist > len + EPSILON_DIST {
             panic!("cant do {} along a line of length {}", dist, len);
         }
+        if len < EPSILON_DIST {
+            // dist is also tiny because of the check above.
+            return self.pt1();
+        }
 
         let percent = (dist / len).value_unsafe;
         Pt2D::new(

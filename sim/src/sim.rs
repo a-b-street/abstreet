@@ -20,8 +20,8 @@ use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
 use {
-    AgentID, CarID, CarState, DrawCarInput, DrawPedestrianInput, Event, PedestrianID, ScoreSummary,
-    Tick, TIMESTEP,
+    AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, PedestrianID,
+    ScoreSummary, Tick, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -348,7 +348,12 @@ impl Sim {
         }
     }
 
-    pub fn get_current_route(&self, id: AgentID, map: &Map) -> Option<Vec<Traversable>> {
+    // Also returns current distance along the first element of the route
+    pub fn get_current_route(
+        &self,
+        id: AgentID,
+        map: &Map,
+    ) -> Option<(Vec<Traversable>, Distance)> {
         match id {
             AgentID::Car(car) => self.driving_state.get_current_route(car, map),
             AgentID::Pedestrian(ped) => self.walking_state.get_current_route(ped),

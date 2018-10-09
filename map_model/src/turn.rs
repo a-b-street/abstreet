@@ -32,6 +32,8 @@ pub struct Turn {
     pub dst: LaneID,
     pub between_sidewalks: bool,
 
+    // TODO Really tempted to be either a Line or a Pt2D, to emphasize that this might not actually
+    // cover any space
     pub line: Line,
 }
 

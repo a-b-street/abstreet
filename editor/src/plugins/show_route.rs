@@ -1,16 +1,16 @@
-use colors::Colors;
-use ezgui::{Color, UserInput};
-use map_model::{LaneID, Map};
-use objects::{Ctx, ID};
+use colors::{ColorScheme, Colors};
+use dimensioned::si;
+use ezgui::{GfxCtx, UserInput};
+use map_model::{Map, Trace, LANE_THICKNESS};
+use objects::ID;
 use piston::input::Key;
 use plugins::Colorizer;
 use sim::{AgentID, Sim};
-use std::collections::HashSet;
+use std::f64;
 
-#[derive(PartialEq)]
 pub enum ShowRouteState {
     Empty,
-    Active(AgentID, HashSet<LaneID>),
+    Active(AgentID, Trace),
 }
 
 impl ShowRouteState {
@@ -21,70 +21,63 @@ impl ShowRouteState {
         map: &Map,
         selected: Option<ID>,
     ) -> bool {
-        if *self == ShowRouteState::Empty {
-            match selected {
+        let maybe_agent = match self {
+            ShowRouteState::Empty => match selected {
                 Some(ID::Car(id)) => {
                     if input.key_pressed(Key::R, "show this car's route") {
-                        *self = ShowRouteState::Active(AgentID::Car(id), HashSet::new());
-                        return true;
+                        Some(AgentID::Car(id))
+                    } else {
+                        None
                     }
                 }
                 Some(ID::Pedestrian(id)) => {
                     if input.key_pressed(Key::R, "show this pedestrian's route") {
-                        *self = ShowRouteState::Active(AgentID::Pedestrian(id), HashSet::new());
-                        return true;
+                        Some(AgentID::Pedestrian(id))
+                    } else {
+                        None
                     }
                 }
-                _ => {}
-            }
-        }
-
-        let quit = match self {
-            ShowRouteState::Empty => false,
-            ShowRouteState::Active(agent, ref mut lanes) => {
+                _ => None,
+            },
+            ShowRouteState::Active(agent, _) => {
                 if input.key_pressed(Key::Return, "stop showing route") {
-                    true
+                    None
                 } else {
-                    match sim.get_current_route(*agent, map) {
-                        Some(route) => {
-                            lanes.clear();
-                            for tr in &route {
-                                if let Some(l) = tr.maybe_lane() {
-                                    lanes.insert(l);
-                                }
-                            }
-                            false
-                        }
-                        None => true,
-                    }
+                    Some(*agent)
                 }
             }
         };
-        if quit {
+        if let Some(agent) = maybe_agent {
+            match sim.get_current_route(agent, map) {
+                Some((route, dist_along)) => {
+                    // Trace along the entire route by passing in max distance
+                    *self = ShowRouteState::Active(
+                        agent,
+                        Trace::new(dist_along, &route, f64::MAX * si::M, map),
+                    );
+                }
+                None => {
+                    *self = ShowRouteState::Empty;
+                }
+            }
+        } else {
             *self = ShowRouteState::Empty;
         }
+
         match self {
             ShowRouteState::Empty => false,
             _ => true,
         }
     }
-}
 
-impl Colorizer for ShowRouteState {
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
-        match obj {
-            ID::Lane(l) => {
-                let highlight = match self {
-                    ShowRouteState::Empty => false,
-                    ShowRouteState::Active(_, lanes) => lanes.contains(&l),
-                };
-                if highlight {
-                    Some(ctx.cs.get(Colors::Queued))
-                } else {
-                    None
-                }
-            }
-            _ => None,
+    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+        if let ShowRouteState::Active(_, trace) = self {
+            g.draw_polygon(
+                cs.get(Colors::Queued),
+                &trace.polyline.make_polygons_blindly(LANE_THICKNESS),
+            );
         }
     }
 }
+
+impl Colorizer for ShowRouteState {}

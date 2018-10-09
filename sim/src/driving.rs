@@ -773,13 +773,8 @@ impl DrivingSimState {
         let stopping_trace = if stopping_dist <= EPSILON_DIST {
             None
         } else {
-            // TODO amend the route?
-            Some(Trace::new(
-                c.dist_along,
-                &self.get_current_route(id, map).unwrap(),
-                stopping_dist,
-                map,
-            ))
+            let (route, dist_along) = self.get_current_route(id, map).unwrap();
+            Some(Trace::new(dist_along, &route, stopping_dist, map))
         };
 
         Some(DrawCarInput {
@@ -822,8 +817,9 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_current_route(&self, id: CarID, map: &Map) -> Option<Vec<Traversable>> {
+    pub fn get_current_route(&self, id: CarID, map: &Map) -> Option<(Vec<Traversable>, Distance)> {
         let r = self.routers.get(&id)?;
-        Some(r.get_current_route(self.cars[&id].on, map))
+        let c = &self.cars[&id];
+        Some((r.get_current_route(c.on, map), c.dist_along))
     }
 }
