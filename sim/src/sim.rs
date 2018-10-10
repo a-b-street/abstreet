@@ -362,6 +362,10 @@ impl Sim {
         }
         s
     }
+
+    pub fn get_name(&self) -> &str {
+        &self.run_name
+    }
 }
 
 pub struct Benchmark {

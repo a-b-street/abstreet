@@ -61,7 +61,8 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         let mut sim = Sim::new(
             &map,
-            scenario.scenario_name.clone(),
+            // TODO or the scenario name if no run name
+            flags.run_name,
             flags.rng_seed,
             savestate_every,
         );
@@ -79,7 +80,6 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let map = Map::new(&flags.load, edits.road_edits.clone()).expect("Couldn't load map");
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         flame::start("create sim");
-        // Note this is the only time we actually use the run name!
         let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
         flame::end("create sim");
         (map, control_map, sim)

@@ -3,6 +3,7 @@ use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use objects::{ID, SIM};
 use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
+use std::mem;
 use std::time::{Duration, Instant};
 use ui::PerMapUI;
 
@@ -85,8 +86,16 @@ impl SimController {
             }
         }
 
-        // Interactively spawning stuff would ruin an A/B test, don't allow it
-        if secondary.is_none() {
+        if secondary.is_some() {
+            if input.key_pressed(Key::S, "Swap the primary/secondary sim") {
+                info!("Swapping primary/secondary sim");
+                // Check out this cool little trick. :D
+                let mut the_secondary = secondary.take();
+                the_secondary.as_mut().map(|s| mem::swap(primary, s));
+                *secondary = the_secondary;
+            }
+        } else {
+            // Interactively spawning stuff would ruin an A/B test, don't allow it
             if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
                 primary.sim.small_spawn(&primary.map);
             }
@@ -144,10 +153,10 @@ impl SimController {
             let mut txt = Text::new();
             if let Some(s) = secondary {
                 // TODO More coloring
-                txt.add_line("Primary sim".to_string());
+                txt.add_line(primary.sim.get_name().to_string());
                 summarize(&mut txt, primary.sim.get_score());
                 txt.add_line("".to_string());
-                txt.add_line("Secondary sim".to_string());
+                txt.add_line(s.sim.get_name().to_string());
                 summarize(&mut txt, s.sim.get_score());
             } else {
                 summarize(&mut txt, primary.sim.get_score());
