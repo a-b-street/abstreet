@@ -2,12 +2,12 @@
 
 use abstutil;
 use edits::RoadEdits;
+use failure::{Error, ResultExt};
 use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::io::Error;
 use std::path;
 use {
     Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
@@ -379,24 +379,26 @@ impl Map {
         self.bounds.clone()
     }
 
-    pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Option<LaneID> {
+    pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
         let sidewalk = self.get_b(bldg).front_path.sidewalk;
         let road = self.get_parent(sidewalk);
-        let parking = road.find_parking_lane(sidewalk)?;
-        road.find_driving_lane(parking)
+        road.find_parking_lane(sidewalk)
+            .and_then(|parking| road.find_driving_lane(parking))
+            .context(format!("get_driving_lane_from_bldg({})", bldg))
     }
 
-    pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Option<LaneID> {
+    pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Result<LaneID, Error> {
         let road = self.get_parent(driving);
         // No parking lane?
-        if let Some(l) = road.find_sidewalk(driving) {
-            return Some(l);
+        if let Ok(l) = road.find_sidewalk(driving) {
+            return Ok(l);
         }
-        let parking = road.find_parking_lane(driving)?;
-        road.find_sidewalk(parking)
+        road.find_parking_lane(driving)
+            .and_then(|parking| road.find_sidewalk(parking))
+            .context(format!("get_sidewalk_from_driving_lane({})", driving))
     }
 
-    pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Option<LaneID> {
+    pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Result<LaneID, Error> {
         self.get_parent(parking).find_driving_lane(parking)
     }
 

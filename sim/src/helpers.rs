@@ -202,12 +202,13 @@ impl Sim {
                 let has_bldgs = map
                     .get_parent(lane)
                     .find_sidewalk(lane)
-                    .and_then(|sidewalk| Some(!map.get_l(sidewalk).building_paths.is_empty()))
+                    .and_then(|sidewalk| Ok(!map.get_l(sidewalk).building_paths.is_empty()))
                     .unwrap_or(false);
                 if has_bldgs {
                     map.get_parent(lane)
                         .find_driving_lane(lane)
-                        .and_then(|_driving_lane| Some(parked_car.car))
+                        .and_then(|_driving_lane| Ok(parked_car.car))
+                        .ok()
                 } else {
                     None
                 }
@@ -325,7 +326,7 @@ fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Lane
         .iter()
         .filter_map(|l| {
             if l.id != start && l.is_driving() {
-                if let Some(sidewalk) = map.get_sidewalk_from_driving_lane(l.id) {
+                if let Ok(sidewalk) = map.get_sidewalk_from_driving_lane(l.id) {
                     if !map.get_l(sidewalk).building_paths.is_empty() {
                         return Some(l.id);
                     }

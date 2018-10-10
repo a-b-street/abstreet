@@ -35,7 +35,7 @@ pub fn make_bus_stops(
 
     for (id, dists) in stops_per_sidewalk.iter_all_mut() {
         let road = &roads[lanes[id.0].parent.0];
-        if let Some(driving_lane) = road.find_driving_lane_from_sidewalk(*id) {
+        if let Ok(driving_lane) = road.find_driving_lane_from_sidewalk(*id) {
             dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
                 let stop_id = BusStopID { sidewalk: *id, idx };

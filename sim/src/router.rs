@@ -213,6 +213,7 @@ fn find_parking_spot(
 ) -> Option<ParkingSpot> {
     map.get_parent(driving_lane)
         .find_parking_lane(driving_lane)
+        .ok()
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
 }
 
