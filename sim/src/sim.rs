@@ -138,8 +138,6 @@ impl Sim {
     }
 
     fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(Vec<Event>), Error> {
-        self.time = self.time.next();
-
         let mut view = WorldView::new();
         let mut events: Vec<Event> = Vec::new();
 
@@ -215,6 +213,10 @@ impl Sim {
                 self.save();
             }
         }
+
+        // Do this at the end of the step, so that tick 0 actually occurs and things can happen
+        // then.
+        self.time = self.time.next();
 
         Ok(events)
     }
