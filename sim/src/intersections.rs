@@ -1,16 +1,15 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use control::stop_signs::{ControlStopSign, TurnPriority};
 use control::ControlMap;
 use dimensioned::si;
-use failure::Error;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet};
 use view::WorldView;
-use {AgentID, CarID, Event, InvariantViolated, PedestrianID, Tick, Time};
+use {AgentID, CarID, Event, PedestrianID, Tick, Time};
 
 use std;
 const WAIT_AT_STOP_SIGN: Time = si::Second {
@@ -79,7 +78,7 @@ impl IntersectionSimState {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
         if let Some(t) = i.accepted().get(&req.agent) {
             if *t != req.turn {
-                bail!(InvariantViolated::new(format!(
+                return Err(Error::new(format!(
                     "{:?} made, but {} has already been accepted",
                     req, t
                 )));
@@ -130,10 +129,10 @@ impl IntersectionSimState {
             }
             Ok(())
         } else {
-            bail!(InvariantViolated::new(format!(
+            return Err(Error::new(format!(
                 "{:?} entered, but wasn't accepted by the intersection yet",
                 req
-            )))
+            )));
         }
     }
 

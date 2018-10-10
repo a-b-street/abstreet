@@ -1,7 +1,6 @@
 use abstutil;
-use abstutil::{deserialize_multimap, serialize_multimap};
+use abstutil::{deserialize_multimap, serialize_multimap, Error};
 use dimensioned::si;
-use failure::Error;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
@@ -13,8 +12,8 @@ use std::collections::{BTreeMap, VecDeque};
 use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
-    AgentID, Distance, DrawPedestrianInput, Event, InvariantViolated, ParkingSpot, PedestrianID,
-    Speed, Tick, Time, Trace, TIMESTEP,
+    AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
+    Trace, TIMESTEP,
 };
 
 // TODO tune these!
@@ -250,10 +249,7 @@ impl Pedestrian {
             let pt2 = map.get_t(on.as_turn()).line.pt1();
             let len = Line::new(pt1, pt2).length();
             if len > 0.0 * si::M {
-                bail!(InvariantViolated::new(format!(
-                    "{} just warped {}",
-                    self.id, len
-                )));
+                return Err(Error::new(format!("{} just warped {}", self.id, len)));
             }
         }
 

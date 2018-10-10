@@ -1,9 +1,9 @@
+use abstutil::Error;
 use dimensioned::si;
-use failure::Error;
 use geom::EPSILON_DIST;
 use rand::Rng;
 use std;
-use {Acceleration, CarID, Distance, InvariantViolated, Speed, Time, TIMESTEP};
+use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
 
 pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     value_unsafe: 0.00000001,
@@ -116,7 +116,7 @@ impl Vehicle {
         dist: Distance,
     ) -> Result<Acceleration, Error> {
         if dist < -EPSILON_DIST {
-            bail!(InvariantViolated::new(format!(
+            return Err(Error::new(format!(
                 "{} called accel_to_stop_in_dist({}, {}) with negative distance",
                 self.id, speed, dist
             )));
@@ -158,7 +158,7 @@ impl Vehicle {
         speed_limit: Speed,
     ) -> Result<Distance, Error> {
         if current_speed > speed_limit {
-            bail!(InvariantViolated::new(format!(
+            return Err(Error::new(format!(
                 "{} called max_lookahead_dist({}, {}) with current speed over the limit",
                 self.id, current_speed, speed_limit
             )));
@@ -173,7 +173,7 @@ impl Vehicle {
     // TODO share with max_lookahead_dist
     fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Result<Distance, Error> {
         if current_speed > speed_limit {
-            bail!(InvariantViolated::new(format!(
+            return Err(Error::new(format!(
                 "{} called max_next_dist({}, {}) with current speed over the limit",
                 self.id, current_speed, speed_limit
             )));

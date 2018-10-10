@@ -1,7 +1,6 @@
 use abstutil;
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use dimensioned::si;
-use failure::{Error, ResultExt};
 use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
@@ -17,8 +16,8 @@ use std::collections::BTreeMap;
 use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
-    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, InvariantViolated,
-    ParkedCar, ParkingSpot, Speed, Tick, Time, Trace,
+    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
+    Speed, Tick, Time, Trace,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
@@ -269,7 +268,7 @@ impl Car {
         loop {
             let current_speed_limit = self.on.speed_limit(map);
             if self.speed > current_speed_limit {
-                bail!(InvariantViolated::new(format!(
+                return Err(Error::new(format!(
                     "{} is going {} on {:?}, which has a speed limit of {}",
                     self.id, self.speed, self.on, current_speed_limit
                 )));
@@ -306,10 +305,12 @@ impl Car {
             if let Traversable::Turn(t) = self.on {
                 intersections
                     .on_enter(Request::for_car(self.id, t))
-                    .context(format!(
-                        "new speed {}, leftover dist {}",
-                        self.speed, leftover_dist
-                    ))?;
+                    .map_err(|e| {
+                        e.context(format!(
+                            "new speed {}, leftover dist {}",
+                            self.speed, leftover_dist
+                        ))
+                    })?;
             }
             self.dist_along = leftover_dist;
         }
@@ -356,7 +357,7 @@ impl SimQueue {
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
 
         if new_queue.len() > self.capacity {
-            bail!(InvariantViolated::new(format!(
+            return Err(Error::new(format!(
                 "on {:?}, reset to {:?} broke, because capacity is just {}.",
                 self.id, new_queue, self.capacity
             )));
@@ -372,7 +373,7 @@ impl SimQueue {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
             let following_dist = cars[&c1].vehicle.following_dist();
             if dist1 - dist2 < following_dist {
-                bail!(InvariantViolated::new(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
+                return Err(Error::new(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
             }
         }
         Ok(())

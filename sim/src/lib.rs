@@ -6,8 +6,6 @@ extern crate control;
 #[macro_use]
 extern crate derivative;
 extern crate dimensioned;
-#[macro_use]
-extern crate failure;
 extern crate flame;
 extern crate geom;
 #[macro_use]
@@ -266,20 +264,6 @@ pub type Time = si::Second<f64>;
 pub type Distance = si::Meter<f64>;
 pub type Speed = si::MeterPerSecond<f64>;
 pub type Acceleration = si::MeterPerSecond2<f64>;
-
-// TODO enum of different cases? not really interesting to distinguish different proble, and it
-// forces one central place to know lots of impl details
-#[derive(Debug, Fail)]
-#[fail(display = "{}", reason)]
-pub struct InvariantViolated {
-    reason: String,
-}
-
-impl InvariantViolated {
-    pub fn new(reason: String) -> InvariantViolated {
-        InvariantViolated { reason }
-    }
-}
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct TripID(pub usize);

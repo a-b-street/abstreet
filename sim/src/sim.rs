@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
+use abstutil::Error;
 use control::ControlMap;
 use dimensioned::si;
 use driving::DrivingSimState;
-use failure::Error;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
@@ -122,13 +122,7 @@ impl Sim {
         match self.inner_step(map, control_map) {
             Ok(events) => events,
             Err(e) => {
-                // The order of causes is funky and backwards.
-                let mut causes: Vec<String> = e.iter_chain().map(|c| c.to_string()).collect();
-                causes.reverse();
-                error!("\nAt {}: {}", self.time, causes[0]);
-                for c in &causes[1..] {
-                    error!("  {}", c);
-                }
+                error!("\nAt {}:{}", self.time, e);
                 if let Ok(s) = self.find_most_recent_savestate() {
                     error!("Debug from {}", s);
                 }
