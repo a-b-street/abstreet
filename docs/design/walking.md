@@ -47,4 +47,5 @@ if we're looking at turns from a road that's a sidewalk, bake in some extra logi
 Either duplicate sidewalks in both directions (extra rendering and memory, etc)
 or have complicated turns and contraflow logic. Making trace_route is example
 of time wasted on contraflow mess. Maybe having two directional sides of a
-sidewalk is nice anyway?
+sidewalk is nice anyway? What about the funky turns causing a ped to not even
+cross a sidewalk at all and immediately chain together two turns?

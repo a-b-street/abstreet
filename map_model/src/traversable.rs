@@ -2,6 +2,8 @@ use dimensioned::si;
 use geom::{Angle, PolyLine, Pt2D, EPSILON_DIST};
 use {LaneID, Map, TurnID};
 
+// TODO this probably doesn't belong in map model after all.
+
 // TODO also building paths?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum Traversable {

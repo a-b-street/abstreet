@@ -8,3 +8,4 @@
 = deformed buildings pulsing on front path springs
 - lighting?
 - fog effects
+- in 3D, what if roads are sunken rivers and buildings giant skyscrapers?

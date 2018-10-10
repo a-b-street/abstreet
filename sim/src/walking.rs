@@ -567,21 +567,20 @@ impl WalkingSimState {
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         let p = self.peds.get(&id)?;
 
-        // TODO Assuming we can't ever be called while on a 0-length turn
+        // TODO When we start on a 0-length turn, this method just gives up. :P  Should handle it.
         let (mut result, mut dist_left) = p.on
             // TODO will this break if we pass in max for dist_along?
-            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)
-            .unwrap();
+            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)?;
 
         let mut last_lane = p.on.maybe_lane();
         let mut idx = 0;
         while dist_left > 0.0 * si::M && idx < p.path.len() {
             let next_lane = p.path[idx];
             if let Some(prev) = last_lane {
+                let turn = pick_turn(prev, next_lane, map);
                 // Never contraflow on turns
-                if let Some((piece, new_dist_left)) = Traversable::Turn(pick_turn(
-                    prev, next_lane, map,
-                )).slice(false, map, 0.0 * si::M, dist_left)
+                if let Some((piece, new_dist_left)) =
+                    Traversable::Turn(turn).slice(false, map, 0.0 * si::M, dist_left)
                 {
                     result.extend(piece);
                     dist_left = new_dist_left;
@@ -591,15 +590,45 @@ impl WalkingSimState {
                 }
             }
 
-            // TODO ooh this is _really_ cheating. ;)
-            let contraflow = *result.points().last().unwrap() != map.get_l(next_lane).first_pt();
-            let (piece, new_dist_left) = Traversable::Lane(next_lane)
-                .slice(contraflow, map, 0.0 * si::M, dist_left)
-                .unwrap();
-            result.extend(piece);
-            dist_left = new_dist_left;
-            last_lane = Some(next_lane);
+            let contraflow = if idx + 1 < p.path.len() {
+                is_contraflow(map, next_lane, p.path[idx + 1])
+            } else {
+                // TODO goal dist along
+                false
+            };
 
+            // TODO ooh this is _really_ cheating. ;) but sometimes we don't cross a lane either
+            // direction. urgh.
+            let (pt1, pt2) = {
+                let l = map.get_l(next_lane);
+                (l.first_pt(), l.last_pt())
+            };
+            let last_pt = *result.points().last().unwrap();
+            if last_pt == pt1 {
+                if contraflow {
+                    // Already done!
+                } else {
+                    let (piece, new_dist_left) = Traversable::Lane(next_lane)
+                        .slice(false, map, 0.0 * si::M, dist_left)
+                        .unwrap();
+                    result.extend(piece);
+                    dist_left = new_dist_left;
+                }
+            } else if last_pt == pt2 {
+                if contraflow {
+                    let (piece, new_dist_left) = Traversable::Lane(next_lane)
+                        .slice(true, map, 0.0 * si::M, dist_left)
+                        .unwrap();
+                    result.extend(piece);
+                    dist_left = new_dist_left;
+                } else {
+                    // Already done!
+                }
+            } else {
+                panic!("trace_route for ped doesn't match up");
+            }
+
+            last_lane = Some(next_lane);
             idx += 1;
         }
 
