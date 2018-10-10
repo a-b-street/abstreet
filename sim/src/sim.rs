@@ -203,7 +203,7 @@ impl Sim {
 
         // Savestate?
         if let Some(t) = self.savestate_every {
-            if self.time.is_multiple_of(t) {
+            if self.time.is_multiple_of(t) && self.time != Tick::zero() {
                 self.save();
             }
         }
