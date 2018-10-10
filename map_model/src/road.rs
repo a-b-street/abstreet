@@ -1,9 +1,9 @@
+use abstutil::Error;
 use dimensioned::si;
-use failure::Error;
 use geom::PolyLine;
 use std::collections::BTreeMap;
 use std::fmt;
-use {LaneID, LaneType, MapError};
+use {LaneID, LaneType};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -89,10 +89,10 @@ impl Road {
             .find(|pair| pair.1 == LaneType::Sidewalk)
             .map(|pair| pair.0)
             .ok_or_else(|| {
-                Error::from(MapError::new(format!(
+                Error::new(format!(
                     "{} doesn't have sidewalk sibling",
                     parking_or_driving
-                )))
+                ))
             })
     }
 
@@ -102,12 +102,7 @@ impl Road {
             .iter()
             .find(|pair| pair.1 == LaneType::Driving)
             .map(|pair| pair.0)
-            .ok_or_else(|| {
-                Error::from(MapError::new(format!(
-                    "{} doesn't have driving lane sibling",
-                    parking
-                )))
-            })
+            .ok_or_else(|| Error::new(format!("{} doesn't have driving lane sibling", parking)))
     }
 
     // Handles intermediate parking and bus lanes and such
@@ -145,10 +140,10 @@ impl Road {
         if this_side.len() == 1 && opposite[0].1 == LaneType::Driving {
             return Ok(opposite[0].0);
         }
-        bail!(MapError::new(format!(
+        Err(Error::new(format!(
             "Sidewalk {} doesn't have driving lane",
             sidewalk
-        )));
+        )))
     }
 
     pub fn find_parking_lane(&self, driving: LaneID) -> Result<LaneID, Error> {
@@ -157,12 +152,7 @@ impl Road {
             .iter()
             .find(|pair| pair.1 == LaneType::Parking)
             .map(|pair| pair.0)
-            .ok_or_else(|| {
-                Error::from(MapError::new(format!(
-                    "{} doesn't have parking lane sibling",
-                    driving
-                )))
-            })
+            .ok_or_else(|| Error::new(format!("{} doesn't have parking lane sibling", driving)))
     }
 
     pub fn get_opposite_lane(&self, lane: LaneID, lane_type: LaneType) -> Result<LaneID, Error> {
@@ -181,18 +171,18 @@ impl Road {
 
         if let Some(idx) = forwards.iter().position(|id| *id == lane) {
             return backwards.get(idx).map(|id| *id).ok_or_else(|| {
-                Error::from(MapError::new(format!(
+                Error::new(format!(
                     "{} doesn't have opposite lane of type {:?}",
                     lane, lane_type
-                )))
+                ))
             });
         }
         if let Some(idx) = backwards.iter().position(|id| *id == lane) {
             return forwards.get(idx).map(|id| *id).ok_or_else(|| {
-                Error::from(MapError::new(format!(
+                Error::new(format!(
                     "{} doesn't have opposite lane of type {:?}",
                     lane, lane_type
-                )))
+                ))
             });
         }
         panic!("{} doesn't contain {}", self.id, lane);

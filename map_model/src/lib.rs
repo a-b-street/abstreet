@@ -1,7 +1,5 @@
 extern crate abstutil;
 extern crate dimensioned;
-#[macro_use]
-extern crate failure;
 extern crate flame;
 extern crate geo;
 extern crate geom;
@@ -48,15 +46,3 @@ pub use traversable::Traversable;
 pub use turn::{Turn, TurnID};
 
 pub const LANE_THICKNESS: f64 = 2.5;
-
-#[derive(Debug, Fail)]
-#[fail(display = "{}", reason)]
-pub struct MapError {
-    reason: String,
-}
-
-impl MapError {
-    pub fn new(reason: String) -> MapError {
-        MapError { reason }
-    }
-}

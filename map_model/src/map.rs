@@ -1,13 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
+use abstutil::Error;
 use edits::RoadEdits;
-use failure::{Error, ResultExt};
 use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::io;
 use std::path;
 use {
     Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
@@ -34,7 +35,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, road_edits: RoadEdits) -> Result<Map, Error> {
+    pub fn new(path: &str, road_edits: RoadEdits) -> Result<Map, io::Error> {
         // TODO I think I want something a bit different than flame:
         // - Print as each phase occurs
         // - Print with nicely formatted durations
@@ -384,7 +385,7 @@ impl Map {
         let road = self.get_parent(sidewalk);
         road.find_parking_lane(sidewalk)
             .and_then(|parking| road.find_driving_lane(parking))
-            .context(format!("get_driving_lane_from_bldg({})", bldg))
+            .map_err(|e| e.context(format!("get_driving_lane_from_bldg({})", bldg)))
     }
 
     pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Result<LaneID, Error> {
@@ -395,7 +396,7 @@ impl Map {
         }
         road.find_parking_lane(driving)
             .and_then(|parking| road.find_sidewalk(parking))
-            .context(format!("get_sidewalk_from_driving_lane({})", driving))
+            .map_err(|e| e.context(format!("get_sidewalk_from_driving_lane({})", driving)))
     }
 
     pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Result<LaneID, Error> {
