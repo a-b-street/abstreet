@@ -383,9 +383,7 @@ impl Map {
     pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
         let sidewalk = self.get_b(bldg).front_path.sidewalk;
         let road = self.get_parent(sidewalk);
-        road.find_parking_lane(sidewalk)
-            .and_then(|parking| road.find_driving_lane(parking))
-            .map_err(|e| e.context(format!("get_driving_lane_from_bldg({})", bldg)))
+        road.find_driving_lane_from_sidewalk(sidewalk)
     }
 
     pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Result<LaneID, Error> {

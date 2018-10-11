@@ -30,9 +30,15 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     }
 
     // The lanes tag is of course ambiguous, but seems to usually mean total number of lanes for
-    // both directions of the road.
+    // both directions of the road. One-ways are an exception!
+    let num_lanes_per_side = if oneway {
+        num_driving_lanes
+    } else {
+        num_driving_lanes / 2
+    };
+    // TODO assert not 0?
     let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(num_driving_lanes / 2)
+        .take(num_lanes_per_side)
         .collect();
     if big_highway {
         if oneway {
@@ -44,6 +50,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
             return (driving_lanes.clone(), driving_lanes);
         }
     }
+
+    // TODO invariant... parking lane is always adjacent to a bus or driving lane, and always has a
+    // driving lane somewhere on the same side
 
     let mut full_side = driving_lanes;
     if bike_lane {
