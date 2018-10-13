@@ -4,7 +4,7 @@ use dimensioned::si;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
-use map_model::{BuildingID, BusStopID, Lane, LaneID, Map, Traversable, Turn, TurnID};
+use map_model::{BuildingID, BusStopID, Lane, LaneID, Map, Trace, Traversable, Turn, TurnID};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
@@ -13,7 +13,7 @@ use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
     AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
-    Trace, TIMESTEP,
+    TIMESTEP,
 };
 
 // TODO tune these!
@@ -599,7 +599,7 @@ impl WalkingSimState {
                 let l = map.get_l(next_lane);
                 (l.first_pt(), l.last_pt())
             };
-            let last_pt = *result.points().last().unwrap();
+            let last_pt = *result.polyline.points().last().unwrap();
             if last_pt == pt1 {
                 if contraflow {
                     // Already done!

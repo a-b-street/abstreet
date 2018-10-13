@@ -2,13 +2,13 @@ use dimensioned::si;
 use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, Traversable, TurnID};
+use map_model::{BuildingID, LaneID, Map, Trace, Traversable, TurnID};
 use parking::ParkingSimState;
 use rand::Rng;
 use std::collections::VecDeque;
 use transit::TransitSimState;
 use view::AgentView;
-use {Distance, Event, ParkingSpot, Tick, Trace};
+use {Distance, Event, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 enum Goal {

@@ -55,12 +55,36 @@ impl Traversable {
         map: &Map,
         start: si::Meter<f64>,
         end: si::Meter<f64>,
-    ) -> Option<(PolyLine, si::Meter<f64>)> {
+    ) -> Option<(Trace, si::Meter<f64>)> {
         match self {
             &Traversable::Lane(id) => if reverse {
-                Some(map.get_l(id).lane_center_pts.reversed().slice(start, end))
+                let pts = &map.get_l(id).lane_center_pts;
+                let len = pts.length();
+                let (polyline, remainder) = pts.reversed().slice(start, end);
+                Some((
+                    Trace {
+                        polyline,
+                        segments: vec![TraceSegment {
+                            on: *self,
+                            start_dist: len - start,
+                            end_dist: len - end,
+                        }],
+                    },
+                    remainder,
+                ))
             } else {
-                Some(map.get_l(id).lane_center_pts.slice(start, end))
+                let (polyline, remainder) = map.get_l(id).lane_center_pts.slice(start, end);
+                Some((
+                    Trace {
+                        polyline,
+                        segments: vec![TraceSegment {
+                            on: *self,
+                            start_dist: start,
+                            end_dist: end,
+                        }],
+                    },
+                    remainder,
+                ))
             },
             &Traversable::Turn(id) => {
                 assert!(!reverse);
@@ -68,7 +92,19 @@ impl Traversable {
                 if t.line.length() <= EPSILON_DIST {
                     None
                 } else {
-                    Some(PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end))
+                    let (polyline, remainder) =
+                        PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end);
+                    Some((
+                        Trace {
+                            polyline,
+                            segments: vec![TraceSegment {
+                                on: *self,
+                                start_dist: start,
+                                end_dist: end,
+                            }],
+                        },
+                        remainder,
+                    ))
                 }
             }
         }
@@ -86,5 +122,23 @@ impl Traversable {
             &Traversable::Lane(id) => map.get_parent(id).get_speed_limit(),
             &Traversable::Turn(id) => map.get_parent(id.dst).get_speed_limit(),
         }
+    }
+}
+
+pub struct TraceSegment {
+    pub on: Traversable,
+    pub start_dist: si::Meter<f64>,
+    pub end_dist: si::Meter<f64>,
+}
+
+pub struct Trace {
+    pub polyline: PolyLine,
+    pub segments: Vec<TraceSegment>,
+}
+
+impl Trace {
+    pub fn extend(&mut self, other: Trace) {
+        self.polyline.extend(other.polyline);
+        self.segments.extend(other.segments);
     }
 }

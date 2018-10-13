@@ -5,7 +5,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -17,7 +17,7 @@ use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
-    Speed, Tick, Time, Trace,
+    Speed, Tick, Time,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {

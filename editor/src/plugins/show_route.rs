@@ -1,11 +1,11 @@
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
 use ezgui::{GfxCtx, UserInput};
-use map_model::{Map, LANE_THICKNESS};
+use map_model::{Map, Trace, LANE_THICKNESS};
 use objects::ID;
 use piston::input::Key;
 use plugins::Colorizer;
-use sim::{AgentID, Sim, Trace};
+use sim::{AgentID, Sim};
 use std::f64;
 
 pub enum ShowRouteState {
@@ -71,7 +71,7 @@ impl ShowRouteState {
         if let ShowRouteState::Active(_, trace) = self {
             g.draw_polygon(
                 cs.get(Colors::Queued),
-                &trace.make_polygons_blindly(LANE_THICKNESS),
+                &trace.polyline.make_polygons_blindly(LANE_THICKNESS),
             );
         }
     }

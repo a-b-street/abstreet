@@ -55,10 +55,10 @@ use abstutil::Cloneable;
 use dimensioned::si;
 pub use edits::MapEdits;
 pub use events::Event;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, Pt2D};
 pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
-use map_model::{LaneID, TurnID};
+use map_model::{LaneID, Trace, TurnID};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
@@ -322,5 +322,3 @@ impl Cloneable for Scenario {}
 impl Cloneable for Tick {}
 impl Cloneable for MapEdits {}
 impl Cloneable for ABTest {}
-
-pub type Trace = PolyLine;

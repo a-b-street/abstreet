@@ -7,7 +7,7 @@ use dimensioned::si;
 use driving::DrivingSimState;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{IntersectionID, LaneID, LaneType, Map, Turn, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -21,7 +21,7 @@ use view::WorldView;
 use walking::WalkingSimState;
 use {
     AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, PedestrianID,
-    ScoreSummary, Tick, Trace, TIMESTEP,
+    ScoreSummary, Tick, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
