@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Angle, PolyLine, Pt2D, EPSILON_DIST};
+use geom::{Angle, PolyLine, Pt2D};
 use {LaneID, Map, TurnID};
 
 // TODO this probably doesn't belong in map model after all.
@@ -90,7 +90,9 @@ impl Traversable {
             &Traversable::Turn(id) => {
                 assert!(!reverse);
                 let t = map.get_t(id);
-                if t.line.length() <= EPSILON_DIST {
+                // Don't do the epsilon comparison here... if we did, the assert_eq's in extend()
+                // need to also have some buffer.
+                if t.line.length() == 0.0 * si::M {
                     (
                         Trace {
                             geom: TraceGeometry::Point(t.line.pt1()),
