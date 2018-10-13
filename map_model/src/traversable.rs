@@ -48,23 +48,22 @@ impl Traversable {
         }
     }
 
-    // Returns None if the traversable is actually 0 length, as some turns are.
     pub fn slice(
         &self,
         reverse: bool,
         map: &Map,
         start: si::Meter<f64>,
         end: si::Meter<f64>,
-    ) -> Option<(Trace, si::Meter<f64>)> {
+    ) -> (Trace, si::Meter<f64>) {
         match self {
             &Traversable::Lane(id) => if reverse {
                 let pts = &map.get_l(id).lane_center_pts;
                 let len = pts.length();
                 let (polyline, remainder) = pts.reversed().slice(start, end);
                 let actual_len = polyline.length();
-                Some((
+                (
                     Trace {
-                        polyline,
+                        geom: TraceGeometry::PolyLine(polyline),
                         segments: vec![TraceSegment {
                             on: *self,
                             start_dist: len - start,
@@ -72,13 +71,13 @@ impl Traversable {
                         }],
                     },
                     remainder,
-                ))
+                )
             } else {
                 let (polyline, remainder) = map.get_l(id).lane_center_pts.slice(start, end);
                 let actual_len = polyline.length();
-                Some((
+                (
                     Trace {
-                        polyline,
+                        geom: TraceGeometry::PolyLine(polyline),
                         segments: vec![TraceSegment {
                             on: *self,
                             start_dist: start,
@@ -86,20 +85,30 @@ impl Traversable {
                         }],
                     },
                     remainder,
-                ))
+                )
             },
             &Traversable::Turn(id) => {
                 assert!(!reverse);
                 let t = map.get_t(id);
                 if t.line.length() <= EPSILON_DIST {
-                    None
+                    (
+                        Trace {
+                            geom: TraceGeometry::Point(t.line.pt1()),
+                            segments: vec![TraceSegment {
+                                on: *self,
+                                start_dist: start,
+                                end_dist: start,
+                            }],
+                        },
+                        end,
+                    )
                 } else {
                     let (polyline, remainder) =
                         PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end);
                     let actual_len = polyline.length();
-                    Some((
+                    (
                         Trace {
-                            polyline,
+                            geom: TraceGeometry::PolyLine(polyline),
                             segments: vec![TraceSegment {
                                 on: *self,
                                 start_dist: start,
@@ -107,7 +116,7 @@ impl Traversable {
                             }],
                         },
                         remainder,
-                    ))
+                    )
                 }
             }
         }
@@ -134,20 +143,71 @@ pub struct TraceSegment {
     pub end_dist: si::Meter<f64>,
 }
 
+pub enum TraceGeometry {
+    Point(Pt2D),
+    PolyLine(PolyLine),
+}
+
 pub struct Trace {
-    pub polyline: PolyLine,
+    // TODO A finalized trace is always a PolyLine... have a private builder type?
+    pub geom: TraceGeometry,
     pub segments: Vec<TraceSegment>,
 }
 
 impl Trace {
-    pub fn extend(&mut self, other: Trace) {
-        self.polyline.extend(other.polyline);
+    pub fn get_polyline(&self) -> &PolyLine {
+        match self.geom {
+            TraceGeometry::Point(_) => panic!("Trace is a point, not polyline"),
+            TraceGeometry::PolyLine(ref polyline) => &polyline,
+        }
+    }
+
+    pub fn endpoints(&self) -> (Pt2D, Pt2D) {
+        match self.geom {
+            TraceGeometry::Point(pt) => (pt, pt),
+            TraceGeometry::PolyLine(ref polyline) => {
+                (polyline.points()[0], *polyline.points().last().unwrap())
+            }
+        }
+    }
+
+    pub fn extend(mut self, other: Trace) -> Trace {
+        self.geom = match (self.geom, other.geom) {
+            (TraceGeometry::Point(pt1), TraceGeometry::Point(pt2)) => {
+                assert_eq!(pt1, pt2);
+                TraceGeometry::Point(pt1)
+            }
+            (TraceGeometry::Point(pt1), TraceGeometry::PolyLine(line2)) => {
+                assert_eq!(pt1, line2.points()[0]);
+                TraceGeometry::PolyLine(line2)
+            }
+            (TraceGeometry::PolyLine(line1), TraceGeometry::Point(pt2)) => {
+                assert_eq!(*line1.points().last().unwrap(), pt2);
+                TraceGeometry::PolyLine(line1)
+            }
+            (TraceGeometry::PolyLine(mut line1), TraceGeometry::PolyLine(line2)) => {
+                line1.extend(line2);
+                TraceGeometry::PolyLine(line1)
+            }
+        };
         self.segments.extend(other.segments);
+        self
     }
 
     pub fn debug(&self) {
         println!("Trace with {} segments", self.segments.len());
-        println!("  - PolyLine({} ... {})", self.polyline.points()[0], self.polyline.points().last().unwrap());
+        match self.geom {
+            TraceGeometry::Point(pt) => {
+                println!("  - Point({})", pt);
+            }
+            TraceGeometry::PolyLine(ref polyline) => {
+                println!(
+                    "  - PolyLine({} ... {})",
+                    polyline.points()[0],
+                    polyline.points().last().unwrap()
+                );
+            }
+        }
         for s in &self.segments {
             println!("  - {:?} [{} to {}]", s.on, s.start_dist, s.end_dist);
         }

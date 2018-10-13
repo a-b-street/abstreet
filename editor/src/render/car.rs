@@ -32,7 +32,7 @@ impl DrawCar {
 
         let stopping_buffer = input
             .stopping_trace
-            .map(|t| t.polyline.make_polygons_blindly(CAR_WIDTH));
+            .map(|t| t.get_polyline().make_polygons_blindly(CAR_WIDTH));
 
         let front_window_length_gap = 0.2;
         let front_window_thickness = 0.3;

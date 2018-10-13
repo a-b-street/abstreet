@@ -563,10 +563,9 @@ impl WalkingSimState {
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         let p = self.peds.get(&id)?;
 
-        // TODO When we start on a 0-length turn, this method just gives up. :P  Should handle it.
         let (mut result, mut dist_left) = p.on
             // TODO will this break if we pass in max for dist_along?
-            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)?;
+            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead);
 
         let mut last_lane = p.on.maybe_lane();
         let mut idx = 0;
@@ -575,14 +574,12 @@ impl WalkingSimState {
             if let Some(prev) = last_lane {
                 let turn = pick_turn(prev, next_lane, map);
                 // Never contraflow on turns
-                if let Some((piece, new_dist_left)) =
-                    Traversable::Turn(turn).slice(false, map, 0.0 * si::M, dist_left)
-                {
-                    result.extend(piece);
-                    dist_left = new_dist_left;
-                    if dist_left <= 0.0 * si::M {
-                        break;
-                    }
+                let (piece, new_dist_left) =
+                    Traversable::Turn(turn).slice(false, map, 0.0 * si::M, dist_left);
+                result = result.extend(piece);
+                dist_left = new_dist_left;
+                if dist_left <= 0.0 * si::M {
+                    break;
                 }
             }
 
@@ -599,23 +596,21 @@ impl WalkingSimState {
                 let l = map.get_l(next_lane);
                 (l.first_pt(), l.last_pt())
             };
-            let last_pt = *result.polyline.points().last().unwrap();
+            let last_pt = result.endpoints().1;
             if last_pt == pt1 {
                 if contraflow {
                     // Already done!
                 } else {
-                    let (piece, new_dist_left) = Traversable::Lane(next_lane)
-                        .slice(false, map, 0.0 * si::M, dist_left)
-                        .unwrap();
-                    result.extend(piece);
+                    let (piece, new_dist_left) =
+                        Traversable::Lane(next_lane).slice(false, map, 0.0 * si::M, dist_left);
+                    result = result.extend(piece);
                     dist_left = new_dist_left;
                 }
             } else if last_pt == pt2 {
                 if contraflow {
-                    let (piece, new_dist_left) = Traversable::Lane(next_lane)
-                        .slice(true, map, 0.0 * si::M, dist_left)
-                        .unwrap();
-                    result.extend(piece);
+                    let (piece, new_dist_left) =
+                        Traversable::Lane(next_lane).slice(true, map, 0.0 * si::M, dist_left);
+                    result = result.extend(piece);
                     dist_left = new_dist_left;
                 } else {
                     // Already done!

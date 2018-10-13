@@ -71,7 +71,7 @@ impl ShowRouteState {
         if let ShowRouteState::Active(_, trace) = self {
             g.draw_polygon(
                 cs.get(Colors::Queued),
-                &trace.polyline.make_polygons_blindly(LANE_THICKNESS),
+                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
             );
         }
     }

@@ -349,6 +349,7 @@ impl Sim {
     }
 
     pub fn trace_route(&self, id: AgentID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
+        // TODO could assert that the trace has a polyline by the time it gets here
         match id {
             AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
             AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),
