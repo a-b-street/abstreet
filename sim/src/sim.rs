@@ -344,6 +344,10 @@ impl Sim {
         }
     }
 
+    pub fn active_agents(&self) -> Vec<AgentID> {
+        self.trips_state.active_agents()
+    }
+
     pub fn trace_route(&self, id: AgentID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         match id {
             AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),

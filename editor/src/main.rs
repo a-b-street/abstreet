@@ -3,6 +3,7 @@
 extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate control;
+extern crate counter;
 extern crate dimensioned;
 extern crate ezgui;
 extern crate flame;

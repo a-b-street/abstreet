@@ -12,6 +12,7 @@ use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins::a_b_tests::ABTestManager;
+use plugins::chokepoints::ChokepointsFinder;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::debug_objects::DebugObjectsState;
@@ -242,6 +243,13 @@ impl UIWrapper {
                     active
                 }),
                 Box::new(|ctx| {
+                    ctx.ui.primary.chokepoints.event(
+                        ctx.input,
+                        &ctx.ui.primary.sim,
+                        &ctx.ui.primary.map,
+                    )
+                }),
+                Box::new(|ctx| {
                     let (active, new_ui) =
                         ctx.ui
                             .ab_test_manager
@@ -285,6 +293,7 @@ pub struct PerMapUI {
     draw_neighborhoods: DrawNeighborhoodState,
     scenarios: ScenarioManager,
     edits_manager: EditsManager,
+    chokepoints: ChokepointsFinder,
 }
 
 impl PerMapUI {
@@ -330,6 +339,7 @@ impl PerMapUI {
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
             edits_manager: EditsManager::new(),
+            chokepoints: ChokepointsFinder::new(),
         }
     }
 }
@@ -581,8 +591,9 @@ impl UI {
             16 => Some(Box::new(&self.primary.draw_neighborhoods)),
             17 => Some(Box::new(&self.primary.scenarios)),
             18 => Some(Box::new(&self.primary.edits_manager)),
-            19 => Some(Box::new(&self.ab_test_manager)),
-            20 => Some(Box::new(&self.logs)),
+            19 => Some(Box::new(&self.primary.chokepoints)),
+            20 => Some(Box::new(&self.ab_test_manager)),
+            21 => Some(Box::new(&self.logs)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }

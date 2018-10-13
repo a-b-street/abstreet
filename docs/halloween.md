@@ -9,3 +9,4 @@
 - lighting?
 - fog effects
 - in 3D, what if roads are sunken rivers and buildings giant skyscrapers?
+- eyes on the houses, that blink

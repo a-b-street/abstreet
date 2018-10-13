@@ -221,6 +221,10 @@ impl TripManager {
         }
         summary
     }
+
+    pub fn active_agents(&self) -> Vec<AgentID> {
+        self.active_trip_mode.keys().cloned().collect()
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
