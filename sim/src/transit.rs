@@ -95,12 +95,15 @@ impl TransitSimState {
             .map(|(idx, stop1)| {
                 let next_stop = route.next_stop(idx);
                 let stop2 = &route.stops[next_stop];
-                let path =
-                    Pathfinder::shortest_distance(map, stop1.driving_lane, stop2.driving_lane)
-                        .expect(&format!(
-                            "No route between bus stops {:?} and {:?}",
-                            stop1, stop2
-                        ));
+                let path = Pathfinder::shortest_distance(
+                    map,
+                    stop1.driving_lane,
+                    stop2.driving_lane,
+                    false,
+                ).expect(&format!(
+                    "No route between bus stops {:?} and {:?}",
+                    stop1, stop2
+                ));
                 (next_stop, stop1.dist_along, path)
             }).collect()
     }
@@ -164,6 +167,7 @@ impl TransitSimState {
                         map,
                         stop.driving_lane,
                         route.stops[next_stop].driving_lane,
+                        false,
                     ).expect(&format!(
                         "No route between bus stops {:?} and {:?}",
                         stop, route.stops[next_stop]

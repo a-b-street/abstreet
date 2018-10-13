@@ -435,7 +435,8 @@ fn calculate_paths(
     let timer = Instant::now();
     let paths: Vec<Option<VecDeque<LaneID>>> = requested_paths
         .par_iter()
-        .map(|(start, goal)| Pathfinder::shortest_distance(map, *start, *goal))
+        // TODO No bikes yet, so never use the bike lanes
+        .map(|(start, goal)| Pathfinder::shortest_distance(map, *start, *goal, false))
         .collect();
 
     debug!(

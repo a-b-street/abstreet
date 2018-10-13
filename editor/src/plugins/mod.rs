@@ -78,6 +78,7 @@ pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
         ).map(|(n, _)| n)
 }
 
+// TODO Implicitly need a blank edits entry
 pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
     wizard

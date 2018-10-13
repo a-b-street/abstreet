@@ -98,7 +98,10 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 
 fn launch_test(test: &ABTest, kml: &Option<String>) -> (PerMapUI, PerMapUI) {
     info!("Launching A/B test {}...", test.test_name);
-    let load = format!("../data/scenarios/{}/{}", test.map_name, test.scenario_name);
+    let load = format!(
+        "../data/scenarios/{}/{}.json",
+        test.map_name, test.scenario_name
+    );
     // TODO plumb from original flags
     let rng_seed = Some(42);
 

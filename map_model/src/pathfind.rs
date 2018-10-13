@@ -1,10 +1,10 @@
 use geom::{Line, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {LaneID, Map};
+use {LaneID, LaneType, Map};
 
 pub enum Pathfinder {
-    ShortestDistance { goal_pt: Pt2D },
+    ShortestDistance { goal_pt: Pt2D, is_bike: bool },
     // TODO result isn't really lanes, we also want to know bus stops... post-process? remember
     // more stuff? hmm.
     UsingTransit,
@@ -12,22 +12,31 @@ pub enum Pathfinder {
 
 impl Pathfinder {
     // Returns an inclusive path, aka, [start, ..., end]
-    pub fn shortest_distance(map: &Map, start: LaneID, end: LaneID) -> Option<VecDeque<LaneID>> {
+    pub fn shortest_distance(
+        map: &Map,
+        start: LaneID,
+        end: LaneID,
+        is_bike: bool,
+    ) -> Option<VecDeque<LaneID>> {
         let goal_pt = map.get_l(end).first_pt();
-        Pathfinder::ShortestDistance { goal_pt }.pathfind(map, start, end)
+        Pathfinder::ShortestDistance { goal_pt, is_bike }.pathfind(map, start, end)
     }
 
     fn expand(&self, map: &Map, current: LaneID) -> Vec<(LaneID, NotNaN<f64>)> {
         match self {
-            Pathfinder::ShortestDistance { goal_pt } => {
+            Pathfinder::ShortestDistance { goal_pt, is_bike } => {
                 let current_length = NotNaN::new(map.get_l(current).length().value_unsafe).unwrap();
                 map.get_next_lanes(current)
                     .iter()
-                    .map(|next| {
-                        let heuristic_dist =
-                            NotNaN::new(Line::new(next.first_pt(), *goal_pt).length().value_unsafe)
-                                .unwrap();
-                        (next.id, current_length + heuristic_dist)
+                    .filter_map(|next| {
+                        if !is_bike && next.lane_type == LaneType::Biking {
+                            None
+                        } else {
+                            let heuristic_dist = NotNaN::new(
+                                Line::new(next.first_pt(), *goal_pt).length().value_unsafe,
+                            ).unwrap();
+                            Some((next.id, current_length + heuristic_dist))
+                        }
                     }).collect()
             }
             Pathfinder::UsingTransit => {
