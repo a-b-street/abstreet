@@ -193,6 +193,12 @@ impl Router {
             let (piece, new_dist_left) = Traversable::Lane(next_lane)
                 .slice(false, map, 0.0 * si::M, dist_left)
                 .unwrap();
+            if piece.polyline.points()[0] != *result.polyline.points().last().unwrap() {
+                println!("so far");
+                result.debug();
+                println!("new piece");
+                piece.debug();
+            }
             result.extend(piece);
             dist_left = new_dist_left;
             last_lane = Some(next_lane);

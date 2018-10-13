@@ -61,26 +61,28 @@ impl Traversable {
                 let pts = &map.get_l(id).lane_center_pts;
                 let len = pts.length();
                 let (polyline, remainder) = pts.reversed().slice(start, end);
+                let actual_len = polyline.length();
                 Some((
                     Trace {
                         polyline,
                         segments: vec![TraceSegment {
                             on: *self,
                             start_dist: len - start,
-                            end_dist: len - end,
+                            end_dist: len - (start + actual_len),
                         }],
                     },
                     remainder,
                 ))
             } else {
                 let (polyline, remainder) = map.get_l(id).lane_center_pts.slice(start, end);
+                let actual_len = polyline.length();
                 Some((
                     Trace {
                         polyline,
                         segments: vec![TraceSegment {
                             on: *self,
                             start_dist: start,
-                            end_dist: end,
+                            end_dist: start + actual_len,
                         }],
                     },
                     remainder,
@@ -94,13 +96,14 @@ impl Traversable {
                 } else {
                     let (polyline, remainder) =
                         PolyLine::new(vec![t.line.pt1(), t.line.pt2()]).slice(start, end);
+                    let actual_len = polyline.length();
                     Some((
                         Trace {
                             polyline,
                             segments: vec![TraceSegment {
                                 on: *self,
                                 start_dist: start,
-                                end_dist: end,
+                                end_dist: start + actual_len,
                             }],
                         },
                         remainder,
@@ -140,5 +143,13 @@ impl Trace {
     pub fn extend(&mut self, other: Trace) {
         self.polyline.extend(other.polyline);
         self.segments.extend(other.segments);
+    }
+
+    pub fn debug(&self) {
+        println!("Trace with {} segments", self.segments.len());
+        println!("  - PolyLine({} ... {})", self.polyline.points()[0], self.polyline.points().last().unwrap());
+        for s in &self.segments {
+            println!("  - {:?} [{} to {}]", s.on, s.start_dist, s.end_dist);
+        }
     }
 }

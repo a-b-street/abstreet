@@ -13,7 +13,9 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
     for r in &input.roads {
         for (idx, raw_pt) in r.points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
-            let count = (*counts_per_pt.entry(pt).or_insert(0) += 1);
+            counts_per_pt.entry(pt).or_insert(0);
+            let count = counts_per_pt[&pt] + 1;
+            counts_per_pt.insert(pt, count);
 
             if count == 2 {
                 intersections.insert(pt);
