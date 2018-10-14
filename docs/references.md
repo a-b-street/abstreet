@@ -1,5 +1,9 @@
 # References
 
+## Example use cases
+
+- https://www.reddit.com/r/SeattleWA/comments/9mtgkh/seven_places_to_add_bus_lanes_now/
+
 ## Groups that may be eventually interested
 
 - Seattle Times Traffic Lab

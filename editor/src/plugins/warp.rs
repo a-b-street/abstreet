@@ -4,7 +4,7 @@ use objects::{DEBUG, ID};
 use piston::input::Key;
 use plugins::Colorizer;
 use render::DrawMap;
-use sim::{CarID, PedestrianID, Sim};
+use sim::{CarID, PedestrianID, Sim, TripID};
 use std::usize;
 
 pub enum WarpState {
@@ -93,8 +93,9 @@ fn warp(
             'e' => ID::Parcel(ParcelID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => ID::Car(CarID(idx)),
+            't' => ID::Trip(TripID(idx)),
             _ => {
-                warn!("{} isn't a valid ID; Should be [libepc][0-9]+", line);
+                warn!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
                 return;
             }
         },

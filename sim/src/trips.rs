@@ -225,6 +225,16 @@ impl TripManager {
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
+
+    pub fn current_mode(&self, id: TripID) -> Option<AgentID> {
+        let trip = self.trips.get(id.0)?;
+        match trip.legs[0] {
+            TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped)),
+            TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.car)),
+            // TODO Should be the bus, but apparently transit sim tracks differently?
+            TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped)),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

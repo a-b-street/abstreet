@@ -5,7 +5,7 @@ use geom::Pt2D;
 use kml::ExtraShapeID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::DrawMap;
-use sim::{CarID, PedestrianID, Sim};
+use sim::{CarID, PedestrianID, Sim, TripID};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -19,6 +19,7 @@ pub enum ID {
     Parcel(ParcelID),
     BusStop(BusStopID),
     Area(AreaID),
+    Trip(TripID),
 }
 
 impl ID {
@@ -51,6 +52,9 @@ impl ID {
             ID::Area(id) => {
                 map.get_a(id).dump_debug();
             }
+            ID::Trip(id) => {
+                sim.debug_trip(id);
+            }
         }
     }
 
@@ -69,6 +73,7 @@ impl ID {
                 .maybe_get_bs(id)
                 .map(|bs| map.get_l(id.sidewalk).dist_along(bs.dist_along).0),
             ID::Area(id) => map.maybe_get_a(id).map(|a| Pt2D::center(&a.points)),
+            ID::Trip(id) => sim.get_canonical_point_for_trip(id, map),
         }
     }
 

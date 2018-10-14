@@ -83,3 +83,23 @@ But let's start super simple: just track total trip time for all agents. What's 
 	- note that sum score alone is a bit meaningless, even between population types. need to A/B test to meaningfully compare.
 - In headless mode, print scores at the end
 - in UI, have an optional OSD to pop up on the right with scores so far
+
+## Edit-Invariant
+
+Back in the day, TurnID went from a number to (Lane, Lane, Intersection), so
+that a single edit wouldn't totally throw off all the turn IDs. Now seeing a
+similar problem when removing a parking lane -- the same 'seed parked cars'
+command has vastly different effects between the same sim, and this tiny change
+throws off the RNG and percolates everywhere. Let's think about how to make
+more things invariant.
+
+- should cars be the same?
+	- maybe peds have to travel farther from home to start driving.
+	- does the car on the far road belong to anyone in the other sim?
+- forget debugability for a moment, what do we actually need to compare?
+	- entire trips! maybe some use a bus or not btwn two worlds
+	- warp to trip (using the active mode), compare trips
+		- problem: ped IDs right now differ wildly because the rng gets offset. maybe those should always be chosen first? maybe they should be calculated independently and stuck in the Scenario? that part of a trip is a sim-invariant ID, a spawn time, and a start/goal building. the details (legs of trip) are calculated per sim.
+- the RNG is also used after spawning to later roam around for parking
+	- small road edits shouldnt affect this. per-car rng in an extreme, or maybe just an RNG for sim and for spawning?
+		- but as soon as two cars have to wander for parking instead of one, everything gets offset completely.

@@ -182,7 +182,9 @@ impl DrawMap {
             ID::BusStop(id) => Box::new(self.get_bs(id)),
             ID::Parcel(id) => Box::new(self.get_p(id)),
             ID::Area(id) => Box::new(self.get_a(id)),
-            ID::Car(_) | ID::Pedestrian(_) => panic!("get_obj doesn't work for dynamic {:?}", id),
+            ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
+                panic!("get_obj doesn't work for dynamic {:?}", id)
+            }
         }
     }
 
@@ -284,7 +286,7 @@ impl DrawMap {
                     ID::ExtraShape(id) => extra_shapes.push(Box::new(self.get_es(*id))),
                     ID::BusStop(id) => bus_stops.push(Box::new(self.get_bs(*id))),
 
-                    ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) => {
+                    ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
                         panic!("{:?} shouldn't be in the quadtree", id)
                     }
                 }

@@ -5,6 +5,7 @@ use abstutil::Error;
 use control::ControlMap;
 use dimensioned::si;
 use driving::DrivingSimState;
+use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
 use map_model::{IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
@@ -21,7 +22,7 @@ use view::WorldView;
 use walking::WalkingSimState;
 use {
     AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, PedestrianID,
-    ScoreSummary, Tick, TIMESTEP,
+    ScoreSummary, Tick, TripID, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -366,6 +367,29 @@ impl Sim {
 
     pub fn get_name(&self) -> &str {
         &self.run_name
+    }
+
+    // TODO dont toggle state in debug_car
+    pub fn debug_trip(&mut self, id: TripID) {
+        match self.trips_state.current_mode(id) {
+            Some(AgentID::Car(id)) => self.debug_car(id),
+            Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
+            None => println!("{} doesn't exist", id),
+        }
+    }
+
+    pub fn get_canonical_point_for_trip(&self, id: TripID, map: &Map) -> Option<Pt2D> {
+        // Don't unwrap(); the trip might be registered before the agent has started.
+        match self.trips_state.current_mode(id) {
+            Some(AgentID::Car(id)) => self
+                .driving_state
+                .get_draw_car(id, self.time, map)
+                .map(|c| c.front),
+            Some(AgentID::Pedestrian(id)) => {
+                self.walking_state.get_draw_ped(id, map).map(|p| p.pos)
+            }
+            None => None,
+        }
     }
 }
 
