@@ -17,7 +17,7 @@ use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
-    Speed, Tick, Time,
+    Speed, Tick, Time, TripID,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
@@ -36,6 +36,8 @@ struct ParkingState {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Car {
     id: CarID,
+    // None for buses
+    trip: Option<TripID>,
     on: Traversable,
     speed: Speed,
     dist_along: Distance,
@@ -490,7 +492,7 @@ impl DrivingSimState {
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         if let Some(c) = self.cars.get(&id) {
             Some(vec![
-                format!("Car {:?}", id),
+                format!("Car {:?}, part of {:?}", id, c.trip),
                 format!(
                     "On {:?}, speed {:?}, dist along {:?}",
                     c.on, c.speed, c.dist_along
@@ -676,6 +678,7 @@ impl DrivingSimState {
         events: &mut Vec<Event>,
         time: Tick,
         car: CarID,
+        trip: Option<TripID>,
         maybe_parked_car: Option<ParkedCar>,
         vehicle: Vehicle,
         dist_along: Distance,
@@ -725,6 +728,7 @@ impl DrivingSimState {
             car,
             Car {
                 id: car,
+                trip,
                 dist_along: dist_along,
                 speed: 0.0 * si::MPS,
                 on: Traversable::Lane(start),

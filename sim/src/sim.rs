@@ -274,7 +274,7 @@ impl Sim {
     }
 
     pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
-        vec![format!("Hello to {}", p)]
+        self.walking_state.ped_tooltip(p)
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {

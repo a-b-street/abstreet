@@ -13,7 +13,7 @@ use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
     AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
-    TIMESTEP,
+    TripID, TIMESTEP,
 };
 
 // TODO tune these!
@@ -97,6 +97,7 @@ enum Action {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Pedestrian {
     id: PedestrianID,
+    trip: TripID,
 
     on: Traversable,
     dist_along: Distance,
@@ -479,6 +480,7 @@ impl WalkingSimState {
         &mut self,
         events: &mut Vec<Event>,
         id: PedestrianID,
+        trip: TripID,
         start: SidewalkSpot,
         goal: SidewalkSpot,
         map: &Map,
@@ -508,6 +510,7 @@ impl WalkingSimState {
             id,
             Pedestrian {
                 id,
+                trip,
                 path,
                 contraflow,
                 on: Traversable::Lane(start_lane),
@@ -645,6 +648,11 @@ impl WalkingSimState {
             .get_vec_mut(&stop.sidewalk)
             .unwrap()
             .retain(|&p| p != id);
+    }
+
+    pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
+        let p = self.peds.get(&id).unwrap();
+        vec![format!("{} is part of {}", p.id, p.trip)]
     }
 }
 

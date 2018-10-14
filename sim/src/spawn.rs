@@ -117,6 +117,7 @@ impl Spawner {
                             events,
                             now,
                             car,
+                            Some(trip),
                             Some(parked_car.clone()),
                             parked_car.vehicle.clone(),
                             dist_along,
@@ -133,7 +134,7 @@ impl Spawner {
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
                         trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(events, ped, spot1, spot2, map, path);
+                        walking_sim.seed_pedestrian(events, ped, trip, spot1, spot2, map, path);
                         spawned_agents += 1;
                     }
                 };
@@ -177,6 +178,7 @@ impl Spawner {
                 events,
                 now,
                 id,
+                None,
                 None,
                 vehicle,
                 start_dist_along,
