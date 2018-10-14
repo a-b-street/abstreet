@@ -103,3 +103,28 @@ more things invariant.
 - the RNG is also used after spawning to later roam around for parking
 	- small road edits shouldnt affect this. per-car rng in an extreme, or maybe just an RNG for sim and for spawning?
 		- but as soon as two cars have to wander for parking instead of one, everything gets offset completely.
+- this will be harder later with spawners on map edges...
+
+Alright, the deviations are still starting too early!
+- Swapping shouldn't show different parked cars when the parking lane is present in both sims... or should it?
+	- If 50% of spots in a neighborhood need to be initially populated, then more or less options for those DOES affect it.
+- Peds are picking very different parked cars in the neighborhood to go drive, causing big deviations early on.
+
+Can we avoid storing trip/parked car mappings in the scenario?
+- if peds pick the parked car closest to their start building... maybe
+
+Maybe it's time to rethink how parked cars are matched up to trips...
+
+## Parked cars and ownership
+
+Most cars are associated with a household. They usually park close to that
+building (during overnight times). Some cars have no building -- buses, or cars
+that might be visiting from outside the simulated area. A building might have
+several cars.
+
+Given:
+- number of cars that should be around each house
+- number of visiting cars
+Can then seed parked cars kinda greedily.
+
+But back up, other section.
