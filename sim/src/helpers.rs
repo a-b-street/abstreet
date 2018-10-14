@@ -30,7 +30,7 @@ pub struct SimFlags {
 impl SimFlags {
     pub fn for_test(run_name: &str) -> SimFlags {
         SimFlags {
-            load: "../data/maps/small.abst".to_string(),
+            load: "../data/maps/montlake.abst".to_string(),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
