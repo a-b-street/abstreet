@@ -24,6 +24,11 @@ pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
+    // TODO easier way to map_err for anything in a block that has ?
+    inner_read_json(path).map_err(|e| Error::new(e.kind(), format!("read_json({}): {}", path, e)))
+}
+
+fn inner_read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
@@ -109,7 +114,12 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
-                let name = Path::new(&entry.unwrap().file_name())
+                let filename = entry.unwrap().file_name();
+                let path = Path::new(&filename);
+                if path.to_string_lossy().ends_with(".swp") {
+                    continue;
+                }
+                let name = path
                     .file_stem()
                     .unwrap()
                     .to_os_string()
@@ -130,7 +140,12 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
-                let name = Path::new(&entry.unwrap().file_name())
+                let filename = entry.unwrap().file_name();
+                let path = Path::new(&filename);
+                if path.to_string_lossy().ends_with(".swp") {
+                    continue;
+                }
+                let name = path
                     .file_stem()
                     .unwrap()
                     .to_os_string()
