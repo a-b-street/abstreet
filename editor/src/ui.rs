@@ -250,10 +250,12 @@ impl UIWrapper {
                     )
                 }),
                 Box::new(|ctx| {
-                    let (active, new_ui) =
-                        ctx.ui
-                            .ab_test_manager
-                            .event(ctx.input, &ctx.ui.primary.map, &ctx.ui.kml);
+                    let (active, new_ui) = ctx.ui.ab_test_manager.event(
+                        ctx.input,
+                        &ctx.ui.primary.map,
+                        &ctx.ui.kml,
+                        &ctx.ui.primary.current_flags,
+                    );
                     if let Some((new_primary, new_secondary)) = new_ui {
                         ctx.ui.primary = new_primary;
                         ctx.ui.secondary = Some(new_secondary);

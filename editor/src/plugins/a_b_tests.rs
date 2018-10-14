@@ -23,6 +23,7 @@ impl ABTestManager {
         input: &mut UserInput,
         map: &Map,
         kml: &Option<String>,
+        current_flags: &SimFlags,
     ) -> (bool, Option<(PerMapUI, PerMapUI)>) {
         let mut new_ui: Option<(PerMapUI, PerMapUI)> = None;
         let mut new_state: Option<ABTestManager> = None;
@@ -42,7 +43,7 @@ impl ABTestManager {
             }
             ABTestManager::ManageABTest(test, ref mut scroller) => {
                 if input.key_pressed(Key::R, "run this A/B test") {
-                    new_ui = Some(launch_test(test, kml));
+                    new_ui = Some(launch_test(test, kml, current_flags));
                     new_state = Some(ABTestManager::Inactive);
                 }
                 if scroller.event(input) {
@@ -96,14 +97,21 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
     }
 }
 
-fn launch_test(test: &ABTest, kml: &Option<String>) -> (PerMapUI, PerMapUI) {
+fn launch_test(
+    test: &ABTest,
+    kml: &Option<String>,
+    current_flags: &SimFlags,
+) -> (PerMapUI, PerMapUI) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
         "../data/scenarios/{}/{}.json",
         test.map_name, test.scenario_name
     );
-    // TODO plumb from original flags
-    let rng_seed = Some(42);
+    let rng_seed = if current_flags.rng_seed.is_some() {
+        current_flags.rng_seed
+    } else {
+        Some(42)
+    };
 
     let primary = PerMapUI::new(
         SimFlags {
