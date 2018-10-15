@@ -32,6 +32,11 @@ if [ ! -f data/input/TrafficSignals.shp ]; then
 	rm -rf data/input/Traffic\ Signals data/input/TrafficSignals.shp.zip;
 fi
 
+if [ ! -f data/input/neighborhoods.geojson ]; then
+	# https://data.seattle.gov/dataset/Neighborhoods/2mbt-aqqx in GeoJSON, not SHP
+	get_if_needed https://github.com/seattleio/seattle-boundaries-data/raw/master/data/neighborhoods.geojson data/input/neighborhoods.geojson;
+fi
+
 # From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
 get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
 
@@ -49,18 +54,13 @@ if [ ! -f data/input/montlake.osm ]; then
 	osmosis --read-xml enableDateParsing=no file=data/input/Seattle.osm --bounding-box left=-122.3218 bottom=47.6323 right=-122.2985 top=47.6475 --write-xml data/input/montlake.osm
 fi
 
-ELEVATION=../data/input/N47W122.hgt
-PARCELS_KML=../data/input/King_County_Parcels__parcel_area.kml
-TRAFFIC_SIGNALS=../data/input/TrafficSignals.shp
-GTFS=../data/input/google_transit_2018_18_08
-
 if [ ! -f data/seattle_parcels.abst ]; then
 	cd kml
-	time cargo run --release $PARCELS_KML ../data/seattle_parcels.abst
+	time cargo run --release ../data/input/King_County_Parcels__parcel_area.kml ../data/seattle_parcels.abst
 	cd ..
 fi
 
-COMMON="--elevation=$ELEVATION --traffic_signals=$TRAFFIC_SIGNALS --parcels=../data/seattle_parcels.abst --gtfs=$GTFS"
+COMMON="--elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/TrafficSignals.shp --parcels=../data/seattle_parcels.abst --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson"
 cd convert_osm
 time cargo run --release -- --osm=../data/input/montlake.osm $COMMON --output=../data/maps/montlake.abst
 time cargo run --release -- --osm=../data/input/small_seattle.osm $COMMON --output=../data/maps/small_seattle.abst

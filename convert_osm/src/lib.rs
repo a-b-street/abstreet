@@ -3,16 +3,21 @@ extern crate abstutil;
 extern crate byteorder;
 extern crate dimensioned;
 extern crate geo;
+extern crate geojson;
 extern crate geom;
 extern crate gtfs;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
 extern crate shp;
+// TODO To serialize Neighborhoods. Should probably lift this into the map_model layer instead of
+// have this weird dependency.
+extern crate sim;
 #[macro_use]
 extern crate structopt;
 
 mod group_parcels;
+mod neighborhoods;
 mod osm;
 mod remove_disconnected;
 mod split_ways;
@@ -23,6 +28,7 @@ use geom::LonLat;
 use map_model::raw_data;
 use ordered_float::NotNaN;
 use srtm::Elevation;
+use std::path::Path;
 
 const MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL: f64 = 50.0;
 
@@ -48,6 +54,10 @@ pub struct Flags {
     /// GTFS directory
     #[structopt(long = "gtfs")]
     pub gtfs: String,
+
+    /// Neighborhood GeoJSON path
+    #[structopt(long = "neighborhoods")]
+    pub neighborhoods: String,
 
     /// Output .abst path
     #[structopt(long = "output")]
@@ -105,6 +115,14 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
     }
 
     map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
+
+    let map_name = Path::new(&flags.output)
+        .file_stem()
+        .unwrap()
+        .to_os_string()
+        .into_string()
+        .unwrap();
+    neighborhoods::convert(&flags.neighborhoods, map_name, &bounds);
 
     map
 }
