@@ -58,7 +58,7 @@ pub use events::Event;
 use geom::{Angle, Pt2D};
 pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
-use map_model::{LaneID, Trace, TurnID};
+use map_model::{BuildingID, LaneID, Trace, TurnID};
 use rand::{RngCore, SeedableRng, XorShiftRng};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
@@ -293,11 +293,22 @@ pub struct ParkedCar {
     pub car: CarID,
     pub spot: ParkingSpot,
     pub vehicle: kinematics::Vehicle,
+    pub owner: Option<BuildingID>,
 }
 
 impl ParkedCar {
-    pub fn new(car: CarID, spot: ParkingSpot, vehicle: kinematics::Vehicle) -> ParkedCar {
-        ParkedCar { car, spot, vehicle }
+    pub fn new(
+        car: CarID,
+        spot: ParkingSpot,
+        vehicle: kinematics::Vehicle,
+        owner: Option<BuildingID>,
+    ) -> ParkedCar {
+        ParkedCar {
+            car,
+            spot,
+            vehicle,
+            owner,
+        }
     }
 }
 

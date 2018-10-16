@@ -143,7 +143,11 @@ impl Sim {
 // Spawning helpers
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
-        self.seed_parked_cars(map.all_lanes().iter().map(|l| l.id).collect(), 0.5);
+        self.seed_parked_cars(
+            map.all_lanes().iter().map(|l| l.id).collect(),
+            &map.all_buildings().iter().map(|b| b.id).collect(),
+            0.5,
+        );
         self.seed_walking_trips(&map, 100);
         self.seed_driving_trips(&map, 100);
 
@@ -162,14 +166,28 @@ impl Sim {
         );*/    }
 
     pub fn big_spawn(&mut self, map: &Map) {
-        self.seed_parked_cars(map.all_lanes().iter().map(|l| l.id).collect(), 0.95);
+        self.seed_parked_cars(
+            map.all_lanes().iter().map(|l| l.id).collect(),
+            &map.all_buildings().iter().map(|b| b.id).collect(),
+            0.95,
+        );
         self.seed_walking_trips(&map, 1000);
         self.seed_driving_trips(&map, 1000);
     }
 
-    pub fn seed_parked_cars(&mut self, in_lanes: Vec<LaneID>, percent: f64) {
-        self.spawner
-            .seed_parked_cars(percent, in_lanes, &mut self.parking_state, &mut self.rng);
+    pub fn seed_parked_cars(
+        &mut self,
+        in_lanes: Vec<LaneID>,
+        owner_buildins: &Vec<BuildingID>,
+        percent: f64,
+    ) {
+        self.spawner.seed_parked_cars(
+            percent,
+            in_lanes,
+            owner_buildins,
+            &mut self.parking_state,
+            &mut self.rng,
+        );
     }
 
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
@@ -186,9 +204,19 @@ impl Sim {
         )
     }
 
-    pub fn seed_specific_parked_cars(&mut self, lane: LaneID, spots: Vec<usize>) -> Vec<CarID> {
-        self.spawner
-            .seed_specific_parked_cars(lane, spots, &mut self.parking_state, &mut self.rng)
+    pub fn seed_specific_parked_cars(
+        &mut self,
+        lane: LaneID,
+        owner: BuildingID,
+        spots: Vec<usize>,
+    ) -> Vec<CarID> {
+        self.spawner.seed_specific_parked_cars(
+            lane,
+            owner,
+            spots,
+            &mut self.parking_state,
+            &mut self.rng,
+        )
     }
 
     pub fn seed_driving_trips(&mut self, map: &Map, num_cars: usize) {

@@ -1,7 +1,7 @@
 use geom::{Angle, Polygon, Pt2D};
 use kinematics::Vehicle;
 use map_model;
-use map_model::{Lane, LaneID, LaneType, Map};
+use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
 use std::iter;
 use {CarID, Distance, DrawCarInput, ParkedCar, ParkingSpot};
 
@@ -137,6 +137,25 @@ impl ParkingSimState {
 
     fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
         &self.lanes[spot.lane.0].spots[spot.idx]
+    }
+
+    pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
+        let c = self.lookup_car(id).unwrap();
+        vec![format!("{} is parked, owned by {:?}", c.car, c.owner)]
+    }
+
+    pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
+        let mut result: Vec<&ParkedCar> = Vec::new();
+        for l in &self.lanes {
+            for maybe_occupant in &l.occupants {
+                if let Some(o) = maybe_occupant {
+                    if o.owner == Some(id) {
+                        result.push(maybe_occupant.as_ref().unwrap());
+                    }
+                }
+            }
+        }
+        result
     }
 }
 

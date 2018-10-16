@@ -167,6 +167,14 @@ Next thoughts:
 	- try to be close to building, random jitter to be a little far away
 	- if this process is somewhat stable, then should be fine. doesnt need to be perfectly stable -- removing lanes somewhere might put more pressure on another lane.
 
+
+steps for this change:
+= give cars an optional building as an owner, make a query for parking sim to find available cars, hook up UI debug
+	= initially randomly assign a building in the neighborhood
+- start seeding parked cars per building instead of per spot
+	- make sure stability is vaguely preserved
+- make peds that'll use a car pick from a house with an available car
+
 ## Traces between worlds
 
 Alright, now how do we even compare trip progress to show it visually? This is

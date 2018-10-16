@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use driving::DrivingSimState;
+use driving::{CreateCar, DrivingSimState};
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
@@ -117,14 +117,17 @@ impl Spawner {
                         if driving_sim.start_car_on_lane(
                             events,
                             now,
-                            car,
-                            Some(trip),
-                            Some(parked_car.clone()),
-                            parked_car.vehicle.clone(),
-                            dist_along,
-                            start,
-                            Router::make_router_to_park(path, goal_bldg),
                             map,
+                            CreateCar {
+                                car,
+                                trip: Some(trip),
+                                owner: parked_car.owner,
+                                maybe_parked_car: Some(parked_car.clone()),
+                                vehicle: parked_car.vehicle.clone(),
+                                start,
+                                dist_along,
+                                router: Router::make_router_to_park(path, goal_bldg),
+                            },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             parking_sim.remove_parked_car(parked_car.clone());
@@ -178,14 +181,17 @@ impl Spawner {
             if driving_sim.start_car_on_lane(
                 events,
                 now,
-                id,
-                None,
-                None,
-                vehicle,
-                start_dist_along,
-                start,
-                Router::make_router_for_bus(path),
                 map,
+                CreateCar {
+                    car: id,
+                    trip: None,
+                    owner: None,
+                    maybe_parked_car: None,
+                    vehicle,
+                    start,
+                    dist_along: start_dist_along,
+                    router: Router::make_router_for_bus(path),
+                },
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);
                 info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
@@ -205,6 +211,7 @@ impl Spawner {
         &mut self,
         percent_capacity_to_fill: f64,
         in_lanes: Vec<LaneID>,
+        owner_buildings: &Vec<BuildingID>,
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
     ) {
@@ -228,6 +235,7 @@ impl Spawner {
                         car,
                         spot,
                         Vehicle::generate_typical_car(car, &mut rng),
+                        Some(*rng.choose(owner_buildings).unwrap()),
                     ));
                     self.car_id_counter += 1;
                 }
@@ -242,6 +250,7 @@ impl Spawner {
     pub fn seed_specific_parked_cars(
         &mut self,
         lane: LaneID,
+        owner: BuildingID,
         spot_indices: Vec<usize>,
         parking_sim: &mut ParkingSimState,
         rng: &mut XorShiftRng,
@@ -255,6 +264,7 @@ impl Spawner {
                     car,
                     spots[idx],
                     Vehicle::generate_typical_car(car, rng),
+                    Some(owner),
                 ));
                 self.car_id_counter += 1;
                 car

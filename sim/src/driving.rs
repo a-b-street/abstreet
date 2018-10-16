@@ -5,7 +5,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{BuildingID, LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -38,6 +38,7 @@ struct Car {
     id: CarID,
     // None for buses
     trip: Option<TripID>,
+    owner: Option<BuildingID>,
     on: Traversable,
     speed: Speed,
     dist_along: Distance,
@@ -492,7 +493,7 @@ impl DrivingSimState {
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         if let Some(c) = self.cars.get(&id) {
             Some(vec![
-                format!("Car {:?}, part of {:?}", id, c.trip),
+                format!("Car {:?}, part of {:?}, owned by {:?}", id, c.trip, c.owner),
                 format!(
                     "On {:?}, speed {:?}, dist along {:?}",
                     c.on, c.speed, c.dist_along
@@ -591,7 +592,7 @@ impl DrivingSimState {
                     c.parking = Some(ParkingState {
                         is_parking: true,
                         started_at: time,
-                        tuple: ParkedCar::new(*id, *spot, c.vehicle.clone()),
+                        tuple: ParkedCar::new(*id, *spot, c.vehicle.clone(), c.owner),
                     });
                 }
                 Action::WorkOnParking => {
@@ -677,29 +678,23 @@ impl DrivingSimState {
         &mut self,
         events: &mut Vec<Event>,
         time: Tick,
-        car: CarID,
-        trip: Option<TripID>,
-        maybe_parked_car: Option<ParkedCar>,
-        vehicle: Vehicle,
-        dist_along: Distance,
-        start: LaneID,
-        router: Router,
         map: &Map,
+        params: CreateCar,
     ) -> bool {
         // If not, we have a parking lane much longer than a driving lane...
-        assert!(dist_along <= map.get_l(start).length());
+        assert!(params.dist_along <= map.get_l(params.start).length());
 
         // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
         // don't hit somebody's back
-        if let Some(other) =
-            self.lanes[start.0].first_car_behind(dist_along + Vehicle::worst_case_following_dist())
+        if let Some(other) = self.lanes[params.start.0]
+            .first_car_behind(params.dist_along + Vehicle::worst_case_following_dist())
         {
             let other_dist = self.cars[&other].dist_along;
-            if other_dist >= dist_along {
+            if other_dist >= params.dist_along {
                 debug!(
                     "{} can't spawn, because they'd wind up too close ({}) behind {}",
-                    car,
-                    other_dist - dist_along,
+                    params.car,
+                    other_dist - params.dist_along,
                     other
                 );
                 return false;
@@ -709,13 +704,13 @@ impl DrivingSimState {
             let accel_for_other_to_stop = other_vehicle
                 .accel_to_follow(
                     self.cars[&other].speed,
-                    map.get_parent(start).get_speed_limit(),
-                    &vehicle,
-                    dist_along - other_dist,
+                    map.get_parent(params.start).get_speed_limit(),
+                    &params.vehicle,
+                    params.dist_along - other_dist,
                     0.0 * si::MPS,
                 ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
-                debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", car, dist_along - other_dist, other, other, accel_for_other_to_stop, car);
+                debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
                 return false;
             }
 
@@ -725,18 +720,19 @@ impl DrivingSimState {
         }
 
         self.cars.insert(
-            car,
+            params.car,
             Car {
-                id: car,
-                trip,
-                dist_along: dist_along,
+                id: params.car,
+                trip: params.trip,
+                owner: params.owner,
+                on: Traversable::Lane(params.start),
+                dist_along: params.dist_along,
                 speed: 0.0 * si::MPS,
-                on: Traversable::Lane(start),
-                vehicle,
+                vehicle: params.vehicle,
                 waiting_for: None,
                 debug: false,
-                is_bus: !maybe_parked_car.is_some(),
-                parking: maybe_parked_car.and_then(|parked_car| {
+                is_bus: !params.maybe_parked_car.is_some(),
+                parking: params.maybe_parked_car.and_then(|parked_car| {
                     Some(ParkingState {
                         is_parking: false,
                         started_at: time,
@@ -745,11 +741,11 @@ impl DrivingSimState {
                 }),
             },
         );
-        self.routers.insert(car, router);
-        self.lanes[start.0].insert_at(car, dist_along);
+        self.routers.insert(params.car, params.router);
+        self.lanes[params.start.0].insert_at(params.car, params.dist_along);
         events.push(Event::AgentEntersTraversable(
-            AgentID::Car(car),
-            Traversable::Lane(start),
+            AgentID::Car(params.car),
+            Traversable::Lane(params.start),
         ));
         true
     }
@@ -822,4 +818,15 @@ impl DrivingSimState {
         let c = &self.cars[&id];
         Some(r.trace_route(c.on, c.dist_along, map, dist_ahead))
     }
+}
+
+pub struct CreateCar {
+    pub car: CarID,
+    pub trip: Option<TripID>,
+    pub owner: Option<BuildingID>,
+    pub maybe_parked_car: Option<ParkedCar>,
+    pub vehicle: Vehicle,
+    pub start: LaneID,
+    pub dist_along: Distance,
+    pub router: Router,
 }

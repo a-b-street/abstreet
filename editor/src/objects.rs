@@ -43,6 +43,13 @@ impl ID {
             ID::Turn(_) => {}
             ID::Building(id) => {
                 map.get_b(id).dump_debug();
+                let parked_cars = sim.get_parked_cars_by_owner(id);
+                println!(
+                    "{} parked cars are owned by {}: {:?}",
+                    parked_cars.len(),
+                    id,
+                    parked_cars.iter().map(|p| p.car).collect::<Vec<CarID>>()
+                );
             }
             ID::Car(id) => {
                 sim.debug_car(id);

@@ -8,7 +8,7 @@ use driving::DrivingSimState;
 use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
+use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -21,8 +21,8 @@ use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
 use {
-    AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, PedestrianID,
-    ScoreSummary, Tick, TripID, TIMESTEP,
+    AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, ParkedCar,
+    PedestrianID, ScoreSummary, Tick, TripID, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -280,7 +280,7 @@ impl Sim {
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
         self.driving_state
             .tooltip_lines(car)
-            .unwrap_or(vec![format!("{} is parked", car)])
+            .unwrap_or(self.parking_state.tooltip_lines(car))
     }
 
     pub fn debug_car(&mut self, id: CarID) {
@@ -394,6 +394,10 @@ impl Sim {
             }
             None => None,
         }
+    }
+
+    pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
+        self.parking_state.get_parked_cars_by_owner(id)
     }
 }
 

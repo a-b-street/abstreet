@@ -97,6 +97,7 @@ impl Scenario {
         for s in &self.seed_parked_cars {
             sim.seed_parked_cars(
                 neighborhoods[&s.neighborhood].find_matching_lanes(map),
+                &bldgs_per_neighborhood[&s.neighborhood],
                 s.percent_to_fill,
             );
         }
