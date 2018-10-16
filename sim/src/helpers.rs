@@ -2,7 +2,7 @@ use abstutil;
 use control::ControlMap;
 use flame;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map};
-use rand::Rng;
+use rand::{Rng, XorShiftRng};
 use std::collections::VecDeque;
 use {CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, Sim, Tick};
 
@@ -319,7 +319,7 @@ impl Sim {
     }
 }
 
-fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> LaneID {
+fn pick_car_goal(rng: &mut XorShiftRng, map: &Map, start: LaneID) -> LaneID {
     let candidate_goals: Vec<LaneID> = map
         .all_lanes()
         .iter()
@@ -336,7 +336,7 @@ fn pick_car_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Lane
     *rng.choose(&candidate_goals).unwrap()
 }
 
-fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> BuildingID {
+fn pick_ped_goal(rng: &mut XorShiftRng, map: &Map, start: LaneID) -> BuildingID {
     let candidate_goals: Vec<BuildingID> = map
         .all_buildings()
         .iter()
@@ -350,20 +350,12 @@ fn pick_ped_goal<R: Rng + ?Sized>(rng: &mut R, map: &Map, start: LaneID) -> Buil
     *rng.choose(&candidate_goals).unwrap()
 }
 
-fn pick_bldg_from_sidewalk<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    sidewalk: LaneID,
-) -> BuildingID {
+fn pick_bldg_from_sidewalk(rng: &mut XorShiftRng, map: &Map, sidewalk: LaneID) -> BuildingID {
     *rng.choose(&map.get_l(sidewalk).building_paths)
         .expect(&format!("{} has no buildings", sidewalk))
 }
 
-fn pick_bldg_from_driving_lane<R: Rng + ?Sized>(
-    rng: &mut R,
-    map: &Map,
-    start: LaneID,
-) -> BuildingID {
+fn pick_bldg_from_driving_lane(rng: &mut XorShiftRng, map: &Map, start: LaneID) -> BuildingID {
     pick_bldg_from_sidewalk(rng, map, map.get_sidewalk_from_driving_lane(start).unwrap())
 }
 

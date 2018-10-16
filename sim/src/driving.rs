@@ -9,7 +9,7 @@ use map_model::{LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
-use rand::Rng;
+use rand::XorShiftRng;
 use router::Router;
 use std;
 use std::collections::BTreeMap;
@@ -71,12 +71,12 @@ pub enum Action {
 
 impl Car {
     // Note this doesn't change the car's state, and it observes a fixed view of the world!
-    fn react<R: Rng + ?Sized>(
+    fn react(
         &self,
         events: &mut Vec<Event>,
         // The high-level plan might change here.
         orig_router: &mut Router,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
         map: &Map,
         time: Tick,
         view: &WorldView,
@@ -543,7 +543,7 @@ impl DrivingSimState {
     }
 
     // Note that this populates the view BEFORE the step is applied
-    pub fn step<R: Rng + ?Sized>(
+    pub fn step(
         &mut self,
         view: &mut WorldView,
         events: &mut Vec<Event>,
@@ -553,7 +553,7 @@ impl DrivingSimState {
         parking_sim: &ParkingSimState,
         intersections: &mut IntersectionSimState,
         transit_sim: &mut TransitSimState,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
     ) -> Result<Vec<ParkedCar>, Error> {
         self.populate_view(view);
 

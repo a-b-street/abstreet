@@ -1,7 +1,7 @@
 use abstutil::Error;
 use dimensioned::si;
 use geom::EPSILON_DIST;
-use rand::Rng;
+use rand::{Rng, XorShiftRng};
 use std;
 use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
 
@@ -57,7 +57,7 @@ impl PartialEq for Vehicle {
 impl Eq for Vehicle {}
 
 impl Vehicle {
-    pub fn generate_typical_car<R: Rng + ?Sized>(id: CarID, rng: &mut R) -> Vehicle {
+    pub fn generate_typical_car(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
@@ -67,7 +67,7 @@ impl Vehicle {
         }
     }
 
-    pub fn generate_bus<R: Rng + ?Sized>(id: CarID, rng: &mut R) -> Vehicle {
+    pub fn generate_bus(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,

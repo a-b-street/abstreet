@@ -3,7 +3,7 @@ use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
-use rand::Rng;
+use rand::{Rng, XorShiftRng};
 use router::Router;
 use std::collections::VecDeque;
 use std::time::Instant;
@@ -154,11 +154,11 @@ impl Spawner {
     }
 
     // This happens immediately; it isn't scheduled.
-    pub fn seed_bus_route<R: Rng + ?Sized>(
+    pub fn seed_bus_route(
         &mut self,
         events: &mut Vec<Event>,
         route: &BusRoute,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
         map: &Map,
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
@@ -201,12 +201,12 @@ impl Spawner {
     }
 
     // This happens immediately; it isn't scheduled.
-    pub fn seed_parked_cars<R: Rng + ?Sized>(
+    pub fn seed_parked_cars(
         &mut self,
         percent_capacity_to_fill: f64,
         in_lanes: Vec<LaneID>,
         parking_sim: &mut ParkingSimState,
-        base_rng: &mut R,
+        base_rng: &mut XorShiftRng,
     ) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
@@ -239,12 +239,12 @@ impl Spawner {
         );
     }
 
-    pub fn seed_specific_parked_cars<R: Rng + ?Sized>(
+    pub fn seed_specific_parked_cars(
         &mut self,
         lane: LaneID,
         spot_indices: Vec<usize>,
         parking_sim: &mut ParkingSimState,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
     ) -> Vec<CarID> {
         let spots = parking_sim.get_all_spots(lane);
         spot_indices

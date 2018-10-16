@@ -59,7 +59,7 @@ use geom::{Angle, Pt2D};
 pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
 use map_model::{LaneID, Trace, TurnID};
-use rand::{Rng, SeedableRng, XorShiftRng};
+use rand::{RngCore, SeedableRng, XorShiftRng};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim};
 use std::fmt;
@@ -324,6 +324,6 @@ impl Cloneable for Tick {}
 impl Cloneable for MapEdits {}
 impl Cloneable for ABTest {}
 
-fn fork_rng<R: Rng + ?Sized>(base_rng: &mut R) -> XorShiftRng {
+fn fork_rng(base_rng: &mut XorShiftRng) -> XorShiftRng {
     XorShiftRng::from_seed([base_rng.next_u32() as u8; 16])
 }

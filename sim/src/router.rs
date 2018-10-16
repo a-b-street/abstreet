@@ -4,7 +4,7 @@ use kinematics;
 use kinematics::Vehicle;
 use map_model::{BuildingID, LaneID, Map, Trace, Traversable, TurnID};
 use parking::ParkingSimState;
-use rand::Rng;
+use rand::{Rng, XorShiftRng};
 use std::collections::VecDeque;
 use transit::TransitSimState;
 use view::AgentView;
@@ -47,7 +47,7 @@ impl Router {
     // Mutable so we can roam around and try another road to park if the last one is unavailable.
     // It's safe to mutate in a react() phase, because we're observing a fixed state of the world
     // and augmenting the plan, but not the car's actual state.
-    pub fn react_before_lookahead<R: Rng + ?Sized>(
+    pub fn react_before_lookahead(
         &mut self,
         events: &mut Vec<Event>,
         view: &AgentView,
@@ -57,7 +57,7 @@ impl Router {
         parking_sim: &ParkingSimState,
         // Mutable so we can indicate state transitions
         transit_sim: &mut TransitSimState,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
     ) -> Option<Action> {
         if !self.path.is_empty() || view.speed > kinematics::EPSILON_SPEED {
             return None;
@@ -132,12 +132,12 @@ impl Router {
         self.path.pop_front();
     }
 
-    fn look_for_parking<R: Rng + ?Sized>(
+    fn look_for_parking(
         &mut self,
         last_lane: LaneID,
         view: &AgentView,
         map: &Map,
-        rng: &mut R,
+        rng: &mut XorShiftRng,
     ) -> Option<Action> {
         // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
         // to physically see the spots), stay close to the original goal building, avoid lanes

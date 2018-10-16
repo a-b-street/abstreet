@@ -36,7 +36,7 @@ pub struct SeedParkedCars {
 pub struct Neighborhood {
     pub map_name: String,
     pub name: String,
-    // TODO Polygon would be more natural
+    // TODO Polygon would be more natural, but complicates the editor plugin
     pub points: Vec<Pt2D>,
 }
 
