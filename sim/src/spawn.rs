@@ -3,14 +3,16 @@ use driving::DrivingSimState;
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
-use rand::{Rng, SeedableRng, XorShiftRng};
+use rand::Rng;
 use router::Router;
 use std::collections::VecDeque;
 use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
-use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID};
+use {
+    fork_rng, AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
@@ -213,7 +215,7 @@ impl Spawner {
         // Fork a new RNG for each candidate lane. This keeps things more deterministic, invariant
         // of lane edits.
         for l in in_lanes.into_iter() {
-            let mut rng = XorShiftRng::from_seed([base_rng.next_u32() as u8; 16]);
+            let mut rng = fork_rng(base_rng);
 
             for spot in parking_sim.get_free_spots(l) {
                 total_capacity += 1;

@@ -136,7 +136,7 @@ though... Can we fork RNG for that too?
 Problems:
 - CarIDs are different, could make them be original parking spot
 - Missing trip ID, different ped IDs
-- gen_range on different inputs
+= gen_range on different inputs
 
 
 

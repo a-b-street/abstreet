@@ -2,8 +2,8 @@ use abstutil;
 use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, LaneID, Map};
 use rand::Rng;
-use std::collections::HashMap;
-use {ParkedCar, Sim, Tick};
+use std::collections::{BTreeMap, HashMap};
+use {fork_rng, ParkedCar, Sim, Tick};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -101,13 +101,18 @@ impl Scenario {
             );
         }
 
-        let mut parked_cars_per_neighborhood: HashMap<String, Vec<ParkedCar>> = HashMap::new();
+        let mut parked_cars_per_neighborhood: BTreeMap<String, Vec<ParkedCar>> = BTreeMap::new();
         for (name, neighborhood) in &neighborhoods {
             parked_cars_per_neighborhood.insert(
                 name.to_string(),
                 sim.parking_state
                     .get_all_parked_cars(Some(&Polygon::new(&neighborhood.points))),
             );
+        }
+        // Shuffle the list of parked cars, but be sure to fork the RNG to be stable across map
+        // edits.
+        for cars in parked_cars_per_neighborhood.values_mut() {
+            fork_rng(&mut sim.rng).shuffle(cars);
         }
 
         for s in &self.spawn_over_time {
@@ -126,22 +131,16 @@ impl Scenario {
                     .unwrap();
 
                 if sim.rng.gen_bool(s.percent_drive) {
-                    if parked_cars_per_neighborhood[&s.start_from_neighborhood].is_empty() {
-                        panic!(
-                            "{} has no parked cars; can't instantiate {}",
-                            s.start_from_neighborhood, self.scenario_name
-                        );
-                    }
                     // TODO Probably prefer parked cars close to from_bldg, unless the particular
                     // area is tight on parking. :)
-                    let idx = sim.rng.gen_range(
-                        0,
-                        parked_cars_per_neighborhood[&s.start_from_neighborhood].len(),
-                    );
                     let parked_car = parked_cars_per_neighborhood
                         .get_mut(&s.start_from_neighborhood)
                         .unwrap()
-                        .remove(idx);
+                        .pop()
+                        .expect(&format!(
+                            "{} has no parked cars; can't instantiate {}",
+                            s.start_from_neighborhood, self.scenario_name
+                        ));
 
                     sim.spawner.start_trip_using_parked_car(
                         spawn_time,
