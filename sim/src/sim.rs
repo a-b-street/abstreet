@@ -378,6 +378,10 @@ impl Sim {
         }
     }
 
+    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
+        self.trips_state.agent_to_trip(id)
+    }
+
     pub fn get_canonical_point_for_trip(&self, id: TripID, map: &Map) -> Option<Pt2D> {
         // Don't unwrap(); the trip might be registered before the agent has started.
         match self.trips_state.current_mode(id) {

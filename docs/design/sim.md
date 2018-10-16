@@ -135,12 +135,7 @@ though... Can we fork RNG for that too?
 
 Problems:
 - CarIDs are different, could make them be original parking spot
-- Missing trip ID, different ped IDs
 = gen_range on different inputs
-
-
-
-Alright, now how do peds picking a car work?
 
 ## Parked cars and ownership
 
@@ -155,3 +150,41 @@ Given:
 Can then seed parked cars kinda greedily.
 
 But back up, other section.
+
+Alright, now how do peds picking a car work?
+- easy case: if the same car is present in both worlds, should use the same
+- if cars are associated with buildings in a stable way, this should probably
+  help or at least push the problem to a slightly more explicit place
+- if a parking lane is gone and an agent wouldve used something there, of
+  course they have to walk farther to get to their car. but we want to somehow
+  localize these effects. same number of parked cars in the neighborhood and same
+  assignment to buildings, but maybe some other lane gets more crowded?
+
+Next thoughts:
+- scrap the concept of SeedParkedCars. instead say "x% of buildings in this neighborhood have 1 or 2 cars." peds from these buildings will use those specific cars, others wont.
+	- probability of 0 cars = 40, 1 car = 40, 2 cars = 20   <--- thats much nicer
+- go through each building, find a spot to seed that parked car.
+	- try to be close to building, random jitter to be a little far away
+	- if this process is somewhat stable, then should be fine. doesnt need to be perfectly stable -- removing lanes somewhere might put more pressure on another lane.
+
+## Traces between worlds
+
+Alright, now how do we even compare trip progress to show it visually? This is
+kind of a UI-only problem; total score at the end can be compared way more
+easily.
+
+- easy case: if both worlds are using the same mode AND route, trace_route the
+  slower agent with the dist_ahead of the faster agent (difference between the
+  two)
+	- alright, have to track current distance traveled to do this. can keep
+	  state per trip leg or something.
+- if it's unclear who's closer to the goal, could just pathfind to exactly
+  where the other agent is, display in a neutral way
+	- mode changes are potentially weird... but just slide over between sidewalks and driving lanes? mmm...
+- strawman: dont use the trace route thing, just have a straight arrow to the
+  other agent and green/red based on straight-line distance to goal bldg
+- progress is non-monotonic -- might walk away from goal to get to car, then get there faster. or maybe get stuck in traffic. so straightline distance to goal is EXPECTED to fluctuate. thats kind of exciting to watch anyway.
+
+Ah, upon seeing just the line between, I know what would make more sense --
+show the divergence. The point in the route where one version goes one way, and
+the second goes another. Two routes shown, symmetric.

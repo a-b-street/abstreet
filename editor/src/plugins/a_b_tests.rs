@@ -1,5 +1,6 @@
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
 use map_model::Map;
+use objects::ID;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer};
@@ -21,6 +22,7 @@ impl ABTestManager {
     pub fn event(
         &mut self,
         input: &mut UserInput,
+        selected: Option<ID>,
         map: &Map,
         kml: &Option<String>,
         current_flags: &SimFlags,
@@ -29,7 +31,9 @@ impl ABTestManager {
         let mut new_state: Option<ABTestManager> = None;
         match self {
             ABTestManager::Inactive => {
-                if input.unimportant_key_pressed(Key::B, SIM_SETUP, "manage A/B tests") {
+                if selected.is_none()
+                    && input.unimportant_key_pressed(Key::B, SIM_SETUP, "manage A/B tests")
+                {
                     new_state = Some(ABTestManager::PickABTest(Wizard::new()));
                 }
             }

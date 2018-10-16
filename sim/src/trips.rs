@@ -235,6 +235,10 @@ impl TripManager {
             TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped)),
         }
     }
+
+    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
+        self.active_trip_mode[&id]
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

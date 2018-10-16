@@ -5,7 +5,7 @@ use geom::Pt2D;
 use kml::ExtraShapeID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::DrawMap;
-use sim::{CarID, PedestrianID, Sim, TripID};
+use sim::{AgentID, CarID, PedestrianID, Sim, TripID};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -23,6 +23,14 @@ pub enum ID {
 }
 
 impl ID {
+    pub fn agent_id(&self) -> Option<AgentID> {
+        match *self {
+            ID::Car(id) => Some(AgentID::Car(id)),
+            ID::Pedestrian(id) => Some(AgentID::Pedestrian(id)),
+            _ => None,
+        }
+    }
+
     pub fn debug(&self, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
         match *self {
             ID::Lane(id) => {

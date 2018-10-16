@@ -3,6 +3,7 @@ pub mod chokepoints;
 pub mod classification;
 pub mod color_picker;
 pub mod debug_objects;
+pub mod diff_worlds;
 pub mod draw_neighborhoods;
 pub mod floodfill;
 pub mod follow;

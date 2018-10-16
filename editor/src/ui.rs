@@ -16,6 +16,7 @@ use plugins::chokepoints::ChokepointsFinder;
 use plugins::classification::OsmClassifier;
 use plugins::color_picker::ColorPicker;
 use plugins::debug_objects::DebugObjectsState;
+use plugins::diff_worlds::DiffWorldsState;
 use plugins::draw_neighborhoods::DrawNeighborhoodState;
 use plugins::floodfill::Floodfiller;
 use plugins::follow::FollowState;
@@ -80,6 +81,7 @@ impl UIWrapper {
             color_picker: ColorPicker::new(),
             ab_test_manager: ABTestManager::new(),
             logs,
+            diff_worlds: DiffWorldsState::new(),
 
             active_plugin: None,
 
@@ -252,6 +254,7 @@ impl UIWrapper {
                 Box::new(|ctx| {
                     let (active, new_ui) = ctx.ui.ab_test_manager.event(
                         ctx.input,
+                        ctx.ui.primary.current_selection,
                         &ctx.ui.primary.map,
                         &ctx.ui.kml,
                         &ctx.ui.primary.current_flags,
@@ -263,6 +266,11 @@ impl UIWrapper {
                     active
                 }),
                 Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
+                Box::new(|ctx| {
+                    ctx.ui
+                        .diff_worlds
+                        .event(ctx.input, &ctx.ui.primary, &ctx.ui.secondary)
+                }),
             ],
         }
     }
@@ -361,6 +369,7 @@ struct UI {
     color_picker: ColorPicker,
     ab_test_manager: ABTestManager,
     logs: DisplayLogs,
+    diff_worlds: DiffWorldsState,
 
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
@@ -550,6 +559,7 @@ impl UI {
         self.warp.draw(g, &self.canvas);
         self.sim_ctrl.draw(g, &self.canvas);
         self.primary.show_route.draw(g, &self.cs);
+        self.diff_worlds.draw(g, &self.cs);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
@@ -604,6 +614,7 @@ impl UI {
             19 => Some(Box::new(&self.primary.chokepoints)),
             20 => Some(Box::new(&self.ab_test_manager)),
             21 => Some(Box::new(&self.logs)),
+            22 => Some(Box::new(&self.diff_worlds)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
