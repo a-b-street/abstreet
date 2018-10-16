@@ -59,6 +59,7 @@ impl SimController {
             match primary.sim.load_most_recent() {
                 Ok(new_sim) => {
                     primary.sim = new_sim;
+                    primary.recalculate_current_selection = true;
                     self.benchmark = None;
 
                     if let Some(s) = secondary {
@@ -80,6 +81,7 @@ impl SimController {
                 self.benchmark = Some(primary.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
                 primary.sim.step(&primary.map, &primary.control_map);
+                primary.recalculate_current_selection = true;
                 if let Some(s) = secondary {
                     s.sim.step(&s.map, &s.control_map);
                 }
@@ -93,12 +95,13 @@ impl SimController {
                 let mut the_secondary = secondary.take();
                 the_secondary.as_mut().map(|s| mem::swap(primary, s));
                 *secondary = the_secondary;
-                // TODO Any time the screen changes, need to recalculate mouseover state
+                primary.recalculate_current_selection = true;
             }
         } else {
             // Interactively spawning stuff would ruin an A/B test, don't allow it
             if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
                 primary.sim.small_spawn(&primary.map);
+                primary.recalculate_current_selection = true;
             }
             match primary.current_selection {
                 Some(ID::Car(id)) => {
@@ -123,6 +126,7 @@ impl SimController {
                 let dt_s = elapsed_seconds(tick);
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
                     primary.sim.step(&primary.map, &primary.control_map);
+                    primary.recalculate_current_selection = true;
                     if let Some(s) = secondary {
                         s.sim.step(&s.map, &s.control_map);
                     }

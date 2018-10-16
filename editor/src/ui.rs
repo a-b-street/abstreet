@@ -109,7 +109,7 @@ impl UIWrapper {
             plugins: vec![
                 Box::new(|ctx| {
                     if ctx.ui.layers.event(ctx.input) {
-                        ctx.ui.primary.current_selection = ctx.ui.mouseover_something();
+                        ctx.ui.primary.recalculate_current_selection = true;
                         true
                     } else {
                         false
@@ -278,6 +278,7 @@ pub struct PerMapUI {
     pub sim: Sim,
 
     pub current_selection: Option<ID>,
+    pub recalculate_current_selection: bool,
     current_flags: SimFlags,
 
     // Anything that holds onto any kind of ID has to live here!
@@ -325,6 +326,7 @@ impl PerMapUI {
             sim,
 
             current_selection: None,
+            recalculate_current_selection: false,
             current_flags: flags,
 
             hider: Hider::new(),
@@ -464,6 +466,12 @@ impl UI {
         let result = self
             .sim_ctrl
             .event(&mut input, &mut self.primary, &mut self.secondary, osd);
+
+        if self.primary.recalculate_current_selection {
+            self.primary.recalculate_current_selection = false;
+            self.primary.current_selection = self.mouseover_something();
+        }
+
         input.populate_osd(osd);
         result
     }
