@@ -108,12 +108,39 @@ more things invariant.
 Alright, the deviations are still starting too early!
 - Swapping shouldn't show different parked cars when the parking lane is present in both sims... or should it?
 	- If 50% of spots in a neighborhood need to be initially populated, then more or less options for those DOES affect it.
+		- the problem seems like "seed 50% of parked car spots in this area" is too vague. but theres also a desire that scenarios remain human-readable, high-level.
 - Peds are picking very different parked cars in the neighborhood to go drive, causing big deviations early on.
 
 Can we avoid storing trip/parked car mappings in the scenario?
 - if peds pick the parked car closest to their start building... maybe
 
-Maybe it's time to rethink how parked cars are matched up to trips...
+### Idea: forking RNGs
+
+50% of spots filled isn't really accurate -- we're saying for every spot, flip
+a coin with some weight. The flips are independent. We can regain an amount of
+determinism by forking RNGs -- for every single lane in the map, use the main
+RNG to generate a new RNG. Use that new RNG only if it really is a parking
+lane.
+
+Cool, much closer to working! Spots are consistently filled out or not. Car
+colors are different, because car IDs are different. Making CarIDs consistent
+would require changing them to have a stable form -- namely, their original
+parking spot (lane ID and an offset). We _could_ do that...
+
+But also wait, ped IDs are a bit different in some cases, and a trip is missing
+entirely... huh?
+
+Ah, we call gen_range on different inputs. Not sure why that throws off IDs
+though... Can we fork RNG for that too?
+
+Problems:
+- CarIDs are different, could make them be original parking spot
+- Missing trip ID, different ped IDs
+- gen_range on different inputs
+
+
+
+Alright, now how do peds picking a car work?
 
 ## Parked cars and ownership
 

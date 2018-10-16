@@ -1,6 +1,6 @@
 use abstutil;
 use geom::{Polygon, Pt2D};
-use map_model::{BuildingID, Map};
+use map_model::{BuildingID, LaneID, Map};
 use rand::Rng;
 use std::collections::HashMap;
 use {ParkedCar, Sim, Tick};
@@ -26,16 +26,6 @@ pub struct SpawnOverTime {
     pub go_to_neighborhood: String,
 }
 
-// One SpawnOverTime produces many of these. This intermediate structure is just here to make some
-// RNG calls at the beginning of scenario instantiation that are independent of map edits.
-struct Spawn {
-    spawn_time: Tick,
-    from_bldg: BuildingID,
-    to_bldg: BuildingID,
-    drive: bool,
-    start_from_neighborhood: String,
-}
-
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SeedParkedCars {
     pub neighborhood: String,
@@ -59,6 +49,19 @@ impl Neighborhood {
         for b in map.all_buildings() {
             if poly.contains_pt(Pt2D::center(&b.points)) {
                 results.push(b.id);
+            }
+        }
+        results
+    }
+
+    // TODO This should use quadtrees and/or not just match the first point of each lane.
+    fn find_matching_lanes(&self, map: &Map) -> Vec<LaneID> {
+        let poly = Polygon::new(&self.points);
+
+        let mut results: Vec<LaneID> = Vec::new();
+        for l in map.all_lanes() {
+            if poly.contains_pt(l.first_pt()) {
+                results.push(l.id);
             }
         }
         results
@@ -91,8 +94,22 @@ impl Scenario {
                 .insert(name.to_string(), neighborhood.find_matching_buildings(map));
         }
 
-        // spawn_list doesn't depend on MapEdits, so the RNG isn't sensitive yet.
-        let mut spawn_list: Vec<Spawn> = Vec::new();
+        for s in &self.seed_parked_cars {
+            sim.seed_parked_cars(
+                neighborhoods[&s.neighborhood].find_matching_lanes(map),
+                s.percent_to_fill,
+            );
+        }
+
+        let mut parked_cars_per_neighborhood: HashMap<String, Vec<ParkedCar>> = HashMap::new();
+        for (name, neighborhood) in &neighborhoods {
+            parked_cars_per_neighborhood.insert(
+                name.to_string(),
+                sim.parking_state
+                    .get_all_parked_cars(Some(&Polygon::new(&neighborhood.points))),
+            );
+        }
+
         for s in &self.spawn_over_time {
             for _ in 0..s.num_agents {
                 // TODO normal distribution, not uniform
@@ -107,73 +124,43 @@ impl Scenario {
                     .rng
                     .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
                     .unwrap();
-                let drive = sim.rng.gen_bool(s.percent_drive);
 
-                spawn_list.push(Spawn {
-                    spawn_time,
-                    from_bldg,
-                    to_bldg,
-                    drive,
-                    start_from_neighborhood: s.start_from_neighborhood.clone(),
-                });
-            }
-        }
+                if sim.rng.gen_bool(s.percent_drive) {
+                    if parked_cars_per_neighborhood[&s.start_from_neighborhood].is_empty() {
+                        panic!(
+                            "{} has no parked cars; can't instantiate {}",
+                            s.start_from_neighborhood, self.scenario_name
+                        );
+                    }
+                    // TODO Probably prefer parked cars close to from_bldg, unless the particular
+                    // area is tight on parking. :)
+                    let idx = sim.rng.gen_range(
+                        0,
+                        parked_cars_per_neighborhood[&s.start_from_neighborhood].len(),
+                    );
+                    let parked_car = parked_cars_per_neighborhood
+                        .get_mut(&s.start_from_neighborhood)
+                        .unwrap()
+                        .remove(idx);
 
-        // Now do stuff that's sensitive to small map edits. The RNG can get thrown off in an A/B
-        // test wildly here by adding/removing a parking lane, for example.
-        for s in &self.seed_parked_cars {
-            sim.seed_parked_cars(
-                Some(&Polygon::new(&neighborhoods[&s.neighborhood].points)),
-                s.percent_to_fill,
-            );
-        }
-
-        let mut parked_cars_per_neighborhood: HashMap<String, Vec<ParkedCar>> = HashMap::new();
-        for (name, neighborhood) in &neighborhoods {
-            parked_cars_per_neighborhood.insert(
-                name.to_string(),
-                sim.parking_state
-                    .get_all_parked_cars(Some(&Polygon::new(&neighborhood.points))),
-            );
-        }
-
-        // Now execute the spawn list
-        for s in spawn_list.into_iter() {
-            if s.drive {
-                if parked_cars_per_neighborhood[&s.start_from_neighborhood].is_empty() {
-                    panic!(
-                        "{} has no parked cars; can't instantiate {}",
-                        s.start_from_neighborhood, self.scenario_name
+                    sim.spawner.start_trip_using_parked_car(
+                        spawn_time,
+                        map,
+                        parked_car,
+                        &sim.parking_state,
+                        from_bldg,
+                        to_bldg,
+                        &mut sim.trips_state,
+                    );
+                } else {
+                    sim.spawner.start_trip_just_walking(
+                        spawn_time,
+                        map,
+                        from_bldg,
+                        to_bldg,
+                        &mut sim.trips_state,
                     );
                 }
-                // TODO Probably prefer parked cars close to from_bldg, unless the particular
-                // area is tight on parking. :)
-                let idx = sim.rng.gen_range(
-                    0,
-                    parked_cars_per_neighborhood[&s.start_from_neighborhood].len(),
-                );
-                let parked_car = parked_cars_per_neighborhood
-                    .get_mut(&s.start_from_neighborhood)
-                    .unwrap()
-                    .remove(idx);
-
-                sim.spawner.start_trip_using_parked_car(
-                    s.spawn_time,
-                    map,
-                    parked_car,
-                    &sim.parking_state,
-                    s.from_bldg,
-                    s.to_bldg,
-                    &mut sim.trips_state,
-                );
-            } else {
-                sim.spawner.start_trip_just_walking(
-                    s.spawn_time,
-                    map,
-                    s.from_bldg,
-                    s.to_bldg,
-                    &mut sim.trips_state,
-                );
             }
         }
     }

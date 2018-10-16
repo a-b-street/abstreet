@@ -1,10 +1,9 @@
 use abstutil::elapsed_seconds;
 use driving::DrivingSimState;
-use geom::Polygon;
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
 use parking::ParkingSimState;
-use rand::Rng;
+use rand::{Rng, SeedableRng, XorShiftRng};
 use router::Router;
 use std::collections::VecDeque;
 use std::time::Instant;
@@ -203,30 +202,35 @@ impl Spawner {
     pub fn seed_parked_cars<R: Rng + ?Sized>(
         &mut self,
         percent_capacity_to_fill: f64,
-        in_poly: Option<&Polygon>,
+        in_lanes: Vec<LaneID>,
         parking_sim: &mut ParkingSimState,
-        rng: &mut R,
+        base_rng: &mut R,
     ) {
         assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
 
         let mut total_capacity = 0;
         let mut new_cars = 0;
-        for spot in parking_sim.get_all_free_spots(in_poly) {
-            total_capacity += 1;
-            if rng.gen_bool(percent_capacity_to_fill) {
-                new_cars += 1;
-                let car = CarID(self.car_id_counter);
-                // TODO since spawning applies during the next step, lots of stuff breaks without
-                // this :(
-                parking_sim.add_parked_car(ParkedCar::new(
-                    car,
-                    spot,
-                    Vehicle::generate_typical_car(car, rng),
-                ));
-                self.car_id_counter += 1;
+        // Fork a new RNG for each candidate lane. This keeps things more deterministic, invariant
+        // of lane edits.
+        for l in in_lanes.into_iter() {
+            let mut rng = XorShiftRng::from_seed([base_rng.next_u32() as u8; 16]);
+
+            for spot in parking_sim.get_free_spots(l) {
+                total_capacity += 1;
+                if rng.gen_bool(percent_capacity_to_fill) {
+                    new_cars += 1;
+                    let car = CarID(self.car_id_counter);
+                    // TODO since spawning applies during the next step, lots of stuff breaks without
+                    // this :(
+                    parking_sim.add_parked_car(ParkedCar::new(
+                        car,
+                        spot,
+                        Vehicle::generate_typical_car(car, &mut rng),
+                    ));
+                    self.car_id_counter += 1;
+                }
             }
         }
-
         info!(
             "Seeded {} of {} parking spots with cars",
             new_cars, total_capacity

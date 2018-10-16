@@ -93,6 +93,7 @@ impl SimController {
                 let mut the_secondary = secondary.take();
                 the_secondary.as_mut().map(|s| mem::swap(primary, s));
                 *secondary = the_secondary;
+                // TODO Any time the screen changes, need to recalculate mouseover state
             }
         } else {
             // Interactively spawning stuff would ruin an A/B test, don't allow it

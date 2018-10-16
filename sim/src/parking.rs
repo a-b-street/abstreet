@@ -47,19 +47,12 @@ impl ParkingSimState {
             .collect()
     }
 
-    pub fn get_all_free_spots(&self, in_poly: Option<&Polygon>) -> Vec<ParkingSpot> {
+    pub fn get_free_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
+        let l = &self.lanes[lane.0];
         let mut spots: Vec<ParkingSpot> = Vec::new();
-        for l in &self.lanes {
-            for (idx, maybe_occupant) in l.occupants.iter().enumerate() {
-                if maybe_occupant.is_none() {
-                    // Just match based on the front of the spot
-                    if in_poly
-                        .map(|p| p.contains_pt(l.spots[idx].pos))
-                        .unwrap_or(true)
-                    {
-                        spots.push(ParkingSpot::new(l.id, idx));
-                    }
-                }
+        for (idx, maybe_occupant) in l.occupants.iter().enumerate() {
+            if maybe_occupant.is_none() {
+                spots.push(ParkingSpot::new(l.id, idx));
             }
         }
         spots
