@@ -2,7 +2,7 @@ use abstutil::elapsed_seconds;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use objects::{ID, SIM};
 use piston::input::Key;
-use sim::{Benchmark, ScoreSummary, TIMESTEP};
+use sim::{Benchmark, CarState, ScoreSummary, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
 use ui::PerMapUI;
@@ -105,7 +105,9 @@ impl SimController {
             }
             match primary.current_selection {
                 Some(ID::Car(id)) => {
-                    if input.key_pressed(Key::A, "start this parked car") {
+                    if primary.sim.get_car_state(id) == CarState::Parked
+                        && input.key_pressed(Key::A, "start this parked car")
+                    {
                         primary.sim.start_parked_car(&primary.map, id);
                     }
                 }

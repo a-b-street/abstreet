@@ -253,6 +253,7 @@ fn time_parsing() {
     assert_eq!(Tick::parse("01:02:03.5"), Some(Tick(35 + 1200 + 36000)));
 }
 
+#[derive(PartialEq, Eq)]
 pub enum CarState {
     Moving,
     Stuck,
