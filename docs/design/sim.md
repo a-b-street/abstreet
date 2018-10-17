@@ -171,8 +171,8 @@ Next thoughts:
 steps for this change:
 = give cars an optional building as an owner, make a query for parking sim to find available cars, hook up UI debug
 	= initially randomly assign a building in the neighborhood
-- start seeding parked cars per building instead of per spot
-	- make sure stability is vaguely preserved
+= start seeding parked cars per building instead of per spot
+	= make sure stability is vaguely preserved
 - make peds that'll use a car pick from a house with an available car
 
 ## Traces between worlds

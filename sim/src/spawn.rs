@@ -217,7 +217,8 @@ impl Spawner {
     ) {
         assert!(percent_buildings_with_one_car >= 0.0 && percent_buildings_with_one_car <= 1.0);
 
-        // TODO This is probably temporary.
+        // TODO This is temporary. It's very unstable -- few extra or missing spots changes the
+        // shuffling dramatically.
         let mut all_open_spots: Vec<ParkingSpot> = Vec::new();
         for l in in_lanes.into_iter() {
             all_open_spots.extend(parking_sim.get_free_spots(l));

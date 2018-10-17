@@ -29,9 +29,11 @@ impl DiffWorldsState {
             DiffWorldsState::Inactive => {
                 if secondary.is_some() {
                     if let Some(id) = primary.current_selection.and_then(|id| id.agent_id()) {
-                        let trip = primary.sim.agent_to_trip(id);
-                        if input.key_pressed(Key::B, &format!("Show {}'s parallel world", trip)) {
-                            maybe_trip = Some(trip);
+                        if let Some(trip) = primary.sim.agent_to_trip(id) {
+                            if input.key_pressed(Key::B, &format!("Show {}'s parallel world", trip))
+                            {
+                                maybe_trip = Some(trip);
+                            }
                         }
                     }
                 }

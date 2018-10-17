@@ -236,8 +236,8 @@ impl TripManager {
         }
     }
 
-    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
-        self.active_trip_mode[&id]
+    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
+        self.active_trip_mode.get(&id).map(|t| *t)
     }
 }
 
