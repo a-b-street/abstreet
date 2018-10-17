@@ -116,7 +116,8 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     if wizard.choose_string("What kind of edit?", vec![seed_parked, spawn])? == seed_parked {
         scenario.seed_parked_cars.push(SeedParkedCars {
             neighborhood: choose_neighborhood(map, &mut wizard, "Seed parked cars in what area?")?,
-            percent_to_fill: wizard.input_percent("What percent of parking spots to populate?")?,
+            percent_buildings_with_car: wizard
+                .input_percent("What percent of buildings have 1 parked car nearby?")?,
         });
         Some(())
     } else {

@@ -209,41 +209,49 @@ impl Spawner {
     // This happens immediately; it isn't scheduled.
     pub fn seed_parked_cars(
         &mut self,
-        percent_capacity_to_fill: f64,
+        percent_buildings_with_one_car: f64,
         in_lanes: Vec<LaneID>,
         owner_buildings: &Vec<BuildingID>,
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
     ) {
-        assert!(percent_capacity_to_fill >= 0.0 && percent_capacity_to_fill <= 1.0);
+        assert!(percent_buildings_with_one_car >= 0.0 && percent_buildings_with_one_car <= 1.0);
 
-        let mut total_capacity = 0;
-        let mut new_cars = 0;
-        // Fork a new RNG for each candidate lane. This keeps things more deterministic, invariant
-        // of lane edits.
+        // TODO This is probably temporary.
+        let mut all_open_spots: Vec<ParkingSpot> = Vec::new();
         for l in in_lanes.into_iter() {
-            let mut rng = fork_rng(base_rng);
+            all_open_spots.extend(parking_sim.get_free_spots(l));
+        }
+        fork_rng(base_rng).shuffle(&mut all_open_spots);
+        let total_spots = all_open_spots.len();
 
-            for spot in parking_sim.get_free_spots(l) {
-                total_capacity += 1;
-                if rng.gen_bool(percent_capacity_to_fill) {
-                    new_cars += 1;
-                    let car = CarID(self.car_id_counter);
-                    // TODO since spawning applies during the next step, lots of stuff breaks without
-                    // this :(
-                    parking_sim.add_parked_car(ParkedCar::new(
-                        car,
-                        spot,
-                        Vehicle::generate_typical_car(car, &mut rng),
-                        Some(*rng.choose(owner_buildings).unwrap()),
-                    ));
-                    self.car_id_counter += 1;
-                }
+        let mut new_cars = 0;
+        for b in owner_buildings {
+            if base_rng.gen_bool(percent_buildings_with_one_car) {
+                // Pick a parking spot for this building.
+                // TODO Prefer spots closer to the building
+                let spot = all_open_spots
+                    .pop()
+                    .expect("No available parking spots left to seed");
+                new_cars += 1;
+                let car = CarID(self.car_id_counter);
+                // TODO since spawning applies during the next step, lots of stuff breaks without
+                // this :(
+                parking_sim.add_parked_car(ParkedCar::new(
+                    car,
+                    spot,
+                    Vehicle::generate_typical_car(car, base_rng),
+                    Some(*b),
+                ));
+                self.car_id_counter += 1;
             }
         }
+
         info!(
-            "Seeded {} of {} parking spots with cars",
-            new_cars, total_capacity
+            "Seeded {} of {} parking spots with cars, leaving {} buildings without cars",
+            new_cars,
+            total_spots,
+            owner_buildings.len() - new_cars
         );
     }
 

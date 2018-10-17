@@ -29,7 +29,8 @@ pub struct SpawnOverTime {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SeedParkedCars {
     pub neighborhood: String,
-    pub percent_to_fill: f64,
+    // TODO Ask for more detail -- chances of a building have 0, 1, 2, 3, ... cars
+    pub percent_buildings_with_car: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -98,7 +99,7 @@ impl Scenario {
             sim.seed_parked_cars(
                 neighborhoods[&s.neighborhood].find_matching_lanes(map),
                 &bldgs_per_neighborhood[&s.neighborhood],
-                s.percent_to_fill,
+                s.percent_buildings_with_car,
             );
         }
 
