@@ -2,8 +2,8 @@ use abstutil;
 use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, LaneID, Map};
 use rand::Rng;
-use std::collections::{BTreeMap, HashMap};
-use {fork_rng, ParkedCar, Sim, Tick};
+use std::collections::{HashMap, HashSet};
+use {CarID, Sim, Tick};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -20,8 +20,6 @@ pub struct SpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
-    // [0, 1]. The rest will walk, using transit if useful.
-    pub percent_drive: f64,
     pub start_from_neighborhood: String,
     pub go_to_neighborhood: String,
 }
@@ -103,20 +101,8 @@ impl Scenario {
             );
         }
 
-        let mut parked_cars_per_neighborhood: BTreeMap<String, Vec<ParkedCar>> = BTreeMap::new();
-        for (name, neighborhood) in &neighborhoods {
-            parked_cars_per_neighborhood.insert(
-                name.to_string(),
-                sim.parking_state
-                    .get_all_parked_cars(Some(&Polygon::new(&neighborhood.points))),
-            );
-        }
-        // Shuffle the list of parked cars, but be sure to fork the RNG to be stable across map
-        // edits.
-        for cars in parked_cars_per_neighborhood.values_mut() {
-            fork_rng(&mut sim.rng).shuffle(cars);
-        }
-
+        // Don't let two pedestrians starting from one building use the same car.
+        let mut reserved_cars: HashSet<CarID> = HashSet::new();
         for s in &self.spawn_over_time {
             for _ in 0..s.num_agents {
                 // TODO normal distribution, not uniform
@@ -132,22 +118,18 @@ impl Scenario {
                     .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
                     .unwrap();
 
-                if sim.rng.gen_bool(s.percent_drive) {
-                    // TODO Probably prefer parked cars close to from_bldg, unless the particular
-                    // area is tight on parking. :)
-                    let parked_car = parked_cars_per_neighborhood
-                        .get_mut(&s.start_from_neighborhood)
-                        .unwrap()
-                        .pop()
-                        .expect(&format!(
-                            "{} has no parked cars; can't instantiate {}",
-                            s.start_from_neighborhood, self.scenario_name
-                        ));
-
+                // Will they drive or not?
+                if let Some(parked_car) = sim
+                    .parking_state
+                    .get_parked_cars_by_owner(from_bldg)
+                    .into_iter()
+                    .find(|p| !reserved_cars.contains(&p.car))
+                {
+                    reserved_cars.insert(parked_car.car);
                     sim.spawner.start_trip_using_parked_car(
                         spawn_time,
                         map,
-                        parked_car,
+                        parked_car.clone(),
                         &sim.parking_state,
                         from_bldg,
                         to_bldg,

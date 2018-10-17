@@ -173,7 +173,10 @@ steps for this change:
 	= initially randomly assign a building in the neighborhood
 = start seeding parked cars per building instead of per spot
 	= make sure stability is vaguely preserved
-- make peds that'll use a car pick from a house with an available car
+= make peds that'll use a car pick from a house with an available car
+	= should we even specify this, or should they pick mode at the
+	  beginning based on availability? leaning towards this option since
+          it's easier to implement right now and seems more natural
 
 ## Traces between worlds
 

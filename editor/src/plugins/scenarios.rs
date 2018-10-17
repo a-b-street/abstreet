@@ -126,7 +126,6 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
             start_tick: input_tick(&mut wizard, "Start spawning when?")?,
             // TODO input interval, or otherwise enforce stop_tick > start_tick
             stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
-            percent_drive: wizard.input_percent("What percent should drive?")?,
             start_from_neighborhood: choose_neighborhood(
                 map,
                 &mut wizard,
