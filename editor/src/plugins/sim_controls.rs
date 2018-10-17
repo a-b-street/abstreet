@@ -99,7 +99,9 @@ impl SimController {
             }
         } else {
             // Interactively spawning stuff would ruin an A/B test, don't allow it
-            if input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents") {
+            if primary.sim.is_empty()
+                && input.unimportant_key_pressed(Key::S, SIM, "Seed the map with agents")
+            {
                 primary.sim.small_spawn(&primary.map);
                 primary.recalculate_current_selection = true;
             }

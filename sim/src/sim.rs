@@ -265,6 +265,10 @@ impl Sim {
         )
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.time == Tick::zero() && self.is_done()
+    }
+
     pub fn is_done(&self) -> bool {
         self.driving_state.is_done() && self.walking_state.is_done() && self.spawner.is_done()
     }
