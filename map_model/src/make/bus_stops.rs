@@ -18,10 +18,10 @@ pub fn make_bus_stops(
     let mut route_lookups: MultiMap<String, HashablePt2D> = MultiMap::new();
     for route in bus_routes {
         for gps in &route.stops {
-            if bounds.contains(gps.longitude, gps.latitude) {
-                let pt: HashablePt2D = Pt2D::from_gps(&gps, bounds).into();
-                bus_stop_pts.insert(pt);
-                route_lookups.insert(route.name.to_string(), pt);
+            if let Some(pt) = Pt2D::from_gps(*gps, bounds) {
+                let hash_pt: HashablePt2D = pt.into();
+                bus_stop_pts.insert(hash_pt);
+                route_lookups.insert(route.name.to_string(), hash_pt);
             }
         }
     }

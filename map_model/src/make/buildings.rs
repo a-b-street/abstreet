@@ -18,7 +18,7 @@ pub(crate) fn make_all_buildings(
         let pts = b
             .points
             .iter()
-            .map(|coord| Pt2D::from_gps(coord, bounds))
+            .map(|coord| Pt2D::from_gps(*coord, bounds).unwrap())
             .collect();
         let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_bldg.push(pts);

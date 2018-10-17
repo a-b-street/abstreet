@@ -37,9 +37,8 @@ fn convert_polygon(input: PolygonType, name: String, map_name: String, bounds: &
     let mut points: Vec<Pt2D> = Vec::new();
     for pt in &input[0] {
         assert_eq!(pt.len(), 2);
-        let gps = LonLat::new(pt[0], pt[1]);
-        if bounds.contains(gps.longitude, gps.latitude) {
-            points.push(Pt2D::from_gps(&gps, bounds))
+        if let Some(pt) = Pt2D::from_gps(LonLat::new(pt[0], pt[1]), bounds) {
+            points.push(pt);
         } else {
             println!(
                 "Neighborhood polygon \"{}\" is out-of-bounds, skipping",

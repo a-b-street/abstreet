@@ -85,7 +85,8 @@ impl DrawMap {
 
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
-        let max_screen_pt = Pt2D::from_gps(&LonLat::new(bounds.max_x, bounds.min_y), &bounds);
+        let max_screen_pt =
+            Pt2D::from_gps(LonLat::new(bounds.max_x, bounds.min_y), &bounds).unwrap();
         let map_bbox = Rect {
             top_left: Point { x: 0.0, y: 0.0 },
             bottom_right: Point {

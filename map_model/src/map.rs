@@ -75,7 +75,7 @@ impl Map {
 
         for (idx, i) in data.intersections.iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = Pt2D::from_gps(&i.point, &bounds);
+            let pt = Pt2D::from_gps(i.point, &bounds).unwrap();
             m.intersections.push(Intersection {
                 id,
                 point: pt,
@@ -94,7 +94,7 @@ impl Map {
             let road_center_pts = PolyLine::new(
                 r.points
                     .iter()
-                    .map(|coord| Pt2D::from_gps(coord, &bounds))
+                    .map(|coord| Pt2D::from_gps(*coord, &bounds).unwrap())
                     .collect(),
             );
 
@@ -198,7 +198,7 @@ impl Map {
                 points: a
                     .points
                     .iter()
-                    .map(|coord| Pt2D::from_gps(coord, &bounds))
+                    .map(|coord| Pt2D::from_gps(*coord, &bounds).unwrap())
                     .collect(),
                 osm_tags: a.osm_tags.clone(),
                 osm_way_id: a.osm_way_id,

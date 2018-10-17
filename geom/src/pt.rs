@@ -28,14 +28,15 @@ impl Pt2D {
         Pt2D { x, y }
     }
 
-    pub fn from_gps(gps: &LonLat, b: &Bounds) -> Pt2D {
+    pub fn from_gps(gps: LonLat, b: &Bounds) -> Option<Pt2D> {
         // TODO hack to construct test maps more easily
         if b.represents_world_space {
-            return Pt2D::new(gps.longitude, gps.latitude);
+            return Some(Pt2D::new(gps.longitude, gps.latitude));
         }
 
-        // If not, havoc ensues
-        assert!(b.contains(gps.longitude, gps.latitude));
+        if !b.contains(gps.longitude, gps.latitude) {
+            return None;
+        }
 
         // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
         let base = LonLat::new(b.min_x, b.max_y);
@@ -46,7 +47,7 @@ impl Pt2D {
         let dy = base.gps_dist_meters(LonLat::new(base.longitude, gps.latitude)) + f64::EPSILON;
         // By default, 1 meter is one pixel. Normal zooming can change that. If we did scaling here,
         // then we'd have to update all of the other constants too.
-        Pt2D::new(dx, dy)
+        Some(Pt2D::new(dx, dy))
     }
 
     pub fn x(&self) -> f64 {

@@ -60,7 +60,7 @@ impl Neighborhood {
     fn make_everywhere(map: &Map) -> Neighborhood {
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
-        let max = Pt2D::from_gps(&LonLat::new(bounds.max_x, bounds.min_y), &bounds);
+        let max = Pt2D::from_gps(LonLat::new(bounds.max_x, bounds.min_y), &bounds).unwrap();
 
         Neighborhood {
             map_name: map.get_name().to_string(),

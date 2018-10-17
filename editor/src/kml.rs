@@ -128,11 +128,7 @@ fn parse_pt(input: &str, gps_bounds: &Bounds) -> Option<Pt2D> {
         return None;
     }
     return match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
-        (Ok(lon), Ok(lat)) => if gps_bounds.contains(lon, lat) {
-            Some(Pt2D::from_gps(&LonLat::new(lon, lat), gps_bounds))
-        } else {
-            None
-        },
+        (Ok(lon), Ok(lat)) => Pt2D::from_gps(LonLat::new(lon, lat), gps_bounds),
         _ => None,
     };
 }
