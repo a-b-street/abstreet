@@ -202,16 +202,17 @@ impl Sim {
         self.intersection_state
             .step(&mut events, self.time, map, control_map, &view);
 
-        // Savestate?
-        if let Some(t) = self.savestate_every {
-            if self.time.is_multiple_of(t) && self.time != Tick::zero() {
-                self.save();
-            }
-        }
-
         // Do this at the end of the step, so that tick 0 actually occurs and things can happen
         // then.
         self.time = self.time.next();
+
+        // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
+        // savestate, run a step, and invalidly save over it.
+        if let Some(t) = self.savestate_every {
+            if self.time.is_multiple_of(t) {
+                self.save();
+            }
+        }
 
         Ok(events)
     }
