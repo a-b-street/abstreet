@@ -1,5 +1,5 @@
 use abstutil;
-use geom::{Polygon, Pt2D};
+use geom::{LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, Map};
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
@@ -56,6 +56,24 @@ impl Neighborhood {
     pub fn save(&self) {
         abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
     }
+
+    fn make_everywhere(map: &Map) -> Neighborhood {
+        // min_y here due to the wacky y inversion
+        let bounds = map.get_gps_bounds();
+        let max = Pt2D::from_gps(&LonLat::new(bounds.max_x, bounds.min_y), &bounds);
+
+        Neighborhood {
+            map_name: map.get_name().to_string(),
+            name: "_everywhere_".to_string(),
+            points: vec![
+                Pt2D::new(0.0, 0.0),
+                Pt2D::new(max.x(), 0.0),
+                max,
+                Pt2D::new(0.0, max.y()),
+                Pt2D::new(0.0, 0.0),
+            ],
+        }
+    }
 }
 
 impl Scenario {
@@ -70,10 +88,15 @@ impl Scenario {
         info!("Instantiating {}", self.scenario_name);
         assert!(sim.time == Tick::zero());
 
-        let neighborhoods: HashMap<String, Neighborhood> =
+        let mut neighborhoods: HashMap<String, Neighborhood> =
             abstutil::load_all_objects("neighborhoods", &self.map_name)
                 .into_iter()
                 .collect();
+        neighborhoods.insert(
+            "_everywhere_".to_string(),
+            Neighborhood::make_everywhere(map),
+        );
+
         let mut bldgs_per_neighborhood: HashMap<String, Vec<BuildingID>> = HashMap::new();
         for (name, neighborhood) in &neighborhoods {
             bldgs_per_neighborhood

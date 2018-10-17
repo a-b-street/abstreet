@@ -510,16 +510,18 @@ fn find_spot_near_building(
 
     loop {
         let r = roads_queue.pop_front()?;
-        let spots = open_spots_per_road.get_mut(&r).unwrap();
-        // TODO With some probability, skip this available spot and park farther away
-        if !spots.is_empty() {
-            return spots.pop();
-        }
+        // Don't floodfill out of the neighborhood
+        if let Some(spots) = open_spots_per_road.get_mut(&r) {
+            // TODO With some probability, skip this available spot and park farther away
+            if !spots.is_empty() {
+                return spots.pop();
+            }
 
-        for next_r in map.get_next_roads(r).into_iter() {
-            if !visited.contains(&next_r) {
-                roads_queue.push_back(next_r);
-                visited.insert(next_r);
+            for next_r in map.get_next_roads(r).into_iter() {
+                if !visited.contains(&next_r) {
+                    roads_queue.push_back(next_r);
+                    visited.insert(next_r);
+                }
             }
         }
     }

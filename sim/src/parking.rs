@@ -1,4 +1,4 @@
-use geom::{Angle, Polygon, Pt2D};
+use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
@@ -92,24 +92,6 @@ impl ParkingSimState {
             }
         }
         None
-    }
-
-    pub fn get_all_parked_cars(&self, in_poly: Option<&Polygon>) -> Vec<ParkedCar> {
-        let mut result = Vec::new();
-        for l in &self.lanes {
-            for maybe_occupant in &l.occupants {
-                if let Some(occupant) = maybe_occupant {
-                    // Just match based on the front of the spot
-                    if in_poly
-                        .map(|p| p.contains_pt(l.spots[occupant.spot.idx].pos))
-                        .unwrap_or(true)
-                    {
-                        result.push(occupant.clone());
-                    }
-                }
-            }
-        }
-        result
     }
 
     pub fn get_first_free_spot(&self, lane: LaneID, dist_along: Distance) -> Option<ParkingSpot> {

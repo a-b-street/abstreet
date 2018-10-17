@@ -199,3 +199,9 @@ easily.
 Ah, upon seeing just the line between, I know what would make more sense --
 show the divergence. The point in the route where one version goes one way, and
 the second goes another. Two routes shown, symmetric.
+
+## Interactive spawning commands
+
+I no longer imagine a use case for these controls other than debugging /
+playing around. It's very unclear how it interacts with the new scenario stuff.
+Going to remove these for now.
