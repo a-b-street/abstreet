@@ -240,6 +240,7 @@ impl Sim {
     pub fn seed_specific_parked_cars(
         &mut self,
         lane: LaneID,
+        // One owner of many spots, kind of weird, but hey, tests. :D
         owner: BuildingID,
         spots: Vec<usize>,
     ) -> Vec<CarID> {
@@ -278,6 +279,20 @@ impl Sim {
             self.time.next(),
             map,
             from,
+            to,
+            &mut self.trips_state,
+        );
+    }
+
+    pub fn make_ped_using_car(&mut self, map: &Map, car: CarID, to: BuildingID) {
+        let parked = self.parking_state.lookup_car(car).unwrap().clone();
+        let owner = parked.owner.unwrap();
+        self.spawner.start_trip_using_parked_car(
+            self.time.next(),
+            map,
+            parked,
+            &mut self.parking_state,
+            owner,
             to,
             &mut self.trips_state,
         );

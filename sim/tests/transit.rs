@@ -40,10 +40,11 @@ fn ped_uses_bus() {
     let bus = sim.seed_bus_route(route, &map)[0];
     let ped_stop1 = route.stops[1];
     let ped_stop2 = route.stops[2];
+    // TODO Need to fix this test after stabilizing a map
     let ped = sim.make_ped_using_bus(
         &map,
-        map_model::LaneID(283),
-        map_model::LaneID(553),
+        map_model::BuildingID(123),
+        map_model::BuildingID(456),
         sim::RouteID(0),
         ped_stop1,
         ped_stop2,

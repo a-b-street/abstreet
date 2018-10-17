@@ -9,6 +9,7 @@ fn convert_twice() {
         traffic_signals: "../data/input/TrafficSignals.shp".to_string(),
         parcels: "../data/seattle_parcels.abst".to_string(),
         gtfs: "../data/input/google_transit_2018_18_08".to_string(),
+        neighborhoods: "../data/input/neighborhoods.geojson".to_string(),
         output: "".to_string(),
     };
 

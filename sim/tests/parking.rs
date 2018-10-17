@@ -4,7 +4,7 @@ extern crate geom;
 extern crate map_model;
 extern crate sim;
 
-use map_model::LaneID;
+use map_model::{BuildingID, LaneID};
 use std::collections::BTreeMap;
 
 // TODO refactor a few more things to make these more succinct?
@@ -12,21 +12,22 @@ use std::collections::BTreeMap;
 #[test]
 fn park_on_goal_st() {
     let (map, control_map, mut sim) = setup("park_on_goal_st", make_test_map());
-    let (parking1, parking2, driving2) = (LaneID(1), LaneID(4), LaneID(3));
+    let (south_parking, north_parking) = (LaneID(1), LaneID(4));
+    let (north_bldg, south_bldg) = (BuildingID(0), BuildingID(1));
 
-    assert_eq!(map.get_l(parking1).number_parking_spots(), 8);
-    assert_eq!(map.get_l(parking2).number_parking_spots(), 8);
-    let car = sim.seed_specific_parked_cars(parking1, (0..8).collect())[2];
-    sim.seed_specific_parked_cars(parking2, (0..4).collect());
-    sim.seed_specific_parked_cars(parking2, (5..8).collect());
-    sim.start_parked_car_with_goal(&map, car, driving2);
+    assert_eq!(map.get_l(south_parking).number_parking_spots(), 8);
+    assert_eq!(map.get_l(north_parking).number_parking_spots(), 8);
+    let car = sim.seed_specific_parked_cars(south_parking, south_bldg, (0..8).collect())[2];
+    sim.seed_specific_parked_cars(north_parking, north_bldg, (0..4).collect());
+    sim.seed_specific_parked_cars(north_parking, north_bldg, (5..8).collect());
+    sim.make_ped_using_car(&map, car, north_bldg);
 
     sim.run_until_expectations_met(
         &map,
         &control_map,
         vec![sim::Event::CarReachedParkingSpot(
             car,
-            sim::ParkingSpot::new(parking2, 4),
+            sim::ParkingSpot::new(north_parking, 4),
         )],
         sim::Tick::from_minutes(1),
     );
@@ -36,22 +37,23 @@ fn park_on_goal_st() {
 #[test]
 fn wander_around_for_parking() {
     let (map, control_map, mut sim) = setup("wander_around_for_parking", make_test_map());
-    let (parking1, parking2, driving2) = (LaneID(1), LaneID(4), LaneID(3));
+    let (south_parking, north_parking) = (LaneID(1), LaneID(4));
+    let (north_bldg, south_bldg) = (BuildingID(0), BuildingID(1));
 
-    assert_eq!(map.get_l(parking1).number_parking_spots(), 8);
-    assert_eq!(map.get_l(parking2).number_parking_spots(), 8);
+    assert_eq!(map.get_l(south_parking).number_parking_spots(), 8);
+    assert_eq!(map.get_l(north_parking).number_parking_spots(), 8);
     // There's a free spot behind the car, so they have to loop around to their original lane to
     // find it.
-    let car = sim.seed_specific_parked_cars(parking1, (1..8).collect())[2];
-    sim.seed_specific_parked_cars(parking2, (0..8).collect());
-    sim.start_parked_car_with_goal(&map, car, driving2);
+    let car = sim.seed_specific_parked_cars(south_parking, south_bldg, (1..8).collect())[2];
+    sim.seed_specific_parked_cars(north_parking, north_bldg, (0..8).collect());
+    sim.make_ped_using_car(&map, car, north_bldg);
 
     sim.run_until_expectations_met(
         &map,
         &control_map,
         vec![sim::Event::CarReachedParkingSpot(
             car,
-            sim::ParkingSpot::new(parking1, 0),
+            sim::ParkingSpot::new(south_parking, 0),
         )],
         sim::Tick::from_minutes(2),
     );
@@ -117,6 +119,7 @@ fn make_test_map() -> map_model::Map {
     );
 
     assert_eq!(map.all_roads().len(), 1);
+    // The south side, unless I'm backwards ><
     assert_eq!(
         map.get_r(map_model::RoadID(0)).children_forwards,
         vec![
@@ -125,6 +128,7 @@ fn make_test_map() -> map_model::Map {
             (LaneID(2), LaneType::Sidewalk),
         ]
     );
+    // The north side
     assert_eq!(
         map.get_r(map_model::RoadID(0)).children_backwards,
         vec![
