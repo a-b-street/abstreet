@@ -6,6 +6,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 [dependencies]
 abstutil = { path = "../abstutil" }
 control = { path = "../control" }
+cpuprofiler = "0.0.3"
 log = "0.4.5"
 map_model = { path = "../map_model" }
 pretty_assertions = "0.5.1"

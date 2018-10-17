@@ -4,6 +4,7 @@ extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate control;
 extern crate counter;
+extern crate cpuprofiler;
 extern crate dimensioned;
 extern crate ezgui;
 extern crate flame;
@@ -57,6 +58,11 @@ struct Flags {
 
 fn main() {
     let flags = Flags::from_args();
+    /*cpuprofiler::PROFILER
+        .lock()
+        .unwrap()
+        .start("./profile")
+        .unwrap();*/
     ezgui::run(
         ui::UIWrapper::new(flags.sim_flags, flags.kml),
         "A/B Street",

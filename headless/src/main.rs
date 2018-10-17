@@ -2,6 +2,7 @@
 
 extern crate abstutil;
 extern crate control;
+extern crate cpuprofiler;
 extern crate log;
 extern crate map_model;
 extern crate sim;
@@ -58,12 +59,19 @@ fn main() {
         None
     };
 
+    cpuprofiler::PROFILER
+        .lock()
+        .unwrap()
+        .start("./profile")
+        .unwrap();
     sim.run_until_done(
         &map,
         &control_map,
         Box::new(move |sim| {
             if Some(sim.time) == save_at {
                 sim.save();
+                // Some simulatiosn run for a really long time, just do this.
+                cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             }
         }),
     );

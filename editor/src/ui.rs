@@ -5,6 +5,7 @@
 use abstutil;
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
+//use cpuprofiler;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use flame;
 use kml;
@@ -480,6 +481,7 @@ impl UI {
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
             abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
             info!("Saved editor_state and color_scheme");
+            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             process::exit(0);
         }
 
