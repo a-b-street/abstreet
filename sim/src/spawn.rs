@@ -11,7 +11,8 @@ use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
 use {
-    fork_rng, AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
+    fork_rng, weighted_sample, AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID,
+    RouteID, Tick, TripID, WeightedUsizeChoice,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -209,14 +210,12 @@ impl Spawner {
     // This happens immediately; it isn't scheduled.
     pub fn seed_parked_cars(
         &mut self,
-        percent_buildings_with_one_car: f64,
+        cars_per_building: &WeightedUsizeChoice,
         owner_buildings: &Vec<BuildingID>,
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
         map: &Map,
     ) {
-        assert!(percent_buildings_with_one_car >= 0.0 && percent_buildings_with_one_car <= 1.0);
-
         // Track the available parking spots per road, only for the roads next to relevant
         // buildings.
         let mut total_spots = 0;
@@ -242,7 +241,7 @@ impl Spawner {
 
         let mut new_cars = 0;
         for b in owner_buildings {
-            if base_rng.gen_bool(percent_buildings_with_one_car) {
+            for _ in 0..weighted_sample(&cars_per_building, base_rng) {
                 if let Some(spot) = find_spot_near_building(*b, &mut open_spots_per_road, map) {
                     new_cars += 1;
                     let car = CarID(self.car_id_counter);
@@ -257,9 +256,9 @@ impl Spawner {
                     self.car_id_counter += 1;
                 } else {
                     panic!(
-                        "No room to seed parked cars. {} total spots, {} of {} buildings requested",
+                        "No room to seed parked cars. {} total spots, {:?} of {} buildings requested",
                         total_spots,
-                        percent_buildings_with_one_car,
+                        cars_per_building,
                         owner_buildings.len()
                     );
                 }

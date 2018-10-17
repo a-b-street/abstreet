@@ -5,7 +5,7 @@ use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map};
 use std::collections::VecDeque;
 use {
     CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars, Sim, SpawnOverTime,
-    Tick,
+    Tick, WeightedUsizeChoice,
 };
 
 #[derive(StructOpt, Debug, Clone)]
@@ -167,7 +167,9 @@ impl Sim {
             map_name: map.get_name().to_string(),
             seed_parked_cars: vec![SeedParkedCars {
                 neighborhood: "_everywhere_".to_string(),
-                percent_buildings_with_car: 0.5,
+                cars_per_building: WeightedUsizeChoice {
+                    weights: vec![5, 5],
+                },
             }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: 100,
@@ -201,7 +203,9 @@ impl Sim {
             map_name: map.get_name().to_string(),
             seed_parked_cars: vec![SeedParkedCars {
                 neighborhood: "_everywhere_".to_string(),
-                percent_buildings_with_car: 0.8,
+                cars_per_building: WeightedUsizeChoice {
+                    weights: vec![2, 8],
+                },
             }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: 1000,
@@ -213,9 +217,14 @@ impl Sim {
         }.instantiate(self, map);
     }
 
-    pub fn seed_parked_cars(&mut self, owner_buildins: &Vec<BuildingID>, percent: f64, map: &Map) {
+    pub fn seed_parked_cars(
+        &mut self,
+        owner_buildins: &Vec<BuildingID>,
+        cars_per_building: &WeightedUsizeChoice,
+        map: &Map,
+    ) {
         self.spawner.seed_parked_cars(
-            percent,
+            cars_per_building,
             owner_buildins,
             &mut self.parking_state,
             &mut self.rng,

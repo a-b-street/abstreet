@@ -60,6 +60,7 @@ pub fn key_to_char(key: Key) -> Option<char> {
         Key::LeftBracket => Some('['),
         Key::RightBracket => Some(']'),
         Key::Period => Some('.'),
+        Key::Comma => Some(','),
         _ => None,
     }
 }

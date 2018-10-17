@@ -3,7 +3,7 @@ use geom::Polygon;
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_neighborhood, input_tick, load_scenario, Colorizer};
+use plugins::{choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Colorizer};
 use sim::{Neighborhood, Scenario, SeedParkedCars, Sim, SpawnOverTime};
 
 pub enum ScenarioManager {
@@ -116,8 +116,10 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     if wizard.choose_string("What kind of edit?", vec![seed_parked, spawn])? == seed_parked {
         scenario.seed_parked_cars.push(SeedParkedCars {
             neighborhood: choose_neighborhood(map, &mut wizard, "Seed parked cars in what area?")?,
-            percent_buildings_with_car: wizard
-                .input_percent("What percent of buildings have 1 parked car nearby?")?,
+            cars_per_building: input_weighted_usize(
+                &mut wizard,
+                "How many cars per building? (ex: 4,4,2)",
+            )?,
         });
         Some(())
     } else {

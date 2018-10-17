@@ -28,7 +28,7 @@ use abstutil;
 use ezgui::{Color, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, ID};
-use sim::{ABTest, Neighborhood, Scenario, Tick};
+use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
 
 pub trait Colorizer {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
@@ -101,4 +101,11 @@ pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
 
 pub fn input_tick(wizard: &mut WrappedWizard, query: &str) -> Option<Tick> {
     wizard.input_something(query, Box::new(|line| Tick::parse(&line)))
+}
+
+pub fn input_weighted_usize(
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<WeightedUsizeChoice> {
+    wizard.input_something(query, Box::new(|line| WeightedUsizeChoice::parse(&line)))
 }

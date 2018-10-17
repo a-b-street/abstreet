@@ -3,7 +3,7 @@ use geom::{LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, Map};
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
-use {CarID, Sim, Tick};
+use {CarID, Sim, Tick, WeightedUsizeChoice};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -27,8 +27,7 @@ pub struct SpawnOverTime {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SeedParkedCars {
     pub neighborhood: String,
-    // TODO Ask for more detail -- chances of a building have 0, 1, 2, 3, ... cars
-    pub percent_buildings_with_car: f64,
+    pub cars_per_building: WeightedUsizeChoice,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -106,7 +105,7 @@ impl Scenario {
         for s in &self.seed_parked_cars {
             sim.seed_parked_cars(
                 &bldgs_per_neighborhood[&s.neighborhood],
-                s.percent_buildings_with_car,
+                &s.cars_per_building,
                 map,
             );
         }
