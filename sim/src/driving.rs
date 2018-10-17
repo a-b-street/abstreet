@@ -284,6 +284,12 @@ impl Car {
             // from AORTA, IIRC, is to make cars stop anywhere in a small buffer at the end of the
             // lane.
             if leftover_dist <= EPSILON_DIST {
+                if leftover_dist > 0.0 * si::M {
+                    // But do force them to be right at the end of the Traversable, otherwise we're
+                    // in this bizarre, illegal state where dist_along is > the current
+                    // Traversable's length.
+                    self.dist_along = self.on.length(map) - EPSILON_DIST;
+                }
                 break;
             }
             let next_on = match self.on {

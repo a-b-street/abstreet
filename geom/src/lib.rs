@@ -25,7 +25,7 @@ pub use polyline::PolyLine;
 pub use pt::{HashablePt2D, Pt2D};
 use std::marker;
 
-// About .0 inches... which is quite tiny on the scale of things. :)
+// About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: si::Meter<f64> = si::Meter {
     value_unsafe: 0.01,
     _marker: marker::PhantomData,
