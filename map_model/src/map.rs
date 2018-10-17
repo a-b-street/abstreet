@@ -370,6 +370,24 @@ impl Map {
             .collect()
     }
 
+    // These come back sorted
+    pub fn get_next_roads(&self, from: RoadID) -> Vec<RoadID> {
+        let mut roads: BTreeSet<RoadID> = BTreeSet::new();
+
+        let (i1, i2) = self.get_r(from).get_endpoints(self);
+        for id in vec![i1, i2].into_iter() {
+            let i = self.get_i(id);
+            for l in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
+                let r = self.get_l(*l).parent;
+                if r != from {
+                    roads.insert(r);
+                }
+            }
+        }
+
+        roads.into_iter().collect()
+    }
+
     pub fn get_parent(&self, id: LaneID) -> &Road {
         let l = self.get_l(id);
         self.get_r(l.parent)
@@ -435,5 +453,9 @@ impl Map {
         }
         stops.remove(&start);
         stops
+    }
+
+    pub fn building_to_road(&self, id: BuildingID) -> &Road {
+        self.get_parent(self.get_b(id).front_path.sidewalk)
     }
 }

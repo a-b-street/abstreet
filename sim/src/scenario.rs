@@ -1,6 +1,6 @@
 use abstutil;
 use geom::{Polygon, Pt2D};
-use map_model::{BuildingID, LaneID, Map};
+use map_model::{BuildingID, Map};
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
 use {CarID, Sim, Tick};
@@ -53,19 +53,6 @@ impl Neighborhood {
         results
     }
 
-    // TODO This should use quadtrees and/or not just match the first point of each lane.
-    fn find_matching_lanes(&self, map: &Map) -> Vec<LaneID> {
-        let poly = Polygon::new(&self.points);
-
-        let mut results: Vec<LaneID> = Vec::new();
-        for l in map.all_lanes() {
-            if poly.contains_pt(l.first_pt()) {
-                results.push(l.id);
-            }
-        }
-        results
-    }
-
     pub fn save(&self) {
         abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
     }
@@ -95,9 +82,9 @@ impl Scenario {
 
         for s in &self.seed_parked_cars {
             sim.seed_parked_cars(
-                neighborhoods[&s.neighborhood].find_matching_lanes(map),
                 &bldgs_per_neighborhood[&s.neighborhood],
                 s.percent_buildings_with_car,
+                map,
             );
         }
 

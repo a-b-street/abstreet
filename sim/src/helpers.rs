@@ -144,9 +144,9 @@ impl Sim {
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
         self.seed_parked_cars(
-            map.all_lanes().iter().map(|l| l.id).collect(),
             &map.all_buildings().iter().map(|b| b.id).collect(),
             0.5,
+            map,
         );
         self.seed_walking_trips(&map, 100);
         self.seed_driving_trips(&map, 100);
@@ -167,26 +167,21 @@ impl Sim {
 
     pub fn big_spawn(&mut self, map: &Map) {
         self.seed_parked_cars(
-            map.all_lanes().iter().map(|l| l.id).collect(),
             &map.all_buildings().iter().map(|b| b.id).collect(),
             0.95,
+            map,
         );
         self.seed_walking_trips(&map, 1000);
         self.seed_driving_trips(&map, 1000);
     }
 
-    pub fn seed_parked_cars(
-        &mut self,
-        in_lanes: Vec<LaneID>,
-        owner_buildins: &Vec<BuildingID>,
-        percent: f64,
-    ) {
+    pub fn seed_parked_cars(&mut self, owner_buildins: &Vec<BuildingID>, percent: f64, map: &Map) {
         self.spawner.seed_parked_cars(
             percent,
-            in_lanes,
             owner_buildins,
             &mut self.parking_state,
             &mut self.rng,
+            map,
         );
     }
 

@@ -1,11 +1,11 @@
 use abstutil::elapsed_seconds;
 use driving::{CreateCar, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, Pathfinder};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Pathfinder, RoadID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
-use std::collections::VecDeque;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
@@ -210,41 +210,59 @@ impl Spawner {
     pub fn seed_parked_cars(
         &mut self,
         percent_buildings_with_one_car: f64,
-        in_lanes: Vec<LaneID>,
         owner_buildings: &Vec<BuildingID>,
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
+        map: &Map,
     ) {
         assert!(percent_buildings_with_one_car >= 0.0 && percent_buildings_with_one_car <= 1.0);
 
-        // TODO This is temporary. It's very unstable -- few extra or missing spots changes the
-        // shuffling dramatically.
-        let mut all_open_spots: Vec<ParkingSpot> = Vec::new();
-        for l in in_lanes.into_iter() {
-            all_open_spots.extend(parking_sim.get_free_spots(l));
+        // Track the available parking spots per road, only for the roads next to relevant
+        // buildings.
+        let mut total_spots = 0;
+        let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
+        for b in owner_buildings {
+            let r = map.building_to_road(*b);
+            if !open_spots_per_road.contains_key(&r.id) {
+                let mut spots: Vec<ParkingSpot> = Vec::new();
+                for (lane, lane_type) in r
+                    .children_forwards
+                    .iter()
+                    .chain(r.children_backwards.iter())
+                {
+                    if *lane_type == LaneType::Parking {
+                        spots.extend(parking_sim.get_free_spots(*lane));
+                    }
+                }
+                total_spots += spots.len();
+                fork_rng(base_rng).shuffle(&mut spots);
+                open_spots_per_road.insert(r.id, spots);
+            }
         }
-        fork_rng(base_rng).shuffle(&mut all_open_spots);
-        let total_spots = all_open_spots.len();
 
         let mut new_cars = 0;
         for b in owner_buildings {
             if base_rng.gen_bool(percent_buildings_with_one_car) {
-                // Pick a parking spot for this building.
-                // TODO Prefer spots closer to the building
-                let spot = all_open_spots
-                    .pop()
-                    .expect("No available parking spots left to seed");
-                new_cars += 1;
-                let car = CarID(self.car_id_counter);
-                // TODO since spawning applies during the next step, lots of stuff breaks without
-                // this :(
-                parking_sim.add_parked_car(ParkedCar::new(
-                    car,
-                    spot,
-                    Vehicle::generate_typical_car(car, base_rng),
-                    Some(*b),
-                ));
-                self.car_id_counter += 1;
+                if let Some(spot) = find_spot_near_building(*b, &mut open_spots_per_road, map) {
+                    new_cars += 1;
+                    let car = CarID(self.car_id_counter);
+                    // TODO since spawning applies during the next step, lots of stuff breaks without
+                    // this :(
+                    parking_sim.add_parked_car(ParkedCar::new(
+                        car,
+                        spot,
+                        Vehicle::generate_typical_car(car, base_rng),
+                        Some(*b),
+                    ));
+                    self.car_id_counter += 1;
+                } else {
+                    panic!(
+                        "No room to seed parked cars. {} total spots, {} of {} buildings requested",
+                        total_spots,
+                        percent_buildings_with_one_car,
+                        owner_buildings.len()
+                    );
+                }
             }
         }
 
@@ -472,4 +490,36 @@ fn calculate_paths(
         elapsed_seconds(timer)
     );
     paths
+}
+
+// Pick a parking spot for this building. If the building's road has a free spot, use it. If not,
+// start BFSing out from the road in a deterministic way until finding a nearby road with an open
+// spot.
+fn find_spot_near_building(
+    b: BuildingID,
+    open_spots_per_road: &mut HashMap<RoadID, Vec<ParkingSpot>>,
+    map: &Map,
+) -> Option<ParkingSpot> {
+    let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
+    let mut visited: HashSet<RoadID> = HashSet::new();
+    {
+        let start = map.building_to_road(b).id;
+        roads_queue.push_back(start);
+        visited.insert(start);
+    }
+
+    loop {
+        let r = roads_queue.pop_front()?;
+        let spots = open_spots_per_road.get_mut(&r).unwrap();
+        if !spots.is_empty() {
+            return spots.pop();
+        }
+
+        for next_r in map.get_next_roads(r).into_iter() {
+            if !visited.contains(&next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
+            }
+        }
+    }
 }
