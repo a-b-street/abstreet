@@ -28,6 +28,7 @@ use plugins::map_edits::EditsManager;
 use plugins::road_editor::RoadEditor;
 use plugins::scenarios::ScenarioManager;
 use plugins::search::SearchState;
+use plugins::show_owner::ShowOwnerState;
 use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
 use plugins::steep::SteepnessVisualizer;
@@ -271,6 +272,15 @@ impl UIWrapper {
                         .diff_worlds
                         .event(ctx.input, &ctx.ui.primary, &ctx.ui.secondary)
                 }),
+                Box::new(|ctx| {
+                    ctx.ui
+                        .primary
+                        .show_owner
+                        .event(ctx.ui.primary.current_selection, &ctx.ui.primary.sim);
+                    // TODO This is a weird exception -- this plugin doesn't consume input, so
+                    // never treat it as active for blocking input
+                    false
+                }),
             ],
         }
     }
@@ -301,6 +311,7 @@ pub struct PerMapUI {
     road_editor: RoadEditor,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
+    show_owner: ShowOwnerState,
     draw_neighborhoods: DrawNeighborhoodState,
     scenarios: ScenarioManager,
     edits_manager: EditsManager,
@@ -348,6 +359,7 @@ impl PerMapUI {
             road_editor,
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
+            show_owner: ShowOwnerState::new(),
             draw_neighborhoods: DrawNeighborhoodState::new(),
             scenarios: ScenarioManager::new(),
             edits_manager: EditsManager::new(),
@@ -569,22 +581,20 @@ impl UI {
             return Some(self.cs.get(Colors::Selected));
         }
 
+        let ctx = Ctx {
+            cs: &self.cs,
+            map: &self.primary.map,
+            control_map: &self.primary.control_map,
+            canvas: &self.canvas,
+            sim: &self.primary.sim,
+        };
         if let Some(p) = self.get_active_plugin() {
-            if let Some(c) = p.color_for(
-                id,
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.primary.map,
-                    control_map: &self.primary.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                },
-            ) {
-                return Some(c);
-            }
+            return p.color_for(id, ctx);
         }
 
-        None
+        // TODO Ew, this is a weird ambient plugin that doesn't consume input but has an opinion on
+        // color.
+        self.primary.show_owner.color_for(id, ctx)
     }
 
     fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
@@ -615,6 +625,7 @@ impl UI {
             20 => Some(Box::new(&self.ab_test_manager)),
             21 => Some(Box::new(&self.logs)),
             22 => Some(Box::new(&self.diff_worlds)),
+            23 => Some(Box::new(&self.primary.show_owner)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }

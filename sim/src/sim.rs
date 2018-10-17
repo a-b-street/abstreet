@@ -399,6 +399,12 @@ impl Sim {
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
         self.parking_state.get_parked_cars_by_owner(id)
     }
+
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        self.driving_state
+            .get_owner_of_car(id)
+            .or_else(|| self.parking_state.get_owner_of_car(id))
+    }
 }
 
 pub struct Benchmark {

@@ -157,6 +157,10 @@ impl ParkingSimState {
         }
         result
     }
+
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        self.lookup_car(id).and_then(|p| p.owner)
+    }
 }
 
 #[derive(Serialize, Deserialize)]

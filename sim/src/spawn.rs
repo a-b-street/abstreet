@@ -511,6 +511,7 @@ fn find_spot_near_building(
     loop {
         let r = roads_queue.pop_front()?;
         let spots = open_spots_per_road.get_mut(&r).unwrap();
+        // TODO With some probability, skip this available spot and park farther away
         if !spots.is_empty() {
             return spots.pop();
         }

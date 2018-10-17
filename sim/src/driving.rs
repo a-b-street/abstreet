@@ -818,6 +818,11 @@ impl DrivingSimState {
         let c = &self.cars[&id];
         Some(r.trace_route(c.on, c.dist_along, map, dist_ahead))
     }
+
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        let c = &self.cars.get(&id)?;
+        c.owner
+    }
 }
 
 pub struct CreateCar {
