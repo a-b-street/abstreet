@@ -227,6 +227,18 @@ impl Road {
     }
 
     pub fn get_speed_limit(&self) -> si::MeterPerSecond<f64> {
+        // TODO Should probably cache this
+        if let Some(limit) = self.osm_tags.get("maxspeed") {
+            // TODO handle other units
+            if limit.ends_with(" mph") {
+                if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {
+                    // TODO rm after verifying
+                    println!("parsed {} mph", mph);
+                    return mph * 0.44704 * si::MPS;
+                }
+            }
+        }
+
         if self.osm_tags.get("highway") == Some(&"primary".to_string())
             || self.osm_tags.get("highway") == Some(&"secondary".to_string())
         {
