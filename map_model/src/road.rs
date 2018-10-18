@@ -232,8 +232,6 @@ impl Road {
             // TODO handle other units
             if limit.ends_with(" mph") {
                 if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {
-                    // TODO rm after verifying
-                    println!("parsed {} mph", mph);
                     return mph * 0.44704 * si::MPS;
                 }
             }

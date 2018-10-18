@@ -1,8 +1,8 @@
 use abstutil;
 use geom::{LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, Map};
+use map_model::{BuildingID, Map, RoadID};
 use rand::Rng;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use {CarID, Sim, Tick, WeightedUsizeChoice};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -47,6 +47,19 @@ impl Neighborhood {
         for b in map.all_buildings() {
             if poly.contains_pt(Pt2D::center(&b.points)) {
                 results.push(b.id);
+            }
+        }
+        results
+    }
+
+    // TODO This should use quadtrees and/or not just match one point of each road.
+    fn find_matching_roads(&self, map: &Map) -> BTreeSet<RoadID> {
+        let poly = Polygon::new(&self.points);
+
+        let mut results: BTreeSet<RoadID> = BTreeSet::new();
+        for r in map.all_roads() {
+            if poly.contains_pt(map.get_i(r.get_endpoints(map).0).point) {
+                results.insert(r.id);
             }
         }
         results
@@ -101,10 +114,15 @@ impl Scenario {
             bldgs_per_neighborhood
                 .insert(name.to_string(), neighborhood.find_matching_buildings(map));
         }
+        let mut roads_per_neighborhood: HashMap<String, BTreeSet<RoadID>> = HashMap::new();
+        for (name, neighborhood) in &neighborhoods {
+            roads_per_neighborhood.insert(name.to_string(), neighborhood.find_matching_roads(map));
+        }
 
         for s in &self.seed_parked_cars {
             sim.seed_parked_cars(
                 &bldgs_per_neighborhood[&s.neighborhood],
+                &roads_per_neighborhood[&s.neighborhood],
                 &s.cars_per_building,
                 map,
             );

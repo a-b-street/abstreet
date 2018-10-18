@@ -1,8 +1,8 @@
 use abstutil;
 use control::ControlMap;
 use flame;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map};
-use std::collections::VecDeque;
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
+use std::collections::{BTreeSet, VecDeque};
 use {
     CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars, Sim, SpawnOverTime,
     Tick, WeightedUsizeChoice,
@@ -220,12 +220,14 @@ impl Sim {
     pub fn seed_parked_cars(
         &mut self,
         owner_buildins: &Vec<BuildingID>,
+        neighborhoods_roads: &BTreeSet<RoadID>,
         cars_per_building: &WeightedUsizeChoice,
         map: &Map,
     ) {
         self.spawner.seed_parked_cars(
             cars_per_building,
             owner_buildins,
+            neighborhoods_roads,
             &mut self.parking_state,
             &mut self.rng,
             map,

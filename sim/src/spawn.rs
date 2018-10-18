@@ -5,7 +5,7 @@ use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Pathfind
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
@@ -179,6 +179,16 @@ impl Spawner {
             let vehicle = Vehicle::generate_bus(id, rng);
 
             let start = path.pop_front().unwrap();
+
+            // TODO For now, skip spawning this bus too. :\
+            if start_dist_along > map.get_l(start).length() {
+                warn!(
+                    "Bus stop is too far past equivalent driving lane; can't make a bus headed towards stop {} of {} ({})",
+                    next_stop_idx, route.name, route_id
+                );
+                continue;
+            }
+
             if driving_sim.start_car_on_lane(
                 events,
                 now,
@@ -212,37 +222,38 @@ impl Spawner {
         &mut self,
         cars_per_building: &WeightedUsizeChoice,
         owner_buildings: &Vec<BuildingID>,
+        neighborhoods_roads: &BTreeSet<RoadID>,
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
         map: &Map,
     ) {
-        // Track the available parking spots per road, only for the roads next to relevant
-        // buildings.
+        // Track the available parking spots per road, only for the roads in the appropriate
+        // neighborhood.
         let mut total_spots = 0;
         let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
-        for b in owner_buildings {
-            let r = map.building_to_road(*b);
-            if !open_spots_per_road.contains_key(&r.id) {
-                let mut spots: Vec<ParkingSpot> = Vec::new();
-                for (lane, lane_type) in r
-                    .children_forwards
-                    .iter()
-                    .chain(r.children_backwards.iter())
-                {
-                    if *lane_type == LaneType::Parking {
-                        spots.extend(parking_sim.get_free_spots(*lane));
-                    }
+        for id in neighborhoods_roads {
+            let r = map.get_r(*id);
+            let mut spots: Vec<ParkingSpot> = Vec::new();
+            for (lane, lane_type) in r
+                .children_forwards
+                .iter()
+                .chain(r.children_backwards.iter())
+            {
+                if *lane_type == LaneType::Parking {
+                    spots.extend(parking_sim.get_free_spots(*lane));
                 }
-                total_spots += spots.len();
-                fork_rng(base_rng).shuffle(&mut spots);
-                open_spots_per_road.insert(r.id, spots);
             }
+            total_spots += spots.len();
+            fork_rng(base_rng).shuffle(&mut spots);
+            open_spots_per_road.insert(r.id, spots);
         }
 
         let mut new_cars = 0;
         for b in owner_buildings {
             for _ in 0..weighted_sample(&cars_per_building, base_rng) {
-                if let Some(spot) = find_spot_near_building(*b, &mut open_spots_per_road, map) {
+                if let Some(spot) =
+                    find_spot_near_building(*b, &mut open_spots_per_road, neighborhoods_roads, map)
+                {
                     new_cars += 1;
                     let car = CarID(self.car_id_counter);
                     // TODO since spawning applies during the next step, lots of stuff breaks without
@@ -256,10 +267,12 @@ impl Spawner {
                     self.car_id_counter += 1;
                 } else {
                     panic!(
-                        "No room to seed parked cars. {} total spots, {:?} of {} buildings requested",
+                        "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, {} new cars so far. Searched from {}",
                         total_spots,
                         cars_per_building,
-                        owner_buildings.len()
+                        owner_buildings.len(),
+                        new_cars,
+                        b
                     );
                 }
             }
@@ -497,6 +510,7 @@ fn calculate_paths(
 fn find_spot_near_building(
     b: BuildingID,
     open_spots_per_road: &mut HashMap<RoadID, Vec<ParkingSpot>>,
+    neighborhoods_roads: &BTreeSet<RoadID>,
     map: &Map,
 ) -> Option<ParkingSpot> {
     let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
@@ -508,19 +522,27 @@ fn find_spot_near_building(
     }
 
     loop {
+        if roads_queue.is_empty() {
+            warn!(
+                "Giving up looking for a free parking spot, searched {} roads of {}: {:?}",
+                visited.len(),
+                open_spots_per_road.len(),
+                visited
+            );
+        }
         let r = roads_queue.pop_front()?;
-        // Don't floodfill out of the neighborhood
         if let Some(spots) = open_spots_per_road.get_mut(&r) {
             // TODO With some probability, skip this available spot and park farther away
             if !spots.is_empty() {
                 return spots.pop();
             }
+        }
 
-            for next_r in map.get_next_roads(r).into_iter() {
-                if !visited.contains(&next_r) {
-                    roads_queue.push_back(next_r);
-                    visited.insert(next_r);
-                }
+        for next_r in map.get_next_roads(r).into_iter() {
+            // Don't floodfill out of the neighborhood
+            if !visited.contains(&next_r) && neighborhoods_roads.contains(&next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
             }
         }
     }

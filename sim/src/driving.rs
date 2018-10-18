@@ -687,8 +687,12 @@ impl DrivingSimState {
         map: &Map,
         params: CreateCar,
     ) -> bool {
-        // If not, we have a parking lane much longer than a driving lane...
-        assert!(params.dist_along <= map.get_l(params.start).length());
+        {
+            let start_length = map.get_l(params.start).length();
+            if params.dist_along > start_length {
+                panic!("Can't start car at {} along {}; it's only {}. Parking lane or sidewalk (with bus stop) must be much longer.", params.dist_along, params.start, start_length);
+            }
+        }
 
         // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
         // don't hit somebody's back
