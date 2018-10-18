@@ -376,13 +376,7 @@ impl Map {
 
         let (i1, i2) = self.get_r(from).get_endpoints(self);
         for id in vec![i1, i2].into_iter() {
-            let i = self.get_i(id);
-            for l in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
-                let r = self.get_l(*l).parent;
-                if r != from {
-                    roads.insert(r);
-                }
-            }
+            roads.extend(self.get_i(id).get_roads(self));
         }
 
         roads.into_iter().collect()

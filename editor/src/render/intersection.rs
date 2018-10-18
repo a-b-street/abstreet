@@ -16,6 +16,7 @@ pub struct DrawIntersection {
     crosswalks: Vec<Vec<Line>>,
     center: Pt2D,
     has_traffic_signal: bool,
+    should_draw_stop_sign: bool,
 }
 
 impl DrawIntersection {
@@ -44,6 +45,7 @@ impl DrawIntersection {
             polygon: Polygon::new(&pts),
             crosswalks: calculate_crosswalks(inter, map),
             has_traffic_signal: inter.has_traffic_signal,
+            should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(map),
         }
     }
 
@@ -121,7 +123,7 @@ impl Renderable for DrawIntersection {
 
         if self.has_traffic_signal {
             self.draw_traffic_signal(g, ctx);
-        } else {
+        } else if self.should_draw_stop_sign {
             self.draw_stop_sign(g, ctx);
         }
     }

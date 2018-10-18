@@ -3,7 +3,7 @@
 use abstutil;
 use dimensioned::si;
 use geom::Pt2D;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt;
 use {LaneID, Map, RoadID, TurnID};
 
@@ -38,12 +38,20 @@ impl PartialEq for Intersection {
 }
 
 impl Intersection {
-    pub fn is_dead_end(&self, map: &Map) -> bool {
-        let mut roads: HashSet<RoadID> = HashSet::new();
+    pub fn get_roads(&self, map: &Map) -> BTreeSet<RoadID> {
+        let mut roads: BTreeSet<RoadID> = BTreeSet::new();
         for l in self.incoming_lanes.iter().chain(self.outgoing_lanes.iter()) {
             roads.insert(map.get_l(*l).parent);
         }
-        roads.len() == 1
+        roads
+    }
+
+    pub fn is_dead_end(&self, map: &Map) -> bool {
+        self.get_roads(map).len() == 1
+    }
+
+    pub fn is_degenerate(&self, map: &Map) -> bool {
+        self.get_roads(map).len() == 2
     }
 
     pub fn dump_debug(&self) {
