@@ -11,6 +11,9 @@
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/curb-ramps
 	- high quality thick roads: https://seattlecitygis.maps.arcgis.com/apps/webappviewer/index.html?id=86cb6824307c4d63b8e180ebcff58ce2
+	- OSM has footways
+		- but theyre not marked everywhere
+		- and theyre hard to associate with roads (sometimes need to infer a planter strip)
 
 - maybe also the time to split into different lane types? what's similar/not between them?
 	- graph querying?

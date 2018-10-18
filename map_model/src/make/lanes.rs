@@ -10,6 +10,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     if r.osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
     }
+    if r.osm_tags.get("highway") == Some(&"footway".to_string()) {
+        return (vec![LaneType::Sidewalk], Vec::new());
+    }
 
     let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
     let num_driving_lanes_per_road = if let Some(n) = r

@@ -147,7 +147,7 @@ impl Road {
         }
 
         // Is the sidewalk on a one-way with the other side having a driving lane?
-        if this_side.len() == 1 && opposite[0].1 == LaneType::Driving {
+        if this_side.len() == 1 && !opposite.is_empty() && opposite[0].1 == LaneType::Driving {
             return Ok(opposite[0].0);
         }
         Err(Error::new(format!(

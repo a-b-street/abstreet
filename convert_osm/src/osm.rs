@@ -107,13 +107,14 @@ fn is_road(raw_tags: &[osm_xml::Tag]) -> bool {
     // potential reference
     for &value in &[
         // List of non-car types from https://wiki.openstreetmap.org/wiki/Key:highway
+        // TODO Footways are very useful, but they need more work to associate with main roads
+        "footway",
         "living_street",
         "pedestrian",
         "track",
         "bus_guideway",
         "escape",
         "raceway",
-        "footway",
         "bridleway",
         "steps",
         "path",

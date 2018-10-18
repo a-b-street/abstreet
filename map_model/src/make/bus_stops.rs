@@ -65,10 +65,11 @@ pub fn make_bus_stops(
             .filter_map(|pt| point_to_stop_id.get(pt))
             .map(|stop| *stop)
             .collect();
-        if stops.len() == 1 {
+        if stops.len() < 2 {
             warn!(
-                "Skipping route {} since it only has 1 stop in the slice of the map",
-                route_name
+                "Skipping route {} since it only has {} stop in the slice of the map",
+                route_name,
+                stops.len()
             );
             continue;
         }
