@@ -6,62 +6,55 @@ use std::iter;
 
 // (original direction, reversed direction)
 fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
+    // Easy special cases first.
+    if r.osm_tags.get("junction") == Some(&"roundabout".to_string()) {
+        return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
+    }
+
     let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
-    // These seem to represent weird roundabouts
-    let junction = r.osm_tags.get("junction") == Some(&"yes".to_string());
-    let big_highway = r.osm_tags.get("highway") == Some(&"motorway".to_string());
-    let bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
-    let num_driving_lanes = if let Some(n) = r
+    let num_driving_lanes_per_road = if let Some(n) = r
         .osm_tags
         .get("lanes")
         .and_then(|num| num.parse::<usize>().ok())
     {
         n
-    } else if r.osm_tags.get("highway") == Some(&"primary".to_string())
-        || r.osm_tags.get("highway") == Some(&"secondary".to_string())
-    {
-        4
     } else {
+        // TODO https://wiki.openstreetmap.org/wiki/Key:lanes#Assumptions service, track, and path
+        // should have less, but I don't see examples of these
         2
     };
-
-    if junction {
-        return (vec![LaneType::Driving], Vec::new());
-    }
-
-    // The lanes tag is of course ambiguous, but seems to usually mean total number of lanes for
-    // both directions of the road. One-ways are an exception!
-    let num_lanes_per_side = if oneway {
-        num_driving_lanes
-    } else {
-        num_driving_lanes / 2
-    };
-    // TODO assert not 0?
-    let driving_lanes: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(num_lanes_per_side)
-        .collect();
-    if big_highway {
-        if oneway {
-            let mut all_lanes = Vec::new();
-            all_lanes.extend(driving_lanes.clone());
-            all_lanes.extend(driving_lanes);
-            return (all_lanes, Vec::new());
+    let driving_lanes_per_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
+        .take(if oneway {
+            num_driving_lanes_per_road
         } else {
-            return (driving_lanes.clone(), driving_lanes);
-        }
-    }
+            num_driving_lanes_per_road / 2
+        }).collect();
 
-    // TODO invariant... parking lane is always adjacent to a bus or driving lane, and always has a
-    // driving lane somewhere on the same side
+    let has_bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
+    let has_sidewalk = r.osm_tags.get("highway") != Some(&"motorway".to_string())
+        && r.osm_tags.get("highway") != Some(&"motorway_link".to_string());
+    let has_parking = has_sidewalk;
 
-    let mut full_side = driving_lanes;
-    if bike_lane {
+    let mut full_side = driving_lanes_per_side;
+    if has_bike_lane {
         full_side.push(LaneType::Biking);
     }
-    full_side.push(LaneType::Parking);
-    full_side.push(LaneType::Sidewalk);
+    if has_parking {
+        full_side.push(LaneType::Parking);
+    }
+    if has_sidewalk {
+        full_side.push(LaneType::Sidewalk);
+    }
+
     if oneway {
-        (full_side, vec![LaneType::Sidewalk])
+        // Only residential highways have a sidewalk on the other side of a highway.
+        let other_side =
+            if has_sidewalk && r.osm_tags.get("highway") == Some(&"residential".to_string()) {
+                vec![LaneType::Sidewalk]
+            } else {
+                Vec::new()
+            };
+        (full_side, other_side)
     } else {
         (full_side.clone(), full_side)
     }

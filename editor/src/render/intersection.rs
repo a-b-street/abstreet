@@ -151,11 +151,13 @@ fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<Line>> {
         if l1.lane_type != LaneType::Sidewalk {
             continue;
         }
-        let l2 = map.get_l(
-            map.get_r(l1.parent)
-                .get_opposite_lane(l1.id, LaneType::Sidewalk)
-                .unwrap(),
-        );
+        let other_side = map
+            .get_r(l1.parent)
+            .get_opposite_lane(l1.id, LaneType::Sidewalk);
+        if other_side.is_err() {
+            continue;
+        }
+        let l2 = map.get_l(other_side.unwrap());
         if l2.id < l1.id {
             continue;
         }

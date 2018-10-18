@@ -174,23 +174,23 @@ fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
     }
 
     // First make all of the crosswalks -- from each incoming and outgoing sidewalk to its other
-    // side
+    // side. Not every sidewalk will have an opposite side -- roundabouts for example.
     for id in &all_sidewalks {
         let src = m.get_l(*id);
-        let dst = m.get_l(
-            m.get_r(src.parent)
-                .get_opposite_lane(src.id, LaneType::Sidewalk)
-                .unwrap(),
-        );
-
-        result.push(Turn {
-            id: turn_id(i.id, src.id, dst.id),
-            parent: i.id,
-            src: src.id,
-            dst: dst.id,
-            line: Line::new(src.endpoint(i.id), dst.endpoint(i.id)),
-            between_sidewalks: true,
-        });
+        if let Ok(dst) = m
+            .get_r(src.parent)
+            .get_opposite_lane(src.id, LaneType::Sidewalk)
+            .map(|l| m.get_l(l))
+        {
+            result.push(Turn {
+                id: turn_id(i.id, src.id, dst.id),
+                parent: i.id,
+                src: src.id,
+                dst: dst.id,
+                line: Line::new(src.endpoint(i.id), dst.endpoint(i.id)),
+                between_sidewalks: true,
+            });
+        }
     }
 
     // Then all of the immediate connections onto the shared point
