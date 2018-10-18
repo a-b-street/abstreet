@@ -55,3 +55,6 @@ The polyline problem:
 
 
 https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
+
+
+https://www.codeproject.com/Articles/226569/Drawing-polylines-by-tessellation

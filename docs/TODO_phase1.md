@@ -51,3 +51,8 @@
 		- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg
 		- https://thumbs.dreamstime.com/z/top-view-city-seamless-pattern-streets-roads-houses-cars-68652655.jpg
 	- https://gifer.com/en/2svr
+
+- color tuning
+	- neutral (white or offwhite) color and make noncritical info close to
+	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,
+          chroma < 50
