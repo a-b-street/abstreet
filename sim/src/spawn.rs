@@ -266,7 +266,9 @@ impl Spawner {
                     ));
                     self.car_id_counter += 1;
                 } else {
-                    panic!(
+                    // TODO This should be more critical, but neighborhoods can currently contain a
+                    // building, but not even its road, so this is inevitable.
+                    error!(
                         "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, {} new cars so far. Searched from {}",
                         total_spots,
                         cars_per_building,
@@ -274,6 +276,9 @@ impl Spawner {
                         new_cars,
                         b
                     );
+                    // Kind of a hack, but don't let the RNG get out of sync because of this. Not
+                    // happy about passing in a dummy CarID.
+                    Vehicle::generate_typical_car(CarID(0), base_rng);
                 }
             }
         }
