@@ -31,7 +31,7 @@ pub struct SimFlags {
 impl SimFlags {
     pub fn for_test(run_name: &str) -> SimFlags {
         SimFlags {
-            load: "../data/maps/montlake.abst".to_string(),
+            load: "../data/raw_maps/montlake.abst".to_string(),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
@@ -47,7 +47,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         flame::end("read sim savestate");
         let edits = load_edits(&sim.map_name, &flags);
-        let map_path = format!("../data/maps/{}.abst", sim.map_name);
+        let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
@@ -56,7 +56,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         info!("Seeding the simulation from scenario {}", flags.load);
         let scenario: Scenario = abstutil::read_json(&flags.load).expect("loading scenario failed");
         let edits = load_edits(&scenario.map_name, &flags);
-        let map_path = format!("../data/maps/{}.abst", scenario.map_name);
+        let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
             .expect(&format!("Couldn't load map from {}", map_path));
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
@@ -69,11 +69,11 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         );
         scenario.instantiate(&mut sim, &map);
         (map, control_map, sim)
-    } else {
+    } else if flags.load.contains("data/raw_maps/") {
         // TODO relative dir is brittle; match more cautiously
         let map_name = flags
             .load
-            .trim_left_matches("../data/maps/")
+            .trim_left_matches("../data/raw_maps/")
             .trim_right_matches(".abst")
             .to_string();
         info!("Loading map {}", flags.load);
@@ -84,6 +84,8 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
         flame::end("create sim");
         (map, control_map, sim)
+    } else {
+        panic!("Don't know how to load {}", flags.load);
     }
 }
 

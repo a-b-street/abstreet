@@ -10,7 +10,7 @@ function get_if_needed {
 	fi
 }
 
-mkdir -p data/input data/maps
+mkdir -p data/input data/raw_maps
 
 # TODO refactor a variant for .zips?
 if [ ! -f data/input/N47W122.hgt ]; then
@@ -62,5 +62,5 @@ fi
 
 COMMON="--elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/TrafficSignals.shp --parcels=../data/seattle_parcels.abst --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson"
 cd convert_osm
-time cargo run --release -- --osm=../data/input/montlake.osm $COMMON --output=../data/maps/montlake.abst
-time cargo run --release -- --osm=../data/input/small_seattle.osm $COMMON --output=../data/maps/small_seattle.abst
+time cargo run --release -- --osm=../data/input/montlake.osm $COMMON --output=../data/raw_maps/montlake.abst
+time cargo run --release -- --osm=../data/input/small_seattle.osm $COMMON --output=../data/raw_maps/small_seattle.abst

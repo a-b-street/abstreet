@@ -218,3 +218,8 @@ Cool, good enough to start. whew.
 - TODO: https://data-seattlecitygis.opendata.arcgis.com/datasets/channelization
 
 - https://data-seattlecitygis.opendata.arcgis.com/datasets/street-signs
+
+## Speeding up map loading
+
+- can we use quadtrees for the expensive building/sidewalk matching?
+	- awkward to bring a rendering-layer concept in; dont otherwise care about lane polygons

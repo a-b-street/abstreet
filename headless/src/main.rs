@@ -41,7 +41,7 @@ fn main() {
     let load = flags.sim_flags.load.clone();
     let (map, control_map, mut sim) = sim::load(flags.sim_flags, Some(sim::Tick::from_seconds(30)));
 
-    if load.contains("data/maps/") {
+    if load.contains("data/raw_maps/") {
         if flags.big_sim {
             sim.big_spawn(&map);
         } else {
