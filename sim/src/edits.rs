@@ -3,6 +3,7 @@ use control::{ControlStopSign, ControlTrafficSignal};
 use map_model::{IntersectionID, RoadEdits};
 use std::collections::BTreeMap;
 
+// This has to live in sim, not map_model, because the control layer is between the two.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapEdits {
     pub edits_name: String,

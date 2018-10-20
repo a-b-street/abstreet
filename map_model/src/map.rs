@@ -452,4 +452,10 @@ impl Map {
     pub fn building_to_road(&self, id: BuildingID) -> &Road {
         self.get_parent(self.get_b(id).front_path.sidewalk)
     }
+
+    pub fn save(&self) {
+        let path = format!("../data/maps/{}_{}.abst", self.name, self.road_edits.edits_name);
+        abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
+        println!("Saved {}", path);
+    }
 }

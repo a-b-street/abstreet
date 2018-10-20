@@ -8,6 +8,7 @@ data/seattle_parcels.abst
 data/ab_tests/*
 data/edits/*
 data/input/*
+data/maps/*
 data/neighborhoods/*
 data/raw_maps/*
 data/save/*

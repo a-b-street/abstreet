@@ -103,6 +103,7 @@ fn manage_edits(
         stop_signs: control_map.get_changed_stop_signs(),
         traffic_signals: control_map.get_changed_traffic_signals(),
     };
+    edits.road_edits.edits_name = edits.edits_name.clone();
 
     match wizard
         .choose_string(&format!("Manage {}", edits.describe()), choices)?

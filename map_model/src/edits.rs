@@ -5,6 +5,7 @@ use {Lane, LaneType, Road, RoadID};
 // are here, since map construction maybe needs to know these?
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RoadEdits {
+    pub edits_name: String,
     // TODO detect when we wind up editing back to the original thing
     pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
 }
@@ -12,6 +13,8 @@ pub struct RoadEdits {
 impl RoadEdits {
     pub fn new() -> RoadEdits {
         RoadEdits {
+            // Something has to fill this out later
+            edits_name: "no_edits".to_string(),
             roads: BTreeMap::new(),
         }
     }
