@@ -454,7 +454,10 @@ impl Map {
     }
 
     pub fn save(&self) {
-        let path = format!("../data/maps/{}_{}.abst", self.name, self.road_edits.edits_name);
+        let path = format!(
+            "../data/maps/{}_{}.abst",
+            self.name, self.road_edits.edits_name
+        );
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);
     }

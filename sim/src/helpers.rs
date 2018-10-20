@@ -42,10 +42,14 @@ impl SimFlags {
 // Convenience method to setup everything.
 pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap, Sim) {
     if flags.load.contains("data/save/") {
+        //assert_eq!(flags.edits_name, "no_edits");
+
         info!("Resuming from {}", flags.load);
         flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         flame::end("read sim savestate");
+        // TODO wrong! derive it from saved map name in sim. need to track map+edits name there.
+        // should make some better types for this.
         let edits = load_edits(&sim.map_name, &flags);
         let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
         let map = Map::new(&map_path, edits.road_edits.clone())
@@ -56,9 +60,16 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         info!("Seeding the simulation from scenario {}", flags.load);
         let scenario: Scenario = abstutil::read_json(&flags.load).expect("loading scenario failed");
         let edits = load_edits(&scenario.map_name, &flags);
-        let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
-        let map = Map::new(&map_path, edits.road_edits.clone())
-            .expect(&format!("Couldn't load map from {}", map_path));
+
+        // Try loading the pre-baked map first
+        let map: Map = abstutil::read_binary(&format!(
+            "../data/maps/{}_{}.abst",
+            scenario.map_name, edits.edits_name
+        )).unwrap_or_else(|_| {
+            let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
+            Map::new(&map_path, edits.road_edits.clone())
+                .expect(&format!("Couldn't load map from {}", map_path))
+        });
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         let mut sim = Sim::new(
             &map,
@@ -79,6 +90,23 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         info!("Loading map {}", flags.load);
         let edits = load_edits(&map_name, &flags);
         let map = Map::new(&flags.load, edits.road_edits.clone()).expect("Couldn't load map");
+        let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
+        flame::start("create sim");
+        let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
+        flame::end("create sim");
+        (map, control_map, sim)
+    } else if flags.load.contains("data/maps/") {
+        assert_eq!(flags.edits_name, "no_edits");
+        info!("Loading map {}", flags.load);
+        flame::start("load binary map");
+        let map: Map = abstutil::read_binary(&flags.load).expect("Couldn't load map");
+        flame::end("load binary map");
+        // TODO Bit sad to load edits to reconstitute ControlMap, but this is necessary right now
+        let edits: MapEdits = abstutil::read_json(&format!(
+            "../data/edits/{}/{}.json",
+            map.get_name(),
+            map.get_road_edits().edits_name
+        )).unwrap();
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         flame::start("create sim");
         let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
