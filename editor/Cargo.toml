@@ -28,4 +28,3 @@ sim = { path = "../sim" }
 structopt = "0.2"
 strum = "0.9.0"
 strum_macros = "0.9.0"
-yansi = "0.4.0"

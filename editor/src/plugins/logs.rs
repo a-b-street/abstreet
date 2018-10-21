@@ -1,3 +1,4 @@
+use abstutil::format_log_record;
 use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
 use log;
 use log::{LevelFilter, Log, Metadata, Record};
@@ -62,20 +63,8 @@ impl Log for LogAdapter {
     }
 
     fn log(&self, record: &Record) {
-        use yansi::Paint;
+        println!("{}", format_log_record(record));
 
-        let line = format!(
-            "[{}] [{}] {}",
-            Paint::white(record.level()),
-            match record.target() {
-                "UI" => Paint::red("UI"),
-                "sim" => Paint::green("sim"),
-                "map" => Paint::blue("map"),
-                x => Paint::cyan(x),
-            },
-            record.args()
-        );
-        println!("{}", line);
         // TODO could handle newlines here
         LOGGER.lock().unwrap().add_line(&format!(
             "[{}] [{}] {}",

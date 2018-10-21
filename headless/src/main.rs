@@ -8,9 +8,9 @@ extern crate map_model;
 extern crate sim;
 #[macro_use]
 extern crate structopt;
-extern crate yansi;
 
-use log::{LevelFilter, Log, Metadata, Record};
+use abstutil::LogAdapter;
+use log::LevelFilter;
 use sim::SimFlags;
 use structopt::StructOpt;
 
@@ -77,32 +77,4 @@ fn main() {
     );
     sim::save_backtraces("call_graph.json");
     println!("{:?}", sim.get_score());
-}
-
-// TODO This is copied from editor; dedupe how?
-struct LogAdapter;
-
-impl Log for LogAdapter {
-    fn enabled(&self, _metadata: &Metadata) -> bool {
-        true
-    }
-
-    fn log(&self, record: &Record) {
-        use yansi::Paint;
-
-        let line = format!(
-            "[{}] [{}] {}",
-            Paint::white(record.level()),
-            match record.target() {
-                "UI" => Paint::red("UI"),
-                "sim" => Paint::green("sim"),
-                "map" => Paint::blue("map"),
-                x => Paint::cyan(x),
-            },
-            record.args()
-        );
-        println!("{}", line);
-    }
-
-    fn flush(&self) {}
 }

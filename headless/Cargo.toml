@@ -12,4 +12,3 @@ map_model = { path = "../map_model" }
 pretty_assertions = "0.5.1"
 sim = { path = "../sim" }
 structopt = "0.2"
-yansi = "0.4.0"
