@@ -42,19 +42,29 @@ impl SimFlags {
 // Convenience method to setup everything.
 pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap, Sim) {
     if flags.load.contains("data/save/") {
-        //assert_eq!(flags.edits_name, "no_edits");
+        assert_eq!(flags.edits_name, "no_edits");
 
         info!("Resuming from {}", flags.load);
         flame::start("read sim savestate");
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         flame::end("read sim savestate");
-        // TODO wrong! derive it from saved map name in sim. need to track map+edits name there.
-        // should make some better types for this.
-        let edits = load_edits(&sim.map_name, &flags);
-        let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
-        let map = Map::new(&map_path, edits.road_edits.clone())
-            .expect(&format!("Couldn't load map from {}", map_path));
+
+        let edits: MapEdits = abstutil::read_json(&format!(
+            "../data/edits/{}/{}.json",
+            sim.map_name, sim.edits_name
+        )).unwrap();
+
+        // Try loading the pre-baked map first
+        let map: Map = abstutil::read_binary(&format!(
+            "../data/maps/{}_{}.abst",
+            sim.map_name, sim.edits_name
+        )).unwrap_or_else(|_| {
+            let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
+            Map::new(&map_path, edits.road_edits.clone())
+                .expect(&format!("Couldn't load map from {}", map_path))
+        });
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
+
         (map, control_map, sim)
     } else if flags.load.contains("data/scenarios/") {
         info!("Seeding the simulation from scenario {}", flags.load);
@@ -97,6 +107,7 @@ pub fn load(flags: SimFlags, savestate_every: Option<Tick>) -> (Map, ControlMap,
         (map, control_map, sim)
     } else if flags.load.contains("data/maps/") {
         assert_eq!(flags.edits_name, "no_edits");
+
         info!("Loading map {}", flags.load);
         flame::start("load binary map");
         let map: Map = abstutil::read_binary(&flags.load).expect("Couldn't load map");

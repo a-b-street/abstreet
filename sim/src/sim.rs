@@ -36,6 +36,7 @@ pub struct Sim {
     pub(crate) rng: XorShiftRng,
     pub time: Tick,
     pub(crate) map_name: String,
+    pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
     #[derivative(PartialEq = "ignore")]
     run_name: String,
@@ -75,6 +76,7 @@ impl Sim {
             transit_state: TransitSimState::new(),
             time: Tick::zero(),
             map_name: map.get_name().to_string(),
+            edits_name: map.get_road_edits().edits_name.to_string(),
             run_name,
             savestate_every,
         }
@@ -315,8 +317,9 @@ impl Sim {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
         let path = format!(
-            "../data/save/{}/{}/{}",
+            "../data/save/{}_{}/{}/{}",
             self.map_name,
+            self.edits_name,
             self.run_name,
             self.time.as_filename()
         );
@@ -333,9 +336,10 @@ impl Sim {
 
     fn find_most_recent_savestate(&self) -> Result<String, std::io::Error> {
         let mut paths: Vec<std::path::PathBuf> = Vec::new();
-        for entry in
-            std::fs::read_dir(format!("../data/save/{}/{}/", self.map_name, self.run_name))?
-        {
+        for entry in std::fs::read_dir(format!(
+            "../data/save/{}_{}/{}/",
+            self.map_name, self.edits_name, self.run_name
+        ))? {
             let entry = entry?;
             paths.push(entry.path());
         }
