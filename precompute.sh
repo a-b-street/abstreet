@@ -12,7 +12,7 @@ for map_path in `ls data/raw_maps/`; do
 		do
 			edits=`basename "$edit_path" .json`;
 			echo "Precomputing $map with $edits";
-			cd sim;
+			cd precompute;
 			# --release isn't necessary; this doesn't generally take long
 			time cargo run -- ../data/raw_maps/$map.abst --edits_name="$edits";
 			cd ..;

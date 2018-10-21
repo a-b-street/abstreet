@@ -1,0 +1,10 @@
+[package]
+name = "precompute"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+log = "0.4.5"
+sim = { path = "../sim" }
+structopt = "0.2"
