@@ -353,3 +353,16 @@ Let's start with two concrete things:
   agent. It follows bends in the road, crosses intersections, etc. Could be
   used for lookahead debugging right now, and this relative ghost comparison
   thing next.
+
+## Tedious to register a new plugin
+
+- make the plugin (unavoidable, this is fine)
+- plugins/mod
+- import in ui
+- declare it in ui's UI or PerMapUI
+- initialize it (can we use default() or something?)
+- event handler thing (unavoidable)
+	- but maybe Colorizer -> Plugin and make a generic event interface
+	- could also put draw there!
+- number in the plugin list
+- sometimes call draw()

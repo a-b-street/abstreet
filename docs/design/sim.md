@@ -200,6 +200,8 @@ Ah, upon seeing just the line between, I know what would make more sense --
 show the divergence. The point in the route where one version goes one way, and
 the second goes another. Two routes shown, symmetric.
 
+Alright, let's see how performant it is to compare all agents!
+
 ## Interactive spawning commands
 
 I no longer imagine a use case for these controls other than debugging /

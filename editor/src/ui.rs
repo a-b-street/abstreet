@@ -75,15 +75,17 @@ impl UIWrapper {
             primary: PerMapUI::new(flags, &kml),
             secondary: None,
 
-            layers: ToggleableLayers::new(),
-            search_state: SearchState::Empty,
-            warp: WarpState::Empty,
-            osm_classifier: OsmClassifier::new(),
-            sim_ctrl: SimController::new(),
-            color_picker: ColorPicker::new(),
-            ab_test_manager: ABTestManager::new(),
-            logs,
-            diff_worlds: DiffWorldsState::new(),
+            plugins: PluginsPerUI {
+                layers: ToggleableLayers::new(),
+                search_state: SearchState::Empty,
+                warp: WarpState::Empty,
+                osm_classifier: OsmClassifier::new(),
+                sim_ctrl: SimController::new(),
+                color_picker: ColorPicker::new(),
+                ab_test_manager: ABTestManager::new(),
+                logs,
+                diff_worlds: DiffWorldsState::new(),
+            },
 
             active_plugin: None,
 
@@ -106,13 +108,13 @@ impl UIWrapper {
             }
         }
 
-        ui.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
+        ui.plugins.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
 
         UIWrapper {
             ui,
             plugins: vec![
                 Box::new(|ctx| {
-                    if ctx.ui.layers.event(ctx.input) {
+                    if ctx.ui.plugins.layers.event(ctx.input) {
                         ctx.ui.primary.recalculate_current_selection = true;
                         true
                     } else {
@@ -145,9 +147,9 @@ impl UIWrapper {
                         &mut ctx.ui.primary.sim,
                     )
                 }),
-                Box::new(|ctx| ctx.ui.search_state.event(ctx.input)),
+                Box::new(|ctx| ctx.ui.plugins.search_state.event(ctx.input)),
                 Box::new(|ctx| {
-                    ctx.ui.warp.event(
+                    ctx.ui.plugins.warp.event(
                         ctx.input,
                         &ctx.ui.primary.map,
                         &ctx.ui.primary.sim,
@@ -175,11 +177,12 @@ impl UIWrapper {
                 }),
                 Box::new(|ctx| {
                     ctx.ui
+                        .plugins
                         .color_picker
                         .event(ctx.input, &mut ctx.ui.canvas, &mut ctx.ui.cs)
                 }),
                 Box::new(|ctx| ctx.ui.primary.steepness_viz.event(ctx.input)),
-                Box::new(|ctx| ctx.ui.osm_classifier.event(ctx.input)),
+                Box::new(|ctx| ctx.ui.plugins.osm_classifier.event(ctx.input)),
                 Box::new(|ctx| {
                     ctx.ui
                         .primary
@@ -254,7 +257,7 @@ impl UIWrapper {
                     )
                 }),
                 Box::new(|ctx| {
-                    let (active, new_ui) = ctx.ui.ab_test_manager.event(
+                    let (active, new_ui) = ctx.ui.plugins.ab_test_manager.event(
                         ctx.input,
                         ctx.ui.primary.current_selection,
                         &ctx.ui.primary.map,
@@ -267,9 +270,10 @@ impl UIWrapper {
                     }
                     active
                 }),
-                Box::new(|ctx| ctx.ui.logs.event(ctx.input)),
+                Box::new(|ctx| ctx.ui.plugins.logs.event(ctx.input)),
                 Box::new(|ctx| {
                     ctx.ui
+                        .plugins
                         .diff_worlds
                         .event(ctx.input, &ctx.ui.primary, &ctx.ui.secondary)
                 }),
@@ -374,15 +378,7 @@ struct UI {
     // When running an A/B test, this is populated too.
     secondary: Option<PerMapUI>,
 
-    layers: ToggleableLayers,
-    search_state: SearchState,
-    warp: WarpState,
-    osm_classifier: OsmClassifier,
-    sim_ctrl: SimController,
-    color_picker: ColorPicker,
-    ab_test_manager: ABTestManager,
-    logs: DisplayLogs,
-    diff_worlds: DiffWorldsState,
+    plugins: PluginsPerUI,
 
     // An index into UIWrapper.plugins.
     active_plugin: Option<usize>,
@@ -394,6 +390,19 @@ struct UI {
     kml: Option<String>,
 }
 
+// aka plugins that don't depend on map
+struct PluginsPerUI {
+    layers: ToggleableLayers,
+    search_state: SearchState,
+    warp: WarpState,
+    osm_classifier: OsmClassifier,
+    sim_ctrl: SimController,
+    color_picker: ColorPicker,
+    ab_test_manager: ABTestManager,
+    logs: DisplayLogs,
+    diff_worlds: DiffWorldsState,
+}
+
 impl UI {
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space();
@@ -403,7 +412,7 @@ impl UI {
             &self.primary.hider,
             &self.primary.map,
             &self.primary.sim,
-            &self.layers,
+            &self.plugins.layers,
             self,
         );
         // Check front-to-back
@@ -431,7 +440,7 @@ impl UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
-        self.layers.handle_zoom(old_zoom, new_zoom);
+        self.plugins.layers.handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -486,9 +495,10 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result = self
-            .sim_ctrl
-            .event(&mut input, &mut self.primary, &mut self.secondary, osd);
+        let result =
+            self.plugins
+                .sim_ctrl
+                .event(&mut input, &mut self.primary, &mut self.secondary, osd);
 
         if self.primary.recalculate_current_selection {
             self.primary.recalculate_current_selection = false;
@@ -507,14 +517,14 @@ impl UI {
             &self.primary.hider,
             &self.primary.map,
             &self.primary.sim,
-            &self.layers,
+            &self.plugins.layers,
             self,
         );
         for obj in statics.into_iter() {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.layers.debug_mode.is_enabled(),
+                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -532,7 +542,7 @@ impl UI {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.layers.debug_mode.is_enabled(),
+                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -563,17 +573,17 @@ impl UI {
             &self.primary.sim,
             g,
         );
-        self.color_picker.draw(&self.canvas, g);
+        self.plugins.color_picker.draw(&self.canvas, g);
         self.primary.draw_neighborhoods.draw(g, &self.canvas);
         self.primary.scenarios.draw(g, &self.canvas);
         self.primary.edits_manager.draw(g, &self.canvas);
-        self.ab_test_manager.draw(g, &self.canvas);
-        self.logs.draw(g, &self.canvas);
-        self.search_state.draw(g, &self.canvas);
-        self.warp.draw(g, &self.canvas);
-        self.sim_ctrl.draw(g, &self.canvas);
+        self.plugins.ab_test_manager.draw(g, &self.canvas);
+        self.plugins.logs.draw(g, &self.canvas);
+        self.plugins.search_state.draw(g, &self.canvas);
+        self.plugins.warp.draw(g, &self.canvas);
+        self.plugins.sim_ctrl.draw(g, &self.canvas);
         self.primary.show_route.draw(g, &self.cs);
-        self.diff_worlds.draw(g, &self.cs);
+        self.plugins.diff_worlds.draw(g, &self.cs);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
@@ -604,17 +614,17 @@ impl UI {
         // Match instead of array, because can't move the Box out of the temporary vec. :\
         // This must line up with the list of plugins in UIWrapper::new.
         match idx {
-            0 => Some(Box::new(&self.layers)),
+            0 => Some(Box::new(&self.plugins.layers)),
             1 => Some(Box::new(&self.primary.traffic_signal_editor)),
             2 => Some(Box::new(&self.primary.stop_sign_editor)),
             3 => Some(Box::new(&self.primary.road_editor)),
-            4 => Some(Box::new(&self.search_state)),
-            5 => Some(Box::new(&self.warp)),
+            4 => Some(Box::new(&self.plugins.search_state)),
+            5 => Some(Box::new(&self.plugins.warp)),
             6 => Some(Box::new(&self.primary.follow)),
             7 => Some(Box::new(&self.primary.show_route)),
-            8 => Some(Box::new(&self.color_picker)),
+            8 => Some(Box::new(&self.plugins.color_picker)),
             9 => Some(Box::new(&self.primary.steepness_viz)),
-            10 => Some(Box::new(&self.osm_classifier)),
+            10 => Some(Box::new(&self.plugins.osm_classifier)),
             11 => Some(Box::new(&self.primary.hider)),
             12 => Some(Box::new(&self.primary.debug_objects)),
             13 => Some(Box::new(&self.primary.floodfiller)),
@@ -624,9 +634,9 @@ impl UI {
             17 => Some(Box::new(&self.primary.scenarios)),
             18 => Some(Box::new(&self.primary.edits_manager)),
             19 => Some(Box::new(&self.primary.chokepoints)),
-            20 => Some(Box::new(&self.ab_test_manager)),
-            21 => Some(Box::new(&self.logs)),
-            22 => Some(Box::new(&self.diff_worlds)),
+            20 => Some(Box::new(&self.plugins.ab_test_manager)),
+            21 => Some(Box::new(&self.plugins.logs)),
+            22 => Some(Box::new(&self.plugins.diff_worlds)),
             23 => Some(Box::new(&self.primary.show_owner)),
             _ => panic!("Active plugin {} is too high", idx),
         }
@@ -647,7 +657,7 @@ pub trait ShowTurnIcons {
 
 impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.layers.show_all_turn_icons.is_enabled()
+        self.plugins.layers.show_all_turn_icons.is_enabled()
             || self.primary.stop_sign_editor.show_turn_icons(id)
             || self.primary.traffic_signal_editor.show_turn_icons(id)
     }
