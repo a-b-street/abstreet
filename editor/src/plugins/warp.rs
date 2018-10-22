@@ -1,6 +1,6 @@
 use ezgui::{Canvas, GfxCtx, InputResult, TextBox};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
-use objects::{DEBUG, ID};
+use objects::{Ctx, DEBUG, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use render::DrawMap;
@@ -10,14 +10,6 @@ use std::usize;
 pub enum WarpState {
     Empty,
     EnteringSearch(TextBox),
-}
-
-impl WarpState {
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let WarpState::EnteringSearch(tb) = self {
-            tb.draw(g, canvas);
-        }
-    }
 }
 
 impl Plugin for WarpState {
@@ -59,6 +51,12 @@ impl Plugin for WarpState {
         match self {
             WarpState::Empty => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        if let WarpState::EnteringSearch(tb) = self {
+            tb.draw(g, ctx.canvas);
         }
     }
 }

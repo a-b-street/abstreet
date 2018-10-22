@@ -161,6 +161,7 @@ impl GUI for UI {
                     cs: &self.cs,
                     map: &self.primary.map,
                     control_map: &self.primary.control_map,
+                    draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                 },
@@ -179,41 +180,27 @@ impl GUI for UI {
                     cs: &self.cs,
                     map: &self.primary.map,
                     control_map: &self.primary.control_map,
+                    draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                 },
             );
         }
 
-        // TODO Only if active?
-        self.primary_plugins.turn_cycler.draw(
-            &self.primary.map,
-            &self.primary.draw_map,
-            &self.primary.control_map,
-            self.primary.sim.time,
-            &self.cs,
-            g,
-        );
-        self.primary_plugins.debug_objects.draw(
-            &self.primary.map,
-            &self.canvas,
-            &self.primary.draw_map,
-            &self.primary.sim,
-            g,
-        );
-        self.plugins.color_picker.draw(&self.canvas, g);
-        self.primary_plugins
-            .draw_neighborhoods
-            .draw(g, &self.canvas);
-        self.primary_plugins.scenarios.draw(g, &self.canvas);
-        self.primary_plugins.edits_manager.draw(g, &self.canvas);
-        self.plugins.ab_test_manager.draw(g, &self.canvas);
-        self.plugins.logs.draw(g, &self.canvas);
-        self.plugins.search_state.draw(g, &self.canvas);
-        self.plugins.warp.draw(g, &self.canvas);
+        if let Some(p) = self.get_active_plugin() {
+            p.draw(
+                g,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.primary.map,
+                    control_map: &self.primary.control_map,
+                    draw_map: &self.primary.draw_map,
+                    canvas: &self.canvas,
+                    sim: &self.primary.sim,
+                },
+            );
+        }
         self.plugins.sim_ctrl.draw(g, &self.canvas);
-        self.primary_plugins.show_route.draw(g, &self.cs);
-        self.plugins.diff_worlds.draw(g, &self.cs);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
@@ -401,6 +388,7 @@ impl UI {
             cs: &self.cs,
             map: &self.primary.map,
             control_map: &self.primary.control_map,
+            draw_map: &self.primary.draw_map,
             canvas: &self.canvas,
             sim: &self.primary.sim,
         };

@@ -1,14 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
-use control::ControlMap;
+use colors::Colors;
 use ezgui::{Color, GfxCtx};
-use map_model::{IntersectionID, LaneID, Map};
+use map_model::{IntersectionID, LaneID};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
-use sim::Tick;
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -20,44 +17,6 @@ pub enum TurnCyclerState {
 impl TurnCyclerState {
     pub fn new() -> TurnCyclerState {
         TurnCyclerState::Inactive
-    }
-
-    pub fn draw(
-        &self,
-        map: &Map,
-        draw_map: &DrawMap,
-        control_map: &ControlMap,
-        time: Tick,
-        cs: &ColorScheme,
-        g: &mut GfxCtx,
-    ) {
-        match self {
-            TurnCyclerState::Inactive => {}
-            TurnCyclerState::Active(l, current_turn_index) => {
-                let relevant_turns = map.get_turns_from_lane(*l);
-                if !relevant_turns.is_empty() {
-                    match current_turn_index {
-                        Some(idx) => {
-                            let turn = relevant_turns[idx % relevant_turns.len()];
-                            let draw_turn = draw_map.get_t(turn.id);
-                            draw_turn.draw_full(g, cs.get(Colors::Turn));
-                        }
-                        None => for turn in &relevant_turns {
-                            draw_map.get_t(turn.id).draw_full(g, cs.get(Colors::Turn));
-                        },
-                    }
-                }
-                //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
-            }
-            TurnCyclerState::Intersection(id) => {
-                if let Some(signal) = control_map.traffic_signals.get(&id) {
-                    let (cycle, _) = signal.current_cycle_and_remaining_time(time.as_time());
-                    for t in &cycle.turns {
-                        draw_map.get_t(*t).draw_full(g, cs.get(Colors::Turn));
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -102,6 +61,41 @@ impl Plugin for TurnCyclerState {
             // Only once they start tabbing through turns does this plugin block other input.
             TurnCyclerState::Active(_, current_turn_index) => current_turn_index.is_some(),
             TurnCyclerState::Intersection(_) => false,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            TurnCyclerState::Inactive => {}
+            TurnCyclerState::Active(l, current_turn_index) => {
+                let relevant_turns = ctx.map.get_turns_from_lane(*l);
+                if !relevant_turns.is_empty() {
+                    match current_turn_index {
+                        Some(idx) => {
+                            let turn = relevant_turns[idx % relevant_turns.len()];
+                            let draw_turn = ctx.draw_map.get_t(turn.id);
+                            draw_turn.draw_full(g, ctx.cs.get(Colors::Turn));
+                        }
+                        None => for turn in &relevant_turns {
+                            ctx.draw_map
+                                .get_t(turn.id)
+                                .draw_full(g, ctx.cs.get(Colors::Turn));
+                        },
+                    }
+                }
+                //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
+            }
+            TurnCyclerState::Intersection(id) => {
+                if let Some(signal) = ctx.control_map.traffic_signals.get(&id) {
+                    let (cycle, _) =
+                        signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                    for t in &cycle.turns {
+                        ctx.draw_map
+                            .get_t(*t)
+                            .draw_full(g, ctx.cs.get(Colors::Turn));
+                    }
+                }
+            }
         }
     }
 

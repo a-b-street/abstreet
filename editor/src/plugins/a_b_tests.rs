@@ -1,6 +1,6 @@
-use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
-use objects::SIM_SETUP;
+use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use sim::{ABTest, SimFlags};
@@ -15,18 +15,6 @@ pub enum ABTestManager {
 impl ABTestManager {
     pub fn new() -> ABTestManager {
         ABTestManager::Inactive
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        match self {
-            ABTestManager::Inactive => {}
-            ABTestManager::PickABTest(wizard) => {
-                wizard.draw(g, canvas);
-            }
-            ABTestManager::ManageABTest(_, scroller) => {
-                scroller.draw(g, canvas);
-            }
-        }
     }
 }
 
@@ -74,6 +62,18 @@ impl Plugin for ABTestManager {
         match self {
             ABTestManager::Inactive => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            ABTestManager::Inactive => {}
+            ABTestManager::PickABTest(wizard) => {
+                wizard.draw(g, ctx.canvas);
+            }
+            ABTestManager::ManageABTest(_, scroller) => {
+                scroller.draw(g, ctx.canvas);
+            }
         }
     }
 }

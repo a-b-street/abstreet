@@ -2,7 +2,7 @@
 
 use colors::Colors;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
-use objects::SETTINGS;
+use objects::{Ctx, SETTINGS};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use std::string::ToString;
@@ -24,32 +24,6 @@ pub enum ColorPicker {
 impl ColorPicker {
     pub fn new() -> ColorPicker {
         ColorPicker::Inactive
-    }
-
-    pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {
-        match self {
-            ColorPicker::Inactive => {}
-            ColorPicker::Choosing(menu) => {
-                menu.draw(g, canvas);
-            }
-            ColorPicker::PickingColor(_, _) => {
-                let (start_x, start_y) = get_screen_offset(canvas);
-
-                for x in 0..WIDTH {
-                    for y in 0..HEIGHT {
-                        let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
-                        let corner = canvas.screen_to_map((
-                            (x * TILE_DIMS + start_x) as f64,
-                            (y * TILE_DIMS + start_y) as f64,
-                        ));
-                        g.draw_rectangle(
-                            color,
-                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
-                        );
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -108,6 +82,32 @@ impl Plugin for ColorPicker {
         match self {
             ColorPicker::Inactive => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            ColorPicker::Inactive => {}
+            ColorPicker::Choosing(menu) => {
+                menu.draw(g, ctx.canvas);
+            }
+            ColorPicker::PickingColor(_, _) => {
+                let (start_x, start_y) = get_screen_offset(ctx.canvas);
+
+                for x in 0..WIDTH {
+                    for y in 0..HEIGHT {
+                        let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
+                        let corner = ctx.canvas.screen_to_map((
+                            (x * TILE_DIMS + start_x) as f64,
+                            (y * TILE_DIMS + start_y) as f64,
+                        ));
+                        g.draw_rectangle(
+                            color,
+                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
+                        );
+                    }
+                }
+            }
         }
     }
 }

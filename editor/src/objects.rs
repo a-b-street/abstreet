@@ -106,6 +106,7 @@ pub struct Ctx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,
     pub control_map: &'a ControlMap,
+    pub draw_map: &'a DrawMap,
     pub canvas: &'a Canvas,
     pub sim: &'a Sim,
 }

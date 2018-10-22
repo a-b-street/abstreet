@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, Color, GfxCtx, InputResult, TextBox};
+use ezgui::{Color, GfxCtx, InputResult, TextBox};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -23,12 +23,6 @@ impl SearchState {
             }
         }
         None
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let SearchState::EnteringSearch(tb) = self {
-            tb.draw(g, canvas);
-        }
     }
 }
 
@@ -69,6 +63,12 @@ impl Plugin for SearchState {
         match self {
             SearchState::Empty => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        if let SearchState::EnteringSearch(tb) = self {
+            tb.draw(g, ctx.canvas);
         }
     }
 

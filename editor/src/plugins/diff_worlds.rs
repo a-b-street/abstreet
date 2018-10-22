@@ -1,7 +1,7 @@
-use colors::ColorScheme;
 use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
+use objects::Ctx;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use sim::TripID;
@@ -15,13 +15,6 @@ pub enum DiffWorldsState {
 impl DiffWorldsState {
     pub fn new() -> DiffWorldsState {
         DiffWorldsState::Inactive
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, _cs: &ColorScheme) {
-        if let DiffWorldsState::Active(_, ref line) = self {
-            // TODO move constants
-            g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
-        }
     }
 }
 
@@ -76,6 +69,13 @@ impl Plugin for DiffWorldsState {
         match self {
             DiffWorldsState::Inactive => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _ctx: Ctx) {
+        if let DiffWorldsState::Active(_, ref line) = self {
+            // TODO move constants
+            g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
         }
     }
 }

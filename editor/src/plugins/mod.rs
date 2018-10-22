@@ -25,7 +25,7 @@ pub mod turn_cycler;
 pub mod warp;
 
 use abstutil;
-use ezgui::{Color, WrappedWizard};
+use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
@@ -35,6 +35,8 @@ pub trait Plugin {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
         None
     }
+
+    fn draw(&self, _g: &mut GfxCtx, _ctx: Ctx) {}
 
     fn event(&mut self, ctx: PluginCtx) -> bool;
 }

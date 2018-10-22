@@ -1,10 +1,7 @@
-use ezgui::{Canvas, GfxCtx, Text};
-use map_model::Map;
-use objects::ID;
+use ezgui::{GfxCtx, Text};
+use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
-use sim::Sim;
 
 pub enum DebugObjectsState {
     Empty,
@@ -15,20 +12,6 @@ pub enum DebugObjectsState {
 impl DebugObjectsState {
     pub fn new() -> DebugObjectsState {
         DebugObjectsState::Empty
-    }
-
-    pub fn draw(&self, map: &Map, canvas: &Canvas, draw_map: &DrawMap, sim: &Sim, g: &mut GfxCtx) {
-        match *self {
-            DebugObjectsState::Empty => {}
-            DebugObjectsState::Selected(_) => {}
-            DebugObjectsState::Tooltip(id) => {
-                let mut txt = Text::new();
-                for line in id.tooltip_lines(map, draw_map, sim) {
-                    txt.add_line(line);
-                }
-                canvas.draw_mouse_tooltip(g, txt);
-            }
-        }
     }
 }
 
@@ -78,6 +61,20 @@ impl Plugin for DebugObjectsState {
             // TODO hmm, but when we press D to debug, we don't want other stuff to happen...
             DebugObjectsState::Selected(_) => false,
             DebugObjectsState::Tooltip(_) => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match *self {
+            DebugObjectsState::Empty => {}
+            DebugObjectsState::Selected(_) => {}
+            DebugObjectsState::Tooltip(id) => {
+                let mut txt = Text::new();
+                for line in id.tooltip_lines(ctx.map, ctx.draw_map, ctx.sim) {
+                    txt.add_line(line);
+                }
+                ctx.canvas.draw_mouse_tooltip(g, txt);
+            }
         }
     }
 }

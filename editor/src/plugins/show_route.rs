@@ -1,8 +1,8 @@
-use colors::{ColorScheme, Colors};
+use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use map_model::{Trace, LANE_THICKNESS};
-use objects::ID;
+use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use sim::AgentID;
@@ -11,17 +11,6 @@ use std::f64;
 pub enum ShowRouteState {
     Empty,
     Active(AgentID, Trace),
-}
-
-impl ShowRouteState {
-    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        if let ShowRouteState::Active(_, trace) = self {
-            g.draw_polygon(
-                cs.get(Colors::Queued),
-                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
-            );
-        }
-    }
 }
 
 impl Plugin for ShowRouteState {
@@ -76,6 +65,15 @@ impl Plugin for ShowRouteState {
         match self {
             ShowRouteState::Empty => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        if let ShowRouteState::Active(_, trace) = self {
+            g.draw_polygon(
+                ctx.cs.get(Colors::Queued),
+                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+            );
         }
     }
 }

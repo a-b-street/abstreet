@@ -1,7 +1,7 @@
 use control::ControlMap;
-use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
-use objects::SIM_SETUP;
+use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{choose_edits, Plugin, PluginCtx};
 use sim::{MapEdits, SimFlags};
@@ -15,15 +15,6 @@ pub enum EditsManager {
 impl EditsManager {
     pub fn new() -> EditsManager {
         EditsManager::Inactive
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        match self {
-            EditsManager::ManageEdits(ref wizard) => {
-                wizard.draw(g, canvas);
-            }
-            _ => {}
-        }
     }
 }
 
@@ -67,6 +58,15 @@ impl Plugin for EditsManager {
         match self {
             EditsManager::Inactive => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            EditsManager::ManageEdits(ref wizard) => {
+                wizard.draw(g, ctx.canvas);
+            }
+            _ => {}
         }
     }
 }

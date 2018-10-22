@@ -1,8 +1,8 @@
 use abstutil::format_log_record;
-use ezgui::{Canvas, GfxCtx, LogScroller};
+use ezgui::{GfxCtx, LogScroller};
 use log;
 use log::{LevelFilter, Log, Metadata, Record};
-use objects::ROOT_MENU;
+use objects::{Ctx, ROOT_MENU};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use std::sync::Mutex;
@@ -29,12 +29,6 @@ impl DisplayLogs {
         }
         DisplayLogs { active: false }
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if self.active {
-            LOGGER.lock().unwrap().draw(g, canvas);
-        }
-    }
 }
 
 impl Plugin for DisplayLogs {
@@ -55,6 +49,12 @@ impl Plugin for DisplayLogs {
             self.active = false;
         }
         self.active
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        if self.active {
+            LOGGER.lock().unwrap().draw(g, ctx.canvas);
+        }
     }
 }
 

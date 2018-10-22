@@ -1,7 +1,7 @@
-use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use geom::Polygon;
 use map_model::Map;
-use objects::SIM_SETUP;
+use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{
     choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Plugin, PluginCtx,
@@ -18,24 +18,6 @@ pub enum ScenarioManager {
 impl ScenarioManager {
     pub fn new() -> ScenarioManager {
         ScenarioManager::Inactive
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        match self {
-            ScenarioManager::Inactive => {}
-            ScenarioManager::PickScenario(wizard) => {
-                wizard.draw(g, canvas);
-            }
-            ScenarioManager::ManageScenario(_, scroller) => {
-                scroller.draw(g, canvas);
-            }
-            ScenarioManager::EditScenario(_, wizard) => {
-                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
-                }
-                wizard.draw(g, canvas);
-            }
-        }
     }
 }
 
@@ -92,6 +74,24 @@ impl Plugin for ScenarioManager {
         match self {
             ScenarioManager::Inactive => false,
             _ => true,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            ScenarioManager::Inactive => {}
+            ScenarioManager::PickScenario(wizard) => {
+                wizard.draw(g, ctx.canvas);
+            }
+            ScenarioManager::ManageScenario(_, scroller) => {
+                scroller.draw(g, ctx.canvas);
+            }
+            ScenarioManager::EditScenario(_, wizard) => {
+                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
+                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
+                }
+                wizard.draw(g, ctx.canvas);
+            }
         }
     }
 }
