@@ -3,7 +3,6 @@ use ezgui::{Canvas, GfxCtx, UserInput, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::road_editor::RoadEditor;
 use plugins::{choose_edits, Colorizer};
 use sim::{MapEdits, SimFlags};
 use ui::{PerMapUI, PluginsPerMap};
@@ -24,7 +23,6 @@ impl EditsManager {
         input: &mut UserInput,
         map: &Map,
         control_map: &ControlMap,
-        road_editor: &RoadEditor,
         current_flags: &mut SimFlags,
         kml: &Option<String>,
     ) -> (bool, Option<(PerMapUI, PluginsPerMap)>) {
@@ -41,7 +39,6 @@ impl EditsManager {
                     current_flags,
                     map,
                     control_map,
-                    road_editor,
                     &mut new_primary,
                     kml,
                     wizard.wrap(input),
@@ -79,7 +76,6 @@ fn manage_edits(
     current_flags: &mut SimFlags,
     map: &Map,
     control_map: &ControlMap,
-    road_editor: &RoadEditor,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     kml: &Option<String>,
     mut wizard: WrappedWizard,
@@ -99,7 +95,7 @@ fn manage_edits(
     let mut edits = MapEdits {
         edits_name: current_flags.edits_name.to_string(),
         map_name: map.get_name().to_string(),
-        road_edits: road_editor.get_edits().clone(),
+        road_edits: map.get_road_edits().clone(),
         stop_signs: control_map.get_changed_stop_signs(),
         traffic_signals: control_map.get_changed_traffic_signals(),
     };

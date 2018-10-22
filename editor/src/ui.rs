@@ -244,7 +244,6 @@ pub struct PluginsPerMap {
     steepness_viz: SteepnessVisualizer,
     traffic_signal_editor: TrafficSignalEditor,
     stop_sign_editor: StopSignEditor,
-    road_editor: RoadEditor,
     geom_validator: Validator,
     turn_cycler: TurnCyclerState,
     show_owner: ShowOwnerState,
@@ -272,7 +271,6 @@ impl PerMapUI {
         flame::dump_stdout();
 
         let steepness_viz = SteepnessVisualizer::new(&map);
-        let road_editor = RoadEditor::new(map.get_road_edits().clone());
 
         let state = PerMapUI {
             map,
@@ -293,7 +291,6 @@ impl PerMapUI {
             steepness_viz,
             traffic_signal_editor: TrafficSignalEditor::new(),
             stop_sign_editor: StopSignEditor::new(),
-            road_editor,
             geom_validator: Validator::new(),
             turn_cycler: TurnCyclerState::new(),
             show_owner: ShowOwnerState::new(),
@@ -317,6 +314,7 @@ struct PluginsPerUI {
     ab_test_manager: ABTestManager,
     logs: DisplayLogs,
     diff_worlds: DiffWorldsState,
+    road_editor: RoadEditor,
 }
 
 impl UI {
@@ -340,6 +338,7 @@ impl UI {
                 ab_test_manager: ABTestManager::new(),
                 logs,
                 diff_worlds: DiffWorldsState::new(),
+                road_editor: RoadEditor::new(),
             },
 
             active_plugin: None,
@@ -455,7 +454,7 @@ impl UI {
             0 => Some(Box::new(&self.plugins.layers)),
             1 => Some(Box::new(&self.primary_plugins.traffic_signal_editor)),
             2 => Some(Box::new(&self.primary_plugins.stop_sign_editor)),
-            3 => Some(Box::new(&self.primary_plugins.road_editor)),
+            3 => Some(Box::new(&self.plugins.road_editor)),
             4 => Some(Box::new(&self.plugins.search_state)),
             5 => Some(Box::new(&self.plugins.warp)),
             6 => Some(Box::new(&self.primary_plugins.follow)),
@@ -494,7 +493,7 @@ impl UI {
             0 => self.plugins.layers.event(ctx),
             1 => self.primary_plugins.traffic_signal_editor.event(ctx),
             2 => self.primary_plugins.stop_sign_editor.event(ctx),
-            3 => self.primary_plugins.road_editor.event(ctx),
+            3 => self.plugins.road_editor.event(ctx),
             4 => self.plugins.search_state.event(ctx),
             5 => self.plugins.warp.event(ctx),
             6 => self.primary_plugins.follow.event(ctx),

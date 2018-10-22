@@ -1,23 +1,15 @@
-use map_model::{EditReason, LaneID, LaneType, RoadEdits};
+use map_model::{EditReason, LaneID, LaneType};
 use objects::{EDIT_MAP, ID};
 use piston::input::Key;
 use plugins::{Colorizer, PluginCtx};
 
 pub struct RoadEditor {
-    edits: RoadEdits,
     active: bool,
 }
 
 impl RoadEditor {
-    pub fn new(edits: RoadEdits) -> RoadEditor {
-        RoadEditor {
-            edits,
-            active: false,
-        }
-    }
-
-    pub fn get_edits(&self) -> &RoadEdits {
-        &self.edits
+    pub fn new() -> RoadEditor {
+        RoadEditor { active: false }
     }
 }
 
@@ -31,6 +23,7 @@ impl Colorizer for RoadEditor {
             &ctx.primary.control_map,
             &mut ctx.primary.sim,
         );
+        let mut edits = map.get_road_edits().clone();
 
         // TODO a bit awkward that we can't pull this info from RoadEdits easily
         let mut changed: Option<(LaneID, LaneType)> = None;
@@ -52,35 +45,26 @@ impl Colorizer for RoadEditor {
                     if lane.lane_type != LaneType::Driving
                         && input.key_pressed(Key::D, "make this a driving lane")
                     {
-                        if self
-                            .edits
-                            .change_lane_type(reason, road, lane, LaneType::Driving)
-                        {
+                        if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
                             changed = Some((lane.id, LaneType::Driving));
                         }
                     }
                     if lane.lane_type != LaneType::Parking
                         && input.key_pressed(Key::P, "make this a parking lane")
                     {
-                        if self
-                            .edits
-                            .change_lane_type(reason, road, lane, LaneType::Parking)
-                        {
+                        if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
                             changed = Some((lane.id, LaneType::Parking));
                         }
                     }
                     if lane.lane_type != LaneType::Biking
                         && input.key_pressed(Key::B, "make this a bike lane")
                     {
-                        if self
-                            .edits
-                            .change_lane_type(reason, road, lane, LaneType::Biking)
-                        {
+                        if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
                             changed = Some((lane.id, LaneType::Biking));
                         }
                     }
                     if input.key_pressed(Key::Backspace, "delete this lane") {
-                        if self.edits.delete_lane(road, lane) {
+                        if edits.delete_lane(road, lane) {
                             warn!("Have to reload the map from scratch to pick up this change!");
                         }
                     }
@@ -116,6 +100,8 @@ impl Colorizer for RoadEditor {
                 }
             }
         }
+
+        map.store_new_edits(edits);
 
         self.active
     }

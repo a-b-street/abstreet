@@ -213,6 +213,12 @@ impl Map {
         m
     }
 
+    // The caller has to clone get_road_edits(), mutate, actualize the changes, then store them
+    // here.
+    pub fn store_new_edits(&mut self, edits: RoadEdits) {
+        self.road_edits = edits;
+    }
+
     pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
         assert_ne!(self.get_l(lane).lane_type, new_type);
         self.lanes[lane.0].lane_type = new_type;
