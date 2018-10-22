@@ -5,7 +5,7 @@ use ezgui::Color;
 use map_model::{LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
@@ -38,7 +38,7 @@ impl Floodfiller {
     // TODO step backwards!
 }
 
-impl Colorizer for Floodfiller {
+impl Plugin for Floodfiller {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (map, input, selected) = (&ctx.primary.map, ctx.input, ctx.primary.current_selection);
 

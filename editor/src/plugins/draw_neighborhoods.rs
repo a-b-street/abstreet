@@ -3,7 +3,7 @@ use geom::{Circle, Line, Polygon};
 use map_model::Map;
 use objects::EDIT_MAP;
 use piston::input::Key;
-use plugins::{load_neighborhood, Colorizer, PluginCtx};
+use plugins::{load_neighborhood, Plugin, PluginCtx};
 use sim::Neighborhood;
 
 const POINT_RADIUS: f64 = 2.0;
@@ -66,7 +66,7 @@ impl DrawNeighborhoodState {
     }
 }
 
-impl Colorizer for DrawNeighborhoodState {
+impl Plugin for DrawNeighborhoodState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, canvas, map, osd) = (ctx.input, ctx.canvas, &ctx.primary.map, ctx.osd);
 

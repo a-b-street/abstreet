@@ -7,7 +7,7 @@ use ezgui::Color;
 use map_model::IntersectionID;
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 
 #[derive(PartialEq)]
 pub enum TrafficSignalEditor {
@@ -34,7 +34,7 @@ impl TrafficSignalEditor {
     }
 }
 
-impl Colorizer for TrafficSignalEditor {
+impl Plugin for TrafficSignalEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let input = ctx.input;
         let map = &ctx.primary.map;

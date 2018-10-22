@@ -6,7 +6,7 @@ use ezgui::Color;
 use map_model::{Lane, Map};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::f64;
 
 pub struct SteepnessVisualizer {
@@ -41,7 +41,7 @@ impl SteepnessVisualizer {
     }
 }
 
-impl Colorizer for SteepnessVisualizer {
+impl Plugin for SteepnessVisualizer {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let msg = if self.active {
             "stop showing steepness"

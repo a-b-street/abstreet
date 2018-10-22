@@ -1,7 +1,7 @@
 use ezgui::ToggleableLayer;
 use objects::{DEBUG_LAYERS, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
@@ -80,7 +80,7 @@ impl ToggleableLayers {
     }
 }
 
-impl Colorizer for ToggleableLayers {
+impl Plugin for ToggleableLayers {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         for layer in self.toggleable_layers().into_iter() {
             if layer.event(ctx.input) {

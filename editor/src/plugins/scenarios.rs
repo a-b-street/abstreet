@@ -4,7 +4,7 @@ use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::{
-    choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Colorizer, PluginCtx,
+    choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
 use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
@@ -39,7 +39,7 @@ impl ScenarioManager {
     }
 }
 
-impl Colorizer for ScenarioManager {
+impl Plugin for ScenarioManager {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, map, sim) = (ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
 

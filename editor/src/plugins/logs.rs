@@ -4,7 +4,7 @@ use log;
 use log::{LevelFilter, Log, Metadata, Record};
 use objects::ROOT_MENU;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::sync::Mutex;
 
 lazy_static! {
@@ -37,7 +37,7 @@ impl DisplayLogs {
     }
 }
 
-impl Colorizer for DisplayLogs {
+impl Plugin for DisplayLogs {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         if !self.active {
             if ctx

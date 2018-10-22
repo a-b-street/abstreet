@@ -4,7 +4,7 @@ use colors::Colors;
 use ezgui::Color;
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 
 // TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {
@@ -17,7 +17,7 @@ impl OsmClassifier {
     }
 }
 
-impl Colorizer for OsmClassifier {
+impl Plugin for OsmClassifier {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let msg = if self.active {
             "stop showing OSM classes"

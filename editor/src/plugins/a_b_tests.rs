@@ -2,7 +2,7 @@ use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer, PluginCtx};
+use plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use sim::{ABTest, SimFlags};
 use ui::{PerMapUI, PluginsPerMap};
 
@@ -30,7 +30,7 @@ impl ABTestManager {
     }
 }
 
-impl Colorizer for ABTestManager {
+impl Plugin for ABTestManager {
     // May return a new primary and secondary UI
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let selected = ctx.primary.current_selection;

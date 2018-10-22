@@ -31,7 +31,7 @@ use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
 use ui::PluginCtx;
 
-pub trait Colorizer {
+pub trait Plugin {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
         None
     }

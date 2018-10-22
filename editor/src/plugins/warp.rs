@@ -2,7 +2,7 @@ use ezgui::{Canvas, GfxCtx, InputResult, TextBox};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::{DEBUG, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use render::DrawMap;
 use sim::{CarID, PedestrianID, Sim, TripID};
 use std::usize;
@@ -20,7 +20,7 @@ impl WarpState {
     }
 }
 
-impl Colorizer for WarpState {
+impl Plugin for WarpState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, map, sim, draw_map, canvas, selected) = (
             ctx.input,

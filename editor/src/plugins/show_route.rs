@@ -4,7 +4,7 @@ use ezgui::GfxCtx;
 use map_model::{Trace, LANE_THICKNESS};
 use objects::ID;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use sim::AgentID;
 use std::f64;
 
@@ -24,7 +24,7 @@ impl ShowRouteState {
     }
 }
 
-impl Colorizer for ShowRouteState {
+impl Plugin for ShowRouteState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, sim, map, selected) = (
             ctx.input,

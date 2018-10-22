@@ -5,7 +5,7 @@ use ezgui::Color;
 use map_model::{IntersectionID, LaneID, Map, Traversable};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use sim::Sim;
 use std::collections::HashSet;
 use std::f64;
@@ -23,7 +23,7 @@ impl ChokepointsFinder {
     }
 }
 
-impl Colorizer for ChokepointsFinder {
+impl Plugin for ChokepointsFinder {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, sim, map) = (ctx.input, &ctx.primary.sim, &ctx.primary.map);
 

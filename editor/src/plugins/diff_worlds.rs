@@ -3,7 +3,7 @@ use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use sim::TripID;
 
 pub enum DiffWorldsState {
@@ -25,7 +25,7 @@ impl DiffWorldsState {
     }
 }
 
-impl Colorizer for DiffWorldsState {
+impl Plugin for DiffWorldsState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, primary, secondary) = (ctx.input, &ctx.primary, ctx.secondary);
 

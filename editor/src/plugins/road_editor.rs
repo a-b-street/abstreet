@@ -1,7 +1,7 @@
 use map_model::{EditReason, LaneID, LaneType};
 use objects::{EDIT_MAP, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 
 pub struct RoadEditor {
     active: bool,
@@ -13,7 +13,7 @@ impl RoadEditor {
     }
 }
 
-impl Colorizer for RoadEditor {
+impl Plugin for RoadEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, selected, map, draw_map, control_map, sim) = (
             ctx.input,

@@ -4,7 +4,7 @@ use geo::prelude::Intersects;
 use geom::Polygon;
 use objects::{DEBUG, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use render::DrawMap;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
@@ -80,7 +80,7 @@ impl Validator {
     }
 }
 
-impl Colorizer for Validator {
+impl Plugin for Validator {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, canvas, map, sim, draw_map) = (
             ctx.input,

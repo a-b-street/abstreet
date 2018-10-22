@@ -3,7 +3,7 @@ use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_edits, Colorizer, PluginCtx};
+use plugins::{choose_edits, Plugin, PluginCtx};
 use sim::{MapEdits, SimFlags};
 use ui::{PerMapUI, PluginsPerMap};
 
@@ -27,7 +27,7 @@ impl EditsManager {
     }
 }
 
-impl Colorizer for EditsManager {
+impl Plugin for EditsManager {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let mut new_state: Option<EditsManager> = None;
         match self {

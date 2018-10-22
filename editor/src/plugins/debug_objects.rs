@@ -2,7 +2,7 @@ use ezgui::{Canvas, GfxCtx, Text};
 use map_model::Map;
 use objects::ID;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use render::DrawMap;
 use sim::Sim;
 
@@ -32,7 +32,7 @@ impl DebugObjectsState {
     }
 }
 
-impl Colorizer for DebugObjectsState {
+impl Plugin for DebugObjectsState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (selected, input, map, sim, control_map) = (
             ctx.primary.current_selection,

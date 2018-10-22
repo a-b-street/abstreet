@@ -4,7 +4,7 @@ use colors::Colors;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
 use objects::SETTINGS;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::string::ToString;
 use strum::IntoEnumIterator;
 
@@ -53,7 +53,7 @@ impl ColorPicker {
     }
 }
 
-impl Colorizer for ColorPicker {
+impl Plugin for ColorPicker {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, canvas, cs) = (ctx.input, ctx.canvas, ctx.cs);
 

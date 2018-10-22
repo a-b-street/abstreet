@@ -37,7 +37,7 @@ use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::turn_cycler::TurnCyclerState;
 use plugins::warp::WarpState;
-use plugins::Colorizer;
+use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{Sim, SimFlags};
@@ -414,7 +414,7 @@ impl UI {
         self.primary_plugins.show_owner.color_for(id, ctx)
     }
 
-    fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
+    fn get_active_plugin(&self) -> Option<Box<&Plugin>> {
         let idx = self.active_plugin?;
         // Match instead of array, because can't move the Box out of the temporary vec. :\
         // This must line up with the list of plugins in UI::new.

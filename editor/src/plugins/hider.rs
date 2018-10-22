@@ -2,7 +2,7 @@
 
 use objects::{DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::collections::HashSet;
 
 pub struct Hider {
@@ -21,7 +21,7 @@ impl Hider {
     }
 }
 
-impl Colorizer for Hider {
+impl Plugin for Hider {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, selected) = (ctx.input, &mut ctx.primary.current_selection);
 

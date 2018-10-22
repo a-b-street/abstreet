@@ -1,6 +1,6 @@
 use objects::ID;
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use sim::{CarID, PedestrianID};
 
 #[derive(PartialEq)]
@@ -10,7 +10,7 @@ pub enum FollowState {
     FollowingPedestrian(PedestrianID),
 }
 
-impl Colorizer for FollowState {
+impl Plugin for FollowState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, map, sim, canvas, selected) = (
             ctx.input,

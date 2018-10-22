@@ -4,7 +4,7 @@ use colors::{ColorScheme, Colors};
 use ezgui::{Canvas, Color, GfxCtx, InputResult, TextBox};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use std::collections::BTreeMap;
 
 pub enum SearchState {
@@ -32,7 +32,7 @@ impl SearchState {
     }
 }
 
-impl Colorizer for SearchState {
+impl Plugin for SearchState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let input = ctx.input;
 

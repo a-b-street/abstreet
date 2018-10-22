@@ -2,7 +2,7 @@ use colors::Colors;
 use ezgui::Color;
 use map_model::BuildingID;
 use objects::{Ctx, ID};
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use sim::CarID;
 use std::collections::HashSet;
 
@@ -18,7 +18,7 @@ impl ShowOwnerState {
     }
 }
 
-impl Colorizer for ShowOwnerState {
+impl Plugin for ShowOwnerState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (selected, sim) = (ctx.primary.current_selection, &ctx.primary.sim);
 

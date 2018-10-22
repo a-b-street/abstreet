@@ -6,7 +6,7 @@ use ezgui::{Color, GfxCtx};
 use map_model::{IntersectionID, LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Colorizer, PluginCtx};
+use plugins::{Plugin, PluginCtx};
 use render::DrawMap;
 use sim::Tick;
 
@@ -61,7 +61,7 @@ impl TurnCyclerState {
     }
 }
 
-impl Colorizer for TurnCyclerState {
+impl Plugin for TurnCyclerState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, selected) = (ctx.input, ctx.primary.current_selection);
 
