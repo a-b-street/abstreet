@@ -167,9 +167,8 @@ impl Router {
         map: &Map,
         dist_along: Distance,
     ) -> Trace {
-        let (mut result, mut dist_left) = start
-            // TODO will this break if we pass in max for dist_along?
-            .slice(false, map, start_dist, start_dist + dist_along);
+        let (mut result, mut dist_left) =
+            start.slice(false, map, start_dist, start_dist + dist_along);
 
         let mut last_lane = start.maybe_lane();
         let mut idx = 0;

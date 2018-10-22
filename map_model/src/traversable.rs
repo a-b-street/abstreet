@@ -55,11 +55,15 @@ impl Traversable {
         start: si::Meter<f64>,
         end: si::Meter<f64>,
     ) -> (Trace, si::Meter<f64>) {
+        assert!(start <= end);
+        assert!(start >= 0.0 * si::M);
+        assert!(end >= 0.0 * si::M);
+
         match self {
             &Traversable::Lane(id) => if reverse {
                 let pts = &map.get_l(id).lane_center_pts;
                 let len = pts.length();
-                let (polyline, remainder) = pts.reversed().slice(start, end);
+                let (polyline, remainder) = pts.reversed().slice(len - start, end);
                 let actual_len = polyline.length();
                 (
                     Trace {

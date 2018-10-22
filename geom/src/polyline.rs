@@ -59,7 +59,7 @@ impl PolyLine {
 
     // Returns the excess distance left over from the end.
     pub fn slice(&self, start: si::Meter<f64>, end: si::Meter<f64>) -> (PolyLine, si::Meter<f64>) {
-        if start >= end {
+        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
         }
 

@@ -21,7 +21,9 @@ impl Plugin for DiffAllState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let active = match self {
             DiffAllState::Inactive => {
-                ctx.secondary.is_some() && ctx.input.key_pressed(Key::D, "Diff all trips")
+                ctx.secondary.is_some()
+                    && ctx.primary.current_selection.is_none()
+                    && ctx.input.key_pressed(Key::D, "Diff all trips")
             }
             DiffAllState::Active(_) => {
                 !ctx.input.key_pressed(Key::Return, "Stop diffing all trips")

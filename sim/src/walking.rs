@@ -566,9 +566,8 @@ impl WalkingSimState {
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         let p = self.peds.get(&id)?;
 
-        let (mut result, mut dist_left) = p.on
-            // TODO will this break if we pass in max for dist_along?
-            .slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead);
+        let (mut result, mut dist_left) =
+            p.on.slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead);
 
         let mut last_lane = p.on.maybe_lane();
         let mut idx = 0;
@@ -595,10 +594,8 @@ impl WalkingSimState {
 
             // TODO ooh this is _really_ cheating. ;) but sometimes we don't cross a lane either
             // direction. urgh.
-            let (pt1, pt2) = {
-                let l = map.get_l(next_lane);
-                (l.first_pt(), l.last_pt())
-            };
+            let l = map.get_l(next_lane);
+            let (pt1, pt2) = (l.first_pt(), l.last_pt());
             let last_pt = result.endpoints().1;
             if last_pt == pt1 {
                 if contraflow {
@@ -612,7 +609,7 @@ impl WalkingSimState {
             } else if last_pt == pt2 {
                 if contraflow {
                     let (piece, new_dist_left) =
-                        Traversable::Lane(next_lane).slice(true, map, 0.0 * si::M, dist_left);
+                        Traversable::Lane(next_lane).slice(true, map, l.length(), dist_left);
                     result = result.extend(piece);
                     dist_left = new_dist_left;
                 } else {
