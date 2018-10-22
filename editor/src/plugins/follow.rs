@@ -1,65 +1,42 @@
-use objects::ID;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use sim::{CarID, PedestrianID};
+use sim::TripID;
 
 #[derive(PartialEq)]
 pub enum FollowState {
     Empty,
-    FollowingCar(CarID),
-    FollowingPedestrian(PedestrianID),
+    Active(TripID),
 }
 
 impl Plugin for FollowState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, map, sim, canvas, selected) = (
-            ctx.input,
-            &ctx.primary.map,
-            &ctx.primary.sim,
-            ctx.canvas,
-            ctx.primary.current_selection,
-        );
-
         if *self == FollowState::Empty {
-            match selected {
-                Some(ID::Car(id)) => {
-                    if input.key_pressed(Key::F, "follow this car") {
-                        *self = FollowState::FollowingCar(id);
+            if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
+                if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
+                    if ctx
+                        .input
+                        .key_pressed(Key::F, &format!("follow {:?}", agent))
+                    {
+                        *self = FollowState::Active(trip);
                         return true;
                     }
                 }
-                Some(ID::Pedestrian(id)) => {
-                    if input.key_pressed(Key::F, "follow this pedestrian") {
-                        *self = FollowState::FollowingPedestrian(id);
-                        return true;
-                    }
-                }
-                _ => {}
             }
         }
 
-        let quit = match self {
-            FollowState::Empty => false,
-            // TODO be generic and take an AgentID
-            // TODO when an agent disappears, they sometimes become a car/ped -- follow them
-            // instead
-            FollowState::FollowingCar(id) => {
-                if let Some(c) = sim.get_draw_car(*id, map) {
-                    canvas.center_on_map_pt(c.front);
-                    input.key_pressed(Key::Return, "stop following")
-                } else {
-                    warn!("{} is gone, no longer following", id);
-                    true
-                }
-            }
-            FollowState::FollowingPedestrian(id) => {
-                if let Some(p) = sim.get_draw_ped(*id, map) {
-                    canvas.center_on_map_pt(p.pos);
-                    input.key_pressed(Key::Return, "stop following")
-                } else {
-                    warn!("{} is gone, no longer following", id);
-                    true
-                }
+        let mut quit = false;
+        if let FollowState::Active(trip) = self {
+            if let Some(pt) = ctx
+                .primary
+                .sim
+                .get_canonical_point_for_trip(*trip, &ctx.primary.map)
+            {
+                ctx.canvas.center_on_map_pt(pt);
+                quit = ctx.input.key_pressed(Key::Return, "stop following");
+            } else {
+                // TODO ideally they wouldnt vanish for so long according to
+                // get_canonical_point_for_trip
+                warn!("{} is gone... temporarily or not?", trip);
             }
         };
         if quit {
