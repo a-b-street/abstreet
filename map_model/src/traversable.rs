@@ -55,9 +55,12 @@ impl Traversable {
         start: si::Meter<f64>,
         end: si::Meter<f64>,
     ) -> (Trace, si::Meter<f64>) {
-        assert!(start <= end);
-        assert!(start >= 0.0 * si::M);
-        assert!(end >= 0.0 * si::M);
+        if start > end || start < 0.0 * si::M || end < 0.0 * si::M {
+            panic!(
+                "Can't do slice [{}, {}] with reverse={} on {:?}",
+                start, end, reverse, self
+            );
+        }
 
         match self {
             &Traversable::Lane(id) => if reverse {
