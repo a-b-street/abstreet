@@ -228,7 +228,7 @@ impl TripManager {
 
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
-        match trip.legs[0] {
+        match trip.legs.get(0)? {
             TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped)),
             TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.car)),
             // TODO Should be the bus, but apparently transit sim tracks differently?

@@ -32,12 +32,12 @@ impl Plugin for FollowState {
                 .get_canonical_point_for_trip(*trip, &ctx.primary.map)
             {
                 ctx.canvas.center_on_map_pt(pt);
-                quit = ctx.input.key_pressed(Key::Return, "stop following");
             } else {
                 // TODO ideally they wouldnt vanish for so long according to
                 // get_canonical_point_for_trip
                 warn!("{} is gone... temporarily or not?", trip);
             }
+            quit = ctx.input.key_pressed(Key::Return, "stop following");
         };
         if quit {
             *self = FollowState::Empty;
