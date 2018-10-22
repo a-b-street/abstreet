@@ -287,7 +287,7 @@ impl Sim {
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
         self.driving_state
             .tooltip_lines(car)
-            .unwrap_or(self.parking_state.tooltip_lines(car))
+            .unwrap_or_else(|| self.parking_state.tooltip_lines(car))
     }
 
     pub fn debug_car(&mut self, id: CarID) {
