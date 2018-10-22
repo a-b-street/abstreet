@@ -36,10 +36,7 @@ pub trait Colorizer {
         None
     }
 
-    // TODO remove default impl
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        false
-    }
+    fn event(&mut self, ctx: PluginCtx) -> bool;
 }
 
 // TODO Further refactoring should be done, but at least group these here to start.

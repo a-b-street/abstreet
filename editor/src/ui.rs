@@ -231,7 +231,7 @@ pub struct PerMapUI {
 
     pub current_selection: Option<ID>,
     pub recalculate_current_selection: bool,
-    current_flags: SimFlags,
+    pub current_flags: SimFlags,
 }
 
 pub struct PluginsPerMap {
@@ -347,38 +347,6 @@ impl UI {
             cs: ColorScheme::load("color_scheme").unwrap(),
 
             kml,
-            /*plugin_handlers: vec![
-                Box::new(|ctx| {
-                    let (active, new_primary) = ctx.primary_plugins.edits_manager.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &ctx.primary.control_map,
-                        &ctx.primary_plugins.road_editor,
-                        &mut ctx.primary.current_flags,
-                        ctx.kml,
-                    );
-                    if let Some((state, plugins)) = new_primary {
-                        *ctx.primary = state;
-                        *ctx.primary_plugins = plugins;
-                    }
-                    active
-                }),
-                Box::new(|ctx| {
-                    let (active, new_ui) = ctx.plugins.ab_test_manager.event(
-                        ctx.input,
-                        ctx.primary.current_selection,
-                        &ctx.primary.map,
-                        ctx.kml,
-                        &ctx.primary.current_flags,
-                    );
-                    if let Some(((new_primary, new_primary_plugins), new_secondary)) = new_ui {
-                        *ctx.primary = new_primary;
-                        *ctx.primary_plugins = new_primary_plugins;
-                        *ctx.secondary = Some(new_secondary);
-                    }
-                    active
-                }),
-            ],*/
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
@@ -480,42 +448,50 @@ impl UI {
     }
 
     fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
-        let ctx = PluginCtx {
-            primary: &mut self.primary,
-            secondary: &mut self.secondary,
-            canvas: &mut self.canvas,
-            cs: &mut self.cs,
-            input,
-            osd,
-            kml: &self.kml,
+        let mut new_primary_plugins: Option<PluginsPerMap> = None;
+        let active = {
+            let ctx = PluginCtx {
+                primary: &mut self.primary,
+                secondary: &mut self.secondary,
+                canvas: &mut self.canvas,
+                cs: &mut self.cs,
+                input,
+                osd,
+                kml: &self.kml,
+                new_primary_plugins: &mut new_primary_plugins,
+            };
+            match idx {
+                0 => self.plugins.layers.event(ctx),
+                1 => self.primary_plugins.traffic_signal_editor.event(ctx),
+                2 => self.primary_plugins.stop_sign_editor.event(ctx),
+                3 => self.plugins.road_editor.event(ctx),
+                4 => self.plugins.search_state.event(ctx),
+                5 => self.plugins.warp.event(ctx),
+                6 => self.primary_plugins.follow.event(ctx),
+                7 => self.primary_plugins.show_route.event(ctx),
+                8 => self.plugins.color_picker.event(ctx),
+                9 => self.primary_plugins.steepness_viz.event(ctx),
+                10 => self.plugins.osm_classifier.event(ctx),
+                11 => self.primary_plugins.hider.event(ctx),
+                12 => self.primary_plugins.debug_objects.event(ctx),
+                13 => self.primary_plugins.floodfiller.event(ctx),
+                14 => self.primary_plugins.geom_validator.event(ctx),
+                15 => self.primary_plugins.turn_cycler.event(ctx),
+                16 => self.primary_plugins.draw_neighborhoods.event(ctx),
+                17 => self.primary_plugins.scenarios.event(ctx),
+                18 => self.primary_plugins.chokepoints.event(ctx),
+                19 => self.plugins.logs.event(ctx),
+                20 => self.plugins.diff_worlds.event(ctx),
+                21 => self.primary_plugins.show_owner.event(ctx),
+                22 => self.primary_plugins.edits_manager.event(ctx),
+                23 => self.plugins.ab_test_manager.event(ctx),
+                _ => panic!("Plugin {} is too high", idx),
+            }
         };
-        match idx {
-            0 => self.plugins.layers.event(ctx),
-            1 => self.primary_plugins.traffic_signal_editor.event(ctx),
-            2 => self.primary_plugins.stop_sign_editor.event(ctx),
-            3 => self.plugins.road_editor.event(ctx),
-            4 => self.plugins.search_state.event(ctx),
-            5 => self.plugins.warp.event(ctx),
-            6 => self.primary_plugins.follow.event(ctx),
-            7 => self.primary_plugins.show_route.event(ctx),
-            8 => self.plugins.color_picker.event(ctx),
-            9 => self.primary_plugins.steepness_viz.event(ctx),
-            10 => self.plugins.osm_classifier.event(ctx),
-            11 => self.primary_plugins.hider.event(ctx),
-            12 => self.primary_plugins.debug_objects.event(ctx),
-            13 => self.primary_plugins.floodfiller.event(ctx),
-            14 => self.primary_plugins.geom_validator.event(ctx),
-            15 => self.primary_plugins.turn_cycler.event(ctx),
-            16 => self.primary_plugins.draw_neighborhoods.event(ctx),
-            17 => self.primary_plugins.scenarios.event(ctx),
-            18 => self.primary_plugins.chokepoints.event(ctx),
-            19 => self.plugins.logs.event(ctx),
-            20 => self.plugins.diff_worlds.event(ctx),
-            21 => self.primary_plugins.show_owner.event(ctx),
-            /*22 => self.primary_plugins.edits_manager.event(ctx),
-            23 => self.plugins.ab_test_manager.event(ctx),*/
-            _ => panic!("Plugin {} is too high", idx),
+        if let Some(new_plugins) = new_primary_plugins {
+            self.primary_plugins = new_plugins;
         }
+        active
     }
 }
 
@@ -551,4 +527,8 @@ pub struct PluginCtx<'a> {
     pub input: &'a mut UserInput,
     pub osd: &'a mut Text,
     pub kml: &'a Option<String>,
+
+    // Unfortunately we have to use an output parameter here, but it's pretty isolated to
+    // run_plugin
+    pub new_primary_plugins: &'a mut Option<PluginsPerMap>,
 }

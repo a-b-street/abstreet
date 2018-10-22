@@ -30,7 +30,15 @@ impl DisplayLogs {
         DisplayLogs { active: false }
     }
 
-    pub fn event(&mut self, ctx: PluginCtx) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if self.active {
+            LOGGER.lock().unwrap().draw(g, canvas);
+        }
+    }
+}
+
+impl Colorizer for DisplayLogs {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
         if !self.active {
             if ctx
                 .input
@@ -48,15 +56,7 @@ impl DisplayLogs {
         }
         self.active
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if self.active {
-            LOGGER.lock().unwrap().draw(g, canvas);
-        }
-    }
 }
-
-impl Colorizer for DisplayLogs {}
 
 struct LogAdapter;
 

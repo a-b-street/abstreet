@@ -1,9 +1,9 @@
 use control::ControlMap;
-use ezgui::{Canvas, GfxCtx, UserInput, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_edits, Colorizer};
+use plugins::{choose_edits, Colorizer, PluginCtx};
 use sim::{MapEdits, SimFlags};
 use ui::{PerMapUI, PluginsPerMap};
 
@@ -17,49 +17,6 @@ impl EditsManager {
         EditsManager::Inactive
     }
 
-    // May return a new PerMapUI to replace the current primary.
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        map: &Map,
-        control_map: &ControlMap,
-        current_flags: &mut SimFlags,
-        kml: &Option<String>,
-    ) -> (bool, Option<(PerMapUI, PluginsPerMap)>) {
-        let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
-        let mut new_state: Option<EditsManager> = None;
-        match self {
-            EditsManager::Inactive => {
-                if input.unimportant_key_pressed(Key::Q, SIM_SETUP, "manage map edits") {
-                    new_state = Some(EditsManager::ManageEdits(Wizard::new()));
-                }
-            }
-            EditsManager::ManageEdits(ref mut wizard) => {
-                if manage_edits(
-                    current_flags,
-                    map,
-                    control_map,
-                    &mut new_primary,
-                    kml,
-                    wizard.wrap(input),
-                ).is_some()
-                {
-                    new_state = Some(EditsManager::Inactive);
-                } else if wizard.aborted() {
-                    new_state = Some(EditsManager::Inactive);
-                }
-            }
-        }
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        let active = match self {
-            EditsManager::Inactive => false,
-            _ => true,
-        };
-        (active, new_primary)
-    }
-
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         match self {
             EditsManager::ManageEdits(ref wizard) => {
@@ -70,14 +27,56 @@ impl EditsManager {
     }
 }
 
-impl Colorizer for EditsManager {}
+impl Colorizer for EditsManager {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let mut new_state: Option<EditsManager> = None;
+        match self {
+            EditsManager::Inactive => {
+                if ctx
+                    .input
+                    .unimportant_key_pressed(Key::Q, SIM_SETUP, "manage map edits")
+                {
+                    new_state = Some(EditsManager::ManageEdits(Wizard::new()));
+                }
+            }
+            EditsManager::ManageEdits(ref mut wizard) => {
+                let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
+
+                if manage_edits(
+                    &mut ctx.primary.current_flags,
+                    &ctx.primary.map,
+                    &ctx.primary.control_map,
+                    ctx.kml,
+                    &mut new_primary,
+                    wizard.wrap(ctx.input),
+                ).is_some()
+                {
+                    new_state = Some(EditsManager::Inactive);
+                } else if wizard.aborted() {
+                    new_state = Some(EditsManager::Inactive);
+                }
+                if let Some((p, plugins)) = new_primary {
+                    *ctx.primary = p;
+                    *ctx.new_primary_plugins = Some(plugins);
+                }
+            }
+        }
+        if let Some(s) = new_state {
+            *self = s;
+        }
+        match self {
+            EditsManager::Inactive => false,
+            _ => true,
+        }
+    }
+}
 
 fn manage_edits(
     current_flags: &mut SimFlags,
     map: &Map,
     control_map: &ControlMap,
-    new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     kml: &Option<String>,
+    new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     mut wizard: WrappedWizard,
 ) -> Option<()> {
     // TODO Indicate how many edits are there / if there are any unsaved edits

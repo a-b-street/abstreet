@@ -1,9 +1,8 @@
-use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
-use objects::ID;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer};
+use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer, PluginCtx};
 use sim::{ABTest, SimFlags};
 use ui::{PerMapUI, PluginsPerMap};
 
@@ -16,56 +15,6 @@ pub enum ABTestManager {
 impl ABTestManager {
     pub fn new() -> ABTestManager {
         ABTestManager::Inactive
-    }
-
-    // May return a new primary and secondary UI
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        selected: Option<ID>,
-        map: &Map,
-        kml: &Option<String>,
-        current_flags: &SimFlags,
-    ) -> (
-        bool,
-        Option<((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap))>,
-    ) {
-        let mut new_ui: Option<((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap))> = None;
-        let mut new_state: Option<ABTestManager> = None;
-        match self {
-            ABTestManager::Inactive => {
-                if selected.is_none()
-                    && input.unimportant_key_pressed(Key::B, SIM_SETUP, "manage A/B tests")
-                {
-                    new_state = Some(ABTestManager::PickABTest(Wizard::new()));
-                }
-            }
-            ABTestManager::PickABTest(ref mut wizard) => {
-                if let Some(ab_test) = pick_ab_test(map, wizard.wrap(input)) {
-                    let scroller = LogScroller::new_from_lines(ab_test.describe());
-                    new_state = Some(ABTestManager::ManageABTest(ab_test, scroller));
-                } else if wizard.aborted() {
-                    new_state = Some(ABTestManager::Inactive);
-                }
-            }
-            ABTestManager::ManageABTest(test, ref mut scroller) => {
-                if input.key_pressed(Key::R, "run this A/B test") {
-                    new_ui = Some(launch_test(test, kml, current_flags));
-                    new_state = Some(ABTestManager::Inactive);
-                }
-                if scroller.event(input) {
-                    new_state = Some(ABTestManager::Inactive);
-                }
-            }
-        }
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        let active = match self {
-            ABTestManager::Inactive => false,
-            _ => true,
-        };
-        (active, new_ui)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
@@ -81,7 +30,53 @@ impl ABTestManager {
     }
 }
 
-impl Colorizer for ABTestManager {}
+impl Colorizer for ABTestManager {
+    // May return a new primary and secondary UI
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let selected = ctx.primary.current_selection;
+
+        let mut new_state: Option<ABTestManager> = None;
+        match self {
+            ABTestManager::Inactive => {
+                if selected.is_none() && ctx.input.unimportant_key_pressed(
+                    Key::B,
+                    SIM_SETUP,
+                    "manage A/B tests",
+                ) {
+                    new_state = Some(ABTestManager::PickABTest(Wizard::new()));
+                }
+            }
+            ABTestManager::PickABTest(ref mut wizard) => {
+                if let Some(ab_test) = pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input)) {
+                    let scroller = LogScroller::new_from_lines(ab_test.describe());
+                    new_state = Some(ABTestManager::ManageABTest(ab_test, scroller));
+                } else if wizard.aborted() {
+                    new_state = Some(ABTestManager::Inactive);
+                }
+            }
+            ABTestManager::ManageABTest(test, ref mut scroller) => {
+                if ctx.input.key_pressed(Key::R, "run this A/B test") {
+                    let ((new_primary, new_primary_plugins), new_secondary) =
+                        launch_test(test, ctx.kml, &ctx.primary.current_flags);
+                    *ctx.primary = new_primary;
+                    *ctx.new_primary_plugins = Some(new_primary_plugins);
+                    *ctx.secondary = Some(new_secondary);
+                    new_state = Some(ABTestManager::Inactive);
+                }
+                if scroller.event(ctx.input) {
+                    new_state = Some(ABTestManager::Inactive);
+                }
+            }
+        }
+        if let Some(s) = new_state {
+            *self = s;
+        }
+        match self {
+            ABTestManager::Inactive => false,
+            _ => true,
+        }
+    }
+}
 
 fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
     let load_existing = "Load existing A/B test";
