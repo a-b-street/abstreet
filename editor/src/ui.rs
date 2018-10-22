@@ -419,16 +419,19 @@ impl UI {
         let idx = self.active_plugin?;
         let mut plugins: Vec<Box<&Plugin>> = vec![
             Box::new(&self.plugins.layers),
-            Box::new(&self.primary_plugins.traffic_signal_editor),
-            Box::new(&self.primary_plugins.stop_sign_editor),
             Box::new(&self.plugins.road_editor),
             Box::new(&self.plugins.search_state),
             Box::new(&self.plugins.warp),
+            Box::new(&self.plugins.color_picker),
+            Box::new(&self.plugins.osm_classifier),
+            Box::new(&self.plugins.logs),
+            Box::new(&self.plugins.diff_worlds),
+            Box::new(&self.plugins.ab_test_manager),
+            Box::new(&self.primary_plugins.traffic_signal_editor),
+            Box::new(&self.primary_plugins.stop_sign_editor),
             Box::new(&self.primary_plugins.follow),
             Box::new(&self.primary_plugins.show_route),
-            Box::new(&self.plugins.color_picker),
             Box::new(&self.primary_plugins.steepness_viz),
-            Box::new(&self.plugins.osm_classifier),
             Box::new(&self.primary_plugins.hider),
             Box::new(&self.primary_plugins.debug_objects),
             Box::new(&self.primary_plugins.floodfiller),
@@ -437,11 +440,8 @@ impl UI {
             Box::new(&self.primary_plugins.draw_neighborhoods),
             Box::new(&self.primary_plugins.scenarios),
             Box::new(&self.primary_plugins.chokepoints),
-            Box::new(&self.plugins.logs),
-            Box::new(&self.plugins.diff_worlds),
             Box::new(&self.primary_plugins.show_owner),
             Box::new(&self.primary_plugins.edits_manager),
-            Box::new(&self.plugins.ab_test_manager),
         ];
         Some(plugins.remove(idx))
     }
@@ -461,16 +461,19 @@ impl UI {
             };
             let mut plugins: Vec<Box<&mut Plugin>> = vec![
                 Box::new(&mut self.plugins.layers),
-                Box::new(&mut self.primary_plugins.traffic_signal_editor),
-                Box::new(&mut self.primary_plugins.stop_sign_editor),
                 Box::new(&mut self.plugins.road_editor),
                 Box::new(&mut self.plugins.search_state),
                 Box::new(&mut self.plugins.warp),
+                Box::new(&mut self.plugins.color_picker),
+                Box::new(&mut self.plugins.osm_classifier),
+                Box::new(&mut self.plugins.logs),
+                Box::new(&mut self.plugins.diff_worlds),
+                Box::new(&mut self.plugins.ab_test_manager),
+                Box::new(&mut self.primary_plugins.traffic_signal_editor),
+                Box::new(&mut self.primary_plugins.stop_sign_editor),
                 Box::new(&mut self.primary_plugins.follow),
                 Box::new(&mut self.primary_plugins.show_route),
-                Box::new(&mut self.plugins.color_picker),
                 Box::new(&mut self.primary_plugins.steepness_viz),
-                Box::new(&mut self.plugins.osm_classifier),
                 Box::new(&mut self.primary_plugins.hider),
                 Box::new(&mut self.primary_plugins.debug_objects),
                 Box::new(&mut self.primary_plugins.floodfiller),
@@ -479,11 +482,8 @@ impl UI {
                 Box::new(&mut self.primary_plugins.draw_neighborhoods),
                 Box::new(&mut self.primary_plugins.scenarios),
                 Box::new(&mut self.primary_plugins.chokepoints),
-                Box::new(&mut self.plugins.logs),
-                Box::new(&mut self.plugins.diff_worlds),
                 Box::new(&mut self.primary_plugins.show_owner),
                 Box::new(&mut self.primary_plugins.edits_manager),
-                Box::new(&mut self.plugins.ab_test_manager),
             ];
             plugins[idx].event(ctx)
         };
