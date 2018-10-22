@@ -12,31 +12,12 @@ use kml;
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID, ROOT_MENU};
 use piston::input::Key;
-use plugins::a_b_tests::ABTestManager;
-use plugins::chokepoints::ChokepointsFinder;
-use plugins::classification::OsmClassifier;
-use plugins::color_picker::ColorPicker;
-use plugins::debug_objects::DebugObjectsState;
-use plugins::diff_worlds::DiffWorldsState;
-use plugins::draw_neighborhoods::DrawNeighborhoodState;
-use plugins::floodfill::Floodfiller;
-use plugins::follow::FollowState;
-use plugins::geom_validation::Validator;
+use plugins;
 use plugins::hider::Hider;
 use plugins::layers::ToggleableLayers;
-use plugins::logs::DisplayLogs;
-use plugins::map_edits::EditsManager;
-use plugins::road_editor::RoadEditor;
-use plugins::scenarios::ScenarioManager;
-use plugins::search::SearchState;
-use plugins::show_owner::ShowOwnerState;
-use plugins::show_route::ShowRouteState;
 use plugins::sim_controls::SimController;
-use plugins::steep::SteepnessVisualizer;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
-use plugins::turn_cycler::TurnCyclerState;
-use plugins::warp::WarpState;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
 use sim;
@@ -92,7 +73,7 @@ impl GUI for UI {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..UI::NUM_PLUGINS {
+            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
                 if self.run_plugin(idx, &mut input, osd) {
                     self.active_plugin = Some(idx);
                     break;
@@ -260,7 +241,7 @@ impl PerMapUI {
         flame::end("setup");
         flame::dump_stdout();
 
-        let steepness_viz = SteepnessVisualizer::new(&map);
+        let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
 
         let state = PerMapUI {
             map,
@@ -275,20 +256,20 @@ impl PerMapUI {
         let plugins = PluginsPerMap {
             list: vec![
                 Box::new(Hider::new()),
-                Box::new(ShowOwnerState::new()),
+                Box::new(plugins::show_owner::ShowOwnerState::new()),
                 Box::new(StopSignEditor::new()),
                 Box::new(TrafficSignalEditor::new()),
-                Box::new(DebugObjectsState::new()),
-                Box::new(FollowState::Empty),
-                Box::new(ShowRouteState::Empty),
-                Box::new(Floodfiller::new()),
+                Box::new(plugins::debug_objects::DebugObjectsState::new()),
+                Box::new(plugins::follow::FollowState::Empty),
+                Box::new(plugins::show_route::ShowRouteState::Empty),
+                Box::new(plugins::floodfill::Floodfiller::new()),
                 Box::new(steepness_viz),
-                Box::new(Validator::new()),
-                Box::new(TurnCyclerState::new()),
-                Box::new(DrawNeighborhoodState::new()),
-                Box::new(ScenarioManager::new()),
-                Box::new(EditsManager::new()),
-                Box::new(ChokepointsFinder::new()),
+                Box::new(plugins::geom_validation::Validator::new()),
+                Box::new(plugins::turn_cycler::TurnCyclerState::new()),
+                Box::new(plugins::draw_neighborhoods::DrawNeighborhoodState::new()),
+                Box::new(plugins::scenarios::ScenarioManager::new()),
+                Box::new(plugins::map_edits::EditsManager::new()),
+                Box::new(plugins::chokepoints::ChokepointsFinder::new()),
             ],
         };
         (state, plugins)
@@ -314,7 +295,7 @@ impl PluginsPerUI {
 impl UI {
     pub fn new(flags: SimFlags, kml: Option<String>) -> UI {
         // Do this first, so anything logged by sim::load isn't lost.
-        let logs = DisplayLogs::new();
+        let logs = plugins::logs::DisplayLogs::new();
 
         let (primary, primary_plugins) = PerMapUI::new(flags, &kml);
         let mut ui = UI {
@@ -326,14 +307,14 @@ impl UI {
                 sim_ctrl: SimController::new(),
                 list: vec![
                     Box::new(ToggleableLayers::new()),
-                    Box::new(SearchState::Empty),
-                    Box::new(WarpState::Empty),
-                    Box::new(OsmClassifier::new()),
-                    Box::new(ColorPicker::new()),
-                    Box::new(ABTestManager::new()),
+                    Box::new(plugins::search::SearchState::Empty),
+                    Box::new(plugins::warp::WarpState::Empty),
+                    Box::new(plugins::classification::OsmClassifier::new()),
+                    Box::new(plugins::color_picker::ColorPicker::new()),
+                    Box::new(plugins::a_b_tests::ABTestManager::new()),
                     Box::new(logs),
-                    Box::new(DiffWorldsState::new()),
-                    Box::new(RoadEditor::new()),
+                    Box::new(plugins::diff_worlds::DiffWorldsState::new()),
+                    Box::new(plugins::road_editor::RoadEditor::new()),
                 ],
             },
 
@@ -412,8 +393,6 @@ impl UI {
         // color.
         self.primary_plugins.show_owner().color_for(id, ctx)
     }
-
-    const NUM_PLUGINS: usize = 24;
 
     fn get_active_plugin(&self) -> Option<&Box<Plugin>> {
         let idx = self.active_plugin?;

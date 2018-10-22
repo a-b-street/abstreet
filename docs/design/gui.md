@@ -366,3 +366,5 @@ Let's start with two concrete things:
 	- could also put draw there!
 - number in the plugin list
 - sometimes call draw()
+
+alright, the boilerplate is all gone! \o/ I'm happy now.
