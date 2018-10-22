@@ -63,7 +63,7 @@ fn main() {
         .start("./profile")
         .unwrap();*/
     ezgui::run(
-        ui::UIWrapper::new(flags.sim_flags, flags.kml),
+        ui::UI::new(flags.sim_flags, flags.kml),
         "A/B Street",
         1024,
         768,

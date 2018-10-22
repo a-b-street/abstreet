@@ -45,28 +45,291 @@ use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
-// Necessary so we can iterate over and run the plugins, which mutably borrow UI.
-pub struct UIWrapper {
-    ui: UI,
+pub struct UI {
+    primary: PerMapUI,
+    // When running an A/B test, this is populated too.
+    secondary: Option<PerMapUI>,
+
+    plugins: PluginsPerUI,
+
+    // An index into plugin_handlers.
+    active_plugin: Option<usize>,
+
+    canvas: Canvas,
+    cs: ColorScheme,
+
+    // Remember this to support loading a new PerMapUI
+    kml: Option<String>,
+
+    plugin_handlers: Vec<Box<Fn(PluginCtx) -> bool>>,
 }
 
-impl GUI for UIWrapper {
-    fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
-        self.ui.event(input, osd)
+impl GUI for UI {
+    fn event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
+        // First update the camera and handle zoom
+        let old_zoom = self.canvas.cam_zoom;
+        self.canvas.handle_event(&mut input);
+        let new_zoom = self.canvas.cam_zoom;
+        self.plugins.layers.handle_zoom(old_zoom, new_zoom);
+
+        // Always handle mouseover
+        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+            self.primary.current_selection = None;
+        }
+        if !self.canvas.is_dragging()
+            && input.get_moved_mouse().is_some()
+            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+        {
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
+        // want some keys to always be pressable (sim controller stuff, quitting the game?)
+
+        // If there's an active plugin, just run it.
+        if let Some(idx) = self.active_plugin {
+            if !self.plugin_handlers[idx](PluginCtx {
+                primary: &mut self.primary,
+                secondary: &mut self.secondary,
+                plugins: &mut self.plugins,
+                canvas: &mut self.canvas,
+                cs: &mut self.cs,
+                input: &mut input,
+                osd,
+                kml: &self.kml,
+            }) {
+                self.active_plugin = None;
+            }
+        } else {
+            // Run each plugin, short-circuiting if the plugin claimed it was active.
+            for (idx, plugin) in self.plugin_handlers.iter().enumerate() {
+                if plugin(PluginCtx {
+                    primary: &mut self.primary,
+                    secondary: &mut self.secondary,
+                    plugins: &mut self.plugins,
+                    canvas: &mut self.canvas,
+                    cs: &mut self.cs,
+                    input: &mut input,
+                    osd,
+                    kml: &self.kml,
+                }) {
+                    self.active_plugin = Some(idx);
+                    break;
+                }
+            }
+        }
+
+        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
+            let state = EditorState {
+                map_name: self.primary.map.get_name().clone(),
+                cam_x: self.canvas.cam_x,
+                cam_y: self.canvas.cam_y,
+                cam_zoom: self.canvas.cam_zoom,
+            };
+            // TODO maybe make state line up with the map, so loading from a new map doesn't break
+            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
+            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
+            info!("Saved editor_state and color_scheme");
+            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+            process::exit(0);
+        }
+
+        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
+        let result =
+            self.plugins
+                .sim_ctrl
+                .event(&mut input, &mut self.primary, &mut self.secondary, osd);
+
+        if self.primary.recalculate_current_selection {
+            self.primary.recalculate_current_selection = false;
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        input.populate_osd(osd);
+        result
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
-        &mut self.ui.canvas
+        &mut self.canvas
     }
 
     fn draw(&self, g: &mut GfxCtx, osd: Text) {
-        self.ui.draw(g, osd);
+        g.clear(self.cs.get(Colors::Background));
+
+        let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
+            self.canvas.get_screen_bbox(),
+            &self.primary.hider,
+            &self.primary.map,
+            &self.primary.sim,
+            &self.plugins.layers,
+            self,
+        );
+        for obj in statics.into_iter() {
+            let opts = RenderOptions {
+                color: self.color_obj(obj.get_id()),
+                cam_zoom: self.canvas.cam_zoom,
+                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
+            };
+            obj.draw(
+                g,
+                opts,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.primary.map,
+                    control_map: &self.primary.control_map,
+                    canvas: &self.canvas,
+                    sim: &self.primary.sim,
+                },
+            );
+        }
+        for obj in dynamics.into_iter() {
+            let opts = RenderOptions {
+                color: self.color_obj(obj.get_id()),
+                cam_zoom: self.canvas.cam_zoom,
+                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
+            };
+            obj.draw(
+                g,
+                opts,
+                Ctx {
+                    cs: &self.cs,
+                    map: &self.primary.map,
+                    control_map: &self.primary.control_map,
+                    canvas: &self.canvas,
+                    sim: &self.primary.sim,
+                },
+            );
+        }
+
+        // TODO Only if active?
+        self.primary.turn_cycler.draw(
+            &self.primary.map,
+            &self.primary.draw_map,
+            &self.primary.control_map,
+            self.primary.sim.time,
+            &self.cs,
+            g,
+        );
+        self.primary.debug_objects.draw(
+            &self.primary.map,
+            &self.canvas,
+            &self.primary.draw_map,
+            &self.primary.sim,
+            g,
+        );
+        self.plugins.color_picker.draw(&self.canvas, g);
+        self.primary.draw_neighborhoods.draw(g, &self.canvas);
+        self.primary.scenarios.draw(g, &self.canvas);
+        self.primary.edits_manager.draw(g, &self.canvas);
+        self.plugins.ab_test_manager.draw(g, &self.canvas);
+        self.plugins.logs.draw(g, &self.canvas);
+        self.plugins.search_state.draw(g, &self.canvas);
+        self.plugins.warp.draw(g, &self.canvas);
+        self.plugins.sim_ctrl.draw(g, &self.canvas);
+        self.primary.show_route.draw(g, &self.cs);
+        self.plugins.diff_worlds.draw(g, &self.cs);
+
+        self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
 }
 
-impl UIWrapper {
-    // nit: lots of this logic could live in UI, if it mattered
-    pub fn new(flags: SimFlags, kml: Option<String>) -> UIWrapper {
+// All of the state that's bound to a specific map+edit has to live here.
+// TODO How can we arrange the code so that we statically know that we don't pass anything from UI
+// to something in PerMapUI?
+pub struct PerMapUI {
+    pub map: Map,
+    draw_map: DrawMap,
+    pub control_map: ControlMap,
+    pub sim: Sim,
+
+    pub current_selection: Option<ID>,
+    pub recalculate_current_selection: bool,
+    current_flags: SimFlags,
+
+    // Anything that holds onto any kind of ID has to live here!
+    hider: Hider,
+    debug_objects: DebugObjectsState,
+    follow: FollowState,
+    show_route: ShowRouteState,
+    floodfiller: Floodfiller,
+    steepness_viz: SteepnessVisualizer,
+    traffic_signal_editor: TrafficSignalEditor,
+    stop_sign_editor: StopSignEditor,
+    road_editor: RoadEditor,
+    geom_validator: Validator,
+    turn_cycler: TurnCyclerState,
+    show_owner: ShowOwnerState,
+    draw_neighborhoods: DrawNeighborhoodState,
+    scenarios: ScenarioManager,
+    edits_manager: EditsManager,
+    chokepoints: ChokepointsFinder,
+}
+
+impl PerMapUI {
+    pub fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
+        flame::start("setup");
+        let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
+        let extra_shapes = if let Some(path) = kml {
+            kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
+        } else {
+            Vec::new()
+        };
+
+        flame::start("draw_map");
+        let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
+        flame::end("draw_map");
+
+        flame::end("setup");
+        flame::dump_stdout();
+
+        let steepness_viz = SteepnessVisualizer::new(&map);
+        let road_editor = RoadEditor::new(map.get_road_edits().clone());
+
+        PerMapUI {
+            map,
+            draw_map,
+            control_map,
+            sim,
+
+            current_selection: None,
+            recalculate_current_selection: false,
+            current_flags: flags,
+
+            hider: Hider::new(),
+            debug_objects: DebugObjectsState::new(),
+            follow: FollowState::Empty,
+            show_route: ShowRouteState::Empty,
+            floodfiller: Floodfiller::new(),
+            steepness_viz,
+            traffic_signal_editor: TrafficSignalEditor::new(),
+            stop_sign_editor: StopSignEditor::new(),
+            road_editor,
+            geom_validator: Validator::new(),
+            turn_cycler: TurnCyclerState::new(),
+            show_owner: ShowOwnerState::new(),
+            draw_neighborhoods: DrawNeighborhoodState::new(),
+            scenarios: ScenarioManager::new(),
+            edits_manager: EditsManager::new(),
+            chokepoints: ChokepointsFinder::new(),
+        }
+    }
+}
+
+// aka plugins that don't depend on map
+struct PluginsPerUI {
+    layers: ToggleableLayers,
+    search_state: SearchState,
+    warp: WarpState,
+    osm_classifier: OsmClassifier,
+    sim_ctrl: SimController,
+    color_picker: ColorPicker,
+    ab_test_manager: ABTestManager,
+    logs: DisplayLogs,
+    diff_worlds: DiffWorldsState,
+}
+
+impl UI {
+    pub fn new(flags: SimFlags, kml: Option<String>) -> UI {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = DisplayLogs::new();
 
@@ -276,125 +539,9 @@ impl UIWrapper {
 
         ui.plugins.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
 
-        UIWrapper { ui }
+        ui
     }
-}
 
-// All of the state that's bound to a specific map+edit has to live here.
-// TODO How can we arrange the code so that we statically know that we don't pass anything from UI
-// to something in PerMapUI?
-pub struct PerMapUI {
-    pub map: Map,
-    draw_map: DrawMap,
-    pub control_map: ControlMap,
-    pub sim: Sim,
-
-    pub current_selection: Option<ID>,
-    pub recalculate_current_selection: bool,
-    current_flags: SimFlags,
-
-    // Anything that holds onto any kind of ID has to live here!
-    hider: Hider,
-    debug_objects: DebugObjectsState,
-    follow: FollowState,
-    show_route: ShowRouteState,
-    floodfiller: Floodfiller,
-    steepness_viz: SteepnessVisualizer,
-    traffic_signal_editor: TrafficSignalEditor,
-    stop_sign_editor: StopSignEditor,
-    road_editor: RoadEditor,
-    geom_validator: Validator,
-    turn_cycler: TurnCyclerState,
-    show_owner: ShowOwnerState,
-    draw_neighborhoods: DrawNeighborhoodState,
-    scenarios: ScenarioManager,
-    edits_manager: EditsManager,
-    chokepoints: ChokepointsFinder,
-}
-
-impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
-        flame::start("setup");
-        let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
-        let extra_shapes = if let Some(path) = kml {
-            kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
-        } else {
-            Vec::new()
-        };
-
-        flame::start("draw_map");
-        let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
-        flame::end("draw_map");
-
-        flame::end("setup");
-        flame::dump_stdout();
-
-        let steepness_viz = SteepnessVisualizer::new(&map);
-        let road_editor = RoadEditor::new(map.get_road_edits().clone());
-
-        PerMapUI {
-            map,
-            draw_map,
-            control_map,
-            sim,
-
-            current_selection: None,
-            recalculate_current_selection: false,
-            current_flags: flags,
-
-            hider: Hider::new(),
-            debug_objects: DebugObjectsState::new(),
-            follow: FollowState::Empty,
-            show_route: ShowRouteState::Empty,
-            floodfiller: Floodfiller::new(),
-            steepness_viz,
-            traffic_signal_editor: TrafficSignalEditor::new(),
-            stop_sign_editor: StopSignEditor::new(),
-            road_editor,
-            geom_validator: Validator::new(),
-            turn_cycler: TurnCyclerState::new(),
-            show_owner: ShowOwnerState::new(),
-            draw_neighborhoods: DrawNeighborhoodState::new(),
-            scenarios: ScenarioManager::new(),
-            edits_manager: EditsManager::new(),
-            chokepoints: ChokepointsFinder::new(),
-        }
-    }
-}
-
-struct UI {
-    primary: PerMapUI,
-    // When running an A/B test, this is populated too.
-    secondary: Option<PerMapUI>,
-
-    plugins: PluginsPerUI,
-
-    // An index into UIWrapper.plugins.
-    active_plugin: Option<usize>,
-
-    canvas: Canvas,
-    cs: ColorScheme,
-
-    // Remember this to support loading a new PerMapUI
-    kml: Option<String>,
-
-    plugin_handlers: Vec<Box<Fn(PluginCtx) -> bool>>,
-}
-
-// aka plugins that don't depend on map
-struct PluginsPerUI {
-    layers: ToggleableLayers,
-    search_state: SearchState,
-    warp: WarpState,
-    osm_classifier: OsmClassifier,
-    sim_ctrl: SimController,
-    color_picker: ColorPicker,
-    ab_test_manager: ABTestManager,
-    logs: DisplayLogs,
-    diff_worlds: DiffWorldsState,
-}
-
-impl UI {
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space();
 
@@ -421,169 +568,6 @@ impl UI {
         None
     }
 
-    fn event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
-        // First update the camera and handle zoom
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(&mut input);
-        let new_zoom = self.canvas.cam_zoom;
-        self.plugins.layers.handle_zoom(old_zoom, new_zoom);
-
-        // Always handle mouseover
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.primary.current_selection = None;
-        }
-        if !self.canvas.is_dragging()
-            && input.get_moved_mouse().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
-        {
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
-        // want some keys to always be pressable (sim controller stuff, quitting the game?)
-
-        // If there's an active plugin, just run it.
-        if let Some(idx) = self.active_plugin {
-            if !self.plugin_handlers[idx](PluginCtx {
-                primary: &mut self.primary,
-                secondary: &mut self.secondary,
-                plugins: &mut self.plugins,
-                canvas: &mut self.canvas,
-                cs: &mut self.cs,
-                input: &mut input,
-                osd,
-                kml: &self.kml,
-            }) {
-                self.active_plugin = None;
-            }
-        } else {
-            // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for (idx, plugin) in self.plugin_handlers.iter().enumerate() {
-                if plugin(PluginCtx {
-                    primary: &mut self.primary,
-                    secondary: &mut self.secondary,
-                    plugins: &mut self.plugins,
-                    canvas: &mut self.canvas,
-                    cs: &mut self.cs,
-                    input: &mut input,
-                    osd,
-                    kml: &self.kml,
-                }) {
-                    self.active_plugin = Some(idx);
-                    break;
-                }
-            }
-        }
-
-        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
-            let state = EditorState {
-                map_name: self.primary.map.get_name().clone(),
-                cam_x: self.canvas.cam_x,
-                cam_y: self.canvas.cam_y,
-                cam_zoom: self.canvas.cam_zoom,
-            };
-            // TODO maybe make state line up with the map, so loading from a new map doesn't break
-            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
-            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
-            info!("Saved editor_state and color_scheme");
-            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
-            process::exit(0);
-        }
-
-        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result =
-            self.plugins
-                .sim_ctrl
-                .event(&mut input, &mut self.primary, &mut self.secondary, osd);
-
-        if self.primary.recalculate_current_selection {
-            self.primary.recalculate_current_selection = false;
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        input.populate_osd(osd);
-        result
-    }
-
-    fn draw(&self, g: &mut GfxCtx, osd: Text) {
-        g.clear(self.cs.get(Colors::Background));
-
-        let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
-            self.canvas.get_screen_bbox(),
-            &self.primary.hider,
-            &self.primary.map,
-            &self.primary.sim,
-            &self.plugins.layers,
-            self,
-        );
-        for obj in statics.into_iter() {
-            let opts = RenderOptions {
-                color: self.color_obj(obj.get_id()),
-                cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
-            };
-            obj.draw(
-                g,
-                opts,
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.primary.map,
-                    control_map: &self.primary.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                },
-            );
-        }
-        for obj in dynamics.into_iter() {
-            let opts = RenderOptions {
-                color: self.color_obj(obj.get_id()),
-                cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
-            };
-            obj.draw(
-                g,
-                opts,
-                Ctx {
-                    cs: &self.cs,
-                    map: &self.primary.map,
-                    control_map: &self.primary.control_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                },
-            );
-        }
-
-        // TODO Only if active?
-        self.primary.turn_cycler.draw(
-            &self.primary.map,
-            &self.primary.draw_map,
-            &self.primary.control_map,
-            self.primary.sim.time,
-            &self.cs,
-            g,
-        );
-        self.primary.debug_objects.draw(
-            &self.primary.map,
-            &self.canvas,
-            &self.primary.draw_map,
-            &self.primary.sim,
-            g,
-        );
-        self.plugins.color_picker.draw(&self.canvas, g);
-        self.primary.draw_neighborhoods.draw(g, &self.canvas);
-        self.primary.scenarios.draw(g, &self.canvas);
-        self.primary.edits_manager.draw(g, &self.canvas);
-        self.plugins.ab_test_manager.draw(g, &self.canvas);
-        self.plugins.logs.draw(g, &self.canvas);
-        self.plugins.search_state.draw(g, &self.canvas);
-        self.plugins.warp.draw(g, &self.canvas);
-        self.plugins.sim_ctrl.draw(g, &self.canvas);
-        self.primary.show_route.draw(g, &self.cs);
-        self.plugins.diff_worlds.draw(g, &self.cs);
-
-        self.canvas.draw_text(g, osd, BOTTOM_LEFT);
-    }
-
     fn color_obj(&self, id: ID) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
             return Some(self.cs.get(Colors::Selected));
@@ -608,7 +592,7 @@ impl UI {
     fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
         let idx = self.active_plugin?;
         // Match instead of array, because can't move the Box out of the temporary vec. :\
-        // This must line up with the list of plugins in UIWrapper::new.
+        // This must line up with the list of plugins in UI::new.
         match idx {
             0 => Some(Box::new(&self.plugins.layers)),
             1 => Some(Box::new(&self.primary.traffic_signal_editor)),
