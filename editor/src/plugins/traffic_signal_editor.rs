@@ -3,12 +3,11 @@
 // TODO how to edit cycle time?
 
 use colors::Colors;
-use control::ControlMap;
-use ezgui::{Color, UserInput};
-use map_model::{IntersectionID, Map};
+use ezgui::Color;
+use map_model::IntersectionID;
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 
 #[derive(PartialEq)]
 pub enum TrafficSignalEditor {
@@ -24,13 +23,24 @@ impl TrafficSignalEditor {
         TrafficSignalEditor::Inactive
     }
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        map: &Map,
-        control_map: &mut ControlMap,
-        selected: Option<ID>,
-    ) -> bool {
+    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
+        match self {
+            TrafficSignalEditor::Active {
+                i,
+                current_cycle: _,
+            } => *i == id,
+            TrafficSignalEditor::Inactive => false,
+        }
+    }
+}
+
+impl Colorizer for TrafficSignalEditor {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let input = ctx.input;
+        let map = &ctx.primary.map;
+        let control_map = &mut ctx.primary.control_map;
+        let selected = ctx.primary.current_selection;
+
         if *self == TrafficSignalEditor::Inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
@@ -103,18 +113,6 @@ impl TrafficSignalEditor {
         }
     }
 
-    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
-        match self {
-            TrafficSignalEditor::Active {
-                i,
-                current_cycle: _,
-            } => *i == id,
-            TrafficSignalEditor::Inactive => false,
-        }
-    }
-}
-
-impl Colorizer for TrafficSignalEditor {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (TrafficSignalEditor::Active { i, current_cycle }, ID::Turn(t)) => {

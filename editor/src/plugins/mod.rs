@@ -29,10 +29,16 @@ use ezgui::{Color, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
+use ui::PluginCtx;
 
 pub trait Colorizer {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
         None
+    }
+
+    // TODO remove default impl
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        false
     }
 }
 

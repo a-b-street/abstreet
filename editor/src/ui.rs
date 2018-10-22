@@ -53,7 +53,7 @@ pub struct UI {
 
     plugins: PluginsPerUI,
 
-    // An index into plugin_handlers.
+    // TODO describe An index into plugin_handlers.
     active_plugin: Option<usize>,
 
     canvas: Canvas,
@@ -61,8 +61,6 @@ pub struct UI {
 
     // Remember this to support loading a new PerMapUI
     kml: Option<String>,
-
-    plugin_handlers: Vec<Box<Fn(PluginCtx) -> bool>>,
 }
 
 impl GUI for UI {
@@ -89,33 +87,14 @@ impl GUI for UI {
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
-            if !self.plugin_handlers[idx](PluginCtx {
-                primary: &mut self.primary,
-                primary_plugins: &mut self.primary_plugins,
-                secondary: &mut self.secondary,
-                plugins: &mut self.plugins,
-                canvas: &mut self.canvas,
-                cs: &mut self.cs,
-                input: &mut input,
-                osd,
-                kml: &self.kml,
-            }) {
+            if !self.run_plugin(idx, &mut input, osd) {
                 self.active_plugin = None;
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for (idx, plugin) in self.plugin_handlers.iter().enumerate() {
-                if plugin(PluginCtx {
-                    primary: &mut self.primary,
-                    primary_plugins: &mut self.primary_plugins,
-                    secondary: &mut self.secondary,
-                    plugins: &mut self.plugins,
-                    canvas: &mut self.canvas,
-                    cs: &mut self.cs,
-                    input: &mut input,
-                    osd,
-                    kml: &self.kml,
-                }) {
+            for idx in 0..=1 {
+                // TODO 23, and dont hardcode it
+                if self.run_plugin(idx, &mut input, osd) {
                     self.active_plugin = Some(idx);
                     break;
                 }
@@ -369,24 +348,7 @@ impl UI {
             cs: ColorScheme::load("color_scheme").unwrap(),
 
             kml,
-
-            plugin_handlers: vec![
-                Box::new(|ctx| {
-                    if ctx.plugins.layers.event(ctx.input) {
-                        ctx.primary.recalculate_current_selection = true;
-                        true
-                    } else {
-                        false
-                    }
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.traffic_signal_editor.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &mut ctx.primary.control_map,
-                        ctx.primary.current_selection,
-                    )
-                }),
+            /*plugin_handlers: vec![
                 Box::new(|ctx| {
                     ctx.primary_plugins.stop_sign_editor.event(
                         ctx.input,
@@ -541,7 +503,7 @@ impl UI {
                     // never treat it as active for blocking input
                     false
                 }),
-            ],
+            ],*/
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
@@ -641,6 +603,45 @@ impl UI {
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
+
+    fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
+        let ctx = PluginCtx {
+            primary: &mut self.primary,
+            secondary: &mut self.secondary,
+            canvas: &mut self.canvas,
+            cs: &mut self.cs,
+            input,
+            osd,
+            kml: &self.kml,
+        };
+        match idx {
+            0 => self.plugins.layers.event(ctx),
+            1 => self.primary_plugins.traffic_signal_editor.event(ctx),
+            /*2 => self.primary_plugins.stop_sign_editor.event(ctx),
+            3 => self.primary_plugins.road_editor.event(ctx),
+            4 => self.plugins.search_state.event(ctx),
+            5 => self.plugins.warp.event(ctx),
+            6 => self.primary_plugins.follow.event(ctx),
+            7 => self.primary_plugins.show_route.event(ctx),
+            8 => self.plugins.color_picker.event(ctx),
+            9 => self.primary_plugins.steepness_viz.event(ctx),
+            10 => self.plugins.osm_classifier.event(ctx),
+            11 => self.primary_plugins.hider.event(ctx),
+            12 => self.primary_plugins.debug_objects.event(ctx),
+            13 => self.primary_plugins.floodfiller.event(ctx),
+            14 => self.primary_plugins.geom_validator.event(ctx),
+            15 => self.primary_plugins.turn_cycler.event(ctx),
+            16 => self.primary_plugins.draw_neighborhoods.event(ctx),
+            17 => self.primary_plugins.scenarios.event(ctx),
+            18 => self.primary_plugins.edits_manager.event(ctx),
+            19 => self.primary_plugins.chokepoints.event(ctx),
+            20 => self.plugins.ab_test_manager.event(ctx),
+            21 => self.plugins.logs.event(ctx),
+            22 => self.plugins.diff_worlds.event(ctx),
+            23 => self.primary_plugins.show_owner.event(ctx),*/
+            _ => panic!("Plugin {} is too high", idx),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -667,14 +668,12 @@ impl ShowTurnIcons for UI {
 }
 
 // TODO I can't help but noticing this is just UI but with references. Can we be more direct?
-struct PluginCtx<'a> {
-    primary: &'a mut PerMapUI,
-    primary_plugins: &'a mut PluginsPerMap,
-    secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
-    plugins: &'a mut PluginsPerUI,
-    canvas: &'a mut Canvas,
-    cs: &'a mut ColorScheme,
-    input: &'a mut UserInput,
-    osd: &'a mut Text,
-    kml: &'a Option<String>,
+pub struct PluginCtx<'a> {
+    pub primary: &'a mut PerMapUI,
+    pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
+    pub canvas: &'a mut Canvas,
+    pub cs: &'a mut ColorScheme,
+    pub input: &'a mut UserInput,
+    pub osd: &'a mut Text,
+    pub kml: &'a Option<String>,
 }

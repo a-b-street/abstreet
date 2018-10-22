@@ -1,7 +1,7 @@
-use ezgui::{ToggleableLayer, UserInput};
+use ezgui::ToggleableLayer;
 use objects::{DEBUG_LAYERS, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
@@ -61,15 +61,6 @@ impl ToggleableLayers {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
-        for layer in self.toggleable_layers().into_iter() {
-            if layer.event(input) {
-                return true;
-            }
-        }
-        false
-    }
-
     pub fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
         for layer in self.toggleable_layers().into_iter() {
             layer.handle_zoom(old_zoom, new_zoom);
@@ -89,4 +80,14 @@ impl ToggleableLayers {
     }
 }
 
-impl Colorizer for ToggleableLayers {}
+impl Colorizer for ToggleableLayers {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        for layer in self.toggleable_layers().into_iter() {
+            if layer.event(ctx.input) {
+                ctx.primary.recalculate_current_selection = true;
+                return true;
+            }
+        }
+        false
+    }
+}
