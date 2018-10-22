@@ -6,6 +6,8 @@ extern crate control;
 extern crate counter;
 extern crate cpuprofiler;
 extern crate dimensioned;
+#[macro_use]
+extern crate downcast;
 extern crate ezgui;
 extern crate flame;
 #[macro_use]

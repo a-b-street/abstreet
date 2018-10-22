@@ -25,13 +25,14 @@ pub mod turn_cycler;
 pub mod warp;
 
 use abstutil;
+use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
 use ui::PluginCtx;
 
-pub trait Plugin {
+pub trait Plugin: Any {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
         None
     }
@@ -40,6 +41,8 @@ pub trait Plugin {
 
     fn event(&mut self, ctx: PluginCtx) -> bool;
 }
+
+downcast!(Plugin);
 
 // TODO Further refactoring should be done, but at least group these here to start.
 // General principles are to avoid actually deserializing the objects unless needed.

@@ -69,7 +69,7 @@ impl GUI for UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
-        self.plugins.layers.handle_zoom(old_zoom, new_zoom);
+        self.plugins.layers_mut().handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -142,17 +142,17 @@ impl GUI for UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),
-            &self.primary_plugins.hider,
+            self.primary_plugins.hider(),
             &self.primary.map,
             &self.primary.sim,
-            &self.plugins.layers,
+            self.plugins.layers(),
             self,
         );
         for obj in statics.into_iter() {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
+                debug_mode: self.plugins.layers().debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -171,7 +171,7 @@ impl GUI for UI {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id()),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers.debug_mode.is_enabled(),
+                debug_mode: self.plugins.layers().debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -222,21 +222,25 @@ pub struct PerMapUI {
 
 pub struct PluginsPerMap {
     // Anything that holds onto any kind of ID has to live here!
-    hider: Hider,
-    debug_objects: DebugObjectsState,
-    follow: FollowState,
-    show_route: ShowRouteState,
-    floodfiller: Floodfiller,
-    steepness_viz: SteepnessVisualizer,
-    traffic_signal_editor: TrafficSignalEditor,
-    stop_sign_editor: StopSignEditor,
-    geom_validator: Validator,
-    turn_cycler: TurnCyclerState,
-    show_owner: ShowOwnerState,
-    draw_neighborhoods: DrawNeighborhoodState,
-    scenarios: ScenarioManager,
-    edits_manager: EditsManager,
-    chokepoints: ChokepointsFinder,
+    list: Vec<Box<Plugin>>,
+}
+
+impl PluginsPerMap {
+    fn hider(&self) -> &Hider {
+        self.list[0].downcast_ref::<Hider>().unwrap()
+    }
+
+    fn show_owner(&self) -> &Box<Plugin> {
+        &self.list[1]
+    }
+
+    fn stop_sign_editor(&self) -> &StopSignEditor {
+        self.list[2].downcast_ref::<StopSignEditor>().unwrap()
+    }
+
+    fn traffic_signal_editor(&self) -> &TrafficSignalEditor {
+        self.list[3].downcast_ref::<TrafficSignalEditor>().unwrap()
+    }
 }
 
 impl PerMapUI {
@@ -269,21 +273,23 @@ impl PerMapUI {
             current_flags: flags,
         };
         let plugins = PluginsPerMap {
-            hider: Hider::new(),
-            debug_objects: DebugObjectsState::new(),
-            follow: FollowState::Empty,
-            show_route: ShowRouteState::Empty,
-            floodfiller: Floodfiller::new(),
-            steepness_viz,
-            traffic_signal_editor: TrafficSignalEditor::new(),
-            stop_sign_editor: StopSignEditor::new(),
-            geom_validator: Validator::new(),
-            turn_cycler: TurnCyclerState::new(),
-            show_owner: ShowOwnerState::new(),
-            draw_neighborhoods: DrawNeighborhoodState::new(),
-            scenarios: ScenarioManager::new(),
-            edits_manager: EditsManager::new(),
-            chokepoints: ChokepointsFinder::new(),
+            list: vec![
+                Box::new(Hider::new()),
+                Box::new(ShowOwnerState::new()),
+                Box::new(StopSignEditor::new()),
+                Box::new(TrafficSignalEditor::new()),
+                Box::new(DebugObjectsState::new()),
+                Box::new(FollowState::Empty),
+                Box::new(ShowRouteState::Empty),
+                Box::new(Floodfiller::new()),
+                Box::new(steepness_viz),
+                Box::new(Validator::new()),
+                Box::new(TurnCyclerState::new()),
+                Box::new(DrawNeighborhoodState::new()),
+                Box::new(ScenarioManager::new()),
+                Box::new(EditsManager::new()),
+                Box::new(ChokepointsFinder::new()),
+            ],
         };
         (state, plugins)
     }
@@ -291,16 +297,18 @@ impl PerMapUI {
 
 // aka plugins that don't depend on map
 struct PluginsPerUI {
-    layers: ToggleableLayers,
-    search_state: SearchState,
-    warp: WarpState,
-    osm_classifier: OsmClassifier,
     sim_ctrl: SimController,
-    color_picker: ColorPicker,
-    ab_test_manager: ABTestManager,
-    logs: DisplayLogs,
-    diff_worlds: DiffWorldsState,
-    road_editor: RoadEditor,
+    list: Vec<Box<Plugin>>,
+}
+
+impl PluginsPerUI {
+    fn layers(&self) -> &ToggleableLayers {
+        self.list[0].downcast_ref::<ToggleableLayers>().unwrap()
+    }
+
+    fn layers_mut(&mut self) -> &mut ToggleableLayers {
+        self.list[0].downcast_mut::<ToggleableLayers>().unwrap()
+    }
 }
 
 impl UI {
@@ -315,16 +323,18 @@ impl UI {
             secondary: None,
 
             plugins: PluginsPerUI {
-                layers: ToggleableLayers::new(),
-                search_state: SearchState::Empty,
-                warp: WarpState::Empty,
-                osm_classifier: OsmClassifier::new(),
                 sim_ctrl: SimController::new(),
-                color_picker: ColorPicker::new(),
-                ab_test_manager: ABTestManager::new(),
-                logs,
-                diff_worlds: DiffWorldsState::new(),
-                road_editor: RoadEditor::new(),
+                list: vec![
+                    Box::new(ToggleableLayers::new()),
+                    Box::new(SearchState::Empty),
+                    Box::new(WarpState::Empty),
+                    Box::new(OsmClassifier::new()),
+                    Box::new(ColorPicker::new()),
+                    Box::new(ABTestManager::new()),
+                    Box::new(logs),
+                    Box::new(DiffWorldsState::new()),
+                    Box::new(RoadEditor::new()),
+                ],
             },
 
             active_plugin: None,
@@ -348,7 +358,9 @@ impl UI {
             }
         }
 
-        ui.plugins.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
+        ui.plugins
+            .layers_mut()
+            .handle_zoom(-1.0, ui.canvas.cam_zoom);
 
         ui
     }
@@ -358,10 +370,10 @@ impl UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),
-            &self.primary_plugins.hider,
+            self.primary_plugins.hider(),
             &self.primary.map,
             &self.primary.sim,
-            &self.plugins.layers,
+            self.plugins.layers(),
             self,
         );
         // Check front-to-back
@@ -398,40 +410,19 @@ impl UI {
 
         // TODO Ew, this is a weird ambient plugin that doesn't consume input but has an opinion on
         // color.
-        self.primary_plugins.show_owner.color_for(id, ctx)
+        self.primary_plugins.show_owner().color_for(id, ctx)
     }
 
     const NUM_PLUGINS: usize = 24;
 
-    fn get_active_plugin(&self) -> Option<Box<&Plugin>> {
+    fn get_active_plugin(&self) -> Option<&Box<Plugin>> {
         let idx = self.active_plugin?;
-        let mut plugins: Vec<Box<&Plugin>> = vec![
-            Box::new(&self.plugins.layers),
-            Box::new(&self.plugins.road_editor),
-            Box::new(&self.plugins.search_state),
-            Box::new(&self.plugins.warp),
-            Box::new(&self.plugins.color_picker),
-            Box::new(&self.plugins.osm_classifier),
-            Box::new(&self.plugins.logs),
-            Box::new(&self.plugins.diff_worlds),
-            Box::new(&self.plugins.ab_test_manager),
-            Box::new(&self.primary_plugins.traffic_signal_editor),
-            Box::new(&self.primary_plugins.stop_sign_editor),
-            Box::new(&self.primary_plugins.follow),
-            Box::new(&self.primary_plugins.show_route),
-            Box::new(&self.primary_plugins.steepness_viz),
-            Box::new(&self.primary_plugins.hider),
-            Box::new(&self.primary_plugins.debug_objects),
-            Box::new(&self.primary_plugins.floodfiller),
-            Box::new(&self.primary_plugins.geom_validator),
-            Box::new(&self.primary_plugins.turn_cycler),
-            Box::new(&self.primary_plugins.draw_neighborhoods),
-            Box::new(&self.primary_plugins.scenarios),
-            Box::new(&self.primary_plugins.chokepoints),
-            Box::new(&self.primary_plugins.show_owner),
-            Box::new(&self.primary_plugins.edits_manager),
-        ];
-        Some(plugins.remove(idx))
+        let len = self.plugins.list.len();
+        if idx < len {
+            Some(&self.plugins.list[idx])
+        } else {
+            Some(&self.primary_plugins.list[idx - len])
+        }
     }
 
     fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
@@ -447,33 +438,12 @@ impl UI {
                 kml: &self.kml,
                 new_primary_plugins: &mut new_primary_plugins,
             };
-            let mut plugins: Vec<Box<&mut Plugin>> = vec![
-                Box::new(&mut self.plugins.layers),
-                Box::new(&mut self.plugins.road_editor),
-                Box::new(&mut self.plugins.search_state),
-                Box::new(&mut self.plugins.warp),
-                Box::new(&mut self.plugins.color_picker),
-                Box::new(&mut self.plugins.osm_classifier),
-                Box::new(&mut self.plugins.logs),
-                Box::new(&mut self.plugins.diff_worlds),
-                Box::new(&mut self.plugins.ab_test_manager),
-                Box::new(&mut self.primary_plugins.traffic_signal_editor),
-                Box::new(&mut self.primary_plugins.stop_sign_editor),
-                Box::new(&mut self.primary_plugins.follow),
-                Box::new(&mut self.primary_plugins.show_route),
-                Box::new(&mut self.primary_plugins.steepness_viz),
-                Box::new(&mut self.primary_plugins.hider),
-                Box::new(&mut self.primary_plugins.debug_objects),
-                Box::new(&mut self.primary_plugins.floodfiller),
-                Box::new(&mut self.primary_plugins.geom_validator),
-                Box::new(&mut self.primary_plugins.turn_cycler),
-                Box::new(&mut self.primary_plugins.draw_neighborhoods),
-                Box::new(&mut self.primary_plugins.scenarios),
-                Box::new(&mut self.primary_plugins.chokepoints),
-                Box::new(&mut self.primary_plugins.show_owner),
-                Box::new(&mut self.primary_plugins.edits_manager),
-            ];
-            plugins[idx].event(ctx)
+            let len = self.plugins.list.len();
+            if idx < len {
+                self.plugins.list[idx].event(ctx)
+            } else {
+                self.primary_plugins.list[idx - len].event(ctx)
+            }
         };
         if let Some(new_plugins) = new_primary_plugins {
             self.primary_plugins = new_plugins;
@@ -496,11 +466,11 @@ pub trait ShowTurnIcons {
 
 impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.plugins.layers.show_all_turn_icons.is_enabled()
-            || self.primary_plugins.stop_sign_editor.show_turn_icons(id)
+        self.plugins.layers().show_all_turn_icons.is_enabled()
+            || self.primary_plugins.stop_sign_editor().show_turn_icons(id)
             || self
                 .primary_plugins
-                .traffic_signal_editor
+                .traffic_signal_editor()
                 .show_turn_icons(id)
     }
 }
