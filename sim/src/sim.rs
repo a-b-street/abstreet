@@ -384,7 +384,7 @@ impl Sim {
 
     // TODO dont toggle state in debug_car
     pub fn debug_trip(&mut self, id: TripID) {
-        match self.trips_state.current_mode(id) {
+        match self.trips_state.trip_to_agent(id) {
             Some(AgentID::Car(id)) => self.debug_car(id),
             Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
             None => println!("{} doesn't exist", id),
@@ -395,9 +395,13 @@ impl Sim {
         self.trips_state.agent_to_trip(id)
     }
 
+    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
+        self.trips_state.trip_to_agent(id)
+    }
+
     pub fn get_canonical_point_for_trip(&self, id: TripID, map: &Map) -> Option<Pt2D> {
         // Don't unwrap(); the trip might be registered before the agent has started.
-        match self.trips_state.current_mode(id) {
+        match self.trips_state.trip_to_agent(id) {
             Some(AgentID::Car(id)) => self
                 .driving_state
                 .get_draw_car(id, self.time, map)

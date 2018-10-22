@@ -226,7 +226,7 @@ impl TripManager {
         self.active_trip_mode.keys().cloned().collect()
     }
 
-    pub fn current_mode(&self, id: TripID) -> Option<AgentID> {
+    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
         match trip.legs[0] {
             TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped)),

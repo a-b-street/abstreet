@@ -2,61 +2,60 @@ use colors::Colors;
 use dimensioned::si;
 use ezgui::GfxCtx;
 use map_model::{Trace, LANE_THICKNESS};
-use objects::{Ctx, ID};
+use objects::Ctx;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use sim::AgentID;
+use sim::TripID;
 use std::f64;
 
 pub enum ShowRouteState {
     Empty,
-    Active(AgentID, Trace),
+    Active(TripID, Trace),
 }
 
 impl Plugin for ShowRouteState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, sim, map, selected) = (
-            ctx.input,
-            &ctx.primary.sim,
-            &ctx.primary.map,
-            ctx.primary.current_selection,
-        );
-
-        let maybe_agent = match self {
-            ShowRouteState::Empty => match selected {
-                Some(ID::Car(id)) => {
-                    if input.key_pressed(Key::R, "show this car's route") {
-                        Some(AgentID::Car(id))
+        let maybe_trip = match self {
+            ShowRouteState::Empty => ctx
+                .primary
+                .current_selection
+                .and_then(|id| id.agent_id())
+                .and_then(|agent| ctx.primary.sim.agent_to_trip(agent))
+                .and_then(|trip| {
+                    if ctx
+                        .input
+                        .key_pressed(Key::R, &format!("show {}'s route", trip))
+                    {
+                        Some(trip)
                     } else {
                         None
                     }
-                }
-                Some(ID::Pedestrian(id)) => {
-                    if input.key_pressed(Key::R, "show this pedestrian's route") {
-                        Some(AgentID::Pedestrian(id))
-                    } else {
-                        None
-                    }
-                }
-                _ => None,
-            },
-            ShowRouteState::Active(agent, _) => {
-                if input.key_pressed(Key::Return, "stop showing route") {
+                }),
+            ShowRouteState::Active(trip, _) => {
+                if ctx.input.key_pressed(Key::Return, "stop showing route") {
                     None
                 } else {
-                    Some(*agent)
+                    Some(*trip)
                 }
             }
         };
-        if let Some(agent) = maybe_agent {
-            // Trace along the entire route by passing in max distance
-            match sim.trace_route(agent, map, f64::MAX * si::M) {
-                Some(trace) => {
-                    *self = ShowRouteState::Active(agent, trace);
+        if let Some(trip) = maybe_trip {
+            if let Some(agent) = ctx.primary.sim.trip_to_agent(trip) {
+                // Trace along the entire route by passing in max distance
+                if let Some(trace) =
+                    ctx.primary
+                        .sim
+                        .trace_route(agent, &ctx.primary.map, f64::MAX * si::M)
+                {
+                    *self = ShowRouteState::Active(trip, trace);
+                } else {
+                    warn!("{} has no trace right now", agent);
                 }
-                None => {
-                    *self = ShowRouteState::Empty;
-                }
+            } else {
+                warn!(
+                    "{} has no agent associated right now; is the trip done?",
+                    trip
+                );
             }
         } else {
             *self = ShowRouteState::Empty;
