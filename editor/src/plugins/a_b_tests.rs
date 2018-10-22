@@ -5,7 +5,7 @@ use objects::SIM_SETUP;
 use piston::input::Key;
 use plugins::{choose_edits, choose_scenario, load_ab_test, Colorizer};
 use sim::{ABTest, SimFlags};
-use ui::PerMapUI;
+use ui::{PerMapUI, PluginsPerMap};
 
 pub enum ABTestManager {
     Inactive,
@@ -26,8 +26,11 @@ impl ABTestManager {
         map: &Map,
         kml: &Option<String>,
         current_flags: &SimFlags,
-    ) -> (bool, Option<(PerMapUI, PerMapUI)>) {
-        let mut new_ui: Option<(PerMapUI, PerMapUI)> = None;
+    ) -> (
+        bool,
+        Option<((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap))>,
+    ) {
+        let mut new_ui: Option<((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap))> = None;
         let mut new_state: Option<ABTestManager> = None;
         match self {
             ABTestManager::Inactive => {
@@ -105,7 +108,7 @@ fn launch_test(
     test: &ABTest,
     kml: &Option<String>,
     current_flags: &SimFlags,
-) -> (PerMapUI, PerMapUI) {
+) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
         "../data/scenarios/{}/{}.json",

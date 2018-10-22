@@ -5,7 +5,7 @@ use map_model::LANE_THICKNESS;
 use piston::input::Key;
 use plugins::Colorizer;
 use sim::TripID;
-use ui::PerMapUI;
+use ui::{PerMapUI, PluginsPerMap};
 
 pub enum DiffWorldsState {
     Inactive,
@@ -22,7 +22,7 @@ impl DiffWorldsState {
         &mut self,
         input: &mut UserInput,
         primary: &PerMapUI,
-        secondary: &Option<PerMapUI>,
+        secondary: &Option<(PerMapUI, PluginsPerMap)>,
     ) -> bool {
         let mut maybe_trip: Option<TripID> = None;
         match self {
@@ -54,7 +54,7 @@ impl DiffWorldsState {
             let pt1 = primary.sim.get_canonical_point_for_trip(id, &primary.map);
             let pt2 = secondary
                 .as_ref()
-                .and_then(|s| s.sim.get_canonical_point_for_trip(id, &s.map));
+                .and_then(|(s, _)| s.sim.get_canonical_point_for_trip(id, &s.map));
             if pt1.is_some() && pt2.is_some() {
                 *self = DiffWorldsState::Active(id, Line::new(pt1.unwrap(), pt2.unwrap()));
             } else {

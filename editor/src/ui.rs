@@ -47,8 +47,9 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
 pub struct UI {
     primary: PerMapUI,
+    primary_plugins: PluginsPerMap,
     // When running an A/B test, this is populated too.
-    secondary: Option<PerMapUI>,
+    secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     plugins: PluginsPerUI,
 
@@ -90,6 +91,7 @@ impl GUI for UI {
         if let Some(idx) = self.active_plugin {
             if !self.plugin_handlers[idx](PluginCtx {
                 primary: &mut self.primary,
+                primary_plugins: &mut self.primary_plugins,
                 secondary: &mut self.secondary,
                 plugins: &mut self.plugins,
                 canvas: &mut self.canvas,
@@ -105,6 +107,7 @@ impl GUI for UI {
             for (idx, plugin) in self.plugin_handlers.iter().enumerate() {
                 if plugin(PluginCtx {
                     primary: &mut self.primary,
+                    primary_plugins: &mut self.primary_plugins,
                     secondary: &mut self.secondary,
                     plugins: &mut self.plugins,
                     canvas: &mut self.canvas,
@@ -135,10 +138,13 @@ impl GUI for UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result =
-            self.plugins
-                .sim_ctrl
-                .event(&mut input, &mut self.primary, &mut self.secondary, osd);
+        let result = self.plugins.sim_ctrl.event(
+            &mut input,
+            &mut self.primary,
+            &mut self.primary_plugins,
+            &mut self.secondary,
+            osd,
+        );
 
         if self.primary.recalculate_current_selection {
             self.primary.recalculate_current_selection = false;
@@ -158,7 +164,7 @@ impl GUI for UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),
-            &self.primary.hider,
+            &self.primary_plugins.hider,
             &self.primary.map,
             &self.primary.sim,
             &self.plugins.layers,
@@ -202,7 +208,7 @@ impl GUI for UI {
         }
 
         // TODO Only if active?
-        self.primary.turn_cycler.draw(
+        self.primary_plugins.turn_cycler.draw(
             &self.primary.map,
             &self.primary.draw_map,
             &self.primary.control_map,
@@ -210,7 +216,7 @@ impl GUI for UI {
             &self.cs,
             g,
         );
-        self.primary.debug_objects.draw(
+        self.primary_plugins.debug_objects.draw(
             &self.primary.map,
             &self.canvas,
             &self.primary.draw_map,
@@ -218,15 +224,17 @@ impl GUI for UI {
             g,
         );
         self.plugins.color_picker.draw(&self.canvas, g);
-        self.primary.draw_neighborhoods.draw(g, &self.canvas);
-        self.primary.scenarios.draw(g, &self.canvas);
-        self.primary.edits_manager.draw(g, &self.canvas);
+        self.primary_plugins
+            .draw_neighborhoods
+            .draw(g, &self.canvas);
+        self.primary_plugins.scenarios.draw(g, &self.canvas);
+        self.primary_plugins.edits_manager.draw(g, &self.canvas);
         self.plugins.ab_test_manager.draw(g, &self.canvas);
         self.plugins.logs.draw(g, &self.canvas);
         self.plugins.search_state.draw(g, &self.canvas);
         self.plugins.warp.draw(g, &self.canvas);
         self.plugins.sim_ctrl.draw(g, &self.canvas);
-        self.primary.show_route.draw(g, &self.cs);
+        self.primary_plugins.show_route.draw(g, &self.cs);
         self.plugins.diff_worlds.draw(g, &self.cs);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
@@ -245,7 +253,9 @@ pub struct PerMapUI {
     pub current_selection: Option<ID>,
     pub recalculate_current_selection: bool,
     current_flags: SimFlags,
+}
 
+pub struct PluginsPerMap {
     // Anything that holds onto any kind of ID has to live here!
     hider: Hider,
     debug_objects: DebugObjectsState,
@@ -266,7 +276,7 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: &Option<String>) -> PerMapUI {
+    pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
         let extra_shapes = if let Some(path) = kml {
@@ -285,7 +295,7 @@ impl PerMapUI {
         let steepness_viz = SteepnessVisualizer::new(&map);
         let road_editor = RoadEditor::new(map.get_road_edits().clone());
 
-        PerMapUI {
+        let state = PerMapUI {
             map,
             draw_map,
             control_map,
@@ -294,7 +304,8 @@ impl PerMapUI {
             current_selection: None,
             recalculate_current_selection: false,
             current_flags: flags,
-
+        };
+        let plugins = PluginsPerMap {
             hider: Hider::new(),
             debug_objects: DebugObjectsState::new(),
             follow: FollowState::Empty,
@@ -311,7 +322,8 @@ impl PerMapUI {
             scenarios: ScenarioManager::new(),
             edits_manager: EditsManager::new(),
             chokepoints: ChokepointsFinder::new(),
-        }
+        };
+        (state, plugins)
     }
 }
 
@@ -333,8 +345,10 @@ impl UI {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = DisplayLogs::new();
 
+        let (primary, primary_plugins) = PerMapUI::new(flags, &kml);
         let mut ui = UI {
-            primary: PerMapUI::new(flags, &kml),
+            primary,
+            primary_plugins,
             secondary: None,
 
             plugins: PluginsPerUI {
@@ -366,7 +380,7 @@ impl UI {
                     }
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.traffic_signal_editor.event(
+                    ctx.primary_plugins.traffic_signal_editor.event(
                         ctx.input,
                         &ctx.primary.map,
                         &mut ctx.primary.control_map,
@@ -374,7 +388,7 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.stop_sign_editor.event(
+                    ctx.primary_plugins.stop_sign_editor.event(
                         ctx.input,
                         &ctx.primary.map,
                         &mut ctx.primary.control_map,
@@ -382,7 +396,7 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.road_editor.event(
+                    ctx.primary_plugins.road_editor.event(
                         ctx.input,
                         ctx.primary.current_selection,
                         &mut ctx.primary.map,
@@ -403,7 +417,7 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.follow.event(
+                    ctx.primary_plugins.follow.event(
                         ctx.input,
                         &ctx.primary.map,
                         &ctx.primary.sim,
@@ -412,7 +426,7 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.show_route.event(
+                    ctx.primary_plugins.show_route.event(
                         ctx.input,
                         &ctx.primary.sim,
                         &ctx.primary.map,
@@ -424,15 +438,15 @@ impl UI {
                         .color_picker
                         .event(ctx.input, ctx.canvas, ctx.cs)
                 }),
-                Box::new(|ctx| ctx.primary.steepness_viz.event(ctx.input)),
+                Box::new(|ctx| ctx.primary_plugins.steepness_viz.event(ctx.input)),
                 Box::new(|ctx| ctx.plugins.osm_classifier.event(ctx.input)),
                 Box::new(|ctx| {
-                    ctx.primary
+                    ctx.primary_plugins
                         .hider
                         .event(ctx.input, &mut ctx.primary.current_selection)
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.debug_objects.event(
+                    ctx.primary_plugins.debug_objects.event(
                         ctx.primary.current_selection,
                         ctx.input,
                         &ctx.primary.map,
@@ -441,14 +455,14 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.floodfiller.event(
+                    ctx.primary_plugins.floodfiller.event(
                         &ctx.primary.map,
                         ctx.input,
                         ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.geom_validator.event(
+                    ctx.primary_plugins.geom_validator.event(
                         ctx.input,
                         ctx.canvas,
                         &ctx.primary.map,
@@ -457,12 +471,12 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary
+                    ctx.primary_plugins
                         .turn_cycler
                         .event(ctx.input, ctx.primary.current_selection)
                 }),
                 Box::new(|ctx| {
-                    ctx.primary.draw_neighborhoods.event(
+                    ctx.primary_plugins.draw_neighborhoods.event(
                         ctx.input,
                         ctx.canvas,
                         &ctx.primary.map,
@@ -470,28 +484,33 @@ impl UI {
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.primary
-                        .scenarios
-                        .event(ctx.input, &ctx.primary.map, &mut ctx.primary.sim)
+                    ctx.primary_plugins.scenarios.event(
+                        ctx.input,
+                        &ctx.primary.map,
+                        &mut ctx.primary.sim,
+                    )
                 }),
                 Box::new(|ctx| {
-                    let (active, new_primary) = ctx.primary.edits_manager.event(
+                    let (active, new_primary) = ctx.primary_plugins.edits_manager.event(
                         ctx.input,
                         &ctx.primary.map,
                         &ctx.primary.control_map,
-                        &ctx.primary.road_editor,
+                        &ctx.primary_plugins.road_editor,
                         &mut ctx.primary.current_flags,
                         ctx.kml,
                     );
-                    if new_primary.is_some() {
-                        *ctx.primary = new_primary.unwrap();
+                    if let Some((state, plugins)) = new_primary {
+                        *ctx.primary = state;
+                        *ctx.primary_plugins = plugins;
                     }
                     active
                 }),
                 Box::new(|ctx| {
-                    ctx.primary
-                        .chokepoints
-                        .event(ctx.input, &ctx.primary.sim, &ctx.primary.map)
+                    ctx.primary_plugins.chokepoints.event(
+                        ctx.input,
+                        &ctx.primary.sim,
+                        &ctx.primary.map,
+                    )
                 }),
                 Box::new(|ctx| {
                     let (active, new_ui) = ctx.plugins.ab_test_manager.event(
@@ -501,8 +520,9 @@ impl UI {
                         ctx.kml,
                         &ctx.primary.current_flags,
                     );
-                    if let Some((new_primary, new_secondary)) = new_ui {
+                    if let Some(((new_primary, new_primary_plugins), new_secondary)) = new_ui {
                         *ctx.primary = new_primary;
+                        *ctx.primary_plugins = new_primary_plugins;
                         *ctx.secondary = Some(new_secondary);
                     }
                     active
@@ -514,7 +534,7 @@ impl UI {
                         .event(ctx.input, &ctx.primary, ctx.secondary)
                 }),
                 Box::new(|ctx| {
-                    ctx.primary
+                    ctx.primary_plugins
                         .show_owner
                         .event(ctx.primary.current_selection, &ctx.primary.sim);
                     // TODO This is a weird exception -- this plugin doesn't consume input, so
@@ -547,7 +567,7 @@ impl UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),
-            &self.primary.hider,
+            &self.primary_plugins.hider,
             &self.primary.map,
             &self.primary.sim,
             &self.plugins.layers,
@@ -586,7 +606,7 @@ impl UI {
 
         // TODO Ew, this is a weird ambient plugin that doesn't consume input but has an opinion on
         // color.
-        self.primary.show_owner.color_for(id, ctx)
+        self.primary_plugins.show_owner.color_for(id, ctx)
     }
 
     fn get_active_plugin(&self) -> Option<Box<&Colorizer>> {
@@ -595,29 +615,29 @@ impl UI {
         // This must line up with the list of plugins in UI::new.
         match idx {
             0 => Some(Box::new(&self.plugins.layers)),
-            1 => Some(Box::new(&self.primary.traffic_signal_editor)),
-            2 => Some(Box::new(&self.primary.stop_sign_editor)),
-            3 => Some(Box::new(&self.primary.road_editor)),
+            1 => Some(Box::new(&self.primary_plugins.traffic_signal_editor)),
+            2 => Some(Box::new(&self.primary_plugins.stop_sign_editor)),
+            3 => Some(Box::new(&self.primary_plugins.road_editor)),
             4 => Some(Box::new(&self.plugins.search_state)),
             5 => Some(Box::new(&self.plugins.warp)),
-            6 => Some(Box::new(&self.primary.follow)),
-            7 => Some(Box::new(&self.primary.show_route)),
+            6 => Some(Box::new(&self.primary_plugins.follow)),
+            7 => Some(Box::new(&self.primary_plugins.show_route)),
             8 => Some(Box::new(&self.plugins.color_picker)),
-            9 => Some(Box::new(&self.primary.steepness_viz)),
+            9 => Some(Box::new(&self.primary_plugins.steepness_viz)),
             10 => Some(Box::new(&self.plugins.osm_classifier)),
-            11 => Some(Box::new(&self.primary.hider)),
-            12 => Some(Box::new(&self.primary.debug_objects)),
-            13 => Some(Box::new(&self.primary.floodfiller)),
-            14 => Some(Box::new(&self.primary.geom_validator)),
-            15 => Some(Box::new(&self.primary.turn_cycler)),
-            16 => Some(Box::new(&self.primary.draw_neighborhoods)),
-            17 => Some(Box::new(&self.primary.scenarios)),
-            18 => Some(Box::new(&self.primary.edits_manager)),
-            19 => Some(Box::new(&self.primary.chokepoints)),
+            11 => Some(Box::new(&self.primary_plugins.hider)),
+            12 => Some(Box::new(&self.primary_plugins.debug_objects)),
+            13 => Some(Box::new(&self.primary_plugins.floodfiller)),
+            14 => Some(Box::new(&self.primary_plugins.geom_validator)),
+            15 => Some(Box::new(&self.primary_plugins.turn_cycler)),
+            16 => Some(Box::new(&self.primary_plugins.draw_neighborhoods)),
+            17 => Some(Box::new(&self.primary_plugins.scenarios)),
+            18 => Some(Box::new(&self.primary_plugins.edits_manager)),
+            19 => Some(Box::new(&self.primary_plugins.chokepoints)),
             20 => Some(Box::new(&self.plugins.ab_test_manager)),
             21 => Some(Box::new(&self.plugins.logs)),
             22 => Some(Box::new(&self.plugins.diff_worlds)),
-            23 => Some(Box::new(&self.primary.show_owner)),
+            23 => Some(Box::new(&self.primary_plugins.show_owner)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
@@ -638,15 +658,19 @@ pub trait ShowTurnIcons {
 impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         self.plugins.layers.show_all_turn_icons.is_enabled()
-            || self.primary.stop_sign_editor.show_turn_icons(id)
-            || self.primary.traffic_signal_editor.show_turn_icons(id)
+            || self.primary_plugins.stop_sign_editor.show_turn_icons(id)
+            || self
+                .primary_plugins
+                .traffic_signal_editor
+                .show_turn_icons(id)
     }
 }
 
 // TODO I can't help but noticing this is just UI but with references. Can we be more direct?
 struct PluginCtx<'a> {
     primary: &'a mut PerMapUI,
-    secondary: &'a mut Option<PerMapUI>,
+    primary_plugins: &'a mut PluginsPerMap,
+    secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
     plugins: &'a mut PluginsPerUI,
     canvas: &'a mut Canvas,
     cs: &'a mut ColorScheme,

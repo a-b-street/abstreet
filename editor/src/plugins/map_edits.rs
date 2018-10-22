@@ -6,7 +6,7 @@ use piston::input::Key;
 use plugins::road_editor::RoadEditor;
 use plugins::{choose_edits, Colorizer};
 use sim::{MapEdits, SimFlags};
-use ui::PerMapUI;
+use ui::{PerMapUI, PluginsPerMap};
 
 pub enum EditsManager {
     Inactive,
@@ -27,8 +27,8 @@ impl EditsManager {
         road_editor: &RoadEditor,
         current_flags: &mut SimFlags,
         kml: &Option<String>,
-    ) -> (bool, Option<PerMapUI>) {
-        let mut new_primary: Option<PerMapUI> = None;
+    ) -> (bool, Option<(PerMapUI, PluginsPerMap)>) {
+        let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
         let mut new_state: Option<EditsManager> = None;
         match self {
             EditsManager::Inactive => {
@@ -80,7 +80,7 @@ fn manage_edits(
     map: &Map,
     control_map: &ControlMap,
     road_editor: &RoadEditor,
-    new_primary: &mut Option<PerMapUI>,
+    new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     kml: &Option<String>,
     mut wizard: WrappedWizard,
 ) -> Option<()> {

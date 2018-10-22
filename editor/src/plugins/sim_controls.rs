@@ -5,7 +5,7 @@ use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
-use ui::PerMapUI;
+use ui::{PerMapUI, PluginsPerMap};
 
 const ADJUST_SPEED: f64 = 0.1;
 
@@ -35,7 +35,8 @@ impl SimController {
         &mut self,
         input: &mut UserInput,
         primary: &mut PerMapUI,
-        secondary: &mut Option<PerMapUI>,
+        primary_plugins: &mut PluginsPerMap,
+        secondary: &mut Option<(PerMapUI, PluginsPerMap)>,
         osd: &mut Text,
     ) -> EventLoopMode {
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
@@ -51,7 +52,7 @@ impl SimController {
 
         if input.unimportant_key_pressed(Key::O, SIM, "save sim state") {
             primary.sim.save();
-            if let Some(s) = secondary {
+            if let Some((s, _)) = secondary {
                 s.sim.save();
             }
         }
@@ -62,7 +63,7 @@ impl SimController {
                     primary.recalculate_current_selection = true;
                     self.benchmark = None;
 
-                    if let Some(s) = secondary {
+                    if let Some((s, _)) = secondary {
                         s.sim = s.sim.load_most_recent().unwrap();
                     }
                 }
@@ -82,7 +83,7 @@ impl SimController {
             } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
                 primary.sim.step(&primary.map, &primary.control_map);
                 primary.recalculate_current_selection = true;
-                if let Some(s) = secondary {
+                if let Some((s, _)) = secondary {
                     s.sim.step(&s.map, &s.control_map);
                 }
             }
@@ -93,7 +94,10 @@ impl SimController {
                 info!("Swapping primary/secondary sim");
                 // Check out this cool little trick. :D
                 let mut the_secondary = secondary.take();
-                the_secondary.as_mut().map(|s| mem::swap(primary, s));
+                the_secondary.as_mut().map(|(s, s_plugins)| {
+                    mem::swap(primary, s);
+                    mem::swap(primary_plugins, s_plugins);
+                });
                 *secondary = the_secondary;
                 primary.recalculate_current_selection = true;
             }
@@ -114,7 +118,7 @@ impl SimController {
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
                     primary.sim.step(&primary.map, &primary.control_map);
                     primary.recalculate_current_selection = true;
-                    if let Some(s) = secondary {
+                    if let Some((s, _)) = secondary {
                         s.sim.step(&s.map, &s.control_map);
                     }
                     self.last_step = Some(Instant::now());
@@ -132,7 +136,7 @@ impl SimController {
 
         osd.pad_if_nonempty();
         osd.add_line(primary.sim.summary());
-        if let Some(s) = secondary {
+        if let Some((s, _)) = secondary {
             osd.add_line("A/B test running!".to_string());
             osd.add_line(s.sim.summary());
         }
@@ -143,7 +147,7 @@ impl SimController {
 
         if self.show_side_panel {
             let mut txt = Text::new();
-            if let Some(s) = secondary {
+            if let Some((s, _)) = secondary {
                 // TODO More coloring
                 txt.add_line(primary.sim.get_name().to_string());
                 summarize(&mut txt, primary.sim.get_score());
