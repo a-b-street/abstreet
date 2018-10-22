@@ -48,12 +48,11 @@ const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 // Necessary so we can iterate over and run the plugins, which mutably borrow UI.
 pub struct UIWrapper {
     ui: UI,
-    plugins: Vec<Box<Fn(PluginCtx) -> bool>>,
 }
 
 impl GUI for UIWrapper {
     fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
-        self.ui.event(input, osd, &self.plugins)
+        self.ui.event(input, osd)
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
@@ -93,26 +92,8 @@ impl UIWrapper {
             cs: ColorScheme::load("color_scheme").unwrap(),
 
             kml,
-        };
 
-        match abstutil::read_json::<EditorState>("editor_state") {
-            Ok(ref state) if ui.primary.map.get_name().to_string() == state.map_name => {
-                info!("Loaded previous editor_state");
-                ui.canvas.cam_x = state.cam_x;
-                ui.canvas.cam_y = state.cam_y;
-                ui.canvas.cam_zoom = state.cam_zoom;
-            }
-            _ => {
-                warn!("Couldn't load editor_state or it's for a different map, so just centering initial view");
-                ui.canvas.center_on_map_pt(ui.primary.draw_map.center_pt);
-            }
-        }
-
-        ui.plugins.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
-
-        UIWrapper {
-            ui,
-            plugins: vec![
+            plugin_handlers: vec![
                 Box::new(|ctx| {
                     if ctx.plugins.layers.event(ctx.input) {
                         ctx.primary.recalculate_current_selection = true;
@@ -278,7 +259,24 @@ impl UIWrapper {
                     false
                 }),
             ],
+        };
+
+        match abstutil::read_json::<EditorState>("editor_state") {
+            Ok(ref state) if ui.primary.map.get_name().to_string() == state.map_name => {
+                info!("Loaded previous editor_state");
+                ui.canvas.cam_x = state.cam_x;
+                ui.canvas.cam_y = state.cam_y;
+                ui.canvas.cam_zoom = state.cam_zoom;
+            }
+            _ => {
+                warn!("Couldn't load editor_state or it's for a different map, so just centering initial view");
+                ui.canvas.center_on_map_pt(ui.primary.draw_map.center_pt);
+            }
         }
+
+        ui.plugins.layers.handle_zoom(-1.0, ui.canvas.cam_zoom);
+
+        UIWrapper { ui }
     }
 }
 
@@ -379,6 +377,8 @@ struct UI {
 
     // Remember this to support loading a new PerMapUI
     kml: Option<String>,
+
+    plugin_handlers: Vec<Box<Fn(PluginCtx) -> bool>>,
 }
 
 // aka plugins that don't depend on map
@@ -421,12 +421,7 @@ impl UI {
         None
     }
 
-    fn event(
-        &mut self,
-        mut input: UserInput,
-        osd: &mut Text,
-        plugins: &Vec<Box<Fn(PluginCtx) -> bool>>,
-    ) -> EventLoopMode {
+    fn event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
@@ -449,7 +444,7 @@ impl UI {
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
-            if !plugins[idx](PluginCtx {
+            if !self.plugin_handlers[idx](PluginCtx {
                 primary: &mut self.primary,
                 secondary: &mut self.secondary,
                 plugins: &mut self.plugins,
@@ -463,7 +458,7 @@ impl UI {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for (idx, plugin) in plugins.iter().enumerate() {
+            for (idx, plugin) in self.plugin_handlers.iter().enumerate() {
                 if plugin(PluginCtx {
                     primary: &mut self.primary,
                     secondary: &mut self.secondary,
