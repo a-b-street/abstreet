@@ -313,6 +313,7 @@ impl UI {
                     Box::new(plugins::color_picker::ColorPicker::new()),
                     Box::new(plugins::a_b_tests::ABTestManager::new()),
                     Box::new(logs),
+                    Box::new(plugins::diff_all::DiffAllState::new()),
                     Box::new(plugins::diff_worlds::DiffWorldsState::new()),
                     Box::new(plugins::road_editor::RoadEditor::new()),
                 ],

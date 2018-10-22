@@ -378,6 +378,10 @@ impl Sim {
         &self.run_name
     }
 
+    pub fn get_active_trips(&self) -> Vec<TripID> {
+        self.trips_state.get_active_trips()
+    }
+
     // TODO dont toggle state in debug_car
     pub fn debug_trip(&mut self, id: TripID) {
         match self.trips_state.current_mode(id) {
