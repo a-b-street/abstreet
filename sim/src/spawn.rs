@@ -35,7 +35,7 @@ impl Command {
             Command::Drive(_, _, parked_car, goal_bldg) => (
                 map.get_driving_lane_from_parking(parked_car.spot.lane)
                     .unwrap(),
-                map.get_driving_lane_from_bldg(*goal_bldg).unwrap(),
+                find_driving_lane_near_building(*goal_bldg, map),
             ),
         }
     }
@@ -546,6 +546,51 @@ fn find_spot_near_building(
         for next_r in map.get_next_roads(r).into_iter() {
             // Don't floodfill out of the neighborhood
             if !visited.contains(&next_r) && neighborhoods_roads.contains(&next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
+            }
+        }
+    }
+}
+
+// When driving towards some goal building, there may not be a driving lane directly outside the
+// building. So BFS out in a deterministic way and find one.
+fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
+    if let Ok(l) = map.get_driving_lane_from_bldg(b) {
+        return l;
+    }
+
+    let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
+    let mut visited: HashSet<RoadID> = HashSet::new();
+    {
+        let start = map.building_to_road(b).id;
+        roads_queue.push_back(start);
+        visited.insert(start);
+    }
+
+    loop {
+        if roads_queue.is_empty() {
+            panic!(
+                "Giving up looking for a driving lane near {}, searched {} roads: {:?}",
+                b,
+                visited.len(),
+                visited
+            );
+        }
+        let r = map.get_r(roads_queue.pop_front().unwrap());
+
+        for (lane, lane_type) in r
+            .children_forwards
+            .iter()
+            .chain(r.children_backwards.iter())
+        {
+            if *lane_type == LaneType::Driving {
+                return *lane;
+            }
+        }
+
+        for next_r in map.get_next_roads(r.id).into_iter() {
+            if !visited.contains(&next_r) {
                 roads_queue.push_back(next_r);
                 visited.insert(next_r);
             }
