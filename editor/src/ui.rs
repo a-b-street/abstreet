@@ -114,174 +114,165 @@ impl UIWrapper {
             ui,
             plugins: vec![
                 Box::new(|ctx| {
-                    if ctx.ui.plugins.layers.event(ctx.input) {
-                        ctx.ui.primary.recalculate_current_selection = true;
+                    if ctx.plugins.layers.event(ctx.input) {
+                        ctx.primary.recalculate_current_selection = true;
                         true
                     } else {
                         false
                     }
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.traffic_signal_editor.event(
+                    ctx.primary.traffic_signal_editor.event(
                         ctx.input,
-                        &ctx.ui.primary.map,
-                        &mut ctx.ui.primary.control_map,
-                        ctx.ui.primary.current_selection,
+                        &ctx.primary.map,
+                        &mut ctx.primary.control_map,
+                        ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.stop_sign_editor.event(
+                    ctx.primary.stop_sign_editor.event(
                         ctx.input,
-                        &ctx.ui.primary.map,
-                        &mut ctx.ui.primary.control_map,
-                        ctx.ui.primary.current_selection,
+                        &ctx.primary.map,
+                        &mut ctx.primary.control_map,
+                        ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.road_editor.event(
+                    ctx.primary.road_editor.event(
                         ctx.input,
-                        ctx.ui.primary.current_selection,
-                        &mut ctx.ui.primary.map,
-                        &mut ctx.ui.primary.draw_map,
-                        &ctx.ui.primary.control_map,
-                        &mut ctx.ui.primary.sim,
+                        ctx.primary.current_selection,
+                        &mut ctx.primary.map,
+                        &mut ctx.primary.draw_map,
+                        &ctx.primary.control_map,
+                        &mut ctx.primary.sim,
                     )
                 }),
-                Box::new(|ctx| ctx.ui.plugins.search_state.event(ctx.input)),
+                Box::new(|ctx| ctx.plugins.search_state.event(ctx.input)),
                 Box::new(|ctx| {
-                    ctx.ui.plugins.warp.event(
+                    ctx.plugins.warp.event(
                         ctx.input,
-                        &ctx.ui.primary.map,
-                        &ctx.ui.primary.sim,
-                        &ctx.ui.primary.draw_map,
-                        &mut ctx.ui.canvas,
-                        &mut ctx.ui.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.ui.primary.follow.event(
-                        ctx.input,
-                        &ctx.ui.primary.map,
-                        &ctx.ui.primary.sim,
-                        &mut ctx.ui.canvas,
-                        ctx.ui.primary.current_selection,
+                        &ctx.primary.map,
+                        &ctx.primary.sim,
+                        &ctx.primary.draw_map,
+                        ctx.canvas,
+                        &mut ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.show_route.event(
+                    ctx.primary.follow.event(
                         ctx.input,
-                        &ctx.ui.primary.sim,
-                        &ctx.ui.primary.map,
-                        ctx.ui.primary.current_selection,
+                        &ctx.primary.map,
+                        &ctx.primary.sim,
+                        ctx.canvas,
+                        ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui
-                        .plugins
+                    ctx.primary.show_route.event(
+                        ctx.input,
+                        &ctx.primary.sim,
+                        &ctx.primary.map,
+                        ctx.primary.current_selection,
+                    )
+                }),
+                Box::new(|ctx| {
+                    ctx.plugins
                         .color_picker
-                        .event(ctx.input, &mut ctx.ui.canvas, &mut ctx.ui.cs)
+                        .event(ctx.input, ctx.canvas, ctx.cs)
                 }),
-                Box::new(|ctx| ctx.ui.primary.steepness_viz.event(ctx.input)),
-                Box::new(|ctx| ctx.ui.plugins.osm_classifier.event(ctx.input)),
+                Box::new(|ctx| ctx.primary.steepness_viz.event(ctx.input)),
+                Box::new(|ctx| ctx.plugins.osm_classifier.event(ctx.input)),
                 Box::new(|ctx| {
-                    ctx.ui
-                        .primary
+                    ctx.primary
                         .hider
-                        .event(ctx.input, &mut ctx.ui.primary.current_selection)
+                        .event(ctx.input, &mut ctx.primary.current_selection)
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.debug_objects.event(
-                        ctx.ui.primary.current_selection,
+                    ctx.primary.debug_objects.event(
+                        ctx.primary.current_selection,
                         ctx.input,
-                        &ctx.ui.primary.map,
-                        &mut ctx.ui.primary.sim,
-                        &ctx.ui.primary.control_map,
+                        &ctx.primary.map,
+                        &mut ctx.primary.sim,
+                        &ctx.primary.control_map,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.floodfiller.event(
-                        &ctx.ui.primary.map,
+                    ctx.primary.floodfiller.event(
+                        &ctx.primary.map,
                         ctx.input,
-                        ctx.ui.primary.current_selection,
+                        ctx.primary.current_selection,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.geom_validator.event(
+                    ctx.primary.geom_validator.event(
                         ctx.input,
-                        &mut ctx.ui.canvas,
-                        &ctx.ui.primary.map,
-                        &ctx.ui.primary.sim,
-                        &ctx.ui.primary.draw_map,
+                        ctx.canvas,
+                        &ctx.primary.map,
+                        &ctx.primary.sim,
+                        &ctx.primary.draw_map,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui
-                        .primary
+                    ctx.primary
                         .turn_cycler
-                        .event(ctx.input, ctx.ui.primary.current_selection)
+                        .event(ctx.input, ctx.primary.current_selection)
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.draw_neighborhoods.event(
+                    ctx.primary.draw_neighborhoods.event(
                         ctx.input,
-                        &ctx.ui.canvas,
-                        &ctx.ui.primary.map,
+                        ctx.canvas,
+                        &ctx.primary.map,
                         ctx.osd,
                     )
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.scenarios.event(
-                        ctx.input,
-                        &ctx.ui.primary.map,
-                        &mut ctx.ui.primary.sim,
-                    )
+                    ctx.primary
+                        .scenarios
+                        .event(ctx.input, &ctx.primary.map, &mut ctx.primary.sim)
                 }),
                 Box::new(|ctx| {
-                    let (active, new_primary) = ctx.ui.primary.edits_manager.event(
+                    let (active, new_primary) = ctx.primary.edits_manager.event(
                         ctx.input,
-                        &ctx.ui.primary.map,
-                        &ctx.ui.primary.control_map,
-                        &ctx.ui.primary.road_editor,
-                        &mut ctx.ui.primary.current_flags,
-                        &ctx.ui.kml,
+                        &ctx.primary.map,
+                        &ctx.primary.control_map,
+                        &ctx.primary.road_editor,
+                        &mut ctx.primary.current_flags,
+                        ctx.kml,
                     );
                     if new_primary.is_some() {
-                        ctx.ui.primary = new_primary.unwrap();
+                        *ctx.primary = new_primary.unwrap();
                     }
                     active
                 }),
                 Box::new(|ctx| {
-                    ctx.ui.primary.chokepoints.event(
-                        ctx.input,
-                        &ctx.ui.primary.sim,
-                        &ctx.ui.primary.map,
-                    )
+                    ctx.primary
+                        .chokepoints
+                        .event(ctx.input, &ctx.primary.sim, &ctx.primary.map)
                 }),
                 Box::new(|ctx| {
-                    let (active, new_ui) = ctx.ui.plugins.ab_test_manager.event(
+                    let (active, new_ui) = ctx.plugins.ab_test_manager.event(
                         ctx.input,
-                        ctx.ui.primary.current_selection,
-                        &ctx.ui.primary.map,
-                        &ctx.ui.kml,
-                        &ctx.ui.primary.current_flags,
+                        ctx.primary.current_selection,
+                        &ctx.primary.map,
+                        ctx.kml,
+                        &ctx.primary.current_flags,
                     );
                     if let Some((new_primary, new_secondary)) = new_ui {
-                        ctx.ui.primary = new_primary;
-                        ctx.ui.secondary = Some(new_secondary);
+                        *ctx.primary = new_primary;
+                        *ctx.secondary = Some(new_secondary);
                     }
                     active
                 }),
-                Box::new(|ctx| ctx.ui.plugins.logs.event(ctx.input)),
+                Box::new(|ctx| ctx.plugins.logs.event(ctx.input)),
                 Box::new(|ctx| {
-                    ctx.ui
-                        .plugins
+                    ctx.plugins
                         .diff_worlds
-                        .event(ctx.input, &ctx.ui.primary, &ctx.ui.secondary)
+                        .event(ctx.input, &ctx.primary, ctx.secondary)
                 }),
                 Box::new(|ctx| {
-                    ctx.ui
-                        .primary
+                    ctx.primary
                         .show_owner
-                        .event(ctx.ui.primary.current_selection, &ctx.ui.primary.sim);
+                        .event(ctx.primary.current_selection, &ctx.primary.sim);
                     // TODO This is a weird exception -- this plugin doesn't consume input, so
                     // never treat it as active for blocking input
                     false
@@ -459,9 +450,14 @@ impl UI {
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !plugins[idx](PluginCtx {
-                ui: self,
+                primary: &mut self.primary,
+                secondary: &mut self.secondary,
+                plugins: &mut self.plugins,
+                canvas: &mut self.canvas,
+                cs: &mut self.cs,
                 input: &mut input,
                 osd,
+                kml: &self.kml,
             }) {
                 self.active_plugin = None;
             }
@@ -469,9 +465,14 @@ impl UI {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
             for (idx, plugin) in plugins.iter().enumerate() {
                 if plugin(PluginCtx {
-                    ui: self,
+                    primary: &mut self.primary,
+                    secondary: &mut self.secondary,
+                    plugins: &mut self.plugins,
+                    canvas: &mut self.canvas,
+                    cs: &mut self.cs,
                     input: &mut input,
                     osd,
+                    kml: &self.kml,
                 }) {
                     self.active_plugin = Some(idx);
                     break;
@@ -663,8 +664,14 @@ impl ShowTurnIcons for UI {
     }
 }
 
+// TODO I can't help but noticing this is just UI but with references. Can we be more direct?
 struct PluginCtx<'a> {
-    ui: &'a mut UI,
+    primary: &'a mut PerMapUI,
+    secondary: &'a mut Option<PerMapUI>,
+    plugins: &'a mut PluginsPerUI,
+    canvas: &'a mut Canvas,
+    cs: &'a mut ColorScheme,
     input: &'a mut UserInput,
     osd: &'a mut Text,
+    kml: &'a Option<String>,
 }
