@@ -92,8 +92,7 @@ impl GUI for UI {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            // TODO don't hardcode!
-            for idx in 0..=23 {
+            for idx in 0..UI::NUM_PLUGINS {
                 if self.run_plugin(idx, &mut input, osd) {
                     self.active_plugin = Some(idx);
                     break;
@@ -414,37 +413,37 @@ impl UI {
         self.primary_plugins.show_owner.color_for(id, ctx)
     }
 
+    const NUM_PLUGINS: usize = 24;
+
     fn get_active_plugin(&self) -> Option<Box<&Plugin>> {
         let idx = self.active_plugin?;
-        // Match instead of array, because can't move the Box out of the temporary vec. :\
-        // This must line up with the list of plugins in UI::new.
-        match idx {
-            0 => Some(Box::new(&self.plugins.layers)),
-            1 => Some(Box::new(&self.primary_plugins.traffic_signal_editor)),
-            2 => Some(Box::new(&self.primary_plugins.stop_sign_editor)),
-            3 => Some(Box::new(&self.plugins.road_editor)),
-            4 => Some(Box::new(&self.plugins.search_state)),
-            5 => Some(Box::new(&self.plugins.warp)),
-            6 => Some(Box::new(&self.primary_plugins.follow)),
-            7 => Some(Box::new(&self.primary_plugins.show_route)),
-            8 => Some(Box::new(&self.plugins.color_picker)),
-            9 => Some(Box::new(&self.primary_plugins.steepness_viz)),
-            10 => Some(Box::new(&self.plugins.osm_classifier)),
-            11 => Some(Box::new(&self.primary_plugins.hider)),
-            12 => Some(Box::new(&self.primary_plugins.debug_objects)),
-            13 => Some(Box::new(&self.primary_plugins.floodfiller)),
-            14 => Some(Box::new(&self.primary_plugins.geom_validator)),
-            15 => Some(Box::new(&self.primary_plugins.turn_cycler)),
-            16 => Some(Box::new(&self.primary_plugins.draw_neighborhoods)),
-            17 => Some(Box::new(&self.primary_plugins.scenarios)),
-            18 => Some(Box::new(&self.primary_plugins.chokepoints)),
-            19 => Some(Box::new(&self.plugins.logs)),
-            20 => Some(Box::new(&self.plugins.diff_worlds)),
-            21 => Some(Box::new(&self.primary_plugins.show_owner)),
-            22 => Some(Box::new(&self.primary_plugins.edits_manager)),
-            23 => Some(Box::new(&self.plugins.ab_test_manager)),
-            _ => panic!("Active plugin {} is too high", idx),
-        }
+        let mut plugins: Vec<Box<&Plugin>> = vec![
+            Box::new(&self.plugins.layers),
+            Box::new(&self.primary_plugins.traffic_signal_editor),
+            Box::new(&self.primary_plugins.stop_sign_editor),
+            Box::new(&self.plugins.road_editor),
+            Box::new(&self.plugins.search_state),
+            Box::new(&self.plugins.warp),
+            Box::new(&self.primary_plugins.follow),
+            Box::new(&self.primary_plugins.show_route),
+            Box::new(&self.plugins.color_picker),
+            Box::new(&self.primary_plugins.steepness_viz),
+            Box::new(&self.plugins.osm_classifier),
+            Box::new(&self.primary_plugins.hider),
+            Box::new(&self.primary_plugins.debug_objects),
+            Box::new(&self.primary_plugins.floodfiller),
+            Box::new(&self.primary_plugins.geom_validator),
+            Box::new(&self.primary_plugins.turn_cycler),
+            Box::new(&self.primary_plugins.draw_neighborhoods),
+            Box::new(&self.primary_plugins.scenarios),
+            Box::new(&self.primary_plugins.chokepoints),
+            Box::new(&self.plugins.logs),
+            Box::new(&self.plugins.diff_worlds),
+            Box::new(&self.primary_plugins.show_owner),
+            Box::new(&self.primary_plugins.edits_manager),
+            Box::new(&self.plugins.ab_test_manager),
+        ];
+        Some(plugins.remove(idx))
     }
 
     fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
@@ -460,33 +459,33 @@ impl UI {
                 kml: &self.kml,
                 new_primary_plugins: &mut new_primary_plugins,
             };
-            match idx {
-                0 => self.plugins.layers.event(ctx),
-                1 => self.primary_plugins.traffic_signal_editor.event(ctx),
-                2 => self.primary_plugins.stop_sign_editor.event(ctx),
-                3 => self.plugins.road_editor.event(ctx),
-                4 => self.plugins.search_state.event(ctx),
-                5 => self.plugins.warp.event(ctx),
-                6 => self.primary_plugins.follow.event(ctx),
-                7 => self.primary_plugins.show_route.event(ctx),
-                8 => self.plugins.color_picker.event(ctx),
-                9 => self.primary_plugins.steepness_viz.event(ctx),
-                10 => self.plugins.osm_classifier.event(ctx),
-                11 => self.primary_plugins.hider.event(ctx),
-                12 => self.primary_plugins.debug_objects.event(ctx),
-                13 => self.primary_plugins.floodfiller.event(ctx),
-                14 => self.primary_plugins.geom_validator.event(ctx),
-                15 => self.primary_plugins.turn_cycler.event(ctx),
-                16 => self.primary_plugins.draw_neighborhoods.event(ctx),
-                17 => self.primary_plugins.scenarios.event(ctx),
-                18 => self.primary_plugins.chokepoints.event(ctx),
-                19 => self.plugins.logs.event(ctx),
-                20 => self.plugins.diff_worlds.event(ctx),
-                21 => self.primary_plugins.show_owner.event(ctx),
-                22 => self.primary_plugins.edits_manager.event(ctx),
-                23 => self.plugins.ab_test_manager.event(ctx),
-                _ => panic!("Plugin {} is too high", idx),
-            }
+            let mut plugins: Vec<Box<&mut Plugin>> = vec![
+                Box::new(&mut self.plugins.layers),
+                Box::new(&mut self.primary_plugins.traffic_signal_editor),
+                Box::new(&mut self.primary_plugins.stop_sign_editor),
+                Box::new(&mut self.plugins.road_editor),
+                Box::new(&mut self.plugins.search_state),
+                Box::new(&mut self.plugins.warp),
+                Box::new(&mut self.primary_plugins.follow),
+                Box::new(&mut self.primary_plugins.show_route),
+                Box::new(&mut self.plugins.color_picker),
+                Box::new(&mut self.primary_plugins.steepness_viz),
+                Box::new(&mut self.plugins.osm_classifier),
+                Box::new(&mut self.primary_plugins.hider),
+                Box::new(&mut self.primary_plugins.debug_objects),
+                Box::new(&mut self.primary_plugins.floodfiller),
+                Box::new(&mut self.primary_plugins.geom_validator),
+                Box::new(&mut self.primary_plugins.turn_cycler),
+                Box::new(&mut self.primary_plugins.draw_neighborhoods),
+                Box::new(&mut self.primary_plugins.scenarios),
+                Box::new(&mut self.primary_plugins.chokepoints),
+                Box::new(&mut self.plugins.logs),
+                Box::new(&mut self.plugins.diff_worlds),
+                Box::new(&mut self.primary_plugins.show_owner),
+                Box::new(&mut self.primary_plugins.edits_manager),
+                Box::new(&mut self.plugins.ab_test_manager),
+            ];
+            plugins[idx].event(ctx)
         };
         if let Some(new_plugins) = new_primary_plugins {
             self.primary_plugins = new_plugins;
@@ -518,7 +517,7 @@ impl ShowTurnIcons for UI {
     }
 }
 
-// TODO I can't help but noticing this is just UI but with references. Can we be more direct?
+// This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {
     pub primary: &'a mut PerMapUI,
     pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
