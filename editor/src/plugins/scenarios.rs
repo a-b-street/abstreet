@@ -1,10 +1,12 @@
-use ezgui::{Canvas, GfxCtx, LogScroller, UserInput, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use geom::Polygon;
 use map_model::Map;
 use objects::SIM_SETUP;
 use piston::input::Key;
-use plugins::{choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Colorizer};
-use sim::{Neighborhood, Scenario, SeedParkedCars, Sim, SpawnOverTime};
+use plugins::{
+    choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Colorizer, PluginCtx,
+};
+use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {
     Inactive,
@@ -18,7 +20,29 @@ impl ScenarioManager {
         ScenarioManager::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, map: &Map, sim: &mut Sim) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        match self {
+            ScenarioManager::Inactive => {}
+            ScenarioManager::PickScenario(wizard) => {
+                wizard.draw(g, canvas);
+            }
+            ScenarioManager::ManageScenario(_, scroller) => {
+                scroller.draw(g, canvas);
+            }
+            ScenarioManager::EditScenario(_, wizard) => {
+                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
+                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
+                }
+                wizard.draw(g, canvas);
+            }
+        }
+    }
+}
+
+impl Colorizer for ScenarioManager {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, map, sim) = (ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
+
         let mut new_state: Option<ScenarioManager> = None;
         match self {
             ScenarioManager::Inactive => {
@@ -70,27 +94,7 @@ impl ScenarioManager {
             _ => true,
         }
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        match self {
-            ScenarioManager::Inactive => {}
-            ScenarioManager::PickScenario(wizard) => {
-                wizard.draw(g, canvas);
-            }
-            ScenarioManager::ManageScenario(_, scroller) => {
-                scroller.draw(g, canvas);
-            }
-            ScenarioManager::EditScenario(_, wizard) => {
-                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
-                }
-                wizard.draw(g, canvas);
-            }
-        }
-    }
 }
-
-impl Colorizer for ScenarioManager {}
 
 fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
     let load_existing = "Load existing scenario";

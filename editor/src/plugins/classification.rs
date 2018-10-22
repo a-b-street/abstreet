@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::Colors;
-use ezgui::{Color, UserInput};
+use ezgui::Color;
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 
 // TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {
@@ -15,21 +15,21 @@ impl OsmClassifier {
     pub fn new() -> OsmClassifier {
         OsmClassifier { active: false }
     }
+}
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+impl Colorizer for OsmClassifier {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
         let msg = if self.active {
             "stop showing OSM classes"
         } else {
             "to show OSM classifications"
         };
-        if input.unimportant_key_pressed(Key::D6, DEBUG_EXTRA, msg) {
+        if ctx.input.unimportant_key_pressed(Key::D6, DEBUG_EXTRA, msg) {
             self.active = !self.active;
         }
         self.active
     }
-}
 
-impl Colorizer for OsmClassifier {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         if !self.active {
             return None;

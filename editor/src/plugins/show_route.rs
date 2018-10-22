@@ -1,11 +1,11 @@
 use colors::{ColorScheme, Colors};
 use dimensioned::si;
-use ezgui::{GfxCtx, UserInput};
-use map_model::{Map, Trace, LANE_THICKNESS};
+use ezgui::GfxCtx;
+use map_model::{Trace, LANE_THICKNESS};
 use objects::ID;
 use piston::input::Key;
-use plugins::Colorizer;
-use sim::{AgentID, Sim};
+use plugins::{Colorizer, PluginCtx};
+use sim::AgentID;
 use std::f64;
 
 pub enum ShowRouteState {
@@ -14,13 +14,25 @@ pub enum ShowRouteState {
 }
 
 impl ShowRouteState {
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        sim: &Sim,
-        map: &Map,
-        selected: Option<ID>,
-    ) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme) {
+        if let ShowRouteState::Active(_, trace) = self {
+            g.draw_polygon(
+                cs.get(Colors::Queued),
+                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+            );
+        }
+    }
+}
+
+impl Colorizer for ShowRouteState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, sim, map, selected) = (
+            ctx.input,
+            &ctx.primary.sim,
+            &ctx.primary.map,
+            ctx.primary.current_selection,
+        );
+
         let maybe_agent = match self {
             ShowRouteState::Empty => match selected {
                 Some(ID::Car(id)) => {
@@ -66,15 +78,4 @@ impl ShowRouteState {
             _ => true,
         }
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme) {
-        if let ShowRouteState::Active(_, trace) = self {
-            g.draw_polygon(
-                cs.get(Colors::Queued),
-                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
-            );
-        }
-    }
 }
-
-impl Colorizer for ShowRouteState {}

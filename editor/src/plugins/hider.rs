@@ -1,9 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use ezgui::UserInput;
 use objects::{DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::collections::HashSet;
 
 pub struct Hider {
@@ -17,7 +16,15 @@ impl Hider {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, selected: &mut Option<ID>) -> bool {
+    pub fn show(&self, id: ID) -> bool {
+        !self.items.contains(&id)
+    }
+}
+
+impl Colorizer for Hider {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, selected) = (ctx.input, &mut ctx.primary.current_selection);
+
         if input.unimportant_key_pressed(Key::K, DEBUG_EXTRA, "unhide everything") {
             info!("Unhiding {} things", self.items.len());
             self.items.clear();
@@ -45,10 +52,4 @@ impl Hider {
         }
         false
     }
-
-    pub fn show(&self, id: ID) -> bool {
-        !self.items.contains(&id)
-    }
 }
-
-impl Colorizer for Hider {}

@@ -1,10 +1,10 @@
 use abstutil::format_log_record;
-use ezgui::{Canvas, GfxCtx, LogScroller, UserInput};
+use ezgui::{Canvas, GfxCtx, LogScroller};
 use log;
 use log::{LevelFilter, Log, Metadata, Record};
 use objects::ROOT_MENU;
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::sync::Mutex;
 
 lazy_static! {
@@ -30,9 +30,12 @@ impl DisplayLogs {
         DisplayLogs { active: false }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+    pub fn event(&mut self, ctx: PluginCtx) -> bool {
         if !self.active {
-            if input.unimportant_key_pressed(Key::Comma, ROOT_MENU, "show logs") {
+            if ctx
+                .input
+                .unimportant_key_pressed(Key::Comma, ROOT_MENU, "show logs")
+            {
                 self.active = true;
                 return true;
             } else {
@@ -40,7 +43,7 @@ impl DisplayLogs {
             }
         }
 
-        if LOGGER.lock().unwrap().event(input) {
+        if LOGGER.lock().unwrap().event(ctx.input) {
             self.active = false;
         }
         self.active

@@ -2,11 +2,11 @@
 
 use colors::{ColorScheme, Colors};
 use control::ControlMap;
-use ezgui::{Color, GfxCtx, UserInput};
+use ezgui::{Color, GfxCtx};
 use map_model::{IntersectionID, LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use render::DrawMap;
 use sim::Tick;
 
@@ -20,47 +20,6 @@ pub enum TurnCyclerState {
 impl TurnCyclerState {
     pub fn new() -> TurnCyclerState {
         TurnCyclerState::Inactive
-    }
-
-    pub fn event(&mut self, input: &mut UserInput, selected: Option<ID>) -> bool {
-        let current_id = match selected {
-            Some(ID::Lane(id)) => id,
-            Some(ID::Intersection(id)) => {
-                *self = TurnCyclerState::Intersection(id);
-                return false;
-            }
-            _ => {
-                *self = TurnCyclerState::Inactive;
-                return false;
-            }
-        };
-
-        let mut new_state: Option<TurnCyclerState> = None;
-        match self {
-            TurnCyclerState::Inactive | TurnCyclerState::Intersection(_) => {
-                new_state = Some(TurnCyclerState::Active(current_id, None));
-            }
-            TurnCyclerState::Active(old_id, current_turn_index) => {
-                if current_id != *old_id {
-                    new_state = Some(TurnCyclerState::Inactive);
-                } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
-                    let idx = match *current_turn_index {
-                        Some(i) => i + 1,
-                        None => 0,
-                    };
-                    new_state = Some(TurnCyclerState::Active(current_id, Some(idx)));
-                }
-            }
-        };
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        match self {
-            TurnCyclerState::Inactive => false,
-            // Only once they start tabbing through turns does this plugin block other input.
-            TurnCyclerState::Active(_, current_turn_index) => current_turn_index.is_some(),
-            TurnCyclerState::Intersection(_) => false,
-        }
     }
 
     pub fn draw(
@@ -103,6 +62,49 @@ impl TurnCyclerState {
 }
 
 impl Colorizer for TurnCyclerState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, selected) = (ctx.input, ctx.primary.current_selection);
+
+        let current_id = match selected {
+            Some(ID::Lane(id)) => id,
+            Some(ID::Intersection(id)) => {
+                *self = TurnCyclerState::Intersection(id);
+                return false;
+            }
+            _ => {
+                *self = TurnCyclerState::Inactive;
+                return false;
+            }
+        };
+
+        let mut new_state: Option<TurnCyclerState> = None;
+        match self {
+            TurnCyclerState::Inactive | TurnCyclerState::Intersection(_) => {
+                new_state = Some(TurnCyclerState::Active(current_id, None));
+            }
+            TurnCyclerState::Active(old_id, current_turn_index) => {
+                if current_id != *old_id {
+                    new_state = Some(TurnCyclerState::Inactive);
+                } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
+                    let idx = match *current_turn_index {
+                        Some(i) => i + 1,
+                        None => 0,
+                    };
+                    new_state = Some(TurnCyclerState::Active(current_id, Some(idx)));
+                }
+            }
+        };
+        if let Some(s) = new_state {
+            *self = s;
+        }
+        match self {
+            TurnCyclerState::Inactive => false,
+            // Only once they start tabbing through turns does this plugin block other input.
+            TurnCyclerState::Active(_, current_turn_index) => current_turn_index.is_some(),
+            TurnCyclerState::Intersection(_) => false,
+        }
+    }
+
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (TurnCyclerState::Active(l, Some(idx)), ID::Turn(t)) => {

@@ -92,8 +92,8 @@ impl GUI for UI {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=1 {
-                // TODO 23, and dont hardcode it
+            // TODO don't hardcode!
+            for idx in 0..=23 {
                 if self.run_plugin(idx, &mut input, osd) {
                     self.active_plugin = Some(idx);
                     break;
@@ -225,7 +225,7 @@ impl GUI for UI {
 // to something in PerMapUI?
 pub struct PerMapUI {
     pub map: Map,
-    draw_map: DrawMap,
+    pub draw_map: DrawMap,
     pub control_map: ControlMap,
     pub sim: Sim,
 
@@ -350,109 +350,6 @@ impl UI {
             kml,
             /*plugin_handlers: vec![
                 Box::new(|ctx| {
-                    ctx.primary_plugins.stop_sign_editor.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &mut ctx.primary.control_map,
-                        ctx.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.road_editor.event(
-                        ctx.input,
-                        ctx.primary.current_selection,
-                        &mut ctx.primary.map,
-                        &mut ctx.primary.draw_map,
-                        &ctx.primary.control_map,
-                        &mut ctx.primary.sim,
-                    )
-                }),
-                Box::new(|ctx| ctx.plugins.search_state.event(ctx.input)),
-                Box::new(|ctx| {
-                    ctx.plugins.warp.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &ctx.primary.sim,
-                        &ctx.primary.draw_map,
-                        ctx.canvas,
-                        &mut ctx.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.follow.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &ctx.primary.sim,
-                        ctx.canvas,
-                        ctx.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.show_route.event(
-                        ctx.input,
-                        &ctx.primary.sim,
-                        &ctx.primary.map,
-                        ctx.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.plugins
-                        .color_picker
-                        .event(ctx.input, ctx.canvas, ctx.cs)
-                }),
-                Box::new(|ctx| ctx.primary_plugins.steepness_viz.event(ctx.input)),
-                Box::new(|ctx| ctx.plugins.osm_classifier.event(ctx.input)),
-                Box::new(|ctx| {
-                    ctx.primary_plugins
-                        .hider
-                        .event(ctx.input, &mut ctx.primary.current_selection)
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.debug_objects.event(
-                        ctx.primary.current_selection,
-                        ctx.input,
-                        &ctx.primary.map,
-                        &mut ctx.primary.sim,
-                        &ctx.primary.control_map,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.floodfiller.event(
-                        &ctx.primary.map,
-                        ctx.input,
-                        ctx.primary.current_selection,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.geom_validator.event(
-                        ctx.input,
-                        ctx.canvas,
-                        &ctx.primary.map,
-                        &ctx.primary.sim,
-                        &ctx.primary.draw_map,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins
-                        .turn_cycler
-                        .event(ctx.input, ctx.primary.current_selection)
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.draw_neighborhoods.event(
-                        ctx.input,
-                        ctx.canvas,
-                        &ctx.primary.map,
-                        ctx.osd,
-                    )
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins.scenarios.event(
-                        ctx.input,
-                        &ctx.primary.map,
-                        &mut ctx.primary.sim,
-                    )
-                }),
-                Box::new(|ctx| {
                     let (active, new_primary) = ctx.primary_plugins.edits_manager.event(
                         ctx.input,
                         &ctx.primary.map,
@@ -468,13 +365,6 @@ impl UI {
                     active
                 }),
                 Box::new(|ctx| {
-                    ctx.primary_plugins.chokepoints.event(
-                        ctx.input,
-                        &ctx.primary.sim,
-                        &ctx.primary.map,
-                    )
-                }),
-                Box::new(|ctx| {
                     let (active, new_ui) = ctx.plugins.ab_test_manager.event(
                         ctx.input,
                         ctx.primary.current_selection,
@@ -488,20 +378,6 @@ impl UI {
                         *ctx.secondary = Some(new_secondary);
                     }
                     active
-                }),
-                Box::new(|ctx| ctx.plugins.logs.event(ctx.input)),
-                Box::new(|ctx| {
-                    ctx.plugins
-                        .diff_worlds
-                        .event(ctx.input, &ctx.primary, ctx.secondary)
-                }),
-                Box::new(|ctx| {
-                    ctx.primary_plugins
-                        .show_owner
-                        .event(ctx.primary.current_selection, &ctx.primary.sim);
-                    // TODO This is a weird exception -- this plugin doesn't consume input, so
-                    // never treat it as active for blocking input
-                    false
                 }),
             ],*/
         };
@@ -594,12 +470,12 @@ impl UI {
             15 => Some(Box::new(&self.primary_plugins.turn_cycler)),
             16 => Some(Box::new(&self.primary_plugins.draw_neighborhoods)),
             17 => Some(Box::new(&self.primary_plugins.scenarios)),
-            18 => Some(Box::new(&self.primary_plugins.edits_manager)),
-            19 => Some(Box::new(&self.primary_plugins.chokepoints)),
-            20 => Some(Box::new(&self.plugins.ab_test_manager)),
-            21 => Some(Box::new(&self.plugins.logs)),
-            22 => Some(Box::new(&self.plugins.diff_worlds)),
-            23 => Some(Box::new(&self.primary_plugins.show_owner)),
+            18 => Some(Box::new(&self.primary_plugins.chokepoints)),
+            19 => Some(Box::new(&self.plugins.logs)),
+            20 => Some(Box::new(&self.plugins.diff_worlds)),
+            21 => Some(Box::new(&self.primary_plugins.show_owner)),
+            22 => Some(Box::new(&self.primary_plugins.edits_manager)),
+            23 => Some(Box::new(&self.plugins.ab_test_manager)),
             _ => panic!("Active plugin {} is too high", idx),
         }
     }
@@ -617,7 +493,7 @@ impl UI {
         match idx {
             0 => self.plugins.layers.event(ctx),
             1 => self.primary_plugins.traffic_signal_editor.event(ctx),
-            /*2 => self.primary_plugins.stop_sign_editor.event(ctx),
+            2 => self.primary_plugins.stop_sign_editor.event(ctx),
             3 => self.primary_plugins.road_editor.event(ctx),
             4 => self.plugins.search_state.event(ctx),
             5 => self.plugins.warp.event(ctx),
@@ -633,12 +509,12 @@ impl UI {
             15 => self.primary_plugins.turn_cycler.event(ctx),
             16 => self.primary_plugins.draw_neighborhoods.event(ctx),
             17 => self.primary_plugins.scenarios.event(ctx),
-            18 => self.primary_plugins.edits_manager.event(ctx),
-            19 => self.primary_plugins.chokepoints.event(ctx),
-            20 => self.plugins.ab_test_manager.event(ctx),
-            21 => self.plugins.logs.event(ctx),
-            22 => self.plugins.diff_worlds.event(ctx),
-            23 => self.primary_plugins.show_owner.event(ctx),*/
+            18 => self.primary_plugins.chokepoints.event(ctx),
+            19 => self.plugins.logs.event(ctx),
+            20 => self.plugins.diff_worlds.event(ctx),
+            21 => self.primary_plugins.show_owner.event(ctx),
+            /*22 => self.primary_plugins.edits_manager.event(ctx),
+            23 => self.plugins.ab_test_manager.event(ctx),*/
             _ => panic!("Plugin {} is too high", idx),
         }
     }

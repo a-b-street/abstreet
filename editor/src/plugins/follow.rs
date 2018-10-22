@@ -1,9 +1,7 @@
-use ezgui::{Canvas, UserInput};
-use map_model::Map;
 use objects::ID;
 use piston::input::Key;
-use plugins::Colorizer;
-use sim::{CarID, PedestrianID, Sim};
+use plugins::{Colorizer, PluginCtx};
+use sim::{CarID, PedestrianID};
 
 #[derive(PartialEq)]
 pub enum FollowState {
@@ -12,15 +10,16 @@ pub enum FollowState {
     FollowingPedestrian(PedestrianID),
 }
 
-impl FollowState {
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        map: &Map,
-        sim: &Sim,
-        canvas: &mut Canvas,
-        selected: Option<ID>,
-    ) -> bool {
+impl Colorizer for FollowState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, map, sim, canvas, selected) = (
+            ctx.input,
+            &ctx.primary.map,
+            &ctx.primary.sim,
+            ctx.canvas,
+            ctx.primary.current_selection,
+        );
+
         if *self == FollowState::Empty {
             match selected {
                 Some(ID::Car(id)) => {
@@ -72,5 +71,3 @@ impl FollowState {
         }
     }
 }
-
-impl Colorizer for FollowState {}

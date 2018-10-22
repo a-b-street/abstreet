@@ -1,8 +1,8 @@
-use ezgui::{Canvas, GfxCtx, InputResult, TextBox, UserInput};
+use ezgui::{Canvas, GfxCtx, InputResult, TextBox};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::{DEBUG, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use render::DrawMap;
 use sim::{CarID, PedestrianID, Sim, TripID};
 use std::usize;
@@ -13,15 +13,24 @@ pub enum WarpState {
 }
 
 impl WarpState {
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        map: &Map,
-        sim: &Sim,
-        draw_map: &DrawMap,
-        canvas: &mut Canvas,
-        selected: &mut Option<ID>,
-    ) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if let WarpState::EnteringSearch(tb) = self {
+            tb.draw(g, canvas);
+        }
+    }
+}
+
+impl Colorizer for WarpState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, map, sim, draw_map, canvas, selected) = (
+            ctx.input,
+            &ctx.primary.map,
+            &ctx.primary.sim,
+            &ctx.primary.draw_map,
+            ctx.canvas,
+            &mut ctx.primary.current_selection,
+        );
+
         let mut new_state: Option<WarpState> = None;
         match self {
             WarpState::Empty => {
@@ -52,15 +61,7 @@ impl WarpState {
             _ => true,
         }
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let WarpState::EnteringSearch(tb) = self {
-            tb.draw(g, canvas);
-        }
-    }
 }
-
-impl Colorizer for WarpState {}
 
 fn warp(
     line: String,

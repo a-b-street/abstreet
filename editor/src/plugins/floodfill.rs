@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::Colors;
-use ezgui::{Color, UserInput};
+use ezgui::Color;
 use map_model::{LaneID, Map};
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::collections::{HashSet, VecDeque};
 
 // Keeps track of state so this can be interactively visualized
@@ -36,8 +36,12 @@ impl Floodfiller {
     }
 
     // TODO step backwards!
+}
 
-    pub fn event(&mut self, map: &Map, input: &mut UserInput, selected: Option<ID>) -> bool {
+impl Colorizer for Floodfiller {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (map, input, selected) = (&ctx.primary.map, ctx.input, ctx.primary.current_selection);
+
         if *self == Floodfiller::Inactive {
             match selected {
                 Some(ID::Lane(id)) => {
@@ -78,9 +82,7 @@ impl Floodfiller {
             _ => true,
         }
     }
-}
 
-impl Colorizer for Floodfiller {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (Floodfiller::Active { visited, queue }, ID::Lane(l)) => {

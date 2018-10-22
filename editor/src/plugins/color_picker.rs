@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu, UserInput};
+use colors::Colors;
+use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
 use objects::SETTINGS;
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::string::ToString;
 use strum::IntoEnumIterator;
 
@@ -26,7 +26,37 @@ impl ColorPicker {
         ColorPicker::Inactive
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas, cs: &mut ColorScheme) -> bool {
+    pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {
+        match self {
+            ColorPicker::Inactive => {}
+            ColorPicker::Choosing(menu) => {
+                menu.draw(g, canvas);
+            }
+            ColorPicker::PickingColor(_, _) => {
+                let (start_x, start_y) = get_screen_offset(canvas);
+
+                for x in 0..WIDTH {
+                    for y in 0..HEIGHT {
+                        let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
+                        let corner = canvas.screen_to_map((
+                            (x * TILE_DIMS + start_x) as f64,
+                            (y * TILE_DIMS + start_y) as f64,
+                        ));
+                        g.draw_rectangle(
+                            color,
+                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+impl Colorizer for ColorPicker {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, canvas, cs) = (ctx.input, ctx.canvas, ctx.cs);
+
         let mut new_state: Option<ColorPicker> = None;
         match self {
             ColorPicker::Inactive => {
@@ -80,35 +110,7 @@ impl ColorPicker {
             _ => true,
         }
     }
-
-    pub fn draw(&self, canvas: &Canvas, g: &mut GfxCtx) {
-        match self {
-            ColorPicker::Inactive => {}
-            ColorPicker::Choosing(menu) => {
-                menu.draw(g, canvas);
-            }
-            ColorPicker::PickingColor(_, _) => {
-                let (start_x, start_y) = get_screen_offset(canvas);
-
-                for x in 0..WIDTH {
-                    for y in 0..HEIGHT {
-                        let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
-                        let corner = canvas.screen_to_map((
-                            (x * TILE_DIMS + start_x) as f64,
-                            (y * TILE_DIMS + start_y) as f64,
-                        ));
-                        g.draw_rectangle(
-                            color,
-                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
-                        );
-                    }
-                }
-            }
-        }
-    }
 }
-
-impl Colorizer for ColorPicker {}
 
 fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
     let total_width = TILE_DIMS * WIDTH;

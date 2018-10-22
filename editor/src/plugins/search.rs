@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::{ColorScheme, Colors};
-use ezgui::{Canvas, Color, GfxCtx, InputResult, TextBox, UserInput};
+use ezgui::{Canvas, Color, GfxCtx, InputResult, TextBox};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::collections::BTreeMap;
 
 pub enum SearchState {
@@ -25,7 +25,17 @@ impl SearchState {
         None
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        if let SearchState::EnteringSearch(tb) = self {
+            tb.draw(g, canvas);
+        }
+    }
+}
+
+impl Colorizer for SearchState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let input = ctx.input;
+
         let mut new_state: Option<SearchState> = None;
         match self {
             SearchState::Empty => {
@@ -62,14 +72,6 @@ impl SearchState {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        if let SearchState::EnteringSearch(tb) = self {
-            tb.draw(g, canvas);
-        }
-    }
-}
-
-impl Colorizer for SearchState {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match obj {
             ID::Lane(l) => self.choose_color(&ctx.map.get_parent(l).osm_tags, ctx.cs),

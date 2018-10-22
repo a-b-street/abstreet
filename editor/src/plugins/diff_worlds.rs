@@ -1,11 +1,10 @@
 use colors::ColorScheme;
-use ezgui::{GfxCtx, UserInput};
+use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use sim::TripID;
-use ui::{PerMapUI, PluginsPerMap};
 
 pub enum DiffWorldsState {
     Inactive,
@@ -18,12 +17,18 @@ impl DiffWorldsState {
         DiffWorldsState::Inactive
     }
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        primary: &PerMapUI,
-        secondary: &Option<(PerMapUI, PluginsPerMap)>,
-    ) -> bool {
+    pub fn draw(&self, g: &mut GfxCtx, _cs: &ColorScheme) {
+        if let DiffWorldsState::Active(_, ref line) = self {
+            // TODO move constants
+            g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
+        }
+    }
+}
+
+impl Colorizer for DiffWorldsState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, primary, secondary) = (ctx.input, &ctx.primary, ctx.secondary);
+
         let mut maybe_trip: Option<TripID> = None;
         match self {
             DiffWorldsState::Inactive => {
@@ -73,13 +78,4 @@ impl DiffWorldsState {
             _ => true,
         }
     }
-
-    pub fn draw(&self, g: &mut GfxCtx, _cs: &ColorScheme) {
-        if let DiffWorldsState::Active(_, ref line) = self {
-            // TODO move constants
-            g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
-        }
-    }
 }
-
-impl Colorizer for DiffWorldsState {}

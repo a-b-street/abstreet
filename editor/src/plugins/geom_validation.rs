@@ -1,14 +1,11 @@
-use ezgui::{Canvas, UserInput};
 use generator;
 use geo;
 use geo::prelude::Intersects;
 use geom::Polygon;
-use map_model::Map;
 use objects::{DEBUG, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use render::DrawMap;
-use sim::Sim;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
@@ -81,15 +78,18 @@ impl Validator {
             current_problem: None,
         }
     }
+}
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        canvas: &mut Canvas,
-        map: &Map,
-        sim: &Sim,
-        draw_map: &DrawMap,
-    ) -> bool {
+impl Colorizer for Validator {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, canvas, map, sim, draw_map) = (
+            ctx.input,
+            ctx.canvas,
+            &ctx.primary.map,
+            &ctx.primary.sim,
+            &ctx.primary.draw_map,
+        );
+
         let mut new_state: Option<Validator> = None;
         match self {
             Validator::Inactive => {
@@ -128,8 +128,6 @@ impl Validator {
         }
     }
 }
-
-impl Colorizer for Validator {}
 
 fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
     let mut result = Vec::new();

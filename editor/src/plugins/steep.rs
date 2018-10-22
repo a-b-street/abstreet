@@ -2,11 +2,11 @@
 
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
-use ezgui::{Color, UserInput};
+use ezgui::Color;
 use map_model::{Lane, Map};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use std::f64;
 
 pub struct SteepnessVisualizer {
@@ -34,18 +34,6 @@ impl SteepnessVisualizer {
         s
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
-        let msg = if self.active {
-            "stop showing steepness"
-        } else {
-            "visualize steepness"
-        };
-        if input.unimportant_key_pressed(Key::D5, DEBUG_EXTRA, msg) {
-            self.active = !self.active;
-        }
-        self.active
-    }
-
     fn get_delta(&self, map: &Map, l: &Lane) -> f64 {
         let e1 = map.get_source_intersection(l.id).elevation;
         let e2 = map.get_destination_intersection(l.id).elevation;
@@ -54,6 +42,18 @@ impl SteepnessVisualizer {
 }
 
 impl Colorizer for SteepnessVisualizer {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let msg = if self.active {
+            "stop showing steepness"
+        } else {
+            "visualize steepness"
+        };
+        if ctx.input.unimportant_key_pressed(Key::D5, DEBUG_EXTRA, msg) {
+            self.active = !self.active;
+        }
+        self.active
+    }
+
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         if !self.active {
             return None;

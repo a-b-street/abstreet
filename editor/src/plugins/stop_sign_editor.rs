@@ -2,13 +2,11 @@
 
 use colors::Colors;
 use control::stop_signs::TurnPriority;
-use control::ControlMap;
-use ezgui::{Color, UserInput};
+use ezgui::Color;
 use map_model::IntersectionID;
-use map_model::Map;
 use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 
 #[derive(PartialEq)]
 pub enum StopSignEditor {
@@ -21,13 +19,21 @@ impl StopSignEditor {
         StopSignEditor::Inactive
     }
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        map: &Map,
-        control_map: &mut ControlMap,
-        selected: Option<ID>,
-    ) -> bool {
+    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
+        match self {
+            StopSignEditor::Active(i) => *i == id,
+            StopSignEditor::Inactive => false,
+        }
+    }
+}
+
+impl Colorizer for StopSignEditor {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let input = ctx.input;
+        let map = &ctx.primary.map;
+        let control_map = &mut ctx.primary.control_map;
+        let selected = ctx.primary.current_selection;
+
         if *self == StopSignEditor::Inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
@@ -95,15 +101,6 @@ impl StopSignEditor {
         }
     }
 
-    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
-        match self {
-            StopSignEditor::Active(i) => *i == id,
-            StopSignEditor::Inactive => false,
-        }
-    }
-}
-
-impl Colorizer for StopSignEditor {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (StopSignEditor::Active(i), ID::Turn(t)) => {

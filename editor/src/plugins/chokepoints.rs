@@ -1,11 +1,11 @@
 use colors::Colors;
 use counter::Counter;
 use dimensioned::si;
-use ezgui::{Color, UserInput};
+use ezgui::Color;
 use map_model::{IntersectionID, LaneID, Map, Traversable};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use sim::Sim;
 use std::collections::HashSet;
 use std::f64;
@@ -21,8 +21,12 @@ impl ChokepointsFinder {
     pub fn new() -> ChokepointsFinder {
         ChokepointsFinder::Inactive
     }
+}
 
-    pub fn event(&mut self, input: &mut UserInput, sim: &Sim, map: &Map) -> bool {
+impl Colorizer for ChokepointsFinder {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, sim, map) = (ctx.input, &ctx.primary.sim, &ctx.primary.map);
+
         let mut new_state: Option<ChokepointsFinder> = None;
         match self {
             ChokepointsFinder::Inactive => {
@@ -49,9 +53,7 @@ impl ChokepointsFinder {
             _ => true,
         }
     }
-}
 
-impl Colorizer for ChokepointsFinder {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match self {
             ChokepointsFinder::Inactive => None,

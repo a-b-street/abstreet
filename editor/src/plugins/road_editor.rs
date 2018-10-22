@@ -1,11 +1,7 @@
-use control::ControlMap;
-use ezgui::UserInput;
-use map_model::{EditReason, LaneID, LaneType, Map, RoadEdits};
+use map_model::{EditReason, LaneID, LaneType, RoadEdits};
 use objects::{EDIT_MAP, ID};
 use piston::input::Key;
-use plugins::Colorizer;
-use render::DrawMap;
-use sim::Sim;
+use plugins::{Colorizer, PluginCtx};
 
 pub struct RoadEditor {
     edits: RoadEdits,
@@ -20,15 +16,22 @@ impl RoadEditor {
         }
     }
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        selected: Option<ID>,
-        map: &mut Map,
-        draw_map: &mut DrawMap,
-        control_map: &ControlMap,
-        sim: &mut Sim,
-    ) -> bool {
+    pub fn get_edits(&self) -> &RoadEdits {
+        &self.edits
+    }
+}
+
+impl Colorizer for RoadEditor {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (input, selected, map, draw_map, control_map, sim) = (
+            ctx.input,
+            ctx.primary.current_selection,
+            &mut ctx.primary.map,
+            &mut ctx.primary.draw_map,
+            &ctx.primary.control_map,
+            &mut ctx.primary.sim,
+        );
+
         // TODO a bit awkward that we can't pull this info from RoadEdits easily
         let mut changed: Option<(LaneID, LaneType)> = None;
 
@@ -116,10 +119,4 @@ impl RoadEditor {
 
         self.active
     }
-
-    pub fn get_edits(&self) -> &RoadEdits {
-        &self.edits
-    }
 }
-
-impl Colorizer for RoadEditor {}

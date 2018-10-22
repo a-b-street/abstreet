@@ -2,8 +2,8 @@ use colors::Colors;
 use ezgui::Color;
 use map_model::BuildingID;
 use objects::{Ctx, ID};
-use plugins::Colorizer;
-use sim::{CarID, Sim};
+use plugins::{Colorizer, PluginCtx};
+use sim::CarID;
 use std::collections::HashSet;
 
 pub enum ShowOwnerState {
@@ -16,8 +16,12 @@ impl ShowOwnerState {
     pub fn new() -> ShowOwnerState {
         ShowOwnerState::Inactive
     }
+}
 
-    pub fn event(&mut self, selected: Option<ID>, sim: &Sim) -> bool {
+impl Colorizer for ShowOwnerState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (selected, sim) = (ctx.primary.current_selection, &ctx.primary.sim);
+
         // Reset to Inactive when appropriate
         let mut reset = false;
         match self {
@@ -55,14 +59,11 @@ impl ShowOwnerState {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            ShowOwnerState::Inactive => false,
-            _ => true,
-        }
+        // TODO This is a weird exception -- this plugin doesn't consume input, so never treat it
+        // as active for blocking input
+        false
     }
-}
 
-impl Colorizer for ShowOwnerState {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (ShowOwnerState::BuildingSelected(_, cars), ID::Car(id)) => {

@@ -1,9 +1,8 @@
-use control::ControlMap;
-use ezgui::{Canvas, GfxCtx, Text, UserInput};
+use ezgui::{Canvas, GfxCtx, Text};
 use map_model::Map;
 use objects::ID;
 use piston::input::Key;
-use plugins::Colorizer;
+use plugins::{Colorizer, PluginCtx};
 use render::DrawMap;
 use sim::Sim;
 
@@ -18,14 +17,31 @@ impl DebugObjectsState {
         DebugObjectsState::Empty
     }
 
-    pub fn event(
-        &mut self,
-        selected: Option<ID>,
-        input: &mut UserInput,
-        map: &Map,
-        sim: &mut Sim,
-        control_map: &ControlMap,
-    ) -> bool {
+    pub fn draw(&self, map: &Map, canvas: &Canvas, draw_map: &DrawMap, sim: &Sim, g: &mut GfxCtx) {
+        match *self {
+            DebugObjectsState::Empty => {}
+            DebugObjectsState::Selected(_) => {}
+            DebugObjectsState::Tooltip(id) => {
+                let mut txt = Text::new();
+                for line in id.tooltip_lines(map, draw_map, sim) {
+                    txt.add_line(line);
+                }
+                canvas.draw_mouse_tooltip(g, txt);
+            }
+        }
+    }
+}
+
+impl Colorizer for DebugObjectsState {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let (selected, input, map, sim, control_map) = (
+            ctx.primary.current_selection,
+            ctx.input,
+            &ctx.primary.map,
+            &mut ctx.primary.sim,
+            &ctx.primary.control_map,
+        );
+
         let new_state = if let Some(id) = selected {
             // Don't break out of the tooltip state
             if let DebugObjectsState::Tooltip(_) = self {
@@ -64,20 +80,4 @@ impl DebugObjectsState {
             DebugObjectsState::Tooltip(_) => true,
         }
     }
-
-    pub fn draw(&self, map: &Map, canvas: &Canvas, draw_map: &DrawMap, sim: &Sim, g: &mut GfxCtx) {
-        match *self {
-            DebugObjectsState::Empty => {}
-            DebugObjectsState::Selected(_) => {}
-            DebugObjectsState::Tooltip(id) => {
-                let mut txt = Text::new();
-                for line in id.tooltip_lines(map, draw_map, sim) {
-                    txt.add_line(line);
-                }
-                canvas.draw_mouse_tooltip(g, txt);
-            }
-        }
-    }
 }
-
-impl Colorizer for DebugObjectsState {}
