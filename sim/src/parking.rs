@@ -2,6 +2,7 @@ use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
+use std::collections::HashSet;
 use std::iter;
 use {CarID, Distance, DrawCarInput, ParkedCar, ParkingSpot};
 
@@ -142,6 +143,23 @@ impl ParkingSimState {
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         self.lookup_car(id).and_then(|p| p.owner)
+    }
+
+    pub fn count(&self, lanes: &HashSet<LaneID>) -> (usize, usize) {
+        let mut cars_parked = 0;
+        let mut open_parking_spots = 0;
+
+        for id in lanes {
+            for maybe_car in &self.lanes[id.0].occupants {
+                if maybe_car.is_some() {
+                    cars_parked += 1;
+                } else {
+                    open_parking_spots += 1;
+                }
+            }
+        }
+
+        (cars_parked, open_parking_spots)
     }
 }
 

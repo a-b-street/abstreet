@@ -8,7 +8,7 @@ use map_model::{BuildingID, BusStopID, Lane, LaneID, Map, Trace, Traversable, Tu
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
@@ -656,6 +656,25 @@ impl WalkingSimState {
     pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
         let p = self.peds.get(&id).unwrap();
         vec![format!("{} is part of {}", p.id, p.trip)]
+    }
+
+    // TODO turns too
+    pub fn count(&self, lanes: &HashSet<LaneID>) -> (usize, usize) {
+        let mut moving_peds = 0;
+        let mut stuck_peds = 0;
+
+        for l in lanes {
+            for ped in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
+                let p = &self.peds[ped];
+                if p.waiting_for.is_some() {
+                    stuck_peds += 1;
+                } else {
+                    moving_peds += 1;
+                }
+            }
+        }
+
+        (moving_peds, stuck_peds)
     }
 }
 

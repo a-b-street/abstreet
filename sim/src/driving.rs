@@ -12,7 +12,7 @@ use parking::ParkingSimState;
 use rand::XorShiftRng;
 use router::Router;
 use std;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
@@ -844,6 +844,29 @@ impl DrivingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         let c = &self.cars.get(&id)?;
         c.owner
+    }
+
+    // TODO turns too
+    pub fn count(&self, lanes: &HashSet<LaneID>) -> (usize, usize, usize) {
+        let mut moving_cars = 0;
+        let mut stuck_cars = 0;
+        let mut buses = 0;
+
+        for l in lanes {
+            for (_, car) in &self.lanes[l.0].cars_queue {
+                let c = &self.cars[car];
+                if c.speed <= kinematics::EPSILON_SPEED {
+                    stuck_cars += 1;
+                } else {
+                    moving_cars += 1;
+                }
+                if c.is_bus {
+                    buses += 1;
+                }
+            }
+        }
+
+        (moving_cars, stuck_cars, buses)
     }
 }
 

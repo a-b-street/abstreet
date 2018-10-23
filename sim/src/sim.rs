@@ -13,6 +13,7 @@ use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
 use std;
+use std::collections::HashSet;
 use std::f64;
 use std::process;
 use std::time::{Duration, Instant};
@@ -255,19 +256,6 @@ impl Sim {
         self.walking_state.get_draw_peds_on_turn(map.get_t(t))
     }
 
-    pub fn summary(&self) -> String {
-        let (waiting_cars, active_cars) = self.driving_state.get_active_and_waiting_count();
-        let (waiting_peds, active_peds) = self.walking_state.get_active_and_waiting_count();
-        format!(
-            "Time: {0}, {1} / {2} active cars waiting, {3} cars parked, {4} / {5} pedestrians waiting",
-            self.time,
-            waiting_cars,
-            active_cars,
-            self.parking_state.total_count(),
-            waiting_peds, active_peds,
-        )
-    }
-
     pub fn is_empty(&self) -> bool {
         self.time == Tick::zero() && self.is_done()
     }
@@ -422,6 +410,38 @@ impl Sim {
             .get_owner_of_car(id)
             .or_else(|| self.parking_state.get_owner_of_car(id))
     }
+
+    // TODO deprecate this, use the new Summary
+    pub fn summary(&self) -> String {
+        let (waiting_cars, active_cars) = self.driving_state.get_active_and_waiting_count();
+        let (waiting_peds, active_peds) = self.walking_state.get_active_and_waiting_count();
+        format!(
+            "Time: {0}, {1} / {2} active cars waiting, {3} cars parked, {4} / {5} pedestrians waiting",
+            self.time,
+            waiting_cars,
+            active_cars,
+            self.parking_state.total_count(),
+            waiting_peds, active_peds,
+        )
+    }
+
+    pub fn summarize(&self, lanes: &HashSet<LaneID>) -> Summary {
+        let (cars_parked, open_parking_spots) = self.parking_state.count(lanes);
+        let (moving_cars, stuck_cars, buses) = self.driving_state.count(lanes);
+        let (moving_peds, stuck_peds) = self.walking_state.count(lanes);
+
+        Summary {
+            cars_parked,
+            open_parking_spots,
+            moving_cars,
+            stuck_cars,
+            buses,
+            moving_peds,
+            stuck_peds,
+            // Something else has to calculate this
+            trips_with_ab_test_divergence: 0,
+        }
+    }
 }
 
 pub struct Benchmark {
@@ -433,4 +453,16 @@ impl Benchmark {
     pub fn has_real_time_passed(&self, d: Duration) -> bool {
         self.last_real_time.elapsed() >= d
     }
+}
+
+pub struct Summary {
+    pub cars_parked: usize,
+    pub open_parking_spots: usize,
+    pub moving_cars: usize,
+    pub stuck_cars: usize,
+    pub moving_peds: usize,
+    pub stuck_peds: usize,
+    pub buses: usize,
+    // The agent in one or both worlds is in the requested set of lanes.
+    pub trips_with_ab_test_divergence: usize,
 }
