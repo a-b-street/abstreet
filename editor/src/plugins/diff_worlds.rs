@@ -8,8 +8,9 @@ use sim::TripID;
 
 pub enum DiffWorldsState {
     Inactive,
-    // The Line just points from the agent in the primary sim to the agent in the secondary.
-    Active(TripID, Line),
+    // The Line just points from the agent in the primary sim to the agent in the secondary. It
+    // might be temporarily not present during mode changes.
+    Active(TripID, Option<Line>),
 }
 
 impl DiffWorldsState {
@@ -54,13 +55,13 @@ impl Plugin for DiffWorldsState {
                 .as_ref()
                 .and_then(|(s, _)| s.sim.get_canonical_point_for_trip(id, &s.map));
             if pt1.is_some() && pt2.is_some() {
-                *self = DiffWorldsState::Active(id, Line::new(pt1.unwrap(), pt2.unwrap()));
+                *self = DiffWorldsState::Active(id, Some(Line::new(pt1.unwrap(), pt2.unwrap())));
             } else {
                 warn!(
-                    "{} isn't present in both sims, cancelling DiffWorldsState",
+                    "{} isn't present in both sims",
                     id
                 );
-                *self = DiffWorldsState::Inactive;
+                *self = DiffWorldsState::Active(id, None);
             }
         } else {
             *self = DiffWorldsState::Inactive;
@@ -73,7 +74,7 @@ impl Plugin for DiffWorldsState {
     }
 
     fn draw(&self, g: &mut GfxCtx, _ctx: Ctx) {
-        if let DiffWorldsState::Active(_, ref line) = self {
+        if let DiffWorldsState::Active(_, Some(ref line)) = self {
             // TODO move constants
             g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
         }

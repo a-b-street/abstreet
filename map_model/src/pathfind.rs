@@ -18,6 +18,8 @@ impl Pathfinder {
         end: LaneID,
         is_bike: bool,
     ) -> Option<VecDeque<LaneID>> {
+        // TODO using first_pt here and in heuristic_dist is particularly bad for walking
+        // directions
         let goal_pt = map.get_l(end).first_pt();
         Pathfinder::ShortestDistance { goal_pt, is_bike }.pathfind(map, start, end)
     }
