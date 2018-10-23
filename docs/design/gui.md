@@ -189,6 +189,8 @@ One UI plugin at a time:
 - https://www.reddit.com/r/rust/comments/6sukcw/is_it_possible_to_to_create_an_ortho_view_in_glium/ has a direct example of affine transformation
 - https://www.reddit.com/r/gamedev/comments/4mn9ly/3d_matrix_transformation_question_rotating/
 
+- https://docs.rs/cgmath/0.14.1/cgmath/trait.Transform.html#tymethod.look_at is ready-made
+
 ## Wizard
 
 API looks like coroutines/continuations, but it just works by replaying

@@ -38,7 +38,8 @@ if [ ! -f data/input/neighborhoods.geojson ]; then
 fi
 
 # From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
-get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
+# TODO This isn't a direct link
+#get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
 
 if [ ! -f data/input/Seattle.osm ]; then
 	get_if_needed http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz data/input/Seattle.osm.gz;

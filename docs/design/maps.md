@@ -223,3 +223,34 @@ Cool, good enough to start. whew.
 
 - can we use quadtrees for the expensive building/sidewalk matching?
 	- awkward to bring a rendering-layer concept in; dont otherwise care about lane polygons
+
+## Neighborhoods
+
+It's hard to zoom out and quickly pinpoint where interesting things (A/B diffs,
+traffic jams, suspicious silence) are happening. What if we could optionally
+collapse a region into a big colored polygon and just display quick stats on
+it?
+
+- defining them
+	- what do they include?
+		- a polygon capturing buildings, lanes, etc
+		- what happens when the polygon only partially contains an object?
+			- is it a border thing? makes sense for lanes, not for buildings
+			- border lanes could be used for some kind of in/out flow
+	- do they have to fully partition the map?
+		- they should at least be disjoint
+	- how to define them?
+		- the seattle neighborhood definitions are seemingly way too large
+		- could manually draw them, but including buildings carefully is sort of hard
+		- we have the automatic parcel grouping stuff for coloring... could it help?
+		- could find max-cuts to spot important border roads and the neighborhoods they connect
+	- summary stats
+		- cars parked, open parking spots, moving peds, moving cars,
+		  stuck cars, busses present, number of agents with A/B test
+                  divergence...
+		- this can start to force me to be mildly performant.
+		  precompute what objects are in each polygon, then have a
+		  summary thing collect stats every few seconds when shown?
+	- do these need to be objects in the GUI? at first no, just make a
+	  plugin draw them, but eventually, yes. they should probably be a
+	  map_model concept.
