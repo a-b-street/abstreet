@@ -289,6 +289,10 @@ impl Car {
                     // in this bizarre, illegal state where dist_along is > the current
                     // Traversable's length.
                     self.dist_along = self.on.length(map) - EPSILON_DIST;
+                    // Argh, but don't go negative! Use a different epsilon sometimes?
+                    if self.dist_along < 0.0 * si::M {
+                        self.dist_along = self.on.length(map) - std::f64::EPSILON * si::M;
+                    }
                 }
                 break;
             }
@@ -654,6 +658,14 @@ impl DrivingSimState {
         let mut cars_per_lane = MultiMap::new();
         let mut cars_per_turn = MultiMap::new();
         for c in self.cars.values() {
+            // Also do some sanity checks.
+            if c.dist_along < 0.0 * si::M {
+                return Err(Error::new(format!(
+                    "{} is {} along {:?}",
+                    c.id, c.dist_along, c.on
+                )));
+            }
+
             match c.on {
                 Traversable::Lane(id) => cars_per_lane.insert(id, c.id),
                 Traversable::Turn(id) => cars_per_turn.insert(id, c.id),
