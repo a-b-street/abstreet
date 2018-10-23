@@ -242,6 +242,7 @@ impl PerMapUI {
         flame::dump_stdout();
 
         let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
+        let neighborhood_summary = plugins::neighborhood_summary::NeighborhoodSummary::new(&map);
 
         let state = PerMapUI {
             map,
@@ -270,6 +271,7 @@ impl PerMapUI {
                 Box::new(plugins::scenarios::ScenarioManager::new()),
                 Box::new(plugins::map_edits::EditsManager::new()),
                 Box::new(plugins::chokepoints::ChokepointsFinder::new()),
+                Box::new(neighborhood_summary),
             ],
         };
         (state, plugins)

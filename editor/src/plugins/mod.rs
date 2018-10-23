@@ -13,6 +13,7 @@ pub mod hider;
 pub mod layers;
 pub mod logs;
 pub mod map_edits;
+pub mod neighborhood_summary;
 pub mod road_editor;
 pub mod scenarios;
 pub mod search;
