@@ -86,7 +86,9 @@ impl Canvas {
     }
 
     pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
-        text::draw_text_bubble(g, self.map_to_screen(pt), txt);
+        let (width, height) = txt.dims(g);
+        let (x, y) = self.map_to_screen(pt);
+        text::draw_text_bubble(g, (x - (width / 2.0), y - (height / 2.0)), txt);
     }
 
     pub fn draw_text(
