@@ -2,7 +2,6 @@
 
 // TODO how to edit cycle time?
 
-use colors::Colors;
 use ezgui::Color;
 use map_model::IntersectionID;
 use objects::{Ctx, ID};
@@ -117,23 +116,20 @@ impl Plugin for TrafficSignalEditor {
         match (self, obj) {
             (TrafficSignalEditor::Active { i, current_cycle }, ID::Turn(t)) => {
                 if t.parent != *i {
-                    return Some(ctx.cs.get(Colors::TurnIrrelevant));
+                    return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
                 }
 
                 let cycle = &ctx.control_map.traffic_signals[&i].cycles[*current_cycle];
 
                 if cycle.contains(t) {
-                    Some(ctx.cs.get(Colors::SignalEditorTurnInCurrentCycle))
+                    Some(ctx.cs.get("turn in current cycle", Color::GREEN))
                 } else if !cycle.conflicts_with(t, ctx.map) {
-                    Some(
-                        ctx.cs
-                            .get(Colors::SignalEditorTurnCompatibleWithCurrentCycle),
-                    )
+                    Some(ctx.cs.get(
+                        "turn could be in current cycle",
+                        Color::rgba(0, 255, 0, 0.2),
+                    ))
                 } else {
-                    Some(
-                        ctx.cs
-                            .get(Colors::SignalEditorTurnConflictsWithCurrentCycle),
-                    )
+                    Some(ctx.cs.get("turn conflicts with current cycle", Color::RED))
                 }
                 // TODO maybe something to indicate unused in any cycle so far
             }

@@ -1,4 +1,4 @@
-use ezgui::{GfxCtx, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Wizard, WrappedWizard};
 use geom::{Circle, Line, Polygon};
 use map_model::Map;
 use objects::{Ctx, EDIT_MAP};
@@ -94,12 +94,6 @@ impl Plugin for DrawNeighborhoodState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        // TODO add colorscheme entries
-        let red = [1.0, 0.0, 0.0, 1.0];
-        let green = [0.0, 1.0, 0.0, 1.0];
-        let blue = [0.0, 0.0, 1.0, 0.6];
-        let cyan = [0.0, 1.0, 1.0, 1.0];
-
         let (pts, current_idx) = match self {
             DrawNeighborhoodState::Inactive => {
                 return;
@@ -118,19 +112,36 @@ impl Plugin for DrawNeighborhoodState {
         };
 
         if pts.len() == 2 {
-            g.draw_line(red, POINT_RADIUS / 2.0, &Line::new(pts[0], pts[1]));
+            g.draw_line(
+                ctx.cs.get("neighborhood point", Color::RED),
+                POINT_RADIUS / 2.0,
+                &Line::new(pts[0], pts[1]),
+            );
         }
         if pts.len() >= 3 {
-            g.draw_polygon(blue, &Polygon::new(pts));
+            g.draw_polygon(
+                ctx.cs
+                    .get("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
+                &Polygon::new(pts),
+            );
         }
         for pt in pts {
-            g.draw_circle(red, &Circle::new(*pt, POINT_RADIUS));
+            g.draw_circle(
+                ctx.cs.get("neighborhood point", Color::RED),
+                &Circle::new(*pt, POINT_RADIUS),
+            );
         }
         if let Some(last) = pts.last() {
-            g.draw_circle(green, &Circle::new(*last, POINT_RADIUS));
+            g.draw_circle(
+                ctx.cs.get("neighborhood last placed point", Color::GREEN),
+                &Circle::new(*last, POINT_RADIUS),
+            );
         }
         if let Some(idx) = current_idx {
-            g.draw_circle(cyan, &Circle::new(pts[idx], POINT_RADIUS));
+            g.draw_circle(
+                ctx.cs.get("neighborhood point to move", Color::CYAN),
+                &Circle::new(pts[idx], POINT_RADIUS),
+            );
         }
     }
 }

@@ -103,7 +103,7 @@ impl ID {
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.
 pub struct Ctx<'a> {
-    pub cs: &'a ColorScheme,
+    pub cs: &'a mut ColorScheme,
     pub map: &'a Map,
     pub control_map: &'a ControlMap,
     pub draw_map: &'a DrawMap,

@@ -2,6 +2,7 @@
 
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
+use colors::ColorScheme;
 use control::ControlMap;
 use geom::{Bounds, LonLat, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
@@ -42,10 +43,16 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    pub fn new(map: &Map, control_map: &ControlMap, raw_extra_shapes: Vec<ExtraShape>) -> DrawMap {
+    // TODO really hacky to take ColorScheme here for lanes and areas. :(
+    pub fn new(
+        map: &Map,
+        control_map: &ControlMap,
+        raw_extra_shapes: Vec<ExtraShape>,
+        cs: &mut ColorScheme,
+    ) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
-            lanes.push(DrawLane::new(l, map, control_map));
+            lanes.push(DrawLane::new(l, map, control_map, cs));
         }
 
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -81,7 +88,11 @@ impl DrawMap {
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map));
         }
-        let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
+        let areas: Vec<DrawArea> = map
+            .all_areas()
+            .iter()
+            .map(|a| DrawArea::new(a, cs))
+            .collect();
 
         // min_y here due to the wacky y inversion
         let bounds = map.get_gps_bounds();
@@ -156,9 +167,15 @@ impl DrawMap {
         }
     }
 
-    pub fn edit_lane_type(&mut self, id: LaneID, map: &Map, control_map: &ControlMap) {
+    pub fn edit_lane_type(
+        &mut self,
+        id: LaneID,
+        map: &Map,
+        control_map: &ControlMap,
+        cs: &mut ColorScheme,
+    ) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
-        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, control_map);
+        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, control_map, cs);
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {

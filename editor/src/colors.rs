@@ -1,122 +1,75 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use abstutil;
 use ezgui::Color;
-use rand;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
-use strum::IntoEnumIterator;
 
-#[derive(
-    Debug,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    EnumIter,
-    EnumString,
-    ToString,
-    PartialOrd,
-    Ord,
-    Clone,
-    Copy,
-)]
-pub enum Colors {
-    Background,
-    Debug,
-    BrightDebug,
-    Broken,
-    Road,
-    DrivingLaneMarking,
-    Parking,
-    ParkingMarking,
-    Sidewalk,
-    SidewalkMarking,
-    Crosswalk,
-    StopSignMarking,
-    Biking,
-    BusStopMarking,
+pub struct ColorScheme {
+    // Filled out by lazy calls to get()
+    map: HashMap<String, Color>,
 
-    UnchangedIntersection,
-    ChangedIntersection,
-
-    Selected,
-    Turn,
-    ConflictingTurn,
-    Building,
-    BuildingPath,
-    BuildingBoundary,
-    ParcelBoundary,
-    RoadOrientation,
-    SearchResult,
-    Visited,
-    Queued,
-    NextQueued,
-    TurnIconCircle,
-    TurnIconInactive,
-    ExtraShape,
-
-    MatchClassification,
-    DontMatchClassification,
-
-    TurnIrrelevant,
-    SignalEditorTurnInCurrentCycle,
-    SignalEditorTurnCompatibleWithCurrentCycle,
-    SignalEditorTurnConflictsWithCurrentCycle,
-
-    PriorityTurn,
-    YieldTurn,
-    StopTurn,
-
-    DebugCar,
-    MovingCar,
-    StuckCar,
-    ParkedCar,
-
-    Pedestrian,
-
-    TrafficSignalBox,
-    TrafficSignalGreen,
-    TrafficSignalYellow,
-    TrafficSignalRed,
-
-    StopSignBackground,
-
-    ParkArea,
-    SwampArea,
-    WaterArea,
+    // A subset of map
+    modified: ModifiedColors,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ColorScheme {
-    map: BTreeMap<Colors, Color>,
+struct ModifiedColors {
+    map: BTreeMap<String, Color>,
 }
 
 impl ColorScheme {
-    pub fn load(path: &str) -> Result<ColorScheme, Error> {
-        let mut scheme: ColorScheme = abstutil::read_json(path)?;
-
-        for color in Colors::iter() {
-            if !scheme.map.contains_key(&color) {
-                warn!(
-                    "No color for {:?} defined, initializing with a random one",
-                    color
-                );
-                scheme
-                    .map
-                    .insert(color, [rand::random(), rand::random(), rand::random(), 1.0]);
-            }
+    pub fn load() -> Result<ColorScheme, Error> {
+        let modified: ModifiedColors = abstutil::read_json("color_scheme")?;
+        let mut map: HashMap<String, Color> = HashMap::new();
+        for (name, c) in &modified.map {
+            map.insert(name.clone(), *c);
         }
 
-        Ok(scheme)
+        Ok(ColorScheme { map, modified })
     }
 
-    pub fn get(&self, c: Colors) -> Color {
-        // TODO make sure this isn't slow; maybe back this with an array
-        *self.map.get(&c).unwrap()
+    pub fn save(&self) {
+        abstutil::write_json("color_scheme", &self.modified).expect("Saving color_scheme failed");
     }
 
-    pub fn set(&mut self, c: Colors, value: Color) {
-        self.map.insert(c, value);
+    pub fn get(&mut self, name: &str, default: Color) -> Color {
+        if let Some(existing) = self.map.get(name) {
+            if default != *existing && !self.modified.map.contains_key(name) {
+                panic!(
+                    "Two colors defined for {}: {} and {}",
+                    name, existing, default
+                );
+            }
+            return *existing;
+        }
+
+        self.map.insert(name.to_string(), default);
+        default
+    }
+
+    // Just for the color picker plugin, that's why the funky return value
+    pub fn color_names(&self) -> Vec<(String, ())> {
+        let mut names: Vec<(String, ())> = self.map.keys().map(|n| (n.clone(), ())).collect();
+        names.sort();
+        names
+    }
+
+    pub fn override_color(&mut self, name: &str, value: Color) {
+        self.modified.map.insert(name.to_string(), value);
+        self.map.insert(name.to_string(), value);
+    }
+
+    pub fn get_modified(&self, name: &str) -> Option<Color> {
+        self.modified.map.get(name).map(|c| *c)
+    }
+
+    pub fn reset_modified(&mut self, name: &str, orig: Option<Color>) {
+        if let Some(c) = orig {
+            self.modified.map.insert(name.to_string(), c);
+            self.map.insert(name.to_string(), c);
+        } else {
+            self.modified.map.remove(name);
+            // Just, uh, wait for the default to be populated next time. :P
+            self.map.remove(name);
+        }
     }
 }

@@ -1,4 +1,3 @@
-use colors::Colors;
 use counter::Counter;
 use dimensioned::si;
 use ezgui::Color;
@@ -55,13 +54,12 @@ impl Plugin for ChokepointsFinder {
     }
 
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        let color = ctx.cs.get("chokepoint", Color::RED);
         match self {
             ChokepointsFinder::Inactive => None,
             ChokepointsFinder::Active(lanes, intersections) => match obj {
-                ID::Lane(l) if lanes.contains(&l) => Some(ctx.cs.get(Colors::MatchClassification)),
-                ID::Intersection(i) if intersections.contains(&i) => {
-                    Some(ctx.cs.get(Colors::MatchClassification))
-                }
+                ID::Lane(l) if lanes.contains(&l) => Some(color),
+                ID::Intersection(i) if intersections.contains(&i) => Some(color),
                 _ => None,
             },
         }

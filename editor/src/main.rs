@@ -29,9 +29,6 @@ extern crate serde_derive;
 extern crate sim;
 #[macro_use]
 extern crate structopt;
-extern crate strum;
-#[macro_use]
-extern crate strum_macros;
 
 #[macro_use]
 mod macros;

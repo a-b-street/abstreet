@@ -1,12 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
 use objects::{Ctx, SETTINGS};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use std::string::ToString;
-use strum::IntoEnumIterator;
 
 // TODO assumes minimum screen size
 const WIDTH: u32 = 255;
@@ -16,9 +13,9 @@ const TILE_DIMS: u32 = 2;
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
     Inactive,
-    Choosing(Menu<Colors>),
-    // Remember the original color, in case we revert
-    PickingColor(Colors, Color),
+    Choosing(Menu<()>),
+    // Remember the original modified color in case we revert.
+    ChangingColor(String, Option<Color>),
 }
 
 impl ColorPicker {
@@ -37,7 +34,7 @@ impl Plugin for ColorPicker {
                 if input.unimportant_key_pressed(Key::D8, SETTINGS, "configure colors") {
                     new_state = Some(ColorPicker::Choosing(Menu::new(
                         "Pick a color to change",
-                        Colors::iter().map(|c| (c.to_string(), c)).collect(),
+                        cs.color_names(),
                     )));
                 }
             }
@@ -47,21 +44,25 @@ impl Plugin for ColorPicker {
                         new_state = Some(ColorPicker::Inactive);
                     }
                     InputResult::StillActive => {}
-                    InputResult::Done(_, color) => {
-                        new_state = Some(ColorPicker::PickingColor(color, cs.get(color)));
+                    InputResult::Done(name, _) => {
+                        new_state = Some(ColorPicker::ChangingColor(
+                            name.clone(),
+                            cs.get_modified(&name),
+                        ));
                     }
                 };
             }
-            ColorPicker::PickingColor(c, orig_color) => {
+            ColorPicker::ChangingColor(name, orig) => {
                 if input.key_pressed(
                     Key::Escape,
-                    &format!("stop configuring color for {:?} and revert", c),
+                    &format!("stop changing color for {} and revert", name),
                 ) {
-                    cs.set(*c, *orig_color);
+                    cs.reset_modified(name, *orig);
                     new_state = Some(ColorPicker::Inactive);
-                } else if input.key_pressed(Key::Return, &format!("finalize new color for {:?}", c))
+                } else if input
+                    .key_pressed(Key::Return, &format!("finalize new color for {}", name))
                 {
-                    info!("Setting color for {:?}", c);
+                    info!("Setting color for {}", name);
                     new_state = Some(ColorPicker::Inactive);
                 }
 
@@ -71,7 +72,7 @@ impl Plugin for ColorPicker {
                     let x = (m_x - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
                     let y = (m_y - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        cs.set(*c, get_color(x as f32, y as f32));
+                        cs.override_color(name, get_color(x as f32, y as f32));
                     }
                 }
             }
@@ -91,7 +92,7 @@ impl Plugin for ColorPicker {
             ColorPicker::Choosing(menu) => {
                 menu.draw(g, ctx.canvas);
             }
-            ColorPicker::PickingColor(_, _) => {
+            ColorPicker::ChangingColor(_, _) => {
                 let (start_x, start_y) = get_screen_offset(ctx.canvas);
 
                 for x in 0..WIDTH {
@@ -123,5 +124,5 @@ fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
 fn get_color(x: f32, y: f32) -> Color {
     assert!(x >= 0.0 && x <= 1.0);
     assert!(y >= 0.0 && y <= 1.0);
-    [x, y, (x + y) / 2.0, 1.0]
+    Color::rgb_f(x, y, (x + y) / 2.0)
 }

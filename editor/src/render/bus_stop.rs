@@ -1,6 +1,5 @@
-use colors::Colors;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
@@ -42,7 +41,10 @@ impl Renderable for DrawBusStop {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         g.draw_polygon(
-            opts.color.unwrap_or(ctx.cs.get(Colors::BusStopMarking)),
+            opts.color.unwrap_or(
+                ctx.cs
+                    .get("bus stop marking", Color::rgba(220, 160, 220, 0.8)),
+            ),
             &self.polygon,
         );
     }

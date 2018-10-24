@@ -3,7 +3,7 @@
 // TODO this should just be a way to handle interactions between plugins
 
 use abstutil;
-use colors::{ColorScheme, Colors};
+use colors::ColorScheme;
 use control::ControlMap;
 //use cpuprofiler;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
@@ -22,6 +22,7 @@ use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{Sim, SimFlags};
+use std::cell::RefCell;
 use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
@@ -38,7 +39,8 @@ pub struct UI {
     active_plugin: Option<usize>,
 
     canvas: Canvas,
-    cs: ColorScheme,
+    // TODO mutable ColorScheme to slurp up defaults is NOT ideal.
+    cs: RefCell<ColorScheme>,
 
     // Remember this to support loading a new PerMapUI
     kml: Option<String>,
@@ -90,7 +92,7 @@ impl GUI for UI {
             };
             // TODO maybe make state line up with the map, so loading from a new map doesn't break
             abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
-            abstutil::write_json("color_scheme", &self.cs).expect("Saving color_scheme failed");
+            self.cs.borrow().save();
             info!("Saved editor_state and color_scheme");
             //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             process::exit(0);
@@ -119,7 +121,7 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, osd: Text) {
-        g.clear(self.cs.get(Colors::Background));
+        g.clear(self.cs.borrow_mut().get("map background", Color::WHITE));
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),
@@ -139,7 +141,7 @@ impl GUI for UI {
                 g,
                 opts,
                 Ctx {
-                    cs: &self.cs,
+                    cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
                     control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
@@ -158,7 +160,7 @@ impl GUI for UI {
                 g,
                 opts,
                 Ctx {
-                    cs: &self.cs,
+                    cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
                     control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
@@ -172,7 +174,7 @@ impl GUI for UI {
             p.draw(
                 g,
                 Ctx {
-                    cs: &self.cs,
+                    cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
                     control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
@@ -225,7 +227,11 @@ impl PluginsPerMap {
 }
 
 impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(
+        flags: SimFlags,
+        kml: &Option<String>,
+        cs: &mut ColorScheme,
+    ) -> (PerMapUI, PluginsPerMap) {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
         let extra_shapes = if let Some(path) = kml {
@@ -235,7 +241,7 @@ impl PerMapUI {
         };
 
         flame::start("draw_map");
-        let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
+        let draw_map = DrawMap::new(&map, &control_map, extra_shapes, cs);
         flame::end("draw_map");
 
         flame::end("setup");
@@ -299,7 +305,8 @@ impl UI {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = plugins::logs::DisplayLogs::new();
 
-        let (primary, primary_plugins) = PerMapUI::new(flags, &kml);
+        let mut cs = ColorScheme::load().unwrap();
+        let (primary, primary_plugins) = PerMapUI::new(flags, &kml, &mut cs);
         let mut ui = UI {
             primary,
             primary_plugins,
@@ -324,7 +331,7 @@ impl UI {
             active_plugin: None,
 
             canvas: Canvas::new(),
-            cs: ColorScheme::load("color_scheme").unwrap(),
+            cs: RefCell::new(cs),
 
             kml,
         };
@@ -377,11 +384,11 @@ impl UI {
 
     fn color_obj(&self, id: ID) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
-            return Some(self.cs.get(Colors::Selected));
+            return Some(self.cs.borrow_mut().get("selected", Color::BLUE));
         }
 
         let ctx = Ctx {
-            cs: &self.cs,
+            cs: &mut self.cs.borrow_mut(),
             map: &self.primary.map,
             control_map: &self.primary.control_map,
             draw_map: &self.primary.draw_map,
@@ -414,7 +421,7 @@ impl UI {
                 primary: &mut self.primary,
                 secondary: &mut self.secondary,
                 canvas: &mut self.canvas,
-                cs: &mut self.cs,
+                cs: &mut self.cs.borrow_mut(),
                 input,
                 osd,
                 kml: &self.kml,

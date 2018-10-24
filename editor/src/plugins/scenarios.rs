@@ -1,4 +1,4 @@
-use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use geom::Polygon;
 use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
@@ -88,7 +88,11 @@ impl Plugin for ScenarioManager {
             }
             ScenarioManager::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon([0.0, 0.0, 1.0, 0.6], &Polygon::new(&neighborhood.points));
+                    g.draw_polygon(
+                        ctx.cs
+                            .get("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
+                        &Polygon::new(&neighborhood.points),
+                    );
                 }
                 wizard.draw(g, ctx.canvas);
             }

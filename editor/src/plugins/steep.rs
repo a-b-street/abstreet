@@ -63,7 +63,7 @@ impl Plugin for SteepnessVisualizer {
             ID::Lane(l) => {
                 let normalized = (self.get_delta(ctx.map, ctx.map.get_l(l)) - self.min_difference)
                     / (self.max_difference - self.min_difference);
-                Some([normalized as f32, 0.0, 0.0, 1.0])
+                Some(Color::rgb_f(normalized as f32, 0.0, 0.0))
             }
             _ => None,
         }

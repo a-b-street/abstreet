@@ -1,5 +1,4 @@
-use colors::Colors;
-use ezgui::{shift_color, GfxCtx};
+use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Line, PolyLine, Polygon, Pt2D};
 use map_model::Map;
 use objects::{Ctx, ID};
@@ -91,24 +90,34 @@ impl Renderable for DrawCar {
         let color = opts.color.unwrap_or_else(|| {
             // TODO if it's a bus, color it differently -- but how? :\
             match ctx.sim.get_car_state(self.id) {
-                CarState::Debug => shift_color(ctx.cs.get(Colors::DebugCar), self.id.0),
-                CarState::Moving => shift_color(ctx.cs.get(Colors::MovingCar), self.id.0),
-                CarState::Stuck => shift_color(ctx.cs.get(Colors::StuckCar), self.id.0),
-                CarState::Parked => shift_color(ctx.cs.get(Colors::ParkedCar), self.id.0),
+                CarState::Debug => ctx
+                    .cs
+                    .get("debug car", Color::rgba(0, 0, 255, 0.8))
+                    .shift(self.id.0),
+                CarState::Moving => ctx.cs.get("moving car", Color::CYAN).shift(self.id.0),
+                CarState::Stuck => ctx.cs.get("stuck car", Color::RED).shift(self.id.0),
+                CarState::Parked => ctx
+                    .cs
+                    .get("parked car", Color::rgb(180, 233, 76))
+                    .shift(self.id.0),
             }
         });
         g.draw_polygon(color, &self.body_polygon);
         for p in &self.window_polygons {
-            g.draw_polygon([0.0, 0.0, 0.0, 1.0], p);
+            g.draw_polygon(ctx.cs.get("car window", Color::BLACK), p);
         }
 
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
-            g.draw_arrow([0.0, 1.0, 1.0, 1.0], 0.25, 1.0, a);
+            g.draw_arrow(ctx.cs.get("car turn arrow", Color::CYAN), 0.25, 1.0, a);
         }
 
         if let Some(ref t) = self.stopping_buffer {
-            g.draw_polygon([1.0, 0.0, 0.0, 0.7], t);
+            g.draw_polygon(
+                ctx.cs
+                    .get("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
+                t,
+            );
         }
     }
 

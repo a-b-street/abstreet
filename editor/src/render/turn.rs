@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Pt2D};
@@ -66,10 +65,14 @@ impl Renderable for DrawTurn {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        g.draw_circle(ctx.cs.get(Colors::TurnIconCircle), &self.icon_circle);
+        g.draw_circle(
+            ctx.cs.get("turn icon circle", Color::grey(0.3)),
+            &self.icon_circle,
+        );
 
         g.draw_arrow(
-            opts.color.unwrap_or(ctx.cs.get(Colors::TurnIconInactive)),
+            opts.color
+                .unwrap_or_else(|| ctx.cs.get("inactive turn icon", Color::grey(0.7))),
             TURN_ICON_ARROW_THICKNESS,
             TURN_ICON_ARROW_TIP_LENGTH,
             &self.icon_arrow,

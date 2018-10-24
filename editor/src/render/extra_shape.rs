@@ -1,5 +1,4 @@
-use colors::Colors;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
 use map_model::Map;
@@ -50,7 +49,7 @@ impl Renderable for DrawExtraShape {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        let color = opts.color.unwrap_or(ctx.cs.get(Colors::ExtraShape));
+        let color = opts.color.unwrap_or(ctx.cs.get("extra shape", Color::CYAN));
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(color, &p),
             Shape::Circle(ref c) => g.draw_circle(color, c),

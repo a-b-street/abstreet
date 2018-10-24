@@ -1,4 +1,4 @@
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::Line;
 use map_model::LANE_THICKNESS;
 use objects::Ctx;
@@ -74,11 +74,14 @@ impl Plugin for DiffAllState {
         active
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         if let DiffAllState::Active(ref lines) = self {
             for line in lines {
-                // TODO move constants
-                g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, line);
+                g.draw_line(
+                    ctx.cs.get("diff agents line", Color::YELLOW),
+                    LANE_THICKNESS,
+                    line,
+                );
             }
         }
     }

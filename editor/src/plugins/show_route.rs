@@ -1,6 +1,5 @@
-use colors::Colors;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use map_model::{Trace, LANE_THICKNESS};
 use objects::Ctx;
 use piston::input::Key;
@@ -70,7 +69,7 @@ impl Plugin for ShowRouteState {
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         if let ShowRouteState::Active(_, trace) = self {
             g.draw_polygon(
-                ctx.cs.get(Colors::Queued),
+                ctx.cs.get("route", Color::rgba(255, 0, 0, 0.8)),
                 &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
             );
         }

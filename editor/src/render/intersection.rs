@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Intersection, IntersectionID, LaneType, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
@@ -52,7 +51,7 @@ impl DrawIntersection {
     fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: Ctx) {
         // TODO rotate it
         g.draw_polygon(
-            ctx.cs.get(Colors::StopSignBackground),
+            ctx.cs.get("stop sign background", Color::RED),
             &Polygon::regular_polygon(self.center, 8, 1.5),
         );
         // TODO draw "STOP"
@@ -62,7 +61,7 @@ impl DrawIntersection {
         let radius = 0.5;
 
         g.draw_rectangle(
-            ctx.cs.get(Colors::TrafficSignalBox),
+            ctx.cs.get("traffic signal box", Color::BLACK),
             [
                 self.center.x() - (2.0 * radius),
                 self.center.y() - (4.0 * radius),
@@ -72,17 +71,17 @@ impl DrawIntersection {
         );
 
         g.draw_circle(
-            ctx.cs.get(Colors::TrafficSignalYellow),
+            ctx.cs.get("traffic signal yellow", Color::YELLOW),
             &Circle::new(self.center, radius),
         );
 
         g.draw_circle(
-            ctx.cs.get(Colors::TrafficSignalGreen),
+            ctx.cs.get("traffic signal green", Color::GREEN),
             &Circle::new(self.center.offset(0.0, radius * 2.0), radius),
         );
 
         g.draw_circle(
-            ctx.cs.get(Colors::TrafficSignalRed),
+            ctx.cs.get("traffic signal red", Color::RED),
             &Circle::new(self.center.offset(0.0, radius * -2.0), radius),
         );
     }
@@ -103,9 +102,10 @@ impl Renderable for DrawIntersection {
                 false
             };
             if changed {
-                ctx.cs.get(Colors::ChangedIntersection)
+                ctx.cs
+                    .get("changed intersection", Color::rgb_f(0.8, 0.6, 0.6))
             } else {
-                ctx.cs.get(Colors::UnchangedIntersection)
+                ctx.cs.get("unchanged intersection", Color::grey(0.6))
             }
         });
         g.draw_polygon(color, &self.polygon);
@@ -113,7 +113,7 @@ impl Renderable for DrawIntersection {
         for crosswalk in &self.crosswalks {
             for line in crosswalk {
                 g.draw_line(
-                    ctx.cs.get(Colors::Crosswalk),
+                    ctx.cs.get("crosswalk", Color::WHITE),
                     // TODO move this somewhere
                     0.25,
                     line,

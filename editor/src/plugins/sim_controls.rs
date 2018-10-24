@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
 use objects::SIM;
 use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
@@ -180,8 +180,8 @@ impl SimController {
 fn summarize(txt: &mut Text, summary: ScoreSummary) {
     txt.add_styled_line(
         "Walking".to_string(),
-        [0.0, 0.0, 0.0, 1.0],
-        Some([1.0, 0.0, 0.0, 0.8]),
+        Color::BLACK,
+        Some(Color::rgba(255, 0, 0, 0.8)),
     );
     txt.add_line(format!(
         "  {}/{} trips done",
@@ -192,8 +192,8 @@ fn summarize(txt: &mut Text, summary: ScoreSummary) {
 
     txt.add_styled_line(
         "Driving".to_string(),
-        [0.0, 0.0, 0.0, 1.0],
-        Some([0.0, 0.0, 1.0, 0.8]),
+        Color::BLACK,
+        Some(Color::rgba(0, 0, 255, 0.8)),
     );
     txt.add_line(format!(
         "  {}/{} trips done",

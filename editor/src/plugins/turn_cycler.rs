@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use ezgui::{Color, GfxCtx};
 use map_model::{IntersectionID, LaneID};
 use objects::{Ctx, ID};
@@ -65,6 +64,8 @@ impl Plugin for TurnCyclerState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        let color = ctx.cs.get("current selected turn", Color::RED);
+
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -74,12 +75,10 @@ impl Plugin for TurnCyclerState {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
                             let draw_turn = ctx.draw_map.get_t(turn.id);
-                            draw_turn.draw_full(g, ctx.cs.get(Colors::Turn));
+                            draw_turn.draw_full(g, color);
                         }
                         None => for turn in &relevant_turns {
-                            ctx.draw_map
-                                .get_t(turn.id)
-                                .draw_full(g, ctx.cs.get(Colors::Turn));
+                            ctx.draw_map.get_t(turn.id).draw_full(g, color);
                         },
                     }
                 }
@@ -90,9 +89,7 @@ impl Plugin for TurnCyclerState {
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
                     for t in &cycle.turns {
-                        ctx.draw_map
-                            .get_t(*t)
-                            .draw_full(g, ctx.cs.get(Colors::Turn));
+                        ctx.draw_map.get_t(*t).draw_full(g, color);
                     }
                 }
             }
@@ -106,7 +103,10 @@ impl Plugin for TurnCyclerState {
 
                 let relevant_turns = ctx.map.get_turns_from_lane(*l);
                 if relevant_turns[idx % relevant_turns.len()].conflicts_with(ctx.map.get_t(t)) {
-                    Some(ctx.cs.get(Colors::ConflictingTurn))
+                    Some(ctx.cs.get(
+                        "turn conflicts with current turn",
+                        Color::rgba(255, 0, 0, 0.5),
+                    ))
                 } else {
                     None
                 }

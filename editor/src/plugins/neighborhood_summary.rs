@@ -136,7 +136,7 @@ impl Region {
 
 const COLORS: [Color; 3] = [
     // TODO these are awful choices
-    [1.0, 0.0, 0.0, 0.8],
-    [0.0, 1.0, 0.0, 0.8],
-    [0.0, 0.0, 1.0, 0.8],
+    Color([1.0, 0.0, 0.0, 0.8]),
+    Color([0.0, 1.0, 0.0, 0.8]),
+    Color([0.0, 0.0, 1.0, 0.8]),
 ];

@@ -1,4 +1,3 @@
-use colors::Colors;
 use ezgui::Color;
 use map_model::BuildingID;
 use objects::{Ctx, ID};
@@ -65,16 +64,16 @@ impl Plugin for ShowOwnerState {
     }
 
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        let color = ctx.cs.get("car/building owner", Color::PURPLE);
         match (self, obj) {
             (ShowOwnerState::BuildingSelected(_, cars), ID::Car(id)) => {
                 if cars.contains(&id) {
-                    // TODO really got lazy defining colors
-                    return Some(ctx.cs.get(Colors::SearchResult));
+                    return Some(color);
                 }
             }
             (ShowOwnerState::CarSelected(_, Some(id1)), ID::Building(id2)) => {
                 if *id1 == id2 {
-                    return Some(ctx.cs.get(Colors::SearchResult));
+                    return Some(color);
                 }
             }
             _ => {}

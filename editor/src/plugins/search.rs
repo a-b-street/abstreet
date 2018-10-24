@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::{ColorScheme, Colors};
+use colors::ColorScheme;
 use ezgui::{Color, GfxCtx, InputResult, TextBox};
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
@@ -14,11 +14,15 @@ pub enum SearchState {
 }
 
 impl SearchState {
-    fn choose_color(&self, osm_tags: &BTreeMap<String, String>, cs: &ColorScheme) -> Option<Color> {
+    fn choose_color(
+        &self,
+        osm_tags: &BTreeMap<String, String>,
+        cs: &mut ColorScheme,
+    ) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             for (k, v) in osm_tags {
                 if format!("{}={}", k, v).contains(filter) {
-                    return Some(cs.get(Colors::SearchResult));
+                    return Some(cs.get("search result", Color::RED));
                 }
             }
         }

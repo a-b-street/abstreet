@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map};
 use objects::{Ctx, ID};
@@ -35,14 +34,19 @@ impl Renderable for DrawBuilding {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         // Buildings look better without boundaries, actually
-        //g.draw_polygon(ctx.cs.get(Colors::BuildingBoundary), &self.boundary_polygon);
+        //g.draw_polygon(ctx.cs.get("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
         g.draw_polygon(
-            opts.color.unwrap_or(ctx.cs.get(Colors::Building)),
+            opts.color
+                .unwrap_or(ctx.cs.get("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8))),
             &self.fill_polygon,
         );
 
         // TODO tune width
-        g.draw_rounded_line(ctx.cs.get(Colors::BuildingPath), 1.0, &self.front_path);
+        g.draw_rounded_line(
+            ctx.cs.get("building path", Color::grey(0.6)),
+            1.0,
+            &self.front_path,
+        );
     }
 
     fn get_bounds(&self) -> Bounds {

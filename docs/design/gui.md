@@ -370,3 +370,22 @@ Let's start with two concrete things:
 - sometimes call draw()
 
 alright, the boilerplate is all gone! \o/ I'm happy now.
+
+## Colors
+
+It's too tedious to make new colors, so I find myself hacking in temporary
+hardcoded values. Declaring something far from its use sucks, because there's
+no context. So how about this for an alternative:
+
+- allow either [0.0, 1.0] or [0, 255] formats. helper rgb(r, g, b) implicit 1.0 alpha and rgba(r, g, b, a)
+- cs.get("name", default)
+- the colorscheme object lazily accumulates the list of colors, so the color picker plugin still works
+	- but some are in plugins that dont get called often
+- what gets serialized? just marked changes from the color picker? yeah, and
+  those overrides are loaded in at first. colorscheme obj has a set() fxn that
+  remembers it's changed from default in code.
+- can still later support different colorschemes with different json files.
+- shared colors?
+	- should those be defined in one of the places arbitrarily, that we know will be invoked early?
+	- could a macro help with registration?
+- get() being mutable means we have to use RefCell or propogate mutability in lots of sad places

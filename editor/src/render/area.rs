@@ -1,5 +1,5 @@
-use colors::Colors;
-use ezgui::GfxCtx;
+use colors::ColorScheme;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Area, AreaID, AreaType, Map};
 use objects::{Ctx, ID};
@@ -9,18 +9,19 @@ use render::{RenderOptions, Renderable};
 pub struct DrawArea {
     pub id: AreaID,
     fill_polygon: Polygon,
-    color: Colors,
+    // TODO precomputing this means live color picker changes won't work. :(
+    color: Color,
 }
 
 impl DrawArea {
-    pub fn new(area: &Area) -> DrawArea {
+    pub fn new(area: &Area, cs: &mut ColorScheme) -> DrawArea {
         DrawArea {
             id: area.id,
             fill_polygon: area.get_polygon(),
             color: match area.area_type {
-                AreaType::Park => Colors::ParkArea,
-                AreaType::Swamp => Colors::SwampArea,
-                AreaType::Water => Colors::WaterArea,
+                AreaType::Park => cs.get("park area", Color::GREEN),
+                AreaType::Swamp => cs.get("swamp area", Color::rgb_f(0.0, 1.0, 0.6)),
+                AreaType::Water => cs.get("water area", Color::BLUE),
             },
         }
     }
@@ -31,11 +32,8 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
-        g.draw_polygon(
-            opts.color.unwrap_or(ctx.cs.get(self.color)),
-            &self.fill_polygon,
-        );
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: Ctx) {
+        g.draw_polygon(opts.color.unwrap_or(self.color), &self.fill_polygon);
     }
 
     fn get_bounds(&self) -> Bounds {

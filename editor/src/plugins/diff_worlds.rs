@@ -1,5 +1,5 @@
 use dimensioned::si;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::Line;
 use map_model::{Trace, LANE_THICKNESS};
 use objects::Ctx;
@@ -98,7 +98,7 @@ impl Plugin for DiffWorldsState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         if let DiffWorldsState::Active {
             line,
             primary_route,
@@ -107,18 +107,23 @@ impl Plugin for DiffWorldsState {
         } = self
         {
             if let Some(l) = line {
-                // TODO move constants
-                g.draw_line([1.0, 1.0, 0.0, 1.0], LANE_THICKNESS, l);
+                g.draw_line(
+                    ctx.cs.get("diff agents line", Color::YELLOW),
+                    LANE_THICKNESS,
+                    l,
+                );
             }
             if let Some(t) = primary_route {
                 g.draw_polygon(
-                    [1.0, 0.0, 0.0, 0.5],
+                    ctx.cs
+                        .get("primary agent route", Color::rgba(255, 0, 0, 0.5)),
                     &t.get_polyline().make_polygons_blindly(LANE_THICKNESS),
                 );
             }
             if let Some(t) = secondary_route {
                 g.draw_polygon(
-                    [0.0, 0.0, 1.0, 0.5],
+                    ctx.cs
+                        .get("secondary agent route", Color::rgba(0, 0, 255, 0.5)),
                     &t.get_polyline().make_polygons_blindly(LANE_THICKNESS),
                 );
             }

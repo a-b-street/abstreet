@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use control::stop_signs::TurnPriority;
 use ezgui::Color;
 use map_model::IntersectionID;
@@ -105,12 +104,14 @@ impl Plugin for StopSignEditor {
         match (self, obj) {
             (StopSignEditor::Active(i), ID::Turn(t)) => {
                 if t.parent != *i {
-                    return Some(ctx.cs.get(Colors::TurnIrrelevant));
+                    return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
                 }
                 match ctx.control_map.stop_signs[i].get_priority(t) {
-                    TurnPriority::Priority => Some(ctx.cs.get(Colors::PriorityTurn)),
-                    TurnPriority::Yield => Some(ctx.cs.get(Colors::YieldTurn)),
-                    TurnPriority::Stop => Some(ctx.cs.get(Colors::StopTurn)),
+                    TurnPriority::Priority => {
+                        Some(ctx.cs.get("priority stop sign turn", Color::GREEN))
+                    }
+                    TurnPriority::Yield => Some(ctx.cs.get("yield stop sign turn", Color::YELLOW)),
+                    TurnPriority::Stop => Some(ctx.cs.get("stop turn", Color::RED)),
                 }
             }
             _ => None,

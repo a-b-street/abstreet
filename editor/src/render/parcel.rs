@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{Map, Parcel, ParcelID};
@@ -9,20 +8,21 @@ use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 const COLORS: [Color; 14] = [
     // TODO these are awful choices
-    [1.0, 1.0, 0.0, 1.0],
-    [1.0, 0.0, 1.0, 1.0],
-    [0.0, 1.0, 1.0, 1.0],
-    [0.5, 0.2, 0.7, 1.0],
-    [0.5, 0.5, 0.0, 0.5],
-    [0.5, 0.0, 0.5, 0.5],
-    [0.0, 0.5, 0.5, 0.5],
-    [0.0, 0.0, 0.5, 0.5],
-    [0.3, 0.2, 0.5, 0.5],
-    [0.4, 0.2, 0.5, 0.5],
-    [0.5, 0.2, 0.5, 0.5],
-    [0.6, 0.2, 0.5, 0.5],
-    [0.7, 0.2, 0.5, 0.5],
-    [0.8, 0.2, 0.5, 0.5],
+    // TODO can we express these with the nicer functions? probably need constexpr
+    Color([1.0, 1.0, 0.0, 1.0]),
+    Color([1.0, 0.0, 1.0, 1.0]),
+    Color([0.0, 1.0, 1.0, 1.0]),
+    Color([0.5, 0.2, 0.7, 1.0]),
+    Color([0.5, 0.5, 0.0, 0.5]),
+    Color([0.5, 0.0, 0.5, 0.5]),
+    Color([0.0, 0.5, 0.5, 0.5]),
+    Color([0.0, 0.0, 0.5, 0.5]),
+    Color([0.3, 0.2, 0.5, 0.5]),
+    Color([0.4, 0.2, 0.5, 0.5]),
+    Color([0.5, 0.2, 0.5, 0.5]),
+    Color([0.6, 0.2, 0.5, 0.5]),
+    Color([0.7, 0.2, 0.5, 0.5]),
+    Color([0.8, 0.2, 0.5, 0.5]),
 ];
 
 #[derive(Debug)]
@@ -56,7 +56,10 @@ impl Renderable for DrawParcel {
         });
         g.draw_polygon(color, &self.fill_polygon);
 
-        g.draw_polygon(ctx.cs.get(Colors::ParcelBoundary), &self.boundary_polygon);
+        g.draw_polygon(
+            ctx.cs.get("parcel boundary", Color::grey(0.3)),
+            &self.boundary_polygon,
+        );
     }
 
     fn get_bounds(&self) -> Bounds {

@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use ezgui::Color;
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
@@ -41,13 +40,16 @@ impl Plugin for OsmClassifier {
                     Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
                     None => false,
                 } {
-                    Some(ctx.cs.get(Colors::MatchClassification))
+                    Some(ctx.cs.get("matches OSM classification", Color::GREEN))
                 } else {
-                    Some(ctx.cs.get(Colors::DontMatchClassification))
+                    Some(ctx.cs.get(
+                        "doesn't match OSM classification",
+                        Color::rgba(0, 0, 0, 0.1),
+                    ))
                 }
             }
             ID::Building(b) => if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
-                Some(ctx.cs.get(Colors::MatchClassification))
+                Some(ctx.cs.get("matches OSM classification", Color::GREEN))
             } else {
                 None
             },

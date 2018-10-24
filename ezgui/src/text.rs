@@ -3,10 +3,10 @@
 use graphics::{Image, Rectangle, Transformed};
 use {Color, GfxCtx};
 
-pub const TEXT_FG_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
-pub const TEXT_QUERY_COLOR: Color = [0.0, 0.0, 1.0, 0.5];
-pub const TEXT_FOCUS_COLOR: Color = [1.0, 0.0, 0.0, 0.5];
-const TEXT_BG_COLOR: Color = [0.0, 1.0, 0.0, 0.5];
+pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
+pub const TEXT_QUERY_COLOR: Color = Color([0.0, 0.0, 1.0, 0.5]);
+pub const TEXT_FOCUS_COLOR: Color = Color([1.0, 0.0, 0.0, 0.5]);
+const TEXT_BG_COLOR: Color = Color([0.0, 1.0, 0.0, 0.5]);
 
 const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
@@ -99,7 +99,7 @@ impl Text {
 
 pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
     let (total_width, total_height) = txt.dims(g);
-    Rectangle::new(txt.bg_color).draw(
+    Rectangle::new(txt.bg_color.0).draw(
         [x1, y1, total_width, total_height],
         &g.orig_ctx.draw_state,
         g.orig_ctx.transform,
@@ -114,7 +114,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
             if let Some(color) = span.highlight_color {
                 // TODO do we ever want to use total_width?
                 let width = g.glyphs.width(FONT_SIZE, &span.text).unwrap();
-                Rectangle::new(color).draw(
+                Rectangle::new(color.0).draw(
                     [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
                     &g.orig_ctx.draw_state,
                     g.orig_ctx.transform,
@@ -122,7 +122,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
                 );
             }
 
-            let fg_text = Image::new_color(span.fg_color);
+            let fg_text = Image::new_color(span.fg_color.0);
 
             for ch in span.text.chars() {
                 if let Ok(draw_ch) = g.glyphs.character(FONT_SIZE, ch) {

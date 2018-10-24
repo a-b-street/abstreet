@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use colors::Colors;
 use ezgui::Color;
 use map_model::{LaneID, Map};
 use objects::{Ctx, ID};
@@ -87,14 +86,14 @@ impl Plugin for Floodfiller {
         match (self, obj) {
             (Floodfiller::Active { visited, queue }, ID::Lane(l)) => {
                 if visited.contains(&l) {
-                    return Some(ctx.cs.get(Colors::Visited));
+                    return Some(ctx.cs.get("visited in floodfill", Color::BLUE));
                 }
                 if !queue.is_empty() && *queue.front().unwrap() == l {
-                    return Some(ctx.cs.get(Colors::NextQueued));
+                    return Some(ctx.cs.get("next to visit in floodfill", Color::GREEN));
                 }
                 // TODO linear search shouldnt suck too much for interactive mode
                 if queue.contains(&l) {
-                    return Some(ctx.cs.get(Colors::Queued));
+                    return Some(ctx.cs.get("queued in floodfill", Color::RED));
                 }
                 None
             }
