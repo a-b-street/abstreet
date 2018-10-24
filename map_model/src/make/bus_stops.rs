@@ -59,24 +59,27 @@ pub fn make_bus_stops(
     }
 
     let mut routes: Vec<BusRoute> = Vec::new();
-    for (route_name, stop_points) in route_lookups.iter_all() {
-        let stops: Vec<BusStopID> = stop_points
-            .iter()
-            .filter_map(|pt| point_to_stop_id.get(pt))
-            .map(|stop| *stop)
-            .collect();
-        if stops.len() < 2 {
-            warn!(
-                "Skipping route {} since it only has {} stop in the slice of the map",
-                route_name,
-                stops.len()
-            );
-            continue;
+    for route in bus_routes {
+        let route_name = route.name.to_string();
+        if let Some(stop_points) = route_lookups.get_vec(&route_name) {
+            let stops: Vec<BusStopID> = stop_points
+                .iter()
+                .filter_map(|pt| point_to_stop_id.get(pt))
+                .map(|stop| *stop)
+                .collect();
+            if stops.len() < 2 {
+                warn!(
+                    "Skipping route {} since it only has {} stop in the slice of the map",
+                    route_name,
+                    stops.len()
+                );
+                continue;
+            }
+            routes.push(BusRoute {
+                name: route_name.to_string(),
+                stops,
+            });
         }
-        routes.push(BusRoute {
-            name: route_name.to_string(),
-            stops,
-        });
     }
     (bus_stops, routes)
 }

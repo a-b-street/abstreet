@@ -2,6 +2,7 @@ use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use sim::TripID;
 
+// TODO woops, all the plugins that work off of trips now don't work for buses. :(
 #[derive(PartialEq)]
 pub enum FollowState {
     Empty,
