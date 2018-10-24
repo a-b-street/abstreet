@@ -355,11 +355,13 @@ impl WalkingSimState {
         map: &Map,
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
+        current_agent: &mut Option<AgentID>,
     ) -> Result<Vec<(PedestrianID, ParkingSpot)>, Error> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
             if p.active {
+                *current_agent = Some(AgentID::Pedestrian(p.id));
                 requested_moves.push((p.id, p.react(map, intersections)));
             }
         }
@@ -371,6 +373,7 @@ impl WalkingSimState {
 
         // Apply moves. This can also be concurrent, since there are no possible conflicts.
         for (id, act) in &requested_moves {
+            *current_agent = Some(AgentID::Pedestrian(*id));
             match *act {
                 Action::KeepCrossingPath => {
                     if self
@@ -419,6 +422,7 @@ impl WalkingSimState {
                 }
             }
         }
+        *current_agent = None;
 
         // TODO could simplify this by only adjusting the sets we need above
         self.peds_per_sidewalk.clear();

@@ -565,6 +565,7 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
+        current_agent: &mut Option<AgentID>,
     ) -> Result<Vec<ParkedCar>, Error> {
         self.populate_view(view);
 
@@ -572,6 +573,7 @@ impl DrivingSimState {
         // sometimes pick a next lane to try for parking.
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
+            *current_agent = Some(AgentID::Car(c.id));
             requested_moves.push((
                 c.id,
                 c.react(
@@ -596,6 +598,7 @@ impl DrivingSimState {
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
         for (id, act) in &requested_moves {
+            *current_agent = Some(AgentID::Car(*id));
             match *act {
                 Action::StartParking(ref spot) => {
                     let c = self.cars.get_mut(&id).unwrap();
@@ -650,6 +653,7 @@ impl DrivingSimState {
                 }
             }
         }
+        *current_agent = None;
 
         // TODO could simplify this by only adjusting the SimQueues we need above
 

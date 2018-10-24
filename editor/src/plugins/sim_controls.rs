@@ -207,7 +207,10 @@ fn step_sim(name: &str, ui: &mut PerMapUI) {
     if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
         ui.sim.step(&ui.map, &ui.control_map);
     })) {
-        error!("{} sim failed at {}", name, ui.sim.time);
+        error!(
+            "{} sim failed at {} while processing {:?}",
+            name, ui.sim.time, ui.sim.current_agent_for_debugging
+        );
         panic::resume_unwind(err);
     }
 }

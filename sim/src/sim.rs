@@ -51,6 +51,10 @@ pub struct Sim {
     pub(crate) walking_state: WalkingSimState,
     pub(crate) transit_state: TransitSimState,
     pub(crate) trips_state: TripManager,
+
+    // This should only be Some in the middle of step(). The caller of step() can grab this if
+    // step() panics.
+    pub current_agent_for_debugging: Option<AgentID>,
 }
 
 impl Sim {
@@ -80,6 +84,7 @@ impl Sim {
             edits_name: map.get_road_edits().edits_name.to_string(),
             run_name,
             savestate_every,
+            current_agent_for_debugging: None,
         }
     }
 
@@ -126,7 +131,10 @@ impl Sim {
         match self.inner_step(map, control_map) {
             Ok(events) => events,
             Err(e) => {
-                error!("\nAt {}:{}", self.time, e);
+                error!(
+                    "\nAt {} while processing {:?}:{}",
+                    self.time, self.current_agent_for_debugging, e
+                );
                 if let Ok(s) = self.find_most_recent_savestate() {
                     error!("Debug from {}", s);
                 }
@@ -158,6 +166,7 @@ impl Sim {
             &mut self.intersection_state,
             &mut self.transit_state,
             &mut self.rng,
+            &mut self.current_agent_for_debugging,
         )? {
             events.push(Event::CarReachedParkingSpot(p.car, p.spot));
             capture_backtrace("CarReachedParkingSpot");
@@ -179,6 +188,7 @@ impl Sim {
             map,
             &mut self.intersection_state,
             &mut self.trips_state,
+            &mut self.current_agent_for_debugging,
         )? {
             events.push(Event::PedReachedParkingSpot(ped, spot));
             capture_backtrace("PedReachedParkingSpot");
