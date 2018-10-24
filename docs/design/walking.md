@@ -49,3 +49,9 @@ or have complicated turns and contraflow logic. Making trace_route is example
 of time wasted on contraflow mess. Maybe having two directional sides of a
 sidewalk is nice anyway? What about the funky turns causing a ped to not even
 cross a sidewalk at all and immediately chain together two turns?
+
+Small complication with two directional sidewalks
+	- SidewalkSpots get more complicated. are they associated with the
+	  original direction always? How to start/end walking?
+	- do they belong to children {forwards, backwards}? They'd no longer be
+	  in order.

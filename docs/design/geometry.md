@@ -58,3 +58,10 @@ https://wiki.openstreetmap.org/wiki/Proposed_features/Street_area
 
 
 https://www.codeproject.com/Articles/226569/Drawing-polylines-by-tessellation
+
+https://github.com/Toblerity/Shapely looks amazing! parallel_offset method calls single sided buffer in geos
+	https://github.com/georust/geos bindings
+
+https://gis.stackexchange.com/questions/1197/creating-one-sided-buffers-or-parallel-lines-in-postgis
+https://trac.osgeo.org/geos/ticket/215#no1
+https://geos.osgeo.org/doxygen/classgeos_1_1operation_1_1buffer_1_1BufferOp.html
