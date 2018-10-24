@@ -127,8 +127,8 @@ impl Car {
         loop {
             if self.debug {
                 debug!(
-                    "  -- {} looking ahead to {:?} with {} left to scan",
-                    self.id, current_on, dist_to_lookahead
+                    "  -- At {}, {} looking ahead to {:?} with {} left to scan",
+                    time, self.id, current_on, dist_to_lookahead
                 );
             }
 
@@ -704,6 +704,8 @@ impl DrivingSimState {
         params: CreateCar,
     ) -> bool {
         {
+            // TODO Should filter out this parking spot to begin with, or even better, match up
+            // dist_along between different lanes using perpendicular lines.
             let start_length = map.get_l(params.start).length();
             if params.dist_along > start_length {
                 panic!("Can't start car at {} along {}; it's only {}. Parking lane or sidewalk (with bus stop) must be much longer.", params.dist_along, params.start, start_length);
