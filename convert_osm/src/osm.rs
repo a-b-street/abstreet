@@ -3,7 +3,7 @@
 use geom::LonLat;
 use map_model::{raw_data, AreaType};
 use osm_xml;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::io::BufReader;
 
@@ -26,6 +26,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
         id_to_node.insert(node.id, node);
     }
 
+    let mut id_to_way: HashMap<i64, Vec<LonLat>> = HashMap::new();
     let mut map = raw_data::Map::blank();
     for (i, way) in doc.ways.iter().enumerate() {
         // TODO count with a nicer progress bar
@@ -47,58 +48,91 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
                 },
                 osm_xml::UnresolvedReference::Way(id) => {
                     println!("{:?} is a nested way {:?}", node_ref, id);
+                    valid = false;
                 }
                 osm_xml::UnresolvedReference::Relation(id) => {
                     println!("{:?} is a nested relation {:?}", node_ref, id);
+                    valid = false;
                 }
             }
         }
         if !valid {
             continue;
         }
-        if is_road(&way.tags) {
+        let tags = tags_to_map(&way.tags);
+        if is_road(&tags) {
             map.roads.push(raw_data::Road {
                 osm_way_id: way.id,
                 points: pts,
-                osm_tags: way
-                    .tags
-                    .iter()
-                    .map(|tag| (tag.key.clone(), tag.val.clone()))
-                    .collect(),
+                osm_tags: tags,
             });
-        } else if is_bldg(&way.tags) {
+        } else if is_bldg(&tags) {
             map.buildings.push(raw_data::Building {
                 osm_way_id: way.id,
                 points: pts,
-                osm_tags: way
-                    .tags
-                    .iter()
-                    .map(|tag| (tag.key.clone(), tag.val.clone()))
-                    .collect(),
+                osm_tags: tags,
             });
-        } else if let Some(at) = get_area_type(&way.tags) {
-            // TODO need to handle inner/outer relations from OSM
+        } else if let Some(at) = get_area_type(&tags) {
             map.areas.push(raw_data::Area {
                 area_type: at,
                 osm_way_id: way.id,
                 points: pts,
-                osm_tags: way
-                    .tags
-                    .iter()
-                    .map(|tag| (tag.key.clone(), tag.val.clone()))
-                    .collect(),
+                osm_tags: tags,
             });
+        } else {
+            // The way might be part of a relation later.
+            id_to_way.insert(way.id, pts);
         }
     }
+
+    for rel in &doc.relations {
+        let tags = tags_to_map(&rel.tags);
+        if let Some(at) = get_area_type(&tags) {
+            if tags.get("type") == Some(&"multipolygon".to_string()) {
+                for member in &rel.members {
+                    match *member {
+                        osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
+                            match id_to_way.get(&id) {
+                                Some(pts) => {
+                                    if role == "outer" {
+                                        map.areas.push(raw_data::Area {
+                                            area_type: at,
+                                            osm_way_id: id,
+                                            points: pts.to_vec(),
+                                            osm_tags: tags.clone(),
+                                        });
+                                    } else {
+                                        println!(
+                                            "Relation {} has unhandled member role {}",
+                                            rel.id, role
+                                        );
+                                    }
+                                }
+                                None => {
+                                    println!("Relation {} refers to unknown way {}", rel.id, id);
+                                }
+                            }
+                        }
+                        _ => {
+                            println!("Relation {} refers to {:?}", rel.id, member);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     map
 }
 
-fn is_road(raw_tags: &[osm_xml::Tag]) -> bool {
-    let mut tags = HashMap::new();
-    for tag in raw_tags {
-        tags.insert(tag.key.clone(), tag.val.clone());
-    }
+fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {
+    raw_tags
+        .iter()
+        .map(|tag| (tag.key.clone(), tag.val.clone()))
+        .collect()
+}
 
+fn is_road(tags: &BTreeMap<String, String>) -> bool {
     if !tags.contains_key("highway") {
         return false;
     }
@@ -134,29 +168,22 @@ fn is_road(raw_tags: &[osm_xml::Tag]) -> bool {
     true
 }
 
-fn is_bldg(tags: &[osm_xml::Tag]) -> bool {
-    for tag in tags {
-        if tag.key == "building" {
-            return true;
-        }
-    }
-    false
+fn is_bldg(tags: &BTreeMap<String, String>) -> bool {
+    tags.contains_key("building")
 }
 
-fn get_area_type(tags: &[osm_xml::Tag]) -> Option<AreaType> {
-    for tag in tags {
-        if tag.key == "leisure" && tag.val == "park" {
-            return Some(AreaType::Park);
-        }
-        if tag.key == "natural" && tag.val == "wood" {
-            return Some(AreaType::Park);
-        }
-        if tag.key == "natural" && tag.val == "wetland" {
-            return Some(AreaType::Swamp);
-        }
-        if tag.key == "waterway" {
-            return Some(AreaType::Water);
-        }
+fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
+    if tags.get("leisure") == Some(&"park".to_string()) {
+        return Some(AreaType::Park);
+    }
+    if tags.get("natural") == Some(&"wood".to_string()) {
+        return Some(AreaType::Park);
+    }
+    if tags.get("natural") == Some(&"wetland".to_string()) {
+        return Some(AreaType::Swamp);
+    }
+    if tags.contains_key("waterway") {
+        return Some(AreaType::Water);
     }
     None
 }
