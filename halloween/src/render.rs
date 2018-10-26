@@ -1,17 +1,17 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Line, LonLat, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, Road, RoadID, LANE_THICKNESS};
 
 // black
-const BACKGROUND: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
+const BACKGROUND: Color = Color([0.0, 0.0, 0.0, 1.0]);
 // light orange
-const ROAD: [f32; 4] = [1.0, 154.0 / 255.0, 0.0, 1.0];
+const ROAD: Color = Color([1.0, 154.0 / 255.0, 0.0, 1.0]);
 // purple
-const BUILDING: [f32; 4] = [136.0 / 255.0, 30.0 / 255.0, 228.0 / 255.0, 1.0];
+const BUILDING: Color = Color([136.0 / 255.0, 30.0 / 255.0, 228.0 / 255.0, 1.0]);
 // dark orange / red
-const PATH: [f32; 4] = [247.0 / 255.0, 95.0 / 255.0, 28.0 / 255.0, 1.0];
+const PATH: Color = Color([247.0 / 255.0, 95.0 / 255.0, 28.0 / 255.0, 1.0]);
 
 const LINE_WIDTH: f64 = 1.0;
 

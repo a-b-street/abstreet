@@ -10,13 +10,13 @@ use piston::input::Key;
 use std::f64;
 use std::process;
 
-const WHITE: Color = [1.0; 4];
-const RED: Color = [1.0, 0.0, 0.0, 0.8];
-const GREEN: Color = [0.0, 1.0, 0.0, 0.8];
-const BLUE: Color = [0.0, 0.0, 1.0, 0.8];
-const BLACK: Color = [0.0, 0.0, 0.0, 0.3];
-const SOLID_BLACK: Color = [0.0, 0.0, 0.0, 0.9];
-const YELLOW: Color = [1.0, 1.0, 0.0, 0.8];
+const WHITE: Color = Color([1.0; 4]);
+const RED: Color = Color([1.0, 0.0, 0.0, 0.8]);
+const GREEN: Color = Color([0.0, 1.0, 0.0, 0.8]);
+const BLUE: Color = Color([0.0, 0.0, 1.0, 0.8]);
+const BLACK: Color = Color([0.0, 0.0, 0.0, 0.3]);
+const SOLID_BLACK: Color = Color([0.0, 0.0, 0.0, 0.9]);
+const YELLOW: Color = Color([1.0, 1.0, 0.0, 0.8]);
 
 const KEY_CATEGORY: &str = "";
 
@@ -351,12 +351,12 @@ impl Iterator for RelatedColors {
     fn next(&mut self) -> Option<Color> {
         self.count -= 2;
         let multiplier = 0.1 * (self.count as f32);
-        Some([
+        Some(Color([
             self.r * multiplier,
             self.g * multiplier,
             self.b * multiplier,
             0.8,
-        ])
+        ]))
     }
 }
 

@@ -6,7 +6,6 @@ extern crate cpuprofiler;
 extern crate log;
 extern crate map_model;
 extern crate sim;
-#[macro_use]
 extern crate structopt;
 
 use abstutil::LogAdapter;

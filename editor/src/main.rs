@@ -27,7 +27,6 @@ extern crate rand;
 #[macro_use]
 extern crate serde_derive;
 extern crate sim;
-#[macro_use]
 extern crate structopt;
 
 #[macro_use]

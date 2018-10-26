@@ -4,7 +4,6 @@ extern crate ezgui;
 extern crate geom;
 extern crate map_model;
 extern crate piston;
-#[macro_use]
 extern crate structopt;
 
 mod render;
