@@ -1,4 +1,3 @@
-use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::{GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
@@ -40,7 +39,6 @@ impl Plugin for EditsManager {
                     &ctx.primary.control_map,
                     ctx.kml,
                     &mut new_primary,
-                    ctx.cs,
                     wizard.wrap(ctx.input),
                 ).is_some()
                 {
@@ -79,7 +77,6 @@ fn manage_edits(
     control_map: &ControlMap,
     kml: &Option<String>,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
-    cs: &mut ColorScheme,
     mut wizard: WrappedWizard,
 ) -> Option<()> {
     // TODO Indicate how many edits are there / if there are any unsaved edits
@@ -125,7 +122,7 @@ fn manage_edits(
             flags.edits_name = load_name;
 
             info!("Reloading everything...");
-            *new_primary = Some(PerMapUI::new(flags, kml, cs));
+            *new_primary = Some(PerMapUI::new(flags, kml));
             Some(())
         }
         _ => unreachable!(),

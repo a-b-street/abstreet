@@ -1,4 +1,3 @@
-use colors::ColorScheme;
 use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
@@ -46,7 +45,7 @@ impl Plugin for ABTestManager {
             ABTestManager::ManageABTest(test, ref mut scroller) => {
                 if ctx.input.key_pressed(Key::R, "run this A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
-                        launch_test(test, ctx.kml, &ctx.primary.current_flags, ctx.cs);
+                        launch_test(test, ctx.kml, &ctx.primary.current_flags);
                     *ctx.primary = new_primary;
                     *ctx.new_primary_plugins = Some(new_primary_plugins);
                     *ctx.secondary = Some(new_secondary);
@@ -104,7 +103,6 @@ fn launch_test(
     test: &ABTest,
     kml: &Option<String>,
     current_flags: &SimFlags,
-    cs: &mut ColorScheme,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
@@ -125,7 +123,6 @@ fn launch_test(
             edits_name: test.edits1_name.clone(),
         },
         kml,
-        cs,
     );
     let secondary = PerMapUI::new(
         SimFlags {
@@ -135,7 +132,6 @@ fn launch_test(
             edits_name: test.edits2_name.clone(),
         },
         kml,
-        cs,
     );
     // That's all! The scenario will be instantiated.
     (primary, secondary)

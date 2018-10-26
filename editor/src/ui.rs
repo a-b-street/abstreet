@@ -227,11 +227,7 @@ impl PluginsPerMap {
 }
 
 impl PerMapUI {
-    pub fn new(
-        flags: SimFlags,
-        kml: &Option<String>,
-        cs: &mut ColorScheme,
-    ) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
         flame::start("setup");
         let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
         let extra_shapes = if let Some(path) = kml {
@@ -241,7 +237,7 @@ impl PerMapUI {
         };
 
         flame::start("draw_map");
-        let draw_map = DrawMap::new(&map, &control_map, extra_shapes, cs);
+        let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
         flame::end("draw_map");
 
         flame::end("setup");
@@ -305,8 +301,7 @@ impl UI {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = plugins::logs::DisplayLogs::new();
 
-        let mut cs = ColorScheme::load().unwrap();
-        let (primary, primary_plugins) = PerMapUI::new(flags, &kml, &mut cs);
+        let (primary, primary_plugins) = PerMapUI::new(flags, &kml);
         let mut ui = UI {
             primary,
             primary_plugins,
@@ -331,7 +326,7 @@ impl UI {
             active_plugin: None,
 
             canvas: Canvas::new(),
-            cs: RefCell::new(cs),
+            cs: RefCell::new(ColorScheme::load().unwrap()),
 
             kml,
         };

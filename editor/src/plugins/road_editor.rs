@@ -89,7 +89,7 @@ impl Plugin for RoadEditor {
             // TODO Pretty sure control map needs to recalculate based on the new turns
             let old_type = map.get_l(id).lane_type;
             map.edit_lane_type(id, new_type);
-            draw_map.edit_lane_type(id, map, control_map, ctx.cs);
+            draw_map.edit_lane_type(id, map, control_map);
             sim.edit_lane_type(id, old_type, map);
 
             // Add turns back
