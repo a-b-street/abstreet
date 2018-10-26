@@ -1,28 +1,33 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Building, BuildingID, Map};
+use geom::{Bounds, Line, Polygon, Pt2D};
+use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable, BUILDING_BOUNDARY_THICKNESS};
+use render::{RenderOptions, Renderable};
 
-#[derive(Debug)]
 pub struct DrawBuilding {
     pub id: BuildingID,
-    // TODO bit wasteful to keep both
-    boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
     front_path: Line,
 }
 
 impl DrawBuilding {
     pub fn new(bldg: &Building) -> DrawBuilding {
+        // Trim the front path line away from the sidewalk's center line, so that it doesn't
+        // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
+        let mut front_path = bldg.front_path.line.clone();
+        let len = front_path.length();
+        let trim_back = LANE_THICKNESS / 2.0 * si::M;
+        if len > trim_back {
+            front_path = Line::new(front_path.pt1(), front_path.dist_along(len - trim_back));
+        }
+
         DrawBuilding {
             id: bldg.id,
-            front_path: bldg.front_path.line.clone(),
+            front_path,
             fill_polygon: Polygon::new(&bldg.points),
-            boundary_polygon: PolyLine::new(bldg.points.clone())
-                .make_polygons_blindly(BUILDING_BOUNDARY_THICKNESS),
         }
     }
 }
@@ -41,8 +46,7 @@ impl Renderable for DrawBuilding {
             &self.fill_polygon,
         );
 
-        // TODO tune width
-        g.draw_rounded_line(
+        g.draw_line(
             ctx.cs.get("building path", Color::grey(0.6)),
             1.0,
             &self.front_path,
