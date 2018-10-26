@@ -121,7 +121,11 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, osd: Text) {
-        g.clear(self.cs.borrow_mut().get("map background", Color::WHITE));
+        g.clear(
+            self.cs
+                .borrow_mut()
+                .get("map background", Color::rgb(242, 239, 233)),
+        );
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bbox(),

@@ -1,11 +1,8 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use ezgui::Color;
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 
-// TODO have some UI for editing these rules and saving them
 pub struct OsmClassifier {
     active: bool,
 }
@@ -19,9 +16,9 @@ impl OsmClassifier {
 impl Plugin for OsmClassifier {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let msg = if self.active {
-            "stop showing OSM classes"
+            "stop showing OSM colors"
         } else {
-            "to show OSM classifications"
+            "show OSM colors"
         };
         if ctx.input.unimportant_key_pressed(Key::D6, DEBUG_EXTRA, msg) {
             self.active = !self.active;
@@ -36,20 +33,38 @@ impl Plugin for OsmClassifier {
 
         match obj {
             ID::Lane(l) => {
-                if match ctx.map.get_parent(l).osm_tags.get("highway") {
-                    Some(hwy) => hwy == "primary" || hwy == "secondary" || hwy == "tertiary",
-                    None => false,
-                } {
-                    Some(ctx.cs.get("matches OSM classification", Color::GREEN))
+                if ctx.map.get_l(l).is_driving() {
+                    match ctx
+                        .map
+                        .get_parent(l)
+                        .osm_tags
+                        .get("highway")
+                        .map(|s| s.as_str())
+                    {
+                        // From https://wiki.openstreetmap.org/wiki/Map_Features#Highway
+                        Some("motorway") | Some("motorway_link") => {
+                            Some(ctx.cs.get("OSM motorway", Color::rgb(231, 141, 159)))
+                        }
+                        Some("trunk") | Some("trunk_link") => {
+                            Some(ctx.cs.get("OSM trunk", Color::rgb(249, 175, 152)))
+                        }
+                        Some("primary") | Some("primary_link") => {
+                            Some(ctx.cs.get("OSM primary", Color::rgb(252, 213, 160)))
+                        }
+                        Some("secondary") | Some("secondary_link") => {
+                            Some(ctx.cs.get("OSM secondary", Color::rgb(252, 213, 160)))
+                        }
+                        Some("residential") => {
+                            Some(ctx.cs.get("OSM residential", Color::rgb(254, 254, 254)))
+                        }
+                        _ => None,
+                    }
                 } else {
-                    Some(ctx.cs.get(
-                        "doesn't match OSM classification",
-                        Color::rgba(0, 0, 0, 0.1),
-                    ))
+                    None
                 }
             }
             ID::Building(b) => if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
-                Some(ctx.cs.get("matches OSM classification", Color::GREEN))
+                Some(ctx.cs.get("OSM house", Color::GREEN))
             } else {
                 None
             },
