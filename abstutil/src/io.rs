@@ -7,8 +7,10 @@ use std;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::hash::Hash;
-use std::io::{Error, ErrorKind, Read, Write};
+use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 use std::path::Path;
+use std::time::Instant;
+use time::elapsed_seconds;
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
@@ -45,8 +47,9 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_binary<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
-    let file = File::open(path)?;
-    let obj: T = serde_cbor::from_reader(file).map_err(|err| Error::new(ErrorKind::Other, err))?;
+    let reader = FileWithProgress::new(path)?;
+    let obj: T =
+        serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
 }
 
@@ -166,4 +169,62 @@ pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj:
     let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
     write_json(&path, obj).expect(&format!("Saving {} failed", path));
     println!("Saved {}", path);
+}
+
+struct FileWithProgress {
+    inner: BufReader<File>,
+
+    path: String,
+    processed_bytes: usize,
+    total_bytes: usize,
+    started_at: Instant,
+    last_printed_at: Instant,
+}
+
+impl FileWithProgress {
+    pub fn new(path: &str) -> Result<FileWithProgress, Error> {
+        let file = File::open(path)?;
+        let total_bytes = file.metadata()?.len() as usize;
+        Ok(FileWithProgress {
+            inner: BufReader::new(file),
+            path: path.to_string(),
+            processed_bytes: 0,
+            total_bytes,
+            started_at: Instant::now(),
+            last_printed_at: Instant::now(),
+        })
+    }
+}
+
+impl Read for FileWithProgress {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+        let bytes = self.inner.read(buf)?;
+        self.processed_bytes += bytes;
+        if self.processed_bytes > self.total_bytes {
+            panic!(
+                "{} is too many bytes read from {}",
+                self.processed_bytes, self.path
+            );
+        }
+
+        let done = self.processed_bytes == self.total_bytes && bytes == 0;
+        if elapsed_seconds(self.last_printed_at) >= 1.0 || done {
+            self.last_printed_at = Instant::now();
+            print!(
+                "{}Reading {}: {}/{} MB... {}s",
+                "\r",
+                self.path,
+                self.processed_bytes / 1024 / 1024,
+                self.total_bytes / 1024 / 1024,
+                elapsed_seconds(self.started_at)
+            );
+            if done {
+                println!("");
+            } else {
+                stdout().flush().unwrap();
+            }
+        }
+
+        Ok(bytes)
+    }
 }

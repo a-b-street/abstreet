@@ -1,3 +1,4 @@
+use abstutil::Progress;
 use dimensioned::si;
 use geo;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
@@ -11,9 +12,11 @@ pub fn find_sidewalk_points(
     lanes: &Vec<Lane>,
 ) -> HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> {
     // Get LineStrings of all lanes once.
+    let mut progress = Progress::new("lanes to LineStrings", lanes.len());
     let line_strings: Vec<(LaneID, geo::LineString<f64>)> = lanes
         .iter()
         .filter_map(|l| {
+            progress.next();
             if l.is_sidewalk() {
                 Some((l.id, lane_to_line_string(l)))
             } else {
@@ -23,7 +26,9 @@ pub fn find_sidewalk_points(
 
     // For each point, find the closest point to any sidewalk
     let mut results: HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> = HashMap::new();
+    let mut progress = Progress::new("find closest sidewalk point", pts.len());
     for query_pt in pts {
+        progress.next();
         let query_geo_pt = geo::Point::new(query_pt.x(), query_pt.y());
         let (sidewalk, raw_pt) = line_strings
             .iter()

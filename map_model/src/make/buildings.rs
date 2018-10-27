@@ -1,3 +1,4 @@
+use abstutil::Progress;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Line, PolyLine, Pt2D};
 use make::sidewalk_finder::find_sidewalk_points;
@@ -14,7 +15,9 @@ pub(crate) fn make_all_buildings(
     let mut pts_per_bldg: Vec<Vec<Pt2D>> = Vec::new();
     let mut center_per_bldg: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut progress = Progress::new("get building center points", input.len());
     for b in input {
+        progress.next();
         let pts = b
             .points
             .iter()
@@ -28,7 +31,9 @@ pub(crate) fn make_all_buildings(
 
     let sidewalk_pts = find_sidewalk_points(query, lanes);
 
+    let mut progress = Progress::new("create building front paths", pts_per_bldg.len());
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {
+        progress.next();
         let bldg_center = center_per_bldg[idx];
         let (sidewalk, dist_along) = sidewalk_pts[&bldg_center];
         let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(dist_along);
