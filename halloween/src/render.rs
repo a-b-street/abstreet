@@ -1,7 +1,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Line, LonLat, Polygon, Pt2D};
+use geom::{Bounds, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, Road, RoadID, LANE_THICKNESS};
 
 // black
@@ -26,15 +26,12 @@ pub struct DrawMap {
 impl DrawMap {
     pub fn new(map: Map) -> DrawMap {
         // TODO This stuff is common!
-        // min_y here due to the wacky y inversion
-        let bounds = map.get_gps_bounds();
-        let max_screen_pt =
-            Pt2D::from_gps(LonLat::new(bounds.max_x, bounds.min_y), &bounds).unwrap();
+        let bounds = map.get_bounds();
         let map_bbox = Rect {
             top_left: Point { x: 0.0, y: 0.0 },
             bottom_right: Point {
-                x: max_screen_pt.x() as f32,
-                y: max_screen_pt.y() as f32,
+                x: bounds.max_x as f32,
+                y: bounds.max_y as f32,
             },
         };
 

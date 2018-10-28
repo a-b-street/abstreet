@@ -1,5 +1,5 @@
 use abstutil;
-use geom::{LonLat, Polygon, Pt2D};
+use geom::{Polygon, Pt2D};
 use map_model::{BuildingID, Map, RoadID};
 use rand::Rng;
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -70,18 +70,16 @@ impl Neighborhood {
     }
 
     fn make_everywhere(map: &Map) -> Neighborhood {
-        // min_y here due to the wacky y inversion
-        let bounds = map.get_gps_bounds();
-        let max = Pt2D::from_gps(LonLat::new(bounds.max_x, bounds.min_y), &bounds).unwrap();
+        let bounds = map.get_bounds();
 
         Neighborhood {
             map_name: map.get_name().to_string(),
             name: "_everywhere_".to_string(),
             points: vec![
                 Pt2D::new(0.0, 0.0),
-                Pt2D::new(max.x(), 0.0),
-                max,
-                Pt2D::new(0.0, max.y()),
+                Pt2D::new(bounds.max_x, 0.0),
+                Pt2D::new(bounds.max_x, bounds.max_y),
+                Pt2D::new(0.0, bounds.max_y),
                 Pt2D::new(0.0, 0.0),
             ],
         }

@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Bounds, HashablePt2D, Line, Pt2D};
+use geom::{Bounds, HashablePt2D, Pt2D};
 use make::sidewalk_finder::find_sidewalk_points;
 use raw_data;
 use std::collections::HashSet;
@@ -8,6 +8,7 @@ use {Lane, Parcel, ParcelID};
 pub fn make_all_parcels(
     results: &mut Vec<Parcel>,
     input: &Vec<raw_data::Parcel>,
+    gps_bounds: &Bounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
 ) {
@@ -18,7 +19,7 @@ pub fn make_all_parcels(
         let pts = p
             .points
             .iter()
-            .map(|coord| Pt2D::from_gps(*coord, bounds).unwrap())
+            .map(|coord| Pt2D::from_gps(*coord, gps_bounds).unwrap())
             .collect();
         let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_parcel.push(pts);
@@ -26,23 +27,18 @@ pub fn make_all_parcels(
         query.insert(center);
     }
 
-    let sidewalk_pts = find_sidewalk_points(query, lanes);
+    // Trim parcels that are too far away from the nearest sidewalk
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M);
 
     for (idx, center) in center_per_parcel.into_iter().enumerate() {
-        let (sidewalk, dist_along) = sidewalk_pts[&center];
-        let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(dist_along);
-        let line = Line::new(center.into(), sidewalk_pt);
-        // Trim parcels that are too far away from the nearest sidewalk
-        if line.length() > 100.0 * si::M {
-            continue;
+        if sidewalk_pts.contains_key(&center) {
+            let id = ParcelID(results.len());
+            results.push(Parcel {
+                id,
+                points: pts_per_parcel[idx].clone(),
+                block: input[idx].block,
+            });
         }
-
-        let id = ParcelID(results.len());
-        results.push(Parcel {
-            id,
-            points: pts_per_parcel[idx].clone(),
-            block: input[idx].block,
-        });
     }
     let discarded = input.len() - results.len();
     if discarded > 0 {

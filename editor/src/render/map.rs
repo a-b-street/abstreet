@@ -3,7 +3,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use control::ControlMap;
-use geom::{Bounds, LonLat, Pt2D};
+use geom::{Bounds, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
@@ -83,17 +83,8 @@ impl DrawMap {
         }
         let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
 
-        // min_y here due to the wacky y inversion
-        let bounds = map.get_gps_bounds();
-        let max_screen_pt =
-            Pt2D::from_gps(LonLat::new(bounds.max_x, bounds.min_y), &bounds).unwrap();
-        let map_bbox = Rect {
-            top_left: Point { x: 0.0, y: 0.0 },
-            bottom_right: Point {
-                x: max_screen_pt.x() as f32,
-                y: max_screen_pt.y() as f32,
-            },
-        };
+        let bounds = map.get_bounds();
+        let map_bbox = get_bbox(bounds);
 
         let mut quadtree = QuadTree::default(map_bbox);
         // TODO use iter chain if everything was boxed as a renderable...
@@ -129,7 +120,7 @@ impl DrawMap {
             bus_stops,
             areas,
 
-            center_pt: Pt2D::new(max_screen_pt.x() / 2.0, max_screen_pt.y() / 2.0),
+            center_pt: Pt2D::new(bounds.max_x / 2.0, bounds.max_y / 2.0),
 
             quadtree,
         }

@@ -4,7 +4,7 @@ use abstutil;
 use abstutil::{Error, Progress};
 use edits::RoadEdits;
 use flame;
-use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
+use geom::{Bounds, HashablePt2D, LonLat, PolyLine, Pt2D};
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -28,7 +28,7 @@ pub struct Map {
     areas: Vec<Area>,
 
     // TODO maybe dont need to retain GPS stuff later
-    bounds: Bounds,
+    gps_bounds: Bounds,
 
     name: String,
     road_edits: RoadEdits,
@@ -55,11 +55,12 @@ impl Map {
     }
 
     pub fn create_from_raw(name: String, data: raw_data::Map, road_edits: RoadEdits) -> Map {
-        let bounds = data.get_gps_bounds();
+        let gps_bounds = data.get_gps_bounds();
+        let bounds = gps_to_map_bounds(&gps_bounds);
         let mut m = Map {
             name,
             road_edits,
-            bounds,
+            gps_bounds,
             roads: Vec::new(),
             lanes: Vec::new(),
             intersections: Vec::new(),
@@ -75,7 +76,7 @@ impl Map {
 
         for (idx, i) in data.intersections.iter().enumerate() {
             let id = IntersectionID(idx);
-            let pt = Pt2D::from_gps(i.point, &bounds).unwrap();
+            let pt = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
             m.intersections.push(Intersection {
                 id,
                 point: pt,
@@ -94,7 +95,7 @@ impl Map {
             let road_center_pts = PolyLine::new(
                 r.points
                     .iter()
-                    .map(|coord| Pt2D::from_gps(*coord, &bounds).unwrap())
+                    .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
                     .collect(),
             );
 
@@ -166,8 +167,13 @@ impl Map {
             }
         }
 
-        let (stops, routes) =
-            make::make_bus_stops(&mut m.lanes, &m.roads, &data.bus_routes, &bounds);
+        let (stops, routes) = make::make_bus_stops(
+            &mut m.lanes,
+            &m.roads,
+            &data.bus_routes,
+            &gps_bounds,
+            &bounds,
+        );
         m.bus_stops = stops;
 
         for i in &m.intersections {
@@ -182,7 +188,13 @@ impl Map {
 
         {
             let _guard = flame::start_guard(format!("make {} buildings", data.buildings.len()));
-            make::make_all_buildings(&mut m.buildings, &data.buildings, &bounds, &m.lanes);
+            make::make_all_buildings(
+                &mut m.buildings,
+                &data.buildings,
+                &gps_bounds,
+                &bounds,
+                &m.lanes,
+            );
             for b in &m.buildings {
                 m.lanes[b.front_path.sidewalk.0].building_paths.push(b.id);
             }
@@ -190,7 +202,13 @@ impl Map {
 
         {
             let _guard = flame::start_guard(format!("make {} parcels", data.parcels.len()));
-            make::make_all_parcels(&mut m.parcels, &data.parcels, &bounds, &m.lanes);
+            make::make_all_parcels(
+                &mut m.parcels,
+                &data.parcels,
+                &gps_bounds,
+                &bounds,
+                &m.lanes,
+            );
         }
 
         for (idx, a) in data.areas.iter().enumerate() {
@@ -200,7 +218,7 @@ impl Map {
                 points: a
                     .points
                     .iter()
-                    .map(|coord| Pt2D::from_gps(*coord, &bounds).unwrap())
+                    .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
                     .collect(),
                 osm_tags: a.osm_tags.clone(),
                 osm_way_id: a.osm_way_id,
@@ -397,7 +415,11 @@ impl Map {
 
     // TODO can we return a borrow?
     pub fn get_gps_bounds(&self) -> Bounds {
-        self.bounds.clone()
+        self.gps_bounds.clone()
+    }
+
+    pub fn get_bounds(&self) -> Bounds {
+        gps_to_map_bounds(&self.gps_bounds)
     }
 
     pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
@@ -469,4 +491,13 @@ impl Map {
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);
     }
+}
+
+fn gps_to_map_bounds(gps: &Bounds) -> Bounds {
+    // min_y here due to the wacky y inversion
+    let max_screen_pt = Pt2D::from_gps(LonLat::new(gps.max_x, gps.min_y), gps).unwrap();
+    let mut b = Bounds::new();
+    b.update_pt(Pt2D::new(0.0, 0.0));
+    b.update_pt(max_screen_pt);
+    b
 }

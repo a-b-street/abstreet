@@ -12,13 +12,14 @@ pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
     roads: &Vec<Road>,
     bus_routes: &Vec<gtfs::Route>,
+    gps_bounds: &Bounds,
     bounds: &Bounds,
 ) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {
     let mut bus_stop_pts: HashSet<HashablePt2D> = HashSet::new();
     let mut route_lookups: MultiMap<String, HashablePt2D> = MultiMap::new();
     for route in bus_routes {
         for gps in &route.stops {
-            if let Some(pt) = Pt2D::from_gps(*gps, bounds) {
+            if let Some(pt) = Pt2D::from_gps(*gps, gps_bounds) {
                 let hash_pt: HashablePt2D = pt.into();
                 bus_stop_pts.insert(hash_pt);
                 route_lookups.insert(route.name.to_string(), hash_pt);
@@ -27,7 +28,9 @@ pub fn make_bus_stops(
     }
 
     let mut stops_per_sidewalk: MultiMap<LaneID, (si::Meter<f64>, HashablePt2D)> = MultiMap::new();
-    for (pt, (lane, dist_along)) in find_sidewalk_points(bus_stop_pts, lanes).iter() {
+    for (pt, (lane, dist_along)) in
+        find_sidewalk_points(bounds, bus_stop_pts, lanes, 10.0 * si::M).iter()
+    {
         stops_per_sidewalk.insert(*lane, (*dist_along, *pt));
     }
     let mut point_to_stop_id: HashMap<HashablePt2D, BusStopID> = HashMap::new();

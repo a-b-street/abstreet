@@ -1,3 +1,4 @@
+extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate dimensioned;
 extern crate flame;

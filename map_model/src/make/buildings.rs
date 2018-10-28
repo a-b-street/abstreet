@@ -9,6 +9,7 @@ use {Building, BuildingID, FrontPath, Lane};
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
     input: &Vec<raw_data::Building>,
+    gps_bounds: &Bounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
 ) {
@@ -21,7 +22,7 @@ pub fn make_all_buildings(
         let pts = b
             .points
             .iter()
-            .map(|coord| Pt2D::from_gps(*coord, bounds).unwrap())
+            .map(|coord| Pt2D::from_gps(*coord, gps_bounds).unwrap())
             .collect();
         let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_bldg.push(pts);
@@ -29,34 +30,31 @@ pub fn make_all_buildings(
         query.insert(center);
     }
 
-    let sidewalk_pts = find_sidewalk_points(query, lanes);
+    // Skip buildings that're too far away from their sidewalk
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M);
 
     let mut progress = Progress::new("create building front paths", pts_per_bldg.len());
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {
         progress.next();
         let bldg_center = center_per_bldg[idx];
-        let (sidewalk, dist_along) = sidewalk_pts[&bldg_center];
-        let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(dist_along);
-        let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
+        if let Some((sidewalk, dist_along)) = sidewalk_pts.get(&bldg_center) {
+            let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(*dist_along);
+            let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
 
-        // Trim buildings that are too far away from their sidewalk
-        if line.length() > 100.0 * si::M {
-            continue;
+            let id = BuildingID(results.len());
+            results.push(Building {
+                id,
+                points,
+                osm_tags: input[idx].osm_tags.clone(),
+                osm_way_id: input[idx].osm_way_id,
+                front_path: FrontPath {
+                    bldg: id,
+                    sidewalk: *sidewalk,
+                    line,
+                    dist_along_sidewalk: *dist_along,
+                },
+            });
         }
-
-        let id = BuildingID(results.len());
-        results.push(Building {
-            id,
-            points,
-            osm_tags: input[idx].osm_tags.clone(),
-            osm_way_id: input[idx].osm_way_id,
-            front_path: FrontPath {
-                bldg: id,
-                sidewalk: sidewalk,
-                line,
-                dist_along_sidewalk: dist_along,
-            },
-        });
     }
 
     let discarded = input.len() - results.len();
