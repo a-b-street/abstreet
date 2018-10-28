@@ -3,7 +3,7 @@ use geom::Line;
 use std::collections::{BTreeSet, HashSet};
 use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
-pub(crate) fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
+pub fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_driving_turns(i, m));
     turns.extend(make_biking_turns(i, m));

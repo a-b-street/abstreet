@@ -14,7 +14,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         return (vec![LaneType::Sidewalk], Vec::new());
     }
 
-    let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string());
+    // TODO Reversible roads should be handled differently?
+    let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string())
+        || r.osm_tags.get("oneway") == Some(&"reversible".to_string());
     let num_driving_lanes_per_road = if let Some(n) = r
         .osm_tags
         .get("lanes")
@@ -30,7 +32,8 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         .take(if oneway {
             num_driving_lanes_per_road
         } else {
-            num_driving_lanes_per_road / 2
+            // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
+            (num_driving_lanes_per_road / 2).max(1)
         }).collect();
 
     let has_bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
@@ -64,7 +67,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct LaneSpec {
+pub struct LaneSpec {
     pub lane_type: LaneType,
     pub offset: u8,
     pub reverse_pts: bool,
@@ -80,7 +83,7 @@ impl LaneSpec {
     }
 }
 
-pub(crate) fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &RoadEdits) -> Vec<LaneSpec> {
+pub fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &RoadEdits) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = if let Some(e) = edits.roads.get(&id) {
         info!("Using edits for {}", id);
         (e.forwards_lanes.clone(), e.backwards_lanes.clone())
@@ -94,6 +97,9 @@ pub(crate) fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &RoadEdits) 
     }
     for (idx, lane_type) in side2_types.iter().enumerate() {
         specs.push(LaneSpec::new(*lane_type, idx as u8, true));
+    }
+    if specs.is_empty() {
+        panic!("{} wound up with no lanes! {:?}", id, r);
     }
     specs
 }

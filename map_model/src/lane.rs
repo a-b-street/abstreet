@@ -30,6 +30,7 @@ pub enum LaneType {
     Parking,
     Sidewalk,
     Biking,
+    // TODO Bus
 }
 
 #[derive(Serialize, Deserialize, Debug)]

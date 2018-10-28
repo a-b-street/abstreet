@@ -6,7 +6,7 @@ use raw_data;
 use std::collections::HashSet;
 use {Building, BuildingID, FrontPath, Lane};
 
-pub(crate) fn make_all_buildings(
+pub fn make_all_buildings(
     results: &mut Vec<Building>,
     input: &Vec<raw_data::Building>,
     bounds: &Bounds,

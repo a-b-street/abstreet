@@ -6,9 +6,9 @@ mod sidewalk_finder;
 mod trim_lines;
 mod turns;
 
-pub(crate) use self::buildings::make_all_buildings;
-pub(crate) use self::bus_stops::{make_bus_stops, verify_bus_routes};
-pub(crate) use self::lanes::get_lane_specs;
-pub(crate) use self::parcels::make_all_parcels;
-pub(crate) use self::trim_lines::trim_lines;
-pub(crate) use self::turns::make_all_turns;
+pub use self::buildings::make_all_buildings;
+pub use self::bus_stops::{make_bus_stops, verify_bus_routes};
+pub use self::lanes::get_lane_specs;
+pub use self::parcels::make_all_parcels;
+pub use self::trim_lines::trim_lines;
+pub use self::turns::make_all_turns;

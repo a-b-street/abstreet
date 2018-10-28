@@ -22,3 +22,5 @@ pub use io::{
 };
 pub use logs::{format_log_record, LogAdapter};
 pub use time::{elapsed_seconds, Progress};
+
+const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

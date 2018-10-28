@@ -10,7 +10,7 @@ use std::hash::Hash;
 use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 use std::path::Path;
 use std::time::Instant;
-use time::elapsed_seconds;
+use {elapsed_seconds, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
@@ -208,7 +208,7 @@ impl Read for FileWithProgress {
         }
 
         let done = self.processed_bytes == self.total_bytes && bytes == 0;
-        if elapsed_seconds(self.last_printed_at) >= 1.0 || done {
+        if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
             self.last_printed_at = Instant::now();
             print!(
                 "{}Reading {}: {}/{} MB... {}s",

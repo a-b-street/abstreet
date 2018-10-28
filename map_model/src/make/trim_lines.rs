@@ -5,7 +5,7 @@ use lane::{Lane, LaneID};
 use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
 
-pub(crate) fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
+pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
     // We update the entire polyline, not the first/last line. A polyline could be trimmed twice --
     // once for each intersection it touches. Since the trimming should only affect one endpoint of
     // the polyline, it's ALMOST fine to do these separately and in any order -- but since we

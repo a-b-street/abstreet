@@ -5,7 +5,7 @@ use raw_data;
 use std::collections::HashSet;
 use {Lane, Parcel, ParcelID};
 
-pub(crate) fn make_all_parcels(
+pub fn make_all_parcels(
     results: &mut Vec<Parcel>,
     input: &Vec<raw_data::Parcel>,
     bounds: &Bounds,

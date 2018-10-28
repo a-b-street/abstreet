@@ -1,5 +1,6 @@
 use std::io::{stdout, Write};
 use std::time::Instant;
+use PROGRESS_FREQUENCY_SECONDS;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();
@@ -35,8 +36,9 @@ impl Progress {
         }
 
         let done = self.processed_items == self.total_items;
-        if elapsed_seconds(self.last_printed_at) >= 1.0 || done {
+        if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
             self.last_printed_at = Instant::now();
+            // TODO blank till end of current line
             print!(
                 "{}{}: {}/{}... {}s",
                 "\r",

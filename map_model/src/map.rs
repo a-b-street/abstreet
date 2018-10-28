@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use abstutil::Error;
+use abstutil::{Error, Progress};
 use edits::RoadEdits;
 use flame;
 use geom::{Bounds, HashablePt2D, PolyLine, Pt2D};
@@ -157,7 +157,9 @@ impl Map {
             }
         }
 
+        let mut progress = Progress::new("trim lanes at each intersection", m.intersections.len());
         for i in &m.intersections {
+            progress.next();
             make::trim_lines(&mut m.lanes, i);
             if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
                 panic!("{:?} is orphaned!", i);
