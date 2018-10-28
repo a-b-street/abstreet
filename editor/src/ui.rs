@@ -7,7 +7,6 @@ use colors::ColorScheme;
 use control::ControlMap;
 //use cpuprofiler;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
-use flame;
 use kml;
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID, ROOT_MENU};
@@ -232,27 +231,27 @@ impl PluginsPerMap {
 
 impl PerMapUI {
     pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
-        flame::start("setup");
-        let (map, control_map, sim) = sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)));
+        let mut timer = abstutil::Timer::new();
+        timer.start("PerMapUI setup");
+
+        let (map, control_map, sim) =
+            sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)), &mut timer);
         let extra_shapes = if let Some(path) = kml {
             kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
         } else {
             Vec::new()
         };
 
-        flame::start("draw_map");
-        let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
-        flame::end("draw_map");
+        timer.start("draw_map");
+        let draw_map = DrawMap::new(&map, &control_map, extra_shapes, &mut timer);
+        timer.stop("draw_map");
 
-        flame::start("steepness_viz");
         let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
-        flame::end("steepness_viz");
-        flame::start("neighborhood_summary");
-        let neighborhood_summary = plugins::neighborhood_summary::NeighborhoodSummary::new(&map);
-        flame::end("neighborhood_summary");
+        let neighborhood_summary =
+            plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &mut timer);
 
-        flame::end("setup");
-        flame::dump_stdout();
+        timer.stop("PerMapUI setup");
+        timer.done();
 
         let state = PerMapUI {
             map,

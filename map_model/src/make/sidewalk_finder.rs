@@ -1,6 +1,6 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
-use abstutil::Progress;
+use abstutil::Timer;
 use dimensioned::si;
 use geo;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
@@ -16,13 +16,18 @@ pub fn find_sidewalk_points(
     pts: HashSet<HashablePt2D>,
     lanes: &Vec<Lane>,
     max_dist_away: si::Meter<f64>,
+    timer: &mut Timer,
 ) -> HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> {
+    if pts.is_empty() {
+        return HashMap::new();
+    }
+
     // Convert all sidewalks to LineStrings and index them with a quadtree.
     let mut lane_lines_quadtree: QuadTree<usize> = QuadTree::default(get_bbox(bounds));
     let mut lane_lines: Vec<(LaneID, geo::LineString<f64>)> = Vec::new();
-    let mut progress = Progress::new("lanes to LineStrings", lanes.len());
+    timer.start_iter("lanes to LineStrings", lanes.len());
     for l in lanes {
-        progress.next();
+        timer.next();
         if l.is_sidewalk() {
             lane_lines.push((l.id, lane_to_line_string(l)));
             lane_lines_quadtree.insert_with_box(lane_lines.len() - 1, lane_to_rect(l));
@@ -32,9 +37,9 @@ pub fn find_sidewalk_points(
     // For each point, find the closest point to any sidewalk, using the quadtree to prune the
     // search.
     let mut results: HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> = HashMap::new();
-    let mut progress = Progress::new("find closest sidewalk point", pts.len());
+    timer.start_iter("find closest sidewalk point", pts.len());
     for query_pt in pts {
-        progress.next();
+        timer.next();
         let query_geo_pt = geo::Point::new(query_pt.x(), query_pt.y());
         let query_bbox = Rect {
             top_left: Point {

@@ -9,7 +9,6 @@ extern crate dimensioned;
 #[macro_use]
 extern crate downcast;
 extern crate ezgui;
-extern crate flame;
 #[macro_use]
 extern crate generator;
 extern crate geo;

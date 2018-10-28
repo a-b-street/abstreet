@@ -1,8 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use abstutil::Progress;
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
+use abstutil::Timer;
 use control::ControlMap;
 use geom::{Bounds, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
@@ -43,11 +43,16 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    pub fn new(map: &Map, control_map: &ControlMap, raw_extra_shapes: Vec<ExtraShape>) -> DrawMap {
+    pub fn new(
+        map: &Map,
+        control_map: &ControlMap,
+        raw_extra_shapes: Vec<ExtraShape>,
+        timer: &mut Timer,
+    ) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
-        let mut progress = Progress::new("make DrawLanes", map.all_lanes().len());
+        timer.start_iter("make DrawLanes", map.all_lanes().len());
         for l in map.all_lanes() {
-            progress.next();
+            timer.next();
             lanes.push(DrawLane::new(l, map, control_map));
         }
 
@@ -89,6 +94,7 @@ impl DrawMap {
         let bounds = map.get_bounds();
         let map_bbox = get_bbox(bounds);
 
+        timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map_bbox);
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &lanes {
@@ -112,6 +118,7 @@ impl DrawMap {
         for obj in &areas {
             quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
         }
+        timer.stop("create quadtree");
 
         DrawMap {
             lanes,

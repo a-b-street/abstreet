@@ -6,7 +6,6 @@ extern crate control;
 #[macro_use]
 extern crate derivative;
 extern crate dimensioned;
-extern crate flame;
 extern crate geom;
 #[macro_use]
 extern crate lazy_static;

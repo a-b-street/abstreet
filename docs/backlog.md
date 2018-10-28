@@ -9,8 +9,6 @@
 - run clippy everywhere
 	- presubmit script
 	- also enforce consistent style (import order, extern crate only in mod.rs or lib.rs, derive order, struct initialization order)
-- profiling
-	- https://github.com/TyOverby/flame
 
 ## Conga line idea
 

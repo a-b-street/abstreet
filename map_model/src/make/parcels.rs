@@ -1,3 +1,4 @@
+use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Pt2D};
 use make::sidewalk_finder::find_sidewalk_points;
@@ -11,7 +12,9 @@ pub fn make_all_parcels(
     gps_bounds: &Bounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
+    timer: &mut Timer,
 ) {
+    timer.start("convert parcels");
     let mut pts_per_parcel: Vec<Vec<Pt2D>> = Vec::new();
     let mut center_per_parcel: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
@@ -28,7 +31,7 @@ pub fn make_all_parcels(
     }
 
     // Trim parcels that are too far away from the nearest sidewalk
-    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M);
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M, timer);
 
     for (idx, center) in center_per_parcel.into_iter().enumerate() {
         if sidewalk_pts.contains_key(&center) {
@@ -47,4 +50,5 @@ pub fn make_all_parcels(
             discarded
         );
     }
+    timer.stop("convert parcels");
 }

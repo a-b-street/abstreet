@@ -1,4 +1,4 @@
-use abstutil::Progress;
+use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Line, PolyLine, Pt2D};
 use make::sidewalk_finder::find_sidewalk_points;
@@ -12,13 +12,15 @@ pub fn make_all_buildings(
     gps_bounds: &Bounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
+    timer: &mut Timer,
 ) {
+    timer.start("convert buildings");
     let mut pts_per_bldg: Vec<Vec<Pt2D>> = Vec::new();
     let mut center_per_bldg: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
-    let mut progress = Progress::new("get building center points", input.len());
+    timer.start_iter("get building center points", input.len());
     for b in input {
-        progress.next();
+        timer.next();
         let pts = b
             .points
             .iter()
@@ -31,11 +33,11 @@ pub fn make_all_buildings(
     }
 
     // Skip buildings that're too far away from their sidewalk
-    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M);
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M, timer);
 
-    let mut progress = Progress::new("create building front paths", pts_per_bldg.len());
+    timer.start_iter("create building front paths", pts_per_bldg.len());
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {
-        progress.next();
+        timer.next();
         let bldg_center = center_per_bldg[idx];
         if let Some((sidewalk, dist_along)) = sidewalk_pts.get(&bldg_center) {
             let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(*dist_along);
@@ -64,6 +66,7 @@ pub fn make_all_buildings(
             discarded
         );
     }
+    timer.stop("convert buildings");
 }
 
 // Adjust the path to start on the building's border, not center

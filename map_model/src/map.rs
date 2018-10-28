@@ -1,9 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use abstutil::{Error, Progress};
+use abstutil::{Error, Timer};
 use edits::RoadEdits;
-use flame;
 use geom::{Bounds, HashablePt2D, LonLat, PolyLine, Pt2D};
 use make;
 use raw_data;
@@ -35,13 +34,11 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, road_edits: RoadEdits) -> Result<Map, io::Error> {
-        // TODO I think I want something a bit different than flame:
-        // - Print as each phase occurs
-        // - Print with nicely formatted durations
-        flame::start("read raw_data");
+    pub fn new(path: &str, road_edits: RoadEdits, timer: &mut Timer) -> Result<Map, io::Error> {
+        // TODO use read_binary's timer magic, not this
+        timer.start("read raw_data");
         let data: raw_data::Map = abstutil::read_binary(path)?;
-        flame::end("read raw_data");
+        timer.stop("read raw_data");
         Ok(Map::create_from_raw(
             path::Path::new(path)
                 .file_stem()
@@ -51,10 +48,17 @@ impl Map {
                 .unwrap(),
             data,
             road_edits,
+            timer,
         ))
     }
 
-    pub fn create_from_raw(name: String, data: raw_data::Map, road_edits: RoadEdits) -> Map {
+    pub fn create_from_raw(
+        name: String,
+        data: raw_data::Map,
+        road_edits: RoadEdits,
+        timer: &mut Timer,
+    ) -> Map {
+        timer.start("raw_map to Map");
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_to_map_bounds(&gps_bounds);
         let mut m = Map {
@@ -90,7 +94,9 @@ impl Map {
         }
 
         let mut counter = 0;
+        timer.start_iter("expand roads to lanes", data.roads.len());
         for (idx, r) in data.roads.iter().enumerate() {
+            timer.next();
             let road_id = RoadID(idx);
             let road_center_pts = PolyLine::new(
                 r.points
@@ -158,9 +164,9 @@ impl Map {
             }
         }
 
-        let mut progress = Progress::new("trim lanes at each intersection", m.intersections.len());
+        timer.start_iter("trim lanes at each intersection", m.intersections.len());
         for i in &m.intersections {
-            progress.next();
+            timer.next();
             make::trim_lines(&mut m.lanes, i);
             if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
                 panic!("{:?} is orphaned!", i);
@@ -173,6 +179,7 @@ impl Map {
             &data.bus_routes,
             &gps_bounds,
             &bounds,
+            timer,
         );
         m.bus_stops = stops;
 
@@ -186,30 +193,26 @@ impl Map {
             m.intersections[t.parent.0].turns.push(t.id);
         }
 
-        {
-            let _guard = flame::start_guard(format!("make {} buildings", data.buildings.len()));
-            make::make_all_buildings(
-                &mut m.buildings,
-                &data.buildings,
-                &gps_bounds,
-                &bounds,
-                &m.lanes,
-            );
-            for b in &m.buildings {
-                m.lanes[b.front_path.sidewalk.0].building_paths.push(b.id);
-            }
+        make::make_all_buildings(
+            &mut m.buildings,
+            &data.buildings,
+            &gps_bounds,
+            &bounds,
+            &m.lanes,
+            timer,
+        );
+        for b in &m.buildings {
+            m.lanes[b.front_path.sidewalk.0].building_paths.push(b.id);
         }
 
-        {
-            let _guard = flame::start_guard(format!("make {} parcels", data.parcels.len()));
-            make::make_all_parcels(
-                &mut m.parcels,
-                &data.parcels,
-                &gps_bounds,
-                &bounds,
-                &m.lanes,
-            );
-        }
+        make::make_all_parcels(
+            &mut m.parcels,
+            &data.parcels,
+            &gps_bounds,
+            &bounds,
+            &m.lanes,
+            timer,
+        );
 
         for (idx, a) in data.areas.iter().enumerate() {
             m.areas.push(Area {
@@ -225,11 +228,9 @@ impl Map {
             });
         }
 
-        {
-            let _guard = flame::start_guard(format!("verify {} bus routes", routes.len()));
-            m.bus_routes = make::verify_bus_routes(&m, routes);
-        }
+        m.bus_routes = make::verify_bus_routes(&m, routes);
 
+        timer.stop("raw_map to Map");
         m
     }
 

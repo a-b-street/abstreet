@@ -1,3 +1,4 @@
+use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D, Pt2D};
 use gtfs;
@@ -14,7 +15,9 @@ pub fn make_bus_stops(
     bus_routes: &Vec<gtfs::Route>,
     gps_bounds: &Bounds,
     bounds: &Bounds,
+    timer: &mut Timer,
 ) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {
+    timer.start("make bus stops");
     let mut bus_stop_pts: HashSet<HashablePt2D> = HashSet::new();
     let mut route_lookups: MultiMap<String, HashablePt2D> = MultiMap::new();
     for route in bus_routes {
@@ -29,7 +32,7 @@ pub fn make_bus_stops(
 
     let mut stops_per_sidewalk: MultiMap<LaneID, (si::Meter<f64>, HashablePt2D)> = MultiMap::new();
     for (pt, (lane, dist_along)) in
-        find_sidewalk_points(bounds, bus_stop_pts, lanes, 10.0 * si::M).iter()
+        find_sidewalk_points(bounds, bus_stop_pts, lanes, 10.0 * si::M, timer).iter()
     {
         stops_per_sidewalk.insert(*lane, (*dist_along, *pt));
     }
@@ -95,6 +98,7 @@ pub fn make_bus_stops(
             });
         }
     }
+    timer.stop("make bus stops");
     (bus_stops, routes)
 }
 

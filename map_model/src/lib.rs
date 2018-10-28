@@ -1,7 +1,6 @@
 extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate dimensioned;
-extern crate flame;
 extern crate geo;
 extern crate geom;
 extern crate gtfs;

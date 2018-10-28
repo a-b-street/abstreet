@@ -15,13 +15,17 @@ pub struct NeighborhoodSummary {
 }
 
 impl NeighborhoodSummary {
-    pub fn new(map: &Map) -> NeighborhoodSummary {
+    pub fn new(map: &Map, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
+        let neighborhoods = abstutil::load_all_objects("neighborhoods", map.get_name());
+        timer.start_iter("precompute neighborhood members", neighborhoods.len());
         NeighborhoodSummary {
-            regions: abstutil::load_all_objects("neighborhoods", map.get_name())
+            regions: neighborhoods
                 .into_iter()
                 .enumerate()
-                .map(|(idx, (_, n))| Region::new(idx, n, map))
-                .collect(),
+                .map(|(idx, (_, n))| {
+                    timer.next();
+                    Region::new(idx, n, map)
+                }).collect(),
             active: false,
             last_summary: None,
         }
