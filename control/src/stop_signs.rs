@@ -72,6 +72,7 @@ impl ControlStopSign {
                     "footway" => 1,
 
                     "unclassified" => 0,
+                    "road" => 0,
                     _ => panic!("Unknown OSM highway {}", highway),
                 }
             } else {

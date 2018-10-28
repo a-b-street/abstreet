@@ -488,8 +488,9 @@ impl Map {
             "../data/maps/{}_{}.abst",
             self.name, self.road_edits.edits_name
         );
+        info!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
-        println!("Saved {}", path);
+        info!("Saved {}", path);
     }
 }
 
