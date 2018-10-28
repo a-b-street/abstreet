@@ -244,11 +244,15 @@ impl PerMapUI {
         let draw_map = DrawMap::new(&map, &control_map, extra_shapes);
         flame::end("draw_map");
 
+        flame::start("steepness_viz");
+        let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
+        flame::end("steepness_viz");
+        flame::start("neighborhood_summary");
+        let neighborhood_summary = plugins::neighborhood_summary::NeighborhoodSummary::new(&map);
+        flame::end("neighborhood_summary");
+
         flame::end("setup");
         flame::dump_stdout();
-
-        let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
-        let neighborhood_summary = plugins::neighborhood_summary::NeighborhoodSummary::new(&map);
 
         let state = PerMapUI {
             map,

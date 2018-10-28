@@ -3,7 +3,7 @@
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
 use ezgui::Color;
-use map_model::{Lane, Map};
+use map_model::Map;
 use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -22,8 +22,11 @@ impl SteepnessVisualizer {
             min_difference: f64::MAX,
             max_difference: f64::MIN_POSITIVE,
         };
-        for l in map.all_lanes() {
-            let d = s.get_delta(map, l);
+        for r in map.all_roads() {
+            let (i1, i2) = r.get_endpoints(map);
+            let d = (map.get_i(i1).elevation - map.get_i(i2).elevation)
+                .value_unsafe
+                .abs();
             // TODO hack! skip crazy outliers in terrible way.
             if d > 100.0 {
                 continue;
@@ -32,12 +35,6 @@ impl SteepnessVisualizer {
             s.max_difference = s.max_difference.max(d);
         }
         s
-    }
-
-    fn get_delta(&self, map: &Map, l: &Lane) -> f64 {
-        let e1 = map.get_source_intersection(l.id).elevation;
-        let e2 = map.get_destination_intersection(l.id).elevation;
-        (e1 - e2).value_unsafe.abs()
     }
 }
 
@@ -61,8 +58,11 @@ impl Plugin for SteepnessVisualizer {
 
         match obj {
             ID::Lane(l) => {
-                let normalized = (self.get_delta(ctx.map, ctx.map.get_l(l)) - self.min_difference)
-                    / (self.max_difference - self.min_difference);
+                let e1 = ctx.map.get_source_intersection(l).elevation;
+                let e2 = ctx.map.get_destination_intersection(l).elevation;
+                let d = (e1 - e2).value_unsafe.abs();
+                let normalized =
+                    (d - self.min_difference) / (self.max_difference - self.min_difference);
                 Some(Color::rgb_f(normalized as f32, 0.0, 0.0))
             }
             _ => None,

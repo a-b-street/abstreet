@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil::Progress;
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use control::ControlMap;
@@ -44,7 +45,9 @@ pub struct DrawMap {
 impl DrawMap {
     pub fn new(map: &Map, control_map: &ControlMap, raw_extra_shapes: Vec<ExtraShape>) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
+        let mut progress = Progress::new("make DrawLanes", map.all_lanes().len());
         for l in map.all_lanes() {
+            progress.next();
             lanes.push(DrawLane::new(l, map, control_map));
         }
 
