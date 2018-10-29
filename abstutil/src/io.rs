@@ -221,8 +221,7 @@ impl Read for FileWithProgress {
         if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
             self.last_printed_at = Instant::now();
             print!(
-                "{}Reading {}: {}/{} MB... {}s",
-                "\r",
+                "\rReading {}: {}/{} MB... {:.1}s",
                 self.path,
                 self.processed_bytes / 1024 / 1024,
                 self.total_bytes / 1024 / 1024,

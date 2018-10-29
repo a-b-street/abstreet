@@ -27,7 +27,7 @@ impl Progress {
     }
 
     // Returns when done
-    fn next(&mut self, padding: String) -> Option<String> {
+    fn next(&mut self) -> Option<String> {
         self.processed_items += 1;
         if self.processed_items > self.total_items {
             panic!(
@@ -36,25 +36,28 @@ impl Progress {
             );
         }
 
-        let done = self.processed_items == self.total_items;
-        if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
-            self.last_printed_at = Instant::now();
+        if self.processed_items == self.total_items {
             let line = format!(
-                "{}{}: {}/{}... {}s",
-                padding,
+                "{}: {}/{}... {}s",
                 self.label,
                 self.processed_items,
                 self.total_items,
                 elapsed_seconds(self.started_at)
             );
             // TODO blank till end of current line
-            print!("\r{}", line);
-            if done {
-                println!("");
-                return Some(line);
-            } else {
-                stdout().flush().unwrap();
-            }
+            println!("\r{}", line);
+            return Some(line);
+        } else if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS {
+            self.last_printed_at = Instant::now();
+            // TODO blank till end of current line
+            print!(
+                "\r{}: {}/{}... {:.1}s",
+                self.label,
+                self.processed_items,
+                self.total_items,
+                elapsed_seconds(self.started_at)
+            );
+            stdout().flush().unwrap();
         }
         None
     }
@@ -94,7 +97,7 @@ impl Timer {
     }
 
     pub fn start(&mut self, name: &str) {
-        println!("{}- {}...", "  ".repeat(self.stack.len()), name);
+        println!("{}...", name);
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
             name: name.to_string(),
             started_at: Instant::now(),
@@ -110,14 +113,10 @@ impl Timer {
             ),
         };
         assert_eq!(span.name, name);
-        let line = format!(
-            "{}- {} took {}s",
-            "  ".repeat(self.stack.len()),
-            name,
-            elapsed_seconds(span.started_at)
-        );
+        let line = format!("{} took {}s", name, elapsed_seconds(span.started_at));
         println!("{}", line);
-        self.results.push(line);
+        self.results
+            .push(format!("{}- {}", "  ".repeat(self.stack.len()), line));
     }
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
@@ -136,10 +135,10 @@ impl Timer {
     }
 
     pub fn next(&mut self) {
-        let padding = format!("{} - ", "  ".repeat(self.stack.len() - 1));
+        let padding = "  ".repeat(self.stack.len() - 1);
         let done = if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
-            if let Some(result) = progress.next(padding) {
-                self.results.push(result);
+            if let Some(result) = progress.next() {
+                self.results.push(format!("{}- {}", padding, result));
                 true
             } else {
                 false
@@ -154,6 +153,6 @@ impl Timer {
 
     pub(crate) fn add_file_reader_result(&mut self, line: String) {
         self.results
-            .push(format!("{} - {}", "  ".repeat(self.stack.len()), line));
+            .push(format!("{}- {}", "  ".repeat(self.stack.len()), line));
     }
 }
