@@ -24,20 +24,23 @@ pub struct UI {
     canvas: Canvas,
     p3_offset: (f64, f64),
     show_labels: bool,
+    current_mode: usize,
 }
 
 impl UI {
     pub fn new() -> UI {
-        let canvas = Canvas::new();
-        // TODO this is only for debug_intersection
-        //canvas.cam_zoom = 7.5;
-        //canvas.center_on_map_pt(1350.0, 400.0);
-        //canvas.center_on_map_pt(800.0, 600.0);
+        let mut canvas = Canvas::new();
+        // Start with mode 1's settings
+        canvas.window_size.width = 1024;
+        canvas.window_size.height = 768;
+        canvas.cam_zoom = 1.0;
+        canvas.center_on_map_pt(Pt2D::new(305.0, 324.0));
 
         UI {
             canvas,
             p3_offset: (200.0, 150.0),
             show_labels: true,
+            current_mode: 1,
         }
     }
 }
@@ -63,6 +66,41 @@ impl GUI for UI {
         if input.unimportant_key_pressed(Key::P, KEY_CATEGORY, "toggle labels") {
             self.show_labels = !self.show_labels;
         }
+        if input.unimportant_key_pressed(Key::C, KEY_CATEGORY, "print current camera state") {
+            println!("cam_zoom = {}", self.canvas.cam_zoom);
+            println!(
+                "center_on_map_pt({})",
+                self.canvas.screen_to_map((
+                    f64::from(self.canvas.window_size.width) / 2.0,
+                    f64::from(self.canvas.window_size.height) / 2.0
+                ))
+            );
+        }
+        if input.unimportant_key_pressed(Key::D1, KEY_CATEGORY, "switch to mode 1") {
+            self.current_mode = 1;
+            self.canvas.cam_zoom = 1.0;
+            self.canvas.center_on_map_pt(Pt2D::new(305.0, 324.0));
+        }
+        if input.unimportant_key_pressed(Key::D2, KEY_CATEGORY, "switch to mode 2") {
+            self.current_mode = 2;
+            self.canvas.cam_zoom = 10.0;
+            self.canvas.center_on_map_pt(Pt2D::new(1352.0, 403.0));
+        }
+        if input.unimportant_key_pressed(Key::D3, KEY_CATEGORY, "switch to mode 3") {
+            self.current_mode = 3;
+            self.canvas.cam_zoom = 3.8;
+            self.canvas.center_on_map_pt(Pt2D::new(2025.0, 1277.0));
+        }
+        if input.unimportant_key_pressed(Key::D4, KEY_CATEGORY, "switch to mode 4") {
+            self.current_mode = 4;
+            self.canvas.cam_zoom = 10.5;
+            self.canvas.center_on_map_pt(Pt2D::new(122.0, 166.0));
+        }
+        if input.unimportant_key_pressed(Key::D5, KEY_CATEGORY, "switch to mode 5") {
+            self.current_mode = 5;
+            self.canvas.cam_zoom = 19.0;
+            self.canvas.center_on_map_pt(Pt2D::new(1166.0, 766.0));
+        }
 
         self.canvas.handle_event(&mut input);
 
@@ -78,14 +116,14 @@ impl GUI for UI {
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
 
-        if true {
-            self.moving_polyline(g, &mut labels);
-        } else {
-            self.trim_polyline(g, &mut labels);
-            self.debug_intersection(g, &mut labels);
-            self.debug_polyline(g, &mut labels);
-            self.debug_polygon_drawing(g, &mut labels);
-        }
+        match self.current_mode {
+            1 => self.moving_polyline(g, &mut labels),
+            2 => self.trim_polyline(g, &mut labels),
+            3 => self.debug_intersection(g, &mut labels),
+            4 => self.debug_polyline(g, &mut labels),
+            5 => self.debug_polygon_drawing(g, &mut labels),
+            x => panic!("Impossible current_mode {}", x),
+        };
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
         // TODO still try the angle bisection method
@@ -186,9 +224,9 @@ impl UI {
         );
         point!(p4, Pt2D::new(500.0, 120.0));
 
-        println!("");
+        /*println!("");
         println!("p1 -> p2 is {}", p1.angle_to(p2));
-        println!("p2 -> p3 is {}", p2.angle_to(p3));
+        println!("p2 -> p3 is {}", p2.angle_to(p3));*/
 
         let pts = PolyLine::new(vec![p1, p2, p3, p4]);
 
