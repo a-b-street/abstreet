@@ -9,6 +9,7 @@ extern crate structopt;
 mod render;
 mod timer;
 
+use abstutil::Timer;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
 use map_model::{Map, RoadEdits};
 use piston::input::Key;
@@ -36,7 +37,7 @@ struct UI {
 
 impl UI {
     fn new(flags: Flags) -> UI {
-        let map = Map::new(&flags.load_map, RoadEdits::new()).unwrap();
+        let map = Map::new(&flags.load_map, RoadEdits::new(), &mut Timer::new()).unwrap();
         UI {
             canvas: Canvas::new(),
             draw_map: DrawMap::new(map),

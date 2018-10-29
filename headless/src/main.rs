@@ -8,7 +8,7 @@ extern crate map_model;
 extern crate sim;
 extern crate structopt;
 
-use abstutil::LogAdapter;
+use abstutil::{LogAdapter, Timer};
 use log::LevelFilter;
 use sim::SimFlags;
 use structopt::StructOpt;
@@ -38,7 +38,13 @@ fn main() {
 
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
-    let (map, control_map, mut sim) = sim::load(flags.sim_flags, Some(sim::Tick::from_seconds(30)));
+    let mut timer = Timer::new();
+    let (map, control_map, mut sim) = sim::load(
+        flags.sim_flags,
+        Some(sim::Tick::from_seconds(30)),
+        &mut timer,
+    );
+    timer.done();
 
     if load.contains("data/raw_maps/") {
         if flags.big_sim {

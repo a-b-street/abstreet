@@ -3,7 +3,7 @@ extern crate log;
 extern crate sim;
 extern crate structopt;
 
-use abstutil::LogAdapter;
+use abstutil::{LogAdapter, Timer};
 use log::LevelFilter;
 use sim::SimFlags;
 use structopt::StructOpt;
@@ -15,6 +15,10 @@ fn main() {
     log::set_logger(&LOG_ADAPTER).unwrap();
 
     let flags = SimFlags::from_args();
-    let (map, _, _) = sim::load(flags, None);
+    let mut timer = Timer::new();
+    let (map, _, _) = sim::load(flags, None, &mut timer);
+    timer.start("save map");
     map.save();
+    timer.stop("save map");
+    timer.done();
 }
