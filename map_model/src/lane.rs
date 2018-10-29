@@ -112,7 +112,7 @@ impl Lane {
 
     pub fn dump_debug(&self) {
         println!(
-            "\nlet lane_center_r{}_pts = {}",
+            "\nlet lane_center_l{}_pts = {}",
             self.id.0, self.lane_center_pts
         );
         println!("{}", abstutil::to_json(self));
