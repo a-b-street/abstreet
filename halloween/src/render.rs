@@ -45,11 +45,11 @@ impl DrawMap {
         // TODO This is a bit boilerplateish
         let mut road_quadtree = QuadTree::default(map_bbox);
         for r in &roads {
-            road_quadtree.insert_with_box(r.id, get_bbox(r.get_bounds()));
+            road_quadtree.insert_with_box(r.id, r.get_bounds().as_bbox());
         }
         let mut bldg_quadtree = QuadTree::default(map_bbox);
         for b in &buildings {
-            bldg_quadtree.insert_with_box(b.id, get_bbox(b.get_bounds()));
+            bldg_quadtree.insert_with_box(b.id, b.get_bounds().as_bbox());
         }
 
         DrawMap {
@@ -144,19 +144,5 @@ impl DrawBuilding {
         b.update_pt(self.line.pt1());
         b.update_pt(self.line.pt2());
         b
-    }
-}
-
-// TODO totally copied
-fn get_bbox(b: Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
     }
 }

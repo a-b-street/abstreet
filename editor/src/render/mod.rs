@@ -12,7 +12,6 @@ mod parcel;
 mod pedestrian;
 mod turn;
 
-use aabb_quadtree::geom::{Point, Rect};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Pt2D};
 use map_model::Map;
@@ -49,17 +48,4 @@ pub struct RenderOptions {
     pub color: Option<Color>,
     pub cam_zoom: f64,
     pub debug_mode: bool,
-}
-
-pub fn get_bbox(b: Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
-    }
 }

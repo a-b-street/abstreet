@@ -23,7 +23,7 @@ pub fn find_sidewalk_points(
     }
 
     // Convert all sidewalks to LineStrings and index them with a quadtree.
-    let mut lane_lines_quadtree: QuadTree<usize> = QuadTree::default(get_bbox(bounds));
+    let mut lane_lines_quadtree: QuadTree<usize> = QuadTree::default(bounds.as_bbox());
     let mut lane_lines: Vec<(LaneID, geo::LineString<f64>)> = Vec::new();
     timer.start_iter("lanes to LineStrings", lanes.len());
     for l in lanes {
@@ -90,18 +90,5 @@ fn lane_to_rect(l: &Lane) -> Rect {
     for pt in l.lane_center_pts.points() {
         b.update_pt(*pt);
     }
-    get_bbox(&b)
-}
-
-fn get_bbox(b: &Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
-    }
+    b.as_bbox()
 }

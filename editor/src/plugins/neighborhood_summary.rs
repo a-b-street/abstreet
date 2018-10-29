@@ -5,7 +5,7 @@ use map_model::{LaneID, Map};
 use objects::{Ctx, DEBUG};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{get_bbox, DrawMap};
+use render::DrawMap;
 use sim::{Neighborhood, Sim, Tick};
 use std::collections::HashSet;
 
@@ -90,7 +90,7 @@ impl Region {
         let polygon = Polygon::new(&n.points);
         // TODO polygon overlap or complete containment would be more ideal
         let lanes = draw_map
-            .get_matching_lanes(get_bbox(polygon.get_bounds()))
+            .get_matching_lanes(polygon.get_bounds().as_bbox())
             .into_iter()
             .filter_map(|id| {
                 let l = map.get_l(id);

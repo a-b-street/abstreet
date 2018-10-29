@@ -22,7 +22,7 @@ use render::lane::DrawLane;
 use render::parcel::DrawParcel;
 use render::pedestrian::DrawPedestrian;
 use render::turn::DrawTurn;
-use render::{get_bbox, Renderable};
+use render::Renderable;
 use sim::Sim;
 use std::collections::HashMap;
 use ui::ShowTurnIcons;
@@ -92,31 +92,30 @@ impl DrawMap {
         let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
 
         let bounds = map.get_bounds();
-        let map_bbox = get_bbox(bounds);
 
         timer.start("create quadtree");
-        let mut quadtree = QuadTree::default(map_bbox);
+        let mut quadtree = QuadTree::default(bounds.as_bbox());
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &lanes {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in &intersections {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in &buildings {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in &parcels {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in &extra_shapes {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in bus_stops.values() {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         for obj in &areas {
-            quadtree.insert_with_box(obj.get_id(), get_bbox(obj.get_bounds()));
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
         timer.stop("create quadtree");
 

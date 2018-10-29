@@ -1,3 +1,4 @@
+use aabb_quadtree::geom::{Point, Rect};
 use std::f64;
 use {LonLat, Pt2D};
 
@@ -42,5 +43,18 @@ impl Bounds {
 
     pub fn contains(&self, x: f64, y: f64) -> bool {
         x >= self.min_x && x <= self.max_x && y >= self.min_y && y <= self.max_y
+    }
+
+    pub fn as_bbox(&self) -> Rect {
+        Rect {
+            top_left: Point {
+                x: self.min_x as f32,
+                y: self.min_y as f32,
+            },
+            bottom_right: Point {
+                x: self.max_x as f32,
+                y: self.max_y as f32,
+            },
+        }
     }
 }

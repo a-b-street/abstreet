@@ -1,3 +1,4 @@
+extern crate aabb_quadtree;
 extern crate dimensioned;
 extern crate ordered_float;
 extern crate rand;

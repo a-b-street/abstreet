@@ -1,4 +1,4 @@
-use aabb_quadtree::geom::{Point, Rect};
+use aabb_quadtree::geom::Rect;
 use aabb_quadtree::QuadTree;
 use abstutil::MultiMap;
 use geo;
@@ -11,7 +11,7 @@ type ParcelIdx = usize;
 
 pub fn group_parcels(map_bounds: &Bounds, parcels: &mut Vec<raw_data::Parcel>) {
     // Make a quadtree to quickly prune intersections between parcels
-    let mut quadtree = QuadTree::default(bounds_to_bbox(map_bounds));
+    let mut quadtree = QuadTree::default(map_bounds.as_bbox());
     for (idx, p) in parcels.iter().enumerate() {
         quadtree.insert_with_box(idx, get_bbox(&p.points));
     }
@@ -106,23 +106,10 @@ fn polygons_intersect(pts1: &Vec<LonLat>, pts2: &Vec<LonLat>) -> bool {
     poly1.intersects(&poly2)
 }
 
-fn bounds_to_bbox(b: &Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
-    }
-}
-
 fn get_bbox(pts: &Vec<LonLat>) -> Rect {
     let mut b = Bounds::new();
     for p in pts.iter() {
         b.update(p.longitude, p.latitude);
     }
-    bounds_to_bbox(&b)
+    b.as_bbox()
 }
