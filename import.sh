@@ -55,6 +55,13 @@ if [ ! -f data/input/montlake.osm ]; then
 	osmosis --read-xml enableDateParsing=no file=data/input/Seattle.osm --bounding-box left=-122.3218 bottom=47.6323 right=-122.2985 top=47.6475 --write-xml data/input/montlake.osm
 fi
 
+for poly in `ls data/polygons/`; do
+	name=`basename -s .poly $poly`;
+	if [ ! -f data/input/$name.osm ]; then
+		osmosis --read-xml enableDateParsing=no file=data/input/Seattle.osm --bounding-polygon file=data/polygons/$name.poly --write-xml data/input/$name.osm
+	fi
+done
+
 if [ ! -f data/seattle_parcels.abst ]; then
 	cd kml
 	time cargo run --release ../data/input/King_County_Parcels__parcel_area.kml ../data/seattle_parcels.abst
@@ -63,5 +70,7 @@ fi
 
 COMMON="--elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/TrafficSignals.shp --parcels=../data/seattle_parcels.abst --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson"
 cd convert_osm
-time cargo run --release -- --osm=../data/input/montlake.osm $COMMON --output=../data/raw_maps/montlake.abst
-time cargo run --release -- --osm=../data/input/small_seattle.osm $COMMON --output=../data/raw_maps/small_seattle.abst
+# TODO automatically grab names from polygons
+for map in montlake small_seattle eastlake 23rd; do
+	time cargo run --release -- --osm=../data/input/$map.osm $COMMON --output=../data/raw_maps/$map.abst
+done

@@ -89,7 +89,7 @@ impl Neighborhood {
 
     // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
     pub fn save_as_osmosis(&self, gps_bounds: &GPSBounds) -> Result<(), Error> {
-        let path = format!("{}.poly", self.name);
+        let path = format!("../data/polygons/{}.poly", self.name);
         let mut f = File::create(&path)?;
 
         write!(f, "{}\n", self.name);

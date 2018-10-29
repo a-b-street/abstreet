@@ -154,7 +154,7 @@ impl Timer {
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
         if total_items == 0 {
-            panic!("Can't start_iter({}, 0)", name);
+            return;
         }
         if let Some(StackEntry::Progress(p)) = self.stack.last() {
             panic!(
