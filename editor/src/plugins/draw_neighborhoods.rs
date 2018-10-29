@@ -49,6 +49,8 @@ impl Plugin for DrawNeighborhoodState {
 
                 if input.key_pressed(Key::Escape, "quit") {
                     new_state = Some(DrawNeighborhoodState::Inactive);
+                } else if input.key_pressed(Key::X, "export this as an Osmosis polygon filter") {
+                    n.save_as_osmosis(&map.get_gps_bounds()).unwrap();
                 } else if input.key_pressed(Key::P, "add a new point here") {
                     n.points.push(canvas.get_cursor_in_map_space());
                 } else if n.points.len() >= 3 && input.key_pressed(Key::Return, "save") {

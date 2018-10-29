@@ -50,6 +50,11 @@ impl Pt2D {
         Some(Pt2D::new(dx, dy))
     }
 
+    pub fn to_gps(&self, gps_bounds: &Bounds) -> LonLat {
+        // TODO wait, this is going to be more complicated
+        LonLat::new(0.0, 0.0)
+    }
+
     pub fn x(&self) -> f64 {
         self.x
     }

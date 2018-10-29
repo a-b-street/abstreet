@@ -1,8 +1,10 @@
 use abstutil;
-use geom::{Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use map_model::{BuildingID, Map, RoadID};
 use rand::Rng;
 use std::collections::{BTreeSet, HashMap, HashSet};
+use std::fs::File;
+use std::io::{Error, Write};
 use {CarID, Sim, Tick, WeightedUsizeChoice};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -83,6 +85,24 @@ impl Neighborhood {
                 Pt2D::new(0.0, 0.0),
             ],
         }
+    }
+
+    // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
+    pub fn save_as_osmosis(&self, gps_bounds: &Bounds) -> Result<(), Error> {
+        let path = format!("{}.poly", self.name);
+        let mut f = File::create(&path)?;
+
+        write!(f, "{}\n", self.name);
+        write!(f, "1\n");
+        for pt in &self.points {
+            let gps = pt.to_gps(gps_bounds);
+            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
+        }
+        write!(f, "END\n");
+        write!(f, "END\n");
+
+        println!("Exported {}", path);
+        Ok(())
     }
 }
 
