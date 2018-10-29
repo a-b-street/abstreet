@@ -22,18 +22,6 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
-    // TODO weird to have these specific things?
-    pub fn replace_first_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
-        self.pts[0] = pt1;
-        self.pts[1] = pt2;
-    }
-
-    pub fn replace_last_line(&mut self, pt1: Pt2D, pt2: Pt2D) {
-        let len = self.pts.len();
-        self.pts[len - 2] = pt1;
-        self.pts[len - 1] = pt2;
-    }
-
     pub fn extend(&mut self, other: PolyLine) {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
         self.pts.extend(other.pts.iter().skip(1));
@@ -354,8 +342,17 @@ impl PolyLine {
 impl fmt::Display for PolyLine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "PolyLine::new(vec![\n")?;
-        for pt in &self.pts {
-            write!(f, "  Pt2D::new({}, {}),\n", pt.x(), pt.y())?;
+        for (idx, pt) in self.pts.iter().enumerate() {
+            write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
+            if idx > 0 {
+                write!(
+                    f,
+                    "    // {}, {}",
+                    pt.x() - self.pts[idx - 1].x(),
+                    pt.y() - self.pts[idx - 1].y()
+                )?;
+            }
+            write!(f, "\n")?;
         }
         write!(f, "])")
     }
