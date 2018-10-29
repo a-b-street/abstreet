@@ -465,6 +465,9 @@ impl Benchmark {
     }
 }
 
+// TODO moving vs stuck shouldn't be an instantaneous judgment -- stuck is if there's an agent
+// directly in front limiting speed significantly, or if an intersection isn't allowing movement
+// yet
 pub struct Summary {
     pub cars_parked: usize,
     pub open_parking_spots: usize,

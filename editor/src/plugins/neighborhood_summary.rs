@@ -118,22 +118,39 @@ impl Region {
 
         if let Some(secondary) = maybe_secondary {
             // TODO colors
+            let s1 = primary.summarize(&self.lanes);
+            let s2 = secondary.summarize(&self.lanes);
+
+            txt.add_line(format!(
+                "{}|{} cars parked, {}|{} spots free",
+                s1.cars_parked, s2.cars_parked, s1.open_parking_spots, s2.open_parking_spots
+            ));
+            txt.add_line(format!(
+                "{}|{} moving cars, {}|{} stuck",
+                s1.moving_cars, s2.moving_cars, s1.stuck_cars, s2.stuck_cars
+            ));
+            txt.add_line(format!(
+                "{}|{} moving peds, {}|{} stuck",
+                s1.moving_peds, s2.moving_peds, s1.stuck_peds, s2.stuck_peds
+            ));
+            txt.add_line(format!("{}|{} buses", s1.buses, s2.buses));
+        // TODO diff all in a region and provide the count
         } else {
-            let s = primary.summarize(&self.lanes);
+            let s1 = primary.summarize(&self.lanes);
 
             txt.add_line(format!(
                 "{} cars parked, {} spots free",
-                s.cars_parked, s.open_parking_spots
+                s1.cars_parked, s1.open_parking_spots
             ));
             txt.add_line(format!(
                 "{} moving cars, {} stuck",
-                s.moving_cars, s.stuck_cars
+                s1.moving_cars, s1.stuck_cars
             ));
             txt.add_line(format!(
                 "{} moving peds, {} stuck",
-                s.moving_peds, s.stuck_peds
+                s1.moving_peds, s1.stuck_peds
             ));
-            txt.add_line(format!("{} buses", s.buses));
+            txt.add_line(format!("{} buses", s1.buses));
         }
 
         self.summary = txt;

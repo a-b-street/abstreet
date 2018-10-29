@@ -118,6 +118,10 @@ impl Scenario {
         }
 
         for s in &self.seed_parked_cars {
+            if !neighborhoods.contains_key(&s.neighborhood) {
+                panic!("Neighborhood {} isn't defined", s.neighborhood);
+            }
+
             sim.seed_parked_cars(
                 &bldgs_per_neighborhood[&s.neighborhood],
                 &roads_per_neighborhood[&s.neighborhood],
@@ -129,6 +133,13 @@ impl Scenario {
         // Don't let two pedestrians starting from one building use the same car.
         let mut reserved_cars: HashSet<CarID> = HashSet::new();
         for s in &self.spawn_over_time {
+            if !neighborhoods.contains_key(&s.start_from_neighborhood) {
+                panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
+            }
+            if !neighborhoods.contains_key(&s.go_to_neighborhood) {
+                panic!("Neighborhood {} isn't defined", s.go_to_neighborhood);
+            }
+
             for _ in 0..s.num_agents {
                 // TODO normal distribution, not uniform
                 let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
