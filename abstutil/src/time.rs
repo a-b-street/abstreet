@@ -77,6 +77,7 @@ pub struct Timer {
 struct TimerSpan {
     name: String,
     started_at: Instant,
+    nested_results: Vec<String>,
 }
 
 impl Timer {
@@ -101,6 +102,7 @@ impl Timer {
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
             name: name.to_string(),
             started_at: Instant::now(),
+            nested_results: Vec::new(),
         }));
     }
 
@@ -115,8 +117,22 @@ impl Timer {
         assert_eq!(span.name, name);
         let line = format!("{} took {}s", name, elapsed_seconds(span.started_at));
         println!("{}", line);
-        self.results
-            .push(format!("{}- {}", "  ".repeat(self.stack.len()), line));
+
+        let padding = "  ".repeat(self.stack.len());
+        match self.stack.last_mut() {
+            Some(StackEntry::TimerSpan(ref mut s)) => {
+                s.nested_results.push(format!("{}- {}", padding, line));
+                s.nested_results.extend(span.nested_results);
+            }
+            Some(StackEntry::Progress(p)) => panic!(
+                "How is TimerSpan({}) nested under Progress({})?",
+                name, p.label
+            ),
+            None => {
+                self.results.push(format!("{}- {}", padding, line));
+                self.results.extend(span.nested_results);
+            }
+        }
     }
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
@@ -135,24 +151,30 @@ impl Timer {
     }
 
     pub fn next(&mut self) {
-        let padding = "  ".repeat(self.stack.len() - 1);
-        let done = if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
-            if let Some(result) = progress.next() {
-                self.results.push(format!("{}- {}", padding, result));
-                true
+        let maybe_result =
+            if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
+                progress.next()
             } else {
-                false
-            }
-        } else {
-            panic!("Can't next() while a TimerSpan is top of the stack");
-        };
-        if done {
+                panic!("Can't next() while a TimerSpan is top of the stack");
+            };
+        if let Some(result) = maybe_result {
             self.stack.pop();
+            self.add_result(result);
         }
     }
 
-    pub(crate) fn add_file_reader_result(&mut self, line: String) {
-        self.results
-            .push(format!("{}- {}", "  ".repeat(self.stack.len()), line));
+    pub(crate) fn add_result(&mut self, line: String) {
+        let padding = "  ".repeat(self.stack.len());
+        match self.stack.last_mut() {
+            Some(StackEntry::TimerSpan(ref mut s)) => {
+                s.nested_results.push(format!("{}- {}", padding, line));
+            }
+            Some(StackEntry::Progress(p)) => {
+                panic!("How is something nested under Progress({})?", p.label)
+            }
+            None => {
+                self.results.push(format!("{}- {}", padding, line));
+            }
+        }
     }
 }

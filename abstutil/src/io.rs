@@ -48,7 +48,7 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     let reader = FileWithProgress::new(path)?;
-    timer.add_file_reader_result(reader.get_timer_result());
+    timer.add_result(reader.get_timer_result());
     let obj: T =
         serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
