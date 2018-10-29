@@ -5,6 +5,7 @@ use map_model::{LaneID, Map};
 use objects::{Ctx, DEBUG};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
+use render::{get_bbox, DrawMap};
 use sim::{Neighborhood, Sim, Tick};
 use std::collections::HashSet;
 
@@ -15,7 +16,7 @@ pub struct NeighborhoodSummary {
 }
 
 impl NeighborhoodSummary {
-    pub fn new(map: &Map, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
+    pub fn new(map: &Map, draw_map: &DrawMap, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
         let neighborhoods = abstutil::load_all_objects("neighborhoods", map.get_name());
         timer.start_iter("precompute neighborhood members", neighborhoods.len());
         NeighborhoodSummary {
@@ -24,7 +25,7 @@ impl NeighborhoodSummary {
                 .enumerate()
                 .map(|(idx, (_, n))| {
                     timer.next();
-                    Region::new(idx, n, map)
+                    Region::new(idx, n, map, draw_map)
                 }).collect(),
             active: false,
             last_summary: None,
@@ -84,16 +85,17 @@ struct Region {
 }
 
 impl Region {
-    fn new(idx: usize, n: Neighborhood, map: &Map) -> Region {
+    fn new(idx: usize, n: Neighborhood, map: &Map, draw_map: &DrawMap) -> Region {
         let center = Pt2D::center(&n.points);
         let polygon = Polygon::new(&n.points);
         // TODO polygon overlap or complete containment would be more ideal
-        let lanes = map
-            .all_lanes()
-            .iter()
-            .filter_map(|l| {
+        let lanes = draw_map
+            .get_matching_lanes(get_bbox(polygon.get_bounds()))
+            .into_iter()
+            .filter_map(|id| {
+                let l = map.get_l(id);
                 if polygon.contains_pt(l.first_pt()) && polygon.contains_pt(l.last_pt()) {
-                    Some(l.id)
+                    Some(id)
                 } else {
                     None
                 }

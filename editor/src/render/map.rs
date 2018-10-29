@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::{Point, Rect};
+use aabb_quadtree::geom::Rect;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use control::ControlMap;
-use geom::{Bounds, Pt2D};
+use geom::Pt2D;
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
@@ -22,7 +22,7 @@ use render::lane::DrawLane;
 use render::parcel::DrawParcel;
 use render::pedestrian::DrawPedestrian;
 use render::turn::DrawTurn;
-use render::Renderable;
+use render::{get_bbox, Renderable};
 use sim::Sim;
 use std::collections::HashMap;
 use ui::ShowTurnIcons;
@@ -223,6 +223,17 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
+    // A greatly simplified form of get_objects_onscreen
+    pub fn get_matching_lanes(&self, bbox: Rect) -> Vec<LaneID> {
+        let mut results: Vec<LaneID> = Vec::new();
+        for &(id, _, _) in &self.quadtree.query(bbox) {
+            if let ID::Lane(id) = id {
+                results.push(*id);
+            }
+        }
+        results
+    }
+
     // Returns in back-to-front order
     // The second pair is ephemeral objects (cars, pedestrians) that we can't borrow --
     // conveniently they're the front-most layer, so the caller doesn't have to do anything strange
@@ -310,18 +321,5 @@ impl DrawMap {
         returns.extend(peds);
 
         (borrows, returns)
-    }
-}
-
-fn get_bbox(b: Bounds) -> Rect {
-    Rect {
-        top_left: Point {
-            x: b.min_x as f32,
-            y: b.min_y as f32,
-        },
-        bottom_right: Point {
-            x: b.max_x as f32,
-            y: b.max_y as f32,
-        },
     }
 }

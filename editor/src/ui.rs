@@ -248,7 +248,7 @@ impl PerMapUI {
 
         let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
         let neighborhood_summary =
-            plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &mut timer);
+            plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &draw_map, &mut timer);
 
         timer.stop("PerMapUI setup");
         timer.done();
