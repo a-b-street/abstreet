@@ -27,7 +27,7 @@ impl Progress {
     }
 
     // Returns when done
-    fn next(&mut self) -> Option<String> {
+    fn next(&mut self) -> Option<(f64, String)> {
         self.processed_items += 1;
         if self.processed_items > self.total_items {
             panic!(
@@ -37,16 +37,14 @@ impl Progress {
         }
 
         if self.processed_items == self.total_items {
+            let elapsed = elapsed_seconds(self.started_at);
             let line = format!(
                 "{}: {}/{}... {}s",
-                self.label,
-                self.processed_items,
-                self.total_items,
-                elapsed_seconds(self.started_at)
+                self.label, self.processed_items, self.total_items, elapsed
             );
             // TODO blank till end of current line
             println!("\r{}", line);
-            return Some(line);
+            return Some((elapsed, line));
         } else if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS {
             self.last_printed_at = Instant::now();
             // TODO blank till end of current line
@@ -78,6 +76,7 @@ struct TimerSpan {
     name: String,
     started_at: Instant,
     nested_results: Vec<String>,
+    nested_time: f64,
 }
 
 impl Timer {
@@ -103,6 +102,7 @@ impl Timer {
             name: name.to_string(),
             started_at: Instant::now(),
             nested_results: Vec::new(),
+            nested_time: 0.0,
         }));
     }
 
@@ -115,14 +115,23 @@ impl Timer {
             ),
         };
         assert_eq!(span.name, name);
-        let line = format!("{} took {}s", name, elapsed_seconds(span.started_at));
-        println!("{}", line);
+        let elapsed = elapsed_seconds(span.started_at);
+        let line = format!("{} took {}s", name, elapsed);
 
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
             Some(StackEntry::TimerSpan(ref mut s)) => {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_results.extend(span.nested_results);
+                if span.nested_time != 0.0 {
+                    println!("{}... plus {}s", name, elapsed - span.nested_time);
+                    s.nested_results.push(format!(
+                        "  {}- ... plus {}s",
+                        padding,
+                        elapsed - span.nested_time
+                    ));
+                }
+                s.nested_time += elapsed;
             }
             Some(StackEntry::Progress(p)) => panic!(
                 "How is TimerSpan({}) nested under Progress({})?",
@@ -131,8 +140,16 @@ impl Timer {
             None => {
                 self.results.push(format!("{}- {}", padding, line));
                 self.results.extend(span.nested_results);
+                if span.nested_time != 0.0 {
+                    println!("{}... plus {}s", name, elapsed - span.nested_time);
+                    self.results
+                        .push(format!("  - ... plus {}s", elapsed - span.nested_time));
+                }
+                // Don't bother tracking excess time that the Timer has existed but had no spans
             }
         }
+
+        println!("{}", line);
     }
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
@@ -157,23 +174,25 @@ impl Timer {
             } else {
                 panic!("Can't next() while a TimerSpan is top of the stack");
             };
-        if let Some(result) = maybe_result {
+        if let Some((elapsed, result)) = maybe_result {
             self.stack.pop();
-            self.add_result(result);
+            self.add_result(elapsed, result);
         }
     }
 
-    pub(crate) fn add_result(&mut self, line: String) {
+    pub(crate) fn add_result(&mut self, elapsed: f64, line: String) {
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
             Some(StackEntry::TimerSpan(ref mut s)) => {
                 s.nested_results.push(format!("{}- {}", padding, line));
+                s.nested_time += elapsed;
             }
             Some(StackEntry::Progress(p)) => {
                 panic!("How is something nested under Progress({})?", p.label)
             }
             None => {
                 self.results.push(format!("{}- {}", padding, line));
+                // Don't bother tracking excess time that the Timer has existed but had no spans
             }
         }
     }

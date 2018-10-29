@@ -71,11 +71,14 @@ impl DrawMap {
             .iter()
             .map(|i| DrawIntersection::new(i, map, &lanes))
             .collect();
+        timer.start_iter("make DrawBuildings", map.all_buildings().len());
         let buildings: Vec<DrawBuilding> = map
             .all_buildings()
             .iter()
-            .map(|b| DrawBuilding::new(b))
-            .collect();
+            .map(|b| {
+                timer.next();
+                DrawBuilding::new(b)
+            }).collect();
         let parcels: Vec<DrawParcel> = map
             .all_parcels()
             .iter()

@@ -48,9 +48,23 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     let reader = FileWithProgress::new(path)?;
-    timer.add_result(reader.get_timer_result());
+    let total_bytes = reader.total_bytes;
+
+    // Have to separately measure time here, since reader gets consumed.
+    let start = Instant::now();
     let obj: T =
         serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
+    let elapsed = elapsed_seconds(start);
+    timer.add_result(
+        elapsed,
+        format!(
+            "Reading {} ({} MB)... {}s",
+            path,
+            total_bytes / 1024 / 1024,
+            elapsed
+        ),
+    );
+
     Ok(obj)
 }
 
@@ -194,15 +208,6 @@ impl FileWithProgress {
             started_at: Instant::now(),
             last_printed_at: Instant::now(),
         })
-    }
-
-    fn get_timer_result(&self) -> String {
-        format!(
-            "Reading {} ({} MB)... {}s",
-            self.path,
-            self.total_bytes / 1024 / 1024,
-            elapsed_seconds(self.started_at)
-        )
     }
 }
 
