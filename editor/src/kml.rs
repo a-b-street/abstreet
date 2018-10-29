@@ -1,4 +1,4 @@
-use geom::{Bounds, LonLat, PolyLine, Pt2D};
+use geom::{GPSBounds, LonLat, PolyLine, Pt2D};
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::collections::BTreeMap;
@@ -27,7 +27,7 @@ pub enum ExtraShapeGeom {
     Points(PolyLine),
 }
 
-pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::Error> {
+pub fn load(path: &String, gps_bounds: &GPSBounds) -> Result<Vec<ExtraShape>, io::Error> {
     info!("Opening {}", path);
     let f = File::open(path).unwrap();
     let mut reader = Reader::from_reader(io::BufReader::new(f));
@@ -122,7 +122,7 @@ pub fn load(path: &String, gps_bounds: &Bounds) -> Result<Vec<ExtraShape>, io::E
     return Ok(shapes);
 }
 
-fn parse_pt(input: &str, gps_bounds: &Bounds) -> Option<Pt2D> {
+fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<Pt2D> {
     let coords: Vec<&str> = input.split(",").collect();
     if coords.len() != 2 {
         return None;

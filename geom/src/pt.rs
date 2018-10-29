@@ -1,7 +1,8 @@
+use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNaN;
 use std::f64;
 use std::fmt;
-use {Angle, Bounds, LonLat};
+use {Angle, GPSBounds, LonLat};
 
 // This represents world-space in meters.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -28,18 +29,18 @@ impl Pt2D {
         Pt2D { x, y }
     }
 
-    pub fn from_gps(gps: LonLat, b: &Bounds) -> Option<Pt2D> {
+    pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {
         // TODO hack to construct test maps more easily
         if b.represents_world_space {
             return Some(Pt2D::new(gps.longitude, gps.latitude));
         }
 
-        if !b.contains(gps.longitude, gps.latitude) {
+        if !b.contains(gps) {
             return None;
         }
 
         // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
-        let base = LonLat::new(b.min_x, b.max_y);
+        let base = LonLat::new(b.min_lon, b.max_lat);
 
         // Apparently the aabb_quadtree can't handle 0, so add a bit.
         // TODO epsilon or epsilon - 1.0?
@@ -50,7 +51,7 @@ impl Pt2D {
         Some(Pt2D::new(dx, dy))
     }
 
-    pub fn to_gps(&self, gps_bounds: &Bounds) -> LonLat {
+    pub fn to_gps(&self, _gps_bounds: &GPSBounds) -> LonLat {
         // TODO wait, this is going to be more complicated
         LonLat::new(0.0, 0.0)
     }
@@ -107,6 +108,7 @@ impl From<HashablePt2D> for Pt2D {
 }
 
 // This isn't opinionated about what the (x, y) represents -- could be lat/lon or world space.
+// TODO So rename it HashablePair or something
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
     x_nan: NotNaN<f64>,
@@ -133,5 +135,48 @@ impl HashablePt2D {
 impl From<Pt2D> for HashablePt2D {
     fn from(pt: Pt2D) -> Self {
         HashablePt2D::new(pt.x(), pt.y())
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Bounds {
+    pub min_x: f64,
+    pub min_y: f64,
+    pub max_x: f64,
+    pub max_y: f64,
+}
+
+impl Bounds {
+    pub fn new() -> Bounds {
+        Bounds {
+            min_x: f64::MAX,
+            min_y: f64::MAX,
+            max_x: f64::MIN,
+            max_y: f64::MIN,
+        }
+    }
+
+    pub fn update(&mut self, pt: Pt2D) {
+        self.min_x = self.min_x.min(pt.x);
+        self.max_x = self.max_x.max(pt.x);
+        self.min_y = self.min_y.min(pt.y);
+        self.max_y = self.max_y.max(pt.y);
+    }
+
+    pub fn contains(&self, pt: Pt2D) -> bool {
+        pt.x >= self.min_x && pt.x <= self.max_x && pt.y >= self.min_y && pt.y <= self.max_y
+    }
+
+    pub fn as_bbox(&self) -> Rect {
+        Rect {
+            top_left: Point {
+                x: self.min_x as f32,
+                y: self.min_y as f32,
+            },
+            bottom_right: Point {
+                x: self.max_x as f32,
+                y: self.max_y as f32,
+            },
+        }
     }
 }

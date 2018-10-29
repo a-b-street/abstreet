@@ -24,7 +24,6 @@ impl Circle {
             max_x: self.center.x() + self.radius,
             min_y: self.center.y() - self.radius,
             max_y: self.center.y() + self.radius,
-            represents_world_space: false,
         }
     }
 }

@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Bounds, HashablePt2D, LonLat};
+use geom::{GPSBounds, HashablePt2D, LonLat};
 use gtfs::Route;
 use std::collections::BTreeMap;
 use AreaType;
@@ -29,30 +29,30 @@ impl Map {
         }
     }
 
-    pub fn get_gps_bounds(&self) -> Bounds {
-        let mut bounds = Bounds::new();
+    pub fn get_gps_bounds(&self) -> GPSBounds {
+        let mut bounds = GPSBounds::new();
 
         for r in &self.roads {
             for pt in &r.points {
-                bounds.update_coord(*pt);
+                bounds.update(*pt);
             }
         }
         for i in &self.intersections {
-            bounds.update_coord(i.point);
+            bounds.update(i.point);
         }
         for b in &self.buildings {
             for pt in &b.points {
-                bounds.update_coord(*pt);
+                bounds.update(*pt);
             }
         }
         for a in &self.areas {
             for pt in &a.points {
-                bounds.update_coord(*pt);
+                bounds.update(*pt);
             }
         }
         for p in &self.parcels {
             for pt in &p.points {
-                bounds.update_coord(*pt);
+                bounds.update(*pt);
             }
         }
 

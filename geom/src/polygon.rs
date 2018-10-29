@@ -95,9 +95,9 @@ impl Polygon {
     pub fn get_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
         for tri in &self.triangles {
-            b.update_pt(tri.pt1);
-            b.update_pt(tri.pt2);
-            b.update_pt(tri.pt3);
+            b.update(tri.pt1);
+            b.update(tri.pt2);
+            b.update(tri.pt3);
         }
         b
     }

@@ -7,7 +7,6 @@ extern crate serde;
 extern crate serde_derive;
 
 mod angle;
-mod bounds;
 mod circle;
 mod gps;
 mod line;
@@ -16,14 +15,13 @@ mod polyline;
 mod pt;
 
 pub use angle::Angle;
-pub use bounds::Bounds;
 pub use circle::Circle;
 use dimensioned::si;
-pub use gps::LonLat;
+pub use gps::{GPSBounds, LonLat};
 pub use line::Line;
 pub use polygon::{Polygon, Triangle};
 pub use polyline::PolyLine;
-pub use pt::{HashablePt2D, Pt2D};
+pub use pt::{Bounds, HashablePt2D, Pt2D};
 use std::marker;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)

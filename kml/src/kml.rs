@@ -1,16 +1,13 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use geom;
+use geom::{GPSBounds, LonLat};
 use map_model;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::fs::File;
 use std::{f64, io};
 
-pub fn load(
-    path: &String,
-    b: &geom::Bounds,
-) -> Result<Vec<map_model::raw_data::Parcel>, io::Error> {
+pub fn load(path: &String, b: &GPSBounds) -> Result<Vec<map_model::raw_data::Parcel>, io::Error> {
     println!("Opening {}", path);
     let f = File::open(path).unwrap();
     let mut reader = Reader::from_reader(io::BufReader::new(f));
@@ -40,10 +37,10 @@ pub fn load(
                         points: Vec::new(),
                         block: 0,
                     };
-                    for pt in text.split(" ") {
-                        if let Some((lon, lat)) = parse_pt(pt) {
-                            if b.contains(lon, lat) {
-                                parcel.points.push(geom::LonLat::new(lon, lat));
+                    for raw_pt in text.split(" ") {
+                        if let Some(pt) = parse_pt(raw_pt) {
+                            if b.contains(pt) {
+                                parcel.points.push(pt);
                             } else {
                                 ok = false;
                             }
@@ -69,13 +66,13 @@ pub fn load(
     return Ok(parcels);
 }
 
-fn parse_pt(input: &str) -> Option<(f64, f64)> {
+fn parse_pt(input: &str) -> Option<LonLat> {
     let coords: Vec<&str> = input.split(",").collect();
     if coords.len() != 2 {
         return None;
     }
     return match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
-        (Ok(lon), Ok(lat)) => Some((lon, lat)),
+        (Ok(lon), Ok(lat)) => Some(LonLat::new(lon, lat)),
         _ => None,
     };
 }

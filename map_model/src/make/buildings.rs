@@ -1,6 +1,6 @@
 use abstutil::Timer;
 use dimensioned::si;
-use geom::{Bounds, HashablePt2D, Line, PolyLine, Pt2D};
+use geom::{Bounds, GPSBounds, HashablePt2D, Line, PolyLine, Pt2D};
 use make::sidewalk_finder::find_sidewalk_points;
 use raw_data;
 use std::collections::HashSet;
@@ -9,7 +9,7 @@ use {Building, BuildingID, FrontPath, Lane};
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
     input: &Vec<raw_data::Building>,
-    gps_bounds: &Bounds,
+    gps_bounds: &GPSBounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
     timer: &mut Timer,

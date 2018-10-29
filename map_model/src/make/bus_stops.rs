@@ -1,6 +1,6 @@
 use abstutil::Timer;
 use dimensioned::si;
-use geom::{Bounds, HashablePt2D, Pt2D};
+use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
 use make::sidewalk_finder::find_sidewalk_points;
 use multimap::MultiMap;
@@ -13,7 +13,7 @@ pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
     roads: &Vec<Road>,
     bus_routes: &Vec<gtfs::Route>,
-    gps_bounds: &Bounds,
+    gps_bounds: &GPSBounds,
     bounds: &Bounds,
     timer: &mut Timer,
 ) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {

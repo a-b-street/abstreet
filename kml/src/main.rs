@@ -18,11 +18,11 @@ fn main() {
     }
 
     // TODO don't hardcode
-    let bounds = geom::Bounds {
-        min_x: -122.4416,
-        max_x: -122.2421,
-        min_y: 47.5793,
-        max_y: 47.7155,
+    let bounds = geom::GPSBounds {
+        min_lon: -122.4416,
+        max_lon: -122.2421,
+        min_lat: 47.5793,
+        max_lat: 47.7155,
         represents_world_space: false,
     };
     // TODO could use a better output format now

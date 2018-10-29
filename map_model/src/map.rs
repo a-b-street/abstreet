@@ -3,7 +3,7 @@
 use abstutil;
 use abstutil::{Error, Timer};
 use edits::RoadEdits;
-use geom::{Bounds, HashablePt2D, LonLat, PolyLine, Pt2D};
+use geom::{Bounds, GPSBounds, HashablePt2D, LonLat, PolyLine, Pt2D};
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -26,8 +26,8 @@ pub struct Map {
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,
 
-    // TODO maybe dont need to retain GPS stuff later
-    gps_bounds: Bounds,
+    gps_bounds: GPSBounds,
+    bounds: Bounds,
 
     name: String,
     road_edits: RoadEdits,
@@ -57,11 +57,24 @@ impl Map {
     ) -> Map {
         timer.start("raw_map to Map");
         let gps_bounds = data.get_gps_bounds();
-        let bounds = gps_to_map_bounds(&gps_bounds);
+
+        let bounds = {
+            // min_y here due to the wacky y inversion
+            let max_screen_pt = Pt2D::from_gps(
+                LonLat::new(gps_bounds.max_lon, gps_bounds.min_lat),
+                &gps_bounds,
+            ).unwrap();
+            let mut b = Bounds::new();
+            b.update(Pt2D::new(0.0, 0.0));
+            b.update(max_screen_pt);
+            b
+        };
+
         let mut m = Map {
             name,
             road_edits,
-            gps_bounds,
+            gps_bounds: gps_bounds.clone(),
+            bounds: bounds.clone(),
             roads: Vec::new(),
             lanes: Vec::new(),
             intersections: Vec::new(),
@@ -412,12 +425,12 @@ impl Map {
     }
 
     // TODO can we return a borrow?
-    pub fn get_gps_bounds(&self) -> Bounds {
+    pub fn get_gps_bounds(&self) -> GPSBounds {
         self.gps_bounds.clone()
     }
 
     pub fn get_bounds(&self) -> Bounds {
-        gps_to_map_bounds(&self.gps_bounds)
+        self.bounds.clone()
     }
 
     pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
@@ -490,13 +503,4 @@ impl Map {
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);
     }
-}
-
-fn gps_to_map_bounds(gps: &Bounds) -> Bounds {
-    // min_y here due to the wacky y inversion
-    let max_screen_pt = Pt2D::from_gps(LonLat::new(gps.max_x, gps.min_y), gps).unwrap();
-    let mut b = Bounds::new();
-    b.update_pt(Pt2D::new(0.0, 0.0));
-    b.update_pt(max_screen_pt);
-    b
 }

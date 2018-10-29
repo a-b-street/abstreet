@@ -55,8 +55,8 @@ impl Renderable for DrawBuilding {
 
     fn get_bounds(&self) -> Bounds {
         let mut b = self.fill_polygon.get_bounds();
-        b.update_pt(self.front_path.pt1());
-        b.update_pt(self.front_path.pt2());
+        b.update(self.front_path.pt1());
+        b.update(self.front_path.pt2());
         b
     }
 

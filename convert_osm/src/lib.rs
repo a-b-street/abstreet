@@ -24,7 +24,6 @@ mod split_ways;
 mod srtm;
 mod traffic_signals;
 
-use geom::LonLat;
 use map_model::raw_data;
 use ordered_float::NotNaN;
 use srtm::Elevation;
@@ -71,7 +70,7 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
     let raw_map = osm::osm_to_raw_roads(&flags.osm);
     let mut map = split_ways::split_up_roads(&raw_map, &elevation);
     remove_disconnected::remove_disconnected_roads(&mut map);
-    let bounds = map.get_gps_bounds();
+    let gps_bounds = map.get_gps_bounds();
 
     println!("Loading parcels from {}", flags.parcels);
     let parcels_map: raw_data::Map =
@@ -83,21 +82,20 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
     for p in parcels_map.parcels {
         if p.points
             .iter()
-            .find(|pt| !bounds.contains(pt.longitude, pt.latitude))
+            .find(|pt| !gps_bounds.contains(**pt))
             .is_none()
         {
             map.parcels.push(p);
         }
     }
-    group_parcels::group_parcels(&bounds, &mut map.parcels);
+    group_parcels::group_parcels(&gps_bounds, &mut map.parcels);
 
-    for coord in
-        &traffic_signals::extract(&flags.traffic_signals).expect("loading traffic signals failed")
+    for pt in traffic_signals::extract(&flags.traffic_signals)
+        .expect("loading traffic signals failed")
+        .into_iter()
     {
-        if bounds.contains(coord.longitude, coord.latitude) {
-            let distance = |i: &raw_data::Intersection| {
-                coord.gps_dist_meters(LonLat::new(i.point.longitude, i.point.latitude))
-            };
+        if gps_bounds.contains(pt) {
+            let distance = |i: &raw_data::Intersection| pt.gps_dist_meters(i.point);
 
             // TODO use a quadtree or some better way to match signals to the closest
             // intersection
@@ -124,7 +122,7 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
         .to_os_string()
         .into_string()
         .unwrap();
-    neighborhoods::convert(&flags.neighborhoods, map_name, &bounds);
+    neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
 
     timer.done();
 

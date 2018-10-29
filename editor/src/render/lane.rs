@@ -171,7 +171,7 @@ impl Renderable for DrawLane {
                 map.get_source_intersection(self.id).elevation,
                 map.get_destination_intersection(self.id).elevation,
             ),
-            format!("Lane is {}m long", l.length()),
+            format!("Lane is {} long", l.length()),
         ];
         for (k, v) in &r.osm_tags {
             lines.push(format!("{} = {}", k, v));

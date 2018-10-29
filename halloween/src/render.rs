@@ -141,8 +141,8 @@ impl DrawBuilding {
     fn get_bounds(&self) -> Bounds {
         // The bbox only shrinks; the original position is the worst case.
         let mut b = self.polygon.get_bounds();
-        b.update_pt(self.line.pt1());
-        b.update_pt(self.line.pt2());
+        b.update(self.line.pt1());
+        b.update(self.line.pt2());
         b
     }
 }

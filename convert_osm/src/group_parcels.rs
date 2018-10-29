@@ -2,16 +2,16 @@ use aabb_quadtree::geom::Rect;
 use aabb_quadtree::QuadTree;
 use abstutil::MultiMap;
 use geo;
-use geom::{Bounds, LonLat};
+use geom::{GPSBounds, LonLat};
 use map_model::raw_data;
 use std::collections::BTreeSet;
 
 // Slight cheat
 type ParcelIdx = usize;
 
-pub fn group_parcels(map_bounds: &Bounds, parcels: &mut Vec<raw_data::Parcel>) {
+pub fn group_parcels(gps_bounds: &GPSBounds, parcels: &mut Vec<raw_data::Parcel>) {
     // Make a quadtree to quickly prune intersections between parcels
-    let mut quadtree = QuadTree::default(map_bounds.as_bbox());
+    let mut quadtree = QuadTree::default(gps_bounds.as_bbox());
     for (idx, p) in parcels.iter().enumerate() {
         quadtree.insert_with_box(idx, get_bbox(&p.points));
     }
@@ -107,9 +107,9 @@ fn polygons_intersect(pts1: &Vec<LonLat>, pts2: &Vec<LonLat>) -> bool {
 }
 
 fn get_bbox(pts: &Vec<LonLat>) -> Rect {
-    let mut b = Bounds::new();
-    for p in pts.iter() {
-        b.update(p.longitude, p.latitude);
+    let mut b = GPSBounds::new();
+    for pt in pts.iter() {
+        b.update(*pt)
     }
     b.as_bbox()
 }

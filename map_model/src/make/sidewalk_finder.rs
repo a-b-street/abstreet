@@ -88,7 +88,7 @@ fn lane_to_line_string(l: &Lane) -> geo::LineString<f64> {
 fn lane_to_rect(l: &Lane) -> Rect {
     let mut b = Bounds::new();
     for pt in l.lane_center_pts.points() {
-        b.update_pt(*pt);
+        b.update(*pt);
     }
     b.as_bbox()
 }
