@@ -35,10 +35,7 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, road_edits: RoadEdits, timer: &mut Timer) -> Result<Map, io::Error> {
-        // TODO use read_binary's timer magic, not this
-        timer.start("read raw_data");
-        let data: raw_data::Map = abstutil::read_binary(path)?;
-        timer.stop("read raw_data");
+        let data: raw_data::Map = abstutil::read_binary(path, timer)?;
         Ok(Map::create_from_raw(
             path::Path::new(path)
                 .file_stem()
@@ -228,7 +225,7 @@ impl Map {
             });
         }
 
-        m.bus_routes = make::verify_bus_routes(&m, routes);
+        m.bus_routes = make::verify_bus_routes(&m, routes, timer);
 
         timer.stop("raw_map to Map");
         m

@@ -151,4 +151,9 @@ impl Timer {
             self.stack.pop();
         }
     }
+
+    pub(crate) fn add_file_reader_result(&mut self, line: String) {
+        self.results
+            .push(format!("{} - {}", "  ".repeat(self.stack.len()), line));
+    }
 }

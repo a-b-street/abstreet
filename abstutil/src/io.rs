@@ -10,7 +10,7 @@ use std::hash::Hash;
 use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
 use std::path::Path;
 use std::time::Instant;
-use {elapsed_seconds, PROGRESS_FREQUENCY_SECONDS};
+use {elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
@@ -46,8 +46,9 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     serde_cbor::to_writer(&mut file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
-pub fn read_binary<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
+pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     let reader = FileWithProgress::new(path)?;
+    timer.add_file_reader_result(reader.get_timer_result());
     let obj: T =
         serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
@@ -193,6 +194,15 @@ impl FileWithProgress {
             started_at: Instant::now(),
             last_printed_at: Instant::now(),
         })
+    }
+
+    fn get_timer_result(&self) -> String {
+        format!(
+            "Reading {} ({} MB)... {}s",
+            self.path,
+            self.total_bytes / 1024 / 1024,
+            elapsed_seconds(self.started_at)
+        )
     }
 }
 

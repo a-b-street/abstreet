@@ -58,10 +58,10 @@ pub fn load(
         )).unwrap();
 
         // Try loading the pre-baked map first
-        let map: Map = abstutil::read_binary(&format!(
-            "../data/maps/{}_{}.abst",
-            sim.map_name, sim.edits_name
-        )).unwrap_or_else(|_| {
+        let map: Map = abstutil::read_binary(
+            &format!("../data/maps/{}_{}.abst", sim.map_name, sim.edits_name),
+            timer,
+        ).unwrap_or_else(|_| {
             let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
             Map::new(&map_path, edits.road_edits.clone(), timer)
                 .expect(&format!("Couldn't load map from {}", map_path))
@@ -75,10 +75,13 @@ pub fn load(
         let edits = load_edits(&scenario.map_name, &flags);
 
         // Try loading the pre-baked map first
-        let map: Map = abstutil::read_binary(&format!(
-            "../data/maps/{}_{}.abst",
-            scenario.map_name, edits.edits_name
-        )).unwrap_or_else(|_| {
+        let map: Map = abstutil::read_binary(
+            &format!(
+                "../data/maps/{}_{}.abst",
+                scenario.map_name, edits.edits_name
+            ),
+            timer,
+        ).unwrap_or_else(|_| {
             let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
             Map::new(&map_path, edits.road_edits.clone(), timer)
                 .expect(&format!("Couldn't load map from {}", map_path))
@@ -113,10 +116,7 @@ pub fn load(
         assert_eq!(flags.edits_name, "no_edits");
 
         info!("Loading map {}", flags.load);
-        // TODO dont do this
-        timer.start("load binary map");
-        let map: Map = abstutil::read_binary(&flags.load).expect("Couldn't load map");
-        timer.stop("load binary map");
+        let map: Map = abstutil::read_binary(&flags.load, timer).expect("Couldn't load map");
         // TODO Bit sad to load edits to reconstitute ControlMap, but this is necessary right now
         let edits: MapEdits = abstutil::read_json(&format!(
             "../data/edits/{}/{}.json",

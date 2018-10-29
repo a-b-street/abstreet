@@ -102,10 +102,12 @@ pub fn make_bus_stops(
     (bus_stops, routes)
 }
 
-pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>) -> Vec<BusRoute> {
+pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) -> Vec<BusRoute> {
+    timer.start_iter("verify bus routes are connected", routes.len());
     routes
         .into_iter()
         .filter(|r| {
+            timer.next();
             let mut ok = true;
             for (stop1, stop2) in r
                 .stops
