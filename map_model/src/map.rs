@@ -3,7 +3,7 @@
 use abstutil;
 use abstutil::{Error, Timer};
 use edits::RoadEdits;
-use geom::{Bounds, GPSBounds, HashablePt2D, LonLat, PolyLine, Pt2D};
+use geom::{Bounds, GPSBounds, HashablePt2D, PolyLine, Pt2D};
 use make;
 use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -59,14 +59,9 @@ impl Map {
         let gps_bounds = data.get_gps_bounds();
 
         let bounds = {
-            // min_y here due to the wacky y inversion
-            let max_screen_pt = Pt2D::from_gps(
-                LonLat::new(gps_bounds.max_lon, gps_bounds.min_lat),
-                &gps_bounds,
-            ).unwrap();
             let mut b = Bounds::new();
             b.update(Pt2D::new(0.0, 0.0));
-            b.update(max_screen_pt);
+            b.update(gps_bounds.get_max_world_pt());
             b
         };
 

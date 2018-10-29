@@ -98,6 +98,11 @@ impl Neighborhood {
             let gps = pt.to_gps(gps_bounds);
             write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
         }
+        // Have to repeat the first point
+        {
+            let gps = self.points[0].to_gps(gps_bounds);
+            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
+        }
         write!(f, "END\n");
         write!(f, "END\n");
 

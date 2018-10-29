@@ -1,6 +1,6 @@
 # Physics-related design notes
 
-## Floating point and units ##
+## Floating point and units
 
 Currently using si::Second<f64> for time, which means comparing sim state by
 deriving Eq is a headache. Since the timestep size is fixed anyway, this should
@@ -64,3 +64,8 @@ Options:
 - acceleration
 	- can be negative
 	- what should the resolution be?
+
+## Coordinate system
+
+Switching to something that's more easily bijective, but
+https://crates.io/crates/flat_projection could be a good candidate too.

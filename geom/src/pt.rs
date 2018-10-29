@@ -39,21 +39,27 @@ impl Pt2D {
             return None;
         }
 
-        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
-        let base = LonLat::new(b.min_lon, b.max_lat);
+        let (width, height) = {
+            let pt = b.get_max_world_pt();
+            (pt.x, pt.y)
+        };
 
-        // Apparently the aabb_quadtree can't handle 0, so add a bit.
-        // TODO epsilon or epsilon - 1.0?
-        let dx = base.gps_dist_meters(LonLat::new(gps.longitude, base.latitude)) + f64::EPSILON;
-        let dy = base.gps_dist_meters(LonLat::new(base.longitude, gps.latitude)) + f64::EPSILON;
-        // By default, 1 meter is one pixel. Normal zooming can change that. If we did scaling here,
-        // then we'd have to update all of the other constants too.
-        Some(Pt2D::new(dx, dy))
+        let x = (gps.longitude - b.min_lon) / (b.max_lon - b.min_lon) * width;
+        // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
+        let y = height - ((gps.latitude - b.min_lat) / (b.max_lat - b.min_lat) * height);
+        Some(Pt2D::new(x, y))
     }
 
-    pub fn to_gps(&self, _gps_bounds: &GPSBounds) -> LonLat {
-        // TODO wait, this is going to be more complicated
-        LonLat::new(0.0, 0.0)
+    pub fn to_gps(&self, b: &GPSBounds) -> LonLat {
+        let (width, height) = {
+            let pt = b.get_max_world_pt();
+            (pt.x, pt.y)
+        };
+
+        let lon = (self.x / width * (b.max_lon - b.min_lon)) + b.min_lon;
+        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y) / height);
+
+        LonLat::new(lon, lat)
     }
 
     pub fn x(&self) -> f64 {

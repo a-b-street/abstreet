@@ -1,6 +1,6 @@
 use aabb_quadtree::geom::{Point, Rect};
 use std::f64;
-use HashablePt2D;
+use {HashablePt2D, Pt2D};
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -42,10 +42,10 @@ impl LonLat {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GPSBounds {
-    pub min_lon: f64,
-    pub min_lat: f64,
-    pub max_lon: f64,
-    pub max_lat: f64,
+    pub(crate) min_lon: f64,
+    pub(crate) min_lat: f64,
+    pub(crate) max_lon: f64,
+    pub(crate) max_lat: f64,
 
     // TODO hack to easily construct test maps
     pub represents_world_space: bool,
@@ -87,5 +87,14 @@ impl GPSBounds {
                 y: self.max_lat as f32,
             },
         }
+    }
+
+    // TODO cache this
+    pub fn get_max_world_pt(&self) -> Pt2D {
+        let width = LonLat::new(self.min_lon, self.min_lat)
+            .gps_dist_meters(LonLat::new(self.max_lon, self.min_lat));
+        let height = LonLat::new(self.min_lon, self.min_lat)
+            .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
+        Pt2D::new(width, height)
     }
 }
