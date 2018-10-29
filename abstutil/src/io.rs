@@ -7,7 +7,7 @@ use std;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::hash::Hash;
-use std::io::{stdout, BufReader, Error, ErrorKind, Read, Write};
+use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 use std::time::Instant;
 use {elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
@@ -42,7 +42,7 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
-    let mut file = File::create(path)?;
+    let mut file = BufWriter::new(File::create(path)?);
     serde_cbor::to_writer(&mut file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
