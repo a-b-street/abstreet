@@ -231,8 +231,7 @@ impl PluginsPerMap {
 
 impl PerMapUI {
     pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
-        let mut timer = abstutil::Timer::new();
-        timer.start("PerMapUI setup");
+        let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, control_map, sim) =
             sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)), &mut timer);
@@ -251,7 +250,6 @@ impl PerMapUI {
         let neighborhood_summary =
             plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &draw_map, &mut timer);
 
-        timer.stop("PerMapUI setup");
         timer.done();
 
         let state = PerMapUI {

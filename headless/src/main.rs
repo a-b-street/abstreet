@@ -38,7 +38,7 @@ fn main() {
 
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
-    let mut timer = Timer::new();
+    let mut timer = Timer::new("setup headless");
     let (map, control_map, mut sim) = sim::load(
         flags.sim_flags,
         Some(sim::Tick::from_seconds(30)),

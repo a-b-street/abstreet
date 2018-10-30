@@ -37,7 +37,11 @@ struct UI {
 
 impl UI {
     fn new(flags: Flags) -> UI {
-        let map = Map::new(&flags.load_map, RoadEdits::new(), &mut Timer::new()).unwrap();
+        let map = Map::new(
+            &flags.load_map,
+            RoadEdits::new(),
+            &mut Timer::new("load map for Halloween"),
+        ).unwrap();
         UI {
             canvas: Canvas::new(),
             draw_map: DrawMap::new(map),

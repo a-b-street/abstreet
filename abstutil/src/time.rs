@@ -38,10 +38,7 @@ impl Progress {
 
         if self.processed_items == self.total_items {
             let elapsed = elapsed_seconds(self.started_at);
-            let line = format!(
-                "{}: {}/{}... {}s",
-                self.label, self.processed_items, self.total_items, elapsed
-            );
+            let line = format!("{} ({})... {}s", self.label, self.total_items, elapsed);
             // TODO blank till end of current line
             println!("\r{}", line);
             return Some((elapsed, line));
@@ -70,6 +67,8 @@ enum StackEntry {
 pub struct Timer {
     results: Vec<String>,
     stack: Vec<StackEntry>,
+
+    outermost_name: String,
 }
 
 struct TimerSpan {
@@ -80,14 +79,19 @@ struct TimerSpan {
 }
 
 impl Timer {
-    pub fn new() -> Timer {
-        Timer {
+    pub fn new(name: String) -> Timer {
+        let mut t = Timer {
             results: Vec::new(),
             stack: Vec::new(),
-        }
+            outermost_name: name.clone(),
+        };
+        t.start(&name);
+        t
     }
 
-    pub fn done(self) {
+    pub fn done(mut self) {
+        let stop_name = self.outermost_name.clone();
+        self.stop(&stop_name);
         assert!(self.stack.is_empty());
         println!("");
         for line in self.results {
