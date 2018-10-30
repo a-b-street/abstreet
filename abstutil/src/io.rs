@@ -47,24 +47,10 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
-    let reader = FileWithProgress::new(path)?;
-    let total_bytes = reader.total_bytes;
-
-    // Have to separately measure time here, since reader gets consumed.
-    let start = Instant::now();
+    let (reader, done) = FileWithProgress::new(path)?;
     let obj: T =
         serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
-    let elapsed = elapsed_seconds(start);
-    timer.add_result(
-        elapsed,
-        format!(
-            "Reading {} ({} MB)... {}s",
-            path,
-            total_bytes / 1024 / 1024,
-            elapsed
-        ),
-    );
-
+    done(timer);
     Ok(obj)
 }
 
@@ -186,7 +172,7 @@ pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj:
     println!("Saved {}", path);
 }
 
-struct FileWithProgress {
+pub struct FileWithProgress {
     inner: BufReader<File>,
 
     path: String,
@@ -197,17 +183,36 @@ struct FileWithProgress {
 }
 
 impl FileWithProgress {
-    pub fn new(path: &str) -> Result<FileWithProgress, Error> {
+    // Also hands back a callback that'll add the final result to the timer. The caller must run
+    // it.
+    // TODO It's really a FnOnce, but I don't understand the compiler error.
+    pub fn new(path: &str) -> Result<(FileWithProgress, Box<Fn(&mut Timer)>), Error> {
         let file = File::open(path)?;
+        let path_copy = path.to_string();
         let total_bytes = file.metadata()?.len() as usize;
-        Ok(FileWithProgress {
-            inner: BufReader::new(file),
-            path: path.to_string(),
-            processed_bytes: 0,
-            total_bytes,
-            started_at: Instant::now(),
-            last_printed_at: Instant::now(),
-        })
+        let start = Instant::now();
+        Ok((
+            FileWithProgress {
+                inner: BufReader::new(file),
+                path: path.to_string(),
+                processed_bytes: 0,
+                total_bytes,
+                started_at: start,
+                last_printed_at: start,
+            },
+            Box::new(move |ref mut timer| {
+                let elapsed = elapsed_seconds(start);
+                timer.add_result(
+                    elapsed,
+                    format!(
+                        "Reading {} ({} MB)... {}s",
+                        path_copy,
+                        total_bytes / 1024 / 1024,
+                        elapsed
+                    ),
+                );
+            }),
+        ))
     }
 }
 

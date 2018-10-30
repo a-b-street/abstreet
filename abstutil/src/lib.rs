@@ -18,7 +18,7 @@ pub use error::Error;
 pub use io::{
     deserialize_btreemap, deserialize_multimap, list_all_objects, load_all_objects, read_binary,
     read_json, save_object, serialize_btreemap, serialize_multimap, to_json, write_binary,
-    write_json,
+    write_json, FileWithProgress,
 };
 pub use logs::{format_log_record, LogAdapter};
 pub use time::{elapsed_seconds, Timer};

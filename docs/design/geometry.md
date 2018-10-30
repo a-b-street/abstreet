@@ -27,6 +27,26 @@ morning thoughts!
 - the ascending angle and skipping existing lines in the thesis seems to make sense
 - find where infinite line intersects line segment for some cases?
 
+### Fresh look
+
+Problems right now:
+- i28: on a simple 4-way, sidewalk polygons both overlap and leave a little bit of gap space
+	- fig1: could trim back, but would want to later add back the corners for sidewalks.
+	- fig2: embrace overlap of sidewalks at corners
+		- dont worry about agents on sidewalks overlapping
+
+	- just draw entire block's curb, just for rendering, not logical center sidewalk lines?
+		- TODO check sources to see if any have this
+- i52: on a 4-way at a slant, road endings are very jagged
+
+
+- thoughts on trim lines
+	- need to run it in playground step-by-step
+	- fig 3: almost want to think about matching up equivalent lanes on adjacent half-roads
+		- trim adjacent sidewalks, then adjacent parking lanes, ...
+		- but maybe this looks very weird, and sidewalks are the exception
+
+
 ## Basic geometric types
 
 Not aiming to get it right forever, just improving the mess now.

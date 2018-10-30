@@ -1,8 +1,8 @@
+use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, LonLat, PolyLine, Pt2D};
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::collections::BTreeMap;
-use std::fs::File;
 use std::{f64, fmt, io};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -27,14 +27,18 @@ pub enum ExtraShapeGeom {
     Points(PolyLine),
 }
 
-pub fn load(path: &String, gps_bounds: &GPSBounds) -> Result<Vec<ExtraShape>, io::Error> {
+pub fn load(
+    path: &str,
+    gps_bounds: &GPSBounds,
+    timer: &mut Timer,
+) -> Result<Vec<ExtraShape>, io::Error> {
     info!("Opening {}", path);
-    let f = File::open(path).unwrap();
+    let (f, done) = FileWithProgress::new(path)?;
+    // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
     let mut reader = Reader::from_reader(io::BufReader::new(f));
     reader.trim_text(true);
 
     let mut buf = Vec::new();
-    let mut last_progress_byte = 0;
 
     // TODO uncomfortably stateful
     let mut shapes = Vec::new();
@@ -45,14 +49,6 @@ pub fn load(path: &String, gps_bounds: &GPSBounds) -> Result<Vec<ExtraShape>, io
     let mut skipped_count = 0;
 
     loop {
-        if reader.buffer_position() - last_progress_byte >= 1024 * 1024 * 10 {
-            last_progress_byte = reader.buffer_position();
-            info!(
-                "Processed {} MB of {}",
-                last_progress_byte / (1024 * 1024),
-                path
-            );
-        }
         match reader.read_event(&mut buf) {
             Ok(Event::Start(e)) => {
                 let name = e.unescape_and_decode(&reader).unwrap();
@@ -119,6 +115,7 @@ pub fn load(path: &String, gps_bounds: &GPSBounds) -> Result<Vec<ExtraShape>, io
         path,
         skipped_count
     );
+    done(timer);
     return Ok(shapes);
 }
 

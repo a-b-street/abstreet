@@ -237,7 +237,8 @@ impl PerMapUI {
         let (map, control_map, sim) =
             sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)), &mut timer);
         let extra_shapes = if let Some(path) = kml {
-            kml::load(&path, &map.get_gps_bounds()).expect("Couldn't load extra KML shapes")
+            kml::load(&path, &map.get_gps_bounds(), &mut timer)
+                .expect("Couldn't load extra KML shapes")
         } else {
             Vec::new()
         };
