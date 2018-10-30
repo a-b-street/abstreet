@@ -1,10 +1,10 @@
-use abstutil::MultiMap;
+use abstutil::{MultiMap, Timer};
 use geom::HashablePt2D;
 use map_model::raw_data;
 use std::collections::HashSet;
 
-pub fn remove_disconnected_roads(map: &mut raw_data::Map) {
-    println!("finding disconnected chunks of road");
+pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
+    timer.start("removing disconnected roads");
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads
 
@@ -66,4 +66,5 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map) {
     // Remove intersections without any roads
     map.intersections
         .retain(|i| !next_roads.get(i.point.to_hashable()).is_empty());
+    timer.stop("removing disconnected roads");
 }

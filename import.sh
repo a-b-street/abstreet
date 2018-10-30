@@ -72,5 +72,5 @@ COMMON="--elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/Tr
 cd convert_osm
 # TODO automatically grab names from polygons
 for map in montlake small_seattle eastlake 23rd; do
-	time cargo run --release -- --osm=../data/input/$map.osm $COMMON --output=../data/raw_maps/$map.abst
+	cargo run --release -- --osm=../data/input/$map.osm $COMMON --output=../data/raw_maps/$map.abst
 done

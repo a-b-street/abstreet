@@ -1,17 +1,14 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil::{FileWithProgress, Timer};
 use geom::LonLat;
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap};
-use std::fs::File;
-use std::io::BufReader;
 
 // TODO Result, but is there an easy way to say io error or osm xml error?
-pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
-    println!("Opening {}", osm_path);
-    let f = File::open(osm_path).unwrap();
-    let reader = BufReader::new(f);
+pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
+    let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
     println!(
         "OSM doc has {} nodes, {} ways, {} relations",
@@ -19,6 +16,7 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
         doc.ways.len(),
         doc.relations.len()
     );
+    done(timer);
 
     // resolve_reference does linear search. Let's, uh, speed that up for nodes.
     let mut id_to_node: HashMap<i64, &osm_xml::Node> = HashMap::new();
@@ -28,11 +26,9 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
 
     let mut id_to_way: HashMap<i64, Vec<LonLat>> = HashMap::new();
     let mut map = raw_data::Map::blank();
-    for (i, way) in doc.ways.iter().enumerate() {
-        // TODO count with a nicer progress bar
-        if i % 1000 == 0 {
-            println!("working on way {}/{}", i, doc.ways.len());
-        }
+    timer.start_iter("processing OSM ways", doc.ways.len());
+    for way in &doc.ways {
+        timer.next();
 
         let mut valid = true;
         let mut pts = Vec::new();
@@ -85,7 +81,9 @@ pub fn osm_to_raw_roads(osm_path: &str) -> raw_data::Map {
         }
     }
 
+    timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in &doc.relations {
+        timer.next();
         let tags = tags_to_map(&rel.tags);
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {

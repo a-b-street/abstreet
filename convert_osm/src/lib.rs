@@ -63,18 +63,16 @@ pub struct Flags {
     pub output: String,
 }
 
-pub fn convert(flags: &Flags) -> raw_data::Map {
-    let mut timer = abstutil::Timer::new();
-
+pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-    let raw_map = osm::osm_to_raw_roads(&flags.osm);
+    let raw_map = osm::osm_to_raw_roads(&flags.osm, timer);
     let mut map = split_ways::split_up_roads(&raw_map, &elevation);
-    remove_disconnected::remove_disconnected_roads(&mut map);
+    remove_disconnected::remove_disconnected_roads(&mut map, timer);
     let gps_bounds = map.get_gps_bounds();
 
     println!("Loading parcels from {}", flags.parcels);
     let parcels_map: raw_data::Map =
-        abstutil::read_binary(&flags.parcels, &mut timer).expect("loading parcels failed");
+        abstutil::read_binary(&flags.parcels, timer).expect("loading parcels failed");
     println!(
         "Finding matching parcels from {} candidates",
         parcels_map.parcels.len()
@@ -123,8 +121,6 @@ pub fn convert(flags: &Flags) -> raw_data::Map {
         .into_string()
         .unwrap();
     neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
-
-    timer.done();
 
     map
 }
