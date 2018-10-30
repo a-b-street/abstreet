@@ -31,7 +31,7 @@ impl ID {
         }
     }
 
-    pub fn debug(&self, map: &Map, control_map: &ControlMap, sim: &mut Sim) {
+    pub fn debug(&self, map: &Map, control_map: &ControlMap, sim: &mut Sim, draw_map: &DrawMap) {
         match *self {
             ID::Lane(id) => {
                 map.get_l(id).dump_debug();
@@ -57,7 +57,11 @@ impl ID {
             ID::Pedestrian(id) => {
                 sim.debug_ped(id);
             }
-            ID::ExtraShape(_) => {}
+            ID::ExtraShape(_) => {
+                for line in draw_map.get_obj(*self).tooltip_lines(map).into_iter() {
+                    println!("{}", line);
+                }
+            }
             ID::Parcel(id) => {
                 map.get_p(id).dump_debug();
             }

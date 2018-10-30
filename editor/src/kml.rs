@@ -132,5 +132,5 @@ fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<Pt2D> {
 
 // TODO only for Street_Signs.kml; this is temporary to explore stuff
 fn is_interesting_sign(attributes: &BTreeMap<String, String>) -> bool {
-    attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
+    true || attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
 }

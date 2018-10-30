@@ -17,15 +17,7 @@ impl DebugObjectsState {
 
 impl Plugin for DebugObjectsState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (selected, input, map, sim, control_map) = (
-            ctx.primary.current_selection,
-            ctx.input,
-            &ctx.primary.map,
-            &mut ctx.primary.sim,
-            &ctx.primary.control_map,
-        );
-
-        let new_state = if let Some(id) = selected {
+        let new_state = if let Some(id) = ctx.primary.current_selection {
             // Don't break out of the tooltip state
             if let DebugObjectsState::Tooltip(_) = self {
                 DebugObjectsState::Tooltip(id)
@@ -41,14 +33,14 @@ impl Plugin for DebugObjectsState {
         match self {
             DebugObjectsState::Empty => {}
             DebugObjectsState::Selected(id) => {
-                if input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id)) {
+                if ctx.input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id)) {
                     new_state = Some(DebugObjectsState::Tooltip(*id));
-                } else if input.key_pressed(Key::D, "debug") {
-                    id.debug(map, control_map, sim);
+                } else if ctx.input.key_pressed(Key::D, "debug") {
+                    id.debug(&ctx.primary.map, &ctx.primary.control_map, &mut ctx.primary.sim, &ctx.primary.draw_map);
                 }
             }
             DebugObjectsState::Tooltip(id) => {
-                if input.key_released(Key::LCtrl) {
+                if ctx.input.key_released(Key::LCtrl) {
                     new_state = Some(DebugObjectsState::Selected(*id));
                 }
             }
