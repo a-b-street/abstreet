@@ -16,9 +16,11 @@ fn main() {
 
     let flags = SimFlags::from_args();
     let mut timer = Timer::new();
+    timer.start("precompute map");
     let (map, _, _) = sim::load(flags, None, &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");
+    timer.stop("precompute map");
     timer.done();
 }

@@ -46,15 +46,6 @@ if [ ! -f data/input/Seattle.osm ]; then
 	gunzip data/input/Seattle.osm.gz;
 fi
 
-# TODO could be more declarative... list bbox or polygon, then name of slice
-if [ ! -f data/input/small_seattle.osm ]; then
-	osmosis --read-xml enableDateParsing=no file=data/input/Seattle.osm --bounding-box left=-122.4416 bottom=47.5793 right=-122.2421 top=47.7155 --write-xml data/input/small_seattle.osm
-fi
-
-if [ ! -f data/input/montlake.osm ]; then
-	osmosis --read-xml enableDateParsing=no file=data/input/Seattle.osm --bounding-box left=-122.3218 bottom=47.6323 right=-122.2985 top=47.6475 --write-xml data/input/montlake.osm
-fi
-
 for poly in `ls data/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ ! -f data/input/$name.osm ]; then
@@ -70,7 +61,7 @@ fi
 
 COMMON="--elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/TrafficSignals.shp --parcels=../data/seattle_parcels.abst --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson"
 cd convert_osm
-# TODO automatically grab names from polygons
-for map in montlake small_seattle eastlake 23rd; do
-	cargo run --release -- --osm=../data/input/$map.osm $COMMON --output=../data/raw_maps/$map.abst
+for poly in `ls ../data/polygons/`; do
+	name=`basename -s .poly $poly`;
+	cargo run --release -- --osm=../data/input/$name.osm $COMMON --output=../data/raw_maps/$name.abst
 done
