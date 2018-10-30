@@ -7,7 +7,7 @@ use structopt::StructOpt;
 
 fn main() {
     let flags = Flags::from_args();
-    let mut timer = abstutil::Timer::new(format!("generate {}", flags.output));
+    let mut timer = abstutil::Timer::new(&format!("generate {}", flags.output));
     let map = convert(&flags, &mut timer);
     println!("writing to {}", flags.output);
     timer.start("saving map");

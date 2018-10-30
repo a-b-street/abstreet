@@ -79,13 +79,13 @@ struct TimerSpan {
 }
 
 impl Timer {
-    pub fn new(name: String) -> Timer {
+    pub fn new(name: &str) -> Timer {
         let mut t = Timer {
             results: Vec::new(),
             stack: Vec::new(),
-            outermost_name: name.clone(),
+            outermost_name: name.to_string(),
         };
-        t.start(&name);
+        t.start(name);
         t
     }
 

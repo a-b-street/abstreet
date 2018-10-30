@@ -15,7 +15,7 @@ fn main() {
     log::set_logger(&LOG_ADAPTER).unwrap();
 
     let flags = SimFlags::from_args();
-    let mut timer = Timer::new(format!(
+    let mut timer = Timer::new(&format!(
         "precompute {} with {}",
         flags.load, flags.edits_name
     ));
