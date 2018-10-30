@@ -1,7 +1,7 @@
 use dimensioned::si;
 use std::f64;
 use std::fmt;
-use {line_intersection, Angle, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
+use {line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
@@ -336,6 +336,14 @@ impl PolyLine {
             }
         }
         None
+    }
+
+    pub fn get_bounds(&self) -> Bounds {
+        let mut b = Bounds::new();
+        for pt in &self.pts {
+            b.update(*pt);
+        }
+        b
     }
 }
 

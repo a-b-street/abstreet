@@ -47,6 +47,18 @@ Problems right now:
 		- but maybe this looks very weird, and sidewalks are the exception
 
 
+
+
+afternoon idea:
+- start with entire roads and the giant thick polygons
+- just find the intersection of all those big polygons
+
+- almost like a loop:
+	- trim back yellow center lines, compute giant road band, see if there's intersection
+	- then figure out the lane geometry WITHIN the constraint of the big road band
+- probably doesnt have to be a fixed point loop. what if we just trim lines based on the outermost lines of all the roads? and then based on how much length we removed there, reduce the original yellow center lines. at some angles this is exactly the same. at others, it's probably different -- is there a specific relation we can figure out?
+
+
 ## Basic geometric types
 
 Not aiming to get it right forever, just improving the mess now.

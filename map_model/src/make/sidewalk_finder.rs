@@ -30,7 +30,10 @@ pub fn find_sidewalk_points(
         timer.next();
         if l.is_sidewalk() {
             lane_lines.push((l.id, lane_to_line_string(l)));
-            lane_lines_quadtree.insert_with_box(lane_lines.len() - 1, lane_to_rect(l));
+            lane_lines_quadtree.insert_with_box(
+                lane_lines.len() - 1,
+                l.lane_center_pts.get_bounds().as_bbox(),
+            );
         }
     }
 
@@ -83,12 +86,4 @@ fn lane_to_line_string(l: &Lane) -> geo::LineString<f64> {
         .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();
     pts.into()
-}
-
-fn lane_to_rect(l: &Lane) -> Rect {
-    let mut b = Bounds::new();
-    for pt in l.lane_center_pts.points() {
-        b.update(*pt);
-    }
-    b.as_bbox()
 }
