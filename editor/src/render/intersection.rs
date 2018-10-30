@@ -2,7 +2,7 @@
 
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Intersection, IntersectionID, LaneType, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{DrawLane, RenderOptions, Renderable};
@@ -49,10 +49,9 @@ impl DrawIntersection {
     }
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: Ctx) {
-        // TODO rotate it
         g.draw_polygon(
             ctx.cs.get("stop sign background", Color::RED),
-            &Polygon::regular_polygon(self.center, 8, 1.5),
+            &Polygon::regular_polygon(self.center, 8, 1.5, Angle::new_degs(360.0 / 16.0)),
         );
         // TODO draw "STOP"
     }

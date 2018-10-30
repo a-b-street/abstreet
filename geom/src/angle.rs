@@ -11,6 +11,10 @@ impl Angle {
         Angle(rads)
     }
 
+    pub fn new_degs(degs: f64) -> Angle {
+        Angle(degs.to_radians())
+    }
+
     pub fn opposite(&self) -> Angle {
         Angle(self.0 + f64::consts::PI)
     }

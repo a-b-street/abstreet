@@ -1,5 +1,5 @@
 use std::f64;
-use {Bounds, Pt2D};
+use {Angle, Bounds, Pt2D};
 
 #[derive(Debug)]
 pub struct Polygon {
@@ -128,18 +128,28 @@ impl Polygon {
         points
     }
 
-    pub fn regular_polygon(center: Pt2D, sides: usize, length: f64) -> Polygon {
+    pub fn regular_polygon(center: Pt2D, sides: usize, length: f64, rotation: Angle) -> Polygon {
+        use geo::algorithm::rotate::Rotate;
+        use geo::{LineString, Point};
+
         let mut pts = Vec::new();
         for i in 0..sides {
             let theta = (i as f64) * 2.0 * f64::consts::PI / (sides as f64);
-            pts.push(Pt2D::new(
+            pts.push(Point::new(
                 length * theta.cos() + center.x(),
                 length * theta.sin() + center.y(),
             ));
         }
         let first_pt = pts[0];
         pts.push(first_pt);
-        Polygon::new(&pts)
+        let rotated = LineString::from(pts).rotate(rotation.normalized_degrees());
+        Polygon::new(
+            &rotated
+                .into_points()
+                .into_iter()
+                .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                .collect(),
+        )
     }
 }
 
