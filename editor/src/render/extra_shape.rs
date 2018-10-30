@@ -1,3 +1,4 @@
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
@@ -28,7 +29,10 @@ impl DrawExtraShape {
                     Shape::Circle(Circle::new(pt, EXTRA_SHAPE_POINT_RADIUS))
                 }
                 ExtraShapeGeom::Points(pl) => {
-                    Shape::Polygon(pl.make_polygons(EXTRA_SHAPE_THICKNESS).unwrap())
+                    let width = get_sidewalk_width(&s.attributes)
+                        .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
+                        .value_unsafe;
+                    Shape::Polygon(pl.make_polygons(width).unwrap())
                 }
             },
             attributes: s.attributes,
@@ -82,4 +86,18 @@ impl Renderable for DrawExtraShape {
         }
         lines
     }
+}
+
+// See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Sidewalks_OD.pdf
+fn get_sidewalk_width(attribs: &BTreeMap<String, String>) -> Option<si::Meter<f64>> {
+    let meters_per_inch = 0.0254;
+    let base_width = attribs
+        .get("SW_WIDTH")
+        .and_then(|s| s.parse::<f64>().ok())
+        .map(|inches| inches * meters_per_inch * si::M)?;
+    let filler_width = attribs
+        .get("FILLERWID")
+        .and_then(|s| s.parse::<f64>().ok())
+        .map(|inches| inches * meters_per_inch * si::M)?;
+    Some(base_width + filler_width)
 }

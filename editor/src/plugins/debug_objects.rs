@@ -33,10 +33,18 @@ impl Plugin for DebugObjectsState {
         match self {
             DebugObjectsState::Empty => {}
             DebugObjectsState::Selected(id) => {
-                if ctx.input.key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id)) {
+                if ctx
+                    .input
+                    .key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id))
+                {
                     new_state = Some(DebugObjectsState::Tooltip(*id));
                 } else if ctx.input.key_pressed(Key::D, "debug") {
-                    id.debug(&ctx.primary.map, &ctx.primary.control_map, &mut ctx.primary.sim, &ctx.primary.draw_map);
+                    id.debug(
+                        &ctx.primary.map,
+                        &ctx.primary.control_map,
+                        &mut ctx.primary.sim,
+                        &ctx.primary.draw_map,
+                    );
                 }
             }
             DebugObjectsState::Tooltip(id) => {

@@ -10,7 +10,7 @@
 		- not filled out for most streets
 	- traffic circles: https://data-seattlecitygis.opendata.arcgis.com/datasets/717b10434d4945658355eba78b66971a_6
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
-		- ...
+		- disagrees with OSM road centers sometimes
 	- https://data-seattlecitygis.opendata.arcgis.com/datasets/curb-ramps
 	- high quality thick roads: https://seattlecitygis.maps.arcgis.com/apps/webappviewer/index.html?id=86cb6824307c4d63b8e180ebcff58ce2
 	- OSM has footways
