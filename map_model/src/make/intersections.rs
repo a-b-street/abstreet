@@ -10,6 +10,7 @@ pub fn intersection_polygon(
     // Turn all of the incident roads into the center PolyLine, always pointing at the intersection
     // (endpoint is pt). The f64's are the width to shift without transforming the points, and then
     // the width to shift when reversing the points.
+    // TODO Simplify code by just stashing the two transformed PolyLines here. ;)
     let mut center_lines: Vec<(PolyLine, RoadID, f64, f64)> = road_ids
         .into_iter()
         .map(|id| {
@@ -48,48 +49,57 @@ pub fn intersection_polygon(
             .reversed();
         let pl2 = center2.shift(*width2_normal).unwrap();
 
-        if let Some(hit) = pl1.intersection(&pl2) {
+        // If the two lines are too close in angle, they'll either not hit or even if they do, it
+        // won't be right.
+        let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
+            - pl2.last_line().angle().normalized_degrees()).abs();
+
+        if angle_diff > 5.0 {
+            // The easy case!
+            if let Some(hit) = pl1.intersection(&pl2) {
+                endpoints.push(hit);
+                continue;
+            }
+        }
+
+        let mut ok = true;
+
+        // Use the next adjacent road, doing line to line segment intersection instead.
+        let inf_line1 = {
+            let (center, _, _, width_reverse) = wraparound_get(&center_lines, idx1 - 1);
+            center
+                .reversed()
+                .shift(*width_reverse)
+                .unwrap()
+                .reversed()
+                .last_line()
+        };
+        if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
             endpoints.push(hit);
         } else {
-            let mut ok = true;
+            endpoints.push(pl1.last_pt());
+            ok = false;
+        }
 
-            // Use the next adjacent road, doing line to line segment intersection instead.
-            let inf_line1 = {
-                let (center, _, _, width_reverse) = wraparound_get(&center_lines, idx1 - 1);
-                center
-                    .reversed()
-                    .shift(*width_reverse)
-                    .unwrap()
-                    .reversed()
-                    .last_line()
-            };
-            if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
-                endpoints.push(hit);
-            } else {
-                endpoints.push(pl1.last_pt());
-                ok = false;
-            }
+        let inf_line2 = {
+            let (center, _, width_normal, _) = wraparound_get(&center_lines, idx2 + 1);
+            center.shift(*width_normal).unwrap().last_line()
+        };
+        if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
+            endpoints.push(hit);
+        } else {
+            endpoints.push(pl2.last_pt());
+            ok = false;
+        }
 
-            let inf_line2 = {
-                let (center, _, width_normal, _) = wraparound_get(&center_lines, idx2 + 1);
-                center.shift(*width_normal).unwrap().last_line()
-            };
-            if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
-                endpoints.push(hit);
-            } else {
-                endpoints.push(pl2.last_pt());
-                ok = false;
-            }
-
-            if !ok {
-                warn!(
-                    "No hit btwn {} and {}, for {} with {} incident roads",
-                    id1,
-                    id2,
-                    i.id,
-                    center_lines.len()
-                );
-            }
+        if !ok {
+            warn!(
+                "No hit btwn {} and {}, for {} with {} incident roads",
+                id1,
+                id2,
+                i.id,
+                center_lines.len()
+            );
         }
     }
 
