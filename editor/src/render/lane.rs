@@ -144,18 +144,25 @@ impl Renderable for DrawLane {
     fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
         let l = map.get_l(self.id);
         let r = map.get_r(l.parent);
+        let i1 = map.get_source_intersection(self.id);
+        let i2 = map.get_destination_intersection(self.id);
+        let r_endpt = if r.center_pts.last_pt() == i1.point {
+            i1.id
+        } else if r.center_pts.last_pt() == i2.point {
+            i2.id
+        } else {
+            panic!("{} doesn't end at {} or {}", r.id, i1.id, i2.id);
+        };
+
         let mut lines = vec![
             format!(
                 "{} is {}",
                 l.id,
                 r.osm_tags.get("name").unwrap_or(&"???".to_string())
             ),
-            format!("From OSM way {}, parent is {}", r.osm_way_id, r.id,),
-            format!(
-                "Lane goes from {} to {}",
-                map.get_source_intersection(self.id).elevation,
-                map.get_destination_intersection(self.id).elevation,
-            ),
+            format!("From OSM way {}", r.osm_way_id),
+            format!("Parent {} points to {}", r.id, r_endpt),
+            format!("Lane goes from {} to {}", i1.elevation, i2.elevation),
             format!("Lane is {} long", l.length()),
         ];
         for (k, v) in &r.osm_tags {

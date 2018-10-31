@@ -176,11 +176,7 @@ impl Map {
         for i in &m.intersections {
             timer.next();
             let incident_roads = i.get_roads(&m);
-            intersection_polygons.push(make::intersection_polygon(
-                i.point,
-                incident_roads,
-                &m.roads,
-            ));
+            intersection_polygons.push(make::intersection_polygon(i, incident_roads, &m.roads));
         }
         for (idx, p) in intersection_polygons.into_iter().enumerate() {
             m.intersections[idx].polygon = p;
