@@ -25,8 +25,6 @@ pub fn intersection_polygon(pt: Pt2D, road_ids: BTreeSet<RoadID>, roads: &Vec<Ro
         } else {
             panic!("Incident road {} doesn't have an endpoint at {}", id, pt);
         }
-        // TODO possible bug -- the shift/reverse operations wind up with a polyline not pointing
-        // at the intersection
     }
 
     // Now trim all of the lines against all others.
@@ -92,6 +90,9 @@ pub fn intersection_polygon(pt: Pt2D, road_ids: BTreeSet<RoadID>, roads: &Vec<Ro
     let center = Pt2D::center(&endpoints);
     // Sort points by angle from the center
     endpoints.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
+    // Both lines get trimmed to the same endpoint, so we wind up with dupe points.
+    // TODO This entire algorithm could be later simplified
+    endpoints.dedup();
     let first_pt = endpoints[0].clone();
     endpoints.push(first_pt);
     endpoints
