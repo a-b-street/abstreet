@@ -1,6 +1,5 @@
 use geom::{PolyLine, Pt2D};
 use std::collections::BTreeSet;
-use std::iter;
 use {Intersection, Road, RoadID, LANE_THICKNESS};
 
 pub fn intersection_polygon(
@@ -34,11 +33,12 @@ pub fn intersection_polygon(
 
     // Now look at adjacent pairs of these polylines...
     let mut endpoints: Vec<Pt2D> = Vec::new();
-    for ((center1, id1, _, width1_reverse), (center2, id2, width2_normal, _)) in center_lines
-        .iter()
-        .zip(center_lines.iter().skip(1))
-        .chain(iter::once((center_lines.last().unwrap(), &center_lines[0])))
-    {
+    for idx1 in 0..center_lines.len() as isize {
+        let idx2 = idx1 + 1;
+
+        let (center1, id1, _, width1_reverse) = wraparound_get(&center_lines, idx1);
+        let (center2, id2, width2_normal, _) = wraparound_get(&center_lines, idx2);
+
         // Turn the center polylines into one of the road's border polylines. Every road should
         // have a chance to be shifted in both directions.
         let pl1 = center1
@@ -67,4 +67,11 @@ pub fn intersection_polygon(
     let first_pt = endpoints[0].clone();
     endpoints.push(first_pt);
     endpoints
+}
+
+fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
+    let len = vec.len() as isize;
+    let idx = idx % len;
+    let idx = if idx >= 0 { idx } else { idx + len };
+    &vec[idx as usize]
 }
