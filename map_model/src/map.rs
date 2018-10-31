@@ -175,6 +175,11 @@ impl Map {
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in &m.intersections {
             timer.next();
+
+            if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
+                panic!("{:?} is orphaned!", i);
+            }
+
             let incident_roads = i.get_roads(&m);
             intersection_polygons.push(make::intersection_polygon(i, incident_roads, &m.roads));
         }
@@ -186,9 +191,6 @@ impl Map {
         for i in &m.intersections {
             timer.next();
             make::trim_lines(&mut m.lanes, i);
-            if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
-                panic!("{:?} is orphaned!", i);
-            }
         }
 
         let (stops, routes) = make::make_bus_stops(
