@@ -89,6 +89,7 @@ impl Map {
             m.intersections.push(Intersection {
                 id,
                 point: pt,
+                polygon: Vec::new(),
                 turns: Vec::new(),
                 elevation: i.elevation,
                 has_traffic_signal: i.has_traffic_signal,
@@ -167,6 +168,22 @@ impl Map {
                         .push((id, lane.lane_type));
                 }
             }
+        }
+
+        // TODO gathering results and assigning later is super gross mutability pattern
+        let mut intersection_polygons: Vec<Vec<Pt2D>> = Vec::new();
+        timer.start_iter("find each intersection polygon", m.intersections.len());
+        for i in &m.intersections {
+            timer.next();
+            let incident_roads = i.get_roads(&m);
+            intersection_polygons.push(make::intersection_polygon(
+                i.point,
+                incident_roads,
+                &m.roads,
+            ));
+        }
+        for (idx, p) in intersection_polygons.into_iter().enumerate() {
+            m.intersections[idx].polygon = p;
         }
 
         timer.start_iter("trim lanes at each intersection", m.intersections.len());

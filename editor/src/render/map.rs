@@ -69,7 +69,7 @@ impl DrawMap {
         let intersections: Vec<DrawIntersection> = map
             .all_intersections()
             .iter()
-            .map(|i| DrawIntersection::new(i, map, &lanes))
+            .map(|i| DrawIntersection::new(i, map))
             .collect();
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         let buildings: Vec<DrawBuilding> = map

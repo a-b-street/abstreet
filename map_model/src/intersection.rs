@@ -21,6 +21,9 @@ impl fmt::Display for IntersectionID {
 pub struct Intersection {
     pub id: IntersectionID,
     pub point: Pt2D,
+    // TODO This should really be a Polygon, but it's hard to construct in the right order and
+    // weird to represent an Option<Polygon> during construction.
+    pub polygon: Vec<Pt2D>,
     pub turns: Vec<TurnID>,
     pub elevation: si::Meter<f64>,
     pub has_traffic_signal: bool,

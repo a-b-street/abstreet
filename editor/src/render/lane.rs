@@ -24,8 +24,6 @@ struct Marking {
 pub struct DrawLane {
     pub id: LaneID,
     pub polygon: Polygon,
-    start_crossing: Line,
-    end_crossing: Line,
     markings: Vec<Marking>,
 
     // TODO pretty temporary
@@ -35,8 +33,6 @@ pub struct DrawLane {
 impl DrawLane {
     pub fn new(lane: &map_model::Lane, map: &map_model::Map, control_map: &ControlMap) -> DrawLane {
         let road = map.get_r(lane.parent);
-        let start = new_perp_line(lane.first_line(), LANE_THICKNESS);
-        let end = new_perp_line(lane.last_line().reverse(), LANE_THICKNESS);
         let polygon = lane.lane_center_pts.make_polygons_blindly(LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
@@ -72,8 +68,6 @@ impl DrawLane {
             id: lane.id,
             polygon,
             markings,
-            start_crossing: start,
-            end_crossing: end,
             draw_id_at: calculate_id_positions(lane).unwrap_or(Vec::new()),
         }
     }
@@ -98,15 +92,6 @@ impl DrawLane {
             txt.add_line(format!("{}", self.id.0));
             ctx.canvas.draw_text_at(g, txt, *pt);
         }
-    }
-
-    // Get the line marking the end of the lane, perpendicular to the direction of the lane
-    pub fn get_end_crossing(&self) -> &Line {
-        &self.end_crossing
-    }
-
-    pub fn get_start_crossing(&self) -> &Line {
-        &self.start_crossing
     }
 }
 
@@ -182,12 +167,6 @@ impl Renderable for DrawLane {
 
 // TODO this always does it at pt1
 fn perp_line(l: Line, length: f64) -> Line {
-    let pt1 = l.shift(length / 2.0).pt1();
-    let pt2 = l.reverse().shift(length / 2.0).pt2();
-    Line::new(pt1, pt2)
-}
-
-fn new_perp_line(l: Line, length: f64) -> Line {
     let pt1 = l.shift(length / 2.0).pt1();
     let pt2 = l.reverse().shift(length / 2.0).pt2();
     Line::new(pt1, pt2)

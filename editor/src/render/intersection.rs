@@ -5,7 +5,7 @@ use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Intersection, IntersectionID, LaneType, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
-use render::{DrawLane, RenderOptions, Renderable};
+use render::{RenderOptions, Renderable};
 use std::f64;
 
 #[derive(Debug)]
@@ -19,29 +19,11 @@ pub struct DrawIntersection {
 }
 
 impl DrawIntersection {
-    pub fn new(inter: &Intersection, map: &Map, lanes: &Vec<DrawLane>) -> DrawIntersection {
-        let mut pts: Vec<Pt2D> = Vec::new();
-        for l in &inter.incoming_lanes {
-            let line = lanes[l.0].get_end_crossing();
-            pts.push(line.pt1());
-            pts.push(line.pt2());
-        }
-        for l in &inter.outgoing_lanes {
-            let line = lanes[l.0].get_start_crossing();
-            pts.push(line.pt1());
-            pts.push(line.pt2());
-        }
-
-        let center = Pt2D::center(&pts);
-        // Sort points by angle from the center
-        pts.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
-        let first_pt = pts[0].clone();
-        pts.push(first_pt);
-
+    pub fn new(inter: &Intersection, map: &Map) -> DrawIntersection {
         DrawIntersection {
-            center,
+            center: Pt2D::center(&inter.polygon),
             id: inter.id,
-            polygon: Polygon::new(&pts),
+            polygon: Polygon::new(&inter.polygon),
             crosswalks: calculate_crosswalks(inter, map),
             has_traffic_signal: inter.has_traffic_signal,
             should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(map),
