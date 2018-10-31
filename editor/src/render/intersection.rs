@@ -150,13 +150,17 @@ fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<Line>> {
             continue;
         }
 
-        let line = if l1.src_i == inter.id {
-            Line::new(l1.first_pt(), l2.last_pt())
+        let crossing_line = if l1.src_i == inter.id {
+            Line::new(l2.last_pt(), l1.first_pt())
         } else {
             Line::new(l1.last_pt(), l2.first_pt())
         };
-        let angle = line.angle();
-        let length = line.length();
+        let angle = crossing_line.angle();
+        let length = crossing_line.length();
+        // Shift away so the markings stay fully inside the intersection. Lane center points don't
+        // line up with the boundary.
+        let line = crossing_line.shift(LANE_THICKNESS / 2.0);
+
         // TODO awkward to express it this way
 
         let mut markings = Vec::new();
