@@ -51,15 +51,45 @@ pub fn intersection_polygon(
         if let Some(hit) = pl1.intersection(&pl2) {
             endpoints.push(hit);
         } else {
-            warn!(
-                "No hit btwn {} and {}, for {} with {} incident roads",
-                id1,
-                id2,
-                i.id,
-                center_lines.len()
-            );
-            endpoints.push(pl1.last_pt());
-            endpoints.push(pl2.last_pt());
+            let mut ok = true;
+
+            // Use the next adjacent road, doing line to line segment intersection instead.
+            let inf_line1 = {
+                let (center, _, _, width_reverse) = wraparound_get(&center_lines, idx1 - 1);
+                center
+                    .reversed()
+                    .shift(*width_reverse)
+                    .unwrap()
+                    .reversed()
+                    .last_line()
+            };
+            if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
+                endpoints.push(hit);
+            } else {
+                endpoints.push(pl1.last_pt());
+                ok = false;
+            }
+
+            let inf_line2 = {
+                let (center, _, width_normal, _) = wraparound_get(&center_lines, idx2 + 1);
+                center.shift(*width_normal).unwrap().last_line()
+            };
+            if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
+                endpoints.push(hit);
+            } else {
+                endpoints.push(pl2.last_pt());
+                ok = false;
+            }
+
+            if !ok {
+                warn!(
+                    "No hit btwn {} and {}, for {} with {} incident roads",
+                    id1,
+                    id2,
+                    i.id,
+                    center_lines.len()
+                );
+            }
         }
     }
 

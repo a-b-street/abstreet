@@ -313,6 +313,18 @@ impl PolyLine {
         None
     }
 
+    pub fn intersection_infinite_line(&self, other: Line) -> Option<Pt2D> {
+        // TODO There must be better ways to do this. :)
+        for l in self.lines() {
+            if let Some(hit) = line_intersection(&l, &other) {
+                if l.contains_pt(hit) {
+                    return Some(hit);
+                }
+            }
+        }
+        None
+    }
+
     // Starts trimming from the head. If the pt is not on the polyline, returns false -- but this
     // is a bug somewhere else.
     pub fn trim_to_pt(&mut self, pt: Pt2D) -> bool {
