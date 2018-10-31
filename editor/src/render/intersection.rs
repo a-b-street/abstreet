@@ -20,8 +20,13 @@ pub struct DrawIntersection {
 
 impl DrawIntersection {
     pub fn new(inter: &Intersection, map: &Map) -> DrawIntersection {
+        // Don't skew the center towards the repeated point
+        let mut pts = inter.polygon.clone();
+        pts.pop();
+        let center = Pt2D::center(&pts);
+
         DrawIntersection {
-            center: Pt2D::center(&inter.polygon),
+            center,
             id: inter.id,
             polygon: Polygon::new(&inter.polygon),
             crosswalks: calculate_crosswalks(inter, map),

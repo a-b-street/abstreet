@@ -54,7 +54,8 @@ pub fn intersection_polygon(
         let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
             - pl2.last_line().angle().normalized_degrees()).abs();
 
-        if angle_diff > 5.0 {
+        // TODO A tuning challenge. :)
+        if angle_diff > 15.0 {
             // The easy case!
             if let Some(hit) = pl1.intersection(&pl2) {
                 endpoints.push(hit);
