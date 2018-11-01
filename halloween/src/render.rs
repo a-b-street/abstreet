@@ -25,15 +25,7 @@ pub struct DrawMap {
 
 impl DrawMap {
     pub fn new(map: Map) -> DrawMap {
-        // TODO This stuff is common!
-        let bounds = map.get_bounds();
-        let map_bbox = Rect {
-            top_left: Point { x: 0.0, y: 0.0 },
-            bottom_right: Point {
-                x: bounds.max_x as f32,
-                y: bounds.max_y as f32,
-            },
-        };
+        let map_bbox = map.get_bounds().as_bbox();
 
         let roads: Vec<DrawRoad> = map.all_roads().iter().map(|r| DrawRoad::new(r)).collect();
         let buildings: Vec<DrawBuilding> = map
@@ -60,13 +52,14 @@ impl DrawMap {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, timer: f64, screen_bbox: Rect) {
+    pub fn draw(&self, g: &mut GfxCtx, timer: f64, screen_bounds: Bounds) {
         g.clear(BACKGROUND);
 
-        for &(id, _, _) in &self.road_quadtree.query(screen_bbox) {
+        let bbox = screen_bounds.as_bbox();
+        for &(id, _, _) in &self.road_quadtree.query(bbox) {
             self.roads[id.0].draw(g);
         }
-        for &(id, _, _) in &self.bldg_quadtree.query(screen_bbox) {
+        for &(id, _, _) in &self.bldg_quadtree.query(bbox) {
             self.buildings[id.0].draw(g, timer);
         }
     }

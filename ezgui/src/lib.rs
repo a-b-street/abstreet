@@ -1,6 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate aabb_quadtree;
 extern crate abstutil;
 extern crate geom;
 extern crate glutin_window;

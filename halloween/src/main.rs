@@ -65,7 +65,7 @@ impl GUI for UI {
 
     fn draw(&self, g: &mut GfxCtx, _osd: Text) {
         self.draw_map
-            .draw(g, self.cycler.value(), self.canvas.get_screen_bbox());
+            .draw(g, self.cycler.value(), self.canvas.get_screen_bounds());
     }
 }
 

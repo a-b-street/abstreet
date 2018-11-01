@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::{Point, Rect};
-use geom::Pt2D;
+use geom::{Bounds, Pt2D};
 use graphics::Transformed;
 use piston::input::MouseButton;
 use piston::window::Size;
@@ -149,24 +148,14 @@ impl Canvas {
         )
     }
 
-    // little weird to return an aabb_quadtree type here. need standard geometry types
-    pub fn get_screen_bbox(&self) -> Rect {
-        let top_left = self.screen_to_map((0.0, 0.0));
-        let bottom_right = self.screen_to_map((
+    pub fn get_screen_bounds(&self) -> Bounds {
+        let mut b = Bounds::new();
+        b.update(self.screen_to_map((0.0, 0.0)));
+        b.update(self.screen_to_map((
             f64::from(self.window_size.width),
             f64::from(self.window_size.height),
-        ));
-
-        Rect {
-            top_left: Point {
-                x: top_left.x() as f32,
-                y: top_left.y() as f32,
-            },
-            bottom_right: Point {
-                x: bottom_right.x() as f32,
-                y: bottom_right.y() as f32,
-            },
-        }
+        )));
+        b
     }
 }
 

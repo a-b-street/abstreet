@@ -1,10 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use aabb_quadtree::geom::Rect;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use control::ControlMap;
-use geom::Pt2D;
+use geom::{Bounds, Pt2D};
 use kml::{ExtraShape, ExtraShapeID};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
@@ -226,9 +225,9 @@ impl DrawMap {
     }
 
     // A greatly simplified form of get_objects_onscreen
-    pub fn get_matching_lanes(&self, bbox: Rect) -> Vec<LaneID> {
+    pub fn get_matching_lanes(&self, bounds: Bounds) -> Vec<LaneID> {
         let mut results: Vec<LaneID> = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(bbox) {
+        for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
             if let ID::Lane(id) = id {
                 results.push(*id);
             }
@@ -246,7 +245,7 @@ impl DrawMap {
     // But maybe not.
     pub fn get_objects_onscreen<T: ShowTurnIcons>(
         &self,
-        screen_bbox: Rect,
+        screen_bounds: Bounds,
         hider: &Hider,
         map: &Map,
         sim: &Sim,
@@ -266,7 +265,7 @@ impl DrawMap {
         let mut cars: Vec<Box<Renderable>> = Vec::new();
         let mut peds: Vec<Box<Renderable>> = Vec::new();
 
-        for &(id, _, _) in &self.quadtree.query(screen_bbox) {
+        for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
             if hider.show(*id) && layers.show(*id) {
                 match id {
                     ID::Area(id) => areas.push(Box::new(self.get_a(*id))),

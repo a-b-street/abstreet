@@ -72,7 +72,7 @@ impl GUI for UI {
         );
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
-            self.canvas.get_screen_bbox(),
+            self.canvas.get_screen_bounds(),
             self.primary_plugins.hider(),
             &self.primary.map,
             &self.primary.sim,
@@ -369,7 +369,7 @@ impl UI {
         let pt = self.canvas.get_cursor_in_map_space();
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
-            self.canvas.get_screen_bbox(),
+            self.canvas.get_screen_bounds(),
             self.primary_plugins.hider(),
             &self.primary.map,
             &self.primary.sim,
