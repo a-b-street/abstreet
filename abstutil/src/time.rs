@@ -69,6 +69,8 @@ pub struct Timer {
     stack: Vec<StackEntry>,
 
     outermost_name: String,
+
+    notes: Vec<String>,
 }
 
 struct TimerSpan {
@@ -84,9 +86,17 @@ impl Timer {
             results: Vec::new(),
             stack: Vec::new(),
             outermost_name: name.to_string(),
+            notes: Vec::new(),
         };
         t.start(name);
         t
+    }
+
+    // Log immediately, but also repeat at the end, to avoid having to scroll up and find
+    // interesting debug stuff.
+    pub fn note(&mut self, line: String) {
+        println!("{}", line);
+        self.notes.push(line);
     }
 
     pub fn done(mut self) {
@@ -98,6 +108,12 @@ impl Timer {
             println!("{}", line);
         }
         println!("");
+        if !self.notes.is_empty() {
+            for line in self.notes {
+                println!("{}", line);
+            }
+            println!("");
+        }
     }
 
     pub fn start(&mut self, name: &str) {

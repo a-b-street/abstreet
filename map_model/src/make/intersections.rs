@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{PolyLine, Angle, Pt2D};
+use geom::{Angle, PolyLine, Pt2D};
 use std::collections::BTreeSet;
 use std::marker;
 use {Intersection, Road, RoadID, LANE_THICKNESS};
