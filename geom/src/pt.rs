@@ -144,7 +144,7 @@ impl From<Pt2D> for HashablePt2D {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,
