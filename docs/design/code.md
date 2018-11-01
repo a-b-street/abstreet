@@ -22,6 +22,8 @@ ControlMap, DrawMap, etc.
 Need to figure out how to handle reaping old IDs for transient objects like
 cars, but also things like modified roads. Slot maps?
 
+Sort of related -- http://smallcultfollowing.com/babysteps/blog/2018/11/01/after-nll-interprocedural-conflicts/
+
 ## Everything as FSMs
 
 Driving and walking layer are both kind of broken, since they know about

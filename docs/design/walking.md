@@ -55,3 +55,5 @@ Small complication with two directional sidewalks
 	  original direction always? How to start/end walking?
 	- do they belong to children {forwards, backwards}? They'd no longer be
 	  in order.
+
+And what about modeling shared left-turn lanes?
