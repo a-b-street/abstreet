@@ -27,12 +27,8 @@ impl Plugin for FollowState {
 
         let mut quit = false;
         if let FollowState::Active(trip) = self {
-            if let Some(pt) = ctx
-                .primary
-                .sim
-                .get_canonical_point_for_trip(*trip, &ctx.primary.map)
-            {
-                ctx.canvas.center_on_map_pt(pt);
+            if let Some(pt) = ctx.primary.sim.get_stats().canonical_pt_per_trip.get(&trip) {
+                ctx.canvas.center_on_map_pt(*pt);
             } else {
                 // TODO ideally they wouldnt vanish for so long according to
                 // get_canonical_point_for_trip

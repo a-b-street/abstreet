@@ -32,41 +32,27 @@ impl Plugin for DiffAllState {
 
         if active {
             let primary_sim = &ctx.primary.sim;
-            let primary_map = &ctx.primary.map;
-            let (secondary_sim, secondary_map) = ctx
-                .secondary
-                .as_ref()
-                .map(|(s, _)| (&s.sim, &s.map))
-                .unwrap();
+            let secondary_sim = ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap();
 
+            let stats1 = primary_sim.get_stats();
+            let stats2 = secondary_sim.get_stats();
             let mut same_trips = 0;
-            let mut diff_trips = 0;
-            *self = DiffAllState::Active(
-                primary_sim
-                    .get_active_trips()
-                    .into_iter()
-                    .filter_map(|trip| {
-                        let pt1 = primary_sim.get_canonical_point_for_trip(trip, primary_map);
-                        let pt2 = secondary_sim.get_canonical_point_for_trip(trip, secondary_map);
-                        if pt1.is_some() && pt2.is_some() {
-                            let pt1 = pt1.unwrap();
-                            let pt2 = pt2.unwrap();
-                            if pt1 != pt2 {
-                                diff_trips += 1;
-                                Some(Line::new(pt1, pt2))
-                            } else {
-                                same_trips += 1;
-                                None
-                            }
-                        } else {
-                            None
-                        }
-                    }).collect(),
-            );
+            let mut lines: Vec<Line> = Vec::new();
+            for (trip, pt1) in &stats1.canonical_pt_per_trip {
+                if let Some(pt2) = stats2.canonical_pt_per_trip.get(trip) {
+                    if pt1 == pt2 {
+                        same_trips += 1;
+                    } else {
+                        lines.push(Line::new(*pt1, *pt2));
+                    }
+                }
+            }
             ctx.osd.add_line(format!(
                 "{} trips same, {} trips different",
-                same_trips, diff_trips
+                same_trips,
+                lines.len()
             ));
+            *self = DiffAllState::Active(lines);
         } else {
             *self = DiffAllState::Inactive;
         }

@@ -5,7 +5,6 @@ use abstutil::Error;
 use control::ControlMap;
 use dimensioned::si;
 use driving::DrivingSimState;
-use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
@@ -23,7 +22,7 @@ use view::WorldView;
 use walking::WalkingSimState;
 use {
     AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, ParkedCar,
-    PedestrianID, ScoreSummary, Tick, TripID, TIMESTEP,
+    PedestrianID, ScoreSummary, SimStats, Tick, TripID, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -43,6 +42,8 @@ pub struct Sim {
     run_name: String,
     // TODO not quite the right type to represent durations
     savestate_every: Option<Tick>,
+
+    stats: SimStats,
 
     pub(crate) spawner: Spawner,
     intersection_state: IntersectionSimState,
@@ -85,6 +86,7 @@ impl Sim {
             run_name,
             savestate_every,
             current_agent_for_debugging: None,
+            stats: SimStats::new(Tick::zero()),
         }
     }
 
@@ -218,6 +220,9 @@ impl Sim {
         // Do this at the end of the step, so that tick 0 actually occurs and things can happen
         // then.
         self.time = self.time.next();
+
+        // Collect stats for consumers to quickly... well, consume
+        self.collect_stats(map);
 
         // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
         // savestate, run a step, and invalidly save over it.
@@ -376,10 +381,6 @@ impl Sim {
         &self.run_name
     }
 
-    pub fn get_active_trips(&self) -> Vec<TripID> {
-        self.trips_state.get_active_trips()
-    }
-
     // TODO dont toggle state in debug_car
     pub fn debug_trip(&mut self, id: TripID) {
         match self.trips_state.trip_to_agent(id) {
@@ -395,20 +396,6 @@ impl Sim {
 
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         self.trips_state.trip_to_agent(id)
-    }
-
-    pub fn get_canonical_point_for_trip(&self, id: TripID, map: &Map) -> Option<Pt2D> {
-        // Don't unwrap(); the trip might be registered before the agent has started.
-        match self.trips_state.trip_to_agent(id) {
-            Some(AgentID::Car(id)) => self
-                .driving_state
-                .get_draw_car(id, self.time, map)
-                .map(|c| c.front),
-            Some(AgentID::Pedestrian(id)) => {
-                self.walking_state.get_draw_ped(id, map).map(|p| p.pos)
-            }
-            None => None,
-        }
     }
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
@@ -450,6 +437,29 @@ impl Sim {
             stuck_peds,
             // Something else has to calculate this
             trips_with_ab_test_divergence: 0,
+        }
+    }
+
+    pub fn get_stats(&self) -> &SimStats {
+        &self.stats
+    }
+
+    fn collect_stats(&mut self, map: &Map) {
+        self.stats = SimStats::new(self.time);
+        for trip in self.trips_state.get_active_trips().into_iter() {
+            let pt = match self.trips_state.trip_to_agent(trip) {
+                Some(AgentID::Car(id)) => self
+                    .driving_state
+                    .get_draw_car(id, self.time, map)
+                    .map(|c| c.front),
+                Some(AgentID::Pedestrian(id)) => {
+                    self.walking_state.get_draw_ped(id, map).map(|p| p.pos)
+                }
+                None => None,
+            };
+            if let Some(pt) = pt {
+                self.stats.canonical_pt_per_trip.insert(trip, pt);
+            }
         }
     }
 }

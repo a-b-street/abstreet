@@ -44,6 +44,7 @@ mod router;
 mod scenario;
 mod sim;
 mod spawn;
+mod stats;
 mod transit;
 mod trips;
 mod view;
@@ -61,6 +62,7 @@ use map_model::{BuildingID, LaneID, Trace, TurnID};
 use rand::{RngCore, SeedableRng, XorShiftRng};
 pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim, Summary};
+pub use stats::SimStats;
 use std::fmt;
 pub use trips::ScoreSummary;
 

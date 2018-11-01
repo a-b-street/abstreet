@@ -1,6 +1,5 @@
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Pt2D};
-use map_model::Map;
 use objects::{Ctx, DEBUG};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -29,11 +28,7 @@ impl Plugin for ShowActivityState {
                 ) {
                     new_state = Some(ShowActivityState::Active(
                         ctx.primary.sim.time,
-                        active_agent_heatmap(
-                            ctx.canvas.get_screen_bounds(),
-                            &ctx.primary.sim,
-                            &ctx.primary.map,
-                        ),
+                        active_agent_heatmap(ctx.canvas.get_screen_bounds(), &ctx.primary.sim),
                     ));
                 }
             }
@@ -48,7 +43,7 @@ impl Plugin for ShowActivityState {
                 if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
                     new_state = Some(ShowActivityState::Active(
                         ctx.primary.sim.time,
-                        active_agent_heatmap(bounds, &ctx.primary.sim, &ctx.primary.map),
+                        active_agent_heatmap(bounds, &ctx.primary.sim),
                     ));
                 }
             }
@@ -131,12 +126,11 @@ impl Heatmap {
     }
 }
 
-fn active_agent_heatmap(bounds: Bounds, sim: &Sim, map: &Map) -> Heatmap {
+fn active_agent_heatmap(bounds: Bounds, sim: &Sim) -> Heatmap {
     let mut h = Heatmap::new(bounds);
-    for trip in sim.get_active_trips().into_iter() {
-        if let Some(pt) = sim.get_canonical_point_for_trip(trip, map) {
-            h.add(pt);
-        }
+    let stats = sim.get_stats();
+    for pt in stats.canonical_pt_per_trip.values() {
+        h.add(*pt);
     }
     h
 }
