@@ -452,6 +452,15 @@ impl Sim {
             trips_with_ab_test_divergence: 0,
         }
     }
+
+    // TODO This is another query like summarize()
+    // Turns count as activity on the origin lane
+    pub fn find_lanes_with_movement(&self) -> HashSet<LaneID> {
+        let mut active: HashSet<LaneID> = HashSet::new();
+        self.driving_state.find_lanes_with_movement(&mut active);
+        self.walking_state.find_lanes_with_movement(&mut active);
+        active
+    }
 }
 
 pub struct Benchmark {

@@ -216,6 +216,7 @@ impl PerMapUI {
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
                 Box::new(plugins::follow::FollowState::Empty),
                 Box::new(plugins::show_route::ShowRouteState::Empty),
+                Box::new(plugins::show_activity::ShowActivityState::new()),
                 Box::new(plugins::floodfill::Floodfiller::new()),
                 Box::new(steepness_viz),
                 Box::new(plugins::geom_validation::Validator::new()),

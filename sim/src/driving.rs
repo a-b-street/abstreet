@@ -874,6 +874,17 @@ impl DrivingSimState {
 
         (moving_cars, stuck_cars, buses)
     }
+
+    pub fn find_lanes_with_movement(&self, active: &mut HashSet<LaneID>) {
+        for c in self.cars.values() {
+            if c.speed > kinematics::EPSILON_SPEED {
+                match c.on {
+                    Traversable::Lane(id) => active.insert(id),
+                    Traversable::Turn(t) => active.insert(t.src),
+                };
+            }
+        }
+    }
 }
 
 pub struct CreateCar {

@@ -17,6 +17,7 @@ pub mod neighborhood_summary;
 pub mod road_editor;
 pub mod scenarios;
 pub mod search;
+pub mod show_activity;
 pub mod show_owner;
 pub mod show_route;
 pub mod sim_controls;

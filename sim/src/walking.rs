@@ -680,6 +680,17 @@ impl WalkingSimState {
 
         (moving_peds, stuck_peds)
     }
+
+    pub fn find_lanes_with_movement(&self, active: &mut HashSet<LaneID>) {
+        for p in self.peds.values() {
+            if p.waiting_for.is_none() {
+                match p.on {
+                    Traversable::Lane(id) => active.insert(id),
+                    Traversable::Turn(t) => active.insert(t.src),
+                };
+            }
+        }
+    }
 }
 
 fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
