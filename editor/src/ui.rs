@@ -22,6 +22,7 @@ use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{Sim, SimFlags};
 use std::cell::RefCell;
+use std::panic;
 use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
@@ -46,73 +47,17 @@ pub struct UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
-        // First update the camera and handle zoom
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(&mut input);
-        let new_zoom = self.canvas.cam_zoom;
-        self.plugins.layers_mut().handle_zoom(old_zoom, new_zoom);
-
-        // Always handle mouseover
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.primary.current_selection = None;
-        }
-        if !self.canvas.is_dragging()
-            && input.get_moved_mouse().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
-        {
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
-        // want some keys to always be pressable (sim controller stuff, quitting the game?)
-
-        // If there's an active plugin, just run it.
-        if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(idx, &mut input, osd) {
-                self.active_plugin = None;
-            }
-        } else {
-            // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
-                if self.run_plugin(idx, &mut input, osd) {
-                    self.active_plugin = Some(idx);
-                    break;
-                }
+    fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
+        match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            return self.inner_event(input, osd);
+        })) {
+            Ok(result) => result,
+            Err(err) => {
+                error!("UI broke. Sim time is {}", self.primary.sim.time);
+                self.save_editor_state();
+                panic::resume_unwind(err);
             }
         }
-
-        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
-            let state = EditorState {
-                map_name: self.primary.map.get_name().clone(),
-                cam_x: self.canvas.cam_x,
-                cam_y: self.canvas.cam_y,
-                cam_zoom: self.canvas.cam_zoom,
-            };
-            // TODO maybe make state line up with the map, so loading from a new map doesn't break
-            abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
-            self.cs.borrow().save();
-            info!("Saved editor_state and color_scheme");
-            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
-            process::exit(0);
-        }
-
-        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result = self.plugins.sim_ctrl.event(
-            &mut input,
-            &mut self.primary,
-            &mut self.primary_plugins,
-            &mut self.secondary,
-            osd,
-        );
-
-        if self.primary.recalculate_current_selection {
-            self.primary.recalculate_current_selection = false;
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        input.populate_osd(osd);
-        result
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
@@ -357,6 +302,68 @@ impl UI {
         ui
     }
 
+    fn inner_event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
+        // First update the camera and handle zoom
+        let old_zoom = self.canvas.cam_zoom;
+        self.canvas.handle_event(&mut input);
+        let new_zoom = self.canvas.cam_zoom;
+        self.plugins.layers_mut().handle_zoom(old_zoom, new_zoom);
+
+        // Always handle mouseover
+        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+            self.primary.current_selection = None;
+        }
+        if !self.canvas.is_dragging()
+            && input.get_moved_mouse().is_some()
+            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+        {
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
+        // want some keys to always be pressable (sim controller stuff, quitting the game?)
+
+        // If there's an active plugin, just run it.
+        if let Some(idx) = self.active_plugin {
+            if !self.run_plugin(idx, &mut input, osd) {
+                self.active_plugin = None;
+            }
+        } else {
+            // Run each plugin, short-circuiting if the plugin claimed it was active.
+            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
+                if self.run_plugin(idx, &mut input, osd) {
+                    self.active_plugin = Some(idx);
+                    break;
+                }
+            }
+        }
+
+        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
+            self.save_editor_state();
+            self.cs.borrow().save();
+            info!("Saved color_scheme");
+            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+            process::exit(0);
+        }
+
+        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
+        let result = self.plugins.sim_ctrl.event(
+            &mut input,
+            &mut self.primary,
+            &mut self.primary_plugins,
+            &mut self.secondary,
+            osd,
+        );
+
+        if self.primary.recalculate_current_selection {
+            self.primary.recalculate_current_selection = false;
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        input.populate_osd(osd);
+        result
+    }
+
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space();
 
@@ -439,6 +446,18 @@ impl UI {
             self.primary_plugins = new_plugins;
         }
         active
+    }
+
+    fn save_editor_state(&self) {
+        let state = EditorState {
+            map_name: self.primary.map.get_name().clone(),
+            cam_x: self.canvas.cam_x,
+            cam_y: self.canvas.cam_y,
+            cam_zoom: self.canvas.cam_zoom,
+        };
+        // TODO maybe make state line up with the map, so loading from a new map doesn't break
+        abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
+        info!("Saved editor_state");
     }
 }
 
