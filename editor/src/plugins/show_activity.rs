@@ -110,13 +110,13 @@ impl Heatmap {
                 }
 
                 let percent = (self.counts[x][y] as f32) / (self.max as f32);
-                // TODO Map percent to hot/cold colors
-                let color = Color::rgba(255, 0, 0, percent);
+                // TODO Map percent to hot/cold colors. For now, don't ever become totally opaque.
+                let color = Color::rgba(255, 0, 0, percent * 0.8);
                 g.draw_rectangle(
                     color,
                     [
-                        (x as f64) * tile_width,
-                        (y as f64) * tile_height,
+                        self.bounds.min_x + (x as f64) * tile_width,
+                        self.bounds.min_y + (y as f64) * tile_height,
                         tile_width,
                         tile_height,
                     ],
