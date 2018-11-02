@@ -5,12 +5,13 @@ use map_model::{Trace, LANE_THICKNESS};
 use objects::Ctx;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use sim::TripID;
+use sim::{Tick, TripID};
 use std::f64;
 
 pub enum DiffWorldsState {
     Inactive,
     Active {
+        time: Tick,
         trip: TripID,
         // These are all optional because mode-changes might cause temporary interruptions.
         // Just point from primary world agent to secondary world agent.
@@ -28,7 +29,7 @@ impl DiffWorldsState {
 
 impl Plugin for DiffWorldsState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let mut maybe_trip: Option<TripID> = None;
+        let mut new_state: Option<DiffWorldsState> = None;
         match self {
             DiffWorldsState::Inactive => {
                 if ctx.secondary.is_some() {
@@ -38,58 +39,26 @@ impl Plugin for DiffWorldsState {
                                 .input
                                 .key_pressed(Key::B, &format!("Show {}'s parallel world", trip))
                             {
-                                maybe_trip = Some(trip);
+                                new_state = Some(diff_world(trip, ctx));
                             }
                         }
                     }
                 }
             }
-            DiffWorldsState::Active { trip, .. } => {
+            DiffWorldsState::Active { time, trip, .. } => {
                 if ctx.input.key_pressed(
                     Key::Return,
                     &format!("Stop showing {}'s parallel world", trip),
                 ) {
-                    maybe_trip = None;
-                } else {
-                    maybe_trip = Some(*trip);
+                    new_state = Some(DiffWorldsState::Inactive);
+                } else if *time != ctx.primary.sim.time {
+                    new_state = Some(diff_world(*trip, ctx));
                 }
             }
         }
 
-        if let Some(trip) = maybe_trip {
-            let primary_sim = &ctx.primary.sim;
-            let primary_map = &ctx.primary.map;
-            let (secondary_sim, secondary_map) = ctx
-                .secondary
-                .as_ref()
-                .map(|(s, _)| (&s.sim, &s.map))
-                .unwrap();
-
-            let pt1 = primary_sim.get_stats().canonical_pt_per_trip.get(&trip);
-            let pt2 = secondary_sim.get_stats().canonical_pt_per_trip.get(&trip);
-            let line = if pt1.is_some() && pt2.is_some() {
-                Some(Line::new(*pt1.unwrap(), *pt2.unwrap()))
-            } else {
-                None
-            };
-            let primary_route = primary_sim
-                .trip_to_agent(trip)
-                .and_then(|agent| primary_sim.trace_route(agent, primary_map, f64::MAX * si::M));
-            let secondary_route = secondary_sim.trip_to_agent(trip).and_then(|agent| {
-                secondary_sim.trace_route(agent, secondary_map, f64::MAX * si::M)
-            });
-
-            if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
-                warn!("{} isn't present in both sims", trip);
-            }
-            *self = DiffWorldsState::Active {
-                trip,
-                line,
-                primary_route,
-                secondary_route,
-            };
-        } else {
-            *self = DiffWorldsState::Inactive;
+        if let Some(s) = new_state {
+            *self = s;
         }
 
         match self {
@@ -128,5 +97,40 @@ impl Plugin for DiffWorldsState {
                 );
             }
         }
+    }
+}
+
+fn diff_world(trip: TripID, ctx: PluginCtx) -> DiffWorldsState {
+    let primary_sim = &ctx.primary.sim;
+    let primary_map = &ctx.primary.map;
+    let (secondary_sim, secondary_map) = ctx
+        .secondary
+        .as_ref()
+        .map(|(s, _)| (&s.sim, &s.map))
+        .unwrap();
+
+    let pt1 = primary_sim.get_stats().canonical_pt_per_trip.get(&trip);
+    let pt2 = secondary_sim.get_stats().canonical_pt_per_trip.get(&trip);
+    let line = if pt1.is_some() && pt2.is_some() {
+        Some(Line::new(*pt1.unwrap(), *pt2.unwrap()))
+    } else {
+        None
+    };
+    let primary_route = primary_sim
+        .trip_to_agent(trip)
+        .and_then(|agent| primary_sim.trace_route(agent, primary_map, f64::MAX * si::M));
+    let secondary_route = secondary_sim
+        .trip_to_agent(trip)
+        .and_then(|agent| secondary_sim.trace_route(agent, secondary_map, f64::MAX * si::M));
+
+    if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
+        warn!("{} isn't present in both sims", trip);
+    }
+    DiffWorldsState::Active {
+        time: primary_sim.time,
+        trip,
+        line,
+        primary_route,
+        secondary_route,
     }
 }
