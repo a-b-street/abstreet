@@ -12,6 +12,12 @@ pub enum ShowRouteState {
     Active(TripID, Trace),
 }
 
+impl ShowRouteState {
+    pub fn new() -> ShowRouteState {
+        ShowRouteState::Empty
+    }
+}
+
 impl Plugin for ShowRouteState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let maybe_trip = match self {

@@ -9,6 +9,12 @@ pub enum FollowState {
     Active(TripID),
 }
 
+impl FollowState {
+    pub fn new() -> FollowState {
+        FollowState::Empty
+    }
+}
+
 impl Plugin for FollowState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         if *self == FollowState::Empty {

@@ -14,6 +14,10 @@ pub enum SearchState {
 }
 
 impl SearchState {
+    pub fn new() -> SearchState {
+        SearchState::Empty
+    }
+
     fn choose_color(
         &self,
         osm_tags: &BTreeMap<String, String>,

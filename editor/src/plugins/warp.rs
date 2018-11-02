@@ -12,6 +12,12 @@ pub enum WarpState {
     EnteringSearch(TextBox),
 }
 
+impl WarpState {
+    pub fn new() -> WarpState {
+        WarpState::Empty
+    }
+}
+
 impl Plugin for WarpState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let (input, map, sim, draw_map, canvas, selected) = (
