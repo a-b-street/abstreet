@@ -572,7 +572,12 @@ impl WalkingSimState {
 
         let (mut result, mut dist_left) = {
             if p.path.is_empty() && p.on.maybe_lane().is_some() {
-                p.on.slice(p.contraflow, map, p.dist_along, p.goal.dist_along)
+                // More edge cases. :(
+                if p.contraflow {
+                    p.on.slice(false, map, p.goal.dist_along, p.dist_along)
+                } else {
+                    p.on.slice(false, map, p.dist_along, p.goal.dist_along)
+                }
             } else {
                 p.on.slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)
             }

@@ -53,7 +53,27 @@ cross a sidewalk at all and immediately chain together two turns?
 Small complication with two directional sidewalks
 	- SidewalkSpots get more complicated. are they associated with the
 	  original direction always? How to start/end walking?
+		- would need to be able to enter/exit a sidewalkspot from
+		  either directional lane. modeling 'left turns' into/out of
+		  sidewalk spots is way overkill.
 	- do they belong to children {forwards, backwards}? They'd no longer be
 	  in order.
+	- overlapping geometry is wasteful and makes debugging confusing
+		- could have two distinct sides of the sidewalk
 
 And what about modeling shared left-turn lanes?
+	- Are these even that important to model? Usually used for turning into
+	  parking lots or driveways, which we're not modeling at all.
+
+An alternative:
+- in sim, pathfinding, map model trace, etc layers only, using some new
+  abstraction instead of raw lanes and implied turns
+	- big point here: why dont pathfinding routes explicitly list turns?
+	  then it's clear when a ped doesn't cross a lane and just does two
+	  turns in sequence
+	- the code to choose turns is kind of annoyingly repeated in some
+	  places anyway
+	- this probably makes lookahead-type behavior simpler
+	- this abstraction can just say whether to go backwards on a sidewalk or not
+	- whether or not sidewalks later get split into 2 lanes, I think this
+	  would be helpful.
