@@ -400,9 +400,8 @@ impl Map {
         // Sidewalks are bidirectional
         if lane.is_sidewalk() {
             for t in &self.get_i(lane.src_i).turns {
-                let turn = self.get_t(*t);
-                if turn.src == l {
-                    turns.push(turn);
+                if t.src == l {
+                    turns.push(self.get_t(*t));
                 }
             }
         }

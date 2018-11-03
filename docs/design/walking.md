@@ -65,6 +65,9 @@ And what about modeling shared left-turn lanes?
 	- Are these even that important to model? Usually used for turning into
 	  parking lots or driveways, which we're not modeling at all.
 
+One-way sidewalk lanes would NOT solve the turn-chains:
+- think about crossing N, then W at a 4-way. legitimately doing two turns in sequence. and this is fine!
+
 An alternative:
 - in sim, pathfinding, map model trace, etc layers only, using some new
   abstraction instead of raw lanes and implied turns
@@ -77,3 +80,16 @@ An alternative:
 	- this abstraction can just say whether to go backwards on a sidewalk or not
 	- whether or not sidewalks later get split into 2 lanes, I think this
 	  would be helpful.
+- places to change...
+	- map model pathfinding.
+		- proper type, backed by VecDeque
+		- backrefs can store the intermediate piece often
+		- complication with not crossing a sidewalk? maybe that can be
+		  deduped there, in one spot
+	- trace_route should move to become part of this Path type
+		- no more partly duped code btwn walking/driving
+		- Traversable::slice can probably also go away, or only get
+		  called by this one place?
+	- sim layer no longer needs to pick turns
+	- walking code no longer needs to calculate contraflow itself!
+		- maybe should plumb start/end dist_along into pathfinding too?

@@ -117,8 +117,14 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
             {
                 let bs1 = map.get_bs(*stop1);
                 let bs2 = map.get_bs(*stop2);
-                if Pathfinder::shortest_distance(map, bs1.driving_lane, bs2.driving_lane, false)
-                    .is_none()
+                if Pathfinder::shortest_distance(
+                    map,
+                    bs1.driving_lane,
+                    bs1.dist_along,
+                    bs2.driving_lane,
+                    bs2.dist_along,
+                    false,
+                ).is_none()
                 {
                     warn!(
                         "Removing route {} since {:?} and {:?} aren't connected",

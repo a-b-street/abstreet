@@ -1,7 +1,31 @@
+use dimensioned::si;
 use geom::{Line, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {LaneID, LaneType, Map};
+use {LaneID, LaneType, Map, TurnID};
+
+#[derive(Debug, PartialEq)]
+pub enum PathStep {
+    // Original direction
+    Lane(LaneID),
+    // Sidewalks only!
+    ContraflowLane(LaneID),
+    Turn(TurnID),
+}
+
+pub struct Path {
+    // TODO way to encode start/end dist? I think it's needed for trace_route later...
+    // actually not start dist -- that really changes all the time
+    steps: VecDeque<PathStep>,
+}
+
+impl Path {
+    fn new(steps: Vec<PathStep>) -> Path {
+        Path {
+            steps: VecDeque::from(steps),
+        }
+    }
+}
 
 pub enum Pathfinder {
     ShortestDistance { goal_pt: Pt2D, is_bike: bool },
@@ -15,13 +39,16 @@ impl Pathfinder {
     pub fn shortest_distance(
         map: &Map,
         start: LaneID,
+        start_dist: si::Meter<f64>,
         end: LaneID,
+        end_dist: si::Meter<f64>,
         is_bike: bool,
-    ) -> Option<VecDeque<LaneID>> {
+    ) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
         let goal_pt = map.get_l(end).first_pt();
-        Pathfinder::ShortestDistance { goal_pt, is_bike }.pathfind(map, start, end)
+        Pathfinder::ShortestDistance { goal_pt, is_bike }
+            .pathfind(map, start, start_dist, end, end_dist)
     }
 
     fn expand(&self, map: &Map, current: LaneID) -> Vec<(LaneID, NotNaN<f64>)> {
@@ -61,10 +88,21 @@ impl Pathfinder {
         }
     }
 
-    fn pathfind(&self, map: &Map, start: LaneID, end: LaneID) -> Option<VecDeque<LaneID>> {
+    fn pathfind(
+        &self,
+        map: &Map,
+        start: LaneID,
+        start_dist: si::Meter<f64>,
+        end: LaneID,
+        end_dist: si::Meter<f64>,
+    ) -> Option<Path> {
         assert_eq!(map.get_l(start).lane_type, map.get_l(end).lane_type);
         if start == end {
-            return Some(VecDeque::from(vec![start]));
+            if start_dist > end_dist {
+                assert_eq!(map.get_l(start).lane_type, LaneType::Sidewalk);
+                return Some(Path::new(vec![PathStep::ContraflowLane(start)]));
+            }
+            return Some(Path::new(vec![PathStep::Lane(start)]));
         }
 
         // This should be deterministic, since cost ties would be broken by LaneID.
@@ -78,14 +116,14 @@ impl Pathfinder {
 
             // Found it, now produce the path
             if current == end {
-                let mut path: VecDeque<LaneID> = VecDeque::new();
+                let mut steps: VecDeque<PathStep> = VecDeque::new();
                 let mut lookup = current;
                 loop {
-                    path.push_front(lookup);
+                    steps.push_front(PathStep::Lane(lookup));
                     if lookup == start {
-                        assert_eq!(path[0], start);
-                        assert_eq!(*path.back().unwrap(), end);
-                        return Some(path);
+                        assert_eq!(steps[0], PathStep::Lane(start));
+                        assert_eq!(*steps.back().unwrap(), PathStep::Lane(end));
+                        return Some(Path { steps });
                     }
                     lookup = backrefs[&lookup];
                 }
