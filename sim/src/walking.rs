@@ -4,11 +4,13 @@ use dimensioned::si;
 use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
-use map_model::{BuildingID, BusStopID, Lane, LaneID, Map, Trace, Traversable, Turn, TurnID};
+use map_model::{
+    BuildingID, BusStopID, Lane, LaneID, Map, Path, PathStep, Trace, Traversable, Turn, TurnID,
+};
 use multimap::MultiMap;
 use parking::ParkingSimState;
 use std;
-use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashSet};
 use trips::TripManager;
 use view::{AgentView, WorldView};
 use {
@@ -32,7 +34,7 @@ pub struct SidewalkSpot {
     connection: SidewalkPOI,
     pub sidewalk: LaneID,
     #[derivative(PartialEq = "ignore")]
-    dist_along: Distance,
+    pub dist_along: Distance,
 }
 
 impl SidewalkSpot {
@@ -90,8 +92,8 @@ enum Action {
     StartCrossingPath(BuildingID),
     KeepCrossingPath,
     Continue,
-    Goto(Traversable),
-    WaitFor(Traversable),
+    TransitionToNextStep,
+    WaitFor(TurnID),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -101,12 +103,11 @@ struct Pedestrian {
 
     on: Traversable,
     dist_along: Distance,
-    // Traveling along the lane/turn in its original direction or not?
-    contraflow: bool,
+    // A weird proxy for speed.
+    moving: bool,
 
-    // Head is the next lane
-    path: VecDeque<LaneID>,
-    waiting_for: Option<Traversable>,
+    // Head is the current step.
+    path: Path,
 
     front_path: Option<CrossingFrontPath>,
     goal: SidewalkSpot,
@@ -133,7 +134,7 @@ impl Pedestrian {
             return Action::KeepCrossingPath;
         }
 
-        if self.path.is_empty() {
+        if self.path.is_last_step() {
             let goal_dist = self.goal.dist_along;
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
@@ -153,39 +154,22 @@ impl Pedestrian {
             return Action::Continue;
         }
 
-        let desired_on: Traversable = {
-            if let Some(on) = self.waiting_for {
-                on
-            } else {
-                if (!self.contraflow && self.dist_along < self.on.length(map))
-                    || (self.contraflow && self.dist_along > 0.0 * si::M)
-                {
-                    return Action::Continue;
-                }
-
-                match self.on {
-                    Traversable::Lane(id) => Traversable::Turn(self.choose_turn(id, map)),
-                    Traversable::Turn(id) => Traversable::Lane(map.get_t(id).dst),
-                }
+        {
+            let contraflow = self.path.current_step().is_contraflow();
+            if (!contraflow && self.dist_along < self.on.length(map))
+                || (contraflow && self.dist_along > 0.0 * si::M)
+            {
+                return Action::Continue;
             }
-        };
-
-        // Can we actually go there right now?
-        let intersection_req_granted = match desired_on {
-            // Already doing a turn, finish it!
-            Traversable::Lane(_) => true,
-            Traversable::Turn(id) => intersections.request_granted(Request::for_ped(self.id, id)),
-        };
-        if intersection_req_granted {
-            Action::Goto(desired_on)
-        } else {
-            Action::WaitFor(desired_on)
         }
-    }
 
-    fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
-        assert!(self.waiting_for.is_none());
-        pick_turn(from, self.path[0], map)
+        if let PathStep::Turn(id) = self.path.next_step() {
+            if !intersections.request_granted(Request::for_ped(self.id, *id)) {
+                return Action::WaitFor(*id);
+            }
+        }
+
+        Action::TransitionToNextStep
     }
 
     // If true, then we're completely done!
@@ -218,7 +202,7 @@ impl Pedestrian {
     fn step_continue(&mut self, delta_time: Time, map: &Map) {
         let new_dist = delta_time * SPEED;
 
-        if self.contraflow {
+        if self.path.current_step().is_contraflow() {
             self.dist_along -= new_dist;
             if self.dist_along < 0.0 * si::M {
                 self.dist_along = 0.0 * si::M;
@@ -232,66 +216,61 @@ impl Pedestrian {
         }
     }
 
-    fn step_goto(
+    fn step_transition(
         &mut self,
         events: &mut Vec<Event>,
-        on: Traversable,
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<(), Error> {
         // Detect if the ped just warped. Bidirectional sidewalks are confusing. :)
-        if let Traversable::Lane(l) = self.on {
-            let l = map.get_l(l);
-            let pt1 = if self.contraflow {
-                l.first_pt()
-            } else {
-                l.last_pt()
+        {
+            let from = match self.path.current_step() {
+                PathStep::Lane(id) => map.get_l(*id).last_pt(),
+                PathStep::ContraflowLane(id) => map.get_l(*id).first_pt(),
+                PathStep::Turn(id) => map.get_t(*id).last_pt(),
             };
-            let pt2 = map.get_t(on.as_turn()).line.pt1();
-            let len = Line::new(pt1, pt2).length();
+            let to = match self.path.next_step() {
+                PathStep::Lane(id) => map.get_l(*id).first_pt(),
+                PathStep::ContraflowLane(id) => map.get_l(*id).last_pt(),
+                PathStep::Turn(id) => map.get_t(*id).first_pt(),
+            };
+            let len = Line::new(from, to).length();
             if len > 0.0 * si::M {
                 return Err(Error::new(format!("{} just warped {}", self.id, len)));
             }
         }
 
-        let old_on = self.on.clone();
         if let Traversable::Turn(t) = self.on {
             intersections.on_exit(Request::for_ped(self.id, t));
-            assert_eq!(self.path[0], map.get_t(t).dst);
-            self.path.pop_front();
         }
         events.push(Event::AgentLeavesTraversable(
             AgentID::Pedestrian(self.id),
-            old_on,
+            self.on,
         ));
-        events.push(Event::AgentEntersTraversable(
-            AgentID::Pedestrian(self.id),
-            on,
-        ));
-        self.waiting_for = None;
-        self.on = on;
-        self.dist_along = 0.0 * si::M;
-        self.contraflow = false;
-        match self.on {
-            Traversable::Turn(t) => {
-                intersections.on_enter(Request::for_ped(self.id, t))?;
+
+        // TODO could assert that it matches On
+        self.path.shift();
+
+        match self.path.current_step() {
+            PathStep::Lane(id) => {
+                self.on = Traversable::Lane(*id);
+                self.dist_along = 0.0 * si::M;
             }
-            Traversable::Lane(l) => {
-                // Which end of the sidewalk are we entering?
-                let turn = map.get_t(old_on.as_turn());
-                let lane = map.get_l(l);
-                if turn.parent == lane.dst_i {
-                    self.dist_along = lane.length();
-                }
-                // We might already be done with the current lane. Contraflow depends on the next
-                // step.
-                self.contraflow = if self.path.is_empty() {
-                    self.dist_along > self.goal.dist_along
-                } else {
-                    is_contraflow(map, l, self.path[0])
-                };
+            PathStep::ContraflowLane(id) => {
+                self.on = Traversable::Lane(*id);
+                self.dist_along = map.get_l(*id).length();
+            }
+            PathStep::Turn(t) => {
+                self.on = Traversable::Turn(*t);
+                self.dist_along = 0.0 * si::M;
+                intersections.on_enter(Request::for_ped(self.id, *t))?;
             }
         }
+
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Pedestrian(self.id),
+            self.on,
+        ));
 
         // TODO could calculate leftover (and deal with large timesteps, small
         // lanes)
@@ -304,6 +283,16 @@ impl Pedestrian {
         } else {
             self.on.dist_along(self.dist_along, map).0
         }
+    }
+
+    fn waiting_for_turn(&self) -> Option<TurnID> {
+        if self.moving || self.path.is_last_step() {
+            return None;
+        }
+        if let PathStep::Turn(id) = self.path.next_step() {
+            return Some(*id);
+        }
+        None
     }
 }
 
@@ -376,19 +365,21 @@ impl WalkingSimState {
             *current_agent = Some(AgentID::Pedestrian(*id));
             match *act {
                 Action::KeepCrossingPath => {
-                    if self
-                        .peds
-                        .get_mut(&id)
-                        .unwrap()
-                        .step_cross_path(events, delta_time, map)
-                    {
+                    let done = {
+                        let p = self.peds.get_mut(&id).unwrap();
+                        p.moving = true;
+                        p.step_cross_path(events, delta_time, map)
+                    };
+                    if done {
                         self.peds.remove(&id);
                         // TODO Should we return stuff to sim, or do the interaction here?
                         trips.ped_reached_building(*id, now);
                     }
                 }
                 Action::WaitAtBusStop(stop) => {
-                    self.peds.get_mut(&id).unwrap().active = false;
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.active = false;
+                    p.moving = false;
                     events.push(Event::PedReachedBusStop(*id, stop));
                     capture_backtrace("PedReachedBusStop");
                     self.peds_per_bus_stop.insert(stop, *id);
@@ -399,6 +390,7 @@ impl WalkingSimState {
                 }
                 Action::StartCrossingPath(bldg) => {
                     let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = true;
                     p.front_path = Some(CrossingFrontPath {
                         bldg,
                         dist_along: map.get_b(bldg).front_path.line.length(),
@@ -407,18 +399,19 @@ impl WalkingSimState {
                 }
                 Action::Continue => {
                     let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = true;
                     p.step_continue(delta_time, map);
                 }
-                Action::Goto(on) => {
+                Action::TransitionToNextStep => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    p.step_goto(events, on, map, intersections)?;
+                    p.moving = true;
+                    p.step_transition(events, map, intersections)?;
                 }
-                Action::WaitFor(on) => {
-                    self.peds.get_mut(&id).unwrap().waiting_for = Some(on);
-                    if let Traversable::Turn(t) = on {
-                        // Note this is idempotent and does NOT grant the request.
-                        intersections.submit_request(Request::for_ped(*id, t))?;
-                    }
+                Action::WaitFor(turn) => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = false;
+                    // Note this is idempotent and does NOT grant the request.
+                    intersections.submit_request(Request::for_ped(*id, turn))?;
                 }
             }
         }
@@ -450,8 +443,7 @@ impl WalkingSimState {
         Some(DrawPedestrianInput {
             id,
             pos: ped.get_pos(map),
-            // TODO this isnt correct, but works right now because this is only called by warp
-            waiting_for_turn: None,
+            waiting_for_turn: ped.waiting_for_turn(),
         })
     }
 
@@ -462,7 +454,7 @@ impl WalkingSimState {
             result.push(DrawPedestrianInput {
                 id: *id,
                 pos: ped.get_pos(map),
-                waiting_for_turn: ped.waiting_for.map(|on| on.as_turn()),
+                waiting_for_turn: ped.waiting_for_turn(),
             });
         }
         result
@@ -471,10 +463,11 @@ impl WalkingSimState {
     pub fn get_draw_peds_on_turn(&self, t: &Turn) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
         for id in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
+            let ped = &self.peds[id];
             result.push(DrawPedestrianInput {
                 id: *id,
-                pos: t.dist_along(self.peds[id].dist_along).0,
-                waiting_for_turn: None,
+                pos: t.dist_along(ped.dist_along).0,
+                waiting_for_turn: ped.waiting_for_turn(),
             });
         }
         result
@@ -488,13 +481,18 @@ impl WalkingSimState {
         start: SidewalkSpot,
         goal: SidewalkSpot,
         map: &Map,
-        mut path: VecDeque<LaneID>,
+        path: Path,
     ) {
-        let start_lane = path.pop_front().unwrap();
-        assert_eq!(start_lane, start.sidewalk);
-        if !path.is_empty() {
-            assert_eq!(*path.back().unwrap(), goal.sidewalk);
-        }
+        let start_lane = start.sidewalk;
+        assert_eq!(
+            path.current_step().as_traversable(),
+            Traversable::Lane(start_lane)
+        );
+        assert_eq!(
+            path.last_step().as_traversable(),
+            Traversable::Lane(goal.sidewalk)
+        );
+
         let front_path = if let SidewalkPOI::Building(id) = start.connection {
             Some(CrossingFrontPath {
                 bldg: id,
@@ -505,23 +503,17 @@ impl WalkingSimState {
             None
         };
 
-        let contraflow = if path.is_empty() {
-            start.dist_along > goal.dist_along
-        } else {
-            is_contraflow(map, start_lane, path[0])
-        };
         self.peds.insert(
             id,
             Pedestrian {
                 id,
                 trip,
                 path,
-                contraflow,
                 on: Traversable::Lane(start_lane),
                 dist_along: start.dist_along,
-                waiting_for: None,
                 front_path,
                 goal,
+                moving: true,
                 active: true,
             },
         );
@@ -542,11 +534,7 @@ impl WalkingSimState {
                     debug: false,
                     on: p.on,
                     dist_along: p.dist_along,
-                    speed: if p.waiting_for.is_some() {
-                        0.0 * si::MPS
-                    } else {
-                        SPEED
-                    },
+                    speed: if p.moving { SPEED } else { 0.0 * si::MPS },
                     vehicle: None,
                 },
             );
@@ -554,11 +542,7 @@ impl WalkingSimState {
     }
 
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
-        let waiting = self
-            .peds
-            .values()
-            .filter(|p| p.waiting_for.is_some())
-            .count();
+        let waiting = self.peds.values().filter(|p| !p.moving).count();
         (waiting, self.peds.len())
     }
 
@@ -566,9 +550,9 @@ impl WalkingSimState {
         self.peds.is_empty()
     }
 
-    // TODO share impl with router... contraflow is the only difference
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
-        let p = self.peds.get(&id)?;
+        panic!("TODO");
+        /*let p = self.peds.get(&id)?;
 
         let (mut result, mut dist_left) = {
             if p.path.is_empty() && p.on.maybe_lane().is_some() {
@@ -640,6 +624,7 @@ impl WalkingSimState {
 
         // Excess dist_left is just ignored
         Some(result)
+        */
     }
 
     pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {
@@ -675,34 +660,14 @@ impl WalkingSimState {
         for l in lanes {
             for ped in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
                 let p = &self.peds[ped];
-                if p.waiting_for.is_some() {
-                    stuck_peds += 1;
-                } else {
+                if p.moving {
                     moving_peds += 1;
+                } else {
+                    stuck_peds += 1;
                 }
             }
         }
 
         (moving_peds, stuck_peds)
     }
-}
-
-fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
-    map.get_l(from).dst_i != map.get_l(to).src_i
-}
-
-fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
-    let l = map.get_l(from);
-    let endpoint = if is_contraflow(map, from, to) {
-        l.src_i
-    } else {
-        l.dst_i
-    };
-
-    for t in map.get_turns_from_lane(from) {
-        if t.parent == endpoint && t.dst == to {
-            return t.id;
-        }
-    }
-    panic!("No turn from {} ({} end) to {}", from, endpoint, to);
 }

@@ -113,7 +113,7 @@ fn step(visited: &mut HashSet<LaneID>, queue: &mut VecDeque<LaneID>, map: &Map) 
             continue;
         }
         visited.insert(l.id);
-        for next in &map.get_next_lanes(l.id) {
+        for (_, next) in &map.get_next_turns_and_lanes(l.id) {
             if !visited.contains(&next.id) {
                 queue.push_back(next.id);
             }

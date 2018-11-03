@@ -2,9 +2,10 @@ use dimensioned::si;
 use geom::{Line, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {LaneID, LaneType, Map, TurnID};
+use {LaneID, LaneType, Map, Traversable, TurnID};
 
-#[derive(Debug, PartialEq)]
+// TODO Make copy and return copies from all the Path queries, so we can stop dereferencing
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
@@ -13,17 +14,80 @@ pub enum PathStep {
     Turn(TurnID),
 }
 
+// TODO All of these feel a bit hacky.
+impl PathStep {
+    pub fn is_contraflow(&self) -> bool {
+        match self {
+            PathStep::ContraflowLane(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_traversable(&self) -> Traversable {
+        match self {
+            PathStep::Lane(id) => Traversable::Lane(*id),
+            PathStep::ContraflowLane(id) => Traversable::Lane(*id),
+            PathStep::Turn(id) => Traversable::Turn(*id),
+        }
+    }
+
+    pub fn as_turn(&self) -> TurnID {
+        self.as_traversable().as_turn()
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct Path {
     // TODO way to encode start/end dist? I think it's needed for trace_route later...
     // actually not start dist -- that really changes all the time
     steps: VecDeque<PathStep>,
 }
 
+// TODO can have a method to verify the path is valid
 impl Path {
     fn new(steps: Vec<PathStep>) -> Path {
         Path {
             steps: VecDeque::from(steps),
         }
+    }
+
+    pub fn num_lanes(&self) -> usize {
+        let mut count = 0;
+        for s in &self.steps {
+            match s {
+                PathStep::Lane(_) | PathStep::ContraflowLane(_) => count += 1,
+                _ => {}
+            };
+        }
+        count
+    }
+
+    pub fn is_last_step(&self) -> bool {
+        self.steps.len() == 1
+    }
+
+    pub fn isnt_last_step(&self) -> bool {
+        self.steps.len() > 1
+    }
+
+    pub fn shift(&mut self) -> PathStep {
+        self.steps.pop_front().unwrap()
+    }
+
+    pub fn add(&mut self, step: PathStep) {
+        self.steps.push_back(step);
+    }
+
+    pub fn current_step(&self) -> &PathStep {
+        &self.steps[0]
+    }
+
+    pub fn next_step(&self) -> &PathStep {
+        &self.steps[1]
+    }
+
+    pub fn last_step(&self) -> &PathStep {
+        &self.steps[self.steps.len() - 1]
     }
 }
 
@@ -55,9 +119,9 @@ impl Pathfinder {
         match self {
             Pathfinder::ShortestDistance { goal_pt, is_bike } => {
                 let current_length = NotNaN::new(map.get_l(current).length().value_unsafe).unwrap();
-                map.get_next_lanes(current)
-                    .iter()
-                    .filter_map(|next| {
+                map.get_next_turns_and_lanes(current)
+                    .into_iter()
+                    .filter_map(|(_turn, next)| {
                         if !is_bike && next.lane_type == LaneType::Biking {
                             None
                         } else {
@@ -75,7 +139,7 @@ impl Pathfinder {
                 let current_lane = map.get_l(current);
                 let current_length = NotNaN::new(current_lane.length().value_unsafe).unwrap();
                 let mut results: Vec<(LaneID, NotNaN<f64>)> = Vec::new();
-                for next in &map.get_next_lanes(current) {
+                for (_turn, next) in &map.get_next_turns_and_lanes(current) {
                     results.push((next.id, current_length));
                 }
                 for stop1 in &current_lane.bus_stops {

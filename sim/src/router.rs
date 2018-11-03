@@ -2,10 +2,9 @@ use dimensioned::si;
 use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, Trace, Traversable, TurnID};
+use map_model::{BuildingID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
-use std::collections::VecDeque;
 use transit::TransitSimState;
 use view::AgentView;
 use {Distance, Event, ParkingSpot, Tick};
@@ -19,21 +18,20 @@ enum Goal {
 // Gives higher-level instructions to a car.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Router {
-    // Head is the next lane, so when the car finishes a turn and enters the next lane, this
-    // shifts.
-    path: VecDeque<LaneID>,
+    // The head of the path is the current lane or turn.
+    path: Path,
     goal: Goal,
 }
 
 impl Router {
-    pub fn make_router_to_park(path: VecDeque<LaneID>, goal: BuildingID) -> Router {
+    pub fn make_router_to_park(path: Path, goal: BuildingID) -> Router {
         Router {
             path,
             goal: Goal::ParkNearBuilding(goal),
         }
     }
 
-    pub fn make_router_for_bus(first_path: VecDeque<LaneID>) -> Router {
+    pub fn make_router_for_bus(first_path: Path) -> Router {
         Router {
             path: first_path,
             goal: Goal::FollowBusRoute,
@@ -41,7 +39,7 @@ impl Router {
     }
 
     pub fn tooltip_line(&self) -> String {
-        format!("{} lanes left in path", self.path.len())
+        format!("{} lanes left in path", self.path.num_lanes())
     }
 
     // Mutable so we can roam around and try another road to park if the last one is unavailable.
@@ -59,7 +57,7 @@ impl Router {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
     ) -> Option<Action> {
-        if !self.path.is_empty() || view.speed > kinematics::EPSILON_SPEED {
+        if self.path.isnt_last_step() || view.speed > kinematics::EPSILON_SPEED {
             return None;
         }
 
@@ -102,7 +100,7 @@ impl Router {
         parking_sim: &ParkingSimState,
         transit_sim: &TransitSimState,
     ) -> Option<Distance> {
-        if self.path.is_empty() {
+        if self.path.is_last_step() {
             match self.goal {
                 Goal::ParkNearBuilding(_) => {
                     if let Some(spot) =
@@ -123,13 +121,24 @@ impl Router {
         None
     }
 
-    pub fn choose_turn(&self, from: LaneID, map: &Map) -> TurnID {
-        pick_turn(from, self.path[0], map)
+    // Returns the next step
+    pub fn finished_step(&mut self, on: Traversable) -> &PathStep {
+        let expected = match on {
+            Traversable::Lane(id) => PathStep::Lane(id),
+            Traversable::Turn(id) => PathStep::Turn(id),
+        };
+        assert_eq!(expected, self.path.shift());
+        self.path.current_step()
     }
 
-    pub fn advance_to(&mut self, next_lane: LaneID) {
-        assert_eq!(next_lane, self.path[0]);
-        self.path.pop_front();
+    pub fn next_step_as_turn(&self) -> Option<TurnID> {
+        if self.path.is_last_step() {
+            return None;
+        }
+        if let PathStep::Turn(id) = self.path.next_step() {
+            return Some(*id);
+        }
+        None
     }
 
     fn look_for_parking(
@@ -142,31 +151,28 @@ impl Router {
         // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
         // to physically see the spots), stay close to the original goal building, avoid lanes
         // we've visited, prefer easier turns...
-        let choices = map.get_next_lanes(last_lane);
+        let choices = map.get_next_turns_and_lanes(last_lane);
         if choices.is_empty() {
             if view.debug {
                 debug!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);
             }
             return Some(Action::VanishAtDeadEnd);
         }
-        let choice = rng.choose(&choices).unwrap().id;
+        let (turn, new_lane) = rng.choose(&choices).unwrap();
         if view.debug {
             debug!(
                 "{} can't find parking on {}, so wandering over to {}",
-                view.id, last_lane, choice
+                view.id, last_lane, new_lane.id
             );
         }
-        self.path.push_back(choice);
+        self.path.add(PathStep::Turn(turn.id));
+        self.path.add(PathStep::Lane(new_lane.id));
         None
     }
 
-    pub fn trace_route(
-        &self,
-        start: Traversable,
-        start_dist: Distance,
-        map: &Map,
-        dist_along: Distance,
-    ) -> Trace {
+    pub fn trace_route(&self, start_dist: Distance, map: &Map, dist_ahead: Distance) -> Trace {
+        panic!("TODO");
+        /*
         let (mut result, mut dist_left) =
             start.slice(false, map, start_dist, start_dist + dist_along);
 
@@ -201,6 +207,7 @@ impl Router {
 
         // Excess dist_left is just ignored
         result
+        */
     }
 }
 
@@ -214,13 +221,4 @@ fn find_parking_spot(
         .find_parking_lane(driving_lane)
         .ok()
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
-}
-
-fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
-    for t in map.get_turns_from_lane(from) {
-        if t.dst == to {
-            return t.id;
-        }
-    }
-    panic!("No turn from {} to {}", from, to);
 }

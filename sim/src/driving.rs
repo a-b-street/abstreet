@@ -5,7 +5,7 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, Trace, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{BuildingID, LaneID, Map, PathStep, Trace, Traversable, TurnID, LANE_THICKNESS};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -45,9 +45,6 @@ struct Car {
     vehicle: Vehicle,
 
     parking: Option<ParkingState>,
-
-    // TODO should this only be turns?
-    waiting_for: Option<Traversable>,
 
     debug: bool,
     // TODO ew? :\
@@ -179,7 +176,7 @@ impl Car {
             }
 
             // Stop for something?
-            if let Traversable::Lane(id) = current_on {
+            if current_on.maybe_lane().is_some() {
                 let maybe_stop_early = current_router.stop_early_at_dist(
                     current_on,
                     current_dist_along,
@@ -197,7 +194,8 @@ impl Car {
                     let should_stop = if maybe_stop_early.is_some() {
                         true
                     } else {
-                        let req = Request::for_car(self.id, current_router.choose_turn(id, map));
+                        let req =
+                            Request::for_car(self.id, current_router.next_step_as_turn().unwrap());
                         let granted = intersections.request_granted(req.clone());
                         if !granted {
                             // Otherwise, we wind up submitting a request at the end of our step, after
@@ -227,13 +225,7 @@ impl Car {
             if dist_to_lookahead <= 0.0 * si::M {
                 break;
             }
-            current_on = match current_on {
-                Traversable::Turn(t) => {
-                    current_router.advance_to(t.dst);
-                    Traversable::Lane(t.dst)
-                }
-                Traversable::Lane(l) => Traversable::Turn(current_router.choose_turn(l, map)),
-            };
+            current_on = current_router.finished_step(current_on).as_traversable();
             current_dist_along = 0.0 * si::M;
             dist_scanned_ahead += dist_this_step;
         }
@@ -296,36 +288,42 @@ impl Car {
                 }
                 break;
             }
-            let next_on = match self.on {
-                Traversable::Turn(t) => Traversable::Lane(map.get_t(t).dst),
-                Traversable::Lane(l) => Traversable::Turn(router.choose_turn(l, map)),
-            };
 
             if let Traversable::Turn(t) = self.on {
                 intersections.on_exit(Request::for_car(self.id, t));
-                router.advance_to(t.dst);
             }
             events.push(Event::AgentLeavesTraversable(
                 AgentID::Car(self.id),
                 self.on,
             ));
+
+            match router.finished_step(self.on) {
+                PathStep::Lane(id) => {
+                    self.on = Traversable::Lane(*id);
+                }
+                PathStep::Turn(id) => {
+                    self.on = Traversable::Turn(*id);
+                    intersections
+                        .on_enter(Request::for_car(self.id, *id))
+                        .map_err(|e| {
+                            e.context(format!(
+                                "new speed {}, leftover dist {}",
+                                self.speed, leftover_dist
+                            ))
+                        })?;
+                }
+                x => {
+                    return Err(Error::new(format!(
+                        "car router had unexpected PathStep {:?}",
+                        x
+                    )));
+                }
+            };
+            self.dist_along = leftover_dist;
             events.push(Event::AgentEntersTraversable(
                 AgentID::Car(self.id),
-                next_on,
+                self.on,
             ));
-            self.waiting_for = None;
-            self.on = next_on;
-            if let Traversable::Turn(t) = self.on {
-                intersections
-                    .on_enter(Request::for_car(self.id, t))
-                    .map_err(|e| {
-                        e.context(format!(
-                            "new speed {}, leftover dist {}",
-                            self.speed, leftover_dist
-                        ))
-                    })?;
-            }
-            self.dist_along = leftover_dist;
         }
         Ok(())
     }
@@ -508,7 +506,6 @@ impl DrivingSimState {
                     "On {:?}, speed {:?}, dist along {:?}",
                     c.on, c.speed, c.dist_along
                 ),
-                format!("Committed to waiting for {:?}", c.waiting_for),
                 self.routers[&id].tooltip_line(),
             ])
         } else {
@@ -636,15 +633,6 @@ impl DrivingSimState {
                         // TODO should we check that the car is currently the lead vehicle?
                         // intersection is assuming that! or relax that assumption.
                         intersections.submit_request(req.clone())?;
-
-                        // TODO kind of a weird way to figure out when to fill this out...
-                        // duplicated with stop sign's check, also. should check that they're a
-                        // leader vehicle...
-                        if Traversable::Lane(req.turn.src) == c.on
-                            && c.speed <= kinematics::EPSILON_SPEED
-                        {
-                            c.waiting_for = Some(Traversable::Turn(req.turn));
-                        }
                     }
                 }
                 Action::VanishAtDeadEnd => {
@@ -757,7 +745,6 @@ impl DrivingSimState {
                 dist_along: params.dist_along,
                 speed: 0.0 * si::MPS,
                 vehicle: params.vehicle,
-                waiting_for: None,
                 debug: false,
                 is_bus: !params.maybe_parked_car.is_some(),
                 parking: params.maybe_parked_car.and_then(|parked_car| {
@@ -801,7 +788,7 @@ impl DrivingSimState {
         Some(DrawCarInput {
             id: c.id,
             vehicle_length: c.vehicle.length,
-            waiting_for_turn: c.waiting_for.and_then(|on| on.maybe_turn()),
+            waiting_for_turn: self.routers[&c.id].next_step_as_turn(),
             front: pos,
             angle,
             stopping_trace: self.trace_route(id, map, c.vehicle.stopping_distance(c.speed)),
@@ -844,7 +831,7 @@ impl DrivingSimState {
         }
         let r = self.routers.get(&id)?;
         let c = &self.cars[&id];
-        Some(r.trace_route(c.on, c.dist_along, map, dist_ahead))
+        Some(r.trace_route(c.dist_along, map, dist_ahead))
     }
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {

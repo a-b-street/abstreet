@@ -70,6 +70,14 @@ impl Turn {
         self.line.length()
     }
 
+    pub fn first_pt(&self) -> Pt2D {
+        self.line.pt1()
+    }
+
+    pub fn last_pt(&self) -> Pt2D {
+        self.line.pt2()
+    }
+
     // TODO all the stuff based on turn angle is a bit... wrong, especially for sidewalks. :\
     // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
     pub fn turn_angle(&self, map: &Map) -> Angle {

@@ -40,7 +40,7 @@ pub use intersection::{Intersection, IntersectionID};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
-pub use pathfind::Pathfinder;
+pub use pathfind::{Path, PathStep, Pathfinder};
 pub use road::{Road, RoadID};
 pub use traversable::{Trace, TraceGeometry, TraceSegment, Traversable};
 pub use turn::{Turn, TurnID};

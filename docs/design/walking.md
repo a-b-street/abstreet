@@ -67,6 +67,7 @@ And what about modeling shared left-turn lanes?
 
 One-way sidewalk lanes would NOT solve the turn-chains:
 - think about crossing N, then W at a 4-way. legitimately doing two turns in sequence. and this is fine!
+	- executing two turns in sequence might be tricky
 
 An alternative:
 - in sim, pathfinding, map model trace, etc layers only, using some new

@@ -1,7 +1,7 @@
 use abstutil::elapsed_seconds;
 use driving::{CreateCar, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Pathfinder, RoadID};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
@@ -11,8 +11,8 @@ use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
 use {
-    fork_rng, weighted_sample, AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID,
-    RouteID, Tick, TripID, WeightedUsizeChoice,
+    fork_rng, weighted_sample, AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot,
+    PedestrianID, RouteID, Tick, TripID, WeightedUsizeChoice,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -29,14 +29,28 @@ impl Command {
         }
     }
 
-    fn get_pathfinding_lanes(&self, map: &Map) -> (LaneID, LaneID) {
+    fn get_pathfinding_request(
+        &self,
+        map: &Map,
+        parking_sim: &ParkingSimState,
+    ) -> (LaneID, Distance, LaneID, Distance) {
         match self {
-            Command::Walk(_, _, _, spot1, spot2) => (spot1.sidewalk, spot2.sidewalk),
-            Command::Drive(_, _, parked_car, goal_bldg) => (
-                map.get_driving_lane_from_parking(parked_car.spot.lane)
-                    .unwrap(),
-                find_driving_lane_near_building(*goal_bldg, map),
+            Command::Walk(_, _, _, spot1, spot2) => (
+                spot1.sidewalk,
+                spot1.dist_along,
+                spot2.sidewalk,
+                spot2.dist_along,
             ),
+            Command::Drive(_, _, parked_car, goal_bldg) => {
+                let goal_lane = find_driving_lane_near_building(*goal_bldg, map);
+                (
+                    map.get_driving_lane_from_parking(parked_car.spot.lane)
+                        .unwrap(),
+                    parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle),
+                    goal_lane,
+                    map.get_l(goal_lane).length(),
+                )
+            }
         }
     }
 
@@ -82,7 +96,7 @@ impl Spawner {
         trips: &mut TripManager,
     ) {
         let mut commands: Vec<Command> = Vec::new();
-        let mut requested_paths: Vec<(LaneID, LaneID)> = Vec::new();
+        let mut requested_paths: Vec<(LaneID, Distance, LaneID, Distance)> = Vec::new();
         loop {
             if self
                 .commands
@@ -91,7 +105,7 @@ impl Spawner {
                 .unwrap_or(false)
             {
                 let cmd = self.commands.pop().unwrap();
-                requested_paths.push(cmd.get_pathfinding_lanes(map));
+                requested_paths.push(cmd.get_pathfinding_request(map, parking_sim));
                 commands.push(cmd);
             } else {
                 break;
@@ -105,7 +119,7 @@ impl Spawner {
         let mut spawned_agents = 0;
         for (cmd, (req, maybe_path)) in commands.into_iter().zip(requested_paths.iter().zip(paths))
         {
-            if let Some(mut path) = maybe_path {
+            if let Some(path) = maybe_path {
                 match cmd {
                     Command::Drive(_, trip, ref parked_car, goal_bldg) => {
                         let car = parked_car.car;
@@ -114,7 +128,7 @@ impl Spawner {
                         // due to diagonals
                         let dist_along =
                             parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle);
-                        let start = path.pop_front().unwrap();
+                        let start = path.current_step().as_traversable().as_lane();
                         if driving_sim.start_car_on_lane(
                             events,
                             now,
@@ -146,7 +160,7 @@ impl Spawner {
             } else {
                 debug!(
                     "Couldn't find path from {} to {} for {:?}",
-                    req.0, req.1, cmd
+                    req.0, req.2, cmd
                 );
             }
         }
@@ -171,14 +185,14 @@ impl Spawner {
         let route_id = transit_sim.create_empty_route(route, map);
         let mut results: Vec<CarID> = Vec::new();
         // Try to spawn a bus at each stop
-        for (next_stop_idx, start_dist_along, mut path) in
+        for (next_stop_idx, start_dist_along, path) in
             transit_sim.get_route_starts(route_id, map).into_iter()
         {
             let id = CarID(self.car_id_counter);
             self.car_id_counter += 1;
             let vehicle = Vehicle::generate_bus(id, rng);
 
-            let start = path.pop_front().unwrap();
+            let start = path.current_step().as_traversable().as_lane();
 
             // TODO For now, skip spawning this bus too. :\
             if start_dist_along > map.get_l(start).length() {
@@ -487,19 +501,20 @@ impl Spawner {
 }
 
 fn calculate_paths(
-    requested_paths: &Vec<(LaneID, LaneID)>,
+    requested_paths: &Vec<(LaneID, Distance, LaneID, Distance)>,
     map: &Map,
-) -> Vec<Option<VecDeque<LaneID>>> {
+) -> Vec<Option<Path>> {
     use rayon::prelude::*;
 
     debug!("Calculating {} paths", requested_paths.len());
     // TODO better timer macro
     let timer = Instant::now();
-    let paths: Vec<Option<VecDeque<LaneID>>> = requested_paths
+    let paths: Vec<Option<Path>> = requested_paths
         .par_iter()
         // TODO No bikes yet, so never use the bike lanes
-        .map(|(start, goal)| Pathfinder::shortest_distance(map, *start, *goal, false))
-        .collect();
+        .map(|(start, start_dist, goal, goal_dist)| {
+            Pathfinder::shortest_distance(map, *start, *start_dist, *goal, *goal_dist, false)
+        }).collect();
 
     debug!(
         "Calculating {} paths took {}s",

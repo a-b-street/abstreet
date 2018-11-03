@@ -408,11 +408,11 @@ impl Map {
         turns
     }
 
-    pub fn get_next_lanes(&self, from: LaneID) -> Vec<&Lane> {
+    pub fn get_next_turns_and_lanes(&self, from: LaneID) -> Vec<(&Turn, &Lane)> {
         // TODO assumes no duplicates
         self.get_turns_from_lane(from)
-            .iter()
-            .map(|t| self.get_l(t.dst))
+            .into_iter()
+            .map(|t| (t, self.get_l(t.dst)))
             .collect()
     }
 
