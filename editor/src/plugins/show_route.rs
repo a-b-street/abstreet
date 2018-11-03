@@ -10,6 +10,7 @@ use std::f64;
 pub enum ShowRouteState {
     Inactive,
     Active(Tick, TripID, Option<Trace>),
+    DebugAllRoutes(Tick, Vec<Trace>),
 }
 
 impl ShowRouteState {
@@ -41,8 +42,23 @@ impl Plugin for ShowRouteState {
             ShowRouteState::Active(time, trip, _) => {
                 if ctx.input.key_pressed(Key::Return, "stop showing route") {
                     new_state = Some(ShowRouteState::Inactive);
+                } else if ctx
+                    .input
+                    .key_pressed(Key::A, "show routes for all trips, to debug")
+                {
+                    new_state = Some(debug_all_routes(ctx));
                 } else if *time != ctx.primary.sim.time {
                     new_state = Some(show_route(*trip, ctx));
+                }
+            }
+            ShowRouteState::DebugAllRoutes(time, _) => {
+                if ctx
+                    .input
+                    .key_pressed(Key::Return, "stop showing all routes")
+                {
+                    new_state = Some(ShowRouteState::Inactive);
+                } else if *time != ctx.primary.sim.time {
+                    new_state = Some(debug_all_routes(ctx));
                 }
             }
         };
@@ -57,11 +73,22 @@ impl Plugin for ShowRouteState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        if let ShowRouteState::Active(_, _, Some(trace)) = self {
-            g.draw_polygon(
-                ctx.cs.get("route", Color::rgba(255, 0, 0, 0.8)),
-                &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
-            );
+        match self {
+            ShowRouteState::Active(_, _, Some(trace)) => {
+                g.draw_polygon(
+                    ctx.cs.get("route", Color::rgba(255, 0, 0, 0.8)),
+                    &trace.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+                );
+            }
+            ShowRouteState::DebugAllRoutes(_, traces) => {
+                for t in traces {
+                    g.draw_polygon(
+                        ctx.cs.get("route", Color::rgba(255, 0, 0, 0.8)),
+                        &t.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+                    );
+                }
+            }
+            _ => {}
         }
     }
 }
@@ -87,4 +114,17 @@ fn show_route(trip: TripID, ctx: PluginCtx) -> ShowRouteState {
         );
         ShowRouteState::Active(time, trip, None)
     }
+}
+
+fn debug_all_routes(ctx: PluginCtx) -> ShowRouteState {
+    let sim = &ctx.primary.sim;
+    let mut traces: Vec<Trace> = Vec::new();
+    for trip in sim.get_stats().canonical_pt_per_trip.keys() {
+        if let Some(agent) = sim.trip_to_agent(*trip) {
+            if let Some(trace) = sim.trace_route(agent, &ctx.primary.map, f64::MAX * si::M) {
+                traces.push(trace);
+            }
+        }
+    }
+    ShowRouteState::DebugAllRoutes(sim.time, traces)
 }
