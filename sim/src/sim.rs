@@ -7,7 +7,7 @@ use dimensioned::si;
 use driving::DrivingSimState;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Trace, Turn, TurnID};
+use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn, TurnID};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -362,10 +362,16 @@ impl Sim {
     }
 
     pub fn trace_route(&self, id: AgentID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
-        // TODO could assert that the trace has a polyline by the time it gets here
         match id {
             AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
             AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),
+        }
+    }
+
+    pub fn get_path(&self, id: AgentID) -> Option<&Path> {
+        match id {
+            AgentID::Car(car) => self.driving_state.get_path(car),
+            AgentID::Pedestrian(ped) => self.walking_state.get_path(ped),
         }
     }
 

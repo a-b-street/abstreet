@@ -5,7 +5,9 @@ use geom::EPSILON_DIST;
 use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, PathStep, Trace, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{
+    BuildingID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID, LANE_THICKNESS,
+};
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use parking::ParkingSimState;
@@ -832,6 +834,11 @@ impl DrivingSimState {
         let r = self.routers.get(&id)?;
         let c = &self.cars[&id];
         Some(r.trace_route(c.dist_along, map, dist_ahead))
+    }
+
+    pub fn get_path(&self, id: CarID) -> Option<&Path> {
+        let r = self.routers.get(&id)?;
+        Some(r.get_path())
     }
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {

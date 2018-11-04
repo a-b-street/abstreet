@@ -188,6 +188,10 @@ impl Path {
 
         return pts_so_far.unwrap();
     }
+
+    pub fn get_steps(&self) -> &VecDeque<PathStep> {
+        &self.steps
+    }
 }
 
 pub enum Pathfinder {

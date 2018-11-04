@@ -536,6 +536,11 @@ impl WalkingSimState {
         Some(p.path.trace(map, p.dist_along, dist_ahead))
     }
 
+    pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {
+        let p = self.peds.get(&id)?;
+        Some(&p.path)
+    }
+
     pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {
         // TODO ew, annoying multimap API and clone
         self.peds_per_bus_stop

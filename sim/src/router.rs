@@ -173,6 +173,10 @@ impl Router {
     pub fn trace_route(&self, start_dist: Distance, map: &Map, dist_ahead: Distance) -> Trace {
         self.path.trace(map, start_dist, dist_ahead)
     }
+
+    pub fn get_path(&self) -> &Path {
+        &self.path
+    }
 }
 
 fn find_parking_spot(
