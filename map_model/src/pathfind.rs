@@ -95,8 +95,6 @@ impl Path {
 
 pub enum Pathfinder {
     ShortestDistance { goal_pt: Pt2D, is_bike: bool },
-    // TODO result isn't really lanes, we also want to know bus stops... post-process? remember
-    // more stuff? hmm.
     UsingTransit,
 }
 
@@ -123,10 +121,12 @@ impl Pathfinder {
                 let current_length = NotNaN::new(map.get_l(current).length().value_unsafe).unwrap();
                 map.get_next_turns_and_lanes(current)
                     .into_iter()
-                    .filter_map(|(_turn, next)| {
+                    .filter_map(|(_, next)| {
                         if !is_bike && next.lane_type == LaneType::Biking {
                             None
                         } else {
+                            // TODO cost and heuristic are wrong. need to reason about PathSteps,
+                            // not LaneIDs, I think. :\
                             let heuristic_dist = NotNaN::new(
                                 Line::new(next.first_pt(), *goal_pt).length().value_unsafe,
                             ).unwrap();
@@ -141,14 +141,17 @@ impl Pathfinder {
                 let current_lane = map.get_l(current);
                 let current_length = NotNaN::new(current_lane.length().value_unsafe).unwrap();
                 let mut results: Vec<(LaneID, NotNaN<f64>)> = Vec::new();
-                for (_turn, next) in &map.get_next_turns_and_lanes(current) {
+                for (_, next) in &map.get_next_turns_and_lanes(current) {
                     results.push((next.id, current_length));
                 }
+                // TODO Need to add a PathStep for riding a bus between two stops.
+                /*
                 for stop1 in &current_lane.bus_stops {
                     for stop2 in &map.get_connected_bus_stops(*stop1) {
                         results.push((stop2.sidewalk, current_length));
                     }
                 }
+                */
                 results
             }
         }
@@ -182,15 +185,15 @@ impl Pathfinder {
 
             // Found it, now produce the path
             if current == end {
-                let mut reversed_steps: Vec<PathStep> = Vec::new();
+                let mut reversed_lanes: Vec<LaneID> = Vec::new();
                 let mut lookup = current;
                 loop {
-                    reversed_steps.push(PathStep::Lane(lookup));
+                    reversed_lanes.push(lookup);
                     if lookup == start {
-                        reversed_steps.reverse();
-                        assert_eq!(reversed_steps[0], PathStep::Lane(start));
-                        assert_eq!(*reversed_steps.last().unwrap(), PathStep::Lane(end));
-                        return Some(Path::new(map, reversed_steps));
+                        reversed_lanes.reverse();
+                        assert_eq!(reversed_lanes[0], start);
+                        assert_eq!(*reversed_lanes.last().unwrap(), end);
+                        return Some(lanes_to_path(map, VecDeque::from(reversed_lanes)));
                     }
                     lookup = backrefs[&lookup];
                 }
@@ -231,4 +234,73 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
             );
         }
     }
+}
+
+// TODO Tmp hack. Need to rewrite the A* implementation to natively understand PathSteps.
+fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>) -> Path {
+    assert!(lanes.len() > 1);
+    let mut steps: Vec<PathStep> = Vec::new();
+
+    if is_contraflow(map, lanes[0], lanes[1]) {
+        steps.push(PathStep::ContraflowLane(lanes[0]));
+    } else {
+        steps.push(PathStep::Lane(lanes[0]));
+    }
+    let mut current_turn = pick_turn(lanes[0], lanes[1], map);
+    steps.push(PathStep::Turn(current_turn));
+
+    lanes.pop_front();
+    lanes.pop_front();
+
+    loop {
+        if lanes.is_empty() {
+            break;
+        }
+
+        assert!(lanes[0] != current_turn.dst);
+
+        let next_turn = pick_turn(current_turn.dst, lanes[0], map);
+        if current_turn.parent == next_turn.parent {
+            // Don't even cross the current lane!
+        } else if leads_to_end_of_lane(current_turn, map) {
+            steps.push(PathStep::ContraflowLane(current_turn.dst));
+        } else {
+            steps.push(PathStep::Lane(current_turn.dst));
+        }
+        steps.push(PathStep::Turn(next_turn));
+
+        lanes.pop_front();
+        current_turn = next_turn;
+    }
+
+    if leads_to_end_of_lane(current_turn, map) {
+        steps.push(PathStep::ContraflowLane(current_turn.dst));
+    } else {
+        steps.push(PathStep::Lane(current_turn.dst));
+    }
+    Path::new(map, steps)
+}
+
+fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
+    let l = map.get_l(from);
+    let endpoint = if is_contraflow(map, from, to) {
+        l.src_i
+    } else {
+        l.dst_i
+    };
+
+    for t in map.get_turns_from_lane(from) {
+        if t.parent == endpoint && t.dst == to {
+            return t.id;
+        }
+    }
+    panic!("No turn from {} ({} end) to {}", from, endpoint, to);
+}
+
+fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
+    map.get_l(from).dst_i != map.get_l(to).src_i
+}
+
+fn leads_to_end_of_lane(turn: TurnID, map: &Map) -> bool {
+    is_contraflow(map, turn.src, turn.dst)
 }
