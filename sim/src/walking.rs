@@ -164,8 +164,8 @@ impl Pedestrian {
         }
 
         if let PathStep::Turn(id) = self.path.next_step() {
-            if !intersections.request_granted(Request::for_ped(self.id, *id)) {
-                return Action::WaitFor(*id);
+            if !intersections.request_granted(Request::for_ped(self.id, id)) {
+                return Action::WaitFor(id);
             }
         }
 
@@ -235,17 +235,17 @@ impl Pedestrian {
 
         match self.path.current_step() {
             PathStep::Lane(id) => {
-                self.on = Traversable::Lane(*id);
+                self.on = Traversable::Lane(id);
                 self.dist_along = 0.0 * si::M;
             }
             PathStep::ContraflowLane(id) => {
-                self.on = Traversable::Lane(*id);
-                self.dist_along = map.get_l(*id).length();
+                self.on = Traversable::Lane(id);
+                self.dist_along = map.get_l(id).length();
             }
             PathStep::Turn(t) => {
-                self.on = Traversable::Turn(*t);
+                self.on = Traversable::Turn(t);
                 self.dist_along = 0.0 * si::M;
-                intersections.on_enter(Request::for_ped(self.id, *t))?;
+                intersections.on_enter(Request::for_ped(self.id, t))?;
             }
         }
 
@@ -272,7 +272,7 @@ impl Pedestrian {
             return None;
         }
         if let PathStep::Turn(id) = self.path.next_step() {
-            return Some(*id);
+            return Some(id);
         }
         None
     }

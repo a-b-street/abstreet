@@ -4,8 +4,7 @@ use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 use {LaneID, LaneType, Map, Traversable, TurnID};
 
-// TODO Make copy and return copies from all the Path queries, so we can stop dereferencing
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
@@ -14,7 +13,6 @@ pub enum PathStep {
     Turn(TurnID),
 }
 
-// TODO All of these feel a bit hacky.
 impl PathStep {
     pub fn is_contraflow(&self) -> bool {
         match self {
@@ -29,10 +27,6 @@ impl PathStep {
             PathStep::ContraflowLane(id) => Traversable::Lane(*id),
             PathStep::Turn(id) => Traversable::Turn(*id),
         }
-    }
-
-    pub fn as_turn(&self) -> TurnID {
-        self.as_traversable().as_turn()
     }
 
     // Returns dist_remaining
@@ -119,16 +113,16 @@ impl Path {
         self.steps.push_back(step);
     }
 
-    pub fn current_step(&self) -> &PathStep {
-        &self.steps[0]
+    pub fn current_step(&self) -> PathStep {
+        self.steps[0]
     }
 
-    pub fn next_step(&self) -> &PathStep {
-        &self.steps[1]
+    pub fn next_step(&self) -> PathStep {
+        self.steps[1]
     }
 
-    pub fn last_step(&self) -> &PathStep {
-        &self.steps[self.steps.len() - 1]
+    pub fn last_step(&self) -> PathStep {
+        self.steps[self.steps.len() - 1]
     }
 
     pub fn trace(

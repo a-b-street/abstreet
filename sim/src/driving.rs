@@ -301,12 +301,12 @@ impl Car {
 
             match router.finished_step(self.on) {
                 PathStep::Lane(id) => {
-                    self.on = Traversable::Lane(*id);
+                    self.on = Traversable::Lane(id);
                 }
                 PathStep::Turn(id) => {
-                    self.on = Traversable::Turn(*id);
+                    self.on = Traversable::Turn(id);
                     intersections
-                        .on_enter(Request::for_car(self.id, *id))
+                        .on_enter(Request::for_car(self.id, id))
                         .map_err(|e| {
                             e.context(format!(
                                 "new speed {}, leftover dist {}",

@@ -254,3 +254,10 @@ it?
 	- do these need to be objects in the GUI? at first no, just make a
 	  plugin draw them, but eventually, yes. they should probably be a
 	  map_model concept.
+
+## Invariants
+
+I thought I had a list of these somewhere else?
+
+- min length for lanes, turns
+- connectivity

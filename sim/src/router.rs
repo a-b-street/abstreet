@@ -122,7 +122,7 @@ impl Router {
     }
 
     // Returns the next step
-    pub fn finished_step(&mut self, on: Traversable) -> &PathStep {
+    pub fn finished_step(&mut self, on: Traversable) -> PathStep {
         let expected = match on {
             Traversable::Lane(id) => PathStep::Lane(id),
             Traversable::Turn(id) => PathStep::Turn(id),
@@ -136,7 +136,7 @@ impl Router {
             return None;
         }
         if let PathStep::Turn(id) = self.path.next_step() {
-            return Some(*id);
+            return Some(id);
         }
         None
     }
