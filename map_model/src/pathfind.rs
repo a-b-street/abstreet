@@ -104,6 +104,10 @@ impl Path {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
+        if self.steps.len() == 1 && self.end_dist - start_dist < dist_remaining {
+            dist_remaining = self.end_dist - start_dist;
+        }
+
         fn extend(a: &mut Option<PolyLine>, b: PolyLine) {
             if let Some(ref mut pts) = a {
                 pts.extend(b);
@@ -118,14 +122,14 @@ impl Path {
                 let (pts, dist) = map
                     .get_l(id)
                     .lane_center_pts
-                    .slice(start_dist, start_dist + dist_ahead);
+                    .slice(start_dist, start_dist + dist_remaining);
                 pts_so_far = Some(pts);
                 dist_remaining = dist;
             }
             PathStep::ContraflowLane(id) => {
                 let pts = map.get_l(id).lane_center_pts.reversed();
                 let reversed_start = pts.length() - start_dist;
-                let (pts, dist) = pts.slice(reversed_start, reversed_start + dist_ahead);
+                let (pts, dist) = pts.slice(reversed_start, reversed_start + dist_remaining);
                 pts_so_far = Some(pts);
                 dist_remaining = dist;
             }
@@ -135,12 +139,17 @@ impl Path {
                     // Don't do anything yet!
                 } else {
                     let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                        .slice(start_dist, start_dist + dist_ahead);
+                        .slice(start_dist, start_dist + dist_remaining);
                     pts_so_far = Some(pts);
                     dist_remaining = dist;
                 }
             }
         };
+
+        if self.steps.len() == 1 {
+            // TODO uh, there's one case where this won't work
+            return pts_so_far.unwrap();
+        }
 
         // Crunch through the intermediate steps, as long as we can.
         for i in 1..self.steps.len() - 1 {
@@ -172,7 +181,7 @@ impl Path {
                         // Don't do anything
                     } else {
                         let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                            .slice(start_dist, start_dist + dist_remaining);
+                            .slice(0.0 * si::M, dist_remaining);
                         extend(&mut pts_so_far, pts);
                         dist_remaining = dist;
                     }
@@ -180,15 +189,16 @@ impl Path {
             }
         }
 
-        // If we made it to the last step, use the end_dist.
-        let last_dist = if dist_remaining < self.end_dist {
-            dist_remaining
-        } else {
-            self.end_dist
-        };
+        // If we made it to the last step, maybe use the end_dist.
+        if self.end_dist < dist_remaining {
+            dist_remaining = self.end_dist;
+        }
         match self.steps[self.steps.len() - 1] {
             PathStep::Lane(id) => {
-                let (pts, _) = map.get_l(id).lane_center_pts.slice(0.0 * si::M, last_dist);
+                let (pts, _) = map
+                    .get_l(id)
+                    .lane_center_pts
+                    .slice(0.0 * si::M, dist_remaining);
                 extend(&mut pts_so_far, pts);
             }
             PathStep::ContraflowLane(id) => {
@@ -196,7 +206,7 @@ impl Path {
                     .get_l(id)
                     .lane_center_pts
                     .reversed()
-                    .slice(0.0 * si::M, last_dist);
+                    .slice(0.0 * si::M, dist_remaining);
                 extend(&mut pts_so_far, pts);
             }
             PathStep::Turn(id) => {
@@ -205,7 +215,7 @@ impl Path {
                     // Ignore it
                 } else {
                     let (pts, _) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                        .slice(start_dist, start_dist + dist_ahead);
+                        .slice(0.0 * si::M, dist_remaining);
                     extend(&mut pts_so_far, pts);
                 }
             }
