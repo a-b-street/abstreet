@@ -34,6 +34,38 @@ impl PathStep {
     pub fn as_turn(&self) -> TurnID {
         self.as_traversable().as_turn()
     }
+
+    // Returns dist_remaining
+    fn slice(
+        &self,
+        map: &Map,
+        start: si::Meter<f64>,
+        dist_ahead: si::Meter<f64>,
+    ) -> Option<(PolyLine, si::Meter<f64>)> {
+        match self {
+            PathStep::Lane(id) => Some(
+                map.get_l(*id)
+                    .lane_center_pts
+                    .slice(start, start + dist_ahead),
+            ),
+            PathStep::ContraflowLane(id) => {
+                let pts = map.get_l(*id).lane_center_pts.reversed();
+                let reversed_start = pts.length() - start;
+                Some(pts.slice(reversed_start, reversed_start + dist_ahead))
+            }
+            PathStep::Turn(id) => {
+                let line = &map.get_t(*id).line;
+                if line.length() == 0.0 * si::M {
+                    None
+                } else {
+                    Some(
+                        PolyLine::new(vec![line.pt1(), line.pt2()])
+                            .slice(start, start + dist_ahead),
+                    )
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
@@ -117,34 +149,10 @@ impl Path {
         }
 
         // Special case the first step.
-        match self.steps[0] {
-            PathStep::Lane(id) => {
-                let (pts, dist) = map
-                    .get_l(id)
-                    .lane_center_pts
-                    .slice(start_dist, start_dist + dist_remaining);
-                pts_so_far = Some(pts);
-                dist_remaining = dist;
-            }
-            PathStep::ContraflowLane(id) => {
-                let pts = map.get_l(id).lane_center_pts.reversed();
-                let reversed_start = pts.length() - start_dist;
-                let (pts, dist) = pts.slice(reversed_start, reversed_start + dist_remaining);
-                pts_so_far = Some(pts);
-                dist_remaining = dist;
-            }
-            PathStep::Turn(id) => {
-                let line = &map.get_t(id).line;
-                if line.length() == 0.0 * si::M {
-                    // Don't do anything yet!
-                } else {
-                    let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                        .slice(start_dist, start_dist + dist_remaining);
-                    pts_so_far = Some(pts);
-                    dist_remaining = dist;
-                }
-            }
-        };
+        if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
+            pts_so_far = Some(pts);
+            dist_remaining = dist;
+        }
 
         if self.steps.len() == 1 {
             // TODO uh, there's one case where this won't work
@@ -152,74 +160,20 @@ impl Path {
         }
 
         // Crunch through the intermediate steps, as long as we can.
-        for i in 1..self.steps.len() - 1 {
+        for i in 1..self.steps.len() {
             if dist_remaining <= 0.0 * si::M {
                 return pts_so_far.unwrap();
             }
+            // If we made it to the last step, maybe use the end_dist.
+            if i == self.steps.len() - 1 && self.end_dist < dist_remaining {
+                dist_remaining = self.end_dist;
+            }
 
-            match self.steps[i] {
-                PathStep::Lane(id) => {
-                    let (pts, dist) = map
-                        .get_l(id)
-                        .lane_center_pts
-                        .slice(0.0 * si::M, dist_remaining);
-                    extend(&mut pts_so_far, pts);
-                    dist_remaining = dist;
-                }
-                PathStep::ContraflowLane(id) => {
-                    let (pts, dist) = map
-                        .get_l(id)
-                        .lane_center_pts
-                        .reversed()
-                        .slice(0.0 * si::M, dist_remaining);
-                    extend(&mut pts_so_far, pts);
-                    dist_remaining = dist;
-                }
-                PathStep::Turn(id) => {
-                    let line = &map.get_t(id).line;
-                    if line.length() == 0.0 * si::M {
-                        // Don't do anything
-                    } else {
-                        let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                            .slice(0.0 * si::M, dist_remaining);
-                        extend(&mut pts_so_far, pts);
-                        dist_remaining = dist;
-                    }
-                }
+            if let Some((pts, dist)) = self.steps[i].slice(map, 0.0 * si::M, dist_remaining) {
+                extend(&mut pts_so_far, pts);
+                dist_remaining = dist;
             }
         }
-
-        // If we made it to the last step, maybe use the end_dist.
-        if self.end_dist < dist_remaining {
-            dist_remaining = self.end_dist;
-        }
-        match self.steps[self.steps.len() - 1] {
-            PathStep::Lane(id) => {
-                let (pts, _) = map
-                    .get_l(id)
-                    .lane_center_pts
-                    .slice(0.0 * si::M, dist_remaining);
-                extend(&mut pts_so_far, pts);
-            }
-            PathStep::ContraflowLane(id) => {
-                let (pts, _) = map
-                    .get_l(id)
-                    .lane_center_pts
-                    .reversed()
-                    .slice(0.0 * si::M, dist_remaining);
-                extend(&mut pts_so_far, pts);
-            }
-            PathStep::Turn(id) => {
-                let line = &map.get_t(id).line;
-                if line.length() == 0.0 * si::M {
-                    // Ignore it
-                } else {
-                    let (pts, _) = PolyLine::new(vec![line.pt1(), line.pt2()])
-                        .slice(0.0 * si::M, dist_remaining);
-                    extend(&mut pts_so_far, pts);
-                }
-            }
-        };
 
         return pts_so_far.unwrap();
     }
