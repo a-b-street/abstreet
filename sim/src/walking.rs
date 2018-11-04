@@ -462,7 +462,6 @@ impl WalkingSimState {
         trip: TripID,
         start: SidewalkSpot,
         goal: SidewalkSpot,
-        map: &Map,
         path: Path,
     ) {
         let start_lane = start.sidewalk;
@@ -533,80 +532,8 @@ impl WalkingSimState {
     }
 
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
-        panic!("TODO");
-        /*let p = self.peds.get(&id)?;
-
-        let (mut result, mut dist_left) = {
-            if p.path.is_empty() && p.on.maybe_lane().is_some() {
-                // More edge cases. :(
-                if p.contraflow {
-                    p.on.slice(false, map, p.goal.dist_along, p.dist_along)
-                } else {
-                    p.on.slice(false, map, p.dist_along, p.goal.dist_along)
-                }
-            } else {
-                p.on.slice(p.contraflow, map, p.dist_along, p.dist_along + dist_ahead)
-            }
-        };
-
-        let mut last_lane = p.on.maybe_lane();
-        let mut idx = 0;
-        while dist_left > 0.0 * si::M && idx < p.path.len() {
-            let next_lane = p.path[idx];
-            if let Some(prev) = last_lane {
-                let turn = pick_turn(prev, next_lane, map);
-                // Never contraflow on turns
-                let (piece, new_dist_left) =
-                    Traversable::Turn(turn).slice(false, map, 0.0 * si::M, dist_left);
-                result = result.extend(piece);
-                dist_left = new_dist_left;
-                if dist_left <= 0.0 * si::M {
-                    break;
-                }
-            }
-
-            let (contraflow, last_step) = if idx + 1 < p.path.len() {
-                (is_contraflow(map, next_lane, p.path[idx + 1]), false)
-            } else {
-                dist_left = p.goal.dist_along;
-                // Value of contraflow doesn't matter
-                (false, true)
-            };
-
-            // TODO ooh this is _really_ cheating. ;) but sometimes we don't cross a lane either
-            // direction. urgh.
-            let l = map.get_l(next_lane);
-            let (pt1, pt2) = (l.first_pt(), l.last_pt());
-            let last_pt = result.endpoints().1;
-            if last_pt == pt1 {
-                if contraflow {
-                    // Already done!
-                } else {
-                    let (piece, new_dist_left) =
-                        Traversable::Lane(next_lane).slice(false, map, 0.0 * si::M, dist_left);
-                    result = result.extend(piece);
-                    dist_left = new_dist_left;
-                }
-            } else if last_pt == pt2 {
-                if contraflow || last_step {
-                    let (piece, new_dist_left) =
-                        Traversable::Lane(next_lane).slice(true, map, l.length(), dist_left);
-                    result = result.extend(piece);
-                    dist_left = new_dist_left;
-                } else {
-                    // Already done!
-                }
-            } else {
-                panic!("trace_route for ped doesn't match up");
-            }
-
-            last_lane = Some(next_lane);
-            idx += 1;
-        }
-
-        // Excess dist_left is just ignored
-        Some(result)
-        */
+        let p = self.peds.get(&id)?;
+        Some(p.path.trace(map, p.dist_along, dist_ahead))
     }
 
     pub fn get_peds_waiting_at_stop(&self, stop: BusStopID) -> Vec<PedestrianID> {

@@ -153,7 +153,7 @@ impl Spawner {
                     }
                     Command::Walk(_, trip, ped, spot1, spot2) => {
                         trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(events, ped, trip, spot1, spot2, map, path);
+                        walking_sim.seed_pedestrian(events, ped, trip, spot1, spot2, path);
                         spawned_agents += 1;
                     }
                 };

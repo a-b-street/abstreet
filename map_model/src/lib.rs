@@ -1,5 +1,7 @@
 extern crate aabb_quadtree;
 extern crate abstutil;
+#[macro_use]
+extern crate derivative;
 extern crate dimensioned;
 extern crate geo;
 extern crate geom;
@@ -40,9 +42,9 @@ pub use intersection::{Intersection, IntersectionID};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
-pub use pathfind::{Path, PathStep, Pathfinder};
+pub use pathfind::{Path, PathStep, Pathfinder, Trace};
 pub use road::{Road, RoadID};
-pub use traversable::{Trace, TraceGeometry, TraceSegment, Traversable};
+pub use traversable::Traversable;
 pub use turn::{Turn, TurnID};
 
 pub const LANE_THICKNESS: f64 = 2.5;

@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{Line, Pt2D};
+use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 use {LaneID, LaneType, Map, Traversable, TurnID};
@@ -36,20 +36,23 @@ impl PathStep {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Path {
-    // TODO way to encode start/end dist? I think it's needed for trace_route later...
-    // actually not start dist -- that really changes all the time
     steps: VecDeque<PathStep>,
+    // TODO :(
+    #[derivative(PartialEq = "ignore")]
+    end_dist: si::Meter<f64>,
 }
 
 // TODO can have a method to verify the path is valid
 impl Path {
-    fn new(map: &Map, steps: Vec<PathStep>) -> Path {
+    fn new(map: &Map, steps: Vec<PathStep>, end_dist: si::Meter<f64>) -> Path {
         // Can disable this after trusting it.
         validate(map, &steps);
         Path {
             steps: VecDeque::from(steps),
+            end_dist,
         }
     }
 
@@ -90,6 +93,125 @@ impl Path {
 
     pub fn last_step(&self) -> &PathStep {
         &self.steps[self.steps.len() - 1]
+    }
+
+    pub fn trace(
+        &self,
+        map: &Map,
+        start_dist: si::Meter<f64>,
+        dist_ahead: si::Meter<f64>,
+    ) -> Trace {
+        let mut pts_so_far: Option<PolyLine> = None;
+        let mut dist_remaining = dist_ahead;
+
+        fn extend(a: &mut Option<PolyLine>, b: PolyLine) {
+            if let Some(ref mut pts) = a {
+                pts.extend(b);
+            } else {
+                *a = Some(b);
+            }
+        }
+
+        // Special case the first step.
+        match self.steps[0] {
+            PathStep::Lane(id) => {
+                let (pts, dist) = map
+                    .get_l(id)
+                    .lane_center_pts
+                    .slice(start_dist, start_dist + dist_ahead);
+                pts_so_far = Some(pts);
+                dist_remaining = dist;
+            }
+            PathStep::ContraflowLane(id) => {
+                let pts = map.get_l(id).lane_center_pts.reversed();
+                let reversed_start = pts.length() - start_dist;
+                let (pts, dist) = pts.slice(reversed_start, reversed_start + dist_ahead);
+                pts_so_far = Some(pts);
+                dist_remaining = dist;
+            }
+            PathStep::Turn(id) => {
+                let line = &map.get_t(id).line;
+                if line.length() == 0.0 * si::M {
+                    // Don't do anything yet!
+                } else {
+                    let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
+                        .slice(start_dist, start_dist + dist_ahead);
+                    pts_so_far = Some(pts);
+                    dist_remaining = dist;
+                }
+            }
+        };
+
+        // Crunch through the intermediate steps, as long as we can.
+        for i in 1..self.steps.len() - 1 {
+            if dist_remaining <= 0.0 * si::M {
+                return pts_so_far.unwrap();
+            }
+
+            match self.steps[i] {
+                PathStep::Lane(id) => {
+                    let (pts, dist) = map
+                        .get_l(id)
+                        .lane_center_pts
+                        .slice(0.0 * si::M, dist_remaining);
+                    extend(&mut pts_so_far, pts);
+                    dist_remaining = dist;
+                }
+                PathStep::ContraflowLane(id) => {
+                    let (pts, dist) = map
+                        .get_l(id)
+                        .lane_center_pts
+                        .reversed()
+                        .slice(0.0 * si::M, dist_remaining);
+                    extend(&mut pts_so_far, pts);
+                    dist_remaining = dist;
+                }
+                PathStep::Turn(id) => {
+                    let line = &map.get_t(id).line;
+                    if line.length() == 0.0 * si::M {
+                        // Don't do anything
+                    } else {
+                        let (pts, dist) = PolyLine::new(vec![line.pt1(), line.pt2()])
+                            .slice(start_dist, start_dist + dist_remaining);
+                        extend(&mut pts_so_far, pts);
+                        dist_remaining = dist;
+                    }
+                }
+            }
+        }
+
+        // If we made it to the last step, use the end_dist.
+        let last_dist = if dist_remaining < self.end_dist {
+            dist_remaining
+        } else {
+            self.end_dist
+        };
+        match self.steps[self.steps.len() - 1] {
+            PathStep::Lane(id) => {
+                let (pts, _) = map.get_l(id).lane_center_pts.slice(0.0 * si::M, last_dist);
+                extend(&mut pts_so_far, pts);
+            }
+            PathStep::ContraflowLane(id) => {
+                let (pts, _) = map
+                    .get_l(id)
+                    .lane_center_pts
+                    .reversed()
+                    .slice(0.0 * si::M, last_dist);
+                extend(&mut pts_so_far, pts);
+            }
+            PathStep::Turn(id) => {
+                let line = &map.get_t(id).line;
+                if line.length() == 0.0 * si::M {
+                    // Ignore it
+                } else {
+                    let (pts, _) = PolyLine::new(vec![line.pt1(), line.pt2()])
+                        .slice(start_dist, start_dist + dist_ahead);
+                    extend(&mut pts_so_far, pts);
+                }
+            }
+        };
+
+        return pts_so_far.unwrap();
     }
 }
 
@@ -169,9 +291,13 @@ impl Pathfinder {
         if start == end {
             if start_dist > end_dist {
                 assert_eq!(map.get_l(start).lane_type, LaneType::Sidewalk);
-                return Some(Path::new(map, vec![PathStep::ContraflowLane(start)]));
+                return Some(Path::new(
+                    map,
+                    vec![PathStep::ContraflowLane(start)],
+                    end_dist,
+                ));
             }
-            return Some(Path::new(map, vec![PathStep::Lane(start)]));
+            return Some(Path::new(map, vec![PathStep::Lane(start)], end_dist));
         }
 
         // This should be deterministic, since cost ties would be broken by LaneID.
@@ -193,7 +319,7 @@ impl Pathfinder {
                         reversed_lanes.reverse();
                         assert_eq!(reversed_lanes[0], start);
                         assert_eq!(*reversed_lanes.last().unwrap(), end);
-                        return Some(lanes_to_path(map, VecDeque::from(reversed_lanes)));
+                        return Some(lanes_to_path(map, VecDeque::from(reversed_lanes), end_dist));
                     }
                     lookup = backrefs[&lookup];
                 }
@@ -237,7 +363,7 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
 }
 
 // TODO Tmp hack. Need to rewrite the A* implementation to natively understand PathSteps.
-fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>) -> Path {
+fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>, end_dist: si::Meter<f64>) -> Path {
     assert!(lanes.len() > 1);
     let mut steps: Vec<PathStep> = Vec::new();
 
@@ -278,7 +404,7 @@ fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>) -> Path {
     } else {
         steps.push(PathStep::Lane(current_turn.dst));
     }
-    Path::new(map, steps)
+    Path::new(map, steps, end_dist)
 }
 
 fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
@@ -304,3 +430,5 @@ fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
 fn leads_to_end_of_lane(turn: TurnID, map: &Map) -> bool {
     is_contraflow(map, turn.src, turn.dst)
 }
+
+pub type Trace = PolyLine;

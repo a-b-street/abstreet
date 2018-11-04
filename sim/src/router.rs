@@ -171,43 +171,7 @@ impl Router {
     }
 
     pub fn trace_route(&self, start_dist: Distance, map: &Map, dist_ahead: Distance) -> Trace {
-        panic!("TODO");
-        /*
-        let (mut result, mut dist_left) =
-            start.slice(false, map, start_dist, start_dist + dist_along);
-
-        let mut last_lane = start.maybe_lane();
-        let mut idx = 0;
-        while dist_left > 0.0 * si::M && idx < self.path.len() {
-            let next_lane = self.path[idx];
-            if let Some(prev) = last_lane {
-                let (piece, new_dist_left) = Traversable::Turn(pick_turn(prev, next_lane, map))
-                    .slice(false, map, 0.0 * si::M, dist_left);
-                result = result.extend(piece);
-                dist_left = new_dist_left;
-                if dist_left <= 0.0 * si::M {
-                    break;
-                }
-            }
-
-            let (piece, new_dist_left) =
-                Traversable::Lane(next_lane).slice(false, map, 0.0 * si::M, dist_left);
-            if piece.endpoints().0 != result.endpoints().1 {
-                println!("so far");
-                result.debug();
-                println!("new piece");
-                piece.debug();
-            }
-            result = result.extend(piece);
-            dist_left = new_dist_left;
-            last_lane = Some(next_lane);
-
-            idx += 1;
-        }
-
-        // Excess dist_left is just ignored
-        result
-        */
+        self.path.trace(map, start_dist, dist_ahead)
     }
 }
 
