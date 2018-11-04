@@ -45,7 +45,9 @@ pub struct Path {
 
 // TODO can have a method to verify the path is valid
 impl Path {
-    fn new(steps: Vec<PathStep>) -> Path {
+    fn new(map: &Map, steps: Vec<PathStep>) -> Path {
+        // Can disable this after trusting it.
+        validate(map, &steps);
         Path {
             steps: VecDeque::from(steps),
         }
@@ -164,9 +166,9 @@ impl Pathfinder {
         if start == end {
             if start_dist > end_dist {
                 assert_eq!(map.get_l(start).lane_type, LaneType::Sidewalk);
-                return Some(Path::new(vec![PathStep::ContraflowLane(start)]));
+                return Some(Path::new(map, vec![PathStep::ContraflowLane(start)]));
             }
-            return Some(Path::new(vec![PathStep::Lane(start)]));
+            return Some(Path::new(map, vec![PathStep::Lane(start)]));
         }
 
         // This should be deterministic, since cost ties would be broken by LaneID.
@@ -180,14 +182,15 @@ impl Pathfinder {
 
             // Found it, now produce the path
             if current == end {
-                let mut steps: VecDeque<PathStep> = VecDeque::new();
+                let mut reversed_steps: Vec<PathStep> = Vec::new();
                 let mut lookup = current;
                 loop {
-                    steps.push_front(PathStep::Lane(lookup));
+                    reversed_steps.push(PathStep::Lane(lookup));
                     if lookup == start {
-                        assert_eq!(steps[0], PathStep::Lane(start));
-                        assert_eq!(*steps.back().unwrap(), PathStep::Lane(end));
-                        return Some(Path { steps });
+                        reversed_steps.reverse();
+                        assert_eq!(reversed_steps[0], PathStep::Lane(start));
+                        assert_eq!(*reversed_steps.last().unwrap(), PathStep::Lane(end));
+                        return Some(Path::new(map, reversed_steps));
                     }
                     lookup = backrefs[&lookup];
                 }
@@ -205,5 +208,27 @@ impl Pathfinder {
 
         // No path
         None
+    }
+}
+
+fn validate(map: &Map, steps: &Vec<PathStep>) {
+    for pair in steps.windows(2) {
+        let from = match pair[0] {
+            PathStep::Lane(id) => map.get_l(id).last_pt(),
+            PathStep::ContraflowLane(id) => map.get_l(id).first_pt(),
+            PathStep::Turn(id) => map.get_t(id).last_pt(),
+        };
+        let to = match pair[1] {
+            PathStep::Lane(id) => map.get_l(id).first_pt(),
+            PathStep::ContraflowLane(id) => map.get_l(id).last_pt(),
+            PathStep::Turn(id) => map.get_t(id).first_pt(),
+        };
+        let len = Line::new(from, to).length();
+        if len > 0.0 * si::M {
+            panic!(
+                "pathfind() returned path that warps {} from {:?} to {:?}",
+                len, pair[0], pair[1]
+            );
+        }
     }
 }

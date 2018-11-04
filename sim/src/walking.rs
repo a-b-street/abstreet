@@ -1,7 +1,7 @@
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap, Error};
 use dimensioned::si;
-use geom::{Line, Pt2D};
+use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{
@@ -222,24 +222,6 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<(), Error> {
-        // Detect if the ped just warped. Bidirectional sidewalks are confusing. :)
-        {
-            let from = match self.path.current_step() {
-                PathStep::Lane(id) => map.get_l(*id).last_pt(),
-                PathStep::ContraflowLane(id) => map.get_l(*id).first_pt(),
-                PathStep::Turn(id) => map.get_t(*id).last_pt(),
-            };
-            let to = match self.path.next_step() {
-                PathStep::Lane(id) => map.get_l(*id).first_pt(),
-                PathStep::ContraflowLane(id) => map.get_l(*id).last_pt(),
-                PathStep::Turn(id) => map.get_t(*id).first_pt(),
-            };
-            let len = Line::new(from, to).length();
-            if len > 0.0 * si::M {
-                return Err(Error::new(format!("{} just warped {}", self.id, len)));
-            }
-        }
-
         if let Traversable::Turn(t) = self.on {
             intersections.on_exit(Request::for_ped(self.id, t));
         }
