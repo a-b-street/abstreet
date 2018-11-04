@@ -42,6 +42,10 @@ impl PathStep {
         start: si::Meter<f64>,
         dist_ahead: si::Meter<f64>,
     ) -> Option<(PolyLine, si::Meter<f64>)> {
+        if dist_ahead < 0.0 * si::M {
+            panic!("Negative dist_ahead?! {}", dist_ahead);
+        }
+
         match self {
             PathStep::Lane(id) => Some(
                 map.get_l(*id)
@@ -136,15 +140,22 @@ impl Path {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
-        if self.steps.len() == 1 && self.end_dist - start_dist < dist_remaining {
-            dist_remaining = self.end_dist - start_dist;
-        }
-
         fn extend(a: &mut Option<PolyLine>, b: PolyLine) {
             if let Some(ref mut pts) = a {
                 pts.extend(b);
             } else {
                 *a = Some(b);
+            }
+        }
+
+        if self.steps.len() == 1 {
+            let dist = if start_dist < self.end_dist {
+                self.end_dist - start_dist
+            } else {
+                start_dist - self.end_dist
+            };
+            if dist < dist_remaining {
+                dist_remaining = dist;
             }
         }
 
