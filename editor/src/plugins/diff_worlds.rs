@@ -86,14 +86,14 @@ impl Plugin for DiffWorldsState {
                 g.draw_polygon(
                     ctx.cs
                         .get("primary agent route", Color::rgba(255, 0, 0, 0.5)),
-                    &t.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+                    &t.make_polygons_blindly(LANE_THICKNESS),
                 );
             }
             if let Some(t) = secondary_route {
                 g.draw_polygon(
                     ctx.cs
                         .get("secondary agent route", Color::rgba(0, 0, 255, 0.5)),
-                    &t.get_polyline().make_polygons_blindly(LANE_THICKNESS),
+                    &t.make_polygons_blindly(LANE_THICKNESS),
                 );
             }
         }

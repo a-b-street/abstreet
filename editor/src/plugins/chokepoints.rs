@@ -73,7 +73,8 @@ fn find_chokepoints(sim: &Sim, map: &Map) -> ChokepointsFinder {
     let active = sim.active_agents();
     info!("Finding chokepoints from {} active agents", active.len());
     for a in active.into_iter() {
-        for segment in sim.trace_route(a, map, f64::MAX * si::M).unwrap().segments {
+        // TODO fix up
+        /*for segment in sim.trace_route(a, map, f64::MAX * si::M).unwrap().segments {
             match segment.on {
                 Traversable::Lane(l) => {
                     count_per_lane.update(vec![l]);
@@ -82,7 +83,7 @@ fn find_chokepoints(sim: &Sim, map: &Map) -> ChokepointsFinder {
                     count_per_intersection.update(vec![t.parent]);
                 }
             }
-        }
+        }*/
     }
 
     let lanes: HashSet<LaneID> = count_per_lane
