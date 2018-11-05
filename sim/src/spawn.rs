@@ -158,7 +158,7 @@ impl Spawner {
                     }
                 };
             } else {
-                debug!(
+                error!(
                     "Couldn't find path from {} to {} for {:?}",
                     req.0, req.2, cmd
                 );

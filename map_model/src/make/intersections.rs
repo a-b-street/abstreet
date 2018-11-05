@@ -1,3 +1,4 @@
+use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, PolyLine, Pt2D};
 use std::collections::BTreeSet;
@@ -147,11 +148,4 @@ pub fn intersection_polygon(
     let first_pt = endpoints[0].clone();
     endpoints.push(first_pt);
     endpoints
-}
-
-fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
-    let len = vec.len() as isize;
-    let idx = idx % len;
-    let idx = if idx >= 0 { idx } else { idx + len };
-    &vec[idx as usize]
 }

@@ -1,7 +1,7 @@
-use abstutil::MultiMap;
-use geom::Line;
-use std::collections::{BTreeSet, HashSet};
-use {Intersection, IntersectionID, LaneID, LaneType, Map, RoadID, Turn, TurnID};
+use abstutil::{wraparound_get, MultiMap};
+use geom::{Angle, Line};
+use std::collections::HashSet;
+use {Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID};
 
 pub fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
@@ -159,70 +159,102 @@ fn make_turns(
     result
 }
 
-fn make_crosswalks(i: &Intersection, m: &Map) -> Vec<Turn> {
-    let mut result = Vec::new();
+fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
+    // Sort roads by the angle into the intersection, so we can reason about sidewalks of adjacent
+    // roads.
+    let mut roads: Vec<(RoadID, Angle)> = i
+        .get_roads(map)
+        .into_iter()
+        .map(|id| {
+            let r = map.get_r(id);
 
-    // TODO dedupe some of this logic render/intersection
+            if r.center_pts.first_pt() == i.point {
+                (r.id, r.center_pts.reversed().last_line().angle())
+            } else if r.center_pts.last_pt() == i.point {
+                (r.id, r.center_pts.last_line().angle())
+            } else {
+                panic!(
+                    "Incident road {} doesn't have an endpoint at {}",
+                    r.id, i.id
+                );
+            }
+        }).collect();
+    roads.sort_by_key(|(_, angle)| angle.normalized_degrees() as i64);
 
-    // There are some weird cases where a sidewalk is present in both the incoming and outgoing
-    // lanes of an intersection. Dedupe here to avoid creating duplicate turns.
-    let mut all_sidewalks = BTreeSet::new();
-    for id in i.incoming_lanes.iter().chain(i.outgoing_lanes.iter()) {
-        if m.get_l(*id).is_sidewalk() {
-            all_sidewalks.insert(*id);
-        }
+    if roads.len() < 3 {
+        // TODO not yet...
+        return Vec::new();
     }
 
-    // First make all of the crosswalks -- from each incoming and outgoing sidewalk to its other
-    // side. Not every sidewalk will have an opposite side -- roundabouts for example.
-    for id in &all_sidewalks {
-        let src = m.get_l(*id);
-        if let Ok(dst) = m
-            .get_r(src.parent)
-            .get_opposite_lane(src.id, LaneType::Sidewalk)
-            .map(|l| m.get_l(l))
-        {
-            result.push(Turn {
-                id: turn_id(i.id, src.id, dst.id),
-                parent: i.id,
-                src: src.id,
-                dst: dst.id,
-                line: Line::new(src.endpoint(i.id), dst.endpoint(i.id)),
-                between_sidewalks: true,
-            });
-        }
-    }
+    let mut result: Vec<Turn> = Vec::new();
 
-    // Then all of the immediate connections onto the shared point
-    for id1 in &all_sidewalks {
-        let src = m.get_l(*id1);
-        let src_pt = src.endpoint(i.id);
-        for id2 in &all_sidewalks {
-            if id1 == id2 {
-                continue;
+    for idx1 in 0..roads.len() as isize {
+        if let Some(l1) = get_incoming_sidewalk(map, i, wraparound_get(&roads, idx1).0) {
+            // Make a shared-corner turn with the next road
+            // TODO -1 and not +1 is brittle... must be the angle sorting
+            if let Some(l2) = get_outgoing_sidewalk(map, i, wraparound_get(&roads, idx1 - 1).0) {
+                // TODO This unintentionally made a crosswalk at a 3-way. Angles?
+                result.push(Turn {
+                    id: turn_id(i.id, l1.id, l2.id),
+                    parent: i.id,
+                    src: l1.id,
+                    dst: l2.id,
+                    line: Line::new(l1.last_pt(), l2.first_pt()),
+                    // TODO can we indicate this is a shared corner
+                    between_sidewalks: true,
+                });
+                // TODO and the mirror one
             }
 
-            let dst = m.get_l(*id2);
-            let dst_pt = dst.endpoint(i.id);
-
-            if src_pt != dst_pt {
-                continue;
+            // Now the crosswalk
+            // TODO This is literally the same code
+            if let Some(l2) = get_outgoing_sidewalk(map, i, wraparound_get(&roads, idx1 - 2).0) {
+                // TODO at 3-ways, this is making a bad diagonal. angles?
+                result.push(Turn {
+                    id: turn_id(i.id, l1.id, l2.id),
+                    parent: i.id,
+                    src: l1.id,
+                    dst: l2.id,
+                    line: Line::new(l1.last_pt(), l2.first_pt()),
+                    // TODO can we indicate this is a crosswalk
+                    between_sidewalks: true,
+                });
+                // TODO and the mirror one
             }
-
-            result.push(Turn {
-                id: turn_id(i.id, src.id, dst.id),
-                parent: i.id,
-                src: src.id,
-                dst: dst.id,
-                line: Line::new(src_pt, dst_pt),
-                between_sidewalks: true,
-            });
         }
     }
-
     result
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
+}
+
+fn get_incoming_sidewalk<'a>(map: &'a Map, i: &Intersection, r: RoadID) -> Option<&'a Lane> {
+    let r = map.get_r(r);
+    // TODO getting lazy, assuming the last_pt matches
+    if r.center_pts.first_pt() == i.point {
+        get_sidewalk(map, &r.children_backwards)
+    } else {
+        get_sidewalk(map, &r.children_forwards)
+    }
+}
+
+fn get_outgoing_sidewalk<'a>(map: &'a Map, i: &Intersection, r: RoadID) -> Option<&'a Lane> {
+    let r = map.get_r(r);
+    // TODO getting lazy, assuming the last_pt matches
+    if r.center_pts.first_pt() == i.point {
+        get_sidewalk(map, &r.children_forwards)
+    } else {
+        get_sidewalk(map, &r.children_backwards)
+    }
+}
+
+fn get_sidewalk<'a>(map: &'a Map, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
+    for (id, lt) in children {
+        if *lt == LaneType::Sidewalk {
+            return Some(map.get_l(*id));
+        }
+    }
+    None
 }

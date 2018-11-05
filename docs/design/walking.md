@@ -94,3 +94,22 @@ An alternative:
 	- sim layer no longer needs to pick turns
 	- walking code no longer needs to calculate contraflow itself!
 		- maybe should plumb start/end dist_along into pathfinding too?
+
+## Crosswalks again, after making peace with contraflow
+
+Two types of things to render
+
+- actual crosswalks
+- shared corners
+
+What're the desired turns?
+
+- the crosswalks shouldn't go to the other_side; they should be N<->S
+- the shared corners are... obvious
+- both of these should be bidirectional
+
+Don't duplicate work with DrawIntersection... let's annotate turn types.
+- Crosswalk
+- SharedSidewalkCorner
+	- these 2 exclusively mean sidewalks
+- can classify straight/right/left turns too, once. so control layer gets a break.
