@@ -105,6 +105,7 @@ Two types of things to render
 What're the desired turns?
 
 - the crosswalks shouldn't go to the other_side; they should be N<->S
+	- 3 ways are different
 - the shared corners are... obvious
 - both of these should be bidirectional
 

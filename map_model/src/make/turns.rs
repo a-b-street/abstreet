@@ -184,26 +184,21 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
     // TODO and the mirror ones
     for idx1 in 0..roads.len() as isize {
         if let Some(l1) = get_incoming_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
+            // Make the crosswalk to the other side
+            if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
+                result.push(make_turn(i.id, TurnType::Crosswalk, l1, l2));
+            }
+
+            // Find the shared corner
             // TODO -1 and not +1 is brittle... must be the angle sorting
-            if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0) {
-                let angle_diff = (l1.last_line().angle().normalized_degrees()
-                    - l2.first_line().angle().normalized_degrees()).abs();
+            if let Some(l3) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0) {
+                result.push(make_turn(i.id, TurnType::SharedSidewalkCorner, l1, l3));
+
+                // On some legs of a 3-way intersection (and probably other cases too), the
+                // adjacent road is a full sidewalk... TODO this is maybe a matter of rendering
+                //let angle_diff = (l1.last_line().angle().normalized_degrees()
+                //    - l3.first_line().angle().normalized_degrees()).abs();
                 // TODO tuning
-                if angle_diff < 30.0 {
-                    result.push(make_turn(i.id, TurnType::Crosswalk, l1, l2));
-                } else {
-                    result.push(make_turn(i.id, TurnType::SharedSidewalkCorner, l1, l2));
-                    if let Some(l3) =
-                        get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 2).0)
-                    {
-                        let angle_diff = (l1.last_line().angle().normalized_degrees()
-                            - l3.first_line().angle().normalized_degrees()).abs();
-                        // TODO tuning
-                        if angle_diff < 15.0 {
-                            result.push(make_turn(i.id, TurnType::Crosswalk, l1, l3));
-                        }
-                    }
-                }
             }
         }
     }

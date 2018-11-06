@@ -145,12 +145,15 @@ fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
                 let available_length = turn.line.length() - (2.0 * boundary);
                 if available_length > 0.0 * si::M {
                     let num_markings = (available_length / tile_every).floor() as usize;
+                    // Shift away so the markings stay fully inside the intersection. Lane center points don't
+                    // line up with the boundary.
+                    let line = turn.line.shift(LANE_THICKNESS / 2.0);
 
                     let mut dist_along =
                         boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
-                    // TODO Seems to be an off-by-one sometimes
+                    // TODO Seems to be an off-by-one sometimes. Not enough of these.
                     for _ in 0..=num_markings {
-                        let pt1 = turn.line.dist_along(dist_along);
+                        let pt1 = line.dist_along(dist_along);
                         // Reuse perp_line. Project away an arbitrary amount
                         let pt2 = pt1.project_away(1.0, turn.line.angle());
                         markings.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
