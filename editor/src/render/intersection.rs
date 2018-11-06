@@ -15,6 +15,7 @@ pub struct DrawIntersection {
     pub id: IntersectionID,
     pub polygon: Polygon,
     crosswalks: Vec<Vec<Line>>,
+    sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
     has_traffic_signal: bool,
     should_draw_stop_sign: bool,
@@ -32,6 +33,7 @@ impl DrawIntersection {
             id: inter.id,
             polygon: Polygon::new(&inter.polygon),
             crosswalks: calculate_crosswalks(inter.id, map),
+            sidewalk_corners: calculate_corners(inter.id, map),
             has_traffic_signal: inter.has_traffic_signal,
             should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(map),
         }
@@ -108,6 +110,10 @@ impl Renderable for DrawIntersection {
             }
         }
 
+        for corner in &self.sidewalk_corners {
+            g.draw_polygon(ctx.cs.get("sidewalk corner", Color::grey(0.7)), corner);
+        }
+
         if self.has_traffic_signal {
             self.draw_traffic_signal(g, ctx);
         } else if self.should_draw_stop_sign {
@@ -168,6 +174,31 @@ fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
     }
 
     crosswalks
+}
+
+fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
+    let mut corners = Vec::new();
+
+    for turn in &map.get_turns_in_intersection(i) {
+        match turn.turn_type {
+            TurnType::SharedSidewalkCorner => {
+                // TODO don't double-render
+
+                let l1 = map.get_l(turn.src);
+                let l2 = map.get_l(turn.dst);
+
+                let shared_pt1 = l1.last_line().shift(LANE_THICKNESS / 2.0).pt2();
+                let pt1 = l1.last_line().reverse().shift(LANE_THICKNESS / 2.0).pt1();
+                let pt2 = l2.first_line().reverse().shift(LANE_THICKNESS / 2.0).pt2();
+                let shared_pt2 = l2.first_line().shift(LANE_THICKNESS / 2.0).pt1();
+
+                corners.push(Polygon::new(&vec![shared_pt1, pt1, pt2, shared_pt2]));
+            }
+            _ => {}
+        }
+    }
+
+    corners
 }
 
 // TODO copied from DrawLane
