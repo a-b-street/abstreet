@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{IntersectionID, LaneID, Map, TurnID};
+use map_model::{IntersectionID, LaneID, LaneType, Map, TurnID, TurnType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
@@ -38,6 +38,10 @@ impl ControlStopSign {
     }
 
     fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign {
+        if map.get_i(intersection).get_roads(map).len() <= 2 {
+            return ControlStopSign::for_degenerate_intersection(map, intersection);
+        }
+
         // Higher numbers are higher rank roads
         let mut rank_per_incoming_lane: HashMap<LaneID, usize> = HashMap::new();
         let mut ranks: HashSet<usize> = HashSet::new();
@@ -119,6 +123,44 @@ impl ControlStopSign {
         };
         for t in &map.get_i(intersection).turns {
             ss.turns.insert(*t, TurnPriority::Stop);
+        }
+        ss
+    }
+
+    fn for_degenerate_intersection(map: &Map, i: IntersectionID) -> ControlStopSign {
+        // If any of the roads have multiple lanes, then right now, the turns conflict.
+        // TODO After implementing lane-changing and banning turns that cross lanes, this shouldn't
+        // be a problem.
+        for r in map.get_i(i).get_roads(map) {
+            let (lanes1, lanes2) = map.get_r(r).get_lane_types();
+            if lanes1
+                .into_iter()
+                .filter(|lt| *lt == LaneType::Driving || *lt == LaneType::Biking)
+                .count()
+                > 1
+                || lanes2
+                    .into_iter()
+                    .filter(|lt| *lt == LaneType::Driving || *lt == LaneType::Biking)
+                    .count()
+                    > 1
+            {
+                return ControlStopSign::all_way_stop(map, i);
+            }
+        }
+
+        let mut ss = ControlStopSign {
+            intersection: i,
+            turns: BTreeMap::new(),
+            changed: false,
+        };
+        for t in &map.get_i(i).turns {
+            // Only the crosswalks should conflict with other turns. validate() will catch
+            // exceptions.
+            let priority = match map.get_t(*t).turn_type {
+                TurnType::Crosswalk => TurnPriority::Stop,
+                _ => TurnPriority::Priority,
+            };
+            ss.turns.insert(*t, priority);
         }
         ss
     }
