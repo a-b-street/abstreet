@@ -34,6 +34,13 @@ impl Angle {
     pub fn normalized_degrees(&self) -> f64 {
         self.normalized_radians().to_degrees()
     }
+
+    pub fn shortest_rotation_towards(&self, other: Angle) -> Angle {
+        // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
+        Angle::new_degs(
+            ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0,
+        )
+    }
 }
 
 impl fmt::Display for Angle {

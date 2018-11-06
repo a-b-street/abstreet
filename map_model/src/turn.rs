@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, Pt2D};
 use std::f64;
@@ -82,6 +83,7 @@ impl Turn {
     // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
     pub fn turn_angle(&self, map: &Map) -> Angle {
         let lane_angle = map.get_l(self.id.src).end_line(self.id.parent).angle();
+        // TODO Use shortest_rotation_towards, same logic from make/turns?
         self.line.angle() - lane_angle
     }
 
@@ -97,5 +99,12 @@ impl Turn {
 
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type != TurnType::Other
+    }
+
+    pub fn dump_debug(&self, map: &Map) {
+        println!("{}", abstutil::to_json(self));
+        println!("turn angle {}", self.turn_angle(map));
+        println!("is right turn? {}", self.is_right_turn(map));
+        println!("is straight turn? {}", self.is_straight_turn(map));
     }
 }

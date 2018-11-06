@@ -1,14 +1,22 @@
 use abstutil::{wraparound_get, MultiMap};
 use geom::{Angle, Line};
 use std::collections::HashSet;
-use {Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
+use std::iter;
+use {
+    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, RoadID, Turn, TurnID, TurnType,
+};
 
 pub fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_driving_turns(i, m));
     turns.extend(make_biking_turns(i, m));
-    turns.extend(make_crosswalks(i, m));
-    dedupe(turns)
+    turns.extend(make_walking_turns(i, m));
+    let turns = dedupe(turns);
+
+    // Make sure every incoming lane has a turn originating from it, and every outgoing lane has a
+    // turn leading to it. Except for parking lanes, of course.
+
+    turns
 }
 
 fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
@@ -16,8 +24,7 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
     let mut keep: Vec<Turn> = Vec::new();
     for t in turns.into_iter() {
         if ids.contains(&t.id) {
-            // TODO Disable panic so large.abst works :(
-            error!("Duplicate turns {}!", t.id);
+            panic!("Duplicate turns {}!", t.id);
         } else {
             ids.insert(t.id);
             keep.push(t);
@@ -26,21 +33,99 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
     keep
 }
 
-fn make_driving_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
-    let incoming: Vec<LaneID> = i.incoming_lanes
-        .iter()
-        // TODO why's this double borrow happen?
-        .filter(|id| m.get_l(**id).is_driving())
-        .map(|id| *id)
-        .collect();
-    let outgoing: Vec<LaneID> = i
-        .outgoing_lanes
-        .iter()
-        .filter(|id| m.get_l(**id).is_driving())
-        .map(|id| *id)
-        .collect();
+fn make_driving_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
+    // TODO make get_roads do this?
+    let roads: Vec<&Road> = i.get_roads(map).into_iter().map(|r| map.get_r(r)).collect();
 
-    make_turns(m, i.id, &incoming, &outgoing)
+    fn filter_driving_lanes(lanes: &Vec<(LaneID, LaneType)>) -> Vec<LaneID> {
+        lanes
+            .iter()
+            .filter_map(|(id, lt)| {
+                if *lt == LaneType::Driving {
+                    Some(*id)
+                } else {
+                    None
+                }
+            }).collect()
+    }
+    fn make_driving_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
+        Turn {
+            id: turn_id(i, l1, l2),
+            turn_type: TurnType::Other,
+            line: Line::new(map.get_l(l1).last_pt(), map.get_l(l2).first_pt()),
+        }
+    }
+
+    let mut result = Vec::new();
+
+    for r1 in &roads {
+        let incoming = filter_driving_lanes(r1.incoming_lanes(i.id));
+        if incoming.is_empty() {
+            continue;
+        }
+
+        for r2 in &roads {
+            if r1.id == r2.id {
+                continue;
+            }
+            let outgoing = filter_driving_lanes(r2.outgoing_lanes(i.id));
+            if outgoing.is_empty() {
+                continue;
+            }
+
+            // Use an arbitrary lane from each road to get the angle between r1 and r2.
+            let angle1 = map.get_l(incoming[0]).last_line().angle();
+            let angle2 = map.get_l(outgoing[0]).first_line().angle();
+            let diff = angle1
+                .shortest_rotation_towards(angle2)
+                .normalized_degrees();
+
+            if diff < 10.0 || diff > 350.0 {
+                // Straight. Match up based on the relative number of lanes.
+                if incoming.len() < outgoing.len() {
+                    // Arbitrarily use the leftmost incoming lane to handle the excess.
+                    let padded_incoming: Vec<&LaneID> = iter::repeat(&incoming[0])
+                        .take(outgoing.len() - incoming.len())
+                        .chain(incoming.iter())
+                        .collect();
+                    assert_eq!(padded_incoming.len(), outgoing.len());
+                    for (l1, l2) in padded_incoming.iter().zip(outgoing.iter()) {
+                        result.push(make_driving_turn(map, i.id, **l1, *l2));
+                    }
+                } else if incoming.len() > outgoing.len() {
+                    // TODO Ideally if the left/rightmost lanes are for turning, use the unused
+                    // one to go straight. But for now, arbitrarily use the leftmost outgoing
+                    // road to handle the excess.
+                    let padded_outgoing: Vec<&LaneID> = iter::repeat(&outgoing[0])
+                        .take(incoming.len() - outgoing.len())
+                        .chain(outgoing.iter())
+                        .collect();
+                    assert_eq!(padded_outgoing.len(), incoming.len());
+                    for (l1, l2) in incoming.iter().zip(&padded_outgoing) {
+                        result.push(make_driving_turn(map, i.id, *l1, **l2));
+                    }
+                } else {
+                    // The easy case!
+                    for (l1, l2) in incoming.iter().zip(outgoing.iter()) {
+                        result.push(make_driving_turn(map, i.id, *l1, *l2));
+                    }
+                }
+            } else if diff > 180.0 {
+                // Clockwise rotation means a right turn?
+                result.push(make_driving_turn(
+                    map,
+                    i.id,
+                    *incoming.last().unwrap(),
+                    *outgoing.last().unwrap(),
+                ));
+            } else {
+                // Counter-clockwise rotation means a left turn
+                result.push(make_driving_turn(map, i.id, incoming[0], outgoing[0]));
+            }
+        }
+    }
+
+    result
 }
 
 fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
@@ -156,7 +241,7 @@ fn make_turns(
     result
 }
 
-fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
+fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     // Sort roads by the angle into the intersection, so we can reason about sidewalks of adjacent
     // roads.
     let mut roads: Vec<(RoadID, Angle)> = i
@@ -225,21 +310,11 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
 }
 
 fn get_incoming_sidewalk(map: &Map, i: IntersectionID, r: RoadID) -> Option<&Lane> {
-    let r = map.get_r(r);
-    if r.src_i == i {
-        get_sidewalk(map, &r.children_backwards)
-    } else {
-        get_sidewalk(map, &r.children_forwards)
-    }
+    get_sidewalk(map, map.get_r(r).incoming_lanes(i))
 }
 
 fn get_outgoing_sidewalk(map: &Map, i: IntersectionID, r: RoadID) -> Option<&Lane> {
-    let r = map.get_r(r);
-    if r.src_i == i {
-        get_sidewalk(map, &r.children_forwards)
-    } else {
-        get_sidewalk(map, &r.children_backwards)
-    }
+    get_sidewalk(map, map.get_r(r).outgoing_lanes(i))
 }
 
 fn get_sidewalk<'a>(map: &'a Map, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {

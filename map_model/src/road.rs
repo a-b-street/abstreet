@@ -238,4 +238,24 @@ impl Road {
         // 20mph
         8.9408 * si::MPS
     }
+
+    pub fn incoming_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
+        if self.src_i == i {
+            &self.children_backwards
+        } else if self.dst_i == i {
+            &self.children_forwards
+        } else {
+            panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
+    }
+
+    pub fn outgoing_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
+        if self.src_i == i {
+            &self.children_forwards
+        } else if self.dst_i == i {
+            &self.children_backwards
+        } else {
+            panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
+    }
 }

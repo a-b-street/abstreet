@@ -40,7 +40,9 @@ impl ID {
                 map.get_i(id).dump_debug();
                 sim.debug_intersection(id, control_map);
             }
-            ID::Turn(_) => {}
+            ID::Turn(id) => {
+                map.get_t(id).dump_debug(map);
+            }
             ID::Building(id) => {
                 map.get_b(id).dump_debug();
                 let parked_cars = sim.get_parked_cars_by_owner(id);
