@@ -131,6 +131,20 @@ impl GUI for UI {
                 },
             );
         }
+        // TODO Ew, this is a weird ambient plugin that doesn't consume input but might want to
+        // draw stuff.
+        self.primary_plugins.turn_cycler().draw(
+            g,
+            Ctx {
+                cs: &mut self.cs.borrow_mut(),
+                map: &self.primary.map,
+                control_map: &self.primary.control_map,
+                draw_map: &self.primary.draw_map,
+                canvas: &self.canvas,
+                sim: &self.primary.sim,
+            },
+        );
+
         self.plugins.sim_ctrl.draw(g, &self.canvas);
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
@@ -171,6 +185,10 @@ impl PluginsPerMap {
 
     fn traffic_signal_editor(&self) -> &TrafficSignalEditor {
         self.list[3].downcast_ref::<TrafficSignalEditor>().unwrap()
+    }
+
+    fn turn_cycler(&self) -> &Box<Plugin> {
+        &self.list[4]
     }
 }
 
@@ -213,6 +231,7 @@ impl PerMapUI {
                 Box::new(plugins::show_owner::ShowOwnerState::new()),
                 Box::new(StopSignEditor::new()),
                 Box::new(TrafficSignalEditor::new()),
+                Box::new(plugins::turn_cycler::TurnCyclerState::new()),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
                 Box::new(plugins::follow::FollowState::new()),
                 Box::new(plugins::show_route::ShowRouteState::new()),
@@ -220,7 +239,6 @@ impl PerMapUI {
                 Box::new(plugins::floodfill::Floodfiller::new()),
                 Box::new(steepness_viz),
                 Box::new(plugins::geom_validation::Validator::new()),
-                Box::new(plugins::turn_cycler::TurnCyclerState::new()),
                 Box::new(plugins::draw_neighborhoods::DrawNeighborhoodState::new()),
                 Box::new(plugins::scenarios::ScenarioManager::new()),
                 Box::new(plugins::map_edits::EditsManager::new()),

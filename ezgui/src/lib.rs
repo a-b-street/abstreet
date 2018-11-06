@@ -289,4 +289,8 @@ impl Color {
         };
         Color([new_color.red, new_color.green, new_color.blue, 1.0])
     }
+
+    pub fn alpha(&self, a: f32) -> Color {
+        Color([self.0[0], self.0[1], self.0[2], a])
+    }
 }

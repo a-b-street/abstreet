@@ -64,8 +64,6 @@ impl Plugin for TurnCyclerState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        let color = ctx.cs.get("current selected turn", Color::RED);
-
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -75,10 +73,13 @@ impl Plugin for TurnCyclerState {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
                             let draw_turn = ctx.draw_map.get_t(turn.id);
-                            draw_turn.draw_full(g, color);
+                            draw_turn.draw_full(g, ctx.cs.get("current selected turn", Color::RED));
                         }
                         None => for turn in &relevant_turns {
-                            ctx.draw_map.get_t(turn.id).draw_full(g, color);
+                            ctx.draw_map.get_t(turn.id).draw_full(
+                                g,
+                                ctx.cs.get("all turns from one lane", Color::RED.alpha(0.5)),
+                            );
                         },
                     }
                 }
@@ -89,7 +90,13 @@ impl Plugin for TurnCyclerState {
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
                     for t in &cycle.turns {
-                        ctx.draw_map.get_t(*t).draw_full(g, color);
+                        ctx.draw_map.get_t(*t).draw_full(
+                            g,
+                            ctx.cs.get(
+                                "turns allowed by traffic signal right now",
+                                Color::GREEN.alpha(0.5),
+                            ),
+                        );
                     }
                 }
             }
@@ -99,7 +106,10 @@ impl Plugin for TurnCyclerState {
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (TurnCyclerState::Active(l, Some(idx)), ID::Turn(t)) => {
-                // TODO quickly prune if t doesnt go from or to l
+                // Quickly prune irrelevant lanes
+                if t.src != *l && t.dst != *l {
+                    return None;
+                }
 
                 let relevant_turns = ctx.map.get_turns_from_lane(*l);
                 if relevant_turns[idx % relevant_turns.len()].conflicts_with(ctx.map.get_t(t)) {
