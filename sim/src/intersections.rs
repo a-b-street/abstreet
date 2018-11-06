@@ -369,7 +369,7 @@ impl TrafficSignal {
         for req in self.requests.iter() {
             let turn = map.get_t(req.turn);
             let agent = req.agent;
-            assert_eq!(turn.parent, self.id);
+            assert_eq!(turn.id.parent, self.id);
             assert_eq!(self.accepted.contains_key(&agent), false);
 
             // Don't accept cars unless they're in front. TODO or behind other accepted cars.

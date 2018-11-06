@@ -11,6 +11,8 @@ use {IntersectionID, LaneID, Map};
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct TurnID {
     pub parent: IntersectionID,
+    // src and dst must both belong to parent. No guarantees that src is incoming and dst is
+    // outgoing for turns between sidewalks.
     pub src: LaneID,
     pub dst: LaneID,
 }
@@ -30,17 +32,8 @@ pub enum TurnType {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Turn {
-    // parent, src, dst are all encoded by id. TODO dedupe.
     pub id: TurnID,
-    // src and dst must both belong to parent. No guarantees that src is incoming and dst is
-    // outgoing for turns between sidewalks.
-    pub parent: IntersectionID,
-    pub src: LaneID,
-    pub dst: LaneID,
     pub turn_type: TurnType,
-
-    // TODO Really tempted to be either a Line or a Pt2D, to emphasize that this might not actually
-    // cover any space
     pub line: Line,
 }
 
@@ -88,7 +81,7 @@ impl Turn {
     // TODO all the stuff based on turn angle is a bit... wrong, especially for sidewalks. :\
     // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
     pub fn turn_angle(&self, map: &Map) -> Angle {
-        let lane_angle = map.get_l(self.src).end_line(self.parent).angle();
+        let lane_angle = map.get_l(self.id.src).end_line(self.id.parent).angle();
         self.line.angle() - lane_angle
     }
 

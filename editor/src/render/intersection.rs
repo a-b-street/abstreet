@@ -184,8 +184,8 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
             TurnType::SharedSidewalkCorner => {
                 // TODO don't double-render
 
-                let l1 = map.get_l(turn.src);
-                let l2 = map.get_l(turn.dst);
+                let l1 = map.get_l(turn.id.src);
+                let l2 = map.get_l(turn.id.dst);
 
                 let shared_pt1 = l1.last_line().shift(LANE_THICKNESS / 2.0).pt2();
                 let pt1 = l1.last_line().reverse().shift(LANE_THICKNESS / 2.0).pt1();

@@ -211,7 +211,7 @@ impl Map {
             }
         }
         for t in m.turns.values() {
-            m.intersections[t.parent.0].turns.push(t.id);
+            m.intersections[t.id.parent.0].turns.push(t.id);
         }
 
         make::make_all_buildings(
@@ -396,7 +396,7 @@ impl Map {
             .turns
             .iter()
             .map(|t| self.get_t(*t))
-            .filter(|t| t.src == l)
+            .filter(|t| t.id.src == l)
             .collect();
         // Sidewalks are bidirectional
         if lane.is_sidewalk() {
@@ -413,7 +413,7 @@ impl Map {
         // TODO assumes no duplicates
         self.get_turns_from_lane(from)
             .into_iter()
-            .map(|t| (t, self.get_l(t.dst)))
+            .map(|t| (t, self.get_l(t.id.dst)))
             .collect()
     }
 

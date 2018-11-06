@@ -82,7 +82,7 @@ impl Plugin for TrafficSignalEditor {
 
                     // Change turns
                     if let Some(ID::Turn(id)) = selected {
-                        if map.get_t(id).parent == *i {
+                        if id.parent == *i {
                             let cycle =
                                 &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
                                     [*current_cycle];

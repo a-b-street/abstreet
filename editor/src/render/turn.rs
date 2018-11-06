@@ -27,7 +27,7 @@ impl DrawTurn {
         let dst_pt = turn.line.pt2();
         let angle = turn.line.angle();
 
-        let end_line = map.get_l(turn.src).end_line(turn.parent);
+        let end_line = map.get_l(turn.id.src).end_line(turn.id.parent);
         // Start the distance from the intersection
         let icon_center = end_line
             .reverse()

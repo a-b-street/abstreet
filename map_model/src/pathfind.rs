@@ -389,7 +389,7 @@ fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
     };
 
     for t in map.get_turns_from_lane(from) {
-        if t.parent == endpoint && t.dst == to {
+        if t.id.parent == endpoint && t.id.dst == to {
             return t.id;
         }
     }

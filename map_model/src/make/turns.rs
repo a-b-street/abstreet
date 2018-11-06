@@ -100,7 +100,7 @@ fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     // will create those, and duplicates are bad. Filter them out here.
     make_turns(m, i.id, &incoming, &outgoing)
         .into_iter()
-        .filter(|t| m.get_l(t.src).is_biking() || m.get_l(t.dst).is_biking())
+        .filter(|t| m.get_l(t.id.src).is_biking() || m.get_l(t.id.dst).is_biking())
         .collect()
 }
 
@@ -146,7 +146,11 @@ fn make_turns(
             }
             // TODO if it's a multi-lane dead-end, ideally match up lanes or something
 
-            result.push(make_turn(parent, TurnType::Other, src_l, dst_l));
+            result.push(Turn {
+                id: turn_id(parent, src_l.id, dst_l.id),
+                turn_type: TurnType::Other,
+                line: Line::new(src_l.last_pt(), dst_l.first_pt()),
+            });
         }
     }
     result
@@ -186,36 +190,26 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
         if let Some(l1) = get_incoming_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
-                result.push(make_turn(i.id, TurnType::Crosswalk, l1, l2));
+                result.push(Turn {
+                    id: turn_id(i.id, l1.id, l2.id),
+                    turn_type: TurnType::Crosswalk,
+                    line: Line::new(l1.last_pt(), l2.first_pt()),
+                });
             }
 
             // Find the shared corner
             // TODO -1 and not +1 is brittle... must be the angle sorting
             if let Some(l3) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0) {
-                result.push(make_turn(i.id, TurnType::SharedSidewalkCorner, l1, l3));
-
-                // On some legs of a 3-way intersection (and probably other cases too), the
-                // adjacent road is a full sidewalk... TODO this is maybe a matter of rendering
-                //let angle_diff = (l1.last_line().angle().normalized_degrees()
-                //    - l3.first_line().angle().normalized_degrees()).abs();
-                // TODO tuning
+                result.push(Turn {
+                    id: turn_id(i.id, l1.id, l3.id),
+                    turn_type: TurnType::SharedSidewalkCorner,
+                    line: Line::new(l1.last_pt(), l3.first_pt()),
+                });
             }
         }
     }
 
     result
-}
-
-fn make_turn(parent: IntersectionID, turn_type: TurnType, src: &Lane, dst: &Lane) -> Turn {
-    Turn {
-        id: turn_id(parent, src.id, dst.id),
-        parent,
-        src: src.id,
-        dst: dst.id,
-        // TODO Won't work for the contraflow cases
-        line: Line::new(src.last_pt(), dst.first_pt()),
-        turn_type,
-    }
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {

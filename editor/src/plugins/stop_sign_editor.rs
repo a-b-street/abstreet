@@ -54,7 +54,7 @@ impl Plugin for StopSignEditor {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(StopSignEditor::Inactive);
                 } else if let Some(ID::Turn(id)) = selected {
-                    if map.get_t(id).parent == *i {
+                    if id.parent == *i {
                         let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
                         match sign.get_priority(id) {
                             TurnPriority::Priority => {

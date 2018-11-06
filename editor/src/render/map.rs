@@ -142,7 +142,7 @@ impl DrawMap {
         let mut pair: (Vec<&Turn>, Vec<&Turn>) = map
             .get_turns_from_lane(l.id)
             .iter()
-            .partition(|t| t.parent == l.dst_i);
+            .partition(|t| t.id.parent == l.dst_i);
 
         // Sort the turn icons by angle.
         pair.0
@@ -170,7 +170,7 @@ impl DrawMap {
     pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
         let t = map.get_t(id);
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
-        DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, map.get_l(t.src), map);
+        DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, map.get_l(id.src), map);
         let draw_turn = DrawTurn::new(map, t, turn_to_lane_offset[&id]);
         self.turns.insert(id, draw_turn);
     }
