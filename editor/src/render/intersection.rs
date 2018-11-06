@@ -3,10 +3,12 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
-use map_model::{Intersection, IntersectionID, LaneType, Map, LANE_THICKNESS};
+use map_model::{Intersection, IntersectionID, Map, TurnType, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
 use std::f64;
+
+const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -29,7 +31,7 @@ impl DrawIntersection {
             center,
             id: inter.id,
             polygon: Polygon::new(&inter.polygon),
-            crosswalks: calculate_crosswalks(inter, map),
+            crosswalks: calculate_crosswalks(inter.id, map),
             has_traffic_signal: inter.has_traffic_signal,
             should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(map),
         }
@@ -100,8 +102,7 @@ impl Renderable for DrawIntersection {
             for line in crosswalk {
                 g.draw_line(
                     ctx.cs.get("crosswalk", Color::WHITE),
-                    // TODO move this somewhere
-                    0.25,
+                    CROSSWALK_LINE_THICKNESS,
                     line,
                 );
             }
@@ -127,53 +128,40 @@ impl Renderable for DrawIntersection {
     }
 }
 
-fn calculate_crosswalks(inter: &Intersection, map: &Map) -> Vec<Vec<Line>> {
+fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
     let mut crosswalks = Vec::new();
 
-    for id in inter
-        .outgoing_lanes
-        .iter()
-        .chain(inter.incoming_lanes.iter())
-    {
-        let l1 = map.get_l(*id);
-        if l1.lane_type != LaneType::Sidewalk {
-            continue;
-        }
-        let other_side = map
-            .get_r(l1.parent)
-            .get_opposite_lane(l1.id, LaneType::Sidewalk);
-        if other_side.is_err() {
-            continue;
-        }
-        let l2 = map.get_l(other_side.unwrap());
-        if l2.id < l1.id {
-            continue;
-        }
+    for turn in &map.get_turns_in_intersection(i) {
+        match turn.turn_type {
+            TurnType::Crosswalk => {
+                // TODO don't double-render
 
-        let crossing_line = if l1.src_i == inter.id {
-            Line::new(l2.last_pt(), l1.first_pt())
-        } else {
-            Line::new(l1.last_pt(), l2.first_pt())
-        };
-        let angle = crossing_line.angle();
-        let length = crossing_line.length();
-        // Shift away so the markings stay fully inside the intersection. Lane center points don't
-        // line up with the boundary.
-        let line = crossing_line.shift(LANE_THICKNESS / 2.0);
+                let mut markings = Vec::new();
+                // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
+                // the thickness of the crosswalk line itself. Center the lines inside these two
+                // boundaries.
+                let boundary = (LANE_THICKNESS + CROSSWALK_LINE_THICKNESS) * si::M;
+                let tile_every = 0.6 * LANE_THICKNESS * si::M;
+                let available_length = turn.line.length() - (2.0 * boundary);
+                if available_length > 0.0 * si::M {
+                    let num_markings = (available_length / tile_every).floor() as usize;
 
-        // TODO awkward to express it this way
-
-        let mut markings = Vec::new();
-        let tile_every = (LANE_THICKNESS * 0.6) * si::M;
-        let mut dist_along = tile_every;
-        while dist_along < length - tile_every {
-            let pt1 = line.dist_along(dist_along);
-            // Reuse perp_line. Project away an arbitrary amount
-            let pt2 = pt1.project_away(1.0, angle);
-            markings.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
-            dist_along += tile_every;
+                    let mut dist_along =
+                        boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
+                    // TODO Seems to be an off-by-one sometimes
+                    for _ in 0..=num_markings {
+                        let pt1 = turn.line.dist_along(dist_along);
+                        // Reuse perp_line. Project away an arbitrary amount
+                        let pt2 = pt1.project_away(1.0, turn.line.angle());
+                        markings.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
+                        dist_along += tile_every;
+                    }
+                    crosswalks.push(markings);
+                }
+            }
+            // TODO render shared corners
+            _ => {}
         }
-        crosswalks.push(markings);
     }
 
     crosswalks
