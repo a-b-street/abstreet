@@ -140,7 +140,10 @@ fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
     for turn in &map.get_turns_in_intersection(i) {
         match turn.turn_type {
             TurnType::Crosswalk => {
-                // TODO don't double-render
+                // Avoid double-rendering
+                if map.get_l(turn.id.src).dst_i != i {
+                    continue;
+                }
 
                 let mut markings = Vec::new();
                 // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
@@ -182,7 +185,10 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     for turn in &map.get_turns_in_intersection(i) {
         match turn.turn_type {
             TurnType::SharedSidewalkCorner => {
-                // TODO don't double-render
+                // Avoid double-rendering
+                if map.get_l(turn.id.src).dst_i != i {
+                    continue;
+                }
 
                 let l1 = map.get_l(turn.id.src);
                 let l2 = map.get_l(turn.id.dst);

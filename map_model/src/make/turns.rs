@@ -185,7 +185,6 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
 
     let mut result: Vec<Turn> = Vec::new();
 
-    // TODO and the mirror ones
     for idx1 in 0..roads.len() as isize {
         if let Some(l1) = get_incoming_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
             // Make the crosswalk to the other side
@@ -194,6 +193,11 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::Crosswalk,
                     line: Line::new(l1.last_pt(), l2.first_pt()),
+                });
+                result.push(Turn {
+                    id: turn_id(i.id, l2.id, l1.id),
+                    turn_type: TurnType::Crosswalk,
+                    line: Line::new(l2.first_pt(), l1.last_pt()),
                 });
             }
 
@@ -204,6 +208,11 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
                     id: turn_id(i.id, l1.id, l3.id),
                     turn_type: TurnType::SharedSidewalkCorner,
                     line: Line::new(l1.last_pt(), l3.first_pt()),
+                });
+                result.push(Turn {
+                    id: turn_id(i.id, l3.id, l1.id),
+                    turn_type: TurnType::SharedSidewalkCorner,
+                    line: Line::new(l3.first_pt(), l1.last_pt()),
                 });
             }
         }
