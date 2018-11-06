@@ -191,7 +191,7 @@ impl Road {
     }
 
     // Only the immediately adjacent siblings -- so could be 0, 1, or 2 results.
-    fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)> {
+    pub fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)> {
         let (list, idx) = if let Some(idx) = self
             .children_forwards
             .iter()

@@ -5,8 +5,7 @@ use control::ControlMap;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
-use map_model;
-use map_model::{LaneID, LANE_THICKNESS};
+use map_model::{Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 
@@ -19,6 +18,7 @@ struct Marking {
     color: Box<Fn(&mut ColorScheme) -> Color>,
     thickness: f64,
     round: bool,
+    arrow_head_length: Option<f64>,
 }
 
 pub struct DrawLane {
@@ -31,7 +31,7 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &map_model::Lane, map: &map_model::Map, control_map: &ControlMap) -> DrawLane {
+    pub fn new(lane: &Lane, map: &Map, control_map: &ControlMap) -> DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons_blindly(LANE_THICKNESS);
 
@@ -42,21 +42,25 @@ impl DrawLane {
                 color: Box::new(|cs| cs.get("road center line", Color::YELLOW)),
                 thickness: BIG_ARROW_THICKNESS,
                 round: true,
+                arrow_head_length: None,
             });
         }
         match lane.lane_type {
-            map_model::LaneType::Sidewalk => {
+            LaneType::Sidewalk => {
                 markings.push(calculate_sidewalk_lines(lane));
             }
-            map_model::LaneType::Parking => {
+            LaneType::Parking => {
                 markings.push(calculate_parking_lines(lane));
             }
-            map_model::LaneType::Driving => {
+            LaneType::Driving => {
                 for m in calculate_driving_lines(lane, road) {
                     markings.push(m);
                 }
+                for m in calculate_turn_markings(map, lane, road) {
+                    markings.push(m);
+                }
             }
-            map_model::LaneType::Biking => {}
+            LaneType::Biking => {}
         };
         if lane.is_driving() && !map.get_i(lane.dst_i).has_traffic_signal {
             if let Some(m) = calculate_stop_sign_line(lane, control_map) {
@@ -104,10 +108,10 @@ impl Renderable for DrawLane {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
             let mut default = match l.lane_type {
-                map_model::LaneType::Driving => ctx.cs.get("driving lane", Color::BLACK),
-                map_model::LaneType::Parking => ctx.cs.get("parking lane", Color::grey(0.2)),
-                map_model::LaneType::Sidewalk => ctx.cs.get("sidewalk", Color::grey(0.8)),
-                map_model::LaneType::Biking => ctx.cs.get("bike lane", Color::rgb(15, 125, 75)),
+                LaneType::Driving => ctx.cs.get("driving lane", Color::BLACK),
+                LaneType::Parking => ctx.cs.get("parking lane", Color::grey(0.2)),
+                LaneType::Sidewalk => ctx.cs.get("sidewalk", Color::grey(0.8)),
+                LaneType::Biking => ctx.cs.get("bike lane", Color::rgb(15, 125, 75)),
             };
             if l.probably_broken {
                 default = ctx.cs.get("broken lane", Color::rgb_f(1.0, 0.0, 0.565));
@@ -119,7 +123,13 @@ impl Renderable for DrawLane {
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {
                 for line in &m.lines {
-                    if m.round {
+                    if let Some(head_length) = m.arrow_head_length {
+                        if m.round {
+                            g.draw_rounded_arrow((m.color)(ctx.cs), m.thickness, head_length, line);
+                        } else {
+                            g.draw_arrow((m.color)(ctx.cs), m.thickness, head_length, line);
+                        }
+                    } else if m.round {
                         g.draw_rounded_line((m.color)(ctx.cs), m.thickness, line);
                     } else {
                         g.draw_line((m.color)(ctx.cs), m.thickness, line);
@@ -141,7 +151,7 @@ impl Renderable for DrawLane {
         self.polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, map: &map_model::Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
         let l = map.get_l(self.id);
         let r = map.get_r(l.parent);
         let i1 = map.get_source_intersection(self.id);
@@ -172,7 +182,7 @@ fn perp_line(l: Line, length: f64) -> Line {
     Line::new(pt1, pt2)
 }
 
-fn calculate_sidewalk_lines(lane: &map_model::Lane) -> Marking {
+fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
     let tile_every = LANE_THICKNESS * si::M;
 
     let length = lane.length();
@@ -193,10 +203,11 @@ fn calculate_sidewalk_lines(lane: &map_model::Lane) -> Marking {
         color: Box::new(|cs| cs.get("sidewalk lines", Color::grey(0.7))),
         thickness: 0.25,
         round: false,
+        arrow_head_length: None,
     }
 }
 
-fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
+fn calculate_parking_lines(lane: &Lane) -> Marking {
     // meters, but the dims get annoying below to remove
     // TODO make Pt2D natively understand meters, projecting away by an angle
     let leg_length = 1.0;
@@ -205,8 +216,7 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
     let num_spots = lane.number_parking_spots();
     if num_spots > 0 {
         for idx in 0..=num_spots {
-            let (pt, lane_angle) =
-                lane.dist_along(map_model::PARKING_SPOT_LENGTH * (1.0 + idx as f64));
+            let (pt, lane_angle) = lane.dist_along(PARKING_SPOT_LENGTH * (1.0 + idx as f64));
             let perp_angle = lane_angle.rotate_degs(270.0);
             // Find the outside of the lane. Actually, shift inside a little bit, since the line will
             // have thickness, but shouldn't really intersect the adjacent line when drawn.
@@ -228,11 +238,12 @@ fn calculate_parking_lines(lane: &map_model::Lane) -> Marking {
         color: Box::new(|cs| cs.get("parking line", Color::WHITE)),
         thickness: 0.25,
         round: false,
+        arrow_head_length: None,
     }
 }
 
-fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> Option<Marking> {
-    // The rightmost lanes don't have dashed white lines.
+fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
+    // The leftmost lanes don't have dashed white lines.
     if parent.dir_and_offset(lane.id).1 == 0 {
         return None;
     }
@@ -265,10 +276,11 @@ fn calculate_driving_lines(lane: &map_model::Lane, parent: &map_model::Road) -> 
         color: Box::new(|cs| cs.get("dashed lane line", Color::WHITE)),
         thickness: 0.25,
         round: false,
+        arrow_head_length: None,
     })
 }
 
-fn calculate_stop_sign_line(lane: &map_model::Lane, control_map: &ControlMap) -> Option<Marking> {
+fn calculate_stop_sign_line(lane: &Lane, control_map: &ControlMap) -> Option<Marking> {
     if control_map.stop_signs[&lane.dst_i].is_priority_lane(lane.id) {
         return None;
     }
@@ -283,10 +295,11 @@ fn calculate_stop_sign_line(lane: &map_model::Lane, control_map: &ControlMap) ->
         color: Box::new(|cs| cs.get("stop line for lane", Color::RED)),
         thickness: 0.45,
         round: true,
+        arrow_head_length: None,
     })
 }
 
-fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
+fn calculate_id_positions(lane: &Lane) -> Option<Vec<Pt2D>> {
     if !lane.is_driving() {
         return None;
     }
@@ -294,4 +307,49 @@ fn calculate_id_positions(lane: &map_model::Lane) -> Option<Vec<Pt2D>> {
     let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
     let (pt2, _) = lane.safe_dist_along(2.0 * LANE_THICKNESS * si::M)?;
     Some(vec![pt1, pt2])
+}
+
+fn calculate_turn_markings(map: &Map, lane: &Lane, road: &Road) -> Vec<Marking> {
+    let mut results: Vec<Marking> = Vec::new();
+
+    // Are there multiple driving lanes on this side of the road?
+    if road
+        .get_siblings(lane.id)
+        .into_iter()
+        .find(|(_, lt)| *lt == LaneType::Driving)
+        .is_none()
+    {
+        return results;
+    }
+
+    // If the lane's too small, don't bother.
+    // TODO Maybe a Trace for the common line would actually look fine.
+    if let Some((base_pt, base_angle)) = lane.safe_dist_along(lane.length() - 5.0 * si::M) {
+        // Common line base
+        results.push(Marking {
+            lines: vec![Line::new(
+                base_pt,
+                base_pt.project_away(2.0, base_angle.opposite()),
+            )],
+            color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
+            thickness: 0.1,
+            round: true,
+            arrow_head_length: None,
+        });
+
+        for turn in map.get_turns_from_lane(lane.id) {
+            results.push(Marking {
+                lines: vec![Line::new(
+                    base_pt,
+                    base_pt.project_away(LANE_THICKNESS / 2.0, turn.line.angle()),
+                )],
+                color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
+                thickness: 0.1,
+                round: true,
+                arrow_head_length: Some(0.5),
+            });
+        }
+    }
+
+    results
 }

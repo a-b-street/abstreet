@@ -14,8 +14,7 @@ use std::f64;
 #[derive(Debug)]
 pub struct DrawTurn {
     pub id: TurnID,
-    src_pt: Pt2D,
-    dst_pt: Pt2D,
+    line: Line,
     icon_circle: Circle,
     icon_arrow: Line,
 }
@@ -23,8 +22,6 @@ pub struct DrawTurn {
 impl DrawTurn {
     pub fn new(map: &Map, turn: &Turn, offset_along_lane: usize) -> DrawTurn {
         let offset_along_lane = offset_along_lane as f64;
-        let src_pt = turn.line.pt1();
-        let dst_pt = turn.line.pt2();
         let angle = turn.line.angle();
 
         let end_line = map.get_l(turn.id.src).end_line(turn.id.parent);
@@ -41,20 +38,14 @@ impl DrawTurn {
 
         DrawTurn {
             id: turn.id,
-            src_pt,
-            dst_pt,
+            line: turn.line.clone(),
             icon_circle,
             icon_arrow,
         }
     }
 
     pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
-        g.draw_rounded_arrow(
-            color,
-            BIG_ARROW_THICKNESS,
-            BIG_ARROW_TIP_LENGTH,
-            &Line::new(self.src_pt, self.dst_pt),
-        );
+        g.draw_rounded_arrow(color, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, &self.line);
     }
 }
 
