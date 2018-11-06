@@ -178,11 +178,6 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
         }).collect();
     roads.sort_by_key(|(_, angle)| angle.normalized_degrees() as i64);
 
-    if roads.len() < 3 {
-        // TODO not yet...
-        return Vec::new();
-    }
-
     let mut result: Vec<Turn> = Vec::new();
 
     for idx1 in 0..roads.len() as isize {
@@ -202,18 +197,22 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
             }
 
             // Find the shared corner
-            // TODO -1 and not +1 is brittle... must be the angle sorting
-            if let Some(l3) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0) {
-                result.push(Turn {
-                    id: turn_id(i.id, l1.id, l3.id),
-                    turn_type: TurnType::SharedSidewalkCorner,
-                    line: Line::new(l1.last_pt(), l3.first_pt()),
-                });
-                result.push(Turn {
-                    id: turn_id(i.id, l3.id, l1.id),
-                    turn_type: TurnType::SharedSidewalkCorner,
-                    line: Line::new(l3.first_pt(), l1.last_pt()),
-                });
+            if roads.len() > 1 {
+                // TODO -1 and not +1 is brittle... must be the angle sorting
+                if let Some(l3) =
+                    get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0)
+                {
+                    result.push(Turn {
+                        id: turn_id(i.id, l1.id, l3.id),
+                        turn_type: TurnType::SharedSidewalkCorner,
+                        line: Line::new(l1.last_pt(), l3.first_pt()),
+                    });
+                    result.push(Turn {
+                        id: turn_id(i.id, l3.id, l1.id),
+                        turn_type: TurnType::SharedSidewalkCorner,
+                        line: Line::new(l3.first_pt(), l1.last_pt()),
+                    });
+                }
             }
         }
     }
