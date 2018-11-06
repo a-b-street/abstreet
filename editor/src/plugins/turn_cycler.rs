@@ -78,9 +78,9 @@ impl Plugin for TurnCyclerState {
                         None => for turn in &relevant_turns {
                             let color = match turn.turn_type {
                                 TurnType::SharedSidewalkCorner => {
-                                    ctx.cs.get("shared sidewalk corner turn", Color::GREEN)
+                                    ctx.cs.get("shared sidewalk corner turn", Color::BLACK)
                                 }
-                                TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::BLUE),
+                                TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::WHITE),
                                 TurnType::Other => ctx.cs.get("other kind of type", Color::RED),
                             }.alpha(0.5);
                             ctx.draw_map.get_t(turn.id).draw_full(g, color);
