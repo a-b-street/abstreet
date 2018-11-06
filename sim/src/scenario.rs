@@ -60,7 +60,7 @@ impl Neighborhood {
 
         let mut results: BTreeSet<RoadID> = BTreeSet::new();
         for r in map.all_roads() {
-            if poly.contains_pt(map.get_i(r.get_endpoints(map).0).point) {
+            if poly.contains_pt(r.center_pts.first_pt()) {
                 results.insert(r.id);
             }
         }

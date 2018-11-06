@@ -112,3 +112,9 @@ log crate is annoying -- cant initialize it, but also have something else hold
 onto it. probably have to use lazy static. not even sure I'll use this implicit
 style long-term -- when two sims are running side-by-side, might be very
 necessary to plumb more log context anyway.
+
+## Code layers
+
+At some point, geometry was a separate layer from the graph base-layer of
+map_model. That doesn't work -- we can't even reason about what turns logically
+exist without operating on cleaned-up geometry.

@@ -23,8 +23,7 @@ impl SteepnessVisualizer {
             max_difference: f64::MIN_POSITIVE,
         };
         for r in map.all_roads() {
-            let (i1, i2) = r.get_endpoints(map);
-            let d = (map.get_i(i1).elevation - map.get_i(i2).elevation)
+            let d = (map.get_i(r.src_i).elevation - map.get_i(r.dst_i).elevation)
                 .value_unsafe
                 .abs();
             // TODO hack! skip crazy outliers in terrible way.

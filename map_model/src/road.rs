@@ -3,7 +3,7 @@ use dimensioned::si;
 use geom::PolyLine;
 use std::collections::BTreeMap;
 use std::fmt;
-use {IntersectionID, LaneID, LaneType, Map};
+use {IntersectionID, LaneID, LaneType};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -29,6 +29,8 @@ pub struct Road {
 
     // Unshifted center points. Order implies road orientation.
     pub center_pts: PolyLine,
+    pub src_i: IntersectionID,
+    pub dst_i: IntersectionID,
 }
 
 impl PartialEq for Road {
@@ -81,16 +83,6 @@ impl Road {
             return lane == self.children_forwards[0].0;
         }
         lane == self.children_backwards[0].0
-    }
-
-    // In an arbitrary order
-    pub fn get_endpoints(&self, map: &Map) -> (IntersectionID, IntersectionID) {
-        let l = if !self.children_forwards.is_empty() {
-            map.get_l(self.children_forwards[0].0)
-        } else {
-            map.get_l(self.children_backwards[0].0)
-        };
-        (l.src_i, l.dst_i)
     }
 
     pub fn find_sidewalk(&self, parking_or_driving: LaneID) -> Result<LaneID, Error> {

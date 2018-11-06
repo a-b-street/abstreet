@@ -24,14 +24,13 @@ pub fn intersection_polygon(
         .into_iter()
         .map(|id| {
             let r = &roads[id.0];
-            let center_line = &r.center_pts;
             let fwd_width = LANE_THICKNESS * (r.children_forwards.len() as f64);
             let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
 
-            let (line, width_normal, width_reverse) = if center_line.first_pt() == i.point {
-                (center_line.reversed(), back_width, fwd_width)
-            } else if center_line.last_pt() == i.point {
-                (center_line.clone(), fwd_width, back_width)
+            let (line, width_normal, width_reverse) = if r.src_i == i.id {
+                (r.center_pts.reversed(), back_width, fwd_width)
+            } else if r.dst_i == i.id {
+                (r.center_pts.clone(), fwd_width, back_width)
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };

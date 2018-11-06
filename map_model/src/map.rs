@@ -110,6 +110,8 @@ impl Map {
                     .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
                     .collect(),
             );
+            let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
+            let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
 
             m.roads.push(Road {
                 id: road_id,
@@ -118,10 +120,9 @@ impl Map {
                 children_forwards: Vec::new(),
                 children_backwards: Vec::new(),
                 center_pts: road_center_pts.clone(),
+                src_i: i1,
+                dst_i: i2,
             });
-
-            let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
-            let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
 
             // TODO move this to make/lanes.rs too
             for lane in make::get_lane_specs(r, road_id, &m.road_edits) {
@@ -420,8 +421,8 @@ impl Map {
     pub fn get_next_roads(&self, from: RoadID) -> Vec<RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();
 
-        let (i1, i2) = self.get_r(from).get_endpoints(self);
-        for id in vec![i1, i2].into_iter() {
+        let r = self.get_r(from);
+        for id in vec![r.src_i, r.dst_i].into_iter() {
             roads.extend(self.get_i(id).get_roads(self));
         }
 

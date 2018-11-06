@@ -168,9 +168,9 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
         .map(|id| {
             let r = map.get_r(id);
 
-            if r.center_pts.first_pt() == i.point {
+            if r.src_i == i.id {
                 (r.id, r.center_pts.reversed().last_line().angle())
-            } else if r.center_pts.last_pt() == i.point {
+            } else if r.dst_i == i.id {
                 (r.id, r.center_pts.last_line().angle())
             } else {
                 panic!(
@@ -189,10 +189,10 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut result: Vec<Turn> = Vec::new();
 
     for idx1 in 0..roads.len() as isize {
-        if let Some(l1) = get_incoming_sidewalk(map, i, wraparound_get(&roads, idx1).0) {
+        if let Some(l1) = get_incoming_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
             // Make a shared-corner turn with the next road
             // TODO -1 and not +1 is brittle... must be the angle sorting
-            if let Some(l2) = get_outgoing_sidewalk(map, i, wraparound_get(&roads, idx1 - 1).0) {
+            if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 1).0) {
                 // TODO This unintentionally made a crosswalk at a 3-way. Angles?
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
@@ -208,7 +208,7 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
 
             // Now the crosswalk
             // TODO This is literally the same code
-            if let Some(l2) = get_outgoing_sidewalk(map, i, wraparound_get(&roads, idx1 - 2).0) {
+            if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1 - 2).0) {
                 // TODO at 3-ways, this is making a bad diagonal. angles?
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
@@ -230,20 +230,18 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_incoming_sidewalk<'a>(map: &'a Map, i: &Intersection, r: RoadID) -> Option<&'a Lane> {
+fn get_incoming_sidewalk(map: &Map, i: IntersectionID, r: RoadID) -> Option<&Lane> {
     let r = map.get_r(r);
-    // TODO getting lazy, assuming the last_pt matches
-    if r.center_pts.first_pt() == i.point {
+    if r.src_i == i {
         get_sidewalk(map, &r.children_backwards)
     } else {
         get_sidewalk(map, &r.children_forwards)
     }
 }
 
-fn get_outgoing_sidewalk<'a>(map: &'a Map, i: &Intersection, r: RoadID) -> Option<&'a Lane> {
+fn get_outgoing_sidewalk(map: &Map, i: IntersectionID, r: RoadID) -> Option<&Lane> {
     let r = map.get_r(r);
-    // TODO getting lazy, assuming the last_pt matches
-    if r.center_pts.first_pt() == i.point {
+    if r.src_i == i {
         get_sidewalk(map, &r.children_forwards)
     } else {
         get_sidewalk(map, &r.children_backwards)
