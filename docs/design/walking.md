@@ -113,3 +113,5 @@ Don't duplicate work with DrawIntersection... let's annotate turn types.
 - SharedSidewalkCorner
 	- these 2 exclusively mean sidewalks
 - can classify straight/right/left turns too, once. so control layer gets a break.
+
+actually, keep the turn angle stuff independent of sidewalk stuff.

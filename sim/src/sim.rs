@@ -114,7 +114,7 @@ impl Sim {
     }
 
     pub fn edit_remove_turn(&mut self, t: &Turn) {
-        if t.between_sidewalks {
+        if t.between_sidewalks() {
             self.walking_state.edit_remove_turn(t.id);
         } else {
             self.driving_state.edit_remove_turn(t.id);
@@ -122,7 +122,7 @@ impl Sim {
     }
 
     pub fn edit_add_turn(&mut self, t: &Turn, map: &Map) {
-        if t.between_sidewalks {
+        if t.between_sidewalks() {
             self.walking_state.edit_add_turn(t.id);
         } else {
             self.driving_state.edit_add_turn(t.id, map);

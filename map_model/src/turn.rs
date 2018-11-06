@@ -21,6 +21,13 @@ impl fmt::Display for TurnID {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum TurnType {
+    Crosswalk,
+    SharedSidewalkCorner,
+    Other,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Turn {
     // parent, src, dst are all encoded by id. TODO dedupe.
@@ -30,7 +37,7 @@ pub struct Turn {
     pub parent: IntersectionID,
     pub src: LaneID,
     pub dst: LaneID,
-    pub between_sidewalks: bool,
+    pub turn_type: TurnType,
 
     // TODO Really tempted to be either a Line or a Pt2D, to emphasize that this might not actually
     // cover any space
@@ -48,7 +55,7 @@ impl Turn {
         if self == other {
             return false;
         }
-        if self.between_sidewalks && other.between_sidewalks {
+        if self.between_sidewalks() && other.between_sidewalks() {
             return false;
         }
 
@@ -93,5 +100,9 @@ impl Turn {
     pub fn is_straight_turn(&self, map: &Map) -> bool {
         let a = self.turn_angle(map).normalized_degrees();
         a <= 20.0 || a >= 320.0
+    }
+
+    pub fn between_sidewalks(&self) -> bool {
+        self.turn_type != TurnType::Other
     }
 }

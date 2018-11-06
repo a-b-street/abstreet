@@ -464,7 +464,7 @@ impl DrivingSimState {
             debug: None,
         };
         for t in map.all_turns().values() {
-            if !t.between_sidewalks {
+            if !t.between_sidewalks() {
                 s.turns
                     .insert(t.id, SimQueue::new(Traversable::Turn(t.id), map));
             }

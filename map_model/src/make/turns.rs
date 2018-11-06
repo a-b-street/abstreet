@@ -1,7 +1,7 @@
 use abstutil::{wraparound_get, MultiMap};
 use geom::{Angle, Line};
 use std::collections::HashSet;
-use {Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID};
+use {Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
 pub fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
@@ -152,7 +152,7 @@ fn make_turns(
                 src: *src,
                 dst: *dst,
                 line: Line::new(src_l.last_pt(), dst_l.first_pt()),
-                between_sidewalks: false,
+                turn_type: TurnType::Other,
             });
         }
     }
@@ -200,8 +200,7 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
                     src: l1.id,
                     dst: l2.id,
                     line: Line::new(l1.last_pt(), l2.first_pt()),
-                    // TODO can we indicate this is a shared corner
-                    between_sidewalks: true,
+                    turn_type: TurnType::SharedSidewalkCorner,
                 });
                 // TODO and the mirror one
             }
@@ -216,8 +215,7 @@ fn make_crosswalks(i: &Intersection, map: &Map) -> Vec<Turn> {
                     src: l1.id,
                     dst: l2.id,
                     line: Line::new(l1.last_pt(), l2.first_pt()),
-                    // TODO can we indicate this is a crosswalk
-                    between_sidewalks: true,
+                    turn_type: TurnType::Crosswalk,
                 });
                 // TODO and the mirror one
             }

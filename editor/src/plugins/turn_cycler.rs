@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use ezgui::{Color, GfxCtx};
-use map_model::{IntersectionID, LaneID};
+use map_model::{IntersectionID, LaneID, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -76,10 +76,14 @@ impl Plugin for TurnCyclerState {
                             draw_turn.draw_full(g, ctx.cs.get("current selected turn", Color::RED));
                         }
                         None => for turn in &relevant_turns {
-                            ctx.draw_map.get_t(turn.id).draw_full(
-                                g,
-                                ctx.cs.get("all turns from one lane", Color::RED.alpha(0.5)),
-                            );
+                            let color = match turn.turn_type {
+                                TurnType::SharedSidewalkCorner => {
+                                    ctx.cs.get("shared sidewalk corner turn", Color::GREEN)
+                                }
+                                TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::BLUE),
+                                TurnType::Other => ctx.cs.get("other kind of type", Color::RED),
+                            }.alpha(0.5);
+                            ctx.draw_map.get_t(turn.id).draw_full(g, color);
                         },
                     }
                 }
