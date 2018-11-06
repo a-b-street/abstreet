@@ -2,17 +2,22 @@
 
 extern crate abstutil;
 extern crate dimensioned;
+#[macro_use]
+extern crate log;
 extern crate map_model;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+mod macros;
+
+mod stop_signs;
+mod traffic_signals;
+
 use map_model::{IntersectionID, Map};
 use std::collections::{BTreeMap, HashMap};
-pub use stop_signs::ControlStopSign;
+pub use stop_signs::{ControlStopSign, TurnPriority};
 pub use traffic_signals::ControlTrafficSignal;
-
-pub mod stop_signs;
-pub mod traffic_signals;
 
 // TODO awful name
 pub struct ControlMap {

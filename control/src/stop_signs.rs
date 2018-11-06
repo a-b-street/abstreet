@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{IntersectionID, LaneID, LaneType, Map, TurnID, TurnType};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
+use map_model::{IntersectionID, LaneID, Map, TurnID, TurnType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
@@ -33,7 +33,7 @@ impl ControlStopSign {
     pub fn new(map: &Map, intersection: IntersectionID) -> ControlStopSign {
         assert!(!map.get_i(intersection).has_traffic_signal);
         let ss = ControlStopSign::smart_assignment(map, intersection);
-        ss.validate(map, intersection);
+        ss.validate(map, intersection).unwrap();
         ss
     }
 
@@ -128,40 +128,28 @@ impl ControlStopSign {
     }
 
     fn for_degenerate_intersection(map: &Map, i: IntersectionID) -> ControlStopSign {
-        // If any of the roads have multiple lanes, then right now, the turns conflict.
-        // TODO After implementing lane-changing and banning turns that cross lanes, this shouldn't
-        // be a problem.
-        for r in map.get_i(i).get_roads(map) {
-            let (lanes1, lanes2) = map.get_r(r).get_lane_types();
-            if lanes1
-                .into_iter()
-                .filter(|lt| *lt == LaneType::Driving || *lt == LaneType::Biking)
-                .count()
-                > 1
-                || lanes2
-                    .into_iter()
-                    .filter(|lt| *lt == LaneType::Driving || *lt == LaneType::Biking)
-                    .count()
-                    > 1
-            {
-                return ControlStopSign::all_way_stop(map, i);
-            }
-        }
-
         let mut ss = ControlStopSign {
             intersection: i,
             turns: BTreeMap::new(),
             changed: false,
         };
         for t in &map.get_i(i).turns {
-            // Only the crosswalks should conflict with other turns. validate() will catch
-            // exceptions.
+            // Only the crosswalks should conflict with other turns.
             let priority = match map.get_t(*t).turn_type {
                 TurnType::Crosswalk => TurnPriority::Stop,
                 _ => TurnPriority::Priority,
             };
             ss.turns.insert(*t, priority);
         }
+
+        // Due to a few observed issues (multiple driving lanes road (a temporary issue) and bad
+        // intersection geometry), sometimes more turns conflict than really should. For now, just
+        // detect and fallback to an all-way stop.
+        if let Err(err) = ss.validate(map, i) {
+            warn!("Giving up on for_degenerate_intersection({}): {}", i, err);
+            return ControlStopSign::all_way_stop(map, i);
+        }
+
         ss
     }
 
@@ -198,7 +186,7 @@ impl ControlStopSign {
             .is_some()
     }
 
-    fn validate(&self, map: &Map, intersection: IntersectionID) {
+    fn validate(&self, map: &Map, intersection: IntersectionID) -> Result<(), Error> {
         // Does the assignment cover the correct set of turns?
         let all_turns = &map.get_i(intersection).turns;
         assert_eq!(self.turns.len(), all_turns.len());
@@ -220,13 +208,15 @@ impl ControlStopSign {
         for t1 in &priority_turns {
             for t2 in &priority_turns {
                 if map.get_t(*t1).conflicts_with(map.get_t(*t2)) {
-                    panic!(
+                    return Err(Error::new(format!(
                         "Stop sign has conflicting priority turns {:?} and {:?}",
                         t1, t2
-                    );
+                    )));
                 }
             }
         }
+
+        Ok(())
     }
 }
 

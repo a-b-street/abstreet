@@ -2,8 +2,7 @@
 
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
-use control::stop_signs::{ControlStopSign, TurnPriority};
-use control::ControlMap;
+use control::{ControlMap, ControlStopSign, TurnPriority};
 use dimensioned::si;
 use kinematics;
 use map_model::{IntersectionID, Map, TurnID};

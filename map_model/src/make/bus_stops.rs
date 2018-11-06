@@ -117,6 +117,17 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
             {
                 let bs1 = map.get_bs(*stop1);
                 let bs2 = map.get_bs(*stop2);
+                if bs1.driving_lane == bs2.driving_lane {
+                    // This is coming up because the dist_along's are in a bad order. But why
+                    // should this happen at all?
+                    warn!(
+                        "Removing route {} since {:?} and {:?} are on the same lane",
+                        r.name, bs1, bs2
+                    );
+                    ok = false;
+                    break;
+                }
+
                 if Pathfinder::shortest_distance(
                     map,
                     bs1.driving_lane,

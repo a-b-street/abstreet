@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use control::stop_signs::TurnPriority;
+use control::TurnPriority;
 use ezgui::Color;
 use map_model::IntersectionID;
 use objects::{Ctx, ID};
