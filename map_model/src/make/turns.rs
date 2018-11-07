@@ -32,6 +32,7 @@ pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
         outgoing_missing.remove(&t.id.dst);
     }
     if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
+        // TODO Annoying, but this error is noisy for border nodes.
         error!(
             "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
             i.id, incoming_missing, outgoing_missing
@@ -56,27 +57,12 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
 }
 
 fn make_driving_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
+    if i.is_dead_end(map) {
+        return make_driving_turns_for_dead_end(i, map);
+    }
+
     // TODO make get_roads do this?
     let roads: Vec<&Road> = i.get_roads(map).into_iter().map(|r| map.get_r(r)).collect();
-
-    fn filter_driving_lanes(lanes: &Vec<(LaneID, LaneType)>) -> Vec<LaneID> {
-        lanes
-            .iter()
-            .filter_map(|(id, lt)| {
-                if *lt == LaneType::Driving {
-                    Some(*id)
-                } else {
-                    None
-                }
-            }).collect()
-    }
-    fn make_driving_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
-        Turn {
-            id: turn_id(i, l1, l2),
-            turn_type: TurnType::Other,
-            line: Line::new(map.get_l(l1).last_pt(), map.get_l(l2).first_pt()),
-        }
-    }
 
     let mut result = Vec::new();
 
@@ -104,34 +90,7 @@ fn make_driving_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
 
             if diff < 10.0 || diff > 350.0 {
                 // Straight. Match up based on the relative number of lanes.
-                if incoming.len() < outgoing.len() {
-                    // Arbitrarily use the leftmost incoming lane to handle the excess.
-                    let padded_incoming: Vec<&LaneID> = iter::repeat(&incoming[0])
-                        .take(outgoing.len() - incoming.len())
-                        .chain(incoming.iter())
-                        .collect();
-                    assert_eq!(padded_incoming.len(), outgoing.len());
-                    for (l1, l2) in padded_incoming.iter().zip(outgoing.iter()) {
-                        result.push(make_driving_turn(map, i.id, **l1, *l2));
-                    }
-                } else if incoming.len() > outgoing.len() {
-                    // TODO Ideally if the left/rightmost lanes are for turning, use the unused
-                    // one to go straight. But for now, arbitrarily use the leftmost outgoing
-                    // road to handle the excess.
-                    let padded_outgoing: Vec<&LaneID> = iter::repeat(&outgoing[0])
-                        .take(incoming.len() - outgoing.len())
-                        .chain(outgoing.iter())
-                        .collect();
-                    assert_eq!(padded_outgoing.len(), incoming.len());
-                    for (l1, l2) in incoming.iter().zip(&padded_outgoing) {
-                        result.push(make_driving_turn(map, i.id, *l1, **l2));
-                    }
-                } else {
-                    // The easy case!
-                    for (l1, l2) in incoming.iter().zip(outgoing.iter()) {
-                        result.push(make_driving_turn(map, i.id, *l1, *l2));
-                    }
-                }
+                result.extend(match_up_driving_lanes(map, i.id, &incoming, &outgoing));
             } else if diff > 180.0 {
                 // Clockwise rotation means a right turn?
                 result.push(make_driving_turn(
@@ -148,6 +107,56 @@ fn make_driving_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     }
 
     result
+}
+
+fn match_up_driving_lanes(
+    map: &Map,
+    i: IntersectionID,
+    incoming: &Vec<LaneID>,
+    outgoing: &Vec<LaneID>,
+) -> Vec<Turn> {
+    let mut result = Vec::new();
+    if incoming.len() < outgoing.len() {
+        // Arbitrarily use the leftmost incoming lane to handle the excess.
+        let padded_incoming: Vec<&LaneID> = iter::repeat(&incoming[0])
+            .take(outgoing.len() - incoming.len())
+            .chain(incoming.iter())
+            .collect();
+        assert_eq!(padded_incoming.len(), outgoing.len());
+        for (l1, l2) in padded_incoming.iter().zip(outgoing.iter()) {
+            result.push(make_driving_turn(map, i, **l1, *l2));
+        }
+    } else if incoming.len() > outgoing.len() {
+        // TODO For non-dead-ends: Ideally if the left/rightmost lanes are for turning, use the
+        // unused one to go straight.
+        // But for now, arbitrarily use the leftmost outgoing road to handle the excess.
+        let padded_outgoing: Vec<&LaneID> = iter::repeat(&outgoing[0])
+            .take(incoming.len() - outgoing.len())
+            .chain(outgoing.iter())
+            .collect();
+        assert_eq!(padded_outgoing.len(), incoming.len());
+        for (l1, l2) in incoming.iter().zip(&padded_outgoing) {
+            result.push(make_driving_turn(map, i, *l1, **l2));
+        }
+    } else {
+        // The easy case!
+        for (l1, l2) in incoming.iter().zip(outgoing.iter()) {
+            result.push(make_driving_turn(map, i, *l1, *l2));
+        }
+    }
+    result
+}
+
+fn make_driving_turns_for_dead_end(i: &Intersection, map: &Map) -> Vec<Turn> {
+    let road = map.get_r(i.get_roads(map).into_iter().next().unwrap());
+    let incoming = filter_driving_lanes(road.incoming_lanes(i.id));
+    let outgoing = filter_driving_lanes(road.outgoing_lanes(i.id));
+    if incoming.is_empty() || outgoing.is_empty() {
+        error!("{} needs to be a border node!", i.id);
+        return Vec::new();
+    }
+
+    match_up_driving_lanes(map, i.id, &incoming, &outgoing)
 }
 
 fn make_biking_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
@@ -346,4 +355,24 @@ fn get_sidewalk<'a>(map: &'a Map, children: &Vec<(LaneID, LaneType)>) -> Option<
         }
     }
     None
+}
+
+fn filter_driving_lanes(lanes: &Vec<(LaneID, LaneType)>) -> Vec<LaneID> {
+    lanes
+        .iter()
+        .filter_map(|(id, lt)| {
+            if *lt == LaneType::Driving {
+                Some(*id)
+            } else {
+                None
+            }
+        }).collect()
+}
+
+fn make_driving_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
+    Turn {
+        id: turn_id(i, l1, l2),
+        turn_type: TurnType::Other,
+        line: Line::new(map.get_l(l1).last_pt(), map.get_l(l2).first_pt()),
+    }
 }
