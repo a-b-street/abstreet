@@ -1,4 +1,5 @@
 use dimensioned::si;
+use ordered_float::NotNaN;
 use std::f64;
 use std::fmt;
 use {line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
@@ -303,11 +304,22 @@ impl PolyLine {
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
         assert_ne!(self, other);
 
+        // There could be several collisions. Pick the "first" from self's perspective.
         for l1 in self.lines() {
+            let mut hits: Vec<Pt2D> = Vec::new();
             for l2 in other.lines() {
                 if let Some(pt) = l1.intersection(&l2) {
-                    return Some(pt);
+                    hits.push(pt);
                 }
+            }
+
+            hits.sort_by_key(|pt| {
+                let mut copy = self.clone();
+                copy.trim_to_pt(*pt);
+                NotNaN::new(copy.length().value_unsafe).unwrap()
+            });
+            if !hits.is_empty() {
+                return Some(hits[0]);
             }
         }
         None

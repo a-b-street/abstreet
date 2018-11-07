@@ -9,7 +9,6 @@ pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
     // to remain deterministic.
     // TODO maybe ensure that these loop lanes don't even happen.
 
-    // TODO polyline-polyline intersection is brittle; what if there's >1 collision?
     let polygon = PolyLine::new(i.polygon.clone());
 
     for id in i.incoming_lanes.iter() {
