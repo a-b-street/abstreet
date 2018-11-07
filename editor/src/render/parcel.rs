@@ -5,6 +5,7 @@ use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{Map, Parcel, ParcelID};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
+use sim::Sim;
 
 const COLORS: [Color; 14] = [
     // TODO these are awful choices
@@ -70,7 +71,7 @@ impl Renderable for DrawParcel {
         self.fill_polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, _map: &Map, _sim: &Sim) -> Vec<String> {
         vec![self.id.to_string()]
     }
 }

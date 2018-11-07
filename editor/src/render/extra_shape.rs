@@ -5,6 +5,7 @@ use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
 use map_model::Map;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
+use sim::Sim;
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
@@ -74,7 +75,7 @@ impl Renderable for DrawExtraShape {
         }
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, _map: &Map, _sim: &Sim) -> Vec<String> {
         let mut lines = Vec::new();
         for (k, v) in &self.attributes {
             // Make interesting atributes easier to spot

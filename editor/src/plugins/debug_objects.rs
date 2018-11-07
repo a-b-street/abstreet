@@ -70,7 +70,7 @@ impl Plugin for DebugObjectsState {
             DebugObjectsState::Selected(_) => {}
             DebugObjectsState::Tooltip(id) => {
                 let mut txt = Text::new();
-                for line in id.tooltip_lines(ctx.map, ctx.draw_map, ctx.sim) {
+                for line in ctx.draw_map.get_obj(id).tooltip_lines(ctx.map, ctx.sim) {
                     txt.add_line(line);
                 }
                 ctx.canvas.draw_mouse_tooltip(g, txt);

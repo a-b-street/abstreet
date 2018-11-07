@@ -9,6 +9,7 @@ use render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
+use sim::Sim;
 use std::f64;
 
 #[derive(Debug)]
@@ -78,7 +79,7 @@ impl Renderable for DrawTurn {
         self.icon_circle.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
         vec![
             format!("{}", self.id),
             format!("Angle {}", map.get_t(self.id).turn_angle(map)),

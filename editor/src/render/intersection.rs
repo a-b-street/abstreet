@@ -6,6 +6,7 @@ use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Intersection, IntersectionID, Map, TurnType, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
+use sim::Sim;
 use std::f64;
 
 const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
@@ -129,8 +130,11 @@ impl Renderable for DrawIntersection {
         self.polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
-        vec![self.id.to_string()]
+    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
+        vec![
+            self.id.to_string(),
+            format!("Roads: {:?}", map.get_i(self.id).roads),
+        ]
     }
 }
 

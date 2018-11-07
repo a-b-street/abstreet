@@ -8,6 +8,7 @@ use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
+use sim::Sim;
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
@@ -152,7 +153,7 @@ impl Renderable for DrawLane {
         self.polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
         let l = map.get_l(self.id);
         let r = map.get_r(l.parent);
         let i1 = map.get_source_intersection(self.id);

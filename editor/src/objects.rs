@@ -60,7 +60,7 @@ impl ID {
                 sim.debug_ped(id);
             }
             ID::ExtraShape(_) => {
-                for line in draw_map.get_obj(*self).tooltip_lines(map).into_iter() {
+                for line in draw_map.get_obj(*self).tooltip_lines(map, sim).into_iter() {
                     println!("{}", line);
                 }
             }
@@ -95,14 +95,6 @@ impl ID {
                 .map(|bs| map.get_l(id.sidewalk).dist_along(bs.dist_along).0),
             ID::Area(id) => map.maybe_get_a(id).map(|a| Pt2D::center(&a.points)),
             ID::Trip(id) => sim.get_stats().canonical_pt_per_trip.get(&id).map(|pt| *pt),
-        }
-    }
-
-    pub fn tooltip_lines(&self, map: &Map, draw_map: &DrawMap, sim: &Sim) -> Vec<String> {
-        match *self {
-            ID::Car(id) => sim.car_tooltip(id),
-            ID::Pedestrian(id) => sim.ped_tooltip(id),
-            x => draw_map.get_obj(x).tooltip_lines(map),
         }
     }
 }

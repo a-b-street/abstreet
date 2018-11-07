@@ -3,6 +3,7 @@ use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Area, AreaID, AreaType, Map};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
+use sim::Sim;
 
 #[derive(Debug)]
 pub struct DrawArea {
@@ -43,7 +44,7 @@ impl Renderable for DrawArea {
         self.fill_polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
         let a = map.get_a(self.id);
         let mut lines = vec![format!("{} (from OSM way {})", self.id, a.osm_way_id)];
         for (k, v) in &a.osm_tags {

@@ -3,7 +3,7 @@ use geom::{Bounds, Circle, Line, Pt2D};
 use map_model::Map;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
-use sim::{DrawPedestrianInput, PedestrianID};
+use sim::{DrawPedestrianInput, PedestrianID, Sim};
 
 const RADIUS: f64 = 1.0;
 
@@ -64,7 +64,7 @@ impl Renderable for DrawPedestrian {
         self.circle.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
-        vec![self.id.to_string()]
+    fn tooltip_lines(&self, _map: &Map, sim: &Sim) -> Vec<String> {
+        sim.ped_tooltip(self.id)
     }
 }

@@ -4,6 +4,7 @@ use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
+use sim::Sim;
 
 pub struct DrawBusStop {
     pub id: BusStopID,
@@ -57,7 +58,7 @@ impl Renderable for DrawBusStop {
         self.polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, _map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, _map: &Map, _sim: &Sim) -> Vec<String> {
         vec![self.id.to_string()]
     }
 }

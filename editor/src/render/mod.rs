@@ -22,6 +22,7 @@ pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;
 pub use render::turn::DrawTurn;
+use sim::Sim;
 use std::f64;
 
 // These are all in meters
@@ -35,12 +36,14 @@ const BIG_ARROW_TIP_LENGTH: f64 = 1.0;
 const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
 
+// Does something belong here or as a method on ID? If it ONLY applies to renderable things, then
+// here. For example, trips aren't drawn, so they don't need tooltip_lines.
 pub trait Renderable {
     fn get_id(&self) -> ID;
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx);
     fn get_bounds(&self) -> Bounds;
     fn contains_pt(&self, pt: Pt2D) -> bool;
-    fn tooltip_lines(&self, map: &Map) -> Vec<String>;
+    fn tooltip_lines(&self, map: &Map, sim: &Sim) -> Vec<String>;
 }
 
 pub struct RenderOptions {

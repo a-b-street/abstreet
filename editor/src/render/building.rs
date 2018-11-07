@@ -6,6 +6,7 @@ use geom::{Bounds, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
+use sim::Sim;
 
 pub struct DrawBuilding {
     pub id: BuildingID,
@@ -64,7 +65,7 @@ impl Renderable for DrawBuilding {
         self.fill_polygon.contains_pt(pt)
     }
 
-    fn tooltip_lines(&self, map: &Map) -> Vec<String> {
+    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
         let b = map.get_b(self.id);
         let mut lines = vec![format!(
             "Building #{:?} (from OSM way {})",

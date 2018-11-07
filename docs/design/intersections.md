@@ -78,3 +78,14 @@ Leader vehicle is a bit vague; could be leader on current queue, which is still 
 ## Stop sign priority
 
 Use OSM highway tags to rank. For all the turns on the higher priority road, detect priority/yield based on turn angle, I guess.
+
+## Handling complicated intersections with tiny roads
+
+AORTA's super-roads
+
+https://www.mapbox.com/mapping/mapping-for-navigation/modeling-intersections-for-map-navigation/
+https://wazeopedia.waze.com/wiki/Global/Junction_Style_Guide/Intersections
+https://wiki.openstreetmap.org/wiki/Junctions
+
+http://www.sumo.dlr.de/userdoc/Networks/Building_Networks_from_own_XML-descriptions.html#Joining_Nodes
+- instead of looking for short roads, clip road lines to intersection geometry and then see if they're short (10m)
