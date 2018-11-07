@@ -19,8 +19,10 @@ pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
     }
 
     for id in i.outgoing_lanes.iter() {
-        if let Some(hit) = lanes[id.0].lane_center_pts.intersection(&polygon) {
-            let mut new_pts = lanes[id.0].lane_center_pts.reversed();
+        // In case there are multiple hits with the polygon, we want the first, so reverse the
+        // points when checking.
+        let mut new_pts = lanes[id.0].lane_center_pts.reversed();
+        if let Some(hit) = new_pts.intersection(&polygon) {
             new_pts.trim_to_pt(hit);
             lanes[id.0].lane_center_pts = new_pts.reversed();
         }
