@@ -6,15 +6,37 @@ use {
     Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, RoadID, Turn, TurnID, TurnType,
 };
 
-pub fn make_all_turns(i: &Intersection, m: &Map) -> Vec<Turn> {
+pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns: Vec<Turn> = Vec::new();
-    turns.extend(make_driving_turns(i, m));
-    turns.extend(make_biking_turns(i, m));
-    turns.extend(make_walking_turns(i, m));
+    turns.extend(make_driving_turns(i, map));
+    turns.extend(make_biking_turns(i, map));
+    turns.extend(make_walking_turns(i, map));
     let turns = dedupe(turns);
 
     // Make sure every incoming lane has a turn originating from it, and every outgoing lane has a
     // turn leading to it. Except for parking lanes, of course.
+    let mut incoming_missing: HashSet<LaneID> = HashSet::new();
+    for l in &i.incoming_lanes {
+        if map.get_l(*l).lane_type != LaneType::Parking {
+            incoming_missing.insert(*l);
+        }
+    }
+    let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
+    for l in &i.outgoing_lanes {
+        if map.get_l(*l).lane_type != LaneType::Parking {
+            outgoing_missing.insert(*l);
+        }
+    }
+    for t in &turns {
+        incoming_missing.remove(&t.id.src);
+        outgoing_missing.remove(&t.id.dst);
+    }
+    if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
+        error!(
+            "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
+            i.id, incoming_missing, outgoing_missing
+        );
+    }
 
     turns
 }
