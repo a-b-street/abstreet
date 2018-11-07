@@ -95,6 +95,7 @@ impl Map {
                 has_traffic_signal: i.has_traffic_signal,
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
+                roads: BTreeSet::new(),
             });
             pt_to_intersection.insert(HashablePt2D::from(pt), id);
         }
@@ -135,7 +136,9 @@ impl Map {
                 }
                 let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
                 m.intersections[src_i.0].outgoing_lanes.push(id);
+                m.intersections[src_i.0].roads.insert(road_id);
                 m.intersections[dst_i.0].incoming_lanes.push(id);
+                m.intersections[dst_i.0].roads.insert(road_id);
 
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
@@ -181,8 +184,7 @@ impl Map {
                 panic!("{:?} is orphaned!", i);
             }
 
-            let incident_roads = i.get_roads(&m);
-            intersection_polygons.push(make::intersection_polygon(i, incident_roads, &m.roads));
+            intersection_polygons.push(make::intersection_polygon(i, &m.roads));
         }
         for (idx, p) in intersection_polygons.into_iter().enumerate() {
             m.intersections[idx].polygon = p;
@@ -423,7 +425,7 @@ impl Map {
 
         let r = self.get_r(from);
         for id in vec![r.src_i, r.dst_i].into_iter() {
-            roads.extend(self.get_i(id).get_roads(self));
+            roads.extend(self.get_i(id).roads.clone());
         }
 
         roads.into_iter().collect()

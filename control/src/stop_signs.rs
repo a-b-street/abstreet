@@ -38,8 +38,8 @@ impl ControlStopSign {
     }
 
     fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign {
-        if map.get_i(intersection).get_roads(map).len() <= 2 {
-            return ControlStopSign::for_degenerate_intersection(map, intersection);
+        if map.get_i(intersection).roads.len() <= 2 {
+            return ControlStopSign::for_degenerate_and_deadend(map, intersection);
         }
 
         // Higher numbers are higher rank roads
@@ -127,7 +127,7 @@ impl ControlStopSign {
         ss
     }
 
-    fn for_degenerate_intersection(map: &Map, i: IntersectionID) -> ControlStopSign {
+    fn for_degenerate_and_deadend(map: &Map, i: IntersectionID) -> ControlStopSign {
         let mut ss = ControlStopSign {
             intersection: i,
             turns: BTreeMap::new(),
@@ -146,7 +146,7 @@ impl ControlStopSign {
         // intersection geometry), sometimes more turns conflict than really should. For now, just
         // detect and fallback to an all-way stop.
         if let Err(err) = ss.validate(map, i) {
-            warn!("Giving up on for_degenerate_intersection({}): {}", i, err);
+            warn!("Giving up on for_degenerate_and_deadend({}): {}", i, err);
             return ControlStopSign::all_way_stop(map, i);
         }
 

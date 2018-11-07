@@ -35,7 +35,7 @@ impl DrawIntersection {
             crosswalks: calculate_crosswalks(inter.id, map),
             sidewalk_corners: calculate_corners(inter.id, map),
             has_traffic_signal: inter.has_traffic_signal,
-            should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(map),
+            should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(),
         }
     }
 

@@ -57,12 +57,11 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
 }
 
 fn make_driving_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
-    if i.is_dead_end(map) {
+    if i.is_dead_end() {
         return make_driving_turns_for_dead_end(i, map);
     }
 
-    // TODO make get_roads do this?
-    let roads: Vec<&Road> = i.get_roads(map).into_iter().map(|r| map.get_r(r)).collect();
+    let roads: Vec<&Road> = i.roads.iter().map(|r| map.get_r(*r)).collect();
 
     let mut result = Vec::new();
 
@@ -148,7 +147,7 @@ fn match_up_driving_lanes(
 }
 
 fn make_driving_turns_for_dead_end(i: &Intersection, map: &Map) -> Vec<Turn> {
-    let road = map.get_r(i.get_roads(map).into_iter().next().unwrap());
+    let road = map.get_r(*i.roads.iter().next().unwrap());
     let incoming = filter_driving_lanes(road.incoming_lanes(i.id));
     let outgoing = filter_driving_lanes(road.outgoing_lanes(i.id));
     if incoming.is_empty() || outgoing.is_empty() {
@@ -248,7 +247,7 @@ fn make_turns(
         assert_eq!(map.get_l(*l).src_i, parent);
     }
 
-    let dead_end = map.get_i(parent).is_dead_end(map);
+    let dead_end = map.get_i(parent).is_dead_end();
 
     let mut result = Vec::new();
     for src in incoming {
@@ -276,10 +275,10 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     // Sort roads by the angle into the intersection, so we can reason about sidewalks of adjacent
     // roads.
     let mut roads: Vec<(RoadID, Angle)> = i
-        .get_roads(map)
-        .into_iter()
+        .roads
+        .iter()
         .map(|id| {
-            let r = map.get_r(id);
+            let r = map.get_r(*id);
 
             if r.src_i == i.id {
                 (r.id, r.center_pts.reversed().last_line().angle())

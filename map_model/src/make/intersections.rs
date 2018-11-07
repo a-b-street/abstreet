@@ -1,7 +1,6 @@
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, PolyLine, Pt2D};
-use std::collections::BTreeSet;
 use std::marker;
 use {Intersection, Road, RoadID, LANE_THICKNESS};
 
@@ -12,16 +11,13 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
-pub fn intersection_polygon(
-    i: &Intersection,
-    road_ids: BTreeSet<RoadID>,
-    roads: &Vec<Road>,
-) -> Vec<Pt2D> {
+pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road), both with an endpoint at i.point, and the angle of the last segment of the center
     // line.
-    let mut lines: Vec<(RoadID, Angle, PolyLine, PolyLine)> = road_ids
-        .into_iter()
+    let mut lines: Vec<(RoadID, Angle, PolyLine, PolyLine)> = i
+        .roads
+        .iter()
         .map(|id| {
             let r = &roads[id.0];
             let fwd_width = LANE_THICKNESS * (r.children_forwards.len() as f64);
@@ -37,7 +33,7 @@ pub fn intersection_polygon(
 
             let pl_normal = line.shift(width_normal).unwrap();
             let pl_reverse = line.reversed().shift(width_reverse).unwrap().reversed();
-            (id, line.last_line().angle(), pl_normal, pl_reverse)
+            (*id, line.last_line().angle(), pl_normal, pl_reverse)
         }).collect();
 
     // Sort the polylines by the angle of their last segment.

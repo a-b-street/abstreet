@@ -5,7 +5,7 @@ use dimensioned::si;
 use geom::Pt2D;
 use std::collections::BTreeSet;
 use std::fmt;
-use {LaneID, Map, RoadID, TurnID};
+use {LaneID, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -32,6 +32,8 @@ pub struct Intersection {
     // TODO narrow down when and why. is it just sidewalks in weird cases?
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
+
+    pub roads: BTreeSet<RoadID>,
 }
 
 impl PartialEq for Intersection {
@@ -41,20 +43,12 @@ impl PartialEq for Intersection {
 }
 
 impl Intersection {
-    pub fn get_roads(&self, map: &Map) -> BTreeSet<RoadID> {
-        let mut roads: BTreeSet<RoadID> = BTreeSet::new();
-        for l in self.incoming_lanes.iter().chain(self.outgoing_lanes.iter()) {
-            roads.insert(map.get_l(*l).parent);
-        }
-        roads
+    pub fn is_dead_end(&self) -> bool {
+        self.roads.len() == 1
     }
 
-    pub fn is_dead_end(&self, map: &Map) -> bool {
-        self.get_roads(map).len() == 1
-    }
-
-    pub fn is_degenerate(&self, map: &Map) -> bool {
-        self.get_roads(map).len() == 2
+    pub fn is_degenerate(&self) -> bool {
+        self.roads.len() == 2
     }
 
     pub fn dump_debug(&self) {
