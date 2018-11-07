@@ -98,6 +98,7 @@ impl TransitSimState {
                     stop2.driving_lane,
                     stop2.dist_along,
                     false,
+                    true,
                 ).expect(&format!(
                     "No route between bus stops {:?} and {:?}",
                     stop1, stop2
@@ -168,6 +169,7 @@ impl TransitSimState {
                         route.stops[next_stop].driving_lane,
                         route.stops[next_stop].dist_along,
                         false,
+                        true,
                     ).expect(&format!(
                         "No route between bus stops {:?} and {:?}",
                         stop, route.stops[next_stop]

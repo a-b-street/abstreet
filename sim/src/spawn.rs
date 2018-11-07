@@ -512,8 +512,10 @@ fn calculate_paths(
     let paths: Vec<Option<Path>> = requested_paths
         .par_iter()
         // TODO No bikes yet, so never use the bike lanes
+        // TODO I don't think buses ever use this, so also hardcode false. requested_paths should
+        // be a struct of the required input to shortest_distance, probably.
         .map(|(start, start_dist, goal, goal_dist)| {
-            Pathfinder::shortest_distance(map, *start, *start_dist, *goal, *goal_dist, false)
+            Pathfinder::shortest_distance(map, *start, *start_dist, *goal, *goal_dist, false, false)
         }).collect();
 
     debug!(

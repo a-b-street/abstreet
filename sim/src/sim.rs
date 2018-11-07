@@ -99,14 +99,14 @@ impl Sim {
 
     pub fn edit_lane_type(&mut self, id: LaneID, old_type: LaneType, map: &Map) {
         match old_type {
-            LaneType::Driving => self.driving_state.edit_remove_lane(id),
+            LaneType::Driving | LaneType::Bus => self.driving_state.edit_remove_lane(id),
             LaneType::Parking => self.parking_state.edit_remove_lane(id),
             LaneType::Sidewalk => self.walking_state.edit_remove_lane(id),
             LaneType::Biking => {}
         };
         let l = map.get_l(id);
         match l.lane_type {
-            LaneType::Driving => self.driving_state.edit_add_lane(id),
+            LaneType::Driving | LaneType::Bus => self.driving_state.edit_add_lane(id),
             LaneType::Parking => self.parking_state.edit_add_lane(l),
             LaneType::Sidewalk => self.walking_state.edit_add_lane(id),
             LaneType::Biking => {}
@@ -252,7 +252,9 @@ impl Sim {
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
         match map.get_l(l).lane_type {
-            LaneType::Driving => self.driving_state.get_draw_cars_on_lane(l, self.time, map),
+            LaneType::Driving | LaneType::Bus => {
+                self.driving_state.get_draw_cars_on_lane(l, self.time, map)
+            }
             LaneType::Parking => self.parking_state.get_draw_cars(l),
             LaneType::Sidewalk => Vec::new(),
             LaneType::Biking => Vec::new(),

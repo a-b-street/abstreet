@@ -28,13 +28,19 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         // should have less, but I don't see examples of these
         2
     };
-    let driving_lanes_per_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
+    let mut driving_lanes_per_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(if oneway {
             num_driving_lanes_per_road
         } else {
             // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
             (num_driving_lanes_per_road / 2).max(1)
         }).collect();
+    // TODO Don't even bother trying to parse this yet.
+    let has_bus_lane = r.osm_tags.contains_key("bus:lanes");
+    // TODO This is circumstantial at best. :)
+    if has_bus_lane && driving_lanes_per_side.len() > 1 {
+        driving_lanes_per_side.pop();
+    }
 
     let has_bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
     let has_sidewalk = r.osm_tags.get("highway") != Some(&"motorway".to_string())
@@ -42,6 +48,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let has_parking = has_sidewalk;
 
     let mut full_side = driving_lanes_per_side;
+    if has_bus_lane {
+        full_side.push(LaneType::Bus);
+    }
     if has_bike_lane {
         full_side.push(LaneType::Biking);
     }

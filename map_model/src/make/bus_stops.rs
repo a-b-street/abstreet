@@ -135,6 +135,7 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                     bs2.driving_lane,
                     bs2.dist_along,
                     false,
+                    true,
                 ).is_none()
                 {
                     warn!(

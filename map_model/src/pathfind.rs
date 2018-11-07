@@ -189,7 +189,11 @@ impl Path {
 }
 
 pub enum Pathfinder {
-    ShortestDistance { goal_pt: Pt2D, is_bike: bool },
+    ShortestDistance {
+        goal_pt: Pt2D,
+        can_use_bike_lanes: bool,
+        can_use_bus_lanes: bool,
+    },
     UsingTransit,
 }
 
@@ -201,23 +205,34 @@ impl Pathfinder {
         start_dist: si::Meter<f64>,
         end: LaneID,
         end_dist: si::Meter<f64>,
-        is_bike: bool,
+        // TODO ew, bools.
+        can_use_bike_lanes: bool,
+        can_use_bus_lanes: bool,
     ) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
         let goal_pt = map.get_l(end).first_pt();
-        Pathfinder::ShortestDistance { goal_pt, is_bike }
-            .pathfind(map, start, start_dist, end, end_dist)
+        Pathfinder::ShortestDistance {
+            goal_pt,
+            can_use_bike_lanes,
+            can_use_bus_lanes,
+        }.pathfind(map, start, start_dist, end, end_dist)
     }
 
     fn expand(&self, map: &Map, current: LaneID) -> Vec<(LaneID, NotNaN<f64>)> {
         match self {
-            Pathfinder::ShortestDistance { goal_pt, is_bike } => {
+            Pathfinder::ShortestDistance {
+                goal_pt,
+                can_use_bike_lanes,
+                can_use_bus_lanes,
+            } => {
                 let current_length = NotNaN::new(map.get_l(current).length().value_unsafe).unwrap();
                 map.get_next_turns_and_lanes(current)
                     .into_iter()
                     .filter_map(|(_, next)| {
-                        if !is_bike && next.lane_type == LaneType::Biking {
+                        if !can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                            None
+                        } else if !can_use_bus_lanes && next.lane_type == LaneType::Bus {
                             None
                         } else {
                             // TODO cost and heuristic are wrong. need to reason about PathSteps,

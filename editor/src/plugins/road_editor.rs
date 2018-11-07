@@ -63,6 +63,13 @@ impl Plugin for RoadEditor {
                             changed = Some((lane.id, LaneType::Biking));
                         }
                     }
+                    if lane.lane_type != LaneType::Bus
+                        && input.key_pressed(Key::U, "make this a bus lane")
+                    {
+                        if edits.change_lane_type(reason, road, lane, LaneType::Bus) {
+                            changed = Some((lane.id, LaneType::Bus));
+                        }
+                    }
                     if input.key_pressed(Key::Backspace, "delete this lane") {
                         if edits.delete_lane(road, lane) {
                             warn!("Have to reload the map from scratch to pick up this change!");

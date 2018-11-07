@@ -52,7 +52,7 @@ impl DrawLane {
             LaneType::Parking => {
                 markings.push(calculate_parking_lines(lane));
             }
-            LaneType::Driving => {
+            LaneType::Driving | LaneType::Bus => {
                 for m in calculate_driving_lines(lane, road) {
                     markings.push(m);
                 }
@@ -109,6 +109,7 @@ impl Renderable for DrawLane {
             let l = ctx.map.get_l(self.id);
             let mut default = match l.lane_type {
                 LaneType::Driving => ctx.cs.get("driving lane", Color::BLACK),
+                LaneType::Bus => ctx.cs.get("bus lane", Color::rgb(190, 74, 76)),
                 LaneType::Parking => ctx.cs.get("parking lane", Color::grey(0.2)),
                 LaneType::Sidewalk => ctx.cs.get("sidewalk", Color::grey(0.8)),
                 LaneType::Biking => ctx.cs.get("bike lane", Color::rgb(15, 125, 75)),
