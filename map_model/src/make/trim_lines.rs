@@ -14,7 +14,7 @@ pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
 
     for id in i.incoming_lanes.iter() {
         if let Some(hit) = lanes[id.0].lane_center_pts.intersection(&polygon) {
-            assert!(lanes[id.0].lane_center_pts.trim_to_pt(hit));
+            lanes[id.0].lane_center_pts.trim_to_pt(hit);
         }
         // Is it concerning to not have a hit?
     }
@@ -22,7 +22,7 @@ pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
     for id in i.outgoing_lanes.iter() {
         if let Some(hit) = lanes[id.0].lane_center_pts.intersection(&polygon) {
             let mut new_pts = lanes[id.0].lane_center_pts.reversed();
-            assert!(new_pts.trim_to_pt(hit));
+            new_pts.trim_to_pt(hit);
             lanes[id.0].lane_center_pts = new_pts.reversed();
         }
         // Is it concerning to not have a hit?

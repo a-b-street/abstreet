@@ -325,16 +325,13 @@ impl PolyLine {
         None
     }
 
-    // Starts trimming from the head. If the pt is not on the polyline, returns false -- but this
-    // is a bug somewhere else.
-    pub fn trim_to_pt(&mut self, pt: Pt2D) -> bool {
+    // Starts trimming from the head. Panics if the pt is not on the polyline.
+    pub fn trim_to_pt(&mut self, pt: Pt2D) {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             self.pts.truncate(idx + 1);
             self.pts.push(pt);
-            true
         } else {
-            println!("{} doesn't contain {}", self, pt);
-            false
+            panic!("Can't trim_to_pt: {} doesn't contain {}", self, pt);
         }
     }
 
