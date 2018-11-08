@@ -1,5 +1,4 @@
 use ezgui::{Color, GfxCtx, LogScroller, Wizard, WrappedWizard};
-use geom::Polygon;
 use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
@@ -91,7 +90,7 @@ impl Plugin for ScenarioManager {
                     g.draw_polygon(
                         ctx.cs
                             .get("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
-                        &Polygon::new(&neighborhood.points),
+                        &neighborhood.polygon,
                     );
                 }
                 wizard.draw(g, ctx.canvas);

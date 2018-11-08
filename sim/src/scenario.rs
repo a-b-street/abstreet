@@ -1,5 +1,5 @@
 use abstutil;
-use geom::{GPSBounds, Polygon, Pt2D};
+use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, Map, RoadID};
 use rand::Rng;
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -32,22 +32,83 @@ pub struct SeedParkedCars {
     pub cars_per_building: WeightedUsizeChoice,
 }
 
+// This form is used by the editor plugin to edit and for serialization. Storing points in GPS is
+// more compatible with slight changes to the bounding box of a map over time.
 #[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct NeighborhoodBuilder {
+    pub map_name: String,
+    pub name: String,
+    pub points: Vec<LonLat>,
+}
+
+impl NeighborhoodBuilder {
+    pub fn finalize(&self, gps_bounds: &GPSBounds) -> Neighborhood {
+        assert!(self.points.len() >= 3);
+        Neighborhood {
+            map_name: self.map_name.clone(),
+            name: self.name.clone(),
+            polygon: Polygon::new(
+                &self
+                    .points
+                    .iter()
+                    .map(|pt| {
+                        Pt2D::from_gps(*pt, gps_bounds)
+                            .expect(&format!("Polygon {} has bad pt {}", self.name, pt))
+                    }).collect(),
+            ),
+        }
+    }
+
+    pub fn save(&self) {
+        abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
+    }
+
+    // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
+    pub fn save_as_osmosis(&self) -> Result<(), Error> {
+        let path = format!("../data/polygons/{}.poly", self.name);
+        let mut f = File::create(&path)?;
+
+        write!(f, "{}\n", self.name);
+        write!(f, "1\n");
+        for gps in &self.points {
+            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
+        }
+        // Have to repeat the first point
+        {
+            write!(
+                f,
+                "     {}    {}\n",
+                self.points[0].longitude, self.points[0].latitude
+            );
+        }
+        write!(f, "END\n");
+        write!(f, "END\n");
+
+        println!("Exported {}", path);
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Neighborhood {
     pub map_name: String,
     pub name: String,
-    // TODO Polygon would be more natural, but complicates the editor plugin
-    pub points: Vec<Pt2D>,
+    pub polygon: Polygon,
 }
 
 impl Neighborhood {
+    pub fn load_all(map_name: &str, gps_bounds: &GPSBounds) -> Vec<(String, Neighborhood)> {
+        abstutil::load_all_objects::<NeighborhoodBuilder>("neighborhoods", map_name)
+            .into_iter()
+            .map(|(name, builder)| (name, builder.finalize(gps_bounds)))
+            .collect()
+    }
+
     // TODO This should use quadtrees and/or not just match the center of each building.
     fn find_matching_buildings(&self, map: &Map) -> Vec<BuildingID> {
-        let poly = Polygon::new(&self.points);
-
         let mut results: Vec<BuildingID> = Vec::new();
         for b in map.all_buildings() {
-            if poly.contains_pt(Pt2D::center(&b.points)) {
+            if self.polygon.contains_pt(Pt2D::center(&b.points)) {
                 results.push(b.id);
             }
         }
@@ -56,19 +117,13 @@ impl Neighborhood {
 
     // TODO This should use quadtrees and/or not just match one point of each road.
     fn find_matching_roads(&self, map: &Map) -> BTreeSet<RoadID> {
-        let poly = Polygon::new(&self.points);
-
         let mut results: BTreeSet<RoadID> = BTreeSet::new();
         for r in map.all_roads() {
-            if poly.contains_pt(r.center_pts.first_pt()) {
+            if self.polygon.contains_pt(r.center_pts.first_pt()) {
                 results.insert(r.id);
             }
         }
         results
-    }
-
-    pub fn save(&self) {
-        abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
     }
 
     fn make_everywhere(map: &Map) -> Neighborhood {
@@ -77,37 +132,14 @@ impl Neighborhood {
         Neighborhood {
             map_name: map.get_name().to_string(),
             name: "_everywhere_".to_string(),
-            points: vec![
+            polygon: Polygon::new(&vec![
                 Pt2D::new(0.0, 0.0),
                 Pt2D::new(bounds.max_x, 0.0),
                 Pt2D::new(bounds.max_x, bounds.max_y),
                 Pt2D::new(0.0, bounds.max_y),
                 Pt2D::new(0.0, 0.0),
-            ],
+            ]),
         }
-    }
-
-    // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
-    pub fn save_as_osmosis(&self, gps_bounds: &GPSBounds) -> Result<(), Error> {
-        let path = format!("../data/polygons/{}.poly", self.name);
-        let mut f = File::create(&path)?;
-
-        write!(f, "{}\n", self.name);
-        write!(f, "1\n");
-        for pt in &self.points {
-            let gps = pt.to_gps(gps_bounds);
-            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
-        }
-        // Have to repeat the first point
-        {
-            let gps = self.points[0].to_gps(gps_bounds);
-            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
-        }
-        write!(f, "END\n");
-        write!(f, "END\n");
-
-        println!("Exported {}", path);
-        Ok(())
     }
 }
 
@@ -123,8 +155,9 @@ impl Scenario {
         info!("Instantiating {}", self.scenario_name);
         assert!(sim.time == Tick::zero());
 
+        let gps_bounds = map.get_gps_bounds();
         let mut neighborhoods: HashMap<String, Neighborhood> =
-            abstutil::load_all_objects("neighborhoods", &self.map_name)
+            Neighborhood::load_all(&self.map_name, &gps_bounds)
                 .into_iter()
                 .collect();
         neighborhoods.insert(

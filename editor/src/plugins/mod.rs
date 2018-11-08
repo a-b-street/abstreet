@@ -32,7 +32,7 @@ use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, ID};
-use sim::{ABTest, Neighborhood, Scenario, Tick, WeightedUsizeChoice};
+use sim::{ABTest, Neighborhood, NeighborhoodBuilder, Scenario, Tick, WeightedUsizeChoice};
 use ui::PluginCtx;
 
 pub trait Plugin: Any {
@@ -52,22 +52,23 @@ downcast!(Plugin);
 
 pub fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
+    let gps_bounds = map.get_gps_bounds();
     // Load the full object, since various plugins visualize the neighborhood when menuing over it
     wizard
         .choose_something::<Neighborhood>(
             query,
-            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+            Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
         ).map(|(n, _)| n)
 }
 
-pub fn load_neighborhood(
+pub fn load_neighborhood_builder(
     map: &Map,
     wizard: &mut WrappedWizard,
     query: &str,
-) -> Option<Neighborhood> {
+) -> Option<NeighborhoodBuilder> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<Neighborhood>(
+        .choose_something::<NeighborhoodBuilder>(
             query,
             Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
         ).map(|(_, n)| n)

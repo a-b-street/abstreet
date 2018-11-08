@@ -1,5 +1,6 @@
 use aabb_quadtree::geom::{Point, Rect};
 use std::f64;
+use std::fmt;
 use {HashablePt2D, Pt2D};
 
 // longitude is x, latitude is y
@@ -37,6 +38,12 @@ impl LonLat {
 
     pub fn to_hashable(&self) -> HashablePt2D {
         HashablePt2D::new(self.longitude, self.latitude)
+    }
+}
+
+impl fmt::Display for LonLat {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "LonLat({0}, {1})", self.longitude, self.latitude)
     }
 }
 

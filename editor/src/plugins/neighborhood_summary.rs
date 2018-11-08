@@ -17,7 +17,7 @@ pub struct NeighborhoodSummary {
 
 impl NeighborhoodSummary {
     pub fn new(map: &Map, draw_map: &DrawMap, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
-        let neighborhoods = abstutil::load_all_objects("neighborhoods", map.get_name());
+        let neighborhoods = Neighborhood::load_all(map.get_name(), &map.get_gps_bounds());
         timer.start_iter("precompute neighborhood members", neighborhoods.len());
         NeighborhoodSummary {
             regions: neighborhoods
@@ -86,15 +86,14 @@ struct Region {
 
 impl Region {
     fn new(idx: usize, n: Neighborhood, map: &Map, draw_map: &DrawMap) -> Region {
-        let center = Pt2D::center(&n.points);
-        let polygon = Polygon::new(&n.points);
+        let center = n.polygon.center();
         // TODO polygon overlap or complete containment would be more ideal
         let lanes = draw_map
-            .get_matching_lanes(polygon.get_bounds())
+            .get_matching_lanes(n.polygon.get_bounds())
             .into_iter()
             .filter_map(|id| {
                 let l = map.get_l(id);
-                if polygon.contains_pt(l.first_pt()) && polygon.contains_pt(l.last_pt()) {
+                if n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt()) {
                     Some(id)
                 } else {
                     None
@@ -104,7 +103,7 @@ impl Region {
         summary.add_line(format!("{} - no summary yet", n.name));
         Region {
             name: n.name.clone(),
-            polygon,
+            polygon: n.polygon.clone(),
             center,
             lanes,
             color: COLORS[idx % COLORS.len()],

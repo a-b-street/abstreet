@@ -60,7 +60,7 @@ pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
 use map_model::{BuildingID, LaneID, Trace, TurnID};
 use rand::{RngCore, SeedableRng, XorShiftRng};
-pub use scenario::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
+pub use scenario::{Neighborhood, NeighborhoodBuilder, Scenario, SeedParkedCars, SpawnOverTime};
 pub use sim::{Benchmark, Sim, Summary};
 pub use stats::SimStats;
 use std::fmt;
@@ -332,6 +332,7 @@ pub struct DrawCarInput {
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really
 // kind of an ezgui concept.
 impl Cloneable for Neighborhood {}
+impl Cloneable for NeighborhoodBuilder {}
 impl Cloneable for Scenario {}
 impl Cloneable for Tick {}
 impl Cloneable for MapEdits {}

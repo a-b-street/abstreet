@@ -1,7 +1,7 @@
 use abstutil;
 use geojson::{GeoJson, PolygonType, Value};
-use geom::{GPSBounds, LonLat, Pt2D};
-use sim::Neighborhood;
+use geom::{GPSBounds, LonLat};
+use sim::NeighborhoodBuilder;
 
 pub fn convert(geojson_path: &str, map_name: String, gps_bounds: &GPSBounds) {
     println!("Extracting neighborhoods from {}...", geojson_path);
@@ -34,10 +34,11 @@ fn convert_polygon(input: PolygonType, name: String, map_name: String, gps_bound
         return;
     }
 
-    let mut points: Vec<Pt2D> = Vec::new();
-    for pt in &input[0] {
-        assert_eq!(pt.len(), 2);
-        if let Some(pt) = Pt2D::from_gps(LonLat::new(pt[0], pt[1]), gps_bounds) {
+    let mut points: Vec<LonLat> = Vec::new();
+    for raw_pt in &input[0] {
+        assert_eq!(raw_pt.len(), 2);
+        let pt = LonLat::new(raw_pt[0], raw_pt[1]);
+        if gps_bounds.contains(pt) {
             points.push(pt);
         } else {
             println!(
@@ -47,7 +48,7 @@ fn convert_polygon(input: PolygonType, name: String, map_name: String, gps_bound
             return;
         }
     }
-    Neighborhood {
+    NeighborhoodBuilder {
         map_name: map_name,
         name,
         points,

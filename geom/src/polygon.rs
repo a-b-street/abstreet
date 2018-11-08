@@ -1,7 +1,7 @@
 use std::f64;
-use {Angle, Bounds, Pt2D};
+use {Angle, Bounds, HashablePt2D, Pt2D};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Polygon {
     // This could be stored more efficiently, but worry about it later when switching to gfx-rs.
     pub triangles: Vec<Triangle>,
@@ -128,6 +128,19 @@ impl Polygon {
         points
     }
 
+    pub fn center(&self) -> Pt2D {
+        // TODO urgh, have to dedupe!
+        let mut pts: Vec<HashablePt2D> = Vec::new();
+        for t in &self.triangles {
+            pts.push(t.pt1.into());
+            pts.push(t.pt2.into());
+            pts.push(t.pt3.into());
+        }
+        pts.sort();
+        pts.dedup();
+        Pt2D::center(&pts.iter().map(|pt| Pt2D::from(*pt)).collect())
+    }
+
     pub fn regular_polygon(center: Pt2D, sides: usize, length: f64, rotation: Angle) -> Polygon {
         use geo::algorithm::rotate::Rotate;
         use geo::{LineString, Point};
@@ -153,7 +166,7 @@ impl Polygon {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Triangle {
     pub pt1: Pt2D,
     pub pt2: Pt2D,
