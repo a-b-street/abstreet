@@ -77,17 +77,15 @@ impl Cycle {
 }
 
 fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
-    /*
     // TODO should be a tmp hack; intersections with no turns aren't even valid
     if map.get_turns_in_intersection(intersection).is_empty() {
-        println!("WARNING: {} has no turns", intersection);
+        error!("WARNING: {} has no turns", intersection);
         return vec![Cycle {
             turns: Vec::new(),
             changed: false,
             duration: CYCLE_DURATION,
         }];
     }
-    */
 
     let mut cycles = Vec::new();
 

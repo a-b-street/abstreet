@@ -17,3 +17,7 @@ UrbanSim
 ## Proprietary
 
 Sidewalk Labs Model
+
+## Maps for people
+
+https://arxiv.org/pdf/1811.01147.pdf

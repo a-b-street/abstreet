@@ -261,3 +261,24 @@ I thought I had a list of these somewhere else?
 
 - min length for lanes, turns
 - connectivity
+
+## Border nodes
+
+No matter how things are sliced, we always have to cut off roads somewhere,
+unless we simulate a continent. :) So the idea of border nodes is to
+start/terminate these cut-off roads with a special intersection where traffic
+can begin or end.
+
+- rendering?
+	- ideally the nodes would actually be at the boundary of the map
+		- https://wiki.openstreetmap.org/wiki/Osmosis/Detailed_Usage_0.47#Area_Filtering_Tasks
+		  has some flags to explore
+	- some special color or symbol?
+- detection
+	- for oneways this is easy, but two-ways look like dead-ends
+	- how to distinguish actual dead-ends?
+	- get osmosis to also output which OSM ways were clipped?
+		- don't see how to do this
+	- manually marking them?
+- draw the FSM for cars/peds
+	- trips starting/ending at border nodes short-circuit some steps
