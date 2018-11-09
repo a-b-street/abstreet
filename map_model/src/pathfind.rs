@@ -29,7 +29,8 @@ impl PathStep {
         }
     }
 
-    // Returns dist_remaining
+    // Returns dist_remaining. start is relative to the start of the actual geometry -- so from the
+    // lane's real start for ContraflowLane.
     fn slice(
         &self,
         map: &Map,
@@ -41,15 +42,23 @@ impl PathStep {
         }
 
         match self {
-            PathStep::Lane(id) => Some(
-                map.get_l(*id)
-                    .lane_center_pts
-                    .slice(start, start + dist_ahead),
-            ),
+            PathStep::Lane(id) => {
+                let l = map.get_l(*id);
+                // Might have a pedestrian at a front_path lined up with the end of a lane
+                if start == l.length() {
+                    None
+                } else {
+                    Some(l.lane_center_pts.slice(start, start + dist_ahead))
+                }
+            }
             PathStep::ContraflowLane(id) => {
-                let pts = map.get_l(*id).lane_center_pts.reversed();
-                let reversed_start = pts.length() - start;
-                Some(pts.slice(reversed_start, reversed_start + dist_ahead))
+                if start == 0.0 * si::M {
+                    None
+                } else {
+                    let pts = map.get_l(*id).lane_center_pts.reversed();
+                    let reversed_start = pts.length() - start;
+                    Some(pts.slice(reversed_start, reversed_start + dist_ahead))
+                }
             }
             PathStep::Turn(id) => {
                 let line = &map.get_t(*id).line;
@@ -134,14 +143,6 @@ impl Path {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
-        fn extend(a: &mut Option<PolyLine>, b: PolyLine) {
-            if let Some(ref mut pts) = a {
-                pts.extend(b);
-            } else {
-                *a = Some(b);
-            }
-        }
-
         if self.steps.len() == 1 {
             let dist = if start_dist < self.end_dist {
                 self.end_dist - start_dist
@@ -154,6 +155,7 @@ impl Path {
         }
 
         // Special case the first step.
+        // TODO I think should modify start_dist here for ContraflowLane
         if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
             pts_so_far = Some(pts);
             dist_remaining = dist;
@@ -174,8 +176,18 @@ impl Path {
                 dist_remaining = self.end_dist;
             }
 
-            if let Some((pts, dist)) = self.steps[i].slice(map, 0.0 * si::M, dist_remaining) {
-                extend(&mut pts_so_far, pts);
+            let start_dist_this_step = match self.steps[i] {
+                PathStep::ContraflowLane(l) => map.get_l(l).length(),
+                _ => 0.0 * si::M,
+            };
+            if let Some((new_pts, dist)) =
+                self.steps[i].slice(map, start_dist_this_step, dist_remaining)
+            {
+                if let Some(ref mut pts) = pts_so_far {
+                    pts.extend(new_pts);
+                } else {
+                    pts_so_far = Some(new_pts);
+                }
                 dist_remaining = dist;
             }
         }
