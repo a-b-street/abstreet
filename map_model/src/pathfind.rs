@@ -177,7 +177,9 @@ impl Path {
             }
 
             let start_dist_this_step = match self.steps[i] {
-                PathStep::ContraflowLane(l) => map.get_l(l).length(),
+                // TODO Length of a PolyLine can slightly change when points are reversed! That
+                // seems bad.
+                PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => 0.0 * si::M,
             };
             if let Some((new_pts, dist)) =
