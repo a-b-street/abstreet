@@ -393,7 +393,7 @@ impl WalkingSimState {
                     let p = self.peds.get_mut(&id).unwrap();
                     p.moving = false;
                     // Note this is idempotent and does NOT grant the request.
-                    intersections.submit_request(Request::for_ped(*id, turn))?;
+                    intersections.submit_request(Request::for_ped(*id, turn));
                 }
             }
         }

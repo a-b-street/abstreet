@@ -16,6 +16,8 @@ const WAIT_AT_STOP_SIGN: Time = si::Second {
     _marker: std::marker::PhantomData,
 };
 
+// One agent may make several requests at one intersection at a time. This is normal for
+// pedestrians and crosswalks. IntersectionPolicies should expect this.
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub struct Request {
     pub agent: AgentID,
@@ -65,7 +67,7 @@ impl IntersectionSimState {
     // This is just an immutable query.
     pub fn request_granted(&self, req: Request) -> bool {
         let i = &self.intersections[req.turn.parent.0];
-        i.accepted().get(&req.agent) == Some(&req.turn)
+        i.is_accepted(&req)
     }
 
     // This is mutable, but MUST be idempotent, because it could be called in parallel/nondet
@@ -73,30 +75,21 @@ impl IntersectionSimState {
     // MIGHT NOT be ready to enter the intersection (lookahead could send the request before the
     // agent is the leader vehicle and at the end of the lane). The request may have been
     // previously granted, but the agent might not have been able to start the turn.
-    pub fn submit_request(&mut self, req: Request) -> Result<(), Error> {
+    pub fn submit_request(&mut self, req: Request) {
         let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
-        if let Some(t) = i.accepted().get(&req.agent) {
-            if *t != req.turn {
-                return Err(Error::new(format!(
-                    "{:?} made, but {} has already been accepted",
-                    req, t
-                )));
-            }
-            return Ok(());
+        if i.is_accepted(&req) {
+            return;
         }
         match i {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                // TODO assert that the agent hasn't requested something different previously
                 if !p.started_waiting_at.contains_key(&req) {
                     p.approaching_agents.insert(req);
                 }
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                // TODO assert that the agent hasn't requested something different previously
                 p.requests.insert(req);
             }
         }
-        Ok(())
     }
 
     pub fn step(
@@ -113,7 +106,7 @@ impl IntersectionSimState {
                     p.step(events, time, map, control_map, view)
                 }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(events, time, map, control_map, view)
+                    p.step(events, time, control_map, view)
                 }
             }
         }
@@ -122,7 +115,7 @@ impl IntersectionSimState {
     pub fn on_enter(&self, req: Request) -> Result<(), Error> {
         let id = req.turn.parent;
         let i = &self.intersections[id.0];
-        if i.accepted().contains_key(&req.agent) {
+        if i.is_accepted(&req) {
             if self.debug == Some(id) {
                 debug!("{:?} just entered", req);
             }
@@ -138,8 +131,8 @@ impl IntersectionSimState {
     pub fn on_exit(&mut self, req: Request) {
         let id = req.turn.parent;
         let i = self.intersections.get_mut(id.0).unwrap();
-        assert!(i.accepted().contains_key(&req.agent));
-        i.accepted_mut().remove(&req.agent);
+        assert!(i.is_accepted(&req));
+        i.on_exit(&req);
         if self.debug == Some(id) {
             debug!("{:?} just exited", req);
         }
@@ -179,18 +172,18 @@ enum IntersectionPolicy {
 }
 
 impl IntersectionPolicy {
-    fn accepted(&self) -> &BTreeMap<AgentID, TurnID> {
+    fn is_accepted(&self, req: &Request) -> bool {
         match self {
-            IntersectionPolicy::StopSignPolicy(ref p) => &p.accepted,
-            IntersectionPolicy::TrafficSignalPolicy(ref p) => &p.accepted,
+            IntersectionPolicy::StopSignPolicy(ref p) => p.accepted.contains(req),
+            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.accepted.contains(req),
         }
     }
 
-    fn accepted_mut(&mut self) -> &mut BTreeMap<AgentID, TurnID> {
+    fn on_exit(&mut self, req: &Request) {
         match self {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => &mut p.accepted,
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => &mut p.accepted,
-        }
+            IntersectionPolicy::StopSignPolicy(ref mut p) => p.accepted.remove(&req),
+            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.accepted.remove(&req),
+        };
     }
 }
 
@@ -206,9 +199,7 @@ struct StopSign {
     #[serde(serialize_with = "serialize_btreemap")]
     #[serde(deserialize_with = "deserialize_btreemap")]
     started_waiting_at: BTreeMap<Request, Tick>,
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
-    accepted: BTreeMap<AgentID, TurnID>,
+    accepted: BTreeSet<Request>,
 
     debug: bool,
 }
@@ -219,7 +210,7 @@ impl StopSign {
             id,
             approaching_agents: BTreeSet::new(),
             started_waiting_at: BTreeMap::new(),
-            accepted: BTreeMap::new(),
+            accepted: BTreeSet::new(),
             debug: false,
         }
     }
@@ -227,8 +218,8 @@ impl StopSign {
     fn conflicts_with_accepted(&self, turn: TurnID, map: &Map) -> bool {
         let base_t = map.get_t(turn);
         self.accepted
-            .values()
-            .find(|t| base_t.conflicts_with(map.get_t(**t)))
+            .iter()
+            .find(|req| base_t.conflicts_with(map.get_t(req.turn)))
             .is_some()
     }
 
@@ -288,25 +279,24 @@ impl StopSign {
 
         let mut newly_accepted: Vec<Request> = Vec::new();
         for (req, started_waiting) in self.started_waiting_at.iter() {
-            let (agent, turn) = (req.agent, req.turn);
-            assert_eq!(turn.parent, self.id);
-            assert_eq!(self.accepted.contains_key(&agent), false);
+            assert_eq!(req.turn.parent, self.id);
+            assert_eq!(self.accepted.contains(&req), false);
 
-            if self.conflicts_with_accepted(turn, map) {
+            if self.conflicts_with_accepted(req.turn, map) {
                 continue;
             }
 
-            if self.conflicts_with_waiting_with_higher_priority(turn, map, ss) {
+            if self.conflicts_with_waiting_with_higher_priority(req.turn, map, ss) {
                 continue;
             }
-            if ss.get_priority(turn) == TurnPriority::Stop
+            if ss.get_priority(req.turn) == TurnPriority::Stop
                 && (time - *started_waiting).as_time() < WAIT_AT_STOP_SIGN
             {
                 continue;
             }
 
             newly_accepted.push(req.clone());
-            self.accepted.insert(req.agent, req.turn);
+            self.accepted.insert(req.clone());
             if self.debug {
                 debug!("{:?} has been approved", req);
             }
@@ -322,9 +312,7 @@ impl StopSign {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct TrafficSignal {
     id: IntersectionID,
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
-    accepted: BTreeMap<AgentID, TurnID>,
+    accepted: BTreeSet<Request>,
     requests: BTreeSet<Request>,
     debug: bool,
 }
@@ -333,7 +321,7 @@ impl TrafficSignal {
     fn new(id: IntersectionID) -> TrafficSignal {
         TrafficSignal {
             id,
-            accepted: BTreeMap::new(),
+            accepted: BTreeSet::new(),
             requests: BTreeSet::new(),
             debug: false,
         }
@@ -343,7 +331,6 @@ impl TrafficSignal {
         &mut self,
         events: &mut Vec<Event>,
         time: Tick,
-        map: &Map,
         control_map: &ControlMap,
         view: &WorldView,
     ) {
@@ -352,12 +339,12 @@ impl TrafficSignal {
             signal.current_cycle_and_remaining_time(time.as_time());
 
         // For now, just maintain safety when agents over-run.
-        for (agent, turn) in self.accepted.iter() {
-            if !cycle.contains(*turn) {
+        for req in self.accepted.iter() {
+            if !cycle.contains(req.turn) {
                 if self.debug {
                     debug!(
                         "{:?} is still doing {:?} after the cycle is over",
-                        agent, turn
+                        req.agent, req.turn
                     );
                 }
                 return;
@@ -366,13 +353,11 @@ impl TrafficSignal {
 
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {
-            let turn = map.get_t(req.turn);
-            let agent = req.agent;
-            assert_eq!(turn.id.parent, self.id);
-            assert_eq!(self.accepted.contains_key(&agent), false);
+            assert_eq!(req.turn.parent, self.id);
+            assert_eq!(self.accepted.contains(&req), false);
 
             // Don't accept cars unless they're in front. TODO or behind other accepted cars.
-            if !cycle.contains(turn.id) || !view.is_leader(req.agent) {
+            if !cycle.contains(req.turn) || !view.is_leader(req.agent) {
                 keep_requests.insert(req.clone());
                 continue;
             }
@@ -381,7 +366,7 @@ impl TrafficSignal {
             // hard...
             //let crossing_time = turn.length() / speeds[&agent];
 
-            self.accepted.insert(req.agent, turn.id);
+            self.accepted.insert(req.clone());
             events.push(Event::IntersectionAcceptsRequest(req.clone()));
 
             if self.debug {

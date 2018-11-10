@@ -634,7 +634,7 @@ impl DrivingSimState {
                         // Note this is idempotent and does NOT grant the request.
                         // TODO should we check that the car is currently the lead vehicle?
                         // intersection is assuming that! or relax that assumption.
-                        intersections.submit_request(req.clone())?;
+                        intersections.submit_request(req.clone());
                     }
                 }
                 Action::VanishAtDeadEnd => {
