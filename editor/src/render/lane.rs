@@ -5,7 +5,9 @@ use control::ControlMap;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH};
+use map_model::{
+    IntersectionType, Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH,
+};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 use sim::Sim;
@@ -63,7 +65,9 @@ impl DrawLane {
             }
             LaneType::Biking => {}
         };
-        if lane.is_driving() && !map.get_i(lane.dst_i).has_traffic_signal {
+        if lane.is_driving()
+            && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
+        {
             if let Some(m) = calculate_stop_sign_line(lane, control_map) {
                 markings.push(m);
             }

@@ -31,7 +31,6 @@ pub struct ControlStopSign {
 
 impl ControlStopSign {
     pub fn new(map: &Map, intersection: IntersectionID) -> ControlStopSign {
-        assert!(!map.get_i(intersection).has_traffic_signal);
         let ss = ControlStopSign::smart_assignment(map, intersection);
         ss.validate(map, intersection).unwrap();
         ss

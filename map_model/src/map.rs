@@ -11,7 +11,8 @@ use std::io;
 use std::path;
 use {
     Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
-    Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    IntersectionType, Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
+    LANE_THICKNESS,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -92,7 +93,12 @@ impl Map {
                 polygon: Vec::new(),
                 turns: Vec::new(),
                 elevation: i.elevation,
-                has_traffic_signal: i.has_traffic_signal,
+                // Might change later
+                intersection_type: if i.has_traffic_signal {
+                    IntersectionType::TrafficSignal
+                } else {
+                    IntersectionType::StopSign
+                },
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: BTreeSet::new(),
@@ -194,6 +200,13 @@ impl Map {
         for i in &m.intersections {
             timer.next();
             make::trim_lines(&mut m.lanes, i);
+        }
+
+        for i in 0..m.intersections.len() {
+            // Is the intersection a border?
+            if is_border(&m.intersections[i], &m) {
+                m.intersections[i].intersection_type = IntersectionType::Border;
+            }
         }
 
         let (stops, routes) = make::make_bus_stops(
@@ -515,4 +528,22 @@ impl Map {
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);
     }
+}
+
+fn is_border(intersection: &Intersection, map: &Map) -> bool {
+    // Bias for driving
+    if !intersection.is_dead_end() {
+        return false;
+    }
+    let has_driving_in = intersection
+        .incoming_lanes
+        .iter()
+        .find(|l| map.get_l(**l).is_driving())
+        .is_some();
+    let has_driving_out = intersection
+        .outgoing_lanes
+        .iter()
+        .find(|l| map.get_l(**l).is_driving())
+        .is_some();
+    has_driving_in != has_driving_out
 }

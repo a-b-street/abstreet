@@ -5,7 +5,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use control::{ControlMap, ControlStopSign, TurnPriority};
 use dimensioned::si;
 use kinematics;
-use map_model::{IntersectionID, Map, TurnID};
+use map_model::{IntersectionID, IntersectionType, Map, TurnID};
 use std::collections::{BTreeMap, BTreeSet};
 use view::WorldView;
 use {AgentID, CarID, Event, PedestrianID, Tick, Time};
@@ -50,13 +50,15 @@ impl IntersectionSimState {
     pub fn new(map: &Map) -> IntersectionSimState {
         let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
-            if i.has_traffic_signal {
-                intersections.push(IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(
-                    i.id,
-                )));
-            } else {
-                intersections.push(IntersectionPolicy::StopSignPolicy(StopSign::new(i.id)));
-            }
+            intersections.push(match i.intersection_type {
+                IntersectionType::StopSign => {
+                    IntersectionPolicy::StopSignPolicy(StopSign::new(i.id))
+                }
+                IntersectionType::TrafficSignal => {
+                    IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(i.id))
+                }
+                IntersectionType::Border => IntersectionPolicy::BorderPolicy,
+            });
         }
         IntersectionSimState {
             intersections,
@@ -89,6 +91,7 @@ impl IntersectionSimState {
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
                 p.requests.insert(req);
             }
+            IntersectionPolicy::BorderPolicy => {}
         }
     }
 
@@ -108,6 +111,7 @@ impl IntersectionSimState {
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
                     p.step(events, time, control_map, view)
                 }
+                IntersectionPolicy::BorderPolicy => {}
             }
         }
     }
@@ -147,6 +151,7 @@ impl IntersectionSimState {
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
                     p.debug = false;
                 }
+                IntersectionPolicy::BorderPolicy => {}
             };
         }
 
@@ -160,6 +165,9 @@ impl IntersectionSimState {
                 p.debug = true;
                 println!("{}", abstutil::to_json(&control_map.traffic_signals[&id]));
             }
+            IntersectionPolicy::BorderPolicy => {
+                println!("{} is a border", id);
+            }
         };
     }
 }
@@ -169,6 +177,7 @@ impl IntersectionSimState {
 enum IntersectionPolicy {
     StopSignPolicy(StopSign),
     TrafficSignalPolicy(TrafficSignal),
+    BorderPolicy,
 }
 
 impl IntersectionPolicy {
@@ -176,6 +185,7 @@ impl IntersectionPolicy {
         match self {
             IntersectionPolicy::StopSignPolicy(ref p) => p.accepted.contains(req),
             IntersectionPolicy::TrafficSignalPolicy(ref p) => p.accepted.contains(req),
+            IntersectionPolicy::BorderPolicy => true,
         }
     }
 
@@ -183,6 +193,9 @@ impl IntersectionPolicy {
         match self {
             IntersectionPolicy::StopSignPolicy(ref mut p) => p.accepted.remove(&req),
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.accepted.remove(&req),
+            IntersectionPolicy::BorderPolicy => {
+                panic!("{:?} called on_exit for a border node; how?!", req);
+            }
         };
     }
 }

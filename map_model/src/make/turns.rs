@@ -3,10 +3,15 @@ use geom::{Angle, Line};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
 use {
-    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, RoadID, Turn, TurnID, TurnType,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
+    Turn, TurnID, TurnType,
 };
 
 pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
+    if i.intersection_type == IntersectionType::Border {
+        return Vec::new();
+    }
+
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_vehicle_turns(i, map));
     turns.extend(make_walking_turns(i, map));

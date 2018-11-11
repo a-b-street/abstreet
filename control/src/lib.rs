@@ -14,7 +14,7 @@ mod macros;
 mod stop_signs;
 mod traffic_signals;
 
-use map_model::{IntersectionID, Map};
+use map_model::{IntersectionID, IntersectionType, Map};
 use std::collections::{BTreeMap, HashMap};
 pub use stop_signs::{ControlStopSign, TurnPriority};
 pub use traffic_signals::ControlTrafficSignal;
@@ -23,6 +23,7 @@ pub use traffic_signals::ControlTrafficSignal;
 pub struct ControlMap {
     pub traffic_signals: HashMap<IntersectionID, ControlTrafficSignal>,
     pub stop_signs: HashMap<IntersectionID, ControlStopSign>,
+    // Note that border nodes belong in neither!
 }
 
 impl ControlMap {
@@ -37,13 +38,17 @@ impl ControlMap {
         };
 
         for i in map.all_intersections() {
-            if i.has_traffic_signal {
-                ctrl.traffic_signals
-                    .insert(i.id, ControlTrafficSignal::new(map, i.id));
-            } else {
-                ctrl.stop_signs
-                    .insert(i.id, ControlStopSign::new(map, i.id));
-            }
+            match i.intersection_type {
+                IntersectionType::StopSign => {
+                    ctrl.stop_signs
+                        .insert(i.id, ControlStopSign::new(map, i.id));
+                }
+                IntersectionType::TrafficSignal => {
+                    ctrl.traffic_signals
+                        .insert(i.id, ControlTrafficSignal::new(map, i.id));
+                }
+                IntersectionType::Border => {}
+            };
         }
 
         for (i, s) in stop_signs.into_iter() {

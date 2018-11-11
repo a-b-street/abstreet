@@ -17,7 +17,6 @@ pub struct ControlTrafficSignal {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
-        assert!(map.get_i(intersection).has_traffic_signal);
         ControlTrafficSignal {
             intersection,
             cycles: greedy_assignment(map, intersection),

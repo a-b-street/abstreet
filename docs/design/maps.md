@@ -283,4 +283,12 @@ can begin or end.
 - draw the FSM for cars/peds
 	- trips starting/ending at border nodes short-circuit some steps
 
-What about border nodes where the sidewalk can cross over, but the driving lane leads nowhere?
+What about border nodes where the sidewalk can cross over, but the driving lane
+leads nowhere? Maybe instead of having a special intersection policy, we have
+turns to nowhere? Sort of depends how the border node is defined -- do we have
+long skinny things jutting out, or not?
+	- don't add any turns, even if we could
+
+OK, now adapt the control and sim layers to handle border nodes...
+
+Adapt trips / pathfinding. It has to be an explicit origin/goal.

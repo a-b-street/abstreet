@@ -5,7 +5,7 @@ use dimensioned::si;
 use geom::Pt2D;
 use std::collections::BTreeSet;
 use std::fmt;
-use {LaneID, Map, RoadID, TurnID};
+use {LaneID, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -17,6 +17,13 @@ impl fmt::Display for IntersectionID {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum IntersectionType {
+    StopSign,
+    TrafficSignal,
+    Border,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
@@ -26,7 +33,8 @@ pub struct Intersection {
     pub polygon: Vec<Pt2D>,
     pub turns: Vec<TurnID>,
     pub elevation: si::Meter<f64>,
-    pub has_traffic_signal: bool,
+
+    pub intersection_type: IntersectionType,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?
@@ -49,16 +57,6 @@ impl Intersection {
 
     pub fn is_degenerate(&self) -> bool {
         self.roads.len() == 2
-    }
-
-    pub fn is_border(&self, map: &Map) -> bool {
-        // Bias for driving
-        if !self.is_dead_end() {
-            return false;
-        }
-        let has_driving_in = self.incoming_lanes.iter().find(|l| map.get_l(**l).is_driving()).is_some();
-        let has_driving_out = self.outgoing_lanes.iter().find(|l| map.get_l(**l).is_driving()).is_some();
-        has_driving_in != has_driving_out
     }
 
     pub fn dump_debug(&self) {

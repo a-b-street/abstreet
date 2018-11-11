@@ -3,7 +3,7 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
-use map_model::{Intersection, IntersectionID, Map, TurnType, LANE_THICKNESS};
+use map_model::{Intersection, IntersectionID, IntersectionType, Map, TurnType, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
 use sim::Sim;
@@ -18,8 +18,7 @@ pub struct DrawIntersection {
     crosswalks: Vec<Vec<Line>>,
     sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
-    has_traffic_signal: bool,
-    is_border: bool,
+    intersection_type: IntersectionType,
     should_draw_stop_sign: bool,
 }
 
@@ -36,9 +35,9 @@ impl DrawIntersection {
             polygon: Polygon::new(&inter.polygon),
             crosswalks: calculate_crosswalks(inter.id, map),
             sidewalk_corners: calculate_corners(inter.id, map),
-            has_traffic_signal: inter.has_traffic_signal,
-            is_border: inter.is_border(map),
-            should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(),
+            intersection_type: inter.intersection_type,
+            should_draw_stop_sign: inter.intersection_type == IntersectionType::StopSign
+                && !inter.is_degenerate(),
         }
     }
 
@@ -87,7 +86,7 @@ impl Renderable for DrawIntersection {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         let color = opts.color.unwrap_or_else(|| {
-            if self.is_border {
+            if self.intersection_type == IntersectionType::Border {
                 return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));
             }
 
@@ -121,7 +120,7 @@ impl Renderable for DrawIntersection {
             g.draw_polygon(ctx.cs.get("sidewalk corner", Color::grey(0.7)), corner);
         }
 
-        if self.has_traffic_signal {
+        if self.intersection_type == IntersectionType::TrafficSignal {
             self.draw_traffic_signal(g, ctx);
         } else if self.should_draw_stop_sign {
             self.draw_stop_sign(g, ctx);
