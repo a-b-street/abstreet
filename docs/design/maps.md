@@ -282,3 +282,5 @@ can begin or end.
 	- manually marking them?
 - draw the FSM for cars/peds
 	- trips starting/ending at border nodes short-circuit some steps
+
+What about border nodes where the sidewalk can cross over, but the driving lane leads nowhere?

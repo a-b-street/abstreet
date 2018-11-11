@@ -5,7 +5,7 @@ use dimensioned::si;
 use geom::Pt2D;
 use std::collections::BTreeSet;
 use std::fmt;
-use {LaneID, RoadID, TurnID};
+use {LaneID, Map, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -49,6 +49,16 @@ impl Intersection {
 
     pub fn is_degenerate(&self) -> bool {
         self.roads.len() == 2
+    }
+
+    pub fn is_border(&self, map: &Map) -> bool {
+        // Bias for driving
+        if !self.is_dead_end() {
+            return false;
+        }
+        let has_driving_in = self.incoming_lanes.iter().find(|l| map.get_l(**l).is_driving()).is_some();
+        let has_driving_out = self.outgoing_lanes.iter().find(|l| map.get_l(**l).is_driving()).is_some();
+        has_driving_in != has_driving_out
     }
 
     pub fn dump_debug(&self) {

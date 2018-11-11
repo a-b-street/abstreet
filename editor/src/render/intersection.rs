@@ -19,6 +19,7 @@ pub struct DrawIntersection {
     sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
     has_traffic_signal: bool,
+    is_border: bool,
     should_draw_stop_sign: bool,
 }
 
@@ -36,6 +37,7 @@ impl DrawIntersection {
             crosswalks: calculate_crosswalks(inter.id, map),
             sidewalk_corners: calculate_corners(inter.id, map),
             has_traffic_signal: inter.has_traffic_signal,
+            is_border: inter.is_border(map),
             should_draw_stop_sign: !inter.has_traffic_signal && !inter.is_degenerate(),
         }
     }
@@ -85,6 +87,10 @@ impl Renderable for DrawIntersection {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         let color = opts.color.unwrap_or_else(|| {
+            if self.is_border {
+                return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));
+            }
+
             let changed = if let Some(s) = ctx.control_map.traffic_signals.get(&self.id) {
                 s.is_changed()
             } else if let Some(s) = ctx.control_map.stop_signs.get(&self.id) {
