@@ -30,7 +30,7 @@ pub mod warp;
 use abstutil;
 use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
-use map_model::Map;
+use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, NeighborhoodBuilder, Scenario, Tick, WeightedUsizeChoice};
 use ui::PluginCtx;
@@ -120,4 +120,16 @@ pub fn input_weighted_usize(
     query: &str,
 ) -> Option<WeightedUsizeChoice> {
     wizard.input_something(query, Box::new(|line| WeightedUsizeChoice::parse(&line)))
+}
+
+// TODO Validate the intersection exists? Let them pick it with the cursor?
+pub fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<IntersectionID> {
+    wizard.input_something(
+        query,
+        Box::new(|line| {
+            usize::from_str_radix(&line, 10)
+                .ok()
+                .map(|id| IntersectionID(id))
+        }),
+    )
 }

@@ -34,6 +34,7 @@ mod road;
 mod traversable;
 mod turn;
 
+use abstutil::Cloneable;
 pub use area::{Area, AreaID, AreaType};
 pub use building::{Building, BuildingID, FrontPath};
 pub use bus_stop::{BusRoute, BusStop, BusStopID};
@@ -48,3 +49,5 @@ pub use traversable::Traversable;
 pub use turn::{Turn, TurnID, TurnType};
 
 pub const LANE_THICKNESS: f64 = 2.5;
+
+impl Cloneable for IntersectionID {}

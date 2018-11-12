@@ -1,6 +1,6 @@
 use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, Map, RoadID};
+use map_model::{BuildingID, IntersectionID, Map, RoadID};
 use rand::Rng;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
@@ -14,6 +14,7 @@ pub struct Scenario {
 
     pub seed_parked_cars: Vec<SeedParkedCars>,
     pub spawn_over_time: Vec<SpawnOverTime>,
+    pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -23,6 +24,18 @@ pub struct SpawnOverTime {
     pub start_tick: Tick,
     pub stop_tick: Tick,
     pub start_from_neighborhood: String,
+    pub go_to_neighborhood: String,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct BorderSpawnOverTime {
+    pub num_peds: usize,
+    //pub num_cars: usize,
+    // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
+    pub start_tick: Tick,
+    pub stop_tick: Tick,
+    // TODO A serialized Scenario won't last well as the map changes...
+    pub start_from_border: IntersectionID,
     pub go_to_neighborhood: String,
 }
 
@@ -238,6 +251,29 @@ impl Scenario {
                         &mut sim.trips_state,
                     );
                 }
+            }
+        }
+
+        for s in &self.border_spawn_over_time {
+            if !neighborhoods.contains_key(&s.go_to_neighborhood) {
+                panic!("Neighborhood {} isn't defined", s.go_to_neighborhood);
+            }
+
+            for _ in 0..s.num_peds {
+                // TODO normal distribution, not uniform
+                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                let to_bldg = *sim
+                    .rng
+                    .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
+                    .unwrap();
+
+                /*sim.spawner.start_trip_just_walking(
+                    spawn_time,
+                    map,
+                    WalkingEndpoint::Border(s.start_from_border),
+                    to_bldg,
+                    &mut sim.trips_state,
+                );*/
             }
         }
     }

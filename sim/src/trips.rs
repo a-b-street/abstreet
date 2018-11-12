@@ -138,12 +138,7 @@ impl TripManager {
     }
 
     // Creation from the interactive part of spawner
-    pub fn new_trip(
-        &mut self,
-        spawned_at: Tick,
-        ped: PedestrianID,
-        legs: Vec<TripLeg>,
-    ) -> TripID {
+    pub fn new_trip(&mut self, spawned_at: Tick, ped: PedestrianID, legs: Vec<TripLeg>) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 

@@ -519,6 +519,16 @@ impl Map {
         self.get_parent(self.get_b(id).front_path.sidewalk)
     }
 
+    pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
+        let mut result: Vec<&Intersection> = Vec::new();
+        for i in &self.intersections {
+            if i.intersection_type == IntersectionType::Border && !i.outgoing_lanes.is_empty() {
+                result.push(i);
+            }
+        }
+        result
+    }
+
     pub fn save(&self) {
         let path = format!(
             "../data/maps/{}_{}.abst",

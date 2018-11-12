@@ -3,8 +3,8 @@ use control::ControlMap;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
 use {
-    CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars, Sim, SpawnOverTime,
-    Tick, WeightedUsizeChoice,
+    BorderSpawnOverTime, CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars,
+    Sim, SpawnOverTime, Tick, WeightedUsizeChoice,
 };
 
 #[derive(StructOpt, Debug, Clone)]
@@ -224,6 +224,26 @@ impl Sim {
                 start_from_neighborhood: "_everywhere_".to_string(),
                 go_to_neighborhood: "_everywhere_".to_string(),
             }],
+            border_spawn_over_time: map
+                .all_incoming_borders()
+                .into_iter()
+                .filter_map(|i| {
+                    if i.outgoing_lanes
+                        .iter()
+                        .find(|l| map.get_l(**l).is_sidewalk())
+                        .is_some()
+                    {
+                        Some(BorderSpawnOverTime {
+                            num_peds: 10,
+                            start_tick: Tick::zero(),
+                            stop_tick: Tick::from_seconds(5),
+                            start_from_border: i.id,
+                            go_to_neighborhood: "_everywhere_".to_string(),
+                        })
+                    } else {
+                        None
+                    }
+                }).collect(),
         }.instantiate(self, map);
 
         for route in map.get_all_bus_routes() {
@@ -260,6 +280,26 @@ impl Sim {
                 start_from_neighborhood: "_everywhere_".to_string(),
                 go_to_neighborhood: "_everywhere_".to_string(),
             }],
+            border_spawn_over_time: map
+                .all_incoming_borders()
+                .into_iter()
+                .filter_map(|i| {
+                    if i.outgoing_lanes
+                        .iter()
+                        .find(|l| map.get_l(**l).is_sidewalk())
+                        .is_some()
+                    {
+                        Some(BorderSpawnOverTime {
+                            num_peds: 100,
+                            start_tick: Tick::zero(),
+                            stop_tick: Tick::from_seconds(5),
+                            start_from_border: i.id,
+                            go_to_neighborhood: "_everywhere_".to_string(),
+                        })
+                    } else {
+                        None
+                    }
+                }).collect(),
         }.instantiate(self, map);
     }
 

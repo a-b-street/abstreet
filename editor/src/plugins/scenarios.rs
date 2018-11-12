@@ -3,9 +3,10 @@ use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{
-    choose_neighborhood, input_tick, input_weighted_usize, load_scenario, Plugin, PluginCtx,
+    choose_intersection, choose_neighborhood, input_tick, input_weighted_usize, load_scenario,
+    Plugin, PluginCtx,
 };
-use sim::{Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
+use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {
     Inactive,
@@ -113,6 +114,7 @@ fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
             map_name: map.get_name().to_string(),
             seed_parked_cars: Vec::new(),
             spawn_over_time: Vec::new(),
+            border_spawn_over_time: Vec::new(),
         })
     }
 }
@@ -120,32 +122,61 @@ fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
 fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) -> Option<()> {
     let seed_parked = "Seed parked cars";
     let spawn = "Spawn agents";
-    if wizard.choose_string("What kind of edit?", vec![seed_parked, spawn])? == seed_parked {
-        scenario.seed_parked_cars.push(SeedParkedCars {
-            neighborhood: choose_neighborhood(map, &mut wizard, "Seed parked cars in what area?")?,
-            cars_per_building: input_weighted_usize(
-                &mut wizard,
-                "How many cars per building? (ex: 4,4,2)",
-            )?,
-        });
-        Some(())
-    } else {
-        scenario.spawn_over_time.push(SpawnOverTime {
-            num_agents: wizard.input_usize("Spawn how many agents?")?,
-            start_tick: input_tick(&mut wizard, "Start spawning when?")?,
-            // TODO input interval, or otherwise enforce stop_tick > start_tick
-            stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
-            start_from_neighborhood: choose_neighborhood(
-                map,
-                &mut wizard,
-                "Where should the agents start?",
-            )?,
-            go_to_neighborhood: choose_neighborhood(
-                map,
-                &mut wizard,
-                "Where should the agents go?",
-            )?,
-        });
-        Some(())
-    }
+    let spawn_border = "Spawn agents from a border";
+    match wizard
+        .choose_string("What kind of edit?", vec![seed_parked, spawn, spawn_border])?
+        .as_str()
+    {
+        x if x == seed_parked => {
+            scenario.seed_parked_cars.push(SeedParkedCars {
+                neighborhood: choose_neighborhood(
+                    map,
+                    &mut wizard,
+                    "Seed parked cars in what area?",
+                )?,
+                cars_per_building: input_weighted_usize(
+                    &mut wizard,
+                    "How many cars per building? (ex: 4,4,2)",
+                )?,
+            });
+        }
+        x if x == spawn => {
+            scenario.spawn_over_time.push(SpawnOverTime {
+                num_agents: wizard.input_usize("Spawn how many agents?")?,
+                start_tick: input_tick(&mut wizard, "Start spawning when?")?,
+                // TODO input interval, or otherwise enforce stop_tick > start_tick
+                stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
+                start_from_neighborhood: choose_neighborhood(
+                    map,
+                    &mut wizard,
+                    "Where should the agents start?",
+                )?,
+                go_to_neighborhood: choose_neighborhood(
+                    map,
+                    &mut wizard,
+                    "Where should the agents go?",
+                )?,
+            });
+        }
+        x if x == spawn_border => {
+            scenario.border_spawn_over_time.push(BorderSpawnOverTime {
+                num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
+                start_tick: input_tick(&mut wizard, "Start spawning when?")?,
+                // TODO input interval, or otherwise enforce stop_tick > start_tick
+                stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
+                // TODO validate it's a border!
+                start_from_border: choose_intersection(
+                    &mut wizard,
+                    "Which border should the agents spawn at?",
+                )?,
+                go_to_neighborhood: choose_neighborhood(
+                    map,
+                    &mut wizard,
+                    "Where should the agents go?",
+                )?,
+            });
+        }
+        _ => unreachable!(),
+    };
+    Some(())
 }
