@@ -292,3 +292,57 @@ long skinny things jutting out, or not?
 OK, now adapt the control and sim layers to handle border nodes...
 
 Adapt trips / pathfinding. It has to be an explicit origin/goal.
+
+start/end for trips right now is buildings. Needs to be building or a border
+node. And driving also gets more complicated -- can start from a parked car or
+a border node, and end by parking near a building or going to a border node.
+
+### The master FSM
+
+This doesn't belong in maps.md, but related to border nodes, so for now...
+
+There's ultimately a big state machine for trips that's awkwardly hiding in the
+code and slowly being exposed by stuff like the higher-detail pathfinding.
+
+- possible starts:
+	- ped exits building
+	- ped appears at border node
+	- car appears at border node
+
+- possible ends:
+	- ped enters building
+	- ped vanishes at border node
+	- car vanishes at border node
+
+- the stuff in the middle
+	- ped crosses front path from building to sidewalk spot
+	- ped crosses front path from sidewalk spot to building
+	- agent crosses a lane normally
+	- agent crosses a lane contraflow
+	- agent makes a turn
+	- unparking a car from a spot
+	- parking a car at a spot
+	- (soon) lanechanging
+	- wait for a bus
+	- enter a bus
+	- ride a bus
+	- exit a bus
+
+- Roaming around looking for parking dynamically and lazily updates the front of this plan
+
+- Buses are weird
+	- it's annoying they don't have a trip (and don't work with the route plugin today)
+	- they share some states (the mechanical driving ones)
+	- and have a few of their own (deboard people, board people)
+	- dynamic plan expansion also happens when departing from a stop; since
+	  storing the entire cycle would be weird
+- Parked cars aren't really part of this giant state machine
+
+Then the code for these little transitional states can be less weirdly special cased, maybe.
+
+How does initial plan formation and mode choice work? Could have a round of
+pathfinding for each possible mode, or could search a single more abstract
+action graph. moves from walking on this sidewalk? oh we own this car, could
+choose to unpark it, then drive somewhere. Everything has time cost.
+
+Starting to have lots of cases... sidewalk spot or border node. Embrace the enum, I guess.

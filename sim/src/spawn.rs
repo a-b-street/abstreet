@@ -356,10 +356,7 @@ impl Spawner {
             at,
             trips.new_trip(
                 at,
-                map,
                 ped_id,
-                start_bldg,
-                goal_bldg,
                 vec![
                     TripLeg::Walk(parking_spot.clone()),
                     TripLeg::Drive(parked, goal_bldg),
@@ -387,10 +384,7 @@ impl Spawner {
             at,
             trips.new_trip(
                 at,
-                map,
                 ped_id,
-                start_bldg,
-                goal_bldg,
                 vec![TripLeg::Walk(SidewalkSpot::building(goal_bldg, map))],
             ),
             ped_id,
@@ -417,10 +411,7 @@ impl Spawner {
             at,
             trips.new_trip(
                 at,
-                map,
                 ped_id,
-                start_bldg,
-                goal_bldg,
                 vec![
                     TripLeg::Walk(SidewalkSpot::bus_stop(stop1, map)),
                     TripLeg::RideBus(route, stop2),

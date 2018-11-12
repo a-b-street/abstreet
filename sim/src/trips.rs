@@ -1,5 +1,5 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{BuildingID, BusStopID, Map};
+use map_model::{BuildingID, BusStopID};
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
@@ -141,20 +141,11 @@ impl TripManager {
     pub fn new_trip(
         &mut self,
         spawned_at: Tick,
-        map: &Map,
         ped: PedestrianID,
-        start_bldg: BuildingID,
-        goal_bldg: BuildingID,
         legs: Vec<TripLeg>,
     ) -> TripID {
         assert!(!legs.is_empty());
-        match legs.last().unwrap() {
-            TripLeg::Walk(to) => assert_eq!(*to, SidewalkSpot::building(goal_bldg, map)),
-            x => panic!(
-                "Last leg of trip isn't walking to the goal building; it's {:?}",
-                x
-            ),
-        };
+        // TODO Make sure the legs constitute a valid state machine.
 
         let id = TripID(self.trips.len());
         self.trips.push(Trip {
@@ -162,8 +153,6 @@ impl TripManager {
             spawned_at,
             finished_at: None,
             ped,
-            start_bldg,
-            goal_bldg,
             uses_car: legs
                 .iter()
                 .find(|l| match l {
@@ -252,8 +241,6 @@ struct Trip {
     finished_at: Option<Tick>,
     uses_car: bool,
     ped: PedestrianID,
-    start_bldg: BuildingID,
-    goal_bldg: BuildingID,
     legs: VecDeque<TripLeg>,
 }
 
