@@ -4,8 +4,8 @@ use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, RoadID};
 use spawn::WalkingEndpoint;
 use std::collections::{BTreeSet, VecDeque};
 use {
-    BorderSpawnOverTime, CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars,
-    Sim, SpawnOverTime, Tick, WeightedUsizeChoice,
+    BorderSpawnOverTime, CarID, Event, MapEdits, OriginDestination, PedestrianID, RouteID,
+    Scenario, SeedParkedCars, Sim, SpawnOverTime, Tick, WeightedUsizeChoice,
 };
 
 #[derive(StructOpt, Debug, Clone)]
@@ -223,7 +223,7 @@ impl Sim {
                 start_tick: Tick::zero(),
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
-                go_to_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
             }],
             border_spawn_over_time: map
                 .all_incoming_borders()
@@ -275,7 +275,7 @@ impl Sim {
                 start_tick: Tick::zero(),
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
-                go_to_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
             }],
             border_spawn_over_time: map
                 .all_incoming_borders()

@@ -3,8 +3,8 @@ use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{
-    choose_intersection, choose_neighborhood, input_tick, input_weighted_usize, load_scenario,
-    Plugin, PluginCtx,
+    choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
+    input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
@@ -151,11 +151,7 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                     &mut wizard,
                     "Where should the agents start?",
                 )?,
-                go_to_neighborhood: choose_neighborhood(
-                    map,
-                    &mut wizard,
-                    "Where should the agents go?",
-                )?,
+                goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
             });
         }
         x if x == spawn_border => {

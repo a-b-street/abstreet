@@ -32,7 +32,10 @@ use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID};
-use sim::{ABTest, Neighborhood, NeighborhoodBuilder, Scenario, Tick, WeightedUsizeChoice};
+use sim::{
+    ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick,
+    WeightedUsizeChoice,
+};
 use ui::PluginCtx;
 
 pub trait Plugin: Any {
@@ -132,4 +135,18 @@ pub fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<In
                 .map(|id| IntersectionID(id))
         }),
     )
+}
+
+pub fn choose_origin_destination(
+    map: &Map,
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<OriginDestination> {
+    let neighborhood = "Neighborhood";
+    let border = "Border intersection";
+    if wizard.choose_string(query, vec![neighborhood, border])? == neighborhood {
+        choose_neighborhood(map, wizard, query).map(|n| OriginDestination::Neighborhood(n))
+    } else {
+        choose_intersection(wizard, query).map(|i| OriginDestination::Border(i))
+    }
 }

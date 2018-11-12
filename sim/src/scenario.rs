@@ -20,13 +20,20 @@ pub struct Scenario {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
+pub enum OriginDestination {
+    Neighborhood(String),
+    // TODO A serialized Scenario won't last well as the map changes...
+    Border(IntersectionID),
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SpawnOverTime {
     pub num_agents: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
     pub start_from_neighborhood: String,
-    pub go_to_neighborhood: String,
+    pub goal: OriginDestination,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -209,8 +216,13 @@ impl Scenario {
             if !neighborhoods.contains_key(&s.start_from_neighborhood) {
                 panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
             }
-            if !neighborhoods.contains_key(&s.go_to_neighborhood) {
-                panic!("Neighborhood {} isn't defined", s.go_to_neighborhood);
+            match s.goal {
+                OriginDestination::Neighborhood(ref n) => {
+                    if !neighborhoods.contains_key(n) {
+                        panic!("Neighborhood {} isn't defined", n);
+                    }
+                }
+                _ => {}
             }
 
             for _ in 0..s.num_agents {
@@ -222,10 +234,6 @@ impl Scenario {
                     .rng
                     .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
                     .unwrap();
-                let to_bldg = *sim
-                    .rng
-                    .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
-                    .unwrap();
 
                 // Will they drive or not?
                 if let Some(parked_car) = sim
@@ -234,6 +242,14 @@ impl Scenario {
                     .into_iter()
                     .find(|p| !reserved_cars.contains(&p.car))
                 {
+                    // TODO need to change driving goals too
+                    let to_bldg = match s.goal {
+                        OriginDestination::Neighborhood(ref n) => {
+                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap()
+                        }
+                        OriginDestination::Border(_) => BuildingID(42),
+                    };
+
                     reserved_cars.insert(parked_car.car);
                     sim.spawner.start_trip_using_parked_car(
                         spawn_time,
@@ -245,11 +261,26 @@ impl Scenario {
                         &mut sim.trips_state,
                     );
                 } else {
+                    let goal = match s.goal {
+                        OriginDestination::Neighborhood(ref n) => {
+                            WalkingEndpoint::Spot(SidewalkSpot::building(
+                                *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                                map,
+                            ))
+                        }
+                        // TODO get only element, and dont do this computation every iter
+                        OriginDestination::Border(i) => WalkingEndpoint::Border(
+                            i,
+                            map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk)[0],
+                        ),
+                    };
+
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
                         map,
                         WalkingEndpoint::Spot(SidewalkSpot::building(from_bldg, map)),
-                        to_bldg,
+                        BuildingID(42), // TODO tmp
+                        //goal,
                         &mut sim.trips_state,
                     );
                 }

@@ -59,6 +59,14 @@ impl Intersection {
         self.roads.len() == 2
     }
 
+    pub fn get_incoming_lanes(&self, map: &Map, lt: LaneType) -> Vec<LaneID> {
+        self.incoming_lanes
+            .iter()
+            .filter(|l| map.get_l(**l).lane_type == lt)
+            .map(|l| *l)
+            .collect()
+    }
+
     pub fn get_outgoing_lanes(&self, map: &Map, lt: LaneType) -> Vec<LaneID> {
         self.outgoing_lanes
             .iter()
