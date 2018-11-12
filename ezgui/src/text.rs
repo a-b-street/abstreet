@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use graphics::{Image, Rectangle, Transformed};
+use runner::EventLoopMode;
 use {Color, GfxCtx};
 
 pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
@@ -36,6 +37,9 @@ impl TextSpan {
 pub struct Text {
     lines: Vec<Vec<TextSpan>>,
     bg_color: Color,
+    // TODO total hack. Want to plumb this around to all plugins, so anyone can upgrade it to
+    // Animation. OSD is conveniently plumbed around already.
+    pub(crate) mode: EventLoopMode,
 }
 
 impl Text {
@@ -43,7 +47,12 @@ impl Text {
         Text {
             lines: Vec::new(),
             bg_color: TEXT_BG_COLOR,
+            mode: EventLoopMode::InputOnly,
         }
+    }
+
+    pub fn animation_mode(&mut self) {
+        self.mode = EventLoopMode::Animation
     }
 
     pub fn pad_if_nonempty(&mut self) {

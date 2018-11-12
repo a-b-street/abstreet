@@ -6,7 +6,7 @@ use abstutil;
 use colors::ColorScheme;
 use control::ControlMap;
 //use cpuprofiler;
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
+use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID, ROOT_MENU};
@@ -47,11 +47,11 @@ pub struct UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode {
+    fn event(&mut self, input: UserInput, osd: &mut Text) {
         match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            return self.inner_event(input, osd);
+            self.inner_event(input, osd);
         })) {
-            Ok(result) => result,
+            Ok(()) => {}
             Err(err) => {
                 error!("UI broke. Sim time is {}", self.primary.sim.time);
                 self.save_editor_state();
@@ -321,7 +321,7 @@ impl UI {
         ui
     }
 
-    fn inner_event(&mut self, mut input: UserInput, osd: &mut Text) -> EventLoopMode {
+    fn inner_event(&mut self, mut input: UserInput, osd: &mut Text) {
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
@@ -366,7 +366,7 @@ impl UI {
         }
 
         // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        let result = self.plugins.sim_ctrl.event(
+        self.plugins.sim_ctrl.event(
             &mut input,
             &mut self.primary,
             &mut self.primary_plugins,
@@ -380,7 +380,6 @@ impl UI {
         }
 
         input.populate_osd(osd);
-        result
     }
 
     fn mouseover_something(&self) -> Option<ID> {

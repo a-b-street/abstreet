@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, TOP_RIGHT};
+use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, TOP_RIGHT};
 use objects::SIM;
 use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
@@ -39,7 +39,7 @@ impl SimController {
         primary_plugins: &mut PluginsPerMap,
         secondary: &mut Option<(PerMapUI, PluginsPerMap)>,
         osd: &mut Text,
-    ) -> EventLoopMode {
+    ) {
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
             self.show_side_panel = !self.show_side_panel;
         }
@@ -164,9 +164,7 @@ impl SimController {
         }
 
         if self.last_step.is_some() {
-            EventLoopMode::Animation
-        } else {
-            EventLoopMode::InputOnly
+            osd.animation_mode();
         }
     }
 

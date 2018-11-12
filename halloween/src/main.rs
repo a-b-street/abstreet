@@ -10,7 +10,7 @@ mod render;
 mod timer;
 
 use abstutil::Timer;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
+use ezgui::{Canvas, GfxCtx, Text, UserInput, GUI};
 use map_model::{Map, RoadEdits};
 use piston::input::Key;
 use render::DrawMap;
@@ -51,12 +51,12 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, _osd: &mut Text) -> EventLoopMode {
+    fn event(&mut self, mut input: UserInput, osd: &mut Text) {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
         self.canvas.handle_event(&mut input);
-        EventLoopMode::Animation
+        osd.animation_mode();
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {

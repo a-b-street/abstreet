@@ -32,7 +32,7 @@ pub use log_scroller::LogScroller;
 pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
-pub use runner::{run, EventLoopMode, GUI};
+pub use runner::{run, GUI};
 use std::fmt;
 pub use text::Text;
 pub use text_box::TextBox;

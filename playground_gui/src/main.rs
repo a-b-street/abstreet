@@ -9,7 +9,7 @@ mod debug_polyline;
 mod moving_polyline;
 mod trim_polyline;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
+use ezgui::{Canvas, GfxCtx, Text, UserInput, GUI};
 use geom::Pt2D;
 use piston::input::Key;
 use std::f64;
@@ -43,7 +43,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, _osd: &mut Text) -> EventLoopMode {
+    fn event(&mut self, mut input: UserInput, _osd: &mut Text) {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
@@ -100,8 +100,6 @@ impl GUI for UI {
         }
 
         self.canvas.handle_event(&mut input);
-
-        EventLoopMode::InputOnly
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {

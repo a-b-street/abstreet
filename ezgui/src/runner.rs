@@ -7,12 +7,12 @@ use piston::window::{Window, WindowSettings};
 use {Canvas, GfxCtx, Text};
 
 pub trait GUI {
-    fn event(&mut self, input: UserInput, osd: &mut Text) -> EventLoopMode;
+    fn event(&mut self, input: UserInput, osd: &mut Text);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     fn draw(&self, g: &mut GfxCtx, osd: Text);
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum EventLoopMode {
     Animation,
     InputOnly,
@@ -41,7 +41,8 @@ pub fn run<T: GUI>(mut gui: T, window_title: &str, initial_width: u32, initial_h
     let mut last_event_mode = EventLoopMode::InputOnly;
     while let Some(ev) = events.next(&mut window) {
         let mut osd = Text::new();
-        let new_event_mode = gui.event(UserInput::new(ev.clone()), &mut osd);
+        gui.event(UserInput::new(ev.clone()), &mut osd);
+        let new_event_mode = osd.mode;
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
             events.set_lazy(new_event_mode == EventLoopMode::InputOnly);

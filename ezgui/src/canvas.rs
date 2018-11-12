@@ -136,6 +136,13 @@ impl Canvas {
         )
     }
 
+    pub fn center_to_map_pt(&self) -> Pt2D {
+        self.screen_to_map((
+            f64::from(self.window_size.width) / 2.0,
+            f64::from(self.window_size.height) / 2.0,
+        ))
+    }
+
     pub fn center_on_map_pt(&mut self, pt: Pt2D) {
         self.cam_x = (pt.x() * self.cam_zoom) - (f64::from(self.window_size.width) / 2.0);
         self.cam_y = (pt.y() * self.cam_zoom) - (f64::from(self.window_size.height) / 2.0);
