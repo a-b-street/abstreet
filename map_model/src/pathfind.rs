@@ -369,12 +369,14 @@ fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>, end_dist: si::Meter<f64
     assert!(lanes.len() > 1);
     let mut steps: Vec<PathStep> = Vec::new();
 
+    let mut current_turn = pick_turn(lanes[0], lanes[1], map);
     if is_contraflow(map, lanes[0], lanes[1]) {
         steps.push(PathStep::ContraflowLane(lanes[0]));
+        assert_eq!(map.get_l(lanes[0]).src_i, current_turn.parent);
     } else {
         steps.push(PathStep::Lane(lanes[0]));
+        assert_eq!(map.get_l(lanes[0]).dst_i, current_turn.parent);
     }
-    let mut current_turn = pick_turn(lanes[0], lanes[1], map);
     steps.push(PathStep::Turn(current_turn));
 
     lanes.pop_front();
@@ -409,20 +411,15 @@ fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>, end_dist: si::Meter<f64
     Path::new(map, steps, end_dist)
 }
 
+// If there are two turns (one at each intersection), we choose one of them arbitrarily, and the
+// caller deals with it!
 fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
-    let l = map.get_l(from);
-    let endpoint = if is_contraflow(map, from, to) {
-        l.src_i
-    } else {
-        l.dst_i
-    };
-
     for t in map.get_turns_from_lane(from) {
-        if t.id.parent == endpoint && t.id.dst == to {
+        if t.id.dst == to {
             return t.id;
         }
     }
-    panic!("No turn from {} ({} end) to {}", from, endpoint, to);
+    panic!("No turn from {} to {}", from, to);
 }
 
 fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
