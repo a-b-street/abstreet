@@ -4,7 +4,6 @@ use objects::SIM;
 use piston::input::Key;
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
 use std::mem;
-use std::panic;
 use std::time::{Duration, Instant};
 use ui::{PerMapUI, PluginsPerMap};
 
@@ -82,10 +81,10 @@ impl SimController {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(primary.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
-                step_sim("Primary", primary);
+                primary.sim.step(&primary.map, &primary.control_map);
                 primary.recalculate_current_selection = true;
                 if let Some((s, _)) = secondary {
-                    step_sim("Secondary", s);
+                    s.sim.step(&s.map, &s.control_map);
                 }
             }
         }
@@ -117,10 +116,10 @@ impl SimController {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt_s = elapsed_seconds(tick);
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
-                    step_sim("Primary", primary);
+                    primary.sim.step(&primary.map, &primary.control_map);
                     primary.recalculate_current_selection = true;
                     if let Some((s, _)) = secondary {
-                        step_sim("Secondary", s);
+                        s.sim.step(&s.map, &s.control_map);
                     }
                     self.last_step = Some(Instant::now());
                 }
@@ -199,16 +198,4 @@ fn summarize(txt: &mut Text, summary: ScoreSummary) {
         summary.pending_driving_trips
     ));
     txt.add_line(format!("  {} total", summary.total_driving_trip_time));
-}
-
-fn step_sim(name: &str, ui: &mut PerMapUI) {
-    if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-        ui.sim.step(&ui.map, &ui.control_map);
-    })) {
-        error!(
-            "{} sim failed at {} while processing {:?}",
-            name, ui.sim.time, ui.sim.current_agent_for_debugging
-        );
-        panic::resume_unwind(err);
-    }
 }

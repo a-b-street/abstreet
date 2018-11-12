@@ -53,7 +53,13 @@ impl GUI for UI {
         })) {
             Ok(()) => {}
             Err(err) => {
-                error!("UI broke. Sim time is {}", self.primary.sim.time);
+                error!("********************************************************************************");
+                error!("UI broke! Primary sim:");
+                self.primary.sim.dump_before_abort();
+                if let Some((s, _)) = &self.secondary {
+                    error!("Secondary sim:");
+                    s.sim.dump_before_abort();
+                }
                 self.save_editor_state();
                 panic::resume_unwind(err);
             }

@@ -55,7 +55,7 @@ pub struct Sim {
 
     // This should only be Some in the middle of step(). The caller of step() can grab this if
     // step() panics.
-    pub current_agent_for_debugging: Option<AgentID>,
+    current_agent_for_debugging: Option<AgentID>,
 }
 
 impl Sim {
@@ -129,17 +129,24 @@ impl Sim {
         }
     }
 
+    pub fn dump_before_abort(&self) {
+        error!("********************************************************************************");
+        error!(
+            "At {} while processing {:?}",
+            self.time, self.current_agent_for_debugging
+        );
+        // TODO Most recent before current time
+        if let Ok(s) = self.find_most_recent_savestate() {
+            error!("Debug from {}", s);
+        }
+    }
+
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
         match self.inner_step(map, control_map) {
             Ok(events) => events,
             Err(e) => {
-                error!(
-                    "\nAt {} while processing {:?}:{}",
-                    self.time, self.current_agent_for_debugging, e
-                );
-                if let Ok(s) = self.find_most_recent_savestate() {
-                    error!("Debug from {}", s);
-                }
+                self.dump_before_abort();
+                error!("{}", e);
                 process::exit(1);
             }
         }
