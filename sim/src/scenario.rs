@@ -1,10 +1,12 @@
 use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, IntersectionID, Map, RoadID};
+use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
 use rand::Rng;
+use spawn::WalkingEndpoint;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::{Error, Write};
+use walking::SidewalkSpot;
 use {CarID, Sim, Tick, WeightedUsizeChoice};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -246,7 +248,7 @@ impl Scenario {
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
                         map,
-                        from_bldg,
+                        WalkingEndpoint::Spot(SidewalkSpot::building(from_bldg, map)),
                         to_bldg,
                         &mut sim.trips_state,
                     );
@@ -259,6 +261,11 @@ impl Scenario {
                 panic!("Neighborhood {} isn't defined", s.go_to_neighborhood);
             }
 
+            // TODO get only element
+            let sidewalk = map
+                .get_i(s.start_from_border)
+                .get_outgoing_lanes(map, LaneType::Sidewalk)[0];
+
             for _ in 0..s.num_peds {
                 // TODO normal distribution, not uniform
                 let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
@@ -267,13 +274,13 @@ impl Scenario {
                     .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
                     .unwrap();
 
-                /*sim.spawner.start_trip_just_walking(
+                sim.spawner.start_trip_just_walking(
                     spawn_time,
                     map,
-                    WalkingEndpoint::Border(s.start_from_border),
+                    WalkingEndpoint::Border(s.start_from_border, sidewalk),
                     to_bldg,
                     &mut sim.trips_state,
-                );*/
+                );
             }
         }
     }

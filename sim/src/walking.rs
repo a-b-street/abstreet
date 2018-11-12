@@ -9,6 +9,7 @@ use map_model::{
 };
 use multimap::MultiMap;
 use parking::ParkingSimState;
+use spawn::WalkingEndpoint;
 use std;
 use std::collections::{BTreeMap, HashSet};
 use trips::TripManager;
@@ -460,11 +461,11 @@ impl WalkingSimState {
         events: &mut Vec<Event>,
         id: PedestrianID,
         trip: TripID,
-        start: SidewalkSpot,
+        start: WalkingEndpoint,
         goal: SidewalkSpot,
         path: Path,
     ) {
-        let start_lane = start.sidewalk;
+        let (start_lane, start_dist_along) = start.get_position();
         assert_eq!(
             path.current_step().as_traversable(),
             Traversable::Lane(start_lane)
@@ -474,14 +475,16 @@ impl WalkingSimState {
             Traversable::Lane(goal.sidewalk)
         );
 
-        let front_path = if let SidewalkPOI::Building(id) = start.connection {
-            Some(CrossingFrontPath {
-                bldg: id,
-                dist_along: 0.0 * si::M,
-                going_to_sidewalk: true,
-            })
-        } else {
-            None
+        let front_path = match start {
+            WalkingEndpoint::Spot(spot) => match spot.connection {
+                SidewalkPOI::Building(id) => Some(CrossingFrontPath {
+                    bldg: id,
+                    dist_along: 0.0 * si::M,
+                    going_to_sidewalk: true,
+                }),
+                _ => None,
+            },
+            _ => None,
         };
 
         self.peds.insert(
@@ -491,7 +494,7 @@ impl WalkingSimState {
                 trip,
                 path,
                 on: Traversable::Lane(start_lane),
-                dist_along: start.dist_along,
+                dist_along: start_dist_along,
                 front_path,
                 goal,
                 moving: true,

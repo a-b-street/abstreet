@@ -1,6 +1,7 @@
 use abstutil;
 use control::ControlMap;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, RoadID};
+use spawn::WalkingEndpoint;
 use std::collections::{BTreeSet, VecDeque};
 use {
     BorderSpawnOverTime, CarID, Event, MapEdits, PedestrianID, RouteID, Scenario, SeedParkedCars,
@@ -228,11 +229,9 @@ impl Sim {
                 .all_incoming_borders()
                 .into_iter()
                 .filter_map(|i| {
-                    if i.outgoing_lanes
-                        .iter()
-                        .find(|l| map.get_l(**l).is_sidewalk())
-                        .is_some()
-                    {
+                    if i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty() {
+                        None
+                    } else {
                         Some(BorderSpawnOverTime {
                             num_peds: 10,
                             start_tick: Tick::zero(),
@@ -240,8 +239,6 @@ impl Sim {
                             start_from_border: i.id,
                             go_to_neighborhood: "_everywhere_".to_string(),
                         })
-                    } else {
-                        None
                     }
                 }).collect(),
         }.instantiate(self, map);
@@ -284,11 +281,9 @@ impl Sim {
                 .all_incoming_borders()
                 .into_iter()
                 .filter_map(|i| {
-                    if i.outgoing_lanes
-                        .iter()
-                        .find(|l| map.get_l(**l).is_sidewalk())
-                        .is_some()
-                    {
+                    if i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty() {
+                        None
+                    } else {
                         Some(BorderSpawnOverTime {
                             num_peds: 100,
                             start_tick: Tick::zero(),
@@ -296,8 +291,6 @@ impl Sim {
                             start_from_border: i.id,
                             go_to_neighborhood: "_everywhere_".to_string(),
                         })
-                    } else {
-                        None
                     }
                 }).collect(),
         }.instantiate(self, map);
@@ -371,7 +364,7 @@ impl Sim {
         )
     }
 
-    pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: BuildingID, to: BuildingID) {
+    pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: WalkingEndpoint, to: BuildingID) {
         self.spawner.start_trip_just_walking(
             self.time.next(),
             map,
