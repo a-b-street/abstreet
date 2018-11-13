@@ -237,7 +237,7 @@ impl Sim {
                             start_tick: Tick::zero(),
                             stop_tick: Tick::from_seconds(5),
                             start_from_border: i.id,
-                            go_to_neighborhood: "_everywhere_".to_string(),
+                            goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                         })
                     }
                 }).collect(),
@@ -289,7 +289,7 @@ impl Sim {
                             start_tick: Tick::zero(),
                             stop_tick: Tick::from_seconds(5),
                             start_from_border: i.id,
-                            go_to_neighborhood: "_everywhere_".to_string(),
+                            goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                         })
                     }
                 }).collect(),
@@ -364,14 +364,9 @@ impl Sim {
         )
     }
 
-    pub fn spawn_specific_pedestrian(&mut self, map: &Map, from: WalkingEndpoint, to: BuildingID) {
-        self.spawner.start_trip_just_walking(
-            self.time.next(),
-            map,
-            from,
-            to,
-            &mut self.trips_state,
-        );
+    pub fn spawn_specific_pedestrian(&mut self, from: WalkingEndpoint, to: WalkingEndpoint) {
+        self.spawner
+            .start_trip_just_walking(self.time.next(), from, to, &mut self.trips_state);
     }
 
     pub fn make_ped_using_car(&mut self, map: &Map, car: CarID, to: BuildingID) {

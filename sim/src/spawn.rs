@@ -19,24 +19,52 @@ use {
     PedestrianID, RouteID, Tick, TripID, WeightedUsizeChoice,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum WalkingEndpoint {
     Spot(SidewalkSpot),
-    Border(IntersectionID, LaneID),
+    // The creator of this case can decide whehter it's a start/goal border and pick the distance
+    // accordingly
+    Border(IntersectionID, LaneID, Distance),
 }
+
+// TODO distance is f64
+impl PartialEq for WalkingEndpoint {
+    fn eq(&self, other: &WalkingEndpoint) -> bool {
+        match (self, other) {
+            (WalkingEndpoint::Spot(s1), WalkingEndpoint::Spot(s2)) => s1 == s2,
+            (WalkingEndpoint::Border(i1, l1, d1), WalkingEndpoint::Border(i2, l2, d2)) => {
+                i1 == i2 && l1 == l2 && d1 == d2
+            }
+            _ => false,
+        }
+    }
+}
+impl Eq for WalkingEndpoint {}
 
 impl WalkingEndpoint {
     pub fn get_position(&self) -> (LaneID, Distance) {
         match self {
             WalkingEndpoint::Spot(s) => (s.sidewalk, s.dist_along),
-            WalkingEndpoint::Border(_, l) => (*l, 0.0 * si::M),
+            WalkingEndpoint::Border(_, l, d) => (*l, *d),
         }
+    }
+
+    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> WalkingEndpoint {
+        // TODO multiple driving lanes to start?
+        let l = map.get_i(i).get_outgoing_lanes(map, lt)[0];
+        WalkingEndpoint::Border(i, l, 0.0 * si::M)
+    }
+
+    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> WalkingEndpoint {
+        // TODO multiple driving lanes to end?
+        let l = map.get_i(i).get_incoming_lanes(map, lt)[0];
+        WalkingEndpoint::Border(i, l, map.get_l(l).length())
     }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
-    Walk(Tick, TripID, PedestrianID, WalkingEndpoint, SidewalkSpot),
+    Walk(Tick, TripID, PedestrianID, WalkingEndpoint, WalkingEndpoint),
     Drive(Tick, TripID, ParkedCar, BuildingID),
 }
 
@@ -54,9 +82,10 @@ impl Command {
         parking_sim: &ParkingSimState,
     ) -> (LaneID, Distance, LaneID, Distance) {
         match self {
-            Command::Walk(_, _, _, start, spot2) => {
+            Command::Walk(_, _, _, start, goal) => {
                 let (lane1, dist1) = start.get_position();
-                (lane1, dist1, spot2.sidewalk, spot2.dist_along)
+                let (lane2, dist2) = goal.get_position();
+                (lane1, dist1, lane2, dist2)
             }
             Command::Drive(_, _, parked_car, goal_bldg) => {
                 let goal_lane = find_driving_lane_near_building(*goal_bldg, map);
@@ -73,8 +102,8 @@ impl Command {
 
     fn retry_next_tick(&self) -> Command {
         match self {
-            Command::Walk(at, trip, ped, start, spot2) => {
-                Command::Walk(at.next(), *trip, *ped, start.clone(), spot2.clone())
+            Command::Walk(at, trip, ped, start, goal) => {
+                Command::Walk(at.next(), *trip, *ped, start.clone(), goal.clone())
             }
             Command::Drive(at, trip, parked_car, goal) => {
                 Command::Drive(at.next(), *trip, parked_car.clone(), *goal)
@@ -168,9 +197,9 @@ impl Spawner {
                             self.enqueue_command(cmd.retry_next_tick());
                         }
                     }
-                    Command::Walk(_, trip, ped, start, spot2) => {
+                    Command::Walk(_, trip, ped, start, goal) => {
                         trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(events, ped, trip, start, spot2, path);
+                        walking_sim.seed_pedestrian(events, ped, trip, start, goal, path);
                         spawned_agents += 1;
                     }
                 };
@@ -375,23 +404,24 @@ impl Spawner {
                 at,
                 ped_id,
                 vec![
-                    TripLeg::Walk(parking_spot.clone()),
+                    TripLeg::Walk(WalkingEndpoint::Spot(parking_spot.clone())),
                     TripLeg::Drive(parked, goal_bldg),
-                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
+                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::building(
+                        goal_bldg, map,
+                    ))),
                 ],
             ),
             ped_id,
             WalkingEndpoint::Spot(SidewalkSpot::building(start_bldg, map)),
-            parking_spot,
+            WalkingEndpoint::Spot(parking_spot),
         ));
     }
 
     pub fn start_trip_just_walking(
         &mut self,
         at: Tick,
-        map: &Map,
         start: WalkingEndpoint,
-        goal_bldg: BuildingID,
+        goal: WalkingEndpoint,
         trips: &mut TripManager,
     ) {
         let ped_id = PedestrianID(self.ped_id_counter);
@@ -399,14 +429,10 @@ impl Spawner {
 
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(
-                at,
-                ped_id,
-                vec![TripLeg::Walk(SidewalkSpot::building(goal_bldg, map))],
-            ),
+            trips.new_trip(at, ped_id, vec![TripLeg::Walk(goal.clone())]),
             ped_id,
             start,
-            SidewalkSpot::building(goal_bldg, map),
+            goal,
         ));
     }
 
@@ -430,14 +456,16 @@ impl Spawner {
                 at,
                 ped_id,
                 vec![
-                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1, map)),
+                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::bus_stop(stop1, map))),
                     TripLeg::RideBus(route, stop2),
-                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
+                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::building(
+                        goal_bldg, map,
+                    ))),
                 ],
             ),
             ped_id,
             WalkingEndpoint::Spot(SidewalkSpot::building(start_bldg, map)),
-            SidewalkSpot::bus_stop(stop1, map),
+            WalkingEndpoint::Spot(SidewalkSpot::bus_stop(stop1, map)),
         ));
         ped_id
     }

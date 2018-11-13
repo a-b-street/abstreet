@@ -165,11 +165,7 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                     &mut wizard,
                     "Which border should the agents spawn at?",
                 )?,
-                go_to_neighborhood: choose_neighborhood(
-                    map,
-                    &mut wizard,
-                    "Where should the agents go?",
-                )?,
+                goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
             });
         }
         _ => unreachable!(),

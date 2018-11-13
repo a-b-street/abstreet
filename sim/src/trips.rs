@@ -1,7 +1,7 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{BuildingID, BusStopID};
+use spawn::WalkingEndpoint;
 use std::collections::{BTreeMap, VecDeque};
-use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -30,7 +30,10 @@ impl TripManager {
     }
 
     // Where are we walking next?
-    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    pub fn car_reached_parking_spot(
+        &mut self,
+        car: CarID,
+    ) -> (TripID, PedestrianID, WalkingEndpoint) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
         match trip.legs.pop_front().unwrap() {
@@ -71,7 +74,7 @@ impl TripManager {
         (trip.id, *drive_to)
     }
 
-    pub fn ped_reached_building(&mut self, ped: PedestrianID, now: Tick) {
+    pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
         let trip = &mut self.trips[self
                                        .active_trip_mode
                                        .remove(&AgentID::Pedestrian(ped))
@@ -79,7 +82,10 @@ impl TripManager {
                                        .0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Walk(_) => {}
-            x => panic!("Last trip leg {:?} doesn't match ped_reached_building", x),
+            x => panic!(
+                "Last trip leg {:?} doesn't match ped_reached_building_or_border",
+                x
+            ),
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
@@ -116,7 +122,7 @@ impl TripManager {
     }
 
     // Where to walk next?
-    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, SidewalkSpot) {
+    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, WalkingEndpoint) {
         // The spawner will call agent_starting_trip_leg, so briefly remove the active PedestrianID.
         let trip = &mut self.trips[self
                                        .active_trip_mode
@@ -244,7 +250,7 @@ struct Trip {
 // parking.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum TripLeg {
-    Walk(SidewalkSpot),
+    Walk(WalkingEndpoint),
     // Roads might be long -- what building do we ultimately want to park near?
     Drive(ParkedCar, BuildingID),
     RideBus(RouteID, BusStopID),

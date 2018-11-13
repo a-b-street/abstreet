@@ -45,7 +45,7 @@ pub struct BorderSpawnOverTime {
     pub stop_tick: Tick,
     // TODO A serialized Scenario won't last well as the map changes...
     pub start_from_border: IntersectionID,
-    pub go_to_neighborhood: String,
+    pub goal: OriginDestination,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -269,18 +269,15 @@ impl Scenario {
                             ))
                         }
                         // TODO get only element, and dont do this computation every iter
-                        OriginDestination::Border(i) => WalkingEndpoint::Border(
-                            i,
-                            map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk)[0],
-                        ),
+                        OriginDestination::Border(i) => {
+                            WalkingEndpoint::end_at_border(i, LaneType::Sidewalk, map)
+                        }
                     };
 
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
-                        map,
                         WalkingEndpoint::Spot(SidewalkSpot::building(from_bldg, map)),
-                        BuildingID(42), // TODO tmp
-                        //goal,
+                        goal,
                         &mut sim.trips_state,
                     );
                 }
@@ -288,28 +285,38 @@ impl Scenario {
         }
 
         for s in &self.border_spawn_over_time {
-            if !neighborhoods.contains_key(&s.go_to_neighborhood) {
-                panic!("Neighborhood {} isn't defined", s.go_to_neighborhood);
+            // TODO refactor
+            match s.goal {
+                OriginDestination::Neighborhood(ref n) => {
+                    if !neighborhoods.contains_key(n) {
+                        panic!("Neighborhood {} isn't defined", n);
+                    }
+                }
+                _ => {}
             }
-
-            // TODO get only element
-            let sidewalk = map
-                .get_i(s.start_from_border)
-                .get_outgoing_lanes(map, LaneType::Sidewalk)[0];
 
             for _ in 0..s.num_peds {
                 // TODO normal distribution, not uniform
                 let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
-                let to_bldg = *sim
-                    .rng
-                    .choose(&bldgs_per_neighborhood[&s.go_to_neighborhood])
-                    .unwrap();
+                // TODO Refactor this bit
+                let goal = match s.goal {
+                    OriginDestination::Neighborhood(ref n) => {
+                        WalkingEndpoint::Spot(SidewalkSpot::building(
+                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                            map,
+                        ))
+                    }
+                    // TODO dont do this computation every iter
+                    OriginDestination::Border(i) => {
+                        WalkingEndpoint::end_at_border(i, LaneType::Sidewalk, map)
+                    }
+                };
 
                 sim.spawner.start_trip_just_walking(
                     spawn_time,
-                    map,
-                    WalkingEndpoint::Border(s.start_from_border, sidewalk),
-                    to_bldg,
+                    // TODO dont do this computation every iter
+                    WalkingEndpoint::start_at_border(s.start_from_border, LaneType::Sidewalk, map),
+                    goal,
                     &mut sim.trips_state,
                 );
             }

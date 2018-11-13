@@ -345,4 +345,4 @@ pathfinding for each possible mode, or could search a single more abstract
 action graph. moves from walking on this sidewalk? oh we own this car, could
 choose to unpark it, then drive somewhere. Everything has time cost.
 
-Starting to have lots of cases... sidewalk spot or border node. Embrace the enum, I guess.
+This also supercedes the Event thing in sim and makes testing potentially WAY cooler.

@@ -95,6 +95,7 @@ enum Action {
     Continue,
     TransitionToNextStep,
     WaitFor(TurnID),
+    VanishAtBorder,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -111,7 +112,7 @@ struct Pedestrian {
     path: Path,
 
     front_path: Option<CrossingFrontPath>,
-    goal: SidewalkSpot,
+    goal: WalkingEndpoint,
 
     // If false, don't react() and step(). Waiting for a bus.
     active: bool,
@@ -136,7 +137,7 @@ impl Pedestrian {
         }
 
         if self.path.is_last_step() {
-            let goal_dist = self.goal.dist_along;
+            let goal_dist = self.goal.get_position().1;
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
             // Later distance will be non-negative, so don't attempt abs() or anything
@@ -146,10 +147,13 @@ impl Pedestrian {
                 goal_dist - self.dist_along
             };
             if dist_away <= 2.0 * SPEED * TIMESTEP {
-                return match self.goal.connection {
-                    SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
-                    SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
-                    SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
+                return match self.goal {
+                    WalkingEndpoint::Spot(ref spot) => match spot.connection {
+                        SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
+                        SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
+                        SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
+                    },
+                    WalkingEndpoint::Border(_, _, _) => Action::VanishAtBorder,
                 };
             }
             return Action::Continue;
@@ -356,7 +360,7 @@ impl WalkingSimState {
                     if done {
                         self.peds.remove(&id);
                         // TODO Should we return stuff to sim, or do the interaction here?
-                        trips.ped_reached_building(*id, now);
+                        trips.ped_reached_building_or_border(*id, now);
                     }
                 }
                 Action::WaitAtBusStop(stop) => {
@@ -395,6 +399,15 @@ impl WalkingSimState {
                     p.moving = false;
                     // Note this is idempotent and does NOT grant the request.
                     intersections.submit_request(Request::for_ped(*id, turn));
+                }
+                Action::VanishAtBorder => {
+                    events.push(Event::AgentLeavesTraversable(
+                        AgentID::Pedestrian(*id),
+                        self.peds.get_mut(&id).unwrap().on,
+                    ));
+                    self.peds.remove(&id);
+                    // TODO Should we return stuff to sim, or do the interaction here?
+                    trips.ped_reached_building_or_border(*id, now);
                 }
             }
         }
@@ -462,7 +475,7 @@ impl WalkingSimState {
         id: PedestrianID,
         trip: TripID,
         start: WalkingEndpoint,
-        goal: SidewalkSpot,
+        goal: WalkingEndpoint,
         path: Path,
     ) {
         let (start_lane, start_dist_along) = start.get_position();
@@ -472,7 +485,7 @@ impl WalkingSimState {
         );
         assert_eq!(
             path.last_step().as_traversable(),
-            Traversable::Lane(goal.sidewalk)
+            Traversable::Lane(goal.get_position().0)
         );
 
         let front_path = match start {
