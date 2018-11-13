@@ -108,9 +108,9 @@ impl Map {
 
         let mut counter = 0;
         timer.start_iter("expand roads to lanes", data.roads.len());
-        for (idx, r) in data.roads.iter().enumerate() {
+        for (_, r) in data.roads.iter().enumerate() {
             timer.next();
-            let road_id = RoadID(idx);
+            let road_id = RoadID(m.roads.len());
             let road_center_pts = PolyLine::new(
                 r.points
                     .iter()
@@ -119,6 +119,12 @@ impl Map {
             );
             let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
             let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
+
+            if i1 == i2 {
+                // TODO Cul-de-sacs should be valid, but it really makes pathfinding screwy
+                error!("OSM way {} is a loop on {}, skipping", r.osm_way_id, i1);
+                continue;
+            }
 
             m.roads.push(Road {
                 id: road_id,

@@ -378,8 +378,18 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
             error!("All steps in invalid path:");
             for s in steps {
                 match s {
-                    PathStep::Lane(l) => error!("  {:?} from {} to {}", s, map.get_l(*l).src_i, map.get_l(*l).dst_i),
-                    PathStep::ContraflowLane(l) => error!("  {:?} from {} to {}", s, map.get_l(*l).dst_i, map.get_l(*l).src_i),
+                    PathStep::Lane(l) => error!(
+                        "  {:?} from {} to {}",
+                        s,
+                        map.get_l(*l).src_i,
+                        map.get_l(*l).dst_i
+                    ),
+                    PathStep::ContraflowLane(l) => error!(
+                        "  {:?} from {} to {}",
+                        s,
+                        map.get_l(*l).dst_i,
+                        map.get_l(*l).src_i
+                    ),
                     PathStep::Turn(_) => error!("  {:?}", s),
                 }
             }
