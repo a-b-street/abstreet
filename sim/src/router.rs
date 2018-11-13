@@ -168,7 +168,7 @@ impl Router {
         // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
         // to physically see the spots), stay close to the original goal building, avoid lanes
         // we've visited, prefer easier turns...
-        let choices = map.get_next_turns_and_lanes(last_lane);
+        let choices = map.get_next_turns_and_lanes(last_lane, map.get_l(last_lane).dst_i);
         if choices.is_empty() {
             if view.debug {
                 debug!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);

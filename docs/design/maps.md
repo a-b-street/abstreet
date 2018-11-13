@@ -346,3 +346,17 @@ action graph. moves from walking on this sidewalk? oh we own this car, could
 choose to unpark it, then drive somewhere. Everything has time cost.
 
 This also supercedes the Event thing in sim and makes testing potentially WAY cooler.
+
+## Pathfinding
+
+How do we natively wind up with a list of PathSteps (normal lane, contraflow
+lane, turn) without doing the terrible stitch-together later thing?
+
+- easy option: the nodes in the graph we search become PathSteps. expansion is easy.
+	- is it slightly inefficient that we could loop back and forth on
+	  sidewalks? Should be able to prevent it by not making that a way to
+          expand.
+- maybe less weird option: nodes are (Lane, Intersection). or even more
+  accuratelyish, (Lane, dist_along), so we can start and end anywhere.
+	- When stitching together the path, a pair of lanes is a turn.
+	  Otherwise, cross forwards or backwards.

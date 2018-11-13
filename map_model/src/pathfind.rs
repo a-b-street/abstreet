@@ -4,7 +4,9 @@ use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 use {LaneID, LaneType, Map, Traversable, TurnID};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub type Trace = PolyLine;
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
@@ -84,7 +86,6 @@ pub struct Path {
     end_dist: si::Meter<f64>,
 }
 
-// TODO can have a method to verify the path is valid
 impl Path {
     fn new(map: &Map, steps: Vec<PathStep>, end_dist: si::Meter<f64>) -> Path {
         // Can disable this after trusting it.
@@ -225,7 +226,7 @@ impl Pathfinder {
     ) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
-        let goal_pt = map.get_l(end).first_pt();
+        let goal_pt = map.get_l(end).dist_along(end_dist).0;
         Pathfinder::ShortestDistance {
             goal_pt,
             can_use_bike_lanes,
@@ -233,41 +234,50 @@ impl Pathfinder {
         }.pathfind(map, start, start_dist, end, end_dist)
     }
 
-    fn expand(&self, map: &Map, current: LaneID) -> Vec<(LaneID, NotNaN<f64>)> {
+    // Returns the cost of the potential next step, plus an optional heuristic to the goal
+    fn expand(&self, map: &Map, current: PathStep) -> Vec<(PathStep, f64)> {
         match self {
             Pathfinder::ShortestDistance {
                 goal_pt,
                 can_use_bike_lanes,
                 can_use_bus_lanes,
-            } => {
-                let current_length = NotNaN::new(map.get_l(current).length().value_unsafe).unwrap();
-                map.get_next_turns_and_lanes(current)
-                    .into_iter()
-                    .filter_map(|(_, next)| {
-                        if !can_use_bike_lanes && next.lane_type == LaneType::Biking {
-                            None
-                        } else if !can_use_bus_lanes && next.lane_type == LaneType::Bus {
-                            None
-                        } else {
-                            // TODO cost and heuristic are wrong. need to reason about PathSteps,
-                            // not LaneIDs, I think. :\
-                            let heuristic_dist = NotNaN::new(
-                                Line::new(next.first_pt(), *goal_pt).length().value_unsafe,
-                            ).unwrap();
-                            Some((next.id, current_length + heuristic_dist))
-                        }
-                    }).collect()
-            }
-            Pathfinder::UsingTransit => {
-                // No heuristic, because it's hard to make admissible.
-                // Cost is distance spent walking, so any jumps made using a bus are FREE. This is
-                // unrealistic, but a good way to start exercising peds using transit.
-                let current_lane = map.get_l(current);
-                let current_length = NotNaN::new(current_lane.length().value_unsafe).unwrap();
-                let mut results: Vec<(LaneID, NotNaN<f64>)> = Vec::new();
-                for (_, next) in &map.get_next_turns_and_lanes(current) {
-                    results.push((next.id, current_length));
+            } => match current {
+                PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                    let endpoint = if current == PathStep::Lane(l) {
+                        map.get_l(l).dst_i
+                    } else {
+                        map.get_l(l).src_i
+                    };
+                    map.get_next_turns_and_lanes(l, endpoint)
+                        .into_iter()
+                        .filter_map(|(turn, next)| {
+                            if !can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                                None
+                            } else if !can_use_bus_lanes && next.lane_type == LaneType::Bus {
+                                None
+                            } else {
+                                let cost = turn.length();
+                                let heuristic = Line::new(turn.last_pt(), *goal_pt).length();
+                                Some((PathStep::Turn(turn.id), (cost + heuristic).value_unsafe))
+                            }
+                        }).collect()
                 }
+                PathStep::Turn(t) => {
+                    let dst = map.get_l(t.dst);
+                    let cost = dst.length();
+                    if t.parent == dst.src_i {
+                        let heuristic = Line::new(dst.last_pt(), *goal_pt).length();
+                        vec![(PathStep::Lane(dst.id), (cost + heuristic).value_unsafe)]
+                    } else {
+                        let heuristic = Line::new(dst.first_pt(), *goal_pt).length();
+                        vec![(
+                            PathStep::ContraflowLane(dst.id),
+                            (cost + heuristic).value_unsafe,
+                        )]
+                    }
+                }
+            },
+            Pathfinder::UsingTransit => {
                 // TODO Need to add a PathStep for riding a bus between two stops.
                 /*
                 for stop1 in &current_lane.bus_stops {
@@ -276,7 +286,7 @@ impl Pathfinder {
                     }
                 }
                 */
-                results
+                Vec::new()
             }
         }
     }
@@ -302,26 +312,32 @@ impl Pathfinder {
             return Some(Path::new(map, vec![PathStep::Lane(start)], end_dist));
         }
 
-        // This should be deterministic, since cost ties would be broken by LaneID.
-        let mut queue: BinaryHeap<(NotNaN<f64>, LaneID)> = BinaryHeap::new();
-        queue.push((NotNaN::new(-0.0).unwrap(), start));
+        // This should be deterministic, since cost ties would be broken by PathStep.
+        let mut queue: BinaryHeap<(NotNaN<f64>, PathStep)> = BinaryHeap::new();
+        queue.push((NotNaN::new(-0.0).unwrap(), PathStep::Lane(start)));
+        if map.get_l(start).is_sidewalk() && start_dist != 0.0 * si::M {
+            queue.push((NotNaN::new(-0.0).unwrap(), PathStep::ContraflowLane(start)));
+        }
 
-        let mut backrefs: HashMap<LaneID, LaneID> = HashMap::new();
+        let mut backrefs: HashMap<PathStep, PathStep> = HashMap::new();
 
         while !queue.is_empty() {
             let (cost_sofar, current) = queue.pop().unwrap();
 
             // Found it, now produce the path
-            if current == end {
-                let mut reversed_lanes: Vec<LaneID> = Vec::new();
+            if current.as_traversable() == Traversable::Lane(end) {
+                let mut reversed_steps: Vec<PathStep> = Vec::new();
                 let mut lookup = current;
                 loop {
-                    reversed_lanes.push(lookup);
-                    if lookup == start {
-                        reversed_lanes.reverse();
-                        assert_eq!(reversed_lanes[0], start);
-                        assert_eq!(*reversed_lanes.last().unwrap(), end);
-                        return Some(lanes_to_path(map, VecDeque::from(reversed_lanes), end_dist));
+                    reversed_steps.push(lookup);
+                    if lookup.as_traversable() == Traversable::Lane(start) {
+                        reversed_steps.reverse();
+                        assert_eq!(reversed_steps[0].as_traversable(), Traversable::Lane(start));
+                        assert_eq!(
+                            reversed_steps.last().unwrap().as_traversable(),
+                            Traversable::Lane(end)
+                        );
+                        return Some(Path::new(map, reversed_steps, end_dist));
                     }
                     lookup = backrefs[&lookup];
                 }
@@ -332,7 +348,10 @@ impl Pathfinder {
                 if !backrefs.contains_key(&next) {
                     backrefs.insert(next, current);
                     // Negate since BinaryHeap is a max-heap.
-                    queue.push((NotNaN::new(-1.0).unwrap() * (cost + cost_sofar), next));
+                    queue.push((
+                        NotNaN::new(-1.0).unwrap() * (NotNaN::new(cost).unwrap() + cost_sofar),
+                        next,
+                    ));
                 }
             }
         }
@@ -356,6 +375,14 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
         };
         let len = Line::new(from, to).length();
         if len > 0.0 * si::M {
+            error!("All steps in invalid path:");
+            for s in steps {
+                match s {
+                    PathStep::Lane(l) => error!("  {:?} from {} to {}", s, map.get_l(*l).src_i, map.get_l(*l).dst_i),
+                    PathStep::ContraflowLane(l) => error!("  {:?} from {} to {}", s, map.get_l(*l).dst_i, map.get_l(*l).src_i),
+                    PathStep::Turn(_) => error!("  {:?}", s),
+                }
+            }
             panic!(
                 "pathfind() returned path that warps {} from {:?} to {:?}",
                 len, pair[0], pair[1]
@@ -363,71 +390,3 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
         }
     }
 }
-
-// TODO Tmp hack. Need to rewrite the A* implementation to natively understand PathSteps.
-fn lanes_to_path(map: &Map, mut lanes: VecDeque<LaneID>, end_dist: si::Meter<f64>) -> Path {
-    assert!(lanes.len() > 1);
-    let mut steps: Vec<PathStep> = Vec::new();
-
-    let mut current_turn = pick_turn(lanes[0], lanes[1], map);
-    if is_contraflow(map, lanes[0], lanes[1]) {
-        steps.push(PathStep::ContraflowLane(lanes[0]));
-        assert_eq!(map.get_l(lanes[0]).src_i, current_turn.parent);
-    } else {
-        steps.push(PathStep::Lane(lanes[0]));
-        assert_eq!(map.get_l(lanes[0]).dst_i, current_turn.parent);
-    }
-    steps.push(PathStep::Turn(current_turn));
-
-    lanes.pop_front();
-    lanes.pop_front();
-
-    loop {
-        if lanes.is_empty() {
-            break;
-        }
-
-        assert!(lanes[0] != current_turn.dst);
-
-        let next_turn = pick_turn(current_turn.dst, lanes[0], map);
-        if current_turn.parent == next_turn.parent {
-            // Don't even cross the current lane!
-        } else if leads_to_end_of_lane(current_turn, map) {
-            steps.push(PathStep::ContraflowLane(current_turn.dst));
-        } else {
-            steps.push(PathStep::Lane(current_turn.dst));
-        }
-        steps.push(PathStep::Turn(next_turn));
-
-        lanes.pop_front();
-        current_turn = next_turn;
-    }
-
-    if leads_to_end_of_lane(current_turn, map) {
-        steps.push(PathStep::ContraflowLane(current_turn.dst));
-    } else {
-        steps.push(PathStep::Lane(current_turn.dst));
-    }
-    Path::new(map, steps, end_dist)
-}
-
-// If there are two turns (one at each intersection), we choose one of them arbitrarily, and the
-// caller deals with it!
-fn pick_turn(from: LaneID, to: LaneID, map: &Map) -> TurnID {
-    for t in map.get_turns_from_lane(from) {
-        if t.id.dst == to {
-            return t.id;
-        }
-    }
-    panic!("No turn from {} to {}", from, to);
-}
-
-fn is_contraflow(map: &Map, from: LaneID, to: LaneID) -> bool {
-    map.get_l(from).dst_i != map.get_l(to).src_i
-}
-
-fn leads_to_end_of_lane(turn: TurnID, map: &Map) -> bool {
-    is_contraflow(map, turn.src, turn.dst)
-}
-
-pub type Trace = PolyLine;

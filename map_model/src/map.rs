@@ -403,6 +403,7 @@ impl Map {
             .collect()
     }
 
+    // TODO Get rid of this, or rewrite it in in terms of get_turns_from_lane_at_end
     // The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
@@ -424,11 +425,16 @@ impl Map {
         turns
     }
 
-    pub fn get_next_turns_and_lanes(&self, from: LaneID) -> Vec<(&Turn, &Lane)> {
-        // TODO assumes no duplicates
-        self.get_turns_from_lane(from)
-            .into_iter()
-            .map(|t| (t, self.get_l(t.id.dst)))
+    pub fn get_next_turns_and_lanes(
+        &self,
+        from: LaneID,
+        parent: IntersectionID,
+    ) -> Vec<(&Turn, &Lane)> {
+        self.get_i(parent)
+            .turns
+            .iter()
+            .filter(|t| t.src == from)
+            .map(|t| (self.get_t(*t), self.get_l(t.dst)))
             .collect()
     }
 
