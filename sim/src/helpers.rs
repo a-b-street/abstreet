@@ -1,8 +1,8 @@
 use abstutil;
 use control::ControlMap;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, RoadID};
-use spawn::WalkingEndpoint;
 use std::collections::{BTreeSet, VecDeque};
+use walking::SidewalkSpot;
 use {
     BorderSpawnOverTime, CarID, Event, MapEdits, OriginDestination, PedestrianID, RouteID,
     Scenario, SeedParkedCars, Sim, SpawnOverTime, Tick, WeightedUsizeChoice,
@@ -364,7 +364,7 @@ impl Sim {
         )
     }
 
-    pub fn spawn_specific_pedestrian(&mut self, from: WalkingEndpoint, to: WalkingEndpoint) {
+    pub fn spawn_specific_pedestrian(&mut self, from: SidewalkSpot, to: SidewalkSpot) {
         self.spawner
             .start_trip_just_walking(self.time.next(), from, to, &mut self.trips_state);
     }

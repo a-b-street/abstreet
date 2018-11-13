@@ -5,11 +5,11 @@ use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{
-    BuildingID, BusStopID, Lane, LaneID, Map, Path, PathStep, Trace, Traversable, Turn, TurnID,
+    BuildingID, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map, Path, PathStep, Trace,
+    Traversable, Turn, TurnID,
 };
 use multimap::MultiMap;
 use parking::ParkingSimState;
-use spawn::WalkingEndpoint;
 use std;
 use std::collections::{BTreeMap, HashSet};
 use trips::TripManager;
@@ -69,6 +69,26 @@ impl SidewalkSpot {
             connection: SidewalkPOI::BusStop(stop),
         }
     }
+
+    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> SidewalkSpot {
+        // TODO multiple driving lanes to start?
+        let l = map.get_i(i).get_outgoing_lanes(map, lt)[0];
+        SidewalkSpot {
+            sidewalk: l,
+            dist_along: 0.0 * si::M,
+            connection: SidewalkPOI::Border(i),
+        }
+    }
+
+    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> SidewalkSpot {
+        // TODO multiple driving lanes to end?
+        let l = map.get_i(i).get_incoming_lanes(map, lt)[0];
+        SidewalkSpot {
+            sidewalk: l,
+            dist_along: map.get_l(l).length(),
+            connection: SidewalkPOI::Border(i),
+        }
+    }
 }
 
 // Point of interest, that is
@@ -77,6 +97,7 @@ enum SidewalkPOI {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
     BusStop(BusStopID),
+    Border(IntersectionID),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -112,7 +133,7 @@ struct Pedestrian {
     path: Path,
 
     front_path: Option<CrossingFrontPath>,
-    goal: WalkingEndpoint,
+    goal: SidewalkSpot,
 
     // If false, don't react() and step(). Waiting for a bus.
     active: bool,
@@ -137,7 +158,7 @@ impl Pedestrian {
         }
 
         if self.path.is_last_step() {
-            let goal_dist = self.goal.get_position().1;
+            let goal_dist = self.goal.dist_along;
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
             // Later distance will be non-negative, so don't attempt abs() or anything
@@ -147,13 +168,11 @@ impl Pedestrian {
                 goal_dist - self.dist_along
             };
             if dist_away <= 2.0 * SPEED * TIMESTEP {
-                return match self.goal {
-                    WalkingEndpoint::Spot(ref spot) => match spot.connection {
-                        SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
-                        SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
-                        SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
-                    },
-                    WalkingEndpoint::Border(_, _, _) => Action::VanishAtBorder,
+                return match self.goal.connection {
+                    SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
+                    SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
+                    SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
+                    SidewalkPOI::Border(_) => Action::VanishAtBorder,
                 };
             }
             return Action::Continue;
@@ -474,29 +493,26 @@ impl WalkingSimState {
         events: &mut Vec<Event>,
         id: PedestrianID,
         trip: TripID,
-        start: WalkingEndpoint,
-        goal: WalkingEndpoint,
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
         path: Path,
     ) {
-        let (start_lane, start_dist_along) = start.get_position();
+        let start_lane = start.sidewalk;
         assert_eq!(
             path.current_step().as_traversable(),
             Traversable::Lane(start_lane)
         );
         assert_eq!(
             path.last_step().as_traversable(),
-            Traversable::Lane(goal.get_position().0)
+            Traversable::Lane(goal.sidewalk)
         );
 
-        let front_path = match start {
-            WalkingEndpoint::Spot(spot) => match spot.connection {
-                SidewalkPOI::Building(id) => Some(CrossingFrontPath {
-                    bldg: id,
-                    dist_along: 0.0 * si::M,
-                    going_to_sidewalk: true,
-                }),
-                _ => None,
-            },
+        let front_path = match start.connection {
+            SidewalkPOI::Building(id) => Some(CrossingFrontPath {
+                bldg: id,
+                dist_along: 0.0 * si::M,
+                going_to_sidewalk: true,
+            }),
             _ => None,
         };
 
@@ -507,7 +523,7 @@ impl WalkingSimState {
                 trip,
                 path,
                 on: Traversable::Lane(start_lane),
-                dist_along: start_dist_along,
+                dist_along: start.dist_along,
                 front_path,
                 goal,
                 moving: true,

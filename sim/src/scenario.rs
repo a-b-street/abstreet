@@ -2,7 +2,6 @@ use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
 use rand::Rng;
-use spawn::WalkingEndpoint;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::{Error, Write};
@@ -262,21 +261,19 @@ impl Scenario {
                     );
                 } else {
                     let goal = match s.goal {
-                        OriginDestination::Neighborhood(ref n) => {
-                            WalkingEndpoint::Spot(SidewalkSpot::building(
-                                *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
-                                map,
-                            ))
-                        }
+                        OriginDestination::Neighborhood(ref n) => SidewalkSpot::building(
+                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                            map,
+                        ),
                         // TODO get only element, and dont do this computation every iter
                         OriginDestination::Border(i) => {
-                            WalkingEndpoint::end_at_border(i, LaneType::Sidewalk, map)
+                            SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
                         }
                     };
 
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
-                        WalkingEndpoint::Spot(SidewalkSpot::building(from_bldg, map)),
+                        SidewalkSpot::building(from_bldg, map),
                         goal,
                         &mut sim.trips_state,
                     );
@@ -300,22 +297,20 @@ impl Scenario {
                 let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
                 // TODO Refactor this bit
                 let goal = match s.goal {
-                    OriginDestination::Neighborhood(ref n) => {
-                        WalkingEndpoint::Spot(SidewalkSpot::building(
-                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
-                            map,
-                        ))
-                    }
+                    OriginDestination::Neighborhood(ref n) => SidewalkSpot::building(
+                        *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                        map,
+                    ),
                     // TODO dont do this computation every iter
                     OriginDestination::Border(i) => {
-                        WalkingEndpoint::end_at_border(i, LaneType::Sidewalk, map)
+                        SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
                     }
                 };
 
                 sim.spawner.start_trip_just_walking(
                     spawn_time,
                     // TODO dont do this computation every iter
-                    WalkingEndpoint::start_at_border(s.start_from_border, LaneType::Sidewalk, map),
+                    SidewalkSpot::start_at_border(s.start_from_border, LaneType::Sidewalk, map),
                     goal,
                     &mut sim.trips_state,
                 );

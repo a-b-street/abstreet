@@ -1,11 +1,7 @@
 use abstutil::elapsed_seconds;
-use dimensioned::si;
 use driving::{CreateCar, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{
-    BuildingID, BusRoute, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Pathfinder,
-    RoadID,
-};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
@@ -19,52 +15,9 @@ use {
     PedestrianID, RouteID, Tick, TripID, WeightedUsizeChoice,
 };
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum WalkingEndpoint {
-    Spot(SidewalkSpot),
-    // The creator of this case can decide whehter it's a start/goal border and pick the distance
-    // accordingly
-    Border(IntersectionID, LaneID, Distance),
-}
-
-// TODO distance is f64
-impl PartialEq for WalkingEndpoint {
-    fn eq(&self, other: &WalkingEndpoint) -> bool {
-        match (self, other) {
-            (WalkingEndpoint::Spot(s1), WalkingEndpoint::Spot(s2)) => s1 == s2,
-            (WalkingEndpoint::Border(i1, l1, d1), WalkingEndpoint::Border(i2, l2, d2)) => {
-                i1 == i2 && l1 == l2 && d1 == d2
-            }
-            _ => false,
-        }
-    }
-}
-impl Eq for WalkingEndpoint {}
-
-impl WalkingEndpoint {
-    pub fn get_position(&self) -> (LaneID, Distance) {
-        match self {
-            WalkingEndpoint::Spot(s) => (s.sidewalk, s.dist_along),
-            WalkingEndpoint::Border(_, l, d) => (*l, *d),
-        }
-    }
-
-    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> WalkingEndpoint {
-        // TODO multiple driving lanes to start?
-        let l = map.get_i(i).get_outgoing_lanes(map, lt)[0];
-        WalkingEndpoint::Border(i, l, 0.0 * si::M)
-    }
-
-    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> WalkingEndpoint {
-        // TODO multiple driving lanes to end?
-        let l = map.get_i(i).get_incoming_lanes(map, lt)[0];
-        WalkingEndpoint::Border(i, l, map.get_l(l).length())
-    }
-}
-
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
-    Walk(Tick, TripID, PedestrianID, WalkingEndpoint, WalkingEndpoint),
+    Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, BuildingID),
 }
 
@@ -82,11 +35,12 @@ impl Command {
         parking_sim: &ParkingSimState,
     ) -> (LaneID, Distance, LaneID, Distance) {
         match self {
-            Command::Walk(_, _, _, start, goal) => {
-                let (lane1, dist1) = start.get_position();
-                let (lane2, dist2) = goal.get_position();
-                (lane1, dist1, lane2, dist2)
-            }
+            Command::Walk(_, _, _, start, goal) => (
+                start.sidewalk,
+                start.dist_along,
+                goal.sidewalk,
+                goal.dist_along,
+            ),
             Command::Drive(_, _, parked_car, goal_bldg) => {
                 let goal_lane = find_driving_lane_near_building(*goal_bldg, map);
                 (
@@ -404,24 +358,22 @@ impl Spawner {
                 at,
                 ped_id,
                 vec![
-                    TripLeg::Walk(WalkingEndpoint::Spot(parking_spot.clone())),
+                    TripLeg::Walk(parking_spot.clone()),
                     TripLeg::Drive(parked, goal_bldg),
-                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::building(
-                        goal_bldg, map,
-                    ))),
+                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
                 ],
             ),
             ped_id,
-            WalkingEndpoint::Spot(SidewalkSpot::building(start_bldg, map)),
-            WalkingEndpoint::Spot(parking_spot),
+            SidewalkSpot::building(start_bldg, map),
+            parking_spot,
         ));
     }
 
     pub fn start_trip_just_walking(
         &mut self,
         at: Tick,
-        start: WalkingEndpoint,
-        goal: WalkingEndpoint,
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
         trips: &mut TripManager,
     ) {
         let ped_id = PedestrianID(self.ped_id_counter);
@@ -456,16 +408,14 @@ impl Spawner {
                 at,
                 ped_id,
                 vec![
-                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::bus_stop(stop1, map))),
+                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1, map)),
                     TripLeg::RideBus(route, stop2),
-                    TripLeg::Walk(WalkingEndpoint::Spot(SidewalkSpot::building(
-                        goal_bldg, map,
-                    ))),
+                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
                 ],
             ),
             ped_id,
-            WalkingEndpoint::Spot(SidewalkSpot::building(start_bldg, map)),
-            WalkingEndpoint::Spot(SidewalkSpot::bus_stop(stop1, map)),
+            SidewalkSpot::building(start_bldg, map),
+            SidewalkSpot::bus_stop(stop1, map),
         ));
         ped_id
     }
@@ -484,7 +434,7 @@ impl Spawner {
             at.next(),
             trip,
             ped,
-            WalkingEndpoint::Spot(SidewalkSpot::bus_stop(stop, map)),
+            SidewalkSpot::bus_stop(stop, map),
             walk_to,
         ));
     }
@@ -502,7 +452,7 @@ impl Spawner {
             at.next(),
             trip,
             ped,
-            WalkingEndpoint::Spot(SidewalkSpot::parking_spot(p.spot, map, parking_sim)),
+            SidewalkSpot::parking_spot(p.spot, map, parking_sim),
             walk_to,
         ));
     }

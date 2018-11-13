@@ -1,7 +1,7 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{BuildingID, BusStopID};
-use spawn::WalkingEndpoint;
 use std::collections::{BTreeMap, VecDeque};
+use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -30,10 +30,7 @@ impl TripManager {
     }
 
     // Where are we walking next?
-    pub fn car_reached_parking_spot(
-        &mut self,
-        car: CarID,
-    ) -> (TripID, PedestrianID, WalkingEndpoint) {
+    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
         match trip.legs.pop_front().unwrap() {
@@ -122,7 +119,7 @@ impl TripManager {
     }
 
     // Where to walk next?
-    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, WalkingEndpoint) {
+    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, SidewalkSpot) {
         // The spawner will call agent_starting_trip_leg, so briefly remove the active PedestrianID.
         let trip = &mut self.trips[self
                                        .active_trip_mode
@@ -250,7 +247,7 @@ struct Trip {
 // parking.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum TripLeg {
-    Walk(WalkingEndpoint),
+    Walk(SidewalkSpot),
     // Roads might be long -- what building do we ultimately want to park near?
     Drive(ParkedCar, BuildingID),
     RideBus(RouteID, BusStopID),
