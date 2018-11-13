@@ -65,17 +65,7 @@ impl Router {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
     ) -> Option<Action> {
-        if self.path.isnt_last_step() {
-            return None;
-        }
-
-        // TODO Hack. Makes cars vanish too early. Hard to express early termination in lookahead.
-        if self.goal == Goal::EndAtBorder {
-            return Some(Action::VanishAtBorder);
-        }
-
-        // Not at the end yet?
-        if view.speed > kinematics::EPSILON_SPEED {
+        if self.path.isnt_last_step() || view.speed > kinematics::EPSILON_SPEED {
             return None;
         }
 
@@ -103,7 +93,7 @@ impl Router {
                     return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
                 }
             }
-            // Handled earlier
+            // Don't stop at the border node; plow through
             Goal::EndAtBorder => {}
         }
         None
@@ -151,6 +141,11 @@ impl Router {
         };
         assert_eq!(expected, self.path.shift());
         self.path.current_step()
+    }
+
+    // Called when lookahead reaches an intersection
+    pub fn should_vanish_at_border(&self) -> bool {
+        self.path.is_last_step() && self.goal == Goal::EndAtBorder
     }
 
     pub fn next_step_as_turn(&self) -> Option<TurnID> {

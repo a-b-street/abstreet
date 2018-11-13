@@ -75,7 +75,6 @@ pub enum Action {
     Continue(Acceleration, Vec<Request>),
     // TODO Get rid of this one
     VanishAtDeadEnd,
-    VanishAtBorder,
 }
 
 impl Car {
@@ -204,6 +203,10 @@ impl Car {
                 if dist_to_lookahead >= dist_from_stop {
                     let should_stop = if maybe_stop_early.is_some() {
                         true
+                    } else if current_router.should_vanish_at_border() {
+                        // Don't limit acceleration, but also don't vanish before physically
+                        // reaching the border.
+                        break;
                     } else {
                         let req =
                             Request::for_car(self.id, current_router.next_step_as_turn().unwrap());
@@ -259,6 +262,7 @@ impl Car {
         Ok(Action::Continue(safe_accel, requests))
     }
 
+    // If true, vanish at the border
     fn step_continue(
         &mut self,
         events: &mut Vec<Event>,
@@ -266,7 +270,7 @@ impl Car {
         accel: Acceleration,
         map: &Map,
         intersections: &mut IntersectionSimState,
-    ) -> Result<(), Error> {
+    ) -> Result<bool, Error> {
         let (dist, new_speed) = kinematics::results_of_accel_for_one_tick(self.speed, accel);
         self.dist_along += dist;
         self.speed = new_speed;
@@ -308,6 +312,9 @@ impl Car {
                 self.on,
             ));
 
+            if router.should_vanish_at_border() {
+                return Ok(true);
+            }
             match router.finished_step(self.on) {
                 PathStep::Lane(id) => {
                     self.on = Traversable::Lane(id);
@@ -336,7 +343,7 @@ impl Car {
                 self.on,
             ));
         }
-        Ok(())
+        Ok(false)
     }
 }
 
@@ -633,30 +640,33 @@ impl DrivingSimState {
                     }
                 }
                 Action::Continue(accel, ref requests) => {
-                    let c = self.cars.get_mut(&id).unwrap();
-                    c.step_continue(
-                        events,
-                        self.routers.get_mut(&id).unwrap(),
-                        accel,
-                        map,
-                        intersections,
-                    )?;
-                    // TODO maybe just return TurnID
-                    for req in requests {
-                        // Note this is idempotent and does NOT grant the request.
-                        // TODO should we check that the car is currently the lead vehicle?
-                        // intersection is assuming that! or relax that assumption.
-                        intersections.submit_request(req.clone());
+                    let done = {
+                        let c = self.cars.get_mut(&id).unwrap();
+                        c.step_continue(
+                            events,
+                            self.routers.get_mut(&id).unwrap(),
+                            accel,
+                            map,
+                            intersections,
+                        )?
+                    };
+                    if done {
+                        self.cars.remove(&id);
+                        self.routers.remove(&id);
+                        vanished_at_border.push(*id);
+                    } else {
+                        // TODO maybe just return TurnID
+                        for req in requests {
+                            // Note this is idempotent and does NOT grant the request.
+                            // TODO should we check that the car is currently the lead vehicle?
+                            // intersection is assuming that! or relax that assumption.
+                            intersections.submit_request(req.clone());
+                        }
                     }
                 }
                 Action::VanishAtDeadEnd => {
                     self.cars.remove(&id);
                     self.routers.remove(&id);
-                }
-                Action::VanishAtBorder => {
-                    self.cars.remove(&id);
-                    self.routers.remove(&id);
-                    vanished_at_border.push(*id);
                 }
             }
         }
