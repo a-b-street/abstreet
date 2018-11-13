@@ -70,13 +70,12 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> Option<SidewalkSpot> {
-        let lanes = map.get_i(i).get_outgoing_lanes(map, lt);
+    pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
+        let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
         if lanes.is_empty() {
             None
         } else {
             Some(SidewalkSpot {
-                // TODO multiple driving lanes to start?
                 sidewalk: lanes[0],
                 dist_along: 0.0 * si::M,
                 connection: SidewalkPOI::Border(i),
@@ -84,9 +83,8 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> Option<SidewalkSpot> {
-        // TODO multiple driving lanes to end?
-        let lanes = map.get_i(i).get_incoming_lanes(map, lt);
+    pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
+        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
         if lanes.is_empty() {
             None
         } else {

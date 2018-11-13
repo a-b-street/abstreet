@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use driving::{CreateCar, DrivingSimState};
+use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
 use parking::ParkingSimState;
@@ -18,7 +18,7 @@ use {
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
-    Drive(Tick, TripID, ParkedCar, BuildingID),
+    Drive(Tick, TripID, ParkedCar, DrivingGoal),
 }
 
 impl Command {
@@ -41,8 +41,11 @@ impl Command {
                 goal.sidewalk,
                 goal.dist_along,
             ),
-            Command::Drive(_, _, parked_car, goal_bldg) => {
-                let goal_lane = find_driving_lane_near_building(*goal_bldg, map);
+            Command::Drive(_, _, parked_car, goal) => {
+                let goal_lane = match goal {
+                    DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
+                    DrivingGoal::Border(_, l) => *l,
+                };
                 (
                     map.get_driving_lane_from_parking(parked_car.spot.lane)
                         .unwrap(),
@@ -60,7 +63,7 @@ impl Command {
                 Command::Walk(at.next(), *trip, *ped, start.clone(), goal.clone())
             }
             Command::Drive(at, trip, parked_car, goal) => {
-                Command::Drive(at.next(), *trip, parked_car.clone(), *goal)
+                Command::Drive(at.next(), *trip, parked_car.clone(), goal.clone())
             }
         }
     }
@@ -121,7 +124,7 @@ impl Spawner {
         {
             if let Some(path) = maybe_path {
                 match cmd {
-                    Command::Drive(_, trip, ref parked_car, goal_bldg) => {
+                    Command::Drive(_, trip, ref parked_car, ref goal) => {
                         let car = parked_car.car;
 
                         // TODO this looks like it jumps when the parking and driving lanes are different lengths
@@ -141,7 +144,14 @@ impl Spawner {
                                 vehicle: parked_car.vehicle.clone(),
                                 start,
                                 dist_along,
-                                router: Router::make_router_to_park(path, goal_bldg),
+                                router: match goal {
+                                    DrivingGoal::ParkNear(b) => {
+                                        Router::make_router_to_park(path, *b)
+                                    }
+                                    DrivingGoal::Border(_, _) => {
+                                        Router::make_router_to_border(path)
+                                    }
+                                },
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -336,7 +346,7 @@ impl Spawner {
         parked: ParkedCar,
         parking_sim: &ParkingSimState,
         start_bldg: BuildingID,
-        goal_bldg: BuildingID,
+        goal: DrivingGoal,
         trips: &mut TripManager,
     ) {
         // Don't add duplicate commands.
@@ -352,17 +362,17 @@ impl Spawner {
         self.ped_id_counter += 1;
 
         let parking_spot = SidewalkSpot::parking_spot(parked.spot, map, parking_sim);
+
+        let mut legs = vec![
+            TripLeg::Walk(parking_spot.clone()),
+            TripLeg::Drive(parked, goal.clone()),
+        ];
+        if let DrivingGoal::ParkNear(b) = goal {
+            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+        }
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(
-                at,
-                ped_id,
-                vec![
-                    TripLeg::Walk(parking_spot.clone()),
-                    TripLeg::Drive(parked, goal_bldg),
-                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
-                ],
-            ),
+            trips.new_trip(at, ped_id, legs),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             parking_spot,
@@ -465,12 +475,12 @@ impl Spawner {
         parking_sim: &ParkingSimState,
         trips: &mut TripManager,
     ) {
-        let (trip, goal_bldg) = trips.ped_reached_parking_spot(ped);
+        let (trip, goal) = trips.ped_reached_parking_spot(ped);
         self.enqueue_command(Command::Drive(
             at.next(),
             trip,
             parking_sim.get_car_at_spot(spot).unwrap(),
-            goal_bldg,
+            goal,
         ));
     }
 

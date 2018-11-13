@@ -1,5 +1,6 @@
 use abstutil;
 use control::ControlMap;
+use driving::DrivingGoal;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
 use walking::SidewalkSpot;
@@ -53,10 +54,14 @@ pub fn load(
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         timer.stop("read sim savestate");
 
-        let edits: MapEdits = abstutil::read_json(&format!(
-            "../data/edits/{}/{}.json",
-            sim.map_name, sim.edits_name
-        )).unwrap();
+        let edits: MapEdits = if sim.edits_name == "no_edits" {
+            MapEdits::new()
+        } else {
+            abstutil::read_json(&format!(
+                "../data/edits/{}/{}.json",
+                sim.map_name, sim.edits_name
+            )).unwrap()
+        };
 
         // Try loading the pre-baked map first
         let map: Map = abstutil::read_binary(
@@ -244,7 +249,7 @@ impl Sim {
         };
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
-                num_agents: 1,
+                num_agents: 10,
                 start_tick: Tick::zero(),
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
@@ -379,7 +384,7 @@ impl Sim {
             .start_trip_just_walking(self.time.next(), from, to, &mut self.trips_state);
     }
 
-    pub fn make_ped_using_car(&mut self, map: &Map, car: CarID, to: BuildingID) {
+    pub fn make_ped_using_car(&mut self, map: &Map, car: CarID, to: DrivingGoal) {
         let parked = self.parking_state.lookup_car(car).unwrap().clone();
         let owner = parked.owner.unwrap();
         self.spawner.start_trip_using_parked_car(

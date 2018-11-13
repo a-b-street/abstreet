@@ -1,5 +1,6 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{BuildingID, BusStopID};
+use driving::DrivingGoal;
+use map_model::BusStopID;
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
@@ -50,7 +51,7 @@ impl TripManager {
     }
 
     // Where are we driving next?
-    pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, BuildingID) {
+    pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, DrivingGoal) {
         let trip = &mut self.trips[self
                                        .active_trip_mode
                                        .remove(&AgentID::Pedestrian(ped))
@@ -65,10 +66,10 @@ impl TripManager {
             ),
         };
         let drive_to = match trip.legs[0] {
-            TripLeg::Drive(_, ref to) => to,
+            TripLeg::Drive(_, ref to) => to.clone(),
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
-        (trip.id, *drive_to)
+        (trip.id, drive_to)
     }
 
     pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
@@ -83,6 +84,17 @@ impl TripManager {
                 "Last trip leg {:?} doesn't match ped_reached_building_or_border",
                 x
             ),
+        };
+        assert!(trip.legs.is_empty());
+        assert!(!trip.finished_at.is_some());
+        trip.finished_at = Some(now);
+    }
+
+    pub fn car_reached_border(&mut self, car: CarID, now: Tick) {
+        let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Drive(_, _) => {}
+            x => panic!("Last trip leg {:?} doesn't match car_reached_border", x),
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
@@ -248,8 +260,7 @@ struct Trip {
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
-    // Roads might be long -- what building do we ultimately want to park near?
-    Drive(ParkedCar, BuildingID),
+    Drive(ParkedCar, DrivingGoal),
     RideBus(RouteID, BusStopID),
 }
 

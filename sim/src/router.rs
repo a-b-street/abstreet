@@ -13,6 +13,7 @@ use {Distance, Event, ParkingSpot, Tick};
 enum Goal {
     ParkNearBuilding(BuildingID),
     FollowBusRoute,
+    EndAtBorder,
 }
 
 // Gives higher-level instructions to a car.
@@ -38,6 +39,13 @@ impl Router {
         }
     }
 
+    pub fn make_router_to_border(path: Path) -> Router {
+        Router {
+            path,
+            goal: Goal::EndAtBorder,
+        }
+    }
+
     pub fn tooltip_line(&self) -> String {
         format!("{} lanes left in path", self.path.num_lanes())
     }
@@ -57,7 +65,17 @@ impl Router {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
     ) -> Option<Action> {
-        if self.path.isnt_last_step() || view.speed > kinematics::EPSILON_SPEED {
+        if self.path.isnt_last_step() {
+            return None;
+        }
+
+        // TODO Hack. Makes cars vanish too early. Hard to express early termination in lookahead.
+        if self.goal == Goal::EndAtBorder {
+            return Some(Action::VanishAtBorder);
+        }
+
+        // Not at the end yet?
+        if view.speed > kinematics::EPSILON_SPEED {
             return None;
         }
 
@@ -85,6 +103,8 @@ impl Router {
                     return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
                 }
             }
+            // Handled earlier
+            Goal::EndAtBorder => {}
         }
         None
     }
@@ -116,6 +136,8 @@ impl Router {
                 Goal::FollowBusRoute => {
                     return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on.as_lane()));
                 }
+                // The car shouldn't stop early!
+                Goal::EndAtBorder => {}
             }
         }
         None

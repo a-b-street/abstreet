@@ -6,7 +6,8 @@ use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::{
-    BuildingID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID, LANE_THICKNESS,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID,
+    LANE_THICKNESS,
 };
 use multimap::MultiMap;
 use ordered_float::NotNaN;
@@ -26,6 +27,12 @@ const TIME_TO_PARK_OR_DEPART: Time = si::Second {
     value_unsafe: 10.0,
     _marker: std::marker::PhantomData,
 };
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DrivingGoal {
+    ParkNear(BuildingID),
+    Border(IntersectionID, LaneID),
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct ParkingState {
@@ -66,7 +73,9 @@ pub enum Action {
     StartParking(ParkingSpot),
     WorkOnParking,
     Continue(Acceleration, Vec<Request>),
+    // TODO Get rid of this one
     VanishAtDeadEnd,
+    VanishAtBorder,
 }
 
 impl Car {
@@ -552,7 +561,9 @@ impl DrivingSimState {
             .insert(id, SimQueue::new(Traversable::Turn(id), map));
     }
 
-    // Note that this populates the view BEFORE the step is applied
+    // Note that this populates the view BEFORE the step is applied.
+    // Returns cars that reached a parking spot this step, and also the cars that vanished at a
+    // border.
     pub fn step(
         &mut self,
         view: &mut WorldView,
@@ -565,7 +576,7 @@ impl DrivingSimState {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
         current_agent: &mut Option<AgentID>,
-    ) -> Result<Vec<ParkedCar>, Error> {
+    ) -> Result<(Vec<ParkedCar>, Vec<CarID>), Error> {
         self.populate_view(view);
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
@@ -593,6 +604,7 @@ impl DrivingSimState {
         // thing, but it might be slightly more clear to express it differently?
 
         let mut finished_parking: Vec<ParkedCar> = Vec::new();
+        let mut vanished_at_border: Vec<CarID> = Vec::new();
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
@@ -641,6 +653,11 @@ impl DrivingSimState {
                     self.cars.remove(&id);
                     self.routers.remove(&id);
                 }
+                Action::VanishAtBorder => {
+                    self.cars.remove(&id);
+                    self.routers.remove(&id);
+                    vanished_at_border.push(*id);
+                }
             }
         }
         *current_agent = None;
@@ -682,7 +699,7 @@ impl DrivingSimState {
             }
         }
 
-        Ok(finished_parking)
+        Ok((finished_parking, vanished_at_border))
     }
 
     // True if the car started, false if there wasn't currently room

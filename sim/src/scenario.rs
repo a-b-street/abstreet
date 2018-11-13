@@ -1,4 +1,5 @@
 use abstutil;
+use driving::DrivingGoal;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
 use rand::Rng;
@@ -241,12 +242,22 @@ impl Scenario {
                     .into_iter()
                     .find(|p| !reserved_cars.contains(&p.car))
                 {
-                    // TODO need to change driving goals too
-                    let to_bldg = match s.goal {
-                        OriginDestination::Neighborhood(ref n) => {
-                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap()
+                    let goal = match s.goal {
+                        OriginDestination::Neighborhood(ref n) => DrivingGoal::ParkNear(
+                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                        ),
+                        OriginDestination::Border(i) => {
+                            let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Driving);
+                            if lanes.is_empty() {
+                                warn!(
+                                    "Can't spawn a car ending at border {}; no driving lane there",
+                                    i
+                                );
+                                continue;
+                            }
+                            // TODO ideally could use any
+                            DrivingGoal::Border(i, lanes[0])
                         }
-                        OriginDestination::Border(_) => BuildingID(42),
                     };
 
                     reserved_cars.insert(parked_car.car);
@@ -256,7 +267,7 @@ impl Scenario {
                         parked_car.clone(),
                         &sim.parking_state,
                         from_bldg,
-                        to_bldg,
+                        goal,
                         &mut sim.trips_state,
                     );
                 } else {
@@ -267,8 +278,7 @@ impl Scenario {
                         ),
                         // TODO get only element, and dont do this computation every iter
                         OriginDestination::Border(i) => {
-                            if let Some(s) = SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
-                            {
+                            if let Some(s) = SidewalkSpot::end_at_border(i, map) {
                                 s
                             } else {
                                 warn!("Can't end_at_border for {}", i);
@@ -309,7 +319,7 @@ impl Scenario {
                     ),
                     // TODO dont do this computation every iter
                     OriginDestination::Border(i) => {
-                        if let Some(s) = SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map) {
+                        if let Some(s) = SidewalkSpot::end_at_border(i, map) {
                             s
                         } else {
                             warn!("Can't end_at_border for {}", i);
@@ -318,9 +328,7 @@ impl Scenario {
                     }
                 };
                 // TODO dont do this computation every iter
-                if let Some(start) =
-                    SidewalkSpot::start_at_border(s.start_from_border, LaneType::Sidewalk, map)
-                {
+                if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
                         start,

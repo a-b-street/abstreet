@@ -166,7 +166,7 @@ impl Sim {
             &mut self.trips_state,
         );
 
-        for p in self.driving_state.step(
+        let (newly_parked, at_border) = self.driving_state.step(
             &mut view,
             &mut events,
             self.time,
@@ -176,7 +176,8 @@ impl Sim {
             &mut self.transit_state,
             &mut self.rng,
             &mut self.current_agent_for_debugging,
-        )? {
+        )?;
+        for p in newly_parked {
             events.push(Event::CarReachedParkingSpot(p.car, p.spot));
             capture_backtrace("CarReachedParkingSpot");
             self.parking_state.add_parked_car(p.clone());
@@ -187,6 +188,9 @@ impl Sim {
                 &self.parking_state,
                 &mut self.trips_state,
             );
+        }
+        for c in at_border {
+            self.trips_state.car_reached_border(c, self.time);
         }
 
         self.walking_state.populate_view(&mut view);
