@@ -39,10 +39,10 @@ mod intersections;
 pub mod kinematics;
 mod make;
 mod parking;
+mod query;
 mod router;
 mod sim;
 mod spawn;
-mod stats;
 mod transit;
 mod trips;
 mod view;
@@ -58,10 +58,9 @@ pub use make::{
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
 };
 use map_model::{BuildingID, LaneID, Trace, TurnID};
-pub use sim::{Benchmark, Sim, Summary};
-pub use stats::SimStats;
+pub use query::{Benchmark, ScoreSummary, SimStats, Summary};
+pub use sim::Sim;
 use std::fmt;
-pub use trips::ScoreSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(pub usize);

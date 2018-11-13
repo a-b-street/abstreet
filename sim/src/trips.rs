@@ -3,7 +3,7 @@ use driving::DrivingGoal;
 use map_model::BusStopID;
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
-use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, Tick, TripID};
+use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, ScoreSummary, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct TripManager {
@@ -276,23 +276,4 @@ impl TripLeg {
             _ => false,
         }
     }
-}
-
-// As of a moment in time, not necessarily the end of the simulation
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ScoreSummary {
-    pub pending_walking_trips: usize,
-    pub total_walking_trips: usize,
-    // TODO this is actually a duration
-    pub total_walking_trip_time: Tick,
-
-    pub pending_driving_trips: usize,
-    pub total_driving_trips: usize,
-    // TODO this is actually a duration
-    pub total_driving_trip_time: Tick,
-
-    // If filled out, the sim took this long to complete.
-    // TODO This is maybe not a useful thing to measure; the agents moving at the end don't have
-    // others around, so things are stranger for them.
-    pub completion_time: Option<Tick>,
 }
