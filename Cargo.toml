@@ -16,5 +16,6 @@ members = [
   "playground_gui",
   "precompute",
   "sim",
+  "synthetic",
   "tmp_gfx",
 ]
