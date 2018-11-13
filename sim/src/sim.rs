@@ -6,7 +6,7 @@ use control::ControlMap;
 use driving::DrivingSimState;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
-use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn, TurnID};
+use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use spawn::Spawner;
@@ -16,10 +16,7 @@ use transit::TransitSimState;
 use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
-use {
-    AgentID, CarID, Distance, DrawCarInput, DrawPedestrianInput, Event, ParkedCar, PedestrianID,
-    SimStats, Tick, TripID, TIMESTEP,
-};
+use {AgentID, CarID, Distance, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq, Eq)]
@@ -240,40 +237,6 @@ impl Sim {
         }
 
         Ok(events)
-    }
-
-    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.driving_state
-            .get_draw_car(id, self.time, map)
-            .or_else(|| self.parking_state.get_draw_car(id))
-    }
-
-    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        self.walking_state.get_draw_ped(id, map)
-    }
-
-    // TODO maybe just DrawAgent instead? should caller care?
-    pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
-        match map.get_l(l).lane_type {
-            LaneType::Driving | LaneType::Bus => {
-                self.driving_state.get_draw_cars_on_lane(l, self.time, map)
-            }
-            LaneType::Parking => self.parking_state.get_draw_cars(l),
-            LaneType::Sidewalk => Vec::new(),
-            LaneType::Biking => Vec::new(),
-        }
-    }
-
-    pub fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCarInput> {
-        self.driving_state.get_draw_cars_on_turn(t, self.time, map)
-    }
-
-    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_lane(map.get_l(l), map)
-    }
-
-    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_turn(map.get_t(t))
     }
 
     pub fn is_empty(&self) -> bool {

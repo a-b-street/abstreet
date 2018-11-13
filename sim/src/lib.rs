@@ -40,6 +40,7 @@ pub mod kinematics;
 mod make;
 mod parking;
 mod query;
+mod render;
 mod router;
 mod sim;
 mod spawn;
@@ -51,14 +52,14 @@ mod walking;
 use abstutil::Cloneable;
 use dimensioned::si;
 pub use events::Event;
-use geom::{Angle, Pt2D};
 pub use instrument::save_backtraces;
 pub use make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, MapEdits, Neighborhood, NeighborhoodBuilder,
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
 };
-use map_model::{BuildingID, LaneID, Trace, TurnID};
+use map_model::{BuildingID, LaneID};
 pub use query::{Benchmark, ScoreSummary, SimStats, Summary};
+pub use render::{CarState, DrawCarInput, DrawPedestrianInput};
 pub use sim::Sim;
 use std::fmt;
 
@@ -299,31 +300,6 @@ impl ParkedCar {
             owner,
         }
     }
-}
-
-// Intermediate structures so that sim and editor crates don't have a cyclic dependency.
-pub struct DrawPedestrianInput {
-    pub id: PedestrianID,
-    pub pos: Pt2D,
-    pub waiting_for_turn: Option<TurnID>,
-}
-
-pub struct DrawCarInput {
-    pub id: CarID,
-    pub vehicle_length: Distance,
-    pub waiting_for_turn: Option<TurnID>,
-    pub front: Pt2D,
-    pub angle: Angle,
-    pub stopping_trace: Option<Trace>,
-    pub state: CarState,
-}
-
-#[derive(PartialEq, Eq)]
-pub enum CarState {
-    Moving,
-    Stuck,
-    Parked,
-    Debug,
 }
 
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really
