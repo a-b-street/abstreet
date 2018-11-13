@@ -3,6 +3,7 @@ use driving::DrivingGoal;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
 use rand::Rng;
+use rand::XorShiftRng;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::File;
 use std::io::{Error, Write};
@@ -26,6 +27,65 @@ pub enum OriginDestination {
     Border(IntersectionID),
 }
 
+impl OriginDestination {
+    fn pick_driving_goal(
+        &self,
+        map: &Map,
+        bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
+        rng: &mut XorShiftRng,
+    ) -> Option<DrivingGoal> {
+        match self {
+            OriginDestination::Neighborhood(ref n) => {
+                if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
+                    Some(DrivingGoal::ParkNear(*rng.choose(bldgs).unwrap()))
+                } else {
+                    panic!("Neighborhood {} isn't defined", n);
+                }
+            }
+            OriginDestination::Border(i) => {
+                let lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Driving);
+                if lanes.is_empty() {
+                    warn!(
+                        "Can't spawn a car ending at border {}; no driving lane there",
+                        i
+                    );
+                    None
+                } else {
+                    // TODO ideally could use any
+                    Some(DrivingGoal::Border(*i, lanes[0]))
+                }
+            }
+        }
+    }
+
+    fn pick_walking_goal(
+        &self,
+        map: &Map,
+        bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
+        rng: &mut XorShiftRng,
+    ) -> Option<SidewalkSpot> {
+        match self {
+            OriginDestination::Neighborhood(ref n) => {
+                if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
+                    Some(SidewalkSpot::building(*rng.choose(bldgs).unwrap(), map))
+                } else {
+                    panic!("Neighborhood {} isn't defined", n);
+                }
+            }
+            OriginDestination::Border(i) => {
+                let goal = SidewalkSpot::end_at_border(*i, map);
+                if goal.is_none() {
+                    warn!("Can't end_at_border for {} without a sidewalk", i);
+                }
+                goal
+            }
+        }
+    }
+}
+
+// SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
+// their mode (use a car, walk, bus) based on the situation. When spawning directly a border,
+// agents have to start as a car or pedestrian already.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SpawnOverTime {
     pub num_agents: usize,
@@ -216,14 +276,6 @@ impl Scenario {
             if !neighborhoods.contains_key(&s.start_from_neighborhood) {
                 panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
             }
-            match s.goal {
-                OriginDestination::Neighborhood(ref n) => {
-                    if !neighborhoods.contains_key(n) {
-                        panic!("Neighborhood {} isn't defined", n);
-                    }
-                }
-                _ => {}
-            }
 
             for _ in 0..s.num_agents {
                 // TODO normal distribution, not uniform
@@ -242,51 +294,25 @@ impl Scenario {
                     .into_iter()
                     .find(|p| !reserved_cars.contains(&p.car))
                 {
-                    let goal = match s.goal {
-                        OriginDestination::Neighborhood(ref n) => DrivingGoal::ParkNear(
-                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
-                        ),
-                        OriginDestination::Border(i) => {
-                            let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Driving);
-                            if lanes.is_empty() {
-                                warn!(
-                                    "Can't spawn a car ending at border {}; no driving lane there",
-                                    i
-                                );
-                                continue;
-                            }
-                            // TODO ideally could use any
-                            DrivingGoal::Border(i, lanes[0])
-                        }
-                    };
-
-                    reserved_cars.insert(parked_car.car);
-                    sim.spawner.start_trip_using_parked_car(
-                        spawn_time,
-                        map,
-                        parked_car.clone(),
-                        &sim.parking_state,
-                        from_bldg,
-                        goal,
-                        &mut sim.trips_state,
-                    );
-                } else {
-                    let goal = match s.goal {
-                        OriginDestination::Neighborhood(ref n) => SidewalkSpot::building(
-                            *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
+                    if let Some(goal) =
+                        s.goal
+                            .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        reserved_cars.insert(parked_car.car);
+                        sim.spawner.start_trip_using_parked_car(
+                            spawn_time,
                             map,
-                        ),
-                        // TODO get only element, and dont do this computation every iter
-                        OriginDestination::Border(i) => {
-                            if let Some(s) = SidewalkSpot::end_at_border(i, map) {
-                                s
-                            } else {
-                                warn!("Can't end_at_border for {}", i);
-                                continue;
-                            }
-                        }
-                    };
-
+                            parked_car.clone(),
+                            &sim.parking_state,
+                            from_bldg,
+                            goal,
+                            &mut sim.trips_state,
+                        );
+                    }
+                } else if let Some(goal) =
+                    s.goal
+                        .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                {
                     sim.spawner.start_trip_just_walking(
                         spawn_time,
                         SidewalkSpot::building(from_bldg, map),
@@ -298,87 +324,53 @@ impl Scenario {
         }
 
         for s in &self.border_spawn_over_time {
-            // TODO refactor
-            match s.goal {
-                OriginDestination::Neighborhood(ref n) => {
-                    if !neighborhoods.contains_key(n) {
-                        panic!("Neighborhood {} isn't defined", n);
+            if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
+                for _ in 0..s.num_peds {
+                    // TODO normal distribution, not uniform
+                    let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                    if let Some(goal) =
+                        s.goal
+                            .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        sim.spawner.start_trip_just_walking(
+                            spawn_time,
+                            start.clone(),
+                            goal,
+                            &mut sim.trips_state,
+                        );
                     }
                 }
-                _ => {}
+            } else {
+                warn!(
+                    "Can't start_at_border for {} without sidewalk",
+                    s.start_from_border
+                );
             }
 
-            for _ in 0..s.num_peds {
-                // TODO normal distribution, not uniform
-                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
-                // TODO Refactor this bit
-                let goal = match s.goal {
-                    OriginDestination::Neighborhood(ref n) => SidewalkSpot::building(
-                        *sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap(),
-                        map,
-                    ),
-                    // TODO dont do this computation every iter
-                    OriginDestination::Border(i) => {
-                        if let Some(s) = SidewalkSpot::end_at_border(i, map) {
-                            s
-                        } else {
-                            warn!("Can't end_at_border for {}", i);
-                            continue;
-                        }
+            let starting_lanes = map
+                .get_i(s.start_from_border)
+                .get_outgoing_lanes(map, LaneType::Driving);
+            if !starting_lanes.is_empty() {
+                for _ in 0..s.num_cars {
+                    // TODO normal distribution, not uniform
+                    let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                    if let Some(goal) =
+                        s.goal
+                            .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        sim.spawner.start_trip_with_car_at_border(
+                            spawn_time,
+                            map,
+                            // TODO could pretty easily pick any lane here
+                            starting_lanes[0],
+                            goal,
+                            &mut sim.trips_state,
+                            &mut sim.rng,
+                        );
                     }
-                };
-                // TODO dont do this computation every iter
-                if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
-                    sim.spawner.start_trip_just_walking(
-                        spawn_time,
-                        start,
-                        goal,
-                        &mut sim.trips_state,
-                    );
-                } else {
-                    warn!("Can't start_at_border for {}", s.start_from_border);
                 }
-            }
-
-            for _ in 0..s.num_cars {
-                // TODO normal distribution, not uniform
-                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
-                // TODO Refactor this bit
-                let goal = match s.goal {
-                    OriginDestination::Neighborhood(ref n) => {
-                        DrivingGoal::ParkNear(*sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap())
-                    }
-                    OriginDestination::Border(i) => {
-                        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Driving);
-                        if lanes.is_empty() {
-                            warn!(
-                                "Can't spawn a car ending at border {}; no driving lane there",
-                                i
-                            );
-                            continue;
-                        }
-                        // TODO ideally could use any
-                        DrivingGoal::Border(i, lanes[0])
-                    }
-                };
-
-                // TODO dont do this computation every iter
-                let lanes = map
-                    .get_i(s.start_from_border)
-                    .get_outgoing_lanes(map, LaneType::Driving);
-                if !lanes.is_empty() {
-                    sim.spawner.start_trip_with_car_at_border(
-                        spawn_time,
-                        map,
-                        // TODO could pretty easily pick any lane here
-                        lanes[0],
-                        goal,
-                        &mut sim.trips_state,
-                        &mut sim.rng,
-                    );
-                } else {
-                    warn!("Can't start car at border for {}", s.start_from_border);
-                }
+            } else {
+                warn!("Can't start car at border for {}", s.start_from_border);
             }
         }
     }

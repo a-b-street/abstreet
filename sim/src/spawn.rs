@@ -2,10 +2,7 @@ use abstutil::elapsed_seconds;
 use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{
-    BuildingID, BusRoute, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Pathfinder,
-    RoadID,
-};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
