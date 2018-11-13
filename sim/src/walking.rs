@@ -70,23 +70,31 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> SidewalkSpot {
-        // TODO multiple driving lanes to start?
-        let l = map.get_i(i).get_outgoing_lanes(map, lt)[0];
-        SidewalkSpot {
-            sidewalk: l,
-            dist_along: 0.0 * si::M,
-            connection: SidewalkPOI::Border(i),
+    pub fn start_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> Option<SidewalkSpot> {
+        let lanes = map.get_i(i).get_outgoing_lanes(map, lt);
+        if lanes.is_empty() {
+            None
+        } else {
+            Some(SidewalkSpot {
+                // TODO multiple driving lanes to start?
+                sidewalk: lanes[0],
+                dist_along: 0.0 * si::M,
+                connection: SidewalkPOI::Border(i),
+            })
         }
     }
 
-    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> SidewalkSpot {
+    pub fn end_at_border(i: IntersectionID, lt: LaneType, map: &Map) -> Option<SidewalkSpot> {
         // TODO multiple driving lanes to end?
-        let l = map.get_i(i).get_incoming_lanes(map, lt)[0];
-        SidewalkSpot {
-            sidewalk: l,
-            dist_along: map.get_l(l).length(),
-            connection: SidewalkPOI::Border(i),
+        let lanes = map.get_i(i).get_incoming_lanes(map, lt);
+        if lanes.is_empty() {
+            None
+        } else {
+            Some(SidewalkSpot {
+                sidewalk: lanes[0],
+                dist_along: map.get_l(lanes[0]).length(),
+                connection: SidewalkPOI::Border(i),
+            })
         }
     }
 }

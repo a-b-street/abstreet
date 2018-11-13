@@ -529,6 +529,16 @@ impl Map {
         result
     }
 
+    pub fn all_outgoing_borders(&self) -> Vec<&Intersection> {
+        let mut result: Vec<&Intersection> = Vec::new();
+        for i in &self.intersections {
+            if i.intersection_type == IntersectionType::Border && !i.incoming_lanes.is_empty() {
+                result.push(i);
+            }
+        }
+        result
+    }
+
     pub fn save(&self) {
         let path = format!(
             "../data/maps/{}_{}.abst",

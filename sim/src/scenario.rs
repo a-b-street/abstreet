@@ -267,7 +267,13 @@ impl Scenario {
                         ),
                         // TODO get only element, and dont do this computation every iter
                         OriginDestination::Border(i) => {
-                            SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
+                            if let Some(s) = SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
+                            {
+                                s
+                            } else {
+                                warn!("Can't end_at_border for {}", i);
+                                continue;
+                            }
                         }
                     };
 
@@ -303,17 +309,27 @@ impl Scenario {
                     ),
                     // TODO dont do this computation every iter
                     OriginDestination::Border(i) => {
-                        SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map)
+                        if let Some(s) = SidewalkSpot::end_at_border(i, LaneType::Sidewalk, map) {
+                            s
+                        } else {
+                            warn!("Can't end_at_border for {}", i);
+                            continue;
+                        }
                     }
                 };
-
-                sim.spawner.start_trip_just_walking(
-                    spawn_time,
-                    // TODO dont do this computation every iter
-                    SidewalkSpot::start_at_border(s.start_from_border, LaneType::Sidewalk, map),
-                    goal,
-                    &mut sim.trips_state,
-                );
+                // TODO dont do this computation every iter
+                if let Some(start) =
+                    SidewalkSpot::start_at_border(s.start_from_border, LaneType::Sidewalk, map)
+                {
+                    sim.spawner.start_trip_just_walking(
+                        spawn_time,
+                        start,
+                        goal,
+                        &mut sim.trips_state,
+                    );
+                } else {
+                    warn!("Can't start_at_border for {}", s.start_from_border);
+                }
             }
         }
     }

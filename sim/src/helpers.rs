@@ -209,7 +209,7 @@ impl Sim {
 // Spawning helpers
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
-        Scenario {
+        let mut s = Scenario {
             scenario_name: "small_spawn".to_string(),
             map_name: map.get_name().to_string(),
             seed_parked_cars: vec![SeedParkedCars {
@@ -241,7 +241,17 @@ impl Sim {
                         })
                     }
                 }).collect(),
-        }.instantiate(self, map);
+        };
+        for i in map.all_outgoing_borders() {
+            s.spawn_over_time.push(SpawnOverTime {
+                num_agents: 1,
+                start_tick: Tick::zero(),
+                stop_tick: Tick::from_seconds(5),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Border(i.id),
+            });
+        }
+        s.instantiate(self, map);
 
         for route in map.get_all_bus_routes() {
             self.seed_bus_route(route, map);
