@@ -30,18 +30,16 @@ extern crate structopt;
 #[macro_use]
 mod macros;
 
-mod a_b_test;
 mod driving;
-mod edits;
 mod events;
 mod helpers;
 mod instrument;
 mod intersections;
 // TODO pub only for tests...
 pub mod kinematics;
+mod make;
 mod parking;
 mod router;
-mod scenario;
 mod sim;
 mod spawn;
 mod stats;
@@ -50,20 +48,17 @@ mod trips;
 mod view;
 mod walking;
 
-pub use a_b_test::{ABTest, ABTestResults};
 use abstutil::Cloneable;
 use dimensioned::si;
-pub use edits::MapEdits;
 pub use events::Event;
 use geom::{Angle, Pt2D};
-pub use helpers::{load, SimFlags};
 pub use instrument::save_backtraces;
+pub use make::{
+    load, ABTest, ABTestResults, BorderSpawnOverTime, MapEdits, Neighborhood, NeighborhoodBuilder,
+    OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
+};
 use map_model::{BuildingID, LaneID, Trace, TurnID};
 use rand::{RngCore, SeedableRng, XorShiftRng};
-pub use scenario::{
-    BorderSpawnOverTime, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario,
-    SeedParkedCars, SpawnOverTime,
-};
 pub use sim::{Benchmark, Sim, Summary};
 pub use stats::SimStats;
 use std::fmt;
