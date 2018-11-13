@@ -18,13 +18,9 @@ fn main() {
     }
 
     // TODO don't hardcode
-    let bounds = geom::GPSBounds {
-        min_lon: -122.4416,
-        max_lon: -122.2421,
-        min_lat: 47.5793,
-        max_lat: 47.7155,
-        represents_world_space: false,
-    };
+    let mut bounds = geom::GPSBounds::new();
+    bounds.update(geom::LonLat::new(-122.4416, 47.5793));
+    bounds.update(geom::LonLat::new(-122.2421, 47.7155));
     // TODO could use a better output format now
     let mut map = map_model::raw_data::Map::blank();
     if let Ok(parcels) = kml::load(&args[1], &bounds) {

@@ -1,4 +1,3 @@
-use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Line, Polygon, Pt2D};
