@@ -488,21 +488,6 @@ impl DrivingSimState {
         s
     }
 
-    pub fn get_car_state(&self, c: CarID) -> CarState {
-        if let Some(driving) = self.cars.get(&c) {
-            if driving.debug {
-                CarState::Debug
-            } else if driving.speed > kinematics::EPSILON_SPEED {
-                CarState::Moving
-            } else {
-                CarState::Stuck
-            }
-        } else {
-            // Assume the caller isn't asking about a nonexistent car
-            CarState::Parked
-        }
-    }
-
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
         let waiting = self
             .cars
@@ -821,6 +806,13 @@ impl DrivingSimState {
             front: pos,
             angle,
             stopping_trace: self.trace_route(id, map, c.vehicle.stopping_distance(c.speed)),
+            state: if c.debug {
+                CarState::Debug
+            } else if c.speed > kinematics::EPSILON_SPEED {
+                CarState::Moving
+            } else {
+                CarState::Stuck
+            },
         })
     }
 

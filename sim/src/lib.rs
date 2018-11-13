@@ -251,14 +251,6 @@ fn time_parsing() {
     assert_eq!(Tick::parse("01:02:03.5"), Some(Tick(35 + 1200 + 36000)));
 }
 
-#[derive(PartialEq, Eq)]
-pub enum CarState {
-    Moving,
-    Stuck,
-    Parked,
-    Debug,
-}
-
 // TODO Don't just alias types; assert that time, dist, and speed are always positive
 pub type Time = si::Second<f64>;
 pub type Distance = si::Meter<f64>;
@@ -324,6 +316,15 @@ pub struct DrawCarInput {
     pub front: Pt2D,
     pub angle: Angle,
     pub stopping_trace: Option<Trace>,
+    pub state: CarState,
+}
+
+#[derive(PartialEq, Eq)]
+pub enum CarState {
+    Moving,
+    Stuck,
+    Parked,
+    Debug,
 }
 
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really

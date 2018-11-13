@@ -21,8 +21,8 @@ use trips::TripManager;
 use view::WorldView;
 use walking::WalkingSimState;
 use {
-    AgentID, CarID, CarState, Distance, DrawCarInput, DrawPedestrianInput, Event, ParkedCar,
-    PedestrianID, ScoreSummary, SimStats, Tick, TripID, TIMESTEP,
+    AgentID, CarID, Distance, DrawCarInput, DrawPedestrianInput, Event, ParkedCar, PedestrianID,
+    ScoreSummary, SimStats, Tick, TripID, TIMESTEP,
 };
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -244,10 +244,6 @@ impl Sim {
         }
 
         Ok(events)
-    }
-
-    pub fn get_car_state(&self, c: CarID) -> CarState {
-        self.driving_state.get_car_state(c)
     }
 
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {

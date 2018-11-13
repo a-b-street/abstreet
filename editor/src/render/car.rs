@@ -15,6 +15,7 @@ pub struct DrawCar {
     turn_arrow: Option<Line>,
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
+    state: CarState,
 }
 
 impl DrawCar {
@@ -77,6 +78,7 @@ impl DrawCar {
                 ),
             ],
             stopping_buffer,
+            state: input.state,
         }
     }
 }
@@ -89,7 +91,7 @@ impl Renderable for DrawCar {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             // TODO if it's a bus, color it differently -- but how? :\
-            match ctx.sim.get_car_state(self.id) {
+            match self.state {
                 CarState::Debug => ctx
                     .cs
                     .get("debug car", Color::rgba(0, 0, 255, 0.8))
