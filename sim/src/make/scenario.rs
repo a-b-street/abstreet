@@ -2,8 +2,7 @@ use abstutil;
 use abstutil::WeightedUsizeChoice;
 use driving::DrivingGoal;
 use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
-use rand::Rng;
-use rand::XorShiftRng;
+use rand::{Rng, XorShiftRng};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use walking::SidewalkSpot;
 use {CarID, Neighborhood, Sim, Tick};
@@ -102,8 +101,7 @@ impl Scenario {
             }
 
             for _ in 0..s.num_agents {
-                // TODO normal distribution, not uniform
-                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                 // Note that it's fine for agents to start/end at the same building. Later we might
                 // want a better assignment of people per household, or workers per office building.
                 let from_bldg = *sim
@@ -150,8 +148,7 @@ impl Scenario {
         for s in &self.border_spawn_over_time {
             if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
                 for _ in 0..s.num_peds {
-                    // TODO normal distribution, not uniform
-                    let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
                             .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
@@ -176,8 +173,7 @@ impl Scenario {
                 .get_outgoing_lanes(map, LaneType::Driving);
             if !starting_lanes.is_empty() {
                 for _ in 0..s.num_cars {
-                    // TODO normal distribution, not uniform
-                    let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
                             .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
