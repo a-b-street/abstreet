@@ -94,6 +94,7 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, _) => {}
+            TripLeg::DriveFromBorder(_, _) => {}
             x => panic!("Last trip leg {:?} doesn't match car_reached_border", x),
         };
         assert!(trip.legs.is_empty());
@@ -167,6 +168,7 @@ impl TripManager {
                 .iter()
                 .find(|l| match l {
                     TripLeg::Drive(_, _) => true,
+                    TripLeg::DriveFromBorder(_, _) => true,
                     _ => false,
                 }).is_some(),
             legs: VecDeque::from(legs),
@@ -230,6 +232,7 @@ impl TripManager {
         match trip.legs.get(0)? {
             TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped)),
             TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.car)),
+            TripLeg::DriveFromBorder(id, _) => Some(AgentID::Car(*id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped)),
         }
@@ -261,6 +264,7 @@ struct Trip {
 pub enum TripLeg {
     Walk(SidewalkSpot),
     Drive(ParkedCar, DrivingGoal),
+    DriveFromBorder(CarID, DrivingGoal),
     RideBus(RouteID, BusStopID),
 }
 
@@ -268,6 +272,7 @@ impl TripLeg {
     fn uses_car(&self, id: CarID) -> bool {
         match self {
             TripLeg::Drive(parked, _) => parked.car == id,
+            TripLeg::DriveFromBorder(car, _) => *car == id,
             _ => false,
         }
     }

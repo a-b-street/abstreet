@@ -39,7 +39,7 @@ pub struct SpawnOverTime {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct BorderSpawnOverTime {
     pub num_peds: usize,
-    //pub num_cars: usize,
+    pub num_cars: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
@@ -337,6 +337,47 @@ impl Scenario {
                     );
                 } else {
                     warn!("Can't start_at_border for {}", s.start_from_border);
+                }
+            }
+
+            for _ in 0..s.num_cars {
+                // TODO normal distribution, not uniform
+                let spawn_time = Tick(sim.rng.gen_range(s.start_tick.0, s.stop_tick.0));
+                // TODO Refactor this bit
+                let goal = match s.goal {
+                    OriginDestination::Neighborhood(ref n) => {
+                        DrivingGoal::ParkNear(*sim.rng.choose(&bldgs_per_neighborhood[n]).unwrap())
+                    }
+                    OriginDestination::Border(i) => {
+                        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Driving);
+                        if lanes.is_empty() {
+                            warn!(
+                                "Can't spawn a car ending at border {}; no driving lane there",
+                                i
+                            );
+                            continue;
+                        }
+                        // TODO ideally could use any
+                        DrivingGoal::Border(i, lanes[0])
+                    }
+                };
+
+                // TODO dont do this computation every iter
+                let lanes = map
+                    .get_i(s.start_from_border)
+                    .get_outgoing_lanes(map, LaneType::Driving);
+                if !lanes.is_empty() {
+                    sim.spawner.start_trip_with_car_at_border(
+                        spawn_time,
+                        map,
+                        // TODO could pretty easily pick any lane here
+                        lanes[0],
+                        goal,
+                        &mut sim.trips_state,
+                        &mut sim.rng,
+                    );
+                } else {
+                    warn!("Can't start car at border for {}", s.start_from_border);
                 }
             }
         }

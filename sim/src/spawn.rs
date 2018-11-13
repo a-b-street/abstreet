@@ -1,7 +1,11 @@
 use abstutil::elapsed_seconds;
+use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
+use map_model::{
+    BuildingID, BusRoute, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Pathfinder,
+    RoadID,
+};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
@@ -19,6 +23,7 @@ use {
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
+    DriveFromBorder(Tick, TripID, CarID, Vehicle, LaneID, DrivingGoal),
 }
 
 impl Command {
@@ -26,6 +31,7 @@ impl Command {
         match self {
             Command::Walk(at, _, _, _, _) => *at,
             Command::Drive(at, _, _, _) => *at,
+            Command::DriveFromBorder(at, _, _, _, _, _) => *at,
         }
     }
 
@@ -54,6 +60,18 @@ impl Command {
                     map.get_l(goal_lane).length(),
                 )
             }
+            Command::DriveFromBorder(_, _, _, _, start, goal) => {
+                let goal_lane = match goal {
+                    DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
+                    DrivingGoal::Border(_, l) => *l,
+                };
+                (
+                    *start,
+                    0.0 * si::M,
+                    goal_lane,
+                    map.get_l(goal_lane).length(),
+                )
+            }
         }
     }
 
@@ -64,6 +82,16 @@ impl Command {
             }
             Command::Drive(at, trip, parked_car, goal) => {
                 Command::Drive(at.next(), *trip, parked_car.clone(), goal.clone())
+            }
+            Command::DriveFromBorder(at, trip, car, vehicle, start, goal) => {
+                Command::DriveFromBorder(
+                    at.next(),
+                    *trip,
+                    *car,
+                    vehicle.clone(),
+                    *start,
+                    goal.clone(),
+                )
             }
         }
     }
@@ -156,6 +184,36 @@ impl Spawner {
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             parking_sim.remove_parked_car(parked_car.clone());
+                            spawned_agents += 1;
+                        } else {
+                            self.enqueue_command(cmd.retry_next_tick());
+                        }
+                    }
+                    Command::DriveFromBorder(_, trip, car, ref vehicle, start, ref goal) => {
+                        if driving_sim.start_car_on_lane(
+                            events,
+                            now,
+                            map,
+                            CreateCar {
+                                car,
+                                trip: Some(trip),
+                                // TODO need a way to specify this in the scenario
+                                owner: None,
+                                maybe_parked_car: None,
+                                vehicle: vehicle.clone(),
+                                start,
+                                dist_along: 0.0 * si::M,
+                                router: match goal {
+                                    DrivingGoal::ParkNear(b) => {
+                                        Router::make_router_to_park(path, *b)
+                                    }
+                                    DrivingGoal::Border(_, _) => {
+                                        Router::make_router_to_border(path)
+                                    }
+                                },
+                            },
+                        ) {
+                            trips.agent_starting_trip_leg(AgentID::Car(car), trip);
                             spawned_agents += 1;
                         } else {
                             self.enqueue_command(cmd.retry_next_tick());
@@ -337,6 +395,34 @@ impl Spawner {
                 self.car_id_counter += 1;
                 car
             }).collect()
+    }
+
+    pub fn start_trip_with_car_at_border(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        first_lane: LaneID,
+        goal: DrivingGoal,
+        trips: &mut TripManager,
+        base_rng: &mut XorShiftRng,
+    ) {
+        let car_id = CarID(self.car_id_counter);
+        self.car_id_counter += 1;
+        let ped_id = PedestrianID(self.ped_id_counter);
+        self.ped_id_counter += 1;
+
+        let mut legs = vec![TripLeg::DriveFromBorder(car_id, goal.clone())];
+        if let DrivingGoal::ParkNear(b) = goal {
+            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+        }
+        self.enqueue_command(Command::DriveFromBorder(
+            at,
+            trips.new_trip(at, ped_id, legs),
+            car_id,
+            Vehicle::generate_typical_car(car_id, base_rng),
+            first_lane,
+            goal,
+        ));
     }
 
     pub fn start_trip_using_parked_car(

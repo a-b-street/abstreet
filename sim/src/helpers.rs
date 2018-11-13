@@ -1,7 +1,7 @@
 use abstutil;
 use control::ControlMap;
 use driving::DrivingGoal;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, RoadID};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
 use walking::SidewalkSpot;
 use {
@@ -230,21 +230,18 @@ impl Sim {
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
             }],
+            // If there are no sidewalks/driving lanes at a border, scenario instantiation will
+            // just warn and skip them.
             border_spawn_over_time: map
                 .all_incoming_borders()
                 .into_iter()
-                .filter_map(|i| {
-                    if i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty() {
-                        None
-                    } else {
-                        Some(BorderSpawnOverTime {
-                            num_peds: 10,
-                            start_tick: Tick::zero(),
-                            stop_tick: Tick::from_seconds(5),
-                            start_from_border: i.id,
-                            goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
-                        })
-                    }
+                .map(|i| BorderSpawnOverTime {
+                    num_peds: 10,
+                    num_cars: 10,
+                    start_tick: Tick::zero(),
+                    stop_tick: Tick::from_seconds(5),
+                    start_from_border: i.id,
+                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 }).collect(),
         };
         for i in map.all_outgoing_borders() {
@@ -295,18 +292,13 @@ impl Sim {
             border_spawn_over_time: map
                 .all_incoming_borders()
                 .into_iter()
-                .filter_map(|i| {
-                    if i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty() {
-                        None
-                    } else {
-                        Some(BorderSpawnOverTime {
-                            num_peds: 100,
-                            start_tick: Tick::zero(),
-                            stop_tick: Tick::from_seconds(5),
-                            start_from_border: i.id,
-                            goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
-                        })
-                    }
+                .map(|i| BorderSpawnOverTime {
+                    num_peds: 100,
+                    num_cars: 100,
+                    start_tick: Tick::zero(),
+                    stop_tick: Tick::from_seconds(5),
+                    start_from_border: i.id,
+                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 }).collect(),
         }.instantiate(self, map);
     }

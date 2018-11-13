@@ -157,6 +157,7 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
         x if x == spawn_border => {
             scenario.border_spawn_over_time.push(BorderSpawnOverTime {
                 num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
+                num_cars: wizard.input_usize("Spawn how many cars?")?,
                 start_tick: input_tick(&mut wizard, "Start spawning when?")?,
                 // TODO input interval, or otherwise enforce stop_tick > start_tick
                 stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
