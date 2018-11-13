@@ -1,4 +1,4 @@
-use abstutil::elapsed_seconds;
+use abstutil::{elapsed_seconds, fork_rng, WeightedUsizeChoice};
 use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
@@ -12,8 +12,7 @@ use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
 use {
-    fork_rng, weighted_sample, AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot,
-    PedestrianID, RouteID, Tick, TripID, WeightedUsizeChoice,
+    AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -329,7 +328,7 @@ impl Spawner {
 
         let mut new_cars = 0;
         for b in owner_buildings {
-            for _ in 0..weighted_sample(&cars_per_building, base_rng) {
+            for _ in 0..cars_per_building.sample(base_rng) {
                 if let Some(spot) =
                     find_spot_near_building(*b, &mut open_spots_per_road, neighborhoods_roads, map)
                 {

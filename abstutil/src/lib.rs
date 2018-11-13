@@ -1,7 +1,10 @@
 extern crate log;
 extern crate multimap;
+extern crate rand;
 extern crate serde;
 extern crate serde_cbor;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 extern crate yansi;
 
@@ -11,6 +14,7 @@ mod collections;
 mod error;
 mod io;
 mod logs;
+mod random;
 mod time;
 
 pub use abst_multimap::MultiMap;
@@ -23,6 +27,7 @@ pub use io::{
     write_json, FileWithProgress,
 };
 pub use logs::{format_log_record, LogAdapter};
+pub use random::{fork_rng, WeightedUsizeChoice};
 pub use time::{elapsed_seconds, Timer};
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

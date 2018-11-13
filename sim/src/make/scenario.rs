@@ -1,11 +1,12 @@
 use abstutil;
+use abstutil::WeightedUsizeChoice;
 use driving::DrivingGoal;
 use map_model::{BuildingID, IntersectionID, LaneType, Map, RoadID};
 use rand::Rng;
 use rand::XorShiftRng;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use walking::SidewalkSpot;
-use {CarID, Neighborhood, Sim, Tick, WeightedUsizeChoice};
+use {CarID, Neighborhood, Sim, Tick};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {

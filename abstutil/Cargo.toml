@@ -6,7 +6,9 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 [dependencies]
 log = "0.4.5"
 multimap = "0.4.0"
+rand = { version = "0.5.1", features = ["serde1"] }
 serde = "1.0"
 serde_cbor = "0.8.2"
+serde_derive = "1.0"
 serde_json = "1.0"
 yansi = "0.4.0"

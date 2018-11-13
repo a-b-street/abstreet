@@ -1,3 +1,4 @@
+use abstutil::WeightedUsizeChoice;
 use control::ControlMap;
 use driving::DrivingGoal;
 use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
@@ -5,7 +6,7 @@ use std::collections::{BTreeSet, VecDeque};
 use walking::SidewalkSpot;
 use {
     BorderSpawnOverTime, CarID, Event, OriginDestination, PedestrianID, RouteID, Scenario,
-    SeedParkedCars, Sim, SpawnOverTime, Tick, WeightedUsizeChoice,
+    SeedParkedCars, Sim, SpawnOverTime, Tick,
 };
 
 // Helpers to run the sim

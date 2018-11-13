@@ -1,4 +1,5 @@
 use std::any::Any;
+use WeightedUsizeChoice;
 
 // Trick to make a cloneable Any from
 // https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928.
@@ -34,3 +35,4 @@ impl Cloneable for usize {}
 impl Cloneable for f64 {}
 impl Cloneable for String {}
 impl Cloneable for (String, Box<Cloneable>) {}
+impl Cloneable for WeightedUsizeChoice {}

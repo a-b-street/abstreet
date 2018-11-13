@@ -28,14 +28,12 @@ pub mod turn_cycler;
 pub mod warp;
 
 use abstutil;
+use abstutil::WeightedUsizeChoice;
 use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::{IntersectionID, Map};
 use objects::{Ctx, ID};
-use sim::{
-    ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick,
-    WeightedUsizeChoice,
-};
+use sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 use ui::PluginCtx;
 
 pub trait Plugin: Any {
