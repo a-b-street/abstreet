@@ -247,6 +247,10 @@ impl Model {
         }
         None
     }
+
+    pub fn get_lanes(&self, id: RoadID) -> String {
+        self.roads[&id].lanes.to_string()
+    }
 }
 
 impl Model {

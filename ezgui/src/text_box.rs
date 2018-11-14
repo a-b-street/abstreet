@@ -14,14 +14,10 @@ pub struct TextBox {
 }
 
 impl TextBox {
-    pub fn new(prompt: &str) -> TextBox {
-        TextBox::new_prefilled(prompt, String::from(""))
-    }
-
-    pub fn new_prefilled(prompt: &str, line: String) -> TextBox {
+    pub fn new(prompt: &str, prefilled: Option<String>) -> TextBox {
         TextBox {
             prompt: prompt.to_string(),
-            line,
+            line: prefilled.unwrap_or(String::from("")),
             cursor_x: 0,
             shift_pressed: false,
         }

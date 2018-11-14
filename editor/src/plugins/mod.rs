@@ -113,20 +113,25 @@ pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
 }
 
 pub fn input_tick(wizard: &mut WrappedWizard, query: &str) -> Option<Tick> {
-    wizard.input_something(query, Box::new(|line| Tick::parse(&line)))
+    wizard.input_something(query, None, Box::new(|line| Tick::parse(&line)))
 }
 
 pub fn input_weighted_usize(
     wizard: &mut WrappedWizard,
     query: &str,
 ) -> Option<WeightedUsizeChoice> {
-    wizard.input_something(query, Box::new(|line| WeightedUsizeChoice::parse(&line)))
+    wizard.input_something(
+        query,
+        None,
+        Box::new(|line| WeightedUsizeChoice::parse(&line)),
+    )
 }
 
 // TODO Validate the intersection exists? Let them pick it with the cursor?
 pub fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<IntersectionID> {
     wizard.input_something(
         query,
+        None,
         Box::new(|line| {
             usize::from_str_radix(&line, 10)
                 .ok()

@@ -84,8 +84,7 @@ impl GUI for UI {
             State::EditingRoad(id, ref mut wizard) => {
                 if let Some(s) = wizard
                     .wrap(&mut input)
-                    // TODO prefill
-                    .input_string("Specify the lanes")
+                    .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
                     self.model.edit_lanes(id, s);
                     new_state = Some(State::Viewing);

@@ -44,6 +44,7 @@ impl Plugin for SearchState {
                 if input.unimportant_key_pressed(Key::Slash, DEBUG_EXTRA, "start searching") {
                     new_state = Some(SearchState::EnteringSearch(TextBox::new(
                         "Search for what?",
+                        None,
                     )));
                 }
             }

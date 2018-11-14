@@ -62,6 +62,7 @@ impl Wizard {
     fn input_with_text_box<R: Cloneable>(
         &mut self,
         query: &str,
+        prefilled: Option<String>,
         input: &mut UserInput,
         parser: Box<Fn(String) -> Option<R>>,
     ) -> Option<R> {
@@ -73,7 +74,7 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query));
+            self.tb = Some(TextBox::new(query, prefilled));
         }
 
         match self.tb.as_mut().unwrap().event(input) {
@@ -109,6 +110,7 @@ impl<'a> WrappedWizard<'a> {
     pub fn input_something<R: 'static + Clone + Cloneable>(
         &mut self,
         query: &str,
+        prefilled: Option<String>,
         parser: Box<Fn(String) -> Option<R>>,
     ) -> Option<R> {
         if !self.ready_results.is_empty() {
@@ -116,7 +118,10 @@ impl<'a> WrappedWizard<'a> {
             let item: &R = first.as_any().downcast_ref::<R>().unwrap();
             return Some(item.clone());
         }
-        if let Some(obj) = self.wizard.input_with_text_box(query, self.input, parser) {
+        if let Some(obj) = self
+            .wizard
+            .input_with_text_box(query, prefilled, self.input, parser)
+        {
             self.wizard.confirmed_state.push(Box::new(obj.clone()));
             Some(obj)
         } else {
@@ -125,16 +130,21 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn input_string(&mut self, query: &str) -> Option<String> {
-        self.input_something(query, Box::new(|line| Some(line)))
+        self.input_something(query, None, Box::new(|line| Some(line)))
+    }
+
+    pub fn input_string_prefilled(&mut self, query: &str, prefilled: String) -> Option<String> {
+        self.input_something(query, Some(prefilled), Box::new(|line| Some(line)))
     }
 
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {
-        self.input_something(query, Box::new(|line| line.parse::<usize>().ok()))
+        self.input_something(query, None, Box::new(|line| line.parse::<usize>().ok()))
     }
 
     pub fn input_percent(&mut self, query: &str) -> Option<f64> {
         self.input_something(
             query,
+            None,
             Box::new(|line| {
                 line.parse::<f64>().ok().and_then(|num| {
                     if num >= 0.0 && num <= 1.0 {

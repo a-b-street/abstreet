@@ -35,7 +35,10 @@ impl Plugin for WarpState {
                     DEBUG,
                     "start searching for something to warp to",
                 ) {
-                    new_state = Some(WarpState::EnteringSearch(TextBox::new("Warp to what?")));
+                    new_state = Some(WarpState::EnteringSearch(TextBox::new(
+                        "Warp to what?",
+                        None,
+                    )));
                 }
             }
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
