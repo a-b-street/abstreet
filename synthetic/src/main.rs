@@ -105,23 +105,7 @@ impl GUI for UI {
                 }
             }
             State::Viewing => {
-                if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
-                    process::exit(0);
-                }
-
-                if input.key_pressed(Key::S, "save") {
-                    if self.model.name.is_some() {
-                        self.model.save();
-                    } else {
-                        self.state = State::SavingModel(Wizard::new());
-                    }
-                } else if self.model.name.is_some() && input.key_pressed(Key::X, "export map") {
-                    self.model.export();
-                } else if input.key_pressed(Key::I, "create intersection") {
-                    self.model.create_i(cursor);
-                } else if input.key_pressed(Key::B, "create building") {
-                    self.model.create_b(cursor);
-                } else if let Some(i) = self.model.mouseover_intersection(cursor) {
+                if let Some(i) = self.model.mouseover_intersection(cursor) {
                     if input.key_pressed(Key::LCtrl, "move intersection") {
                         self.state = State::MovingIntersection(i);
                     } else if input.key_pressed(Key::R, "create road") {
@@ -142,6 +126,24 @@ impl GUI for UI {
                         self.model.remove_road(r);
                     } else if input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
+                    } else if input.key_pressed(Key::S, "swap lanes") {
+                        self.model.swap_lanes(r);
+                    }
+                } else {
+                    if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
+                        process::exit(0);
+                    } else if input.key_pressed(Key::S, "save") {
+                        if self.model.name.is_some() {
+                            self.model.save();
+                        } else {
+                            self.state = State::SavingModel(Wizard::new());
+                        }
+                    } else if self.model.name.is_some() && input.key_pressed(Key::X, "export map") {
+                        self.model.export();
+                    } else if input.key_pressed(Key::I, "create intersection") {
+                        self.model.create_i(cursor);
+                    } else if input.key_pressed(Key::B, "create building") {
+                        self.model.create_b(cursor);
                     }
                 }
             }

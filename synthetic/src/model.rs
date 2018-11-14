@@ -4,6 +4,7 @@ use ezgui::{Color, GfxCtx};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
+use std::mem;
 
 const INTERSECTION_RADIUS: f64 = 10.0;
 const BUILDING_LENGTH: f64 = 30.0;
@@ -275,6 +276,11 @@ impl Model {
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
+    }
+
+    pub fn swap_lanes(&mut self, id: RoadID) {
+        let lanes = &mut self.roads.get_mut(&id).unwrap().lanes;
+        mem::swap(&mut lanes.fwd, &mut lanes.back);
     }
 
     pub fn remove_road(&mut self, id: RoadID) {
