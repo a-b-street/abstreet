@@ -7,7 +7,7 @@ mod model;
 
 use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, GUI};
 use geom::Line;
-use model::{Intersection, IntersectionID, Model};
+use model::{BuildingID, IntersectionID, Model};
 use piston::input::Key;
 use std::process;
 
@@ -16,9 +16,14 @@ const KEY_CATEGORY: &str = "";
 struct UI {
     canvas: Canvas,
     model: Model,
+    state: State,
+}
 
-    moving_intersection: Option<IntersectionID>,
-    creating_road: Option<IntersectionID>,
+enum State {
+    Viewing,
+    MovingIntersection(IntersectionID),
+    MovingBuilding(BuildingID),
+    CreatingRoad(IntersectionID),
 }
 
 impl UI {
@@ -27,78 +32,103 @@ impl UI {
         UI {
             canvas: Canvas::new(),
             model: Model::new(),
-
-            moving_intersection: None,
-            creating_road: None,
+            state: State::Viewing,
         }
     }
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, _osd: &mut Text) {
+    fn event(&mut self, mut input: UserInput, osd: &mut Text) {
         self.canvas.handle_event(&mut input);
         let cursor = self.canvas.get_cursor_in_map_space();
 
-        if let Some(id) = self.moving_intersection {
-            if input.key_released(Key::LCtrl) {
-                self.moving_intersection = None;
+        match self.state {
+            State::MovingIntersection(id) => {
+                self.model.move_i(id, cursor);
+                if input.key_released(Key::LCtrl) {
+                    self.state = State::Viewing;
+                }
             }
-            self.model.intersections.get_mut(&id).unwrap().center = cursor;
-        } else if let Some(i1) = self.creating_road {
-            if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "stop defining road") {
-                self.creating_road = None;
-            } else if input.unimportant_key_pressed(Key::R, KEY_CATEGORY, "finalize road") {
-                if let Some(i2) = self.model.mouseover_intersection(cursor) {
+            State::MovingBuilding(id) => {
+                self.model.move_b(id, cursor);
+                if input.key_released(Key::LCtrl) {
+                    self.state = State::Viewing;
+                }
+            }
+            State::CreatingRoad(i1) => {
+                if input.key_pressed(Key::Escape, "stop defining road") {
+                    self.state = State::Viewing;
+                } else if let Some(i2) = self.model.mouseover_intersection(cursor) {
                     if i1 != i2 {
-                        self.model.create_road(i1, i2);
-                        self.creating_road = None;
+                        if input.key_pressed(Key::R, "finalize road") {
+                            self.model.create_road(i1, i2);
+                            self.state = State::Viewing;
+                        }
                     }
                 }
             }
-        } else {
-            if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
-                process::exit(0);
-            }
+            State::Viewing => {
+                if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
+                    process::exit(0);
+                }
 
-            if input.unimportant_key_pressed(Key::I, KEY_CATEGORY, "create intersection") {
-                let id = self.model.intersections.len();
-                self.model
-                    .intersections
-                    .insert(id, Intersection { center: cursor });
-            }
+                if input.key_pressed(Key::I, "create intersection") {
+                    self.model.create_i(cursor);
+                }
+                if input.key_pressed(Key::B, "create building") {
+                    self.model.create_b(cursor);
+                }
 
-            if input.unimportant_key_pressed(Key::LCtrl, KEY_CATEGORY, "move intersection") {
-                self.moving_intersection = self.model.mouseover_intersection(cursor);
-            }
-            if input.unimportant_key_pressed(Key::R, KEY_CATEGORY, "create road") {
-                self.creating_road = self.model.mouseover_intersection(cursor);
-            }
-            if input.unimportant_key_pressed(Key::Backspace, KEY_CATEGORY, "delete something") {
                 if let Some(i) = self.model.mouseover_intersection(cursor) {
-                    // TODO No references
-                    self.model.intersections.remove(&i);
+                    if input.key_pressed(Key::LCtrl, "move intersection") {
+                        self.state = State::MovingIntersection(i);
+                    }
+
+                    if input.key_pressed(Key::R, "create road") {
+                        self.state = State::CreatingRoad(i);
+                    }
+
+                    if input.key_pressed(Key::Backspace, "delete intersection") {
+                        self.model.remove_i(i);
+                    }
+                } else if let Some(b) = self.model.mouseover_building(cursor) {
+                    if input.key_pressed(Key::LCtrl, "move building") {
+                        self.state = State::MovingBuilding(b);
+                    }
+
+                    if input.key_pressed(Key::Backspace, "delete building") {
+                        self.model.remove_b(b);
+                    }
+                } else if let Some(r) = self.model.mouseover_road(cursor) {
+                    if input.key_pressed(Key::Backspace, "delete road") {
+                        self.model.remove_road(r);
+                    }
                 }
             }
         }
+
+        input.populate_osd(osd);
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, _osd: Text) {
+    fn draw(&self, g: &mut GfxCtx, osd: Text) {
         self.model.draw(g);
 
-        if let Some(i1) = self.creating_road {
+        if let State::CreatingRoad(i1) = self.state {
             g.draw_line(
                 Color::GREEN,
-                5.0,
+                model::ROAD_WIDTH,
                 &Line::new(
-                    self.model.intersections[&i1].center,
+                    self.model.get_i_center(i1),
                     self.canvas.get_cursor_in_map_space(),
                 ),
             );
         }
+
+        self.canvas.draw_text(g, osd, ezgui::BOTTOM_LEFT);
     }
 }
 
