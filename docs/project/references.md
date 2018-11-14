@@ -10,6 +10,9 @@
 
 - Seattle Times Traffic Lab
 - https://www.citylab.com/transportation/2018/08/is-it-time-to-rethink-what-a-bike-lane-is/568483/
+- http://openseattle.org/
+- https://igniteseattle.com/
+- http://seattlegreenways.org/
 
 ## Similar projects
 

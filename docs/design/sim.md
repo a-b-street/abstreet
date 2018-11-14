@@ -17,6 +17,8 @@ currently begin departing, it'll keep trying every tick.
 
 - serde tricks
 - unit tests
+- https://gafferongames.com/post/deterministic_lockstep/
+- https://gafferongames.com/post/floating_point_determinism/
 
 ## Modeling choices
 

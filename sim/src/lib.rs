@@ -32,6 +32,7 @@ mod macros;
 
 mod driving;
 mod events;
+//mod fsm;
 mod helpers;
 mod instrument;
 mod intersections;
