@@ -2,12 +2,12 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::{raw_data, LaneType, RoadSpec};
+use map_model::{raw_data, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
 
-pub const ROAD_WIDTH: f64 = 5.0;
 const INTERSECTION_RADIUS: f64 = 10.0;
 const BUILDING_LENGTH: f64 = 30.0;
+const CENTER_LINE_THICKNESS: f64 = 0.5;
 
 pub type BuildingID = usize;
 pub type IntersectionID = usize;
@@ -54,11 +54,53 @@ pub struct Road {
 
 impl Road {
     fn polygon(&self, model: &Model) -> Polygon {
+        // TODO width changes
         PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
-        ]).make_polygons(ROAD_WIDTH)
+        ]).make_polygons(LANE_THICKNESS * ((self.lanes.fwd.len() + self.lanes.back.len()) as f64))
         .unwrap()
+    }
+
+    fn draw(&self, model: &Model, g: &mut GfxCtx) {
+        let base = PolyLine::new(vec![
+            model.intersections[&self.i1].center,
+            model.intersections[&self.i2].center,
+        ]);
+
+        for (idx, lt) in self.lanes.fwd.iter().enumerate() {
+            g.draw_polygon(
+                Road::lt_to_color(*lt),
+                &base
+                    .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
+                    .make_polygons_blindly(LANE_THICKNESS),
+            );
+        }
+        for (idx, lt) in self.lanes.back.iter().enumerate() {
+            g.draw_polygon(
+                Road::lt_to_color(*lt),
+                &base
+                    .reversed()
+                    .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
+                    .make_polygons_blindly(LANE_THICKNESS),
+            );
+        }
+
+        g.draw_polygon(
+            Color::YELLOW,
+            &base.make_polygons_blindly(CENTER_LINE_THICKNESS),
+        );
+    }
+
+    // Copied from render/lane.rs. :(
+    fn lt_to_color(lt: LaneType) -> Color {
+        match lt {
+            LaneType::Driving => Color::BLACK,
+            LaneType::Bus => Color::rgb(190, 74, 76),
+            LaneType::Parking => Color::grey(0.2),
+            LaneType::Sidewalk => Color::grey(0.8),
+            LaneType::Biking => Color::rgb(15, 125, 75),
+        }
     }
 }
 
@@ -87,7 +129,7 @@ impl Model {
         g.clear(Color::WHITE);
 
         for r in self.roads.values() {
-            g.draw_polygon(Color::BLACK, &r.polygon(self));
+            r.draw(self, g);
         }
 
         for i in self.intersections.values() {

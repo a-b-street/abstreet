@@ -165,7 +165,7 @@ impl GUI for UI {
             State::CreatingRoad(i1) => {
                 g.draw_line(
                     Color::GREEN,
-                    model::ROAD_WIDTH,
+                    5.0,
                     &Line::new(
                         self.model.get_i_center(i1),
                         self.canvas.get_cursor_in_map_space(),

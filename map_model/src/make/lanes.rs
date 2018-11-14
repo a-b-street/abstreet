@@ -159,7 +159,7 @@ impl RoadSpec {
                 return None;
             }
         }
-        if seen_slash {
+        if seen_slash && (fwd.len() + back.len()) > 0 {
             Some(RoadSpec { fwd, back })
         } else {
             None
