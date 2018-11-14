@@ -41,6 +41,7 @@ pub use bus_stop::{BusRoute, BusStop, BusStopID};
 pub use edits::{EditReason, RoadEdits};
 pub use intersection::{Intersection, IntersectionID, IntersectionType};
 pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
+pub use make::RoadSpec;
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::{Path, PathStep, Pathfinder, Trace};

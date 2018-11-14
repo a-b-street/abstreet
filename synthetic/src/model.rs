@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::{LaneType, raw_data};
+use map_model::{raw_data, LaneType, RoadSpec};
 use std::collections::BTreeMap;
 
 pub const ROAD_WIDTH: f64 = 5.0;
@@ -49,6 +49,7 @@ impl Intersection {
 pub struct Road {
     i1: IntersectionID,
     i2: IntersectionID,
+    lanes: RoadSpec,
 }
 
 impl Road {
@@ -123,12 +124,14 @@ impl Model {
         }
 
         for (idx, r) in self.roads.values().enumerate() {
+            let mut osm_tags = BTreeMap::new();
+            osm_tags.insert("synthetic_lanes".to_string(), r.lanes.to_string());
             map.roads.push(raw_data::Road {
                 points: vec![
                     pt(self.intersections[&r.i1].center),
                     pt(self.intersections[&r.i2].center),
                 ],
-                osm_tags: BTreeMap::new(),
+                osm_tags,
                 osm_way_id: idx as i64,
             });
         }
@@ -211,7 +214,25 @@ impl Model {
             println!("Road already exists");
             return;
         }
-        self.roads.insert(id, Road { i1, i2 });
+        self.roads.insert(
+            id,
+            Road {
+                i1,
+                i2,
+                lanes: RoadSpec {
+                    fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+                    back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+                },
+            },
+        );
+    }
+
+    pub fn edit_lanes(&mut self, id: RoadID, spec: String) {
+        if let Some(s) = RoadSpec::parse(spec.clone()) {
+            self.roads.get_mut(&id).unwrap().lanes = s;
+        } else {
+            println!("Bad RoadSpec: {}", spec);
+        }
     }
 
     pub fn remove_road(&mut self, id: RoadID) {
@@ -249,72 +270,5 @@ impl Model {
             }
         }
         None
-    }
-}
-
-// TODO move to make/lanes
-
-// This is a convenient way for the synthetic map editor to plumb instructions here.
-pub struct RoadSpec {
-    pub fwd: Vec<LaneType>,
-    pub back: Vec<LaneType>,
-}
-
-impl RoadSpec {
-    fn to_string(&self) -> String {
-        let mut s: Vec<char> = Vec::new();
-        for lt in &self.fwd {
-            s.push(RoadSpec::lt_to_char(*lt));
-        }
-        s.push('/');
-        for lt in &self.back {
-            s.push(RoadSpec::lt_to_char(*lt));
-        }
-        s.into_iter().collect()
-    }
-
-    fn parse(&self, s: String) -> Option<RoadSpec> {
-        let mut fwd: Vec<LaneType> = Vec::new();
-        let mut back: Vec<LaneType> = Vec::new();
-        let mut seen_slash = false;
-        for c in s.chars() {
-            if !seen_slash && c == '/' {
-                seen_slash = true;
-            } else if let Some(lt) = RoadSpec::char_to_lt(c) {
-                if seen_slash {
-                    back.push(lt);
-                } else {
-                    fwd.push(lt);
-                }
-            } else {
-                return None;
-            }
-        }
-        if seen_slash {
-            Some(RoadSpec { fwd, back })
-        } else {
-            None
-        }
-    }
-
-    fn lt_to_char(lt: LaneType) -> char {
-        match lt {
-            LaneType::Driving => 'd',
-            LaneType::Parking => 'p',
-            LaneType::Sidewalk => 's',
-            LaneType::Biking => 'b',
-            LaneType::Bus => 'u',
-        }
-    }
-
-    fn char_to_lt(c: char) -> Option<LaneType> {
-        match c {
-            'd' => Some(LaneType::Driving),
-            'p' => Some(LaneType::Parking),
-            's' => Some(LaneType::Sidewalk),
-            'b' => Some(LaneType::Biking),
-            'u' => Some(LaneType::Bus),
-            _ => None,
-        }
     }
 }

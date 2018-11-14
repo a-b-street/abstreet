@@ -6,6 +6,15 @@ use std::iter;
 
 // (original direction, reversed direction)
 fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
+    // The raw_data might come from the synthetic map editor.
+    if let Some(s) = r.osm_tags.get("synthetic_lanes") {
+        if let Some(spec) = RoadSpec::parse(s.to_string()) {
+            return (spec.fwd, spec.back);
+        } else {
+            panic!("Bad synthetic_lanes RoadSpec: {}", s);
+        }
+    }
+
     // Easy special cases first.
     if r.osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
@@ -111,4 +120,70 @@ pub fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &RoadEdits) -> Vec<
         panic!("{} wound up with no lanes! {:?}", id, r);
     }
     specs
+}
+
+// This is a convenient way for the synthetic map editor to plumb instructions here.
+#[derive(Serialize, Deserialize)]
+pub struct RoadSpec {
+    pub fwd: Vec<LaneType>,
+    pub back: Vec<LaneType>,
+}
+
+impl RoadSpec {
+    pub fn to_string(&self) -> String {
+        let mut s: Vec<char> = Vec::new();
+        for lt in &self.fwd {
+            s.push(RoadSpec::lt_to_char(*lt));
+        }
+        s.push('/');
+        for lt in &self.back {
+            s.push(RoadSpec::lt_to_char(*lt));
+        }
+        s.into_iter().collect()
+    }
+
+    pub fn parse(s: String) -> Option<RoadSpec> {
+        let mut fwd: Vec<LaneType> = Vec::new();
+        let mut back: Vec<LaneType> = Vec::new();
+        let mut seen_slash = false;
+        for c in s.chars() {
+            if !seen_slash && c == '/' {
+                seen_slash = true;
+            } else if let Some(lt) = RoadSpec::char_to_lt(c) {
+                if seen_slash {
+                    back.push(lt);
+                } else {
+                    fwd.push(lt);
+                }
+            } else {
+                return None;
+            }
+        }
+        if seen_slash {
+            Some(RoadSpec { fwd, back })
+        } else {
+            None
+        }
+    }
+
+    fn lt_to_char(lt: LaneType) -> char {
+        match lt {
+            LaneType::Driving => 'd',
+            LaneType::Parking => 'p',
+            LaneType::Sidewalk => 's',
+            LaneType::Biking => 'b',
+            LaneType::Bus => 'u',
+        }
+    }
+
+    fn char_to_lt(c: char) -> Option<LaneType> {
+        match c {
+            'd' => Some(LaneType::Driving),
+            'p' => Some(LaneType::Parking),
+            's' => Some(LaneType::Sidewalk),
+            'b' => Some(LaneType::Biking),
+            'u' => Some(LaneType::Bus),
+            _ => None,
+        }
+    }
 }

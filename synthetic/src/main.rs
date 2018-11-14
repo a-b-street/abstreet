@@ -11,7 +11,7 @@ mod model;
 
 use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, Wizard, GUI};
 use geom::Line;
-use model::{BuildingID, IntersectionID, Model};
+use model::{BuildingID, IntersectionID, Model, RoadID};
 use piston::input::Key;
 use std::{env, process};
 
@@ -28,6 +28,7 @@ enum State {
     MovingIntersection(IntersectionID),
     MovingBuilding(BuildingID),
     CreatingRoad(IntersectionID),
+    EditingRoad(RoadID, Wizard),
     SavingModel(Wizard),
 }
 
@@ -80,6 +81,18 @@ impl GUI for UI {
                     }
                 }
             }
+            State::EditingRoad(id, ref mut wizard) => {
+                if let Some(s) = wizard
+                    .wrap(&mut input)
+                    // TODO prefill
+                    .input_string("Specify the lanes")
+                {
+                    self.model.edit_lanes(id, s);
+                    new_state = Some(State::Viewing);
+                } else if wizard.aborted() {
+                    new_state = Some(State::Viewing);
+                }
+            }
             State::SavingModel(ref mut wizard) => {
                 if let Some(name) = wizard
                     .wrap(&mut input)
@@ -128,6 +141,8 @@ impl GUI for UI {
                 } else if let Some(r) = self.model.mouseover_road(cursor) {
                     if input.key_pressed(Key::Backspace, "delete road") {
                         self.model.remove_road(r);
+                    } else if input.key_pressed(Key::E, "edit lanes") {
+                        self.state = State::EditingRoad(r, Wizard::new());
                     }
                 }
             }
@@ -158,7 +173,7 @@ impl GUI for UI {
                     ),
                 );
             }
-            State::SavingModel(ref wizard) => {
+            State::EditingRoad(_, ref wizard) | State::SavingModel(ref wizard) => {
                 wizard.draw(g, &self.canvas);
             }
             _ => {}
