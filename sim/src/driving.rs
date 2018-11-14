@@ -459,8 +459,10 @@ pub struct DrivingSimState {
     // Separate from cars so we can have different mutability in react()
     routers: BTreeMap<CarID, Router>,
     lanes: Vec<SimQueue>,
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     turns: BTreeMap<TurnID, SimQueue>,
     debug: Option<CarID>,
 }

@@ -209,8 +209,10 @@ struct StopSign {
     // https://stackoverflow.com/questions/42723065/how-to-sort-hashmap-keys-when-serializing-with-serde
     // is an alt.
     // This is when the agent actually stopped.
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     started_waiting_at: BTreeMap<Request, Tick>,
     accepted: BTreeSet<Request>,
 

@@ -1,5 +1,8 @@
+use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Circle, PolyLine, Polygon, Pt2D};
+use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
+use map_model::raw_data;
 use std::collections::BTreeMap;
 
 pub const ROAD_WIDTH: f64 = 5.0;
@@ -10,12 +13,27 @@ pub type BuildingID = usize;
 pub type IntersectionID = usize;
 pub type RoadID = (IntersectionID, IntersectionID);
 
+#[derive(Serialize, Deserialize)]
 pub struct Model {
+    pub name: Option<String>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     intersections: BTreeMap<IntersectionID, Intersection>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     roads: BTreeMap<RoadID, Road>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     buildings: BTreeMap<BuildingID, Building>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Intersection {
     center: Pt2D,
 }
@@ -26,6 +44,7 @@ impl Intersection {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Road {
     i1: IntersectionID,
     i2: IntersectionID,
@@ -41,6 +60,7 @@ impl Road {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Building {
     center: Pt2D,
 }
@@ -54,6 +74,7 @@ impl Building {
 impl Model {
     pub fn new() -> Model {
         Model {
+            name: None,
             intersections: BTreeMap::new(),
             roads: BTreeMap::new(),
             buildings: BTreeMap::new(),
@@ -74,6 +95,59 @@ impl Model {
         for b in self.buildings.values() {
             g.draw_polygon(Color::BLUE, &b.polygon());
         }
+    }
+
+    pub fn save(&self) {
+        let path = format!(
+            "../data/synthetic_maps/{}.json",
+            self.name.as_ref().expect("Model hasn't been named yet")
+        );
+        write_json(&path, self).expect(&format!("Saving {} failed", path));
+        println!("Saved {}", path);
+    }
+
+    pub fn export(&self) {
+        let mut map = raw_data::Map::blank();
+        map.coordinates_in_world_space = true;
+
+        fn pt(p: Pt2D) -> LonLat {
+            LonLat::new(p.x(), p.y())
+        }
+
+        for (idx, r) in self.roads.values().enumerate() {
+            map.roads.push(raw_data::Road {
+                points: vec![
+                    pt(self.intersections[&r.i1].center),
+                    pt(self.intersections[&r.i2].center),
+                ],
+                osm_tags: BTreeMap::new(),
+                osm_way_id: idx as i64,
+            });
+        }
+
+        for i in self.intersections.values() {
+            map.intersections.push(raw_data::Intersection {
+                point: pt(i.center),
+                elevation: 0.0 * si::M,
+                has_traffic_signal: false,
+            });
+        }
+
+        for (idx, b) in self.buildings.values().enumerate() {
+            map.buildings.push(raw_data::Building {
+                // TODO Duplicate points :(
+                points: b.polygon().points().into_iter().map(|p| pt(p)).collect(),
+                osm_tags: BTreeMap::new(),
+                osm_way_id: idx as i64,
+            });
+        }
+
+        let path = format!(
+            "../data/raw_maps/{}.abst",
+            self.name.as_ref().expect("Model hasn't been named yet")
+        );
+        abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
+        println!("Exported {}", path);
     }
 }
 

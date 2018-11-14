@@ -50,11 +50,15 @@ enum BusState {
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct TransitSimState {
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     buses: BTreeMap<CarID, Bus>,
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     routes: BTreeMap<RouteID, Route>,
 }
 

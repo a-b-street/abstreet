@@ -9,8 +9,10 @@ use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, ScoreSummary, Tick, TripI
 pub struct TripManager {
     trips: Vec<Trip>,
     // For quick lookup of active agents
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
 }
 

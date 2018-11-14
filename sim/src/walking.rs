@@ -313,11 +313,15 @@ pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
     peds: BTreeMap<PedestrianID, Pedestrian>,
     peds_per_sidewalk: MultiMap<LaneID, PedestrianID>,
-    #[serde(serialize_with = "serialize_multimap")]
-    #[serde(deserialize_with = "deserialize_multimap")]
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
     peds_per_turn: MultiMap<TurnID, PedestrianID>,
-    #[serde(serialize_with = "serialize_multimap")]
-    #[serde(deserialize_with = "deserialize_multimap")]
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
     peds_per_bus_stop: MultiMap<BusStopID, PedestrianID>,
 }
 

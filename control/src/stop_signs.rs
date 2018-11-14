@@ -22,8 +22,10 @@ pub enum TurnPriority {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {
     intersection: IntersectionID,
-    #[serde(serialize_with = "serialize_btreemap")]
-    #[serde(deserialize_with = "deserialize_btreemap")]
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     turns: BTreeMap<TurnID, TurnPriority>,
     // TODO
     changed: bool,
