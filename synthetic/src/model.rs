@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::raw_data;
+use map_model::{LaneType, raw_data};
 use std::collections::BTreeMap;
 
 pub const ROAD_WIDTH: f64 = 5.0;
@@ -36,6 +36,7 @@ pub struct Model {
 #[derive(Serialize, Deserialize)]
 pub struct Intersection {
     center: Pt2D,
+    has_traffic_signal: bool,
 }
 
 impl Intersection {
@@ -89,7 +90,14 @@ impl Model {
         }
 
         for i in self.intersections.values() {
-            g.draw_circle(Color::RED, &i.circle());
+            g.draw_circle(
+                if i.has_traffic_signal {
+                    Color::GREEN
+                } else {
+                    Color::RED
+                },
+                &i.circle(),
+            );
         }
 
         for b in self.buildings.values() {
@@ -129,7 +137,7 @@ impl Model {
             map.intersections.push(raw_data::Intersection {
                 point: pt(i.center),
                 elevation: 0.0 * si::M,
-                has_traffic_signal: false,
+                has_traffic_signal: i.has_traffic_signal,
             });
         }
 
@@ -154,11 +162,22 @@ impl Model {
 impl Model {
     pub fn create_i(&mut self, center: Pt2D) {
         let id = self.intersections.len();
-        self.intersections.insert(id, Intersection { center });
+        self.intersections.insert(
+            id,
+            Intersection {
+                center,
+                has_traffic_signal: false,
+            },
+        );
     }
 
     pub fn move_i(&mut self, id: IntersectionID, center: Pt2D) {
         self.intersections.get_mut(&id).unwrap().center = center;
+    }
+
+    pub fn toggle_i_type(&mut self, id: IntersectionID) {
+        let i = self.intersections.get_mut(&id).unwrap();
+        i.has_traffic_signal = !i.has_traffic_signal;
     }
 
     pub fn remove_i(&mut self, id: IntersectionID) {
@@ -230,5 +249,72 @@ impl Model {
             }
         }
         None
+    }
+}
+
+// TODO move to make/lanes
+
+// This is a convenient way for the synthetic map editor to plumb instructions here.
+pub struct RoadSpec {
+    pub fwd: Vec<LaneType>,
+    pub back: Vec<LaneType>,
+}
+
+impl RoadSpec {
+    fn to_string(&self) -> String {
+        let mut s: Vec<char> = Vec::new();
+        for lt in &self.fwd {
+            s.push(RoadSpec::lt_to_char(*lt));
+        }
+        s.push('/');
+        for lt in &self.back {
+            s.push(RoadSpec::lt_to_char(*lt));
+        }
+        s.into_iter().collect()
+    }
+
+    fn parse(&self, s: String) -> Option<RoadSpec> {
+        let mut fwd: Vec<LaneType> = Vec::new();
+        let mut back: Vec<LaneType> = Vec::new();
+        let mut seen_slash = false;
+        for c in s.chars() {
+            if !seen_slash && c == '/' {
+                seen_slash = true;
+            } else if let Some(lt) = RoadSpec::char_to_lt(c) {
+                if seen_slash {
+                    back.push(lt);
+                } else {
+                    fwd.push(lt);
+                }
+            } else {
+                return None;
+            }
+        }
+        if seen_slash {
+            Some(RoadSpec { fwd, back })
+        } else {
+            None
+        }
+    }
+
+    fn lt_to_char(lt: LaneType) -> char {
+        match lt {
+            LaneType::Driving => 'd',
+            LaneType::Parking => 'p',
+            LaneType::Sidewalk => 's',
+            LaneType::Biking => 'b',
+            LaneType::Bus => 'u',
+        }
+    }
+
+    fn char_to_lt(c: char) -> Option<LaneType> {
+        match c {
+            'd' => Some(LaneType::Driving),
+            'p' => Some(LaneType::Parking),
+            's' => Some(LaneType::Sidewalk),
+            'b' => Some(LaneType::Biking),
+            'u' => Some(LaneType::Bus),
+            _ => None,
+        }
     }
 }

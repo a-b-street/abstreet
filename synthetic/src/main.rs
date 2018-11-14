@@ -116,6 +116,8 @@ impl GUI for UI {
                         self.state = State::CreatingRoad(i);
                     } else if input.key_pressed(Key::Backspace, "delete intersection") {
                         self.model.remove_i(i);
+                    } else if input.key_pressed(Key::T, "toggle intersection type") {
+                        self.model.toggle_i_type(i);
                     }
                 } else if let Some(b) = self.model.mouseover_building(cursor) {
                     if input.key_pressed(Key::LCtrl, "move building") {
