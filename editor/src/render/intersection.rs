@@ -52,14 +52,9 @@ impl DrawIntersection {
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: Ctx) {
         let radius = 0.5;
 
-        g.draw_rectangle(
+        g.draw_polygon(
             ctx.cs.get("traffic signal box", Color::BLACK),
-            [
-                self.center.x() - (2.0 * radius),
-                self.center.y() - (4.0 * radius),
-                4.0 * radius,
-                8.0 * radius,
-            ],
+            &Polygon::rectangle(self.center, 4.0 * radius, 8.0 * radius),
         );
 
         g.draw_circle(

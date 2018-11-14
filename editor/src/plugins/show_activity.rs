@@ -1,5 +1,5 @@
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use objects::{Ctx, DEBUG};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -112,14 +112,16 @@ impl Heatmap {
                 let percent = (self.counts[x][y] as f32) / (self.max as f32);
                 // TODO Map percent to hot/cold colors. For now, don't ever become totally opaque.
                 let color = Color::rgba(255, 0, 0, percent * 0.8);
-                g.draw_rectangle(
+                g.draw_polygon(
                     color,
-                    [
-                        self.bounds.min_x + (x as f64) * tile_width,
-                        self.bounds.min_y + (y as f64) * tile_height,
+                    &Polygon::rectangle_topleft(
+                        Pt2D::new(
+                            self.bounds.min_x + (x as f64) * tile_width,
+                            self.bounds.min_y + (y as f64) * tile_height,
+                        ),
                         tile_width,
                         tile_height,
-                    ],
+                    ),
                 );
             }
         }

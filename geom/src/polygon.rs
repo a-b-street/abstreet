@@ -164,6 +164,28 @@ impl Polygon {
                 .collect(),
         )
     }
+
+    pub fn rectangle(center: Pt2D, width: f64, height: f64) -> Polygon {
+        let (x, y) = (center.x(), center.y());
+        let half_width = width / 2.0;
+        let half_height = height / 2.0;
+        Polygon::new(&vec![
+            Pt2D::new(x - half_width, y - half_height),
+            Pt2D::new(x + half_width, y - half_height),
+            Pt2D::new(x + half_width, y + half_height),
+            Pt2D::new(x - half_width, y + half_height),
+        ])
+    }
+
+    pub fn rectangle_topleft(top_left: Pt2D, width: f64, height: f64) -> Polygon {
+        let (x, y) = (top_left.x(), top_left.y());
+        Polygon::new(&vec![
+            Pt2D::new(x, y),
+            Pt2D::new(x + width, y),
+            Pt2D::new(x + width, y + height),
+            Pt2D::new(x, y + height),
+        ])
+    }
 }
 
 #[derive(Clone, Debug)]

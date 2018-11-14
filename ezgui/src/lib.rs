@@ -138,16 +138,6 @@ impl<'a> GfxCtx<'a> {
             self.gfx,
         );
     }
-
-    // TODO probably better to have a Polygon::make_rectangle helper or something
-    pub fn draw_rectangle(&mut self, color: Color, rect: [f64; 4]) {
-        graphics::Rectangle::new(color.0).draw(
-            rect,
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );
-    }
 }
 
 pub struct ToggleableLayer {

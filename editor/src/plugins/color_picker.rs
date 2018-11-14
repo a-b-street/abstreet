@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
+use geom::Polygon;
 use objects::{Ctx, SETTINGS};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -102,9 +103,9 @@ impl Plugin for ColorPicker {
                             (x * TILE_DIMS + start_x) as f64,
                             (y * TILE_DIMS + start_y) as f64,
                         ));
-                        g.draw_rectangle(
+                        g.draw_polygon(
                             color,
-                            [corner.x(), corner.y(), TILE_DIMS as f64, TILE_DIMS as f64],
+                            &Polygon::rectangle_topleft(corner, TILE_DIMS as f64, TILE_DIMS as f64),
                         );
                     }
                 }

@@ -42,19 +42,12 @@ impl Road {
 }
 
 pub struct Building {
-    top_left: Pt2D,
+    center: Pt2D,
 }
 
 impl Building {
     fn polygon(&self) -> Polygon {
-        let (x, y) = (self.top_left.x(), self.top_left.y());
-
-        Polygon::new(&vec![
-            Pt2D::new(x, y),
-            Pt2D::new(x + BUILDING_LENGTH, y),
-            Pt2D::new(x + BUILDING_LENGTH, y + BUILDING_LENGTH),
-            Pt2D::new(x, y + BUILDING_LENGTH),
-        ])
+        Polygon::rectangle(self.center, BUILDING_LENGTH, BUILDING_LENGTH)
     }
 }
 
@@ -143,13 +136,13 @@ impl Model {
 }
 
 impl Model {
-    pub fn create_b(&mut self, top_left: Pt2D) {
+    pub fn create_b(&mut self, center: Pt2D) {
         let id = self.buildings.len();
-        self.buildings.insert(id, Building { top_left });
+        self.buildings.insert(id, Building { center });
     }
 
-    pub fn move_b(&mut self, id: IntersectionID, top_left: Pt2D) {
-        self.buildings.get_mut(&id).unwrap().top_left = top_left;
+    pub fn move_b(&mut self, id: IntersectionID, center: Pt2D) {
+        self.buildings.get_mut(&id).unwrap().center = center;
     }
 
     pub fn remove_b(&mut self, id: BuildingID) {
