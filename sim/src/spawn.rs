@@ -222,7 +222,7 @@ impl Spawner {
                     }
                     Command::Walk(_, trip, ped, start, goal) => {
                         trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(events, ped, trip, start, goal, path);
+                        walking_sim.seed_pedestrian(events, ped, trip, start, goal, path, now);
                         spawned_agents += 1;
                     }
                 };
@@ -481,8 +481,7 @@ impl Spawner {
         self.car_id_counter += 1;
 
         let mut legs = vec![
-            // They just walk down the front path
-            TripLeg::Walk(SidewalkSpot::building(start_bldg, map)),
+            TripLeg::Walk(SidewalkSpot::bike_rack(start_bldg, map)),
             TripLeg::Bike(Vehicle::generate_bike(bike_id, rng), goal.clone()),
         ];
         if let DrivingGoal::ParkNear(b) = goal {
@@ -493,7 +492,7 @@ impl Spawner {
             trips.new_trip(at, ped_id, legs),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::building(start_bldg, map),
+            SidewalkSpot::bike_rack(start_bldg, map),
         ));
     }
 

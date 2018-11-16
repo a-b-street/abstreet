@@ -27,6 +27,11 @@ const SPEED: Speed = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
+const TIME_TO_PREPARE_BIKE: Time = si::Second {
+    value_unsafe: 30.0,
+    _marker: std::marker::PhantomData,
+};
+
 // A pedestrian can start from a parking spot (after driving and parking) or at a building.
 // A pedestrian can end at a parking spot (to start driving) or at a building.
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -57,6 +62,16 @@ impl SidewalkSpot {
         let front_path = &map.get_b(bldg).front_path;
         SidewalkSpot {
             connection: SidewalkPOI::Building(bldg),
+            sidewalk: front_path.sidewalk,
+            dist_along: front_path.dist_along_sidewalk,
+        }
+    }
+
+    // These happen to be lined up with buildings right now
+    pub fn bike_rack(bldg: BuildingID, map: &Map) -> SidewalkSpot {
+        let front_path = &map.get_b(bldg).front_path;
+        SidewalkSpot {
+            connection: SidewalkPOI::BikeRack,
             sidewalk: front_path.sidewalk,
             dist_along: front_path.dist_along_sidewalk,
         }
@@ -104,6 +119,7 @@ enum SidewalkPOI {
     Building(BuildingID),
     BusStop(BusStopID),
     Border(IntersectionID),
+    BikeRack,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -114,11 +130,20 @@ struct CrossingFrontPath {
     going_to_sidewalk: bool,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct BikeParkingState {
+    // False means departing
+    is_parking: bool,
+    started_at: Tick,
+}
+
 enum Action {
     StartParkedCar(ParkingSpot),
     WaitAtBusStop(BusStopID),
     StartCrossingPath(BuildingID),
     KeepCrossingPath,
+    StartPreparingBike,
+    KeepPreparingBike,
     Continue,
     TransitionToNextStep,
     WaitFor(TurnID),
@@ -139,6 +164,7 @@ struct Pedestrian {
     path: Path,
 
     front_path: Option<CrossingFrontPath>,
+    bike_parking: Option<BikeParkingState>,
     goal: SidewalkSpot,
 
     // If false, don't react() and step(). Waiting for a bus.
@@ -162,6 +188,9 @@ impl Pedestrian {
         if self.front_path.is_some() {
             return Action::KeepCrossingPath;
         }
+        if self.bike_parking.is_some() {
+            return Action::KeepPreparingBike;
+        }
 
         if self.path.is_last_step() {
             let goal_dist = self.goal.dist_along;
@@ -179,6 +208,7 @@ impl Pedestrian {
                     SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
                     SidewalkPOI::BusStop(stop) => Action::WaitAtBusStop(stop),
                     SidewalkPOI::Border(_) => Action::VanishAtBorder,
+                    SidewalkPOI::BikeRack => Action::StartPreparingBike,
                 };
             }
             return Action::Continue;
@@ -351,7 +381,8 @@ impl WalkingSimState {
         // No-op
     }
 
-    // Return all the pedestrians that have reached a parking spot.
+    // Return all the pedestrians that have reached a parking spot and all the pedestrians that're
+    // ready to start biking.
     pub fn step(
         &mut self,
         events: &mut Vec<Event>,
@@ -361,7 +392,7 @@ impl WalkingSimState {
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
         current_agent: &mut Option<AgentID>,
-    ) -> Result<Vec<(PedestrianID, ParkingSpot)>, Error> {
+    ) -> Result<(Vec<(PedestrianID, ParkingSpot)>, Vec<PedestrianID>), Error> {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
@@ -374,12 +405,22 @@ impl WalkingSimState {
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
 
-        let mut results = Vec::new();
+        let mut reached_parking = Vec::new();
+        let mut ready_to_bike = Vec::new();
 
         // Apply moves. This can also be concurrent, since there are no possible conflicts.
         for (id, act) in &requested_moves {
             *current_agent = Some(AgentID::Pedestrian(*id));
             match *act {
+                Action::StartCrossingPath(bldg) => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = true;
+                    p.front_path = Some(CrossingFrontPath {
+                        bldg,
+                        dist_along: map.get_b(bldg).front_path.line.length(),
+                        going_to_sidewalk: false,
+                    });
+                }
                 Action::KeepCrossingPath => {
                     let done = {
                         let p = self.peds.get_mut(&id).unwrap();
@@ -392,6 +433,26 @@ impl WalkingSimState {
                         trips.ped_reached_building_or_border(*id, now);
                     }
                 }
+                Action::StartPreparingBike => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = false;
+                    p.bike_parking = Some(BikeParkingState {
+                        is_parking: false,
+                        started_at: now,
+                    });
+                }
+                Action::KeepPreparingBike => {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    if (now - p.bike_parking.unwrap().started_at).as_time() >= TIME_TO_PREPARE_BIKE {
+                        if p.bike_parking.unwrap().is_parking {
+                            // Now they'll start walking somewhere
+                            p.bike_parking = None;
+                        } else {
+                            ready_to_bike.push(*id);
+                            self.peds.remove(&id);
+                        }
+                    }
+                }
                 Action::WaitAtBusStop(stop) => {
                     let p = self.peds.get_mut(&id).unwrap();
                     p.active = false;
@@ -402,16 +463,7 @@ impl WalkingSimState {
                 }
                 Action::StartParkedCar(ref spot) => {
                     self.peds.remove(&id);
-                    results.push((*id, *spot));
-                }
-                Action::StartCrossingPath(bldg) => {
-                    let p = self.peds.get_mut(&id).unwrap();
-                    p.moving = true;
-                    p.front_path = Some(CrossingFrontPath {
-                        bldg,
-                        dist_along: map.get_b(bldg).front_path.line.length(),
-                        going_to_sidewalk: false,
-                    });
+                    reached_parking.push((*id, *spot));
                 }
                 Action::Continue => {
                     let p = self.peds.get_mut(&id).unwrap();
@@ -452,7 +504,7 @@ impl WalkingSimState {
             };
         }
 
-        Ok(results)
+        Ok((reached_parking, ready_to_bike))
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -506,6 +558,7 @@ impl WalkingSimState {
         start: SidewalkSpot,
         goal: SidewalkSpot,
         path: Path,
+        now: Tick,
     ) {
         let start_lane = start.sidewalk;
         assert_eq!(
@@ -525,6 +578,13 @@ impl WalkingSimState {
             }),
             _ => None,
         };
+        let bike_parking = match start.connection {
+            SidewalkPOI::BikeRack => Some(BikeParkingState {
+                is_parking: true,
+                started_at: now,
+            }),
+            _ => None,
+        };
 
         self.peds.insert(
             id,
@@ -535,6 +595,7 @@ impl WalkingSimState {
                 on: Traversable::Lane(start_lane),
                 dist_along: start.dist_along,
                 front_path,
+                bike_parking,
                 goal,
                 moving: true,
                 active: true,
