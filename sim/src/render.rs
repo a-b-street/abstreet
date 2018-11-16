@@ -41,12 +41,11 @@ impl Sim {
     // TODO maybe just DrawAgent instead? should caller care?
     pub fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
         match map.get_l(l).lane_type {
-            LaneType::Driving | LaneType::Bus => {
+            LaneType::Driving | LaneType::Bus | LaneType::Biking => {
                 self.driving_state.get_draw_cars_on_lane(l, self.time, map)
             }
             LaneType::Parking => self.parking_state.get_draw_cars(l),
             LaneType::Sidewalk => Vec::new(),
-            LaneType::Biking => Vec::new(),
         }
     }
 

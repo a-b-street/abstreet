@@ -176,6 +176,8 @@ impl Spawner {
                                         Router::make_router_to_border(path)
                                     }
                                 },
+                                is_bus: false,
+                                is_bike: false,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -207,6 +209,8 @@ impl Spawner {
                                         Router::make_router_to_border(path)
                                     }
                                 },
+                                is_bus: false,
+                                is_bike: false,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -280,6 +284,8 @@ impl Spawner {
                     start,
                     dist_along: start_dist_along,
                     router: Router::make_router_for_bus(path),
+                    is_bus: true,
+                    is_bike: false,
                 },
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);

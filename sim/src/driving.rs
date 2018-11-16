@@ -58,6 +58,7 @@ struct Car {
     debug: bool,
     // TODO ew? :\
     is_bus: bool,
+    is_bike: bool,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -762,7 +763,8 @@ impl DrivingSimState {
                 speed: 0.0 * si::MPS,
                 vehicle: params.vehicle,
                 debug: false,
-                is_bus: !params.maybe_parked_car.is_some(),
+                is_bus: params.is_bus,
+                is_bike: params.is_bike,
                 parking: params.maybe_parked_car.and_then(|parked_car| {
                     Some(ParkingState {
                         is_parking: false,
@@ -900,4 +902,6 @@ pub struct CreateCar {
     pub start: LaneID,
     pub dist_along: Distance,
     pub router: Router,
+    pub is_bus: bool,
+    pub is_bike: bool,
 }
