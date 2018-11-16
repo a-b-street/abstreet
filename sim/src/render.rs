@@ -18,6 +18,7 @@ pub struct DrawCarInput {
     pub angle: Angle,
     pub stopping_trace: Option<Trace>,
     pub state: CarState,
+    pub is_bike: bool,
 }
 
 #[derive(PartialEq, Eq)]

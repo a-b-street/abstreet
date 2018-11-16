@@ -1,6 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 mod area;
+mod bike;
 mod building;
 mod bus_stop;
 mod car;
@@ -17,12 +18,13 @@ use geom::{Bounds, Pt2D};
 use map_model::Map;
 use objects::{Ctx, ID};
 pub use render::area::DrawArea;
-pub use render::car::DrawCar;
+use render::bike::DrawBike;
+use render::car::DrawCar;
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;
 pub use render::turn::DrawTurn;
-use sim::Sim;
+use sim::{DrawCarInput, Sim};
 use std::f64;
 
 // These are all in meters
@@ -51,4 +53,12 @@ pub struct RenderOptions {
     pub color: Option<Color>,
     pub cam_zoom: f64,
     pub debug_mode: bool,
+}
+
+pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {
+    if input.is_bike {
+        Box::new(DrawBike::new(input))
+    } else {
+        Box::new(DrawCar::new(input, map))
+    }
 }

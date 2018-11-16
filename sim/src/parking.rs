@@ -229,6 +229,7 @@ impl ParkingLane {
                         angle: angle,
                         stopping_trace: None,
                         state: CarState::Parked,
+                        is_bike: false,
                     })
                 })
             }).collect()

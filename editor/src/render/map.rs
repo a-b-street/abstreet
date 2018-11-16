@@ -14,14 +14,13 @@ use plugins::layers::ToggleableLayers;
 use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;
-use render::car::DrawCar;
 use render::extra_shape::DrawExtraShape;
 use render::intersection::DrawIntersection;
 use render::lane::DrawLane;
 use render::parcel::DrawParcel;
 use render::pedestrian::DrawPedestrian;
 use render::turn::DrawTurn;
-use render::Renderable;
+use render::{draw_vehicle, Renderable};
 use sim::Sim;
 use std::collections::HashMap;
 use ui::ShowTurnIcons;
@@ -273,7 +272,7 @@ impl DrawMap {
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
                         for c in sim.get_draw_cars_on_lane(*id, map).into_iter() {
-                            cars.push(Box::new(DrawCar::new(c, map)));
+                            cars.push(draw_vehicle(c, map));
                         }
                         for p in sim.get_draw_peds_on_lane(*id, map).into_iter() {
                             peds.push(Box::new(DrawPedestrian::new(p, map)));
@@ -286,7 +285,7 @@ impl DrawMap {
                                 turn_icons.push(Box::new(self.get_t(*t)));
                             }
                             for c in sim.get_draw_cars_on_turn(*t, map).into_iter() {
-                                cars.push(Box::new(DrawCar::new(c, map)));
+                                cars.push(draw_vehicle(c, map));
                             }
                             for p in sim.get_draw_peds_on_turn(*t, map).into_iter() {
                                 peds.push(Box::new(DrawPedestrian::new(p, map)));

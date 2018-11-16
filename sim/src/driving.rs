@@ -829,6 +829,7 @@ impl DrivingSimState {
             } else {
                 CarState::Stuck
             },
+            is_bike: c.is_bike,
         })
     }
 
