@@ -189,7 +189,7 @@ impl Sim {
         }
 
         self.walking_state.populate_view(&mut view);
-        for (ped, spot) in self.walking_state.step(
+        let (reached_parking, ready_to_bike) = self.walking_state.step(
             &mut events,
             TIMESTEP,
             self.time,
@@ -197,7 +197,8 @@ impl Sim {
             &mut self.intersection_state,
             &mut self.trips_state,
             &mut self.current_agent_for_debugging,
-        )? {
+        )?;
+        for (ped, spot) in reached_parking {
             events.push(Event::PedReachedParkingSpot(ped, spot));
             capture_backtrace("PedReachedParkingSpot");
             self.spawner.ped_reached_parking_spot(
@@ -207,6 +208,11 @@ impl Sim {
                 &self.parking_state,
                 &mut self.trips_state,
             );
+        }
+        for (ped, sidewalk, dist) in ready_to_bike {
+            // TODO push an event, backtrace, etc
+            self.spawner
+                .ped_ready_to_bike(self.time, ped, sidewalk, dist, &mut self.trips_state);
         }
 
         self.transit_state.step(

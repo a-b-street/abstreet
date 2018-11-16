@@ -15,12 +15,22 @@ use {
     AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
 };
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Derivative, Debug, Clone)]
+#[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
     // TODO is_bike
     DriveFromBorder(Tick, TripID, CarID, Vehicle, LaneID, DrivingGoal),
+    Bike {
+        at: Tick,
+        trip: TripID,
+        start_sidewalk: LaneID,
+        #[derivative(PartialEq = "ignore")]
+        start_dist: Distance,
+        vehicle: Vehicle,
+        goal: DrivingGoal,
+    },
 }
 
 impl Command {
@@ -29,6 +39,7 @@ impl Command {
             Command::Walk(at, _, _, _, _) => *at,
             Command::Drive(at, _, _, _) => *at,
             Command::DriveFromBorder(at, _, _, _, _, _) => *at,
+            Command::Bike { at, .. } => *at,
         }
     }
 
@@ -55,6 +66,23 @@ impl Command {
                     parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle),
                     goal_lane,
                     map.get_l(goal_lane).length(),
+                )
+            }
+            Command::Bike {
+                start_sidewalk,
+                start_dist,
+                goal,
+                ..
+            } => {
+                let (goal_lane, goal_dist) = match goal {
+                    DrivingGoal::ParkNear(b) => find_biking_goal_near_building(*b, map),
+                    DrivingGoal::Border(_, l) => (*l, map.get_l(*l).length()),
+                };
+                (
+                    map.get_driving_lane_from_sidewalk(*start_sidewalk).unwrap(),
+                    *start_dist,
+                    goal_lane,
+                    goal_dist,
                 )
             }
             Command::DriveFromBorder(_, _, _, _, start, goal) => {
@@ -90,6 +118,21 @@ impl Command {
                     goal.clone(),
                 )
             }
+            Command::Bike {
+                at,
+                trip,
+                start_sidewalk,
+                start_dist,
+                vehicle,
+                goal,
+            } => Command::Bike {
+                at: at.next(),
+                trip: *trip,
+                start_sidewalk: *start_sidewalk,
+                start_dist: *start_dist,
+                vehicle: vehicle.clone(),
+                goal: goal.clone(),
+            },
         }
     }
 }
@@ -215,6 +258,42 @@ impl Spawner {
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
+                            spawned_agents += 1;
+                        } else {
+                            self.enqueue_command(cmd.retry_next_tick());
+                        }
+                    }
+                    Command::Bike {
+                        trip,
+                        vehicle,
+                        goal,
+                        ..
+                    } => {
+                        if driving_sim.start_car_on_lane(
+                            events,
+                            now,
+                            map,
+                            CreateCar {
+                                car: vehicle.id,
+                                trip: Some(trip),
+                                owner: None,
+                                maybe_parked_car: None,
+                                vehicle: vehicle.clone(),
+                                start: req.0,
+                                dist_along: req.1,
+                                router: match goal {
+                                    DrivingGoal::ParkNear(b) => {
+                                        Router::make_bike_router(path, req.3)
+                                    }
+                                    DrivingGoal::Border(_, _) => {
+                                        Router::make_router_to_border(path)
+                                    }
+                                },
+                                is_bus: false,
+                                is_bike: true,
+                            },
+                        ) {
+                            trips.agent_starting_trip_leg(AgentID::Car(vehicle.id), trip);
                             spawned_agents += 1;
                         } else {
                             self.enqueue_command(cmd.retry_next_tick());
@@ -614,6 +693,25 @@ impl Spawner {
         ));
     }
 
+    pub fn ped_ready_to_bike(
+        &mut self,
+        at: Tick,
+        ped: PedestrianID,
+        start_sidewalk: LaneID,
+        start_dist: Distance,
+        trips: &mut TripManager,
+    ) {
+        let (trip, vehicle, goal) = trips.ped_ready_to_bike(ped);
+        self.enqueue_command(Command::Bike {
+            at: at.next(),
+            trip,
+            start_sidewalk,
+            start_dist,
+            vehicle,
+            goal,
+        });
+    }
+
     pub fn ped_reached_parking_spot(
         &mut self,
         at: Tick,
@@ -746,6 +844,53 @@ fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
         {
             if *lane_type == LaneType::Driving {
                 return *lane;
+            }
+        }
+
+        for next_r in map.get_next_roads(r.id).into_iter() {
+            if !visited.contains(&next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
+            }
+        }
+    }
+}
+
+// When biking towards some goal building, there may not be a driving/biking lane directly outside
+// the building. So BFS out in a deterministic way and find one.
+fn find_biking_goal_near_building(b: BuildingID, map: &Map) -> (LaneID, Distance) {
+    // TODO or bike lane
+    if let Ok(l) = map.get_driving_lane_from_bldg(b) {
+        return (l, map.get_b(b).front_path.dist_along_sidewalk);
+    }
+
+    let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
+    let mut visited: HashSet<RoadID> = HashSet::new();
+    {
+        let start = map.building_to_road(b).id;
+        roads_queue.push_back(start);
+        visited.insert(start);
+    }
+
+    loop {
+        if roads_queue.is_empty() {
+            panic!(
+                "Giving up looking for a driving/biking lane near {}, searched {} roads: {:?}",
+                b,
+                visited.len(),
+                visited
+            );
+        }
+        let r = map.get_r(roads_queue.pop_front().unwrap());
+
+        for (lane, lane_type) in r
+            .children_forwards
+            .iter()
+            .chain(r.children_backwards.iter())
+        {
+            if *lane_type == LaneType::Driving || *lane_type == LaneType::Biking {
+                // Just stop in the middle of that road and walk the rest of the way.
+                return (*lane, map.get_l(*lane).length() / 2.0);
             }
         }
 

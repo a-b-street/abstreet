@@ -75,6 +75,24 @@ impl TripManager {
         (trip.id, drive_to)
     }
 
+    pub fn ped_ready_to_bike(&mut self, ped: PedestrianID) -> (TripID, Vehicle, DrivingGoal) {
+        let trip = &mut self.trips[self
+                                       .active_trip_mode
+                                       .remove(&AgentID::Pedestrian(ped))
+                                       .unwrap()
+                                       .0];
+
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Walk(_) => {}
+            x => panic!("First trip leg {:?} doesn't match ped_ready_to_bike", x),
+        };
+        let (vehicle, bike_to) = match trip.legs[0] {
+            TripLeg::Bike(vehicle, to) => (vehicle, to),
+            ref x => panic!("Next trip leg is {:?}, not biking", x),
+        };
+        (trip.id, vehicle, bike_to)
+    }
+
     pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
         let trip = &mut self.trips[self
                                        .active_trip_mode

@@ -471,7 +471,10 @@ impl Map {
     }
 
     pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
-        let sidewalk = self.get_b(bldg).front_path.sidewalk;
+        self.get_driving_lane_from_sidewalk(self.get_b(bldg).front_path.sidewalk)
+    }
+
+    pub fn get_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Result<LaneID, Error> {
         let road = self.get_parent(sidewalk);
         road.find_driving_lane_from_sidewalk(sidewalk)
     }

@@ -382,7 +382,7 @@ impl WalkingSimState {
     }
 
     // Return all the pedestrians that have reached a parking spot and all the pedestrians that're
-    // ready to start biking.
+    // ready to start biking (and where they're starting from).
     pub fn step(
         &mut self,
         events: &mut Vec<Event>,
@@ -392,7 +392,13 @@ impl WalkingSimState {
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
         current_agent: &mut Option<AgentID>,
-    ) -> Result<(Vec<(PedestrianID, ParkingSpot)>, Vec<PedestrianID>), Error> {
+    ) -> Result<
+        (
+            Vec<(PedestrianID, ParkingSpot)>,
+            Vec<(PedestrianID, LaneID, Distance)>,
+        ),
+        Error,
+    > {
         // Could be concurrent, since this is deterministic.
         let mut requested_moves: Vec<(PedestrianID, Action)> = Vec::new();
         for p in self.peds.values() {
@@ -443,12 +449,13 @@ impl WalkingSimState {
                 }
                 Action::KeepPreparingBike => {
                     let p = self.peds.get_mut(&id).unwrap();
-                    if (now - p.bike_parking.unwrap().started_at).as_time() >= TIME_TO_PREPARE_BIKE {
+                    if (now - p.bike_parking.unwrap().started_at).as_time() >= TIME_TO_PREPARE_BIKE
+                    {
                         if p.bike_parking.unwrap().is_parking {
                             // Now they'll start walking somewhere
                             p.bike_parking = None;
                         } else {
-                            ready_to_bike.push(*id);
+                            ready_to_bike.push((*id, p.on.as_lane(), p.dist_along));
                             self.peds.remove(&id);
                         }
                     }

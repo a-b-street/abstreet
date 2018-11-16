@@ -39,11 +39,13 @@ minimal. Alternate idea for another branch:
 - keep existing driving code almost entirely as is.
 	= Vehicle bike type with super slow speed, modify driving lookahead to use the cap speed.
 	= no BikeID, just a bit in Car for is_bike.
-	- spawn param to decide if a trip without an owned car will instead bike
-	- walking state can own the 'parking/unparking' state.
+	= spawn param to decide if a trip without an owned car will instead bike
+	= walking state can own the 'parking/unparking' state.
+	- make sure biking from border works, needs an extra bit i think
 	- need a new DrivingGoal, simpler than ParkNear.
 	- entirely new render code, but the same DrawCarInput (plus is_bike
 	  bit). that part shouldn't matter, right?
+	- render peds doing bike prep differently
 	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
 
 	- etc
@@ -57,3 +59,8 @@ minimal. Alternate idea for another branch:
 		- remove the sim helpers that do specific stuff... think of
 		  another way to set up tests, similar to tutorial mode?
 		- verify abtest consistency
+		- all of the get_blah_from_blah queries in map are a mess
+		- Position(lane, dist) type would help, yeah?
+		- a big help: get rid of dimensioned. make Eq work by wrapping
+		  NotNaN or something else, maybe even requiring explicit
+		  tolerance thing? get rid of all the terrible PartialEq hacks.

@@ -9,9 +9,12 @@ use transit::TransitSimState;
 use view::AgentView;
 use {Distance, Event, ParkingSpot, Tick};
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Derivative, Serialize, Deserialize)]
+#[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
 enum Goal {
     ParkNearBuilding(BuildingID),
+    // Stop at this distance along the last lane in the path
+    BikeThenStop(#[derivative(PartialEq = "ignore")] Distance),
     FollowBusRoute,
     EndAtBorder,
 }
@@ -29,6 +32,13 @@ impl Router {
         Router {
             path,
             goal: Goal::ParkNearBuilding(goal),
+        }
+    }
+
+    pub fn make_bike_router(path: Path, dist: Distance) -> Router {
+        Router {
+            path,
+            goal: Goal::BikeThenStop(dist),
         }
     }
 
@@ -83,6 +93,11 @@ impl Router {
                     return self.look_for_parking(last_lane, view, map, rng);
                 }
             }
+            Goal::BikeThenStop(dist) => {
+                if view.dist_along == dist {
+                    return Some(Action::StartParkingBike);
+                }
+            }
             Goal::FollowBusRoute => {
                 let (should_idle, new_path) =
                     transit_sim.get_action_when_stopped_at_end(events, view, time, map);
@@ -122,6 +137,9 @@ impl Router {
                         // and then reroute when react_before_lookahead is called later.
                         return Some(on.length(map));
                     }
+                }
+                Goal::BikeThenStop(dist) => {
+                    return Some(dist);
                 }
                 Goal::FollowBusRoute => {
                     return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on.as_lane()));
