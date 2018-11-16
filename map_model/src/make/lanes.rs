@@ -54,7 +54,9 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     let has_bike_lane = r.osm_tags.get("cycleway") == Some(&"lane".to_string());
     let has_sidewalk = r.osm_tags.get("highway") != Some(&"motorway".to_string())
         && r.osm_tags.get("highway") != Some(&"motorway_link".to_string());
-    let has_parking = has_sidewalk;
+    // TODO Bus and parking lanes can coexist, but then we have to make sure cars are fine with
+    // merging in/out of the bus lane to park. ><
+    let has_parking = has_sidewalk && !has_bus_lane;
 
     let mut full_side = driving_lanes_per_side;
     if has_bus_lane {

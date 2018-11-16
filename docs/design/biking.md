@@ -41,8 +41,8 @@ minimal. Alternate idea for another branch:
 	= no BikeID, just a bit in Car for is_bike.
 	= spawn param to decide if a trip without an owned car will instead bike
 	= walking state can own the 'parking/unparking' state.
-	- make sure biking from border works, needs an extra bit i think
 	= need a new DrivingGoal, simpler than ParkNear.
+	- make sure biking from border works, needs an extra bit i think
 	- entirely new render code, but the same DrawCarInput (plus is_bike
 	  bit). that part shouldn't matter, right?
 	- render peds doing bike prep differently
