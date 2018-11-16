@@ -28,7 +28,7 @@ const SPEED: Speed = si::MeterPerSecond {
 };
 
 const TIME_TO_PREPARE_BIKE: Time = si::Second {
-    value_unsafe: 30.0,
+    value_unsafe: 15.0,
     _marker: std::marker::PhantomData,
 };
 

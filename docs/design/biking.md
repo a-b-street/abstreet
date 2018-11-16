@@ -43,7 +43,7 @@ minimal. Alternate idea for another branch:
 	= walking state can own the 'parking/unparking' state.
 	= need a new DrivingGoal, simpler than ParkNear.
 	= render peds doing bike prep differently
-	- make sure biking from border works, needs an extra bit i think
+	= make sure biking from border works, needs an extra bit i think
 	- entirely new render code, but the same DrawCarInput (plus is_bike
 	  bit). that part shouldn't matter, right?
 	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
@@ -64,3 +64,4 @@ minimal. Alternate idea for another branch:
 		- a big help: get rid of dimensioned. make Eq work by wrapping
 		  NotNaN or something else, maybe even requiring explicit
 		  tolerance thing? get rid of all the terrible PartialEq hacks.
+		- animate the bike preparation thing better... visually show time left somehow
