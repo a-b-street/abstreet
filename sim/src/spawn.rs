@@ -19,6 +19,7 @@ use {
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
+    // TODO is_bike
     DriveFromBorder(Tick, TripID, CarID, Vehicle, LaneID, DrivingGoal),
 }
 
@@ -335,6 +336,7 @@ impl Spawner {
         let mut new_cars = 0;
         for b in owner_buildings {
             for _ in 0..cars_per_building.sample(base_rng) {
+                let mut forked_rng = fork_rng(base_rng);
                 if let Some(spot) =
                     find_spot_near_building(*b, &mut open_spots_per_road, neighborhoods_roads, map)
                 {
@@ -345,7 +347,7 @@ impl Spawner {
                     parking_sim.add_parked_car(ParkedCar::new(
                         car,
                         spot,
-                        Vehicle::generate_car(car, base_rng),
+                        Vehicle::generate_car(car, &mut forked_rng),
                         Some(*b),
                     ));
                     self.car_id_counter += 1;
@@ -360,9 +362,6 @@ impl Spawner {
                         new_cars,
                         b
                     );
-                    // Kind of a hack, but don't let the RNG get out of sync because of this. Not
-                    // happy about passing in a dummy CarID.
-                    Vehicle::generate_car(CarID(0), base_rng);
                 }
             }
         }
@@ -464,6 +463,67 @@ impl Spawner {
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             parking_spot,
+        ));
+    }
+
+    pub fn start_trip_using_bike(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        start_bldg: BuildingID,
+        goal: DrivingGoal,
+        trips: &mut TripManager,
+        rng: &mut XorShiftRng,
+    ) {
+        let ped_id = PedestrianID(self.ped_id_counter);
+        self.ped_id_counter += 1;
+        let bike_id = CarID(self.car_id_counter);
+        self.car_id_counter += 1;
+
+        let mut legs = vec![
+            // They just walk down the front path
+            TripLeg::Walk(SidewalkSpot::building(start_bldg, map)),
+            TripLeg::Bike(Vehicle::generate_bike(bike_id, rng), goal.clone()),
+        ];
+        if let DrivingGoal::ParkNear(b) = goal {
+            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+        }
+        self.enqueue_command(Command::Walk(
+            at,
+            trips.new_trip(at, ped_id, legs),
+            ped_id,
+            SidewalkSpot::building(start_bldg, map),
+            SidewalkSpot::building(start_bldg, map),
+        ));
+    }
+
+    pub fn start_trip_with_bike_at_border(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        first_lane: LaneID,
+        goal: DrivingGoal,
+        trips: &mut TripManager,
+        base_rng: &mut XorShiftRng,
+    ) {
+        let bike_id = CarID(self.car_id_counter);
+        self.car_id_counter += 1;
+        let ped_id = PedestrianID(self.ped_id_counter);
+        self.ped_id_counter += 1;
+
+        let vehicle = Vehicle::generate_bike(bike_id, base_rng);
+
+        let mut legs = vec![TripLeg::Bike(vehicle.clone(), goal.clone())];
+        if let DrivingGoal::ParkNear(b) = goal {
+            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+        }
+        self.enqueue_command(Command::DriveFromBorder(
+            at,
+            trips.new_trip(at, ped_id, legs),
+            bike_id,
+            vehicle,
+            first_lane,
+            goal,
         ));
     }
 

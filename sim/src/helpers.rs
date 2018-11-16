@@ -82,6 +82,7 @@ impl Sim {
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                percent_biking: 0.5,
             }],
             // If there are no sidewalks/driving lanes at a border, scenario instantiation will
             // just warn and skip them.
@@ -91,6 +92,7 @@ impl Sim {
                 .map(|i| BorderSpawnOverTime {
                     num_peds: 10,
                     num_cars: 10,
+                    num_bikes: 10,
                     start_tick: Tick::zero(),
                     stop_tick: Tick::from_seconds(5),
                     start_from_border: i.id,
@@ -104,6 +106,7 @@ impl Sim {
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Border(i.id),
+                percent_biking: 0.5,
             });
         }
         s.instantiate(self, map);
@@ -141,6 +144,7 @@ impl Sim {
                 stop_tick: Tick::from_seconds(5),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                percent_biking: 0.5,
             }],
             border_spawn_over_time: map
                 .all_incoming_borders()
@@ -148,6 +152,7 @@ impl Sim {
                 .map(|i| BorderSpawnOverTime {
                     num_peds: 100,
                     num_cars: 100,
+                    num_bikes: 100,
                     start_tick: Tick::zero(),
                     stop_tick: Tick::from_seconds(5),
                     start_from_border: i.id,

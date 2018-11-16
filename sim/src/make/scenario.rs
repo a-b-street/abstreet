@@ -28,12 +28,14 @@ pub struct SpawnOverTime {
     pub stop_tick: Tick,
     pub start_from_neighborhood: String,
     pub goal: OriginDestination,
+    pub percent_biking: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct BorderSpawnOverTime {
     pub num_peds: usize,
     pub num_cars: usize,
+    pub num_bikes: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_tick: Tick,
     pub stop_tick: Tick,
@@ -56,6 +58,7 @@ impl Scenario {
             .collect()
     }
 
+    // TODO may need to fork the RNG a bit more
     pub fn instantiate(&self, sim: &mut Sim, map: &Map) {
         info!("Instantiating {}", self.scenario_name);
         assert!(sim.time == Tick::zero());
@@ -109,7 +112,7 @@ impl Scenario {
                     .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
                     .unwrap();
 
-                // Will they drive or not?
+                // What mode?
                 if let Some(parked_car) = sim
                     .parking_state
                     .get_parked_cars_by_owner(from_bldg)
@@ -131,16 +134,34 @@ impl Scenario {
                             &mut sim.trips_state,
                         );
                     }
-                } else if let Some(goal) =
-                    s.goal
-                        .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
-                {
-                    sim.spawner.start_trip_just_walking(
-                        spawn_time,
-                        SidewalkSpot::building(from_bldg, map),
-                        goal,
-                        &mut sim.trips_state,
-                    );
+                } else if sim.rng.gen_bool(s.percent_biking) {
+                    if let Some(goal) =
+                        s.goal
+                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        sim.spawner.start_trip_using_bike(
+                            spawn_time,
+                            map,
+                            from_bldg,
+                            goal,
+                            &mut sim.trips_state,
+                            // TODO, like the biking goal could exist here or not based on border
+                            // map edits. so fork before this choice is made?
+                            &mut sim.rng,
+                        );
+                    }
+                } else {
+                    if let Some(goal) =
+                        s.goal
+                            .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        sim.spawner.start_trip_just_walking(
+                            spawn_time,
+                            SidewalkSpot::building(from_bldg, map),
+                            goal,
+                            &mut sim.trips_state,
+                        );
+                    }
                 }
             }
         }
@@ -168,10 +189,10 @@ impl Scenario {
                 );
             }
 
-            let starting_lanes = map
+            let starting_driving_lanes = map
                 .get_i(s.start_from_border)
                 .get_outgoing_lanes(map, LaneType::Driving);
-            if !starting_lanes.is_empty() {
+            if !starting_driving_lanes.is_empty() {
                 for _ in 0..s.num_cars {
                     let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                     if let Some(goal) =
@@ -182,7 +203,7 @@ impl Scenario {
                             spawn_time,
                             map,
                             // TODO could pretty easily pick any lane here
-                            starting_lanes[0],
+                            starting_driving_lanes[0],
                             goal,
                             &mut sim.trips_state,
                             &mut sim.rng,
@@ -191,6 +212,31 @@ impl Scenario {
                 }
             } else {
                 warn!("Can't start car at border for {}", s.start_from_border);
+            }
+
+            let mut starting_biking_lanes = map
+                .get_i(s.start_from_border)
+                .get_outgoing_lanes(map, LaneType::Biking);
+            starting_biking_lanes.extend(starting_driving_lanes);
+            if !starting_biking_lanes.is_empty() {
+                for _ in 0..s.num_bikes {
+                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                    if let Some(goal) =
+                        s.goal
+                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                    {
+                        sim.spawner.start_trip_with_bike_at_border(
+                            spawn_time,
+                            map,
+                            starting_biking_lanes[0],
+                            goal,
+                            &mut sim.trips_state,
+                            &mut sim.rng,
+                        );
+                    }
+                }
+            } else {
+                warn!("Can't start bike at border for {}", s.start_from_border);
             }
         }
     }
@@ -232,6 +278,37 @@ impl OriginDestination {
                     None
                 } else {
                     // TODO ideally could use any
+                    Some(DrivingGoal::Border(*i, lanes[0]))
+                }
+            }
+        }
+    }
+
+    // TODO nearly a copy of pick_driving_goal! Ew
+    fn pick_biking_goal(
+        &self,
+        map: &Map,
+        bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
+        rng: &mut XorShiftRng,
+    ) -> Option<DrivingGoal> {
+        match self {
+            OriginDestination::Neighborhood(ref n) => {
+                if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
+                    Some(DrivingGoal::ParkNear(*rng.choose(bldgs).unwrap()))
+                } else {
+                    panic!("Neighborhood {} isn't defined", n);
+                }
+            }
+            OriginDestination::Border(i) => {
+                let mut lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Biking);
+                lanes.extend(map.get_i(*i).get_incoming_lanes(map, LaneType::Driving));
+                if lanes.is_empty() {
+                    warn!(
+                        "Can't spawn a bike ending at border {}; no biking or driving lane there",
+                        i
+                    );
+                    None
+                } else {
                     Some(DrivingGoal::Border(*i, lanes[0]))
                 }
             }

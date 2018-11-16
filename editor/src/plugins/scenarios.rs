@@ -152,12 +152,15 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                     "Where should the agents start?",
                 )?,
                 goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
+                percent_biking: wizard
+                    .input_percent("What percent of the walking trips will bike instead?")?,
             });
         }
         x if x == spawn_border => {
             scenario.border_spawn_over_time.push(BorderSpawnOverTime {
                 num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
                 num_cars: wizard.input_usize("Spawn how many cars?")?,
+                num_bikes: wizard.input_usize("Spawn how many bikes?")?,
                 start_tick: input_tick(&mut wizard, "Start spawning when?")?,
                 // TODO input interval, or otherwise enforce stop_tick > start_tick
                 stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
