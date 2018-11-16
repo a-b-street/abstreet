@@ -118,7 +118,7 @@ impl Car {
         // accel_to_follow. If we use the value from later lookahead lanes and it's lower, than our
         // current speed will exceed it and cause issues. We guarantee we'll be slow enough by
         // entry time to that next lane. This might make accel_to_follow too pessimistic.
-        let orig_speed_limit = self.on.speed_limit(map);
+        let orig_speed_limit = vehicle.clamp_speed(self.on.speed_limit(map));
 
         // TODO could wrap this state up
         let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, orig_speed_limit)?
@@ -141,7 +141,7 @@ impl Car {
 
             // Don't exceed the speed limit
             {
-                let current_speed_limit = current_on.speed_limit(map);
+                let current_speed_limit = vehicle.clamp_speed(current_on.speed_limit(map));
                 let accel =
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
                 constraints.push(accel);
@@ -276,7 +276,7 @@ impl Car {
         self.speed = new_speed;
 
         loop {
-            let current_speed_limit = self.on.speed_limit(map);
+            let current_speed_limit = self.vehicle.clamp_speed(self.on.speed_limit(map));
             if self.speed > current_speed_limit {
                 return Err(Error::new(format!(
                     "{} is going {} on {:?}, which has a speed limit of {}",
@@ -736,7 +736,7 @@ impl DrivingSimState {
             let accel_for_other_to_stop = other_vehicle
                 .accel_to_follow(
                     self.cars[&other].speed,
-                    map.get_parent(params.start).get_speed_limit(),
+                    other_vehicle.clamp_speed(map.get_parent(params.start).get_speed_limit()),
                     &params.vehicle,
                     params.dist_along - other_dist,
                     0.0 * si::MPS,

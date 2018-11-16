@@ -10,7 +10,16 @@ pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     _marker: std::marker::PhantomData,
 };
 
-// This must be < PARKING_SPOT_LENGTH
+// http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
+const MIN_BIKE_LENGTH: Distance = si::Meter {
+    value_unsafe: 1.7,
+    _marker: std::marker::PhantomData,
+};
+const MAX_BIKE_LENGTH: Distance = si::Meter {
+    value_unsafe: 2.0,
+    _marker: std::marker::PhantomData,
+};
+// These two must be < PARKING_SPOT_LENGTH
 const MIN_CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 4.5,
     _marker: std::marker::PhantomData,
@@ -45,6 +54,7 @@ pub struct Vehicle {
     pub max_deaccel: Acceleration,
 
     pub length: Distance,
+    pub max_speed: Option<Speed>,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -57,13 +67,14 @@ impl PartialEq for Vehicle {
 impl Eq for Vehicle {}
 
 impl Vehicle {
-    pub fn generate_typical_car(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
+    pub fn generate_car(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
             // TODO more realistic to have a few preset lengths and choose between them
             length: rng.gen_range(MIN_CAR_LENGTH.value_unsafe, MAX_CAR_LENGTH.value_unsafe) * si::M,
+            max_speed: None,
         }
     }
 
@@ -73,11 +84,27 @@ impl Vehicle {
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
             length: BUS_LENGTH,
+            max_speed: None,
         }
     }
 
+    pub fn generate_bike(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
+        Vehicle {
+            id,
+            // http://eprints.uwe.ac.uk/20767/ says mean 0.231
+            max_accel: rng.gen_range(0.2, 0.3) * si::MPS2,
+            // Just assume it's the same as acceleration for now
+            max_deaccel: rng.gen_range(-0.3, -0.2) * si::MPS2,
+            length: rng.gen_range(MIN_BIKE_LENGTH.value_unsafe, MAX_BIKE_LENGTH.value_unsafe)
+                * si::M,
+            // 7 to 10 mph is 4.47 m/s
+            max_speed: Some(rng.gen_range(3.13, 4.47) * si::MPS),
+        }
+    }
+
+    // At rest, used to determine max capacity of SimQueue
     pub fn best_case_following_dist() -> Distance {
-        MIN_CAR_LENGTH + FOLLOWING_DISTANCE
+        MIN_BIKE_LENGTH + FOLLOWING_DISTANCE
     }
 
     pub fn worst_case_following_dist() -> Distance {
@@ -91,6 +118,18 @@ impl Vehicle {
             self.max_accel
         } else {
             accel
+        }
+    }
+
+    pub fn clamp_speed(&self, speed: Speed) -> Speed {
+        if let Some(limit) = self.max_speed {
+            if speed > limit {
+                limit
+            } else {
+                speed
+            }
+        } else {
+            speed
         }
     }
 

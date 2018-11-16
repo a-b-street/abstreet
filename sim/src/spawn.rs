@@ -339,7 +339,7 @@ impl Spawner {
                     parking_sim.add_parked_car(ParkedCar::new(
                         car,
                         spot,
-                        Vehicle::generate_typical_car(car, base_rng),
+                        Vehicle::generate_car(car, base_rng),
                         Some(*b),
                     ));
                     self.car_id_counter += 1;
@@ -356,7 +356,7 @@ impl Spawner {
                     );
                     // Kind of a hack, but don't let the RNG get out of sync because of this. Not
                     // happy about passing in a dummy CarID.
-                    Vehicle::generate_typical_car(CarID(0), base_rng);
+                    Vehicle::generate_car(CarID(0), base_rng);
                 }
             }
         }
@@ -385,7 +385,7 @@ impl Spawner {
                 parking_sim.add_parked_car(ParkedCar::new(
                     car,
                     spots[idx],
-                    Vehicle::generate_typical_car(car, rng),
+                    Vehicle::generate_car(car, rng),
                     Some(owner),
                 ));
                 self.car_id_counter += 1;
@@ -415,7 +415,7 @@ impl Spawner {
             at,
             trips.new_trip(at, ped_id, legs),
             car_id,
-            Vehicle::generate_typical_car(car_id, base_rng),
+            Vehicle::generate_car(car_id, base_rng),
             first_lane,
             goal,
         ));

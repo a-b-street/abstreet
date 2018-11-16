@@ -31,3 +31,17 @@ Do this in a branch for sure. Roughly:
 - lift SimQueues into Sim
 - refactor lookahead
 - add biking model
+
+
+After starting this, I'm not sure now. The driving model as-is can handle bikes
+fine. The interaction with the walking sim to appear/disappear is pretty
+minimal. Alternate idea for another branch:
+- keep existing driving code almost entirely as is.
+	- Vehicle bike type with super slow speed, modify driving lookahead to use the cap speed.
+	- no BikeID, just a bit in Car for is_bike.
+	- spawn param to decide if a trip without an owned car will instead bike
+	- walking state can own the 'parking/unparking' state.
+	- need a new DrivingGoal, simpler than ParkNear.
+	- entirely new render code, but the same DrawCarInput (plus is_bike
+	  bit). that part shouldn't matter, right?
+	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
