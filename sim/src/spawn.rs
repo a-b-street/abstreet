@@ -265,8 +265,8 @@ impl Spawner {
                     }
                     Command::Bike {
                         trip,
-                        vehicle,
-                        goal,
+                        ref vehicle,
+                        ref goal,
                         ..
                     } => {
                         if driving_sim.start_car_on_lane(
@@ -282,7 +282,7 @@ impl Spawner {
                                 start: req.0,
                                 dist_along: req.1,
                                 router: match goal {
-                                    DrivingGoal::ParkNear(b) => {
+                                    DrivingGoal::ParkNear(_) => {
                                         Router::make_bike_router(path, req.3)
                                     }
                                     DrivingGoal::Border(_, _) => {
@@ -559,8 +559,13 @@ impl Spawner {
         let bike_id = CarID(self.car_id_counter);
         self.car_id_counter += 1;
 
+        let first_spot = {
+            let b = map.get_b(start_bldg);
+            SidewalkSpot::bike_rack(b.front_path.sidewalk, b.front_path.dist_along_sidewalk)
+        };
+
         let mut legs = vec![
-            TripLeg::Walk(SidewalkSpot::bike_rack(start_bldg, map)),
+            TripLeg::Walk(first_spot.clone()),
             TripLeg::Bike(Vehicle::generate_bike(bike_id, rng), goal.clone()),
         ];
         if let DrivingGoal::ParkNear(b) = goal {
@@ -571,7 +576,7 @@ impl Spawner {
             trips.new_trip(at, ped_id, legs),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::bike_rack(start_bldg, map),
+            first_spot,
         ));
     }
 
@@ -689,6 +694,24 @@ impl Spawner {
             trip,
             ped,
             SidewalkSpot::parking_spot(p.spot, map, parking_sim),
+            walk_to,
+        ));
+    }
+
+    pub fn bike_reached_end(
+        &mut self,
+        at: Tick,
+        bike: CarID,
+        lane: LaneID,
+        dist: Distance,
+        trips: &mut TripManager,
+    ) {
+        let (trip, ped, walk_to) = trips.bike_reached_end(bike);
+        self.enqueue_command(Command::Walk(
+            at.next(),
+            trip,
+            ped,
+            SidewalkSpot::bike_rack(lane, dist),
             walk_to,
         ));
     }

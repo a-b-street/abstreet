@@ -67,13 +67,11 @@ impl SidewalkSpot {
         }
     }
 
-    // These happen to be lined up with buildings right now
-    pub fn bike_rack(bldg: BuildingID, map: &Map) -> SidewalkSpot {
-        let front_path = &map.get_b(bldg).front_path;
+    pub fn bike_rack(sidewalk: LaneID, dist_along: Distance) -> SidewalkSpot {
         SidewalkSpot {
             connection: SidewalkPOI::BikeRack,
-            sidewalk: front_path.sidewalk,
-            dist_along: front_path.dist_along_sidewalk,
+            sidewalk,
+            dist_along,
         }
     }
 
@@ -448,14 +446,23 @@ impl WalkingSimState {
                     });
                 }
                 Action::KeepPreparingBike => {
-                    let p = self.peds.get_mut(&id).unwrap();
-                    if (now - p.bike_parking.unwrap().started_at).as_time() >= TIME_TO_PREPARE_BIKE
-                    {
-                        if p.bike_parking.unwrap().is_parking {
+                    let state = self
+                        .peds
+                        .get(&id)
+                        .unwrap()
+                        .bike_parking
+                        .as_ref()
+                        .unwrap()
+                        .clone();
+                    if (now - state.started_at).as_time() >= TIME_TO_PREPARE_BIKE {
+                        if state.is_parking {
                             // Now they'll start walking somewhere
-                            p.bike_parking = None;
+                            self.peds.get_mut(&id).unwrap().bike_parking = None;
                         } else {
-                            ready_to_bike.push((*id, p.on.as_lane(), p.dist_along));
+                            {
+                                let p = self.peds.get(&id).unwrap();
+                                ready_to_bike.push((*id, p.on.as_lane(), p.dist_along));
+                            }
                             self.peds.remove(&id);
                         }
                     }

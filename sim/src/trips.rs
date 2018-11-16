@@ -87,10 +87,24 @@ impl TripManager {
             x => panic!("First trip leg {:?} doesn't match ped_ready_to_bike", x),
         };
         let (vehicle, bike_to) = match trip.legs[0] {
-            TripLeg::Bike(vehicle, to) => (vehicle, to),
+            TripLeg::Bike(ref vehicle, ref to) => (vehicle, to),
             ref x => panic!("Next trip leg is {:?}, not biking", x),
         };
-        (trip.id, vehicle, bike_to)
+        (trip.id, vehicle.clone(), bike_to.clone())
+    }
+
+    pub fn bike_reached_end(&mut self, bike: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+        let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
+
+        match trip.legs.pop_front().unwrap() {
+            TripLeg::Bike { .. } => {}
+            x => panic!("First trip leg {:?} doesn't match bike_reached_end", x),
+        };
+        let walk_to = match trip.legs[0] {
+            TripLeg::Walk(ref to) => to,
+            ref x => panic!("Next trip leg is {:?}, not walking", x),
+        };
+        (trip.id, trip.ped, walk_to.clone())
     }
 
     pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {

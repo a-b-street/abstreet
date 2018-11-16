@@ -161,7 +161,7 @@ impl Sim {
             &mut self.trips_state,
         );
 
-        let (newly_parked, at_border) = self.driving_state.step(
+        let (newly_parked, at_border, done_biking) = self.driving_state.step(
             &mut view,
             &mut events,
             self.time,
@@ -186,6 +186,11 @@ impl Sim {
         }
         for c in at_border {
             self.trips_state.car_reached_border(c, self.time);
+        }
+        for (bike, lane, dist) in done_biking {
+            // TODO push an event, backtrace, etc
+            self.spawner
+                .bike_reached_end(self.time, bike, lane, dist, &mut self.trips_state);
         }
 
         self.walking_state.populate_view(&mut view);

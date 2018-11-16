@@ -73,6 +73,7 @@ impl Eq for Car {}
 pub enum Action {
     StartParking(ParkingSpot),
     WorkOnParking,
+    StartParkingBike,
     Continue(Acceleration, Vec<Request>),
     // TODO Get rid of this one
     VanishAtDeadEnd,
@@ -557,8 +558,10 @@ impl DrivingSimState {
     }
 
     // Note that this populates the view BEFORE the step is applied.
-    // Returns cars that reached a parking spot this step, and also the cars that vanished at a
-    // border.
+    // Returns
+    // 1) cars that reached a parking spot this step
+    // 2) the cars that vanished at a border
+    // 3) the bikes that reached some ending and should start parking
     pub fn step(
         &mut self,
         view: &mut WorldView,
@@ -571,7 +574,7 @@ impl DrivingSimState {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
         current_agent: &mut Option<AgentID>,
-    ) -> Result<(Vec<ParkedCar>, Vec<CarID>), Error> {
+    ) -> Result<(Vec<ParkedCar>, Vec<CarID>, Vec<(CarID, LaneID, Distance)>), Error> {
         self.populate_view(view);
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
@@ -600,6 +603,7 @@ impl DrivingSimState {
 
         let mut finished_parking: Vec<ParkedCar> = Vec::new();
         let mut vanished_at_border: Vec<CarID> = Vec::new();
+        let mut done_biking: Vec<(CarID, LaneID, Distance)> = Vec::new();
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
@@ -626,6 +630,14 @@ impl DrivingSimState {
                     } else {
                         self.cars.get_mut(&id).unwrap().parking = Some(state);
                     }
+                }
+                Action::StartParkingBike => {
+                    {
+                        let c = self.cars.get(&id).unwrap();
+                        done_biking.push((*id, c.on.as_lane(), c.dist_along));
+                    }
+                    self.cars.remove(&id);
+                    self.routers.remove(&id);
                 }
                 Action::Continue(accel, ref requests) => {
                     let done = {
@@ -697,7 +709,7 @@ impl DrivingSimState {
             }
         }
 
-        Ok((finished_parking, vanished_at_border))
+        Ok((finished_parking, vanished_at_border, done_biking))
     }
 
     // True if the car started, false if there wasn't currently room
