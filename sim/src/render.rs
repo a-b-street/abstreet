@@ -7,6 +7,7 @@ pub struct DrawPedestrianInput {
     pub id: PedestrianID,
     pub pos: Pt2D,
     pub waiting_for_turn: Option<TurnID>,
+    pub preparing_bike: bool,
 }
 
 pub struct DrawCarInput {
@@ -54,10 +55,10 @@ impl Sim {
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_lane(map.get_l(l), map)
+        self.walking_state.get_draw_peds_on_lane(l, map)
     }
 
     pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_turn(map.get_t(t))
+        self.walking_state.get_draw_peds_on_turn(t, map)
     }
 }

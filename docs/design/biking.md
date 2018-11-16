@@ -42,10 +42,10 @@ minimal. Alternate idea for another branch:
 	= spawn param to decide if a trip without an owned car will instead bike
 	= walking state can own the 'parking/unparking' state.
 	= need a new DrivingGoal, simpler than ParkNear.
+	= render peds doing bike prep differently
 	- make sure biking from border works, needs an extra bit i think
 	- entirely new render code, but the same DrawCarInput (plus is_bike
 	  bit). that part shouldn't matter, right?
-	- render peds doing bike prep differently
 	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
 
 	- etc

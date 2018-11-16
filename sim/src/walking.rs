@@ -5,8 +5,8 @@ use geom::Pt2D;
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{
-    BuildingID, BusStopID, IntersectionID, Lane, LaneID, LaneType, Map, Path, PathStep, Trace,
-    Traversable, Turn, TurnID,
+    BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Trace,
+    Traversable, TurnID,
 };
 use multimap::MultiMap;
 use parking::ParkingSimState;
@@ -535,31 +535,22 @@ impl WalkingSimState {
             id,
             pos: ped.get_pos(map),
             waiting_for_turn: ped.waiting_for_turn(),
+            preparing_bike: ped.bike_parking.is_some(),
         })
     }
 
-    pub fn get_draw_peds_on_lane(&self, l: &Lane, map: &Map) -> Vec<DrawPedestrianInput> {
+    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
-        for id in self.peds_per_sidewalk.get_vec(&l.id).unwrap_or(&Vec::new()) {
-            let ped = &self.peds[id];
-            result.push(DrawPedestrianInput {
-                id: *id,
-                pos: ped.get_pos(map),
-                waiting_for_turn: ped.waiting_for_turn(),
-            });
+        for id in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
+            result.push(self.get_draw_ped(*id, map).unwrap());
         }
         result
     }
 
-    pub fn get_draw_peds_on_turn(&self, t: &Turn) -> Vec<DrawPedestrianInput> {
+    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
-        for id in self.peds_per_turn.get_vec(&t.id).unwrap_or(&Vec::new()) {
-            let ped = &self.peds[id];
-            result.push(DrawPedestrianInput {
-                id: *id,
-                pos: t.dist_along(ped.dist_along).0,
-                waiting_for_turn: ped.waiting_for_turn(),
-            });
+        for id in self.peds_per_turn.get_vec(&t).unwrap_or(&Vec::new()) {
+            result.push(self.get_draw_ped(*id, map).unwrap());
         }
         result
     }

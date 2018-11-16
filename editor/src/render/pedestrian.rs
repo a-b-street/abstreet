@@ -11,6 +11,7 @@ pub struct DrawPedestrian {
     pub id: PedestrianID,
     circle: Circle,
     turn_arrow: Option<Line>,
+    preparing_bike: bool,
 }
 
 impl DrawPedestrian {
@@ -28,6 +29,7 @@ impl DrawPedestrian {
             id: input.id,
             circle: Circle::new(input.pos, RADIUS),
             turn_arrow,
+            preparing_bike: input.preparing_bike,
         }
     }
 }
@@ -39,9 +41,15 @@ impl Renderable for DrawPedestrian {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
         let color = opts.color.unwrap_or_else(|| {
-            ctx.cs
-                .get("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-                .shift(self.id.0)
+            if self.preparing_bike {
+                ctx.cs
+                    .get("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                    .shift(self.id.0)
+            } else {
+                ctx.cs
+                    .get("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
+                    .shift(self.id.0)
+            }
         });
         g.draw_circle(color, &self.circle);
 
