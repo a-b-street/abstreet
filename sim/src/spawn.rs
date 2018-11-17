@@ -20,8 +20,15 @@ use {
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
-    // TODO is_bike
-    DriveFromBorder(Tick, TripID, CarID, Vehicle, LaneID, DrivingGoal),
+    DriveFromBorder {
+        at: Tick,
+        trip: TripID,
+        car: CarID,
+        vehicle: Vehicle,
+        is_bike: bool,
+        start: LaneID,
+        goal: DrivingGoal,
+    },
     Bike {
         at: Tick,
         trip: TripID,
@@ -38,7 +45,7 @@ impl Command {
         match self {
             Command::Walk(at, _, _, _, _) => *at,
             Command::Drive(at, _, _, _) => *at,
-            Command::DriveFromBorder(at, _, _, _, _, _) => *at,
+            Command::DriveFromBorder { at, .. } => *at,
             Command::Bike { at, .. } => *at,
         }
     }
@@ -85,7 +92,7 @@ impl Command {
                     goal_dist,
                 )
             }
-            Command::DriveFromBorder(_, _, _, _, start, goal) => {
+            Command::DriveFromBorder { start, goal, .. } => {
                 let goal_lane = match goal {
                     DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
                     DrivingGoal::Border(_, l) => *l,
@@ -108,16 +115,23 @@ impl Command {
             Command::Drive(at, trip, parked_car, goal) => {
                 Command::Drive(at.next(), *trip, parked_car.clone(), goal.clone())
             }
-            Command::DriveFromBorder(at, trip, car, vehicle, start, goal) => {
-                Command::DriveFromBorder(
-                    at.next(),
-                    *trip,
-                    *car,
-                    vehicle.clone(),
-                    *start,
-                    goal.clone(),
-                )
-            }
+            Command::DriveFromBorder {
+                at,
+                trip,
+                car,
+                vehicle,
+                is_bike,
+                start,
+                goal,
+            } => Command::DriveFromBorder {
+                at: at.next(),
+                trip: *trip,
+                car: *car,
+                vehicle: vehicle.clone(),
+                is_bike: *is_bike,
+                start: *start,
+                goal: goal.clone(),
+            },
             Command::Bike {
                 at,
                 trip,
@@ -231,7 +245,15 @@ impl Spawner {
                             self.enqueue_command(cmd.retry_next_tick());
                         }
                     }
-                    Command::DriveFromBorder(_, trip, car, ref vehicle, start, ref goal) => {
+                    Command::DriveFromBorder {
+                        trip,
+                        car,
+                        ref vehicle,
+                        is_bike,
+                        start,
+                        ref goal,
+                        ..
+                    } => {
                         if driving_sim.start_car_on_lane(
                             events,
                             now,
@@ -254,7 +276,7 @@ impl Spawner {
                                     }
                                 },
                                 is_bus: false,
-                                is_bike: false,
+                                is_bike,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -495,14 +517,15 @@ impl Spawner {
         if let DrivingGoal::ParkNear(b) = goal {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
-        self.enqueue_command(Command::DriveFromBorder(
+        self.enqueue_command(Command::DriveFromBorder {
             at,
-            trips.new_trip(at, ped_id, legs),
-            car_id,
-            Vehicle::generate_car(car_id, base_rng),
-            first_lane,
+            trip: trips.new_trip(at, ped_id, legs),
+            car: car_id,
+            vehicle: Vehicle::generate_car(car_id, base_rng),
+            is_bike: false,
+            start: first_lane,
             goal,
-        ));
+        });
     }
 
     pub fn start_trip_using_parked_car(
@@ -600,14 +623,15 @@ impl Spawner {
         if let DrivingGoal::ParkNear(b) = goal {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
-        self.enqueue_command(Command::DriveFromBorder(
+        self.enqueue_command(Command::DriveFromBorder {
             at,
-            trips.new_trip(at, ped_id, legs),
-            bike_id,
+            trip: trips.new_trip(at, ped_id, legs),
+            car: bike_id,
             vehicle,
-            first_lane,
+            is_bike: true,
+            start: first_lane,
             goal,
-        ));
+        });
     }
 
     pub fn start_trip_just_walking(

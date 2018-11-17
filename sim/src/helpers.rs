@@ -91,8 +91,9 @@ impl Sim {
                 .into_iter()
                 .map(|i| BorderSpawnOverTime {
                     num_peds: 10,
-                    num_cars: 10,
-                    num_bikes: 10,
+                    // TODO Increase after caching stuff in spawn
+                    num_cars: 1,
+                    num_bikes: 1,
                     start_tick: Tick::zero(),
                     stop_tick: Tick::from_seconds(5),
                     start_from_border: i.id,

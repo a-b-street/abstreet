@@ -45,13 +45,15 @@ minimal. Alternate idea for another branch:
 	= render peds doing bike prep differently
 	= entirely new render code, but the same DrawCarInput (plus is_bike
 	  bit). that part shouldn't matter, right?
+	= make sure biking from border works, needs an extra bit i think
 
-	- make sure biking from border works, needs an extra bit i think
 	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
 
 	- etc
 		- stats; driving.count and trip score
 		- vehicle enum instead of is_bus, is_bike
+			- put this in vehicle properties, not on the main
+			  car... then dont need it in Command::DriveFromBorder.
 		- spawn commands getting to have lots of similarish cases
 		- reusing DrivingGoal to mean bike start point too?
 
