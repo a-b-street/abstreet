@@ -44,6 +44,7 @@ mod physics;
 mod query;
 mod render;
 mod router;
+mod scheduler;
 mod sim;
 mod spawn;
 mod transit;

@@ -905,6 +905,8 @@ impl DrivingSimState {
     }
 }
 
+#[derive(Serialize, Deserialize, Derivative, Clone)]
+#[derivative(PartialEq, Eq)]
 pub struct CreateCar {
     pub car: CarID,
     pub trip: Option<TripID>,
@@ -912,6 +914,7 @@ pub struct CreateCar {
     pub maybe_parked_car: Option<ParkedCar>,
     pub vehicle: Vehicle,
     pub start: LaneID,
+    #[derivative(PartialEq = "ignore")]
     pub dist_along: Distance,
     pub router: Router,
 }

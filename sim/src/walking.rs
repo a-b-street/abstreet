@@ -558,24 +558,20 @@ impl WalkingSimState {
     pub fn seed_pedestrian(
         &mut self,
         events: &mut Vec<Event>,
-        id: PedestrianID,
-        trip: TripID,
-        start: SidewalkSpot,
-        goal: SidewalkSpot,
-        path: Path,
         now: Tick,
+        params: CreatePedestrian,
     ) {
-        let start_lane = start.sidewalk;
+        let start_lane = params.start.sidewalk;
         assert_eq!(
-            path.current_step().as_traversable(),
+            params.path.current_step().as_traversable(),
             Traversable::Lane(start_lane)
         );
         assert_eq!(
-            path.last_step().as_traversable(),
-            Traversable::Lane(goal.sidewalk)
+            params.path.last_step().as_traversable(),
+            Traversable::Lane(params.goal.sidewalk)
         );
 
-        let front_path = match start.connection {
+        let front_path = match params.start.connection {
             SidewalkPOI::Building(id) => Some(CrossingFrontPath {
                 bldg: id,
                 dist_along: 0.0 * si::M,
@@ -583,7 +579,7 @@ impl WalkingSimState {
             }),
             _ => None,
         };
-        let bike_parking = match start.connection {
+        let bike_parking = match params.start.connection {
             SidewalkPOI::BikeRack => Some(BikeParkingState {
                 is_parking: true,
                 started_at: now,
@@ -592,23 +588,23 @@ impl WalkingSimState {
         };
 
         self.peds.insert(
-            id,
+            params.id,
             Pedestrian {
-                id,
-                trip,
-                path,
+                id: params.id,
+                trip: params.trip,
+                path: params.path,
                 on: Traversable::Lane(start_lane),
-                dist_along: start.dist_along,
+                dist_along: params.start.dist_along,
                 front_path,
                 bike_parking,
-                goal,
+                goal: params.goal,
                 moving: true,
                 active: true,
             },
         );
-        self.peds_per_sidewalk.insert(start_lane, id);
+        self.peds_per_sidewalk.insert(start_lane, params.id);
         events.push(Event::AgentEntersTraversable(
-            AgentID::Pedestrian(id),
+            AgentID::Pedestrian(params.id),
             Traversable::Lane(start_lane),
         ));
     }
@@ -692,4 +688,13 @@ impl WalkingSimState {
 
         (moving_peds, stuck_peds)
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+pub struct CreatePedestrian {
+    pub id: PedestrianID,
+    pub trip: TripID,
+    pub start: SidewalkSpot,
+    pub goal: SidewalkSpot,
+    pub path: Path,
 }

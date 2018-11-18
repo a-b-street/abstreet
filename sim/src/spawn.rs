@@ -8,15 +8,13 @@ use map_model::{
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
+use scheduler;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
-use walking::{SidewalkSpot, WalkingSimState};
-use {
-    AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID,
-    VehicleType,
-};
+use walking::{CreatePedestrian, SidewalkSpot};
+use {CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType};
 
 #[derive(Serialize, Deserialize, Derivative, Debug, Clone)]
 #[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
@@ -119,47 +117,6 @@ impl Command {
             }
         }
     }
-
-    fn retry_next_tick(&self) -> Command {
-        match self {
-            Command::Walk(at, trip, ped, start, goal) => {
-                Command::Walk(at.next(), *trip, *ped, start.clone(), goal.clone())
-            }
-            Command::Drive(at, trip, parked_car, goal) => {
-                Command::Drive(at.next(), *trip, parked_car.clone(), goal.clone())
-            }
-            Command::DriveFromBorder {
-                at,
-                trip,
-                car,
-                vehicle,
-                start,
-                goal,
-            } => Command::DriveFromBorder {
-                at: at.next(),
-                trip: *trip,
-                car: *car,
-                vehicle: vehicle.clone(),
-                start: *start,
-                goal: goal.clone(),
-            },
-            Command::Bike {
-                at,
-                trip,
-                start_sidewalk,
-                start_dist,
-                vehicle,
-                goal,
-            } => Command::Bike {
-                at: at.next(),
-                trip: *trip,
-                start_sidewalk: *start_sidewalk,
-                start_dist: *start_dist,
-                vehicle: vehicle.clone(),
-                goal: goal.clone(),
-            },
-        }
-    }
 }
 
 // This owns car/ped IDs.
@@ -183,13 +140,10 @@ impl Spawner {
 
     pub fn step(
         &mut self,
-        events: &mut Vec<Event>,
         now: Tick,
         map: &Map,
+        scheduler: &mut scheduler::Scheduler,
         parking_sim: &mut ParkingSimState,
-        walking_sim: &mut WalkingSimState,
-        driving_sim: &mut DrivingSimState,
-        trips: &mut TripManager,
     ) {
         let mut commands: Vec<Command> = Vec::new();
         let mut requests: Vec<PathRequest> = Vec::new();
@@ -212,7 +166,6 @@ impl Spawner {
         }
         let paths = calculate_paths(map, &requests);
 
-        let mut spawned_agents = 0;
         for (cmd, (req, maybe_path)) in commands.into_iter().zip(requests.iter().zip(paths)) {
             if let Some(path) = maybe_path {
                 match cmd {
@@ -224,10 +177,9 @@ impl Spawner {
                         let dist_along =
                             parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle);
                         let start = path.current_step().as_traversable().as_lane();
-                        if driving_sim.start_car_on_lane(
-                            events,
+
+                        scheduler.enqueue_command(scheduler::Command::SpawnCar(
                             now,
-                            map,
                             CreateCar {
                                 car,
                                 trip: Some(trip),
@@ -245,13 +197,7 @@ impl Spawner {
                                     }
                                 },
                             },
-                        ) {
-                            trips.agent_starting_trip_leg(AgentID::Car(car), trip);
-                            parking_sim.remove_parked_car(parked_car.clone());
-                            spawned_agents += 1;
-                        } else {
-                            self.enqueue_command(cmd.retry_next_tick());
-                        }
+                        ));
                     }
                     Command::DriveFromBorder {
                         trip,
@@ -261,10 +207,8 @@ impl Spawner {
                         ref goal,
                         ..
                     } => {
-                        if driving_sim.start_car_on_lane(
-                            events,
+                        scheduler.enqueue_command(scheduler::Command::SpawnCar(
                             now,
-                            map,
                             CreateCar {
                                 car,
                                 trip: Some(trip),
@@ -283,12 +227,7 @@ impl Spawner {
                                     }
                                 },
                             },
-                        ) {
-                            trips.agent_starting_trip_leg(AgentID::Car(car), trip);
-                            spawned_agents += 1;
-                        } else {
-                            self.enqueue_command(cmd.retry_next_tick());
-                        }
+                        ));
                     }
                     Command::Bike {
                         trip,
@@ -296,10 +235,8 @@ impl Spawner {
                         ref goal,
                         ..
                     } => {
-                        if driving_sim.start_car_on_lane(
-                            events,
+                        scheduler.enqueue_command(scheduler::Command::SpawnCar(
                             now,
-                            map,
                             CreateCar {
                                 car: vehicle.id,
                                 trip: Some(trip),
@@ -317,17 +254,19 @@ impl Spawner {
                                     }
                                 },
                             },
-                        ) {
-                            trips.agent_starting_trip_leg(AgentID::Car(vehicle.id), trip);
-                            spawned_agents += 1;
-                        } else {
-                            self.enqueue_command(cmd.retry_next_tick());
-                        }
+                        ));
                     }
                     Command::Walk(_, trip, ped, start, goal) => {
-                        trips.agent_starting_trip_leg(AgentID::Pedestrian(ped), trip);
-                        walking_sim.seed_pedestrian(events, ped, trip, start, goal, path, now);
-                        spawned_agents += 1;
+                        scheduler.enqueue_command(scheduler::Command::SpawnPed(
+                            now,
+                            CreatePedestrian {
+                                id: ped,
+                                trip,
+                                start,
+                                goal,
+                                path,
+                            },
+                        ));
                     }
                 };
             } else {
@@ -337,11 +276,6 @@ impl Spawner {
                 );
             }
         }
-        debug!(
-            "Spawned {} agents of requested {}",
-            spawned_agents,
-            requests.len()
-        );
     }
 
     // This happens immediately; it isn't scheduled.

@@ -12,6 +12,37 @@ paths happen at a more outer layer, in the sim aggregator.
 introduce new things in the different simulations. if a parked car can't
 currently begin departing, it'll keep trying every tick.
 
+... and now we've hit the point where Command enum has tons of boilerplate and
+also doing the pathfinding every re-attempt is very slow, especially when
+spawning agents from a border. I would just go do the work immediately, store a
+CreateCar or equivalent walking sim spec, and execute those instead... except
+that then we won't parallelize pathfinding!
+
+It'd actually be possibly desirable to do all the expensive pathfinding
+up-front at the beginning of the sim (during scenario instantiation) to have
+more consistent performance during the running of the sim. (Though I can also
+imagine wanting to naturally spread it out too...)
+
+Ahh wait, definitely _cannot_ do all of the pathfinding work up-front. As trip
+legs are finished, we still need some of those commands available to start new
+trip legs.
+
+Ideas:
+- make Commands have a cached path. first time hitting a particular command,
+  batch all the requests, calculate paths, strip out commands with impossible
+  paths, and populate the rest.
+	- probably the easiest change to make right now
+	- keeps boilerplatey and complicated code around
+	- flexible... could precompute as many paths at a time as we want
+- shift responsibilities...
+	- car/ped ID counter moves to scenario instantiation (possibly a new thing associated with it)
+	- the spawn methods that exist today to start new trips actually move
+	  to trips, partly? the calculation of legs given a high-level spec
+	  from scenario.
+
+Argh, spawn is too convoluted; it does too much stuff right now. Split it out more slowly.
+- first, just a scheduler that does CreateCar or the pedestrian thing at some
+  time, and can retry. it's handed ready-to-go commands.
 
 ## Notes on determinism ##
 

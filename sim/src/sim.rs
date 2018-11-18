@@ -9,6 +9,7 @@ use intersections::IntersectionSimState;
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
 use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
+use scheduler::Scheduler;
 use spawn::Spawner;
 use std;
 use std::process;
@@ -39,6 +40,7 @@ pub struct Sim {
     stats: SimStats,
 
     pub(crate) spawner: Spawner,
+    scheduler: Scheduler,
     intersection_state: IntersectionSimState,
     pub(crate) driving_state: DrivingSimState,
     pub(crate) parking_state: ParkingSimState,
@@ -68,6 +70,7 @@ impl Sim {
             rng,
             driving_state: DrivingSimState::new(map),
             spawner: Spawner::empty(),
+            scheduler: Scheduler::new(),
             trips_state: TripManager::new(),
             intersection_state: IntersectionSimState::new(map),
             parking_state: ParkingSimState::new(map),
@@ -151,7 +154,9 @@ impl Sim {
         let mut view = WorldView::new();
         let mut events: Vec<Event> = Vec::new();
 
-        self.spawner.step(
+        self.spawner
+            .step(self.time, map, &mut self.scheduler, &mut self.parking_state);
+        self.scheduler.step(
             &mut events,
             self.time,
             map,
@@ -257,7 +262,10 @@ impl Sim {
     }
 
     pub fn is_done(&self) -> bool {
-        self.driving_state.is_done() && self.walking_state.is_done() && self.spawner.is_done()
+        self.driving_state.is_done()
+            && self.walking_state.is_done()
+            && self.spawner.is_done()
+            && self.scheduler.is_done()
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
