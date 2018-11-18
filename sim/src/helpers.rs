@@ -1,12 +1,10 @@
 use abstutil::WeightedUsizeChoice;
 use control::ControlMap;
-use driving::DrivingGoal;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
+use map_model::{BuildingID, BusRoute, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
-use walking::SidewalkSpot;
 use {
-    BorderSpawnOverTime, CarID, Event, OriginDestination, PedestrianID, RouteID, Scenario,
-    SeedParkedCars, Sim, SpawnOverTime, Tick,
+    BorderSpawnOverTime, CarID, Event, OriginDestination, Scenario, SeedParkedCars, Sim,
+    SpawnOverTime, Tick,
 };
 
 // Helpers to run the sim
@@ -129,39 +127,6 @@ impl Sim {
         // fragile that this causes it, but true. :\
     }
 
-    pub fn big_spawn(&mut self, map: &Map) {
-        Scenario {
-            scenario_name: "big_spawn".to_string(),
-            map_name: map.get_name().to_string(),
-            seed_parked_cars: vec![SeedParkedCars {
-                neighborhood: "_everywhere_".to_string(),
-                cars_per_building: WeightedUsizeChoice {
-                    weights: vec![2, 8],
-                },
-            }],
-            spawn_over_time: vec![SpawnOverTime {
-                num_agents: 1000,
-                start_tick: Tick::zero(),
-                stop_tick: Tick::from_seconds(5),
-                start_from_neighborhood: "_everywhere_".to_string(),
-                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
-                percent_biking: 0.5,
-            }],
-            border_spawn_over_time: map
-                .all_incoming_borders()
-                .into_iter()
-                .map(|i| BorderSpawnOverTime {
-                    num_peds: 100,
-                    num_cars: 100,
-                    num_bikes: 100,
-                    start_tick: Tick::zero(),
-                    stop_tick: Tick::from_seconds(5),
-                    start_from_border: i.id,
-                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
-                }).collect(),
-        }.instantiate(self, map);
-    }
-
     pub fn seed_parked_cars(
         &mut self,
         owner_buildins: &Vec<BuildingID>,
@@ -191,61 +156,5 @@ impl Sim {
             &mut self.transit_state,
             self.time,
         )
-    }
-
-    pub fn seed_specific_parked_cars(
-        &mut self,
-        lane: LaneID,
-        // One owner of many spots, kind of weird, but hey, tests. :D
-        owner: BuildingID,
-        spots: Vec<usize>,
-    ) -> Vec<CarID> {
-        self.spawner.seed_specific_parked_cars(
-            lane,
-            owner,
-            spots,
-            &mut self.parking_state,
-            &mut self.rng,
-        )
-    }
-
-    pub fn make_ped_using_bus(
-        &mut self,
-        map: &Map,
-        from: BuildingID,
-        to: BuildingID,
-        route: RouteID,
-        stop1: BusStopID,
-        stop2: BusStopID,
-    ) -> PedestrianID {
-        self.spawner.start_trip_using_bus(
-            self.time.next(),
-            map,
-            from,
-            to,
-            stop1,
-            stop2,
-            route,
-            &mut self.trips_state,
-        )
-    }
-
-    pub fn spawn_specific_pedestrian(&mut self, from: SidewalkSpot, to: SidewalkSpot) {
-        self.spawner
-            .start_trip_just_walking(self.time.next(), from, to, &mut self.trips_state);
-    }
-
-    pub fn make_ped_using_car(&mut self, map: &Map, car: CarID, to: DrivingGoal) {
-        let parked = self.parking_state.lookup_car(car).unwrap().clone();
-        let owner = parked.owner.unwrap();
-        self.spawner.start_trip_using_parked_car(
-            self.time.next(),
-            map,
-            parked,
-            &mut self.parking_state,
-            owner,
-            to,
-            &mut self.trips_state,
-        );
     }
 }

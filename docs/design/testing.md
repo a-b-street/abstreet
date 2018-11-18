@@ -52,3 +52,8 @@ Basic problem: how do we show map edits/diffs?
 		- hold a button to show the original versions of things in a transparentish overlay
 
 How to show diffs for agents?
+
+## Test setup
+
+Tried having some helper methods, but they're not aging well as the new trip
+leg stuff continues. Removing for now, will re-evaluate later.

@@ -13,9 +13,7 @@ use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
-use {
-    AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
-};
+use {AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
 
 #[derive(Serialize, Deserialize, Derivative, Debug, Clone)]
 #[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
@@ -487,30 +485,6 @@ impl Spawner {
         );
     }
 
-    pub fn seed_specific_parked_cars(
-        &mut self,
-        lane: LaneID,
-        owner: BuildingID,
-        spot_indices: Vec<usize>,
-        parking_sim: &mut ParkingSimState,
-        rng: &mut XorShiftRng,
-    ) -> Vec<CarID> {
-        let spots = parking_sim.get_all_spots(lane);
-        spot_indices
-            .into_iter()
-            .map(|idx| {
-                let car = CarID(self.car_id_counter);
-                parking_sim.add_parked_car(ParkedCar::new(
-                    car,
-                    spots[idx],
-                    Vehicle::generate_car(car, rng),
-                    Some(owner),
-                ));
-                self.car_id_counter += 1;
-                car
-            }).collect()
-    }
-
     pub fn start_trip_with_car_at_border(
         &mut self,
         at: Tick,
@@ -663,38 +637,6 @@ impl Spawner {
             start,
             goal,
         ));
-    }
-
-    pub fn start_trip_using_bus(
-        &mut self,
-        at: Tick,
-        map: &Map,
-        start_bldg: BuildingID,
-        goal_bldg: BuildingID,
-        stop1: BusStopID,
-        stop2: BusStopID,
-        route: RouteID,
-        trips: &mut TripManager,
-    ) -> PedestrianID {
-        let ped_id = PedestrianID(self.ped_id_counter);
-        self.ped_id_counter += 1;
-
-        self.enqueue_command(Command::Walk(
-            at,
-            trips.new_trip(
-                at,
-                ped_id,
-                vec![
-                    TripLeg::Walk(SidewalkSpot::bus_stop(stop1, map)),
-                    TripLeg::RideBus(route, stop2),
-                    TripLeg::Walk(SidewalkSpot::building(goal_bldg, map)),
-                ],
-            ),
-            ped_id,
-            SidewalkSpot::building(start_bldg, map),
-            SidewalkSpot::bus_stop(stop1, map),
-        ));
-        ped_id
     }
 
     // Trip transitions

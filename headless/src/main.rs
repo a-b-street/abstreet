@@ -24,10 +24,6 @@ struct Flags {
     /// Optional time to savestate
     #[structopt(long = "save_at")]
     save_at: Option<String>,
-
-    /// Big or large random scenario?
-    #[structopt(long = "big_sim")]
-    big_sim: bool,
 }
 
 fn main() {
@@ -47,11 +43,7 @@ fn main() {
     timer.done();
 
     if load.contains("data/raw_maps/") {
-        if flags.big_sim {
-            sim.big_spawn(&map);
-        } else {
-            sim.small_spawn(&map);
-        }
+        sim.small_spawn(&map);
     }
 
     let save_at = if let Some(ref time_str) = flags.save_at {
