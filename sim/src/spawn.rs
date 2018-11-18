@@ -13,7 +13,10 @@ use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{SidewalkSpot, WalkingSimState};
-use {AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID};
+use {
+    AgentID, CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID,
+    VehicleType,
+};
 
 #[derive(Serialize, Deserialize, Derivative, Debug, Clone)]
 #[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
@@ -25,7 +28,6 @@ enum Command {
         trip: TripID,
         car: CarID,
         vehicle: Vehicle,
-        is_bike: bool,
         start: LaneID,
         goal: DrivingGoal,
     },
@@ -99,7 +101,7 @@ impl Command {
             Command::DriveFromBorder {
                 start,
                 goal,
-                is_bike,
+                vehicle,
                 ..
             } => {
                 let goal_lane = match goal {
@@ -111,8 +113,8 @@ impl Command {
                     start_dist: 0.0 * si::M,
                     end: goal_lane,
                     end_dist: map.get_l(goal_lane).length(),
-                    can_use_bus_lanes: false,
-                    can_use_bike_lanes: *is_bike,
+                    can_use_bus_lanes: vehicle.vehicle_type == VehicleType::Bus,
+                    can_use_bike_lanes: vehicle.vehicle_type == VehicleType::Bike,
                 }
             }
         }
@@ -131,7 +133,6 @@ impl Command {
                 trip,
                 car,
                 vehicle,
-                is_bike,
                 start,
                 goal,
             } => Command::DriveFromBorder {
@@ -139,7 +140,6 @@ impl Command {
                 trip: *trip,
                 car: *car,
                 vehicle: vehicle.clone(),
-                is_bike: *is_bike,
                 start: *start,
                 goal: goal.clone(),
             },
@@ -244,8 +244,6 @@ impl Spawner {
                                         Router::make_router_to_border(path)
                                     }
                                 },
-                                is_bus: false,
-                                is_bike: false,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -259,7 +257,6 @@ impl Spawner {
                         trip,
                         car,
                         ref vehicle,
-                        is_bike,
                         start,
                         ref goal,
                         ..
@@ -285,8 +282,6 @@ impl Spawner {
                                         Router::make_router_to_border(path)
                                     }
                                 },
-                                is_bus: false,
-                                is_bike,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(car), trip);
@@ -321,8 +316,6 @@ impl Spawner {
                                         Router::make_router_to_border(path)
                                     }
                                 },
-                                is_bus: false,
-                                is_bike: true,
                             },
                         ) {
                             trips.agent_starting_trip_leg(AgentID::Car(vehicle.id), trip);
@@ -396,8 +389,6 @@ impl Spawner {
                     start,
                     dist_along: start_dist_along,
                     router: Router::make_router_for_bus(path),
-                    is_bus: true,
-                    is_bike: false,
                 },
             ) {
                 transit_sim.bus_created(id, route_id, next_stop_idx);
@@ -508,7 +499,6 @@ impl Spawner {
             trip: trips.new_trip(at, ped_id, legs),
             car: car_id,
             vehicle: Vehicle::generate_car(car_id, base_rng),
-            is_bike: false,
             start: first_lane,
             goal,
         });
@@ -614,7 +604,6 @@ impl Spawner {
             trip: trips.new_trip(at, ped_id, legs),
             car: bike_id,
             vehicle,
-            is_bike: true,
             start: first_lane,
             goal,
         });

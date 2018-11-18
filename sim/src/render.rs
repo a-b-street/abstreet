@@ -1,6 +1,6 @@
 use geom::{Angle, Pt2D};
 use map_model::{LaneID, LaneType, Map, Trace, TurnID};
-use {CarID, Distance, PedestrianID, Sim};
+use {CarID, Distance, PedestrianID, Sim, VehicleType};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
 pub struct DrawPedestrianInput {
@@ -18,7 +18,7 @@ pub struct DrawCarInput {
     pub angle: Angle,
     pub stopping_trace: Option<Trace>,
     pub state: CarState,
-    pub is_bike: bool,
+    pub vehicle_type: VehicleType,
 }
 
 #[derive(PartialEq, Eq)]

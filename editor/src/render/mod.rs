@@ -24,7 +24,7 @@ pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;
 pub use render::turn::DrawTurn;
-use sim::{DrawCarInput, Sim};
+use sim::{DrawCarInput, Sim, VehicleType};
 use std::f64;
 
 // These are all in meters
@@ -56,7 +56,7 @@ pub struct RenderOptions {
 }
 
 pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {
-    if input.is_bike {
+    if input.vehicle_type == VehicleType::Bike {
         Box::new(DrawBike::new(input))
     } else {
         Box::new(DrawCar::new(input, map))

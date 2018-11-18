@@ -4,7 +4,7 @@ use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
 use std::collections::HashSet;
 use std::iter;
-use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot};
+use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct ParkingSimState {
@@ -223,7 +223,7 @@ impl ParkingLane {
                         angle: angle,
                         stopping_trace: None,
                         state: CarState::Parked,
-                        is_bike: false,
+                        vehicle_type: VehicleType::Car,
                     })
                 })
             }).collect()

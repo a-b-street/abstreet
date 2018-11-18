@@ -47,6 +47,7 @@ const FOLLOWING_DISTANCE: Distance = si::Meter {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vehicle {
     pub id: CarID,
+    pub vehicle_type: VehicleType,
 
     // > 0
     pub max_accel: Acceleration,
@@ -55,6 +56,13 @@ pub struct Vehicle {
 
     pub length: Distance,
     pub max_speed: Option<Speed>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum VehicleType {
+    Car,
+    Bus,
+    Bike,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -70,6 +78,7 @@ impl Vehicle {
     pub fn generate_car(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
+            vehicle_type: VehicleType::Car,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
             // TODO more realistic to have a few preset lengths and choose between them
@@ -81,6 +90,7 @@ impl Vehicle {
     pub fn generate_bus(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
+            vehicle_type: VehicleType::Bus,
             max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
             max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
             length: BUS_LENGTH,
@@ -91,6 +101,7 @@ impl Vehicle {
     pub fn generate_bike(id: CarID, rng: &mut XorShiftRng) -> Vehicle {
         Vehicle {
             id,
+            vehicle_type: VehicleType::Bike,
             // http://eprints.uwe.ac.uk/20767/ says mean 0.231
             max_accel: rng.gen_range(0.2, 0.3) * si::MPS2,
             // Just assume it's the same as acceleration for now

@@ -54,6 +54,7 @@ mod walking;
 use abstutil::Cloneable;
 pub use events::Event;
 pub use instrument::save_backtraces;
+pub use kinematics::VehicleType;
 pub use make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, MapEdits, Neighborhood, NeighborhoodBuilder,
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,

@@ -20,7 +20,7 @@ use transit::TransitSimState;
 use view::{AgentView, WorldView};
 use {
     Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
-    Speed, Tick, Time, TripID,
+    Speed, Tick, Time, TripID, VehicleType,
 };
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
@@ -56,9 +56,6 @@ struct Car {
     parking: Option<ParkingState>,
 
     debug: bool,
-    // TODO ew? :\
-    is_bus: bool,
-    is_bike: bool,
 }
 
 // TODO this is used for verifying sim state determinism, so it should actually check everything.
@@ -502,7 +499,11 @@ impl DrivingSimState {
     }
 
     pub fn is_done(&self) -> bool {
-        self.cars.values().filter(|c| !c.is_bus).count() == 0
+        self.cars
+            .values()
+            .filter(|c| c.vehicle.vehicle_type != VehicleType::Bus)
+            .count()
+            == 0
     }
 
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
@@ -775,8 +776,6 @@ impl DrivingSimState {
                 speed: 0.0 * si::MPS,
                 vehicle: params.vehicle,
                 debug: false,
-                is_bus: params.is_bus,
-                is_bike: params.is_bike,
                 parking: params.maybe_parked_car.and_then(|parked_car| {
                     Some(ParkingState {
                         is_parking: false,
@@ -829,7 +828,7 @@ impl DrivingSimState {
             } else {
                 CarState::Stuck
             },
-            is_bike: c.is_bike,
+            vehicle_type: c.vehicle.vehicle_type,
         })
     }
 
@@ -896,7 +895,7 @@ impl DrivingSimState {
                 } else {
                     moving_cars += 1;
                 }
-                if c.is_bus {
+                if c.vehicle.vehicle_type == VehicleType::Bus {
                     buses += 1;
                 }
             }
@@ -915,6 +914,4 @@ pub struct CreateCar {
     pub start: LaneID,
     pub dist_along: Distance,
     pub router: Router,
-    pub is_bus: bool,
-    pub is_bike: bool,
 }
