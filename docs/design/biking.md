@@ -50,14 +50,13 @@ minimal. Alternate idea for another branch:
 	- lastly: rename. Car -> Vehicle? Vehicle -> VehicleParams? DrivingSim -> QueuedSim?
 
 	- etc
+		= calculate_paths in spawn needs plumbing. introduce a PathfindingRequest struct, avoid those bools.
+
 		- stats; driving.count and trip score
 		- vehicle enum instead of is_bus, is_bike
 			- put this in vehicle properties, not on the main
 			  car... then dont need it in Command::DriveFromBorder.
 		- spawn commands getting to have lots of similarish cases
-		- reusing DrivingGoal to mean bike start point too?
-
-		- calculate_paths in spawn needs plumbing. introduce a PathfindingRequest struct, avoid those bools.
 
 		- remove the sim helpers that do specific stuff... think of
 		  another way to set up tests, similar to tutorial mode?

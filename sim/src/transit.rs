@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use events::Event;
 use instrument::capture_backtrace;
-use map_model::{BusRoute, BusStop, LaneID, Map, Path, Pathfinder};
+use map_model::{BusRoute, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
 use spawn::Spawner;
 use std::collections::BTreeMap;
 use trips::TripManager;
@@ -97,12 +97,14 @@ impl TransitSimState {
                 let stop2 = &route.stops[next_stop];
                 let path = Pathfinder::shortest_distance(
                     map,
-                    stop1.driving_lane,
-                    stop1.dist_along,
-                    stop2.driving_lane,
-                    stop2.dist_along,
-                    false,
-                    true,
+                    PathRequest {
+                        start: stop1.driving_lane,
+                        start_dist: stop1.dist_along,
+                        end: stop2.driving_lane,
+                        end_dist: stop2.dist_along,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: true,
+                    },
                 ).expect(&format!(
                     "No route between bus stops {:?} and {:?}",
                     stop1, stop2
@@ -168,12 +170,14 @@ impl TransitSimState {
 
                     let new_path = Pathfinder::shortest_distance(
                         map,
-                        stop.driving_lane,
-                        stop.dist_along,
-                        route.stops[next_stop].driving_lane,
-                        route.stops[next_stop].dist_along,
-                        false,
-                        true,
+                        PathRequest {
+                            start: stop.driving_lane,
+                            start_dist: stop.dist_along,
+                            end: route.stops[next_stop].driving_lane,
+                            end_dist: route.stops[next_stop].dist_along,
+                            can_use_bike_lanes: false,
+                            can_use_bus_lanes: true,
+                        },
                     ).expect(&format!(
                         "No route between bus stops {:?} and {:?}",
                         stop, route.stops[next_stop]

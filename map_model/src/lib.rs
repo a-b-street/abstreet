@@ -44,7 +44,7 @@ pub use lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use make::RoadSpec;
 pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
-pub use pathfind::{Path, PathStep, Pathfinder, Trace};
+pub use pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
 pub use road::{Road, RoadID};
 pub use traversable::Traversable;
 pub use turn::{Turn, TurnID, TurnType};

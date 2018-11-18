@@ -7,7 +7,7 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
-use {BusRoute, BusStop, BusStopID, Lane, LaneID, Map, Pathfinder, Road};
+use {BusRoute, BusStop, BusStopID, Lane, LaneID, Map, PathRequest, Pathfinder, Road};
 
 pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
@@ -130,12 +130,14 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
 
                 if Pathfinder::shortest_distance(
                     map,
-                    bs1.driving_lane,
-                    bs1.dist_along,
-                    bs2.driving_lane,
-                    bs2.dist_along,
-                    false,
-                    true,
+                    PathRequest {
+                        start: bs1.driving_lane,
+                        start_dist: bs1.dist_along,
+                        end: bs2.driving_lane,
+                        end_dist: bs2.dist_along,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: true,
+                    },
                 ).is_none()
                 {
                     warn!(

@@ -2,7 +2,9 @@ use abstutil::{elapsed_seconds, fork_rng, WeightedUsizeChoice};
 use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
-use map_model::{BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, Pathfinder, RoadID};
+use map_model::{
+    BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, PathRequest, Pathfinder, RoadID,
+};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use router::Router;
@@ -50,30 +52,32 @@ impl Command {
         }
     }
 
-    fn get_pathfinding_request(
-        &self,
-        map: &Map,
-        parking_sim: &ParkingSimState,
-    ) -> (LaneID, Distance, LaneID, Distance) {
+    fn get_pathfinding_request(&self, map: &Map, parking_sim: &ParkingSimState) -> PathRequest {
         match self {
-            Command::Walk(_, _, _, start, goal) => (
-                start.sidewalk,
-                start.dist_along,
-                goal.sidewalk,
-                goal.dist_along,
-            ),
+            Command::Walk(_, _, _, start, goal) => PathRequest {
+                start: start.sidewalk,
+                start_dist: start.dist_along,
+                end: goal.sidewalk,
+                end_dist: goal.dist_along,
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            },
             Command::Drive(_, _, parked_car, goal) => {
                 let goal_lane = match goal {
                     DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
                     DrivingGoal::Border(_, l) => *l,
                 };
-                (
-                    map.get_driving_lane_from_parking(parked_car.spot.lane)
+                PathRequest {
+                    start: map
+                        .get_driving_lane_from_parking(parked_car.spot.lane)
                         .unwrap(),
-                    parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle),
-                    goal_lane,
-                    map.get_l(goal_lane).length(),
-                )
+                    start_dist: parking_sim
+                        .dist_along_for_car(parked_car.spot, &parked_car.vehicle),
+                    end: goal_lane,
+                    end_dist: map.get_l(goal_lane).length(),
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: false,
+                }
             }
             Command::Bike {
                 start_sidewalk,
@@ -85,24 +89,33 @@ impl Command {
                     DrivingGoal::ParkNear(b) => find_biking_goal_near_building(*b, map),
                     DrivingGoal::Border(_, l) => (*l, map.get_l(*l).length()),
                 };
-                (
-                    map.get_driving_lane_from_sidewalk(*start_sidewalk).unwrap(),
-                    *start_dist,
-                    goal_lane,
-                    goal_dist,
-                )
+                PathRequest {
+                    start: map.get_driving_lane_from_sidewalk(*start_sidewalk).unwrap(),
+                    start_dist: *start_dist,
+                    end: goal_lane,
+                    end_dist: goal_dist,
+                    can_use_bus_lanes: false,
+                    can_use_bike_lanes: true,
+                }
             }
-            Command::DriveFromBorder { start, goal, .. } => {
+            Command::DriveFromBorder {
+                start,
+                goal,
+                is_bike,
+                ..
+            } => {
                 let goal_lane = match goal {
                     DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
                     DrivingGoal::Border(_, l) => *l,
                 };
-                (
-                    *start,
-                    0.0 * si::M,
-                    goal_lane,
-                    map.get_l(goal_lane).length(),
-                )
+                PathRequest {
+                    start: *start,
+                    start_dist: 0.0 * si::M,
+                    end: goal_lane,
+                    end_dist: map.get_l(goal_lane).length(),
+                    can_use_bus_lanes: false,
+                    can_use_bike_lanes: *is_bike,
+                }
             }
         }
     }
@@ -181,7 +194,7 @@ impl Spawner {
         trips: &mut TripManager,
     ) {
         let mut commands: Vec<Command> = Vec::new();
-        let mut requested_paths: Vec<(LaneID, Distance, LaneID, Distance)> = Vec::new();
+        let mut requests: Vec<PathRequest> = Vec::new();
         loop {
             if self
                 .commands
@@ -190,7 +203,7 @@ impl Spawner {
                 .unwrap_or(false)
             {
                 let cmd = self.commands.pop().unwrap();
-                requested_paths.push(cmd.get_pathfinding_request(map, parking_sim));
+                requests.push(cmd.get_pathfinding_request(map, parking_sim));
                 commands.push(cmd);
             } else {
                 break;
@@ -199,11 +212,10 @@ impl Spawner {
         if commands.is_empty() {
             return;
         }
-        let paths = calculate_paths(&requested_paths, map);
+        let paths = calculate_paths(map, &requests);
 
         let mut spawned_agents = 0;
-        for (cmd, (req, maybe_path)) in commands.into_iter().zip(requested_paths.iter().zip(paths))
-        {
+        for (cmd, (req, maybe_path)) in commands.into_iter().zip(requests.iter().zip(paths)) {
             if let Some(path) = maybe_path {
                 match cmd {
                     Command::Drive(_, trip, ref parked_car, ref goal) => {
@@ -301,11 +313,11 @@ impl Spawner {
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
-                                start: req.0,
-                                dist_along: req.1,
+                                start: req.start,
+                                dist_along: req.start_dist,
                                 router: match goal {
                                     DrivingGoal::ParkNear(_) => {
-                                        Router::make_bike_router(path, req.3)
+                                        Router::make_bike_router(path, req.end_dist)
                                     }
                                     DrivingGoal::Border(_, _) => {
                                         Router::make_router_to_border(path)
@@ -330,14 +342,14 @@ impl Spawner {
             } else {
                 error!(
                     "Couldn't find path from {} to {} for {:?}",
-                    req.0, req.2, cmd
+                    req.start, req.end, cmd
                 );
             }
         }
         debug!(
             "Spawned {} agents of requested {}",
             spawned_agents,
-            requested_paths.len()
+            requests.len()
         );
     }
 
@@ -788,23 +800,16 @@ impl Spawner {
     }
 }
 
-fn calculate_paths(
-    requested_paths: &Vec<(LaneID, Distance, LaneID, Distance)>,
-    map: &Map,
-) -> Vec<Option<Path>> {
+fn calculate_paths(map: &Map, requests: &Vec<PathRequest>) -> Vec<Option<Path>> {
     use rayon::prelude::*;
 
-    debug!("Calculating {} paths", requested_paths.len());
+    debug!("Calculating {} paths", requests.len());
     // TODO better timer macro
     let timer = Instant::now();
-    let paths: Vec<Option<Path>> = requested_paths
+    let paths: Vec<Option<Path>> = requests
         .par_iter()
-        // TODO No bikes yet, so never use the bike lanes
-        // TODO I don't think buses ever use this, so also hardcode false. requested_paths should
-        // be a struct of the required input to shortest_distance, probably.
-        .map(|(start, start_dist, goal, goal_dist)| {
-            Pathfinder::shortest_distance(map, *start, *start_dist, *goal, *goal_dist, false, false)
-        }).collect();
+        .map(|req| Pathfinder::shortest_distance(map, req.clone()))
+        .collect();
 
     debug!(
         "Calculating {} paths took {}s",

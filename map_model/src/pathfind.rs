@@ -203,6 +203,16 @@ impl Path {
     }
 }
 
+#[derive(Clone)]
+pub struct PathRequest {
+    pub start: LaneID,
+    pub start_dist: si::Meter<f64>,
+    pub end: LaneID,
+    pub end_dist: si::Meter<f64>,
+    pub can_use_bike_lanes: bool,
+    pub can_use_bus_lanes: bool,
+}
+
 pub enum Pathfinder {
     ShortestDistance {
         goal_pt: Pt2D,
@@ -214,24 +224,15 @@ pub enum Pathfinder {
 
 impl Pathfinder {
     // Returns an inclusive path, aka, [start, ..., end]
-    pub fn shortest_distance(
-        map: &Map,
-        start: LaneID,
-        start_dist: si::Meter<f64>,
-        end: LaneID,
-        end_dist: si::Meter<f64>,
-        // TODO ew, bools.
-        can_use_bike_lanes: bool,
-        can_use_bus_lanes: bool,
-    ) -> Option<Path> {
+    pub fn shortest_distance(map: &Map, req: PathRequest) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
-        let goal_pt = map.get_l(end).dist_along(end_dist).0;
+        let goal_pt = map.get_l(req.end).dist_along(req.end_dist).0;
         Pathfinder::ShortestDistance {
             goal_pt,
-            can_use_bike_lanes,
-            can_use_bus_lanes,
-        }.pathfind(map, start, start_dist, end, end_dist)
+            can_use_bike_lanes: req.can_use_bike_lanes,
+            can_use_bus_lanes: req.can_use_bus_lanes,
+        }.pathfind(map, req.start, req.start_dist, req.end, req.end_dist)
     }
 
     // Returns the cost of the potential next step, plus an optional heuristic to the goal
