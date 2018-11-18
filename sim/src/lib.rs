@@ -21,6 +21,7 @@ extern crate ordered_float;
 extern crate pretty_assertions;
 extern crate rand;
 extern crate rayon;
+extern crate regex;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

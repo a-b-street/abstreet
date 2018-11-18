@@ -1,5 +1,6 @@
 use dimensioned::si;
 use rand::{Rng, XorShiftRng};
+use regex::Regex;
 
 pub const TIMESTEP: Time = si::Second {
     value_unsafe: 0.1,
@@ -29,6 +30,7 @@ impl Tick {
         Tick(10 * secs)
     }
 
+    // TODO Why have these two forms? Consolidate
     pub fn parse(string: &str) -> Option<Tick> {
         let parts: Vec<&str> = string.split(":").collect();
         if parts.is_empty() {
@@ -60,6 +62,19 @@ impl Tick {
             }
             _ => None,
         }
+    }
+
+    pub fn parse_filename(string: &str) -> Option<Tick> {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
+        }
+        let caps = RE.captures(string)?;
+        let hours = 60 * 60 * 10 * u32::from_str_radix(&caps[1], 10).ok()?;
+        let minutes = 60 * 10 * u32::from_str_radix(&caps[2], 10).ok()?;
+        let seconds = 10 * u32::from_str_radix(&caps[3], 10).ok()?;
+        let ms = u32::from_str_radix(&caps[4], 10).ok()?;
+
+        Some(Tick(hours + minutes + seconds + ms))
     }
 
     pub fn as_time(&self) -> Time {

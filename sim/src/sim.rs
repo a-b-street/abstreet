@@ -313,9 +313,9 @@ impl Sim {
 
     // TODO Return a descriptive error again
     pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
-        let (_, load) = self.find_all_savestates().and_then(|mut list| {
-            list.pop().ok_or(io_error("empty directory"))
-        })?;
+        let (_, load) = self
+            .find_all_savestates()
+            .and_then(|mut list| list.pop().ok_or(io_error("empty directory")))?;
         info!("Loading {}", load);
         abstutil::read_json(&load)
     }
@@ -329,12 +329,13 @@ impl Sim {
         ))? {
             let path = entry?.path();
             let filename = path
-                    .file_name()
-                    .expect("path isn't a filename")
-                    .to_os_string()
-                    .into_string()
-                    .expect("can't convert path to string");
-            let tick = Tick::parse(&filename).expect(&format!("invalid Tick: {}", filename));
+                .file_name()
+                .expect("path isn't a filename")
+                .to_os_string()
+                .into_string()
+                .expect("can't convert path to string");
+            let tick =
+                Tick::parse_filename(&filename).expect(&format!("invalid Tick: {}", filename));
             results.push((
                 tick,
                 path.as_path()
