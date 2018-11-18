@@ -133,9 +133,15 @@ impl Sim {
             "At {} while processing {:?}",
             self.time, self.current_agent_for_debugging
         );
-        // TODO Most recent before current time
-        if let Ok(s) = self.find_most_recent_savestate() {
-            error!("Debug from {}", s);
+        if let Ok(mut list) = self.find_all_savestates() {
+            // Find the most recent one BEFORE the current time
+            list.reverse();
+            for (tick, path) in list {
+                if tick < self.time {
+                    error!("Debug from {}", path);
+                    break;
+                }
+            }
         }
     }
 
@@ -305,30 +311,41 @@ impl Sim {
         path
     }
 
+    // TODO Return a descriptive error again
     pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
-        let load = self.find_most_recent_savestate()?;
+        let (_, load) = self.find_all_savestates().and_then(|mut list| {
+            list.pop().ok_or(io_error("empty directory"))
+        })?;
         info!("Loading {}", load);
         abstutil::read_json(&load)
     }
 
-    fn find_most_recent_savestate(&self) -> Result<String, std::io::Error> {
-        let mut paths: Vec<std::path::PathBuf> = Vec::new();
+    // Earliest one is first
+    fn find_all_savestates(&self) -> Result<Vec<(Tick, String)>, std::io::Error> {
+        let mut results: Vec<(Tick, String)> = Vec::new();
         for entry in std::fs::read_dir(format!(
             "../data/save/{}_{}/{}/",
             self.map_name, self.edits_name, self.run_name
         ))? {
-            let entry = entry?;
-            paths.push(entry.path());
+            let path = entry?.path();
+            let filename = path
+                    .file_name()
+                    .expect("path isn't a filename")
+                    .to_os_string()
+                    .into_string()
+                    .expect("can't convert path to string");
+            let tick = Tick::parse(&filename).expect(&format!("invalid Tick: {}", filename));
+            results.push((
+                tick,
+                path.as_path()
+                    .as_os_str()
+                    .to_os_string()
+                    .into_string()
+                    .expect("can't convert path to string"),
+            ));
         }
-        paths.sort();
-        if let Some(p) = paths.last() {
-            Ok(p.as_os_str().to_os_string().into_string().unwrap())
-        } else {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "empty directory",
-            ))
-        }
+        results.sort();
+        Ok(results)
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -402,4 +419,8 @@ impl Sim {
             }
         }
     }
+}
+
+fn io_error(msg: &str) -> std::io::Error {
+    std::io::Error::new(std::io::ErrorKind::Other, msg)
 }
