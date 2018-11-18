@@ -23,7 +23,7 @@ impl DisplayLogs {
         // Even when the rest of the UI is ripped out, retain this static state.
         let mut lock = LOGGER_STARTED.lock().unwrap();
         if !*lock {
-            log::set_max_level(LevelFilter::Info);
+            log::set_max_level(LevelFilter::Debug);
             log::set_logger(&LOG_ADAPTER).unwrap();
             *lock = true;
         }

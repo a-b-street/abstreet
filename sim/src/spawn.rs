@@ -1,4 +1,4 @@
-use abstutil::{elapsed_seconds, fork_rng, WeightedUsizeChoice};
+use abstutil::{fork_rng, WeightedUsizeChoice};
 use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
@@ -10,7 +10,6 @@ use rand::{Rng, XorShiftRng};
 use router::Router;
 use scheduler;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use std::time::Instant;
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
@@ -668,19 +667,17 @@ impl Spawner {
 fn calculate_paths(map: &Map, requests: &Vec<PathRequest>) -> Vec<Option<Path>> {
     use rayon::prelude::*;
 
-    debug!("Calculating {} paths", requests.len());
     // TODO better timer macro
-    let timer = Instant::now();
     let paths: Vec<Option<Path>> = requests
         .par_iter()
         .map(|req| Pathfinder::shortest_distance(map, req.clone()))
         .collect();
 
-    debug!(
+    /*debug!(
         "Calculating {} paths took {}s",
         paths.len(),
         elapsed_seconds(timer)
-    );
+    );*/
     paths
 }
 

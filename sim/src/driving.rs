@@ -737,12 +737,12 @@ impl DrivingSimState {
         {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= params.dist_along {
-                debug!(
+                /*debug!(
                     "{} can't spawn, because they'd wind up too close ({}) behind {}",
                     params.car,
                     other_dist - params.dist_along,
                     other
-                );
+                );*/
                 return false;
             }
 
@@ -756,7 +756,7 @@ impl DrivingSimState {
                     0.0 * si::MPS,
                 ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
-                debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
+                //debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
                 return false;
             }
 

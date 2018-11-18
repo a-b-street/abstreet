@@ -11,7 +11,7 @@ use structopt::StructOpt;
 static LOG_ADAPTER: LogAdapter = LogAdapter;
 
 fn main() {
-    log::set_max_level(LevelFilter::Info);
+    log::set_max_level(LevelFilter::Debug);
     log::set_logger(&LOG_ADAPTER).unwrap();
 
     let flags = SimFlags::from_args();
