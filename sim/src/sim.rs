@@ -12,7 +12,6 @@ use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use scheduler::Scheduler;
 use spawn::Spawner;
 use std;
-use std::process;
 use transit::TransitSimState;
 use trips::TripManager;
 use view::WorldView;
@@ -146,14 +145,9 @@ impl Sim {
     }
 
     pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
-        match self.inner_step(map, control_map) {
-            Ok(events) => events,
-            Err(e) => {
-                self.dump_before_abort();
-                error!("{}", e);
-                process::exit(1);
-            }
-        }
+        // If there's an error, panic, so editor or headless will catch it, call dump_before_abort,
+        // and also do any other bail-out handling.
+        self.inner_step(map, control_map).unwrap()
     }
 
     fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(Vec<Event>), Error> {
