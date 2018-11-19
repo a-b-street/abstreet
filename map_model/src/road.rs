@@ -33,12 +33,6 @@ pub struct Road {
     pub dst_i: IntersectionID,
 }
 
-impl PartialEq for Road {
-    fn eq(&self, other: &Road) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Road {
     pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
         let (dir, offset) = self.dir_and_offset(lane);

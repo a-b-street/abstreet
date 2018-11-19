@@ -51,12 +51,6 @@ pub struct Lane {
     pub bus_stops: Vec<BusStopID>,
 }
 
-impl PartialEq for Lane {
-    fn eq(&self, other: &Lane) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Lane {
     // TODO most of these are wrappers; stop doing this?
     pub fn first_pt(&self) -> Pt2D {

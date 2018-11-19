@@ -36,12 +36,6 @@ pub struct Building {
     pub front_path: FrontPath,
 }
 
-impl PartialEq for Building {
-    fn eq(&self, other: &Building) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Building {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));

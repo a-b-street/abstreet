@@ -40,7 +40,7 @@ impl Request {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
     intersections: Vec<IntersectionPolicy>,
     debug: Option<IntersectionID>,
@@ -173,7 +173,7 @@ impl IntersectionSimState {
 }
 
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 enum IntersectionPolicy {
     StopSignPolicy(StopSign),
     TrafficSignalPolicy(TrafficSignal),
@@ -200,7 +200,7 @@ impl IntersectionPolicy {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct StopSign {
     id: IntersectionID,
     // Might not be stopped yet
@@ -324,7 +324,7 @@ impl StopSign {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct TrafficSignal {
     id: IntersectionID,
     accepted: BTreeSet<Request>,

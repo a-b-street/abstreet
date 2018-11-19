@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
 use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, ScoreSummary, Tick, TripID};
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct TripManager {
     trips: Vec<Trip>,
     // For quick lookup of active agents
@@ -285,7 +285,7 @@ impl TripManager {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Trip {
     id: TripID,
     spawned_at: Tick,
@@ -299,7 +299,7 @@ struct Trip {
 // Except for Drive (which has to say what car to drive), these don't say where the leg starts.
 // That's because it might be unknown -- like when we drive and don't know where we'll wind up
 // parking.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
     // TODO Can maybe collapse Drive and DriveFromBorder by acting like Bike and doing Vehicle,

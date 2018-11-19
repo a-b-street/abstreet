@@ -20,12 +20,6 @@ pub struct Parcel {
     pub block: usize,
 }
 
-impl PartialEq for Parcel {
-    fn eq(&self, other: &Parcel) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Parcel {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));

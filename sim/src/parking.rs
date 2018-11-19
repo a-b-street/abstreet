@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use std::iter;
 use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct ParkingSimState {
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     lanes: Vec<ParkingLane>,
@@ -157,21 +157,12 @@ impl ParkingSimState {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct ParkingLane {
     id: LaneID,
     spots: Vec<ParkingSpotGeometry>,
     occupants: Vec<Option<ParkedCar>>,
 }
-
-// TODO the f64's prevent derivation
-impl PartialEq for ParkingLane {
-    fn eq(&self, other: &ParkingLane) -> bool {
-        self.id == other.id && self.occupants == other.occupants
-    }
-}
-
-impl Eq for ParkingLane {}
 
 impl ParkingLane {
     fn new(l: &Lane) -> ParkingLane {
@@ -234,14 +225,11 @@ impl ParkingLane {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 struct ParkingSpotGeometry {
     // These 3 are of the front of the parking spot
-    #[derivative(PartialEq = "ignore")]
     dist_along: Distance,
     pos: Pt2D,
-    #[derivative(PartialEq = "ignore")]
     angle: Angle,
 }
 

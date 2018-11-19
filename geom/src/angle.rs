@@ -3,7 +3,7 @@ use std::f64;
 use std::fmt;
 
 // Stores in radians
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Angle(f64);
 
 impl Angle {

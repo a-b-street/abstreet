@@ -19,7 +19,7 @@ use walking::WalkingSimState;
 use {AgentID, CarID, Distance, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq, Eq)]
+#[derivative(PartialEq)]
 pub struct Sim {
     // TODO all the pub(crate) stuff is for helpers. Find a better solution.
 

@@ -65,6 +65,22 @@ Options:
 	- can be negative
 	- what should the resolution be?
 
+## Types again
+
+Alright, very annoyed about hacking around PartialEq support for dimensioned
+stuff everywhere. And dimensioned is providing no benefit -- I'd prefer my own
+types. Can also add in validation that there are no negative distances. Also
+the constants aren't particularly nice.
+
+One thing -- f64 is PartialEq, not Eq. Why do I need Eq? sim determinism works
+fine with with PartialEq. Undid tons of stuff, woot!
+
+Ah, that was easy. Still reasons to make my own native types:
+- less dependencies
+- explicit operations supported, makes code more clear
+- can verify distance is non-negative
+- can maybe make the epsilon tolerance consistent
+
 ## Coordinate system
 
 Switching to something that's more easily bijective, but

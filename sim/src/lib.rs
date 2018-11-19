@@ -140,7 +140,7 @@ impl ParkingSpot {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ParkedCar {
     pub car: CarID,
     pub spot: ParkingSpot,

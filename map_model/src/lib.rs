@@ -1,7 +1,5 @@
 extern crate aabb_quadtree;
 extern crate abstutil;
-#[macro_use]
-extern crate derivative;
 extern crate dimensioned;
 extern crate geo;
 extern crate geom;

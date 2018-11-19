@@ -77,12 +77,9 @@ impl PathStep {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
-#[derivative(PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Path {
     steps: VecDeque<PathStep>,
-    // TODO :(
-    #[derivative(PartialEq = "ignore")]
     end_dist: si::Meter<f64>,
 }
 

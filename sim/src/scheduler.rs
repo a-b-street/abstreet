@@ -6,7 +6,7 @@ use trips::TripManager;
 use walking::{CreatePedestrian, WalkingSimState};
 use {AgentID, Tick};
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub enum Command {
     SpawnCar(Tick, CreateCar),
     SpawnPed(Tick, CreatePedestrian),
@@ -21,7 +21,7 @@ impl Command {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct Scheduler {
     // Ordered descending by time
     commands: Vec<Command>,

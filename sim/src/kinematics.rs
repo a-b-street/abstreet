@@ -44,7 +44,7 @@ const FOLLOWING_DISTANCE: Distance = si::Meter {
 // TODO unit test all of this
 // TODO handle floating point issues uniformly here
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Vehicle {
     pub id: CarID,
     pub vehicle_type: VehicleType,
@@ -64,15 +64,6 @@ pub enum VehicleType {
     Bus,
     Bike,
 }
-
-// TODO this is used for verifying sim state determinism, so it should actually check everything.
-// the f64 prevents this from being derived.
-impl PartialEq for Vehicle {
-    fn eq(&self, other: &Vehicle) -> bool {
-        self.id == other.id
-    }
-}
-impl Eq for Vehicle {}
 
 impl Vehicle {
     pub fn generate_car(id: CarID, rng: &mut XorShiftRng) -> Vehicle {

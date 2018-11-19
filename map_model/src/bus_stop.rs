@@ -15,20 +15,12 @@ impl fmt::Display for BusStopID {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct BusStop {
     pub id: BusStopID,
     pub driving_lane: LaneID,
     pub dist_along: si::Meter<f64>,
 }
-
-impl PartialEq for BusStop {
-    fn eq(&self, other: &BusStop) -> bool {
-        self.id == other.id
-    }
-}
-
-impl Eq for BusStop {}
 
 impl BusStop {
     pub fn dump_debug(&self) {

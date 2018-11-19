@@ -34,7 +34,7 @@ pub enum DrivingGoal {
     Border(IntersectionID, LaneID),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct ParkingState {
     // False means departing
     is_parking: bool,
@@ -42,7 +42,7 @@ struct ParkingState {
     tuple: ParkedCar,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct Car {
     id: CarID,
     // None for buses
@@ -57,15 +57,6 @@ struct Car {
 
     debug: bool,
 }
-
-// TODO this is used for verifying sim state determinism, so it should actually check everything.
-// the f64 prevents this from being derived.
-impl PartialEq for Car {
-    fn eq(&self, other: &Car) -> bool {
-        self.id == other.id
-    }
-}
-impl Eq for Car {}
 
 pub enum Action {
     StartParking(ParkingSpot),
@@ -346,7 +337,7 @@ impl Car {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SimQueue {
     id: Traversable,
     // First element is farthest along the queue; they have the greatest dist_along.
@@ -354,17 +345,6 @@ pub struct SimQueue {
     cars_queue: Vec<(Distance, CarID)>,
     capacity: usize,
 }
-
-impl PartialEq for SimQueue {
-    fn eq(&self, other: &SimQueue) -> bool {
-        // TODO more reasons to use fixed pt types soon...
-        self.id == other.id
-            && self.capacity == other.capacity
-            && format!("{:?}", self.cars_queue) == format!("{:?}", other.cars_queue)
-    }
-}
-
-impl Eq for SimQueue {}
 
 impl SimQueue {
     fn new(id: Traversable, map: &Map) -> SimQueue {
@@ -451,7 +431,7 @@ impl SimQueue {
 }
 
 // This manages only actively driving cars
-#[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic.
     cars: BTreeMap<CarID, Car>,
@@ -905,8 +885,7 @@ impl DrivingSimState {
     }
 }
 
-#[derive(Serialize, Deserialize, Derivative, Clone)]
-#[derivative(PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateCar {
     pub car: CarID,
     pub trip: Option<TripID>,
@@ -914,7 +893,6 @@ pub struct CreateCar {
     pub maybe_parked_car: Option<ParkedCar>,
     pub vehicle: Vehicle,
     pub start: LaneID,
-    #[derivative(PartialEq = "ignore")]
     pub dist_along: Distance,
     pub router: Router,
 }

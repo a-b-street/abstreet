@@ -34,12 +34,10 @@ const TIME_TO_PREPARE_BIKE: Time = si::Second {
 
 // A pedestrian can start from a parking spot (after driving and parking) or at a building.
 // A pedestrian can end at a parking spot (to start driving) or at a building.
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct SidewalkSpot {
     connection: SidewalkPOI,
     pub sidewalk: LaneID,
-    #[derivative(PartialEq = "ignore")]
     pub dist_along: Distance,
 }
 
@@ -120,7 +118,7 @@ enum SidewalkPOI {
     BikeRack,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct CrossingFrontPath {
     bldg: BuildingID,
     // Measured from the building to the sidewalk
@@ -128,7 +126,7 @@ struct CrossingFrontPath {
     going_to_sidewalk: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct BikeParkingState {
     // False means departing
     is_parking: bool,
@@ -148,7 +146,7 @@ enum Action {
     VanishAtBorder,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 struct Pedestrian {
     id: PedestrianID,
     trip: TripID,
@@ -168,15 +166,6 @@ struct Pedestrian {
     // If false, don't react() and step(). Waiting for a bus.
     active: bool,
 }
-
-// TODO this is used for verifying sim state determinism, so it should actually check everything.
-// the f64 prevents this from being derived.
-impl PartialEq for Pedestrian {
-    fn eq(&self, other: &Pedestrian) -> bool {
-        self.id == other.id
-    }
-}
-impl Eq for Pedestrian {}
 
 impl Pedestrian {
     // Note this doesn't change the ped's state, and it observes a fixed view of the world!
@@ -336,7 +325,7 @@ impl Pedestrian {
     }
 }
 
-#[derive(Serialize, Deserialize, Derivative, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Derivative, PartialEq)]
 pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
     peds: BTreeMap<PedestrianID, Pedestrian>,
@@ -690,7 +679,7 @@ impl WalkingSimState {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct CreatePedestrian {
     pub id: PedestrianID,
     pub trip: TripID,

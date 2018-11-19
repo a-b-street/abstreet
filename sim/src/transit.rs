@@ -13,7 +13,7 @@ use {CarID, Distance, PedestrianID, RouteID, Tick};
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct Route {
     id: RouteID,
     name: String,
@@ -33,7 +33,7 @@ impl Route {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct Bus {
     car: CarID,
     route: RouteID,
@@ -41,14 +41,14 @@ struct Bus {
     state: BusState,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 enum BusState {
     DrivingToStop(StopIdx),
     // When do we leave?
     AtStop(StopIdx, Tick),
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct TransitSimState {
     #[serde(
         serialize_with = "serialize_btreemap",

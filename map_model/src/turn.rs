@@ -38,15 +38,9 @@ pub struct Turn {
     pub line: Line,
 }
 
-impl PartialEq for Turn {
-    fn eq(&self, other: &Turn) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Turn {
     pub fn conflicts_with(&self, other: &Turn) -> bool {
-        if self == other {
+        if self.id == other.id {
             return false;
         }
         if self.between_sidewalks() && other.between_sidewalks() {

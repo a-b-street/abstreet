@@ -9,18 +9,17 @@ use transit::TransitSimState;
 use view::AgentView;
 use {Distance, Event, ParkingSpot, Tick};
 
-#[derive(Clone, Derivative, Serialize, Deserialize)]
-#[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 enum Goal {
     ParkNearBuilding(BuildingID),
     // Stop at this distance along the last lane in the path
-    BikeThenStop(#[derivative(PartialEq = "ignore")] Distance),
+    BikeThenStop(Distance),
     FollowBusRoute,
     EndAtBorder,
 }
 
 // Gives higher-level instructions to a car.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct Router {
     // The head of the path is the current lane or turn.
     path: Path,

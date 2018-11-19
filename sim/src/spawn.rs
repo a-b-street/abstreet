@@ -15,8 +15,7 @@ use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
 use {CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType};
 
-#[derive(Serialize, Deserialize, Derivative, Debug, Clone)]
-#[derivative(PartialEq = "feature_allow_slow_enum", Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
@@ -32,7 +31,6 @@ enum Command {
         at: Tick,
         trip: TripID,
         start_sidewalk: LaneID,
-        #[derivative(PartialEq = "ignore")]
         start_dist: Distance,
         vehicle: Vehicle,
         goal: DrivingGoal,
@@ -119,7 +117,7 @@ impl Command {
 }
 
 // This owns car/ped IDs.
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct Spawner {
     // Ordered descending by time
     commands: Vec<Command>,

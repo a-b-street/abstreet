@@ -44,12 +44,6 @@ pub struct Intersection {
     pub roads: BTreeSet<RoadID>,
 }
 
-impl PartialEq for Intersection {
-    fn eq(&self, other: &Intersection) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Intersection {
     pub fn is_dead_end(&self) -> bool {
         self.roads.len() == 1

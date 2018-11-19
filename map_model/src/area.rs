@@ -31,12 +31,6 @@ pub struct Area {
     pub osm_way_id: i64,
 }
 
-impl PartialEq for Area {
-    fn eq(&self, other: &Area) -> bool {
-        self.id == other.id
-    }
-}
-
 impl Area {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
