@@ -194,8 +194,14 @@ impl Sim {
         }
         for (bike, last_lane, dist) in done_biking {
             // TODO push an event, backtrace, etc
-            self.spawner
-                .bike_reached_end(self.time, bike, last_lane, dist, &mut self.trips_state);
+            self.spawner.bike_reached_end(
+                self.time,
+                bike,
+                last_lane,
+                dist,
+                map,
+                &mut self.trips_state,
+            );
         }
 
         self.walking_state.populate_view(&mut view);

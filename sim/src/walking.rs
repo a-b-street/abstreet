@@ -65,8 +65,8 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn bike_rack(sidewalk: LaneID, dist_along: Distance) -> SidewalkSpot {
-        // TODO verify the thing passed in is a sidewalk!
+    pub fn bike_rack(sidewalk: LaneID, dist_along: Distance, map: &Map) -> SidewalkSpot {
+        assert!(map.get_l(sidewalk).is_sidewalk());
         SidewalkSpot {
             connection: SidewalkPOI::BikeRack,
             sidewalk,

@@ -492,7 +492,7 @@ impl Spawner {
 
         let first_spot = {
             let b = map.get_b(start_bldg);
-            SidewalkSpot::bike_rack(b.front_path.sidewalk, b.front_path.dist_along_sidewalk)
+            SidewalkSpot::bike_rack(b.front_path.sidewalk, b.front_path.dist_along_sidewalk, map)
         };
 
         let mut legs = vec![
@@ -603,15 +603,19 @@ impl Spawner {
         bike: CarID,
         last_lane: LaneID,
         dist: Distance,
+        map: &Map,
         trips: &mut TripManager,
     ) {
         let (trip, ped, walk_to) = trips.bike_reached_end(bike);
-        // TODO last_lane is not the sidewalk, we need to look that up
         self.enqueue_command(Command::Walk(
             at.next(),
             trip,
             ped,
-            SidewalkSpot::bike_rack(last_lane, dist),
+            SidewalkSpot::bike_rack(
+                map.get_sidewalk_from_driving_lane(last_lane).unwrap(),
+                dist,
+                map,
+            ),
             walk_to,
         ));
     }
