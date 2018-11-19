@@ -584,6 +584,7 @@ impl DrivingSimState {
 
         let mut finished_parking: Vec<ParkedCar> = Vec::new();
         let mut vanished_at_border: Vec<CarID> = Vec::new();
+        // The lane is the where the bike ended, so NOT a sidewalk
         let mut done_biking: Vec<(CarID, LaneID, Distance)> = Vec::new();
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning

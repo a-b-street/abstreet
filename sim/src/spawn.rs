@@ -600,11 +600,12 @@ impl Spawner {
         &mut self,
         at: Tick,
         bike: CarID,
-        lane: LaneID,
+        last_lane: LaneID,
         dist: Distance,
         trips: &mut TripManager,
     ) {
         let (trip, ped, walk_to) = trips.bike_reached_end(bike);
+        // TODO last_lane is not the sidewalk, we need to look that up
         self.enqueue_command(Command::Walk(
             at.next(),
             trip,

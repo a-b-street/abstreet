@@ -118,3 +118,7 @@ necessary to plumb more log context anyway.
 At some point, geometry was a separate layer from the graph base-layer of
 map_model. That doesn't work -- we can't even reason about what turns logically
 exist without operating on cleaned-up geometry.
+
+## IDs
+
+Should LaneID have LaneType bundled in for convenience? CarID and VehicleType?

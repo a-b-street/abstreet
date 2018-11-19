@@ -192,10 +192,10 @@ impl Sim {
         for c in at_border {
             self.trips_state.car_reached_border(c, self.time);
         }
-        for (bike, lane, dist) in done_biking {
+        for (bike, last_lane, dist) in done_biking {
             // TODO push an event, backtrace, etc
             self.spawner
-                .bike_reached_end(self.time, bike, lane, dist, &mut self.trips_state);
+                .bike_reached_end(self.time, bike, last_lane, dist, &mut self.trips_state);
         }
 
         self.walking_state.populate_view(&mut view);
