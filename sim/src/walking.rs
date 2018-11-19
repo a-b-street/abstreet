@@ -306,9 +306,23 @@ impl Pedestrian {
         Ok(())
     }
 
-    fn get_pos(&self, map: &Map) -> Pt2D {
+    fn get_pos(&self, map: &Map, now: Tick) -> Pt2D {
         if let Some(ref fp) = self.front_path {
             map.get_b(fp.bldg).front_path.line.dist_along(fp.dist_along)
+        } else if let Some(ref bp) = self.bike_parking {
+            let (base_pos, angle) = self.on.dist_along(self.dist_along, map);
+            let progress: f64 =
+                ((now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE).value_unsafe;
+            assert!(progress >= 0.0 && progress <= 1.0);
+            let project_away_ratio = if bp.is_parking {
+                progress
+            } else {
+                1.0 - progress
+            };
+            // TODO how many lanes away? and we're assuming the equivalent dist_along is
+            // perpendicular
+            use map_model::LANE_THICKNESS;
+            base_pos.project_away(project_away_ratio * LANE_THICKNESS, angle.rotate_degs(90.0))
         } else {
             self.on.dist_along(self.dist_along, map).0
         }
@@ -518,28 +532,43 @@ impl WalkingSimState {
         }
     }
 
-    pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
+    pub fn get_draw_ped(
+        &self,
+        id: PedestrianID,
+        map: &Map,
+        now: Tick,
+    ) -> Option<DrawPedestrianInput> {
         let ped = self.peds.get(&id)?;
         Some(DrawPedestrianInput {
             id,
-            pos: ped.get_pos(map),
+            pos: ped.get_pos(map, now),
             waiting_for_turn: ped.waiting_for_turn(),
             preparing_bike: ped.bike_parking.is_some(),
         })
     }
 
-    pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
+    pub fn get_draw_peds_on_lane(
+        &self,
+        l: LaneID,
+        map: &Map,
+        now: Tick,
+    ) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
         for id in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
-            result.push(self.get_draw_ped(*id, map).unwrap());
+            result.push(self.get_draw_ped(*id, map, now).unwrap());
         }
         result
     }
 
-    pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
+    pub fn get_draw_peds_on_turn(
+        &self,
+        t: TurnID,
+        map: &Map,
+        now: Tick,
+    ) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
         for id in self.peds_per_turn.get_vec(&t).unwrap_or(&Vec::new()) {
-            result.push(self.get_draw_ped(*id, map).unwrap());
+            result.push(self.get_draw_ped(*id, map, now).unwrap());
         }
         result
     }

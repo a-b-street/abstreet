@@ -37,7 +37,7 @@ impl Sim {
     }
 
     pub fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        self.walking_state.get_draw_ped(id, map)
+        self.walking_state.get_draw_ped(id, map, self.time)
     }
 
     // TODO maybe just DrawAgent instead? should caller care?
@@ -56,10 +56,10 @@ impl Sim {
     }
 
     pub fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_lane(l, map)
+        self.walking_state.get_draw_peds_on_lane(l, map, self.time)
     }
 
     pub fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_turn(t, map)
+        self.walking_state.get_draw_peds_on_turn(t, map, self.time)
     }
 }

@@ -404,9 +404,10 @@ impl Sim {
                     .driving_state
                     .get_draw_car(id, self.time, map)
                     .map(|c| c.front),
-                Some(AgentID::Pedestrian(id)) => {
-                    self.walking_state.get_draw_ped(id, map).map(|p| p.pos)
-                }
+                Some(AgentID::Pedestrian(id)) => self
+                    .walking_state
+                    .get_draw_ped(id, map, self.time)
+                    .map(|p| p.pos),
                 None => None,
             };
             if let Some(pt) = pt {
