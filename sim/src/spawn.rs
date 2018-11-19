@@ -85,6 +85,7 @@ impl Command {
                     DrivingGoal::Border(_, l) => (*l, map.get_l(*l).length()),
                 };
                 PathRequest {
+                    // TODO or bike lane, gah
                     start: map.get_driving_lane_from_sidewalk(*start_sidewalk).unwrap(),
                     start_dist: *start_dist,
                     end: goal_lane,
@@ -610,7 +611,7 @@ impl Spawner {
             at.next(),
             trip,
             ped,
-            SidewalkSpot::bike_rack(lane, dist),
+            SidewalkSpot::bike_rack(last_lane, dist),
             walk_to,
         ));
     }

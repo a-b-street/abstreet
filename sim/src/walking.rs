@@ -1,7 +1,7 @@
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap, Error};
 use dimensioned::si;
-use geom::Pt2D;
+use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{
@@ -311,19 +311,25 @@ impl Pedestrian {
         if let Some(ref fp) = self.front_path {
             map.get_b(fp.bldg).front_path.line.dist_along(fp.dist_along)
         } else if let Some(ref bp) = self.bike_parking {
-            let (base_pos, angle) = self.on.dist_along(self.dist_along, map);
+            let sidewalk_pos = self.on.dist_along(self.dist_along, map).0;
+            let street_pos = map
+                .get_l(
+                    map.get_driving_lane_from_sidewalk(self.on.as_lane())
+                        .unwrap(),
+                ).dist_along(self.dist_along)
+                .0;
+            let line = Line::new(sidewalk_pos, street_pos);
+
             let progress: f64 =
                 ((now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE).value_unsafe;
             assert!(progress >= 0.0 && progress <= 1.0);
-            let project_away_ratio = if bp.is_parking {
-                progress
-            } else {
+            let ratio = if bp.is_parking {
                 1.0 - progress
+            } else {
+                progress
             };
-            // TODO how many lanes away? and we're assuming the equivalent dist_along is
-            // perpendicular
-            use map_model::LANE_THICKNESS;
-            base_pos.project_away(project_away_ratio * LANE_THICKNESS, angle.rotate_degs(90.0))
+
+            line.dist_along(ratio * line.length())
         } else {
             self.on.dist_along(self.dist_along, map).0
         }
