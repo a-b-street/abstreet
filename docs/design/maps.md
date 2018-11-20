@@ -361,3 +361,30 @@ lane, turn) without doing the terrible stitch-together later thing?
   accuratelyish, (Lane, dist_along), so we can start and end anywhere.
 	- When stitching together the path, a pair of lanes is a turn.
 	  Otherwise, cross forwards or backwards.
+
+## Road query refactor
+
+What we have right now...
+
+Road
+    pub fn find_sidewalk(&self, parking_or_driving: LaneID) -> Result<LaneID, Error>
+    pub fn find_driving_lane(&self, parking: LaneID) -> Result<LaneID, Error>
+    pub fn find_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Result<LaneID, Error>
+    pub fn find_parking_lane(&self, driving: LaneID) -> Result<LaneID, Error>
+
+    pub fn get_opposite_lane(&self, lane: LaneID, lane_type: LaneType) -> Result<LaneID, Error>
+    pub fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)>
+
+Map
+    pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error>
+    pub fn get_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Result<LaneID, Error>
+    pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Result<LaneID, Error>
+    pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Result<LaneID, Error>
+
+    pub fn building_to_road(&self, id: BuildingID) -> &Road
+
+Some themes...
+
+- have some lane, want the nearest lane of some type(s).
+- The source doesn't really matter -- we want as close as possible, but there's no requirement of adjacency at all.
+- If the source/dest is a sidewalk, some weird handling for one-ways...

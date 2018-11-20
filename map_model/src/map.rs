@@ -470,30 +470,6 @@ impl Map {
         self.bounds.clone()
     }
 
-    pub fn get_driving_lane_from_bldg(&self, bldg: BuildingID) -> Result<LaneID, Error> {
-        self.get_driving_lane_from_sidewalk(self.get_b(bldg).front_path.sidewalk)
-    }
-
-    pub fn get_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Result<LaneID, Error> {
-        let road = self.get_parent(sidewalk);
-        road.find_driving_lane_from_sidewalk(sidewalk)
-    }
-
-    pub fn get_sidewalk_from_driving_lane(&self, driving: LaneID) -> Result<LaneID, Error> {
-        let road = self.get_parent(driving);
-        // No parking lane?
-        if let Ok(l) = road.find_sidewalk(driving) {
-            return Ok(l);
-        }
-        road.find_parking_lane(driving)
-            .and_then(|parking| road.find_sidewalk(parking))
-            .map_err(|e| e.context(format!("get_sidewalk_from_driving_lane({})", driving)))
-    }
-
-    pub fn get_driving_lane_from_parking(&self, parking: LaneID) -> Result<LaneID, Error> {
-        self.get_parent(parking).find_driving_lane(parking)
-    }
-
     pub fn get_name(&self) -> &String {
         &self.name
     }
@@ -562,6 +538,19 @@ impl Map {
         info!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);
+    }
+
+    pub fn find_closest_lane(&self, from: LaneID, types: Vec<LaneType>) -> Result<LaneID, Error> {
+        self.get_parent(from).find_closest_lane(from, types)
+    }
+
+    pub fn find_closest_lane_to_bldg(
+        &self,
+        bldg: BuildingID,
+        types: Vec<LaneType>,
+    ) -> Result<LaneID, Error> {
+        let from = self.get_b(bldg).front_path.sidewalk;
+        self.find_closest_lane(from, types)
     }
 }
 

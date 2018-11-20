@@ -64,7 +64,7 @@ impl Command {
                 };
                 PathRequest {
                     start: map
-                        .get_driving_lane_from_parking(parked_car.spot.lane)
+                        .find_closest_lane(parked_car.spot.lane, vec![LaneType::Driving])
                         .unwrap(),
                     start_dist: parking_sim
                         .dist_along_for_car(parked_car.spot, &parked_car.vehicle),
@@ -85,8 +85,11 @@ impl Command {
                     DrivingGoal::Border(_, l) => (*l, map.get_l(*l).length()),
                 };
                 PathRequest {
-                    // TODO or bike lane, gah
-                    start: map.get_driving_lane_from_sidewalk(*start_sidewalk).unwrap(),
+                    start: map
+                        .find_closest_lane(
+                            *start_sidewalk,
+                            vec![LaneType::Driving, LaneType::Biking],
+                        ).unwrap(),
                     start_dist: *start_dist,
                     end: goal_lane,
                     end_dist: goal_dist,
@@ -612,7 +615,8 @@ impl Spawner {
             trip,
             ped,
             SidewalkSpot::bike_rack(
-                map.get_sidewalk_from_driving_lane(last_lane).unwrap(),
+                map.find_closest_lane(last_lane, vec![LaneType::Sidewalk])
+                    .unwrap(),
                 dist,
                 map,
             ),
@@ -732,7 +736,7 @@ fn find_spot_near_building(
 // When driving towards some goal building, there may not be a driving lane directly outside the
 // building. So BFS out in a deterministic way and find one.
 fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
-    if let Ok(l) = map.get_driving_lane_from_bldg(b) {
+    if let Ok(l) = map.find_closest_lane_to_bldg(b, vec![LaneType::Driving]) {
         return l;
     }
 
@@ -777,8 +781,7 @@ fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
 // When biking towards some goal building, there may not be a driving/biking lane directly outside
 // the building. So BFS out in a deterministic way and find one.
 fn find_biking_goal_near_building(b: BuildingID, map: &Map) -> (LaneID, Distance) {
-    // TODO or bike lane
-    if let Ok(l) = map.get_driving_lane_from_bldg(b) {
+    if let Ok(l) = map.find_closest_lane_to_bldg(b, vec![LaneType::Driving, LaneType::Biking]) {
         return (l, map.get_b(b).front_path.dist_along_sidewalk);
     }
 

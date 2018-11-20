@@ -47,7 +47,9 @@ impl SidewalkSpot {
         map: &Map,
         parking_sim: &ParkingSimState,
     ) -> SidewalkSpot {
-        let sidewalk = map.get_parent(spot.lane).find_sidewalk(spot.lane).unwrap();
+        let sidewalk = map
+            .find_closest_lane(spot.lane, vec![LaneType::Sidewalk])
+            .unwrap();
         let dist_along = parking_sim.dist_along_for_ped(spot);
         SidewalkSpot {
             connection: SidewalkPOI::ParkingSpot(spot),
@@ -314,8 +316,10 @@ impl Pedestrian {
             let sidewalk_pos = self.on.dist_along(self.dist_along, map).0;
             let street_pos = map
                 .get_l(
-                    map.get_driving_lane_from_sidewalk(self.on.as_lane())
-                        .unwrap(),
+                    map.find_closest_lane(
+                        self.on.as_lane(),
+                        vec![LaneType::Driving, LaneType::Biking],
+                    ).unwrap(),
                 ).dist_along(self.dist_along)
                 .0;
             let line = Line::new(sidewalk_pos, street_pos);

@@ -58,7 +58,7 @@ impl DrawLane {
                 for m in calculate_driving_lines(lane, road) {
                     markings.push(m);
                 }
-                for m in calculate_turn_markings(map, lane, road) {
+                for m in calculate_turn_markings(map, lane) {
                     markings.push(m);
                 }
             }
@@ -291,15 +291,13 @@ fn calculate_id_positions(lane: &Lane) -> Option<Vec<Pt2D>> {
     Some(vec![pt1, pt2])
 }
 
-fn calculate_turn_markings(map: &Map, lane: &Lane, road: &Road) -> Vec<Marking> {
+fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
     let mut results: Vec<Marking> = Vec::new();
 
     // Are there multiple driving lanes on this side of the road?
-    if road
-        .get_siblings(lane.id)
-        .into_iter()
-        .find(|(_, lt)| *lt == LaneType::Driving)
-        .is_none()
+    if map
+        .find_closest_lane(lane.id, vec![LaneType::Driving])
+        .is_err()
     {
         return results;
     }

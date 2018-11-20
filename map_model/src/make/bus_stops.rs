@@ -7,7 +7,7 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
-use {BusRoute, BusStop, BusStopID, Lane, LaneID, Map, PathRequest, Pathfinder, Road};
+use {BusRoute, BusStop, BusStopID, Lane, LaneID, LaneType, Map, PathRequest, Pathfinder, Road};
 
 pub fn make_bus_stops(
     lanes: &mut Vec<Lane>,
@@ -41,7 +41,9 @@ pub fn make_bus_stops(
 
     for (id, dists) in stops_per_sidewalk.iter_all_mut() {
         let road = &roads[lanes[id.0].parent.0];
-        if let Ok(driving_lane) = road.find_driving_lane_from_sidewalk(*id) {
+        if let Ok(driving_lane) =
+            road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
+        {
             let driving_len = lanes[driving_lane.0].length();
             dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {

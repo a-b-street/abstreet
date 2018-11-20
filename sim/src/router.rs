@@ -2,7 +2,7 @@ use dimensioned::si;
 use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID};
+use map_model::{BuildingID, LaneID, LaneType, Map, Path, PathStep, Trace, Traversable, TurnID};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use transit::TransitSimState;
@@ -219,8 +219,7 @@ fn find_parking_spot(
     map: &Map,
     parking_sim: &ParkingSimState,
 ) -> Option<ParkingSpot> {
-    map.get_parent(driving_lane)
-        .find_parking_lane(driving_lane)
+    map.find_closest_lane(driving_lane, vec![LaneType::Parking])
         .ok()
         .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
 }

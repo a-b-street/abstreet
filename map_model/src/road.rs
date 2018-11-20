@@ -1,7 +1,7 @@
 use abstutil::Error;
 use dimensioned::si;
 use geom::PolyLine;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 use {IntersectionID, LaneID, LaneType};
 
@@ -79,139 +79,6 @@ impl Road {
         lane == self.children_backwards[0].0
     }
 
-    pub fn find_sidewalk(&self, parking_or_driving: LaneID) -> Result<LaneID, Error> {
-        self.get_siblings(parking_or_driving)
-            .iter()
-            .find(|pair| pair.1 == LaneType::Sidewalk)
-            .map(|pair| pair.0)
-            .ok_or_else(|| {
-                Error::new(format!(
-                    "{} doesn't have sidewalk sibling",
-                    parking_or_driving
-                ))
-            })
-    }
-
-    pub fn find_driving_lane(&self, parking: LaneID) -> Result<LaneID, Error> {
-        //assert_eq!(l.lane_type, LaneType::Parking);
-        self.get_siblings(parking)
-            .iter()
-            .find(|pair| pair.1 == LaneType::Driving)
-            .map(|pair| pair.0)
-            .ok_or_else(|| Error::new(format!("{} doesn't have driving lane sibling", parking)))
-    }
-
-    // Handles intermediate parking and bus lanes and such
-    // Additionally handles one-ways with a sidewalk on only one side.
-    // TODO but in reality, there probably isn't a sidewalk on the other side of the one-way. :\
-    pub fn find_driving_lane_from_sidewalk(&self, sidewalk: LaneID) -> Result<LaneID, Error> {
-        let (this_side, opposite, idx) = if let Some(idx) = self
-            .children_forwards
-            .iter()
-            .position(|(l, _)| *l == sidewalk)
-        {
-            (&self.children_forwards, &self.children_backwards, idx)
-        } else if let Some(idx) = self
-            .children_backwards
-            .iter()
-            .position(|(l, _)| *l == sidewalk)
-        {
-            (&self.children_backwards, &self.children_forwards, idx)
-        } else {
-            panic!("{} doesn't contain {}", self.id, sidewalk)
-        };
-        // Sidewalks are always at the end
-        assert!(idx == this_side.len() - 1);
-        // So is there a driving lane on this side?
-        if let Some(l) = this_side
-            .iter()
-            .rev()
-            .find(|(_, lt)| *lt == LaneType::Driving)
-            .map(|(l, _)| *l)
-        {
-            return Ok(l);
-        }
-
-        // Is the sidewalk on a one-way with the other side having a driving lane?
-        if this_side.len() == 1 && !opposite.is_empty() && opposite[0].1 == LaneType::Driving {
-            return Ok(opposite[0].0);
-        }
-        Err(Error::new(format!(
-            "Sidewalk {} doesn't have driving lane",
-            sidewalk
-        )))
-    }
-
-    pub fn find_parking_lane(&self, driving: LaneID) -> Result<LaneID, Error> {
-        //assert_eq!(l.lane_type, LaneType::Driving);
-        self.get_siblings(driving)
-            .iter()
-            .find(|pair| pair.1 == LaneType::Parking)
-            .map(|pair| pair.0)
-            .ok_or_else(|| Error::new(format!("{} doesn't have parking lane sibling", driving)))
-    }
-
-    pub fn get_opposite_lane(&self, lane: LaneID, lane_type: LaneType) -> Result<LaneID, Error> {
-        let forwards: Vec<LaneID> = self
-            .children_forwards
-            .iter()
-            .filter(|pair| pair.1 == lane_type)
-            .map(|pair| pair.0)
-            .collect();
-        let backwards: Vec<LaneID> = self
-            .children_backwards
-            .iter()
-            .filter(|pair| pair.1 == lane_type)
-            .map(|pair| pair.0)
-            .collect();
-
-        if let Some(idx) = forwards.iter().position(|id| *id == lane) {
-            return backwards.get(idx).map(|id| *id).ok_or_else(|| {
-                Error::new(format!(
-                    "{} doesn't have opposite lane of type {:?}",
-                    lane, lane_type
-                ))
-            });
-        }
-        if let Some(idx) = backwards.iter().position(|id| *id == lane) {
-            return forwards.get(idx).map(|id| *id).ok_or_else(|| {
-                Error::new(format!(
-                    "{} doesn't have opposite lane of type {:?}",
-                    lane, lane_type
-                ))
-            });
-        }
-        panic!("{} doesn't contain {}", self.id, lane);
-    }
-
-    // Only the immediately adjacent siblings -- so could be 0, 1, or 2 results.
-    pub fn get_siblings(&self, lane: LaneID) -> Vec<(LaneID, LaneType)> {
-        let (list, idx) = if let Some(idx) = self
-            .children_forwards
-            .iter()
-            .position(|pair| pair.0 == lane)
-        {
-            (&self.children_forwards, idx)
-        } else if let Some(idx) = self
-            .children_backwards
-            .iter()
-            .position(|pair| pair.0 == lane)
-        {
-            (&self.children_backwards, idx)
-        } else {
-            panic!("{} doesn't contain {}", self.id, lane)
-        };
-
-        let mut result = Vec::new();
-        if idx != 0 {
-            result.push(list[idx - 1]);
-        }
-        if idx != list.len() - 1 {
-            result.push(list[idx + 1]);
-        }
-        result
-    }
-
     pub fn get_speed_limit(&self) -> si::MeterPerSecond<f64> {
         // TODO Should probably cache this
         if let Some(limit) = self.osm_tags.get("maxspeed") {
@@ -250,6 +117,46 @@ impl Road {
             &self.children_backwards
         } else {
             panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
+    }
+
+    // If 'from' is a sidewalk, we'll also consider lanes on the other side of the road, if needed.
+    // TODO But reusing dist_along will break loudly in that case! Really need a perpendicular
+    // projection-and-collision method to find equivalent dist_along's.
+    pub(crate) fn find_closest_lane(
+        &self,
+        from: LaneID,
+        types: Vec<LaneType>,
+    ) -> Result<LaneID, Error> {
+        let lane_types: HashSet<LaneType> = types.into_iter().collect();
+        let (dir, from_idx) = self.dir_and_offset(from);
+        let mut list = if dir {
+            &self.children_forwards
+        } else {
+            &self.children_backwards
+        };
+        // Deal with one-ways and sidewalks on both sides
+        if list.len() == 1 && list[0].1 == LaneType::Sidewalk {
+            list = if dir {
+                &self.children_backwards
+            } else {
+                &self.children_forwards
+            };
+        }
+
+        if let Some((_, lane)) = list
+            .iter()
+            .enumerate()
+            .filter(|(_, (lane, lt))| *lane != from && lane_types.contains(lt))
+            .map(|(idx, (lane, _))| (((from_idx as isize) - (idx as isize)).abs(), *lane))
+            .min_by_key(|(offset, _)| *offset)
+        {
+            Ok(lane)
+        } else {
+            Err(Error::new(format!(
+                "{} isn't near a {:?} lane",
+                from, lane_types
+            )))
         }
     }
 }
