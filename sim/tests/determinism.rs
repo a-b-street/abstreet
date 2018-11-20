@@ -5,7 +5,11 @@ extern crate sim;
 
 #[test]
 fn serialization() {
-    let (map, _, mut sim) = sim::load(sim::SimFlags::for_test("serialization"), None);
+    let (map, _, mut sim) = sim::load(
+        sim::SimFlags::for_test("serialization"),
+        None,
+        &mut abstutil::Timer::new("setup test"),
+    );
     sim.small_spawn(&map);
 
     // Does savestating produce the same string?
@@ -17,7 +21,11 @@ fn serialization() {
 #[test]
 fn from_scratch() {
     println!("Creating two simulations");
-    let (map, control_map, mut sim1) = sim::load(sim::SimFlags::for_test("from_scratch_1"), None);
+    let (map, control_map, mut sim1) = sim::load(
+        sim::SimFlags::for_test("from_scratch_1"),
+        None,
+        &mut abstutil::Timer::new("setup test"),
+    );
     let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(42), None);
     sim1.small_spawn(&map);
     sim2.small_spawn(&map);
@@ -39,8 +47,11 @@ fn from_scratch() {
 #[test]
 fn with_savestating() {
     println!("Creating two simulations");
-    let (map, control_map, mut sim1) =
-        sim::load(sim::SimFlags::for_test("with_savestating_1"), None);
+    let (map, control_map, mut sim1) = sim::load(
+        sim::SimFlags::for_test("with_savestating_1"),
+        None,
+        &mut abstutil::Timer::new("setup test"),
+    );
     let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(42), None);
     sim1.small_spawn(&map);
     sim2.small_spawn(&map);

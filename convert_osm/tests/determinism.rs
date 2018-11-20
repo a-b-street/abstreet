@@ -13,8 +13,8 @@ fn convert_twice() {
         output: "".to_string(),
     };
 
-    let map1 = convert_osm::convert(&flags);
-    let map2 = convert_osm::convert(&flags);
+    let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::new("convert map"));
+    let map2 = convert_osm::convert(&flags, &mut abstutil::Timer::new("convert map"));
 
     if map1 != map2 {
         // TODO tmp files

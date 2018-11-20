@@ -5,7 +5,7 @@ extern crate sim;
 use dimensioned::si;
 use geom::EPSILON_DIST;
 use sim::kinematics::{results_of_accel_for_one_tick, Vehicle, EPSILON_SPEED};
-use sim::{CarID, Distance, Speed};
+use sim::{CarID, Distance, Speed, VehicleType};
 
 // TODO table driven test style?
 
@@ -22,9 +22,11 @@ fn test_accel_to_stop_in_dist_hard() {
 fn test_accel_to_stop_in_dist(orig_dist_left: Distance, orig_speed: Speed) {
     let vehicle = Vehicle {
         id: CarID(0),
+        vehicle_type: VehicleType::Car,
         length: 3.0 * si::M,
         max_accel: 2.7 * si::MPS2,
         max_deaccel: -2.7 * si::MPS2,
+        max_speed: None,
     };
 
     // Can we successfully stop in a certain distance from some initial conditions?

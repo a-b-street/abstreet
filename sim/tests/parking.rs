@@ -1,3 +1,4 @@
+/*extern crate abstutil;
 extern crate control;
 extern crate dimensioned;
 extern crate geom;
@@ -116,6 +117,7 @@ fn make_test_map() -> map_model::Map {
             coordinates_in_world_space: true,
         },
         map_model::RoadEdits::new(),
+        &mut abstutil::Timer::new("setup test"),
     );
 
     assert_eq!(map.all_roads().len(), 1);
@@ -146,4 +148,4 @@ fn triangle_around(x: f64, y: f64) -> Vec<geom::LonLat> {
         geom::LonLat::new(x + 5.0, y - 5.0),
         geom::LonLat::new(x, y + 5.0),
     ]
-}
+}*/
