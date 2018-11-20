@@ -1,7 +1,10 @@
-use ezgui::{GfxCtx, Text};
+use ezgui::{Color, GfxCtx, Text, TEXT_FG_COLOR};
+use map_model::Map;
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
+use render::DrawMap;
+use sim::Sim;
 
 pub enum DebugObjectsState {
     Empty,
@@ -69,12 +72,93 @@ impl Plugin for DebugObjectsState {
             DebugObjectsState::Empty => {}
             DebugObjectsState::Selected(_) => {}
             DebugObjectsState::Tooltip(id) => {
-                let mut txt = Text::new();
-                for line in ctx.draw_map.get_obj(id).tooltip_lines(ctx.map, ctx.sim) {
-                    txt.add_line(line);
-                }
-                ctx.canvas.draw_mouse_tooltip(g, txt);
+                ctx.canvas
+                    .draw_mouse_tooltip(g, tooltip_lines(id, ctx.map, ctx.sim, ctx.draw_map));
             }
         }
     }
+}
+
+fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
+    let mut txt = Text::new();
+    match obj {
+        ID::Lane(id) => {
+            let l = map.get_l(id);
+            let r = map.get_r(l.parent);
+            let i1 = map.get_source_intersection(id);
+            let i2 = map.get_destination_intersection(id);
+
+            txt.add_line(format!(
+                "{} is {}",
+                l.id,
+                r.osm_tags.get("name").unwrap_or(&"???".to_string())
+            ));
+            txt.add_line(format!("From OSM way {}", r.osm_way_id));
+            txt.add_line(format!("Parent {} points to {}", r.id, r.dst_i));
+            txt.add_line(format!(
+                "Lane goes from {} to {}",
+                i1.elevation, i2.elevation
+            ));
+            txt.add_line(format!("Lane is {} long", l.length()));
+            for (k, v) in &r.osm_tags {
+                txt.add_line(format!("{} = {}", k, v));
+            }
+        }
+        ID::Intersection(id) => {
+            txt.add_line(id.to_string());
+            txt.add_line(format!("Roads: {:?}", map.get_i(id).roads));
+        }
+        ID::Turn(id) => {
+            txt.add_line(format!("{}", id));
+            txt.add_line(format!("Angle {}", map.get_t(id).turn_angle(map)));
+        }
+        ID::Building(id) => {
+            let b = map.get_b(id);
+            txt.add_line(format!(
+                "Building #{:?} (from OSM way {})",
+                id, b.osm_way_id
+            ));
+            for (k, v) in &b.osm_tags {
+                txt.add_styled_line(k.to_string(), Color::RED, None);
+                txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
+                txt.append(v.to_string(), Color::BLUE, None);
+            }
+        }
+        ID::Car(id) => {
+            for line in sim.car_tooltip(id) {
+                txt.add_line(line);
+            }
+        }
+        ID::Pedestrian(id) => {
+            for line in sim.ped_tooltip(id) {
+                txt.add_line(line);
+            }
+        }
+        ID::ExtraShape(id) => {
+            for (k, v) in &draw_map.get_es(id).attributes {
+                // Make interesting atributes easier to spot
+                if k == "TEXT" {
+                    // TODO Using color
+                    txt.add_line(format!("*** {} = {}", k, v));
+                } else {
+                    txt.add_line(format!("{} = {}", k, v));
+                }
+            }
+        }
+        ID::Parcel(id) => {
+            txt.add_line(id.to_string());
+        }
+        ID::BusStop(id) => {
+            txt.add_line(id.to_string());
+        }
+        ID::Area(id) => {
+            let a = map.get_a(id);
+            txt.add_line(format!("{} (from OSM way {})", id, a.osm_way_id));
+            for (k, v) in &a.osm_tags {
+                txt.add_line(format!("{} = {}", k, v));
+            }
+        }
+        ID::Trip(_) => {}
+    };
+    txt
 }

@@ -59,9 +59,9 @@ impl ID {
             ID::Pedestrian(id) => {
                 sim.debug_ped(id);
             }
-            ID::ExtraShape(_) => {
-                for line in draw_map.get_obj(*self).tooltip_lines(map, sim).into_iter() {
-                    println!("{}", line);
+            ID::ExtraShape(id) => {
+                for (k, v) in &draw_map.get_es(id).attributes {
+                    println!("{} = {}", k, v);
                 }
             }
             ID::Parcel(id) => {

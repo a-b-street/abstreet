@@ -34,7 +34,7 @@ use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, GUI};
 use std::fmt;
-pub use text::Text;
+pub use text::{Text, TEXT_FG_COLOR};
 pub use text_box::TextBox;
 pub use wizard::{Wizard, WrappedWizard};
 

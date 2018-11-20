@@ -10,7 +10,6 @@ use map_model::{
 };
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
-use sim::Sim;
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
@@ -155,29 +154,6 @@ impl Renderable for DrawLane {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
-    }
-
-    fn tooltip_lines(&self, map: &Map, _sim: &Sim) -> Vec<String> {
-        let l = map.get_l(self.id);
-        let r = map.get_r(l.parent);
-        let i1 = map.get_source_intersection(self.id);
-        let i2 = map.get_destination_intersection(self.id);
-
-        let mut lines = vec![
-            format!(
-                "{} is {}",
-                l.id,
-                r.osm_tags.get("name").unwrap_or(&"???".to_string())
-            ),
-            format!("From OSM way {}", r.osm_way_id),
-            format!("Parent {} points to {}", r.id, r.dst_i),
-            format!("Lane goes from {} to {}", i1.elevation, i2.elevation),
-            format!("Lane is {} long", l.length()),
-        ];
-        for (k, v) in &r.osm_tags {
-            lines.push(format!("{} = {}", k, v));
-        }
-        lines
     }
 }
 

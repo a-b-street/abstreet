@@ -174,22 +174,6 @@ impl DrawMap {
         self.turns.insert(id, draw_turn);
     }
 
-    pub fn get_obj(&self, id: ID) -> Box<&Renderable> {
-        match id {
-            ID::Lane(id) => Box::new(self.get_l(id)),
-            ID::Building(id) => Box::new(self.get_b(id)),
-            ID::Intersection(id) => Box::new(self.get_i(id)),
-            ID::Turn(id) => Box::new(self.get_t(id)),
-            ID::ExtraShape(id) => Box::new(self.get_es(id)),
-            ID::BusStop(id) => Box::new(self.get_bs(id)),
-            ID::Parcel(id) => Box::new(self.get_p(id)),
-            ID::Area(id) => Box::new(self.get_a(id)),
-            ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
-                panic!("get_obj doesn't work for dynamic {:?}", id)
-            }
-        }
-    }
-
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
         &self.lanes[id.0]

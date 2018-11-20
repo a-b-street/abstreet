@@ -3,7 +3,7 @@ use geom::{Angle, Bounds, Line, PolyLine, Polygon, Pt2D};
 use map_model::Map;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable};
-use sim::{CarID, CarState, DrawCarInput, Sim};
+use sim::{CarID, CarState, DrawCarInput};
 
 const CAR_WIDTH: f64 = 2.0;
 
@@ -129,10 +129,6 @@ impl Renderable for DrawCar {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.body_polygon.contains_pt(pt)
-    }
-
-    fn tooltip_lines(&self, _map: &Map, sim: &Sim) -> Vec<String> {
-        sim.car_tooltip(self.id)
     }
 }
 

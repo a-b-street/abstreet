@@ -2,10 +2,8 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Polygon, Pt2D};
 use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
-use map_model::Map;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
-use sim::Sim;
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
@@ -18,7 +16,7 @@ enum Shape {
 pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,
-    attributes: BTreeMap<String, String>,
+    pub attributes: BTreeMap<String, String>,
 }
 
 impl DrawExtraShape {
@@ -73,19 +71,6 @@ impl Renderable for DrawExtraShape {
             Shape::Polygon(ref p) => p.contains_pt(pt),
             Shape::Circle(ref c) => c.contains_pt(pt),
         }
-    }
-
-    fn tooltip_lines(&self, _map: &Map, _sim: &Sim) -> Vec<String> {
-        let mut lines = Vec::new();
-        for (k, v) in &self.attributes {
-            // Make interesting atributes easier to spot
-            if k == "TEXT" {
-                lines.push(format!("*** {} = {}", k, v));
-            } else {
-                lines.push(format!("{} = {}", k, v));
-            }
-        }
-        lines
     }
 }
 
