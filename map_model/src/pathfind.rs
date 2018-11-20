@@ -297,7 +297,6 @@ impl Pathfinder {
         end: LaneID,
         end_dist: si::Meter<f64>,
     ) -> Option<Path> {
-        assert_eq!(map.get_l(start).lane_type, map.get_l(end).lane_type);
         if start == end {
             if start_dist > end_dist {
                 assert_eq!(map.get_l(start).lane_type, LaneType::Sidewalk);
