@@ -28,7 +28,7 @@ pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,
     pub attributes: BTreeMap<String, String>,
-    pub road: Option<RoadID>,
+    pub road: Option<(RoadID, bool)>,
 }
 
 impl DrawExtraShape {
@@ -36,7 +36,7 @@ impl DrawExtraShape {
         id: ExtraShapeID,
         s: ExtraShape,
         gps_bounds: &GPSBounds,
-        closest: &FindClosest<RoadID>,
+        closest: &FindClosest<(RoadID, bool)>,
     ) -> Option<DrawExtraShape> {
         let mut pts: Vec<Pt2D> = Vec::new();
         for pt in s.points.into_iter() {

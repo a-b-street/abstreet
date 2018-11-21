@@ -7,7 +7,7 @@ use geom::{Bounds, Pt2D};
 use kml::ExtraShape;
 use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
-    RoadID, Turn, TurnID,
+    RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use objects::ID;
 use plugins::hider::Hider;
@@ -86,11 +86,15 @@ impl DrawMap {
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
         if !raw_extra_shapes.is_empty() {
-            // Match shapes with the nearest road
-            let mut closest: FindClosest<RoadID> = map_model::FindClosest::new(&map.get_bounds());
-            // TODO double each road into two sides...
+            // Match shapes with the nearest road + direction (true for forwards)
+            let mut closest: FindClosest<(RoadID, bool)> =
+                map_model::FindClosest::new(&map.get_bounds());
             for r in map.all_roads().iter() {
-                closest.add(r.id, &r.center_pts);
+                closest.add((r.id, true), &r.center_pts.shift_blindly(LANE_THICKNESS));
+                closest.add(
+                    (r.id, false),
+                    &r.center_pts.reversed().shift_blindly(LANE_THICKNESS),
+                );
             }
 
             let gps_bounds = map.get_gps_bounds();

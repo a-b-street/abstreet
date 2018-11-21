@@ -50,6 +50,20 @@ impl Road {
         )
     }
 
+    pub fn is_forwards(&self, lane: LaneID) -> bool {
+        self.children_forwards
+            .iter()
+            .find(|(id, _)| *id == lane)
+            .is_some()
+    }
+
+    pub fn is_backwards(&self, lane: LaneID) -> bool {
+        self.children_backwards
+            .iter()
+            .find(|(id, _)| *id == lane)
+            .is_some()
+    }
+
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     // it counts up from there. Returns true for the forwards direction, false for backwards.
     pub fn dir_and_offset(&self, lane: LaneID) -> (bool, usize) {

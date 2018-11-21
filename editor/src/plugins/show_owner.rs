@@ -11,7 +11,7 @@ pub enum ShowOwnerState {
     Inactive,
     BuildingSelected(BuildingID, HashSet<CarID>),
     CarSelected(CarID, Option<BuildingID>),
-    ShapeSelected(ExtraShapeID, Option<RoadID>),
+    ShapeSelected(ExtraShapeID, Option<(RoadID, bool)>),
 }
 
 impl ShowOwnerState {
@@ -88,8 +88,11 @@ impl Plugin for ShowOwnerState {
                     return Some(color);
                 }
             }
-            (ShowOwnerState::ShapeSelected(_, Some(r)), ID::Lane(l)) => {
-                if ctx.map.get_parent(l).id == *r {
+            (ShowOwnerState::ShapeSelected(_, Some((r, fwds))), ID::Lane(l)) => {
+                let parent = ctx.map.get_parent(l);
+                if parent.id == *r
+                    && ((*fwds && parent.is_forwards(l)) || (!fwds && parent.is_backwards(l)))
+                {
                     return Some(color);
                 }
             }
