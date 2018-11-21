@@ -204,7 +204,12 @@ impl Router {
         None
     }
 
-    pub fn trace_route(&self, start_dist: Distance, map: &Map, dist_ahead: Distance) -> Trace {
+    pub fn trace_route(
+        &self,
+        start_dist: Distance,
+        map: &Map,
+        dist_ahead: Distance,
+    ) -> Option<Trace> {
         self.path.trace(map, start_dist, dist_ahead)
     }
 

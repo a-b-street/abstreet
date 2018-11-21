@@ -42,6 +42,9 @@ impl PathStep {
         if dist_ahead < 0.0 * si::M {
             panic!("Negative dist_ahead?! {}", dist_ahead);
         }
+        if dist_ahead == 0.0 * si::M {
+            return None;
+        }
 
         match self {
             PathStep::Lane(id) => {
@@ -137,7 +140,7 @@ impl Path {
         map: &Map,
         start_dist: si::Meter<f64>,
         dist_ahead: si::Meter<f64>,
-    ) -> Trace {
+    ) -> Option<Trace> {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
@@ -153,21 +156,24 @@ impl Path {
         }
 
         // Special case the first step.
-        // TODO I think should modify start_dist here for ContraflowLane
         if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
             pts_so_far = Some(pts);
             dist_remaining = dist;
         }
 
         if self.steps.len() == 1 {
-            // TODO uh, there's one case where this won't work
-            return pts_so_far.unwrap();
+            // It's possible there are paths on their last step that're effectively empty, because
+            // they're a 0-length turn, or something like a pedestrian crossing a front path and
+            // immediately getting on a bike.
+            return pts_so_far;
         }
 
         // Crunch through the intermediate steps, as long as we can.
         for i in 1..self.steps.len() {
             if dist_remaining <= 0.0 * si::M {
-                return pts_so_far.unwrap();
+                // We know there's at least some geometry if we made it here, so unwrap to verify
+                // that understanding.
+                return Some(pts_so_far.unwrap());
             }
             // If we made it to the last step, maybe use the end_dist.
             if i == self.steps.len() - 1 && self.end_dist < dist_remaining {
@@ -192,7 +198,7 @@ impl Path {
             }
         }
 
-        return pts_so_far.unwrap();
+        return Some(pts_so_far.unwrap());
     }
 
     pub fn get_steps(&self) -> &VecDeque<PathStep> {

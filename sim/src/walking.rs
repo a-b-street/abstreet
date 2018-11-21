@@ -666,7 +666,7 @@ impl WalkingSimState {
 
     pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
         let p = self.peds.get(&id)?;
-        Some(p.path.trace(map, p.dist_along, dist_ahead))
+        p.path.trace(map, p.dist_along, dist_ahead)
     }
 
     pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {

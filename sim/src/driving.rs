@@ -849,7 +849,7 @@ impl DrivingSimState {
         }
         let r = self.routers.get(&id)?;
         let c = &self.cars[&id];
-        Some(r.trace_route(c.dist_along, map, dist_ahead))
+        r.trace_route(c.dist_along, map, dist_ahead)
     }
 
     pub fn get_path(&self, id: CarID) -> Option<&Path> {
