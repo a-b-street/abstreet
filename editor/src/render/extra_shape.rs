@@ -2,6 +2,7 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
+use map_model::{FindClosest, RoadID};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
@@ -27,37 +28,49 @@ pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,
     pub attributes: BTreeMap<String, String>,
+    road: Option<RoadID>,
 }
 
 impl DrawExtraShape {
-    pub fn new(id: ExtraShapeID, s: ExtraShape, gps_bounds: &GPSBounds) -> Option<DrawExtraShape> {
-        Some(DrawExtraShape {
-            id: id,
-            shape: if s.points.len() == 1 {
-                Shape::Circle(Circle::new(
-                    Pt2D::from_gps(s.points[0], gps_bounds)?,
-                    EXTRA_SHAPE_POINT_RADIUS,
-                ))
+    pub fn new(
+        id: ExtraShapeID,
+        s: ExtraShape,
+        gps_bounds: &GPSBounds,
+        closest: &FindClosest<RoadID>,
+    ) -> Option<DrawExtraShape> {
+        let mut pts: Vec<Pt2D> = Vec::new();
+        for pt in s.points.into_iter() {
+            pts.push(Pt2D::from_gps(pt, gps_bounds)?);
+        }
+
+        if pts.len() == 1 {
+            Some(DrawExtraShape {
+                id,
+                shape: Shape::Circle(Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS)),
+                attributes: s.attributes,
+                road: None,
+            })
+        } else {
+            let width = get_sidewalk_width(&s.attributes)
+                .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
+                .value_unsafe;
+            let pl = PolyLine::new(pts);
+            let road = closest.match_pts(&pl);
+            if let Some(p) = pl.make_polygons(width) {
+                Some(DrawExtraShape {
+                    id,
+                    shape: Shape::Polygon(p),
+                    attributes: s.attributes,
+                    road,
+                })
             } else {
-                let width = get_sidewalk_width(&s.attributes)
-                    .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
-                    .value_unsafe;
-                let mut pts: Vec<Pt2D> = Vec::new();
-                for pt in s.points.into_iter() {
-                    pts.push(Pt2D::from_gps(pt, gps_bounds)?);
-                }
-                if let Some(p) = PolyLine::new(pts).make_polygons(width) {
-                    Shape::Polygon(p)
-                } else {
-                    warn!(
-                        "Discarding ExtraShape because its geometry was broken: {:?}",
-                        s.attributes
-                    );
-                    return None;
-                }
-            },
-            attributes: s.attributes,
-        })
+                warn!(
+                    "Discarding ExtraShape because its geometry was broken: {:?}",
+                    s.attributes
+                );
+                None
+            }
+        }
     }
 
     pub fn center(&self) -> Pt2D {

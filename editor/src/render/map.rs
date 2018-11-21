@@ -6,7 +6,8 @@ use control::ControlMap;
 use geom::{Bounds, Pt2D};
 use kml::ExtraShape;
 use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
+    AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
+    RoadID, Turn, TurnID,
 };
 use objects::ID;
 use plugins::hider::Hider;
@@ -83,14 +84,25 @@ impl DrawMap {
             .map(|p| DrawParcel::new(p))
             .collect();
 
-        let gps_bounds = map.get_gps_bounds();
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
-        for s in raw_extra_shapes.into_iter() {
-            if let Some(es) = DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, &gps_bounds)
-            {
-                extra_shapes.push(es);
+        if !raw_extra_shapes.is_empty() {
+            // Match shapes with the nearest road
+            let mut closest: FindClosest<RoadID> = map_model::FindClosest::new(&map.get_bounds());
+            // TODO double each road into two sides...
+            for r in map.all_roads().iter() {
+                closest.add(r.id, &r.center_pts);
+            }
+
+            let gps_bounds = map.get_gps_bounds();
+            for s in raw_extra_shapes.into_iter() {
+                if let Some(es) =
+                    DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, &gps_bounds, &closest)
+                {
+                    extra_shapes.push(es);
+                }
             }
         }
+
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map));
