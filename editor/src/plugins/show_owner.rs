@@ -1,14 +1,17 @@
 use ezgui::Color;
-use map_model::BuildingID;
+use map_model::{RoadID, BuildingID};
 use objects::{Ctx, ID};
 use plugins::{Plugin, PluginCtx};
+use render::ExtraShapeID;
 use sim::CarID;
 use std::collections::HashSet;
 
+// TODO rename ShowAssociated?
 pub enum ShowOwnerState {
     Inactive,
     BuildingSelected(BuildingID, HashSet<CarID>),
     CarSelected(CarID, Option<BuildingID>),
+    ShapeSelected(ExtraShapeID, Option<RoadID>),
 }
 
 impl ShowOwnerState {
@@ -31,6 +34,9 @@ impl Plugin for ShowOwnerState {
             ShowOwnerState::CarSelected(c, _) => {
                 reset = selected != Some(ID::Car(*c));
             }
+            ShowOwnerState::ShapeSelected(es, _) => {
+                reset = selected != Some(ID::ExtraShape(*es));
+            }
         }
         if reset {
             *self = ShowOwnerState::Inactive;
@@ -50,6 +56,9 @@ impl Plugin for ShowOwnerState {
                 }
                 Some(ID::Car(id)) => {
                     new_state = Some(ShowOwnerState::CarSelected(id, sim.get_owner_of_car(id)));
+                }
+                Some(ID::ExtraShape(id)) => {
+                    new_state = Some(ShowOwnerState::ShapeSelected(id, ctx.primary.draw_map.get_es(id).road));
                 }
                 _ => {}
             },
@@ -73,6 +82,11 @@ impl Plugin for ShowOwnerState {
             }
             (ShowOwnerState::CarSelected(_, Some(id1)), ID::Building(id2)) => {
                 if *id1 == id2 {
+                    return Some(color);
+                }
+            }
+            (ShowOwnerState::ShapeSelected(_, Some(r)), ID::Lane(l)) => {
+                if ctx.map.get_parent(l).id == *r {
                     return Some(color);
                 }
             }

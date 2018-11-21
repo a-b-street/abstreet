@@ -28,7 +28,7 @@ pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,
     pub attributes: BTreeMap<String, String>,
-    road: Option<RoadID>,
+    pub road: Option<RoadID>,
 }
 
 impl DrawExtraShape {

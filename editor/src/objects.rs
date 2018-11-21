@@ -59,9 +59,11 @@ impl ID {
                 sim.debug_ped(id);
             }
             ID::ExtraShape(id) => {
-                for (k, v) in &draw_map.get_es(id).attributes {
+                let es = draw_map.get_es(id);
+                for (k, v) in &es.attributes {
                     println!("{} = {}", k, v);
                 }
+                println!("associated road: {:?}", es.road);
             }
             ID::Parcel(id) => {
                 map.get_p(id).dump_debug();
