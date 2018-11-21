@@ -30,7 +30,7 @@ fn bus_reaches_stops() {
 }
 
 // TODO this test is strictly more complicated than bus_reaches_stops, should it subsume it?
-#[test]
+/*#[test]
 fn ped_uses_bus() {
     let (map, control_map, mut sim) = sim::load(
         sim::SimFlags::for_test("bus_reaches_stops"),
@@ -43,7 +43,7 @@ fn ped_uses_bus() {
     let ped_stop1 = route.stops[1];
     let ped_stop2 = route.stops[2];
     // TODO Need to fix this test after stabilizing a map
-    /*let ped = sim.make_ped_using_bus(
+    let ped = sim.make_ped_using_bus(
         &map,
         map_model::BuildingID(123),
         map_model::BuildingID(456),
@@ -66,4 +66,4 @@ fn ped_uses_bus() {
             // TODO PedReachedBuilding, once the seeding specifies a building instead of picking
         ],
         sim::Tick::from_minutes(10),
-    );*/}
+    );}*/
