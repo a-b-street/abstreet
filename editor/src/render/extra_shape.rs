@@ -2,7 +2,7 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
-use map_model::{FindClosest, RoadID};
+use map_model::{FindClosest, RoadID, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
@@ -55,7 +55,13 @@ impl DrawExtraShape {
                 .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
                 .value_unsafe;
             let pl = PolyLine::new(pts);
-            let road = closest.match_pts(&pl);
+            // The blockface line endpoints will be close to other roads, so match based on the
+            // middle of the blockface.
+            // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
+            // the threshold distance?
+            let road = closest
+                .closest_pt(pl.middle(), 5.0 * LANE_THICKNESS * si::M)
+                .map(|(r, _)| r);
             if let Some(p) = pl.make_polygons(width) {
                 Some(DrawExtraShape {
                     id,

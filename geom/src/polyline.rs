@@ -111,6 +111,10 @@ impl PolyLine {
         None
     }
 
+    pub fn middle(&self) -> Pt2D {
+        self.safe_dist_along(self.length() / 2.0).unwrap().0
+    }
+
     // TODO rm this one
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         if let Some(pair) = self.safe_dist_along(dist_along) {
