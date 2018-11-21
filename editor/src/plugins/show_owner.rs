@@ -1,5 +1,5 @@
 use ezgui::Color;
-use map_model::{RoadID, BuildingID};
+use map_model::{BuildingID, RoadID};
 use objects::{Ctx, ID};
 use plugins::{Plugin, PluginCtx};
 use render::ExtraShapeID;
@@ -58,7 +58,10 @@ impl Plugin for ShowOwnerState {
                     new_state = Some(ShowOwnerState::CarSelected(id, sim.get_owner_of_car(id)));
                 }
                 Some(ID::ExtraShape(id)) => {
-                    new_state = Some(ShowOwnerState::ShapeSelected(id, ctx.primary.draw_map.get_es(id).road));
+                    new_state = Some(ShowOwnerState::ShapeSelected(
+                        id,
+                        ctx.primary.draw_map.get_es(id).road,
+                    ));
                 }
                 _ => {}
             },

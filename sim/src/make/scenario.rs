@@ -65,7 +65,7 @@ impl Scenario {
 
         let gps_bounds = map.get_gps_bounds();
         let mut neighborhoods: HashMap<String, Neighborhood> =
-            Neighborhood::load_all(&self.map_name, &gps_bounds)
+            Neighborhood::load_all(&self.map_name, gps_bounds)
                 .into_iter()
                 .collect();
         neighborhoods.insert(

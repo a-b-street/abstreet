@@ -53,7 +53,7 @@ downcast!(Plugin);
 
 pub fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
-    let gps_bounds = map.get_gps_bounds();
+    let gps_bounds = map.get_gps_bounds().clone();
     // Load the full object, since various plugins visualize the neighborhood when menuing over it
     wizard
         .choose_something::<Neighborhood>(

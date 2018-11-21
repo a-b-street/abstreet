@@ -461,13 +461,12 @@ impl Map {
         self.get_r(l.parent)
     }
 
-    // TODO can we return a borrow?
-    pub fn get_gps_bounds(&self) -> GPSBounds {
-        self.gps_bounds.clone()
+    pub fn get_gps_bounds(&self) -> &GPSBounds {
+        &self.gps_bounds
     }
 
-    pub fn get_bounds(&self) -> Bounds {
-        self.bounds.clone()
+    pub fn get_bounds(&self) -> &Bounds {
+        &self.bounds
     }
 
     pub fn get_name(&self) -> &String {

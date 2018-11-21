@@ -96,7 +96,7 @@ impl DrawMap {
             let gps_bounds = map.get_gps_bounds();
             for s in raw_extra_shapes.into_iter() {
                 if let Some(es) =
-                    DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, &gps_bounds, &closest)
+                    DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, gps_bounds, &closest)
                 {
                     extra_shapes.push(es);
                 }

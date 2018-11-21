@@ -82,7 +82,7 @@ pub fn load(
                             let mut ok = true;
                             let mut pts: Vec<LonLat> = Vec::new();
                             for pair in text.split(" ") {
-                                if let Some(pt) = parse_pt(pair, &gps_bounds) {
+                                if let Some(pt) = parse_pt(pair, gps_bounds) {
                                     pts.push(pt);
                                 } else {
                                     ok = false;

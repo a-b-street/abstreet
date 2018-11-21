@@ -31,7 +31,7 @@ impl Plugin for DrawNeighborhoodState {
         let gps_bounds = map.get_gps_bounds();
 
         // TODO This can easily be outside of the map boundary...
-        let get_cursor_in_gps = || canvas.get_cursor_in_map_space().to_gps(&gps_bounds);
+        let get_cursor_in_gps = || canvas.get_cursor_in_map_space().to_gps(gps_bounds);
 
         let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {
@@ -65,7 +65,7 @@ impl Plugin for DrawNeighborhoodState {
                 if new_state.is_none() {
                     let cursor = canvas.get_cursor_in_map_space();
                     *current_idx = n.points.iter().position(|pt| {
-                        Circle::new(Pt2D::from_gps(*pt, &gps_bounds).unwrap(), POINT_RADIUS)
+                        Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
                             .contains_pt(cursor)
                     });
                     if let Some(idx) = current_idx {
@@ -119,7 +119,7 @@ impl Plugin for DrawNeighborhoodState {
         let gps_bounds = ctx.map.get_gps_bounds();
         let pts: Vec<Pt2D> = raw_pts
             .into_iter()
-            .map(|pt| Pt2D::from_gps(*pt, &gps_bounds).unwrap())
+            .map(|pt| Pt2D::from_gps(*pt, gps_bounds).unwrap())
             .collect();
 
         if pts.len() == 2 {

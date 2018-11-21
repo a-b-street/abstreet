@@ -91,7 +91,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
             });
         }
     }
-    group_parcels::group_parcels(&gps_bounds, &mut map.parcels);
+    group_parcels::group_parcels(gps_bounds, &mut map.parcels);
 
     for pt in traffic_signals::extract(&flags.traffic_signals)
         .expect("loading traffic signals failed")
@@ -125,7 +125,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         .to_os_string()
         .into_string()
         .unwrap();
-    neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
+    neighborhoods::convert(&flags.neighborhoods, map_name, gps_bounds);
 
     map
 }
