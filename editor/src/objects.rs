@@ -2,9 +2,8 @@ use colors::ColorScheme;
 use control::ControlMap;
 use ezgui::Canvas;
 use geom::Pt2D;
-use kml::ExtraShapeID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
-use render::DrawMap;
+use render::{DrawMap, ExtraShapeID};
 use sim::{AgentID, CarID, PedestrianID, Sim, TripID};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]

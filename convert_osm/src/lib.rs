@@ -6,6 +6,7 @@ extern crate geo;
 extern crate geojson;
 extern crate geom;
 extern crate gtfs;
+extern crate kml;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
@@ -46,7 +47,7 @@ pub struct Flags {
     #[structopt(long = "traffic_signals")]
     pub traffic_signals: String,
 
-    /// .abst with parcels, produced using the kml crate
+    /// ExtraShapes file with parcels, produced using the kml crate
     #[structopt(long = "parcels")]
     pub parcels: String,
 
@@ -71,19 +72,23 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let gps_bounds = map.get_gps_bounds();
 
     println!("Loading parcels from {}", flags.parcels);
-    let parcels_map: raw_data::Map =
+    let parcels: kml::ExtraShapes =
         abstutil::read_binary(&flags.parcels, timer).expect("loading parcels failed");
     println!(
         "Finding matching parcels from {} candidates",
-        parcels_map.parcels.len()
+        parcels.shapes.len()
     );
-    for p in parcels_map.parcels {
-        if p.points
+    for p in parcels.shapes.into_iter() {
+        if p.points.len() > 1 && p
+            .points
             .iter()
             .find(|pt| !gps_bounds.contains(**pt))
             .is_none()
         {
-            map.parcels.push(p);
+            map.parcels.push(raw_data::Parcel {
+                points: p.points,
+                block: 0,
+            });
         }
     }
     group_parcels::group_parcels(&gps_bounds, &mut map.parcels);

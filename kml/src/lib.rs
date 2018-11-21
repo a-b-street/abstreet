@@ -1,38 +1,50 @@
+extern crate abstutil;
+extern crate geom;
+#[macro_use]
+extern crate log;
+extern crate quick_xml;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate structopt;
+
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, LonLat, PolyLine, Pt2D};
+use geom::{GPSBounds, LonLat};
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::collections::BTreeMap;
-use std::{f64, fmt, io};
+use std::io;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct ExtraShapeID(pub usize);
+#[derive(StructOpt)]
+#[structopt(name = "kml")]
+pub struct Flags {
+    /// KML file to read
+    #[structopt(long = "input")]
+    pub input: String,
 
-impl fmt::Display for ExtraShapeID {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ExtraShapeID({0})", self.0)
-    }
+    /// Output (serialized ExtraShapes) to write
+    #[structopt(long = "output")]
+    pub output: String,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
+pub struct ExtraShapes {
+    pub shapes: Vec<ExtraShape>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct ExtraShape {
-    pub id: ExtraShapeID,
-    pub geom: ExtraShapeGeom,
+    pub points: Vec<LonLat>,
     pub attributes: BTreeMap<String, String>,
-}
-
-#[derive(Debug)]
-pub enum ExtraShapeGeom {
-    Point(Pt2D),
-    Points(PolyLine),
 }
 
 pub fn load(
     path: &str,
     gps_bounds: &GPSBounds,
     timer: &mut Timer,
-) -> Result<Vec<ExtraShape>, io::Error> {
-    info!("Opening {}", path);
+) -> Result<ExtraShapes, io::Error> {
+    info!(target: "kml", "Opening {}", path);
     let (f, done) = FileWithProgress::new(path)?;
     // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
     let mut reader = Reader::from_reader(io::BufReader::new(f));
@@ -68,24 +80,18 @@ pub fn load(
                         let text = e.unescape_and_decode(&reader).unwrap();
                         if key == "coordinates" {
                             let mut ok = true;
-                            let mut pts: Vec<Pt2D> = Vec::new();
+                            let mut pts: Vec<LonLat> = Vec::new();
                             for pair in text.split(" ") {
-                                if let Some(pt) = parse_pt(pair, gps_bounds) {
+                                if let Some(pt) = parse_pt(pair, &gps_bounds) {
                                     pts.push(pt);
                                 } else {
                                     ok = false;
                                     break;
                                 }
                             }
-                            if ok && is_interesting_sign(&attributes) {
-                                let id = ExtraShapeID(shapes.len());
+                            if ok {
                                 shapes.push(ExtraShape {
-                                    id,
-                                    geom: if pts.len() == 1 {
-                                        ExtraShapeGeom::Point(pts[0])
-                                    } else {
-                                        ExtraShapeGeom::Points(PolyLine::new(pts))
-                                    },
+                                    points: pts,
                                     attributes: attributes.clone(),
                                 });
                             } else {
@@ -110,27 +116,35 @@ pub fn load(
     }
 
     info!(
+        target: "kml",
         "Got {} shapes from {} and skipped {} shapes",
         shapes.len(),
         path,
         skipped_count
     );
     done(timer);
-    return Ok(shapes);
+    return Ok(ExtraShapes { shapes });
 }
 
-fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<Pt2D> {
+fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
     let coords: Vec<&str> = input.split(",").collect();
     if coords.len() != 2 {
         return None;
     }
-    return match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
-        (Ok(lon), Ok(lat)) => Pt2D::from_gps(LonLat::new(lon, lat), gps_bounds),
+    let pt = match (coords[0].parse::<f64>(), coords[1].parse::<f64>()) {
+        (Ok(lon), Ok(lat)) => Some(LonLat::new(lon, lat)),
         _ => None,
-    };
+    }?;
+    if gps_bounds.contains(pt) {
+        Some(pt)
+    } else {
+        None
+    }
 }
 
+/*
 // TODO only for Street_Signs.kml; this is temporary to explore stuff
 fn is_interesting_sign(attributes: &BTreeMap<String, String>) -> bool {
-    true || attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
+    attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
 }
+*/

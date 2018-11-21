@@ -13,4 +13,5 @@ data/neighborhoods/*
 data/raw_maps/*
 data/save/*
 data/scenarios/*
+data/shapes/*
 data/synthetic_maps/*

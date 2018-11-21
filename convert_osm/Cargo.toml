@@ -12,6 +12,7 @@ geo = "0.10.2"
 geojson = "0.12.0"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
+kml = { path = "../kml" }
 ordered-float = "0.5.0"
 osm-xml = "0.5.1"
 map_model = { path = "../map_model" }

@@ -15,6 +15,7 @@ ezgui = { path = "../ezgui" }
 generator = "0.6"
 geo = "0.10.2"
 geom = { path = "../geom" }
+kml = { path = "../kml" }
 lazy_static = "1.1.0"
 log = "0.4.5"
 map_model = { path = "../map_model" }

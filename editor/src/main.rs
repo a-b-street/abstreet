@@ -13,6 +13,7 @@ extern crate ezgui;
 extern crate generator;
 extern crate geo;
 extern crate geom;
+extern crate kml;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -32,7 +33,6 @@ extern crate structopt;
 mod macros;
 
 mod colors;
-mod kml;
 mod objects;
 mod plugins;
 mod render;
@@ -47,7 +47,7 @@ struct Flags {
     #[structopt(flatten)]
     sim_flags: SimFlags,
 
-    /// Extra KML to display
+    /// Extra KML or ExtraShapes to display
     #[structopt(long = "kml")]
     kml: Option<String>,
 }

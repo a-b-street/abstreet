@@ -4,7 +4,7 @@ use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use control::ControlMap;
 use geom::{Bounds, Pt2D};
-use kml::{ExtraShape, ExtraShapeID};
+use kml::ExtraShape;
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, Turn, TurnID,
 };
@@ -14,7 +14,7 @@ use plugins::layers::ToggleableLayers;
 use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;
-use render::extra_shape::DrawExtraShape;
+use render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use render::intersection::DrawIntersection;
 use render::lane::DrawLane;
 use render::parcel::DrawParcel;
@@ -82,10 +82,15 @@ impl DrawMap {
             .iter()
             .map(|p| DrawParcel::new(p))
             .collect();
-        let extra_shapes: Vec<DrawExtraShape> = raw_extra_shapes
-            .into_iter()
-            .map(|s| DrawExtraShape::new(s))
-            .collect();
+
+        let gps_bounds = map.get_gps_bounds();
+        let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
+        for s in raw_extra_shapes.into_iter() {
+            if let Some(es) = DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, &gps_bounds)
+            {
+                extra_shapes.push(es);
+            }
+        }
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map));

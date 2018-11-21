@@ -1,33 +1,24 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 extern crate abstutil;
 extern crate geom;
-extern crate map_model;
-extern crate quick_xml;
+extern crate kml;
+extern crate structopt;
 
-mod kml;
-
-use std::env;
-use std::process;
+use geom::{GPSBounds, LonLat};
+use structopt::StructOpt;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        println!("Gimme a .kml and a .abst");
-        process::exit(1);
-    }
+    let flags = kml::Flags::from_args();
+
+    let mut timer = abstutil::Timer::new("extracting shapes from KML");
 
     // TODO don't hardcode
-    let mut bounds = geom::GPSBounds::new();
-    bounds.update(geom::LonLat::new(-122.4416, 47.5793));
-    bounds.update(geom::LonLat::new(-122.2421, 47.7155));
-    // TODO could use a better output format now
-    let mut map = map_model::raw_data::Map::blank();
-    if let Ok(parcels) = kml::load(&args[1], &bounds) {
-        map.parcels.extend(parcels);
-    }
+    let mut bounds = GPSBounds::new();
+    bounds.update(LonLat::new(-122.4416, 47.5793));
+    bounds.update(LonLat::new(-122.2421, 47.7155));
 
-    let out_path = &args[2];
-    println!("writing to {}", out_path);
-    abstutil::write_binary(out_path, &map).expect("serializing map failed");
+    let shapes = kml::load(&flags.input, &bounds, &mut timer).unwrap();
+
+    println!("Writing to {}", flags.output);
+    abstutil::write_binary(&flags.output, &shapes).unwrap();
+    timer.done();
 }

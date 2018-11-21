@@ -136,13 +136,9 @@ fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
         }
         ID::ExtraShape(id) => {
             for (k, v) in &draw_map.get_es(id).attributes {
-                // Make interesting atributes easier to spot
-                if k == "TEXT" {
-                    // TODO Using color
-                    txt.add_line(format!("*** {} = {}", k, v));
-                } else {
-                    txt.add_line(format!("{} = {}", k, v));
-                }
+                txt.add_styled_line(k.to_string(), Color::RED, None);
+                txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
+                txt.append(v.to_string(), Color::BLUE, None);
             }
         }
         ID::Parcel(id) => {

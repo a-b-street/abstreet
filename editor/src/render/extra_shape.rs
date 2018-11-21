@@ -1,10 +1,20 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Polygon, Pt2D};
-use kml::{ExtraShape, ExtraShapeGeom, ExtraShapeID};
+use geom::{Bounds, Circle, GPSBounds, PolyLine, Polygon, Pt2D};
+use kml::ExtraShape;
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
+use std::fmt;
+
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
+pub struct ExtraShapeID(pub usize);
+
+impl fmt::Display for ExtraShapeID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ExtraShapeID({0})", self.0)
+    }
+}
 
 #[derive(Debug)]
 enum Shape {
@@ -20,22 +30,34 @@ pub struct DrawExtraShape {
 }
 
 impl DrawExtraShape {
-    pub fn new(s: ExtraShape) -> DrawExtraShape {
-        DrawExtraShape {
-            id: s.id,
-            shape: match s.geom {
-                ExtraShapeGeom::Point(pt) => {
-                    Shape::Circle(Circle::new(pt, EXTRA_SHAPE_POINT_RADIUS))
+    pub fn new(id: ExtraShapeID, s: ExtraShape, gps_bounds: &GPSBounds) -> Option<DrawExtraShape> {
+        Some(DrawExtraShape {
+            id: id,
+            shape: if s.points.len() == 1 {
+                Shape::Circle(Circle::new(
+                    Pt2D::from_gps(s.points[0], gps_bounds)?,
+                    EXTRA_SHAPE_POINT_RADIUS,
+                ))
+            } else {
+                let width = get_sidewalk_width(&s.attributes)
+                    .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
+                    .value_unsafe;
+                let mut pts: Vec<Pt2D> = Vec::new();
+                for pt in s.points.into_iter() {
+                    pts.push(Pt2D::from_gps(pt, gps_bounds)?);
                 }
-                ExtraShapeGeom::Points(pl) => {
-                    let width = get_sidewalk_width(&s.attributes)
-                        .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
-                        .value_unsafe;
-                    Shape::Polygon(pl.make_polygons(width).unwrap())
+                if let Some(p) = PolyLine::new(pts).make_polygons(width) {
+                    Shape::Polygon(p)
+                } else {
+                    warn!(
+                        "Discarding ExtraShape because its geometry was broken: {:?}",
+                        s.attributes
+                    );
+                    return None;
                 }
             },
             attributes: s.attributes,
-        }
+        })
     }
 
     pub fn center(&self) -> Pt2D {

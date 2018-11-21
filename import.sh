@@ -45,10 +45,6 @@ if [ ! -f data/input/neighborhoods.geojson ]; then
 		data/input/neighborhoods.geojson;
 fi
 
-# From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
-# TODO This isn't a direct link
-#get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
-
 if [ ! -f data/input/Seattle.osm ]; then
 	get_if_needed \
 		http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz \
@@ -66,9 +62,15 @@ for poly in `ls data/polygons/`; do
 	fi
 done
 
-if [ ! -f data/seattle_parcels.abst ]; then
+if [ ! -f data/shapes/parcels ]; then
+	# From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
+	# TODO This isn't a direct link
+	#get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
+
 	cd kml
-	time cargo run --release ../data/input/King_County_Parcels__parcel_area.kml ../data/seattle_parcels.abst
+	time cargo run --release -- \
+		--input=../data/input/King_County_Parcels__parcel_area.kml \
+		--output=../data/shapes/parcels
 	cd ..
 fi
 
@@ -79,7 +81,7 @@ for poly in `ls ../data/polygons/`; do
 		--osm=../data/input/$name.osm \
 		--elevation=../data/input/N47W122.hgt \
 		--traffic_signals=../data/input/TrafficSignals.shp \
-		--parcels=../data/seattle_parcels.abst \
+		--parcels=../data/shapes/parcels \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--output=../data/raw_maps/$name.abst
