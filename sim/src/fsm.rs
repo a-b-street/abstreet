@@ -30,6 +30,7 @@ enum Action {
     WaitForBus(BusStopID, RouteID),
     // (from, to)
     RideBus(BusStopID, BusStopID),
+    // TODO parking, unparking bike
 
     // Only buses
     DeboardPassengers(BusStopID),

@@ -95,8 +95,9 @@ impl Vehicle {
             vehicle_type: VehicleType::Bike,
             // http://eprints.uwe.ac.uk/20767/ says mean 0.231
             max_accel: rng.gen_range(0.2, 0.3) * si::MPS2,
-            // Just assume it's the same as acceleration for now
-            max_deaccel: rng.gen_range(-0.3, -0.2) * si::MPS2,
+            // Much easier deaccel. Partly to avoid accel_to_stop_in_dist bugs with bikes running
+            // stop signs.
+            max_deaccel: rng.gen_range(-1.3, -1.2) * si::MPS2,
             length: rng.gen_range(MIN_BIKE_LENGTH.value_unsafe, MAX_BIKE_LENGTH.value_unsafe)
                 * si::M,
             // 7 to 10 mph is 4.47 m/s
