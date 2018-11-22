@@ -1,10 +1,13 @@
-use plugins::{Plugin, PluginCtx};
 use map_model::Map;
+use objects::SIM;
+use piston::input::Key;
+use plugins::{Plugin, PluginCtx};
+use sim::{AgentID, CarID, DrawCarInput, DrawPedestrianInput, PedestrianID, Sim, Tick};
 use std::collections::BTreeMap;
-use sim::{CarID, DrawCarInput, PedestrianID, DrawPedestrianInput, Sim, AgentID};
 
 pub struct TimeTravel {
     state_per_tick: Vec<StateAtTime>,
+    current_tick: Option<Tick>,
 }
 
 struct StateAtTime {
@@ -16,12 +19,13 @@ impl TimeTravel {
     pub fn new() -> TimeTravel {
         TimeTravel {
             state_per_tick: Vec::new(),
+            current_tick: None,
         }
     }
 
     fn record_state(&mut self, sim: &Sim, map: &Map) {
         // Record state for this tick, if needed.
-        let tick = sim.time.to_inner() as usize;
+        let tick = sim.time.as_usize();
         if tick + 1 == self.state_per_tick.len() {
             return;
         }
@@ -49,6 +53,31 @@ impl Plugin for TimeTravel {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
-        false
+        if let Some(tick) = self.current_tick {
+            if tick != Tick::zero() && ctx.input.key_pressed(Key::Comma, "rewind") {
+                self.current_tick = Some(tick.prev());
+            } else if tick.as_usize() + 1 < self.state_per_tick.len()
+                && ctx.input.key_pressed(Key::Period, "forward")
+            {
+                self.current_tick = Some(tick.next());
+            } else if ctx.input.key_pressed(Key::Return, "exit time traveler") {
+                self.current_tick = None;
+            }
+        } else {
+            if ctx
+                .input
+                .unimportant_key_pressed(Key::T, SIM, "start time traveling")
+            {
+                self.current_tick = Some(ctx.primary.sim.time);
+            }
+        }
+
+        if let Some(tick) = self.current_tick {
+            ctx.osd.add_line(format!("Time traveling: {}", tick));
+        }
+
+        self.current_tick.is_some()
     }
+
+    // TODO show current tick in OSD
 }

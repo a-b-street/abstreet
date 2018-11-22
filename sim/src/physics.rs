@@ -18,8 +18,8 @@ pub type Acceleration = si::MeterPerSecond2<f64>;
 pub struct Tick(u32);
 
 impl Tick {
-    pub fn to_inner(&self) -> u32 {
-        self.0
+    pub fn as_usize(&self) -> usize {
+        self.0 as usize
     }
 
     pub fn zero() -> Tick {
@@ -87,6 +87,10 @@ impl Tick {
 
     pub fn next(self) -> Tick {
         Tick(self.0 + 1)
+    }
+
+    pub fn prev(self) -> Tick {
+        Tick(self.0 - 1)
     }
 
     pub fn is_multiple_of(&self, other: Tick) -> bool {
