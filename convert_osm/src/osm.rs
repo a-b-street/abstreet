@@ -61,6 +61,9 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: tags,
+                // We'll fill this out later
+                parking_lane_fwd: false,
+                parking_lane_back: false,
             });
         } else if is_bldg(&tags) {
             map.buildings.push(raw_data::Building {

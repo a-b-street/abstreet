@@ -67,6 +67,8 @@ pub struct Road {
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+    pub parking_lane_fwd: bool,
+    pub parking_lane_back: bool,
 }
 
 impl Road {

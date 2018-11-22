@@ -56,33 +56,48 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         && r.osm_tags.get("highway") != Some(&"motorway_link".to_string());
     // TODO Bus/bike and parking lanes can coexist, but then we have to make sure cars are fine
     // with merging in/out of the bus/bike lane to park. ><
-    let has_parking = has_sidewalk && !has_bus_lane && !has_bike_lane;
+    //let has_parking = has_sidewalk && !has_bus_lane && !has_bike_lane;
 
-    let mut full_side = driving_lanes_per_side;
+    let mut fwd_side = driving_lanes_per_side.clone();
     if has_bus_lane {
-        full_side.push(LaneType::Bus);
+        fwd_side.push(LaneType::Bus);
     }
     if has_bike_lane {
-        full_side.push(LaneType::Biking);
+        fwd_side.push(LaneType::Biking);
     }
-    if has_parking {
-        full_side.push(LaneType::Parking);
+    if r.parking_lane_fwd {
+        fwd_side.push(LaneType::Parking);
     }
     if has_sidewalk {
-        full_side.push(LaneType::Sidewalk);
+        fwd_side.push(LaneType::Sidewalk);
     }
 
     if oneway {
-        // Only residential highways have a sidewalk on the other side of a highway.
-        let other_side =
+        // Only residential streets have a sidewalk on the other side of a one-way.
+        // Ignore off-side parking, since cars don't know how to park on lanes without a driving
+        // lane in that direction too.
+        let back_side =
             if has_sidewalk && r.osm_tags.get("highway") == Some(&"residential".to_string()) {
                 vec![LaneType::Sidewalk]
             } else {
                 Vec::new()
             };
-        (full_side, other_side)
+        (fwd_side, back_side)
     } else {
-        (full_side.clone(), full_side)
+        let mut back_side = driving_lanes_per_side;
+        if has_bus_lane {
+            back_side.push(LaneType::Bus);
+        }
+        if has_bike_lane {
+            back_side.push(LaneType::Biking);
+        }
+        if r.parking_lane_back {
+            back_side.push(LaneType::Parking);
+        }
+        if has_sidewalk {
+            back_side.push(LaneType::Sidewalk);
+        }
+        (fwd_side, back_side)
     }
 }
 

@@ -176,6 +176,8 @@ impl Model {
                 ],
                 osm_tags,
                 osm_way_id: idx as i64,
+                parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
+                parking_lane_back: r.lanes.back.contains(&LaneType::Parking),
             });
         }
 

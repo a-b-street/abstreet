@@ -1,7 +1,7 @@
 use aabb_quadtree::geom::{Point, Rect};
 use std::f64;
 use std::fmt;
-use {HashablePt2D, Pt2D};
+use {Bounds, HashablePt2D, Pt2D};
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -103,5 +103,12 @@ impl GPSBounds {
         let height = LonLat::new(self.min_lon, self.min_lat)
             .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
         Pt2D::new(width, height)
+    }
+
+    pub fn to_bounds(&self) -> Bounds {
+        let mut b = Bounds::new();
+        b.update(Pt2D::new(0.0, 0.0));
+        b.update(self.get_max_world_pt());
+        b
     }
 }

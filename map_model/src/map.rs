@@ -58,13 +58,7 @@ impl Map {
     ) -> Map {
         timer.start("raw_map to Map");
         let gps_bounds = data.get_gps_bounds();
-
-        let bounds = {
-            let mut b = Bounds::new();
-            b.update(Pt2D::new(0.0, 0.0));
-            b.update(gps_bounds.get_max_world_pt());
-            b
-        };
+        let bounds = gps_bounds.to_bounds();
 
         let mut m = Map {
             name,

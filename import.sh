@@ -74,6 +74,17 @@ if [ ! -f data/shapes/parcels ]; then
 	cd ..
 fi
 
+if [ ! -f data/shapes/blockface ]; then
+	# From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
+	get_if_needed https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml data/input/blockface.kml;
+
+	cd kml
+	time cargo run --release -- \
+		--input=../data/input/blockface.kml \
+		--output=../data/shapes/blockface
+	cd ..
+fi
+
 cd convert_osm
 for poly in `ls ../data/polygons/`; do
 	name=`basename -s .poly $poly`;
@@ -82,6 +93,7 @@ for poly in `ls ../data/polygons/`; do
 		--elevation=../data/input/N47W122.hgt \
 		--traffic_signals=../data/input/TrafficSignals.shp \
 		--parcels=../data/shapes/parcels \
+		--parking_shapes=../data/shapes/blockface \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--output=../data/raw_maps/$name.abst
