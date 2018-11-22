@@ -1,7 +1,7 @@
 use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
-use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Traversable};
+use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
 use std::collections::HashSet;
 use std::iter;
 use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
@@ -215,7 +215,6 @@ impl ParkingLane {
                         stopping_trace: None,
                         state: CarState::Parked,
                         vehicle_type: VehicleType::Car,
-                        on: Traversable::Lane(self.id),
                     })
                 })
             }).collect()

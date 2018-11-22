@@ -3,9 +3,7 @@ use map_model::{LaneID, Map, Traversable, TurnID};
 use objects::SIM;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use sim::{
-    AgentID, CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick,
-};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
@@ -46,19 +44,39 @@ impl TimeTravel {
             cars_per_traversable: MultiMap::new(),
             peds_per_traversable: MultiMap::new(),
         };
-        for agent in sim.active_agents().into_iter() {
-            match agent {
-                AgentID::Car(id) => {
-                    let draw = sim.get_draw_car(id, map).unwrap();
-                    state.cars_per_traversable.insert(draw.on, id);
-                    state.cars.insert(id, draw);
+        for l in map.all_lanes().iter() {
+            if l.is_sidewalk() {
+                for draw in sim.get_draw_peds_on_lane(l.id, map).into_iter() {
+                    state
+                        .peds_per_traversable
+                        .insert(Traversable::Lane(l.id), draw.id);
+                    state.peds.insert(draw.id, draw);
                 }
-                AgentID::Pedestrian(id) => {
-                    let draw = sim.get_draw_ped(id, map).unwrap();
-                    state.peds_per_traversable.insert(draw.on, id);
-                    state.peds.insert(id, draw);
+            } else {
+                for draw in sim.get_draw_cars_on_lane(l.id, map).into_iter() {
+                    state
+                        .cars_per_traversable
+                        .insert(Traversable::Lane(l.id), draw.id);
+                    state.cars.insert(draw.id, draw);
                 }
-            };
+            }
+        }
+        for t in map.all_turns().values() {
+            if t.between_sidewalks() {
+                for draw in sim.get_draw_peds_on_turn(t.id, map).into_iter() {
+                    state
+                        .peds_per_traversable
+                        .insert(Traversable::Turn(t.id), draw.id);
+                    state.peds.insert(draw.id, draw);
+                }
+            } else {
+                for draw in sim.get_draw_cars_on_turn(t.id, map).into_iter() {
+                    state
+                        .cars_per_traversable
+                        .insert(Traversable::Turn(t.id), draw.id);
+                    state.cars.insert(draw.id, draw);
+                }
+            }
         }
         self.state_per_tick.push(state);
     }

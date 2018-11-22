@@ -1,5 +1,5 @@
 use geom::{Angle, Pt2D};
-use map_model::{LaneID, LaneType, Map, Trace, Traversable, TurnID};
+use map_model::{LaneID, LaneType, Map, Trace, TurnID};
 use {CarID, Distance, PedestrianID, Sim, VehicleType};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
@@ -9,8 +9,6 @@ pub struct DrawPedestrianInput {
     pub pos: Pt2D,
     pub waiting_for_turn: Option<TurnID>,
     pub preparing_bike: bool,
-    // Just for time travel to index...
-    pub on: Traversable,
 }
 
 #[derive(Clone)]
@@ -23,8 +21,6 @@ pub struct DrawCarInput {
     pub stopping_trace: Option<Trace>,
     pub state: CarState,
     pub vehicle_type: VehicleType,
-    // Just for time travel to index...
-    pub on: Traversable,
 }
 
 #[derive(Clone, PartialEq, Eq)]
