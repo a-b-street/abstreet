@@ -48,7 +48,9 @@ impl Plugin for EditsManager {
                 }
                 if let Some((p, plugins)) = new_primary {
                     *ctx.primary = p;
-                    *ctx.new_primary_plugins = Some(plugins);
+                    ctx.primary_plugins.map(|p_plugins| {
+                        *p_plugins = plugins;
+                    });
                 }
             }
         }

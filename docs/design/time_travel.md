@@ -24,6 +24,6 @@ Some initial steps:
 	- objects_onscreen is the main place!
 	- need to get draw car/ped on lane/turn, so index them that way, maybe implement a trait?
 - deactivate lots of other plugins while in this mode
-	- make sim ctrl a proper plugin
+	= make sim ctrl a proper plugin
 	- anything that accesses sim and looks up agents becomes weird!
 - interpolate instead of storing everything

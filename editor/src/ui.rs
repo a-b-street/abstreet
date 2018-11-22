@@ -257,7 +257,6 @@ impl PerMapUI {
                 Box::new(plugins::geom_validation::Validator::new()),
                 Box::new(plugins::draw_neighborhoods::DrawNeighborhoodState::new()),
                 Box::new(plugins::scenarios::ScenarioManager::new()),
-                Box::new(plugins::map_edits::EditsManager::new()),
                 Box::new(plugins::chokepoints::ChokepointsFinder::new()),
                 Box::new(neighborhood_summary),
             ],
@@ -304,6 +303,7 @@ impl UI {
                     Box::new(plugins::diff_all::DiffAllState::new()),
                     Box::new(plugins::diff_worlds::DiffWorldsState::new()),
                     Box::new(plugins::road_editor::RoadEditor::new()),
+                    Box::new(plugins::map_edits::EditsManager::new()),
                     Box::new(plugins::sim_controls::SimController::new()),
                 ],
             },
@@ -447,7 +447,6 @@ impl UI {
     }
 
     fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
-        let mut new_primary_plugins: Option<PluginsPerMap> = None;
         let active = {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
@@ -458,7 +457,6 @@ impl UI {
                 input,
                 osd,
                 kml: &self.kml,
-                new_primary_plugins: &mut new_primary_plugins,
             };
             let len = self.plugins.list.len();
             if idx < len {
@@ -468,9 +466,6 @@ impl UI {
                 self.primary_plugins.list[idx - len].event(ctx)
             }
         };
-        if let Some(new_plugins) = new_primary_plugins {
-            self.primary_plugins = new_plugins;
-        }
         active
     }
 
@@ -530,8 +525,4 @@ pub struct PluginCtx<'a> {
     pub input: &'a mut UserInput,
     pub osd: &'a mut Text,
     pub kml: &'a Option<String>,
-
-    // Unfortunately we have to use an output parameter here, but it's pretty isolated to
-    // run_plugin
-    pub new_primary_plugins: &'a mut Option<PluginsPerMap>,
 }

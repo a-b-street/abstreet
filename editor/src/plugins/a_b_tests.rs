@@ -47,7 +47,9 @@ impl Plugin for ABTestManager {
                     let ((new_primary, new_primary_plugins), new_secondary) =
                         launch_test(test, ctx.kml, &ctx.primary.current_flags);
                     *ctx.primary = new_primary;
-                    *ctx.new_primary_plugins = Some(new_primary_plugins);
+                    ctx.primary_plugins.map(|p_plugins| {
+                        *p_plugins = new_primary_plugins;
+                    });
                     *ctx.secondary = Some(new_secondary);
                     new_state = Some(ABTestManager::Inactive);
                 }
