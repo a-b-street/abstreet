@@ -22,7 +22,7 @@ use render::parcel::DrawParcel;
 use render::pedestrian::DrawPedestrian;
 use render::turn::DrawTurn;
 use render::{draw_vehicle, Renderable};
-use sim::Sim;
+use sim::GetDrawAgents;
 use std::collections::HashMap;
 use ui::ShowTurnIcons;
 
@@ -252,7 +252,7 @@ impl DrawMap {
         screen_bounds: Bounds,
         hider: &Hider,
         map: &Map,
-        sim: &Sim,
+        sim: Box<&GetDrawAgents>,
         layers: &ToggleableLayers,
         show_turn_icons: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {

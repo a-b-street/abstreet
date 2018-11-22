@@ -20,6 +20,10 @@ higher level, the list of plugins should change?
 Some initial steps:
 = make a plugin that asks for all Draw stuff every tick and just saves it
 = activate the time travel plugin and have keys to go back/forward
-- supply the Draw{Car,Ped} stuff from the time travel plugin, not the sim
+= supply the Draw{Car,Ped} stuff from the time travel plugin, not the sim
+	- objects_onscreen is the main place!
+	- need to get draw car/ped on lane/turn, so index them that way, maybe implement a trait?
 - deactivate lots of other plugins while in this mode
 	- make sim ctrl a proper plugin
+	- anything that accesses sim and looks up agents becomes weird!
+- interpolate instead of storing everything

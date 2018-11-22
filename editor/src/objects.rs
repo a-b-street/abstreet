@@ -4,7 +4,7 @@ use ezgui::Canvas;
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::{DrawMap, ExtraShapeID};
-use sim::{AgentID, CarID, PedestrianID, Sim, TripID};
+use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {

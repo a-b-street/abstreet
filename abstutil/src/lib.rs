@@ -8,7 +8,6 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate yansi;
 
-mod abst_multimap;
 mod clone;
 mod collections;
 mod error;
@@ -17,9 +16,8 @@ mod logs;
 mod random;
 mod time;
 
-pub use abst_multimap::MultiMap;
 pub use clone::Cloneable;
-pub use collections::wraparound_get;
+pub use collections::{wraparound_get, MultiMap};
 pub use error::Error;
 pub use io::{
     deserialize_btreemap, deserialize_multimap, list_all_objects, load_all_objects, read_binary,

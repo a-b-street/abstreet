@@ -16,11 +16,12 @@ use plugins::hider::Hider;
 use plugins::layers::ToggleableLayers;
 use plugins::sim_controls::SimController;
 use plugins::stop_sign_editor::StopSignEditor;
+use plugins::time_travel::TimeTravel;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
 use sim;
-use sim::{Sim, SimFlags};
+use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::cell::RefCell;
 use std::panic;
 use std::process;
@@ -81,7 +82,7 @@ impl GUI for UI {
             self.canvas.get_screen_bounds(),
             self.primary_plugins.hider(),
             &self.primary.map,
-            &self.primary.sim,
+            self.get_draw_agent_source(),
             self.plugins.layers(),
             self,
         );
@@ -196,6 +197,10 @@ impl PluginsPerMap {
     fn turn_cycler(&self) -> &Box<Plugin> {
         &self.list[4]
     }
+
+    fn time_travel(&self) -> &TimeTravel {
+        self.list[5].downcast_ref::<TimeTravel>().unwrap()
+    }
 }
 
 impl PerMapUI {
@@ -203,7 +208,7 @@ impl PerMapUI {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, control_map, sim) =
-            sim::load(flags.clone(), Some(sim::Tick::from_seconds(30)), &mut timer);
+            sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
         let extra_shapes: Vec<kml::ExtraShape> = if let Some(path) = kml {
             if path.ends_with(".kml") {
                 kml::load(&path, &map.get_gps_bounds(), &mut timer)
@@ -245,6 +250,7 @@ impl PerMapUI {
                 Box::new(StopSignEditor::new()),
                 Box::new(TrafficSignalEditor::new()),
                 Box::new(plugins::turn_cycler::TurnCyclerState::new()),
+                Box::new(TimeTravel::new()),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
                 Box::new(plugins::follow::FollowState::new()),
                 Box::new(plugins::show_route::ShowRouteState::new()),
@@ -257,7 +263,6 @@ impl PerMapUI {
                 Box::new(plugins::map_edits::EditsManager::new()),
                 Box::new(plugins::chokepoints::ChokepointsFinder::new()),
                 Box::new(neighborhood_summary),
-                Box::new(plugins::time_travel::TimeTravel::new()),
             ],
         };
         (state, plugins)
@@ -403,7 +408,7 @@ impl UI {
             self.canvas.get_screen_bounds(),
             self.primary_plugins.hider(),
             &self.primary.map,
-            &self.primary.sim,
+            self.get_draw_agent_source(),
             self.plugins.layers(),
             self,
         );
@@ -490,6 +495,15 @@ impl UI {
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
         abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
         info!("Saved editor_state");
+    }
+
+    fn get_draw_agent_source(&self) -> Box<&GetDrawAgents> {
+        let tt = self.primary_plugins.time_travel();
+        if tt.is_active() {
+            Box::new(tt)
+        } else {
+            Box::new(&self.primary.sim)
+        }
     }
 }
 

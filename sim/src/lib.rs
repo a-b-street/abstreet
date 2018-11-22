@@ -64,7 +64,7 @@ pub use make::{
 use map_model::{BuildingID, LaneID};
 pub use physics::{Acceleration, Distance, Speed, Tick, Time, TIMESTEP};
 pub use query::{Benchmark, ScoreSummary, SimStats, Summary};
-pub use render::{CarState, DrawCarInput, DrawPedestrianInput};
+pub use render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 pub use sim::Sim;
 use std::fmt;
 

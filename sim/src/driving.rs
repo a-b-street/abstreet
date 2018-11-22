@@ -810,6 +810,7 @@ impl DrivingSimState {
                 CarState::Stuck
             },
             vehicle_type: c.vehicle.vehicle_type,
+            on: c.on,
         })
     }
 

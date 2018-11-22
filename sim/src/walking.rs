@@ -555,6 +555,7 @@ impl WalkingSimState {
             pos: ped.get_pos(map, now),
             waiting_for_turn: ped.waiting_for_turn(),
             preparing_bike: ped.bike_parking.is_some(),
+            on: ped.on,
         })
     }
 

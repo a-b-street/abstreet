@@ -1,8 +1,11 @@
-use map_model::Map;
+use abstutil::MultiMap;
+use map_model::{LaneID, Map, Traversable, TurnID};
 use objects::SIM;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use sim::{AgentID, CarID, DrawCarInput, DrawPedestrianInput, PedestrianID, Sim, Tick};
+use sim::{
+    AgentID, CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick,
+};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
@@ -13,6 +16,8 @@ pub struct TimeTravel {
 struct StateAtTime {
     cars: BTreeMap<CarID, DrawCarInput>,
     peds: BTreeMap<PedestrianID, DrawPedestrianInput>,
+    cars_per_traversable: MultiMap<Traversable, CarID>,
+    peds_per_traversable: MultiMap<Traversable, PedestrianID>,
 }
 
 impl TimeTravel {
@@ -21,6 +26,10 @@ impl TimeTravel {
             state_per_tick: Vec::new(),
             current_tick: None,
         }
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.current_tick.is_some()
     }
 
     fn record_state(&mut self, sim: &Sim, map: &Map) {
@@ -34,14 +43,20 @@ impl TimeTravel {
         let mut state = StateAtTime {
             cars: BTreeMap::new(),
             peds: BTreeMap::new(),
+            cars_per_traversable: MultiMap::new(),
+            peds_per_traversable: MultiMap::new(),
         };
         for agent in sim.active_agents().into_iter() {
             match agent {
                 AgentID::Car(id) => {
-                    state.cars.insert(id, sim.get_draw_car(id, map).unwrap());
+                    let draw = sim.get_draw_car(id, map).unwrap();
+                    state.cars_per_traversable.insert(draw.on, id);
+                    state.cars.insert(id, draw);
                 }
                 AgentID::Pedestrian(id) => {
-                    state.peds.insert(id, sim.get_draw_ped(id, map).unwrap());
+                    let draw = sim.get_draw_ped(id, map).unwrap();
+                    state.peds_per_traversable.insert(draw.on, id);
+                    state.peds.insert(id, draw);
                 }
             };
         }
@@ -76,8 +91,63 @@ impl Plugin for TimeTravel {
             ctx.osd.add_line(format!("Time traveling: {}", tick));
         }
 
-        self.current_tick.is_some()
+        self.is_active()
+    }
+}
+
+impl GetDrawAgents for TimeTravel {
+    fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
+        self.state_per_tick[self.current_tick.unwrap().as_usize()]
+            .cars
+            .get(&id)
+            .map(|d| d.clone())
     }
 
-    // TODO show current tick in OSD
+    fn get_draw_ped(&self, id: PedestrianID, _map: &Map) -> Option<DrawPedestrianInput> {
+        self.state_per_tick[self.current_tick.unwrap().as_usize()]
+            .peds
+            .get(&id)
+            .map(|d| d.clone())
+    }
+
+    fn get_draw_cars_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawCarInput> {
+        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        // TODO sort by ID to be deterministic?
+        state
+            .cars_per_traversable
+            .get(Traversable::Lane(l))
+            .into_iter()
+            .map(|id| state.cars[id].clone())
+            .collect()
+    }
+
+    fn get_draw_cars_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawCarInput> {
+        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        state
+            .cars_per_traversable
+            .get(Traversable::Turn(t))
+            .into_iter()
+            .map(|id| state.cars[id].clone())
+            .collect()
+    }
+
+    fn get_draw_peds_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawPedestrianInput> {
+        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        state
+            .peds_per_traversable
+            .get(Traversable::Lane(l))
+            .into_iter()
+            .map(|id| state.peds[id].clone())
+            .collect()
+    }
+
+    fn get_draw_peds_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawPedestrianInput> {
+        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        state
+            .peds_per_traversable
+            .get(Traversable::Turn(t))
+            .into_iter()
+            .map(|id| state.peds[id].clone())
+            .collect()
+    }
 }
