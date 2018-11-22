@@ -18,6 +18,8 @@ if each plugin should sort of declare a dependency on a live sim or if at a
 higher level, the list of plugins should change?
 
 Some initial steps:
-- make a plugin that asks for all Draw stuff every tick and just saves it
+= make a plugin that asks for all Draw stuff every tick and just saves it
 - activate the time travel plugin and have keys to go back/forward
+- supply the Draw{Car,Ped} stuff from the time travel plugin, not the sim
 - deactivate lots of other plugins while in this mode
+	- make sim ctrl a proper plugin

@@ -257,6 +257,7 @@ impl PerMapUI {
                 Box::new(plugins::map_edits::EditsManager::new()),
                 Box::new(plugins::chokepoints::ChokepointsFinder::new()),
                 Box::new(neighborhood_summary),
+                Box::new(plugins::time_travel::TimeTravel::new()),
             ],
         };
         (state, plugins)

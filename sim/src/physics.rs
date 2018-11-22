@@ -18,6 +18,10 @@ pub type Acceleration = si::MeterPerSecond2<f64>;
 pub struct Tick(u32);
 
 impl Tick {
+    pub fn to_inner(&self) -> u32 {
+        self.0
+    }
+
     pub fn zero() -> Tick {
         Tick(0)
     }

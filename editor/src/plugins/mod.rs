@@ -23,6 +23,7 @@ pub mod show_route;
 pub mod sim_controls;
 pub mod steep;
 pub mod stop_sign_editor;
+pub mod time_travel;
 pub mod traffic_signal_editor;
 pub mod turn_cycler;
 pub mod warp;
