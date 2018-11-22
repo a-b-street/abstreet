@@ -1,11 +1,11 @@
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, TOP_RIGHT};
-use objects::SIM;
+use ezgui::{Color, GfxCtx, Text, TOP_RIGHT};
+use objects::{Ctx, SIM};
 use piston::input::Key;
+use plugins::{Plugin, PluginCtx};
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
-use ui::{PerMapUI, PluginsPerMap};
 
 const ADJUST_SPEED: f64 = 0.1;
 
@@ -30,15 +30,15 @@ impl SimController {
             last_summary: None,
         }
     }
+}
 
-    pub fn event(
-        &mut self,
-        input: &mut UserInput,
-        primary: &mut PerMapUI,
-        primary_plugins: &mut PluginsPerMap,
-        secondary: &mut Option<(PerMapUI, PluginsPerMap)>,
-        osd: &mut Text,
-    ) {
+impl Plugin for SimController {
+    fn event(&mut self, ctx: PluginCtx) -> bool {
+        let input = ctx.input;
+        let primary = ctx.primary;
+        let secondary = ctx.secondary;
+        let osd = ctx.osd;
+
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
             self.show_side_panel = !self.show_side_panel;
         }
@@ -94,11 +94,13 @@ impl SimController {
                 info!("Swapping primary/secondary sim");
                 // Check out this cool little trick. :D
                 let mut the_secondary = secondary.take();
-                the_secondary.as_mut().map(|(s, s_plugins)| {
-                    mem::swap(primary, s);
-                    mem::swap(primary_plugins, s_plugins);
+                ctx.primary_plugins.map(|p_plugins| {
+                    the_secondary.as_mut().map(|(s, s_plugins)| {
+                        mem::swap(primary, s);
+                        mem::swap(p_plugins, s_plugins);
+                    });
+                    *secondary = the_secondary;
                 });
-                *secondary = the_secondary;
                 primary.recalculate_current_selection = true;
             }
         } else {
@@ -165,11 +167,14 @@ impl SimController {
         if self.last_step.is_some() {
             osd.animation_mode();
         }
+
+        // Weird definition of active?
+        self.show_side_panel
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         if let Some(ref txt) = self.last_summary {
-            canvas.draw_text(g, txt.clone(), TOP_RIGHT);
+            ctx.canvas.draw_text(g, txt.clone(), TOP_RIGHT);
         }
     }
 }

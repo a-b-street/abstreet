@@ -14,7 +14,6 @@ use piston::input::Key;
 use plugins;
 use plugins::hider::Hider;
 use plugins::layers::ToggleableLayers;
-use plugins::sim_controls::SimController;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::time_travel::TimeTravel;
 use plugins::traffic_signal_editor::TrafficSignalEditor;
@@ -152,8 +151,6 @@ impl GUI for UI {
             },
         );
 
-        self.plugins.sim_ctrl.draw(g, &self.canvas);
-
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
 }
@@ -271,7 +268,6 @@ impl PerMapUI {
 
 // aka plugins that don't depend on map
 struct PluginsPerUI {
-    sim_ctrl: SimController,
     list: Vec<Box<Plugin>>,
 }
 
@@ -297,7 +293,6 @@ impl UI {
             secondary: None,
 
             plugins: PluginsPerUI {
-                sim_ctrl: SimController::new(),
                 list: vec![
                     Box::new(ToggleableLayers::new()),
                     Box::new(plugins::search::SearchState::new()),
@@ -309,6 +304,7 @@ impl UI {
                     Box::new(plugins::diff_all::DiffAllState::new()),
                     Box::new(plugins::diff_worlds::DiffWorldsState::new()),
                     Box::new(plugins::road_editor::RoadEditor::new()),
+                    Box::new(plugins::sim_controls::SimController::new()),
                 ],
             },
 
@@ -384,15 +380,6 @@ impl UI {
             process::exit(0);
         }
 
-        // Sim controller plugin is kind of always active? If nothing else ran, let it use keys.
-        self.plugins.sim_ctrl.event(
-            &mut input,
-            &mut self.primary,
-            &mut self.primary_plugins,
-            &mut self.secondary,
-            osd,
-        );
-
         if self.primary.recalculate_current_selection {
             self.primary.recalculate_current_selection = false;
             self.primary.current_selection = self.mouseover_something();
@@ -462,8 +449,9 @@ impl UI {
     fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
         let mut new_primary_plugins: Option<PluginsPerMap> = None;
         let active = {
-            let ctx = PluginCtx {
+            let mut ctx = PluginCtx {
                 primary: &mut self.primary,
+                primary_plugins: None,
                 secondary: &mut self.secondary,
                 canvas: &mut self.canvas,
                 cs: &mut self.cs.borrow_mut(),
@@ -474,6 +462,7 @@ impl UI {
             };
             let len = self.plugins.list.len();
             if idx < len {
+                ctx.primary_plugins = Some(&mut self.primary_plugins);
                 self.plugins.list[idx].event(ctx)
             } else {
                 self.primary_plugins.list[idx - len].event(ctx)
@@ -533,6 +522,8 @@ impl ShowTurnIcons for UI {
 // This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {
     pub primary: &'a mut PerMapUI,
+    // Only filled out for PluginsPerUI, not for PluginsPerMap.
+    pub primary_plugins: Option<&'a mut PluginsPerMap>,
     pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
     pub canvas: &'a mut Canvas,
     pub cs: &'a mut ColorScheme,
