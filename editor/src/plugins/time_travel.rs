@@ -9,6 +9,7 @@ use std::collections::BTreeMap;
 pub struct TimeTravel {
     state_per_tick: Vec<StateAtTime>,
     current_tick: Option<Tick>,
+    // Determines the tick of state_per_tick[0]
     first_tick: Tick,
 }
 
@@ -20,11 +21,11 @@ struct StateAtTime {
 }
 
 impl TimeTravel {
-    pub fn new(first_tick: Tick) -> TimeTravel {
+    pub fn new() -> TimeTravel {
         TimeTravel {
             state_per_tick: Vec::new(),
             current_tick: None,
-            first_tick,
+            first_tick: Tick::zero(),
         }
     }
 
@@ -38,7 +39,11 @@ impl TimeTravel {
         if tick + 1 == self.first_tick.as_usize() + self.state_per_tick.len() {
             return;
         }
-        assert_eq!(tick, self.first_tick.as_usize() + self.state_per_tick.len());
+        if tick != self.first_tick.as_usize() + self.state_per_tick.len() {
+            // We just loaded a new savestate or something. Clear out our memory.
+            self.state_per_tick.clear();
+            self.first_tick = sim.time;
+        }
 
         let mut state = StateAtTime {
             cars: BTreeMap::new(),
