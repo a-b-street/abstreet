@@ -220,12 +220,3 @@ impl ControlStopSign {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn ordering() {
-        use stop_signs::TurnPriority;
-        assert!(TurnPriority::Priority > TurnPriority::Yield);
-    }
-}

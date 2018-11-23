@@ -10,6 +10,8 @@ extern crate yansi;
 mod map_conversion;
 mod physics;
 mod runner;
+mod sim_completion;
+mod sim_determinism;
 
 use structopt::StructOpt;
 
@@ -26,6 +28,8 @@ fn main() {
 
     map_conversion::run(t.suite("map_conversion"));
     physics::run(t.suite("physics"));
+    sim_completion::run(t.suite("sim_completion"));
+    sim_determinism::run(t.suite("sim_determinism"));
 
     t.done();
 }
