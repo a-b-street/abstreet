@@ -3,7 +3,7 @@ use convert_osm;
 use runner::TestRunner;
 
 pub fn run(t: &mut TestRunner) {
-    t.run("convert twice", Box::new(|_| {
+    t.run("convert_twice", Box::new(|_| {
         let flags = convert_osm::Flags {
             osm: "../data/input/montlake.osm".to_string(),
             elevation: "../data/input/N47W122.hgt".to_string(),
