@@ -1,14 +1,17 @@
 // https://github.com/rust-lang/rust/issues/50297 would hopefully obsolete this approach.
 
 use abstutil;
+use abstutil::Error;
 use gag::Redirect;
 use std;
 use std::io::Write;
+use std::str::FromStr;
 use yansi::Paint;
 
 pub struct TestRunner {
     current_suite: Option<String>,
     results: Vec<TestResult>,
+    filter: Filter,
 }
 
 struct TestResult {
@@ -19,10 +22,11 @@ struct TestResult {
 }
 
 impl TestRunner {
-    pub fn new() -> TestRunner {
+    pub fn new(filter: Filter) -> TestRunner {
         TestRunner {
             current_suite: None,
             results: Vec::new(),
+            filter,
         }
     }
 
@@ -31,7 +35,15 @@ impl TestRunner {
         self
     }
 
-    pub fn run(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+    pub fn run_fast(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+        self.run(specific_test_name, true, test);
+    }
+
+    pub fn run_slow(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+        self.run(specific_test_name, false, test);
+    }
+
+    fn run(&mut self, specific_test_name: &str, fast: bool, test: Box<Fn(&mut TestHelper)>) {
         let test_name = format!(
             "{}/{}",
             self.current_suite
@@ -39,6 +51,11 @@ impl TestRunner {
                 .expect("Can't run() a test without suite()"),
             specific_test_name
         );
+
+        if (fast && self.filter == Filter::Slow) || (!fast && self.filter == Filter::Fast) {
+            println!("Skipping {}", test_name);
+            return;
+        }
 
         print!("Running {}...", test_name);
         std::io::stdout().flush().unwrap();
@@ -110,3 +127,23 @@ impl TestRunner {
 }
 
 pub struct TestHelper {}
+
+#[derive(PartialEq)]
+pub enum Filter {
+    All,
+    Slow,
+    Fast,
+}
+
+impl FromStr for Filter {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "All" => Ok(Filter::All),
+            "Slow" => Ok(Filter::Slow),
+            "Fast" => Ok(Filter::Fast),
+            _ => Err(Error::new(format!("{} isn't a valid Filter", s))),
+        }
+    }
+}

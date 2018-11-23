@@ -6,7 +6,7 @@ use sim::{CarID, Distance, Speed, VehicleType};
 
 pub fn run(t: &mut TestRunner) {
     // TODO table driven test style?
-    t.run(
+    t.run_fast(
         "accel_to_stop_in_dist/easy",
         Box::new(|_| {
             let v = Vehicle {
@@ -22,7 +22,7 @@ pub fn run(t: &mut TestRunner) {
         }),
     );
 
-    t.run(
+    t.run_fast(
         "accel_to_stop_in_dist/hard",
         Box::new(|_| {
             let v = Vehicle {
@@ -42,7 +42,7 @@ pub fn run(t: &mut TestRunner) {
         }),
     );
 
-    t.run(
+    t.run_fast(
         "accel_to_stop_in_dist/bike",
         Box::new(|_| {
             let v = Vehicle {

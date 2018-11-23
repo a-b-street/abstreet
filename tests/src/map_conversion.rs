@@ -3,7 +3,7 @@ use convert_osm;
 use runner::TestRunner;
 
 pub fn run(t: &mut TestRunner) {
-    t.run(
+    t.run_slow(
         "convert_twice",
         Box::new(|_| {
             let flags = convert_osm::Flags {
