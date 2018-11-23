@@ -173,4 +173,9 @@ impl Road {
             )))
         }
     }
+
+    pub fn supports_bikes(&self) -> bool {
+        // TODO Should check LaneType to start
+        self.osm_tags.get("bicycle") != Some(&"no".to_string())
+    }
 }

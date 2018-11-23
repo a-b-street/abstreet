@@ -21,6 +21,7 @@
 	- graph querying?
 	- rendering (and other UI/editor interactions)?
 	- sim state?
+	- Sidewalk, Parking, Street
 
 - more data
 	- draw ALL water and greenery areas

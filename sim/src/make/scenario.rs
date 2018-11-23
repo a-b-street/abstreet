@@ -217,7 +217,11 @@ impl Scenario {
             let mut starting_biking_lanes = map
                 .get_i(s.start_from_border)
                 .get_outgoing_lanes(map, LaneType::Biking);
-            starting_biking_lanes.extend(starting_driving_lanes);
+            for l in starting_driving_lanes {
+                if map.get_parent(l).supports_bikes() {
+                    starting_biking_lanes.push(l);
+                }
+            }
             if !starting_biking_lanes.is_empty() {
                 for _ in 0..s.num_bikes {
                     let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
