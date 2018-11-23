@@ -8,3 +8,4 @@ dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa
 gag = "0.1.10"
 geom = { path = "../geom" }
 sim = { path = "../sim" }
+yansi = "0.4.0"

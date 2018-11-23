@@ -1,5 +1,8 @@
+// https://github.com/rust-lang/rust/issues/50297 would hopefully obsolete this approach.
+
 use gag::Redirect;
 use std;
+use yansi::Paint;
 
 pub struct TestRunner {
     results: Vec<TestResult>,
@@ -56,11 +59,11 @@ impl TestRunner {
         for result in self.results.into_iter() {
             if result.pass {
                 passed += 1;
-                println!("- {}: PASS", result.test_name);
+                println!("- {}: {}", result.test_name, Paint::green("PASS"));
             } else {
                 failed += 1;
-                println!("- {}: FAIL", result.test_name);
-                println!("  {}", result.output_path);
+                println!("- {}: {}", result.test_name, Paint::red("FAIL"));
+                println!("    {}", Paint::cyan(result.output_path));
             }
         }
 
