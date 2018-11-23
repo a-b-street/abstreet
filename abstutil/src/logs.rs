@@ -1,4 +1,4 @@
-use log::{Log, Metadata, Record};
+use log::{Level, Log, Metadata, Record};
 use yansi::Paint;
 
 pub struct LogAdapter;
@@ -18,7 +18,10 @@ impl Log for LogAdapter {
 pub fn format_log_record(record: &Record) -> String {
     format!(
         "[{}] [{}] {}",
-        Paint::white(record.level()),
+        match record.level() {
+            Level::Error | Level::Warn => Paint::red(record.level()),
+            _ => Paint::white(record.level()),
+        },
         match record.target() {
             "UI" => Paint::red("UI"),
             "sim" => Paint::green("sim"),
