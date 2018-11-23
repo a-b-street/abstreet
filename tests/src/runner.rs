@@ -3,10 +3,11 @@
 use abstutil;
 use gag::Redirect;
 use std;
-use yansi::Paint;
 use std::io::Write;
+use yansi::Paint;
 
 pub struct TestRunner {
+    current_suite: Option<String>,
     results: Vec<TestResult>,
 }
 
@@ -20,11 +21,25 @@ struct TestResult {
 impl TestRunner {
     pub fn new() -> TestRunner {
         TestRunner {
+            current_suite: None,
             results: Vec::new(),
         }
     }
 
-    pub fn run(&mut self, test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+    pub fn suite(&mut self, name: &str) -> &mut TestRunner {
+        self.current_suite = Some(name.to_string());
+        self
+    }
+
+    pub fn run(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+        let test_name = format!(
+            "{}/{}",
+            self.current_suite
+                .as_ref()
+                .expect("Can't run() a test without suite()"),
+            specific_test_name
+        );
+
         print!("Running {}...", test_name);
         std::io::stdout().flush().unwrap();
 
@@ -72,10 +87,20 @@ impl TestRunner {
         for result in self.results.into_iter() {
             if result.pass {
                 passed += 1;
-                println!("- {} ({}): {}", result.test_name, result.duration, Paint::green("PASS"));
+                println!(
+                    "- {} ({}): {}",
+                    result.test_name,
+                    result.duration,
+                    Paint::green("PASS")
+                );
             } else {
                 failed += 1;
-                println!("- {} ({}): {}", result.test_name, result.duration, Paint::red("FAIL"));
+                println!(
+                    "- {} ({}): {}",
+                    result.test_name,
+                    result.duration,
+                    Paint::red("FAIL")
+                );
                 println!("    {}", Paint::cyan(result.output_path));
             }
         }

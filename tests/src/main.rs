@@ -13,8 +13,8 @@ mod runner;
 fn main() {
     let mut t = runner::TestRunner::new();
 
-    map_conversion::run(&mut t);
-    physics::run(&mut t);
+    map_conversion::run(t.suite("map_conversion"));
+    physics::run(t.suite("physics"));
 
     t.done();
 }
