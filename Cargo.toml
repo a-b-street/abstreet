@@ -17,5 +17,6 @@ members = [
   "precompute",
   "sim",
   "synthetic",
+  "tests",
   "tmp_gfx",
 ]

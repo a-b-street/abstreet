@@ -57,3 +57,22 @@ How to show diffs for agents?
 
 Tried having some helper methods, but they're not aging well as the new trip
 leg stuff continues. Removing for now, will re-evaluate later.
+
+Synthetic editor is awesome. How could it help test setup?
+
+- could specify things like parking spots directly
+	- but that may be lots of UI work
+	- and then a synthetic map is only useful for one test, maybe
+- could just label things in the synthetic editor
+	- and easily look em up in the test setup code
+
+## Test runner
+
+- want to tag tests and run groups of them easily
+	- have to use prefixes to test names for now
+- want nicer runner output
+	- capture output for failed tests in files
+	- print summary of each test at the end
+	- for sim tests, print a command to run it in the UI
+
+Let's experiment and make a new binary crate for all tests!
