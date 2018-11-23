@@ -22,6 +22,8 @@ impl TestRunner {
     }
 
     pub fn run(&mut self, test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+        println!("Running {}...", test_name);
+
         // TODO Make a temporary directory inside /tmp, remove successful files
         let output_path = format!("/tmp/{}.log", test_name);
         std::fs::create_dir_all(std::path::Path::new(&output_path).parent().unwrap())
@@ -54,6 +56,7 @@ impl TestRunner {
     }
 
     pub fn done(self) {
+        println!("");
         let mut passed = 0;
         let mut failed = 0;
         for result in self.results.into_iter() {
