@@ -227,6 +227,7 @@ impl PerMapUI {
         let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
         let neighborhood_summary =
             plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &draw_map, &mut timer);
+        let time_travel = plugins::time_travel::TimeTravel::new(sim.time);
 
         timer.done();
 
@@ -247,7 +248,7 @@ impl PerMapUI {
                 Box::new(StopSignEditor::new()),
                 Box::new(TrafficSignalEditor::new()),
                 Box::new(plugins::turn_cycler::TurnCyclerState::new()),
-                Box::new(TimeTravel::new()),
+                Box::new(time_travel),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
                 Box::new(plugins::follow::FollowState::new()),
                 Box::new(plugins::show_route::ShowRouteState::new()),

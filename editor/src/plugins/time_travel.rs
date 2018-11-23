@@ -9,6 +9,7 @@ use std::collections::BTreeMap;
 pub struct TimeTravel {
     state_per_tick: Vec<StateAtTime>,
     current_tick: Option<Tick>,
+    first_tick: Tick,
 }
 
 struct StateAtTime {
@@ -19,10 +20,11 @@ struct StateAtTime {
 }
 
 impl TimeTravel {
-    pub fn new() -> TimeTravel {
+    pub fn new(first_tick: Tick) -> TimeTravel {
         TimeTravel {
             state_per_tick: Vec::new(),
             current_tick: None,
+            first_tick,
         }
     }
 
@@ -33,10 +35,10 @@ impl TimeTravel {
     fn record_state(&mut self, sim: &Sim, map: &Map) {
         // Record state for this tick, if needed.
         let tick = sim.time.as_usize();
-        if tick + 1 == self.state_per_tick.len() {
+        if tick + 1 == self.first_tick.as_usize() + self.state_per_tick.len() {
             return;
         }
-        assert_eq!(tick, self.state_per_tick.len());
+        assert_eq!(tick, self.first_tick.as_usize() + self.state_per_tick.len());
 
         let mut state = StateAtTime {
             cars: BTreeMap::new(),
@@ -80,6 +82,10 @@ impl TimeTravel {
         }
         self.state_per_tick.push(state);
     }
+
+    fn get_current_state(&self) -> &StateAtTime {
+        &self.state_per_tick[self.current_tick.unwrap().as_usize() - self.first_tick.as_usize()]
+    }
 }
 
 impl Plugin for TimeTravel {
@@ -87,9 +93,9 @@ impl Plugin for TimeTravel {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
         if let Some(tick) = self.current_tick {
-            if tick != Tick::zero() && ctx.input.key_pressed(Key::Comma, "rewind") {
+            if tick > self.first_tick && ctx.input.key_pressed(Key::Comma, "rewind") {
                 self.current_tick = Some(tick.prev());
-            } else if tick.as_usize() + 1 < self.state_per_tick.len()
+            } else if tick.as_usize() + 1 < self.first_tick.as_usize() + self.state_per_tick.len()
                 && ctx.input.key_pressed(Key::Period, "forward")
             {
                 self.current_tick = Some(tick.next());
@@ -115,21 +121,15 @@ impl Plugin for TimeTravel {
 
 impl GetDrawAgents for TimeTravel {
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
-        self.state_per_tick[self.current_tick.unwrap().as_usize()]
-            .cars
-            .get(&id)
-            .map(|d| d.clone())
+        self.get_current_state().cars.get(&id).map(|d| d.clone())
     }
 
     fn get_draw_ped(&self, id: PedestrianID, _map: &Map) -> Option<DrawPedestrianInput> {
-        self.state_per_tick[self.current_tick.unwrap().as_usize()]
-            .peds
-            .get(&id)
-            .map(|d| d.clone())
+        self.get_current_state().peds.get(&id).map(|d| d.clone())
     }
 
     fn get_draw_cars_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawCarInput> {
-        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        let state = self.get_current_state();
         // TODO sort by ID to be deterministic?
         state
             .cars_per_traversable
@@ -140,7 +140,7 @@ impl GetDrawAgents for TimeTravel {
     }
 
     fn get_draw_cars_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawCarInput> {
-        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        let state = self.get_current_state();
         state
             .cars_per_traversable
             .get(Traversable::Turn(t))
@@ -150,7 +150,7 @@ impl GetDrawAgents for TimeTravel {
     }
 
     fn get_draw_peds_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawPedestrianInput> {
-        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        let state = self.get_current_state();
         state
             .peds_per_traversable
             .get(Traversable::Lane(l))
@@ -160,7 +160,7 @@ impl GetDrawAgents for TimeTravel {
     }
 
     fn get_draw_peds_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawPedestrianInput> {
-        let state = &self.state_per_tick[self.current_tick.unwrap().as_usize()];
+        let state = self.get_current_state();
         state
             .peds_per_traversable
             .get(Traversable::Turn(t))
