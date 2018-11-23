@@ -181,7 +181,10 @@ impl Vehicle {
         let required_time: Time = -1.0 * speed / normal_case;
 
         if self.debug {
-            debug!("accel_to_stop_in_dist({}, {}) would normally recommend {} and take {} to finish", speed, dist, normal_case, required_time);
+            debug!(
+                "accel_to_stop_in_dist({}, {}) would normally recommend {} and take {} to finish",
+                speed, dist, normal_case, required_time
+            );
         }
 
         // TODO If we don't restrict required_time from growing arbitrarily high, then it takes an

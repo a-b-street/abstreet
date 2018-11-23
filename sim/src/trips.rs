@@ -39,6 +39,7 @@ impl TripManager {
 
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(parked, _) => assert_eq!(car, parked.car),
+            TripLeg::DriveFromBorder(id, _) => assert_eq!(car, id),
             x => panic!(
                 "First trip leg {:?} doesn't match car_reached_parking_spot",
                 x
