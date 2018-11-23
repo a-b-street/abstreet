@@ -504,7 +504,9 @@ impl DrivingSimState {
     pub fn toggle_debug(&mut self, id: CarID) {
         if let Some(c) = self.debug {
             if c != id {
-                self.cars.get_mut(&c).unwrap().debug = false;
+                let car = self.cars.get_mut(&c).unwrap();
+                car.debug = false;
+                car.vehicle.debug = false;
             }
         }
 
@@ -512,6 +514,7 @@ impl DrivingSimState {
             println!("{}", abstutil::to_json(car));
             println!("{}", abstutil::to_json(&self.routers[&id]));
             car.debug = !car.debug;
+            car.vehicle.debug = !car.vehicle.debug;
             self.debug = Some(id);
         } else {
             println!("{} is parked somewhere", id);
@@ -801,7 +804,11 @@ impl DrivingSimState {
             waiting_for_turn: self.routers[&c.id].next_step_as_turn(),
             front: pos,
             angle,
-            stopping_trace: self.trace_route(id, map, c.vehicle.stopping_distance(c.speed)),
+            stopping_trace: self.trace_route(
+                id,
+                map,
+                c.vehicle.stopping_distance(c.speed).unwrap(),
+            ),
             state: if c.debug {
                 CarState::Debug
             } else if c.speed > kinematics::EPSILON_SPEED {
