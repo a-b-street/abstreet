@@ -182,7 +182,7 @@ impl Vehicle {
 
         if self.debug {
             debug!(
-                "accel_to_stop_in_dist({}, {}) would normally recommend {} and take {} to finish",
+                "   accel_to_stop_in_dist({}, {}) would normally recommend {} and take {} to finish",
                 speed, dist, normal_case, required_time
             );
         }

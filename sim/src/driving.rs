@@ -243,9 +243,21 @@ impl Car {
                 .unwrap(),
         );
         if self.debug {
+            let describe_accel = if safe_accel == vehicle.max_accel {
+                format!("max_accel ({})", safe_accel)
+            } else if safe_accel == vehicle.max_deaccel {
+                format!("max_deaccel ({})", safe_accel)
+            } else {
+                format!("{}", safe_accel)
+            };
+            let describe_speed = if Some(self.speed) == vehicle.max_speed {
+                format!("max_speed ({})", self.speed)
+            } else {
+                format!("{}", self.speed)
+            };
             debug!(
                 "At {}, {} chose {}, with current speed {}",
-                time, self.id, safe_accel, self.speed
+                time, self.id, describe_accel, describe_speed
             );
         }
 
@@ -381,7 +393,23 @@ impl SimQueue {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
             let following_dist = cars[&c1].vehicle.following_dist();
             if dist1 - dist2 < following_dist {
-                return Err(Error::new(format!("uh oh! on {:?}, reset to {:?} broke. min following distance is {}, but we have {} at {} and {} at {}. dist btwn is just {}. prev queue was {:?}", self.id, self.cars_queue, following_dist, c1, dist1, c2, dist2, dist1 - dist2, old_queue)));
+                let mut err = format!(
+                    "On {:?}, {} and {} are {} apart -- that's {} too close\n",
+                    self.id,
+                    c1,
+                    c2,
+                    dist1 - dist2,
+                    following_dist - (dist1 - dist2),
+                );
+                err.push_str(&format!("Old queue ({}):\n", old_queue.len()));
+                for (dist, id) in old_queue {
+                    err.push_str(&format!("- {} at {}\n", id, dist));
+                }
+                err.push_str(&format!("New queue ({}):\n", self.cars_queue.len()));
+                for (dist, id) in &self.cars_queue {
+                    err.push_str(&format!("- {} at {}\n", id, dist));
+                }
+                return Err(Error::new(err));
             }
         }
         Ok(())

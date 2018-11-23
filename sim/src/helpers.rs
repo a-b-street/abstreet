@@ -2,6 +2,7 @@ use abstutil::WeightedUsizeChoice;
 use control::ControlMap;
 use map_model::{BuildingID, BusRoute, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
+use std::panic;
 use {
     BorderSpawnOverTime, CarID, Event, OriginDestination, Scenario, SeedParkedCars, Sim,
     SpawnOverTime, Tick,
@@ -14,7 +15,18 @@ impl Sim {
     pub fn run_until_done(&mut self, map: &Map, control_map: &ControlMap, callback: Box<Fn(&Sim)>) {
         let mut benchmark = self.start_benchmark();
         loop {
-            self.step(&map, &control_map);
+            match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                self.step(&map, &control_map);
+            })) {
+                Ok(()) => {}
+                Err(err) => {
+                    error!("********************************************************************************");
+                    error!("Sim broke:");
+                    self.dump_before_abort();
+                    panic::resume_unwind(err);
+                }
+            }
+
             if self.time.is_multiple_of(Tick::from_minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
                 info!("{0}, speed = {1:.2}x", self.summary(), speed);
