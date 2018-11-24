@@ -5,7 +5,6 @@ use abstutil::Error;
 use gag::Redirect;
 use std;
 use std::io::Write;
-use std::str::FromStr;
 use yansi::Paint;
 
 pub struct TestRunner {
@@ -13,6 +12,7 @@ pub struct TestRunner {
     results: Vec<TestResult>,
     filter: Filter,
     test_name_filter: Option<String>,
+    output_dir: String,
 }
 
 struct TestResult {
@@ -29,6 +29,13 @@ impl TestRunner {
             results: Vec::new(),
             filter,
             test_name_filter,
+            output_dir: format!(
+                "/tmp/abst_tests_{}",
+                std::time::SystemTime::now()
+                    .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs()
+            ),
         }
     }
 
@@ -55,12 +62,10 @@ impl TestRunner {
         );
 
         if (fast && self.filter == Filter::Slow) || (!fast && self.filter == Filter::Fast) {
-            println!("Skipping {}", test_name);
             return;
         }
         if let Some(ref filter) = self.test_name_filter {
             if !test_name.contains(filter) {
-                println!("Skipping {}", test_name);
                 return;
             }
         }
@@ -68,10 +73,9 @@ impl TestRunner {
         print!("Running {}...", test_name);
         std::io::stdout().flush().unwrap();
 
-        // TODO Make a temporary directory inside /tmp, remove successful files
         let start = std::time::Instant::now();
         let mut helper = TestHelper {};
-        let output_path = format!("/tmp/{}.log", test_name);
+        let output_path = format!("{}/{}.log", self.output_dir, test_name);
         std::fs::create_dir_all(std::path::Path::new(&output_path).parent().unwrap())
             .expect("Creating parent dir failed");
 
@@ -118,6 +122,10 @@ impl TestRunner {
                     result.duration,
                     Paint::green("PASS")
                 );
+                std::fs::remove_file(&result.output_path).expect(&format!(
+                    "Couldn't delete successful test log {}",
+                    result.output_path
+                ));
             } else {
                 failed += 1;
                 println!(
@@ -143,7 +151,7 @@ pub enum Filter {
     Fast,
 }
 
-impl FromStr for Filter {
+impl std::str::FromStr for Filter {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
