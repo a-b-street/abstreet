@@ -24,6 +24,30 @@ struct TestResult {
     debug_with_savestate: Option<String>,
 }
 
+impl TestResult {
+    fn print(&self) {
+        if self.pass {
+            println!(
+                "- {} ({}): {}",
+                self.test_name,
+                self.duration,
+                Paint::green("PASS")
+            );
+        } else {
+            println!(
+                "- {} ({}): {}",
+                self.test_name,
+                self.duration,
+                Paint::red("FAIL")
+            );
+            println!("    {}", Paint::cyan(&self.output_path));
+            if let Some(ref path) = self.debug_with_savestate {
+                println!("  {}", Paint::yellow(path));
+            }
+        }
+    }
+}
+
 impl TestRunner {
     pub fn new(filter: Filter, test_name_filter: Option<String>) -> TestRunner {
         TestRunner {
@@ -104,69 +128,36 @@ impl TestRunner {
             })).is_ok()
         };
 
-        let duration = format!("{:.02}s", abstutil::elapsed_seconds(start));
         if pass {
-            print!(
-                "\rRunning {}... {} in {}\n",
-                test_name,
-                Paint::green("PASS"),
-                duration
-            );
             std::fs::remove_file(&output_path).expect(&format!(
                 "Couldn't delete successful test log {}",
                 output_path
             ));
-        } else {
-            print!(
-                "\rRunning {}... {} in {}\n",
-                test_name,
-                Paint::red("FAIL"),
-                duration
-            );
-            println!("  {}", Paint::cyan(&output_path));
-            if let Some(ref path) = helper.debug_with_savestate {
-                println!("  {}", Paint::yellow(path));
-            }
         }
-
-        self.results.push(TestResult {
+        let result = TestResult {
             test_name: test_name.to_string(),
             pass,
-            duration,
+            duration: format!("{:.02}s", abstutil::elapsed_seconds(start)),
             output_path,
             debug_with_savestate: helper.debug_with_savestate,
-        });
+        };
+        print!("\r");
+        result.print();
+        self.results.push(result);
     }
 
     pub fn done(self) {
-        println!("");
         let mut passed = 0;
         let mut failed = 0;
         for result in self.results.into_iter() {
             if result.pass {
                 passed += 1;
-                println!(
-                    "- {} ({}): {}",
-                    result.test_name,
-                    result.duration,
-                    Paint::green("PASS")
-                );
             } else {
                 failed += 1;
-                println!(
-                    "- {} ({}): {}",
-                    result.test_name,
-                    result.duration,
-                    Paint::red("FAIL")
-                );
-                println!("    {}", Paint::cyan(result.output_path));
-                if let Some(path) = result.debug_with_savestate {
-                    println!("  {}", Paint::yellow(path));
-                }
             }
         }
 
-        println!("{} tests passed, {} tests failed", passed, failed);
+        println!("\n{} tests passed, {} tests failed", passed, failed);
     }
 }
 
