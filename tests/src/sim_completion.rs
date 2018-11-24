@@ -5,13 +5,14 @@ use sim;
 pub fn run(t: &mut TestRunner) {
     t.run_slow(
         "small_spawn_completes",
-        Box::new(|_| {
+        Box::new(|h| {
             let (map, control_map, mut sim) = sim::load(
                 sim::SimFlags::for_test("aorta_model_completes"),
                 Some(sim::Tick::from_seconds(30)),
                 &mut Timer::new("setup test"),
             );
             sim.small_spawn(&map);
+            h.setup_done(&sim);
             sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
         }),
     );

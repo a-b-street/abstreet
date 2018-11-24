@@ -3,6 +3,7 @@
 use abstutil;
 use abstutil::Error;
 use gag::Redirect;
+use sim::Sim;
 use std;
 use std::io::Write;
 use yansi::Paint;
@@ -20,6 +21,7 @@ struct TestResult {
     pass: bool,
     duration: String,
     output_path: String,
+    debug_with_savestate: Option<String>,
 }
 
 impl TestRunner {
@@ -74,7 +76,9 @@ impl TestRunner {
         std::io::stdout().flush().unwrap();
 
         let start = std::time::Instant::now();
-        let mut helper = TestHelper {};
+        let mut helper = TestHelper {
+            debug_with_savestate: None,
+        };
         let output_path = format!("{}/{}.log", self.output_dir, test_name);
         std::fs::create_dir_all(std::path::Path::new(&output_path).parent().unwrap())
             .expect("Creating parent dir failed");
@@ -120,6 +124,9 @@ impl TestRunner {
                 duration
             );
             println!("  {}", Paint::cyan(&output_path));
+            if let Some(ref path) = helper.debug_with_savestate {
+                println!("  {}", Paint::yellow(path));
+            }
         }
 
         self.results.push(TestResult {
@@ -127,6 +134,7 @@ impl TestRunner {
             pass,
             duration,
             output_path,
+            debug_with_savestate: helper.debug_with_savestate,
         });
     }
 
@@ -152,6 +160,9 @@ impl TestRunner {
                     Paint::red("FAIL")
                 );
                 println!("    {}", Paint::cyan(result.output_path));
+                if let Some(path) = result.debug_with_savestate {
+                    println!("  {}", Paint::yellow(path));
+                }
             }
         }
 
@@ -159,7 +170,18 @@ impl TestRunner {
     }
 }
 
-pub struct TestHelper {}
+pub struct TestHelper {
+    debug_with_savestate: Option<String>,
+}
+
+impl TestHelper {
+    pub fn setup_done(&mut self, sim: &Sim) {
+        if self.debug_with_savestate.is_some() {
+            panic!("Can't call setup_done twice in one test");
+        }
+        self.debug_with_savestate = Some(sim.save());
+    }
+}
 
 #[derive(PartialEq)]
 pub enum Filter {
