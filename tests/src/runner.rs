@@ -12,6 +12,7 @@ pub struct TestRunner {
     current_suite: Option<String>,
     results: Vec<TestResult>,
     filter: Filter,
+    test_name_filter: Option<String>,
 }
 
 struct TestResult {
@@ -22,11 +23,12 @@ struct TestResult {
 }
 
 impl TestRunner {
-    pub fn new(filter: Filter) -> TestRunner {
+    pub fn new(filter: Filter, test_name_filter: Option<String>) -> TestRunner {
         TestRunner {
             current_suite: None,
             results: Vec::new(),
             filter,
+            test_name_filter,
         }
     }
 
@@ -55,6 +57,12 @@ impl TestRunner {
         if (fast && self.filter == Filter::Slow) || (!fast && self.filter == Filter::Fast) {
             println!("Skipping {}", test_name);
             return;
+        }
+        if let Some(ref filter) = self.test_name_filter {
+            if !test_name.contains(filter) {
+                println!("Skipping {}", test_name);
+                return;
+            }
         }
 
         print!("Running {}...", test_name);

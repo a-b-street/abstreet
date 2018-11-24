@@ -2,6 +2,7 @@
 
 release_mode=""
 filter=""
+test_names=""
 
 for arg in "$@"; do
 	if [ "$arg" == "--release" ]; then
@@ -10,8 +11,10 @@ for arg in "$@"; do
 		filter="--filter=Fast";
 	elif [ "$arg" == "--slow" ]; then
 		filter="--filter=Slow";
+	else
+		test_names="--test_names=$arg";
 	fi
 done
 
 cd tests;
-RUST_BACKTRACE=1 cargo run $release_mode -- $filter
+RUST_BACKTRACE=1 cargo run $release_mode -- $filter $test_names

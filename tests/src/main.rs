@@ -21,10 +21,15 @@ struct Flags {
     /// Which tests to run?
     #[structopt(long = "filter", default_value = "All")]
     filter: runner::Filter,
+
+    /// If specified, only run tests with names containing this substring.
+    #[structopt(long = "test_names")]
+    test_names: Option<String>,
 }
 
 fn main() {
-    let mut t = runner::TestRunner::new(Flags::from_args().filter);
+    let flags = Flags::from_args();
+    let mut t = runner::TestRunner::new(flags.filter, flags.test_names);
 
     map_conversion::run(t.suite("map_conversion"));
     physics::run(t.suite("physics"));
