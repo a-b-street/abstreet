@@ -99,8 +99,29 @@ impl TestRunner {
                 test(&mut helper);
             })).is_ok()
         };
+
         let duration = format!("{:.02}s", abstutil::elapsed_seconds(start));
-        print!("\rRunning {}... {}\n", test_name, duration);
+        if pass {
+            print!(
+                "\rRunning {}... {} in {}\n",
+                test_name,
+                Paint::green("PASS"),
+                duration
+            );
+            std::fs::remove_file(&output_path).expect(&format!(
+                "Couldn't delete successful test log {}",
+                output_path
+            ));
+        } else {
+            print!(
+                "\rRunning {}... {} in {}\n",
+                test_name,
+                Paint::red("FAIL"),
+                duration
+            );
+            println!("  {}", Paint::cyan(&output_path));
+        }
+
         self.results.push(TestResult {
             test_name: test_name.to_string(),
             pass,
@@ -122,10 +143,6 @@ impl TestRunner {
                     result.duration,
                     Paint::green("PASS")
                 );
-                std::fs::remove_file(&result.output_path).expect(&format!(
-                    "Couldn't delete successful test log {}",
-                    result.output_path
-                ));
             } else {
                 failed += 1;
                 println!(
