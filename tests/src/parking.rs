@@ -1,15 +1,8 @@
-/*extern crate abstutil;
-extern crate control;
-extern crate dimensioned;
-extern crate geom;
-extern crate map_model;
-extern crate sim;
+use runner::TestRunner;
 
-use map_model::{BuildingID, LaneID};
-use std::collections::BTreeMap;
+pub fn run(_t: &mut TestRunner) {}
 
-// TODO refactor a few more things to make these more succinct?
-
+/*
 #[test]
 fn park_on_goal_st() {
     let (map, control_map, mut sim) = setup("park_on_goal_st", make_test_map());
@@ -148,4 +141,5 @@ fn triangle_around(x: f64, y: f64) -> Vec<geom::LonLat> {
         geom::LonLat::new(x + 5.0, y - 5.0),
         geom::LonLat::new(x, y + 5.0),
     ]
-}*/
+}
+*/
