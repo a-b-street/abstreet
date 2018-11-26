@@ -18,21 +18,8 @@ mod transit;
 
 use structopt::StructOpt;
 
-#[derive(StructOpt)]
-#[structopt(name = "tests")]
-struct Flags {
-    /// Which tests to run?
-    #[structopt(long = "filter", default_value = "All")]
-    filter: runner::Filter,
-
-    /// If specified, only run tests with names containing this substring.
-    #[structopt(long = "test_names")]
-    test_names: Option<String>,
-}
-
 fn main() {
-    let flags = Flags::from_args();
-    let mut t = runner::TestRunner::new(flags.filter, flags.test_names);
+    let mut t = runner::TestRunner::new(runner::Flags::from_args());
 
     map_conversion::run(t.suite("map_conversion"));
     parking::run(t.suite("parking"));

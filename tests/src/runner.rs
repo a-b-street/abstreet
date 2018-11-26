@@ -6,13 +6,29 @@ use gag::Redirect;
 use sim::Sim;
 use std;
 use std::io::Write;
+use structopt::StructOpt;
 use yansi::Paint;
+
+#[derive(StructOpt)]
+#[structopt(name = "tests")]
+pub struct Flags {
+    /// Which tests to run?
+    #[structopt(long = "filter", default_value = "All")]
+    filter: Filter,
+
+    /// If specified, only run tests with names containing this substring.
+    #[structopt(long = "test_names")]
+    test_names: Option<String>,
+
+    /// Keep the log and savestate even for passing tests.
+    #[structopt(long = "keep_output")]
+    keep_output: bool,
+}
 
 pub struct TestRunner {
     current_suite: Option<String>,
     results: Vec<TestResult>,
-    filter: Filter,
-    test_name_filter: Option<String>,
+    flags: Flags,
     output_dir: String,
 }
 
@@ -25,7 +41,7 @@ struct TestResult {
 }
 
 impl TestResult {
-    fn print(&self) {
+    fn print(&self, flags: &Flags) {
         if self.pass {
             println!(
                 "- {} ({}): {}",
@@ -40,6 +56,8 @@ impl TestResult {
                 self.duration,
                 Paint::red("FAIL")
             );
+        }
+        if !self.pass || flags.keep_output {
             println!("    {}", Paint::cyan(&self.output_path));
             if let Some(ref path) = self.debug_with_savestate {
                 println!("  {}", Paint::yellow(path));
@@ -49,12 +67,11 @@ impl TestResult {
 }
 
 impl TestRunner {
-    pub fn new(filter: Filter, test_name_filter: Option<String>) -> TestRunner {
+    pub fn new(flags: Flags) -> TestRunner {
         TestRunner {
             current_suite: None,
             results: Vec::new(),
-            filter,
-            test_name_filter,
+            flags,
             output_dir: format!(
                 "/tmp/abst_tests_{}",
                 std::time::SystemTime::now()
@@ -87,10 +104,12 @@ impl TestRunner {
             specific_test_name
         );
 
-        if (fast && self.filter == Filter::Slow) || (!fast && self.filter == Filter::Fast) {
+        if (fast && self.flags.filter == Filter::Slow)
+            || (!fast && self.flags.filter == Filter::Fast)
+        {
             return;
         }
-        if let Some(ref filter) = self.test_name_filter {
+        if let Some(ref filter) = self.flags.test_names {
             if !test_name.contains(filter) {
                 return;
             }
@@ -128,7 +147,7 @@ impl TestRunner {
             })).is_ok()
         };
 
-        if pass {
+        if pass && !self.flags.keep_output {
             std::fs::remove_file(&output_path).expect(&format!(
                 "Couldn't delete successful test log {}",
                 output_path
@@ -142,7 +161,7 @@ impl TestRunner {
             debug_with_savestate: helper.debug_with_savestate,
         };
         print!("\r");
-        result.print();
+        result.print(&self.flags);
         self.results.push(result);
     }
 
