@@ -340,6 +340,32 @@ impl Spawner {
     }
 
     // This happens immediately; it isn't scheduled.
+    // TODO This is for tests; rename or move it?
+    // TODO duplication of code, weird responsibilities here...
+    pub fn seed_specific_parked_cars(
+        &mut self,
+        lane: LaneID,
+        owner_building: BuildingID,
+        spots: Vec<usize>,
+        parking_sim: &mut ParkingSimState,
+        base_rng: &mut XorShiftRng,
+    ) -> Vec<CarID> {
+        let mut results: Vec<CarID> = Vec::new();
+        for idx in spots.into_iter() {
+            let car = CarID(self.car_id_counter);
+            parking_sim.add_parked_car(ParkedCar::new(
+                car,
+                ParkingSpot::new(lane, idx),
+                Vehicle::generate_car(car, base_rng),
+                Some(owner_building),
+            ));
+            self.car_id_counter += 1;
+            results.push(car);
+        }
+        results
+    }
+
+    // This happens immediately; it isn't scheduled.
     pub fn seed_parked_cars(
         &mut self,
         cars_per_building: &WeightedUsizeChoice,
@@ -457,6 +483,8 @@ impl Spawner {
             );
             return;
         }
+
+        assert_eq!(parked.owner, Some(start_bldg));
 
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;

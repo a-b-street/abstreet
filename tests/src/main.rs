@@ -3,6 +3,7 @@ extern crate convert_osm;
 extern crate dimensioned;
 extern crate gag;
 extern crate geom;
+extern crate map_model;
 extern crate sim;
 extern crate structopt;
 extern crate yansi;

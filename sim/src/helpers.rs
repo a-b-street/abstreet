@@ -1,6 +1,7 @@
 use abstutil::WeightedUsizeChoice;
 use control::ControlMap;
-use map_model::{BuildingID, BusRoute, Map, RoadID};
+use driving::DrivingGoal;
+use map_model::{BuildingID, BusRoute, LaneID, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
 use std::panic;
 use {
@@ -152,6 +153,44 @@ impl Sim {
             &mut self.parking_state,
             &mut self.rng,
             map,
+        );
+    }
+
+    // TODO This is for tests; rename or move it?
+    pub fn seed_specific_parked_cars(
+        &mut self,
+        lane: LaneID,
+        owner_building: BuildingID,
+        spots: Vec<usize>,
+    ) -> Vec<CarID> {
+        self.spawner.seed_specific_parked_cars(
+            lane,
+            owner_building,
+            spots,
+            &mut self.parking_state,
+            &mut self.rng,
+        )
+    }
+
+    // TODO This is for tests; rename or move it?
+    pub fn seed_trip_using_parked_car(
+        &mut self,
+        from_bldg: BuildingID,
+        to_bldg: BuildingID,
+        car: CarID,
+        map: &Map,
+    ) {
+        self.spawner.start_trip_using_parked_car(
+            Tick::zero(),
+            map,
+            self.parking_state
+                .lookup_car(car)
+                .map(|p| p.clone())
+                .unwrap(),
+            &self.parking_state,
+            from_bldg,
+            DrivingGoal::ParkNear(to_bldg),
+            &mut self.trips_state,
         );
     }
 

@@ -545,6 +545,39 @@ impl Map {
         let from = self.get_b(bldg).front_path.sidewalk;
         self.find_closest_lane(from, types)
     }
+
+    // TODO reconsider names, or put somewhere else?
+    pub fn bldg(&self, label: &str) -> BuildingID {
+        for b in &self.buildings {
+            if b.osm_tags.get("label") == Some(&label.to_string()) {
+                return b.id;
+            }
+        }
+        panic!("No building has label {}", label);
+    }
+
+    pub fn parking_lane(&self, label: &str, expected_spots: usize) -> LaneID {
+        for l in &self.lanes {
+            if !l.is_parking() {
+                continue;
+            }
+            let r = self.get_parent(l.id);
+            if (r.is_forwards(l.id) && r.osm_tags.get("fwd_label") == Some(&label.to_string()))
+                || (r.is_backwards(l.id)
+                    && r.osm_tags.get("back_label") == Some(&label.to_string()))
+            {
+                let actual_spots = l.number_parking_spots();
+                if expected_spots != actual_spots {
+                    panic!(
+                        "Parking lane {} (labeled {}) has {} spots, not {}",
+                        l.id, label, actual_spots, expected_spots
+                    );
+                }
+                return l.id;
+            }
+        }
+        panic!("No parking lane has label {}", label);
+    }
 }
 
 fn is_border(intersection: &Intersection, map: &Map) -> bool {

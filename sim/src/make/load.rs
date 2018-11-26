@@ -24,9 +24,14 @@ pub struct SimFlags {
 }
 
 impl SimFlags {
+    // TODO rename seattle_test
     pub fn for_test(run_name: &str) -> SimFlags {
+        SimFlags::synthetic_test("montlake", run_name)
+    }
+
+    pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: "../data/raw_maps/montlake.abst".to_string(),
+            load: format!("../data/raw_maps/{}.abst", map),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
@@ -105,8 +110,8 @@ pub fn load(
             .to_string();
         info!("Loading map {}", flags.load);
         let edits = load_edits(&map_name, &flags);
-        let map =
-            Map::new(&flags.load, edits.road_edits.clone(), timer).expect("Couldn't load map");
+        let map = Map::new(&flags.load, edits.road_edits.clone(), timer)
+            .expect(&format!("Couldn't load map from {}", flags.load));
         let control_map = ControlMap::new(&map, edits.stop_signs, edits.traffic_signals);
         timer.start("create sim");
         let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
@@ -116,7 +121,8 @@ pub fn load(
         assert_eq!(flags.edits_name, "no_edits");
 
         info!("Loading map {}", flags.load);
-        let map: Map = abstutil::read_binary(&flags.load, timer).expect("Couldn't load map");
+        let map: Map = abstutil::read_binary(&flags.load, timer)
+            .expect(&format!("Couldn't load map from {}", flags.load));
         // TODO Bit sad to load edits to reconstitute ControlMap, but this is necessary right now
         let edits: MapEdits = abstutil::read_json(&format!(
             "../data/edits/{}/{}.json",
