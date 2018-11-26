@@ -351,73 +351,60 @@ impl Car {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SimQueue {
-    id: Traversable,
     // First element is farthest along the queue; they have the greatest dist_along.
     // Caching the current dist_along vastly simplifies the API of SimQueue.
     cars_queue: Vec<(Distance, CarID)>,
-    capacity: usize,
 }
 
 impl SimQueue {
-    fn new(id: Traversable, map: &Map) -> SimQueue {
-        SimQueue {
-            id,
-            cars_queue: Vec::new(),
-            capacity: ((id.length(map) / Vehicle::best_case_following_dist()).ceil() as usize)
-                .max(1),
-        }
-    }
-
-    // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
-    // tooltip
-
-    fn reset(&mut self, ids: &Vec<CarID>, cars: &BTreeMap<CarID, Car>) -> Result<(), Error> {
-        let old_queue = self.cars_queue.clone();
-        let new_queue: Vec<(Distance, CarID)> =
-            ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
-
-        if new_queue.len() > self.capacity {
+    fn new(
+        id: Traversable,
+        map: &Map,
+        ids: Vec<CarID>,
+        cars: &BTreeMap<CarID, Car>,
+    ) -> Result<SimQueue, Error> {
+        let capacity =
+            ((id.length(map) / Vehicle::best_case_following_dist()).ceil() as usize).max(1);
+        let mut cars_queue: Vec<(Distance, CarID)> = ids
+            .into_iter()
+            .map(|id| (cars[&id].dist_along, id))
+            .collect();
+        if cars_queue.len() > capacity {
             return Err(Error::new(format!(
                 "on {:?}, reset to {:?} broke, because capacity is just {}.",
-                self.id, new_queue, self.capacity
+                id, cars_queue, capacity
             )));
         }
-        self.cars_queue.clear();
-        self.cars_queue.extend(new_queue);
+
         // Sort descending.
-        self.cars_queue
-            .sort_by_key(|(dist, _)| -NotNaN::new(dist.value_unsafe).unwrap());
+        cars_queue.sort_by_key(|(dist, _)| -NotNaN::new(dist.value_unsafe).unwrap());
 
         // assert here we're not squished together too much
-        for slice in self.cars_queue.windows(2) {
+        for slice in cars_queue.windows(2) {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
             let following_dist = cars[&c1].vehicle.following_dist();
             if dist1 - dist2 < following_dist {
                 let mut err = format!(
                     "On {:?}, {} and {} are {} apart -- that's {} too close\n",
-                    self.id,
+                    id,
                     c1,
                     c2,
                     dist1 - dist2,
                     following_dist - (dist1 - dist2),
                 );
-                err.push_str(&format!("Old queue ({}):\n", old_queue.len()));
-                for (dist, id) in old_queue {
-                    err.push_str(&format!("- {} at {}\n", id, dist));
-                }
-                err.push_str(&format!("New queue ({}):\n", self.cars_queue.len()));
-                for (dist, id) in &self.cars_queue {
+                // TODO We used to have old_queue and could print more debug info. Meh.
+                err.push_str(&format!("Queue ({}):\n", cars_queue.len()));
+                for (dist, id) in &cars_queue {
                     err.push_str(&format!("- {} at {}\n", id, dist));
                 }
                 return Err(Error::new(err));
             }
         }
-        Ok(())
+        Ok(SimQueue { cars_queue })
     }
 
-    fn is_empty(&self) -> bool {
-        self.cars_queue.is_empty()
-    }
+    // TODO it'd be cool to contribute tooltips (like number of cars currently here, capacity) to
+    // tooltip
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
     // into the intersection. :(
@@ -465,36 +452,23 @@ pub struct DrivingSimState {
     cars: BTreeMap<CarID, Car>,
     // Separate from cars so we can have different mutability in react()
     routers: BTreeMap<CarID, Router>,
-    lanes: Vec<SimQueue>,
+    // If there's no SimQueue for a Traversable, then there are currently no agents on it.
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    turns: BTreeMap<TurnID, SimQueue>,
+    queues: BTreeMap<Traversable, SimQueue>,
     debug: Option<CarID>,
 }
 
 impl DrivingSimState {
-    pub fn new(map: &Map) -> DrivingSimState {
-        let mut s = DrivingSimState {
+    pub fn new() -> DrivingSimState {
+        DrivingSimState {
             cars: BTreeMap::new(),
             routers: BTreeMap::new(),
-            // TODO only driving ones
-            lanes: map
-                .all_lanes()
-                .iter()
-                .map(|l| SimQueue::new(Traversable::Lane(l.id), map))
-                .collect(),
-            turns: BTreeMap::new(),
+            queues: BTreeMap::new(),
             debug: None,
-        };
-        for t in map.all_turns().values() {
-            if !t.between_sidewalks() {
-                s.turns
-                    .insert(t.id, SimQueue::new(Traversable::Turn(t.id), map));
-            }
         }
-        s
     }
 
     pub fn get_active_and_waiting_count(&self) -> (usize, usize) {
@@ -550,24 +524,16 @@ impl DrivingSimState {
     }
 
     pub fn edit_remove_lane(&mut self, id: LaneID) {
-        assert!(self.lanes[id.0].is_empty());
+        assert!(!self.queues.contains_key(&Traversable::Lane(id)));
     }
 
-    pub fn edit_add_lane(&mut self, id: LaneID) {
-        assert!(self.lanes[id.0].is_empty());
-    }
+    pub fn edit_add_lane(&mut self, _id: LaneID) {}
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {
-        if let Some(queue) = self.turns.get(&id) {
-            assert!(queue.is_empty());
-        }
-        self.turns.remove(&id);
+        assert!(!self.queues.contains_key(&Traversable::Turn(id)));
     }
 
-    pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
-        self.turns
-            .insert(id, SimQueue::new(Traversable::Turn(id), map));
-    }
+    pub fn edit_add_turn(&mut self, _id: TurnID) {}
 
     // Note that this populates the view BEFORE the step is applied.
     // Returns
@@ -587,6 +553,8 @@ impl DrivingSimState {
         rng: &mut XorShiftRng,
         current_agent: &mut Option<AgentID>,
     ) -> Result<(Vec<ParkedCar>, Vec<CarID>, Vec<(CarID, LaneID, Distance)>), Error> {
+        // We don't need the queues at all during this function, so just move them to the view.
+        std::mem::swap(&mut view.queues, &mut self.queues);
         self.populate_view(view);
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
@@ -685,12 +653,8 @@ impl DrivingSimState {
         }
         *current_agent = None;
 
-        // TODO could simplify this by only adjusting the SimQueues we need above
-
         // Group cars by lane and turn
-        // TODO ideally, just hash Traversable
-        let mut cars_per_lane = MultiMap::new();
-        let mut cars_per_turn = MultiMap::new();
+        let mut cars_per_traversable = MultiMap::new();
         for c in self.cars.values() {
             // Also do some sanity checks.
             if c.dist_along < 0.0 * si::M {
@@ -699,27 +663,13 @@ impl DrivingSimState {
                     c.id, c.dist_along, c.on
                 )));
             }
-
-            match c.on {
-                Traversable::Lane(id) => cars_per_lane.insert(id, c.id),
-                Traversable::Turn(id) => cars_per_turn.insert(id, c.id),
-            };
+            cars_per_traversable.insert(c.on, c.id);
         }
 
-        // Reset all queues
-        for l in &mut self.lanes {
-            if let Some(v) = cars_per_lane.get_vec(&l.id.as_lane()) {
-                l.reset(v, &self.cars)?;
-            } else {
-                l.reset(&Vec::new(), &self.cars)?;
-            }
-        }
-        for t in self.turns.values_mut() {
-            if let Some(v) = cars_per_turn.get_vec(&t.id.as_turn()) {
-                t.reset(v, &self.cars)?;
-            } else {
-                t.reset(&Vec::new(), &self.cars)?;
-            }
+        // Reset all queues -- only store ones with some agents present.
+        for (on, cars) in cars_per_traversable.into_iter() {
+            self.queues
+                .insert(on, SimQueue::new(on, map, cars, &self.cars)?);
         }
 
         Ok((finished_parking, vanished_at_border, done_biking))
@@ -744,9 +694,12 @@ impl DrivingSimState {
 
         // Is it safe to enter the lane right now? Start scanning ahead of where we'll enter, so we
         // don't hit somebody's back
-        if let Some(other) = self.lanes[params.start.0]
-            .first_car_behind(params.dist_along + Vehicle::worst_case_following_dist())
-        {
+        if let Some(other) = self
+            .queues
+            .get(&Traversable::Lane(params.start))
+            .and_then(|q| {
+                q.first_car_behind(params.dist_along + Vehicle::worst_case_following_dist())
+            }) {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= params.dist_along {
                 /*debug!(
@@ -798,7 +751,24 @@ impl DrivingSimState {
             },
         );
         self.routers.insert(params.car, params.router);
-        self.lanes[params.start.0].insert_at(params.car, params.dist_along);
+        let start_on = Traversable::Lane(params.start);
+        // TODO stupid lack of NLL
+        let queue_exists = self.queues.contains_key(&start_on);
+        if queue_exists {
+            self.queues
+                .get_mut(&start_on)
+                .unwrap()
+                .insert_at(params.car, params.dist_along);
+        } else {
+            // Just directly construct the SimQueue, since it only has one car
+            self.queues.insert(
+                start_on,
+                SimQueue {
+                    cars_queue: vec![(params.dist_along, params.car)],
+                },
+            );
+        }
+
         events.push(Event::AgentEntersTraversable(
             AgentID::Car(params.car),
             Traversable::Lane(params.start),
@@ -848,21 +818,21 @@ impl DrivingSimState {
         })
     }
 
-    pub fn get_draw_cars_on_lane(&self, lane: LaneID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
-        self.lanes[lane.0].get_draw_cars(self, map, time)
-    }
-
-    pub fn get_draw_cars_on_turn(&self, turn: TurnID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
-        if let Some(queue) = self.turns.get(&turn) {
+    pub fn get_draw_cars_on_lane(&self, id: LaneID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
+        if let Some(queue) = self.queues.get(&Traversable::Lane(id)) {
             return queue.get_draw_cars(self, map, time);
         }
         return Vec::new();
     }
 
-    fn populate_view(&self, view: &mut WorldView) {
-        view.lanes = self.lanes.clone();
-        view.turns = self.turns.clone();
+    pub fn get_draw_cars_on_turn(&self, id: TurnID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
+        if let Some(queue) = self.queues.get(&Traversable::Turn(id)) {
+            return queue.get_draw_cars(self, map, time);
+        }
+        return Vec::new();
+    }
 
+    fn populate_view(&mut self, view: &mut WorldView) {
         for c in self.cars.values() {
             view.agents.insert(
                 AgentID::Car(c.id),
@@ -904,15 +874,17 @@ impl DrivingSimState {
         let mut buses = 0;
 
         for l in lanes {
-            for (_, car) in &self.lanes[l.0].cars_queue {
-                let c = &self.cars[car];
-                if c.speed <= kinematics::EPSILON_SPEED {
-                    stuck_cars += 1;
-                } else {
-                    moving_cars += 1;
-                }
-                if c.vehicle.vehicle_type == VehicleType::Bus {
-                    buses += 1;
+            if let Some(queue) = self.queues.get(&Traversable::Lane(*l)) {
+                for (_, car) in &queue.cars_queue {
+                    let c = &self.cars[car];
+                    if c.speed <= kinematics::EPSILON_SPEED {
+                        stuck_cars += 1;
+                    } else {
+                        moving_cars += 1;
+                    }
+                    if c.vehicle.vehicle_type == VehicleType::Bus {
+                        buses += 1;
+                    }
                 }
             }
         }

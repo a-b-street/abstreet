@@ -67,7 +67,7 @@ impl Sim {
 
         Sim {
             rng,
-            driving_state: DrivingSimState::new(map),
+            driving_state: DrivingSimState::new(),
             spawner: Spawner::empty(),
             scheduler: Scheduler::new(),
             trips_state: TripManager::new(),
@@ -118,11 +118,11 @@ impl Sim {
         }
     }
 
-    pub fn edit_add_turn(&mut self, t: &Turn, map: &Map) {
+    pub fn edit_add_turn(&mut self, t: &Turn) {
         if t.between_sidewalks() {
             self.walking_state.edit_add_turn(t.id);
         } else {
-            self.driving_state.edit_add_turn(t.id, map);
+            self.driving_state.edit_add_turn(t.id);
         }
     }
 

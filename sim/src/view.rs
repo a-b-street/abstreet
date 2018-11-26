@@ -1,6 +1,6 @@
 use driving::SimQueue;
 use kinematics::Vehicle;
-use map_model::{Traversable, TurnID};
+use map_model::Traversable;
 use std::collections::{BTreeMap, HashMap};
 use {AgentID, CarID, Distance, Speed};
 
@@ -22,28 +22,21 @@ pub struct WorldView {
     // need a macro; there's just three methods)
     // - make WalkingSimState also use SimQueues; they're overpowered for the current use, but
     // might be useful for understanding crowded sidewalks
-
-    // TODO I want to borrow the SimQueues, not clone, but then react() still doesnt work to
-    // mutably borrow router and immutably borrow the queues for the view. :(
-    pub lanes: Vec<SimQueue>,
-    pub turns: BTreeMap<TurnID, SimQueue>,
+    pub queues: BTreeMap<Traversable, SimQueue>,
 }
 
 impl WorldView {
     pub fn new() -> WorldView {
         WorldView {
             agents: HashMap::new(),
-            lanes: Vec::new(),
-            turns: BTreeMap::new(),
+            queues: BTreeMap::new(),
         }
     }
 
     pub fn next_car_in_front_of(&self, on: Traversable, dist: Distance) -> Option<&AgentView> {
-        let maybe_id = match on {
-            Traversable::Lane(id) => self.lanes[id.0].next_car_in_front_of(dist),
-            Traversable::Turn(id) => self.turns[&id].next_car_in_front_of(dist),
-        };
-        maybe_id.map(|id| &self.agents[&AgentID::Car(id)])
+        let queue = self.queues.get(&on)?;
+        let id = queue.next_car_in_front_of(dist)?;
+        Some(&self.agents[&AgentID::Car(id)])
     }
 
     pub fn is_leader(&self, id: AgentID) -> bool {

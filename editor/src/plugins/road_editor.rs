@@ -103,7 +103,7 @@ impl Plugin for RoadEditor {
             for i in &intersections {
                 for t in &map.get_i(*i).turns {
                     draw_map.edit_add_turn(*t, map);
-                    sim.edit_add_turn(map.get_t(*t), map);
+                    sim.edit_add_turn(map.get_t(*t));
                 }
             }
         }

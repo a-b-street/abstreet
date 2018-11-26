@@ -5,7 +5,7 @@ use {LaneID, Map, TurnID};
 // TODO this probably doesn't belong in map model after all.
 
 // TODO also building paths?
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Traversable {
     Lane(LaneID),
     Turn(TurnID),
