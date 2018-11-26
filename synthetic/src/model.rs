@@ -57,6 +57,8 @@ pub struct Road {
     i1: IntersectionID,
     i2: IntersectionID,
     lanes: RoadSpec,
+    fwd_label: Option<String>,
+    back_label: Option<String>,
 }
 
 impl Road {
@@ -76,35 +78,44 @@ impl Road {
         }
     }
 
-    fn draw(&self, model: &Model, g: &mut GfxCtx, highlight_fwd: bool, highlight_back: bool) {
+    fn draw(
+        &self,
+        model: &Model,
+        g: &mut GfxCtx,
+        canvas: &Canvas,
+        highlight_fwd: bool,
+        highlight_back: bool,
+    ) {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
         ]);
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
+            let polygon = base
+                .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .make_polygons_blindly(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_fwd {
                     HIGHLIGHT_COLOR
                 } else {
                     Road::lt_to_color(*lt)
                 },
-                &base
-                    .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
-                    .make_polygons_blindly(LANE_THICKNESS),
+                &polygon,
             );
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
+            let polygon = base
+                .reversed()
+                .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .make_polygons_blindly(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_back {
                     HIGHLIGHT_COLOR
                 } else {
                     Road::lt_to_color(*lt)
                 },
-                &base
-                    .reversed()
-                    .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
-                    .make_polygons_blindly(LANE_THICKNESS),
+                &polygon,
             );
         }
 
@@ -112,6 +123,17 @@ impl Road {
             Color::YELLOW,
             &base.make_polygons_blindly(CENTER_LINE_THICKNESS),
         );
+
+        if let Some(ref label) = self.fwd_label {
+            let mut txt = Text::new();
+            txt.add_line(label.to_string());
+            canvas.draw_text_at(g, txt, self.polygon(FORWARDS, model).center());
+        }
+        if let Some(ref label) = self.back_label {
+            let mut txt = Text::new();
+            txt.add_line(label.to_string());
+            canvas.draw_text_at(g, txt, self.polygon(BACKWARDS, model).center());
+        }
     }
 
     // Copied from render/lane.rs. :(
@@ -160,6 +182,7 @@ impl Model {
             r.draw(
                 self,
                 g,
+                canvas,
                 Some((*id, FORWARDS)) == current_r,
                 Some((*id, BACKWARDS)) == current_r,
             );
@@ -183,6 +206,7 @@ impl Model {
                 Color::BLUE
             };
             g.draw_polygon(color, &b.polygon());
+
             if let Some(ref label) = b.label {
                 let mut txt = Text::new();
                 txt.add_line(label.to_string());
@@ -211,6 +235,12 @@ impl Model {
         for (idx, r) in self.roads.values().enumerate() {
             let mut osm_tags = BTreeMap::new();
             osm_tags.insert("synthetic_lanes".to_string(), r.lanes.to_string());
+            if let Some(ref label) = r.fwd_label {
+                osm_tags.insert("fwd_label".to_string(), label.to_string());
+            }
+            if let Some(ref label) = r.back_label {
+                osm_tags.insert("back_label".to_string(), label.to_string());
+            }
             map.roads.push(raw_data::Road {
                 points: vec![
                     pt(self.intersections[&r.i1].center),
@@ -314,6 +344,8 @@ impl Model {
                     fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
                     back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
                 },
+                fwd_label: None,
+                back_label: None,
             },
         );
     }
@@ -329,6 +361,24 @@ impl Model {
     pub fn swap_lanes(&mut self, id: RoadID) {
         let lanes = &mut self.roads.get_mut(&id).unwrap().lanes;
         mem::swap(&mut lanes.fwd, &mut lanes.back);
+    }
+
+    pub fn set_r_label(&mut self, pair: (RoadID, Direction), label: String) {
+        let r = self.roads.get_mut(&pair.0).unwrap();
+        if pair.1 {
+            r.fwd_label = Some(label);
+        } else {
+            r.back_label = Some(label);
+        }
+    }
+
+    pub fn get_r_label(&self, pair: (RoadID, Direction)) -> Option<String> {
+        let r = &self.roads[&pair.0];
+        if pair.1 {
+            r.fwd_label.clone()
+        } else {
+            r.back_label.clone()
+        }
     }
 
     pub fn remove_road(&mut self, id: RoadID) {

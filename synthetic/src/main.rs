@@ -11,7 +11,7 @@ mod model;
 
 use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, Wizard, GUI};
 use geom::Line;
-use model::{BuildingID, IntersectionID, Model, RoadID};
+use model::{BuildingID, Direction, IntersectionID, Model, RoadID};
 use piston::input::Key;
 use std::{env, process};
 
@@ -28,6 +28,7 @@ enum State {
     MovingIntersection(IntersectionID),
     MovingBuilding(BuildingID),
     LabelingBuilding(BuildingID, Wizard),
+    LabelingRoad((RoadID, Direction), Wizard),
     CreatingRoad(IntersectionID),
     EditingRoad(RoadID, Wizard),
     SavingModel(Wizard),
@@ -76,6 +77,17 @@ impl GUI for UI {
                     self.model.get_b_label(id).unwrap_or("".to_string()),
                 ) {
                     self.model.set_b_label(id, label);
+                    new_state = Some(State::Viewing);
+                } else if wizard.aborted() {
+                    new_state = Some(State::Viewing);
+                }
+            }
+            State::LabelingRoad(pair, ref mut wizard) => {
+                if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
+                    "Label this side of the road",
+                    self.model.get_r_label(pair).unwrap_or("".to_string()),
+                ) {
+                    self.model.set_r_label(pair, label);
                     new_state = Some(State::Viewing);
                 } else if wizard.aborted() {
                     new_state = Some(State::Viewing);
@@ -143,6 +155,8 @@ impl GUI for UI {
                         self.state = State::EditingRoad(r, Wizard::new());
                     } else if input.key_pressed(Key::S, "swap lanes") {
                         self.model.swap_lanes(r);
+                    } else if input.key_pressed(Key::L, "label side of the road") {
+                        self.state = State::LabelingRoad((r, dir), Wizard::new());
                     }
                 } else {
                     if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
@@ -189,6 +203,7 @@ impl GUI for UI {
                 );
             }
             State::LabelingBuilding(_, ref wizard)
+            | State::LabelingRoad(_, ref wizard)
             | State::EditingRoad(_, ref wizard)
             | State::SavingModel(ref wizard) => {
                 wizard.draw(g, &self.canvas);

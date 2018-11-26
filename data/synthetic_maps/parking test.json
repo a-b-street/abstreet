@@ -42,7 +42,9 @@
             "Parking",
             "Sidewalk"
           ]
-        }
+        },
+        "fwd_label": "north",
+        "back_label": "south"
       }
     ]
   ],
