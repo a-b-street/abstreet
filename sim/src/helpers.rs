@@ -1,12 +1,13 @@
 use abstutil::WeightedUsizeChoice;
 use control::ControlMap;
 use driving::DrivingGoal;
-use map_model::{BuildingID, BusRoute, LaneID, Map, RoadID};
+use map_model::{BuildingID, BusRoute, BusStopID, LaneID, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
 use std::panic;
+use walking::SidewalkSpot;
 use {
-    BorderSpawnOverTime, CarID, Event, OriginDestination, Scenario, SeedParkedCars, Sim,
-    SpawnOverTime, Tick,
+    BorderSpawnOverTime, CarID, Event, OriginDestination, PedestrianID, RouteID, Scenario,
+    SeedParkedCars, Sim, SpawnOverTime, Tick,
 };
 
 // Helpers to run the sim
@@ -194,7 +195,29 @@ impl Sim {
         );
     }
 
-    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
+    // TODO This is for tests; rename or move it?
+    pub fn seed_trip_using_bus(
+        &mut self,
+        from_bldg: BuildingID,
+        to_bldg: BuildingID,
+        route: RouteID,
+        stop1: BusStopID,
+        stop2: BusStopID,
+        map: &Map,
+    ) -> PedestrianID {
+        self.spawner.start_trip_using_bus(
+            Tick::zero(),
+            map,
+            SidewalkSpot::building(from_bldg, map),
+            SidewalkSpot::building(to_bldg, map),
+            route,
+            stop1,
+            stop2,
+            &mut self.trips_state,
+        )
+    }
+
+    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> (RouteID, Vec<CarID>) {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();
         self.spawner.seed_bus_route(

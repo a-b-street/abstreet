@@ -13,7 +13,10 @@ use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
-use {CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType};
+use {
+    CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
+    VehicleType,
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {
@@ -289,7 +292,7 @@ impl Spawner {
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
         now: Tick,
-    ) -> Vec<CarID> {
+    ) -> (RouteID, Vec<CarID>) {
         let route_id = transit_sim.create_empty_route(route, map);
         let mut results: Vec<CarID> = Vec::new();
         // Try to spawn a bus at each stop
@@ -336,7 +339,7 @@ impl Spawner {
                 );
             }
         }
-        results
+        (route_id, results)
     }
 
     // This happens immediately; it isn't scheduled.
@@ -540,6 +543,36 @@ impl Spawner {
             SidewalkSpot::building(start_bldg, map),
             first_spot,
         ));
+    }
+
+    pub fn start_trip_using_bus(
+        &mut self,
+        at: Tick,
+        map: &Map,
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
+        route: RouteID,
+        stop1: BusStopID,
+        stop2: BusStopID,
+        trips: &mut TripManager,
+    ) -> PedestrianID {
+        let ped_id = PedestrianID(self.ped_id_counter);
+        self.ped_id_counter += 1;
+
+        let first_stop = SidewalkSpot::bus_stop(stop1, map);
+        let legs = vec![
+            TripLeg::Walk(first_stop.clone()),
+            TripLeg::RideBus(route, stop2),
+            TripLeg::Walk(goal),
+        ];
+        self.enqueue_command(Command::Walk(
+            at,
+            trips.new_trip(at, ped_id, legs),
+            ped_id,
+            start,
+            first_stop,
+        ));
+        ped_id
     }
 
     pub fn start_trip_with_bike_at_border(

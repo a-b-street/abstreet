@@ -18,6 +18,9 @@ for arg in "$@"; do
 		filter="--keep_output";
 	elif [ "$arg" == "--noclickable_links" ]; then
 		clickable_links="";
+	elif [ "${arg:0:2}" == "--" ]; then
+		echo "Unknown argument $arg";
+		exit 1;
 	else
 		test_names="--test_names=$arg";
 	fi
