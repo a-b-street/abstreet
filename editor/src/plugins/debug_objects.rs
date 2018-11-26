@@ -103,6 +103,9 @@ fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
             for (k, v) in &r.osm_tags {
                 txt.add_line(format!("{} = {}", k, v));
             }
+            if l.is_parking() {
+                txt.add_line(format!("Has {} parking spots", l.number_parking_spots()));
+            }
         }
         ID::Intersection(id) => {
             txt.add_line(id.to_string());

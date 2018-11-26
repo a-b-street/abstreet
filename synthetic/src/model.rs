@@ -1,6 +1,6 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx};
+use ezgui::{Canvas, Color, GfxCtx, Text};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -107,6 +107,7 @@ impl Road {
 
 #[derive(Serialize, Deserialize)]
 pub struct Building {
+    label: Option<String>,
     center: Pt2D,
 }
 
@@ -126,7 +127,7 @@ impl Model {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         g.clear(Color::WHITE);
 
         for r in self.roads.values() {
@@ -146,6 +147,11 @@ impl Model {
 
         for b in self.buildings.values() {
             g.draw_polygon(Color::BLUE, &b.polygon());
+            if let Some(ref label) = b.label {
+                let mut txt = Text::new();
+                txt.add_line(label.to_string());
+                canvas.draw_text_at(g, txt, b.center);
+            }
         }
     }
 
@@ -190,10 +196,14 @@ impl Model {
         }
 
         for (idx, b) in self.buildings.values().enumerate() {
+            let mut osm_tags = BTreeMap::new();
+            if let Some(ref label) = b.label {
+                osm_tags.insert("label".to_string(), label.to_string());
+            }
             map.buildings.push(raw_data::Building {
                 // TODO Duplicate points :(
                 points: b.polygon().points().into_iter().map(|p| pt(p)).collect(),
-                osm_tags: BTreeMap::new(),
+                osm_tags,
                 osm_way_id: idx as i64,
             });
         }
@@ -306,11 +316,25 @@ impl Model {
 impl Model {
     pub fn create_b(&mut self, center: Pt2D) {
         let id = self.buildings.len();
-        self.buildings.insert(id, Building { center });
+        self.buildings.insert(
+            id,
+            Building {
+                center,
+                label: None,
+            },
+        );
     }
 
-    pub fn move_b(&mut self, id: IntersectionID, center: Pt2D) {
+    pub fn move_b(&mut self, id: BuildingID, center: Pt2D) {
         self.buildings.get_mut(&id).unwrap().center = center;
+    }
+
+    pub fn set_b_label(&mut self, id: BuildingID, label: String) {
+        self.buildings.get_mut(&id).unwrap().label = Some(label);
+    }
+
+    pub fn get_b_label(&self, id: BuildingID) -> Option<String> {
+        self.buildings[&id].label.clone()
     }
 
     pub fn remove_b(&mut self, id: BuildingID) {
