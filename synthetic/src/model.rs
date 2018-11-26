@@ -10,6 +10,8 @@ const INTERSECTION_RADIUS: f64 = 10.0;
 const BUILDING_LENGTH: f64 = 30.0;
 const CENTER_LINE_THICKNESS: f64 = 0.5;
 
+const HIGHLIGHT_COLOR: Color = Color::CYAN;
+
 pub type BuildingID = usize;
 pub type IntersectionID = usize;
 pub type RoadID = (IntersectionID, IntersectionID);
@@ -63,7 +65,7 @@ impl Road {
         .unwrap()
     }
 
-    fn draw(&self, model: &Model, g: &mut GfxCtx) {
+    fn draw(&self, model: &Model, g: &mut GfxCtx, is_highlighted: bool) {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
@@ -71,7 +73,11 @@ impl Road {
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             g.draw_polygon(
-                Road::lt_to_color(*lt),
+                if is_highlighted {
+                    HIGHLIGHT_COLOR
+                } else {
+                    Road::lt_to_color(*lt)
+                },
                 &base
                     .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
                     .make_polygons_blindly(LANE_THICKNESS),
@@ -79,7 +85,11 @@ impl Road {
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             g.draw_polygon(
-                Road::lt_to_color(*lt),
+                if is_highlighted {
+                    HIGHLIGHT_COLOR
+                } else {
+                    Road::lt_to_color(*lt)
+                },
                 &base
                     .reversed()
                     .shift_blindly(((idx as f64) + 0.5) * LANE_THICKNESS)
@@ -130,23 +140,33 @@ impl Model {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         g.clear(Color::WHITE);
 
-        for r in self.roads.values() {
-            r.draw(self, g);
+        let cursor = canvas.get_cursor_in_map_space();
+        let current_i = self.mouseover_intersection(cursor);
+        let current_b = self.mouseover_building(cursor);
+        let current_r = self.mouseover_road(cursor);
+
+        for (id, r) in &self.roads {
+            r.draw(self, g, Some(*id) == current_r);
         }
 
-        for i in self.intersections.values() {
-            g.draw_circle(
-                if i.has_traffic_signal {
-                    Color::GREEN
-                } else {
-                    Color::RED
-                },
-                &i.circle(),
-            );
+        for (id, i) in &self.intersections {
+            let color = if Some(*id) == current_i {
+                HIGHLIGHT_COLOR
+            } else if i.has_traffic_signal {
+                Color::GREEN
+            } else {
+                Color::RED
+            };
+            g.draw_circle(color, &i.circle());
         }
 
-        for b in self.buildings.values() {
-            g.draw_polygon(Color::BLUE, &b.polygon());
+        for (id, b) in &self.buildings {
+            let color = if Some(*id) == current_b {
+                HIGHLIGHT_COLOR
+            } else {
+                Color::BLUE
+            };
+            g.draw_polygon(color, &b.polygon());
             if let Some(ref label) = b.label {
                 let mut txt = Text::new();
                 txt.add_line(label.to_string());
