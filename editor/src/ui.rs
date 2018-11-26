@@ -8,7 +8,7 @@ use control::ControlMap;
 //use cpuprofiler;
 use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
-use map_model::{IntersectionID, Map};
+use map_model::{BuildingID, IntersectionID, Map};
 use objects::{Ctx, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins;
@@ -324,8 +324,13 @@ impl UI {
                 ui.canvas.cam_zoom = state.cam_zoom;
             }
             _ => {
-                warn!("Couldn't load editor_state or it's for a different map, so just centering initial view");
-                ui.canvas.center_on_map_pt(ui.primary.draw_map.center_pt);
+                warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
+                // TODO window_size isn't set yet, so this actually kinda breaks
+                ui.canvas.center_on_map_pt(
+                    ID::Building(BuildingID(0))
+                        .canonical_point(&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
+                        .expect("Can't get canonical_point of BuildingID(0)"),
+                );
             }
         }
 

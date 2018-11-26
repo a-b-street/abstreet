@@ -3,7 +3,7 @@
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use control::ControlMap;
-use geom::{Bounds, Pt2D};
+use geom::Bounds;
 use kml::ExtraShape;
 use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
@@ -35,8 +35,6 @@ pub struct DrawMap {
     pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
-
-    pub center_pt: Pt2D,
 
     quadtree: QuadTree<ID>,
 }
@@ -113,10 +111,8 @@ impl DrawMap {
         }
         let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
 
-        let bounds = map.get_bounds();
-
         timer.start("create quadtree");
-        let mut quadtree = QuadTree::default(bounds.as_bbox());
+        let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &lanes {
             quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
@@ -150,8 +146,6 @@ impl DrawMap {
             extra_shapes,
             bus_stops,
             areas,
-
-            center_pt: Pt2D::new(bounds.max_x / 2.0, bounds.max_y / 2.0),
 
             quadtree,
         }
