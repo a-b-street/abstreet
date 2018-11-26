@@ -136,7 +136,7 @@ impl GUI for UI {
                     } else if input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
-                } else if let Some(r) = self.model.mouseover_road(cursor) {
+                } else if let Some((r, dir)) = self.model.mouseover_road(cursor) {
                     if input.key_pressed(Key::Backspace, "delete road") {
                         self.model.remove_road(r);
                     } else if input.key_pressed(Key::E, "edit lanes") {

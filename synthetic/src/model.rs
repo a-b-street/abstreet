@@ -15,6 +15,10 @@ const HIGHLIGHT_COLOR: Color = Color::CYAN;
 pub type BuildingID = usize;
 pub type IntersectionID = usize;
 pub type RoadID = (IntersectionID, IntersectionID);
+pub type Direction = bool;
+
+const FORWARDS: Direction = true;
+const BACKWARDS: Direction = false;
 
 #[derive(Serialize, Deserialize)]
 pub struct Model {
@@ -56,16 +60,23 @@ pub struct Road {
 }
 
 impl Road {
-    fn polygon(&self, model: &Model) -> Polygon {
-        // TODO width changes
-        PolyLine::new(vec![
+    fn polygon(&self, direction: Direction, model: &Model) -> Polygon {
+        let pl = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
-        ]).make_polygons(LANE_THICKNESS * ((self.lanes.fwd.len() + self.lanes.back.len()) as f64))
-        .unwrap()
+        ]);
+        if direction {
+            let width = LANE_THICKNESS * (self.lanes.fwd.len() as f64);
+            pl.shift_blindly(width / 2.0).make_polygons_blindly(width)
+        } else {
+            let width = LANE_THICKNESS * (self.lanes.back.len() as f64);
+            pl.reversed()
+                .shift_blindly(width / 2.0)
+                .make_polygons_blindly(width)
+        }
     }
 
-    fn draw(&self, model: &Model, g: &mut GfxCtx, is_highlighted: bool) {
+    fn draw(&self, model: &Model, g: &mut GfxCtx, highlight_fwd: bool, highlight_back: bool) {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
@@ -73,7 +84,7 @@ impl Road {
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             g.draw_polygon(
-                if is_highlighted {
+                if highlight_fwd {
                     HIGHLIGHT_COLOR
                 } else {
                     Road::lt_to_color(*lt)
@@ -85,7 +96,7 @@ impl Road {
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             g.draw_polygon(
-                if is_highlighted {
+                if highlight_back {
                     HIGHLIGHT_COLOR
                 } else {
                     Road::lt_to_color(*lt)
@@ -146,7 +157,12 @@ impl Model {
         let current_r = self.mouseover_road(cursor);
 
         for (id, r) in &self.roads {
-            r.draw(self, g, Some(*id) == current_r);
+            r.draw(
+                self,
+                g,
+                Some((*id, FORWARDS)) == current_r,
+                Some((*id, BACKWARDS)) == current_r,
+            );
         }
 
         for (id, i) in &self.intersections {
@@ -319,10 +335,13 @@ impl Model {
         self.roads.remove(&id);
     }
 
-    pub fn mouseover_road(&self, pt: Pt2D) -> Option<RoadID> {
+    pub fn mouseover_road(&self, pt: Pt2D) -> Option<(RoadID, Direction)> {
         for (id, r) in &self.roads {
-            if r.polygon(self).contains_pt(pt) {
-                return Some(*id);
+            if r.polygon(FORWARDS, self).contains_pt(pt) {
+                return Some((*id, FORWARDS));
+            }
+            if r.polygon(BACKWARDS, self).contains_pt(pt) {
+                return Some((*id, BACKWARDS));
             }
         }
         None
