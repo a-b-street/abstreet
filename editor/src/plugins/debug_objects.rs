@@ -149,6 +149,11 @@ fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
         }
         ID::BusStop(id) => {
             txt.add_line(id.to_string());
+            for r in map.get_all_bus_routes() {
+                if r.stops.contains(&id) {
+                    txt.add_line(format!("- Route {}", r.name));
+                }
+            }
         }
         ID::Area(id) => {
             let a = map.get_a(id);

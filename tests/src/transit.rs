@@ -12,7 +12,7 @@ pub fn run(t: &mut TestRunner) {
                 Some(Tick::from_seconds(30)),
                 &mut Timer::new("setup test"),
             );
-            let route = map.get_bus_route("48").unwrap();
+            let route = map.get_bus_route("49").unwrap();
             let bus = sim.seed_bus_route(route, &map)[0];
             h.setup_done(&sim);
 
