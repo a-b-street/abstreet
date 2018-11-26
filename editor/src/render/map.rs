@@ -7,7 +7,7 @@ use geom::Bounds;
 use kml::ExtraShape;
 use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
-    RoadID, Turn, TurnID, LANE_THICKNESS,
+    RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use objects::ID;
 use plugins::hider::Hider;
@@ -270,10 +270,10 @@ impl DrawMap {
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
-                        for c in sim.get_draw_cars_on_lane(*id, map).into_iter() {
+                        for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
                             cars.push(draw_vehicle(c, map));
                         }
-                        for p in sim.get_draw_peds_on_lane(*id, map).into_iter() {
+                        for p in sim.get_draw_peds(Traversable::Lane(*id), map).into_iter() {
                             peds.push(Box::new(DrawPedestrian::new(p, map)));
                         }
                     }
@@ -283,10 +283,10 @@ impl DrawMap {
                             if show_turn_icons.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
                             }
-                            for c in sim.get_draw_cars_on_turn(*t, map).into_iter() {
+                            for c in sim.get_draw_cars(Traversable::Turn(*t), map).into_iter() {
                                 cars.push(draw_vehicle(c, map));
                             }
-                            for p in sim.get_draw_peds_on_turn(*t, map).into_iter() {
+                            for p in sim.get_draw_peds(Traversable::Turn(*t), map).into_iter() {
                                 peds.push(Box::new(DrawPedestrian::new(p, map)));
                             }
                         }

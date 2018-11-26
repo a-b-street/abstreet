@@ -818,15 +818,8 @@ impl DrivingSimState {
         })
     }
 
-    pub fn get_draw_cars_on_lane(&self, id: LaneID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
-        if let Some(queue) = self.queues.get(&Traversable::Lane(id)) {
-            return queue.get_draw_cars(self, map, time);
-        }
-        return Vec::new();
-    }
-
-    pub fn get_draw_cars_on_turn(&self, id: TurnID, time: Tick, map: &Map) -> Vec<DrawCarInput> {
-        if let Some(queue) = self.queues.get(&Traversable::Turn(id)) {
+    pub fn get_draw_cars(&self, on: Traversable, time: Tick, map: &Map) -> Vec<DrawCarInput> {
+        if let Some(queue) = self.queues.get(&on) {
             return queue.get_draw_cars(self, map, time);
         }
         return Vec::new();

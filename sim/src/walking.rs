@@ -354,12 +354,11 @@ impl Pedestrian {
 pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
     peds: BTreeMap<PedestrianID, Pedestrian>,
-    peds_per_sidewalk: MultiMap<LaneID, PedestrianID>,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
     )]
-    peds_per_turn: MultiMap<TurnID, PedestrianID>,
+    peds_per_traversable: MultiMap<Traversable, PedestrianID>,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
@@ -371,14 +370,16 @@ impl WalkingSimState {
     pub fn new() -> WalkingSimState {
         WalkingSimState {
             peds: BTreeMap::new(),
-            peds_per_sidewalk: MultiMap::new(),
-            peds_per_turn: MultiMap::new(),
+            peds_per_traversable: MultiMap::new(),
             peds_per_bus_stop: MultiMap::new(),
         }
     }
 
     pub fn edit_remove_lane(&mut self, id: LaneID) {
-        assert_eq!(self.peds_per_sidewalk.get_vec(&id), None);
+        assert_eq!(
+            self.peds_per_traversable.get_vec(&Traversable::Lane(id)),
+            None
+        );
     }
 
     pub fn edit_add_lane(&mut self, _id: LaneID) {
@@ -386,7 +387,10 @@ impl WalkingSimState {
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {
-        assert_eq!(self.peds_per_turn.get_vec(&id), None);
+        assert_eq!(
+            self.peds_per_traversable.get_vec(&Traversable::Turn(id)),
+            None
+        );
     }
 
     pub fn edit_add_turn(&mut self, _id: TurnID) {
@@ -522,14 +526,9 @@ impl WalkingSimState {
         }
         *current_agent = None;
 
-        // TODO could simplify this by only adjusting the sets we need above
-        self.peds_per_sidewalk.clear();
-        self.peds_per_turn.clear();
+        self.peds_per_traversable.clear();
         for p in self.peds.values() {
-            match p.on {
-                Traversable::Lane(id) => self.peds_per_sidewalk.insert(id, p.id),
-                Traversable::Turn(id) => self.peds_per_turn.insert(id, p.id),
-            };
+            self.peds_per_traversable.insert(p.on, p.id);
         }
 
         Ok((reached_parking, ready_to_bike))
@@ -558,27 +557,13 @@ impl WalkingSimState {
         })
     }
 
-    pub fn get_draw_peds_on_lane(
-        &self,
-        l: LaneID,
-        map: &Map,
-        now: Tick,
-    ) -> Vec<DrawPedestrianInput> {
+    pub fn get_draw_peds(&self, on: Traversable, map: &Map, now: Tick) -> Vec<DrawPedestrianInput> {
         let mut result = Vec::new();
-        for id in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
-            result.push(self.get_draw_ped(*id, map, now).unwrap());
-        }
-        result
-    }
-
-    pub fn get_draw_peds_on_turn(
-        &self,
-        t: TurnID,
-        map: &Map,
-        now: Tick,
-    ) -> Vec<DrawPedestrianInput> {
-        let mut result = Vec::new();
-        for id in self.peds_per_turn.get_vec(&t).unwrap_or(&Vec::new()) {
+        for id in self
+            .peds_per_traversable
+            .get_vec(&on)
+            .unwrap_or(&Vec::new())
+        {
             result.push(self.get_draw_ped(*id, map, now).unwrap());
         }
         result
@@ -631,7 +616,8 @@ impl WalkingSimState {
                 active: true,
             },
         );
-        self.peds_per_sidewalk.insert(start_lane, params.id);
+        self.peds_per_traversable
+            .insert(Traversable::Lane(start_lane), params.id);
         events.push(Event::AgentEntersTraversable(
             AgentID::Pedestrian(params.id),
             Traversable::Lane(start_lane),
@@ -688,8 +674,8 @@ impl WalkingSimState {
             .get_vec_mut(&stop)
             .unwrap()
             .retain(|&p| p != id);
-        self.peds_per_sidewalk
-            .get_vec_mut(&stop.sidewalk)
+        self.peds_per_traversable
+            .get_vec_mut(&Traversable::Lane(stop.sidewalk))
             .unwrap()
             .retain(|&p| p != id);
     }
@@ -705,7 +691,11 @@ impl WalkingSimState {
         let mut stuck_peds = 0;
 
         for l in lanes {
-            for ped in self.peds_per_sidewalk.get_vec(&l).unwrap_or(&Vec::new()) {
+            for ped in self
+                .peds_per_traversable
+                .get_vec(&Traversable::Lane(*l))
+                .unwrap_or(&Vec::new())
+            {
                 let p = &self.peds[ped];
                 if p.moving {
                     moving_peds += 1;

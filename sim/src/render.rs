@@ -1,5 +1,5 @@
 use geom::{Angle, Pt2D};
-use map_model::{LaneID, LaneType, Map, Trace, TurnID};
+use map_model::{LaneType, Map, Trace, Traversable, TurnID};
 use {CarID, Distance, PedestrianID, Sim, VehicleType};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
@@ -37,10 +37,8 @@ pub enum CarState {
 pub trait GetDrawAgents {
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;
-    fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput>;
-    fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCarInput>;
-    fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput>;
-    fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput>;
+    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput>;
+    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput>;
 }
 
 impl GetDrawAgents for Sim {
@@ -54,26 +52,20 @@ impl GetDrawAgents for Sim {
         self.walking_state.get_draw_ped(id, map, self.time)
     }
 
-    // TODO maybe just DrawAgent instead? should caller care?
-    fn get_draw_cars_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawCarInput> {
-        match map.get_l(l).lane_type {
-            LaneType::Driving | LaneType::Bus | LaneType::Biking => {
-                self.driving_state.get_draw_cars_on_lane(l, self.time, map)
-            }
-            LaneType::Parking => self.parking_state.get_draw_cars(l),
-            LaneType::Sidewalk => Vec::new(),
+    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+        match on {
+            Traversable::Lane(l) => match map.get_l(l).lane_type {
+                LaneType::Driving | LaneType::Bus | LaneType::Biking => {
+                    self.driving_state.get_draw_cars(on, self.time, map)
+                }
+                LaneType::Parking => self.parking_state.get_draw_cars(l),
+                LaneType::Sidewalk => Vec::new(),
+            },
+            Traversable::Turn(_) => self.driving_state.get_draw_cars(on, self.time, map),
         }
     }
 
-    fn get_draw_cars_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawCarInput> {
-        self.driving_state.get_draw_cars_on_turn(t, self.time, map)
-    }
-
-    fn get_draw_peds_on_lane(&self, l: LaneID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_lane(l, map, self.time)
-    }
-
-    fn get_draw_peds_on_turn(&self, t: TurnID, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds_on_turn(t, map, self.time)
+    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking_state.get_draw_peds(on, map, self.time)
     }
 }

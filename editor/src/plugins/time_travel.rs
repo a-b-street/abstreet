@@ -1,5 +1,5 @@
 use abstutil::MultiMap;
-use map_model::{LaneID, Map, Traversable, TurnID};
+use map_model::{Map, Traversable};
 use objects::SIM;
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -52,35 +52,29 @@ impl TimeTravel {
             peds_per_traversable: MultiMap::new(),
         };
         for l in map.all_lanes().iter() {
+            let on = Traversable::Lane(l.id);
             if l.is_sidewalk() {
-                for draw in sim.get_draw_peds_on_lane(l.id, map).into_iter() {
-                    state
-                        .peds_per_traversable
-                        .insert(Traversable::Lane(l.id), draw.id);
+                for draw in sim.get_draw_peds(on, map).into_iter() {
+                    state.peds_per_traversable.insert(on, draw.id);
                     state.peds.insert(draw.id, draw);
                 }
             } else {
-                for draw in sim.get_draw_cars_on_lane(l.id, map).into_iter() {
-                    state
-                        .cars_per_traversable
-                        .insert(Traversable::Lane(l.id), draw.id);
+                for draw in sim.get_draw_cars(on, map).into_iter() {
+                    state.cars_per_traversable.insert(on, draw.id);
                     state.cars.insert(draw.id, draw);
                 }
             }
         }
         for t in map.all_turns().values() {
+            let on = Traversable::Turn(t.id);
             if t.between_sidewalks() {
-                for draw in sim.get_draw_peds_on_turn(t.id, map).into_iter() {
-                    state
-                        .peds_per_traversable
-                        .insert(Traversable::Turn(t.id), draw.id);
+                for draw in sim.get_draw_peds(on, map).into_iter() {
+                    state.peds_per_traversable.insert(on, draw.id);
                     state.peds.insert(draw.id, draw);
                 }
             } else {
-                for draw in sim.get_draw_cars_on_turn(t.id, map).into_iter() {
-                    state
-                        .cars_per_traversable
-                        .insert(Traversable::Turn(t.id), draw.id);
+                for draw in sim.get_draw_cars(on, map).into_iter() {
+                    state.cars_per_traversable.insert(on, draw.id);
                     state.cars.insert(draw.id, draw);
                 }
             }
@@ -133,42 +127,22 @@ impl GetDrawAgents for TimeTravel {
         self.get_current_state().peds.get(&id).map(|d| d.clone())
     }
 
-    fn get_draw_cars_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawCarInput> {
+    fn get_draw_cars(&self, on: Traversable, _map: &Map) -> Vec<DrawCarInput> {
         let state = self.get_current_state();
         // TODO sort by ID to be deterministic?
         state
             .cars_per_traversable
-            .get(Traversable::Lane(l))
+            .get(on)
             .into_iter()
             .map(|id| state.cars[id].clone())
             .collect()
     }
 
-    fn get_draw_cars_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawCarInput> {
-        let state = self.get_current_state();
-        state
-            .cars_per_traversable
-            .get(Traversable::Turn(t))
-            .into_iter()
-            .map(|id| state.cars[id].clone())
-            .collect()
-    }
-
-    fn get_draw_peds_on_lane(&self, l: LaneID, _map: &Map) -> Vec<DrawPedestrianInput> {
+    fn get_draw_peds(&self, on: Traversable, _map: &Map) -> Vec<DrawPedestrianInput> {
         let state = self.get_current_state();
         state
             .peds_per_traversable
-            .get(Traversable::Lane(l))
-            .into_iter()
-            .map(|id| state.peds[id].clone())
-            .collect()
-    }
-
-    fn get_draw_peds_on_turn(&self, t: TurnID, _map: &Map) -> Vec<DrawPedestrianInput> {
-        let state = self.get_current_state();
-        state
-            .peds_per_traversable
-            .get(Traversable::Turn(t))
+            .get(on)
             .into_iter()
             .map(|id| state.peds[id].clone())
             .collect()
