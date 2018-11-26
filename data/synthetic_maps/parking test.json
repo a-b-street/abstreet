@@ -1,0 +1,69 @@
+{
+  "name": "parking test",
+  "intersections": [
+    [
+      0,
+      {
+        "center": {
+          "x": 288.5454406738281,
+          "y": 486.2385864257813
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      1,
+      {
+        "center": {
+          "x": 512.0357055664063,
+          "y": 486.63079833984377
+        },
+        "has_traffic_signal": false
+      }
+    ]
+  ],
+  "roads": [
+    [
+      [
+        0,
+        1
+      ],
+      {
+        "i1": 1,
+        "i2": 0,
+        "lanes": {
+          "fwd": [
+            "Driving",
+            "Parking",
+            "Sidewalk"
+          ],
+          "back": [
+            "Driving",
+            "Parking",
+            "Sidewalk"
+          ]
+        }
+      }
+    ]
+  ],
+  "buildings": [
+    [
+      0,
+      {
+        "center": {
+          "x": 346.904667528168,
+          "y": 448.922516369675
+        }
+      }
+    ],
+    [
+      1,
+      {
+        "center": {
+          "x": 439.6870726625188,
+          "y": 515.314383299414
+        }
+      }
+    ]
+  ]
+}

@@ -99,6 +99,7 @@ impl GUI for UI {
                 {
                     self.model.name = Some(name);
                     self.model.save();
+                    self.model.export();
                     new_state = Some(State::Viewing);
                 } else if wizard.aborted() {
                     new_state = Some(State::Viewing);
@@ -135,11 +136,10 @@ impl GUI for UI {
                     } else if input.key_pressed(Key::S, "save") {
                         if self.model.name.is_some() {
                             self.model.save();
+                            self.model.export();
                         } else {
                             self.state = State::SavingModel(Wizard::new());
                         }
-                    } else if self.model.name.is_some() && input.key_pressed(Key::X, "export map") {
-                        self.model.export();
                     } else if input.key_pressed(Key::I, "create intersection") {
                         self.model.create_i(cursor);
                     } else if input.key_pressed(Key::B, "create building") {

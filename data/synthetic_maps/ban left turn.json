@@ -1,0 +1,176 @@
+{
+  "name": "ban left turn",
+  "intersections": [
+    [
+      0,
+      {
+        "center": {
+          "x": 222.9759063720703,
+          "y": 395.5904846191406
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      2,
+      {
+        "center": {
+          "x": 426.5473937988281,
+          "y": 394.67230224609377
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      3,
+      {
+        "center": {
+          "x": 425.7428283691406,
+          "y": 317.1311340332031
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      4,
+      {
+        "center": {
+          "x": 515.5155639648438,
+          "y": 318.7431640625
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      5,
+      {
+        "center": {
+          "x": 419.3205966982113,
+          "y": 535.6178873062499
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      6,
+      {
+        "center": {
+          "x": 441.6695432770955,
+          "y": 532.5426221337885
+        },
+        "has_traffic_signal": false
+      }
+    ],
+    [
+      7,
+      {
+        "center": {
+          "x": 425.7153369783431,
+          "y": 239.5653932375844
+        },
+        "has_traffic_signal": false
+      }
+    ]
+  ],
+  "roads": [
+    [
+      [
+        0,
+        2
+      ],
+      {
+        "i1": 0,
+        "i2": 2,
+        "lanes": {
+          "fwd": [],
+          "back": [
+            "Driving"
+          ]
+        }
+      }
+    ],
+    [
+      [
+        2,
+        3
+      ],
+      {
+        "i1": 2,
+        "i2": 3,
+        "lanes": {
+          "fwd": [
+            "Driving"
+          ],
+          "back": [
+            "Driving"
+          ]
+        }
+      }
+    ],
+    [
+      [
+        2,
+        5
+      ],
+      {
+        "i1": 2,
+        "i2": 5,
+        "lanes": {
+          "fwd": [
+            "Driving"
+          ],
+          "back": []
+        }
+      }
+    ],
+    [
+      [
+        2,
+        6
+      ],
+      {
+        "i1": 6,
+        "i2": 2,
+        "lanes": {
+          "fwd": [
+            "Driving"
+          ],
+          "back": []
+        }
+      }
+    ],
+    [
+      [
+        3,
+        4
+      ],
+      {
+        "i1": 3,
+        "i2": 4,
+        "lanes": {
+          "fwd": [
+            "Driving"
+          ],
+          "back": []
+        }
+      }
+    ],
+    [
+      [
+        3,
+        7
+      ],
+      {
+        "i1": 7,
+        "i2": 3,
+        "lanes": {
+          "fwd": [
+            "Driving"
+          ],
+          "back": []
+        }
+      }
+    ]
+  ],
+  "buildings": []
+}
