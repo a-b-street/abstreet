@@ -23,6 +23,10 @@ pub struct Flags {
     /// Keep the log and savestate even for passing tests.
     #[structopt(long = "keep_output")]
     keep_output: bool,
+
+    /// Print debug output as clickable HTTP links.
+    #[structopt(long = "clickable_links")]
+    clickable_links: bool,
 }
 
 pub struct TestRunner {
@@ -58,9 +62,21 @@ impl TestResult {
             );
         }
         if !self.pass || flags.keep_output {
-            println!("    {}", Paint::cyan(&self.output_path));
+            if flags.clickable_links {
+                println!(
+                    "    {}",
+                    Paint::cyan(&format!("http://most/{}", self.output_path))
+                );
+            } else {
+                println!("    {}", Paint::cyan(&self.output_path));
+            }
+
             if let Some(ref path) = self.debug_with_savestate {
-                println!("  {}", Paint::yellow(path));
+                if flags.clickable_links {
+                    println!("    {}", Paint::yellow(format!("http://ui/{}", path)));
+                } else {
+                    println!("    {}", Paint::yellow(path));
+                }
             }
         }
     }

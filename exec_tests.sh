@@ -5,6 +5,7 @@ release_mode=""
 filter=""
 test_names=""
 keep_output=""
+clickable_links="--clickable_links"
 
 for arg in "$@"; do
 	if [ "$arg" == "--release" ]; then
@@ -15,10 +16,12 @@ for arg in "$@"; do
 		filter="--filter=Slow";
 	elif [ "$arg" == "--keep_output" ]; then
 		filter="--keep_output";
+	elif [ "$arg" == "--noclickable_links" ]; then
+		clickable_links="";
 	else
 		test_names="--test_names=$arg";
 	fi
 done
 
 cd tests;
-RUST_BACKTRACE=1 cargo run $release_mode -- $filter $keep_output $test_names
+RUST_BACKTRACE=1 cargo run $release_mode -- $filter $keep_output $clickable_links $test_names
