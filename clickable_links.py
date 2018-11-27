@@ -11,7 +11,7 @@ import sys
 
 arg = sys.argv[1]
 if arg.startswith('http://most/'):
-    os.execvp('gedit', ['gedit', arg[len('http://most/'):]])
+    os.execvp('urxvt', ['urxvt', '-e', 'sh', '-c', 'most ' + arg[len('http://most/'):]])
 elif arg.startswith('http://ui/'):
     os.execvp('urxvt', ['urxvt', '-e', 'sh', '-c', 'cd ~/abstreet/editor; cargo run ' + arg[len('http://ui/'):]])
 else:
