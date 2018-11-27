@@ -374,7 +374,7 @@ impl Sim {
         }
     }
 
-    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
+    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
         self.trips_state.agent_to_trip(id)
     }
 

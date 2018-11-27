@@ -51,7 +51,7 @@ impl TripManager {
             TripLeg::Walk(ref to) => to,
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
-        (trip.id, trip.ped, walk_to.clone())
+        (trip.id, trip.ped.unwrap(), walk_to.clone())
     }
 
     // Where are we driving next?
@@ -105,7 +105,7 @@ impl TripManager {
             TripLeg::Walk(ref to) => to,
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
-        (trip.id, trip.ped, walk_to.clone())
+        (trip.id, trip.ped.unwrap(), walk_to.clone())
     }
 
     pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
@@ -192,7 +192,12 @@ impl TripManager {
     }
 
     // Creation from the interactive part of spawner
-    pub fn new_trip(&mut self, spawned_at: Tick, ped: PedestrianID, legs: Vec<TripLeg>) -> TripID {
+    pub fn new_trip(
+        &mut self,
+        spawned_at: Tick,
+        ped: Option<PedestrianID>,
+        legs: Vec<TripLeg>,
+    ) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
@@ -207,6 +212,7 @@ impl TripManager {
                 .find(|l| match l {
                     TripLeg::Drive(_, _) => true,
                     TripLeg::DriveFromBorder(_, _) => true,
+                    TripLeg::ServeBusRoute(_, _) => true,
                     _ => false,
                 }).is_some(),
             legs: VecDeque::from(legs),
@@ -236,6 +242,10 @@ impl TripManager {
         };
         // TODO or would it make more sense to aggregate events as they happen?
         for t in &self.trips {
+            // Don't count transit
+            if t.ped.is_none() {
+                continue;
+            }
             if t.uses_car {
                 if let Some(at) = t.finished_at {
                     summary.total_driving_trip_time += at - t.spawned_at;
@@ -268,17 +278,18 @@ impl TripManager {
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
-            TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped)),
+            TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
             TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.car)),
             TripLeg::DriveFromBorder(id, _) => Some(AgentID::Car(*id)),
             TripLeg::Bike(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
-            TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped)),
+            TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
+            TripLeg::ServeBusRoute(id, _) => Some(AgentID::Car(*id)),
         }
     }
 
-    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
-        self.active_trip_mode.get(&id).map(|t| *t)
+    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
+        self.active_trip_mode[&id]
     }
 
     pub fn get_active_trips(&self) -> Vec<TripID> {
@@ -293,7 +304,8 @@ struct Trip {
     finished_at: Option<Tick>,
     // TODO also uses_bike, so we can track those stats differently too
     uses_car: bool,
-    ped: PedestrianID,
+    // If none, then this is a bus. The trip will never end.
+    ped: Option<PedestrianID>,
     legs: VecDeque<TripLeg>,
 }
 
@@ -309,6 +321,7 @@ pub enum TripLeg {
     DriveFromBorder(CarID, DrivingGoal),
     Bike(Vehicle, DrivingGoal),
     RideBus(RouteID, BusStopID),
+    ServeBusRoute(CarID, RouteID),
 }
 
 impl TripLeg {
@@ -317,6 +330,7 @@ impl TripLeg {
             TripLeg::Drive(parked, _) => parked.car == id,
             TripLeg::DriveFromBorder(car, _) => *car == id,
             TripLeg::Bike(vehicle, _) => vehicle.id == id,
+            TripLeg::ServeBusRoute(car, _) => *car == id,
             _ => false,
         }
     }

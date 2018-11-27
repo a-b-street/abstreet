@@ -29,7 +29,7 @@ impl Plugin for ShowRouteState {
                     .primary
                     .current_selection
                     .and_then(|id| id.agent_id())
-                    .and_then(|agent| ctx.primary.sim.agent_to_trip(agent))
+                    .map(|agent| ctx.primary.sim.agent_to_trip(agent))
                 {
                     if ctx
                         .input

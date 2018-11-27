@@ -45,8 +45,7 @@ struct ParkingState {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct Car {
     id: CarID,
-    // None for buses
-    trip: Option<TripID>,
+    trip: TripID,
     owner: Option<BuildingID>,
     on: Traversable,
     speed: Speed,
@@ -893,7 +892,7 @@ impl DrivingSimState {
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateCar {
     pub car: CarID,
-    pub trip: Option<TripID>,
+    pub trip: TripID,
     pub owner: Option<BuildingID>,
     pub maybe_parked_car: Option<ParkedCar>,
     pub vehicle: Vehicle,

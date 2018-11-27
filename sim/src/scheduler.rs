@@ -65,10 +65,8 @@ impl Scheduler {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
                     if driving_sim.start_car_on_lane(events, now, map, create_car.clone()) {
-                        trips.agent_starting_trip_leg(
-                            AgentID::Car(create_car.car),
-                            create_car.trip.unwrap(),
-                        );
+                        trips
+                            .agent_starting_trip_leg(AgentID::Car(create_car.car), create_car.trip);
                         if let Some(parked_car) = create_car.maybe_parked_car {
                             parking_sim.remove_parked_car(parked_car);
                         }

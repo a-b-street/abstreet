@@ -70,3 +70,13 @@ routing: https://stackoverflow.com/questions/483488/strategy-to-find-your-best-r
 	- in helpers, start trip from/to bldg maybe using transit. pathfind first using transit, then figure out the sequence of bus stops from the route, and turn that into the trip.
 	- so ideally it's easy to know (stop1, route, stop2) almost as a step of the path. can translate that into trip legs pretty easily.
 	- feels like a different interface, especially because the point is to just generate the stuff for the trip manager. throwing away the rest of the pathfinding stuff! hmm. same algorithm doesn't fit well at all.
+
+## Trips
+
+Buses have no trip, and that breaks some UI stuff. What if we assign some dummy trip for transit that never ends?
+
+- Trips currently have a ped associated; would have to change that.
+- Would need to invent a TripLeg called ServeRoute that can be the only one.
+- Have to filter out buses from score summary. Can detect easily by lack of ped.
+
+This seems actually not bad. Let's do that.

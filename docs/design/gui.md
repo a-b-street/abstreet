@@ -389,3 +389,58 @@ no context. So how about this for an alternative:
 	- should those be defined in one of the places arbitrarily, that we know will be invoked early?
 	- could a macro help with registration?
 - get() being mutable means we have to use RefCell or propogate mutability in lots of sad places
+
+## Mutex plugins
+
+The state of the world today:
+
+- always let turn_cycler draw, even when it's not "active"
+	- bug today: edit a traffic signal, the "current phase" stays highlighted while editing
+- show_owner can always have an opinion on color, even when "inactive"
+- want some plugins to be able to coexist... show route, follow, sim ctrl
+- other plugins should not stack... while traffic_signal_editor, tooltip is OK, but not much else
+
+I don't want to think through the O(n^2) conflict matrix for plugins, but maybe just a quick list of conflicts...
+
+- things that truly need to be the only active plugin, usually due to a wizard
+	- ab test manager
+	- color picker
+	- draw neighborhood
+	- floodfiller (debug fine)
+	- geom validator (debug fine)
+	- log display (maybe want to let sim run while this is active, but not allow keys?)
+	- edits manager
+	- road editor (debug fine)
+	- scenario manager
+	- stop sign editor (debug fine)
+	- time travel (debug is NOT fine and most other stuff also breaks)
+	- traffic signal editor (debug fine)
+	- warping (really should pause the sim while animating)
+- things that display stuff and can be deactivated (mutex or not?)
+	- chokepoint finder
+	- osm classifier
+	- diff all | diff worlds
+	- toggleable layers
+	- neighborhood summary
+	- search (in one state, needs to eat the whole keyboard)
+	- activity heatmap
+	- show owner
+	- show route
+	- steepness viz
+	- turn cycler (blocks input sometimes)
+- things that can kinda be active almost anytime (when the real sim is available)
+	- debug objects
+	- hider
+	- follower
+	- sim controller (maybe need to split this up into different pieces)
+
+
+Another way of looking at it: what consumes the entire keyboard?
+	- anything with a wizard
+	- search (in only one state)
+
+Or maybe another:
+	- does a plugin block the sim from running?
+
+Or another:
+	- is a plugin just a toggleable effect? can it compose with others?

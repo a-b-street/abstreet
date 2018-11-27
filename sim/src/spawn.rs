@@ -14,7 +14,9 @@ use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
-use {CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID, VehicleType};
+use {
+    AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID, VehicleType,
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {
@@ -184,7 +186,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car,
-                                trip: Some(trip),
+                                trip: trip,
                                 owner: parked_car.owner,
                                 maybe_parked_car: Some(parked_car.clone()),
                                 vehicle: parked_car.vehicle.clone(),
@@ -212,7 +214,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car,
-                                trip: Some(trip),
+                                trip: trip,
                                 // TODO need a way to specify this in the scenario
                                 owner: None,
                                 maybe_parked_car: None,
@@ -239,7 +241,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car: vehicle.id,
-                                trip: Some(trip),
+                                trip: trip,
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
@@ -286,6 +288,7 @@ impl Spawner {
         map: &Map,
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
+        trips: &mut TripManager,
         now: Tick,
     ) -> (RouteID, Vec<CarID>) {
         let route_id = transit_sim.create_empty_route(route, map);
@@ -302,13 +305,15 @@ impl Spawner {
                 start_dist_along,
             );
 
+            // TODO Aww, we create an orphan trip if the bus can't spawn.
+            let trip = trips.new_trip(now, None, vec![TripLeg::ServeBusRoute(id, route_id)]);
             if driving_sim.start_car_on_lane(
                 events,
                 now,
                 map,
                 CreateCar {
                     car: id,
-                    trip: None,
+                    trip,
                     owner: None,
                     maybe_parked_car: None,
                     vehicle,
@@ -316,6 +321,7 @@ impl Spawner {
                     router: Router::make_router_for_bus(path),
                 },
             ) {
+                trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                 transit_sim.bus_created(id, route_id, next_stop_idx);
                 info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
                 results.push(id);
@@ -447,7 +453,7 @@ impl Spawner {
         }
         self.enqueue_command(Command::DriveFromBorder {
             at,
-            trip: trips.new_trip(at, ped_id, legs),
+            trip: trips.new_trip(at, Some(ped_id), legs),
             car: car_id,
             vehicle: Vehicle::generate_car(car_id, base_rng),
             start: first_lane,
@@ -490,7 +496,7 @@ impl Spawner {
         }
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(at, ped_id, legs),
+            trips.new_trip(at, Some(ped_id), legs),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             parking_spot,
@@ -525,7 +531,7 @@ impl Spawner {
         }
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(at, ped_id, legs),
+            trips.new_trip(at, Some(ped_id), legs),
             ped_id,
             SidewalkSpot::building(start_bldg, map),
             first_spot,
@@ -554,7 +560,7 @@ impl Spawner {
         ];
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(at, ped_id, legs),
+            trips.new_trip(at, Some(ped_id), legs),
             ped_id,
             start,
             first_stop,
@@ -584,7 +590,7 @@ impl Spawner {
         }
         self.enqueue_command(Command::DriveFromBorder {
             at,
-            trip: trips.new_trip(at, ped_id, legs),
+            trip: trips.new_trip(at, Some(ped_id), legs),
             car: bike_id,
             vehicle,
             start: first_lane,
@@ -604,7 +610,7 @@ impl Spawner {
 
         self.enqueue_command(Command::Walk(
             at,
-            trips.new_trip(at, ped_id, vec![TripLeg::Walk(goal.clone())]),
+            trips.new_trip(at, Some(ped_id), vec![TripLeg::Walk(goal.clone())]),
             ped_id,
             start,
             goal,
