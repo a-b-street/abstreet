@@ -6,14 +6,14 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
-    IntersectionType, Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH,
+    IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
 use objects::{Ctx, ID};
 use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
-struct Marking {
+pub struct Marking {
     lines: Vec<Line>,
     // Weird indirection to keep the color definition close to the marking definition, without
     // needing to plumb in a ColorScheme immediately.
@@ -21,6 +21,25 @@ struct Marking {
     thickness: f64,
     round: bool,
     arrow_head_length: Option<f64>,
+}
+
+impl Marking {
+    pub fn draw(&self, g: &mut GfxCtx, cs: &mut ColorScheme, default_color: Option<Color>) {
+        let color = default_color.unwrap_or_else(|| (self.color)(cs));
+        for line in &self.lines {
+            if let Some(head_length) = self.arrow_head_length {
+                if self.round {
+                    g.draw_rounded_arrow(color, self.thickness, head_length, line);
+                } else {
+                    g.draw_arrow(color, self.thickness, head_length, line);
+                }
+            } else if self.round {
+                g.draw_rounded_line(color, self.thickness, line);
+            } else {
+                g.draw_line(color, self.thickness, line);
+            }
+        }
+    }
 }
 
 pub struct DrawLane {
@@ -127,19 +146,7 @@ impl Renderable for DrawLane {
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {
-                for line in &m.lines {
-                    if let Some(head_length) = m.arrow_head_length {
-                        if m.round {
-                            g.draw_rounded_arrow((m.color)(ctx.cs), m.thickness, head_length, line);
-                        } else {
-                            g.draw_arrow((m.color)(ctx.cs), m.thickness, head_length, line);
-                        }
-                    } else if m.round {
-                        g.draw_rounded_line((m.color)(ctx.cs), m.thickness, line);
-                    } else {
-                        g.draw_line((m.color)(ctx.cs), m.thickness, line);
-                    }
-                }
+                m.draw(g, ctx.cs, None);
             }
         }
 
@@ -302,23 +309,32 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
         return results;
     }
 
+    for turn in map.get_turns_from_lane(lane.id) {
+        results.extend(turn_markings(turn, map));
+    }
+    results
+}
+
+// Returns either 0 or 2 markings -- one for the common line base, one for the turn itself.
+pub fn turn_markings(turn: &Turn, map: &Map) -> Vec<Marking> {
+    let lane = map.get_l(turn.id.src);
+
     // If the lane's too small, don't bother.
     // TODO Maybe a Trace for the common line would actually look fine.
     if let Some((base_pt, base_angle)) = lane.safe_dist_along(lane.length() - 5.0 * si::M) {
-        // Common line base
-        results.push(Marking {
-            lines: vec![Line::new(
-                base_pt,
-                base_pt.project_away(2.0, base_angle.opposite()),
-            )],
-            color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
-            thickness: 0.1,
-            round: true,
-            arrow_head_length: None,
-        });
-
-        for turn in map.get_turns_from_lane(lane.id) {
-            results.push(Marking {
+        vec![
+            // Common line base
+            Marking {
+                lines: vec![Line::new(
+                    base_pt,
+                    base_pt.project_away(2.0, base_angle.opposite()),
+                )],
+                color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
+                thickness: 0.1,
+                round: true,
+                arrow_head_length: None,
+            },
+            Marking {
                 lines: vec![Line::new(
                     base_pt,
                     base_pt.project_away(LANE_THICKNESS / 2.0, turn.line.angle()),
@@ -327,9 +343,9 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
                 thickness: 0.1,
                 round: true,
                 arrow_head_length: Some(0.5),
-            });
-        }
+            },
+        ]
+    } else {
+        Vec::new()
     }
-
-    results
 }

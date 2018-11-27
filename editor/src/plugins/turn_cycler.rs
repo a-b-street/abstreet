@@ -5,6 +5,7 @@ use map_model::{IntersectionID, LaneID, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
+use render::turn_markings;
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -91,16 +92,18 @@ impl Plugin for TurnCyclerState {
             }
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = ctx.control_map.traffic_signals.get(&id) {
+                    let color = Some(
+                        ctx.cs
+                            .get("turns allowed by traffic signal right now", Color::GREEN),
+                    );
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                    // TODO Maybe don't show SharedSidewalkCorners at all, and highlight the
+                    // Crosswalks.
                     for t in &cycle.turns {
-                        ctx.draw_map.get_t(*t).draw_full(
-                            g,
-                            ctx.cs.get(
-                                "turns allowed by traffic signal right now",
-                                Color::GREEN.alpha(0.5),
-                            ),
-                        );
+                        for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
+                            m.draw(g, ctx.cs, color);
+                        }
                     }
                 }
             }
