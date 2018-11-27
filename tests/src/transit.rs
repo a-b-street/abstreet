@@ -47,32 +47,28 @@ pub fn run(t: &mut TestRunner) {
             let bus = buses[0];
             let ped_stop1 = route.stops[1];
             let ped_stop2 = route.stops[2];
+            // TODO These should be buildings near the two stops. Programmatically find these?
+            let start_bldg = map_model::BuildingID(1451);
             let goal_bldg = map_model::BuildingID(454);
-            let ped = sim.seed_trip_using_bus(
-                // TODO These should be buildings near the two stops. Programmatically find these?
-                map_model::BuildingID(1451),
-                goal_bldg,
-                route_id,
-                ped_stop1,
-                ped_stop2,
-                &map,
-            );
+            let ped = sim
+                .seed_trip_using_bus(start_bldg, goal_bldg, route_id, ped_stop1, ped_stop2, &map);
             h.setup_done(&sim);
 
             sim.run_until_expectations_met(
                 &map,
                 &control_map,
                 vec![
+                    sim::Event::PedReachedBusStop(ped, ped_stop1),
                     sim::Event::BusArrivedAtStop(bus, ped_stop1),
                     sim::Event::PedEntersBus(ped, bus),
                     sim::Event::BusDepartedFromStop(bus, ped_stop1),
                     sim::Event::BusArrivedAtStop(bus, ped_stop2),
                     sim::Event::PedLeavesBus(ped, bus),
+                    sim::Event::PedReachedBuilding(ped, goal_bldg),
                     sim::Event::BusDepartedFromStop(bus, ped_stop2),
                     sim::Event::BusArrivedAtStop(bus, route.stops[3]),
-                    sim::Event::PedReachedBuilding(ped, goal_bldg),
                 ],
-                sim::Tick::from_minutes(10),
+                sim::Tick::from_minutes(5),
             );
         }),
     );
