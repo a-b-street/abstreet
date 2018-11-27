@@ -260,6 +260,7 @@ it?
 I thought I had a list of these somewhere else?
 
 - min length for lanes, turns
+- length for related lanes (sidewalk spot / parking / driving) matching up
 - connectivity
 - no loop lanes (same src and dst endpt)... but what about cul-de-sacs then?
 

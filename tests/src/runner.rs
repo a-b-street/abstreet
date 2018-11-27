@@ -34,6 +34,7 @@ pub struct TestRunner {
     results: Vec<TestResult>,
     flags: Flags,
     output_dir: String,
+    started_at: std::time::Instant,
 }
 
 struct TestResult {
@@ -95,6 +96,7 @@ impl TestRunner {
                     .unwrap()
                     .as_secs()
             ),
+            started_at: std::time::Instant::now(),
         }
     }
 
@@ -192,7 +194,12 @@ impl TestRunner {
             }
         }
 
-        println!("\n{} tests passed, {} tests failed", passed, failed);
+        println!(
+            "\n{} tests passed, {} tests failed in {:.02}s",
+            passed,
+            failed,
+            abstutil::elapsed_seconds(self.started_at)
+        );
     }
 }
 
