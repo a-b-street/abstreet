@@ -10,7 +10,6 @@ extern crate kml;
 extern crate map_model;
 extern crate ordered_float;
 extern crate osm_xml;
-extern crate shp;
 // TODO To serialize Neighborhoods. Should probably lift this into the map_model layer instead of
 // have this weird dependency.
 extern crate sim;
@@ -23,7 +22,6 @@ mod osm;
 mod remove_disconnected;
 mod split_ways;
 mod srtm;
-mod traffic_signals;
 
 use dimensioned::si;
 use geom::{GPSBounds, PolyLine, Pt2D};
@@ -46,7 +44,7 @@ pub struct Flags {
     #[structopt(long = "elevation")]
     pub elevation: String,
 
-    /// SHP with traffic signals
+    /// KML with traffic signals
     #[structopt(long = "traffic_signals")]
     pub traffic_signals: String,
 
@@ -105,10 +103,16 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     }
     group_parcels::group_parcels(&gps_bounds, &mut map.parcels);
 
-    for pt in traffic_signals::extract(&flags.traffic_signals)
+    for shape in kml::load(&flags.traffic_signals, &gps_bounds, timer)
         .expect("loading traffic signals failed")
+        .shapes
         .into_iter()
     {
+        // See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Traffic_Signals_OD.pdf
+        if shape.points.len() > 1 {
+            panic!("Traffic signal has multiple points: {:?}", shape);
+        }
+        let pt = shape.points[0];
         if gps_bounds.contains(pt) {
             let distance = |i: &raw_data::Intersection| pt.gps_dist_meters(i.point);
 

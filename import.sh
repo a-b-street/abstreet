@@ -29,13 +29,11 @@ if [ ! -d data/input/google_transit_2018_18_08/ ]; then
 	rm -f data/input/google_transit_2018_18_08.zip;
 fi
 
-if [ ! -f data/input/TrafficSignals.shp ]; then
+if [ ! -f data/input/traffic_signals.kml ]; then
+	# From https://data.seattle.gov/Transportation/Traffic-Signals/nr6x-wnd5
 	get_if_needed \
-		https://data.seattle.gov/download/dr6d-ejex/application%2Fzip \
-		data/input/TrafficSignals.shp.zip;
-	unzip -d data/input data/input/TrafficSignals.shp.zip;
-	mv data/input/Traffic\ Signals/WGS84/TrafficSignals.shp data/input;
-	rm -rf data/input/Traffic\ Signals data/input/TrafficSignals.shp.zip;
+		http://data-seattlecitygis.opendata.arcgis.com/datasets/ff97a6eb8ac84356beea09138c6e1ec3_0.kml \
+		data/input/traffic_signals.kml;
 fi
 
 if [ ! -f data/input/neighborhoods.geojson ]; then
@@ -91,7 +89,7 @@ for poly in `ls ../data/polygons/`; do
 	cargo run --release -- \
 		--osm=../data/input/$name.osm \
 		--elevation=../data/input/N47W122.hgt \
-		--traffic_signals=../data/input/TrafficSignals.shp \
+		--traffic_signals=../data/input/traffic_signals.kml \
 		--parcels=../data/shapes/parcels \
 		--parking_shapes=../data/shapes/blockface \
 		--gtfs=../data/input/google_transit_2018_18_08 \

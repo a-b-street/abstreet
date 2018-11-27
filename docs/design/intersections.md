@@ -1,5 +1,9 @@
 # Intersection-related design notes
 
+## Nice diagrams
+
+http://streetsillustrated.seattle.gov/design-standards/intersections/pedcrossing/
+
 ## Stop sign editor
 
 Stop signs are FIFO, except that many intersections only have a stop sign for
@@ -29,6 +33,12 @@ visually.
 - drawing turn icons as red/yellow/green is pretty clear...
 - could draw an unaligned signal box with 3 circles in the middle of the intersection, but what does it represent? maybe just an initial indicator of what's going on; not full detail.
 - similarly, draw a single stop sign in the middle of other intersections? :P
+
+- http://streetsillustrated.seattle.gov/design-standards/intersections/its/ probably has hints on cycle duration
+- https://ops.fhwa.dot.gov/publications/fhwahop08024/chapter4.htm
+	- ring and barrier diagrams
+- https://www.webpages.uidaho.edu/TrafficSignalSystems/traffic/instructor/ch3a.pdf
+- http://iamtraffic.org/evaluation/the-six-way/
 
 ## Intersection policies for pedestrians ##
 
