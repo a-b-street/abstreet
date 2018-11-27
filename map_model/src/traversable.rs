@@ -1,8 +1,49 @@
 use dimensioned::si;
 use geom::{Angle, Pt2D};
+use std::fmt;
 use {LaneID, Map, TurnID};
 
-// TODO this probably doesn't belong in map model after all.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Position {
+    // Don't let callers construct a Position directly, so it's easy to find callers of new().
+    lane: LaneID,
+    dist_along: si::Meter<f64>,
+}
+
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Position({}, {})", self.lane, self.dist_along)
+    }
+}
+
+impl Position {
+    pub fn new(lane: LaneID, dist_along: si::Meter<f64>) -> Position {
+        Position { lane, dist_along }
+    }
+
+    pub fn lane(&self) -> LaneID {
+        self.lane
+    }
+
+    pub fn dist_along(&self) -> si::Meter<f64> {
+        self.dist_along
+    }
+
+    pub fn pt_and_angle(&self, map: &Map) -> (Pt2D, Angle) {
+        map.get_l(self.lane).dist_along(self.dist_along)
+    }
+
+    pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
+        // TODO Assert lane is in the same road / side of the road
+        let len = map.get_l(lane).length();
+        // TODO Project perpendicular
+        if self.dist_along < len {
+            Position::new(lane, self.dist_along)
+        } else {
+            Position::new(lane, len)
+        }
+    }
+}
 
 // TODO also building paths?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

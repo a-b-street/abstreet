@@ -20,10 +20,10 @@ impl DrawBusStop {
         // happening.
         let lane = map.get_l(stop.id.sidewalk);
         let polygon = PolyLine::new(vec![
-            lane.safe_dist_along(stop.dist_along - radius)
+            lane.safe_dist_along(stop.sidewalk_pos.dist_along() - radius)
                 .map(|(pt, _)| pt)
                 .unwrap_or(lane.first_pt()),
-            lane.safe_dist_along(stop.dist_along + radius)
+            lane.safe_dist_along(stop.sidewalk_pos.dist_along() + radius)
                 .map(|(pt, _)| pt)
                 .unwrap_or(lane.last_pt()),
         ]).make_polygons_blindly(0.8 * LANE_THICKNESS);

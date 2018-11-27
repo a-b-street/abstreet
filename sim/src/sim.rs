@@ -192,16 +192,10 @@ impl Sim {
         for c in at_border {
             self.trips_state.car_reached_border(c, self.time);
         }
-        for (bike, last_lane, dist) in done_biking {
+        for (bike, last_pos) in done_biking {
             // TODO push an event, backtrace, etc
-            self.spawner.bike_reached_end(
-                self.time,
-                bike,
-                last_lane,
-                dist,
-                map,
-                &mut self.trips_state,
-            );
+            self.spawner
+                .bike_reached_end(self.time, bike, last_pos, map, &mut self.trips_state);
         }
 
         self.walking_state.populate_view(&mut view);
@@ -225,10 +219,10 @@ impl Sim {
                 &mut self.trips_state,
             );
         }
-        for (ped, sidewalk, dist) in ready_to_bike {
+        for (ped, sidewalk_pos) in ready_to_bike {
             // TODO push an event, backtrace, etc
             self.spawner
-                .ped_ready_to_bike(self.time, ped, sidewalk, dist, &mut self.trips_state);
+                .ped_ready_to_bike(self.time, ped, sidewalk_pos, &mut self.trips_state);
         }
 
         self.transit_state.step(

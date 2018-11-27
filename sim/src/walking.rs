@@ -5,7 +5,7 @@ use geom::{Line, Pt2D};
 use instrument::capture_backtrace;
 use intersections::{IntersectionSimState, Request};
 use map_model::{
-    BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Trace,
+    BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Position, Trace,
     Traversable, TurnID,
 };
 use multimap::MultiMap;
@@ -37,8 +37,7 @@ const TIME_TO_PREPARE_BIKE: Time = si::Second {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct SidewalkSpot {
     connection: SidewalkPOI,
-    pub sidewalk: LaneID,
-    pub dist_along: Distance,
+    pub sidewalk_pos: Position,
 }
 
 impl SidewalkSpot {
@@ -50,11 +49,9 @@ impl SidewalkSpot {
         let sidewalk = map
             .find_closest_lane(spot.lane, vec![LaneType::Sidewalk])
             .unwrap();
-        let dist_along = parking_sim.dist_along_for_ped(spot);
         SidewalkSpot {
             connection: SidewalkPOI::ParkingSpot(spot),
-            sidewalk,
-            dist_along,
+            sidewalk_pos: parking_sim.spot_to_sidewalk_pos(spot, sidewalk, map),
         }
     }
 
@@ -62,24 +59,21 @@ impl SidewalkSpot {
         let front_path = &map.get_b(bldg).front_path;
         SidewalkSpot {
             connection: SidewalkPOI::Building(bldg),
-            sidewalk: front_path.sidewalk,
-            dist_along: front_path.dist_along_sidewalk,
+            sidewalk_pos: front_path.sidewalk,
         }
     }
 
-    pub fn bike_rack(sidewalk: LaneID, dist_along: Distance, map: &Map) -> SidewalkSpot {
-        assert!(map.get_l(sidewalk).is_sidewalk());
+    pub fn bike_rack(sidewalk_pos: Position, map: &Map) -> SidewalkSpot {
+        assert!(map.get_l(sidewalk_pos.lane()).is_sidewalk());
         SidewalkSpot {
             connection: SidewalkPOI::BikeRack,
-            sidewalk,
-            dist_along,
+            sidewalk_pos,
         }
     }
 
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
-            sidewalk: stop.sidewalk,
-            dist_along: map.get_bs(stop).dist_along,
+            sidewalk_pos: map.get_bs(stop).sidewalk_pos,
             connection: SidewalkPOI::BusStop(stop),
         }
     }
@@ -90,8 +84,7 @@ impl SidewalkSpot {
             None
         } else {
             Some(SidewalkSpot {
-                sidewalk: lanes[0],
-                dist_along: 0.0 * si::M,
+                sidewalk_pos: Position::new(lanes[0], 0.0 * si::M),
                 connection: SidewalkPOI::Border(i),
             })
         }
@@ -103,8 +96,7 @@ impl SidewalkSpot {
             None
         } else {
             Some(SidewalkSpot {
-                sidewalk: lanes[0],
-                dist_along: map.get_l(lanes[0]).length(),
+                sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
                 connection: SidewalkPOI::Border(i),
             })
         }
@@ -183,7 +175,7 @@ impl Pedestrian {
         }
 
         if self.path.is_last_step() {
-            let goal_dist = self.goal.dist_along;
+            let goal_dist = self.goal.sidewalk_pos.dist_along();
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
             // Later distance will be non-negative, so don't attempt abs() or anything
@@ -411,7 +403,7 @@ impl WalkingSimState {
     ) -> Result<
         (
             Vec<(PedestrianID, ParkingSpot)>,
-            Vec<(PedestrianID, LaneID, Distance)>,
+            Vec<(PedestrianID, Position)>,
         ),
         Error,
     > {
@@ -479,7 +471,8 @@ impl WalkingSimState {
                         } else {
                             {
                                 let p = self.peds.get(&id).unwrap();
-                                ready_to_bike.push((*id, p.on.as_lane(), p.dist_along));
+                                ready_to_bike
+                                    .push((*id, Position::new(p.on.as_lane(), p.dist_along)));
                             }
                             self.peds.remove(&id);
                         }
@@ -575,14 +568,14 @@ impl WalkingSimState {
         now: Tick,
         params: CreatePedestrian,
     ) {
-        let start_lane = params.start.sidewalk;
+        let start_lane = params.start.sidewalk_pos.lane();
         assert_eq!(
             params.path.current_step().as_traversable(),
             Traversable::Lane(start_lane)
         );
         assert_eq!(
             params.path.last_step().as_traversable(),
-            Traversable::Lane(params.goal.sidewalk)
+            Traversable::Lane(params.goal.sidewalk_pos.lane())
         );
 
         let front_path = match params.start.connection {
@@ -608,7 +601,7 @@ impl WalkingSimState {
                 trip: params.trip,
                 path: params.path,
                 on: Traversable::Lane(start_lane),
-                dist_along: params.start.dist_along,
+                dist_along: params.start.sidewalk_pos.dist_along(),
                 front_path,
                 bike_parking,
                 goal: params.goal,

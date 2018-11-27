@@ -3,7 +3,8 @@ use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
 use map_model::{
-    BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, PathRequest, Pathfinder, RoadID,
+    BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, PathRequest, Pathfinder,
+    Position, RoadID,
 };
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
@@ -13,10 +14,7 @@ use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
-use {
-    CarID, Distance, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID,
-    VehicleType,
-};
+use {CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {
@@ -33,8 +31,7 @@ enum Command {
     Bike {
         at: Tick,
         trip: TripID,
-        start_sidewalk: LaneID,
-        start_dist: Distance,
+        start_sidewalk: Position,
         vehicle: Vehicle,
         goal: DrivingGoal,
     },
@@ -53,49 +50,50 @@ impl Command {
     fn get_pathfinding_request(&self, map: &Map, parking_sim: &ParkingSimState) -> PathRequest {
         match self {
             Command::Walk(_, _, _, start, goal) => PathRequest {
-                start: start.sidewalk,
-                start_dist: start.dist_along,
-                end: goal.sidewalk,
-                end_dist: goal.dist_along,
+                start: start.sidewalk_pos,
+                end: goal.sidewalk_pos,
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
             Command::Drive(_, _, parked_car, goal) => {
+                let start_lane = map
+                    .find_closest_lane(parked_car.spot.lane, vec![LaneType::Driving])
+                    .unwrap();
                 let goal_lane = match goal {
                     DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
                     DrivingGoal::Border(_, l) => *l,
                 };
+
                 PathRequest {
-                    start: map
-                        .find_closest_lane(parked_car.spot.lane, vec![LaneType::Driving])
-                        .unwrap(),
-                    start_dist: parking_sim
-                        .dist_along_for_car(parked_car.spot, &parked_car.vehicle),
-                    end: goal_lane,
-                    end_dist: map.get_l(goal_lane).length(),
+                    start: parking_sim.spot_to_driving_pos(
+                        parked_car.spot,
+                        &parked_car.vehicle,
+                        start_lane,
+                        map,
+                    ),
+                    end: Position::new(goal_lane, map.get_l(goal_lane).length()),
                     can_use_bike_lanes: false,
                     can_use_bus_lanes: false,
                 }
             }
             Command::Bike {
                 start_sidewalk,
-                start_dist,
                 goal,
                 ..
             } => {
-                let (goal_lane, goal_dist) = match goal {
+                let start_lane = map
+                    .find_closest_lane(
+                        start_sidewalk.lane(),
+                        vec![LaneType::Driving, LaneType::Biking],
+                    ).unwrap();
+                let start = start_sidewalk.equiv_pos(start_lane, map);
+                let end = match goal {
                     DrivingGoal::ParkNear(b) => find_biking_goal_near_building(*b, map),
-                    DrivingGoal::Border(_, l) => (*l, map.get_l(*l).length()),
+                    DrivingGoal::Border(_, l) => Position::new(*l, map.get_l(*l).length()),
                 };
                 PathRequest {
-                    start: map
-                        .find_closest_lane(
-                            *start_sidewalk,
-                            vec![LaneType::Driving, LaneType::Biking],
-                        ).unwrap(),
-                    start_dist: *start_dist,
-                    end: goal_lane,
-                    end_dist: goal_dist,
+                    start,
+                    end,
                     can_use_bus_lanes: false,
                     can_use_bike_lanes: true,
                 }
@@ -111,10 +109,8 @@ impl Command {
                     DrivingGoal::Border(_, l) => *l,
                 };
                 PathRequest {
-                    start: *start,
-                    start_dist: 0.0 * si::M,
-                    end: goal_lane,
-                    end_dist: map.get_l(goal_lane).length(),
+                    start: Position::new(*start, 0.0 * si::M),
+                    end: Position::new(goal_lane, map.get_l(goal_lane).length()),
                     can_use_bus_lanes: vehicle.vehicle_type == VehicleType::Bus,
                     can_use_bike_lanes: vehicle.vehicle_type == VehicleType::Bike,
                 }
@@ -176,11 +172,13 @@ impl Spawner {
                     Command::Drive(_, trip, ref parked_car, ref goal) => {
                         let car = parked_car.car;
 
-                        // TODO this looks like it jumps when the parking and driving lanes are different lengths
-                        // due to diagonals
-                        let dist_along =
-                            parking_sim.dist_along_for_car(parked_car.spot, &parked_car.vehicle);
-                        let start = path.current_step().as_traversable().as_lane();
+                        let start_lane = path.current_step().as_traversable().as_lane();
+                        let start = parking_sim.spot_to_driving_pos(
+                            parked_car.spot,
+                            &parked_car.vehicle,
+                            start_lane,
+                            map,
+                        );
 
                         scheduler.enqueue_command(scheduler::Command::SpawnCar(
                             now,
@@ -191,7 +189,6 @@ impl Spawner {
                                 maybe_parked_car: Some(parked_car.clone()),
                                 vehicle: parked_car.vehicle.clone(),
                                 start,
-                                dist_along,
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
                                         Router::make_router_to_park(path, *b)
@@ -220,8 +217,7 @@ impl Spawner {
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
-                                start,
-                                dist_along: 0.0 * si::M,
+                                start: Position::new(start, 0.0 * si::M),
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
                                         Router::make_router_to_park(path, *b)
@@ -248,10 +244,9 @@ impl Spawner {
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
                                 start: req.start,
-                                dist_along: req.start_dist,
                                 router: match goal {
                                     DrivingGoal::ParkNear(_) => {
-                                        Router::make_bike_router(path, req.end_dist)
+                                        Router::make_bike_router(path, req.end.dist_along())
                                     }
                                     DrivingGoal::Border(_, _) => {
                                         Router::make_router_to_border(path)
@@ -302,17 +297,10 @@ impl Spawner {
             let id = CarID(self.car_id_counter);
             self.car_id_counter += 1;
             let vehicle = Vehicle::generate_bus(id, rng);
-
-            let start = path.current_step().as_traversable().as_lane();
-
-            // TODO For now, skip spawning this bus too. :\
-            if start_dist_along > map.get_l(start).length() {
-                warn!(
-                    "Bus stop is too far past equivalent driving lane; can't make a bus headed towards stop {} of {} ({})",
-                    next_stop_idx, route.name, route_id
-                );
-                continue;
-            }
+            let start = Position::new(
+                path.current_step().as_traversable().as_lane(),
+                start_dist_along,
+            );
 
             if driving_sim.start_car_on_lane(
                 events,
@@ -325,7 +313,6 @@ impl Spawner {
                     maybe_parked_car: None,
                     vehicle,
                     start,
-                    dist_along: start_dist_along,
                     router: Router::make_router_for_bus(path),
                 },
             ) {
@@ -526,7 +513,7 @@ impl Spawner {
 
         let first_spot = {
             let b = map.get_b(start_bldg);
-            SidewalkSpot::bike_rack(b.front_path.sidewalk, b.front_path.dist_along_sidewalk, map)
+            SidewalkSpot::bike_rack(b.front_path.sidewalk, map)
         };
 
         let mut legs = vec![
@@ -665,8 +652,7 @@ impl Spawner {
         &mut self,
         at: Tick,
         bike: CarID,
-        last_lane: LaneID,
-        dist: Distance,
+        last_driving_pos: Position,
         map: &Map,
         trips: &mut TripManager,
     ) {
@@ -676,9 +662,11 @@ impl Spawner {
             trip,
             ped,
             SidewalkSpot::bike_rack(
-                map.find_closest_lane(last_lane, vec![LaneType::Sidewalk])
-                    .unwrap(),
-                dist,
+                last_driving_pos.equiv_pos(
+                    map.find_closest_lane(last_driving_pos.lane(), vec![LaneType::Sidewalk])
+                        .unwrap(),
+                    map,
+                ),
                 map,
             ),
             walk_to,
@@ -689,16 +677,14 @@ impl Spawner {
         &mut self,
         at: Tick,
         ped: PedestrianID,
-        start_sidewalk: LaneID,
-        start_dist: Distance,
+        sidewalk_pos: Position,
         trips: &mut TripManager,
     ) {
         let (trip, vehicle, goal) = trips.ped_ready_to_bike(ped);
         self.enqueue_command(Command::Bike {
             at: at.next(),
             trip,
-            start_sidewalk,
-            start_dist,
+            start_sidewalk: sidewalk_pos,
             vehicle,
             goal,
         });
@@ -841,9 +827,9 @@ fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
 
 // When biking towards some goal building, there may not be a driving/biking lane directly outside
 // the building. So BFS out in a deterministic way and find one.
-fn find_biking_goal_near_building(b: BuildingID, map: &Map) -> (LaneID, Distance) {
+fn find_biking_goal_near_building(b: BuildingID, map: &Map) -> Position {
     if let Ok(l) = map.find_closest_lane_to_bldg(b, vec![LaneType::Driving, LaneType::Biking]) {
-        return (l, map.get_b(b).front_path.dist_along_sidewalk);
+        return map.get_b(b).front_path.sidewalk.equiv_pos(l, map);
     }
 
     let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
@@ -872,7 +858,7 @@ fn find_biking_goal_near_building(b: BuildingID, map: &Map) -> (LaneID, Distance
         {
             if *lane_type == LaneType::Driving || *lane_type == LaneType::Biking {
                 // Just stop in the middle of that road and walk the rest of the way.
-                return (*lane, map.get_l(*lane).length() / 2.0);
+                return Position::new(*lane, map.get_l(*lane).length() / 2.0);
             }
         }
 

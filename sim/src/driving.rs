@@ -6,7 +6,7 @@ use intersections::{IntersectionSimState, Request};
 use kinematics;
 use kinematics::Vehicle;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Trace, Traversable, TurnID,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
     LANE_THICKNESS,
 };
 use multimap::MultiMap;
@@ -552,7 +552,7 @@ impl DrivingSimState {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
         current_agent: &mut Option<AgentID>,
-    ) -> Result<(Vec<ParkedCar>, Vec<CarID>, Vec<(CarID, LaneID, Distance)>), Error> {
+    ) -> Result<(Vec<ParkedCar>, Vec<CarID>, Vec<(CarID, Position)>), Error> {
         // We don't need the queues at all during this function, so just move them to the view.
         std::mem::swap(&mut view.queues, &mut self.queues);
         self.populate_view(view);
@@ -584,7 +584,7 @@ impl DrivingSimState {
         let mut finished_parking: Vec<ParkedCar> = Vec::new();
         let mut vanished_at_border: Vec<CarID> = Vec::new();
         // The lane is the where the bike ended, so NOT a sidewalk
-        let mut done_biking: Vec<(CarID, LaneID, Distance)> = Vec::new();
+        let mut done_biking: Vec<(CarID, Position)> = Vec::new();
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
@@ -615,7 +615,7 @@ impl DrivingSimState {
                 Action::StartParkingBike => {
                     {
                         let c = self.cars.get(&id).unwrap();
-                        done_biking.push((*id, c.on.as_lane(), c.dist_along));
+                        done_biking.push((*id, Position::new(c.on.as_lane(), c.dist_along)));
                     }
                     self.cars.remove(&id);
                     self.routers.remove(&id);
@@ -683,12 +683,18 @@ impl DrivingSimState {
         map: &Map,
         params: CreateCar,
     ) -> bool {
+        let start_lane = params.start.lane();
+        let start_on = Traversable::Lane(start_lane);
+        let start_dist = params.start.dist_along();
+
+        // The caller should have passed in a Position for the driving lane. But sanity check!
         {
-            // TODO Should filter out this parking spot to begin with, or even better, match up
-            // dist_along between different lanes using perpendicular lines.
-            let start_length = map.get_l(params.start).length();
-            if params.dist_along > start_length {
-                panic!("Can't start car at {} along {}; it's only {}. Parking lane or sidewalk (with bus stop) must be much longer.", params.dist_along, params.start, start_length);
+            let start_length = map.get_l(start_lane).length();
+            if start_dist > start_length {
+                panic!(
+                    "Can't start car at {} along {}; it's only {}. Bad position passed in.",
+                    start_dist, start_lane, start_length
+                );
             }
         }
 
@@ -696,12 +702,11 @@ impl DrivingSimState {
         // don't hit somebody's back
         if let Some(other) = self
             .queues
-            .get(&Traversable::Lane(params.start))
-            .and_then(|q| {
-                q.first_car_behind(params.dist_along + Vehicle::worst_case_following_dist())
-            }) {
+            .get(&start_on)
+            .and_then(|q| q.first_car_behind(start_dist + Vehicle::worst_case_following_dist()))
+        {
             let other_dist = self.cars[&other].dist_along;
-            if other_dist >= params.dist_along {
+            if other_dist >= start_dist {
                 /*debug!(
                     "{} can't spawn, because they'd wind up too close ({}) behind {}",
                     params.car,
@@ -715,9 +720,9 @@ impl DrivingSimState {
             let accel_for_other_to_stop = other_vehicle
                 .accel_to_follow(
                     self.cars[&other].speed,
-                    other_vehicle.clamp_speed(map.get_parent(params.start).get_speed_limit()),
+                    other_vehicle.clamp_speed(map.get_parent(start_lane).get_speed_limit()),
                     &params.vehicle,
-                    params.dist_along - other_dist,
+                    start_dist - other_dist,
                     0.0 * si::MPS,
                 ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
@@ -736,8 +741,8 @@ impl DrivingSimState {
                 id: params.car,
                 trip: params.trip,
                 owner: params.owner,
-                on: Traversable::Lane(params.start),
-                dist_along: params.dist_along,
+                on: start_on,
+                dist_along: start_dist,
                 speed: 0.0 * si::MPS,
                 vehicle: params.vehicle,
                 debug: false,
@@ -751,27 +756,26 @@ impl DrivingSimState {
             },
         );
         self.routers.insert(params.car, params.router);
-        let start_on = Traversable::Lane(params.start);
         // TODO stupid lack of NLL
         let queue_exists = self.queues.contains_key(&start_on);
         if queue_exists {
             self.queues
                 .get_mut(&start_on)
                 .unwrap()
-                .insert_at(params.car, params.dist_along);
+                .insert_at(params.car, start_dist);
         } else {
             // Just directly construct the SimQueue, since it only has one car
             self.queues.insert(
                 start_on,
                 SimQueue {
-                    cars_queue: vec![(params.dist_along, params.car)],
+                    cars_queue: vec![(start_dist, params.car)],
                 },
             );
         }
 
         events.push(Event::AgentEntersTraversable(
             AgentID::Car(params.car),
-            Traversable::Lane(params.start),
+            start_on,
         ));
         true
     }
@@ -893,7 +897,6 @@ pub struct CreateCar {
     pub owner: Option<BuildingID>,
     pub maybe_parked_car: Option<ParkedCar>,
     pub vehicle: Vehicle,
-    pub start: LaneID,
-    pub dist_along: Distance,
+    pub start: Position,
     pub router: Router,
 }

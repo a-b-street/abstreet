@@ -1,11 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use std::collections::BTreeMap;
 use std::fmt;
-use LaneID;
+use Position;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -20,10 +19,9 @@ impl fmt::Display for BuildingID {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FrontPath {
     pub bldg: BuildingID,
-    pub sidewalk: LaneID,
+    pub sidewalk: Position,
     // Goes from the building to the sidewalk
     pub line: Line,
-    pub dist_along_sidewalk: si::Meter<f64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

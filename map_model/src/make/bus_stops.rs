@@ -7,11 +7,10 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
-use {BusRoute, BusStop, BusStopID, Lane, LaneID, LaneType, Map, PathRequest, Pathfinder, Road};
+use {BusRoute, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder, Position};
 
 pub fn make_bus_stops(
-    lanes: &mut Vec<Lane>,
-    roads: &Vec<Road>,
+    map: &Map,
     bus_routes: &Vec<gtfs::Route>,
     gps_bounds: &GPSBounds,
     bounds: &Bounds,
@@ -31,41 +30,31 @@ pub fn make_bus_stops(
     }
 
     let mut stops_per_sidewalk: MultiMap<LaneID, (si::Meter<f64>, HashablePt2D)> = MultiMap::new();
-    for (pt, (lane, dist_along)) in
-        find_sidewalk_points(bounds, bus_stop_pts, lanes, 10.0 * si::M, timer).iter()
+    for (pt, pos) in
+        find_sidewalk_points(bounds, bus_stop_pts, map.all_lanes(), 10.0 * si::M, timer).into_iter()
     {
-        stops_per_sidewalk.insert(*lane, (*dist_along, *pt));
+        stops_per_sidewalk.insert(pos.lane(), (pos.dist_along(), pt));
     }
     let mut point_to_stop_id: HashMap<HashablePt2D, BusStopID> = HashMap::new();
     let mut bus_stops: BTreeMap<BusStopID, BusStop> = BTreeMap::new();
 
     for (id, dists) in stops_per_sidewalk.iter_all_mut() {
-        let road = &roads[lanes[id.0].parent.0];
+        let road = map.get_parent(*id);
         if let Ok(driving_lane) =
             road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
         {
-            let driving_len = lanes[driving_lane.0].length();
             dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
-                // TODO Should project perpendicular line to find equivalent dist_along for
-                // different lanes. Till then, just skip this.
-                if *dist_along > driving_len {
-                    warn!(
-                        "Skipping bus stop at {} along {}, because driving lane {} is only {} long",
-                        dist_along, id, driving_lane, driving_len
-                    );
-                    continue;
-                }
-
                 let stop_id = BusStopID { sidewalk: *id, idx };
                 point_to_stop_id.insert(*orig_pt, stop_id);
-                lanes[id.0].bus_stops.push(stop_id);
+                let sidewalk_pos = Position::new(*id, *dist_along);
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
                 bus_stops.insert(
                     stop_id,
                     BusStop {
                         id: stop_id,
-                        driving_lane,
-                        dist_along: *dist_along,
+                        sidewalk_pos,
+                        driving_pos,
                     },
                 );
             }
@@ -119,7 +108,7 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
             {
                 let bs1 = map.get_bs(*stop1);
                 let bs2 = map.get_bs(*stop2);
-                if bs1.driving_lane == bs2.driving_lane {
+                if bs1.driving_pos.lane() == bs2.driving_pos.lane() {
                     // This is coming up because the dist_along's are in a bad order. But why
                     // should this happen at all?
                     warn!(
@@ -133,10 +122,8 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                 if Pathfinder::shortest_distance(
                     map,
                     PathRequest {
-                        start: bs1.driving_lane,
-                        start_dist: bs1.dist_along,
-                        end: bs2.driving_lane,
-                        end_dist: bs2.dist_along,
+                        start: bs1.driving_pos,
+                        end: bs2.driving_pos,
                         can_use_bike_lanes: false,
                         can_use_bus_lanes: true,
                     },

@@ -2,7 +2,7 @@ use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {LaneID, LaneType, Map, Traversable, TurnID};
+use {LaneID, LaneType, Map, Position, Traversable, TurnID};
 
 pub type Trace = PolyLine;
 
@@ -208,10 +208,8 @@ impl Path {
 
 #[derive(Clone)]
 pub struct PathRequest {
-    pub start: LaneID,
-    pub start_dist: si::Meter<f64>,
-    pub end: LaneID,
-    pub end_dist: si::Meter<f64>,
+    pub start: Position,
+    pub end: Position,
     pub can_use_bike_lanes: bool,
     pub can_use_bus_lanes: bool,
 }
@@ -230,12 +228,12 @@ impl Pathfinder {
     pub fn shortest_distance(map: &Map, req: PathRequest) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
-        let goal_pt = map.get_l(req.end).dist_along(req.end_dist).0;
+        let goal_pt = req.end.pt_and_angle(map).0;
         Pathfinder::ShortestDistance {
             goal_pt,
             can_use_bike_lanes: req.can_use_bike_lanes,
             can_use_bus_lanes: req.can_use_bus_lanes,
-        }.pathfind(map, req.start, req.start_dist, req.end, req.end_dist)
+        }.pathfind(map, req.start, req.end)
     }
 
     // Returns the cost of the potential next step, plus an optional heuristic to the goal
@@ -295,31 +293,31 @@ impl Pathfinder {
         }
     }
 
-    fn pathfind(
-        &self,
-        map: &Map,
-        start: LaneID,
-        start_dist: si::Meter<f64>,
-        end: LaneID,
-        end_dist: si::Meter<f64>,
-    ) -> Option<Path> {
-        if start == end {
-            if start_dist > end_dist {
-                assert_eq!(map.get_l(start).lane_type, LaneType::Sidewalk);
+    fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Path> {
+        if start.lane() == end.lane() {
+            if start.dist_along() > end.dist_along() {
+                assert_eq!(map.get_l(start.lane()).lane_type, LaneType::Sidewalk);
                 return Some(Path::new(
                     map,
-                    vec![PathStep::ContraflowLane(start)],
-                    end_dist,
+                    vec![PathStep::ContraflowLane(start.lane())],
+                    end.dist_along(),
                 ));
             }
-            return Some(Path::new(map, vec![PathStep::Lane(start)], end_dist));
+            return Some(Path::new(
+                map,
+                vec![PathStep::Lane(start.lane())],
+                end.dist_along(),
+            ));
         }
 
         // This should be deterministic, since cost ties would be broken by PathStep.
         let mut queue: BinaryHeap<(NotNaN<f64>, PathStep)> = BinaryHeap::new();
-        queue.push((NotNaN::new(-0.0).unwrap(), PathStep::Lane(start)));
-        if map.get_l(start).is_sidewalk() && start_dist != 0.0 * si::M {
-            queue.push((NotNaN::new(-0.0).unwrap(), PathStep::ContraflowLane(start)));
+        queue.push((NotNaN::new(-0.0).unwrap(), PathStep::Lane(start.lane())));
+        if map.get_l(start.lane()).is_sidewalk() && start.dist_along() != 0.0 * si::M {
+            queue.push((
+                NotNaN::new(-0.0).unwrap(),
+                PathStep::ContraflowLane(start.lane()),
+            ));
         }
 
         let mut backrefs: HashMap<PathStep, PathStep> = HashMap::new();
@@ -328,19 +326,22 @@ impl Pathfinder {
             let (cost_sofar, current) = queue.pop().unwrap();
 
             // Found it, now produce the path
-            if current.as_traversable() == Traversable::Lane(end) {
+            if current.as_traversable() == Traversable::Lane(end.lane()) {
                 let mut reversed_steps: Vec<PathStep> = Vec::new();
                 let mut lookup = current;
                 loop {
                     reversed_steps.push(lookup);
-                    if lookup.as_traversable() == Traversable::Lane(start) {
+                    if lookup.as_traversable() == Traversable::Lane(start.lane()) {
                         reversed_steps.reverse();
-                        assert_eq!(reversed_steps[0].as_traversable(), Traversable::Lane(start));
+                        assert_eq!(
+                            reversed_steps[0].as_traversable(),
+                            Traversable::Lane(start.lane())
+                        );
                         assert_eq!(
                             reversed_steps.last().unwrap().as_traversable(),
-                            Traversable::Lane(end)
+                            Traversable::Lane(end.lane())
                         );
-                        return Some(Path::new(map, reversed_steps, end_dist));
+                        return Some(Path::new(map, reversed_steps, end.dist_along()));
                     }
                     lookup = backrefs[&lookup];
                 }

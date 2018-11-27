@@ -2,7 +2,7 @@ use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D};
 use std::collections::{HashMap, HashSet};
-use {FindClosest, Lane, LaneID};
+use {FindClosest, Lane, LaneID, Position};
 
 // If the result doesn't contain a requested point, then there was no matching sidewalk close
 // enough.
@@ -12,7 +12,7 @@ pub fn find_sidewalk_points(
     lanes: &Vec<Lane>,
     max_dist_away: si::Meter<f64>,
     timer: &mut Timer,
-) -> HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> {
+) -> HashMap<HashablePt2D, Position> {
     if pts.is_empty() {
         return HashMap::new();
     }
@@ -28,13 +28,13 @@ pub fn find_sidewalk_points(
 
     // For each point, find the closest point to any sidewalk, using the quadtree to prune the
     // search.
-    let mut results: HashMap<HashablePt2D, (LaneID, si::Meter<f64>)> = HashMap::new();
+    let mut results: HashMap<HashablePt2D, Position> = HashMap::new();
     timer.start_iter("find closest sidewalk point", pts.len());
     for query_pt in pts {
         timer.next();
         if let Some((sidewalk, sidewalk_pt)) = closest.closest_pt(query_pt.into(), max_dist_away) {
             if let Some(dist_along) = lanes[sidewalk.0].dist_along_of_point(sidewalk_pt) {
-                results.insert(query_pt.into(), (sidewalk, dist_along));
+                results.insert(query_pt.into(), Position::new(sidewalk, dist_along));
             } else {
                 panic!("{} isn't on {} according to dist_along_of_point, even though closest_point thinks it is.\n{}", sidewalk_pt, sidewalk, lanes[sidewalk.0].lane_center_pts);
             }

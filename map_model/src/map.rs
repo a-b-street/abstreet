@@ -209,15 +209,13 @@ impl Map {
             }
         }
 
-        let (stops, routes) = make::make_bus_stops(
-            &mut m.lanes,
-            &m.roads,
-            &data.bus_routes,
-            &gps_bounds,
-            &bounds,
-            timer,
-        );
+        let (stops, routes) =
+            make::make_bus_stops(&m, &data.bus_routes, &gps_bounds, &bounds, timer);
         m.bus_stops = stops;
+        // The IDs are sorted in the BTreeMap, so this order winds up correct.
+        for id in m.bus_stops.keys() {
+            m.lanes[id.sidewalk.0].bus_stops.push(*id);
+        }
 
         for i in &m.intersections {
             for t in make::make_all_turns(i, &m) {
@@ -238,7 +236,9 @@ impl Map {
             timer,
         );
         for b in &m.buildings {
-            m.lanes[b.front_path.sidewalk.0].building_paths.push(b.id);
+            m.lanes[b.front_path.sidewalk.lane().0]
+                .building_paths
+                .push(b.id);
         }
 
         make::make_all_parcels(
@@ -500,7 +500,7 @@ impl Map {
     }
 
     pub fn building_to_road(&self, id: BuildingID) -> &Road {
-        self.get_parent(self.get_b(id).front_path.sidewalk)
+        self.get_parent(self.get_b(id).front_path.sidewalk.lane())
     }
 
     pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
@@ -542,7 +542,7 @@ impl Map {
         bldg: BuildingID,
         types: Vec<LaneType>,
     ) -> Result<LaneID, Error> {
-        let from = self.get_b(bldg).front_path.sidewalk;
+        let from = self.get_b(bldg).front_path.sidewalk.lane();
         self.find_closest_lane(from, types)
     }
 

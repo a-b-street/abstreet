@@ -85,7 +85,7 @@ impl TransitSimState {
         id
     }
 
-    // (next stop, start distance, first path)
+    // (next stop, start distance on the driving lane, first path)
     pub fn get_route_starts(&self, id: RouteID, map: &Map) -> Vec<(StopIdx, Distance, Path)> {
         let route = &self.routes[&id];
         route
@@ -98,10 +98,8 @@ impl TransitSimState {
                 let path = Pathfinder::shortest_distance(
                     map,
                     PathRequest {
-                        start: stop1.driving_lane,
-                        start_dist: stop1.dist_along,
-                        end: stop2.driving_lane,
-                        end_dist: stop2.dist_along,
+                        start: stop1.driving_pos,
+                        end: stop2.driving_pos,
                         can_use_bike_lanes: false,
                         can_use_bus_lanes: true,
                     },
@@ -109,7 +107,7 @@ impl TransitSimState {
                     "No route between bus stops {:?} and {:?}",
                     stop1, stop2
                 ));
-                (next_stop, stop1.dist_along, path)
+                (next_stop, stop1.driving_pos.dist_along(), path)
             }).collect()
     }
 
@@ -139,8 +137,8 @@ impl TransitSimState {
         match self.buses[&car].state {
             BusState::DrivingToStop(stop_idx) => {
                 let stop = &route.stops[stop_idx];
-                assert_eq!(stop.driving_lane, view.on.as_lane());
-                if stop.dist_along == view.dist_along {
+                assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
+                if stop.driving_pos.dist_along() == view.dist_along {
                     // TODO constant for stop time
                     self.buses.get_mut(&car).unwrap().state =
                         BusState::AtStop(stop_idx, time + 10.0 * si::S);
@@ -156,8 +154,8 @@ impl TransitSimState {
             }
             BusState::AtStop(stop_idx, wait_until) => {
                 let stop = &route.stops[stop_idx];
-                assert_eq!(stop.driving_lane, view.on.as_lane());
-                assert_eq!(stop.dist_along, view.dist_along);
+                assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
+                assert_eq!(stop.driving_pos.dist_along(), view.dist_along);
 
                 if time == wait_until {
                     let next_stop = route.next_stop(stop_idx);
@@ -171,10 +169,8 @@ impl TransitSimState {
                     let new_path = Pathfinder::shortest_distance(
                         map,
                         PathRequest {
-                            start: stop.driving_lane,
-                            start_dist: stop.dist_along,
-                            end: route.stops[next_stop].driving_lane,
-                            end_dist: route.stops[next_stop].dist_along,
+                            start: stop.driving_pos,
+                            end: route.stops[next_stop].driving_pos,
                             can_use_bike_lanes: false,
                             can_use_bus_lanes: true,
                         },
@@ -195,8 +191,8 @@ impl TransitSimState {
         match self.buses[&bus].state {
             BusState::DrivingToStop(stop_idx) => {
                 let stop = &self.routes[&self.buses[&bus].route].stops[stop_idx];
-                assert_eq!(stop.driving_lane, driving_lane);
-                stop.dist_along
+                assert_eq!(stop.driving_pos.lane(), driving_lane);
+                stop.driving_pos.dist_along()
             }
             BusState::AtStop(_, _) => {
                 panic!("Shouldn't ask where to stop if the bus is already at a stop")

@@ -2,7 +2,9 @@ use dimensioned::si;
 use driving::Action;
 use kinematics;
 use kinematics::Vehicle;
-use map_model::{BuildingID, LaneID, LaneType, Map, Path, PathStep, Trace, Traversable, TurnID};
+use map_model::{
+    BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
+};
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
 use transit::TransitSimState;
@@ -81,9 +83,13 @@ impl Router {
         match self.goal {
             Goal::ParkNearBuilding(_) => {
                 let last_lane = view.on.as_lane();
-                if let Some(spot) = find_parking_spot(last_lane, view.dist_along, map, parking_sim)
-                {
-                    if parking_sim.dist_along_for_car(spot, vehicle) == view.dist_along {
+                if let Some((spot, needed_driving_pos)) = find_parking_spot(
+                    Position::new(last_lane, view.dist_along),
+                    vehicle,
+                    map,
+                    parking_sim,
+                ) {
+                    if needed_driving_pos.dist_along() == view.dist_along {
                         return Some(Action::StartParking(spot));
                     }
                 // Being stopped before the parking spot is normal if the final road is
@@ -127,10 +133,13 @@ impl Router {
         if self.path.is_last_step() {
             match self.goal {
                 Goal::ParkNearBuilding(_) => {
-                    if let Some(spot) =
-                        find_parking_spot(on.as_lane(), dist_along, map, parking_sim)
-                    {
-                        return Some(parking_sim.dist_along_for_car(spot, vehicle));
+                    if let Some((_, needed_driving_pos)) = find_parking_spot(
+                        Position::new(on.as_lane(), dist_along),
+                        vehicle,
+                        map,
+                        parking_sim,
+                    ) {
+                        return Some(needed_driving_pos.dist_along());
                     } else {
                         // If lookahead runs out of path, then just stop at the end of that lane,
                         // and then reroute when react_before_lookahead is called later.
@@ -218,13 +227,19 @@ impl Router {
     }
 }
 
+// Returns the spot and the driving position aligned to it, given an input position.
 fn find_parking_spot(
-    driving_lane: LaneID,
-    dist_along: Distance,
+    driving_pos: Position,
+    vehicle: &Vehicle,
     map: &Map,
     parking_sim: &ParkingSimState,
-) -> Option<ParkingSpot> {
-    map.find_closest_lane(driving_lane, vec![LaneType::Parking])
-        .ok()
-        .and_then(|l| parking_sim.get_first_free_spot(l, dist_along))
+) -> Option<(ParkingSpot, Position)> {
+    let parking_lane = map
+        .find_closest_lane(driving_pos.lane(), vec![LaneType::Parking])
+        .ok()?;
+    let spot = parking_sim.get_first_free_spot(driving_pos.equiv_pos(parking_lane, map))?;
+    Some((
+        spot,
+        parking_sim.spot_to_driving_pos(spot, vehicle, driving_pos.lane(), map),
+    ))
 }

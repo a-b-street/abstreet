@@ -56,7 +56,6 @@ impl Turn {
         self.line.intersects(&other.line)
     }
 
-    // TODO share impl with GeomLane
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
         (self.line.dist_along(dist_along), self.line.angle())
     }

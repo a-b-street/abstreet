@@ -1,7 +1,7 @@
 use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
-use map_model::{BuildingID, Lane, LaneID, LaneType, Map};
+use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position};
 use std::collections::HashSet;
 use std::iter;
 use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
@@ -89,14 +89,16 @@ impl ParkingSimState {
         None
     }
 
-    pub fn get_first_free_spot(&self, lane: LaneID, dist_along: Distance) -> Option<ParkingSpot> {
-        let l = &self.lanes[lane.0];
+    pub fn get_first_free_spot(&self, parking_pos: Position) -> Option<ParkingSpot> {
+        let l = &self.lanes[parking_pos.lane().0];
         // Just require the car to currently be behind the end of the spot length, so we don't have
         // to worry about where in the spot they need to line up.
         let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
-            x.is_none() && l.spots[idx].dist_along + map_model::PARKING_SPOT_LENGTH >= dist_along
+            x.is_none()
+                && l.spots[idx].dist_along + map_model::PARKING_SPOT_LENGTH
+                    >= parking_pos.dist_along()
         })?;
-        Some(ParkingSpot::new(lane, idx))
+        Some(ParkingSpot::new(parking_pos.lane(), idx))
     }
 
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
@@ -104,12 +106,19 @@ impl ParkingSimState {
         l.occupants[spot.idx].clone()
     }
 
-    pub fn dist_along_for_car(&self, spot: ParkingSpot, vehicle: &Vehicle) -> Distance {
-        self.get_spot(spot).dist_along_for_car(vehicle)
+    pub fn spot_to_driving_pos(
+        &self,
+        spot: ParkingSpot,
+        vehicle: &Vehicle,
+        driving_lane: LaneID,
+        map: &Map,
+    ) -> Position {
+        Position::new(spot.lane, self.get_spot(spot).dist_along_for_car(vehicle))
+            .equiv_pos(driving_lane, map)
     }
 
-    pub fn dist_along_for_ped(&self, spot: ParkingSpot) -> Distance {
-        self.get_spot(spot).dist_along_for_ped()
+    pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
+        Position::new(spot.lane, self.get_spot(spot).dist_along_for_ped()).equiv_pos(sidewalk, map)
     }
 
     fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {

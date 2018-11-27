@@ -389,3 +389,25 @@ Some themes...
 - have some lane, want the nearest lane of some type(s).
 - The source doesn't really matter -- we want as close as possible, but there's no requirement of adjacency at all.
 - If the source/dest is a sidewalk, some weird handling for one-ways...
+
+## Dist along mismatches
+
+Concrete examples:
+- House path on a sidewalk that's slightly longer than the driving lane, so can't spawn a bike
+- Parking lane longer than driving lane, so can't make a car start
+
+Solutions
+- Don't blindly copy dist_along between lanes. Do perpendicular line segment check to find the proper value.
+	- But is this allowed to fail? Or just have weird edge cases and round
+	  up/down to the beginning/end of the other lane?
+- Embrace failure
+	- Silently erase agents/trips when they fail
+	- With better up-front planning, can maybe filter out the trip from the beginning
+	- But this is hacky and doesn't capture user intention
+- Erase problems
+	- Filter out houses, parking spots, etc that don't match other lanes
+	- This seems too aggressive...
+
+Start by detecting all the possible problems in the geom validator plugin. Then
+probably go with the first solution, after understanding what the most
+egregious edge cases look like.

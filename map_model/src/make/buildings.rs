@@ -39,8 +39,10 @@ pub fn make_all_buildings(
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {
         timer.next();
         let bldg_center = center_per_bldg[idx];
-        if let Some((sidewalk, dist_along)) = sidewalk_pts.get(&bldg_center) {
-            let (sidewalk_pt, _) = lanes[sidewalk.0].dist_along(*dist_along);
+        if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
+            let sidewalk_pt = lanes[sidewalk_pos.lane().0]
+                .dist_along(sidewalk_pos.dist_along())
+                .0;
             let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
 
             let id = BuildingID(results.len());
@@ -51,9 +53,8 @@ pub fn make_all_buildings(
                 osm_way_id: input[idx].osm_way_id,
                 front_path: FrontPath {
                     bldg: id,
-                    sidewalk: *sidewalk,
+                    sidewalk: sidewalk_pos.clone(),
                     line,
-                    dist_along_sidewalk: *dist_along,
                 },
             });
         }

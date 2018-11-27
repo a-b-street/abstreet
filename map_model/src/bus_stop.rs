@@ -1,7 +1,6 @@
 use abstutil;
-use dimensioned::si;
 use std::fmt;
-use LaneID;
+use {LaneID, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStopID {
@@ -18,8 +17,8 @@ impl fmt::Display for BusStopID {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct BusStop {
     pub id: BusStopID,
-    pub driving_lane: LaneID,
-    pub dist_along: si::Meter<f64>,
+    pub driving_pos: Position,
+    pub sidewalk_pos: Position,
 }
 
 impl BusStop {

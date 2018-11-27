@@ -46,7 +46,7 @@ pub use map::Map;
 pub use parcel::{Parcel, ParcelID};
 pub use pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
 pub use road::{Road, RoadID};
-pub use traversable::Traversable;
+pub use traversable::{Position, Traversable};
 pub use turn::{Turn, TurnID, TurnType};
 
 pub const LANE_THICKNESS: f64 = 2.5;
