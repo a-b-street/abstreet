@@ -40,6 +40,10 @@ visually.
 - https://www.webpages.uidaho.edu/TrafficSignalSystems/traffic/instructor/ch3a.pdf
 - http://iamtraffic.org/evaluation/the-six-way/
 
+ah, think of the real world for the UI. Light per incoming lane. Sometimes need
+to show a green/yellow/red arrow. Could similarly show the ped stop hand or the
+walking figure, probably at both tips of a sidewalk.
+
 ## Intersection policies for pedestrians ##
 
 Before figuring out how pedestrians will deterministically use intersections alongside cars, recall how cars currently work...
@@ -99,3 +103,17 @@ https://wiki.openstreetmap.org/wiki/Junctions
 
 http://www.sumo.dlr.de/userdoc/Networks/Building_Networks_from_own_XML-descriptions.html#Joining_Nodes
 - instead of looking for short roads, clip road lines to intersection geometry and then see if they're short (10m)
+
+Maybe start by hardcoding the things to merge. Don't worry about detection yet. r257
+
+- When to do the operation?
+	- do it before making lanes ideally...
+	- first, make lanes separately from making roads, so intersection geometry can move up.
+	- could then even merge the trim lines step? hmm.
+	- or even do it to raw data? is that possible?
+
+
+- r257 example
+	- extend two roads with points from the tiny road. delete i283
+	- make sure the road attributes match up
+	- do this first; preprocess raw_data.

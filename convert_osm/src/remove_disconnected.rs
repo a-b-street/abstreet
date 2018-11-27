@@ -10,8 +10,8 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
 
     let mut next_roads: MultiMap<HashablePt2D, usize> = MultiMap::new();
     for (idx, r) in map.roads.iter().enumerate() {
-        next_roads.insert(r.first_pt(), idx);
-        next_roads.insert(r.last_pt(), idx);
+        next_roads.insert(r.first_pt().to_hashable(), idx);
+        next_roads.insert(r.last_pt().to_hashable(), idx);
     }
 
     let mut partitions: Vec<Vec<usize>> = Vec::new();
@@ -32,10 +32,10 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
             current_partition.push(current);
 
             let current_r = &map.roads[current];
-            for other_r in next_roads.get(current_r.first_pt()).iter() {
+            for other_r in next_roads.get(current_r.first_pt().to_hashable()).iter() {
                 queue_roads.push(*other_r);
             }
-            for other_r in next_roads.get(current_r.last_pt()).iter() {
+            for other_r in next_roads.get(current_r.last_pt().to_hashable()).iter() {
                 queue_roads.push(*other_r);
             }
         }

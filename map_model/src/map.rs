@@ -52,11 +52,14 @@ impl Map {
 
     pub fn create_from_raw(
         name: String,
-        data: raw_data::Map,
+        mut data: raw_data::Map,
         road_edits: RoadEdits,
         timer: &mut Timer,
     ) -> Map {
         timer.start("raw_map to Map");
+
+        make::merge_intersections(&mut data, &name, timer);
+
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
 
@@ -116,7 +119,10 @@ impl Map {
 
             if i1 == i2 {
                 // TODO Cul-de-sacs should be valid, but it really makes pathfinding screwy
-                error!("OSM way {} is a loop on {}, skipping", r.osm_way_id, i1);
+                error!(
+                    "OSM way {} is a loop on {}, skipping what would've been {}",
+                    r.osm_way_id, i1, road_id
+                );
                 continue;
             }
 

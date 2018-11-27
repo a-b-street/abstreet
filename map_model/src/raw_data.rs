@@ -1,5 +1,5 @@
 use dimensioned::si;
-use geom::{GPSBounds, HashablePt2D, LonLat};
+use geom::{GPSBounds, LonLat};
 use gtfs::Route;
 use std::collections::BTreeMap;
 use AreaType;
@@ -72,12 +72,12 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn first_pt(&self) -> HashablePt2D {
-        self.points[0].to_hashable()
+    pub fn first_pt(&self) -> LonLat {
+        self.points[0]
     }
 
-    pub fn last_pt(&self) -> HashablePt2D {
-        self.points.last().unwrap().to_hashable()
+    pub fn last_pt(&self) -> LonLat {
+        *self.points.last().unwrap()
     }
 }
 
