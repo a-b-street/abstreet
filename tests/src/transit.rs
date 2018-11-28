@@ -68,7 +68,7 @@ pub fn run(t: &mut TestRunner) {
                     sim::Event::BusDepartedFromStop(bus, ped_stop2),
                     sim::Event::BusArrivedAtStop(bus, route.stops[3]),
                 ],
-                sim::Tick::from_minutes(5),
+                sim::Tick::from_minutes(8),
             );
         }),
     );
