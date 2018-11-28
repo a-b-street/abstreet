@@ -228,7 +228,7 @@ impl Pathfinder {
     pub fn shortest_distance(map: &Map, req: PathRequest) -> Option<Path> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
-        let goal_pt = req.end.pt_and_angle(map).0;
+        let goal_pt = req.end.pt(map);
         Pathfinder::ShortestDistance {
             goal_pt,
             can_use_bike_lanes: req.can_use_bike_lanes,

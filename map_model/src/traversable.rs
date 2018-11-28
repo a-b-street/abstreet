@@ -29,8 +29,8 @@ impl Position {
         self.dist_along
     }
 
-    pub fn pt_and_angle(&self, map: &Map) -> (Pt2D, Angle) {
-        map.get_l(self.lane).dist_along(self.dist_along)
+    pub fn pt(&self, map: &Map) -> Pt2D {
+        map.get_l(self.lane).dist_along(self.dist_along).0
     }
 
     pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {

@@ -307,18 +307,11 @@ impl Pedestrian {
         } else if let Some(ref bp) = self.bike_parking {
             let sidewalk_pos = Position::new(self.on.as_lane(), self.dist_along);
             let street_pos = sidewalk_pos.equiv_pos(
-                map.get_l(
-                    map.find_closest_lane(
-                        self.on.as_lane(),
-                        vec![LaneType::Driving, LaneType::Biking],
-                    ).unwrap(),
-                ),
+                map.find_closest_lane(self.on.as_lane(), vec![LaneType::Driving, LaneType::Biking])
+                    .unwrap(),
                 map,
             );
-            let line = Line::new(
-                sidewalk_pos.pt_and_angle(map).0,
-                street_pos.pt_and_angle(map).0,
-            );
+            let line = Line::new(sidewalk_pos.pt(map), street_pos.pt(map));
 
             let progress: f64 =
                 ((now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE).value_unsafe;
