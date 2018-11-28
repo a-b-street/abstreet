@@ -305,16 +305,20 @@ impl Pedestrian {
         if let Some(ref fp) = self.front_path {
             map.get_b(fp.bldg).front_path.line.dist_along(fp.dist_along)
         } else if let Some(ref bp) = self.bike_parking {
-            let sidewalk_pos = self.on.dist_along(self.dist_along, map).0;
-            let street_pos = map
-                .get_l(
+            let sidewalk_pos = Position::new(self.on.as_lane(), self.dist_along);
+            let street_pos = sidewalk_pos.equiv_pos(
+                map.get_l(
                     map.find_closest_lane(
                         self.on.as_lane(),
                         vec![LaneType::Driving, LaneType::Biking],
                     ).unwrap(),
-                ).dist_along(self.dist_along)
-                .0;
-            let line = Line::new(sidewalk_pos, street_pos);
+                ),
+                map,
+            );
+            let line = Line::new(
+                sidewalk_pos.pt_and_angle(map).0,
+                street_pos.pt_and_angle(map).0,
+            );
 
             let progress: f64 =
                 ((now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE).value_unsafe;
