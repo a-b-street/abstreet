@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use abstutil;
-use abstutil::{Error, Timer};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
 use edits::RoadEdits;
 use geom::{Bounds, GPSBounds, HashablePt2D, PolyLine, Pt2D};
 use make;
@@ -20,9 +20,17 @@ pub struct Map {
     roads: Vec<Road>,
     lanes: Vec<Lane>,
     intersections: Vec<Intersection>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
     parcels: Vec<Parcel>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     bus_stops: BTreeMap<BusStopID, BusStop>,
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,

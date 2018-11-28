@@ -55,8 +55,8 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
     let mut roads: Vec<raw_data::Road> = Vec::new();
     for (idx, r) in map.roads.iter().enumerate() {
         if remove_roads.contains(&idx) {
-            next_roads.remove(r.first_pt(), idx);
-            next_roads.remove(r.last_pt(), idx);
+            next_roads.remove(r.first_pt().to_hashable(), idx);
+            next_roads.remove(r.last_pt().to_hashable(), idx);
         } else {
             roads.push(r.clone());
         }

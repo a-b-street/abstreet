@@ -1,3 +1,4 @@
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use std::collections::BTreeMap;
 use {Lane, LaneType, Road, RoadID};
 
@@ -7,6 +8,10 @@ use {Lane, LaneType, Road, RoadID};
 pub struct RoadEdits {
     pub edits_name: String,
     // TODO detect when we wind up editing back to the original thing
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
 }
 
