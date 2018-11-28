@@ -36,7 +36,7 @@ const BUS_LENGTH: Distance = si::Meter {
 
 // At all speeds (including at rest), cars must be at least this far apart, measured from front of
 // one car to the back of the other.
-const FOLLOWING_DISTANCE: Distance = si::Meter {
+pub const FOLLOWING_DISTANCE: Distance = si::Meter {
     value_unsafe: 1.0,
     _marker: std::marker::PhantomData,
 };
@@ -243,35 +243,23 @@ impl Vehicle {
         dist_at_constant_accel(self.max_deaccel, TIMESTEP, current_speed)
     }
 
-    // Relative to the front of the car
-    pub fn following_dist(&self) -> Distance {
-        self.length + FOLLOWING_DISTANCE
-    }
-
     pub fn accel_to_follow(
         &self,
         our_speed: Speed,
         our_speed_limit: Speed,
         other: &Vehicle,
-        dist_behind_other: Distance,
+        dist_behind_others_back: Distance,
         other_speed: Speed,
     ) -> Result<Acceleration, Error> {
-        /* A seemingly failed attempt at a simpler version:
-
-        // What if they slam on their brakes right now?
-        let their_stopping_dist = other.stopping_distance(other.min_next_speed(other_speed));
-        let worst_case_dist_away = dist_behind_other + their_stopping_dist;
-        self.accel_to_stop_in_dist(our_speed, worst_case_dist_away)
-        */
-
         let us_worst_dist = self.max_lookahead_dist(our_speed, our_speed_limit)?;
         let most_we_could_go = self.max_next_dist(our_speed, our_speed_limit)?;
         let least_they_could_go = other.min_next_dist(other_speed)?;
 
         // TODO this optimizes for next tick, so we're playing it really
         // conservative here... will that make us fluctuate more?
-        let projected_dist_from_them = dist_behind_other - most_we_could_go + least_they_could_go;
-        let desired_dist_btwn = us_worst_dist + other.following_dist();
+        let projected_dist_from_them =
+            dist_behind_others_back - most_we_could_go + least_they_could_go;
+        let desired_dist_btwn = us_worst_dist + FOLLOWING_DISTANCE;
 
         // Positive = speed up, zero = go their speed, negative = slow down
         let delta_dist = projected_dist_from_them - desired_dist_btwn;

@@ -145,30 +145,32 @@ impl Car {
                 assert!(self.id != other.id.as_car());
                 assert!(current_dist_along < other.dist_along);
                 let other_vehicle = other.vehicle.as_ref().unwrap();
-                let dist_behind_other =
-                    dist_scanned_ahead + (other.dist_along - current_dist_along);
+                let dist_behind_others_back = dist_scanned_ahead
+                    + (other.dist_along - current_dist_along)
+                    - other_vehicle.length;
                 // If our lookahead doesn't even hit the lead vehicle (plus following distance!!!), then ignore them.
+                // TODO Maybe always consider them. We might just speed up.
                 let total_scanning_dist =
-                    dist_scanned_ahead + dist_to_lookahead + other_vehicle.following_dist();
-                if total_scanning_dist >= dist_behind_other {
+                    dist_scanned_ahead + dist_to_lookahead + kinematics::FOLLOWING_DISTANCE;
+                if total_scanning_dist >= dist_behind_others_back {
                     let accel = vehicle.accel_to_follow(
                         self.speed,
                         orig_speed_limit,
                         other_vehicle,
-                        dist_behind_other,
+                        dist_behind_others_back,
                         other.speed,
                     )?;
 
                     if self.debug {
                         debug!(
-                            "  {} needs {} to not hit {}. Currently {} behind them",
-                            self.id, accel, other.id, dist_behind_other
+                            "  {} needs {} to not hit {}. Currently {} behind their back",
+                            self.id, accel, other.id, dist_behind_others_back
                         );
                     }
 
                     constraints.push(accel);
                 } else if self.debug {
-                    debug!("  {} is {} behind {}. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_other, other.id, dist_scanned_ahead, dist_to_lookahead, other_vehicle.following_dist(), total_scanning_dist);
+                    debug!("  {} is {} behind {}'s back. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_others_back, other.id, dist_scanned_ahead, dist_to_lookahead, kinematics::FOLLOWING_DISTANCE, total_scanning_dist);
                 }
             }
 
@@ -379,15 +381,15 @@ impl SimQueue {
         // assert here we're not squished together too much
         for slice in cars_queue.windows(2) {
             let ((dist1, c1), (dist2, c2)) = (slice[0], slice[1]);
-            let following_dist = cars[&c1].vehicle.following_dist();
-            if dist1 - dist2 < following_dist {
+            let dist_apart = dist1 - dist2 - cars[&c1].vehicle.length;
+            if dist_apart < kinematics::FOLLOWING_DISTANCE {
                 let mut err = format!(
                     "On {:?}, {} and {} are {} apart -- that's {} too close\n",
                     id,
                     c1,
                     c2,
-                    dist1 - dist2,
-                    following_dist - (dist1 - dist2),
+                    dist_apart,
+                    kinematics::FOLLOWING_DISTANCE - dist_apart,
                 );
                 // TODO We used to have old_queue and could print more debug info. Meh.
                 err.push_str(&format!("Queue ({}):\n", cars_queue.len()));
@@ -715,7 +717,7 @@ impl DrivingSimState {
                     self.cars[&other].speed,
                     other_vehicle.clamp_speed(map.get_parent(start_lane).get_speed_limit()),
                     &params.vehicle,
-                    start_dist - other_dist,
+                    start_dist - other_dist - params.vehicle.length,
                     0.0 * si::MPS,
                 ).unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
