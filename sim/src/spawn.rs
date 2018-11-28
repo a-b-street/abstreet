@@ -222,7 +222,11 @@ impl Spawner {
                                 start: Position::new(start, 0.0 * si::M),
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
-                                        Router::make_router_to_park(path, *b)
+                                        if vehicle.vehicle_type == VehicleType::Bike {
+                                            Router::make_bike_router(path, req.end.dist_along())
+                                        } else {
+                                            Router::make_router_to_park(path, *b)
+                                        }
                                     }
                                     DrivingGoal::Border(_, _) => {
                                         Router::make_router_to_border(path)

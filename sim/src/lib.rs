@@ -155,6 +155,7 @@ impl ParkedCar {
         vehicle: kinematics::Vehicle,
         owner: Option<BuildingID>,
     ) -> ParkedCar {
+        assert_eq!(vehicle.vehicle_type, VehicleType::Car);
         ParkedCar {
             car,
             spot,
