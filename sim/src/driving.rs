@@ -62,8 +62,6 @@ pub enum Action {
     WorkOnParking,
     StartParkingBike,
     Continue(Acceleration, Vec<Request>),
-    // TODO Get rid of this one
-    VanishAtDeadEnd,
 }
 
 impl Car {
@@ -643,10 +641,6 @@ impl DrivingSimState {
                             intersections.submit_request(req.clone());
                         }
                     }
-                }
-                Action::VanishAtDeadEnd => {
-                    self.cars.remove(&id);
-                    self.routers.remove(&id);
                 }
             }
         }

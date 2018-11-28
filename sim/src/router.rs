@@ -196,10 +196,7 @@ impl Router {
         // we've visited, prefer easier turns...
         let choices = map.get_next_turns_and_lanes(last_lane, map.get_l(last_lane).dst_i);
         if choices.is_empty() {
-            if view.debug {
-                debug!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);
-            }
-            return Some(Action::VanishAtDeadEnd);
+            panic!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever", view.id, last_lane);
         }
         let (turn, new_lane) = rng.choose(&choices).unwrap();
         if view.debug {
