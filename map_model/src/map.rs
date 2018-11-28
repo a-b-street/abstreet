@@ -66,7 +66,7 @@ impl Map {
     ) -> Map {
         timer.start("raw_map to Map");
 
-        make::merge_intersections(&mut data, &name, timer);
+        make::merge_intersections(&mut data, timer);
 
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();

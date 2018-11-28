@@ -99,7 +99,12 @@ fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
                 "Lane goes from {} to {}",
                 i1.elevation, i2.elevation
             ));
-            txt.add_line(format!("Lane is {} long", l.length()));
+            txt.add_line(format!(
+                "Lane is {} long, parent {} is {} long",
+                l.length(),
+                r.id,
+                r.center_pts.length()
+            ));
             for (k, v) in &r.osm_tags {
                 txt.add_line(format!("{} = {}", k, v));
             }

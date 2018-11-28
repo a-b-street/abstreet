@@ -6,13 +6,30 @@ use std::collections::{HashMap, HashSet};
 type IntersectionID = usize;
 type RoadID = usize;
 
-pub fn merge_intersections(data: &mut raw_data::Map, map_name: &str, _timer: &mut Timer) {
-    if map_name == "montlake" {
-        merge(data, 423); // 23rd and Shelby
-        merge(data, 419); // 23rd and Hamlin
-        merge(data, 258); // 23rd and Louisa
-        merge(data, 42); // 25th and Lynn
+const MIN_ROAD_LENGTH_METERS: f64 = 15.0;
+
+pub fn merge_intersections(data: &mut raw_data::Map, timer: &mut Timer) {
+    timer.start_iter("merge short roads", data.roads.len());
+
+    let mut merged = 0;
+    for i in 0..data.roads.len() {
+        timer.next();
+        // We destroy roads and shorten this list as we go. Don't break, so the timer finishes.
+        if i >= data.roads.len() {
+            continue;
+        }
+
+        let mut length = 0.0;
+        for pair in data.roads[i].points.windows(2) {
+            length += pair[0].gps_dist_meters(pair[1]);
+        }
+        if length < MIN_ROAD_LENGTH_METERS {
+            merge(data, i);
+            merged += 1;
+        }
     }
+
+    info!("Merged {} short roads", merged);
 }
 
 fn merge(data: &mut raw_data::Map, merge_road: RoadID) {
