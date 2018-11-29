@@ -2,17 +2,27 @@ use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {LaneID, LaneType, Map, Position, Traversable, TurnID};
+use {BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 
 pub type Trace = PolyLine;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
     // Sidewalks only!
     ContraflowLane(LaneID),
     Turn(TurnID),
+}
+
+// TODO This is like PathStep, but also encodes the possibility of taking a bus.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+enum InternalPathStep {
+    Lane(LaneID),
+    ContraflowLane(LaneID),
+    Turn(TurnID),
+    // TODO It'd be great to assign a RouteID in the map layer and not clone a string constantly.
+    RideBus(BusStopID, BusStopID, String),
 }
 
 impl PathStep {
@@ -214,13 +224,11 @@ pub struct PathRequest {
     pub can_use_bus_lanes: bool,
 }
 
-pub enum Pathfinder {
-    ShortestDistance {
-        goal_pt: Pt2D,
-        can_use_bike_lanes: bool,
-        can_use_bus_lanes: bool,
-    },
-    UsingTransit,
+pub struct Pathfinder {
+    goal_pt: Pt2D,
+    can_use_bike_lanes: bool,
+    can_use_bus_lanes: bool,
+    can_use_transit: bool,
 }
 
 impl Pathfinder {
@@ -229,128 +237,195 @@ impl Pathfinder {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
         let goal_pt = req.end.pt(map);
-        Pathfinder::ShortestDistance {
+        let internal_steps = Pathfinder {
             goal_pt,
             can_use_bike_lanes: req.can_use_bike_lanes,
             can_use_bus_lanes: req.can_use_bus_lanes,
-        }.pathfind(map, req.start, req.end)
+            can_use_transit: false,
+        }.pathfind(map, req.start, req.end)?;
+        let steps: Vec<PathStep> = internal_steps
+            .into_iter()
+            .map(|s| match s {
+                InternalPathStep::Lane(l) => PathStep::Lane(l),
+                InternalPathStep::ContraflowLane(l) => PathStep::ContraflowLane(l),
+                InternalPathStep::Turn(t) => PathStep::Turn(t),
+                InternalPathStep::RideBus(_, _, _) => {
+                    panic!("shortest_distance pathfind had {:?} as a step", s)
+                }
+            }).collect();
+        assert_eq!(
+            steps[0].as_traversable(),
+            Traversable::Lane(req.start.lane())
+        );
+        assert_eq!(
+            steps.last().unwrap().as_traversable(),
+            Traversable::Lane(req.end.lane())
+        );
+        return Some(Path::new(map, steps, req.end.dist_along()));
+    }
+
+    // Attempt the pathfinding and see if riding a bus is a step.
+    pub fn should_use_transit(
+        map: &Map,
+        req: PathRequest,
+    ) -> Option<(BusStopID, BusStopID, String)> {
+        // TODO using first_pt here and in heuristic_dist is particularly bad for walking
+        // directions
+        let goal_pt = req.end.pt(map);
+        let internal_steps = Pathfinder {
+            goal_pt,
+            can_use_bike_lanes: false,
+            can_use_bus_lanes: false,
+            can_use_transit: true,
+        }.pathfind(map, req.start, req.end)?;
+        for s in internal_steps.into_iter() {
+            if let InternalPathStep::RideBus(stop1, stop2, route) = s {
+                return Some((stop1, stop2, route));
+            }
+        }
+        None
     }
 
     // Returns the cost of the potential next step, plus an optional heuristic to the goal
-    fn expand(&self, map: &Map, current: PathStep) -> Vec<(PathStep, f64)> {
-        match self {
-            Pathfinder::ShortestDistance {
-                goal_pt,
-                can_use_bike_lanes,
-                can_use_bus_lanes,
-            } => match current {
-                PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                    let endpoint = if current == PathStep::Lane(l) {
-                        map.get_l(l).dst_i
+    // TODO Do this cost/heuristic thing somewhere else.
+    fn expand(&self, map: &Map, current: InternalPathStep) -> Vec<(InternalPathStep, f64)> {
+        let mut results: Vec<(InternalPathStep, f64)> = Vec::new();
+        match current {
+            InternalPathStep::Lane(l) | InternalPathStep::ContraflowLane(l) => {
+                let endpoint = if current == InternalPathStep::Lane(l) {
+                    map.get_l(l).dst_i
+                } else {
+                    map.get_l(l).src_i
+                };
+                for (turn, next) in map.get_next_turns_and_lanes(l, endpoint).into_iter() {
+                    if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                        // Skip
+                    } else if !self.can_use_bus_lanes && next.lane_type == LaneType::Bus {
+                        // Skip
                     } else {
-                        map.get_l(l).src_i
-                    };
-                    map.get_next_turns_and_lanes(l, endpoint)
-                        .into_iter()
-                        .filter_map(|(turn, next)| {
-                            if !can_use_bike_lanes && next.lane_type == LaneType::Biking {
-                                None
-                            } else if !can_use_bus_lanes && next.lane_type == LaneType::Bus {
-                                None
-                            } else {
-                                let cost = turn.length();
-                                let heuristic = Line::new(turn.last_pt(), *goal_pt).length();
-                                Some((PathStep::Turn(turn.id), (cost + heuristic).value_unsafe))
-                            }
-                        }).collect()
-                }
-                PathStep::Turn(t) => {
-                    let dst = map.get_l(t.dst);
-                    let cost = dst.length();
-                    if t.parent == dst.src_i {
-                        let heuristic = Line::new(dst.last_pt(), *goal_pt).length();
-                        vec![(PathStep::Lane(dst.id), (cost + heuristic).value_unsafe)]
-                    } else {
-                        let heuristic = Line::new(dst.first_pt(), *goal_pt).length();
-                        vec![(
-                            PathStep::ContraflowLane(dst.id),
+                        let cost = turn.length();
+                        let heuristic = Line::new(turn.last_pt(), self.goal_pt).length();
+                        results.push((
+                            InternalPathStep::Turn(turn.id),
                             (cost + heuristic).value_unsafe,
-                        )]
+                        ));
                     }
                 }
-            },
-            Pathfinder::UsingTransit => {
-                // TODO Need to add a PathStep for riding a bus between two stops.
-                /*
-                for stop1 in &current_lane.bus_stops {
-                    for stop2 in &map.get_connected_bus_stops(*stop1) {
-                        results.push((stop2.sidewalk, current_length));
+
+                if self.can_use_transit {
+                    for stop1 in &map.get_l(l).bus_stops {
+                        for (stop2, route) in map.get_connected_bus_stops(*stop1).into_iter() {
+                            // No cost for riding the bus, for now.
+                            let heuristic =
+                                Line::new(map.get_bs(stop2).sidewalk_pos.pt(map), self.goal_pt)
+                                    .length();
+                            results.push((
+                                InternalPathStep::RideBus(*stop1, stop2, route),
+                                heuristic.value_unsafe,
+                            ));
+                        }
                     }
                 }
-                */
-                Vec::new()
             }
-        }
+            InternalPathStep::Turn(t) => {
+                let dst = map.get_l(t.dst);
+                let cost = dst.length();
+                if t.parent == dst.src_i {
+                    let heuristic = Line::new(dst.last_pt(), self.goal_pt).length();
+                    results.push((
+                        InternalPathStep::Lane(dst.id),
+                        (cost + heuristic).value_unsafe,
+                    ));
+                } else {
+                    let heuristic = Line::new(dst.first_pt(), self.goal_pt).length();
+                    results.push((
+                        InternalPathStep::ContraflowLane(dst.id),
+                        (cost + heuristic).value_unsafe,
+                    ));
+                }
+            }
+            InternalPathStep::RideBus(_, stop2, _) => {
+                let pos = map.get_bs(stop2).sidewalk_pos;
+                let sidewalk = map.get_l(pos.lane());
+                if pos.dist_along() != sidewalk.length() {
+                    let cost = sidewalk.length() - pos.dist_along();
+                    let heuristic = Line::new(sidewalk.last_pt(), self.goal_pt).length();
+                    results.push((
+                        InternalPathStep::Lane(sidewalk.id),
+                        (cost + heuristic).value_unsafe,
+                    ));
+                }
+                if pos.dist_along() != 0.0 * si::M {
+                    let cost = pos.dist_along();
+                    let heuristic = Line::new(sidewalk.first_pt(), self.goal_pt).length();
+                    results.push((
+                        InternalPathStep::ContraflowLane(sidewalk.id),
+                        (cost + heuristic).value_unsafe,
+                    ));
+                }
+            }
+        };
+        results
     }
 
-    fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Path> {
+    fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Vec<InternalPathStep>> {
         if start.lane() == end.lane() {
             if start.dist_along() > end.dist_along() {
                 assert_eq!(map.get_l(start.lane()).lane_type, LaneType::Sidewalk);
-                return Some(Path::new(
-                    map,
-                    vec![PathStep::ContraflowLane(start.lane())],
-                    end.dist_along(),
-                ));
+                return Some(vec![InternalPathStep::ContraflowLane(start.lane())]);
             }
-            return Some(Path::new(
-                map,
-                vec![PathStep::Lane(start.lane())],
-                end.dist_along(),
-            ));
+            return Some(vec![InternalPathStep::Lane(start.lane())]);
         }
 
         // This should be deterministic, since cost ties would be broken by PathStep.
-        let mut queue: BinaryHeap<(NotNaN<f64>, PathStep)> = BinaryHeap::new();
-        queue.push((NotNaN::new(-0.0).unwrap(), PathStep::Lane(start.lane())));
-        if map.get_l(start.lane()).is_sidewalk() && start.dist_along() != 0.0 * si::M {
+        let mut queue: BinaryHeap<(NotNaN<f64>, InternalPathStep)> = BinaryHeap::new();
+        if map.get_l(start.lane()).is_sidewalk() {
+            if start.dist_along() != map.get_l(start.lane()).length() {
+                queue.push((
+                    NotNaN::new(-0.0).unwrap(),
+                    InternalPathStep::Lane(start.lane()),
+                ));
+            }
+            if start.dist_along() != 0.0 * si::M {
+                queue.push((
+                    NotNaN::new(-0.0).unwrap(),
+                    InternalPathStep::ContraflowLane(start.lane()),
+                ));
+            }
+        } else {
             queue.push((
                 NotNaN::new(-0.0).unwrap(),
-                PathStep::ContraflowLane(start.lane()),
+                InternalPathStep::Lane(start.lane()),
             ));
         }
 
-        let mut backrefs: HashMap<PathStep, PathStep> = HashMap::new();
+        let mut backrefs: HashMap<InternalPathStep, InternalPathStep> = HashMap::new();
 
         while !queue.is_empty() {
             let (cost_sofar, current) = queue.pop().unwrap();
 
             // Found it, now produce the path
-            if current.as_traversable() == Traversable::Lane(end.lane()) {
-                let mut reversed_steps: Vec<PathStep> = Vec::new();
+            if current == InternalPathStep::Lane(end.lane())
+                || current == InternalPathStep::ContraflowLane(end.lane())
+            {
+                let mut reversed_steps: Vec<InternalPathStep> = Vec::new();
                 let mut lookup = current;
                 loop {
-                    reversed_steps.push(lookup);
-                    if lookup.as_traversable() == Traversable::Lane(start.lane()) {
+                    reversed_steps.push(lookup.clone());
+                    if lookup == InternalPathStep::Lane(start.lane())
+                        || lookup == InternalPathStep::ContraflowLane(start.lane())
+                    {
                         reversed_steps.reverse();
-                        assert_eq!(
-                            reversed_steps[0].as_traversable(),
-                            Traversable::Lane(start.lane())
-                        );
-                        assert_eq!(
-                            reversed_steps.last().unwrap().as_traversable(),
-                            Traversable::Lane(end.lane())
-                        );
-                        return Some(Path::new(map, reversed_steps, end.dist_along()));
+                        return Some(reversed_steps);
                     }
-                    lookup = backrefs[&lookup];
+                    lookup = backrefs[&lookup].clone();
                 }
             }
 
             // Expand
-            for (next, cost) in self.expand(map, current).into_iter() {
+            for (next, cost) in self.expand(map, current.clone()).into_iter() {
                 if !backrefs.contains_key(&next) {
-                    backrefs.insert(next, current);
+                    backrefs.insert(next.clone(), current.clone());
                     // Negate since BinaryHeap is a max-heap.
                     queue.push((
                         NotNaN::new(-1.0).unwrap() * (NotNaN::new(cost).unwrap() + cost_sofar),

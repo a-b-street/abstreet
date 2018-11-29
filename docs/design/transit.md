@@ -80,3 +80,20 @@ Buses have no trip, and that breaks some UI stuff. What if we assign some dummy 
 - Have to filter out buses from score summary. Can detect easily by lack of ped.
 
 This seems actually not bad. Let's do that.
+
+## Peds using transit
+
+- Similar to use_bike, have a param to decide if the ped will consider transit or not.
+- For now, cost transit rides as ZERO cost. Need to switch to time estimates otherwise.
+
+The complicated part: should RideBus be a PathStep or not?
+- eventually yes, along with many more FSM actions
+- but right now, no -- riding the bus needs to be a separate trip leg.
+	- We just need the first walking part of the trip, and to know what two bus stops to use, and the route.
+
+- other problem: dont know trip legs...
+	- make/scenario calls spawner to make trips using various modes.
+	- the trip legs are set up-front there.
+	- queued command to Walk then pathfinds and would discover we should use transit! can we amend the trip easily at that point?
+		- if we did this lazily in Command::Walk, then bus transfers / park + take a bus could emerge.
+		- or do we pathfind in spawn and throw away most of the result (or plumb it along as an optimization)?

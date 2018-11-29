@@ -27,10 +27,38 @@ Instead of picking acceleration in order to achieve some goal, just state the
 goals and magically set the distance/speed based on that. As long as it's
 physically possible, why go through extra work?
 
+Instead of returning accel, what if we return (dist to travel this tick, new speed).
+- How can we sanity check that those choices are reasonable? Seems like we
+  still have to sorta reason about acceleration properties of vehicles.
+- But maybe not. each constraint...
+	- dont hit lead... if we're ALREADY close to them (current speed * timestep puts us within follow_dist of them right now), just warp follow_dist away from where they are now.
+	- if we need to stop for a point that's close, then we ideally want to do the kinda (do this distance, over this duration) thing and somehow not reason about what to do the next few ticks. event based approach for one thing. :\
+
+Or different primitives, much closer to event sim...
+- Often return (dist to wind up at, duration needed to get there)
+	- linear interpolate position for rendering in between there
+	- use for freeflow travel across most of a lane
+	- to slow down and stop for a fixed point, do a new interval
+	  (STOPPING_DISTANCE_CONSTANT, few seconds to stop). the vehicle will
+	  kinda linearly slow down into the stop. as long as the stopping
+	  distance and time is reasonable based on the vehicle and the speed
+	  limit (freeflow vs shuffling forwards case?), then this'll look fine.
+- What about following vehicles?
+	- it'd be cool to have some freeflow movement to catch up to a lead vehicle, but if we look at the lead's position when we first analyze, we'll cover some ground, then replan again and do zenos paradox, planning freeflow for less new dist...
+	- parked cars departing will have to interrupt existing plans!
+	- rendering becomes expensive to do piecemeal; need to process cars in order on a queue to figure out positions. if we need to lookup a single one, might need to do a bunch of hops to figure out the front.
+		- not really easy to percolate down a single time to pass the intersection from the lead vehicle... intersections need to stay pretty detailedish.
+
 Lookahead constraints:
 - go the speed limit
 - dont hit lead vehicle (dist is limited by their dist + length + following dist)
 - stop by a certain point
+- future: do lane-changing stuff
+
+Blah. Initial simplicity of this idea lost. Maybe try a single, simple hack
+out: replace accel_to_follow with something to warp to the right spot behind an
+agent and set the speed equal to min(follower's max speed, lead vehicle's
+current speed).
 
 ## The software engineering question
 
@@ -40,3 +68,13 @@ DrawAgents trait, but a bit more expanded. Except stuff like time travel
 applied to discrete-time sim can't support debugging agents or showing their
 path. I think time travel with discrete-event would work fine -- just storing
 all the previous states with the exact times.
+
+## What broke about the old simplified driving model?
+
+- straw model has some quirks with queueing
+	- after the lead vehicle starts the turn, the queue behind it magically warps to the front of the road
+		- following distance needs to apply across lanes/turns -- lookahead has to still happen
+	- the first vehicle in the turn jumps to a strange position based on the front/back rendering
+		- dont remember what this was
+- at signals, cars doing the same turn wont start it until the last car finishes it
+		- dont remember what this was

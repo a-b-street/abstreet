@@ -257,12 +257,14 @@ it?
 
 ## Invariants
 
-I thought I had a list of these somewhere else?
-
 - min length for lanes, turns
 - length for related lanes (sidewalk spot / parking / driving) matching up
 - connectivity
+	- from any sidewalk to any other
+	- from any driving lane to any other
 - no loop lanes (same src and dst endpt)... but what about cul-de-sacs then?
+- associated lanes
+	- parking lane or bus stop without driving lane
 
 ## Border nodes
 

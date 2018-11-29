@@ -504,14 +504,17 @@ impl Map {
     }
 
     // Not including transfers
-    pub fn get_connected_bus_stops(&self, start: BusStopID) -> BTreeSet<BusStopID> {
-        let mut stops: BTreeSet<BusStopID> = BTreeSet::new();
+    pub fn get_connected_bus_stops(&self, start: BusStopID) -> BTreeSet<(BusStopID, String)> {
+        let mut stops: BTreeSet<(BusStopID, String)> = BTreeSet::new();
         for r in &self.bus_routes {
             if r.stops.contains(&start) {
-                stops.extend(r.stops.clone());
+                for stop in &r.stops {
+                    if *stop != start {
+                        stops.insert((*stop, r.name.clone()));
+                    }
+                }
             }
         }
-        stops.remove(&start);
         stops
     }
 
