@@ -117,3 +117,7 @@ Maybe start by hardcoding the things to merge. Don't worry about detection yet. 
 	- extend two roads with points from the tiny road. delete i283
 	- make sure the road attributes match up
 	- do this first; preprocess raw_data.
+
+Ah, the problem with just extending geometry... I think turns need to be
+polylines sometimes. Need to do the merging all the way at the end,
+unfortunately...

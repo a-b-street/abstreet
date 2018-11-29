@@ -76,3 +76,5 @@ Synthetic editor is awesome. How could it help test setup?
 	- for sim tests, print a command to run it in the UI
 
 Let's experiment and make a new binary crate for all tests!
+
+- it'd be neat to later integrate with travis.
