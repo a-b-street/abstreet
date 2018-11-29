@@ -25,6 +25,31 @@ enum InternalPathStep {
     RideBus(BusStopID, BusStopID, String),
 }
 
+impl InternalPathStep {
+    // TODO Should consider the last step too... RideBus then Lane probably won't cross the full
+    // lane.
+    fn cost(&self, map: &Map) -> si::Meter<f64> {
+        match *self {
+            InternalPathStep::Lane(l) | InternalPathStep::ContraflowLane(l) => {
+                map.get_l(l).length()
+            }
+            InternalPathStep::Turn(t) => map.get_t(t).length(),
+            // Free! For now.
+            InternalPathStep::RideBus(_, _, _) => 0.0 * si::M,
+        }
+    }
+
+    fn heuristic(&self, goal_pt: Pt2D, map: &Map) -> si::Meter<f64> {
+        let pt = match *self {
+            InternalPathStep::Lane(l) => map.get_l(l).last_pt(),
+            InternalPathStep::ContraflowLane(l) => map.get_l(l).first_pt(),
+            InternalPathStep::Turn(t) => map.get_t(t).last_pt(),
+            InternalPathStep::RideBus(_, stop2, _) => map.get_bs(stop2).sidewalk_pos.pt(map),
+        };
+        Line::new(pt, goal_pt).length()
+    }
+}
+
 impl PathStep {
     pub fn is_contraflow(&self) -> bool {
         match self {
@@ -286,10 +311,8 @@ impl Pathfinder {
         None
     }
 
-    // Returns the cost of the potential next step, plus an optional heuristic to the goal
-    // TODO Do this cost/heuristic thing somewhere else.
-    fn expand(&self, map: &Map, current: InternalPathStep) -> Vec<(InternalPathStep, f64)> {
-        let mut results: Vec<(InternalPathStep, f64)> = Vec::new();
+    fn expand(&self, map: &Map, current: InternalPathStep) -> Vec<InternalPathStep> {
+        let mut results: Vec<InternalPathStep> = Vec::new();
         match current {
             InternalPathStep::Lane(l) | InternalPathStep::ContraflowLane(l) => {
                 let endpoint = if current == InternalPathStep::Lane(l) {
@@ -303,65 +326,34 @@ impl Pathfinder {
                     } else if !self.can_use_bus_lanes && next.lane_type == LaneType::Bus {
                         // Skip
                     } else {
-                        let cost = turn.length();
-                        let heuristic = Line::new(turn.last_pt(), self.goal_pt).length();
-                        results.push((
-                            InternalPathStep::Turn(turn.id),
-                            (cost + heuristic).value_unsafe,
-                        ));
+                        results.push(InternalPathStep::Turn(turn.id));
                     }
                 }
 
                 if self.can_use_transit {
                     for stop1 in &map.get_l(l).bus_stops {
                         for (stop2, route) in map.get_connected_bus_stops(*stop1).into_iter() {
-                            // No cost for riding the bus, for now.
-                            let heuristic =
-                                Line::new(map.get_bs(stop2).sidewalk_pos.pt(map), self.goal_pt)
-                                    .length();
-                            results.push((
-                                InternalPathStep::RideBus(*stop1, stop2, route),
-                                heuristic.value_unsafe,
-                            ));
+                            results.push(InternalPathStep::RideBus(*stop1, stop2, route));
                         }
                     }
                 }
             }
             InternalPathStep::Turn(t) => {
                 let dst = map.get_l(t.dst);
-                let cost = dst.length();
                 if t.parent == dst.src_i {
-                    let heuristic = Line::new(dst.last_pt(), self.goal_pt).length();
-                    results.push((
-                        InternalPathStep::Lane(dst.id),
-                        (cost + heuristic).value_unsafe,
-                    ));
+                    results.push(InternalPathStep::Lane(dst.id));
                 } else {
-                    let heuristic = Line::new(dst.first_pt(), self.goal_pt).length();
-                    results.push((
-                        InternalPathStep::ContraflowLane(dst.id),
-                        (cost + heuristic).value_unsafe,
-                    ));
+                    results.push(InternalPathStep::ContraflowLane(dst.id));
                 }
             }
             InternalPathStep::RideBus(_, stop2, _) => {
                 let pos = map.get_bs(stop2).sidewalk_pos;
                 let sidewalk = map.get_l(pos.lane());
                 if pos.dist_along() != sidewalk.length() {
-                    let cost = sidewalk.length() - pos.dist_along();
-                    let heuristic = Line::new(sidewalk.last_pt(), self.goal_pt).length();
-                    results.push((
-                        InternalPathStep::Lane(sidewalk.id),
-                        (cost + heuristic).value_unsafe,
-                    ));
+                    results.push(InternalPathStep::Lane(sidewalk.id));
                 }
                 if pos.dist_along() != 0.0 * si::M {
-                    let cost = pos.dist_along();
-                    let heuristic = Line::new(sidewalk.first_pt(), self.goal_pt).length();
-                    results.push((
-                        InternalPathStep::ContraflowLane(sidewalk.id),
-                        (cost + heuristic).value_unsafe,
-                    ));
+                    results.push(InternalPathStep::ContraflowLane(sidewalk.id));
                 }
             }
         };
@@ -423,12 +415,15 @@ impl Pathfinder {
             }
 
             // Expand
-            for (next, cost) in self.expand(map, current.clone()).into_iter() {
+            for next in self.expand(map, current.clone()).into_iter() {
                 if !backrefs.contains_key(&next) {
                     backrefs.insert(next.clone(), current.clone());
+                    let cost = next.cost(map);
+                    let heuristic = next.heuristic(self.goal_pt, map);
                     // Negate since BinaryHeap is a max-heap.
                     queue.push((
-                        NotNaN::new(-1.0).unwrap() * (NotNaN::new(cost).unwrap() + cost_sofar),
+                        NotNaN::new(-1.0).unwrap()
+                            * (NotNaN::new((cost + heuristic).value_unsafe).unwrap() + cost_sofar),
                         next,
                     ));
                 }
