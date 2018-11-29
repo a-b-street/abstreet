@@ -291,17 +291,18 @@ impl Pathfinder {
     // Attempt the pathfinding and see if riding a bus is a step.
     pub fn should_use_transit(
         map: &Map,
-        req: PathRequest,
+        start: Position,
+        goal: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
-        let goal_pt = req.end.pt(map);
+        let goal_pt = goal.pt(map);
         let internal_steps = Pathfinder {
             goal_pt,
             can_use_bike_lanes: false,
             can_use_bus_lanes: false,
             can_use_transit: true,
-        }.pathfind(map, req.start, req.end)?;
+        }.pathfind(map, start, goal)?;
         for s in internal_steps.into_iter() {
             if let InternalPathStep::RideBus(stop1, stop2, route) = s {
                 return Some((stop1, stop2, route));
@@ -362,7 +363,9 @@ impl Pathfinder {
     fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Vec<InternalPathStep>> {
         if start.lane() == end.lane() {
             if start.dist_along() > end.dist_along() {
-                assert_eq!(map.get_l(start.lane()).lane_type, LaneType::Sidewalk);
+                if !map.get_l(start.lane()).is_sidewalk() {
+                    panic!("Pathfinding request with start > end dist, for non-sidewalks. start {:?} and end {:?}", start, end);
+                }
                 return Some(vec![InternalPathStep::ContraflowLane(start.lane())]);
             }
             return Some(vec![InternalPathStep::Lane(start.lane())]);

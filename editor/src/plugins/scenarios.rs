@@ -154,6 +154,9 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
                 percent_biking: wizard
                     .input_percent("What percent of the walking trips will bike instead?")?,
+                percent_use_transit: wizard.input_percent(
+                    "What percent of the walking trips will consider taking transit?",
+                )?,
             });
         }
         x if x == spawn_border => {
@@ -170,6 +173,9 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                     "Which border should the agents spawn at?",
                 )?,
                 goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
+                percent_use_transit: wizard.input_percent(
+                    "What percent of the walking trips will consider taking transit?",
+                )?,
             });
         }
         _ => unreachable!(),

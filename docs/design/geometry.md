@@ -75,6 +75,8 @@ Not aiming to get it right forever, just improving the mess now.
 
 conversions to Vec2d ONLY for graphics; maybe even scope those conversions to render/
 
+Eventually, may want https://www.redblobgames.com/articles/curved-paths/
+
 ## Polylines
 
 The polyline problem:

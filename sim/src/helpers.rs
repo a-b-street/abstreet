@@ -95,6 +95,7 @@ impl Sim {
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 percent_biking: 0.5,
+                percent_use_transit: 0.5,
             }],
             // If there are no sidewalks/driving lanes at a border, scenario instantiation will
             // just warn and skip them.
@@ -109,6 +110,7 @@ impl Sim {
                     stop_tick: Tick::from_seconds(5),
                     start_from_border: i.id,
                     goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                    percent_use_transit: 0.5,
                 }).collect(),
         };
         for i in map.all_outgoing_borders() {
@@ -119,6 +121,7 @@ impl Sim {
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Border(i.id),
                 percent_biking: 0.5,
+                percent_use_transit: 0.5,
             });
         }
         s.instantiate(self, map);
@@ -126,18 +129,6 @@ impl Sim {
         for route in map.get_all_bus_routes() {
             self.seed_bus_route(route, map);
         }
-
-        /*self.make_ped_using_bus(
-            map,
-            LaneID(550),
-            LaneID(727),
-            BusRouteID(0),
-            map.get_l(LaneID(325)).bus_stops[0].id,
-            map.get_l(LaneID(840)).bus_stops[0].id,
-        );*/
-
-        // TODO this is introducing nondeterminism, because of slight floating point errors.
-        // fragile that this causes it, but true. :\
     }
 
     pub fn seed_parked_cars(
