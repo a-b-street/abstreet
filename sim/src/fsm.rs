@@ -1,7 +1,7 @@
 use dimensioned::si;
 use geom::Pt2D;
-use map_model::{BuildingID, BusStopID, LaneID, Map, TurnID};
-use {CarID, Distance, ParkingSpot, RouteID, Time};
+use map_model::{BuildingID, BusRouteID, BusStopID, LaneID, Map, TurnID};
+use {CarID, Distance, ParkingSpot, Time};
 
 // This is experimental for now, but it might subsume the entire design of the sim crate.
 
@@ -27,7 +27,7 @@ enum Action {
     CrossLaneContraflow(LaneID),
     CrossPathFromBuildingToSidewalk(BuildingID),
     CrossPathFromSidewalkToBuilding(BuildingID),
-    WaitForBus(BusStopID, RouteID),
+    WaitForBus(BusStopID, BusRouteID),
     // (from, to)
     RideBus(BusStopID, BusStopID),
     // TODO parking, unparking bike

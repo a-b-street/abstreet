@@ -13,7 +13,7 @@ pub fn run(t: &mut TestRunner) {
                 &mut Timer::new("setup test"),
             );
             let route = map.get_bus_route("49").unwrap();
-            let (_, buses) = sim.seed_bus_route(route, &map);
+            let buses = sim.seed_bus_route(route, &map);
             let bus = buses[0];
             h.setup_done(&sim);
 
@@ -43,7 +43,7 @@ pub fn run(t: &mut TestRunner) {
                 &mut Timer::new("setup test"),
             );
             let route = map.get_bus_route("49").unwrap();
-            let (route_id, buses) = sim.seed_bus_route(route, &map);
+            let buses = sim.seed_bus_route(route, &map);
             let bus = buses[0];
             let ped_stop1 = route.stops[1];
             let ped_stop2 = route.stops[2];
@@ -51,7 +51,7 @@ pub fn run(t: &mut TestRunner) {
             let start_bldg = map_model::BuildingID(1451);
             let goal_bldg = map_model::BuildingID(454);
             let ped = sim
-                .seed_trip_using_bus(start_bldg, goal_bldg, route_id, ped_stop1, ped_stop2, &map);
+                .seed_trip_using_bus(start_bldg, goal_bldg, route.id, ped_stop1, ped_stop2, &map);
             h.setup_done(&sim);
 
             sim.run_until_expectations_met(

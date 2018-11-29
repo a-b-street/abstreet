@@ -2,7 +2,7 @@ use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
+use {BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 
 pub type Trace = PolyLine;
 
@@ -16,13 +16,12 @@ pub enum PathStep {
 }
 
 // TODO This is like PathStep, but also encodes the possibility of taking a bus.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 enum InternalPathStep {
     Lane(LaneID),
     ContraflowLane(LaneID),
     Turn(TurnID),
-    // TODO It'd be great to assign a RouteID in the map layer and not clone a string constantly.
-    RideBus(BusStopID, BusStopID, String),
+    RideBus(BusStopID, BusStopID, BusRouteID),
 }
 
 impl InternalPathStep {
@@ -293,7 +292,7 @@ impl Pathfinder {
     pub fn should_use_transit(
         map: &Map,
         req: PathRequest,
-    ) -> Option<(BusStopID, BusStopID, String)> {
+    ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
         // TODO using first_pt here and in heuristic_dist is particularly bad for walking
         // directions
         let goal_pt = req.end.pt(map);
@@ -403,21 +402,21 @@ impl Pathfinder {
                 let mut reversed_steps: Vec<InternalPathStep> = Vec::new();
                 let mut lookup = current;
                 loop {
-                    reversed_steps.push(lookup.clone());
+                    reversed_steps.push(lookup);
                     if lookup == InternalPathStep::Lane(start.lane())
                         || lookup == InternalPathStep::ContraflowLane(start.lane())
                     {
                         reversed_steps.reverse();
                         return Some(reversed_steps);
                     }
-                    lookup = backrefs[&lookup].clone();
+                    lookup = backrefs[&lookup];
                 }
             }
 
             // Expand
-            for next in self.expand(map, current.clone()).into_iter() {
+            for next in self.expand(map, current).into_iter() {
                 if !backrefs.contains_key(&next) {
-                    backrefs.insert(next.clone(), current.clone());
+                    backrefs.insert(next, current);
                     let cost = next.cost(map);
                     let heuristic = next.heuristic(self.goal_pt, map);
                     // Negate since BinaryHeap is a max-heap.

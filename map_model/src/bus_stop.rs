@@ -14,6 +14,15 @@ impl fmt::Display for BusStopID {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct BusRouteID(pub usize);
+
+impl fmt::Display for BusRouteID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "BusRouteID({0})", self.0)
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct BusStop {
     pub id: BusStopID,
@@ -27,9 +36,9 @@ impl BusStop {
     }
 }
 
-// TODO This sort of doesn't fit in the map layer, but it's quite convenient to store it.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BusRoute {
+    pub id: BusRouteID,
     pub name: String,
     pub stops: Vec<BusStopID>,
 }

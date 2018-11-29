@@ -10,9 +10,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io;
 use std::path;
 use {
-    Area, AreaID, Building, BuildingID, BusRoute, BusStop, BusStopID, Intersection, IntersectionID,
-    IntersectionType, Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn, TurnID,
-    LANE_THICKNESS,
+    Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, Intersection,
+    IntersectionID, IntersectionType, Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn,
+    TurnID, LANE_THICKNESS,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -504,13 +504,13 @@ impl Map {
     }
 
     // Not including transfers
-    pub fn get_connected_bus_stops(&self, start: BusStopID) -> BTreeSet<(BusStopID, String)> {
-        let mut stops: BTreeSet<(BusStopID, String)> = BTreeSet::new();
+    pub fn get_connected_bus_stops(&self, start: BusStopID) -> Vec<(BusStopID, BusRouteID)> {
+        let mut stops = Vec::new();
         for r in &self.bus_routes {
             if r.stops.contains(&start) {
                 for stop in &r.stops {
                     if *stop != start {
-                        stops.insert((*stop, r.name.clone()));
+                        stops.push((*stop, r.id));
                     }
                 }
             }

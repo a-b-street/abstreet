@@ -2,24 +2,25 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use events::Event;
 use instrument::capture_backtrace;
-use map_model::{BusRoute, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
+use map_model::{BusRoute, BusRouteID, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
 use spawn::Spawner;
 use std::collections::BTreeMap;
 use trips::TripManager;
 use view::AgentView;
 use walking::WalkingSimState;
-use {CarID, Distance, PedestrianID, RouteID, Tick};
+use {CarID, Distance, PedestrianID, Tick};
 
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, PartialEq)]
 struct Route {
-    id: RouteID,
+    // Just copy the info over here from map_model for convenience
+    id: BusRouteID,
     name: String,
-    buses: Vec<CarID>,
-    // Just copy the info over here for convenience
     stops: Vec<BusStop>,
+
+    buses: Vec<CarID>,
     // TODO info on schedules
 }
 
@@ -36,7 +37,7 @@ impl Route {
 #[derive(Serialize, Deserialize, PartialEq)]
 struct Bus {
     car: CarID,
-    route: RouteID,
+    route: BusRouteID,
     passengers: Vec<PedestrianID>,
     state: BusState,
 }
@@ -59,7 +60,7 @@ pub struct TransitSimState {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    routes: BTreeMap<RouteID, Route>,
+    routes: BTreeMap<BusRouteID, Route>,
 }
 
 impl TransitSimState {
@@ -70,23 +71,21 @@ impl TransitSimState {
         }
     }
 
-    pub fn create_empty_route(&mut self, route: &BusRoute, map: &Map) -> RouteID {
+    pub fn create_empty_route(&mut self, route: &BusRoute, map: &Map) {
         assert!(route.stops.len() > 1);
-        let id = RouteID(self.routes.len());
         self.routes.insert(
-            id,
+            route.id,
             Route {
-                id,
+                id: route.id,
                 name: route.name.clone(),
-                buses: Vec::new(),
                 stops: route.stops.iter().map(|s| map.get_bs(*s).clone()).collect(),
+                buses: Vec::new(),
             },
         );
-        id
     }
 
     // (next stop, start distance on the driving lane, first path)
-    pub fn get_route_starts(&self, id: RouteID, map: &Map) -> Vec<(StopIdx, Distance, Path)> {
+    pub fn get_route_starts(&self, id: BusRouteID, map: &Map) -> Vec<(StopIdx, Distance, Path)> {
         let route = &self.routes[&id];
         route
             .stops
@@ -111,7 +110,7 @@ impl TransitSimState {
             }).collect()
     }
 
-    pub fn bus_created(&mut self, bus: CarID, route: RouteID, next_stop_idx: StopIdx) {
+    pub fn bus_created(&mut self, bus: CarID, route: BusRouteID, next_stop_idx: StopIdx) {
         self.routes.get_mut(&route).unwrap().buses.push(bus);
         self.buses.insert(
             bus,

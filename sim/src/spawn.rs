@@ -3,8 +3,8 @@ use dimensioned::si;
 use driving::{CreateCar, DrivingGoal, DrivingSimState};
 use kinematics::Vehicle;
 use map_model::{
-    BuildingID, BusRoute, BusStopID, LaneID, LaneType, Map, Path, PathRequest, Pathfinder,
-    Position, RoadID,
+    BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
+    Pathfinder, Position, RoadID,
 };
 use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
@@ -14,9 +14,7 @@ use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use transit::TransitSimState;
 use trips::{TripLeg, TripManager};
 use walking::{CreatePedestrian, SidewalkSpot};
-use {
-    AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, RouteID, Tick, TripID, VehicleType,
-};
+use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {
@@ -294,12 +292,12 @@ impl Spawner {
         transit_sim: &mut TransitSimState,
         trips: &mut TripManager,
         now: Tick,
-    ) -> (RouteID, Vec<CarID>) {
-        let route_id = transit_sim.create_empty_route(route, map);
+    ) -> Vec<CarID> {
+        transit_sim.create_empty_route(route, map);
         let mut results: Vec<CarID> = Vec::new();
         // Try to spawn a bus at each stop
         for (next_stop_idx, start_dist_along, path) in
-            transit_sim.get_route_starts(route_id, map).into_iter()
+            transit_sim.get_route_starts(route.id, map).into_iter()
         {
             let id = CarID(self.car_id_counter);
             self.car_id_counter += 1;
@@ -310,7 +308,7 @@ impl Spawner {
             );
 
             // TODO Aww, we create an orphan trip if the bus can't spawn.
-            let trip = trips.new_trip(now, None, vec![TripLeg::ServeBusRoute(id, route_id)]);
+            let trip = trips.new_trip(now, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
             if driving_sim.start_car_on_lane(
                 events,
                 now,
@@ -326,17 +324,17 @@ impl Spawner {
                 },
             ) {
                 trips.agent_starting_trip_leg(AgentID::Car(id), trip);
-                transit_sim.bus_created(id, route_id, next_stop_idx);
-                info!("Spawned bus {} for route {} ({})", id, route.name, route_id);
+                transit_sim.bus_created(id, route.id, next_stop_idx);
+                info!("Spawned bus {} for route {} ({})", id, route.name, route.id);
                 results.push(id);
             } else {
                 warn!(
                     "No room for a bus headed towards stop {} of {} ({}), giving up",
-                    next_stop_idx, route.name, route_id
+                    next_stop_idx, route.name, route.id
                 );
             }
         }
-        (route_id, results)
+        results
     }
 
     // This happens immediately; it isn't scheduled.
@@ -548,7 +546,7 @@ impl Spawner {
         map: &Map,
         start: SidewalkSpot,
         goal: SidewalkSpot,
-        route: RouteID,
+        route: BusRouteID,
         stop1: BusStopID,
         stop2: BusStopID,
         trips: &mut TripManager,

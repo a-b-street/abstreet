@@ -7,7 +7,10 @@ use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
-use {BusRoute, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder, Position};
+use {
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder,
+    Position,
+};
 
 pub fn make_bus_stops(
     map: &Map,
@@ -83,7 +86,9 @@ pub fn make_bus_stops(
                 );
                 continue;
             }
+            let id = BusRouteID(routes.len());
             routes.push(BusRoute {
+                id,
                 name: route_name.to_string(),
                 stops,
             });

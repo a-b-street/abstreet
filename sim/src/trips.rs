@@ -1,10 +1,10 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use driving::DrivingGoal;
 use kinematics::Vehicle;
-use map_model::BusStopID;
+use map_model::{BusRouteID, BusStopID};
 use std::collections::{BTreeMap, VecDeque};
 use walking::SidewalkSpot;
-use {AgentID, CarID, ParkedCar, PedestrianID, RouteID, ScoreSummary, Tick, TripID};
+use {AgentID, CarID, ParkedCar, PedestrianID, ScoreSummary, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct TripManager {
@@ -141,7 +141,7 @@ impl TripManager {
     }
 
     // Combo query/transition from transit
-    pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: RouteID) -> bool {
+    pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: BusRouteID) -> bool {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
 
         let board = match trip.legs[1] {
@@ -320,8 +320,8 @@ pub enum TripLeg {
     Drive(ParkedCar, DrivingGoal),
     DriveFromBorder(CarID, DrivingGoal),
     Bike(Vehicle, DrivingGoal),
-    RideBus(RouteID, BusStopID),
-    ServeBusRoute(CarID, RouteID),
+    RideBus(BusRouteID, BusStopID),
+    ServeBusRoute(CarID, BusRouteID),
 }
 
 impl TripLeg {

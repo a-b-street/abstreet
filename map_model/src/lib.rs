@@ -36,7 +36,7 @@ mod turn;
 use abstutil::Cloneable;
 pub use area::{Area, AreaID, AreaType};
 pub use building::{Building, BuildingID, FrontPath};
-pub use bus_stop::{BusRoute, BusStop, BusStopID};
+pub use bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use edits::{EditReason, RoadEdits};
 pub use find_closest::FindClosest;
 pub use intersection::{Intersection, IntersectionID, IntersectionType};
