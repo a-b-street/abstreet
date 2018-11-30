@@ -361,6 +361,8 @@ impl Pathfinder {
     }
 
     fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Vec<InternalPathStep>> {
+        let debug = start.lane().0 == 1871 && end.lane().0 == 1913;
+
         if start.lane() == end.lane() {
             if start.dist_along() > end.dist_along() {
                 if !map.get_l(start.lane()).is_sidewalk() {
@@ -373,30 +375,34 @@ impl Pathfinder {
 
         // This should be deterministic, since cost ties would be broken by PathStep.
         let mut queue: BinaryHeap<(NotNaN<f64>, InternalPathStep)> = BinaryHeap::new();
+        let start_len = map.get_l(start.lane()).length();
         if map.get_l(start.lane()).is_sidewalk() {
-            if start.dist_along() != map.get_l(start.lane()).length() {
-                queue.push((
-                    NotNaN::new(-0.0).unwrap(),
-                    InternalPathStep::Lane(start.lane()),
-                ));
+            if start.dist_along() != start_len {
+                let step = InternalPathStep::Lane(start.lane());
+                let cost = start_len - start.dist_along();
+                let heuristic = step.heuristic(self.goal_pt, map);
+                queue.push((dist_to_pri_queue(cost + heuristic), step));
             }
             if start.dist_along() != 0.0 * si::M {
-                queue.push((
-                    NotNaN::new(-0.0).unwrap(),
-                    InternalPathStep::ContraflowLane(start.lane()),
-                ));
+                let step = InternalPathStep::ContraflowLane(start.lane());
+                let cost = start.dist_along();
+                let heuristic = step.heuristic(self.goal_pt, map);
+                queue.push((dist_to_pri_queue(cost + heuristic), step));
             }
         } else {
-            queue.push((
-                NotNaN::new(-0.0).unwrap(),
-                InternalPathStep::Lane(start.lane()),
-            ));
+            let step = InternalPathStep::Lane(start.lane());
+            let cost = start_len - start.dist_along();
+            let heuristic = step.heuristic(self.goal_pt, map);
+            queue.push((dist_to_pri_queue(cost + heuristic), step));
         }
 
         let mut backrefs: HashMap<InternalPathStep, InternalPathStep> = HashMap::new();
 
         while !queue.is_empty() {
             let (cost_sofar, current) = queue.pop().unwrap();
+            if debug {
+                println!("considering {:?} with cost {}", current, cost_sofar);
+            }
 
             // Found it, now produce the path
             if current == InternalPathStep::Lane(end.lane())
@@ -422,12 +428,10 @@ impl Pathfinder {
                     backrefs.insert(next, current);
                     let cost = next.cost(map);
                     let heuristic = next.heuristic(self.goal_pt, map);
-                    // Negate since BinaryHeap is a max-heap.
-                    queue.push((
-                        NotNaN::new(-1.0).unwrap()
-                            * (NotNaN::new((cost + heuristic).value_unsafe).unwrap() + cost_sofar),
-                        next,
-                    ));
+                    if debug {
+                        println!("  next step {:?} with cost+heuristic {}", next, cost + heuristic);
+                    }
+                    queue.push((dist_to_pri_queue(cost + heuristic) + cost_sofar, next));
                 }
             }
         }
@@ -475,4 +479,9 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
             );
         }
     }
+}
+
+// Negate since BinaryHeap is a max-heap.
+fn dist_to_pri_queue(dist: si::Meter<f64>) -> NotNaN<f64> {
+    NotNaN::new(-1.0 * dist.value_unsafe).unwrap()
 }
