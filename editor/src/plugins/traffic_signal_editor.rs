@@ -2,6 +2,7 @@
 
 // TODO how to edit cycle time?
 
+use control::TurnPriority;
 use ezgui::Color;
 use map_model::IntersectionID;
 use objects::{Ctx, ID};
@@ -86,15 +87,23 @@ impl Plugin for TrafficSignalEditor {
                             let cycle =
                                 &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
                                     [*current_cycle];
-                            if cycle.contains(id) {
+                            if cycle.get_priority(id) == TurnPriority::Priority {
                                 if input
                                     .key_pressed(Key::Backspace, "remove this turn from this cycle")
                                 {
                                     cycle.remove(id);
                                 }
-                            } else if !cycle.conflicts_with(id, map) {
-                                if input.key_pressed(Key::Space, "add this turn to this cycle") {
-                                    cycle.add(id);
+                            } else if cycle.could_be_priority_turn(id, map) {
+                                if input.key_pressed(
+                                    Key::Space,
+                                    "add this turn to this cycle as priority",
+                                ) {
+                                    cycle.add(id, TurnPriority::Priority);
+                                }
+                            } else if cycle.get_priority(id) == TurnPriority::Stop {
+                                if input.key_pressed(Key::Y, "add this turn to this cycle as yield")
+                                {
+                                    cycle.add(id, TurnPriority::Yield);
                                 }
                             }
                         }
@@ -121,17 +130,29 @@ impl Plugin for TrafficSignalEditor {
 
                 let cycle = &ctx.control_map.traffic_signals[&i].cycles[*current_cycle];
 
-                if cycle.contains(t) {
-                    Some(ctx.cs.get("turn in current cycle", Color::GREEN))
-                } else if !cycle.conflicts_with(t, ctx.map) {
-                    Some(ctx.cs.get(
-                        "turn could be in current cycle",
-                        Color::rgba(0, 255, 0, 0.2),
-                    ))
-                } else {
-                    Some(ctx.cs.get("turn conflicts with current cycle", Color::RED))
-                }
                 // TODO maybe something to indicate unused in any cycle so far
+                let could_be_priority = cycle.could_be_priority_turn(t, ctx.map);
+                match cycle.get_priority(t) {
+                    TurnPriority::Priority => {
+                        Some(ctx.cs.get("priority turn in current cycle", Color::GREEN))
+                    }
+                    TurnPriority::Yield => if could_be_priority {
+                        Some(ctx.cs.get(
+                            "yield turn that could be priority turn",
+                            Color::rgb(154, 205, 50),
+                        ))
+                    } else {
+                        Some(ctx.cs.get("yield turn in current cycle", Color::YELLOW))
+                    },
+                    TurnPriority::Stop => if could_be_priority {
+                        Some(
+                            ctx.cs
+                                .get("stop turn that could be priority", Color::rgb(103, 49, 71)),
+                        )
+                    } else {
+                        Some(ctx.cs.get("turn conflicts with current cycle", Color::RED))
+                    },
+                }
             }
             _ => None,
         }

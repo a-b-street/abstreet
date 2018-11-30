@@ -119,6 +119,11 @@ At some point, geometry was a separate layer from the graph base-layer of
 map_model. That doesn't work -- we can't even reason about what turns logically
 exist without operating on cleaned-up geometry.
 
+Control used to be separate from map_model for similar "purity" reasons.
+map_model was supposed to just be unbiased representation of the world, no
+semantics on top. Except bus stops and routes crept it, and map edits lived
+there. Separate control layer is just awkward.
+
 ## IDs
 
 Should LaneID have LaneType bundled in for convenience? CarID and VehicleType?

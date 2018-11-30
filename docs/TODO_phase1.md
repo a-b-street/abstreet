@@ -46,7 +46,6 @@
 
 - code cleanup
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
-	- merge control map into one of the other layers?
 
 - better drawing
 	- detailed turns, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg

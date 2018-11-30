@@ -47,7 +47,7 @@ walking figure, probably at both tips of a sidewalk.
 ### Yielding
 
 Similar to a stop sign, there are turn priorities for cycles. Some turns have
-right-of-way, others need to yield, but can go if there's room.
+right-of-way, others need to yield, but can go if there's room
 
 ## Intersection policies for pedestrians ##
 

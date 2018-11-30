@@ -1,8 +1,8 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use dimensioned::si;
 use map_model::{IntersectionID, Map, TurnID};
 use std;
+use std::collections::BTreeSet;
+use TurnPriority;
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,
@@ -41,82 +41,98 @@ impl ControlTrafficSignal {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cycle {
-    pub turns: Vec<TurnID>,
-    // in the future, what pedestrian crossings this cycle includes, etc
+    pub priority_turns: BTreeSet<TurnID>,
+    pub yield_turns: BTreeSet<TurnID>,
     changed: bool,
     duration: si::Second<f64>,
 }
 
 impl Cycle {
-    pub fn conflicts_with(&self, t1: TurnID, map: &Map) -> bool {
-        for t2 in &self.turns {
+    pub fn could_be_priority_turn(&self, t1: TurnID, map: &Map) -> bool {
+        for t2 in &self.priority_turns {
             if map.get_t(t1).conflicts_with(map.get_t(*t2)) {
-                return true;
+                return false;
             }
         }
-        false
+        true
     }
 
-    pub fn contains(&self, t: TurnID) -> bool {
-        self.turns.contains(&t)
+    pub fn get_priority(&self, t: TurnID) -> TurnPriority {
+        if self.priority_turns.contains(&t) {
+            TurnPriority::Priority
+        } else if self.yield_turns.contains(&t) {
+            TurnPriority::Yield
+        } else {
+            TurnPriority::Stop
+        }
     }
 
-    pub fn add(&mut self, t: TurnID) {
+    pub fn add(&mut self, t: TurnID, pri: TurnPriority) {
         // should assert parent matches, compatible with cycle so far, not in the current set
-        self.turns.push(t);
-        self.changed = true;
+        match pri {
+            TurnPriority::Priority => {
+                self.priority_turns.insert(t);
+                self.changed = true;
+            }
+            TurnPriority::Yield => {
+                self.yield_turns.insert(t);
+                self.changed = true;
+            }
+            TurnPriority::Stop => {}
+        }
     }
 
     pub fn remove(&mut self, t: TurnID) {
-        // should assert in current set
-        let idx = self.turns.iter().position(|&id| id == t).unwrap();
-        self.turns.remove(idx);
-        self.changed = true;
+        if self.priority_turns.contains(&t) {
+            self.priority_turns.remove(&t);
+        } else if self.yield_turns.contains(&t) {
+            self.yield_turns.remove(&t);
+        } else {
+            panic!(
+                "Cycle {:?} doesn't have {} as a priority or yield turn; why remove it?",
+                self, t
+            );
+        }
     }
 }
 
 fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
-    // TODO should be a tmp hack; intersections with no turns aren't even valid
     if map.get_turns_in_intersection(intersection).is_empty() {
-        error!("WARNING: {} has no turns", intersection);
-        return vec![Cycle {
-            turns: Vec::new(),
-            changed: false,
-            duration: CYCLE_DURATION,
-        }];
+        panic!("{} has no turns", intersection);
     }
 
     let mut cycles = Vec::new();
 
-    // Greedily partition turns into cycles. More clever things later.
+    // Greedily partition turns into cycles. More clever things later. No yields.
     let mut remaining_turns: Vec<TurnID> = map
         .get_turns_in_intersection(intersection)
         .iter()
         .map(|t| t.id)
         .collect();
     let mut current_cycle = Cycle {
-        turns: Vec::new(),
+        priority_turns: BTreeSet::new(),
+        yield_turns: BTreeSet::new(),
         changed: false,
         duration: CYCLE_DURATION,
     };
-    while !remaining_turns.is_empty() {
+    loop {
         let add_turn = remaining_turns
             .iter()
-            .position(|&t| !current_cycle.conflicts_with(t, map));
+            .position(|&t| current_cycle.could_be_priority_turn(t, map));
         match add_turn {
             Some(idx) => {
-                current_cycle.turns.push(remaining_turns[idx]);
-                remaining_turns.remove(idx);
+                current_cycle
+                    .priority_turns
+                    .insert(remaining_turns.remove(idx));
             }
             None => {
                 cycles.push(current_cycle.clone());
-                current_cycle.turns = Vec::new();
+                current_cycle.priority_turns.clear();
+                if remaining_turns.is_empty() {
+                    break;
+                }
             }
         }
-    }
-    // TODO not sure this condition is needed
-    if !current_cycle.turns.is_empty() {
-        cycles.push(current_cycle.clone());
     }
 
     expand_all_cycles(&mut cycles, map, intersection);
@@ -124,7 +140,7 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
     cycles
 }
 
-// Add all legal turns to existing cycles.
+// Add all legal priority turns to existing cycles.
 fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: IntersectionID) {
     let all_turns: Vec<TurnID> = map
         .get_turns_in_intersection(intersection)
@@ -133,8 +149,8 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
         .collect();
     for cycle in cycles.iter_mut() {
         for t in &all_turns {
-            if !cycle.contains(*t) && !cycle.conflicts_with(*t, map) {
-                cycle.turns.push(*t);
+            if !cycle.priority_turns.contains(t) && cycle.could_be_priority_turn(*t, map) {
+                cycle.priority_turns.insert(*t);
             }
         }
     }

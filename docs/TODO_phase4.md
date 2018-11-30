@@ -6,4 +6,4 @@
 	- create a bike network with minimal hills, dedicated roads, minimal crossings
 
 - easter eggs
-	- name agents, with some good names scattered in
+	- name agents, with some good names scattered in (Dustin Carlino, Dustin Bikelino, Dustin Buslino...)

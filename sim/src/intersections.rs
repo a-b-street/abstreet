@@ -109,7 +109,7 @@ impl IntersectionSimState {
                     p.step(events, time, map, control_map, view)
                 }
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(events, time, control_map, view)
+                    p.step(events, time, map, control_map, view)
                 }
                 IntersectionPolicy::BorderPolicy => {}
             }
@@ -346,6 +346,7 @@ impl TrafficSignal {
         &mut self,
         events: &mut Vec<Event>,
         time: Tick,
+        map: &Map,
         control_map: &ControlMap,
         view: &WorldView,
     ) {
@@ -355,7 +356,7 @@ impl TrafficSignal {
 
         // For now, just maintain safety when agents over-run.
         for req in self.accepted.iter() {
-            if !cycle.contains(req.turn) {
+            if cycle.get_priority(req.turn) == TurnPriority::Stop {
                 if self.debug {
                     debug!(
                         "{:?} is still doing {:?} after the cycle is over",
@@ -366,15 +367,45 @@ impl TrafficSignal {
             }
         }
 
+        let priority_requests: BTreeSet<TurnID> = self
+            .requests
+            .iter()
+            .filter_map(|req| {
+                if cycle.get_priority(req.turn) == TurnPriority::Priority {
+                    Some(req.turn)
+                } else {
+                    None
+                }
+            }).collect();
+
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {
             assert_eq!(req.turn.parent, self.id);
             assert_eq!(self.accepted.contains(&req), false);
 
-            // Don't accept cars unless they're in front. TODO or behind other accepted cars.
-            if !cycle.contains(req.turn) || !view.is_leader(req.agent) {
+            // Can't go at all this cycle.
+            if cycle.get_priority(req.turn) == TurnPriority::Stop
+                // Don't accept cars unless they're in front. TODO or behind other accepted cars.
+                || !view.is_leader(req.agent)
+                || self.conflicts_with_accepted(req.turn, map)
+            {
                 keep_requests.insert(req.clone());
                 continue;
+            }
+
+            // If there's a conflicting Priority request, don't go, even if that Priority
+            // request can't go right now (due to a conflicting previously-accepted accepted
+            // Yield).
+            if cycle.get_priority(req.turn) == TurnPriority::Yield {
+                let base_t = map.get_t(req.turn);
+                if priority_requests
+                    .iter()
+                    .find(|t| base_t.conflicts_with(map.get_t(**t)))
+                    .is_some()
+                {
+                    keep_requests.insert(req.clone());
+                    continue;
+                }
             }
 
             // TODO Don't accept agents if they won't make the light. But calculating that is
@@ -390,5 +421,14 @@ impl TrafficSignal {
         }
 
         self.requests = keep_requests;
+    }
+
+    // TODO Code duplication :(
+    fn conflicts_with_accepted(&self, turn: TurnID, map: &Map) -> bool {
+        let base_t = map.get_t(turn);
+        self.accepted
+            .iter()
+            .find(|req| base_t.conflicts_with(map.get_t(req.turn)))
+            .is_some()
     }
 }

@@ -1,4 +1,4 @@
-use control::ControlTrafficSignal;
+use control::{ControlTrafficSignal, TurnPriority};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::Circle;
@@ -123,6 +123,7 @@ impl Plugin for TurnCyclerState {
 }
 
 fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) {
+    // TODO Cycle might be over-run; should depict that by asking sim layer.
     // TODO It'd be cool to indicate remaining time in the cycle by slowly dimming the color or
     // something.
     let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
@@ -135,7 +136,7 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
         );
         // TODO Maybe don't show SharedSidewalkCorners at all, and highlight the
         // Crosswalks.
-        for t in &cycle.turns {
+        for t in &cycle.priority_turns {
             for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
                 m.draw(g, ctx.cs, color);
             }
@@ -143,24 +144,31 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
     }
 
     // Second style: draw little circles on the incoming lanes to indicate what turns are possible.
-    // All of them -> green. Some of them -> yellow. None of them -> don't draw.
     {
         for l in &ctx.map.get_i(signal.id).incoming_lanes {
             let mut num_green = 0;
+            let mut num_yield = 0;
             let mut num_red = 0;
             for (t, _) in ctx.map.get_next_turns_and_lanes(*l, signal.id) {
-                if cycle.contains(t.id) {
-                    num_green += 1;
-                } else {
-                    num_red += 1;
-                }
+                match cycle.get_priority(t.id) {
+                    TurnPriority::Priority => {
+                        num_green += 1;
+                    }
+                    TurnPriority::Yield => {
+                        num_yield += 1;
+                    }
+                    TurnPriority::Stop => {
+                        num_red += 1;
+                    }
+                };
             }
 
-            if num_green == 0 {
+            // TODO Adjust this more.
+            if num_green == 0 && num_yield == 0 {
                 continue;
             }
 
-            let color = if num_red == 0 {
+            let color = if num_yield == 0 && num_red == 0 {
                 ctx.cs.get(
                     "all turns from lane allowed by traffic signal right now",
                     Color::GREEN,
