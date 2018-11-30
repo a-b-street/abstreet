@@ -11,15 +11,15 @@ const CYCLE_DURATION: si::Second<f64> = si::Second {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlTrafficSignal {
-    intersection: IntersectionID,
+    pub id: IntersectionID,
     pub cycles: Vec<Cycle>,
 }
 
 impl ControlTrafficSignal {
-    pub fn new(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
+    pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
         ControlTrafficSignal {
-            intersection,
-            cycles: greedy_assignment(map, intersection),
+            id,
+            cycles: greedy_assignment(map, id),
         }
     }
 

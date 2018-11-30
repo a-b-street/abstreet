@@ -1,7 +1,8 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
+use dimensioned::si;
+use control::ControlTrafficSignal;
 use ezgui::{Color, GfxCtx};
-use map_model::{IntersectionID, LaneID, TurnType};
+use map_model::{IntersectionID, LaneID, TurnType, LANE_THICKNESS};
+use geom::Circle;
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -92,19 +93,7 @@ impl Plugin for TurnCyclerState {
             }
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = ctx.control_map.traffic_signals.get(&id) {
-                    let color = Some(
-                        ctx.cs
-                            .get("turns allowed by traffic signal right now", Color::GREEN),
-                    );
-                    let (cycle, _) =
-                        signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-                    // TODO Maybe don't show SharedSidewalkCorners at all, and highlight the
-                    // Crosswalks.
-                    for t in &cycle.turns {
-                        for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
-                            m.draw(g, ctx.cs, color);
-                        }
-                    }
+                    draw_traffic_signal(signal, g, ctx);
                 }
             }
         }
@@ -129,6 +118,65 @@ impl Plugin for TurnCyclerState {
                 }
             }
             _ => None,
+        }
+    }
+}
+
+fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) {
+    // TODO It'd be cool to indicate remaining time in the cycle by slowly dimming the color or
+    // something.
+    let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+
+    // First style: draw green turn arrows on the lanes. Hard to see.
+    if false {
+        let color = Some(
+            ctx.cs
+                .get("turns allowed by traffic signal right now", Color::GREEN),
+        );
+        // TODO Maybe don't show SharedSidewalkCorners at all, and highlight the
+        // Crosswalks.
+        for t in &cycle.turns {
+            for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
+                m.draw(g, ctx.cs, color);
+            }
+        }
+    }
+
+    // Second style: draw little circles on the incoming lanes to indicate what turns are possible.
+    // All of them -> green. Some of them -> yellow. None of them -> don't draw.
+    {
+        for l in &ctx.map.get_i(signal.id).incoming_lanes {
+            let mut num_green = 0;
+            let mut num_red = 0;
+            for (t, _) in ctx.map.get_next_turns_and_lanes(*l, signal.id) {
+                if cycle.contains(t.id) {
+                    num_green += 1;
+                } else {
+                    num_red += 1;
+                }
+            }
+
+            if num_green == 0 {
+                continue;
+            }
+
+            let color = if num_red == 0 {
+                ctx.cs.get(
+                    "all turns from lane allowed by traffic signal right now",
+                    Color::GREEN,
+                )
+            } else {
+                // TODO Flashing green? :P
+                ctx.cs.get(
+                    "some turns from lane allowed by traffic signal right now",
+                    Color::YELLOW,
+                )
+            };
+
+            let lane = ctx.map.get_l(*l);
+            if let Some((pt, _)) = lane.safe_dist_along(lane.length() - (LANE_THICKNESS * si::M)) {
+                g.draw_circle(color, &Circle::new(pt, 1.0));
+            }
         }
     }
 }
