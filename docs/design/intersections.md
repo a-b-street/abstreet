@@ -44,6 +44,11 @@ ah, think of the real world for the UI. Light per incoming lane. Sometimes need
 to show a green/yellow/red arrow. Could similarly show the ped stop hand or the
 walking figure, probably at both tips of a sidewalk.
 
+### Yielding
+
+Similar to a stop sign, there are turn priorities for cycles. Some turns have
+right-of-way, others need to yield, but can go if there's room.
+
 ## Intersection policies for pedestrians ##
 
 Before figuring out how pedestrians will deterministically use intersections alongside cars, recall how cars currently work...

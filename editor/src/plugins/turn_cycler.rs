@@ -1,8 +1,8 @@
-use dimensioned::si;
 use control::ControlTrafficSignal;
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use map_model::{IntersectionID, LaneID, TurnType, LANE_THICKNESS};
 use geom::Circle;
+use map_model::{IntersectionID, LaneID, TurnType, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};

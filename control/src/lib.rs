@@ -16,7 +16,7 @@ mod traffic_signals;
 
 use map_model::{IntersectionID, IntersectionType, Map};
 use std::collections::{BTreeMap, HashMap};
-pub use stop_signs::{ControlStopSign, TurnPriority};
+pub use stop_signs::ControlStopSign;
 pub use traffic_signals::ControlTrafficSignal;
 
 // TODO awful name
@@ -80,4 +80,16 @@ impl ControlMap {
         }
         h
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
+pub enum TurnPriority {
+    // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest priority.
+    // For traffic signals: can't do this turn at all.
+    Stop,
+    // Cars can do this immediately if there are no previously accepted conflicting turns.
+    Yield,
+    // These must be non-conflicting, and cars don't have to stop before doing this turn (unless a
+    // conflicting Yield has been accepted).
+    Priority,
 }
