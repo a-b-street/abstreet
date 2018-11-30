@@ -554,10 +554,6 @@ impl Spawner {
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
-        if ped_id.0 == 31 {
-            println!("p31 is going from {:?} to {:?}", start, goal);
-        }
-
         let first_stop = SidewalkSpot::bus_stop(stop1, map);
         let legs = vec![
             TripLeg::Walk(first_stop.clone()),

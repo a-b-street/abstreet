@@ -345,6 +345,17 @@ impl Pathfinder {
                 } else {
                     results.push(InternalPathStep::ContraflowLane(dst.id));
                 }
+
+                // Don't forget multiple turns in a row.
+                for (turn, next) in map.get_next_turns_and_lanes(dst.id, t.parent).into_iter() {
+                    if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                        // Skip
+                    } else if !self.can_use_bus_lanes && next.lane_type == LaneType::Bus {
+                        // Skip
+                    } else {
+                        results.push(InternalPathStep::Turn(turn.id));
+                    }
+                }
             }
             InternalPathStep::RideBus(_, stop2, _) => {
                 let pos = map.get_bs(stop2).sidewalk_pos;
@@ -361,8 +372,6 @@ impl Pathfinder {
     }
 
     fn pathfind(&self, map: &Map, start: Position, end: Position) -> Option<Vec<InternalPathStep>> {
-        let debug = start.lane().0 == 1871 && end.lane().0 == 1913;
-
         if start.lane() == end.lane() {
             if start.dist_along() > end.dist_along() {
                 if !map.get_l(start.lane()).is_sidewalk() {
@@ -400,9 +409,6 @@ impl Pathfinder {
 
         while !queue.is_empty() {
             let (cost_sofar, current) = queue.pop().unwrap();
-            if debug {
-                println!("considering {:?} with cost {}", current, cost_sofar);
-            }
 
             // Found it, now produce the path
             if current == InternalPathStep::Lane(end.lane())
@@ -428,9 +434,6 @@ impl Pathfinder {
                     backrefs.insert(next, current);
                     let cost = next.cost(map);
                     let heuristic = next.heuristic(self.goal_pt, map);
-                    if debug {
-                        println!("  next step {:?} with cost+heuristic {}", next, cost + heuristic);
-                    }
                     queue.push((dist_to_pri_queue(cost + heuristic) + cost_sofar, next));
                 }
             }
