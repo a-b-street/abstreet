@@ -1,8 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use control::TurnPriority;
 use ezgui::Color;
-use map_model::IntersectionID;
+use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -29,14 +28,13 @@ impl StopSignEditor {
 impl Plugin for StopSignEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let input = ctx.input;
-        let map = &ctx.primary.map;
-        let control_map = &mut ctx.primary.control_map;
+        let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
 
         if *self == StopSignEditor::Inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
-                    if control_map.stop_signs.contains_key(&id)
+                    if map.maybe_get_stop_sign(id).is_some()
                         && input.key_pressed(Key::E, &format!("edit stop signs for {}", id))
                     {
                         *self = StopSignEditor::Active(id);
@@ -55,7 +53,8 @@ impl Plugin for StopSignEditor {
                     new_state = Some(StopSignEditor::Inactive);
                 } else if let Some(ID::Turn(id)) = selected {
                     if id.parent == *i {
-                        let sign = &mut control_map.stop_signs.get_mut(i).unwrap();
+                        let mut sign = map.get_stop_sign(*i).clone();
+
                         match sign.get_priority(id) {
                             TurnPriority::Priority => {
                                 if input.key_pressed(Key::D2, "make this turn yield") {
@@ -86,6 +85,8 @@ impl Plugin for StopSignEditor {
                                 }
                             }
                         };
+
+                        map.edit_stop_sign(sign);
                     }
                 }
             }
@@ -106,7 +107,7 @@ impl Plugin for StopSignEditor {
                 if t.parent != *i {
                     return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
                 }
-                match ctx.control_map.stop_signs[i].get_priority(t) {
+                match ctx.map.get_stop_sign(*i).get_priority(t) {
                     TurnPriority::Priority => {
                         Some(ctx.cs.get("priority stop sign turn", Color::GREEN))
                     }

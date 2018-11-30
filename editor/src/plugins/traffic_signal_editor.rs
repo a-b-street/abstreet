@@ -2,9 +2,8 @@
 
 // TODO how to edit cycle time?
 
-use control::TurnPriority;
 use ezgui::Color;
-use map_model::IntersectionID;
+use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -37,14 +36,13 @@ impl TrafficSignalEditor {
 impl Plugin for TrafficSignalEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let input = ctx.input;
-        let map = &ctx.primary.map;
-        let control_map = &mut ctx.primary.control_map;
+        let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
 
         if *self == TrafficSignalEditor::Inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
-                    if control_map.traffic_signals.contains_key(&id)
+                    if map.maybe_get_traffic_signal(id).is_some()
                         && input.key_pressed(Key::E, &format!("edit traffic signal for {}", id))
                     {
                         *self = TrafficSignalEditor::Active {
@@ -67,7 +65,7 @@ impl Plugin for TrafficSignalEditor {
                 } else {
                     // Change cycles
                     {
-                        let cycles = &control_map.traffic_signals[&i].cycles;
+                        let cycles = &map.get_traffic_signal(*i).cycles;
                         if let Some(n) = input.number_chosen(
                             cycles.len(),
                             &format!(
@@ -84,28 +82,33 @@ impl Plugin for TrafficSignalEditor {
                     // Change turns
                     if let Some(ID::Turn(id)) = selected {
                         if id.parent == *i {
-                            let cycle =
-                                &mut control_map.traffic_signals.get_mut(&i).unwrap().cycles
-                                    [*current_cycle];
-                            if cycle.get_priority(id) == TurnPriority::Priority {
-                                if input
-                                    .key_pressed(Key::Backspace, "remove this turn from this cycle")
-                                {
-                                    cycle.remove(id);
-                                }
-                            } else if cycle.could_be_priority_turn(id, map) {
-                                if input.key_pressed(
-                                    Key::Space,
-                                    "add this turn to this cycle as priority",
-                                ) {
-                                    cycle.add(id, TurnPriority::Priority);
-                                }
-                            } else if cycle.get_priority(id) == TurnPriority::Stop {
-                                if input.key_pressed(Key::Y, "add this turn to this cycle as yield")
-                                {
-                                    cycle.add(id, TurnPriority::Yield);
+                            let mut signal = map.get_traffic_signal(*i).clone();
+                            {
+                                let cycle = &mut signal.cycles[*current_cycle];
+                                if cycle.get_priority(id) == TurnPriority::Priority {
+                                    if input.key_pressed(
+                                        Key::Backspace,
+                                        "remove this turn from this cycle",
+                                    ) {
+                                        cycle.remove(id);
+                                    }
+                                } else if cycle.could_be_priority_turn(id, map) {
+                                    if input.key_pressed(
+                                        Key::Space,
+                                        "add this turn to this cycle as priority",
+                                    ) {
+                                        cycle.add(id, TurnPriority::Priority);
+                                    }
+                                } else if cycle.get_priority(id) == TurnPriority::Stop {
+                                    if input
+                                        .key_pressed(Key::Y, "add this turn to this cycle as yield")
+                                    {
+                                        cycle.add(id, TurnPriority::Yield);
+                                    }
                                 }
                             }
+
+                            map.edit_traffic_signal(signal);
                         }
                     }
                 }
@@ -128,7 +131,7 @@ impl Plugin for TrafficSignalEditor {
                     return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
                 }
 
-                let cycle = &ctx.control_map.traffic_signals[&i].cycles[*current_cycle];
+                let cycle = &ctx.map.get_traffic_signal(*i).cycles[*current_cycle];
 
                 // TODO maybe something to indicate unused in any cycle so far
                 let could_be_priority = cycle.could_be_priority_turn(t, ctx.map);

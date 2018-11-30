@@ -2,7 +2,7 @@
 
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use edits::RoadEdits;
+use edits::MapEdits;
 use geom::{Bounds, GPSBounds, HashablePt2D, PolyLine, Pt2D};
 use make;
 use raw_data;
@@ -10,9 +10,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io;
 use std::path;
 use {
-    Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, Intersection,
-    IntersectionID, IntersectionType, Lane, LaneID, LaneType, Parcel, ParcelID, Road, RoadID, Turn,
-    TurnID, LANE_THICKNESS,
+    Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, ControlStopSign,
+    ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType,
+    Parcel, ParcelID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -35,15 +35,18 @@ pub struct Map {
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,
 
+    stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
+    traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
+    // Note that border nodes belong in neither!
     gps_bounds: GPSBounds,
     bounds: Bounds,
 
     name: String,
-    road_edits: RoadEdits,
+    edits: MapEdits,
 }
 
 impl Map {
-    pub fn new(path: &str, road_edits: RoadEdits, timer: &mut Timer) -> Result<Map, io::Error> {
+    pub fn new(path: &str, edits: MapEdits, timer: &mut Timer) -> Result<Map, io::Error> {
         let data: raw_data::Map = abstutil::read_binary(path, timer)?;
         Ok(Map::create_from_raw(
             path::Path::new(path)
@@ -53,7 +56,7 @@ impl Map {
                 .into_string()
                 .unwrap(),
             data,
-            road_edits,
+            edits,
             timer,
         ))
     }
@@ -61,7 +64,7 @@ impl Map {
     pub fn create_from_raw(
         name: String,
         mut data: raw_data::Map,
-        road_edits: RoadEdits,
+        edits: MapEdits,
         timer: &mut Timer,
     ) -> Map {
         timer.start("raw_map to Map");
@@ -75,7 +78,7 @@ impl Map {
 
         let mut m = Map {
             name,
-            road_edits,
+            edits,
             gps_bounds: gps_bounds.clone(),
             bounds: bounds.clone(),
             roads: Vec::new(),
@@ -87,6 +90,8 @@ impl Map {
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
+            stop_signs: BTreeMap::new(),
+            traffic_signals: BTreeMap::new(),
         };
 
         let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
@@ -148,7 +153,7 @@ impl Map {
             });
 
             // TODO move this to make/lanes.rs too
-            for lane in make::get_lane_specs(r, road_id, &m.road_edits) {
+            for lane in make::get_lane_specs(r, road_id, &m.edits) {
                 let id = LaneID(counter);
                 counter += 1;
 
@@ -243,6 +248,29 @@ impl Map {
             m.intersections[t.id.parent.0].turns.push(t.id);
         }
 
+        let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
+        let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> = BTreeMap::new();
+        for i in &m.intersections {
+            match i.intersection_type {
+                IntersectionType::StopSign => {
+                    stop_signs.insert(i.id, ControlStopSign::new(&m, i.id));
+                }
+                IntersectionType::TrafficSignal => {
+                    traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id));
+                }
+                IntersectionType::Border => {}
+            };
+        }
+        // Override with edits
+        for (i, ss) in &m.edits.stop_signs {
+            stop_signs.insert(*i, ss.clone());
+        }
+        for (i, ts) in &m.edits.traffic_signals {
+            traffic_signals.insert(*i, ts.clone());
+        }
+        m.stop_signs = stop_signs;
+        m.traffic_signals = traffic_signals;
+
         make::make_all_buildings(
             &mut m.buildings,
             &data.buildings,
@@ -286,10 +314,11 @@ impl Map {
         m
     }
 
-    // The caller has to clone get_road_edits(), mutate, actualize the changes, then store them
+    // The caller has to clone get_edits(), mutate, actualize the changes, then store them
     // here.
-    pub fn store_new_edits(&mut self, edits: RoadEdits) {
-        self.road_edits = edits;
+    // TODO Only road editor calls this. Stop sign / traffic signal editor have a nicer pattern.
+    pub fn store_new_edits(&mut self, edits: MapEdits) {
+        self.edits = edits;
     }
 
     pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
@@ -311,6 +340,16 @@ impl Map {
                 self.turns.insert(t.id, t);
             }
         }
+    }
+
+    pub fn edit_stop_sign(&mut self, sign: ControlStopSign) {
+        self.edits.stop_signs.insert(sign.id, sign.clone());
+        self.stop_signs.insert(sign.id, sign);
+    }
+
+    pub fn edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
+        self.edits.traffic_signals.insert(signal.id, signal.clone());
+        self.traffic_signals.insert(signal.id, signal);
     }
 
     pub fn all_roads(&self) -> &Vec<Road> {
@@ -373,6 +412,14 @@ impl Map {
         self.bus_stops.get(&id)
     }
 
+    pub fn maybe_get_stop_sign(&self, id: IntersectionID) -> Option<&ControlStopSign> {
+        self.stop_signs.get(&id)
+    }
+
+    pub fn maybe_get_traffic_signal(&self, id: IntersectionID) -> Option<&ControlTrafficSignal> {
+        self.traffic_signals.get(&id)
+    }
+
     pub fn get_r(&self, id: RoadID) -> &Road {
         &self.roads[id.0]
     }
@@ -399,6 +446,14 @@ impl Map {
 
     pub fn get_a(&self, id: AreaID) -> &Area {
         &self.areas[id.0]
+    }
+
+    pub fn get_stop_sign(&self, id: IntersectionID) -> &ControlStopSign {
+        &self.stop_signs[&id]
+    }
+
+    pub fn get_traffic_signal(&self, id: IntersectionID) -> &ControlTrafficSignal {
+        &self.traffic_signals[&id]
     }
 
     // All these helpers should take IDs and return objects.
@@ -483,8 +538,8 @@ impl Map {
         &self.name
     }
 
-    pub fn get_road_edits(&self) -> &RoadEdits {
-        &self.road_edits
+    pub fn get_edits(&self) -> &MapEdits {
+        &self.edits
     }
 
     pub fn all_bus_stops(&self) -> &BTreeMap<BusStopID, BusStop> {
@@ -543,10 +598,7 @@ impl Map {
     }
 
     pub fn save(&self) {
-        let path = format!(
-            "../data/maps/{}_{}.abst",
-            self.name, self.road_edits.edits_name
-        );
+        let path = format!("../data/maps/{}_{}.abst", self.name, self.edits.edits_name);
         info!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);

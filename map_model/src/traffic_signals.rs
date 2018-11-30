@@ -1,8 +1,7 @@
 use dimensioned::si;
-use map_model::{IntersectionID, Map, TurnID};
 use std;
 use std::collections::BTreeSet;
-use TurnPriority;
+use {IntersectionID, Map, TurnID, TurnPriority};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,

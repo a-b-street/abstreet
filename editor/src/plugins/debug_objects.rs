@@ -44,7 +44,6 @@ impl Plugin for DebugObjectsState {
                 } else if ctx.input.key_pressed(Key::D, "debug") {
                     id.debug(
                         &ctx.primary.map,
-                        &ctx.primary.control_map,
                         &mut ctx.primary.sim,
                         &ctx.primary.draw_map,
                     );

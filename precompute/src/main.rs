@@ -19,7 +19,7 @@ fn main() {
         "precompute {} with {}",
         flags.load, flags.edits_name
     ));
-    let (map, _, _) = sim::load(flags, None, &mut timer);
+    let (map, _) = sim::load(flags, None, &mut timer);
     timer.start("save map");
     map.save();
     timer.stop("save map");

@@ -35,12 +35,12 @@ pub fn run(t: &mut TestRunner) {
         Box::new(|_| {
             let map1 = map_model::Map::new(
                 "../data/raw_maps/montlake.abst",
-                map_model::RoadEdits::new(),
+                map_model::MapEdits::new("montlake"),
                 &mut abstutil::Timer::new("raw to map"),
             ).unwrap();
             let map2 = map_model::Map::new(
                 "../data/raw_maps/montlake.abst",
-                map_model::RoadEdits::new(),
+                map_model::MapEdits::new("montlake"),
                 &mut abstutil::Timer::new("raw to map"),
             ).unwrap();
 

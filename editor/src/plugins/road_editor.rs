@@ -15,17 +15,16 @@ impl RoadEditor {
 
 impl Plugin for RoadEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, selected, map, draw_map, control_map, sim) = (
+        let (input, selected, map, draw_map, sim) = (
             ctx.input,
             ctx.primary.current_selection,
             &mut ctx.primary.map,
             &mut ctx.primary.draw_map,
-            &ctx.primary.control_map,
             &mut ctx.primary.sim,
         );
-        let mut edits = map.get_road_edits().clone();
+        let mut edits = map.get_edits().clone();
 
-        // TODO a bit awkward that we can't pull this info from RoadEdits easily
+        // TODO a bit awkward that we can't pull this info from edits easily
         let mut changed: Option<(LaneID, LaneType)> = None;
 
         if !self.active && selected.is_none() {
@@ -93,10 +92,10 @@ impl Plugin for RoadEditor {
                 }
             }
 
-            // TODO Pretty sure control map needs to recalculate based on the new turns
+            // TODO Pretty sure control layer needs to recalculate based on the new turns
             let old_type = map.get_l(id).lane_type;
             map.edit_lane_type(id, new_type);
-            draw_map.edit_lane_type(id, map, control_map);
+            draw_map.edit_lane_type(id, map);
             sim.edit_lane_type(id, old_type, map);
 
             // Add turns back

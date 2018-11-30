@@ -3,7 +3,6 @@
 members = [
   "abstutil",
   "analyze_code",
-  "control",
   "convert_osm",
   "editor",
   "ezgui",

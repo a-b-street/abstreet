@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use colors::ColorScheme;
-use control::ControlMap;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
@@ -52,7 +51,7 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &Lane, map: &Map, control_map: &ControlMap) -> DrawLane {
+    pub fn new(lane: &Lane, map: &Map) -> DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons_blindly(LANE_THICKNESS);
 
@@ -86,7 +85,7 @@ impl DrawLane {
         if lane.is_driving()
             && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
         {
-            if let Some(m) = calculate_stop_sign_line(lane, control_map) {
+            if let Some(m) = calculate_stop_sign_line(lane, map) {
                 markings.push(m);
             }
         }
@@ -269,8 +268,8 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
     })
 }
 
-fn calculate_stop_sign_line(lane: &Lane, control_map: &ControlMap) -> Option<Marking> {
-    if control_map.stop_signs[&lane.dst_i].is_priority_lane(lane.id) {
+fn calculate_stop_sign_line(lane: &Lane, map: &Map) -> Option<Marking> {
+    if map.get_stop_sign(lane.dst_i).is_priority_lane(lane.id) {
         return None;
     }
 

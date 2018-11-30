@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 extern crate abstutil;
-extern crate control;
 extern crate cpuprofiler;
 extern crate log;
 extern crate map_model;
@@ -35,7 +34,7 @@ fn main() {
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
-    let (map, control_map, mut sim) = sim::load(
+    let (map, mut sim) = sim::load(
         flags.sim_flags,
         Some(sim::Tick::from_seconds(30)),
         &mut timer,
@@ -63,7 +62,6 @@ fn main() {
         .unwrap();
     sim.run_until_done(
         &map,
-        &control_map,
         Box::new(move |sim| {
             if Some(sim.time) == save_at {
                 sim.save();

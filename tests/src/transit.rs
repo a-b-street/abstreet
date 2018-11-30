@@ -7,7 +7,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow(
         "bus_reaches_stops",
         Box::new(|h| {
-            let (map, control_map, mut sim) = sim::load(
+            let (map, mut sim) = sim::load(
                 SimFlags::for_test("bus_reaches_stops"),
                 Some(Tick::from_seconds(30)),
                 &mut Timer::new("setup test"),
@@ -24,20 +24,15 @@ pub fn run(t: &mut TestRunner) {
                 expectations.push(Event::BusDepartedFromStop(bus, *stop));
             }
 
-            sim.run_until_expectations_met(
-                &map,
-                &control_map,
-                expectations,
-                Tick::from_minutes(10),
-            );
-            sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
+            sim.run_until_expectations_met(&map, expectations, Tick::from_minutes(10));
+            sim.run_until_done(&map, Box::new(|_sim| {}));
         }),
     );
 
     t.run_slow(
         "ped_uses_bus",
         Box::new(|h| {
-            let (map, control_map, mut sim) = sim::load(
+            let (map, mut sim) = sim::load(
                 SimFlags::for_test("ped_uses_bus"),
                 Some(Tick::from_seconds(30)),
                 &mut Timer::new("setup test"),
@@ -56,7 +51,6 @@ pub fn run(t: &mut TestRunner) {
 
             sim.run_until_expectations_met(
                 &map,
-                &control_map,
                 vec![
                     sim::Event::PedReachedBusStop(ped, ped_stop1),
                     sim::Event::BusArrivedAtStop(bus, ped_stop1),

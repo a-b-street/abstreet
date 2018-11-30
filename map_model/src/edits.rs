@@ -1,27 +1,42 @@
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil;
 use std::collections::BTreeMap;
-use {Lane, LaneType, Road, RoadID};
+use {ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road, RoadID};
 
-// TODO bring in the intersection modifications from the control crate here. for now, road edits
-// are here, since map construction maybe needs to know these?
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct RoadEdits {
+pub struct MapEdits {
     pub edits_name: String,
+    pub map_name: String,
+
     // TODO detect when we wind up editing back to the original thing
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
     pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
+    pub(crate) stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
+    pub(crate) traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
 }
 
-impl RoadEdits {
-    pub fn new() -> RoadEdits {
-        RoadEdits {
+impl MapEdits {
+    pub fn new(map_name: &str) -> MapEdits {
+        MapEdits {
             // Something has to fill this out later
             edits_name: "no_edits".to_string(),
+            map_name: map_name.to_string(),
             roads: BTreeMap::new(),
+            stop_signs: BTreeMap::new(),
+            traffic_signals: BTreeMap::new(),
         }
+    }
+
+    pub fn describe(&self) -> String {
+        format!(
+            "map edits \"{}\" ({} roads, {} stop signs, {} traffic signals",
+            self.edits_name,
+            self.roads.len(),
+            self.stop_signs.len(),
+            self.traffic_signals.len()
+        )
+    }
+
+    pub fn save(&self) {
+        abstutil::save_object("edits", &self.map_name, &self.edits_name, self);
     }
 
     pub fn change_lane_type(
@@ -44,10 +59,6 @@ impl RoadEdits {
             return true;
         }
         false
-    }
-
-    pub fn len(&self) -> usize {
-        self.roads.len()
     }
 }
 

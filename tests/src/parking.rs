@@ -8,7 +8,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow(
         "park_on_goal_st",
         Box::new(|h| {
-            let (map, control_map, mut sim) = sim::load(
+            let (map, mut sim) = sim::load(
                 sim::SimFlags::synthetic_test("parking_test", "park_on_goal_st"),
                 None,
                 &mut Timer::new("setup test"),
@@ -28,21 +28,20 @@ pub fn run(t: &mut TestRunner) {
 
             sim.run_until_expectations_met(
                 &map,
-                &control_map,
                 vec![sim::Event::CarReachedParkingSpot(
                     car,
                     sim::ParkingSpot::new(north_parking, 4),
                 )],
                 sim::Tick::from_minutes(2),
             );
-            sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}));
         }),
     );
 
     t.run_slow(
         "wander_around_for_parking",
         Box::new(|h| {
-            let (map, control_map, mut sim) = sim::load(
+            let (map, mut sim) = sim::load(
                 sim::SimFlags::synthetic_test("parking_test", "wander_around_for_parking"),
                 None,
                 &mut Timer::new("setup test"),
@@ -62,14 +61,13 @@ pub fn run(t: &mut TestRunner) {
 
             sim.run_until_expectations_met(
                 &map,
-                &control_map,
                 vec![sim::Event::CarReachedParkingSpot(
                     car,
                     sim::ParkingSpot::new(south_parking, 0),
                 )],
                 sim::Tick::from_minutes(2),
             );
-            sim.run_until_done(&map, &control_map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}));
         }),
     );
 }

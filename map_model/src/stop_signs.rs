@@ -1,13 +1,10 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
-use map_model::{IntersectionID, LaneID, Map, TurnID, TurnType};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use TurnPriority;
+use {IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {
-    intersection: IntersectionID,
+    pub id: IntersectionID,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -18,9 +15,9 @@ pub struct ControlStopSign {
 }
 
 impl ControlStopSign {
-    pub fn new(map: &Map, intersection: IntersectionID) -> ControlStopSign {
-        let ss = smart_assignment(map, intersection);
-        ss.validate(map, intersection).unwrap();
+    pub fn new(map: &Map, id: IntersectionID) -> ControlStopSign {
+        let ss = smart_assignment(map, id);
+        ss.validate(map).unwrap();
         ss
     }
 
@@ -57,9 +54,9 @@ impl ControlStopSign {
             .is_some()
     }
 
-    fn validate(&self, map: &Map, intersection: IntersectionID) -> Result<(), Error> {
+    fn validate(&self, map: &Map) -> Result<(), Error> {
         // Does the assignment cover the correct set of turns?
-        let all_turns = &map.get_i(intersection).turns;
+        let all_turns = &map.get_i(self.id).turns;
         assert_eq!(self.turns.len(), all_turns.len());
         for t in all_turns {
             assert!(self.turns.contains_key(t));
@@ -91,9 +88,9 @@ impl ControlStopSign {
     }
 }
 
-fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign {
-    if map.get_i(intersection).roads.len() <= 2 {
-        return for_degenerate_and_deadend(map, intersection);
+fn smart_assignment(map: &Map, id: IntersectionID) -> ControlStopSign {
+    if map.get_i(id).roads.len() <= 2 {
+        return for_degenerate_and_deadend(map, id);
     }
 
     // Higher numbers are higher rank roads
@@ -102,10 +99,10 @@ fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign 
     let mut highest_rank = 0;
     // TODO should just be incoming, but because of weirdness with sidewalks...
     for l in map
-        .get_i(intersection)
+        .get_i(id)
         .incoming_lanes
         .iter()
-        .chain(map.get_i(intersection).outgoing_lanes.iter())
+        .chain(map.get_i(id).outgoing_lanes.iter())
     {
         let r = map.get_parent(*l);
         let rank = if let Some(highway) = r.osm_tags.get("highway") {
@@ -141,15 +138,15 @@ fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign 
         ranks.insert(rank);
     }
     if ranks.len() == 1 {
-        return all_way_stop(map, intersection);
+        return all_way_stop(map, id);
     }
 
     let mut ss = ControlStopSign {
-        intersection,
+        id,
         turns: BTreeMap::new(),
         changed: false,
     };
-    for t in &map.get_i(intersection).turns {
+    for t in &map.get_i(id).turns {
         if rank_per_incoming_lane[&t.src] == highest_rank {
             // If it's the highest rank road, make the straight and right turns priority (if
             // possible) and other turns yield.
@@ -169,25 +166,25 @@ fn smart_assignment(map: &Map, intersection: IntersectionID) -> ControlStopSign 
     ss
 }
 
-fn all_way_stop(map: &Map, intersection: IntersectionID) -> ControlStopSign {
+fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
     let mut ss = ControlStopSign {
-        intersection,
+        id,
         turns: BTreeMap::new(),
         changed: false,
     };
-    for t in &map.get_i(intersection).turns {
+    for t in &map.get_i(id).turns {
         ss.turns.insert(*t, TurnPriority::Stop);
     }
     ss
 }
 
-fn for_degenerate_and_deadend(map: &Map, i: IntersectionID) -> ControlStopSign {
+fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> ControlStopSign {
     let mut ss = ControlStopSign {
-        intersection: i,
+        id,
         turns: BTreeMap::new(),
         changed: false,
     };
-    for t in &map.get_i(i).turns {
+    for t in &map.get_i(id).turns {
         // Only the crosswalks should conflict with other turns.
         let priority = match map.get_t(*t).turn_type {
             TurnType::Crosswalk => TurnPriority::Stop,
@@ -199,9 +196,9 @@ fn for_degenerate_and_deadend(map: &Map, i: IntersectionID) -> ControlStopSign {
     // Due to a few observed issues (multiple driving lanes road (a temporary issue) and bad
     // intersection geometry), sometimes more turns conflict than really should. For now, just
     // detect and fallback to an all-way stop.
-    if let Err(err) = ss.validate(map, i) {
-        warn!("Giving up on for_degenerate_and_deadend({}): {}", i, err);
-        return all_way_stop(map, i);
+    if let Err(err) = ss.validate(map) {
+        warn!("Giving up on for_degenerate_and_deadend({}): {}", id, err);
+        return all_way_stop(map, id);
     }
 
     ss

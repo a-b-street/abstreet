@@ -1,5 +1,4 @@
 use colors::ColorScheme;
-use control::ControlMap;
 use ezgui::Canvas;
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
@@ -30,14 +29,14 @@ impl ID {
         }
     }
 
-    pub fn debug(&self, map: &Map, control_map: &ControlMap, sim: &mut Sim, draw_map: &DrawMap) {
+    pub fn debug(&self, map: &Map, sim: &mut Sim, draw_map: &DrawMap) {
         match *self {
             ID::Lane(id) => {
                 map.get_l(id).dump_debug();
             }
             ID::Intersection(id) => {
                 map.get_i(id).dump_debug();
-                sim.debug_intersection(id, control_map);
+                sim.debug_intersection(id, map);
             }
             ID::Turn(id) => {
                 map.get_t(id).dump_debug(map);
@@ -102,7 +101,6 @@ impl ID {
 pub struct Ctx<'a> {
     pub cs: &'a mut ColorScheme,
     pub map: &'a Map,
-    pub control_map: &'a ControlMap,
     pub draw_map: &'a DrawMap,
     pub canvas: &'a Canvas,
     pub sim: &'a Sim,

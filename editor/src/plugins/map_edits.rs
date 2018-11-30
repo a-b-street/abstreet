@@ -1,10 +1,9 @@
-use control::ControlMap;
 use ezgui::{GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
 use plugins::{choose_edits, Plugin, PluginCtx};
-use sim::{MapEdits, SimFlags};
+use sim::SimFlags;
 use ui::{PerMapUI, PluginsPerMap};
 
 pub enum EditsManager {
@@ -36,7 +35,6 @@ impl Plugin for EditsManager {
                 if manage_edits(
                     &mut ctx.primary.current_flags,
                     &ctx.primary.map,
-                    &ctx.primary.control_map,
                     ctx.kml,
                     &mut new_primary,
                     wizard.wrap(ctx.input),
@@ -76,7 +74,6 @@ impl Plugin for EditsManager {
 fn manage_edits(
     current_flags: &mut SimFlags,
     map: &Map,
-    control_map: &ControlMap,
     kml: &Option<String>,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     mut wizard: WrappedWizard,
@@ -93,14 +90,8 @@ fn manage_edits(
 
     // Slow to create this every tick just to get the description? It's actually frozen once the
     // wizard is started...
-    let mut edits = MapEdits {
-        edits_name: current_flags.edits_name.to_string(),
-        map_name: map.get_name().to_string(),
-        road_edits: map.get_road_edits().clone(),
-        stop_signs: control_map.get_changed_stop_signs(),
-        traffic_signals: control_map.get_changed_traffic_signals(),
-    };
-    edits.road_edits.edits_name = edits.edits_name.clone();
+    let mut edits = map.get_edits().clone();
+    edits.edits_name = edits.edits_name.clone();
 
     match wizard
         .choose_string(&format!("Manage {}", edits.describe()), choices)?

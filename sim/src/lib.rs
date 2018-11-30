@@ -2,7 +2,6 @@
 
 extern crate abstutil;
 extern crate backtrace;
-extern crate control;
 #[macro_use]
 extern crate derivative;
 extern crate dimensioned;
@@ -58,7 +57,7 @@ pub use events::Event;
 pub use instrument::save_backtraces;
 pub use kinematics::VehicleType;
 pub use make::{
-    load, ABTest, ABTestResults, BorderSpawnOverTime, MapEdits, Neighborhood, NeighborhoodBuilder,
+    load, ABTest, ABTestResults, BorderSpawnOverTime, Neighborhood, NeighborhoodBuilder,
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
 };
 use map_model::{BuildingID, LaneID};
@@ -162,5 +161,4 @@ impl Cloneable for Neighborhood {}
 impl Cloneable for NeighborhoodBuilder {}
 impl Cloneable for Scenario {}
 impl Cloneable for Tick {}
-impl Cloneable for MapEdits {}
 impl Cloneable for ABTest {}

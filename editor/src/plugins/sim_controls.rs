@@ -81,10 +81,10 @@ impl Plugin for SimController {
                 self.last_step = Some(Instant::now());
                 self.benchmark = Some(primary.sim.start_benchmark());
             } else if input.unimportant_key_pressed(Key::M, SIM, "run one step") {
-                primary.sim.step(&primary.map, &primary.control_map);
+                primary.sim.step(&primary.map);
                 primary.recalculate_current_selection = true;
                 if let Some((s, _)) = secondary {
-                    s.sim.step(&s.map, &s.control_map);
+                    s.sim.step(&s.map);
                 }
             }
         }
@@ -118,10 +118,10 @@ impl Plugin for SimController {
                 // TODO https://gafferongames.com/post/fix_your_timestep/
                 let dt_s = elapsed_seconds(tick);
                 if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
-                    primary.sim.step(&primary.map, &primary.control_map);
+                    primary.sim.step(&primary.map);
                     primary.recalculate_current_selection = true;
                     if let Some((s, _)) = secondary {
-                        s.sim.step(&s.map, &s.control_map);
+                        s.sim.step(&s.map);
                     }
                     self.last_step = Some(Instant::now());
                 }

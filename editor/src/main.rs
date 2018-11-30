@@ -2,7 +2,6 @@
 
 extern crate aabb_quadtree;
 extern crate abstutil;
-extern crate control;
 extern crate counter;
 extern crate cpuprofiler;
 extern crate dimensioned;

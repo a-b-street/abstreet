@@ -4,7 +4,6 @@
 
 use abstutil;
 use colors::ColorScheme;
-use control::ControlMap;
 //use cpuprofiler;
 use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
@@ -97,7 +96,6 @@ impl GUI for UI {
                 Ctx {
                     cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
-                    control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
@@ -116,7 +114,6 @@ impl GUI for UI {
                 Ctx {
                     cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
-                    control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
@@ -130,7 +127,6 @@ impl GUI for UI {
                 Ctx {
                     cs: &mut self.cs.borrow_mut(),
                     map: &self.primary.map,
-                    control_map: &self.primary.control_map,
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
@@ -144,7 +140,6 @@ impl GUI for UI {
             Ctx {
                 cs: &mut self.cs.borrow_mut(),
                 map: &self.primary.map,
-                control_map: &self.primary.control_map,
                 draw_map: &self.primary.draw_map,
                 canvas: &self.canvas,
                 sim: &self.primary.sim,
@@ -161,7 +156,6 @@ impl GUI for UI {
 pub struct PerMapUI {
     pub map: Map,
     pub draw_map: DrawMap,
-    pub control_map: ControlMap,
     pub sim: Sim,
 
     pub current_selection: Option<ID>,
@@ -204,8 +198,7 @@ impl PerMapUI {
     pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
-        let (map, control_map, sim) =
-            sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
+        let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
         let extra_shapes: Vec<kml::ExtraShape> = if let Some(path) = kml {
             if path.ends_with(".kml") {
                 kml::load(&path, &map.get_gps_bounds(), &mut timer)
@@ -221,7 +214,7 @@ impl PerMapUI {
         };
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, &control_map, extra_shapes, &mut timer);
+        let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
         timer.stop("draw_map");
 
         let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
@@ -233,7 +226,6 @@ impl PerMapUI {
         let state = PerMapUI {
             map,
             draw_map,
-            control_map,
             sim,
 
             current_selection: None,
@@ -427,7 +419,6 @@ impl UI {
         let ctx = Ctx {
             cs: &mut self.cs.borrow_mut(),
             map: &self.primary.map,
-            control_map: &self.primary.control_map,
             draw_map: &self.primary.draw_map,
             canvas: &self.canvas,
             sim: &self.primary.sim,

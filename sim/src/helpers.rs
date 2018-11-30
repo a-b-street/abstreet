@@ -1,5 +1,4 @@
 use abstutil::WeightedUsizeChoice;
-use control::ControlMap;
 use driving::DrivingGoal;
 use map_model::{BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, Map, RoadID};
 use std::collections::{BTreeSet, VecDeque};
@@ -14,11 +13,11 @@ use {
 impl Sim {
     // TODO share the helpers for spawning specific parking spots and stuff?
 
-    pub fn run_until_done(&mut self, map: &Map, control_map: &ControlMap, callback: Box<Fn(&Sim)>) {
+    pub fn run_until_done(&mut self, map: &Map, callback: Box<Fn(&Sim)>) {
         let mut benchmark = self.start_benchmark();
         loop {
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.step(&map, &control_map);
+                self.step(&map);
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -43,7 +42,6 @@ impl Sim {
     pub fn run_until_expectations_met(
         &mut self,
         map: &Map,
-        control_map: &ControlMap,
         all_expectations: Vec<Event>,
         time_limit: Tick,
     ) {
@@ -53,7 +51,7 @@ impl Sim {
             if expectations.is_empty() {
                 return;
             }
-            for ev in self.step(&map, &control_map).into_iter() {
+            for ev in self.step(&map).into_iter() {
                 if ev == *expectations.front().unwrap() {
                     info!("At {}, met expectation {:?}", self.time, ev);
                     expectations.pop_front();

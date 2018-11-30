@@ -2,10 +2,9 @@
 
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
-use control::{ControlMap, ControlStopSign, TurnPriority};
 use dimensioned::si;
 use kinematics;
-use map_model::{IntersectionID, IntersectionType, Map, TurnID};
+use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
 use std::collections::{BTreeMap, BTreeSet};
 use view::WorldView;
 use {AgentID, CarID, Event, PedestrianID, Tick, Time};
@@ -95,21 +94,12 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn step(
-        &mut self,
-        events: &mut Vec<Event>,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        view: &WorldView,
-    ) {
+    pub fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
         for i in self.intersections.iter_mut() {
             match i {
-                IntersectionPolicy::StopSignPolicy(ref mut p) => {
-                    p.step(events, time, map, control_map, view)
-                }
+                IntersectionPolicy::StopSignPolicy(ref mut p) => p.step(events, time, map, view),
                 IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(events, time, map, control_map, view)
+                    p.step(events, time, map, view)
                 }
                 IntersectionPolicy::BorderPolicy => {}
             }
@@ -142,7 +132,7 @@ impl IntersectionSimState {
         }
     }
 
-    pub fn debug(&mut self, id: IntersectionID, control_map: &ControlMap) {
+    pub fn debug(&mut self, id: IntersectionID, map: &Map) {
         if let Some(old) = self.debug {
             match self.intersections.get_mut(old.0).unwrap() {
                 IntersectionPolicy::StopSignPolicy(ref mut p) => {
@@ -159,11 +149,11 @@ impl IntersectionSimState {
         match self.intersections.get_mut(id.0).unwrap() {
             IntersectionPolicy::StopSignPolicy(ref mut p) => {
                 p.debug = true;
-                println!("{}", abstutil::to_json(&control_map.stop_signs[&id]));
+                println!("{}", abstutil::to_json(map.get_stop_sign(id)));
             }
             IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
                 p.debug = true;
-                println!("{}", abstutil::to_json(&control_map.traffic_signals[&id]));
+                println!("{}", abstutil::to_json(map.get_traffic_signal(id)));
             }
             IntersectionPolicy::BorderPolicy => {
                 println!("{} is a border", id);
@@ -254,15 +244,8 @@ impl StopSign {
             }).is_some()
     }
 
-    fn step(
-        &mut self,
-        events: &mut Vec<Event>,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        view: &WorldView,
-    ) {
-        let ss = &control_map.stop_signs[&self.id];
+    fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
+        let ss = map.get_stop_sign(self.id);
 
         // If anybody is stopped, promote them.
         // TODO retain() would rock
@@ -342,15 +325,8 @@ impl TrafficSignal {
         }
     }
 
-    fn step(
-        &mut self,
-        events: &mut Vec<Event>,
-        time: Tick,
-        map: &Map,
-        control_map: &ControlMap,
-        view: &WorldView,
-    ) {
-        let signal = &control_map.traffic_signals[&self.id];
+    fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
+        let signal = map.get_traffic_signal(self.id);
         let (cycle, _remaining_cycle_time) =
             signal.current_cycle_and_remaining_time(time.as_time());
 

@@ -1,8 +1,9 @@
-use control::{ControlTrafficSignal, TurnPriority};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::Circle;
-use map_model::{IntersectionID, LaneID, TurnType, LANE_THICKNESS};
+use map_model::{
+    ControlTrafficSignal, IntersectionID, LaneID, TurnPriority, TurnType, LANE_THICKNESS,
+};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -92,7 +93,7 @@ impl Plugin for TurnCyclerState {
                 //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
             TurnCyclerState::Intersection(id) => {
-                if let Some(signal) = ctx.control_map.traffic_signals.get(&id) {
+                if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
                     draw_traffic_signal(signal, g, ctx);
                 }
             }

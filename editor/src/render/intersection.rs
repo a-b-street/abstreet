@@ -84,9 +84,9 @@ impl Renderable for DrawIntersection {
                 return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));
             }
 
-            let changed = if let Some(s) = ctx.control_map.traffic_signals.get(&self.id) {
+            let changed = if let Some(s) = ctx.map.maybe_get_traffic_signal(self.id) {
                 s.is_changed()
-            } else if let Some(s) = ctx.control_map.stop_signs.get(&self.id) {
+            } else if let Some(s) = ctx.map.maybe_get_stop_sign(self.id) {
                 s.is_changed()
             } else {
                 false

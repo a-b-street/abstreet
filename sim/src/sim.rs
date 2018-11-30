@@ -2,7 +2,6 @@
 
 use abstutil;
 use abstutil::Error;
-use control::ControlMap;
 use driving::DrivingSimState;
 use instrument::capture_backtrace;
 use intersections::IntersectionSimState;
@@ -77,7 +76,7 @@ impl Sim {
             transit_state: TransitSimState::new(),
             time: Tick::zero(),
             map_name: map.get_name().to_string(),
-            edits_name: map.get_road_edits().edits_name.to_string(),
+            edits_name: map.get_edits().edits_name.to_string(),
             run_name,
             savestate_every,
             current_agent_for_debugging: None,
@@ -144,13 +143,13 @@ impl Sim {
         }
     }
 
-    pub fn step(&mut self, map: &Map, control_map: &ControlMap) -> Vec<Event> {
+    pub fn step(&mut self, map: &Map) -> Vec<Event> {
         // If there's an error, panic, so editor or headless will catch it, call dump_before_abort,
         // and also do any other bail-out handling.
-        self.inner_step(map, control_map).unwrap()
+        self.inner_step(map).unwrap()
     }
 
-    fn inner_step(&mut self, map: &Map, control_map: &ControlMap) -> Result<(Vec<Event>), Error> {
+    fn inner_step(&mut self, map: &Map) -> Result<(Vec<Event>), Error> {
         let mut view = WorldView::new();
         let mut events: Vec<Event> = Vec::new();
 
@@ -237,7 +236,7 @@ impl Sim {
         // Note that the intersection sees the WorldView BEFORE the updates that just happened this
         // tick.
         self.intersection_state
-            .step(&mut events, self.time, map, control_map, &view);
+            .step(&mut events, self.time, map, &view);
 
         // Do this at the end of the step, so that tick 0 actually occurs and things can happen
         // then.
@@ -286,8 +285,8 @@ impl Sim {
         self.driving_state.toggle_debug(id);
     }
 
-    pub fn debug_intersection(&mut self, id: IntersectionID, control_map: &ControlMap) {
-        self.intersection_state.debug(id, control_map);
+    pub fn debug_intersection(&mut self, id: IntersectionID, map: &Map) {
+        self.intersection_state.debug(id, map);
     }
 
     pub fn save(&self) -> String {

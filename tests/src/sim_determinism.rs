@@ -6,7 +6,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow(
         "serialization",
         Box::new(|_| {
-            let (map, _, mut sim) = sim::load(
+            let (map, mut sim) = sim::load(
                 sim::SimFlags::for_test("serialization"),
                 None,
                 &mut Timer::new("setup test"),
@@ -24,7 +24,7 @@ pub fn run(t: &mut TestRunner) {
         "from_scratch",
         Box::new(|_| {
             println!("Creating two simulations");
-            let (map, control_map, mut sim1) = sim::load(
+            let (map, mut sim1) = sim::load(
                 sim::SimFlags::for_test("from_scratch_1"),
                 None,
                 &mut Timer::new("setup test"),
@@ -42,8 +42,8 @@ pub fn run(t: &mut TestRunner) {
                         sim2.save()
                     );
                 }
-                sim1.step(&map, &control_map);
-                sim2.step(&map, &control_map);
+                sim1.step(&map);
+                sim2.step(&map);
             }
         }),
     );
@@ -52,7 +52,7 @@ pub fn run(t: &mut TestRunner) {
         "with_savestating",
         Box::new(|_| {
             println!("Creating two simulations");
-            let (map, control_map, mut sim1) = sim::load(
+            let (map, mut sim1) = sim::load(
                 sim::SimFlags::for_test("with_savestating_1"),
                 None,
                 &mut Timer::new("setup test"),
@@ -62,8 +62,8 @@ pub fn run(t: &mut TestRunner) {
             sim2.small_spawn(&map);
 
             for _ in 1..600 {
-                sim1.step(&map, &control_map);
-                sim2.step(&map, &control_map);
+                sim1.step(&map);
+                sim2.step(&map);
             }
 
             if sim1 != sim2 {
@@ -77,7 +77,7 @@ pub fn run(t: &mut TestRunner) {
             let sim1_save = sim1.save();
 
             for _ in 1..60 {
-                sim1.step(&map, &control_map);
+                sim1.step(&map);
             }
 
             if sim1 == sim2 {
