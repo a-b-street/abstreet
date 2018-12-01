@@ -1,4 +1,4 @@
-use abstutil::{note, Error};
+use abstutil::Error;
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
@@ -188,27 +188,31 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
 }
 
 fn smart_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    if map.get_i(i).roads.len() == 4 {
-        let ts = four_way(map, i);
-        match ts.validate(map) {
-            Ok(()) => {
-                return ts;
-            }
-            Err(err) => {
-                note(format!("For {}: {}", i, err));
-            }
+    let num_roads = map.get_i(i).roads.len();
+    let ts = if num_roads == 3 {
+        three_way(map, i)
+    } else if num_roads == 4 {
+        four_way(map, i)
+    } else {
+        return greedy_assignment(map, i);
+    };
+
+    match ts.validate(map) {
+        Ok(()) => ts,
+        Err(err) => {
+            warn!("For {}: {}", i, err);
+            greedy_assignment(map, i)
         }
     }
-    greedy_assignment(map, i)
 }
+
+const PROTECTED: bool = true;
+const YIELD: bool = false;
 
 fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
     // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
-
-    const PROTECTED: bool = true;
-    const YIELD: bool = false;
 
     // Two-phase with no protected lefts, right turn on red, peds yielding to cars
     let cycles = make_cycles(
@@ -224,6 +228,45 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
             vec![
                 (vec![east, west], Turns::StraightAndRight, PROTECTED),
                 (vec![east, west], Turns::Left, YIELD),
+                (vec![north, south], Turns::Right, YIELD),
+                (vec![north, south], Turns::Crosswalk, YIELD),
+            ],
+        ],
+    );
+
+    ControlTrafficSignal { id: i, cycles }
+}
+
+fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+    // Picture a T intersection. Use turn angles to figure out the "main" two roads.
+    let straight_turn = map
+        .get_turns_in_intersection(i)
+        .into_iter()
+        .find(|t| t.turn_type == TurnType::Other && t.turn_angle(map) == TurnAngle::Straight)
+        .unwrap();
+    let (north, south) = (
+        map.get_l(straight_turn.id.src).parent,
+        map.get_l(straight_turn.id.dst).parent,
+    );
+    let mut roads = map.get_i(i).roads.clone();
+    roads.remove(&north);
+    roads.remove(&south);
+    let east = roads.into_iter().next().unwrap();
+
+    // Two-phase with no protected lefts, right turn on red, peds yielding to cars
+    let cycles = make_cycles(
+        map,
+        i,
+        vec![
+            vec![
+                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Left, YIELD),
+                (vec![east], Turns::Right, YIELD),
+                (vec![east], Turns::Crosswalk, YIELD),
+            ],
+            vec![
+                (vec![east], Turns::StraightAndRight, PROTECTED),
+                (vec![east], Turns::Left, PROTECTED),
                 (vec![north, south], Turns::Right, YIELD),
                 (vec![north, south], Turns::Crosswalk, YIELD),
             ],
