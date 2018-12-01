@@ -116,8 +116,9 @@ fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
             txt.add_line(format!("Roads: {:?}", map.get_i(id).roads));
         }
         ID::Turn(id) => {
+            let t = map.get_t(id);
             txt.add_line(format!("{}", id));
-            txt.add_line(format!("Angle {}", map.get_t(id).turn_angle(map)));
+            txt.add_line(format!("{:?} / {:?}", t.turn_type, t.turn_angle(map)));
         }
         ID::Building(id) => {
             let b = map.get_b(id);

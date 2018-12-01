@@ -87,26 +87,14 @@ impl Turn {
         self.line.pt2()
     }
 
-    // TODO all the stuff based on turn angle is a bit... wrong, especially for sidewalks. :\
-    // also, make sure right/left/straight are disjoint... and maybe cover all turns. return an enum from one method.
-    pub fn turn_angle(&self, map: &Map) -> Angle {
-        let lane_angle = map.get_l(self.id.src).end_line(self.id.parent).angle();
-        // TODO Use shortest_rotation_towards, same logic from make/turns?
-        self.line.angle() - lane_angle
-    }
-
-    pub fn is_right_turn(&self, map: &Map) -> bool {
-        let a = self.turn_angle(map).normalized_degrees();
-        a < 95.0 && a > 20.0
-    }
-
-    pub fn is_straight_turn(&self, map: &Map) -> bool {
-        let a = self.turn_angle(map).normalized_degrees();
-        a <= 20.0 || a >= 320.0
-    }
-
-    pub fn is_left_turn(&self, map: &Map) -> bool {
-        !self.is_right_turn(map) && !self.is_straight_turn(map)
+    pub fn turn_angle(&self, map: &Map) -> TurnAngle {
+        TurnAngle::new(
+            map.get_l(self.id.src).end_line(self.id.parent).angle(),
+            map.get_l(self.id.dst)
+                .end_line(self.id.parent)
+                .reverse()
+                .angle(),
+        )
     }
 
     pub fn between_sidewalks(&self) -> bool {
@@ -115,8 +103,27 @@ impl Turn {
 
     pub fn dump_debug(&self, map: &Map) {
         println!("{}", abstutil::to_json(self));
-        println!("turn angle {}", self.turn_angle(map));
-        println!("is right turn? {}", self.is_right_turn(map));
-        println!("is straight turn? {}", self.is_straight_turn(map));
+        println!("turn angle {:?}", self.turn_angle(map));
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum TurnAngle {
+    Straight,
+    Right,
+    Left,
+}
+
+impl TurnAngle {
+    pub fn new(from: Angle, to: Angle) -> TurnAngle {
+        let diff = from.shortest_rotation_towards(to).normalized_degrees();
+        if diff < 10.0 || diff > 350.0 {
+            TurnAngle::Straight
+        } else if diff > 180.0 {
+            // Clockwise rotation
+            TurnAngle::Right
+        } else {
+            TurnAngle::Left
+        }
     }
 }

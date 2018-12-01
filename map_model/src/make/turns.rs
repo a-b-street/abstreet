@@ -4,7 +4,7 @@ use std::collections::{BTreeSet, HashSet};
 use std::iter;
 use {
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
-    Turn, TurnID, TurnType,
+    Turn, TurnAngle, TurnID, TurnType,
 };
 
 pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
@@ -108,25 +108,23 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 // Use an arbitrary lane from each road to get the angle between r1 and r2.
                 let angle1 = map.get_l(incoming[0]).last_line().angle();
                 let angle2 = map.get_l(outgoing[0]).first_line().angle();
-                let diff = angle1
-                    .shortest_rotation_towards(angle2)
-                    .normalized_degrees();
-
-                if diff < 10.0 || diff > 350.0 {
-                    // Straight. Match up based on the relative number of lanes.
-                    result.extend(match_up_lanes(map, i.id, &incoming, &outgoing));
-                } else if diff > 180.0 {
-                    // Clockwise rotation means a right turn?
-                    result.push(make_vehicle_turn(
-                        map,
-                        i.id,
-                        *incoming.last().unwrap(),
-                        *outgoing.last().unwrap(),
-                    ));
-                } else {
-                    // Counter-clockwise rotation means a left turn
-                    result.push(make_vehicle_turn(map, i.id, incoming[0], outgoing[0]));
-                }
+                match TurnAngle::new(angle1, angle2) {
+                    TurnAngle::Straight => {
+                        // Match up based on the relative number of lanes.
+                        result.extend(match_up_lanes(map, i.id, &incoming, &outgoing));
+                    }
+                    TurnAngle::Right => {
+                        result.push(make_vehicle_turn(
+                            map,
+                            i.id,
+                            *incoming.last().unwrap(),
+                            *outgoing.last().unwrap(),
+                        ));
+                    }
+                    TurnAngle::Left => {
+                        result.push(make_vehicle_turn(map, i.id, incoming[0], outgoing[0]));
+                    }
+                };
             }
         }
     }

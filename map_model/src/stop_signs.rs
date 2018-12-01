@@ -1,6 +1,6 @@
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use {IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
+use {IntersectionID, LaneID, Map, TurnAngle, TurnID, TurnPriority, TurnType};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {
@@ -151,9 +151,7 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> ControlStopSign {
             // If it's the highest rank road, make the straight and right turns priority (if
             // possible) and other turns yield.
             let turn = map.get_t(*t);
-            if (turn.is_right_turn(map) || turn.is_straight_turn(map))
-                && ss.could_be_priority_turn(*t, map)
-            {
+            if turn.turn_angle(map) != TurnAngle::Left && ss.could_be_priority_turn(*t, map) {
                 ss.turns.insert(*t, TurnPriority::Priority);
             } else {
                 ss.turns.insert(*t, TurnPriority::Yield);

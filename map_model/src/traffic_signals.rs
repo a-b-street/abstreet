@@ -2,7 +2,7 @@ use abstutil::{note, Error};
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
-use {IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
+use {IntersectionID, Map, RoadID, TurnAngle, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,
@@ -264,18 +264,20 @@ fn make_cycles(
                     if turns != Turns::Crosswalk {
                         continue;
                     }
-                } else if turn.is_straight_turn(map) {
-                    if turns != Turns::StraightAndRight {
-                        continue;
-                    }
-                } else if turn.is_right_turn(map) {
-                    if turns != Turns::StraightAndRight && turns != Turns::Right {
-                        continue;
-                    }
-                } else if turn.is_left_turn(map) {
-                    if turns != Turns::Left {
-                        continue;
-                    }
+                } else {
+                    match turn.turn_angle(map) {
+                        TurnAngle::Straight => if turns != Turns::StraightAndRight {
+                            continue;
+                        },
+                        TurnAngle::Right => {
+                            if turns != Turns::StraightAndRight && turns != Turns::Right {
+                                continue;
+                            }
+                        }
+                        TurnAngle::Left => if turns != Turns::Left {
+                            continue;
+                        },
+                    };
                 }
 
                 if protected {
