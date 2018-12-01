@@ -4,7 +4,7 @@ use std::collections::{BTreeSet, HashSet};
 use std::iter;
 use {
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
-    Turn, TurnAngle, TurnID, TurnType,
+    Turn, TurnID, TurnType,
 };
 
 pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
@@ -108,12 +108,12 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 // Use an arbitrary lane from each road to get the angle between r1 and r2.
                 let angle1 = map.get_l(incoming[0]).last_line().angle();
                 let angle2 = map.get_l(outgoing[0]).first_line().angle();
-                match TurnAngle::new(angle1, angle2) {
-                    TurnAngle::Straight => {
+                match TurnType::from_angles(angle1, angle2) {
+                    TurnType::Straight => {
                         // Match up based on the relative number of lanes.
                         result.extend(match_up_lanes(map, i.id, &incoming, &outgoing));
                     }
-                    TurnAngle::Right => {
+                    TurnType::Right => {
                         result.push(make_vehicle_turn(
                             map,
                             i.id,
@@ -121,9 +121,10 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                             *outgoing.last().unwrap(),
                         ));
                     }
-                    TurnAngle::Left => {
+                    TurnType::Left => {
                         result.push(make_vehicle_turn(map, i.id, incoming[0], outgoing[0]));
                     }
+                    _ => unreachable!(),
                 };
             }
         }
@@ -287,10 +288,13 @@ fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID
 }
 
 fn make_vehicle_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
+    let src = map.get_l(l1);
+    let dst = map.get_l(l2);
+
     Turn {
         id: turn_id(i, l1, l2),
-        turn_type: TurnType::Other,
-        line: Line::new(map.get_l(l1).last_pt(), map.get_l(l2).first_pt()),
+        turn_type: TurnType::from_angles(src.last_line().angle(), dst.first_line().angle()),
+        line: Line::new(src.last_pt(), dst.first_pt()),
         lookup_idx: 0,
     }
 }

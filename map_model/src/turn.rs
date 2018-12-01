@@ -1,11 +1,9 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, Pt2D};
 use std::f64;
 use std::fmt;
-use {IntersectionID, LaneID, Map};
+use {IntersectionID, LaneID};
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 // Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
@@ -28,7 +26,25 @@ impl fmt::Display for TurnID {
 pub enum TurnType {
     Crosswalk,
     SharedSidewalkCorner,
-    Other,
+    // These are for vehicle turns
+    Straight,
+    Right,
+    Left,
+}
+
+impl TurnType {
+    pub fn from_angles(from: Angle, to: Angle) -> TurnType {
+        let diff = from.shortest_rotation_towards(to).normalized_degrees();
+        if diff < 10.0 || diff > 350.0 {
+            TurnType::Straight
+        } else if diff > 180.0 {
+            // Clockwise rotation
+            TurnType::Right
+        } else {
+            // Counter-clockwise rotation
+            TurnType::Left
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
@@ -87,43 +103,11 @@ impl Turn {
         self.line.pt2()
     }
 
-    pub fn turn_angle(&self, map: &Map) -> TurnAngle {
-        TurnAngle::new(
-            map.get_l(self.id.src).end_line(self.id.parent).angle(),
-            map.get_l(self.id.dst)
-                .end_line(self.id.parent)
-                .reverse()
-                .angle(),
-        )
-    }
-
     pub fn between_sidewalks(&self) -> bool {
-        self.turn_type != TurnType::Other
+        self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
     }
 
-    pub fn dump_debug(&self, map: &Map) {
+    pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
-        println!("turn angle {:?}", self.turn_angle(map));
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum TurnAngle {
-    Straight,
-    Right,
-    Left,
-}
-
-impl TurnAngle {
-    pub fn new(from: Angle, to: Angle) -> TurnAngle {
-        let diff = from.shortest_rotation_towards(to).normalized_degrees();
-        if diff < 10.0 || diff > 350.0 {
-            TurnAngle::Straight
-        } else if diff > 180.0 {
-            // Clockwise rotation
-            TurnAngle::Right
-        } else {
-            TurnAngle::Left
-        }
     }
 }

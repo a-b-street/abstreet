@@ -84,7 +84,9 @@ impl Plugin for TurnCyclerState {
                                     ctx.cs.get("shared sidewalk corner turn", Color::BLACK)
                                 }
                                 TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::WHITE),
-                                TurnType::Other => ctx.cs.get("other kind of type", Color::RED),
+                                TurnType::Straight => ctx.cs.get("straight turn", Color::BLUE),
+                                TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
+                                TurnType::Left => ctx.cs.get("left turn", Color::RED),
                             }.alpha(0.5);
                             ctx.draw_map.get_t(turn.id).draw_full(g, color);
                         },

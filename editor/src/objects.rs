@@ -39,7 +39,7 @@ impl ID {
                 sim.debug_intersection(id, map);
             }
             ID::Turn(id) => {
-                map.get_t(id).dump_debug(map);
+                map.get_t(id).dump_debug();
             }
             ID::Building(id) => {
                 map.get_b(id).dump_debug();

@@ -2,7 +2,7 @@ use abstutil::Error;
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
-use {IntersectionID, Map, RoadID, TurnAngle, TurnID, TurnPriority, TurnType};
+use {IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,
@@ -242,7 +242,7 @@ fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let straight_turn = map
         .get_turns_in_intersection(i)
         .into_iter()
-        .find(|t| t.turn_type == TurnType::Other && t.turn_angle(map) == TurnAngle::Straight)
+        .find(|t| t.turn_type == TurnType::Straight)
         .unwrap();
     let (north, south) = (
         map.get_l(straight_turn.id.src).parent,
@@ -303,25 +303,22 @@ fn make_cycles(
                     continue;
                 }
 
-                if turn.turn_type == TurnType::Crosswalk {
-                    if turns != Turns::Crosswalk {
+                match turn.turn_type {
+                    TurnType::Crosswalk => if turns != Turns::Crosswalk {
                         continue;
-                    }
-                } else {
-                    match turn.turn_angle(map) {
-                        TurnAngle::Straight => if turns != Turns::StraightAndRight {
-                            continue;
-                        },
-                        TurnAngle::Right => {
-                            if turns != Turns::StraightAndRight && turns != Turns::Right {
-                                continue;
-                            }
-                        }
-                        TurnAngle::Left => if turns != Turns::Left {
-                            continue;
-                        },
-                    };
-                }
+                    },
+                    TurnType::Straight => if turns != Turns::StraightAndRight {
+                        continue;
+                    },
+                    TurnType::Right => if turns != Turns::StraightAndRight && turns != Turns::Right
+                    {
+                        continue;
+                    },
+                    TurnType::Left => if turns != Turns::Left {
+                        continue;
+                    },
+                    TurnType::SharedSidewalkCorner => unreachable!(),
+                };
 
                 if protected {
                     cycle.priority_turns.insert(turn.id);
