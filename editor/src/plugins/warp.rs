@@ -117,6 +117,15 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => ID::Car(CarID(idx)),
             't' => ID::Trip(TripID(idx)),
+            // TODO "tu"?
+            'u' => {
+                if let Some(id) = map.lookup_turn_by_idx(idx) {
+                    ID::Turn(id)
+                } else {
+                    warn!("{} isn't a known TurnID", line);
+                    return None;
+                }
+            }
             _ => {
                 warn!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
                 return None;

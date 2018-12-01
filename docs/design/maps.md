@@ -413,3 +413,18 @@ Solutions
 Start by detecting all the possible problems in the geom validator plugin. Then
 probably go with the first solution, after understanding what the most
 egregious edge cases look like.
+
+## Debugging turns
+
+- How can we make a TurnID into an easily-typable thing to warp to it?
+	- hash?
+		- not actually unique, but good enough probably? could be confusing one day ;)
+		- make a helper that's exhaustive
+	- concat?
+	- ideally it'd be easily bijective, but since this is just for debug,
+	  it's not so terrible to brute-force to lookup
+	- hash + base 36 is still too much... 1dj33llg4ei37
+
+	- lets just separately index them. shrug. ideally part of the TurnID, but oh well.
+- How can we display the turn itself in response to warp?
+	- need to poke turn cycler from warp?

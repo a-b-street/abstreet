@@ -507,6 +507,13 @@ impl ShowTurnIcons for UI {
                 .primary_plugins
                 .traffic_signal_editor()
                 .show_turn_icons(id)
+            || {
+                if let Some(ID::Turn(t)) = self.primary.current_selection {
+                    t.parent == id
+                } else {
+                    false
+                }
+            }
     }
 }
 

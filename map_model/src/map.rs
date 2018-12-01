@@ -41,6 +41,8 @@ pub struct Map {
     gps_bounds: GPSBounds,
     bounds: Bounds,
 
+    turn_lookup: Vec<TurnID>,
+
     name: String,
     edits: MapEdits,
 }
@@ -92,6 +94,7 @@ impl Map {
             areas: Vec::new(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
+            turn_lookup: Vec::new(),
         };
 
         let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
@@ -244,8 +247,12 @@ impl Map {
                 m.turns.insert(t.id, t);
             }
         }
+        for (idx, t) in m.turns.values_mut().enumerate() {
+            t.lookup_idx = idx;
+        }
         for t in m.turns.values() {
             m.intersections[t.id.parent.0].turns.push(t.id);
+            m.turn_lookup.push(t.id);
         }
 
         let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
@@ -454,6 +461,10 @@ impl Map {
 
     pub fn get_traffic_signal(&self, id: IntersectionID) -> &ControlTrafficSignal {
         &self.traffic_signals[&id]
+    }
+
+    pub fn lookup_turn_by_idx(&self, idx: usize) -> Option<TurnID> {
+        self.turn_lookup.get(idx).map(|id| *id)
     }
 
     // All these helpers should take IDs and return objects.

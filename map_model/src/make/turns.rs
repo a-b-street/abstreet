@@ -216,11 +216,13 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::Crosswalk,
                     line: Line::new(l1.last_pt(), l2.first_pt()),
+                    lookup_idx: 0,
                 });
                 result.push(Turn {
                     id: turn_id(i.id, l2.id, l1.id),
                     turn_type: TurnType::Crosswalk,
                     line: Line::new(l2.first_pt(), l1.last_pt()),
+                    lookup_idx: 0,
                 });
             }
 
@@ -234,11 +236,13 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                         id: turn_id(i.id, l1.id, l3.id),
                         turn_type: TurnType::SharedSidewalkCorner,
                         line: Line::new(l1.last_pt(), l3.first_pt()),
+                        lookup_idx: 0,
                     });
                     result.push(Turn {
                         id: turn_id(i.id, l3.id, l1.id),
                         turn_type: TurnType::SharedSidewalkCorner,
                         line: Line::new(l3.first_pt(), l1.last_pt()),
+                        lookup_idx: 0,
                     });
                 }
             }
@@ -289,5 +293,6 @@ fn make_vehicle_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Tu
         id: turn_id(i, l1, l2),
         turn_type: TurnType::Other,
         line: Line::new(map.get_l(l1).last_pt(), map.get_l(l2).first_pt()),
+        lookup_idx: 0,
     }
 }

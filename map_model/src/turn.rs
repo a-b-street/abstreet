@@ -48,6 +48,9 @@ pub struct Turn {
     pub id: TurnID,
     pub turn_type: TurnType,
     pub line: Line,
+
+    // Just for convenient debugging lookup.
+    pub lookup_idx: usize,
 }
 
 impl Turn {
