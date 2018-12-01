@@ -16,10 +16,12 @@ pub struct ControlTrafficSignal {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
-        ControlTrafficSignal {
+        let ts = ControlTrafficSignal {
             id,
             cycles: greedy_assignment(map, id),
-        }
+        };
+        ts.validate(map);
+        ts
     }
 
     pub fn is_changed(&self) -> bool {
@@ -35,6 +37,33 @@ impl ControlTrafficSignal {
         let next_cycle_time = (cycle_idx + 1) as f64 * CYCLE_DURATION;
         let remaining_cycle_time = next_cycle_time - time;
         (cycle, remaining_cycle_time)
+    }
+
+    fn validate(&self, map: &Map) {
+        // Does the assignment cover the correct set of turns?
+        let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
+        let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
+        for cycle in &self.cycles {
+            actual_turns.extend(cycle.priority_turns.clone());
+            actual_turns.extend(cycle.yield_turns.clone());
+        }
+        if expected_turns != actual_turns {
+            panic!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns), actual_turns.difference(&expected_turns));
+        }
+
+        // Do any of the priority turns in one cycle conflict?
+        for cycle in &self.cycles {
+            for t1 in &cycle.priority_turns {
+                for t2 in &cycle.priority_turns {
+                    if map.get_t(*t1).conflicts_with(map.get_t(*t2)) {
+                        panic!(
+                            "Traffic signal has conflicting priority turns {:?} and {:?} in one cycle",
+                            t1, t2
+                        );
+                    }
+                }
+            }
+        }
     }
 }
 
