@@ -69,6 +69,20 @@ impl Intersection {
             .collect()
     }
 
+    pub fn get_roads_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadID> {
+        let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
+        roads.sort_by_key(|id| {
+            let r = map.get_r(*id);
+            let last_line = if r.dst_i == self.id {
+                r.center_pts.last_line()
+            } else {
+                r.center_pts.first_line().reverse()
+            };
+            last_line.angle().normalized_degrees() as i64
+        });
+        roads
+    }
+
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
     }

@@ -44,6 +44,10 @@ ah, think of the real world for the UI. Light per incoming lane. Sometimes need
 to show a green/yellow/red arrow. Could similarly show the ped stop hand or the
 walking figure, probably at both tips of a sidewalk.
 
+- https://www.slideshare.net/hronaldo10/lecture-06-signalized-intersections-traffic-engineering-profusama-shahdah
+	- especially slide 11 has the best notation for protected and permited turns!
+	- slide 12 shows a nice table
+
 ### Yielding
 
 Similar to a stop sign, there are turn priorities for cycles. Some turns have

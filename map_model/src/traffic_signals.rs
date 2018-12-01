@@ -1,7 +1,8 @@
+use abstutil::Error;
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
-use {IntersectionID, Map, TurnID, TurnPriority};
+use {IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 15.0,
@@ -16,11 +17,8 @@ pub struct ControlTrafficSignal {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
-        let ts = ControlTrafficSignal {
-            id,
-            cycles: greedy_assignment(map, id),
-        };
-        ts.validate(map);
+        let ts = smart_assignment(map, id);
+        ts.validate(map).unwrap();
         ts
     }
 
@@ -39,7 +37,7 @@ impl ControlTrafficSignal {
         (cycle, remaining_cycle_time)
     }
 
-    fn validate(&self, map: &Map) {
+    fn validate(&self, map: &Map) -> Result<(), Error> {
         // Does the assignment cover the correct set of turns?
         let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
         let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
@@ -48,22 +46,24 @@ impl ControlTrafficSignal {
             actual_turns.extend(cycle.yield_turns.clone());
         }
         if expected_turns != actual_turns {
-            panic!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns), actual_turns.difference(&expected_turns));
+            return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns), actual_turns.difference(&expected_turns))));
         }
 
         // Do any of the priority turns in one cycle conflict?
         for cycle in &self.cycles {
-            for t1 in &cycle.priority_turns {
-                for t2 in &cycle.priority_turns {
-                    if map.get_t(*t1).conflicts_with(map.get_t(*t2)) {
-                        panic!(
-                            "Traffic signal has conflicting priority turns {:?} and {:?} in one cycle",
+            for t1 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
+                for t2 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
+                    if t1.conflicts_with(t2) {
+                        return Err(Error::new(format!(
+                            "Traffic signal has conflicting priority turns in one cycle:\n{:?}\n\n{:?}",
                             t1, t2
-                        );
+                        )));
                     }
                 }
             }
         }
+
+        Ok(())
     }
 }
 
@@ -124,7 +124,7 @@ impl Cycle {
     }
 }
 
-fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
+fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
     if map.get_turns_in_intersection(intersection).is_empty() {
         panic!("{} has no turns", intersection);
     }
@@ -165,7 +165,10 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> Vec<Cycle> {
 
     expand_all_cycles(&mut cycles, map, intersection);
 
-    cycles
+    ControlTrafficSignal {
+        id: intersection,
+        cycles,
+    }
 }
 
 // Add all legal priority turns to existing cycles.
@@ -182,4 +185,118 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
             }
         }
     }
+}
+
+fn smart_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+    if map.get_i(i).roads.len() == 4 {
+        let ts = four_way(map, i);
+        match ts.validate(map) {
+            Ok(()) => {
+                return ts;
+            }
+            Err(err) => {
+                error!("For {}: {}", i, err);
+            }
+        }
+    }
+    greedy_assignment(map, i)
+}
+
+fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+    let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+    // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+    let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
+
+    const PROTECTED: bool = true;
+    const YIELD: bool = false;
+
+    // Two-phase with no protected lefts, right turn on red, peds yielding to cars
+    let cycles = make_cycles(
+        map,
+        i,
+        vec![
+            vec![
+                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Left, YIELD),
+                (vec![east, west], Turns::Right, YIELD),
+                (vec![east, west], Turns::Crosswalk, YIELD),
+            ],
+            vec![
+                (vec![east, west], Turns::StraightAndRight, PROTECTED),
+                (vec![east, west], Turns::Left, YIELD),
+                (vec![north, south], Turns::Right, YIELD),
+                (vec![north, south], Turns::Crosswalk, YIELD),
+            ],
+        ],
+    );
+
+    ControlTrafficSignal { id: i, cycles }
+}
+
+fn make_cycles(
+    map: &Map,
+    i: IntersectionID,
+    cycle_specs: Vec<Vec<(Vec<RoadID>, Turns, bool)>>,
+) -> Vec<Cycle> {
+    let mut cycles: Vec<Cycle> = Vec::new();
+
+    for specs in cycle_specs.into_iter() {
+        let mut cycle = Cycle {
+            priority_turns: BTreeSet::new(),
+            yield_turns: BTreeSet::new(),
+            changed: false,
+            duration: CYCLE_DURATION,
+        };
+
+        for (roads, turns, protected) in specs.into_iter() {
+            for turn in map.get_turns_in_intersection(i) {
+                // These never conflict with anything.
+                if turn.turn_type == TurnType::SharedSidewalkCorner {
+                    cycle.priority_turns.insert(turn.id);
+                    continue;
+                }
+
+                if !roads.contains(&map.get_l(turn.id.src).parent) {
+                    continue;
+                }
+
+                if turn.turn_type == TurnType::Crosswalk {
+                    if turns != Turns::Crosswalk {
+                        continue;
+                    }
+                } else if turn.is_straight_turn(map) {
+                    if turns != Turns::StraightAndRight {
+                        continue;
+                    }
+                } else if turn.is_right_turn(map) {
+                    if turns != Turns::StraightAndRight && turns != Turns::Right {
+                        continue;
+                    }
+                } else if turn.is_left_turn(map) {
+                    if turns != Turns::Left {
+                        continue;
+                    }
+                }
+
+                if protected {
+                    cycle.priority_turns.insert(turn.id);
+                } else {
+                    cycle.yield_turns.insert(turn.id);
+                }
+            }
+        }
+
+        cycles.push(cycle);
+    }
+
+    cycles
+}
+
+#[derive(PartialEq)]
+enum Turns {
+    StraightAndRight,
+    Left,
+    Right,
+    // These always cross from one side of a road to the other.
+    Crosswalk,
 }

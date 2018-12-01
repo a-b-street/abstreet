@@ -102,6 +102,10 @@ impl Turn {
         a <= 20.0 || a >= 320.0
     }
 
+    pub fn is_left_turn(&self, map: &Map) -> bool {
+        !self.is_right_turn(map) && !self.is_straight_turn(map)
+    }
+
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type != TurnType::Other
     }
