@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate lazy_static;
 extern crate log;
 extern crate multimap;
 extern crate rand;
@@ -13,6 +15,7 @@ mod collections;
 mod error;
 mod io;
 mod logs;
+mod notes;
 mod random;
 mod time;
 
@@ -25,6 +28,7 @@ pub use io::{
     write_json, FileWithProgress,
 };
 pub use logs::{format_log_record, LogAdapter};
+pub use notes::note;
 pub use random::{fork_rng, WeightedUsizeChoice};
 pub use time::{elapsed_seconds, Timer};
 

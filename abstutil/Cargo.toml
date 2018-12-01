@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 
 [dependencies]
+lazy_static = "1.1.0"
 log = "0.4.5"
 multimap = "0.4.0"
 rand = { version = "0.5.1", features = ["serde1"] }

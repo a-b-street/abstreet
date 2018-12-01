@@ -1,4 +1,4 @@
-use abstutil::Error;
+use abstutil::{note, Error};
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
@@ -195,7 +195,7 @@ fn smart_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
                 return ts;
             }
             Err(err) => {
-                error!("For {}: {}", i, err);
+                note(format!("For {}: {}", i, err));
             }
         }
     }

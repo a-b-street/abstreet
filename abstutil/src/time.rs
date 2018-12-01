@@ -1,3 +1,4 @@
+use notes;
 use std::io::{stdout, Write};
 use std::time::Instant;
 use PROGRESS_FREQUENCY_SECONDS;
@@ -114,6 +115,7 @@ impl Timer {
             }
             println!("");
         }
+        notes::dump_notes();
     }
 
     pub fn start(&mut self, name: &str) {
