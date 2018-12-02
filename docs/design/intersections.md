@@ -130,3 +130,8 @@ Maybe start by hardcoding the things to merge. Don't worry about detection yet. 
 Ah, the problem with just extending geometry... I think turns need to be
 polylines sometimes. Need to do the merging all the way at the end,
 unfortunately...
+
+## Nicer turn geometry
+
+Take the current turn-as-a-line thing, make it a box, and use that corner as a
+control point or something for a curve.

@@ -18,6 +18,7 @@ kml = { path = "../kml" }
 lazy_static = "1.1.0"
 log = "0.4.5"
 map_model = { path = "../map_model" }
+nbez = "0.1.0"
 piston = "*"
 pretty_assertions = "0.5.1"
 quick-xml = "0.10.0"

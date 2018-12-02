@@ -76,7 +76,11 @@ impl Plugin for TurnCyclerState {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
                             let draw_turn = ctx.draw_map.get_t(turn.id);
-                            draw_turn.draw_full(g, ctx.cs.get("current selected turn", Color::RED));
+                            draw_turn.draw_full(
+                                ctx.map,
+                                g,
+                                ctx.cs.get("current selected turn", Color::RED),
+                            );
                         }
                         None => for turn in &relevant_turns {
                             let color = match turn.turn_type {
@@ -88,7 +92,7 @@ impl Plugin for TurnCyclerState {
                                 TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
                                 TurnType::Left => ctx.cs.get("left turn", Color::RED),
                             }.alpha(0.5);
-                            ctx.draw_map.get_t(turn.id).draw_full(g, color);
+                            ctx.draw_map.get_t(turn.id).draw_full(ctx.map, g, color);
                         },
                     }
                 }
@@ -148,7 +152,7 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
             /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
                 m.draw(g, ctx.cs, priority_color);
             }*/
-            ctx.draw_map.get_t(*t).draw_full(g, priority_color);
+            ctx.draw_map.get_t(*t).draw_full(ctx.map, g, priority_color);
         }
         for t in &cycle.yield_turns {
             for m in turn_markings(ctx.map.get_t(*t), ctx.map) {

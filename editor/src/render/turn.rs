@@ -1,9 +1,7 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Line, Pt2D};
-use map_model::{Map, Turn, TurnID};
+use geom::{Bounds, Circle, Line, PolyLine, Pt2D};
+use map_model::{Map, Turn, TurnID, TurnType};
 use objects::{Ctx, ID};
 use render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
@@ -44,8 +42,52 @@ impl DrawTurn {
         }
     }
 
-    pub fn draw_full(&self, g: &mut GfxCtx, color: Color) {
-        g.draw_rounded_arrow(color, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, &self.line);
+    pub fn draw_full(&self, map: &Map, g: &mut GfxCtx, color: Color) {
+        match map.get_t(self.id).turn_type {
+            TurnType::Left | TurnType::Right => {
+                use nbez::{Bez3o, BezCurve, Point2d};
+
+                fn to_pt(pt: Pt2D) -> Point2d<f64> {
+                    Point2d::new(pt.x(), pt.y())
+                }
+                fn from_pt(pt: Point2d<f64>) -> Pt2D {
+                    Pt2D::new(pt.x, pt.y)
+                }
+
+                // The control points are straight out/in from the source/destination lanes, so
+                // that the car exits and enters at the same angle as the road.
+                let src_line = map.get_l(self.id.src).last_line();
+                let dst_line = map.get_l(self.id.dst).first_line().reverse();
+
+                let curve = Bez3o::new(
+                    to_pt(self.line.pt1()),
+                    to_pt(src_line.unbounded_dist_along(src_line.length() + 5.0 * si::M)),
+                    to_pt(dst_line.unbounded_dist_along(dst_line.length() + 5.0 * si::M)),
+                    to_pt(self.line.pt2()),
+                );
+                let pieces = 5;
+                let polyline = PolyLine::new(
+                    (0..=pieces)
+                        .map(|i| from_pt(curve.interp(1.0 / (pieces as f64) * (i as f64)).unwrap()))
+                        .collect(),
+                );
+                g.draw_polygon(
+                    color,
+                    &polyline.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
+                );
+
+                // And a cap on the arrow
+                g.draw_rounded_arrow(
+                    color,
+                    BIG_ARROW_THICKNESS,
+                    BIG_ARROW_TIP_LENGTH,
+                    &polyline.last_line(),
+                );
+            }
+            _ => {
+                g.draw_rounded_arrow(color, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, &self.line);
+            }
+        };
     }
 }
 
