@@ -210,12 +210,12 @@ const PROTECTED: bool = true;
 const YIELD: bool = false;
 
 fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
     // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+    let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
     // Two-phase with no protected lefts, right turn on red, peds yielding to cars
-    let cycles = make_cycles(
+    /*let cycles = make_cycles(
         map,
         i,
         vec![
@@ -231,6 +231,27 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
                 (vec![north, south], Turns::Right, YIELD),
                 (vec![north, south], Turns::Crosswalk, YIELD),
             ],
+        ],
+    );*/
+
+    // Four-phase with protected lefts, right turn on red (except for the protected lefts), peds
+    // yielding to cars
+    let cycles = make_cycles(
+        map,
+        i,
+        vec![
+            vec![
+                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![east, west], Turns::Right, YIELD),
+                (vec![east, west], Turns::Crosswalk, YIELD),
+            ],
+            vec![(vec![north, south], Turns::Left, PROTECTED)],
+            vec![
+                (vec![east, west], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Right, YIELD),
+                (vec![north, south], Turns::Crosswalk, YIELD),
+            ],
+            vec![(vec![east, west], Turns::Left, PROTECTED)],
         ],
     );
 
