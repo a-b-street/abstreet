@@ -132,22 +132,33 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
     let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
     // First style: draw green turn arrows on the lanes. Hard to see.
-    if false {
-        let color = Some(
-            ctx.cs
-                .get("turns allowed by traffic signal right now", Color::GREEN),
+    if true {
+        let priority_color = ctx
+            .cs
+            .get("turns protected by traffic signal right now", Color::GREEN);
+        let yield_color = ctx.cs.get(
+            "turns allowed with yielding by traffic signal right now",
+            Color::YELLOW,
         );
-        // TODO Maybe don't show SharedSidewalkCorners at all, and highlight the
-        // Crosswalks.
+        // TODO highlight crosswalks
         for t in &cycle.priority_turns {
+            if ctx.map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
+                continue;
+            }
+            /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
+                m.draw(g, ctx.cs, priority_color);
+            }*/
+            ctx.draw_map.get_t(*t).draw_full(g, priority_color);
+        }
+        for t in &cycle.yield_turns {
             for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
-                m.draw(g, ctx.cs, color);
+                m.draw(g, ctx.cs, Some(yield_color));
             }
         }
     }
 
     // Second style: draw little circles on the incoming lanes to indicate what turns are possible.
-    {
+    if false {
         for l in &ctx.map.get_i(signal.id).incoming_lanes {
             let mut num_green = 0;
             let mut num_yield = 0;
