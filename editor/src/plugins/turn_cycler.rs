@@ -7,7 +7,7 @@ use map_model::{
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::turn_markings;
+use render::{DrawTurn, BIG_ARROW_THICKNESS};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -75,11 +75,12 @@ impl Plugin for TurnCyclerState {
                     match current_turn_index {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
-                            let draw_turn = ctx.draw_map.get_t(turn.id);
-                            draw_turn.draw_full(
+                            DrawTurn::draw_full(
+                                turn.id,
                                 ctx.map,
                                 g,
                                 ctx.cs.get("current selected turn", Color::RED),
+                                BIG_ARROW_THICKNESS,
                             );
                         }
                         None => for turn in &relevant_turns {
@@ -92,11 +93,10 @@ impl Plugin for TurnCyclerState {
                                 TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
                                 TurnType::Left => ctx.cs.get("left turn", Color::RED),
                             }.alpha(0.5);
-                            ctx.draw_map.get_t(turn.id).draw_full(ctx.map, g, color);
+                            DrawTurn::draw_full(turn.id, ctx.map, g, color, BIG_ARROW_THICKNESS);
                         },
                     }
                 }
-                //draw_map.get_l(id).draw_debug(g, cs, map.get_l(id));
             }
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
@@ -135,14 +135,14 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
     // something.
     let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
-    // First style: draw green turn arrows on the lanes. Hard to see.
+    // First style: draw full turns in the intersection, with different colors for priority/yield.
     if true {
         let priority_color = ctx
             .cs
             .get("turns protected by traffic signal right now", Color::GREEN);
         let yield_color = ctx.cs.get(
             "turns allowed with yielding by traffic signal right now",
-            Color::YELLOW,
+            Color::grey(0.6).alpha(0.8),
         );
         // TODO highlight crosswalks
         for t in &cycle.priority_turns {
@@ -152,12 +152,13 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
             /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
                 m.draw(g, ctx.cs, priority_color);
             }*/
-            ctx.draw_map.get_t(*t).draw_full(ctx.map, g, priority_color);
+            DrawTurn::draw_full(*t, ctx.map, g, priority_color, BIG_ARROW_THICKNESS);
         }
         for t in &cycle.yield_turns {
-            for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
+            DrawTurn::draw_full(*t, ctx.map, g, yield_color, BIG_ARROW_THICKNESS / 2.0);
+            /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
                 m.draw(g, ctx.cs, Some(yield_color));
-            }
+            }*/
         }
     }
 

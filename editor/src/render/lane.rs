@@ -315,6 +315,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
 }
 
 // Returns either 0 or 2 markings -- one for the common line base, one for the turn itself.
+// TODO Maybe remove public
 pub fn turn_markings(turn: &Turn, map: &Map) -> Vec<Marking> {
     let lane = map.get_l(turn.id.src);
 
