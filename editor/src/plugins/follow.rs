@@ -19,12 +19,11 @@ impl Plugin for FollowState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         if *self == FollowState::Empty {
             if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
-                if ctx
-                    .input
-                    .key_pressed(Key::F, &format!("follow {:?}", agent))
-                {
-                    *self = FollowState::Active(ctx.primary.sim.agent_to_trip(agent));
-                    return true;
+                if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
+                    if ctx.input.key_pressed(Key::F, &format!("follow {}", agent)) {
+                        *self = FollowState::Active(trip);
+                        return true;
+                    }
                 }
             }
         }

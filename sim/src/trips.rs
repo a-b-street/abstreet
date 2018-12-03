@@ -288,8 +288,9 @@ impl TripManager {
         }
     }
 
-    pub fn agent_to_trip(&self, id: AgentID) -> TripID {
-        self.active_trip_mode[&id]
+    // This will be None for parked cars
+    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
+        self.active_trip_mode.get(&id).map(|id| *id)
     }
 
     pub fn get_active_trips(&self) -> Vec<TripID> {

@@ -25,17 +25,14 @@ impl Plugin for ShowRouteState {
 
         match self {
             ShowRouteState::Inactive => {
-                if let Some(trip) = ctx
-                    .primary
-                    .current_selection
-                    .and_then(|id| id.agent_id())
-                    .map(|agent| ctx.primary.sim.agent_to_trip(agent))
-                {
-                    if ctx
-                        .input
-                        .key_pressed(Key::R, &format!("show {}'s route", trip))
-                    {
-                        new_state = Some(show_route(trip, ctx));
+                if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
+                    if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
+                        if ctx
+                            .input
+                            .key_pressed(Key::R, &format!("show {}'s route", agent))
+                        {
+                            new_state = Some(show_route(trip, ctx));
+                        }
                     }
                 };
             }

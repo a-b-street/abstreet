@@ -33,12 +33,15 @@ impl Plugin for DiffWorldsState {
         match self {
             DiffWorldsState::Inactive => {
                 if ctx.secondary.is_some() {
-                    if let Some(id) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
-                        if ctx
-                            .input
-                            .key_pressed(Key::B, &format!("Show {}'s parallel world", id))
-                        {
-                            new_state = Some(diff_world(ctx.primary.sim.agent_to_trip(id), ctx));
+                    if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id())
+                    {
+                        if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
+                            if ctx
+                                .input
+                                .key_pressed(Key::B, &format!("Show {}'s parallel world", agent))
+                            {
+                                new_state = Some(diff_world(trip, ctx));
+                            }
                         }
                     }
                 }
