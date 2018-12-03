@@ -336,7 +336,7 @@ pub fn turn_markings(turn: &Turn, map: &Map) -> Vec<Marking> {
             Marking {
                 lines: vec![Line::new(
                     base_pt,
-                    base_pt.project_away(LANE_THICKNESS / 2.0, turn.line.angle()),
+                    base_pt.project_away(LANE_THICKNESS / 2.0, turn.angle()),
                 )],
                 color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
                 thickness: 0.1,

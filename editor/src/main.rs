@@ -18,7 +18,6 @@ extern crate lazy_static;
 #[macro_use]
 extern crate log;
 extern crate map_model;
-extern crate nbez;
 extern crate piston;
 extern crate quick_xml;
 #[macro_use]

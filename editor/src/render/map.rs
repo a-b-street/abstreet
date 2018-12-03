@@ -154,9 +154,9 @@ impl DrawMap {
 
         // Sort the turn icons by angle.
         pair.0
-            .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+            .sort_by_key(|t| t.angle().normalized_degrees() as i64);
         pair.1
-            .sort_by_key(|t| t.line.angle().normalized_degrees() as i64);
+            .sort_by_key(|t| t.angle().normalized_degrees() as i64);
 
         for (idx, t) in pair.0.iter().enumerate() {
             result.insert(t.id, idx);

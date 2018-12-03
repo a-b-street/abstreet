@@ -21,7 +21,7 @@ pub struct DrawCar {
 impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map) -> DrawCar {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
-            let angle = map.get_t(t).line.angle();
+            let angle = map.get_t(t).angle();
             let arrow_pt = input
                 .front
                 .project_away(input.vehicle_length.value_unsafe / 2.0, angle.opposite());

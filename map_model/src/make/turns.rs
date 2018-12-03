@@ -1,5 +1,7 @@
 use abstutil::wraparound_get;
-use geom::{Angle, Line};
+use dimensioned::si;
+use geom::{Angle, PolyLine, Pt2D};
+use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
 use {
@@ -214,13 +216,13 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::Crosswalk,
-                    line: Line::new(l1.last_pt(), l2.first_pt()),
+                    geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
                     lookup_idx: 0,
                 });
                 result.push(Turn {
                     id: turn_id(i.id, l2.id, l1.id),
                     turn_type: TurnType::Crosswalk,
-                    line: Line::new(l2.first_pt(), l1.last_pt()),
+                    geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
                     lookup_idx: 0,
                 });
             }
@@ -234,13 +236,13 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     result.push(Turn {
                         id: turn_id(i.id, l1.id, l3.id),
                         turn_type: TurnType::SharedSidewalkCorner,
-                        line: Line::new(l1.last_pt(), l3.first_pt()),
+                        geom: PolyLine::new(vec![l1.last_pt(), l3.first_pt()]),
                         lookup_idx: 0,
                     });
                     result.push(Turn {
                         id: turn_id(i.id, l3.id, l1.id),
                         turn_type: TurnType::SharedSidewalkCorner,
-                        line: Line::new(l3.first_pt(), l1.last_pt()),
+                        geom: PolyLine::new(vec![l3.first_pt(), l1.last_pt()]),
                         lookup_idx: 0,
                     });
                 }
@@ -290,11 +292,43 @@ fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID
 fn make_vehicle_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
     let src = map.get_l(l1);
     let dst = map.get_l(l2);
+    let turn_type = TurnType::from_angles(src.last_line().angle(), dst.first_line().angle());
+
+    let geom = if turn_type == TurnType::Straight {
+        PolyLine::new(vec![src.last_pt(), dst.first_pt()])
+    } else {
+        // The control points are straight out/in from the source/destination lanes, so
+        // that the car exits and enters at the same angle as the road.
+        let src_line = src.last_line();
+        let dst_line = dst.first_line().reverse();
+
+        // TODO Tune the 5.0 and pieces
+        let curve = Bez3o::new(
+            to_pt(src.last_pt()),
+            to_pt(src_line.unbounded_dist_along(src_line.length() + 5.0 * si::M)),
+            to_pt(dst_line.unbounded_dist_along(dst_line.length() + 5.0 * si::M)),
+            to_pt(dst.first_pt()),
+        );
+        let pieces = 5;
+        PolyLine::new(
+            (0..=pieces)
+                .map(|i| from_pt(curve.interp(1.0 / (pieces as f64) * (i as f64)).unwrap()))
+                .collect(),
+        )
+    };
 
     Turn {
         id: turn_id(i, l1, l2),
-        turn_type: TurnType::from_angles(src.last_line().angle(), dst.first_line().angle()),
-        line: Line::new(src.last_pt(), dst.first_pt()),
+        turn_type,
+        geom,
         lookup_idx: 0,
     }
+}
+
+fn to_pt(pt: Pt2D) -> Point2d<f64> {
+    Point2d::new(pt.x(), pt.y())
+}
+
+fn from_pt(pt: Point2d<f64>) -> Pt2D {
+    Pt2D::new(pt.x, pt.y)
 }

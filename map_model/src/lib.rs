@@ -7,6 +7,7 @@ extern crate gtfs;
 #[macro_use]
 extern crate log;
 extern crate multimap;
+extern crate nbez;
 extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;

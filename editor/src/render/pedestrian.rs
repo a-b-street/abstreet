@@ -18,7 +18,7 @@ impl DrawPedestrian {
     pub fn new(input: DrawPedestrianInput, map: &Map) -> DrawPedestrian {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
             // TODO this isn't quite right, but good enough for now
-            let angle = map.get_t(t).line.angle();
+            let angle = map.get_t(t).angle();
             let arrow_pt = input.pos.project_away(RADIUS, angle.opposite());
             Some(Line::new(arrow_pt, input.pos))
         } else {

@@ -1,6 +1,6 @@
 use abstutil;
 use dimensioned::si;
-use geom::{Angle, Line, Pt2D};
+use geom::{Angle, Line, PolyLine, Pt2D};
 use std::f64;
 use std::fmt;
 use {IntersectionID, LaneID};
@@ -63,7 +63,9 @@ pub enum TurnPriority {
 pub struct Turn {
     pub id: TurnID,
     pub turn_type: TurnType,
-    pub line: Line,
+    // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
+    // Represent more directly?
+    pub geom: PolyLine,
 
     // Just for convenient debugging lookup.
     pub lookup_idx: usize,
@@ -78,29 +80,33 @@ impl Turn {
             return false;
         }
 
-        if self.line.pt1() == other.line.pt1() {
+        if self.geom.first_pt() == other.geom.first_pt() {
             return false;
         }
-        if self.line.pt2() == other.line.pt2() {
+        if self.geom.last_pt() == other.geom.last_pt() {
             return true;
         }
-        self.line.intersects(&other.line)
+        self.geom.intersection(&other.geom).is_some()
     }
 
     pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
-        (self.line.dist_along(dist_along), self.line.angle())
+        self.geom.dist_along(dist_along)
     }
 
     pub fn length(&self) -> si::Meter<f64> {
-        self.line.length()
+        self.geom.length()
     }
 
     pub fn first_pt(&self) -> Pt2D {
-        self.line.pt1()
+        self.geom.first_pt()
     }
 
     pub fn last_pt(&self) -> Pt2D {
-        self.line.pt2()
+        self.geom.last_pt()
+    }
+
+    pub fn angle(&self) -> Angle {
+        Line::new(self.first_pt(), self.last_pt()).angle()
     }
 
     pub fn between_sidewalks(&self) -> bool {

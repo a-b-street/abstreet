@@ -100,14 +100,11 @@ impl PathStep {
                 }
             }
             PathStep::Turn(id) => {
-                let line = &map.get_t(*id).line;
-                if line.length() == 0.0 * si::M {
+                let geom = &map.get_t(*id).geom;
+                if geom.length() == 0.0 * si::M {
                     None
                 } else {
-                    Some(
-                        PolyLine::new(vec![line.pt1(), line.pt2()])
-                            .slice(start, start + dist_ahead),
-                    )
+                    Some(geom.slice(start, start + dist_ahead))
                 }
             }
         }
