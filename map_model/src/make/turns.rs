@@ -1,12 +1,12 @@
 use abstutil::wraparound_get;
 use dimensioned::si;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
 use {
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
-    Turn, TurnID, TurnType,
+    Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 
 pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
@@ -213,16 +213,21 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
         if let Some(l1) = get_incoming_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_outgoing_sidewalk(map, i.id, wraparound_get(&roads, idx1).0) {
+                // Jut out a bit into the intersection, cross over, then jut back in.
+                let line = Line::new(l1.last_pt(), l2.first_pt()).shift(LANE_THICKNESS / 2.0);
+                let geom_fwds =
+                    PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
+
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
                     turn_type: TurnType::Crosswalk,
-                    geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
+                    geom: geom_fwds.clone(),
                     lookup_idx: 0,
                 });
                 result.push(Turn {
                     id: turn_id(i.id, l2.id, l1.id),
                     turn_type: TurnType::Crosswalk,
-                    geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
+                    geom: geom_fwds.reversed(),
                     lookup_idx: 0,
                 });
             }

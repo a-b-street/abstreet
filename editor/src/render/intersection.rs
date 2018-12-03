@@ -150,9 +150,9 @@ fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
                 let available_length = turn.length() - (2.0 * boundary);
                 if available_length > 0.0 * si::M {
                     let num_markings = (available_length / tile_every).floor() as usize;
-                    // Shift away so the markings stay fully inside the intersection. Lane center points don't
-                    // line up with the boundary.
-                    let line = turn.geom.first_line().shift(LANE_THICKNESS / 2.0);
+                    // The middle line in the crosswalk geometry is the main crossing line.
+                    let pts = turn.geom.points();
+                    let line = Line::new(pts[1], pts[2]);
 
                     let mut dist_along =
                         boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
