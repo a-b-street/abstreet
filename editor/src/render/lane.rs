@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use colors::ColorScheme;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
@@ -12,34 +10,10 @@ use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THI
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
-pub struct Marking {
-    lines: Vec<Line>,
-    // Weird indirection to keep the color definition close to the marking definition, without
-    // needing to plumb in a ColorScheme immediately.
-    color: Box<Fn(&mut ColorScheme) -> Color>,
-    thickness: f64,
-    round: bool,
-    arrow_head_length: Option<f64>,
-}
-
-impl Marking {
-    pub fn draw(&self, g: &mut GfxCtx, cs: &mut ColorScheme, default_color: Option<Color>) {
-        let color = default_color.unwrap_or_else(|| (self.color)(cs));
-        for line in &self.lines {
-            if let Some(head_length) = self.arrow_head_length {
-                if self.round {
-                    g.draw_rounded_arrow(color, self.thickness, head_length, line);
-                } else {
-                    g.draw_arrow(color, self.thickness, head_length, line);
-                }
-            } else if self.round {
-                g.draw_rounded_line(color, self.thickness, line);
-            } else {
-                g.draw_line(color, self.thickness, line);
-            }
-        }
-    }
-}
+// Just a function to draw something later.
+// TODO It's not ideal to delay the call to ColorScheme, but it's also weird to plumb it through
+// DrawMap creation.
+type Marking = Box<Fn(&mut GfxCtx, &mut ColorScheme)>;
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -57,13 +31,16 @@ impl DrawLane {
 
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
-            markings.push(Marking {
-                lines: road.center_pts.lines(),
-                color: Box::new(|cs| cs.get("road center line", Color::YELLOW)),
-                thickness: BIG_ARROW_THICKNESS,
-                round: true,
-                arrow_head_length: None,
-            });
+            let lines = road.center_pts.lines();
+            markings.push(Box::new(move |g, cs| {
+                for line in &lines {
+                    g.draw_rounded_line(
+                        cs.get("road center line", Color::YELLOW),
+                        BIG_ARROW_THICKNESS,
+                        line,
+                    );
+                }
+            }));
         }
         match lane.lane_type {
             LaneType::Sidewalk => {
@@ -145,7 +122,7 @@ impl Renderable for DrawLane {
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
             for m in &self.markings {
-                m.draw(g, ctx.cs, None);
+                m(g, ctx.cs);
             }
         }
 
@@ -186,13 +163,11 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
         dist_along += tile_every;
     }
 
-    Marking {
-        lines,
-        color: Box::new(|cs| cs.get("sidewalk lines", Color::grey(0.7))),
-        thickness: 0.25,
-        round: false,
-        arrow_head_length: None,
-    }
+    Box::new(move |g, cs| {
+        for line in &lines {
+            g.draw_line(cs.get("sidewalk lines", Color::grey(0.7)), 0.25, line);
+        }
+    })
 }
 
 fn calculate_parking_lines(lane: &Lane) -> Marking {
@@ -221,13 +196,11 @@ fn calculate_parking_lines(lane: &Lane) -> Marking {
         }
     }
 
-    Marking {
-        lines,
-        color: Box::new(|cs| cs.get("parking line", Color::WHITE)),
-        thickness: 0.25,
-        round: false,
-        arrow_head_length: None,
-    }
+    Box::new(move |g, cs| {
+        for line in &lines {
+            g.draw_line(cs.get("parking line", Color::WHITE), 0.25, line);
+        }
+    })
 }
 
 fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
@@ -236,36 +209,28 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
         return None;
     }
 
-    // Project left, so reverse the points.
-    let center_pts = lane.lane_center_pts.reversed();
-    let lane_edge_pts = center_pts.shift_blindly(LANE_THICKNESS / 2.0);
-
-    // This is an incredibly expensive way to compute dashed polyines, and it doesn't follow bends
-    // properly. Just a placeholder.
-    let lane_len = lane_edge_pts.length();
-    let dash_separation = 2.0 * si::M;
+    let dash_separation = 1.5 * si::M;
     let dash_len = 1.0 * si::M;
 
-    let mut lines = Vec::new();
-    let mut start = dash_separation;
-    loop {
-        if start + dash_len >= lane_len - dash_separation {
-            break;
-        }
-
-        let (pt1, _) = lane_edge_pts.dist_along(start);
-        let (pt2, _) = lane_edge_pts.dist_along(start + dash_len);
-        lines.push(Line::new(pt1, pt2));
-        start += dash_len + dash_separation;
+    // Project left, so reverse the points.
+    let lane_edge_pts = lane
+        .lane_center_pts
+        .reversed()
+        .shift_blindly(LANE_THICKNESS / 2.0);
+    if lane_edge_pts.length() < 2.0 * dash_separation {
+        return None;
     }
+    // Don't draw the dashes too close to the ends.
+    let polygons = lane_edge_pts
+        .slice(dash_separation, lane_edge_pts.length() - dash_separation)
+        .0
+        .dashed_polygons(0.25, dash_len, dash_separation);
 
-    Some(Marking {
-        lines,
-        color: Box::new(|cs| cs.get("dashed lane line", Color::WHITE)),
-        thickness: 0.25,
-        round: false,
-        arrow_head_length: None,
-    })
+    Some(Box::new(move |g, cs| {
+        for p in &polygons {
+            g.draw_polygon(cs.get("dashed lane line", Color::WHITE), p);
+        }
+    }))
 }
 
 fn calculate_stop_sign_line(lane: &Lane, map: &Map) -> Option<Marking> {
@@ -278,13 +243,11 @@ fn calculate_stop_sign_line(lane: &Lane, map: &Map) -> Option<Marking> {
     let (pt1, angle) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
     // Reuse perp_line. Project away an arbitrary amount
     let pt2 = pt1.project_away(1.0, angle);
-    Some(Marking {
-        lines: vec![perp_line(Line::new(pt1, pt2), LANE_THICKNESS)],
-        color: Box::new(|cs| cs.get("stop line for lane", Color::RED)),
-        thickness: 0.45,
-        round: true,
-        arrow_head_length: None,
-    })
+    let line = perp_line(Line::new(pt1, pt2), LANE_THICKNESS);
+
+    Some(Box::new(move |g, cs| {
+        g.draw_rounded_line(cs.get("stop line for lane", Color::RED), 0.45, &line);
+    }))
 }
 
 fn calculate_id_positions(lane: &Lane) -> Option<Vec<Pt2D>> {
@@ -309,43 +272,35 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
     }
 
     for turn in map.get_turns_from_lane(lane.id) {
-        results.extend(turn_markings(turn, map));
+        for m in turn_markings(turn, map) {
+            results.push(m);
+        }
     }
     results
 }
 
-// Returns either 0 or 2 markings -- one for the common line base, one for the turn itself.
-// TODO Maybe remove public
-pub fn turn_markings(turn: &Turn, map: &Map) -> Vec<Marking> {
+fn turn_markings(turn: &Turn, map: &Map) -> Option<Marking> {
     let lane = map.get_l(turn.id.src);
-
-    // If the lane's too small, don't bother.
-    // TODO Maybe a Trace for the common line would actually look fine.
-    if let Some((base_pt, base_angle)) = lane.safe_dist_along(lane.length() - 5.0 * si::M) {
-        vec![
-            // Common line base
-            Marking {
-                lines: vec![Line::new(
-                    base_pt,
-                    base_pt.project_away(2.0, base_angle.opposite()),
-                )],
-                color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
-                thickness: 0.1,
-                round: true,
-                arrow_head_length: None,
-            },
-            Marking {
-                lines: vec![Line::new(
-                    base_pt,
-                    base_pt.project_away(LANE_THICKNESS / 2.0, turn.angle()),
-                )],
-                color: Box::new(|cs| cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8)),
-                thickness: 0.1,
-                round: true,
-                arrow_head_length: Some(0.5),
-            },
-        ]
-    } else {
-        Vec::new()
+    let len = lane.length();
+    if len < 7.0 * si::M {
+        return None;
     }
+
+    let common_base = lane
+        .lane_center_pts
+        .slice(len - 7.0 * si::M, len - 5.0 * si::M)
+        .0;
+    let base_polygon = common_base.make_polygons_blindly(0.1);
+    let turn_line = Line::new(
+        common_base.last_pt(),
+        common_base
+            .last_pt()
+            .project_away(LANE_THICKNESS / 2.0, turn.angle()),
+    );
+
+    Some(Box::new(move |g, cs| {
+        let color = cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8);
+        g.draw_polygon(color, &base_polygon);
+        g.draw_rounded_arrow(color, 0.05, 0.5, &turn_line);
+    }))
 }
