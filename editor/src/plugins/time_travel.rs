@@ -51,33 +51,13 @@ impl TimeTravel {
             cars_per_traversable: MultiMap::new(),
             peds_per_traversable: MultiMap::new(),
         };
-        for l in map.all_lanes().iter() {
-            let on = Traversable::Lane(l.id);
-            if l.is_sidewalk() {
-                for draw in sim.get_draw_peds(on, map).into_iter() {
-                    state.peds_per_traversable.insert(on, draw.id);
-                    state.peds.insert(draw.id, draw);
-                }
-            } else {
-                for draw in sim.get_draw_cars(on, map).into_iter() {
-                    state.cars_per_traversable.insert(on, draw.id);
-                    state.cars.insert(draw.id, draw);
-                }
-            }
+        for draw in sim.get_all_draw_cars(map).into_iter() {
+            state.cars_per_traversable.insert(draw.on, draw.id);
+            state.cars.insert(draw.id, draw);
         }
-        for t in map.all_turns().values() {
-            let on = Traversable::Turn(t.id);
-            if t.between_sidewalks() {
-                for draw in sim.get_draw_peds(on, map).into_iter() {
-                    state.peds_per_traversable.insert(on, draw.id);
-                    state.peds.insert(draw.id, draw);
-                }
-            } else {
-                for draw in sim.get_draw_cars(on, map).into_iter() {
-                    state.cars_per_traversable.insert(on, draw.id);
-                    state.cars.insert(draw.id, draw);
-                }
-            }
+        for draw in sim.get_all_draw_peds(map).into_iter() {
+            state.peds_per_traversable.insert(draw.on, draw.id);
+            state.peds.insert(draw.id, draw);
         }
         self.state_per_tick.push(state);
     }
@@ -145,6 +125,22 @@ impl GetDrawAgents for TimeTravel {
             .get(on)
             .into_iter()
             .map(|id| state.peds[id].clone())
+            .collect()
+    }
+
+    fn get_all_draw_cars(&self, _map: &Map) -> Vec<DrawCarInput> {
+        self.get_current_state()
+            .cars
+            .values()
+            .map(|d| d.clone())
+            .collect()
+    }
+
+    fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {
+        self.get_current_state()
+            .peds
+            .values()
+            .map(|d| d.clone())
             .collect()
     }
 }

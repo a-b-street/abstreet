@@ -544,6 +544,7 @@ impl WalkingSimState {
             pos: ped.get_pos(map, now),
             waiting_for_turn: ped.waiting_for_turn(),
             preparing_bike: ped.bike_parking.is_some(),
+            on: ped.on,
         })
     }
 
@@ -557,6 +558,18 @@ impl WalkingSimState {
             result.push(self.get_draw_ped(*id, map, now).unwrap());
         }
         result
+    }
+
+    pub fn get_all_draw_peds(&self, now: Tick, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.peds
+            .values()
+            .map(|ped| DrawPedestrianInput {
+                id: ped.id,
+                pos: ped.get_pos(map, now),
+                waiting_for_turn: ped.waiting_for_turn(),
+                preparing_bike: ped.bike_parking.is_some(),
+                on: ped.on,
+            }).collect()
     }
 
     pub fn seed_pedestrian(

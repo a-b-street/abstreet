@@ -814,6 +814,7 @@ impl DrivingSimState {
                 CarState::Stuck
             },
             vehicle_type: c.vehicle.vehicle_type,
+            on: c.on,
         })
     }
 
@@ -822,6 +823,13 @@ impl DrivingSimState {
             return queue.get_draw_cars(self, map, time);
         }
         return Vec::new();
+    }
+
+    pub fn get_all_draw_cars(&self, time: Tick, map: &Map) -> Vec<DrawCarInput> {
+        self.cars
+            .keys()
+            .map(|id| self.get_draw_car(*id, time, map).unwrap())
+            .collect()
     }
 
     fn populate_view(&mut self, view: &mut WorldView) {

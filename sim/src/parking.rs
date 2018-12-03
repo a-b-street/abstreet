@@ -1,7 +1,7 @@
 use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
-use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position};
+use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use std::collections::HashSet;
 use std::iter;
 use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
@@ -77,6 +77,15 @@ impl ParkingSimState {
             }
         }
         None
+    }
+
+    pub fn get_all_draw_cars(&self) -> Vec<DrawCarInput> {
+        // TODO this is so horrendously slow :D
+        let mut cars: Vec<DrawCarInput> = Vec::new();
+        for l in &self.lanes {
+            cars.extend(l.get_draw_cars());
+        }
+        cars
     }
 
     pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
@@ -224,6 +233,7 @@ impl ParkingLane {
                         stopping_trace: None,
                         state: CarState::Parked,
                         vehicle_type: VehicleType::Car,
+                        on: Traversable::Lane(self.id),
                     })
                 })
             }).collect()
