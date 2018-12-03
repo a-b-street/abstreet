@@ -15,7 +15,6 @@ use plugins::hider::Hider;
 use plugins::layers::ToggleableLayers;
 use plugins::stop_sign_editor::StopSignEditor;
 use plugins::time_travel::TimeTravel;
-use plugins::traffic_signal_editor::TrafficSignalEditor;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
 use sim;
@@ -135,20 +134,22 @@ impl GUI for UI {
                     current_selection: self.primary.current_selection,
                 },
             );
+        } else {
+            // TODO Ew, this is a weird ambient plugin that doesn't consume input but might want to
+            // draw stuff... only if another plugin isn't already active (aka, this is a hack to
+            // turn this off when traffic signal editor is on.)
+            self.primary_plugins.turn_cycler().draw(
+                g,
+                Ctx {
+                    cs: &mut self.cs.borrow_mut(),
+                    map: &self.primary.map,
+                    draw_map: &self.primary.draw_map,
+                    canvas: &self.canvas,
+                    sim: &self.primary.sim,
+                    current_selection: self.primary.current_selection,
+                },
+            );
         }
-        // TODO Ew, this is a weird ambient plugin that doesn't consume input but might want to
-        // draw stuff.
-        self.primary_plugins.turn_cycler().draw(
-            g,
-            Ctx {
-                cs: &mut self.cs.borrow_mut(),
-                map: &self.primary.map,
-                draw_map: &self.primary.draw_map,
-                canvas: &self.canvas,
-                sim: &self.primary.sim,
-                current_selection: self.primary.current_selection,
-            },
-        );
 
         self.canvas.draw_text(g, osd, BOTTOM_LEFT);
     }
@@ -183,10 +184,6 @@ impl PluginsPerMap {
 
     fn stop_sign_editor(&self) -> &StopSignEditor {
         self.list[2].downcast_ref::<StopSignEditor>().unwrap()
-    }
-
-    fn traffic_signal_editor(&self) -> &TrafficSignalEditor {
-        self.list[3].downcast_ref::<TrafficSignalEditor>().unwrap()
     }
 
     fn turn_cycler(&self) -> &Box<Plugin> {
@@ -241,7 +238,7 @@ impl PerMapUI {
                 Box::new(Hider::new()),
                 Box::new(plugins::show_owner::ShowOwnerState::new()),
                 Box::new(StopSignEditor::new()),
-                Box::new(TrafficSignalEditor::new()),
+                Box::new(plugins::traffic_signal_editor::TrafficSignalEditor::new()),
                 Box::new(plugins::turn_cycler::TurnCyclerState::new()),
                 Box::new(plugins::time_travel::TimeTravel::new()),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
@@ -508,10 +505,6 @@ impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         self.plugins.layers().show_all_turn_icons.is_enabled()
             || self.primary_plugins.stop_sign_editor().show_turn_icons(id)
-            || self
-                .primary_plugins
-                .traffic_signal_editor()
-                .show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id

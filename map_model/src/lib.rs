@@ -50,7 +50,7 @@ pub use parcel::{Parcel, ParcelID};
 pub use pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
 pub use road::{Road, RoadID};
 pub use stop_signs::ControlStopSign;
-pub use traffic_signals::ControlTrafficSignal;
+pub use traffic_signals::{ControlTrafficSignal, Cycle};
 pub use traversable::{Position, Traversable};
 pub use turn::{Turn, TurnID, TurnPriority, TurnType};
 

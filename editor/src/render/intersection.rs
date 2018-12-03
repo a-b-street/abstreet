@@ -1,10 +1,11 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
-use map_model::{Intersection, IntersectionID, IntersectionType, Map, TurnType, LANE_THICKNESS};
+use map_model::{
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, Turn, TurnType, LANE_THICKNESS,
+};
 use objects::{Ctx, ID};
-use render::{DrawCrosswalk, RenderOptions, Renderable};
+use render::{DrawCrosswalk, RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -157,4 +158,82 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     }
 
     corners
+}
+
+pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx: Ctx) {
+    let priority_color = ctx
+        .cs
+        .get("turns protected by traffic signal right now", Color::GREEN);
+    let yield_color = if ctx.current_selection == Some(ID::Intersection(id)) {
+        ctx.cs.get("turns allowed with yielding by traffic signal right now, while intersection is selected", Color::grey(0.6).alpha(0.8))
+    } else {
+        ctx.cs.get(
+            "turns allowed with yielding by traffic signal right now",
+            Color::YELLOW.alpha(0.8),
+        )
+    };
+    // TODO Ew... there's got to be a way to prevent drawing the intersection instead
+    let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(id)) {
+        ctx.cs.get("selected", Color::BLUE)
+    } else {
+        ctx.cs.get("hide crosswalk", Color::grey(0.6))
+    };
+
+    // First over-draw the crosswalks.
+    // TODO Should this use the color_for system?
+    for crosswalk in &ctx.draw_map.get_i(id).crosswalks {
+        let color = if cycle.priority_turns.contains(&crosswalk.id1)
+            || cycle.priority_turns.contains(&crosswalk.id2)
+        {
+            priority_color
+        } else if cycle.yield_turns.contains(&crosswalk.id1)
+            || cycle.yield_turns.contains(&crosswalk.id2)
+        {
+            yield_color
+        } else {
+            hide_crosswalk
+        };
+        crosswalk.draw(g, color);
+    }
+
+    for t in &cycle.priority_turns {
+        let turn = ctx.map.get_t(*t);
+        if !turn.between_sidewalks() {
+            draw_full(turn, g, priority_color);
+        }
+    }
+    for t in &cycle.yield_turns {
+        let turn = ctx.map.get_t(*t);
+        if !turn.between_sidewalks() {
+            for poly in turn
+                .geom
+                .dashed_polygons(BIG_ARROW_THICKNESS, 1.0 * si::M, 0.5 * si::M)
+                .into_iter()
+            {
+                g.draw_polygon(yield_color, &poly);
+            }
+            // And a cap on the arrow
+            g.draw_rounded_arrow(
+                yield_color,
+                BIG_ARROW_THICKNESS / 2.0,
+                BIG_ARROW_TIP_LENGTH,
+                &turn.geom.last_line(),
+            );
+        }
+    }
+}
+
+// TODO Copied from turn_cycler. Share or inline?
+fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
+    g.draw_polygon(
+        color,
+        &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
+    );
+    // And a cap on the arrow
+    g.draw_rounded_arrow(
+        color,
+        BIG_ARROW_THICKNESS,
+        BIG_ARROW_TIP_LENGTH,
+        &t.geom.last_line(),
+    );
 }

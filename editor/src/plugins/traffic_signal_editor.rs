@@ -1,12 +1,11 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 // TODO how to edit cycle time?
 
-use ezgui::Color;
+use ezgui::GfxCtx;
 use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
+use render::draw_signal_cycle;
 
 #[derive(PartialEq)]
 pub enum TrafficSignalEditor {
@@ -20,16 +19,6 @@ pub enum TrafficSignalEditor {
 impl TrafficSignalEditor {
     pub fn new() -> TrafficSignalEditor {
         TrafficSignalEditor::Inactive
-    }
-
-    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
-        match self {
-            TrafficSignalEditor::Active {
-                i,
-                current_cycle: _,
-            } => *i == id,
-            TrafficSignalEditor::Inactive => false,
-        }
     }
 }
 
@@ -124,40 +113,14 @@ impl Plugin for TrafficSignalEditor {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
-        match (self, obj) {
-            (TrafficSignalEditor::Active { i, current_cycle }, ID::Turn(t)) => {
-                if t.parent != *i {
-                    return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
-                }
-
-                let cycle = &ctx.map.get_traffic_signal(*i).cycles[*current_cycle];
-
-                // TODO maybe something to indicate unused in any cycle so far
-                let could_be_priority = cycle.could_be_priority_turn(t, ctx.map);
-                match cycle.get_priority(t) {
-                    TurnPriority::Priority => {
-                        Some(ctx.cs.get("priority turn in current cycle", Color::GREEN))
-                    }
-                    TurnPriority::Yield => if could_be_priority {
-                        Some(ctx.cs.get(
-                            "yield turn that could be priority turn",
-                            Color::rgb(154, 205, 50),
-                        ))
-                    } else {
-                        Some(ctx.cs.get("yield turn in current cycle", Color::YELLOW))
-                    },
-                    TurnPriority::Stop => if could_be_priority {
-                        Some(
-                            ctx.cs
-                                .get("stop turn that could be priority", Color::rgb(103, 49, 71)),
-                        )
-                    } else {
-                        Some(ctx.cs.get("turn conflicts with current cycle", Color::RED))
-                    },
-                }
-            }
-            _ => None,
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        if let TrafficSignalEditor::Active { i, current_cycle } = self {
+            draw_signal_cycle(
+                &ctx.map.get_traffic_signal(*i).cycles[*current_cycle],
+                *i,
+                g,
+                ctx,
+            );
         }
     }
 }

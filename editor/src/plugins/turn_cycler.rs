@@ -1,13 +1,9 @@
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::Circle;
-use map_model::{
-    ControlTrafficSignal, IntersectionID, LaneID, Turn, TurnPriority, TurnType, LANE_THICKNESS,
-};
+use map_model::{IntersectionID, LaneID, Turn, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
+use render::{draw_signal_cycle, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -94,7 +90,12 @@ impl Plugin for TurnCyclerState {
             }
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
-                    draw_traffic_signal(signal, g, ctx);
+                    // TODO Cycle might be over-run; should depict that by asking sim layer.
+                    // TODO It'd be cool to indicate remaining time in the cycle by slowly dimming
+                    // the color or something.
+                    let (cycle, _) =
+                        signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                    draw_signal_cycle(cycle, *id, g, ctx);
                 }
             }
         }
@@ -119,118 +120,6 @@ impl Plugin for TurnCyclerState {
                 }
             }
             _ => None,
-        }
-    }
-}
-
-fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) {
-    // TODO Cycle might be over-run; should depict that by asking sim layer.
-    // TODO It'd be cool to indicate remaining time in the cycle by slowly dimming the color or
-    // something.
-    let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-
-    // First style: draw full turns in the intersection, with different colors for priority/yield.
-    if true {
-        let priority_color = ctx
-            .cs
-            .get("turns protected by traffic signal right now", Color::GREEN);
-        let yield_color = ctx.cs.get(
-            "turns allowed with yielding by traffic signal right now",
-            Color::grey(0.6).alpha(0.8),
-        );
-        // TODO Ew...
-        let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(signal.id)) {
-            ctx.cs.get("selected", Color::BLUE)
-        } else {
-            ctx.cs.get("hide crosswalk", Color::BLACK)
-        };
-
-        // First over-draw the crosswalks.
-        // TODO Should this use the color_for system?
-        for crosswalk in &ctx.draw_map.get_i(signal.id).crosswalks {
-            let color = if cycle.priority_turns.contains(&crosswalk.id1)
-                || cycle.priority_turns.contains(&crosswalk.id2)
-            {
-                priority_color
-            } else if cycle.yield_turns.contains(&crosswalk.id1)
-                || cycle.yield_turns.contains(&crosswalk.id2)
-            {
-                yield_color
-            } else {
-                hide_crosswalk
-            };
-            crosswalk.draw(g, color);
-        }
-
-        for t in &cycle.priority_turns {
-            let turn = ctx.map.get_t(*t);
-            if !turn.between_sidewalks() {
-                draw_full(turn, g, priority_color);
-            }
-        }
-        for t in &cycle.yield_turns {
-            let turn = ctx.map.get_t(*t);
-            if !turn.between_sidewalks() {
-                for poly in turn
-                    .geom
-                    .dashed_polygons(BIG_ARROW_THICKNESS, 1.0 * si::M, 0.5 * si::M)
-                    .into_iter()
-                {
-                    g.draw_polygon(yield_color, &poly);
-                }
-                // And a cap on the arrow
-                g.draw_rounded_arrow(
-                    yield_color,
-                    BIG_ARROW_THICKNESS / 2.0,
-                    BIG_ARROW_TIP_LENGTH,
-                    &turn.geom.last_line(),
-                );
-            }
-        }
-    }
-
-    // Second style: draw little circles on the incoming lanes to indicate what turns are possible.
-    if false {
-        for l in &ctx.map.get_i(signal.id).incoming_lanes {
-            let mut num_green = 0;
-            let mut num_yield = 0;
-            let mut num_red = 0;
-            for (t, _) in ctx.map.get_next_turns_and_lanes(*l, signal.id) {
-                match cycle.get_priority(t.id) {
-                    TurnPriority::Priority => {
-                        num_green += 1;
-                    }
-                    TurnPriority::Yield => {
-                        num_yield += 1;
-                    }
-                    TurnPriority::Stop => {
-                        num_red += 1;
-                    }
-                };
-            }
-
-            // TODO Adjust this more.
-            if num_green == 0 && num_yield == 0 {
-                continue;
-            }
-
-            let color = if num_yield == 0 && num_red == 0 {
-                ctx.cs.get(
-                    "all turns from lane allowed by traffic signal right now",
-                    Color::GREEN,
-                )
-            } else {
-                // TODO Flashing green? :P
-                ctx.cs.get(
-                    "some turns from lane allowed by traffic signal right now",
-                    Color::YELLOW,
-                )
-            };
-
-            let lane = ctx.map.get_l(*l);
-            if let Some((pt, _)) = lane.safe_dist_along(lane.length() - (LANE_THICKNESS * si::M)) {
-                g.draw_circle(color, &Circle::new(pt, 1.0));
-            }
         }
     }
 }
