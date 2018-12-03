@@ -2,12 +2,12 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::Circle;
 use map_model::{
-    ControlTrafficSignal, IntersectionID, LaneID, TurnPriority, TurnType, LANE_THICKNESS,
+    ControlTrafficSignal, IntersectionID, LaneID, Turn, TurnPriority, TurnType, LANE_THICKNESS,
 };
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{DrawTurn, BIG_ARROW_THICKNESS};
+use render::{BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -75,13 +75,7 @@ impl Plugin for TurnCyclerState {
                     match current_turn_index {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
-                            DrawTurn::draw_full(
-                                turn.id,
-                                ctx.map,
-                                g,
-                                ctx.cs.get("current selected turn", Color::RED),
-                                BIG_ARROW_THICKNESS,
-                            );
+                            draw_full(turn, g, ctx.cs.get("current selected turn", Color::RED));
                         }
                         None => for turn in &relevant_turns {
                             let color = match turn.turn_type {
@@ -93,7 +87,7 @@ impl Plugin for TurnCyclerState {
                                 TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
                                 TurnType::Left => ctx.cs.get("left turn", Color::RED),
                             }.alpha(0.5);
-                            DrawTurn::draw_full(turn.id, ctx.map, g, color, BIG_ARROW_THICKNESS);
+                            draw_full(turn, g, color);
                         },
                     }
                 }
@@ -169,13 +163,28 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
         }
 
         for t in &cycle.priority_turns {
-            if !ctx.map.get_t(*t).between_sidewalks() {
-                DrawTurn::draw_full(*t, ctx.map, g, priority_color, BIG_ARROW_THICKNESS);
+            let turn = ctx.map.get_t(*t);
+            if !turn.between_sidewalks() {
+                draw_full(turn, g, priority_color);
             }
         }
         for t in &cycle.yield_turns {
-            if !ctx.map.get_t(*t).between_sidewalks() {
-                DrawTurn::draw_full(*t, ctx.map, g, yield_color, BIG_ARROW_THICKNESS / 2.0);
+            let turn = ctx.map.get_t(*t);
+            if !turn.between_sidewalks() {
+                for poly in turn
+                    .geom
+                    .dashed_polygons(BIG_ARROW_THICKNESS, 1.0 * si::M, 0.5 * si::M)
+                    .into_iter()
+                {
+                    g.draw_polygon(yield_color, &poly);
+                }
+                // And a cap on the arrow
+                g.draw_rounded_arrow(
+                    yield_color,
+                    BIG_ARROW_THICKNESS / 2.0,
+                    BIG_ARROW_TIP_LENGTH,
+                    &turn.geom.last_line(),
+                );
             }
         }
     }
@@ -224,4 +233,18 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
             }
         }
     }
+}
+
+fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
+    g.draw_polygon(
+        color,
+        &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
+    );
+    // And a cap on the arrow
+    g.draw_rounded_arrow(
+        color,
+        BIG_ARROW_THICKNESS,
+        BIG_ARROW_TIP_LENGTH,
+        &t.geom.last_line(),
+    );
 }

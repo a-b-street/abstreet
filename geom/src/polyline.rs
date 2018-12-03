@@ -305,6 +305,33 @@ impl PolyLine {
         poly
     }
 
+    pub fn dashed_polygons(
+        &self,
+        width: f64,
+        dash_len: si::Meter<f64>,
+        dash_separation: si::Meter<f64>,
+    ) -> Vec<Polygon> {
+        let mut polygons: Vec<Polygon> = Vec::new();
+
+        let total_length = self.length();
+
+        let mut start = 0.0 * si::M;
+        loop {
+            if start + dash_len >= total_length {
+                break;
+            }
+
+            polygons.push(
+                self.slice(start, start + dash_len)
+                    .0
+                    .make_polygons_blindly(width),
+            );
+            start += dash_len + dash_separation;
+        }
+
+        polygons
+    }
+
     pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
         assert_ne!(self, other);
 
