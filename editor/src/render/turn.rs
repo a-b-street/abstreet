@@ -1,11 +1,11 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Pt2D};
-use map_model::{Map, Turn, TurnID};
+use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{
-    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, TURN_ICON_ARROW_LENGTH,
-    TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_TIP_LENGTH, CROSSWALK_LINE_THICKNESS,
+    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
 
@@ -76,4 +76,65 @@ impl Renderable for DrawTurn {
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.icon_circle.contains_pt(pt)
     }
+}
+
+#[derive(Debug)]
+pub struct DrawCrosswalk {
+    pub id1: TurnID,
+    pub id2: TurnID,
+    lines: Vec<Line>,
+}
+
+impl DrawCrosswalk {
+    pub fn new(turn: &Turn) -> DrawCrosswalk {
+        let mut lines = Vec::new();
+        // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
+        // the thickness of the crosswalk line itself. Center the lines inside these two
+        // boundaries.
+        let boundary = (LANE_THICKNESS + CROSSWALK_LINE_THICKNESS) * si::M;
+        let tile_every = 0.6 * LANE_THICKNESS * si::M;
+        let line = {
+            // The middle line in the crosswalk geometry is the main crossing line.
+            let pts = turn.geom.points();
+            Line::new(pts[1], pts[2])
+        };
+
+        let available_length = line.length() - (2.0 * boundary);
+        if available_length > 0.0 * si::M {
+            let num_markings = (available_length / tile_every).floor() as usize;
+            let mut dist_along =
+                boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
+            // TODO Seems to be an off-by-one sometimes. Not enough of these.
+            for _ in 0..=num_markings {
+                let pt1 = line.dist_along(dist_along);
+                // Reuse perp_line. Project away an arbitrary amount
+                let pt2 = pt1.project_away(1.0, turn.angle());
+                lines.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
+                dist_along += tile_every;
+            }
+        }
+
+        DrawCrosswalk {
+            id1: turn.id,
+            id2: TurnID {
+                parent: turn.id.parent,
+                src: turn.id.dst,
+                dst: turn.id.src,
+            },
+            lines,
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
+        for line in &self.lines {
+            g.draw_line(color, CROSSWALK_LINE_THICKNESS, line);
+        }
+    }
+}
+
+// TODO copied from DrawLane
+fn perp_line(l: Line, length: f64) -> Line {
+    let pt1 = l.shift(length / 2.0).pt1();
+    let pt2 = l.reverse().shift(length / 2.0).pt2();
+    Line::new(pt1, pt2)
 }

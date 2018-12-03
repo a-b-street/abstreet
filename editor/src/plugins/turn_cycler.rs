@@ -144,21 +144,39 @@ fn draw_traffic_signal(signal: &ControlTrafficSignal, g: &mut GfxCtx, ctx: Ctx) 
             "turns allowed with yielding by traffic signal right now",
             Color::grey(0.6).alpha(0.8),
         );
-        // TODO highlight crosswalks
+        // TODO Ew...
+        let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(signal.id)) {
+            ctx.cs.get("selected", Color::BLUE)
+        } else {
+            ctx.cs.get("hide crosswalk", Color::BLACK)
+        };
+
+        // First over-draw the crosswalks.
+        // TODO Should this use the color_for system?
+        for crosswalk in &ctx.draw_map.get_i(signal.id).crosswalks {
+            let color = if cycle.priority_turns.contains(&crosswalk.id1)
+                || cycle.priority_turns.contains(&crosswalk.id2)
+            {
+                priority_color
+            } else if cycle.yield_turns.contains(&crosswalk.id1)
+                || cycle.yield_turns.contains(&crosswalk.id2)
+            {
+                yield_color
+            } else {
+                hide_crosswalk
+            };
+            crosswalk.draw(g, color);
+        }
+
         for t in &cycle.priority_turns {
-            if ctx.map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-                continue;
+            if !ctx.map.get_t(*t).between_sidewalks() {
+                DrawTurn::draw_full(*t, ctx.map, g, priority_color, BIG_ARROW_THICKNESS);
             }
-            /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
-                m.draw(g, ctx.cs, priority_color);
-            }*/
-            DrawTurn::draw_full(*t, ctx.map, g, priority_color, BIG_ARROW_THICKNESS);
         }
         for t in &cycle.yield_turns {
-            DrawTurn::draw_full(*t, ctx.map, g, yield_color, BIG_ARROW_THICKNESS / 2.0);
-            /*for m in turn_markings(ctx.map.get_t(*t), ctx.map) {
-                m.draw(g, ctx.cs, Some(yield_color));
-            }*/
+            if !ctx.map.get_t(*t).between_sidewalks() {
+                DrawTurn::draw_full(*t, ctx.map, g, yield_color, BIG_ARROW_THICKNESS / 2.0);
+            }
         }
     }
 

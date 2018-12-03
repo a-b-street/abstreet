@@ -99,6 +99,7 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -117,6 +118,7 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -130,6 +132,7 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -143,6 +146,7 @@ impl GUI for UI {
                 draw_map: &self.primary.draw_map,
                 canvas: &self.canvas,
                 sim: &self.primary.sim,
+                current_selection: self.primary.current_selection,
             },
         );
 
@@ -422,6 +426,7 @@ impl UI {
             draw_map: &self.primary.draw_map,
             canvas: &self.canvas,
             sim: &self.primary.sim,
+            current_selection: self.primary.current_selection,
         };
         if let Some(p) = self.get_active_plugin() {
             return p.color_for(id, ctx);

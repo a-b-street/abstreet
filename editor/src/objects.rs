@@ -104,6 +104,8 @@ pub struct Ctx<'a> {
     pub draw_map: &'a DrawMap,
     pub canvas: &'a Canvas,
     pub sim: &'a Sim,
+    // TODO This one's a slight hack
+    pub current_selection: Option<ID>,
 }
 
 // TODO not the right module for this, totally temp

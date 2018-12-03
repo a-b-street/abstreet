@@ -1,20 +1,16 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{Intersection, IntersectionID, IntersectionType, Map, TurnType, LANE_THICKNESS};
 use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
-use std::f64;
-
-const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
+use render::{DrawCrosswalk, RenderOptions, Renderable};
 
 #[derive(Debug)]
 pub struct DrawIntersection {
     pub id: IntersectionID,
     pub polygon: Polygon,
-    crosswalks: Vec<Vec<Line>>,
+    pub crosswalks: Vec<DrawCrosswalk>,
     sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
     intersection_type: IntersectionType,
@@ -101,13 +97,7 @@ impl Renderable for DrawIntersection {
         g.draw_polygon(color, &self.polygon);
 
         for crosswalk in &self.crosswalks {
-            for line in crosswalk {
-                g.draw_line(
-                    ctx.cs.get("crosswalk", Color::WHITE),
-                    CROSSWALK_LINE_THICKNESS,
-                    line,
-                );
-            }
+            crosswalk.draw(g, ctx.cs.get("crosswalk", Color::WHITE));
         }
 
         for corner in &self.sidewalk_corners {
@@ -130,48 +120,14 @@ impl Renderable for DrawIntersection {
     }
 }
 
-fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<Vec<Line>> {
+fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<DrawCrosswalk> {
     let mut crosswalks = Vec::new();
-
     for turn in &map.get_turns_in_intersection(i) {
-        match turn.turn_type {
-            TurnType::Crosswalk => {
-                // Avoid double-rendering
-                if map.get_l(turn.id.src).dst_i != i {
-                    continue;
-                }
-
-                let mut markings = Vec::new();
-                // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
-                // the thickness of the crosswalk line itself. Center the lines inside these two
-                // boundaries.
-                let boundary = (LANE_THICKNESS + CROSSWALK_LINE_THICKNESS) * si::M;
-                let tile_every = 0.6 * LANE_THICKNESS * si::M;
-                let available_length = turn.length() - (2.0 * boundary);
-                if available_length > 0.0 * si::M {
-                    let num_markings = (available_length / tile_every).floor() as usize;
-                    // The middle line in the crosswalk geometry is the main crossing line.
-                    let pts = turn.geom.points();
-                    let line = Line::new(pts[1], pts[2]);
-
-                    let mut dist_along =
-                        boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
-                    // TODO Seems to be an off-by-one sometimes. Not enough of these.
-                    for _ in 0..=num_markings {
-                        let pt1 = line.dist_along(dist_along);
-                        // Reuse perp_line. Project away an arbitrary amount
-                        let pt2 = pt1.project_away(1.0, turn.angle());
-                        markings.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
-                        dist_along += tile_every;
-                    }
-                    crosswalks.push(markings);
-                }
-            }
-            // TODO render shared corners
-            _ => {}
+        // Avoid double-rendering
+        if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i {
+            crosswalks.push(DrawCrosswalk::new(turn));
         }
     }
-
     crosswalks
 }
 
@@ -201,11 +157,4 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     }
 
     corners
-}
-
-// TODO copied from DrawLane
-fn perp_line(l: Line, length: f64) -> Line {
-    let pt1 = l.shift(length / 2.0).pt1();
-    let pt2 = l.reverse().shift(length / 2.0).pt2();
-    Line::new(pt1, pt2)
 }
