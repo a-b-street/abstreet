@@ -2,26 +2,26 @@ use geom::{Angle, Pt2D};
 use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::iter;
 use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct ParkingSimState {
+    cars: BTreeMap<CarID, ParkedCar>,
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     lanes: Vec<ParkingLane>,
-    total_count: usize,
 }
 
 impl ParkingSimState {
     pub fn new(map: &Map) -> ParkingSimState {
         ParkingSimState {
+            cars: BTreeMap::new(),
             lanes: map
                 .all_lanes()
                 .iter()
                 .map(|l| ParkingLane::new(l))
                 .collect(),
-            total_count: 0,
         }
     }
 
@@ -38,8 +38,9 @@ impl ParkingSimState {
         self.lanes[l.id.0] = ParkingLane::new(l);
     }
 
+    // TODO bad name
     pub fn total_count(&self) -> usize {
-        self.total_count
+        self.cars.len()
     }
 
     pub fn get_free_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
@@ -54,48 +55,57 @@ impl ParkingSimState {
     }
 
     pub fn remove_parked_car(&mut self, p: ParkedCar) {
-        self.lanes[p.spot.lane.0].remove_parked_car(p);
-        self.total_count -= 1;
+        self.cars.remove(&p.car);
+        self.lanes[p.spot.lane.0].remove_parked_car(p.car);
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
         assert_eq!(self.lanes[spot.lane.0].occupants[spot.idx], None);
-        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p);
-        self.total_count += 1;
+        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p.car);
+        self.cars.insert(p.car, p);
     }
 
     pub fn get_draw_cars(&self, id: LaneID) -> Vec<DrawCarInput> {
-        self.lanes[id.0].get_draw_cars()
+        self.lanes[id.0]
+            .occupants
+            .iter()
+            .filter_map(|maybe_occupant| {
+                if let Some(car) = maybe_occupant {
+                    Some(self.get_draw_car(*car).unwrap())
+                } else {
+                    None
+                }
+            }).collect()
     }
 
     pub fn get_draw_car(&self, id: CarID) -> Option<DrawCarInput> {
-        // TODO this is so horrendously slow :D
-        for l in &self.lanes {
-            if l.occupants.iter().find(|x| is_car(x, id)).is_some() {
-                return l.get_draw_cars().into_iter().find(|c| c.id == id);
-            }
-        }
-        None
+        let p = self.cars.get(&id)?;
+        let lane = p.spot.lane;
+
+        let (front, angle) = self.lanes[lane.0].spots[p.spot.idx].front_of_car(&p.vehicle);
+        Some(DrawCarInput {
+            id: p.car,
+            vehicle_length: p.vehicle.length,
+            waiting_for_turn: None,
+            front: front,
+            angle: angle,
+            stopping_trace: None,
+            state: CarState::Parked,
+            vehicle_type: VehicleType::Car,
+            on: Traversable::Lane(lane),
+        })
     }
 
     pub fn get_all_draw_cars(&self) -> Vec<DrawCarInput> {
-        // TODO this is so horrendously slow :D
-        let mut cars: Vec<DrawCarInput> = Vec::new();
-        for l in &self.lanes {
-            cars.extend(l.get_draw_cars());
-        }
-        cars
+        self.cars
+            .keys()
+            .map(|id| self.get_draw_car(*id).unwrap())
+            .collect()
     }
 
     pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
-        // TODO this is so horrendously slow :D
-        for l in &self.lanes {
-            if let Some(p) = l.occupants.iter().find(|x| is_car(x, id)) {
-                return p.as_ref();
-            }
-        }
-        None
+        self.cars.get(&id)
     }
 
     pub fn get_first_free_spot(&self, parking_pos: Position) -> Option<ParkingSpot> {
@@ -111,8 +121,8 @@ impl ParkingSimState {
     }
 
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
-        let l = &self.lanes[spot.lane.0];
-        l.occupants[spot.idx].clone()
+        let car = self.lanes[spot.lane.0].occupants[spot.idx]?;
+        Some(self.cars[&car].clone())
     }
 
     pub fn spot_to_driving_pos(
@@ -141,13 +151,9 @@ impl ParkingSimState {
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
         let mut result: Vec<&ParkedCar> = Vec::new();
-        for l in &self.lanes {
-            for maybe_occupant in &l.occupants {
-                if let Some(o) = maybe_occupant {
-                    if o.owner == Some(id) {
-                        result.push(maybe_occupant.as_ref().unwrap());
-                    }
-                }
+        for p in self.cars.values() {
+            if p.owner == Some(id) {
+                result.push(p);
             }
         }
         result
@@ -158,6 +164,7 @@ impl ParkingSimState {
     }
 
     pub fn count(&self, lanes: &HashSet<LaneID>) -> (usize, usize) {
+        // TODO self.cars.len() works for cars_parked; we could maintain the other value easily too
         let mut cars_parked = 0;
         let mut open_parking_spots = 0;
 
@@ -179,7 +186,7 @@ impl ParkingSimState {
 struct ParkingLane {
     id: LaneID,
     spots: Vec<ParkingSpotGeometry>,
-    occupants: Vec<Option<ParkedCar>>,
+    occupants: Vec<Option<CarID>>,
 }
 
 impl ParkingLane {
@@ -208,35 +215,9 @@ impl ParkingLane {
         }
     }
 
-    fn remove_parked_car(&mut self, p: ParkedCar) {
-        let match_against = Some(p.clone());
-        let idx = self
-            .occupants
-            .iter()
-            .position(|x| *x == match_against)
-            .unwrap();
+    fn remove_parked_car(&mut self, car: CarID) {
+        let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
         self.occupants[idx] = None;
-    }
-
-    fn get_draw_cars(&self) -> Vec<DrawCarInput> {
-        self.occupants
-            .iter()
-            .filter_map(|maybe_occupant| {
-                maybe_occupant.as_ref().and_then(|p| {
-                    let (front, angle) = self.spots[p.spot.idx].front_of_car(&p.vehicle);
-                    Some(DrawCarInput {
-                        id: p.car,
-                        vehicle_length: p.vehicle.length,
-                        waiting_for_turn: None,
-                        front: front,
-                        angle: angle,
-                        stopping_trace: None,
-                        state: CarState::Parked,
-                        vehicle_type: VehicleType::Car,
-                        on: Traversable::Lane(self.id),
-                    })
-                })
-            }).collect()
     }
 
     fn is_empty(&self) -> bool {
@@ -272,12 +253,5 @@ impl ParkingSpotGeometry {
                 .project_away(offset.value_unsafe, self.angle.opposite()),
             self.angle,
         )
-    }
-}
-
-fn is_car(maybe_occupant: &&Option<ParkedCar>, car: CarID) -> bool {
-    match maybe_occupant {
-        Some(p) => p.car == car,
-        None => false,
     }
 }
