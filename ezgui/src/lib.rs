@@ -36,7 +36,7 @@ pub use log_scroller::LogScroller;
 pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
-pub use runner::{run, GUI};
+pub use runner::{run, EventLoopMode, GUI};
 use std::mem;
 pub use text::{Text, TEXT_FG_COLOR};
 pub use text_box::TextBox;

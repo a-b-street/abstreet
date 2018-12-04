@@ -57,7 +57,7 @@ impl Plugin for DiffAllState {
             ..
         } = self
         {
-            ctx.osd.add_line(format!(
+            ctx.hints.osd.add_line(format!(
                 "{} trips same, {} trips different",
                 same_trips,
                 lines.len()

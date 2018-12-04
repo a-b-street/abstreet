@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{GfxCtx, InputResult, TextBox};
+use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use objects::{Ctx, DEBUG, ID};
@@ -64,7 +64,7 @@ impl Plugin for WarpState {
                 InputResult::StillActive => {}
             },
             WarpState::Warping(started, line, id) => {
-                ctx.osd.animation_mode();
+                ctx.hints.mode = EventLoopMode::Animation;
                 let percent = elapsed_seconds(*started) / ANIMATION_TIME_S;
                 if percent >= 1.0 {
                     ctx.canvas.center_on_map_pt(line.pt2());

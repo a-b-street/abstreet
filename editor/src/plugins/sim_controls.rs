@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{Color, GfxCtx, Text, TOP_RIGHT};
+use ezgui::{Color, EventLoopMode, GfxCtx, Text, TOP_RIGHT};
 use objects::{Ctx, SIM};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -37,7 +37,7 @@ impl Plugin for SimController {
         let input = ctx.input;
         let primary = ctx.primary;
         let secondary = ctx.secondary;
-        let osd = ctx.osd;
+        let osd = &mut ctx.hints.osd;
 
         if input.unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel") {
             self.show_side_panel = !self.show_side_panel;
@@ -165,7 +165,7 @@ impl Plugin for SimController {
         }
 
         if self.last_step.is_some() {
-            osd.animation_mode();
+            ctx.hints.mode = EventLoopMode::Animation;
         }
 
         // Weird definition of active?

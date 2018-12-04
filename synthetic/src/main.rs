@@ -9,7 +9,7 @@ extern crate serde_derive;
 
 mod model;
 
-use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, Wizard, GUI};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, Wizard, GUI};
 use geom::Line;
 use model::{BuildingID, Direction, IntersectionID, Model, RoadID};
 use piston::input::Key;
@@ -49,8 +49,8 @@ impl UI {
     }
 }
 
-impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, osd: &mut Text) {
+impl GUI<Text> for UI {
+    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, Text) {
         self.canvas.handle_event(&mut input);
         let cursor = self.canvas.get_cursor_in_map_space();
 
@@ -181,7 +181,9 @@ impl GUI for UI {
             self.state = s;
         }
 
-        input.populate_osd(osd);
+        let mut osd = Text::new();
+        input.populate_osd(&mut osd);
+        (EventLoopMode::InputOnly, osd)
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {

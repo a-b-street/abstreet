@@ -91,7 +91,7 @@ impl Plugin for TimeTravel {
         }
 
         if let Some(tick) = self.current_tick {
-            ctx.osd.add_line(format!("Time traveling: {}", tick));
+            ctx.hints.osd.add_line(format!("Time traveling: {}", tick));
         }
 
         self.is_active()

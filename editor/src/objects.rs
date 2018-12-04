@@ -1,5 +1,5 @@
 use colors::ColorScheme;
-use ezgui::Canvas;
+use ezgui::{Canvas, EventLoopMode, Text};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::{DrawMap, ExtraShapeID};
@@ -97,6 +97,11 @@ impl ID {
     }
 }
 
+pub struct RenderingHints {
+    pub mode: EventLoopMode,
+    pub osd: Text,
+}
+
 // For plugins and rendering. Not sure what module this should live in, here seems fine.
 pub struct Ctx<'a> {
     pub cs: &'a mut ColorScheme,
@@ -104,6 +109,7 @@ pub struct Ctx<'a> {
     pub draw_map: &'a DrawMap,
     pub canvas: &'a Canvas,
     pub sim: &'a Sim,
+    pub hints: &'a RenderingHints,
     // TODO This one's a slight hack
     pub current_selection: Option<ID>,
 }

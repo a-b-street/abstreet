@@ -5,10 +5,10 @@
 use abstutil;
 use colors::ColorScheme;
 //use cpuprofiler;
-use ezgui::{Canvas, Color, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
 use map_model::{BuildingID, IntersectionID, Map};
-use objects::{Ctx, ID, ROOT_MENU};
+use objects::{Ctx, RenderingHints, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins;
 use plugins::hider::Hider;
@@ -44,12 +44,10 @@ pub struct UI {
     kml: Option<String>,
 }
 
-impl GUI for UI {
-    fn event(&mut self, input: UserInput, osd: &mut Text) {
-        match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            self.inner_event(input, osd);
-        })) {
-            Ok(()) => {}
+impl GUI<RenderingHints> for UI {
+    fn event(&mut self, input: UserInput) -> (EventLoopMode, RenderingHints) {
+        match panic::catch_unwind(panic::AssertUnwindSafe(|| self.inner_event(input))) {
+            Ok(hints) => (hints.mode, hints),
             Err(err) => {
                 error!("********************************************************************************");
                 error!("UI broke! Primary sim:");
@@ -68,7 +66,7 @@ impl GUI for UI {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, osd: Text) {
+    fn draw(&self, g: &mut GfxCtx, hints: RenderingHints) {
         g.clear(
             self.cs
                 .borrow_mut()
@@ -85,7 +83,7 @@ impl GUI for UI {
         );
         for obj in statics.into_iter() {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id()),
+                color: self.color_obj(obj.get_id(), &hints),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.plugins.layers().debug_mode.is_enabled(),
             };
@@ -98,13 +96,14 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    hints: &hints,
                     current_selection: self.primary.current_selection,
                 },
             );
         }
         for obj in dynamics.into_iter() {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id()),
+                color: self.color_obj(obj.get_id(), &hints),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.plugins.layers().debug_mode.is_enabled(),
             };
@@ -117,6 +116,7 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    hints: &hints,
                     current_selection: self.primary.current_selection,
                 },
             );
@@ -131,6 +131,7 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    hints: &hints,
                     current_selection: self.primary.current_selection,
                 },
             );
@@ -146,12 +147,13 @@ impl GUI for UI {
                     draw_map: &self.primary.draw_map,
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
+                    hints: &hints,
                     current_selection: self.primary.current_selection,
                 },
             );
         }
 
-        self.canvas.draw_text(g, osd, BOTTOM_LEFT);
+        self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
     }
 }
 
@@ -334,7 +336,12 @@ impl UI {
         ui
     }
 
-    fn inner_event(&mut self, mut input: UserInput, osd: &mut Text) {
+    fn inner_event(&mut self, mut input: UserInput) -> RenderingHints {
+        let mut hints = RenderingHints {
+            mode: EventLoopMode::InputOnly,
+            osd: Text::new(),
+        };
+
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
@@ -357,13 +364,13 @@ impl UI {
 
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(idx, &mut input, osd) {
+            if !self.run_plugin(idx, &mut input, &mut hints) {
                 self.active_plugin = None;
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
             for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
-                if self.run_plugin(idx, &mut input, osd) {
+                if self.run_plugin(idx, &mut input, &mut hints) {
                     self.active_plugin = Some(idx);
                     break;
                 }
@@ -383,7 +390,9 @@ impl UI {
             self.primary.current_selection = self.mouseover_something();
         }
 
-        input.populate_osd(osd);
+        input.populate_osd(&mut hints.osd);
+
+        hints
     }
 
     fn mouseover_something(&self) -> Option<ID> {
@@ -412,7 +421,7 @@ impl UI {
         None
     }
 
-    fn color_obj(&self, id: ID) -> Option<Color> {
+    fn color_obj(&self, id: ID, hints: &RenderingHints) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
             return Some(self.cs.borrow_mut().get("selected", Color::BLUE));
         }
@@ -423,6 +432,7 @@ impl UI {
             draw_map: &self.primary.draw_map,
             canvas: &self.canvas,
             sim: &self.primary.sim,
+            hints,
             current_selection: self.primary.current_selection,
         };
         if let Some(p) = self.get_active_plugin() {
@@ -444,7 +454,12 @@ impl UI {
         }
     }
 
-    fn run_plugin(&mut self, idx: usize, input: &mut UserInput, osd: &mut Text) -> bool {
+    fn run_plugin(
+        &mut self,
+        idx: usize,
+        input: &mut UserInput,
+        hints: &mut RenderingHints,
+    ) -> bool {
         let active = {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
@@ -453,7 +468,7 @@ impl UI {
                 canvas: &mut self.canvas,
                 cs: &mut self.cs.borrow_mut(),
                 input,
-                osd,
+                hints,
                 kml: &self.kml,
             };
             let len = self.plugins.list.len();
@@ -524,6 +539,6 @@ pub struct PluginCtx<'a> {
     pub canvas: &'a mut Canvas,
     pub cs: &'a mut ColorScheme,
     pub input: &'a mut UserInput,
-    pub osd: &'a mut Text,
+    pub hints: &'a mut RenderingHints,
     pub kml: &'a Option<String>,
 }

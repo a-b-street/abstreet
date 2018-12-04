@@ -27,7 +27,8 @@ impl DrawNeighborhoodState {
 
 impl Plugin for DrawNeighborhoodState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, canvas, map, osd) = (ctx.input, ctx.canvas, &ctx.primary.map, ctx.osd);
+        let (input, canvas, map, osd) =
+            (ctx.input, ctx.canvas, &ctx.primary.map, &mut ctx.hints.osd);
         let gps_bounds = map.get_gps_bounds();
 
         // TODO This can easily be outside of the map boundary...

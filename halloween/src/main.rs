@@ -10,8 +10,8 @@ mod render;
 mod timer;
 
 use abstutil::Timer;
-use ezgui::{Canvas, GfxCtx, Text, UserInput, GUI};
-use map_model::{Map, RoadEdits};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
+use map_model::{Map, MapEdits};
 use piston::input::Key;
 use render::DrawMap;
 use std::process;
@@ -39,7 +39,7 @@ impl UI {
     fn new(flags: Flags) -> UI {
         let map = Map::new(
             &flags.load_map,
-            RoadEdits::new(),
+            MapEdits::new("map name"),
             &mut Timer::new("load map for Halloween"),
         ).unwrap();
         UI {
@@ -50,20 +50,20 @@ impl UI {
     }
 }
 
-impl GUI for UI {
-    fn event(&mut self, mut input: UserInput, osd: &mut Text) {
+impl GUI<()> for UI {
+    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, ()) {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
         self.canvas.handle_event(&mut input);
-        osd.animation_mode();
+        (EventLoopMode::Animation, ())
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, _osd: Text) {
+    fn draw(&self, g: &mut GfxCtx, _: ()) {
         self.draw_map
             .draw(g, self.cycler.value(), self.canvas.get_screen_bounds());
     }

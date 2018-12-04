@@ -444,3 +444,25 @@ Or maybe another:
 
 Or another:
 	- is a plugin just a toggleable effect? can it compose with others?
+
+## Hiding crosswalks and signal boxes
+
+Need to hint to DrawIntersection that
+
+1) crosswalks should or should not be drawn
+2) traffic signal box icon should or should not be drawn
+
+from turn cycler and traffic signal editor
+
+Ideas:
+- overdraw in the background color
+	- super hacky, high effort, have to match background, doesnt work for the box icon...
+- new RenderingHints in PluginCtx
+	- set stuff in event(), pass it in RenderOptions
+	- it's just like OSD!
+	- right now ezgui runner plumbs OSD between event and draw; but why is that special?
+	- and animation mode is squeezed into OSD, ew!
+
+	- event() needs to return (AnimationMode, T)
+	- draw takes T
+	- GUI trait becomes generic.
