@@ -1,7 +1,7 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text, Wizard};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{IntersectionID, TurnID, TurnPriority};
+use map_model::{IntersectionID, TurnID, TurnPriority, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -73,6 +73,13 @@ impl Plugin for TrafficSignalEditor {
                     ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
                         .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),
                 );
+                for t in ctx.primary.map.get_turns_in_intersection(*i) {
+                    // TODO bit weird, now looks like there's missing space between some icons. Do
+                    // we ever need to have an icon for SharedSidewalkCorner?
+                    if t.turn_type == TurnType::SharedSidewalkCorner {
+                        ctx.hints.hide_turn_icons.insert(t.id);
+                    }
+                }
 
                 if cycle_duration_wizard.is_some() {
                     if let Some(new_duration) = cycle_duration_wizard

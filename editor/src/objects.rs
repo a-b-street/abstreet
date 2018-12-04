@@ -105,6 +105,7 @@ pub struct RenderingHints {
     // Miscellaneous cases where a plugin needs to control rendering.
     pub suppress_traffic_signal_icon: Option<IntersectionID>,
     pub hide_crosswalks: HashSet<TurnID>,
+    pub hide_turn_icons: HashSet<TurnID>,
 }
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.

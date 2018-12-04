@@ -345,6 +345,7 @@ impl UI {
             osd: Text::new(),
             suppress_traffic_signal_icon: None,
             hide_crosswalks: HashSet::new(),
+            hide_turn_icons: HashSet::new(),
         };
 
         // First update the camera and handle zoom

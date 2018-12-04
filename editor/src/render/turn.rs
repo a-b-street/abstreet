@@ -62,6 +62,11 @@ impl Renderable for DrawTurn {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+        // Some plugins hide icons entirely.
+        if ctx.hints.hide_turn_icons.contains(&self.id) {
+            return;
+        }
+
         g.draw_circle(
             ctx.cs.get("turn icon circle", Color::grey(0.3)),
             &self.icon_circle,
