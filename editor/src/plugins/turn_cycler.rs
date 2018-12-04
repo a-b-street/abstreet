@@ -27,7 +27,15 @@ impl Plugin for TurnCyclerState {
             Some(ID::Lane(id)) => id,
             Some(ID::Intersection(id)) => {
                 *self = TurnCyclerState::Intersection(id);
-                ctx.hints.suppress_traffic_signal_icon = Some(id);
+
+                if let Some(signal) = ctx.primary.map.maybe_get_traffic_signal(id) {
+                    let (cycle, _) =
+                        signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
+                    ctx.hints.suppress_traffic_signal_icon = Some(id);
+                    ctx.hints.hide_crosswalks.extend(
+                        cycle.get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(id)),
+                    );
+                }
                 return false;
             }
             _ => {
@@ -64,7 +72,7 @@ impl Plugin for TurnCyclerState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, mut ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -96,13 +104,15 @@ impl Plugin for TurnCyclerState {
                     let (cycle, time_left) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
-                    // TODO Ew... there's got to be a way to prevent drawing the intersection instead
-                    let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(*id)) {
-                        ctx.cs.get("selected", Color::BLUE)
-                    } else {
-                        ctx.cs.get("unchanged intersection", Color::grey(0.6))
-                    };
-                    draw_signal_cycle(cycle, *id, hide_crosswalk, g, &mut ctx);
+                    draw_signal_cycle(
+                        cycle,
+                        *id,
+                        g,
+                        ctx.cs,
+                        ctx.map,
+                        ctx.draw_map,
+                        &ctx.hints.hide_crosswalks,
+                    );
 
                     // Draw a little timer box in the top-left corner of the screen.
                     {

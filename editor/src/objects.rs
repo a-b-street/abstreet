@@ -4,6 +4,7 @@ use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::{DrawMap, ExtraShapeID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
+use std::collections::HashSet;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -103,6 +104,7 @@ pub struct RenderingHints {
 
     // Miscellaneous cases where a plugin needs to control rendering.
     pub suppress_traffic_signal_icon: Option<IntersectionID>,
+    pub hide_crosswalks: HashSet<TurnID>,
 }
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.
@@ -113,8 +115,6 @@ pub struct Ctx<'a> {
     pub canvas: &'a Canvas,
     pub sim: &'a Sim,
     pub hints: &'a RenderingHints,
-    // TODO This one's a slight hack
-    pub current_selection: Option<ID>,
 }
 
 // TODO not the right module for this, totally temp

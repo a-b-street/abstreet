@@ -20,6 +20,7 @@ use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::panic;
 use std::process;
 
@@ -97,7 +98,6 @@ impl GUI<RenderingHints> for UI {
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                     hints: &hints,
-                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -117,7 +117,6 @@ impl GUI<RenderingHints> for UI {
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                     hints: &hints,
-                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -132,7 +131,6 @@ impl GUI<RenderingHints> for UI {
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                     hints: &hints,
-                    current_selection: self.primary.current_selection,
                 },
             );
         } else {
@@ -148,7 +146,6 @@ impl GUI<RenderingHints> for UI {
                     canvas: &self.canvas,
                     sim: &self.primary.sim,
                     hints: &hints,
-                    current_selection: self.primary.current_selection,
                 },
             );
         }
@@ -341,6 +338,7 @@ impl UI {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
             suppress_traffic_signal_icon: None,
+            hide_crosswalks: HashSet::new(),
         };
 
         // First update the camera and handle zoom
@@ -434,7 +432,6 @@ impl UI {
             canvas: &self.canvas,
             sim: &self.primary.sim,
             hints,
-            current_selection: self.primary.current_selection,
         };
         if let Some(p) = self.get_active_plugin() {
             return p.color_for(id, ctx);

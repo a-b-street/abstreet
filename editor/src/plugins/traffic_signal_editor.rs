@@ -1,5 +1,3 @@
-// TODO how to edit cycle time?
-
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{IntersectionID, TurnPriority};
@@ -7,6 +5,7 @@ use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 use render::draw_signal_cycle;
+use std::collections::HashSet;
 
 #[derive(PartialEq)]
 pub enum TrafficSignalEditor {
@@ -26,13 +25,12 @@ impl TrafficSignalEditor {
 impl Plugin for TrafficSignalEditor {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let input = ctx.input;
-        let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
 
         if *self == TrafficSignalEditor::Inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
-                    if map.maybe_get_traffic_signal(id).is_some()
+                    if ctx.primary.map.maybe_get_traffic_signal(id).is_some()
                         && input.key_pressed(Key::E, &format!("edit traffic signal for {}", id))
                     {
                         *self = TrafficSignalEditor::Active {
@@ -54,10 +52,14 @@ impl Plugin for TrafficSignalEditor {
                     new_state = Some(TrafficSignalEditor::Inactive);
                 } else {
                     ctx.hints.suppress_traffic_signal_icon = Some(*i);
+                    ctx.hints.hide_crosswalks.extend(
+                        ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
+                            .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),
+                    );
 
                     // Change cycles
                     {
-                        let cycles = &map.get_traffic_signal(*i).cycles;
+                        let cycles = &ctx.primary.map.get_traffic_signal(*i).cycles;
                         if let Some(n) = input.number_chosen(
                             cycles.len(),
                             &format!(
@@ -74,7 +76,7 @@ impl Plugin for TrafficSignalEditor {
                     // Change turns
                     if let Some(ID::Turn(id)) = selected {
                         if id.parent == *i {
-                            let mut signal = map.get_traffic_signal(*i).clone();
+                            let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
                             {
                                 let cycle = &mut signal.cycles[*current_cycle];
                                 if cycle.get_priority(id) == TurnPriority::Priority {
@@ -84,7 +86,7 @@ impl Plugin for TrafficSignalEditor {
                                     ) {
                                         cycle.remove(id);
                                     }
-                                } else if cycle.could_be_priority_turn(id, map) {
+                                } else if cycle.could_be_priority_turn(id, &ctx.primary.map) {
                                     if input.key_pressed(
                                         Key::Space,
                                         "add this turn to this cycle as priority",
@@ -100,7 +102,7 @@ impl Plugin for TrafficSignalEditor {
                                 }
                             }
 
-                            map.edit_traffic_signal(signal);
+                            ctx.primary.map.edit_traffic_signal(signal);
                         }
                     }
                 }
@@ -116,20 +118,18 @@ impl Plugin for TrafficSignalEditor {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, mut ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         if let TrafficSignalEditor::Active { i, current_cycle } = self {
             let cycles = &ctx.map.get_traffic_signal(*i).cycles;
 
             draw_signal_cycle(
                 &cycles[*current_cycle],
                 *i,
-                if ctx.current_selection == Some(ID::Intersection(*i)) {
-                    ctx.cs.get("selected", Color::BLUE)
-                } else {
-                    ctx.cs.get("unchanged intersection", Color::grey(0.6))
-                },
                 g,
-                &mut ctx,
+                ctx.cs,
+                ctx.map,
+                ctx.draw_map,
+                &ctx.hints.hide_crosswalks,
             );
 
             // Draw all of the cycles off to the side
@@ -148,14 +148,9 @@ impl Plugin for TrafficSignalEditor {
                 )
             };
 
-            let panel_bg_color = ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95));
-            let panel_selected_color = ctx.cs.get(
-                "current cycle in signal editor panel",
-                Color::BLUE.alpha(0.95),
-            );
             let old_ctx = g.fork_screenspace();
             g.draw_polygon(
-                panel_bg_color,
+                ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95)),
                 &Polygon::rectangle_topleft(
                     Pt2D::new(10.0, 10.0),
                     width * zoom,
@@ -165,7 +160,10 @@ impl Plugin for TrafficSignalEditor {
             // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
             // center a map-space thing inside a screen-space box.
             g.draw_polygon(
-                panel_selected_color,
+                ctx.cs.get(
+                    "current cycle in signal editor panel",
+                    Color::BLUE.alpha(0.95),
+                ),
                 &Polygon::rectangle_topleft(
                     Pt2D::new(
                         10.0,
@@ -185,16 +183,17 @@ impl Plugin for TrafficSignalEditor {
                     ),
                     zoom,
                 );
+                let mut hide_crosswalks = HashSet::new();
+                hide_crosswalks
+                    .extend(cycle.get_absent_crosswalks(ctx.map.get_turns_in_intersection(*i)));
                 draw_signal_cycle(
-                    cycle,
+                    &cycle,
                     *i,
-                    if idx == *current_cycle {
-                        panel_selected_color
-                    } else {
-                        panel_bg_color
-                    },
                     g,
-                    &mut ctx,
+                    ctx.cs,
+                    ctx.map,
+                    ctx.draw_map,
+                    &hide_crosswalks,
                 );
             }
 

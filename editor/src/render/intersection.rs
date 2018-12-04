@@ -1,11 +1,16 @@
+use colors::ColorScheme;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, Turn, TurnType, LANE_THICKNESS,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, Turn, TurnID, TurnType,
+    LANE_THICKNESS,
 };
 use objects::{Ctx, ID};
-use render::{DrawCrosswalk, RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
+use render::{
+    DrawCrosswalk, DrawMap, RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH,
+};
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -98,7 +103,11 @@ impl Renderable for DrawIntersection {
         g.draw_polygon(color, &self.polygon);
 
         for crosswalk in &self.crosswalks {
-            crosswalk.draw(g, ctx.cs.get("crosswalk", Color::WHITE));
+            if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1)
+                && !ctx.hints.hide_crosswalks.contains(&crosswalk.id2)
+            {
+                crosswalk.draw(g, ctx.cs.get("crosswalk", Color::WHITE));
+            }
         }
 
         for corner in &self.sidewalk_corners {
@@ -162,49 +171,34 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-// TODO Taking &mut Ctx is a hack to let this be called multiple times in one plugin's draw().
-// Should really pass down individual pieces of the Ctx, or even better, make it Copy (and rethink
-// the mutable ColorScheme pattern).
 pub fn draw_signal_cycle(
     cycle: &Cycle,
     id: IntersectionID,
-    hide_crosswalk: Color,
     g: &mut GfxCtx,
-    ctx: &mut Ctx,
+    cs: &mut ColorScheme,
+    map: &Map,
+    draw_map: &DrawMap,
+    hide_crosswalks: &HashSet<TurnID>,
 ) {
-    let priority_color = ctx
-        .cs
-        .get("turns protected by traffic signal right now", Color::GREEN);
-    let yield_color = ctx.cs.get(
+    let priority_color = cs.get("turns protected by traffic signal right now", Color::GREEN);
+    let yield_color = cs.get(
         "turns allowed with yielding by traffic signal right now",
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    // First over-draw the crosswalks.
-    // TODO Should this use the color_for system? Really want to show/hide...
-    for crosswalk in &ctx.draw_map.get_i(id).crosswalks {
-        let color = if cycle.priority_turns.contains(&crosswalk.id1)
-            || cycle.priority_turns.contains(&crosswalk.id2)
-        {
-            ctx.cs.get("crosswalk", Color::WHITE)
-        } else if cycle.yield_turns.contains(&crosswalk.id1)
-            || cycle.yield_turns.contains(&crosswalk.id2)
-        {
-            panic!("Crosswalks shouldn't ever yield")
-        } else {
-            hide_crosswalk
-        };
-        crosswalk.draw(g, color);
+    for crosswalk in &draw_map.get_i(id).crosswalks {
+        if !hide_crosswalks.contains(&crosswalk.id1) && !hide_crosswalks.contains(&crosswalk.id2) {
+            crosswalk.draw(g, cs.get("crosswalk", Color::WHITE));
+        }
     }
-
     for t in &cycle.priority_turns {
-        let turn = ctx.map.get_t(*t);
+        let turn = map.get_t(*t);
         if !turn.between_sidewalks() {
             draw_full(turn, g, priority_color);
         }
     }
     for t in &cycle.yield_turns {
-        let turn = ctx.map.get_t(*t);
+        let turn = map.get_t(*t);
         if !turn.between_sidewalks() {
             for poly in turn
                 .geom
