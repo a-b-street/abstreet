@@ -128,11 +128,7 @@ impl DrawCrosswalk {
 
         DrawCrosswalk {
             id1: turn.id,
-            id2: TurnID {
-                parent: turn.id.parent,
-                src: turn.id.dst,
-                dst: turn.id.src,
-            },
+            id2: turn.other_crosswalk_id(),
             lines,
         }
     }

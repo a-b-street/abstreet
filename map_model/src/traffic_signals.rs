@@ -69,6 +69,7 @@ impl ControlTrafficSignal {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cycle {
+    pub parent: IntersectionID,
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
     changed: bool,
@@ -95,24 +96,38 @@ impl Cycle {
         }
     }
 
-    pub fn add(&mut self, t: TurnID, pri: TurnPriority) {
-        // should assert parent matches, compatible with cycle so far, not in the current set
+    pub fn add(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
+        let turn = map.get_t(t);
+        assert_eq!(t.parent, self.parent);
+
+        // TODO assert not in the current (maybe other) set
+
         match pri {
             TurnPriority::Priority => {
+                // TODO assert compatible
                 self.priority_turns.insert(t);
-                self.changed = true;
+                if turn.turn_type == TurnType::Crosswalk {
+                    self.priority_turns.insert(turn.other_crosswalk_id());
+                }
             }
             TurnPriority::Yield => {
+                assert_ne!(turn.turn_type, TurnType::Crosswalk);
                 self.yield_turns.insert(t);
-                self.changed = true;
             }
-            TurnPriority::Stop => {}
+            TurnPriority::Stop => {
+                panic!("add {} with Stop priority to a Cycle doesn't make sense", t);
+            }
         }
+        self.changed = true;
     }
 
-    pub fn remove(&mut self, t: TurnID) {
+    pub fn remove(&mut self, t: TurnID, map: &Map) {
         if self.priority_turns.contains(&t) {
             self.priority_turns.remove(&t);
+            let turn = map.get_t(t);
+            if turn.turn_type == TurnType::Crosswalk {
+                self.priority_turns.remove(&turn.other_crosswalk_id());
+            }
         } else if self.yield_turns.contains(&t) {
             self.yield_turns.remove(&t);
         } else {
@@ -156,6 +171,7 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficS
         .map(|t| t.id)
         .collect();
     let mut current_cycle = Cycle {
+        parent: intersection,
         priority_turns: BTreeSet::new(),
         yield_turns: BTreeSet::new(),
         changed: false,
@@ -330,6 +346,7 @@ fn make_cycles(
 
     for specs in cycle_specs.into_iter() {
         let mut cycle = Cycle {
+            parent: i,
             priority_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
             changed: false,

@@ -112,6 +112,14 @@ impl Turn {
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
     }
+    pub fn other_crosswalk_id(&self) -> TurnID {
+        assert_eq!(self.turn_type, TurnType::Crosswalk);
+        TurnID {
+            parent: self.id.parent,
+            src: self.id.dst,
+            dst: self.id.src,
+        }
+    }
 
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));

@@ -110,7 +110,6 @@ impl Plugin for TurnCyclerState {
 
                     draw_signal_cycle(
                         cycle,
-                        *id,
                         g,
                         ctx.cs,
                         ctx.map,

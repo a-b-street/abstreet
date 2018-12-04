@@ -173,7 +173,6 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
 
 pub fn draw_signal_cycle(
     cycle: &Cycle,
-    id: IntersectionID,
     g: &mut GfxCtx,
     cs: &mut ColorScheme,
     map: &Map,
@@ -186,7 +185,7 @@ pub fn draw_signal_cycle(
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    for crosswalk in &draw_map.get_i(id).crosswalks {
+    for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
         if !hide_crosswalks.contains(&crosswalk.id1) && !hide_crosswalks.contains(&crosswalk.id2) {
             crosswalk.draw(g, cs.get("crosswalk", Color::WHITE));
         }

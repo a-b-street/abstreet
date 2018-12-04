@@ -141,20 +141,20 @@ impl Plugin for TrafficSignalEditor {
                                         Key::Backspace,
                                         "remove this turn from this cycle",
                                     ) {
-                                        cycle.remove(id);
+                                        cycle.remove(id, &ctx.primary.map);
                                     }
                                 } else if cycle.could_be_priority_turn(id, &ctx.primary.map) {
                                     if input.key_pressed(
                                         Key::Space,
                                         "add this turn to this cycle as priority",
                                     ) {
-                                        cycle.add(id, TurnPriority::Priority);
+                                        cycle.add(id, TurnPriority::Priority, &ctx.primary.map);
                                     }
                                 } else if cycle.get_priority(id) == TurnPriority::Stop {
                                     if input
                                         .key_pressed(Key::Y, "add this turn to this cycle as yield")
                                     {
-                                        cycle.add(id, TurnPriority::Yield);
+                                        cycle.add(id, TurnPriority::Yield, &ctx.primary.map);
                                     }
                                 }
                             }
@@ -187,7 +187,6 @@ impl Plugin for TrafficSignalEditor {
 
             draw_signal_cycle(
                 &cycles[*current_cycle],
-                *i,
                 g,
                 ctx.cs,
                 ctx.map,
@@ -249,15 +248,7 @@ impl Plugin for TrafficSignalEditor {
                 let mut hide_crosswalks = HashSet::new();
                 hide_crosswalks
                     .extend(cycle.get_absent_crosswalks(ctx.map.get_turns_in_intersection(*i)));
-                draw_signal_cycle(
-                    &cycle,
-                    *i,
-                    g,
-                    ctx.cs,
-                    ctx.map,
-                    ctx.draw_map,
-                    &hide_crosswalks,
-                );
+                draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map, &hide_crosswalks);
 
                 let mut txt = Text::new();
                 txt.add_line(format!("Cycle {}: {}", idx + 1, cycle.duration));
