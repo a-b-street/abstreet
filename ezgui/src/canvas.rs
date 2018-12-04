@@ -90,6 +90,10 @@ impl Canvas {
         text::draw_text_bubble(g, (x - (width / 2.0), y - (height / 2.0)), txt);
     }
 
+    pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, (x, y): (f64, f64)) {
+        text::draw_text_bubble(g, (x, y), txt);
+    }
+
     pub fn draw_text(
         &self,
         g: &mut GfxCtx,

@@ -1,4 +1,4 @@
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
@@ -153,7 +153,7 @@ impl Plugin for TrafficSignalEditor {
                 ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95)),
                 &Polygon::rectangle_topleft(
                     Pt2D::new(10.0, 10.0),
-                    width * zoom,
+                    2.0 * width * zoom,
                     (padding + height) * (cycles.len() as f64) * zoom,
                 ),
             );
@@ -169,7 +169,7 @@ impl Plugin for TrafficSignalEditor {
                         10.0,
                         10.0 + (padding + height) * (*current_cycle as f64) * zoom,
                     ),
-                    width * zoom,
+                    2.0 * width * zoom,
                     (padding + height) * zoom,
                 ),
             );
@@ -194,6 +194,17 @@ impl Plugin for TrafficSignalEditor {
                     ctx.map,
                     ctx.draw_map,
                     &hide_crosswalks,
+                );
+
+                let mut txt = Text::new();
+                txt.add_line(format!("Cycle {}: {}", idx + 1, cycle.duration));
+                ctx.canvas.draw_text_at_screenspace_topleft(
+                    g,
+                    txt,
+                    (
+                        10.0 + (width * zoom),
+                        10.0 + (padding + height) * (idx as f64) * zoom,
+                    ),
                 );
             }
 
