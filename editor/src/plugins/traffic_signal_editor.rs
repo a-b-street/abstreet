@@ -285,31 +285,17 @@ impl Plugin for TrafficSignalEditor {
                 }
                 let cycle = &ctx.map.get_traffic_signal(*i).cycles[*current_cycle];
 
-                let could_be_priority = cycle.could_be_priority_turn(t, ctx.map);
-                match cycle.get_priority(t) {
+                Some(match cycle.get_priority(t) {
                     TurnPriority::Priority => {
-                        Some(ctx.cs.get("priority turn in current cycle", Color::GREEN))
+                        ctx.cs.get("priority turn in current cycle", Color::GREEN)
                     }
-                    TurnPriority::Yield => if could_be_priority {
-                        Some(
-                            ctx.cs
-                                .get("yield turn that could be priority turn", Color::YELLOW),
-                        )
-                    } else {
-                        Some(
-                            ctx.cs
-                                .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                        )
-                    },
-                    TurnPriority::Stop => if could_be_priority {
-                        Some(ctx.cs.get("stop turn that could be priority", Color::RED))
-                    } else {
-                        Some(
-                            ctx.cs
-                                .get("turn conflicts with current cycle", Color::BLACK),
-                        )
-                    },
-                }
+                    TurnPriority::Yield => ctx
+                        .cs
+                        .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
+                    TurnPriority::Stop => ctx
+                        .cs
+                        .get("turn conflicts with current cycle", Color::BLACK),
+                })
             }
             _ => None,
         }
