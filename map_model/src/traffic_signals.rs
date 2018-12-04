@@ -13,6 +13,7 @@ const CYCLE_DURATION: si::Second<f64> = si::Second {
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub cycles: Vec<Cycle>,
+    pub(crate) changed: bool,
 }
 
 impl ControlTrafficSignal {
@@ -23,7 +24,7 @@ impl ControlTrafficSignal {
     }
 
     pub fn is_changed(&self) -> bool {
-        self.cycles.iter().find(|c| c.changed).is_some()
+        self.changed
     }
 
     pub fn current_cycle_and_remaining_time(
@@ -87,11 +88,19 @@ pub struct Cycle {
     pub parent: IntersectionID,
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
-    changed: bool,
     pub duration: si::Second<f64>,
 }
 
 impl Cycle {
+    pub fn new(parent: IntersectionID) -> Cycle {
+        Cycle {
+            parent,
+            priority_turns: BTreeSet::new(),
+            yield_turns: BTreeSet::new(),
+            duration: CYCLE_DURATION,
+        }
+    }
+
     pub fn could_be_priority_turn(&self, t1: TurnID, map: &Map) -> bool {
         let turn1 = map.get_t(t1);
         for t2 in &self.priority_turns {
@@ -145,11 +154,9 @@ impl Cycle {
             }
             TurnPriority::Stop => {}
         }
-        self.changed = true;
     }
 
     pub fn edit_duration(&mut self, new_duration: si::Second<f64>) {
-        self.changed = true;
         self.duration = new_duration;
     }
 
@@ -180,13 +187,7 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficS
         .iter()
         .map(|t| t.id)
         .collect();
-    let mut current_cycle = Cycle {
-        parent: intersection,
-        priority_turns: BTreeSet::new(),
-        yield_turns: BTreeSet::new(),
-        changed: false,
-        duration: CYCLE_DURATION,
-    };
+    let mut current_cycle = Cycle::new(intersection);
     loop {
         let add_turn = remaining_turns
             .iter()
@@ -212,6 +213,7 @@ fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficS
     ControlTrafficSignal {
         id: intersection,
         cycles,
+        changed: false,
     }
 }
 
@@ -303,7 +305,11 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         ],
     );
 
-    ControlTrafficSignal { id: i, cycles }
+    ControlTrafficSignal {
+        id: i,
+        cycles,
+        changed: false,
+    }
 }
 
 fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
@@ -344,7 +350,11 @@ fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         ],
     );
 
-    ControlTrafficSignal { id: i, cycles }
+    ControlTrafficSignal {
+        id: i,
+        cycles,
+        changed: false,
+    }
 }
 
 fn make_cycles(
@@ -355,13 +365,7 @@ fn make_cycles(
     let mut cycles: Vec<Cycle> = Vec::new();
 
     for specs in cycle_specs.into_iter() {
-        let mut cycle = Cycle {
-            parent: i,
-            priority_turns: BTreeSet::new(),
-            yield_turns: BTreeSet::new(),
-            changed: false,
-            duration: CYCLE_DURATION,
-        };
+        let mut cycle = Cycle::new(i);
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for turn in map.get_turns_in_intersection(i) {

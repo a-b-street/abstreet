@@ -1,7 +1,7 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text, Wizard};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{IntersectionID, TurnID, TurnPriority, TurnType};
+use map_model::{Cycle, IntersectionID, TurnID, TurnPriority, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -163,6 +163,30 @@ impl Plugin for TrafficSignalEditor {
 
                     if input.key_pressed(Key::D, "change cycle duration") {
                         *cycle_duration_wizard = Some(Wizard::new());
+                    }
+
+                    let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
+                    if *current_cycle != 0 && input.key_pressed(Key::K, "move current cycle up") {
+                        signal.cycles.swap(*current_cycle, *current_cycle - 1);
+                        *current_cycle -= 1;
+                        ctx.primary.map.edit_traffic_signal(signal);
+                    } else if *current_cycle != signal.cycles.len() - 1
+                        && input.key_pressed(Key::J, "move current cycle down")
+                    {
+                        signal.cycles.swap(*current_cycle, *current_cycle + 1);
+                        *current_cycle += 1;
+                        ctx.primary.map.edit_traffic_signal(signal);
+                    } else if signal.cycles.len() > 1
+                        && input.key_pressed(Key::Backspace, "delete current cycle")
+                    {
+                        signal.cycles.remove(*current_cycle);
+                        if *current_cycle == signal.cycles.len() {
+                            *current_cycle -= 1;
+                        }
+                        ctx.primary.map.edit_traffic_signal(signal);
+                    } else if input.key_pressed(Key::N, "add a new empty cycle") {
+                        signal.cycles.insert(*current_cycle, Cycle::new(*i));
+                        ctx.primary.map.edit_traffic_signal(signal);
                     }
                 }
             }

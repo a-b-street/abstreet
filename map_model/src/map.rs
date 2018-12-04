@@ -354,7 +354,8 @@ impl Map {
         self.stop_signs.insert(sign.id, sign);
     }
 
-    pub fn edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
+    pub fn edit_traffic_signal(&mut self, mut signal: ControlTrafficSignal) {
+        signal.changed = true;
         self.edits.traffic_signals.insert(signal.id, signal.clone());
         self.traffic_signals.insert(signal.id, signal);
     }
