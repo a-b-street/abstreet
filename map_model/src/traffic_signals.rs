@@ -38,6 +38,8 @@ impl ControlTrafficSignal {
     }
 
     fn validate(&self, map: &Map) -> Result<(), Error> {
+        // TODO Reuse assertions from edit_turn.
+
         // Does the assignment cover the correct set of turns?
         let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
         let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
@@ -49,8 +51,8 @@ impl ControlTrafficSignal {
             return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns), actual_turns.difference(&expected_turns))));
         }
 
-        // Do any of the priority turns in one cycle conflict?
         for cycle in &self.cycles {
+            // Do any of the priority turns in one cycle conflict?
             for t1 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
                 for t2 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
                     if t1.conflicts_with(t2) {
@@ -59,6 +61,19 @@ impl ControlTrafficSignal {
                             t1, t2
                         )));
                     }
+                }
+            }
+
+            // Do any of the crosswalks yield? Are all of the SharedSidewalkCorner prioritized?
+            for t in map.get_turns_in_intersection(self.id) {
+                match t.turn_type {
+                    TurnType::Crosswalk => {
+                        assert!(!cycle.yield_turns.contains(&t.id));
+                    }
+                    TurnType::SharedSidewalkCorner => {
+                        assert!(cycle.priority_turns.contains(&t.id));
+                    }
+                    _ => {}
                 }
             }
         }
@@ -118,7 +133,7 @@ impl Cycle {
         // Now add to the new set
         match pri {
             TurnPriority::Priority => {
-                // TODO assert compatible
+                assert!(self.could_be_priority_turn(t, map));
                 self.priority_turns.insert(t);
                 if turn.turn_type == TurnType::Crosswalk {
                     self.priority_turns.insert(turn.other_crosswalk_id());
