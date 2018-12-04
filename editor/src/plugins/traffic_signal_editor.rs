@@ -102,15 +102,36 @@ impl Plugin for TrafficSignalEditor {
                     } else if cycle_duration_wizard.as_ref().unwrap().aborted() {
                         *cycle_duration_wizard = None;
                     }
-                } else if input.key_pressed(Key::Return, "quit the editor") {
-                    new_state = Some(TrafficSignalEditor::Inactive);
-                } else {
-                    *icon_selected = match selected {
-                        Some(ID::Turn(id)) => Some(id),
-                        _ => None,
-                    };
+                } else if let Some(ID::Turn(id)) = selected {
+                    // We know this turn belongs to the current intersection, because we're only
+                    // showing icons for this one.
+                    *icon_selected = Some(id);
 
-                    // Change cycles
+                    let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
+                    {
+                        let cycle = &mut signal.cycles[*current_cycle];
+                        if cycle.get_priority(id) != TurnPriority::Stop
+                            && input.key_pressed(Key::Backspace, "remove this turn from this cycle")
+                        {
+                            cycle.edit_turn(id, TurnPriority::Stop, &ctx.primary.map);
+                        } else if cycle.could_be_priority_turn(id, &ctx.primary.map) && input
+                            .key_pressed(Key::Space, "add this turn to this cycle as priority")
+                        {
+                            cycle.edit_turn(id, TurnPriority::Priority, &ctx.primary.map);
+                        } else if cycle.could_be_yield_turn(id, &ctx.primary.map) && input
+                            .key_pressed(Key::Y, "add this turn to this cycle as yield")
+                        {
+                            cycle.edit_turn(id, TurnPriority::Yield, &ctx.primary.map);
+                        }
+                    }
+
+                    ctx.primary.map.edit_traffic_signal(signal);
+                } else {
+                    *icon_selected = None;
+                    if input.key_pressed(Key::Return, "quit the editor") {
+                        new_state = Some(TrafficSignalEditor::Inactive);
+                    }
+
                     {
                         let cycles = &ctx.primary.map.get_traffic_signal(*i).cycles;
                         if let Some(n) = input.number_chosen(
@@ -128,33 +149,6 @@ impl Plugin for TrafficSignalEditor {
 
                     if input.key_pressed(Key::D, "change cycle duration") {
                         *cycle_duration_wizard = Some(Wizard::new());
-                    }
-
-                    // Change turns
-                    if let Some(ID::Turn(id)) = selected {
-                        if id.parent == *i {
-                            let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
-                            {
-                                let cycle = &mut signal.cycles[*current_cycle];
-                                if cycle.get_priority(id) != TurnPriority::Stop && input
-                                    .key_pressed(Key::Backspace, "remove this turn from this cycle")
-                                {
-                                    cycle.edit_turn(id, TurnPriority::Stop, &ctx.primary.map);
-                                } else if cycle.could_be_priority_turn(id, &ctx.primary.map)
-                                    && input.key_pressed(
-                                        Key::Space,
-                                        "add this turn to this cycle as priority",
-                                    ) {
-                                    cycle.edit_turn(id, TurnPriority::Priority, &ctx.primary.map);
-                                } else if cycle.could_be_yield_turn(id, &ctx.primary.map) && input
-                                    .key_pressed(Key::Y, "add this turn to this cycle as yield")
-                                {
-                                    cycle.edit_turn(id, TurnPriority::Yield, &ctx.primary.map);
-                                }
-                            }
-
-                            ctx.primary.map.edit_traffic_signal(signal);
-                        }
                     }
                 }
             }
