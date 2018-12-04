@@ -110,18 +110,32 @@ impl Plugin for TrafficSignalEditor {
                     let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
                     {
                         let cycle = &mut signal.cycles[*current_cycle];
-                        if cycle.get_priority(id) != TurnPriority::Stop
-                            && input.key_pressed(Key::Backspace, "remove this turn from this cycle")
-                        {
-                            cycle.edit_turn(id, TurnPriority::Stop, &ctx.primary.map);
-                        } else if cycle.could_be_priority_turn(id, &ctx.primary.map) && input
-                            .key_pressed(Key::Space, "add this turn to this cycle as priority")
-                        {
-                            cycle.edit_turn(id, TurnPriority::Priority, &ctx.primary.map);
-                        } else if cycle.could_be_yield_turn(id, &ctx.primary.map) && input
-                            .key_pressed(Key::Y, "add this turn to this cycle as yield")
-                        {
-                            cycle.edit_turn(id, TurnPriority::Yield, &ctx.primary.map);
+                        // Just one key to toggle between the 3 states
+                        let next_priority = match cycle.get_priority(id) {
+                            TurnPriority::Stop => {
+                                if ctx.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
+                                    if cycle.could_be_priority_turn(id, &ctx.primary.map) {
+                                        Some(TurnPriority::Priority)
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    Some(TurnPriority::Yield)
+                                }
+                            }
+                            TurnPriority::Yield => {
+                                if cycle.could_be_priority_turn(id, &ctx.primary.map) {
+                                    Some(TurnPriority::Priority)
+                                } else {
+                                    Some(TurnPriority::Stop)
+                                }
+                            }
+                            TurnPriority::Priority => Some(TurnPriority::Stop),
+                        };
+                        if let Some(pri) = next_priority {
+                            if input.key_pressed(Key::Space, &format!("make {:?} {:?}", id, pri)) {
+                                cycle.edit_turn(id, pri, &ctx.primary.map);
+                            }
                         }
                     }
 

@@ -87,10 +87,6 @@ impl Cycle {
         true
     }
 
-    pub fn could_be_yield_turn(&self, t: TurnID, map: &Map) -> bool {
-        !self.yield_turns.contains(&t) && map.get_t(t).turn_type != TurnType::Crosswalk
-    }
-
     pub fn get_priority(&self, t: TurnID) -> TurnPriority {
         if self.priority_turns.contains(&t) {
             TurnPriority::Priority
