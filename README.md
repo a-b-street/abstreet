@@ -8,3 +8,7 @@ to this work, but is otherwise unaffiliated with it.
 
 This is currently an experimental project. Please contact me at
 <dabreegster@gmail.com> if you're interested in the premise of this game.
+
+![traffic signal UI](docs/demos/traffic_signals.gif)
+
+![agents moving](docs/demos/movement.gif)
