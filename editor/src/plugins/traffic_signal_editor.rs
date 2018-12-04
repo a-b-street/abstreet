@@ -1,7 +1,7 @@
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Text, Wizard};
+use ezgui::{Color, GfxCtx, Text, Wizard, WrappedWizard};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{Cycle, IntersectionID, TurnID, TurnPriority, TurnType};
+use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -13,7 +13,10 @@ pub enum TrafficSignalEditor {
     Active {
         i: IntersectionID,
         current_cycle: usize,
+        // The Wizard states are nested under here to remember things like current_cycle and keep
+        // drawing stuff. Better way to represent nested states?
         cycle_duration_wizard: Option<Wizard>,
+        preset_wizard: Option<Wizard>,
         icon_selected: Option<TurnID>,
     },
 }
@@ -50,6 +53,7 @@ impl Plugin for TrafficSignalEditor {
                             i: id,
                             current_cycle: 0,
                             cycle_duration_wizard: None,
+                            preset_wizard: None,
                             icon_selected: None,
                         };
                         return true;
@@ -66,6 +70,7 @@ impl Plugin for TrafficSignalEditor {
                 i,
                 current_cycle,
                 ref mut cycle_duration_wizard,
+                ref mut preset_wizard,
                 ref mut icon_selected,
             } => {
                 ctx.hints.suppress_traffic_signal_icon = Some(*i);
@@ -101,6 +106,17 @@ impl Plugin for TrafficSignalEditor {
                         *cycle_duration_wizard = None;
                     } else if cycle_duration_wizard.as_ref().unwrap().aborted() {
                         *cycle_duration_wizard = None;
+                    }
+                } else if preset_wizard.is_some() {
+                    if let Some(new_signal) = choose_preset(
+                        &ctx.primary.map,
+                        *i,
+                        preset_wizard.as_mut().unwrap().wrap(input),
+                    ) {
+                        ctx.primary.map.edit_traffic_signal(new_signal);
+                        *preset_wizard = None;
+                    } else if preset_wizard.as_ref().unwrap().aborted() {
+                        *preset_wizard = None;
                     }
                 } else if let Some(ID::Turn(id)) = selected {
                     // We know this turn belongs to the current intersection, because we're only
@@ -163,6 +179,8 @@ impl Plugin for TrafficSignalEditor {
 
                     if input.key_pressed(Key::D, "change cycle duration") {
                         *cycle_duration_wizard = Some(Wizard::new());
+                    } else if input.key_pressed(Key::P, "choose a preset for this intersection") {
+                        *preset_wizard = Some(Wizard::new());
                     }
 
                     let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
@@ -188,6 +206,7 @@ impl Plugin for TrafficSignalEditor {
                         signal.cycles.insert(*current_cycle, Cycle::new(*i));
                         ctx.primary.map.edit_traffic_signal(signal);
                     }
+                    // TODO Add a pedestrian scramble cycle
                 }
             }
         };
@@ -206,6 +225,7 @@ impl Plugin for TrafficSignalEditor {
             i,
             current_cycle,
             cycle_duration_wizard,
+            preset_wizard,
             icon_selected,
         } = self
         {
@@ -300,6 +320,8 @@ impl Plugin for TrafficSignalEditor {
 
             if let Some(wizard) = cycle_duration_wizard {
                 wizard.draw(g, ctx.canvas);
+            } else if let Some(wizard) = preset_wizard {
+                wizard.draw(g, ctx.canvas);
             }
         }
     }
@@ -332,4 +354,32 @@ impl Plugin for TrafficSignalEditor {
             _ => None,
         }
     }
+}
+
+fn choose_preset(
+    map: &Map,
+    id: IntersectionID,
+    mut wizard: WrappedWizard,
+) -> Option<ControlTrafficSignal> {
+    // TODO I wanted to do all of this work just once per wizard, but we can't touch map inside a
+    // closure. Grr.
+    let mut choices: Vec<(String, ControlTrafficSignal)> = Vec::new();
+    if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
+        choices.push(("4-phase".to_string(), ts));
+    }
+    if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
+        choices.push(("2-phase".to_string(), ts));
+    }
+    if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
+        choices.push(("2-phase".to_string(), ts));
+    }
+    if let Some(ts) = ControlTrafficSignal::greedy_assignment(map, id) {
+        choices.push(("arbitrary assignment".to_string(), ts));
+    }
+
+    wizard
+        .choose_something::<ControlTrafficSignal>(
+            "Use which preset for this intersection?",
+            Box::new(move || choices.clone()),
+        ).map(|(_, ts)| ts)
 }

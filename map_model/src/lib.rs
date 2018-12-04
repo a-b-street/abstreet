@@ -56,5 +56,6 @@ pub use turn::{Turn, TurnID, TurnPriority, TurnType};
 
 pub const LANE_THICKNESS: f64 = 2.5;
 
+impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
 impl Cloneable for MapEdits {}

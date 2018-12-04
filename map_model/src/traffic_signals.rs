@@ -18,9 +18,13 @@ pub struct ControlTrafficSignal {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
-        let ts = smart_assignment(map, id);
-        ts.validate(map).unwrap();
-        ts
+        if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
+            ts
+        } else if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
+            ts
+        } else {
+            ControlTrafficSignal::greedy_assignment(map, id).unwrap()
+        }
     }
 
     pub fn is_changed(&self) -> bool {
@@ -80,6 +84,220 @@ impl ControlTrafficSignal {
         }
 
         Ok(())
+    }
+
+    pub fn greedy_assignment(
+        map: &Map,
+        intersection: IntersectionID,
+    ) -> Option<ControlTrafficSignal> {
+        if map.get_turns_in_intersection(intersection).is_empty() {
+            panic!("{} has no turns", intersection);
+        }
+
+        let mut cycles = Vec::new();
+
+        // Greedily partition turns into cycles. More clever things later. No yields.
+        let mut remaining_turns: Vec<TurnID> = map
+            .get_turns_in_intersection(intersection)
+            .iter()
+            .map(|t| t.id)
+            .collect();
+        let mut current_cycle = Cycle::new(intersection);
+        loop {
+            let add_turn = remaining_turns
+                .iter()
+                .position(|&t| current_cycle.could_be_priority_turn(t, map));
+            match add_turn {
+                Some(idx) => {
+                    current_cycle
+                        .priority_turns
+                        .insert(remaining_turns.remove(idx));
+                }
+                None => {
+                    cycles.push(current_cycle.clone());
+                    current_cycle.priority_turns.clear();
+                    if remaining_turns.is_empty() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        expand_all_cycles(&mut cycles, map, intersection);
+
+        let ts = ControlTrafficSignal {
+            id: intersection,
+            cycles,
+            changed: false,
+        };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
+    }
+
+    pub fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        if map.get_i(i).roads.len() != 3 {
+            return None;
+        }
+
+        // Picture a T intersection. Use turn angles to figure out the "main" two roads.
+        let straight_turn = map
+            .get_turns_in_intersection(i)
+            .into_iter()
+            .find(|t| t.turn_type == TurnType::Straight)
+            .unwrap();
+        let (north, south) = (
+            map.get_l(straight_turn.id.src).parent,
+            map.get_l(straight_turn.id.dst).parent,
+        );
+        let mut roads = map.get_i(i).roads.clone();
+        roads.remove(&north);
+        roads.remove(&south);
+        let east = roads.into_iter().next().unwrap();
+
+        // Two-phase with no protected lefts, right turn on red, turning cars yield to peds
+        let cycles = make_cycles(
+            map,
+            i,
+            vec![
+                vec![
+                    (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Left, YIELD),
+                    (vec![east], TurnType::Right, YIELD),
+                    (vec![east], TurnType::Crosswalk, PROTECTED),
+                ],
+                vec![
+                    (vec![east], TurnType::Straight, PROTECTED),
+                    (vec![east], TurnType::Right, YIELD),
+                    (vec![east], TurnType::Left, YIELD),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Crosswalk, PROTECTED),
+                ],
+            ],
+        );
+
+        let ts = ControlTrafficSignal {
+            id: i,
+            cycles,
+            changed: false,
+        };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
+    }
+
+    pub fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        if map.get_i(i).roads.len() != 4 {
+            return None;
+        }
+
+        // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+        let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
+
+        // Two-phase with no protected lefts, right turn on red, peds yielding to cars
+        /*let cycles = make_cycles(
+            map,
+            i,
+            vec![
+                vec![
+                    (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::Right, PROTECTED),
+                    (vec![north, south], TurnType::Left, YIELD),
+                    (vec![east, west], TurnType::Right, YIELD),
+                    (vec![east, west], TurnType::Crosswalk, YIELD),
+                ],
+                vec![
+                    (vec![east, west], TurnType::Straight, PROTECTED),
+                    (vec![east, west], TurnType::Right, PROTECTED),
+                    (vec![east, west], TurnType::Left, YIELD),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Crosswalk, YIELD),
+                ],
+            ],
+        );*/
+
+        // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
+        // cars yield to peds
+        let cycles = make_cycles(
+            map,
+            i,
+            vec![
+                vec![
+                    (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![east, west], TurnType::Right, YIELD),
+                    (vec![east, west], TurnType::Crosswalk, PROTECTED),
+                ],
+                vec![(vec![north, south], TurnType::Left, PROTECTED)],
+                vec![
+                    (vec![east, west], TurnType::Straight, PROTECTED),
+                    (vec![east, west], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Crosswalk, PROTECTED),
+                ],
+                vec![(vec![east, west], TurnType::Left, PROTECTED)],
+            ],
+        );
+
+        let ts = ControlTrafficSignal {
+            id: i,
+            cycles,
+            changed: false,
+        };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
+    }
+
+    pub fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        if map.get_i(i).roads.len() != 4 {
+            return None;
+        }
+
+        // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+        let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
+
+        // Two-phase with no protected lefts, right turn on red, turning cars yielding to peds
+        let cycles = make_cycles(
+            map,
+            i,
+            vec![
+                vec![
+                    (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Left, YIELD),
+                    (vec![east, west], TurnType::Right, YIELD),
+                    (vec![east, west], TurnType::Crosswalk, PROTECTED),
+                ],
+                vec![
+                    (vec![east, west], TurnType::Straight, PROTECTED),
+                    (vec![east, west], TurnType::Right, YIELD),
+                    (vec![east, west], TurnType::Left, YIELD),
+                    (vec![north, south], TurnType::Right, YIELD),
+                    (vec![north, south], TurnType::Crosswalk, PROTECTED),
+                ],
+            ],
+        );
+
+        let ts = ControlTrafficSignal {
+            id: i,
+            cycles,
+            changed: false,
+        };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
     }
 }
 
@@ -174,49 +392,6 @@ impl Cycle {
     }
 }
 
-fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
-    if map.get_turns_in_intersection(intersection).is_empty() {
-        panic!("{} has no turns", intersection);
-    }
-
-    let mut cycles = Vec::new();
-
-    // Greedily partition turns into cycles. More clever things later. No yields.
-    let mut remaining_turns: Vec<TurnID> = map
-        .get_turns_in_intersection(intersection)
-        .iter()
-        .map(|t| t.id)
-        .collect();
-    let mut current_cycle = Cycle::new(intersection);
-    loop {
-        let add_turn = remaining_turns
-            .iter()
-            .position(|&t| current_cycle.could_be_priority_turn(t, map));
-        match add_turn {
-            Some(idx) => {
-                current_cycle
-                    .priority_turns
-                    .insert(remaining_turns.remove(idx));
-            }
-            None => {
-                cycles.push(current_cycle.clone());
-                current_cycle.priority_turns.clear();
-                if remaining_turns.is_empty() {
-                    break;
-                }
-            }
-        }
-    }
-
-    expand_all_cycles(&mut cycles, map, intersection);
-
-    ControlTrafficSignal {
-        id: intersection,
-        cycles,
-        changed: false,
-    }
-}
-
 // Add all legal priority turns to existing cycles.
 fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: IntersectionID) {
     let all_turns: Vec<TurnID> = map
@@ -233,129 +408,8 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
     }
 }
 
-fn smart_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    let num_roads = map.get_i(i).roads.len();
-    let ts = if num_roads == 3 {
-        three_way(map, i)
-    } else if num_roads == 4 {
-        four_way(map, i)
-    } else {
-        return greedy_assignment(map, i);
-    };
-
-    match ts.validate(map) {
-        Ok(()) => ts,
-        Err(err) => {
-            warn!("For {}: {}", i, err);
-            greedy_assignment(map, i)
-        }
-    }
-}
-
 const PROTECTED: bool = true;
 const YIELD: bool = false;
-
-fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
-    let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
-    let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
-
-    // Two-phase with no protected lefts, right turn on red, peds yielding to cars
-    /*let cycles = make_cycles(
-        map,
-        i,
-        vec![
-            vec![
-                (vec![north, south], TurnType::Straight, PROTECTED),
-                (vec![north, south], TurnType::Right, PROTECTED),
-                (vec![north, south], TurnType::Left, YIELD),
-                (vec![east, west], TurnType::Right, YIELD),
-                (vec![east, west], TurnType::Crosswalk, YIELD),
-            ],
-            vec![
-                (vec![east, west], TurnType::Straight, PROTECTED),
-                (vec![east, west], TurnType::Right, PROTECTED),
-                (vec![east, west], TurnType::Left, YIELD),
-                (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, YIELD),
-            ],
-        ],
-    );*/
-
-    // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
-    // cars yield to peds
-    let cycles = make_cycles(
-        map,
-        i,
-        vec![
-            vec![
-                (vec![north, south], TurnType::Straight, PROTECTED),
-                (vec![north, south], TurnType::Right, YIELD),
-                (vec![east, west], TurnType::Right, YIELD),
-                (vec![east, west], TurnType::Crosswalk, PROTECTED),
-            ],
-            vec![(vec![north, south], TurnType::Left, PROTECTED)],
-            vec![
-                (vec![east, west], TurnType::Straight, PROTECTED),
-                (vec![east, west], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, PROTECTED),
-            ],
-            vec![(vec![east, west], TurnType::Left, PROTECTED)],
-        ],
-    );
-
-    ControlTrafficSignal {
-        id: i,
-        cycles,
-        changed: false,
-    }
-}
-
-fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    // Picture a T intersection. Use turn angles to figure out the "main" two roads.
-    let straight_turn = map
-        .get_turns_in_intersection(i)
-        .into_iter()
-        .find(|t| t.turn_type == TurnType::Straight)
-        .unwrap();
-    let (north, south) = (
-        map.get_l(straight_turn.id.src).parent,
-        map.get_l(straight_turn.id.dst).parent,
-    );
-    let mut roads = map.get_i(i).roads.clone();
-    roads.remove(&north);
-    roads.remove(&south);
-    let east = roads.into_iter().next().unwrap();
-
-    // Two-phase with no protected lefts, right turn on red, turning cars yield to peds
-    let cycles = make_cycles(
-        map,
-        i,
-        vec![
-            vec![
-                (vec![north, south], TurnType::Straight, PROTECTED),
-                (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Left, YIELD),
-                (vec![east], TurnType::Right, YIELD),
-                (vec![east], TurnType::Crosswalk, PROTECTED),
-            ],
-            vec![
-                (vec![east], TurnType::Straight, PROTECTED),
-                (vec![east], TurnType::Right, YIELD),
-                (vec![east], TurnType::Left, YIELD),
-                (vec![north, south], TurnType::Right, YIELD),
-                (vec![north, south], TurnType::Crosswalk, PROTECTED),
-            ],
-        ],
-    );
-
-    ControlTrafficSignal {
-        id: i,
-        cycles,
-        changed: false,
-    }
-}
 
 fn make_cycles(
     map: &Map,
