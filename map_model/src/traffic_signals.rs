@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 use {IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
-    value_unsafe: 15.0,
+    value_unsafe: 30.0,
     _marker: std::marker::PhantomData,
 };
 
@@ -121,6 +121,11 @@ impl Cycle {
                 self, t
             );
         }
+    }
+
+    pub fn edit_duration(&mut self, new_duration: si::Second<f64>) {
+        self.changed = true;
+        self.duration = new_duration;
     }
 
     pub fn get_absent_crosswalks(&self, turns: Vec<&Turn>) -> Vec<TurnID> {

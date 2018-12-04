@@ -141,6 +141,14 @@ impl<'a> WrappedWizard<'a> {
         self.input_something(query, None, Box::new(|line| line.parse::<usize>().ok()))
     }
 
+    pub fn input_usize_prefilled(&mut self, query: &str, prefilled: String) -> Option<usize> {
+        self.input_something(
+            query,
+            Some(prefilled),
+            Box::new(|line| line.parse::<usize>().ok()),
+        )
+    }
+
     pub fn input_percent(&mut self, query: &str) -> Option<f64> {
         self.input_something(
             query,

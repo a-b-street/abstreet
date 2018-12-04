@@ -1,4 +1,5 @@
-use ezgui::{Color, GfxCtx, Text};
+use dimensioned::si;
+use ezgui::{Color, GfxCtx, Text, Wizard};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
@@ -7,12 +8,12 @@ use plugins::{Plugin, PluginCtx};
 use render::draw_signal_cycle;
 use std::collections::HashSet;
 
-#[derive(PartialEq)]
 pub enum TrafficSignalEditor {
     Inactive,
     Active {
         i: IntersectionID,
         current_cycle: usize,
+        cycle_duration_wizard: Option<Wizard>,
     },
 }
 
@@ -27,7 +28,11 @@ impl Plugin for TrafficSignalEditor {
         let input = ctx.input;
         let selected = ctx.primary.current_selection;
 
-        if *self == TrafficSignalEditor::Inactive {
+        let inactive = match self {
+            TrafficSignalEditor::Inactive => true,
+            _ => false,
+        };
+        if inactive {
             match selected {
                 Some(ID::Intersection(id)) => {
                     if ctx.primary.map.maybe_get_traffic_signal(id).is_some()
@@ -36,6 +41,7 @@ impl Plugin for TrafficSignalEditor {
                         *self = TrafficSignalEditor::Active {
                             i: id,
                             current_cycle: 0,
+                            cycle_duration_wizard: None,
                         };
                         return true;
                     }
@@ -47,16 +53,41 @@ impl Plugin for TrafficSignalEditor {
         let mut new_state: Option<TrafficSignalEditor> = None;
         match self {
             TrafficSignalEditor::Inactive => {}
-            TrafficSignalEditor::Active { i, current_cycle } => {
-                if input.key_pressed(Key::Return, "quit the editor") {
+            TrafficSignalEditor::Active {
+                i,
+                current_cycle,
+                ref mut cycle_duration_wizard,
+            } => {
+                ctx.hints.suppress_traffic_signal_icon = Some(*i);
+                ctx.hints.hide_crosswalks.extend(
+                    ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
+                        .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),
+                );
+
+                if cycle_duration_wizard.is_some() {
+                    if let Some(new_duration) = cycle_duration_wizard
+                        .as_mut()
+                        .unwrap()
+                        .wrap(input)
+                        .input_usize_prefilled(
+                            "How long should this cycle be?",
+                            format!(
+                                "{}",
+                                ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
+                                    .duration
+                                    .value_unsafe as usize
+                            ),
+                        ) {
+                        let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
+                        signal.cycles[*current_cycle].edit_duration((new_duration as f64) * si::S);
+                        ctx.primary.map.edit_traffic_signal(signal);
+                        *cycle_duration_wizard = None;
+                    } else if cycle_duration_wizard.as_ref().unwrap().aborted() {
+                        *cycle_duration_wizard = None;
+                    }
+                } else if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(TrafficSignalEditor::Inactive);
                 } else {
-                    ctx.hints.suppress_traffic_signal_icon = Some(*i);
-                    ctx.hints.hide_crosswalks.extend(
-                        ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
-                            .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),
-                    );
-
                     // Change cycles
                     {
                         let cycles = &ctx.primary.map.get_traffic_signal(*i).cycles;
@@ -71,6 +102,10 @@ impl Plugin for TrafficSignalEditor {
                         ) {
                             *current_cycle = n - 1;
                         }
+                    }
+
+                    if input.key_pressed(Key::D, "change cycle duration") {
+                        *cycle_duration_wizard = Some(Wizard::new());
                     }
 
                     // Change turns
@@ -119,7 +154,12 @@ impl Plugin for TrafficSignalEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        if let TrafficSignalEditor::Active { i, current_cycle } = self {
+        if let TrafficSignalEditor::Active {
+            i,
+            current_cycle,
+            cycle_duration_wizard,
+        } = self
+        {
             let cycles = &ctx.map.get_traffic_signal(*i).cycles;
 
             draw_signal_cycle(
@@ -209,6 +249,10 @@ impl Plugin for TrafficSignalEditor {
             }
 
             g.unfork(old_ctx);
+
+            if let Some(wizard) = cycle_duration_wizard {
+                wizard.draw(g, ctx.canvas);
+            }
         }
     }
 }
