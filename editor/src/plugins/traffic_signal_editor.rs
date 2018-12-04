@@ -132,6 +132,7 @@ impl Plugin for TrafficSignalEditor {
 
             // Draw all of the cycles off to the side
             let padding = 5.0;
+            let zoom = 10.0;
             let (top_left, width, height) = {
                 let mut b = Bounds::new();
                 for pt in &ctx.map.get_i(*i).polygon {
@@ -145,26 +146,54 @@ impl Plugin for TrafficSignalEditor {
                 )
             };
 
-            let panel_color = ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95));
-            let old_ctx = g.fork(top_left, 15.0);
+            let panel_bg_color = ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95));
+            let panel_selected_color = ctx.cs.get(
+                "current cycle in signal editor panel",
+                Color::BLUE.alpha(0.95),
+            );
+            let old_ctx = g.fork_screenspace();
             g.draw_polygon(
-                panel_color,
+                panel_bg_color,
                 &Polygon::rectangle_topleft(
-                    top_left,
-                    width,
-                    (padding + height) * (cycles.len() as f64),
+                    Pt2D::new(10.0, 10.0),
+                    width * zoom,
+                    (padding + height) * (cycles.len() as f64) * zoom,
+                ),
+            );
+            // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
+            // center a map-space thing inside a screen-space box.
+            g.draw_polygon(
+                panel_selected_color,
+                &Polygon::rectangle_topleft(
+                    Pt2D::new(
+                        10.0,
+                        10.0 + (padding + height) * (*current_cycle as f64) * zoom,
+                    ),
+                    width * zoom,
+                    (padding + height) * zoom,
                 ),
             );
 
             for (idx, cycle) in cycles.iter().enumerate() {
                 g.fork(
+                    // TODO Apply the offset here too?
                     Pt2D::new(
                         top_left.x(),
                         top_left.y() - height * (idx as f64) - padding * ((idx as f64) + 1.0),
                     ),
-                    10.0,
+                    zoom,
                 );
-                draw_signal_cycle(cycle, *i, panel_color, g, &mut ctx);
+                draw_signal_cycle(
+                    cycle,
+                    *i,
+                    if idx == *current_cycle {
+                        panel_selected_color
+                    } else {
+                        panel_bg_color
+                    },
+                    g,
+                    &mut ctx,
+                );
             }
 
             g.unfork(old_ctx);
