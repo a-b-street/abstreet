@@ -220,13 +220,15 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         i,
         vec![
             vec![
-                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Straight, PROTECTED),
+                (vec![north, south], Turns::Right, PROTECTED),
                 (vec![north, south], Turns::Left, YIELD),
                 (vec![east, west], Turns::Right, YIELD),
                 (vec![east, west], Turns::Crosswalk, YIELD),
             ],
             vec![
-                (vec![east, west], Turns::StraightAndRight, PROTECTED),
+                (vec![east, west], Turns::Straight, PROTECTED),
+                (vec![east, west], Turns::Right, PROTECTED),
                 (vec![east, west], Turns::Left, YIELD),
                 (vec![north, south], Turns::Right, YIELD),
                 (vec![north, south], Turns::Crosswalk, YIELD),
@@ -234,22 +236,24 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         ],
     );*/
 
-    // Four-phase with protected lefts, right turn on red (except for the protected lefts), peds
-    // yielding to cars
+    // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
+    // cars yield to peds
     let cycles = make_cycles(
         map,
         i,
         vec![
             vec![
-                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Straight, PROTECTED),
+                (vec![north, south], Turns::Right, YIELD),
                 (vec![east, west], Turns::Right, YIELD),
-                (vec![east, west], Turns::Crosswalk, YIELD),
+                (vec![east, west], Turns::Crosswalk, PROTECTED),
             ],
             vec![(vec![north, south], Turns::Left, PROTECTED)],
             vec![
-                (vec![east, west], Turns::StraightAndRight, PROTECTED),
+                (vec![east, west], Turns::Straight, PROTECTED),
+                (vec![east, west], Turns::Right, YIELD),
                 (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Crosswalk, YIELD),
+                (vec![north, south], Turns::Crosswalk, PROTECTED),
             ],
             vec![(vec![east, west], Turns::Left, PROTECTED)],
         ],
@@ -274,22 +278,24 @@ fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     roads.remove(&south);
     let east = roads.into_iter().next().unwrap();
 
-    // Two-phase with no protected lefts, right turn on red, peds yielding to cars
+    // Two-phase with no protected lefts, right turn on red, turning cars yield to peds
     let cycles = make_cycles(
         map,
         i,
         vec![
             vec![
-                (vec![north, south], Turns::StraightAndRight, PROTECTED),
+                (vec![north, south], Turns::Straight, PROTECTED),
+                (vec![north, south], Turns::Right, YIELD),
                 (vec![north, south], Turns::Left, YIELD),
                 (vec![east], Turns::Right, YIELD),
-                (vec![east], Turns::Crosswalk, YIELD),
+                (vec![east], Turns::Crosswalk, PROTECTED),
             ],
             vec![
-                (vec![east], Turns::StraightAndRight, PROTECTED),
-                (vec![east], Turns::Left, PROTECTED),
+                (vec![east], Turns::Straight, PROTECTED),
+                (vec![east], Turns::Right, YIELD),
+                (vec![east], Turns::Left, YIELD),
                 (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Crosswalk, YIELD),
+                (vec![north, south], Turns::Crosswalk, PROTECTED),
             ],
         ],
     );
@@ -328,11 +334,10 @@ fn make_cycles(
                     TurnType::Crosswalk => if turns != Turns::Crosswalk {
                         continue;
                     },
-                    TurnType::Straight => if turns != Turns::StraightAndRight {
+                    TurnType::Straight => if turns != Turns::Straight {
                         continue;
                     },
-                    TurnType::Right => if turns != Turns::StraightAndRight && turns != Turns::Right
-                    {
+                    TurnType::Right => if turns != Turns::Right {
                         continue;
                     },
                     TurnType::Left => if turns != Turns::Left {
@@ -357,7 +362,7 @@ fn make_cycles(
 
 #[derive(PartialEq)]
 enum Turns {
-    StraightAndRight,
+    Straight,
     Left,
     Right,
     // These always cross from one side of a road to the other.

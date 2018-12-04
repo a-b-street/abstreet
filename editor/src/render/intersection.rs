@@ -167,14 +167,10 @@ pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx:
     let priority_color = ctx
         .cs
         .get("turns protected by traffic signal right now", Color::GREEN);
-    let yield_color = if ctx.current_selection == Some(ID::Intersection(id)) {
-        ctx.cs.get("turns allowed with yielding by traffic signal right now, while intersection is selected", Color::grey(0.6).alpha(0.8))
-    } else {
-        ctx.cs.get(
-            "turns allowed with yielding by traffic signal right now",
-            Color::YELLOW.alpha(0.8),
-        )
-    };
+    let yield_color = ctx.cs.get(
+        "turns allowed with yielding by traffic signal right now",
+        Color::rgba(255, 105, 180, 0.8),
+    );
     // TODO Ew... there's got to be a way to prevent drawing the intersection instead
     let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(id)) {
         ctx.cs.get("selected", Color::BLUE)
@@ -183,16 +179,16 @@ pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx:
     };
 
     // First over-draw the crosswalks.
-    // TODO Should this use the color_for system?
+    // TODO Should this use the color_for system? Really want to show/hide...
     for crosswalk in &ctx.draw_map.get_i(id).crosswalks {
         let color = if cycle.priority_turns.contains(&crosswalk.id1)
             || cycle.priority_turns.contains(&crosswalk.id2)
         {
-            priority_color
+            ctx.cs.get("crosswalk", Color::WHITE)
         } else if cycle.yield_turns.contains(&crosswalk.id1)
             || cycle.yield_turns.contains(&crosswalk.id2)
         {
-            yield_color
+            panic!("Crosswalks shouldn't ever yield")
         } else {
             hide_crosswalk
         };
