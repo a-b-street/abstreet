@@ -136,26 +136,20 @@ impl Plugin for TrafficSignalEditor {
                             let mut signal = ctx.primary.map.get_traffic_signal(*i).clone();
                             {
                                 let cycle = &mut signal.cycles[*current_cycle];
-                                if cycle.get_priority(id) == TurnPriority::Priority {
-                                    if input.key_pressed(
-                                        Key::Backspace,
-                                        "remove this turn from this cycle",
-                                    ) {
-                                        cycle.remove(id, &ctx.primary.map);
-                                    }
-                                } else if cycle.could_be_priority_turn(id, &ctx.primary.map) {
-                                    if input.key_pressed(
+                                if cycle.get_priority(id) != TurnPriority::Stop && input
+                                    .key_pressed(Key::Backspace, "remove this turn from this cycle")
+                                {
+                                    cycle.edit_turn(id, TurnPriority::Stop, &ctx.primary.map);
+                                } else if cycle.could_be_priority_turn(id, &ctx.primary.map)
+                                    && input.key_pressed(
                                         Key::Space,
                                         "add this turn to this cycle as priority",
                                     ) {
-                                        cycle.add(id, TurnPriority::Priority, &ctx.primary.map);
-                                    }
-                                } else if cycle.get_priority(id) == TurnPriority::Stop {
-                                    if input
-                                        .key_pressed(Key::Y, "add this turn to this cycle as yield")
-                                    {
-                                        cycle.add(id, TurnPriority::Yield, &ctx.primary.map);
-                                    }
+                                    cycle.edit_turn(id, TurnPriority::Priority, &ctx.primary.map);
+                                } else if cycle.could_be_yield_turn(id, &ctx.primary.map) && input
+                                    .key_pressed(Key::Y, "add this turn to this cycle as yield")
+                                {
+                                    cycle.edit_turn(id, TurnPriority::Yield, &ctx.primary.map);
                                 }
                             }
 

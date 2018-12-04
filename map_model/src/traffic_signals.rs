@@ -78,12 +78,17 @@ pub struct Cycle {
 
 impl Cycle {
     pub fn could_be_priority_turn(&self, t1: TurnID, map: &Map) -> bool {
+        let turn1 = map.get_t(t1);
         for t2 in &self.priority_turns {
-            if map.get_t(t1).conflicts_with(map.get_t(*t2)) {
+            if t1 == *t2 || turn1.conflicts_with(map.get_t(*t2)) {
                 return false;
             }
         }
         true
+    }
+
+    pub fn could_be_yield_turn(&self, t: TurnID, map: &Map) -> bool {
+        !self.yield_turns.contains(&t) && map.get_t(t).turn_type != TurnType::Crosswalk
     }
 
     pub fn get_priority(&self, t: TurnID) -> TurnPriority {
@@ -96,12 +101,25 @@ impl Cycle {
         }
     }
 
-    pub fn add(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
+    pub fn edit_turn(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
         let turn = map.get_t(t);
         assert_eq!(t.parent, self.parent);
 
-        // TODO assert not in the current (maybe other) set
+        // First remove the turn from the old set, if present.
+        if self.priority_turns.contains(&t) {
+            assert_ne!(pri, TurnPriority::Priority);
+            self.priority_turns.remove(&t);
+            if turn.turn_type == TurnType::Crosswalk {
+                self.priority_turns.remove(&turn.other_crosswalk_id());
+            }
+        } else if self.yield_turns.contains(&t) {
+            assert_ne!(pri, TurnPriority::Yield);
+            self.yield_turns.remove(&t);
+        } else {
+            assert_ne!(pri, TurnPriority::Stop);
+        }
 
+        // Now add to the new set
         match pri {
             TurnPriority::Priority => {
                 // TODO assert compatible
@@ -114,28 +132,9 @@ impl Cycle {
                 assert_ne!(turn.turn_type, TurnType::Crosswalk);
                 self.yield_turns.insert(t);
             }
-            TurnPriority::Stop => {
-                panic!("add {} with Stop priority to a Cycle doesn't make sense", t);
-            }
+            TurnPriority::Stop => {}
         }
         self.changed = true;
-    }
-
-    pub fn remove(&mut self, t: TurnID, map: &Map) {
-        if self.priority_turns.contains(&t) {
-            self.priority_turns.remove(&t);
-            let turn = map.get_t(t);
-            if turn.turn_type == TurnType::Crosswalk {
-                self.priority_turns.remove(&turn.other_crosswalk_id());
-            }
-        } else if self.yield_turns.contains(&t) {
-            self.yield_turns.remove(&t);
-        } else {
-            panic!(
-                "Cycle {:?} doesn't have {} as a priority or yield turn; why remove it?",
-                self, t
-            );
-        }
     }
 
     pub fn edit_duration(&mut self, new_duration: si::Second<f64>) {
