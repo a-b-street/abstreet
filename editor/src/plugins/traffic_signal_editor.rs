@@ -10,6 +10,7 @@ use std::collections::HashSet;
 
 pub enum TrafficSignalEditor {
     Inactive,
+    // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
     Active {
         i: IntersectionID,
         current_cycle: usize,
@@ -205,8 +206,19 @@ impl Plugin for TrafficSignalEditor {
                     } else if input.key_pressed(Key::N, "add a new empty cycle") {
                         signal.cycles.insert(*current_cycle, Cycle::new(*i));
                         ctx.primary.map.edit_traffic_signal(signal);
+                    } else if input.key_pressed(Key::M, "add a new pedestrian scramble cycle") {
+                        let mut cycle = Cycle::new(*i);
+                        for t in ctx.primary.map.get_turns_in_intersection(*i) {
+                            // edit_turn adds the other_crosswalk_id and asserts no duplicates.
+                            if t.turn_type == TurnType::SharedSidewalkCorner
+                                || (t.turn_type == TurnType::Crosswalk && t.id.src < t.id.dst)
+                            {
+                                cycle.edit_turn(t.id, TurnPriority::Priority, &ctx.primary.map);
+                            }
+                        }
+                        signal.cycles.insert(*current_cycle, cycle);
+                        ctx.primary.map.edit_traffic_signal(signal);
                     }
-                    // TODO Add a pedestrian scramble cycle
                 }
             }
         };
