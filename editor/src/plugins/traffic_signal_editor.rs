@@ -21,6 +21,13 @@ impl TrafficSignalEditor {
     pub fn new() -> TrafficSignalEditor {
         TrafficSignalEditor::Inactive
     }
+
+    pub fn show_turn_icons(&self, id: IntersectionID) -> bool {
+        match self {
+            TrafficSignalEditor::Active { i, .. } => *i == id,
+            _ => false,
+        }
+    }
 }
 
 impl Plugin for TrafficSignalEditor {
@@ -253,6 +260,49 @@ impl Plugin for TrafficSignalEditor {
             if let Some(wizard) = cycle_duration_wizard {
                 wizard.draw(g, ctx.canvas);
             }
+        }
+    }
+
+    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+        match (self, obj) {
+            (
+                TrafficSignalEditor::Active {
+                    i, current_cycle, ..
+                },
+                ID::Turn(t),
+            ) => {
+                if t.parent != *i {
+                    return None;
+                }
+                let cycle = &ctx.map.get_traffic_signal(*i).cycles[*current_cycle];
+
+                let could_be_priority = cycle.could_be_priority_turn(t, ctx.map);
+                match cycle.get_priority(t) {
+                    TurnPriority::Priority => {
+                        Some(ctx.cs.get("priority turn in current cycle", Color::GREEN))
+                    }
+                    TurnPriority::Yield => if could_be_priority {
+                        Some(
+                            ctx.cs
+                                .get("yield turn that could be priority turn", Color::YELLOW),
+                        )
+                    } else {
+                        Some(
+                            ctx.cs
+                                .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
+                        )
+                    },
+                    TurnPriority::Stop => if could_be_priority {
+                        Some(ctx.cs.get("stop turn that could be priority", Color::RED))
+                    } else {
+                        Some(
+                            ctx.cs
+                                .get("turn conflicts with current cycle", Color::BLACK),
+                        )
+                    },
+                }
+            }
+            _ => None,
         }
     }
 }

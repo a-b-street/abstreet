@@ -185,6 +185,12 @@ impl PluginsPerMap {
         self.list[2].downcast_ref::<StopSignEditor>().unwrap()
     }
 
+    fn traffic_signal_editor(&self) -> &plugins::traffic_signal_editor::TrafficSignalEditor {
+        self.list[3]
+            .downcast_ref::<plugins::traffic_signal_editor::TrafficSignalEditor>()
+            .unwrap()
+    }
+
     fn turn_cycler(&self) -> &Box<Plugin> {
         &self.list[4]
     }
@@ -518,6 +524,10 @@ impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         self.plugins.layers().show_all_turn_icons.is_enabled()
             || self.primary_plugins.stop_sign_editor().show_turn_icons(id)
+            || self
+                .primary_plugins
+                .traffic_signal_editor()
+                .show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id
