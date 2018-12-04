@@ -86,19 +86,15 @@ impl Renderable for DrawIntersection {
                 return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));
             }
 
-            let changed = if let Some(s) = ctx.map.maybe_get_traffic_signal(self.id) {
+            let _changed = if let Some(s) = ctx.map.maybe_get_traffic_signal(self.id) {
                 s.is_changed()
             } else if let Some(s) = ctx.map.maybe_get_stop_sign(self.id) {
                 s.is_changed()
             } else {
                 false
             };
-            if changed {
-                ctx.cs
-                    .get("changed intersection", Color::rgb_f(0.8, 0.6, 0.6))
-            } else {
-                ctx.cs.get("unchanged intersection", Color::grey(0.6))
-            }
+            // TODO Make some other way to view map edits. rgb_f(0.8, 0.6, 0.6) was distracting.
+            ctx.cs.get("unchanged intersection", Color::grey(0.6))
         });
         g.draw_polygon(color, &self.polygon);
 

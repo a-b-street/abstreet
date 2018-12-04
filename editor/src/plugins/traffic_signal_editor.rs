@@ -259,9 +259,11 @@ impl Plugin for TrafficSignalEditor {
             g.unfork(old_ctx);
 
             if let Some(id) = icon_selected {
-                // TODO This covers up the original color and makes it a bit hard to see what it is
-                // now. Also looks weird for crosswalks.
-                DrawTurn::draw_full(ctx.map.get_t(*id), g, ctx.cs.get("selected", Color::BLUE));
+                DrawTurn::draw_full(
+                    ctx.map.get_t(*id),
+                    g,
+                    ctx.cs.get("selected turn icon", Color::BLUE.alpha(0.5)),
+                );
             }
 
             if let Some(wizard) = cycle_duration_wizard {
