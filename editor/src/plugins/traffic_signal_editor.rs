@@ -1,11 +1,11 @@
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text, Wizard};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{IntersectionID, TurnPriority};
+use map_model::{IntersectionID, TurnID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::draw_signal_cycle;
+use render::{draw_signal_cycle, DrawTurn};
 use std::collections::HashSet;
 
 pub enum TrafficSignalEditor {
@@ -14,6 +14,7 @@ pub enum TrafficSignalEditor {
         i: IntersectionID,
         current_cycle: usize,
         cycle_duration_wizard: Option<Wizard>,
+        icon_selected: Option<TurnID>,
     },
 }
 
@@ -49,6 +50,7 @@ impl Plugin for TrafficSignalEditor {
                             i: id,
                             current_cycle: 0,
                             cycle_duration_wizard: None,
+                            icon_selected: None,
                         };
                         return true;
                     }
@@ -64,6 +66,7 @@ impl Plugin for TrafficSignalEditor {
                 i,
                 current_cycle,
                 ref mut cycle_duration_wizard,
+                ref mut icon_selected,
             } => {
                 ctx.hints.suppress_traffic_signal_icon = Some(*i);
                 ctx.hints.hide_crosswalks.extend(
@@ -95,6 +98,11 @@ impl Plugin for TrafficSignalEditor {
                 } else if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(TrafficSignalEditor::Inactive);
                 } else {
+                    *icon_selected = match selected {
+                        Some(ID::Turn(id)) => Some(id),
+                        _ => None,
+                    };
+
                     // Change cycles
                     {
                         let cycles = &ctx.primary.map.get_traffic_signal(*i).cycles;
@@ -165,6 +173,7 @@ impl Plugin for TrafficSignalEditor {
             i,
             current_cycle,
             cycle_duration_wizard,
+            icon_selected,
         } = self
         {
             let cycles = &ctx.map.get_traffic_signal(*i).cycles;
@@ -256,6 +265,12 @@ impl Plugin for TrafficSignalEditor {
             }
 
             g.unfork(old_ctx);
+
+            if let Some(id) = icon_selected {
+                // TODO This covers up the original color and makes it a bit hard to see what it is
+                // now. Also looks weird for crosswalks.
+                DrawTurn::draw_full(ctx.map.get_t(*id), g, ctx.cs.get("selected", Color::BLUE));
+            }
 
             if let Some(wizard) = cycle_duration_wizard {
                 wizard.draw(g, ctx.canvas);

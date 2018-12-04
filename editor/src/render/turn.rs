@@ -4,8 +4,8 @@ use geom::{Bounds, Circle, Line, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 use objects::{Ctx, ID};
 use render::{
-    RenderOptions, Renderable, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
-    TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, CROSSWALK_LINE_THICKNESS,
+    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
 };
 use std::f64;
 
@@ -38,6 +38,20 @@ impl DrawTurn {
             icon_circle,
             icon_arrow,
         }
+    }
+
+    pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
+        g.draw_polygon(
+            color,
+            &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
+        );
+        // And a cap on the arrow
+        g.draw_rounded_arrow(
+            color,
+            BIG_ARROW_THICKNESS,
+            BIG_ARROW_TIP_LENGTH,
+            &t.geom.last_line(),
+        );
     }
 }
 

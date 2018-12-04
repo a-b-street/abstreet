@@ -3,12 +3,12 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, Turn, TurnID, TurnType,
-    LANE_THICKNESS,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID, TurnType, LANE_THICKNESS,
 };
 use objects::{Ctx, ID};
 use render::{
-    DrawCrosswalk, DrawMap, RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH,
+    DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, BIG_ARROW_THICKNESS,
+    BIG_ARROW_TIP_LENGTH,
 };
 use std::collections::HashSet;
 
@@ -194,7 +194,7 @@ pub fn draw_signal_cycle(
     for t in &cycle.priority_turns {
         let turn = map.get_t(*t);
         if !turn.between_sidewalks() {
-            draw_full(turn, g, priority_color);
+            DrawTurn::draw_full(turn, g, priority_color);
         }
     }
     for t in &cycle.yield_turns {
@@ -216,19 +216,4 @@ pub fn draw_signal_cycle(
             );
         }
     }
-}
-
-// TODO Copied from turn_cycler. Share or inline?
-fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-    g.draw_polygon(
-        color,
-        &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
-    );
-    // And a cap on the arrow
-    g.draw_rounded_arrow(
-        color,
-        BIG_ARROW_THICKNESS,
-        BIG_ARROW_TIP_LENGTH,
-        &t.geom.last_line(),
-    );
 }

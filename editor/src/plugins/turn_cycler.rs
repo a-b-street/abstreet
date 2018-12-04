@@ -1,10 +1,10 @@
 use ezgui::{Color, GfxCtx};
 use geom::{Polygon, Pt2D};
-use map_model::{IntersectionID, LaneID, Turn, TurnType};
+use map_model::{IntersectionID, LaneID, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{draw_signal_cycle, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH};
+use render::{draw_signal_cycle, DrawTurn};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -81,7 +81,11 @@ impl Plugin for TurnCyclerState {
                     match current_turn_index {
                         Some(idx) => {
                             let turn = relevant_turns[idx % relevant_turns.len()];
-                            draw_full(turn, g, ctx.cs.get("current selected turn", Color::RED));
+                            DrawTurn::draw_full(
+                                turn,
+                                g,
+                                ctx.cs.get("current selected turn", Color::RED),
+                            );
                         }
                         None => for turn in &relevant_turns {
                             let color = match turn.turn_type {
@@ -93,7 +97,7 @@ impl Plugin for TurnCyclerState {
                                 TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
                                 TurnType::Left => ctx.cs.get("left turn", Color::RED),
                             }.alpha(0.5);
-                            draw_full(turn, g, color);
+                            DrawTurn::draw_full(turn, g, color);
                         },
                     }
                 }
@@ -159,18 +163,4 @@ impl Plugin for TurnCyclerState {
             _ => None,
         }
     }
-}
-
-fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-    g.draw_polygon(
-        color,
-        &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
-    );
-    // And a cap on the arrow
-    g.draw_rounded_arrow(
-        color,
-        BIG_ARROW_THICKNESS,
-        BIG_ARROW_TIP_LENGTH,
-        &t.geom.last_line(),
-    );
 }
