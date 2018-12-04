@@ -1,6 +1,7 @@
 // TODO how to edit cycle time?
 
-use ezgui::GfxCtx;
+use ezgui::{Color, GfxCtx};
+use geom::{Bounds, Polygon, Pt2D};
 use map_model::{IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
@@ -113,14 +114,49 @@ impl Plugin for TrafficSignalEditor {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, mut ctx: Ctx) {
         if let TrafficSignalEditor::Active { i, current_cycle } = self {
-            draw_signal_cycle(
-                &ctx.map.get_traffic_signal(*i).cycles[*current_cycle],
-                *i,
-                g,
-                ctx,
+            let cycles = &ctx.map.get_traffic_signal(*i).cycles;
+
+            draw_signal_cycle(&cycles[*current_cycle], *i, g, &mut ctx);
+
+            // Draw all of the cycles off to the side
+            let padding = 5.0;
+            let (top_left, width, height) = {
+                let mut b = Bounds::new();
+                for pt in &ctx.map.get_i(*i).polygon {
+                    b.update(*pt);
+                }
+                (
+                    Pt2D::new(b.min_x, b.min_y),
+                    b.max_x - b.min_x,
+                    // Vertically pad
+                    b.max_y - b.min_y,
+                )
+            };
+
+            let old_ctx = g.fork(top_left, 15.0);
+            g.draw_polygon(
+                ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95)),
+                &Polygon::rectangle_topleft(
+                    top_left,
+                    width,
+                    (padding + height) * (cycles.len() as f64),
+                ),
             );
+
+            for (idx, cycle) in cycles.iter().enumerate() {
+                g.fork(
+                    Pt2D::new(
+                        top_left.x(),
+                        top_left.y() - height * (idx as f64) - padding * ((idx as f64) + 1.0),
+                    ),
+                    10.0,
+                );
+                draw_signal_cycle(cycle, *i, g, &mut ctx);
+            }
+
+            g.unfork(old_ctx);
         }
     }
 }

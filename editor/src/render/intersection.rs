@@ -160,7 +160,10 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx: Ctx) {
+// TODO Taking &mut Ctx is a hack to let this be called multiple times in one plugin's draw().
+// Should really pass down individual pieces of the Ctx, or even better, make it Copy (and rethink
+// the mutable ColorScheme pattern).
+pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx: &mut Ctx) {
     let priority_color = ctx
         .cs
         .get("turns protected by traffic signal right now", Color::GREEN);

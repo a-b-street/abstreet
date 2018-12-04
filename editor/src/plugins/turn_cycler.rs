@@ -62,7 +62,7 @@ impl Plugin for TurnCyclerState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, mut ctx: Ctx) {
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -95,7 +95,7 @@ impl Plugin for TurnCyclerState {
                     // the color or something.
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-                    draw_signal_cycle(cycle, *id, g, ctx);
+                    draw_signal_cycle(cycle, *id, g, &mut ctx);
                 }
             }
         }

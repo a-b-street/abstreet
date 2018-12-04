@@ -28,13 +28,16 @@ pub use canvas::{
     Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
 };
 pub use color::Color;
+use geom::Pt2D;
 use graphics::character::CharacterCache;
+use graphics::Transformed;
 pub use input::UserInput;
 pub use log_scroller::LogScroller;
 pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
 pub use runner::{run, GUI};
+use std::mem;
 pub use text::{Text, TEXT_FG_COLOR};
 pub use text_box::TextBox;
 pub use wizard::{Wizard, WrappedWizard};
@@ -59,6 +62,20 @@ impl<'a> GfxCtx<'a> {
             orig_ctx: c,
             ctx: c,
         }
+    }
+
+    // Up to the caller to call unfork()!
+    pub fn fork(&mut self, top_left: Pt2D, zoom: f64) -> graphics::Context {
+        mem::replace(
+            &mut self.ctx,
+            self.orig_ctx
+                .trans(-zoom * top_left.x(), -zoom * top_left.y())
+                .zoom(zoom),
+        )
+    }
+
+    pub fn unfork(&mut self, old_ctx: graphics::Context) {
+        self.ctx = old_ctx;
     }
 
     pub fn clear(&mut self, color: Color) {
