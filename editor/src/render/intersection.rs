@@ -1,7 +1,7 @@
 use colors::ColorScheme;
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID, TurnType, LANE_THICKNESS,
 };
@@ -195,19 +195,28 @@ pub fn draw_signal_cycle(
     for t in &cycle.yield_turns {
         let turn = map.get_t(*t);
         if !turn.between_sidewalks() {
+            let dash_len = 1.0 * si::M;
             for poly in turn
                 .geom
-                .dashed_polygons(BIG_ARROW_THICKNESS, 1.0 * si::M, 0.5 * si::M)
+                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M)
                 .into_iter()
             {
                 g.draw_polygon(yield_color, &poly);
             }
-            // And a cap on the arrow
+            // And a cap on the arrow. In case the last line is long, trim it to be the dash
+            // length.
+            let last_line = turn.geom.last_line();
+            let last_len = last_line.length();
+            let arrow_line = if last_len <= dash_len {
+                last_line
+            } else {
+                Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
+            };
             g.draw_rounded_arrow(
                 yield_color,
                 BIG_ARROW_THICKNESS / 2.0,
                 BIG_ARROW_TIP_LENGTH,
-                &turn.geom.last_line(),
+                &arrow_line,
             );
         }
     }
