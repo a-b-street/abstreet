@@ -74,6 +74,10 @@ impl<'a> GfxCtx<'a> {
         )
     }
 
+    pub fn fork_screenspace(&mut self) -> graphics::Context {
+        self.fork(Pt2D::new(0.0, 0.0), 1.0)
+    }
+
     pub fn unfork(&mut self, old_ctx: graphics::Context) {
         self.ctx = old_ctx;
     }

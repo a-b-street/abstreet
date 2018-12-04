@@ -72,7 +72,7 @@ pub struct Cycle {
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
     changed: bool,
-    duration: si::Second<f64>,
+    pub duration: si::Second<f64>,
 }
 
 impl Cycle {

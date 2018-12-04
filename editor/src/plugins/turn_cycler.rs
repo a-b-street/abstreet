@@ -1,4 +1,5 @@
 use ezgui::{Color, GfxCtx};
+use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, Turn, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
@@ -91,9 +92,7 @@ impl Plugin for TurnCyclerState {
             TurnCyclerState::Intersection(id) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
                     // TODO Cycle might be over-run; should depict that by asking sim layer.
-                    // TODO It'd be cool to indicate remaining time in the cycle by slowly dimming
-                    // the color or something.
-                    let (cycle, _) =
+                    let (cycle, time_left) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
                     // TODO Ew... there's got to be a way to prevent drawing the intersection instead
@@ -103,6 +102,26 @@ impl Plugin for TurnCyclerState {
                         ctx.cs.get("unchanged intersection", Color::grey(0.6))
                     };
                     draw_signal_cycle(cycle, *id, hide_crosswalk, g, &mut ctx);
+
+                    // Draw a little timer box in the top-left corner of the screen.
+                    {
+                        let old_ctx = g.fork_screenspace();
+                        let width = 50.0;
+                        let height = 100.0;
+                        g.draw_polygon(
+                            ctx.cs.get("timer foreground", Color::RED),
+                            &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
+                        );
+                        g.draw_polygon(
+                            ctx.cs.get("timer background", Color::BLACK),
+                            &Polygon::rectangle_topleft(
+                                Pt2D::new(10.0, 10.0),
+                                width,
+                                (time_left / cycle.duration).value_unsafe * height,
+                            ),
+                        );
+                        g.unfork(old_ctx);
+                    }
                 }
             }
         }
