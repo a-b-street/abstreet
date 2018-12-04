@@ -238,18 +238,18 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         i,
         vec![
             vec![
-                (vec![north, south], Turns::Straight, PROTECTED),
-                (vec![north, south], Turns::Right, PROTECTED),
-                (vec![north, south], Turns::Left, YIELD),
-                (vec![east, west], Turns::Right, YIELD),
-                (vec![east, west], Turns::Crosswalk, YIELD),
+                (vec![north, south], TurnType::Straight, PROTECTED),
+                (vec![north, south], TurnType::Right, PROTECTED),
+                (vec![north, south], TurnType::Left, YIELD),
+                (vec![east, west], TurnType::Right, YIELD),
+                (vec![east, west], TurnType::Crosswalk, YIELD),
             ],
             vec![
-                (vec![east, west], Turns::Straight, PROTECTED),
-                (vec![east, west], Turns::Right, PROTECTED),
-                (vec![east, west], Turns::Left, YIELD),
-                (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Crosswalk, YIELD),
+                (vec![east, west], TurnType::Straight, PROTECTED),
+                (vec![east, west], TurnType::Right, PROTECTED),
+                (vec![east, west], TurnType::Left, YIELD),
+                (vec![north, south], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Crosswalk, YIELD),
             ],
         ],
     );*/
@@ -261,19 +261,19 @@ fn four_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         i,
         vec![
             vec![
-                (vec![north, south], Turns::Straight, PROTECTED),
-                (vec![north, south], Turns::Right, YIELD),
-                (vec![east, west], Turns::Right, YIELD),
-                (vec![east, west], Turns::Crosswalk, PROTECTED),
+                (vec![north, south], TurnType::Straight, PROTECTED),
+                (vec![north, south], TurnType::Right, YIELD),
+                (vec![east, west], TurnType::Right, YIELD),
+                (vec![east, west], TurnType::Crosswalk, PROTECTED),
             ],
-            vec![(vec![north, south], Turns::Left, PROTECTED)],
+            vec![(vec![north, south], TurnType::Left, PROTECTED)],
             vec![
-                (vec![east, west], Turns::Straight, PROTECTED),
-                (vec![east, west], Turns::Right, YIELD),
-                (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Crosswalk, PROTECTED),
+                (vec![east, west], TurnType::Straight, PROTECTED),
+                (vec![east, west], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
-            vec![(vec![east, west], Turns::Left, PROTECTED)],
+            vec![(vec![east, west], TurnType::Left, PROTECTED)],
         ],
     );
 
@@ -302,18 +302,18 @@ fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         i,
         vec![
             vec![
-                (vec![north, south], Turns::Straight, PROTECTED),
-                (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Left, YIELD),
-                (vec![east], Turns::Right, YIELD),
-                (vec![east], Turns::Crosswalk, PROTECTED),
+                (vec![north, south], TurnType::Straight, PROTECTED),
+                (vec![north, south], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Left, YIELD),
+                (vec![east], TurnType::Right, YIELD),
+                (vec![east], TurnType::Crosswalk, PROTECTED),
             ],
             vec![
-                (vec![east], Turns::Straight, PROTECTED),
-                (vec![east], Turns::Right, YIELD),
-                (vec![east], Turns::Left, YIELD),
-                (vec![north, south], Turns::Right, YIELD),
-                (vec![north, south], Turns::Crosswalk, PROTECTED),
+                (vec![east], TurnType::Straight, PROTECTED),
+                (vec![east], TurnType::Right, YIELD),
+                (vec![east], TurnType::Left, YIELD),
+                (vec![north, south], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
         ],
     );
@@ -324,7 +324,7 @@ fn three_way(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 fn make_cycles(
     map: &Map,
     i: IntersectionID,
-    cycle_specs: Vec<Vec<(Vec<RoadID>, Turns, bool)>>,
+    cycle_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) -> Vec<Cycle> {
     let mut cycles: Vec<Cycle> = Vec::new();
 
@@ -336,7 +336,7 @@ fn make_cycles(
             duration: CYCLE_DURATION,
         };
 
-        for (roads, turns, protected) in specs.into_iter() {
+        for (roads, turn_type, protected) in specs.into_iter() {
             for turn in map.get_turns_in_intersection(i) {
                 // These never conflict with anything.
                 if turn.turn_type == TurnType::SharedSidewalkCorner {
@@ -344,25 +344,9 @@ fn make_cycles(
                     continue;
                 }
 
-                if !roads.contains(&map.get_l(turn.id.src).parent) {
+                if !roads.contains(&map.get_l(turn.id.src).parent) || turn_type != turn.turn_type {
                     continue;
                 }
-
-                match turn.turn_type {
-                    TurnType::Crosswalk => if turns != Turns::Crosswalk {
-                        continue;
-                    },
-                    TurnType::Straight => if turns != Turns::Straight {
-                        continue;
-                    },
-                    TurnType::Right => if turns != Turns::Right {
-                        continue;
-                    },
-                    TurnType::Left => if turns != Turns::Left {
-                        continue;
-                    },
-                    TurnType::SharedSidewalkCorner => unreachable!(),
-                };
 
                 if protected {
                     cycle.priority_turns.insert(turn.id);
@@ -376,13 +360,4 @@ fn make_cycles(
     }
 
     cycles
-}
-
-#[derive(PartialEq)]
-enum Turns {
-    Straight,
-    Left,
-    Right,
-    // These always cross from one side of a road to the other.
-    Crosswalk,
 }
