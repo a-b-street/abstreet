@@ -106,8 +106,7 @@ impl Renderable for DrawIntersection {
         }
 
         if self.intersection_type == IntersectionType::TrafficSignal {
-            // TODO Also don't do this in editor mode!
-            if ctx.current_selection != Some(ID::Intersection(self.id)) {
+            if ctx.hints.suppress_traffic_signal_icon != Some(self.id) {
                 self.draw_traffic_signal(g, ctx);
             }
         } else if self.should_draw_stop_sign {

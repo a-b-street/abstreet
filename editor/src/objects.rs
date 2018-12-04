@@ -100,6 +100,9 @@ impl ID {
 pub struct RenderingHints {
     pub mode: EventLoopMode,
     pub osd: Text,
+
+    // Miscellaneous cases where a plugin needs to control rendering.
+    pub suppress_traffic_signal_icon: Option<IntersectionID>,
 }
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.

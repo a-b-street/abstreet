@@ -340,6 +340,7 @@ impl UI {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
+            suppress_traffic_signal_icon: None,
         };
 
         // First update the camera and handle zoom

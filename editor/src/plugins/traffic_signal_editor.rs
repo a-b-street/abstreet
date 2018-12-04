@@ -53,6 +53,8 @@ impl Plugin for TrafficSignalEditor {
                 if input.key_pressed(Key::Return, "quit the editor") {
                     new_state = Some(TrafficSignalEditor::Inactive);
                 } else {
+                    ctx.hints.suppress_traffic_signal_icon = Some(*i);
+
                     // Change cycles
                     {
                         let cycles = &map.get_traffic_signal(*i).cycles;

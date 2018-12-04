@@ -27,6 +27,7 @@ impl Plugin for TurnCyclerState {
             Some(ID::Lane(id)) => id,
             Some(ID::Intersection(id)) => {
                 *self = TurnCyclerState::Intersection(id);
+                ctx.hints.suppress_traffic_signal_icon = Some(id);
                 return false;
             }
             _ => {
