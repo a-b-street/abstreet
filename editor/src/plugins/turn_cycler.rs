@@ -95,7 +95,14 @@ impl Plugin for TurnCyclerState {
                     // the color or something.
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-                    draw_signal_cycle(cycle, *id, g, &mut ctx);
+
+                    // TODO Ew... there's got to be a way to prevent drawing the intersection instead
+                    let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(*id)) {
+                        ctx.cs.get("selected", Color::BLUE)
+                    } else {
+                        ctx.cs.get("unchanged intersection", Color::grey(0.6))
+                    };
+                    draw_signal_cycle(cycle, *id, hide_crosswalk, g, &mut ctx);
                 }
             }
         }

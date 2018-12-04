@@ -118,7 +118,17 @@ impl Plugin for TrafficSignalEditor {
         if let TrafficSignalEditor::Active { i, current_cycle } = self {
             let cycles = &ctx.map.get_traffic_signal(*i).cycles;
 
-            draw_signal_cycle(&cycles[*current_cycle], *i, g, &mut ctx);
+            draw_signal_cycle(
+                &cycles[*current_cycle],
+                *i,
+                if ctx.current_selection == Some(ID::Intersection(*i)) {
+                    ctx.cs.get("selected", Color::BLUE)
+                } else {
+                    ctx.cs.get("unchanged intersection", Color::grey(0.6))
+                },
+                g,
+                &mut ctx,
+            );
 
             // Draw all of the cycles off to the side
             let padding = 5.0;
@@ -135,9 +145,10 @@ impl Plugin for TrafficSignalEditor {
                 )
             };
 
+            let panel_color = ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95));
             let old_ctx = g.fork(top_left, 15.0);
             g.draw_polygon(
-                ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95)),
+                panel_color,
                 &Polygon::rectangle_topleft(
                     top_left,
                     width,
@@ -153,7 +164,7 @@ impl Plugin for TrafficSignalEditor {
                     ),
                     10.0,
                 );
-                draw_signal_cycle(cycle, *i, g, &mut ctx);
+                draw_signal_cycle(cycle, *i, panel_color, g, &mut ctx);
             }
 
             g.unfork(old_ctx);

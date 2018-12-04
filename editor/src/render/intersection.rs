@@ -163,7 +163,13 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
 // TODO Taking &mut Ctx is a hack to let this be called multiple times in one plugin's draw().
 // Should really pass down individual pieces of the Ctx, or even better, make it Copy (and rethink
 // the mutable ColorScheme pattern).
-pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx: &mut Ctx) {
+pub fn draw_signal_cycle(
+    cycle: &Cycle,
+    id: IntersectionID,
+    hide_crosswalk: Color,
+    g: &mut GfxCtx,
+    ctx: &mut Ctx,
+) {
     let priority_color = ctx
         .cs
         .get("turns protected by traffic signal right now", Color::GREEN);
@@ -171,12 +177,6 @@ pub fn draw_signal_cycle(cycle: &Cycle, id: IntersectionID, g: &mut GfxCtx, ctx:
         "turns allowed with yielding by traffic signal right now",
         Color::rgba(255, 105, 180, 0.8),
     );
-    // TODO Ew... there's got to be a way to prevent drawing the intersection instead
-    let hide_crosswalk = if ctx.current_selection == Some(ID::Intersection(id)) {
-        ctx.cs.get("selected", Color::BLUE)
-    } else {
-        ctx.cs.get("hide crosswalk", Color::grey(0.6))
-    };
 
     // First over-draw the crosswalks.
     // TODO Should this use the color_for system? Really want to show/hide...
