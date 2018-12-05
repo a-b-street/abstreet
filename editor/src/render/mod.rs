@@ -19,7 +19,7 @@ pub use render::area::DrawArea;
 use render::bike::DrawBike;
 use render::car::DrawCar;
 pub use render::extra_shape::ExtraShapeID;
-pub use render::intersection::draw_signal_cycle;
+pub use render::intersection::{draw_signal_cycle, draw_stop_sign};
 pub use render::lane::DrawLane;
 pub use render::map::DrawMap;
 pub use render::pedestrian::DrawPedestrian;

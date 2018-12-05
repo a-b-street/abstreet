@@ -1,15 +1,12 @@
 use colors::ColorScheme;
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID, TurnType, LANE_THICKNESS,
+    ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID,
+    TurnPriority, TurnType, LANE_THICKNESS,
 };
 use objects::{Ctx, ID};
-use render::{
-    DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, BIG_ARROW_THICKNESS,
-    BIG_ARROW_TIP_LENGTH,
-};
+use render::{DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable};
 use std::collections::HashSet;
 
 #[derive(Debug)]
@@ -195,29 +192,43 @@ pub fn draw_signal_cycle(
     for t in &cycle.yield_turns {
         let turn = map.get_t(*t);
         if !turn.between_sidewalks() {
-            let dash_len = 1.0 * si::M;
-            for poly in turn
-                .geom
-                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M)
-                .into_iter()
-            {
-                g.draw_polygon(yield_color, &poly);
-            }
-            // And a cap on the arrow. In case the last line is long, trim it to be the dash
-            // length.
-            let last_line = turn.geom.last_line();
-            let last_len = last_line.length();
-            let arrow_line = if last_len <= dash_len {
-                last_line
-            } else {
-                Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
-            };
-            g.draw_rounded_arrow(
-                yield_color,
-                BIG_ARROW_THICKNESS / 2.0,
-                BIG_ARROW_TIP_LENGTH,
-                &arrow_line,
-            );
+            DrawTurn::draw_dashed(turn, g, yield_color);
         }
+    }
+}
+
+pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &mut ColorScheme, map: &Map) {
+    let priority_color = cs.get("stop sign priority turns", Color::GREEN);
+    // TODO pink yield color from traffic signals is nice, but it's too close to red for stop...
+    let yield_color = cs.get("stop sign yield turns", Color::YELLOW.alpha(0.8));
+    let stop_color = cs.get("stop sign stop turns", Color::RED.alpha(0.8));
+
+    // TODO first crosswalks... actually, give rendering hints to override the color. dont do that
+    // here.
+
+    // First draw solid-line priority turns.
+    for (t, priority) in &sign.turns {
+        let turn = map.get_t(*t);
+        if turn.between_sidewalks() || *priority != TurnPriority::Priority {
+            continue;
+        }
+        DrawTurn::draw_full(turn, g, priority_color);
+    }
+
+    // Then dashed lines.
+    for (t, priority) in &sign.turns {
+        let turn = map.get_t(*t);
+        if turn.between_sidewalks() {
+            continue;
+        }
+        match *priority {
+            TurnPriority::Yield => {
+                DrawTurn::draw_dashed(turn, g, yield_color);
+            }
+            TurnPriority::Stop => {
+                DrawTurn::draw_dashed(turn, g, stop_color);
+            }
+            _ => {}
+        };
     }
 }

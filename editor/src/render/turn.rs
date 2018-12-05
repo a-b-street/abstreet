@@ -53,6 +53,32 @@ impl DrawTurn {
             &t.geom.last_line(),
         );
     }
+
+    pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
+        let dash_len = 1.0 * si::M;
+        for poly in turn
+            .geom
+            .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M)
+            .into_iter()
+        {
+            g.draw_polygon(color, &poly);
+        }
+        // And a cap on the arrow. In case the last line is long, trim it to be the dash
+        // length.
+        let last_line = turn.geom.last_line();
+        let last_len = last_line.length();
+        let arrow_line = if last_len <= dash_len {
+            last_line
+        } else {
+            Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
+        };
+        g.draw_rounded_arrow(
+            color,
+            BIG_ARROW_THICKNESS / 2.0,
+            BIG_ARROW_TIP_LENGTH,
+            &arrow_line,
+        );
+    }
 }
 
 // Little weird, but this is focused on the turn icon, not the full visualization

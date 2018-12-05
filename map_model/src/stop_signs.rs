@@ -10,7 +10,7 @@ pub struct ControlStopSign {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    turns: BTreeMap<TurnID, TurnPriority>,
+    pub turns: BTreeMap<TurnID, TurnPriority>,
     pub(crate) changed: bool,
 }
 

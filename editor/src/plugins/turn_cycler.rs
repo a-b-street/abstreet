@@ -4,7 +4,7 @@ use map_model::{IntersectionID, LaneID, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{draw_signal_cycle, DrawTurn};
+use render::{draw_signal_cycle, draw_stop_sign, DrawTurn};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -138,6 +138,8 @@ impl Plugin for TurnCyclerState {
                         );
                         g.unfork(old_ctx);
                     }
+                } else if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
+                    draw_stop_sign(sign, g, ctx.cs, ctx.map);
                 }
             }
         }

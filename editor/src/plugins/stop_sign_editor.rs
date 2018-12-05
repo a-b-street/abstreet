@@ -1,8 +1,9 @@
-use ezgui::Color;
+use ezgui::{Color, GfxCtx};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
+use render::draw_stop_sign;
 
 #[derive(PartialEq)]
 pub enum StopSignEditor {
@@ -83,6 +84,15 @@ impl Plugin for StopSignEditor {
         }
     }
 
+    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+        match self {
+            StopSignEditor::Inactive => {}
+            StopSignEditor::Active(id) => {
+                draw_stop_sign(ctx.map.get_stop_sign(*id), g, ctx.cs, ctx.map);
+            }
+        }
+    }
+
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         match (self, obj) {
             (StopSignEditor::Active(i), ID::Turn(t)) => {
@@ -93,10 +103,7 @@ impl Plugin for StopSignEditor {
                     TurnPriority::Priority => {
                         Some(ctx.cs.get("priority stop sign turn", Color::GREEN))
                     }
-                    TurnPriority::Yield => Some(
-                        ctx.cs
-                            .get("yield stop sign turn", Color::rgb(255, 105, 180)),
-                    ),
+                    TurnPriority::Yield => Some(ctx.cs.get("yield stop sign turn", Color::YELLOW)),
                     TurnPriority::Stop => Some(ctx.cs.get("stop turn", Color::RED)),
                     TurnPriority::Banned => Some(ctx.cs.get("banned turn", Color::BLACK)),
                 }
