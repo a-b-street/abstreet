@@ -5,8 +5,8 @@
       0,
       {
         "center": {
-          "x": 222.9759063720703,
-          "y": 395.5904846191406
+          "x": 375.2584876887879,
+          "y": 394.4733648122756
         },
         "has_traffic_signal": false
       }
@@ -25,8 +25,8 @@
       3,
       {
         "center": {
-          "x": 425.7428283691406,
-          "y": 317.1311340332031
+          "x": 426.9548681897562,
+          "y": 338.6898394428313
         },
         "has_traffic_signal": false
       }
@@ -35,8 +35,8 @@
       4,
       {
         "center": {
-          "x": 515.5155639648438,
-          "y": 318.7431640625
+          "x": 481.2515387041076,
+          "y": 338.6877104503858
         },
         "has_traffic_signal": false
       }
@@ -45,18 +45,8 @@
       5,
       {
         "center": {
-          "x": 419.3205966982113,
-          "y": 535.6178873062499
-        },
-        "has_traffic_signal": false
-      }
-    ],
-    [
-      6,
-      {
-        "center": {
-          "x": 441.6695432770955,
-          "y": 532.5426221337885
+          "x": 426.9279815253348,
+          "y": 456.09920803179929
         },
         "has_traffic_signal": false
       }
@@ -65,8 +55,8 @@
       7,
       {
         "center": {
-          "x": 425.7153369783431,
-          "y": 239.5653932375844
+          "x": 427.35826112518097,
+          "y": 285.7304272008598
         },
         "has_traffic_signal": false
       }
@@ -84,7 +74,8 @@
         "lanes": {
           "fwd": [],
           "back": [
-            "Driving"
+            "Driving",
+            "Parking"
           ]
         },
         "fwd_label": null,
@@ -101,10 +92,12 @@
         "i2": 3,
         "lanes": {
           "fwd": [
-            "Driving"
+            "Driving",
+            "Parking"
           ],
           "back": [
-            "Driving"
+            "Driving",
+            "Parking"
           ]
         },
         "fwd_label": null,
@@ -121,27 +114,13 @@
         "i2": 5,
         "lanes": {
           "fwd": [
-            "Driving"
+            "Driving",
+            "Parking"
           ],
-          "back": []
-        },
-        "fwd_label": null,
-        "back_label": null
-      }
-    ],
-    [
-      [
-        2,
-        6
-      ],
-      {
-        "i1": 6,
-        "i2": 2,
-        "lanes": {
-          "fwd": [
-            "Driving"
-          ],
-          "back": []
+          "back": [
+            "Driving",
+            "Parking"
+          ]
         },
         "fwd_label": null,
         "back_label": null
@@ -157,7 +136,8 @@
         "i2": 4,
         "lanes": {
           "fwd": [
-            "Driving"
+            "Driving",
+            "Parking"
           ],
           "back": []
         },
@@ -175,7 +155,8 @@
         "i2": 3,
         "lanes": {
           "fwd": [
-            "Driving"
+            "Driving",
+            "Parking"
           ],
           "back": []
         },
