@@ -37,3 +37,8 @@ Seattlites with opinions and ideas:
 *   https://www.reddit.com/r/SeattleWA/comments/86g3p9/id_get_back_an_hour_and_a_half_a_week/
 *   https://www.reddit.com/r/Seattle/comments/4z3ewl/what_are_seattles_worst_intersections/
 *   https://www.reddit.com/r/SeattleWA/comments/83h4ri/the_intersection_at_john_and_broadway_desperately/
+
+## Other projects
+
+*   https://github.com/uwescience/TrafficCruising-DSSG2017
+*   http://sharedstreets.io/
