@@ -84,6 +84,7 @@ impl Plugin for StopSignEditor {
                                     sign.set_priority(id, TurnPriority::Yield, map);
                                 }
                             }
+                            _ => {}
                         };
 
                         map.edit_stop_sign(sign);
@@ -113,6 +114,7 @@ impl Plugin for StopSignEditor {
                     }
                     TurnPriority::Yield => Some(ctx.cs.get("yield stop sign turn", Color::YELLOW)),
                     TurnPriority::Stop => Some(ctx.cs.get("stop turn", Color::RED)),
+                    TurnPriority::Banned => Some(ctx.cs.get("banned turn", Color::PURPLE)),
                 }
             }
             _ => None,

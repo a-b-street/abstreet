@@ -9,8 +9,8 @@ use std::fmt;
 use {BuildingID, BusStopID, IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
-    // TODO look up a real value
-    value_unsafe: 10.0,
+    // Bit longer than the longest car.
+    value_unsafe: 8.0,
     _marker: std::marker::PhantomData,
 };
 

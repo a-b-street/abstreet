@@ -12,7 +12,7 @@ use std::path;
 use {
     Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, ControlStopSign,
     ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType,
-    Parcel, ParcelID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    Parcel, ParcelID, Road, RoadID, Turn, TurnID, TurnPriority, LANE_THICKNESS,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -349,7 +349,8 @@ impl Map {
         }
     }
 
-    pub fn edit_stop_sign(&mut self, sign: ControlStopSign) {
+    pub fn edit_stop_sign(&mut self, mut sign: ControlStopSign) {
+        sign.changed = true;
         self.edits.stop_signs.insert(sign.id, sign.clone());
         self.stop_signs.insert(sign.id, sign);
     }
@@ -660,6 +661,20 @@ impl Map {
             }
         }
         panic!("No parking lane has label {}", label);
+    }
+
+    pub(crate) fn is_turn_allowed(&self, t: TurnID) -> bool {
+        if let Some(ss) = self.stop_signs.get(&t.parent) {
+            ss.get_priority(t) != TurnPriority::Banned
+        } else if let Some(ts) = self.traffic_signals.get(&t.parent) {
+            ts.cycles
+                .iter()
+                .find(|c| c.get_priority(t) != TurnPriority::Banned)
+                .is_some()
+        } else {
+            // Border nodes have no turns...
+            panic!("{}'s intersection isn't a stop sign or traffic signal", t);
+        }
     }
 }
 

@@ -335,7 +335,7 @@ impl Cycle {
         } else if self.yield_turns.contains(&t) {
             TurnPriority::Yield
         } else {
-            TurnPriority::Stop
+            TurnPriority::Banned
         }
     }
 
@@ -354,7 +354,7 @@ impl Cycle {
             assert_ne!(pri, TurnPriority::Yield);
             self.yield_turns.remove(&t);
         } else {
-            assert_ne!(pri, TurnPriority::Stop);
+            assert_ne!(pri, TurnPriority::Banned);
         }
 
         // Now add to the new set
@@ -370,7 +370,10 @@ impl Cycle {
                 assert_ne!(turn.turn_type, TurnType::Crosswalk);
                 self.yield_turns.insert(t);
             }
-            TurnPriority::Stop => {}
+            TurnPriority::Stop => {
+                panic!("Can't set a cycle's TurnPriority to Stop");
+            }
+            TurnPriority::Banned => {}
         }
     }
 

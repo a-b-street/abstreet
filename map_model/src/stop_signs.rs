@@ -5,13 +5,13 @@ use {IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {
     pub id: IntersectionID,
+    // Turns may be present here as Banned.
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
     turns: BTreeMap<TurnID, TurnPriority>,
-    // TODO
-    changed: bool,
+    pub(crate) changed: bool,
 }
 
 impl ControlStopSign {
@@ -26,11 +26,11 @@ impl ControlStopSign {
     }
 
     pub fn set_priority(&mut self, turn: TurnID, priority: TurnPriority, map: &Map) {
+        assert_ne!(self.turns[&turn], priority);
         if priority == TurnPriority::Priority {
             assert!(self.could_be_priority_turn(turn, map));
         }
         self.turns.insert(turn, priority);
-        self.changed = true;
     }
 
     pub fn could_be_priority_turn(&self, id: TurnID, map: &Map) -> bool {
@@ -43,15 +43,15 @@ impl ControlStopSign {
     }
 
     pub fn is_changed(&self) -> bool {
-        // TODO detect edits that've been undone, equivalent to original
         self.changed
     }
 
+    // Only Yield and Priority
     pub fn is_priority_lane(&self, lane: LaneID) -> bool {
         self.turns
             .iter()
-            .find(|(turn, pri)| turn.src == lane && **pri > TurnPriority::Stop)
-            .is_some()
+            .find(|(turn, pri)| turn.src == lane && **pri <= TurnPriority::Stop)
+            .is_none()
     }
 
     fn validate(&self, map: &Map) -> Result<(), Error> {

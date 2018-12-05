@@ -49,8 +49,10 @@ impl TurnType {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
+    // Can't do this turn at all!
+    Banned,
     // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest priority.
-    // For traffic signals: can't do this turn at all.
+    // For traffic signals: this priority doesn't make sense; can't be used.
     Stop,
     // Cars can do this immediately if there are no previously accepted conflicting turns.
     Yield,

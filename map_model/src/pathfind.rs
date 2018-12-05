@@ -318,7 +318,9 @@ impl Pathfinder {
                     map.get_l(l).src_i
                 };
                 for (turn, next) in map.get_next_turns_and_lanes(l, endpoint).into_iter() {
-                    if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                    if !map.is_turn_allowed(turn.id) {
+                        // Skip
+                    } else if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
                         // Skip
                     } else if !self.can_use_bus_lanes && next.lane_type == LaneType::Bus {
                         // Skip
@@ -345,7 +347,9 @@ impl Pathfinder {
 
                 // Don't forget multiple turns in a row.
                 for (turn, next) in map.get_next_turns_and_lanes(dst.id, t.parent).into_iter() {
-                    if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
+                    if !map.is_turn_allowed(turn.id) {
+                        // Skip
+                    } else if !self.can_use_bike_lanes && next.lane_type == LaneType::Biking {
                         // Skip
                     } else if !self.can_use_bus_lanes && next.lane_type == LaneType::Bus {
                         // Skip

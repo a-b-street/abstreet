@@ -129,7 +129,7 @@ impl Plugin for TrafficSignalEditor {
                         let cycle = &mut signal.cycles[*current_cycle];
                         // Just one key to toggle between the 3 states
                         let next_priority = match cycle.get_priority(id) {
-                            TurnPriority::Stop => {
+                            TurnPriority::Banned => {
                                 if ctx.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
                                     if cycle.could_be_priority_turn(id, &ctx.primary.map) {
                                         Some(TurnPriority::Priority)
@@ -144,10 +144,13 @@ impl Plugin for TrafficSignalEditor {
                                 if cycle.could_be_priority_turn(id, &ctx.primary.map) {
                                     Some(TurnPriority::Priority)
                                 } else {
-                                    Some(TurnPriority::Stop)
+                                    Some(TurnPriority::Banned)
                                 }
                             }
-                            TurnPriority::Priority => Some(TurnPriority::Stop),
+                            TurnPriority::Priority => Some(TurnPriority::Banned),
+                            TurnPriority::Stop => {
+                                panic!("Can't have TurnPriority::Stop in a traffic signal");
+                            }
                         };
                         if let Some(pri) = next_priority {
                             if input.key_pressed(Key::Space, &format!("make {:?} {:?}", id, pri)) {
@@ -358,9 +361,12 @@ impl Plugin for TrafficSignalEditor {
                     TurnPriority::Yield => ctx
                         .cs
                         .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                    TurnPriority::Stop => ctx
+                    TurnPriority::Banned => ctx
                         .cs
                         .get("turn conflicts with current cycle", Color::BLACK),
+                    TurnPriority::Stop => {
+                        panic!("Can't have TurnPriority::Stop in a traffic signal")
+                    }
                 })
             }
             _ => None,
