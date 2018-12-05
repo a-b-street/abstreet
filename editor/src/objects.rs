@@ -1,10 +1,10 @@
 use colors::ColorScheme;
-use ezgui::{Canvas, EventLoopMode, Text};
+use ezgui::{Canvas, Color, EventLoopMode, Text};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use render::{DrawMap, ExtraShapeID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -104,6 +104,7 @@ pub struct RenderingHints {
 
     // Miscellaneous cases where a plugin needs to control rendering.
     pub suppress_intersection_icon: Option<IntersectionID>,
+    pub color_crosswalks: HashMap<TurnID, Color>,
     pub hide_crosswalks: HashSet<TurnID>,
     pub hide_turn_icons: HashSet<TurnID>,
 }

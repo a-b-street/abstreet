@@ -20,7 +20,7 @@ use render::{DrawMap, RenderOptions};
 use sim;
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::cell::RefCell;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::panic;
 use std::process;
 
@@ -344,6 +344,7 @@ impl UI {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
             suppress_intersection_icon: None,
+            color_crosswalks: HashMap::new(),
             hide_crosswalks: HashSet::new(),
             hide_turn_icons: HashSet::new(),
         };

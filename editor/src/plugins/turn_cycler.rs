@@ -4,7 +4,7 @@ use map_model::{IntersectionID, LaneID, TurnType};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::{draw_signal_cycle, draw_stop_sign, DrawTurn};
+use render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
@@ -20,7 +20,7 @@ impl TurnCyclerState {
 }
 
 impl Plugin for TurnCyclerState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn event(&mut self, mut ctx: PluginCtx) -> bool {
         let (input, selected) = (ctx.input, ctx.primary.current_selection);
 
         let current_id = match selected {
@@ -32,11 +32,11 @@ impl Plugin for TurnCyclerState {
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
                     ctx.hints.suppress_intersection_icon = Some(id);
-                    ctx.hints.hide_crosswalks.extend(
-                        cycle.get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(id)),
-                    );
-                } else if let Some(_sign) = ctx.primary.map.maybe_get_stop_sign(id) {
-                    ctx.hints.suppress_intersection_icon = Some(id);
+                    ctx.hints
+                        .hide_crosswalks
+                        .extend(cycle.get_absent_crosswalks(&ctx.primary.map));
+                } else if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
+                    stop_sign_rendering_hints(&mut ctx.hints, sign, &ctx.primary.map, ctx.cs);
                 }
                 return false;
             }

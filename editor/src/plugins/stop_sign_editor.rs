@@ -3,7 +3,7 @@ use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::draw_stop_sign;
+use render::{draw_stop_sign, stop_sign_rendering_hints};
 
 #[derive(PartialEq)]
 pub enum StopSignEditor {
@@ -25,7 +25,7 @@ impl StopSignEditor {
 }
 
 impl Plugin for StopSignEditor {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn event(&mut self, mut ctx: PluginCtx) -> bool {
         let input = ctx.input;
         let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
@@ -48,7 +48,7 @@ impl Plugin for StopSignEditor {
         match self {
             StopSignEditor::Inactive => {}
             StopSignEditor::Active(i) => {
-                ctx.hints.suppress_intersection_icon = Some(*i);
+                stop_sign_rendering_hints(&mut ctx.hints, map.get_stop_sign(*i), map, ctx.cs);
 
                 if let Some(ID::Turn(id)) = selected {
                     let mut sign = map.get_stop_sign(*i).clone();

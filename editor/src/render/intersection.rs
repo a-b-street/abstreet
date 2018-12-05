@@ -5,7 +5,7 @@ use map_model::{
     ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID,
     TurnPriority, TurnType, LANE_THICKNESS,
 };
-use objects::{Ctx, ID};
+use objects::{Ctx, RenderingHints, ID};
 use render::{DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable};
 use std::collections::HashSet;
 
@@ -96,10 +96,14 @@ impl Renderable for DrawIntersection {
         g.draw_polygon(color, &self.polygon);
 
         for crosswalk in &self.crosswalks {
-            if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1)
-                && !ctx.hints.hide_crosswalks.contains(&crosswalk.id2)
-            {
-                crosswalk.draw(g, ctx.cs.get("crosswalk", Color::WHITE));
+            if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1) {
+                crosswalk.draw(
+                    g,
+                    *ctx.hints
+                        .color_crosswalks
+                        .get(&crosswalk.id1)
+                        .unwrap_or(&ctx.cs.get("crosswalk", Color::WHITE)),
+                );
             }
         }
 
@@ -179,7 +183,7 @@ pub fn draw_signal_cycle(
     );
 
     for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
-        if !hide_crosswalks.contains(&crosswalk.id1) && !hide_crosswalks.contains(&crosswalk.id2) {
+        if !hide_crosswalks.contains(&crosswalk.id1) {
             crosswalk.draw(g, cs.get("crosswalk", Color::WHITE));
         }
     }
@@ -229,6 +233,37 @@ pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &mut ColorSche
                 DrawTurn::draw_dashed(turn, g, stop_color);
             }
             _ => {}
+        };
+    }
+}
+
+pub fn stop_sign_rendering_hints(
+    hints: &mut RenderingHints,
+    sign: &ControlStopSign,
+    map: &Map,
+    cs: &mut ColorScheme,
+) {
+    hints.suppress_intersection_icon = Some(sign.id);
+    for (t, pri) in &sign.turns {
+        if map.get_t(*t).turn_type != TurnType::Crosswalk {
+            continue;
+        }
+        match pri {
+            // Leave the default white.
+            TurnPriority::Priority => {}
+            TurnPriority::Yield => {
+                hints
+                    .color_crosswalks
+                    .insert(*t, cs.get("stop sign yield crosswalk", Color::YELLOW));
+            }
+            TurnPriority::Stop => {
+                hints
+                    .color_crosswalks
+                    .insert(*t, cs.get("stop sign stop crosswalk", Color::RED));
+            }
+            TurnPriority::Banned => {
+                hints.hide_crosswalks.insert(*t);
+            }
         };
     }
 }

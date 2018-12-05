@@ -2,7 +2,7 @@ use abstutil::Error;
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
-use {IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
+use {IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 30.0,
@@ -381,9 +381,9 @@ impl Cycle {
         self.duration = new_duration;
     }
 
-    pub fn get_absent_crosswalks(&self, turns: Vec<&Turn>) -> Vec<TurnID> {
+    pub fn get_absent_crosswalks(&self, map: &Map) -> Vec<TurnID> {
         let mut result = Vec::new();
-        for t in turns.into_iter() {
+        for t in map.get_turns_in_intersection(self.parent).into_iter() {
             if t.between_sidewalks()
                 && !self.priority_turns.contains(&t.id)
                 && !self.yield_turns.contains(&t.id)

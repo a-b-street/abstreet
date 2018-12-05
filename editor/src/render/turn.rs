@@ -118,8 +118,8 @@ impl Renderable for DrawTurn {
 
 #[derive(Debug)]
 pub struct DrawCrosswalk {
+    // This is arbitrarily one of the two IDs
     pub id1: TurnID,
-    pub id2: TurnID,
     lines: Vec<Line>,
 }
 
@@ -154,7 +154,6 @@ impl DrawCrosswalk {
 
         DrawCrosswalk {
             id1: turn.id,
-            id2: turn.other_crosswalk_id(),
             lines,
         }
     }

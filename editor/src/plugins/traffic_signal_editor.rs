@@ -77,7 +77,7 @@ impl Plugin for TrafficSignalEditor {
                 ctx.hints.suppress_intersection_icon = Some(*i);
                 ctx.hints.hide_crosswalks.extend(
                     ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
-                        .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),
+                        .get_absent_crosswalks(&ctx.primary.map),
                 );
                 for t in ctx.primary.map.get_turns_in_intersection(*i) {
                     // TODO bit weird, now looks like there's missing space between some icons. Do
@@ -307,8 +307,7 @@ impl Plugin for TrafficSignalEditor {
                     zoom,
                 );
                 let mut hide_crosswalks = HashSet::new();
-                hide_crosswalks
-                    .extend(cycle.get_absent_crosswalks(ctx.map.get_turns_in_intersection(*i)));
+                hide_crosswalks.extend(cycle.get_absent_crosswalks(&ctx.map));
                 draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map, &hide_crosswalks);
 
                 let mut txt = Text::new();
