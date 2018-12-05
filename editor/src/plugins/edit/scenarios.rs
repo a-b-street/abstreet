@@ -22,8 +22,8 @@ impl ScenarioManager {
 }
 
 impl Plugin for ScenarioManager {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, map, sim) = (ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        let (input, map, sim) = (&mut ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
 
         let mut new_state: Option<ScenarioManager> = None;
         match self {
@@ -53,6 +53,7 @@ impl Plugin for ScenarioManager {
                     ));
                 } else if input.key_pressed(Key::I, "instantiate this scenario") {
                     scenario.instantiate(sim, map);
+                    new_state = Some(ScenarioManager::Inactive);
                 } else if scroller.event(input) {
                     new_state = Some(ScenarioManager::Inactive);
                 }

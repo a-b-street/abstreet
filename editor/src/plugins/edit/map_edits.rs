@@ -18,7 +18,7 @@ impl EditsManager {
 }
 
 impl Plugin for EditsManager {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let mut new_state: Option<EditsManager> = None;
         match self {
             EditsManager::Inactive => {
@@ -46,8 +46,8 @@ impl Plugin for EditsManager {
                 }
                 if let Some((p, plugins)) = new_primary {
                     *ctx.primary = p;
-                    ctx.primary_plugins.map(|p_plugins| {
-                        *p_plugins = plugins;
+                    ctx.primary_plugins.as_mut().map(|p_plugins| {
+                        **p_plugins = plugins;
                     });
                 }
             }

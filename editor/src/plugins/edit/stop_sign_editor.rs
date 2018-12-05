@@ -25,8 +25,8 @@ impl StopSignEditor {
 }
 
 impl Plugin for StopSignEditor {
-    fn event(&mut self, mut ctx: PluginCtx) -> bool {
-        let input = ctx.input;
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        let input = &mut ctx.input;
         let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
 

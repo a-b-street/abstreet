@@ -66,3 +66,74 @@ classification.rs  floodfill.rs           map_edits.rs             show_activity
 color_picker.rs    follow.rs              mod.rs                   show_owner.rs     traffic_signal_editor.rs
 debug_objects.rs   geom_validation.rs     neighborhood_summary.rs  show_route.rs     turn_cycler.rs
 diff_all.rs        hider.rs               road_editor.rs           sim_controls.rs   warp.rs
+
+
+
+Gah, bite this off in slow pieces. First find layer-like things... things that
+draw/hide stuff. Tend to have very simple activate/deactive controls. No sim interaction.
+
+Or maybe with the exclusive editors...
+- in the short term, could make a plugin that just delegates to a smaller list
+	- except some are per-map and some are not
+		- wouldnt need that concept if we dont store plugins when
+		  theyre inactive and have a notion of what can simultaneously
+		  be active...
+- figure out what other plugins are valid alongside the exclusive editors...
+	- should activating an editor reset toggleable layers and hidden stuff? that's debug state...
+	- when is moving via mouse still valid? color picker (right?), neighborhood, road/intersection editors
+	- intersection and road editors... just debug. and actually, is that even true?
+	- running a sim / doing time travel shouldnt be valid
+
+
+debug stuff: toggleable layers, hider, geom validation, floodfill
+
+alright maybe we actually do have lots of exclusive states...
+- the exclusive editors
+	- note that if we're running an A/B test, none of these are valid! cant edit stuff during a/b test... just run.
+- explore
+	- sim controls | time travel
+	- bunch of nonblocking stuff... chokepoints, classification, debug, diff all, diff trip, floodfill, follow...
+		- different keys to deactivate them? :P
+	- some blocking stuff... search, warp. when these're around, run them first
+
+
+- dir structure... all the exclusive stuff side-by-side, and then a shared/ for stuff that might apply during different states
+- the exclusive editors: a_b_tests.rs     draw_neighborhoods.rs  map_edits.rs    scenarios.rs         traffic_signal_editor.rs
+color_picker.rs  road_editor.rs  stop_sign_editor.rs
+
+
+
+
+maybe as an initial step, can we get rid of plugins per map vs per UI and just have one or the other?
+
+- every plugin per map?
+	- toggleable layers then arent shared... fine
+	- logs is per UI? whoa, that's actually maybe messy!
+	- sim ctrl, diff world/trip does need to be independent though.
+- every plugin per UI?
+	- when we load a new map from edits, still have to replace the world.
+	- would have to argue that no plugin that keeps per-map state can run during A/B test mode!
+		- or rather, that we cant swap while any of those plugins hold state!
+		- show owner, turn cycler, debug, follow (need to recalculate)
+		- time travel (needs a/b support generally)
+		- show route (totally valid to swap while this is going... grrr.)
+
+
+
+maybe step 1...
+- make a single 'Mode' for exclusive editors
+	- skip it if a secondary sim is present (aka in A/B mode)
+	- it lives per UI, because of above condition
+	- for now, impl it as a hierarchial plugin itself that just delegates
+	- keep plugin trait for each of em for convenience in edit mode, though.
+
+	- each of the editors can stop having inactive state. have new() that returns option
+
+and probably step 2...
+- make a single 'Mode' for normal exploration
+	- let a bunch of plugins run non-exclusively there, as relevant
+	- and still have a single blocking plugin possible, like warp
+
+and step 3...
+- dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.
+- clean up event vs new_event

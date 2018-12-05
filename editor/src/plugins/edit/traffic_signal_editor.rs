@@ -36,8 +36,8 @@ impl TrafficSignalEditor {
 }
 
 impl Plugin for TrafficSignalEditor {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let input = ctx.input;
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        let input = &mut ctx.input;
         let selected = ctx.primary.current_selection;
 
         let inactive = match self {

@@ -11,9 +11,9 @@ use map_model::{BuildingID, IntersectionID, LaneID, Map};
 use objects::{Ctx, RenderingHints, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins;
+use plugins::edit_mode::EditMode;
 use plugins::hider::Hider;
 use plugins::layers::ToggleableLayers;
-use plugins::stop_sign_editor::StopSignEditor;
 use plugins::time_travel::TimeTravel;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
@@ -181,22 +181,12 @@ impl PluginsPerMap {
         &self.list[1]
     }
 
-    fn stop_sign_editor(&self) -> &StopSignEditor {
-        self.list[2].downcast_ref::<StopSignEditor>().unwrap()
-    }
-
-    fn traffic_signal_editor(&self) -> &plugins::traffic_signal_editor::TrafficSignalEditor {
-        self.list[3]
-            .downcast_ref::<plugins::traffic_signal_editor::TrafficSignalEditor>()
-            .unwrap()
-    }
-
     fn turn_cycler(&self) -> &Box<Plugin> {
-        &self.list[4]
+        &self.list[2]
     }
 
     fn time_travel(&self) -> &TimeTravel {
-        self.list[5].downcast_ref::<TimeTravel>().unwrap()
+        self.list[3].downcast_ref::<TimeTravel>().unwrap()
     }
 }
 
@@ -242,8 +232,6 @@ impl PerMapUI {
             list: vec![
                 Box::new(Hider::new()),
                 Box::new(plugins::show_owner::ShowOwnerState::new()),
-                Box::new(StopSignEditor::new()),
-                Box::new(plugins::traffic_signal_editor::TrafficSignalEditor::new()),
                 Box::new(plugins::turn_cycler::TurnCyclerState::new()),
                 Box::new(plugins::time_travel::TimeTravel::new()),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
@@ -253,8 +241,6 @@ impl PerMapUI {
                 Box::new(plugins::floodfill::Floodfiller::new()),
                 Box::new(steepness_viz),
                 Box::new(plugins::geom_validation::Validator::new()),
-                Box::new(plugins::draw_neighborhoods::DrawNeighborhoodState::new()),
-                Box::new(plugins::scenarios::ScenarioManager::new()),
                 Box::new(plugins::chokepoints::ChokepointsFinder::new()),
                 Box::new(neighborhood_summary),
             ],
@@ -269,12 +255,16 @@ struct PluginsPerUI {
 }
 
 impl PluginsPerUI {
+    fn edit_mode(&self) -> &EditMode {
+        self.list[0].downcast_ref::<EditMode>().unwrap()
+    }
+
     fn layers(&self) -> &ToggleableLayers {
-        self.list[0].downcast_ref::<ToggleableLayers>().unwrap()
+        self.list[1].downcast_ref::<ToggleableLayers>().unwrap()
     }
 
     fn layers_mut(&mut self) -> &mut ToggleableLayers {
-        self.list[0].downcast_mut::<ToggleableLayers>().unwrap()
+        self.list[1].downcast_mut::<ToggleableLayers>().unwrap()
     }
 }
 
@@ -291,17 +281,14 @@ impl UI {
 
             plugins: PluginsPerUI {
                 list: vec![
+                    Box::new(EditMode::new()),
                     Box::new(ToggleableLayers::new()),
                     Box::new(plugins::search::SearchState::new()),
                     Box::new(plugins::warp::WarpState::new()),
                     Box::new(plugins::classification::OsmClassifier::new()),
-                    Box::new(plugins::color_picker::ColorPicker::new()),
-                    Box::new(plugins::a_b_tests::ABTestManager::new()),
                     Box::new(logs),
                     Box::new(plugins::diff_all::DiffAllState::new()),
                     Box::new(plugins::diff_worlds::DiffWorldsState::new()),
-                    Box::new(plugins::road_editor::RoadEditor::new()),
-                    Box::new(plugins::map_edits::EditsManager::new()),
                     Box::new(plugins::sim_controls::SimController::new()),
                 ],
             },
@@ -530,11 +517,7 @@ pub trait ShowTurnIcons {
 impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         self.plugins.layers().show_all_turn_icons.is_enabled()
-            || self.primary_plugins.stop_sign_editor().show_turn_icons(id)
-            || self
-                .primary_plugins
-                .traffic_signal_editor()
-                .show_turn_icons(id)
+            || self.plugins.edit_mode().show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id

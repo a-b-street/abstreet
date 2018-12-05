@@ -26,8 +26,8 @@ impl ColorPicker {
 }
 
 impl Plugin for ColorPicker {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, canvas, cs) = (ctx.input, ctx.canvas, ctx.cs);
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        let (input, canvas, cs) = (&mut ctx.input, &ctx.canvas, &mut ctx.cs);
 
         let mut new_state: Option<ColorPicker> = None;
         match self {

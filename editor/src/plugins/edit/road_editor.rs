@@ -14,9 +14,9 @@ impl RoadEditor {
 }
 
 impl Plugin for RoadEditor {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, selected, map, draw_map, sim) = (
-            ctx.input,
+            &mut ctx.input,
             ctx.primary.current_selection,
             &mut ctx.primary.map,
             &mut ctx.primary.draw_map,

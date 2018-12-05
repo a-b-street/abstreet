@@ -1,30 +1,24 @@
-pub mod a_b_tests;
 pub mod chokepoints;
 pub mod classification;
-pub mod color_picker;
 pub mod debug_objects;
 pub mod diff_all;
 pub mod diff_worlds;
-pub mod draw_neighborhoods;
+pub mod edit;
+pub mod edit_mode;
 pub mod floodfill;
 pub mod follow;
 pub mod geom_validation;
 pub mod hider;
 pub mod layers;
 pub mod logs;
-pub mod map_edits;
 pub mod neighborhood_summary;
-pub mod road_editor;
-pub mod scenarios;
 pub mod search;
 pub mod show_activity;
 pub mod show_owner;
 pub mod show_route;
 pub mod sim_controls;
 pub mod steep;
-pub mod stop_sign_editor;
 pub mod time_travel;
-pub mod traffic_signal_editor;
 pub mod turn_cycler;
 pub mod warp;
 
@@ -44,7 +38,15 @@ pub trait Plugin: Any {
 
     fn draw(&self, _g: &mut GfxCtx, _ctx: Ctx) {}
 
-    fn event(&mut self, ctx: PluginCtx) -> bool;
+    // True if active
+    fn event(&mut self, _ctx: PluginCtx) -> bool {
+        false
+    }
+
+    // TODO Such hacks
+    fn new_event(&mut self, _ctx: &mut PluginCtx) -> bool {
+        false
+    }
 }
 
 downcast!(Plugin);
