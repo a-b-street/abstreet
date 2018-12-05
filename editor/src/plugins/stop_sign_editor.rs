@@ -1,7 +1,5 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use ezgui::Color;
-use map_model::{IntersectionID, TurnPriority};
+use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 use objects::{Ctx, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
@@ -49,46 +47,27 @@ impl Plugin for StopSignEditor {
         match self {
             StopSignEditor::Inactive => {}
             StopSignEditor::Active(i) => {
-                if input.key_pressed(Key::Return, "quit the editor") {
-                    new_state = Some(StopSignEditor::Inactive);
-                } else if let Some(ID::Turn(id)) = selected {
-                    if id.parent == *i {
-                        let mut sign = map.get_stop_sign(*i).clone();
-
-                        match sign.get_priority(id) {
-                            TurnPriority::Priority => {
-                                if input.key_pressed(Key::D2, "make this turn yield") {
-                                    sign.set_priority(id, TurnPriority::Yield, map);
-                                }
-                                if input.key_pressed(Key::D3, "make this turn always stop") {
-                                    sign.set_priority(id, TurnPriority::Stop, map);
-                                }
-                            }
-                            TurnPriority::Yield => {
-                                if sign.could_be_priority_turn(id, map)
-                                    && input.key_pressed(Key::D1, "let this turn go immediately")
-                                {
-                                    sign.set_priority(id, TurnPriority::Priority, map);
-                                }
-                                if input.key_pressed(Key::D3, "make this turn always stop") {
-                                    sign.set_priority(id, TurnPriority::Stop, map);
-                                }
-                            }
-                            TurnPriority::Stop => {
-                                if sign.could_be_priority_turn(id, map)
-                                    && input.key_pressed(Key::D1, "let this turn go immediately")
-                                {
-                                    sign.set_priority(id, TurnPriority::Priority, map);
-                                }
-                                if input.key_pressed(Key::D2, "make this turn yield") {
-                                    sign.set_priority(id, TurnPriority::Yield, map);
-                                }
-                            }
-                            _ => {}
-                        };
-
+                if let Some(ID::Turn(id)) = selected {
+                    let mut sign = map.get_stop_sign(*i).clone();
+                    let next_priority = match sign.get_priority(id) {
+                        TurnPriority::Banned => TurnPriority::Stop,
+                        TurnPriority::Stop => TurnPriority::Yield,
+                        TurnPriority::Yield => if sign.could_be_priority_turn(id, map) {
+                            TurnPriority::Priority
+                        } else {
+                            TurnPriority::Banned
+                        },
+                        TurnPriority::Priority => TurnPriority::Banned,
+                    };
+                    if input.key_pressed(Key::Space, &format!("toggle to {:?}", next_priority)) {
+                        sign.set_priority(id, next_priority, map);
                         map.edit_stop_sign(sign);
                     }
+                } else if input.key_pressed(Key::Return, "quit the editor") {
+                    new_state = Some(StopSignEditor::Inactive);
+                } else if input.key_pressed(Key::R, "reset to default stop sign") {
+                    let sign = ControlStopSign::new(map, *i);
+                    map.edit_stop_sign(sign);
                 }
             }
         };
@@ -106,15 +85,18 @@ impl Plugin for StopSignEditor {
         match (self, obj) {
             (StopSignEditor::Active(i), ID::Turn(t)) => {
                 if t.parent != *i {
-                    return Some(ctx.cs.get("irrelevant turn", Color::grey(0.3)));
+                    return None;
                 }
                 match ctx.map.get_stop_sign(*i).get_priority(t) {
                     TurnPriority::Priority => {
                         Some(ctx.cs.get("priority stop sign turn", Color::GREEN))
                     }
-                    TurnPriority::Yield => Some(ctx.cs.get("yield stop sign turn", Color::YELLOW)),
+                    TurnPriority::Yield => Some(
+                        ctx.cs
+                            .get("yield stop sign turn", Color::rgb(255, 105, 180)),
+                    ),
                     TurnPriority::Stop => Some(ctx.cs.get("stop turn", Color::RED)),
-                    TurnPriority::Banned => Some(ctx.cs.get("banned turn", Color::PURPLE)),
+                    TurnPriority::Banned => Some(ctx.cs.get("banned turn", Color::BLACK)),
                 }
             }
             _ => None,

@@ -140,6 +140,9 @@ impl Plugin for TrafficSignalEditor {
                                     Some(TurnPriority::Yield)
                                 }
                             }
+                            TurnPriority::Stop => {
+                                panic!("Can't have TurnPriority::Stop in a traffic signal");
+                            }
                             TurnPriority::Yield => {
                                 if cycle.could_be_priority_turn(id, &ctx.primary.map) {
                                     Some(TurnPriority::Priority)
@@ -148,12 +151,9 @@ impl Plugin for TrafficSignalEditor {
                                 }
                             }
                             TurnPriority::Priority => Some(TurnPriority::Banned),
-                            TurnPriority::Stop => {
-                                panic!("Can't have TurnPriority::Stop in a traffic signal");
-                            }
                         };
                         if let Some(pri) = next_priority {
-                            if input.key_pressed(Key::Space, &format!("make {:?} {:?}", id, pri)) {
+                            if input.key_pressed(Key::Space, &format!("toggle to {:?}", pri)) {
                                 cycle.edit_turn(id, pri, &ctx.primary.map);
                             }
                         }
@@ -361,9 +361,7 @@ impl Plugin for TrafficSignalEditor {
                     TurnPriority::Yield => ctx
                         .cs
                         .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                    TurnPriority::Banned => ctx
-                        .cs
-                        .get("turn conflicts with current cycle", Color::BLACK),
+                    TurnPriority::Banned => ctx.cs.get("turn not in current cycle", Color::BLACK),
                     TurnPriority::Stop => {
                         panic!("Can't have TurnPriority::Stop in a traffic signal")
                     }
