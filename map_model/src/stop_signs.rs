@@ -25,12 +25,16 @@ impl ControlStopSign {
         self.turns[&turn]
     }
 
-    pub fn set_priority(&mut self, turn: TurnID, priority: TurnPriority, map: &Map) {
-        assert_ne!(self.turns[&turn], priority);
+    pub fn set_priority(&mut self, t: TurnID, priority: TurnPriority, map: &Map) {
+        assert_ne!(self.turns[&t], priority);
         if priority == TurnPriority::Priority {
-            assert!(self.could_be_priority_turn(turn, map));
+            assert!(self.could_be_priority_turn(t, map));
         }
-        self.turns.insert(turn, priority);
+        self.turns.insert(t, priority);
+        let turn = map.get_t(t);
+        if turn.turn_type == TurnType::Crosswalk {
+            self.turns.insert(turn.other_crosswalk_id(), priority);
+        }
     }
 
     pub fn could_be_priority_turn(&self, id: TurnID, map: &Map) -> bool {

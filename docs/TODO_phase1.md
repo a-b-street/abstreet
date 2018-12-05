@@ -48,7 +48,7 @@
 	- move map_model geometry stuff elsewhere (sim stuff also needs it though)
 
 - better drawing
-	- detailed turns, like https://i.ytimg.com/vi/NH6R3RH_ZDY/maxresdefault.jpg
+	- bezier turns for lane markings, turn icons, agent turn signals?
 	- rooftops
 		- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg
 		- https://thumbs.dreamstime.com/z/top-view-city-seamless-pattern-streets-roads-houses-cars-68652655.jpg
