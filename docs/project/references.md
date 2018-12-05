@@ -13,6 +13,7 @@
 - http://openseattle.org/
 - https://igniteseattle.com/
 - http://seattlegreenways.org/
+- https://www.livablecities.org/
 
 ## Similar projects
 

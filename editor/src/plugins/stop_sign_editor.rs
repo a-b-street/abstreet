@@ -47,6 +47,8 @@ impl Plugin for StopSignEditor {
         match self {
             StopSignEditor::Inactive => {}
             StopSignEditor::Active(i) => {
+                ctx.hints.suppress_intersection_icon = Some(*i);
+
                 if let Some(ID::Turn(id)) = selected {
                     let mut sign = map.get_stop_sign(*i).clone();
                     let next_priority = match sign.get_priority(id) {

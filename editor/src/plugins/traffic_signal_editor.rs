@@ -74,7 +74,7 @@ impl Plugin for TrafficSignalEditor {
                 ref mut preset_wizard,
                 ref mut icon_selected,
             } => {
-                ctx.hints.suppress_traffic_signal_icon = Some(*i);
+                ctx.hints.suppress_intersection_icon = Some(*i);
                 ctx.hints.hide_crosswalks.extend(
                     ctx.primary.map.get_traffic_signal(*i).cycles[*current_cycle]
                         .get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(*i)),

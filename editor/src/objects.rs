@@ -103,7 +103,7 @@ pub struct RenderingHints {
     pub osd: Text,
 
     // Miscellaneous cases where a plugin needs to control rendering.
-    pub suppress_traffic_signal_icon: Option<IntersectionID>,
+    pub suppress_intersection_icon: Option<IntersectionID>,
     pub hide_crosswalks: HashSet<TurnID>,
     pub hide_turn_icons: HashSet<TurnID>,
 }

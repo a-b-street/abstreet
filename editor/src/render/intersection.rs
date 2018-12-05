@@ -110,12 +110,12 @@ impl Renderable for DrawIntersection {
             g.draw_polygon(ctx.cs.get("sidewalk corner", Color::grey(0.7)), corner);
         }
 
-        if self.intersection_type == IntersectionType::TrafficSignal {
-            if ctx.hints.suppress_traffic_signal_icon != Some(self.id) {
+        if ctx.hints.suppress_intersection_icon != Some(self.id) {
+            if self.intersection_type == IntersectionType::TrafficSignal {
                 self.draw_traffic_signal(g, ctx);
+            } else if self.should_draw_stop_sign {
+                self.draw_stop_sign(g, ctx);
             }
-        } else if self.should_draw_stop_sign {
-            self.draw_stop_sign(g, ctx);
         }
     }
 

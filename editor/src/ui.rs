@@ -343,7 +343,7 @@ impl UI {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
-            suppress_traffic_signal_icon: None,
+            suppress_intersection_icon: None,
             hide_crosswalks: HashSet::new(),
             hide_turn_icons: HashSet::new(),
         };

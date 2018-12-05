@@ -31,10 +31,12 @@ impl Plugin for TurnCyclerState {
                 if let Some(signal) = ctx.primary.map.maybe_get_traffic_signal(id) {
                     let (cycle, _) =
                         signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
-                    ctx.hints.suppress_traffic_signal_icon = Some(id);
+                    ctx.hints.suppress_intersection_icon = Some(id);
                     ctx.hints.hide_crosswalks.extend(
                         cycle.get_absent_crosswalks(ctx.primary.map.get_turns_in_intersection(id)),
                     );
+                } else if let Some(_sign) = ctx.primary.map.maybe_get_stop_sign(id) {
+                    ctx.hints.suppress_intersection_icon = Some(id);
                 }
                 return false;
             }
