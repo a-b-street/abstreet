@@ -151,7 +151,6 @@ and probably step 2...
 	- rewrite turn_cycler; i dont understand it. also it used to block input after starting to tab through stuff. weird?
 
 	thursday pick-up:
-	- neighborhood summary
 	- search (sometimes ambient, sometimes blocking)
 	- warp (blocking)
 	- overlapping keys to quit stuff...

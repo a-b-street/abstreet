@@ -34,7 +34,7 @@ impl NeighborhoodSummary {
 }
 
 impl Plugin for NeighborhoodSummary {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if self.active {
             if ctx
                 .input
@@ -57,11 +57,9 @@ impl Plugin for NeighborhoodSummary {
                 );
             }
         }
-
-        self.active
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if !self.active {
             return;
         }

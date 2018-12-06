@@ -202,8 +202,7 @@ impl PerMapUI {
         timer.stop("draw_map");
 
         let debug_mode = DebugMode::new(&map);
-        let neighborhood_summary =
-            plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &draw_map, &mut timer);
+        let view_mode = plugins::view::ViewMode::new(&map, &draw_map, &mut timer);
 
         timer.done();
 
@@ -219,9 +218,8 @@ impl PerMapUI {
         let plugins = PluginsPerMap {
             list: vec![
                 Box::new(debug_mode),
-                Box::new(plugins::view::ViewMode::new()),
+                Box::new(view_mode),
                 Box::new(plugins::time_travel::TimeTravel::new()),
-                Box::new(neighborhood_summary),
             ],
         };
         (state, plugins)
