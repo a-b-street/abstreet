@@ -1,9 +1,3 @@
-extern crate abstutil;
-extern crate csv;
-extern crate failure;
-extern crate geom;
-extern crate itertools;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 

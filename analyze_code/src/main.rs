@@ -1,5 +1,3 @@
-extern crate syn;
-
 use std::collections::HashMap;
 use std::fmt;
 use std::fs::File;

@@ -1,9 +1,3 @@
-extern crate aabb_quadtree;
-extern crate dimensioned;
-extern crate geo;
-extern crate ordered_float;
-extern crate rand;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 

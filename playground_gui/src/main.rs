@@ -1,7 +1,3 @@
-extern crate ezgui;
-extern crate geom;
-extern crate piston;
-
 mod common;
 mod debug_intersection;
 mod debug_polygon_drawing;

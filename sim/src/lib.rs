@@ -1,27 +1,16 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate abstutil;
-extern crate backtrace;
 #[macro_use]
 extern crate derivative;
-extern crate dimensioned;
-extern crate geom;
 #[macro_use]
 extern crate lazy_static;
 // Order matters -- this must be before 'mod macros'
 #[macro_use]
 extern crate log;
-extern crate map_model;
 #[macro_use]
 extern crate more_asserts;
-extern crate multimap;
-extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;
-extern crate rand;
-extern crate rayon;
-extern crate regex;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]

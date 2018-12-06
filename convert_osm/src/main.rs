@@ -1,7 +1,3 @@
-extern crate abstutil;
-extern crate convert_osm;
-extern crate structopt;
-
 use convert_osm::{convert, Flags};
 use structopt::StructOpt;
 

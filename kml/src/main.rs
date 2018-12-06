@@ -1,8 +1,3 @@
-extern crate abstutil;
-extern crate geom;
-extern crate kml;
-extern crate structopt;
-
 use geom::{GPSBounds, LonLat};
 use structopt::StructOpt;
 

@@ -1,18 +1,3 @@
-extern crate aabb_quadtree;
-extern crate abstutil;
-extern crate byteorder;
-extern crate dimensioned;
-extern crate geo;
-extern crate geojson;
-extern crate geom;
-extern crate gtfs;
-extern crate kml;
-extern crate map_model;
-extern crate ordered_float;
-extern crate osm_xml;
-// TODO To serialize Neighborhoods. Should probably lift this into the map_model layer instead of
-// have this weird dependency.
-extern crate sim;
 #[macro_use]
 extern crate structopt;
 

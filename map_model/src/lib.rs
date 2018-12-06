@@ -1,17 +1,7 @@
-extern crate aabb_quadtree;
-extern crate abstutil;
-extern crate dimensioned;
-extern crate geo;
-extern crate geom;
-extern crate gtfs;
 #[macro_use]
 extern crate log;
-extern crate multimap;
-extern crate nbez;
-extern crate ordered_float;
 #[macro_use]
 extern crate pretty_assertions;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 

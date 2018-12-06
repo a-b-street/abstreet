@@ -1,9 +1,5 @@
-extern crate abstutil;
-extern crate geom;
 #[macro_use]
 extern crate log;
-extern crate quick_xml;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]

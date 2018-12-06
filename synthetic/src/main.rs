@@ -1,9 +1,3 @@
-extern crate abstutil;
-extern crate dimensioned;
-extern crate ezgui;
-extern crate geom;
-extern crate map_model;
-extern crate piston;
 #[macro_use]
 extern crate serde_derive;
 

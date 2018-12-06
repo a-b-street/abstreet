@@ -1,11 +1,3 @@
-extern crate aabb_quadtree;
-extern crate abstutil;
-extern crate ezgui;
-extern crate geom;
-extern crate map_model;
-extern crate piston;
-extern crate structopt;
-
 mod render;
 mod timer;
 

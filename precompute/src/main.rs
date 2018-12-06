@@ -1,8 +1,3 @@
-extern crate abstutil;
-extern crate log;
-extern crate sim;
-extern crate structopt;
-
 use abstutil::{LogAdapter, Timer};
 use log::LevelFilter;
 use sim::SimFlags;

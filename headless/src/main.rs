@@ -1,12 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate abstutil;
-extern crate cpuprofiler;
-extern crate log;
-extern crate map_model;
-extern crate sim;
-extern crate structopt;
-
 use abstutil::{LogAdapter, Timer};
 use log::LevelFilter;
 use sim::SimFlags;

@@ -1,32 +1,17 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-extern crate aabb_quadtree;
-extern crate abstutil;
-extern crate counter;
-extern crate cpuprofiler;
-extern crate dimensioned;
 #[macro_use]
 extern crate downcast;
-extern crate ezgui;
 #[macro_use]
 extern crate generator;
-extern crate geo;
-extern crate geom;
-extern crate kml;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate map_model;
-extern crate piston;
-extern crate quick_xml;
 #[macro_use]
 extern crate pretty_assertions;
-extern crate rand;
 #[macro_use]
 extern crate serde_derive;
-extern crate sim;
-extern crate structopt;
 
 #[macro_use]
 mod macros;

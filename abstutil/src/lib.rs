@@ -1,14 +1,7 @@
 #[macro_use]
 extern crate lazy_static;
-extern crate log;
-extern crate multimap;
-extern crate rand;
-extern crate serde;
-extern crate serde_cbor;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
-extern crate yansi;
 
 mod clone;
 mod collections;
