@@ -1,5 +1,6 @@
 use abstutil;
 use ezgui::Color;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 

@@ -4,6 +4,7 @@ use crate::{BuildingID, BusStopID, IntersectionID, RoadID};
 use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::f64;
 use std::fmt;

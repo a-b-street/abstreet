@@ -1,3 +1,4 @@
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::f64;
 use std::fmt;

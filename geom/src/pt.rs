@@ -1,6 +1,7 @@
 use crate::{Angle, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNaN;
+use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
 

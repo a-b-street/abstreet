@@ -1,10 +1,5 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-
 mod canvas;
 mod color;
 mod input;

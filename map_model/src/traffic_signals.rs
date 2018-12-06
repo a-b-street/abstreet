@@ -1,6 +1,7 @@
 use crate::{IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 use abstutil::Error;
 use dimensioned::si;
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::collections::BTreeSet;
 

@@ -5,6 +5,7 @@ use abstutil;
 use abstutil::WeightedUsizeChoice;
 use map_model::{BuildingID, IntersectionID, LaneType, Map, Pathfinder, RoadID};
 use rand::{Rng, XorShiftRng};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

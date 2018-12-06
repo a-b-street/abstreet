@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate serde_derive;
-
 mod clone;
 mod collections;
 mod error;

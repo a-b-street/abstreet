@@ -1,4 +1,5 @@
 use crate::{raw_data, LaneType, MapEdits, RoadID};
+use serde_derive::{Deserialize, Serialize};
 use std::iter;
 
 // (original direction, reversed direction)

@@ -15,8 +15,10 @@ use crate::{
 };
 use abstutil;
 use abstutil::Error;
+use derivative::Derivative;
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
+use serde_derive::{Deserialize, Serialize};
 use std;
 
 #[derive(Serialize, Deserialize, Derivative)]

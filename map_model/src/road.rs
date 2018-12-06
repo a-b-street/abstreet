@@ -2,6 +2,7 @@ use crate::{IntersectionID, LaneID, LaneType};
 use abstutil::Error;
 use dimensioned::si;
 use geom::PolyLine;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 

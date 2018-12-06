@@ -20,6 +20,7 @@ use map_model::{
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use rand::XorShiftRng;
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::collections::{BTreeMap, HashSet};
 

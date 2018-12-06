@@ -1,5 +1,6 @@
 use abstutil;
 use geom::{PolyLine, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.

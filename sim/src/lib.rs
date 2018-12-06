@@ -1,22 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 #[macro_use]
-extern crate derivative;
-#[macro_use]
-extern crate lazy_static;
-// Order matters -- this must be before 'mod macros'
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate more_asserts;
-#[macro_use]
-extern crate pretty_assertions;
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate structopt;
-
-#[macro_use]
 mod macros;
 
 mod driving;
@@ -54,6 +38,7 @@ pub use crate::render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgen
 pub use crate::sim::Sim;
 use abstutil::Cloneable;
 use map_model::{BuildingID, LaneID};
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

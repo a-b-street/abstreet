@@ -1,5 +1,6 @@
 use crate::{Canvas, GfxCtx, InputResult, LogScroller, Menu, TextBox, UserInput};
 use abstutil::Cloneable;
+use log::warn;
 use std::collections::VecDeque;
 
 pub struct Wizard {

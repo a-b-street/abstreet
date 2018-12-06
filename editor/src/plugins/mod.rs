@@ -11,7 +11,9 @@ use crate::objects::{Ctx, ID};
 use crate::ui::PluginCtx;
 use abstutil;
 use abstutil::WeightedUsizeChoice;
-use downcast::Any;
+use downcast::{
+    downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
+};
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::{IntersectionID, Map};
 use sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};

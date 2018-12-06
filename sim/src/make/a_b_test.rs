@@ -1,5 +1,6 @@
 use crate::ScoreSummary;
 use abstutil;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ABTest {

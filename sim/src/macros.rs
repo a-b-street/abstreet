@@ -3,7 +3,7 @@
 macro_rules! debug {
     ( $( $x:expr ),* ) => {
         {
-            extern crate log;
+            use log::log;
             log!(target: "sim", log::Level::Debug, $( $x, )* );
         }
     }
@@ -12,7 +12,7 @@ macro_rules! debug {
 macro_rules! info {
     ( $( $x:expr ),* ) => {
         {
-            extern crate log;
+            use log::log;
             log!(target: "sim", log::Level::Info, $( $x, )* );
         }
     }
@@ -21,7 +21,7 @@ macro_rules! info {
 macro_rules! warn {
     ( $( $x:expr ),* ) => {
         {
-            extern crate log;
+            use log::log;
             log!(target: "sim", log::Level::Warn, $( $x, )* );
         }
     }
@@ -30,7 +30,7 @@ macro_rules! warn {
 macro_rules! error {
     ( $( $x:expr ),* ) => {
         {
-            extern crate log;
+            use log::log;
             log!(target: "sim", log::Level::Error, $( $x, )* );
         }
     }

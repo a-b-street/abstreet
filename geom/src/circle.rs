@@ -1,4 +1,5 @@
 use crate::{Bounds, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug)]

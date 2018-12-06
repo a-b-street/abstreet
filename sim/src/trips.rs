@@ -4,6 +4,7 @@ use crate::walking::SidewalkSpot;
 use crate::{AgentID, CarID, ParkedCar, PedestrianID, ScoreSummary, Tick, TripID};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use map_model::{BusRouteID, BusStopID};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

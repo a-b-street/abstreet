@@ -1,6 +1,7 @@
 use crate::LANE_THICKNESS;
 use abstutil;
 use geom::{PolyLine, Polygon, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
 

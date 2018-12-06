@@ -5,6 +5,7 @@ use crate::trips::TripManager;
 use crate::walking::{CreatePedestrian, WalkingSimState};
 use crate::{AgentID, Tick};
 use map_model::Map;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub enum Command {

@@ -3,6 +3,7 @@ use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, LaneType, RoadSpec, LANE_THICKNESS};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::mem;
 

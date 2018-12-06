@@ -1,6 +1,7 @@
 use crate::{LaneID, Map, TurnID};
 use dimensioned::si;
 use geom::{Angle, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]

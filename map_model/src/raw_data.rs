@@ -2,6 +2,7 @@ use crate::AreaType;
 use dimensioned::si;
 use geom::{GPSBounds, LonLat};
 use gtfs::Route;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]

@@ -2,6 +2,7 @@ use crate::objects::{DEBUG, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use generator;
+use generator::done;
 use geo;
 use geo::prelude::Intersects;
 use geom::Polygon;

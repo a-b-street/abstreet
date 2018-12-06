@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate structopt;
-
 mod group_parcels;
 mod neighborhoods;
 mod osm;
@@ -15,6 +12,7 @@ use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, LANE_THICKNESS};
 use ordered_float::NotNaN;
 use std::path::Path;
+use structopt::StructOpt;
 
 const MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL: f64 = 50.0;
 

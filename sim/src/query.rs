@@ -4,6 +4,7 @@ use crate::{Sim, Tick, TripID};
 use dimensioned::si;
 use geom::Pt2D;
 use map_model::LaneID;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::time::{Duration, Instant};

@@ -1,5 +1,6 @@
 use crate::{Bounds, HashablePt2D, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
+use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
 

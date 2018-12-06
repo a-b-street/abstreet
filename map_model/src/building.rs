@@ -3,6 +3,7 @@
 use crate::Position;
 use abstutil;
 use geom::{Line, PolyLine, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
 

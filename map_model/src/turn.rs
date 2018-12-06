@@ -2,6 +2,7 @@ use crate::{IntersectionID, LaneID};
 use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
 

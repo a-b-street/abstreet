@@ -13,6 +13,7 @@ use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, 
 use kml;
 use map_model::{BuildingID, IntersectionID, LaneID, Map};
 use piston::input::Key;
+use serde_derive::{Deserialize, Serialize};
 use sim;
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::cell::RefCell;

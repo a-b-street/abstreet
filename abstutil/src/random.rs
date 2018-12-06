@@ -1,5 +1,6 @@
 use rand::distributions::{Distribution, Weighted, WeightedChoice};
 use rand::{RngCore, SeedableRng, XorShiftRng};
+use serde_derive::{Deserialize, Serialize};
 
 // Need to explain this trick -- basically keeps consistency between two different simulations when
 // each one might make slightly different sequences of calls to the RNG.

@@ -16,6 +16,7 @@ use map_model::{
     Pathfinder, Position, RoadID,
 };
 use rand::{Rng, XorShiftRng};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

@@ -9,6 +9,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap, Error};
+use derivative::Derivative;
 use dimensioned::si;
 use geom::{Line, Pt2D};
 use map_model::{
@@ -16,6 +17,7 @@ use map_model::{
     Traversable, TurnID,
 };
 use multimap::MultiMap;
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::collections::{BTreeMap, HashSet};
 

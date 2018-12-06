@@ -1,10 +1,8 @@
-#[macro_use]
-extern crate serde_derive;
-
 use abstutil::elapsed_seconds;
 use failure::Error;
 use geom::LonLat;
 use itertools::Itertools;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::time::Instant;

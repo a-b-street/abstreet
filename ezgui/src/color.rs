@@ -1,4 +1,5 @@
 use palette;
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 // Copy could be reconsidered, but eh

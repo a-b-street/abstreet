@@ -7,6 +7,7 @@ use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use dimensioned::si;
 use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
+use serde_derive::{Deserialize, Serialize};
 use std;
 use std::collections::{BTreeMap, BTreeSet};
 

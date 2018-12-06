@@ -10,6 +10,7 @@ use map_model::{
     BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
 };
 use rand::{Rng, XorShiftRng};
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 enum Goal {

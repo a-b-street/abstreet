@@ -1,5 +1,6 @@
 use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road, RoadID};
 use abstutil;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -1,16 +1,12 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate structopt;
-
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, LonLat};
+use log::info;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::io;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(name = "kml")]

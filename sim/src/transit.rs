@@ -8,6 +8,7 @@ use crate::{CarID, Distance, PedestrianID, Tick};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
 use map_model::{BusRoute, BusRouteID, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 // These index stops along a route, not stops along a single sidewalk.

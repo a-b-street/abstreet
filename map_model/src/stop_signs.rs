@@ -1,5 +1,6 @@
 use crate::{IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

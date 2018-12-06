@@ -4,6 +4,7 @@ use crate::{LaneID, LaneType, Map, RoadID, TurnID};
 use abstutil;
 use dimensioned::si;
 use geom::Pt2D;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
 

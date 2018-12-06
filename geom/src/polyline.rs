@@ -1,6 +1,7 @@
 use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 use dimensioned::si;
 use ordered_float::NotNaN;
+use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
 

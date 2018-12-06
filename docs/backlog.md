@@ -8,7 +8,7 @@
 - document pieces that're stabilizing
 - run clippy everywhere
 	- presubmit script
-	- also enforce consistent style (import order, extern crate only in mod.rs or lib.rs, derive order, struct initialization order)
+	- also enforce consistent style (derive order, struct initialization order)
 
 ## Conga line idea
 

@@ -1,5 +1,6 @@
 use abstutil;
 use backtrace::Backtrace;
+use lazy_static::lazy_static;
 use std::collections::HashSet;
 use std::sync::Mutex;
 

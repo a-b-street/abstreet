@@ -3,6 +3,7 @@ use crate::{CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, Veh
 use geom::{Angle, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::iter;
 

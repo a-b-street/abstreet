@@ -2,6 +2,7 @@ use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable,
 use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 
 pub type Trace = PolyLine;

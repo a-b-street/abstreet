@@ -1,19 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 #[macro_use]
-extern crate downcast;
-#[macro_use]
-extern crate generator;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate pretty_assertions;
-#[macro_use]
-extern crate serde_derive;
-
-#[macro_use]
 mod macros;
 
 mod colors;
