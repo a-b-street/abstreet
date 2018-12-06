@@ -15,8 +15,8 @@ pub fn run(t: &mut TestRunner) {
             );
             let north_bldg = map.bldg("north");
             let south_bldg = map.bldg("south");
-            let north_parking = map.parking_lane("north", 18);
-            let south_parking = map.parking_lane("south", 18);
+            let north_parking = map.parking_lane("north", 23);
+            let south_parking = map.parking_lane("south", 23);
 
             let car = sim.seed_specific_parked_cars(south_parking, south_bldg, vec![2])[0];
             // Fill up some of the first spots, forcing parking to happen at spot 4
@@ -48,13 +48,13 @@ pub fn run(t: &mut TestRunner) {
             );
             let north_bldg = map.bldg("north");
             let south_bldg = map.bldg("south");
-            let north_parking = map.parking_lane("north", 18);
-            let south_parking = map.parking_lane("south", 18);
+            let north_parking = map.parking_lane("north", 23);
+            let south_parking = map.parking_lane("south", 23);
 
             let car = sim.seed_specific_parked_cars(south_parking, south_bldg, vec![2])[0];
             // Fill up all of the north spots, forcing parking to happen on the south lane behind
             // the original spot
-            sim.seed_specific_parked_cars(north_parking, north_bldg, (0..18).collect());
+            sim.seed_specific_parked_cars(north_parking, north_bldg, (0..23).collect());
             // TODO I just want to say (south_bldg, north_bldg), not mode...
             sim.seed_trip_using_parked_car(south_bldg, north_bldg, car, &map);
             h.setup_done(&sim);
