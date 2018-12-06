@@ -8,8 +8,8 @@ use objects::{Ctx, RenderingHints, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins;
 use plugins::debug::layers::ToggleableLayers;
-use plugins::debug_mode::DebugMode;
-use plugins::edit_mode::EditMode;
+use plugins::debug::DebugMode;
+use plugins::edit::EditMode;
 use plugins::time_travel::TimeTravel;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
@@ -219,7 +219,7 @@ impl PerMapUI {
         let plugins = PluginsPerMap {
             list: vec![
                 Box::new(debug_mode),
-                Box::new(plugins::view_mode::ViewMode::new()),
+                Box::new(plugins::view::ViewMode::new()),
                 Box::new(plugins::time_travel::TimeTravel::new()),
                 Box::new(neighborhood_summary),
             ],

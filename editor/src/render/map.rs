@@ -9,7 +9,7 @@ use map_model::{
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use objects::ID;
-use plugins::debug_mode::DebugMode;
+use plugins::debug::DebugMode;
 use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;

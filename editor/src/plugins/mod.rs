@@ -1,16 +1,13 @@
 pub mod debug;
-pub mod debug_mode;
 pub mod diff_all;
 pub mod diff_worlds;
 pub mod edit;
-pub mod edit_mode;
 pub mod logs;
 pub mod neighborhood_summary;
 pub mod search;
 pub mod sim_controls;
 pub mod time_travel;
 pub mod view;
-pub mod view_mode;
 pub mod warp;
 
 use abstutil;

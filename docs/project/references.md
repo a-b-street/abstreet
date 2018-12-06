@@ -14,6 +14,7 @@
 - https://igniteseattle.com/
 - http://seattlegreenways.org/
 - https://www.livablecities.org/
+- https://www.reddit.com/r/openstreetmap/comments/a39uv0/ok_so/
 
 ## Similar projects
 
