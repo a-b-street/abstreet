@@ -3,7 +3,6 @@ pub mod diff_all;
 pub mod diff_worlds;
 pub mod edit;
 pub mod logs;
-pub mod search;
 pub mod sim_controls;
 pub mod time_travel;
 pub mod view;

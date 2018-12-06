@@ -151,9 +151,9 @@ and probably step 2...
 	- rewrite turn_cycler; i dont understand it. also it used to block input after starting to tab through stuff. weird?
 
 	thursday pick-up:
-	- search (sometimes ambient, sometimes blocking)
 	- overlapping keys to quit stuff...
 	- cant edit mode when sim is actively running
+		- where does sim ctrler belong?
 
 and step 3...
 - dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.
