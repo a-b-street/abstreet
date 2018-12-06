@@ -1,10 +1,9 @@
+use crate::{Canvas, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
-use input::UserInput;
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
-use {Canvas, GfxCtx};
 
 pub trait GUI<T> {
     fn event(&mut self, input: UserInput) -> (EventLoopMode, T);

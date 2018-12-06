@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Area, AreaID, AreaType};
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
 
 #[derive(Debug)]
 pub struct DrawArea {

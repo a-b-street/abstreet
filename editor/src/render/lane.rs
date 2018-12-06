@@ -1,12 +1,12 @@
-use colors::ColorScheme;
+use crate::colors::ColorScheme;
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 

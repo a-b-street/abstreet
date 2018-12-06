@@ -1,8 +1,8 @@
-use driving::SimQueue;
-use kinematics::Vehicle;
+use crate::driving::SimQueue;
+use crate::kinematics::Vehicle;
+use crate::{AgentID, CarID, Distance, Speed};
 use map_model::Traversable;
 use std::collections::{BTreeMap, HashMap};
-use {AgentID, CarID, Distance, Speed};
 
 // An immutable view that agents and intersection controllers see of agents.
 pub struct AgentView {

@@ -1,11 +1,11 @@
+use crate::objects::{DEBUG, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::DrawMap;
 use generator;
 use geo;
 use geo::prelude::Intersects;
 use geom::Polygon;
-use objects::{DEBUG, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.

@@ -1,8 +1,8 @@
+use crate::{Intersection, Road, RoadID, LANE_THICKNESS};
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, PolyLine, Pt2D};
 use std::marker;
-use {Intersection, Road, RoadID, LANE_THICKNESS};
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
     value_unsafe: 5.0,

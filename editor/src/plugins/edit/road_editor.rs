@@ -1,7 +1,7 @@
+use crate::objects::{EDIT_MAP, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use map_model::{EditReason, LaneID, LaneType};
-use objects::{EDIT_MAP, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 
 pub struct RoadEditor {}
 

@@ -1,6 +1,6 @@
+use crate::{Scenario, Sim, Tick};
 use abstutil;
 use map_model::{Map, MapEdits};
-use {Scenario, Sim, Tick};
 
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "sim_flags")]

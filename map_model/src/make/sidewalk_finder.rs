@@ -1,8 +1,8 @@
+use crate::{FindClosest, Lane, LaneID, Position};
 use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, HashablePt2D};
 use std::collections::{HashMap, HashSet};
-use {FindClosest, Lane, LaneID, Position};
 
 // If the result doesn't contain a requested point, then there was no matching sidewalk close
 // enough.

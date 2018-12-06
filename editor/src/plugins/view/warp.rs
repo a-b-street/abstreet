@@ -1,11 +1,11 @@
+use crate::objects::{Ctx, DEBUG, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
-use objects::{Ctx, DEBUG, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
 use sim::{CarID, PedestrianID, Sim, TripID};
 use std::time::Instant;
 use std::usize;

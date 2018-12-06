@@ -1,4 +1,4 @@
-use common::{draw_polyline, BLUE, GREEN, RED};
+use crate::common::{draw_polyline, BLUE, GREEN, RED};
 use ezgui::GfxCtx;
 use geom::{Circle, PolyLine, Pt2D};
 

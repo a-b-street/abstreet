@@ -1,5 +1,5 @@
+use crate::{Bounds, Pt2D};
 use std::fmt;
-use {Bounds, Pt2D};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Circle {

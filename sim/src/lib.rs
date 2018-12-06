@@ -52,19 +52,19 @@ mod trips;
 mod view;
 mod walking;
 
-use abstutil::Cloneable;
-pub use events::Event;
-pub use instrument::save_backtraces;
-pub use kinematics::VehicleType;
-pub use make::{
+pub use crate::events::Event;
+pub use crate::instrument::save_backtraces;
+pub use crate::kinematics::VehicleType;
+pub use crate::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, Neighborhood, NeighborhoodBuilder,
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
 };
+pub use crate::physics::{Acceleration, Distance, Speed, Tick, Time, TIMESTEP};
+pub use crate::query::{Benchmark, ScoreSummary, SimStats, Summary};
+pub use crate::render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
+pub use crate::sim::Sim;
+use abstutil::Cloneable;
 use map_model::{BuildingID, LaneID};
-pub use physics::{Acceleration, Distance, Speed, Tick, Time, TIMESTEP};
-pub use query::{Benchmark, ScoreSummary, SimStats, Summary};
-pub use render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
-pub use sim::Sim;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

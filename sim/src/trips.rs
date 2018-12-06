@@ -1,10 +1,10 @@
+use crate::driving::DrivingGoal;
+use crate::kinematics::Vehicle;
+use crate::walking::SidewalkSpot;
+use crate::{AgentID, CarID, ParkedCar, PedestrianID, ScoreSummary, Tick, TripID};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use driving::DrivingGoal;
-use kinematics::Vehicle;
 use map_model::{BusRouteID, BusStopID};
 use std::collections::{BTreeMap, VecDeque};
-use walking::SidewalkSpot;
-use {AgentID, CarID, ParkedCar, PedestrianID, ScoreSummary, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct TripManager {

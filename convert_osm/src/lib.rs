@@ -23,12 +23,12 @@ mod remove_disconnected;
 mod split_ways;
 mod srtm;
 
+use crate::srtm::Elevation;
 use dimensioned::si;
 use geom::{GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, LANE_THICKNESS};
 use ordered_float::NotNaN;
-use srtm::Elevation;
 use std::path::Path;
 
 const MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL: f64 = 50.0;

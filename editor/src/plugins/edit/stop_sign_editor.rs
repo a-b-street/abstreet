@@ -1,9 +1,9 @@
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::{draw_stop_sign, stop_sign_rendering_hints};
 use ezgui::{Color, GfxCtx};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
-use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
-use render::{draw_stop_sign, stop_sign_rendering_hints};
 
 pub struct StopSignEditor {
     i: IntersectionID,

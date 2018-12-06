@@ -1,9 +1,9 @@
+use crate::{IntersectionID, LaneID};
 use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use std::f64;
 use std::fmt;
-use {IntersectionID, LaneID};
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 // Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.

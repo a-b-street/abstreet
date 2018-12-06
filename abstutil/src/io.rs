@@ -1,3 +1,4 @@
+use crate::{elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
 use multimap;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -10,7 +11,6 @@ use std::hash::Hash;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 use std::time::Instant;
-use {elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
 
 pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()

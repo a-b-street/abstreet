@@ -1,13 +1,13 @@
-use abstutil::WeightedUsizeChoice;
-use driving::DrivingGoal;
-use map_model::{BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, Map, RoadID};
-use std::collections::{BTreeSet, VecDeque};
-use std::panic;
-use walking::SidewalkSpot;
-use {
+use crate::driving::DrivingGoal;
+use crate::walking::SidewalkSpot;
+use crate::{
     BorderSpawnOverTime, CarID, Event, OriginDestination, PedestrianID, Scenario, SeedParkedCars,
     Sim, SpawnOverTime, Tick,
 };
+use abstutil::WeightedUsizeChoice;
+use map_model::{BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, Map, RoadID};
+use std::collections::{BTreeSet, VecDeque};
+use std::panic;
 
 // Helpers to run the sim
 impl Sim {

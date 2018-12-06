@@ -1,6 +1,6 @@
+use crate::{line_intersection, Angle, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use std::fmt;
-use {line_intersection, Angle, Pt2D, EPSILON_DIST};
 
 // Segment, technically
 #[derive(Clone, Serialize, Deserialize, Debug)]

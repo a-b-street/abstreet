@@ -1,10 +1,10 @@
+use crate::kinematics::Vehicle;
+use crate::{CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 use geom::{Angle, Pt2D};
-use kinematics::Vehicle;
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use std::collections::{BTreeMap, HashSet};
 use std::iter;
-use {CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct ParkingSimState {

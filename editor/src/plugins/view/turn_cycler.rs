@@ -1,10 +1,10 @@
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
 use ezgui::{Color, GfxCtx};
 use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, TurnType};
-use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
-use render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {

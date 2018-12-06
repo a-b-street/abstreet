@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::{Color, GfxCtx};
 use graphics::{Image, Rectangle, Transformed};
-use {Color, GfxCtx};
 
 pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
 pub const TEXT_QUERY_COLOR: Color = Color([0.0, 0.0, 1.0, 0.5]);

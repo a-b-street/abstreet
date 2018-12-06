@@ -1,6 +1,6 @@
+use crate::{IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use {IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlStopSign {

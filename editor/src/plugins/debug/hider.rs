@@ -1,5 +1,5 @@
+use crate::objects::{DEBUG_EXTRA, ID};
 use ezgui::UserInput;
-use objects::{DEBUG_EXTRA, ID};
 use piston::input::Key;
 use std::collections::HashSet;
 

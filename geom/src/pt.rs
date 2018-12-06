@@ -1,8 +1,8 @@
+use crate::{Angle, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNaN;
 use std::f64;
 use std::fmt;
-use {Angle, GPSBounds, LonLat};
 
 // This represents world-space in meters.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]

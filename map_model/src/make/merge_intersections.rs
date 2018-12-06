@@ -1,6 +1,6 @@
+use crate::raw_data;
 use abstutil::Timer;
 use geom::HashablePt2D;
-use raw_data;
 use std::collections::{HashMap, HashSet};
 
 type IntersectionID = usize;

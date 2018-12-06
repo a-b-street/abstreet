@@ -1,9 +1,9 @@
+use crate::{IntersectionID, LaneID, LaneType};
 use abstutil::Error;
 use dimensioned::si;
 use geom::PolyLine;
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
-use {IntersectionID, LaneID, LaneType};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

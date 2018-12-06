@@ -24,23 +24,23 @@ mod text_box;
 mod tree_menu;
 mod wizard;
 
-pub use canvas::{
+pub use crate::canvas::{
     Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
 };
-pub use color::Color;
+pub use crate::color::Color;
+pub use crate::input::UserInput;
+pub use crate::log_scroller::LogScroller;
+pub use crate::menu::Menu;
+pub use crate::runner::{run, EventLoopMode, GUI};
+pub use crate::text::{Text, TEXT_FG_COLOR};
+pub use crate::text_box::TextBox;
+pub use crate::wizard::{Wizard, WrappedWizard};
 use geom::Pt2D;
 use graphics::character::CharacterCache;
 use graphics::Transformed;
-pub use input::UserInput;
-pub use log_scroller::LogScroller;
-pub use menu::Menu;
 use opengl_graphics::{GlGraphics, Texture};
 use piston::input::Key;
-pub use runner::{run, EventLoopMode, GUI};
 use std::mem;
-pub use text::{Text, TEXT_FG_COLOR};
-pub use text_box::TextBox;
-pub use wizard::{Wizard, WrappedWizard};
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {

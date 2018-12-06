@@ -1,7 +1,7 @@
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, PolyLine, Polygon, Pt2D};
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
 use sim::{CarID, CarState, DrawCarInput};
 
 const BIKE_WIDTH: f64 = 0.8;

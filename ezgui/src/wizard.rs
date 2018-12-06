@@ -1,6 +1,6 @@
+use crate::{Canvas, GfxCtx, InputResult, LogScroller, Menu, TextBox, UserInput};
 use abstutil::Cloneable;
 use std::collections::VecDeque;
-use {Canvas, GfxCtx, InputResult, LogScroller, Menu, TextBox, UserInput};
 
 pub struct Wizard {
     alive: bool,

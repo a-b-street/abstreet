@@ -1,8 +1,8 @@
+use crate::objects::SIM;
+use crate::plugins::{Plugin, PluginCtx};
 use abstutil::MultiMap;
 use map_model::{Map, Traversable};
-use objects::SIM;
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick};
 use std::collections::BTreeMap;
 

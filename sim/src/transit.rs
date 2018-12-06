@@ -1,14 +1,14 @@
+use crate::events::Event;
+use crate::instrument::capture_backtrace;
+use crate::spawn::Spawner;
+use crate::trips::TripManager;
+use crate::view::AgentView;
+use crate::walking::WalkingSimState;
+use crate::{CarID, Distance, PedestrianID, Tick};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use dimensioned::si;
-use events::Event;
-use instrument::capture_backtrace;
 use map_model::{BusRoute, BusRouteID, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
-use spawn::Spawner;
 use std::collections::BTreeMap;
-use trips::TripManager;
-use view::AgentView;
-use walking::WalkingSimState;
-use {CarID, Distance, PedestrianID, Tick};
 
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;

@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::{LaneID, LaneType, Map, RoadID, TurnID};
 use abstutil;
 use dimensioned::si;
 use geom::Pt2D;
 use std::collections::BTreeSet;
 use std::fmt;
-use {LaneID, LaneType, Map, RoadID, TurnID};
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

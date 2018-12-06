@@ -7,10 +7,10 @@ mod scenarios;
 mod stop_sign_editor;
 mod traffic_signal_editor;
 
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use map_model::IntersectionID;
-use objects::{Ctx, ID};
-use plugins::{Plugin, PluginCtx};
 
 pub struct EditMode {
     active_plugin: Option<Box<Plugin>>,

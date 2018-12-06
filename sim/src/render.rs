@@ -1,6 +1,6 @@
+use crate::{CarID, Distance, PedestrianID, Sim, VehicleType};
 use geom::{Angle, Pt2D};
 use map_model::{LaneType, Map, Trace, Traversable, TurnID};
-use {CarID, Distance, PedestrianID, Sim, VehicleType};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
 #[derive(Clone)]

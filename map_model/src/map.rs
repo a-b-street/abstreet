@@ -1,19 +1,17 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::{
+    make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
+    LaneID, LaneType, MapEdits, Parcel, ParcelID, Road, RoadID, Turn, TurnID, TurnPriority,
+    LANE_THICKNESS,
+};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use edits::MapEdits;
 use geom::{Bounds, GPSBounds, HashablePt2D, PolyLine, Pt2D};
-use make;
-use raw_data;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io;
 use std::path;
-use {
-    Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID, ControlStopSign,
-    ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType,
-    Parcel, ParcelID, Road, RoadID, Turn, TurnID, TurnPriority, LANE_THICKNESS,
-};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Map {

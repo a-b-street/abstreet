@@ -1,6 +1,6 @@
+use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road, RoadID};
 use abstutil;
 use std::collections::BTreeMap;
-use {ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road, RoadID};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MapEdits {

@@ -1,5 +1,5 @@
+use crate::runner::TestRunner;
 use abstutil::Timer;
-use runner::TestRunner;
 use sim;
 
 pub fn run(t: &mut TestRunner) {

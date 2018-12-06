@@ -1,15 +1,15 @@
+use crate::driving::Action;
+use crate::kinematics;
+use crate::kinematics::Vehicle;
+use crate::parking::ParkingSimState;
+use crate::transit::TransitSimState;
+use crate::view::AgentView;
+use crate::{Distance, Event, ParkingSpot, Tick};
 use dimensioned::si;
-use driving::Action;
-use kinematics;
-use kinematics::Vehicle;
 use map_model::{
     BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
 };
-use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
-use transit::TransitSimState;
-use view::AgentView;
-use {Distance, Event, ParkingSpot, Tick};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 enum Goal {

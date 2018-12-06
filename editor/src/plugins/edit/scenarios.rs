@@ -1,11 +1,11 @@
-use ezgui::{Color, GfxCtx, LogScroller, Wizard, WrappedWizard};
-use map_model::Map;
-use objects::{Ctx, SIM_SETUP};
-use piston::input::Key;
-use plugins::{
+use crate::objects::{Ctx, SIM_SETUP};
+use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
+use ezgui::{Color, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use map_model::Map;
+use piston::input::Key;
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {

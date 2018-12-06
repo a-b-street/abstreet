@@ -1,8 +1,8 @@
+use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
 use ordered_float::NotNaN;
 use std::collections::{BinaryHeap, HashMap, VecDeque};
-use {BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 
 pub type Trace = PolyLine;
 

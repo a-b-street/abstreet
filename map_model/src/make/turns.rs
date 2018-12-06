@@ -1,13 +1,13 @@
+use crate::{
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
+    Turn, TurnID, TurnType, LANE_THICKNESS,
+};
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
-use {
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Map, Road, RoadID,
-    Turn, TurnID, TurnType, LANE_THICKNESS,
-};
 
 pub fn make_all_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     if i.intersection_type == IntersectionType::Border {

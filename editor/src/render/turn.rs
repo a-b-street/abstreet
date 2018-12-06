@@ -1,12 +1,12 @@
+use crate::objects::{Ctx, ID};
+use crate::render::{
+    RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, CROSSWALK_LINE_THICKNESS,
+    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
+};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
-use objects::{Ctx, ID};
-use render::{
-    RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, CROSSWALK_LINE_THICKNESS,
-    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
-};
 use std::f64;
 
 #[derive(Debug)]

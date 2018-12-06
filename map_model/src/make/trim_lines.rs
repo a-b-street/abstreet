@@ -1,5 +1,5 @@
+use crate::{Intersection, Lane};
 use geom::PolyLine;
-use {Intersection, Lane};
 
 pub fn trim_lines(lanes: &mut Vec<Lane>, i: &Intersection) {
     // We update the entire polyline, not the first/last line. A polyline could be trimmed twice --

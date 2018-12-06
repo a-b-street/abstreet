@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, SIM};
+use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventLoopMode, GfxCtx, Text, TOP_RIGHT};
-use objects::{Ctx, SIM};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::{Benchmark, ScoreSummary, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};

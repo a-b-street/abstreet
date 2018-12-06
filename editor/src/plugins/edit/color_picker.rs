@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::objects::{Ctx, SETTINGS};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
 use geom::Polygon;
-use objects::{Ctx, SETTINGS};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 
 // TODO assumes minimum screen size
 const WIDTH: u32 = 255;

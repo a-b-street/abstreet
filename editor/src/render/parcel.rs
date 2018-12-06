@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{Parcel, ParcelID};
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 
 const COLORS: [Color; 14] = [
     // TODO these are awful choices

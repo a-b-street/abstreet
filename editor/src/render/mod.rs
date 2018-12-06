@@ -11,19 +11,21 @@ mod parcel;
 mod pedestrian;
 mod turn;
 
+use crate::objects::{Ctx, ID};
+pub use crate::render::area::DrawArea;
+use crate::render::bike::DrawBike;
+use crate::render::car::DrawCar;
+pub use crate::render::extra_shape::ExtraShapeID;
+pub use crate::render::intersection::{
+    draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints,
+};
+pub use crate::render::lane::DrawLane;
+pub use crate::render::map::DrawMap;
+pub use crate::render::pedestrian::DrawPedestrian;
+pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Pt2D};
 use map_model::Map;
-use objects::{Ctx, ID};
-pub use render::area::DrawArea;
-use render::bike::DrawBike;
-use render::car::DrawCar;
-pub use render::extra_shape::ExtraShapeID;
-pub use render::intersection::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints};
-pub use render::lane::DrawLane;
-pub use render::map::DrawMap;
-pub use render::pedestrian::DrawPedestrian;
-pub use render::turn::{DrawCrosswalk, DrawTurn};
 use sim::{DrawCarInput, VehicleType};
 use std::f64;
 

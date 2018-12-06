@@ -1,7 +1,7 @@
+use crate::{LaneID, Map, TurnID};
 use dimensioned::si;
 use geom::{Angle, Pt2D};
 use std::fmt;
-use {LaneID, Map, TurnID};
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Position {

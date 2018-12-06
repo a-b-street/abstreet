@@ -1,6 +1,6 @@
+use crate::runner::TestRunner;
 use dimensioned::si;
 use geom::EPSILON_DIST;
-use runner::TestRunner;
 use sim::kinematics::{results_of_accel_for_one_tick, Vehicle, EPSILON_SPEED};
 use sim::{CarID, Distance, Speed, VehicleType};
 

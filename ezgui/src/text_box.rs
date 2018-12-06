@@ -1,6 +1,6 @@
-use keys::key_to_char;
+use crate::keys::key_to_char;
+use crate::{text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
-use {text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 
 // TODO right now, only a single line
 

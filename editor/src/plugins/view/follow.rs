@@ -1,5 +1,5 @@
+use crate::plugins::{Plugin, PluginCtx};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::TripID;
 
 pub struct FollowState {

@@ -2,11 +2,11 @@
 
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
+use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Color;
 use map_model::Map;
-use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use std::f64;
 
 pub struct SteepnessVisualizer {

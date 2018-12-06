@@ -1,20 +1,22 @@
+use crate::driving::{CreateCar, DrivingGoal, DrivingSimState};
+use crate::kinematics::Vehicle;
+use crate::parking::ParkingSimState;
+use crate::router::Router;
+use crate::scheduler;
+use crate::transit::TransitSimState;
+use crate::trips::{TripLeg, TripManager};
+use crate::walking::{CreatePedestrian, SidewalkSpot};
+use crate::{
+    AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType,
+};
 use abstutil::{fork_rng, WeightedUsizeChoice};
 use dimensioned::si;
-use driving::{CreateCar, DrivingGoal, DrivingSimState};
-use kinematics::Vehicle;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
     Pathfinder, Position, RoadID,
 };
-use parking::ParkingSimState;
 use rand::{Rng, XorShiftRng};
-use router::Router;
-use scheduler;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use transit::TransitSimState;
-use trips::{TripLeg, TripManager};
-use walking::{CreatePedestrian, SidewalkSpot};
-use {AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum Command {

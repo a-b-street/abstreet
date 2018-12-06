@@ -1,9 +1,9 @@
+use crate::{Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
 use abstutil::Error;
 use dimensioned::si;
 use geom::EPSILON_DIST;
 use rand::{Rng, XorShiftRng};
 use std;
-use {Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
 
 pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
     value_unsafe: 0.00000001,

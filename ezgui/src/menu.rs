@@ -1,5 +1,5 @@
+use crate::{text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 use piston::input::{Button, Key, PressEvent};
-use {text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {

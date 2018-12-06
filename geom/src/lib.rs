@@ -15,14 +15,14 @@ mod polygon;
 mod polyline;
 mod pt;
 
-pub use angle::Angle;
-pub use circle::Circle;
+pub use crate::angle::Angle;
+pub use crate::circle::Circle;
+pub use crate::gps::{GPSBounds, LonLat};
+pub use crate::line::Line;
+pub use crate::polygon::{Polygon, Triangle};
+pub use crate::polyline::PolyLine;
+pub use crate::pt::{Bounds, HashablePt2D, Pt2D};
 use dimensioned::si;
-pub use gps::{GPSBounds, LonLat};
-pub use line::Line;
-pub use polygon::{Polygon, Triangle};
-pub use polyline::PolyLine;
-pub use pt::{Bounds, HashablePt2D, Pt2D};
 use std::marker;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)

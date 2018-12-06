@@ -1,4 +1,4 @@
-use common::BLUE;
+use crate::common::BLUE;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 

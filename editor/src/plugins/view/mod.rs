@@ -8,12 +8,12 @@ mod show_route;
 mod turn_cycler;
 mod warp;
 
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::DrawMap;
 use abstutil::Timer;
 use ezgui::{Color, GfxCtx};
 use map_model::Map;
-use objects::{Ctx, ID};
-use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
 
 pub struct ViewMode {
     warp: Option<Box<Plugin>>,

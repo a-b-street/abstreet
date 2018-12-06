@@ -1,4 +1,4 @@
-use keys::describe_key;
+use crate::keys::describe_key;
 use piston::input::Key;
 use std::collections::{BTreeMap, VecDeque};
 use std::fmt;

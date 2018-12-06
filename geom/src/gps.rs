@@ -1,7 +1,7 @@
+use crate::{Bounds, HashablePt2D, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use std::f64;
 use std::fmt;
-use {Bounds, HashablePt2D, Pt2D};
 
 // longitude is x, latitude is y
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]

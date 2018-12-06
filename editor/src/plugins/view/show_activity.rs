@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, DEBUG};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
-use objects::{Ctx, DEBUG};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::{Sim, Tick};
 
 pub enum ShowActivityState {

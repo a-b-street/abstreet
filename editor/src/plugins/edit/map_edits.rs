@@ -1,10 +1,10 @@
+use crate::objects::{Ctx, SIM_SETUP};
+use crate::plugins::{choose_edits, Plugin, PluginCtx};
+use crate::ui::{PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
-use objects::{Ctx, SIM_SETUP};
 use piston::input::Key;
-use plugins::{choose_edits, Plugin, PluginCtx};
 use sim::SimFlags;
-use ui::{PerMapUI, PluginsPerMap};
 
 pub struct EditsManager {
     wizard: Wizard,

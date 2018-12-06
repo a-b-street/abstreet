@@ -1,8 +1,8 @@
+use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 use dimensioned::si;
 use ordered_float::NotNaN;
 use std::f64;
 use std::fmt;
-use {line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
@@ -432,7 +432,7 @@ impl fmt::Display for PolyLine {
 
 #[test]
 fn shift_polyline_equivalence() {
-    use line_intersection;
+    use crate::line_intersection;
     use rand;
 
     let scale = 1000.0;

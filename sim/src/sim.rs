@@ -1,21 +1,23 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::driving::DrivingSimState;
+use crate::instrument::capture_backtrace;
+use crate::intersections::IntersectionSimState;
+use crate::parking::ParkingSimState;
+use crate::scheduler::Scheduler;
+use crate::spawn::Spawner;
+use crate::transit::TransitSimState;
+use crate::trips::TripManager;
+use crate::view::WorldView;
+use crate::walking::WalkingSimState;
+use crate::{
+    AgentID, CarID, Distance, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP,
+};
 use abstutil;
 use abstutil::Error;
-use driving::DrivingSimState;
-use instrument::capture_backtrace;
-use intersections::IntersectionSimState;
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
-use parking::ParkingSimState;
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
-use scheduler::Scheduler;
-use spawn::Spawner;
 use std;
-use transit::TransitSimState;
-use trips::TripManager;
-use view::WorldView;
-use walking::WalkingSimState;
-use {AgentID, CarID, Distance, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP};
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]

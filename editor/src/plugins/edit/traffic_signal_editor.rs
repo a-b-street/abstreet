@@ -1,11 +1,11 @@
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::{draw_signal_cycle, DrawTurn};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text, Wizard, WrappedWizard};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
-use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
-use render::{draw_signal_cycle, DrawTurn};
 use std::collections::HashSet;
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.

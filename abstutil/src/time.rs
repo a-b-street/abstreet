@@ -1,7 +1,6 @@
-use notes;
+use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
 use std::io::{stdout, Write};
 use std::time::Instant;
-use PROGRESS_FREQUENCY_SECONDS;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();

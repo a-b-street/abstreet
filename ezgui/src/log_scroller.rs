@@ -1,6 +1,6 @@
+use crate::{text, Canvas, GfxCtx, Text, UserInput, CENTERED};
 use piston::input::{Button, Key, PressEvent};
 use std::collections::VecDeque;
-use {text, Canvas, GfxCtx, Text, UserInput, CENTERED};
 
 pub struct LogScroller {
     // TODO store SpanText or similar

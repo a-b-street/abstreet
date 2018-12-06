@@ -1,8 +1,8 @@
+use crate::LANE_THICKNESS;
 use abstutil;
 use geom::{PolyLine, Polygon, Pt2D};
 use std::collections::BTreeMap;
 use std::fmt;
-use LANE_THICKNESS;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

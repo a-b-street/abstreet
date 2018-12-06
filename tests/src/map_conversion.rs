@@ -1,7 +1,7 @@
+use crate::runner::TestRunner;
 use abstutil;
 use convert_osm;
 use map_model;
-use runner::TestRunner;
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow(

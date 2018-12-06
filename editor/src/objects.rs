@@ -1,8 +1,8 @@
-use colors::ColorScheme;
+use crate::colors::ColorScheme;
+use crate::render::{DrawMap, ExtraShapeID};
 use ezgui::{Canvas, Color, EventLoopMode, Text};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
-use render::{DrawMap, ExtraShapeID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
 use std::collections::{HashMap, HashSet};
 

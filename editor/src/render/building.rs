@@ -1,11 +1,11 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, LANE_THICKNESS};
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
 
 pub struct DrawBuilding {
     pub id: BuildingID,

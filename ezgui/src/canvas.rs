@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::{text, GfxCtx, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
 use piston::input::MouseButton;
 use piston::window::Size;
-use {text, GfxCtx, Text, UserInput};
 
 const ZOOM_SPEED: f64 = 0.1;
 

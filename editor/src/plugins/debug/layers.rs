@@ -1,5 +1,5 @@
+use crate::objects::{DEBUG_LAYERS, ID};
 use ezgui::{ToggleableLayer, UserInput};
-use objects::{DEBUG_LAYERS, ID};
 use piston::input::Key;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed

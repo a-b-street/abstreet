@@ -7,14 +7,14 @@ pub mod sim_controls;
 pub mod time_travel;
 pub mod view;
 
+use crate::objects::{Ctx, ID};
+use crate::ui::PluginCtx;
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use downcast::Any;
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::{IntersectionID, Map};
-use objects::{Ctx, ID};
 use sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
-use ui::PluginCtx;
 
 pub trait Plugin: Any {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {

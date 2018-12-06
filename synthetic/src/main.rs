@@ -9,9 +9,9 @@ extern crate serde_derive;
 
 mod model;
 
+use crate::model::{BuildingID, Direction, IntersectionID, Model, RoadID};
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, Wizard, GUI};
 use geom::Line;
-use model::{BuildingID, Direction, IntersectionID, Model, RoadID};
 use piston::input::Key;
 use std::{env, process};
 

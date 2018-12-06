@@ -1,9 +1,9 @@
+use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use counter::Counter;
 use ezgui::Color;
 use map_model::{IntersectionID, LaneID, PathStep};
-use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::Sim;
 use std::collections::HashSet;
 

@@ -1,27 +1,27 @@
+use crate::intersections::{IntersectionSimState, Request};
+use crate::kinematics;
+use crate::kinematics::Vehicle;
+use crate::parking::ParkingSimState;
+use crate::router::Router;
+use crate::transit::TransitSimState;
+use crate::view::{AgentView, WorldView};
+use crate::{
+    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
+    Speed, Tick, Time, TripID, VehicleType,
+};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use dimensioned::si;
 use geom::EPSILON_DIST;
-use intersections::{IntersectionSimState, Request};
-use kinematics;
-use kinematics::Vehicle;
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
     LANE_THICKNESS,
 };
 use multimap::MultiMap;
 use ordered_float::NotNaN;
-use parking::ParkingSimState;
 use rand::XorShiftRng;
-use router::Router;
 use std;
 use std::collections::{BTreeMap, HashSet};
-use transit::TransitSimState;
-use view::{AgentView, WorldView};
-use {
-    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
-    Speed, Tick, Time, TripID, VehicleType,
-};
 
 const TIME_TO_PARK_OR_DEPART: Time = si::Second {
     value_unsafe: 10.0,

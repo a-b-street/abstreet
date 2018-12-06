@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Pt2D};
 use map_model::Map;
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable};
 use sim::{DrawPedestrianInput, PedestrianID};
 
 const RADIUS: f64 = 1.0;

@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
+use crate::render::ExtraShapeID;
 use ezgui::Color;
 use map_model::{BuildingID, RoadID};
-use objects::{Ctx, ID};
-use plugins::{Plugin, PluginCtx};
-use render::ExtraShapeID;
 use sim::CarID;
 use std::collections::HashSet;
 

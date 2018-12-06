@@ -1,8 +1,8 @@
+use crate::AreaType;
 use dimensioned::si;
 use geom::{GPSBounds, LonLat};
 use gtfs::Route;
 use std::collections::BTreeMap;
-use AreaType;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Map {

@@ -1,7 +1,7 @@
 use dimensioned::si;
 use geom::Pt2D;
 use map_model::{BuildingID, BusRouteID, BusStopID, LaneID, Map, TurnID};
-use {CarID, Distance, ParkingSpot, Time};
+use crate::{CarID, Distance, ParkingSpot, Time};
 
 // This is experimental for now, but it might subsume the entire design of the sim crate.
 

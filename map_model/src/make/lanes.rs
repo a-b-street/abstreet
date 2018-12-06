@@ -1,5 +1,5 @@
+use crate::{raw_data, LaneType, MapEdits, RoadID};
 use std::iter;
-use {raw_data, LaneType, MapEdits, RoadID};
 
 // (original direction, reversed direction)
 fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {

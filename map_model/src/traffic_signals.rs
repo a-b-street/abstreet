@@ -1,8 +1,8 @@
+use crate::{IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 use abstutil::Error;
 use dimensioned::si;
 use std;
 use std::collections::BTreeSet;
-use {IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 
 const CYCLE_DURATION: si::Second<f64> = si::Second {
     value_unsafe: 30.0,

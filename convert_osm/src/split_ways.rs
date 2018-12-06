@@ -1,9 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::srtm;
 use dimensioned::si;
 use geom::{HashablePt2D, LonLat};
 use map_model::raw_data;
-use srtm;
 use std::collections::{BTreeSet, HashMap};
 
 pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw_data::Map {

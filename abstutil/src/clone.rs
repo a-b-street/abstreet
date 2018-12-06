@@ -1,5 +1,5 @@
+use crate::WeightedUsizeChoice;
 use std::any::Any;
-use WeightedUsizeChoice;
 
 // Trick to make a cloneable Any from
 // https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928.

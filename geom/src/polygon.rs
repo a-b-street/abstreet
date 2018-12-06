@@ -1,5 +1,5 @@
+use crate::{Angle, Bounds, HashablePt2D, Pt2D};
 use std::f64;
-use {Angle, Bounds, HashablePt2D, Pt2D};
 
 #[derive(Clone, Debug)]
 pub struct Polygon {

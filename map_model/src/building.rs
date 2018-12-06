@@ -1,10 +1,10 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::Position;
 use abstutil;
 use geom::{Line, PolyLine, Pt2D};
 use std::collections::BTreeMap;
 use std::fmt;
-use Position;
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

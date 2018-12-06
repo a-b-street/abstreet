@@ -1,10 +1,10 @@
+use crate::objects::Ctx;
+use crate::plugins::{Plugin, PluginCtx};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::Line;
 use map_model::{Trace, LANE_THICKNESS};
-use objects::Ctx;
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::{Tick, TripID};
 use std::f64;
 

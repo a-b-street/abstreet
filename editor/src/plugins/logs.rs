@@ -1,10 +1,9 @@
+use crate::objects::{Ctx, ROOT_MENU};
+use crate::plugins::{Plugin, PluginCtx};
 use abstutil::format_log_record;
 use ezgui::{GfxCtx, LogScroller};
-use log;
-use log::{LevelFilter, Log, Metadata, Record};
-use objects::{Ctx, ROOT_MENU};
+use log::{set_logger, set_max_level, LevelFilter, Log, Metadata, Record};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use std::sync::Mutex;
 
 lazy_static! {
@@ -23,8 +22,8 @@ impl DisplayLogs {
         // Even when the rest of the UI is ripped out, retain this static state.
         let mut lock = LOGGER_STARTED.lock().unwrap();
         if !*lock {
-            log::set_max_level(LevelFilter::Debug);
-            log::set_logger(&LOG_ADAPTER).unwrap();
+            set_max_level(LevelFilter::Debug);
+            set_logger(&LOG_ADAPTER).unwrap();
             *lock = true;
         }
         DisplayLogs { active: false }

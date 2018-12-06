@@ -1,13 +1,13 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use keys::describe_key;
+use crate::keys::describe_key;
+use crate::tree_menu::TreeMenu;
+use crate::Text;
 use piston::input::{
     Button, Event, IdleArgs, Key, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
     ReleaseEvent, UpdateEvent,
 };
 use std::collections::HashMap;
-use tree_menu::TreeMenu;
-use Text;
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.

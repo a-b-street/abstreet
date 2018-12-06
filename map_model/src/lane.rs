@@ -1,12 +1,12 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::{BuildingID, BusStopID, IntersectionID, RoadID};
 use abstutil;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
 use std;
 use std::f64;
 use std::fmt;
-use {BuildingID, BusStopID, IntersectionID, RoadID};
 
 pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
     // Bit longer than the longest car.

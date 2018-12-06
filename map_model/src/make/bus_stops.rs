@@ -1,16 +1,16 @@
+use crate::make::sidewalk_finder::find_sidewalk_points;
+use crate::{
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder,
+    Position,
+};
 use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
-use make::sidewalk_finder::find_sidewalk_points;
 use multimap::MultiMap;
 use ordered_float::NotNaN;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
-use {
-    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder,
-    Position,
-};
 
 pub fn make_bus_stops(
     map: &Map,

@@ -1,15 +1,15 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::kinematics;
+use crate::view::WorldView;
+use crate::{AgentID, CarID, Event, PedestrianID, Tick, Time};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use dimensioned::si;
-use kinematics;
 use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
-use std::collections::{BTreeMap, BTreeSet};
-use view::WorldView;
-use {AgentID, CarID, Event, PedestrianID, Tick, Time};
-
 use std;
+use std::collections::{BTreeMap, BTreeSet};
+
 const WAIT_AT_STOP_SIGN: Time = si::Second {
     value_unsafe: 1.5,
     _marker: std::marker::PhantomData,

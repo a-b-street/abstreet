@@ -1,12 +1,12 @@
-use colors::ColorScheme;
+use crate::colors::ColorScheme;
+use crate::objects::{Ctx, RenderingHints, ID};
+use crate::render::{DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{
     ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID,
     TurnPriority, TurnType, LANE_THICKNESS,
 };
-use objects::{Ctx, RenderingHints, ID};
-use render::{DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable};
 use std::collections::HashSet;
 
 #[derive(Debug)]

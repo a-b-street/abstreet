@@ -2,6 +2,7 @@
 name = "analyze_code"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 syn = { version = "0.14.9", features = ["parsing", "full", "extra-traits"] }

@@ -9,14 +9,14 @@ extern crate structopt;
 mod render;
 mod timer;
 
+use crate::render::DrawMap;
+use crate::timer::Cycler;
 use abstutil::Timer;
 use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
 use map_model::{Map, MapEdits};
 use piston::input::Key;
-use render::DrawMap;
 use std::process;
 use structopt::StructOpt;
-use timer::Cycler;
 
 #[derive(StructOpt)]
 #[structopt(name = "halloween")]

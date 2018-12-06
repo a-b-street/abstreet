@@ -1,5 +1,18 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::objects::ID;
+use crate::plugins::debug::DebugMode;
+use crate::render::area::DrawArea;
+use crate::render::building::DrawBuilding;
+use crate::render::bus_stop::DrawBusStop;
+use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
+use crate::render::intersection::DrawIntersection;
+use crate::render::lane::DrawLane;
+use crate::render::parcel::DrawParcel;
+use crate::render::pedestrian::DrawPedestrian;
+use crate::render::turn::DrawTurn;
+use crate::render::{draw_vehicle, Renderable};
+use crate::ui::ShowTurnIcons;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use geom::Bounds;
@@ -8,21 +21,8 @@ use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
-use objects::ID;
-use plugins::debug::DebugMode;
-use render::area::DrawArea;
-use render::building::DrawBuilding;
-use render::bus_stop::DrawBusStop;
-use render::extra_shape::{DrawExtraShape, ExtraShapeID};
-use render::intersection::DrawIntersection;
-use render::lane::DrawLane;
-use render::parcel::DrawParcel;
-use render::pedestrian::DrawPedestrian;
-use render::turn::DrawTurn;
-use render::{draw_vehicle, Renderable};
 use sim::GetDrawAgents;
 use std::collections::HashMap;
-use ui::ShowTurnIcons;
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,

@@ -1,8 +1,8 @@
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Color;
 use map_model::{LaneID, Map};
-use objects::{Ctx, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use std::collections::{HashSet, VecDeque};
 
 pub struct Floodfiller {

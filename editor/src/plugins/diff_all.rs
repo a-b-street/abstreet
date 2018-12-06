@@ -1,9 +1,9 @@
+use crate::objects::Ctx;
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use geom::Line;
 use map_model::LANE_THICKNESS;
-use objects::Ctx;
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 use sim::{Sim, Tick};
 
 pub enum DiffAllState {

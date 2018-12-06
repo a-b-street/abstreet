@@ -1,10 +1,10 @@
+use crate::objects::{Ctx, ID};
+use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{FindClosest, RoadID, LANE_THICKNESS};
-use objects::{Ctx, ID};
-use render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use std::collections::BTreeMap;
 use std::fmt;
 

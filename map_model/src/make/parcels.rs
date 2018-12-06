@@ -1,10 +1,9 @@
+use crate::make::sidewalk_finder::find_sidewalk_points;
+use crate::{raw_data, Lane, Parcel, ParcelID};
 use abstutil::Timer;
 use dimensioned::si;
 use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
-use make::sidewalk_finder::find_sidewalk_points;
-use raw_data;
 use std::collections::HashSet;
-use {Lane, Parcel, ParcelID};
 
 pub fn make_all_parcels(
     results: &mut Vec<Parcel>,

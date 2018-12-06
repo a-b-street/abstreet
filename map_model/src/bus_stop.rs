@@ -1,6 +1,6 @@
+use crate::{LaneID, Position};
 use abstutil;
 use std::fmt;
-use {LaneID, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStopID {

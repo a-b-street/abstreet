@@ -1,7 +1,7 @@
+use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Color;
-use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 
 pub struct OsmClassifier {}
 

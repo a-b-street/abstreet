@@ -1,12 +1,12 @@
 // Code to inspect the simulation state.
 
+use crate::{Sim, Tick, TripID};
 use dimensioned::si;
 use geom::Pt2D;
 use map_model::LaneID;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::time::{Duration, Instant};
-use {Sim, Tick, TripID};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct SimStats {

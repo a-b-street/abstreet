@@ -6,10 +6,10 @@ mod hider;
 pub mod layers;
 mod steep;
 
+use crate::objects::{Ctx, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use map_model::Map;
-use objects::{Ctx, ID};
-use plugins::{Plugin, PluginCtx};
 
 pub struct DebugMode {
     // steepness acts like one of the active plugins, except that it needs to cache state while

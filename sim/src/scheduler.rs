@@ -1,10 +1,10 @@
-use driving::{CreateCar, DrivingSimState};
-use events::Event;
+use crate::driving::{CreateCar, DrivingSimState};
+use crate::events::Event;
+use crate::parking::ParkingSimState;
+use crate::trips::TripManager;
+use crate::walking::{CreatePedestrian, WalkingSimState};
+use crate::{AgentID, Tick};
 use map_model::Map;
-use parking::ParkingSimState;
-use trips::TripManager;
-use walking::{CreatePedestrian, WalkingSimState};
-use {AgentID, Tick};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub enum Command {

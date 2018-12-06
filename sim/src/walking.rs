@@ -1,23 +1,23 @@
+use crate::instrument::capture_backtrace;
+use crate::intersections::{IntersectionSimState, Request};
+use crate::parking::ParkingSimState;
+use crate::trips::TripManager;
+use crate::view::{AgentView, WorldView};
+use crate::{
+    AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
+    TripID, TIMESTEP,
+};
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap, Error};
 use dimensioned::si;
 use geom::{Line, Pt2D};
-use instrument::capture_backtrace;
-use intersections::{IntersectionSimState, Request};
 use map_model::{
     BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Position, Trace,
     Traversable, TurnID,
 };
 use multimap::MultiMap;
-use parking::ParkingSimState;
 use std;
 use std::collections::{BTreeMap, HashSet};
-use trips::TripManager;
-use view::{AgentView, WorldView};
-use {
-    AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
-    TripID, TIMESTEP,
-};
 
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these

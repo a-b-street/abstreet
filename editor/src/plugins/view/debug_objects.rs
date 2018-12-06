@@ -1,7 +1,7 @@
+use crate::objects::{Ctx, DEBUG, ID};
+use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Text, TEXT_FG_COLOR};
-use objects::{Ctx, DEBUG, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 
 pub struct DebugObjectsState {
     control_held: bool,
