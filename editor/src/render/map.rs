@@ -9,8 +9,7 @@ use map_model::{
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use objects::ID;
-use plugins::hider::Hider;
-use plugins::layers::ToggleableLayers;
+use plugins::debug_mode::DebugMode;
 use render::area::DrawArea;
 use render::building::DrawBuilding;
 use render::bus_stop::DrawBusStop;
@@ -238,10 +237,9 @@ impl DrawMap {
     pub fn get_objects_onscreen<T: ShowTurnIcons>(
         &self,
         screen_bounds: Bounds,
-        hider: &Hider,
+        debug_mode: &DebugMode,
         map: &Map,
         sim: Box<&GetDrawAgents>,
-        layers: &ToggleableLayers,
         show_turn_icons: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order
@@ -258,7 +256,7 @@ impl DrawMap {
         let mut peds: Vec<Box<Renderable>> = Vec::new();
 
         for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
-            if hider.show(*id) && layers.show(*id) {
+            if debug_mode.show(*id) {
                 match id {
                     ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),

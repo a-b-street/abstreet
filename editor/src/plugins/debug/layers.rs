@@ -1,7 +1,6 @@
-use ezgui::ToggleableLayer;
+use ezgui::{ToggleableLayer, UserInput};
 use objects::{DEBUG_LAYERS, ID};
 use piston::input::Key;
-use plugins::{Plugin, PluginCtx};
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
@@ -67,6 +66,15 @@ impl ToggleableLayers {
         }
     }
 
+    pub fn event(&mut self, input: &mut UserInput) -> bool {
+        for layer in self.toggleable_layers().into_iter() {
+            if layer.event(input) {
+                return true;
+            }
+        }
+        false
+    }
+
     fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {
         vec![
             &mut self.show_lanes,
@@ -77,17 +85,5 @@ impl ToggleableLayers {
             &mut self.show_all_turn_icons,
             &mut self.debug_mode,
         ]
-    }
-}
-
-impl Plugin for ToggleableLayers {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        for layer in self.toggleable_layers().into_iter() {
-            if layer.event(ctx.input) {
-                ctx.primary.recalculate_current_selection = true;
-                return true;
-            }
-        }
-        false
     }
 }

@@ -10,7 +10,7 @@ use plugins::{Plugin, PluginCtx};
 use std::f64;
 
 pub struct SteepnessVisualizer {
-    active: bool,
+    pub active: bool,
     min_difference: f64,
     max_difference: f64,
 }
@@ -38,7 +38,7 @@ impl SteepnessVisualizer {
 }
 
 impl Plugin for SteepnessVisualizer {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let msg = if self.active {
             "stop showing steepness"
         } else {

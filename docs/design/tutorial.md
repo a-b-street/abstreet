@@ -145,3 +145,5 @@ and step 3...
 - dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.
 - clean up event vs new_event
 - use Escape to quit most plugins, since it'll only be callable normally from some modes
+- make it more clear that keys cant overlap... in each mode, specify the trigger key it uses?
+	- except some of them are more conditional and that makes overlap fine

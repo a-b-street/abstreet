@@ -1,7 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
-// TODO this should just be a way to handle interactions between plugins
-
 use abstutil;
 use colors::ColorScheme;
 //use cpuprofiler;
@@ -11,9 +7,9 @@ use map_model::{BuildingID, IntersectionID, LaneID, Map};
 use objects::{Ctx, RenderingHints, ID, ROOT_MENU};
 use piston::input::Key;
 use plugins;
+use plugins::debug::layers::ToggleableLayers;
+use plugins::debug_mode::DebugMode;
 use plugins::edit_mode::EditMode;
-use plugins::hider::Hider;
-use plugins::layers::ToggleableLayers;
 use plugins::time_travel::TimeTravel;
 use plugins::Plugin;
 use render::{DrawMap, RenderOptions};
@@ -76,17 +72,16 @@ impl GUI<RenderingHints> for UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bounds(),
-            self.primary_plugins.hider(),
+            self.primary_plugins.debug_mode(),
             &self.primary.map,
             self.get_draw_agent_source(),
-            self.plugins.layers(),
             self,
         );
         for obj in statics.into_iter() {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id(), &hints),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers().debug_mode.is_enabled(),
+                debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -105,7 +100,7 @@ impl GUI<RenderingHints> for UI {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id(), &hints),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.plugins.layers().debug_mode.is_enabled(),
+                debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
             };
             obj.draw(
                 g,
@@ -173,8 +168,8 @@ pub struct PluginsPerMap {
 }
 
 impl PluginsPerMap {
-    fn hider(&self) -> &Hider {
-        self.list[0].downcast_ref::<Hider>().unwrap()
+    fn debug_mode(&self) -> &DebugMode {
+        self.list[0].downcast_ref::<DebugMode>().unwrap()
     }
 
     fn show_owner(&self) -> &Box<Plugin> {
@@ -187,6 +182,14 @@ impl PluginsPerMap {
 
     fn time_travel(&self) -> &TimeTravel {
         self.list[3].downcast_ref::<TimeTravel>().unwrap()
+    }
+
+    fn layers(&self) -> &ToggleableLayers {
+        &self.list[0].downcast_ref::<DebugMode>().unwrap().layers
+    }
+
+    fn layers_mut(&mut self) -> &mut ToggleableLayers {
+        &mut self.list[0].downcast_mut::<DebugMode>().unwrap().layers
     }
 }
 
@@ -213,7 +216,7 @@ impl PerMapUI {
         let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
         timer.stop("draw_map");
 
-        let steepness_viz = plugins::steep::SteepnessVisualizer::new(&map);
+        let debug_mode = DebugMode::new(&map);
         let neighborhood_summary =
             plugins::neighborhood_summary::NeighborhoodSummary::new(&map, &draw_map, &mut timer);
 
@@ -230,16 +233,14 @@ impl PerMapUI {
         };
         let plugins = PluginsPerMap {
             list: vec![
-                Box::new(Hider::new()),
+                Box::new(debug_mode),
                 Box::new(plugins::show_owner::ShowOwnerState::new()),
                 Box::new(plugins::turn_cycler::TurnCyclerState::new()),
                 Box::new(plugins::time_travel::TimeTravel::new()),
-                Box::new(plugins::debug_mode::DebugMode::new()),
                 Box::new(plugins::debug_objects::DebugObjectsState::new()),
                 Box::new(plugins::follow::FollowState::new()),
                 Box::new(plugins::show_route::ShowRouteState::new()),
                 Box::new(plugins::show_activity::ShowActivityState::new()),
-                Box::new(steepness_viz),
                 Box::new(neighborhood_summary),
             ],
         };
@@ -255,14 +256,6 @@ struct PluginsPerUI {
 impl PluginsPerUI {
     fn edit_mode(&self) -> &EditMode {
         self.list[0].downcast_ref::<EditMode>().unwrap()
-    }
-
-    fn layers(&self) -> &ToggleableLayers {
-        self.list[1].downcast_ref::<ToggleableLayers>().unwrap()
-    }
-
-    fn layers_mut(&mut self) -> &mut ToggleableLayers {
-        self.list[1].downcast_mut::<ToggleableLayers>().unwrap()
     }
 }
 
@@ -280,7 +273,6 @@ impl UI {
             plugins: PluginsPerUI {
                 list: vec![
                     Box::new(EditMode::new()),
-                    Box::new(ToggleableLayers::new()),
                     Box::new(plugins::search::SearchState::new()),
                     Box::new(plugins::warp::WarpState::new()),
                     Box::new(logs),
@@ -321,7 +313,7 @@ impl UI {
             }
         }
 
-        ui.plugins
+        ui.primary_plugins
             .layers_mut()
             .handle_zoom(-1.0, ui.canvas.cam_zoom);
 
@@ -342,7 +334,9 @@ impl UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
-        self.plugins.layers_mut().handle_zoom(old_zoom, new_zoom);
+        self.primary_plugins
+            .layers_mut()
+            .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
@@ -396,10 +390,9 @@ impl UI {
 
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bounds(),
-            self.primary_plugins.hider(),
+            self.primary_plugins.debug_mode(),
             &self.primary.map,
             self.get_draw_agent_source(),
-            self.plugins.layers(),
             self,
         );
         // Check front-to-back
@@ -513,7 +506,10 @@ pub trait ShowTurnIcons {
 
 impl ShowTurnIcons for UI {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.plugins.layers().show_all_turn_icons.is_enabled()
+        self.primary_plugins
+            .layers()
+            .show_all_turn_icons
+            .is_enabled()
             || self.plugins.edit_mode().show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
