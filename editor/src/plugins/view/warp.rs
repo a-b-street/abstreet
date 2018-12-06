@@ -14,36 +14,33 @@ use std::usize;
 const ANIMATION_TIME_S: f64 = 0.5;
 
 pub enum WarpState {
-    Empty,
     EnteringSearch(TextBox),
     Warping(Instant, Line, ID),
 }
 
 impl WarpState {
-    pub fn new() -> WarpState {
-        WarpState::Empty
+    pub fn new(ctx: &mut PluginCtx) -> Option<WarpState> {
+        if ctx.input.unimportant_key_pressed(
+            Key::J,
+            DEBUG,
+            "start searching for something to warp to",
+        ) {
+            return Some(WarpState::EnteringSearch(TextBox::new(
+                "Warp to what?",
+                None,
+            )));
+        }
+        None
     }
 }
 
 impl Plugin for WarpState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let mut new_state: Option<WarpState> = None;
         match self {
-            WarpState::Empty => {
-                if ctx.input.unimportant_key_pressed(
-                    Key::J,
-                    DEBUG,
-                    "start searching for something to warp to",
-                ) {
-                    new_state = Some(WarpState::EnteringSearch(TextBox::new(
-                        "Warp to what?",
-                        None,
-                    )));
-                }
-            }
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => {
-                    new_state = Some(WarpState::Empty);
+                    return false;
                 }
                 InputResult::Done(to, _) => {
                     if let Some((id, pt)) = warp_point(
@@ -58,7 +55,7 @@ impl Plugin for WarpState {
                             id,
                         ));
                     } else {
-                        new_state = Some(WarpState::Empty);
+                        return false;
                     }
                 }
                 InputResult::StillActive => {}
@@ -69,7 +66,7 @@ impl Plugin for WarpState {
                 if percent >= 1.0 {
                     ctx.canvas.center_on_map_pt(line.pt2());
                     ctx.primary.current_selection = Some(*id);
-                    new_state = Some(WarpState::Empty);
+                    return false;
                 } else {
                     ctx.canvas
                         .center_on_map_pt(line.dist_along(percent * line.length()));
@@ -79,13 +76,10 @@ impl Plugin for WarpState {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            WarpState::Empty => false,
-            _ => true,
-        }
+        true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let WarpState::EnteringSearch(tb) = self {
             tb.draw(g, ctx.canvas);
         }

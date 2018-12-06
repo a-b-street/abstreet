@@ -7,7 +7,6 @@ pub mod search;
 pub mod sim_controls;
 pub mod time_travel;
 pub mod view;
-pub mod warp;
 
 use abstutil;
 use abstutil::WeightedUsizeChoice;

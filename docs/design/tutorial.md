@@ -152,8 +152,8 @@ and probably step 2...
 
 	thursday pick-up:
 	- search (sometimes ambient, sometimes blocking)
-	- warp (blocking)
 	- overlapping keys to quit stuff...
+	- cant edit mode when sim is actively running
 
 and step 3...
 - dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.

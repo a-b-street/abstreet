@@ -252,7 +252,6 @@ impl UI {
                 list: vec![
                     Box::new(EditMode::new()),
                     Box::new(plugins::search::SearchState::new()),
-                    Box::new(plugins::warp::WarpState::new()),
                     Box::new(logs),
                     Box::new(plugins::diff_all::DiffAllState::new()),
                     Box::new(plugins::diff_worlds::DiffWorldsState::new()),
