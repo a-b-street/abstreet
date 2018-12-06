@@ -32,14 +32,13 @@ impl SearchState {
 
 impl Plugin for SearchState {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let mut new_state: Option<SearchState> = None;
         match self {
             SearchState::EnteringSearch(tb) => match tb.event(&mut ctx.input) {
                 InputResult::Canceled => {
                     return false;
                 }
                 InputResult::Done(filter, _) => {
-                    new_state = Some(SearchState::FilterOSM(filter));
+                    *self = SearchState::FilterOSM(filter);
                 }
                 InputResult::StillActive => {}
             },
@@ -52,9 +51,6 @@ impl Plugin for SearchState {
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
         true
     }
 

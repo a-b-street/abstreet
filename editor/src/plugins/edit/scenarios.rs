@@ -30,12 +30,11 @@ impl Plugin for ScenarioManager {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, map, sim) = (&mut ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
 
-        let mut new_state: Option<ScenarioManager> = None;
         match self {
             ScenarioManager::PickScenario(ref mut wizard) => {
                 if let Some(scenario) = pick_scenario(map, wizard.wrap(input)) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
-                    new_state = Some(ScenarioManager::ManageScenario(scenario, scroller));
+                    *self = ScenarioManager::ManageScenario(scenario, scroller);
                 } else if wizard.aborted() {
                     return false;
                 }
@@ -47,10 +46,7 @@ impl Plugin for ScenarioManager {
                 if input.key_pressed(Key::Q, "save this scenario") {
                     scenario.save();
                 } else if input.key_pressed(Key::E, "edit this scenario") {
-                    new_state = Some(ScenarioManager::EditScenario(
-                        scenario.clone(),
-                        Wizard::new(),
-                    ));
+                    *self = ScenarioManager::EditScenario(scenario.clone(), Wizard::new());
                 } else if input.key_pressed(Key::I, "instantiate this scenario") {
                     scenario.instantiate(sim, map);
                     return false;
@@ -62,15 +58,12 @@ impl Plugin for ScenarioManager {
                 if let Some(()) = edit_scenario(map, scenario, wizard.wrap(input)) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
-                    new_state = Some(ScenarioManager::ManageScenario(scenario.clone(), scroller));
+                    *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
                 } else if wizard.aborted() {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
-                    new_state = Some(ScenarioManager::ManageScenario(scenario.clone(), scroller));
+                    *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
                 }
             }
-        }
-        if let Some(s) = new_state {
-            *self = s;
         }
         true
     }

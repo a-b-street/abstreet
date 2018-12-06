@@ -117,22 +117,19 @@ impl GUI<RenderingHints> for UI {
             );
         }
 
-        // TODO nll
-        {
-            let ctx = Ctx {
-                cs: &mut self.cs.borrow_mut(),
-                map: &self.primary.map,
-                draw_map: &self.primary.draw_map,
-                canvas: &self.canvas,
-                sim: &self.primary.sim,
-                hints: &hints,
-            };
-            if let Some(p) = self.get_active_plugin() {
-                p.draw(g, ctx);
-            } else {
-                // If no other mode was active, give the ambient plugins in ViewMode a chance.
-                self.primary_plugins.view_mode().draw(g, ctx);
-            }
+        let ctx = Ctx {
+            cs: &mut self.cs.borrow_mut(),
+            map: &self.primary.map,
+            draw_map: &self.primary.draw_map,
+            canvas: &self.canvas,
+            sim: &self.primary.sim,
+            hints: &hints,
+        };
+        if let Some(p) = self.get_active_plugin() {
+            p.draw(g, ctx);
+        } else {
+            // If no other mode was active, give the ambient plugins in ViewMode a chance.
+            self.primary_plugins.view_mode().draw(g, ctx);
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);

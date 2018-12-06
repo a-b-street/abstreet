@@ -45,10 +45,6 @@ impl GUI<Text> for UI {
         self.canvas.handle_event(&mut input);
         let cursor = self.canvas.get_cursor_in_map_space();
 
-        // Most of the time, we can directly overwrite the state below. But when we can't clone the
-        // state enum (like for Wizards), we have to use this.
-        let mut new_state: Option<State> = None;
-
         match self.state {
             State::MovingIntersection(id) => {
                 self.model.move_i(id, cursor);
@@ -68,9 +64,9 @@ impl GUI<Text> for UI {
                     self.model.get_b_label(id).unwrap_or("".to_string()),
                 ) {
                     self.model.set_b_label(id, label);
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 } else if wizard.aborted() {
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 }
             }
             State::LabelingRoad(pair, ref mut wizard) => {
@@ -79,9 +75,9 @@ impl GUI<Text> for UI {
                     self.model.get_r_label(pair).unwrap_or("".to_string()),
                 ) {
                     self.model.set_r_label(pair, label);
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 } else if wizard.aborted() {
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 }
             }
             State::CreatingRoad(i1) => {
@@ -102,9 +98,9 @@ impl GUI<Text> for UI {
                     .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
                     self.model.edit_lanes(id, s);
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 } else if wizard.aborted() {
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 }
             }
             State::SavingModel(ref mut wizard) => {
@@ -115,9 +111,9 @@ impl GUI<Text> for UI {
                     self.model.name = Some(name);
                     self.model.save();
                     self.model.export();
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 } else if wizard.aborted() {
-                    new_state = Some(State::Viewing);
+                    self.state = State::Viewing;
                 }
             }
             State::Viewing => {
@@ -166,10 +162,6 @@ impl GUI<Text> for UI {
                     }
                 }
             }
-        }
-
-        if let Some(s) = new_state {
-            self.state = s;
         }
 
         let mut osd = Text::new();

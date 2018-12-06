@@ -36,7 +36,6 @@ impl WarpState {
 
 impl Plugin for WarpState {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let mut new_state: Option<WarpState> = None;
         match self {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => {
@@ -49,11 +48,11 @@ impl Plugin for WarpState {
                         &ctx.primary.sim,
                         &ctx.primary.draw_map,
                     ) {
-                        new_state = Some(WarpState::Warping(
+                        *self = WarpState::Warping(
                             Instant::now(),
                             Line::new(ctx.canvas.center_to_map_pt(), pt),
                             id,
-                        ));
+                        );
                     } else {
                         return false;
                     }
@@ -73,9 +72,6 @@ impl Plugin for WarpState {
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
         true
     }
 

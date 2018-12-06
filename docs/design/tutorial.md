@@ -148,9 +148,9 @@ and probably step 2...
 	- let a bunch of plugins run non-exclusively there, as relevant
 		- AmbientPlugin trait, maybe? or maybe just explicitly call on each field in order
 	- and still have a single blocking plugin possible, like warp
-	- rewrite turn_cycler; i dont understand it. also it used to block input after starting to tab through stuff. weird?
 
 	thursday pick-up:
+	- rewrite turn_cycler; i dont understand it. also it used to block input after starting to tab through stuff. weird?
 	- overlapping keys to quit stuff...
 	- cant edit mode when sim is actively running
 		- where does sim ctrler belong?

@@ -26,7 +26,6 @@ impl Plugin for DiffAllState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
         let primary_sim = &ctx.primary.sim;
 
-        let mut new_state: Option<DiffAllState> = None;
         match self {
             DiffAllState::Inactive => {
                 if ctx.secondary.is_some()
@@ -34,22 +33,20 @@ impl Plugin for DiffAllState {
                     && ctx.input.key_pressed(Key::D, "Diff all trips")
                 {
                     let secondary_sim = ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap();
-                    new_state = Some(diff_all(primary_sim, secondary_sim));
+                    *self = diff_all(primary_sim, secondary_sim);
                 }
             }
             DiffAllState::Active { time, .. } => {
                 if ctx.input.key_pressed(Key::Return, "Stop diffing all trips") {
-                    new_state = Some(DiffAllState::Inactive);
+                    *self = DiffAllState::Inactive;
+                    return true;
                 }
                 if *time != ctx.primary.sim.time {
                     let secondary_sim = ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap();
-                    new_state = Some(diff_all(primary_sim, secondary_sim));
+                    *self = diff_all(primary_sim, secondary_sim);
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
 
         if let DiffAllState::Active {
             same_trips,

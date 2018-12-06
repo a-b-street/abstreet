@@ -29,7 +29,6 @@ impl DiffWorldsState {
 
 impl Plugin for DiffWorldsState {
     fn event(&mut self, ctx: PluginCtx) -> bool {
-        let mut new_state: Option<DiffWorldsState> = None;
         match self {
             DiffWorldsState::Inactive => {
                 if ctx.secondary.is_some() {
@@ -40,7 +39,7 @@ impl Plugin for DiffWorldsState {
                                 .input
                                 .key_pressed(Key::B, &format!("Show {}'s parallel world", agent))
                             {
-                                new_state = Some(diff_world(trip, ctx));
+                                *self = diff_world(trip, ctx);
                             }
                         }
                     }
@@ -51,15 +50,11 @@ impl Plugin for DiffWorldsState {
                     Key::Return,
                     &format!("Stop showing {}'s parallel world", trip),
                 ) {
-                    new_state = Some(DiffWorldsState::Inactive);
+                    *self = DiffWorldsState::Inactive;
                 } else if *time != ctx.primary.sim.time {
-                    new_state = Some(diff_world(*trip, ctx));
+                    *self = diff_world(*trip, ctx);
                 }
             }
-        }
-
-        if let Some(s) = new_state {
-            *self = s;
         }
 
         match self {

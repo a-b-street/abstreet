@@ -21,8 +21,6 @@ impl ShowRouteState {
 
 impl Plugin for ShowRouteState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        let mut new_state: Option<ShowRouteState> = None;
-
         match self {
             ShowRouteState::Inactive => {
                 if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
@@ -31,21 +29,21 @@ impl Plugin for ShowRouteState {
                             .input
                             .key_pressed(Key::R, &format!("show {}'s route", agent))
                         {
-                            new_state = Some(show_route(trip, ctx));
+                            *self = show_route(trip, ctx);
                         }
                     }
                 };
             }
             ShowRouteState::Active(time, trip, _) => {
                 if ctx.input.key_pressed(Key::Return, "stop showing route") {
-                    new_state = Some(ShowRouteState::Inactive);
+                    *self = ShowRouteState::Inactive;
                 } else if ctx
                     .input
                     .key_pressed(Key::A, "show routes for all trips, to debug")
                 {
-                    new_state = Some(debug_all_routes(ctx));
+                    *self = debug_all_routes(ctx);
                 } else if *time != ctx.primary.sim.time {
-                    new_state = Some(show_route(*trip, ctx));
+                    *self = show_route(*trip, ctx);
                 }
             }
             ShowRouteState::DebugAllRoutes(time, _) => {
@@ -53,15 +51,12 @@ impl Plugin for ShowRouteState {
                     .input
                     .key_pressed(Key::Return, "stop showing all routes")
                 {
-                    new_state = Some(ShowRouteState::Inactive);
+                    *self = ShowRouteState::Inactive;
                 } else if *time != ctx.primary.sim.time {
-                    new_state = Some(debug_all_routes(ctx));
+                    *self = debug_all_routes(ctx);
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
     }
 
     fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {

@@ -41,11 +41,10 @@ impl Plugin for DrawNeighborhoodState {
         // TODO This can easily be outside of the map boundary...
         let get_cursor_in_gps = || canvas.get_cursor_in_map_space().to_gps(gps_bounds);
 
-        let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {
             DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
                 if let Some(n) = pick_neighborhood(map, wizard.wrap(input)) {
-                    new_state = Some(DrawNeighborhoodState::EditNeighborhood(n, None));
+                    *self = DrawNeighborhoodState::EditNeighborhood(n, None);
                 } else if wizard.aborted() {
                     return false;
                 }
@@ -65,18 +64,16 @@ impl Plugin for DrawNeighborhoodState {
                     return false;
                 }
 
-                if new_state.is_none() {
-                    let cursor = canvas.get_cursor_in_map_space();
-                    *current_idx = n.points.iter().position(|pt| {
-                        Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
-                            .contains_pt(cursor)
-                    });
-                    if let Some(idx) = current_idx {
-                        // TODO mouse dragging might be more intuitive, but it's unclear how to
-                        // override part of canvas.handle_event
-                        if input.key_pressed(Key::LCtrl, "hold to move this point") {
-                            new_state = Some(DrawNeighborhoodState::MovingPoint(n.clone(), *idx));
-                        }
+                let cursor = canvas.get_cursor_in_map_space();
+                *current_idx = n.points.iter().position(|pt| {
+                    Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
+                        .contains_pt(cursor)
+                });
+                if let Some(idx) = current_idx {
+                    // TODO mouse dragging might be more intuitive, but it's unclear how to
+                    // override part of canvas.handle_event
+                    if input.key_pressed(Key::LCtrl, "hold to move this point") {
+                        *self = DrawNeighborhoodState::MovingPoint(n.clone(), *idx);
                     }
                 }
             }
@@ -86,15 +83,9 @@ impl Plugin for DrawNeighborhoodState {
 
                 n.points[*idx] = get_cursor_in_gps();
                 if input.key_released(Key::LCtrl) {
-                    new_state = Some(DrawNeighborhoodState::EditNeighborhood(
-                        n.clone(),
-                        Some(*idx),
-                    ));
+                    *self = DrawNeighborhoodState::EditNeighborhood(n.clone(), Some(*idx));
                 }
             }
-        }
-        if let Some(s) = new_state {
-            *self = s;
         }
         true
     }

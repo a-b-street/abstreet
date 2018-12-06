@@ -37,7 +37,6 @@ impl Plugin for ColorPicker {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, canvas, cs) = (&mut ctx.input, &ctx.canvas, &mut ctx.cs);
 
-        let mut new_state: Option<ColorPicker> = None;
         match self {
             ColorPicker::Choosing(ref mut menu) => {
                 match menu.event(input) {
@@ -46,10 +45,7 @@ impl Plugin for ColorPicker {
                     }
                     InputResult::StillActive => {}
                     InputResult::Done(name, _) => {
-                        new_state = Some(ColorPicker::ChangingColor(
-                            name.clone(),
-                            cs.get_modified(&name),
-                        ));
+                        *self = ColorPicker::ChangingColor(name.clone(), cs.get_modified(&name));
                     }
                 };
             }
@@ -78,9 +74,6 @@ impl Plugin for ColorPicker {
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
         true
     }
 

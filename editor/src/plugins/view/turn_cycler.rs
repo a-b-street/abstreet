@@ -45,14 +45,13 @@ impl Plugin for TurnCyclerState {
             }
         };
 
-        let mut new_state: Option<TurnCyclerState> = None;
         match self {
             TurnCyclerState::Inactive | TurnCyclerState::Intersection(_) => {
-                new_state = Some(TurnCyclerState::Active(current_id, None));
+                *self = TurnCyclerState::Active(current_id, None);
             }
             TurnCyclerState::Active(old_id, current_turn_index) => {
                 if current_id != *old_id {
-                    new_state = Some(TurnCyclerState::Inactive);
+                    *self = TurnCyclerState::Inactive;
                 } else if ctx
                     .input
                     .key_pressed(Key::Tab, "cycle through this lane's turns")
@@ -61,13 +60,10 @@ impl Plugin for TurnCyclerState {
                         Some(i) => i + 1,
                         None => 0,
                     };
-                    new_state = Some(TurnCyclerState::Active(current_id, Some(idx)));
+                    *self = TurnCyclerState::Active(current_id, Some(idx));
                 }
             }
         };
-        if let Some(s) = new_state {
-            *self = s;
-        }
     }
 
     fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {

@@ -28,7 +28,7 @@ impl Plugin for EditsManager {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
 
-        let done = if manage_edits(
+        if manage_edits(
             &mut ctx.primary.current_flags,
             &ctx.primary.map,
             ctx.kml,
@@ -37,20 +37,18 @@ impl Plugin for EditsManager {
         )
         .is_some()
         {
-            // TODO NLL makes this easier
-            true
-        } else if self.wizard.aborted() {
-            true
-        } else {
+            if let Some((p, plugins)) = new_primary {
+                *ctx.primary = p;
+                ctx.primary_plugins.as_mut().map(|p_plugins| {
+                    **p_plugins = plugins;
+                });
+            }
             false
-        };
-        if let Some((p, plugins)) = new_primary {
-            *ctx.primary = p;
-            ctx.primary_plugins.as_mut().map(|p_plugins| {
-                **p_plugins = plugins;
-            });
+        } else if self.wizard.aborted() {
+            false
+        } else {
+            true
         }
-        !done
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {

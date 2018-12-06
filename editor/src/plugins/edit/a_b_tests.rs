@@ -26,12 +26,11 @@ impl ABTestManager {
 
 impl Plugin for ABTestManager {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let mut new_state: Option<ABTestManager> = None;
         match self {
             ABTestManager::PickABTest(ref mut wizard) => {
                 if let Some(ab_test) = pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input)) {
                     let scroller = LogScroller::new_from_lines(ab_test.describe());
-                    new_state = Some(ABTestManager::ManageABTest(ab_test, scroller));
+                    *self = ABTestManager::ManageABTest(ab_test, scroller);
                 } else if wizard.aborted() {
                     return false;
                 }
@@ -51,9 +50,6 @@ impl Plugin for ABTestManager {
                     return false;
                 }
             }
-        }
-        if let Some(s) = new_state {
-            *self = s;
         }
         true
     }

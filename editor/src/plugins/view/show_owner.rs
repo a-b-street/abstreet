@@ -42,33 +42,26 @@ impl Plugin for ShowOwnerState {
             *self = ShowOwnerState::Inactive;
         }
 
-        let mut new_state: Option<ShowOwnerState> = None;
         match self {
             ShowOwnerState::Inactive => match selected {
                 Some(ID::Building(id)) => {
-                    new_state = Some(ShowOwnerState::BuildingSelected(
+                    *self = ShowOwnerState::BuildingSelected(
                         id,
                         sim.get_parked_cars_by_owner(id)
                             .iter()
                             .map(|p| p.car)
                             .collect(),
-                    ));
+                    );
                 }
                 Some(ID::Car(id)) => {
-                    new_state = Some(ShowOwnerState::CarSelected(id, sim.get_owner_of_car(id)));
+                    *self = ShowOwnerState::CarSelected(id, sim.get_owner_of_car(id));
                 }
                 Some(ID::ExtraShape(id)) => {
-                    new_state = Some(ShowOwnerState::ShapeSelected(
-                        id,
-                        ctx.primary.draw_map.get_es(id).road,
-                    ));
+                    *self = ShowOwnerState::ShapeSelected(id, ctx.primary.draw_map.get_es(id).road);
                 }
                 _ => {}
             },
             _ => {}
-        }
-        if let Some(s) = new_state {
-            *self = s;
         }
     }
 

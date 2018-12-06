@@ -753,9 +753,7 @@ impl DrivingSimState {
             },
         );
         self.routers.insert(params.car, params.router);
-        // TODO stupid lack of NLL
-        let queue_exists = self.queues.contains_key(&start_on);
-        if queue_exists {
+        if self.queues.contains_key(&start_on) {
             self.queues
                 .get_mut(&start_on)
                 .unwrap()

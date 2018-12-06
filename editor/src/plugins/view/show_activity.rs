@@ -18,7 +18,6 @@ impl ShowActivityState {
 
 impl Plugin for ShowActivityState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        let mut new_state: Option<ShowActivityState> = None;
         match self {
             ShowActivityState::Inactive => {
                 if ctx.input.unimportant_key_pressed(
@@ -26,10 +25,10 @@ impl Plugin for ShowActivityState {
                     DEBUG,
                     "show lanes with active traffic",
                 ) {
-                    new_state = Some(ShowActivityState::Active(
+                    *self = ShowActivityState::Active(
                         ctx.primary.sim.time,
                         active_agent_heatmap(ctx.canvas.get_screen_bounds(), &ctx.primary.sim),
-                    ));
+                    );
                 }
             }
             ShowActivityState::Active(time, ref old_heatmap) => {
@@ -37,19 +36,17 @@ impl Plugin for ShowActivityState {
                     .input
                     .key_pressed(Key::Return, "stop showing lanes with active traffic")
                 {
-                    new_state = Some(ShowActivityState::Inactive);
+                    *self = ShowActivityState::Inactive;
+                    return;
                 }
                 let bounds = ctx.canvas.get_screen_bounds();
                 if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
-                    new_state = Some(ShowActivityState::Active(
+                    *self = ShowActivityState::Active(
                         ctx.primary.sim.time,
                         active_agent_heatmap(bounds, &ctx.primary.sim),
-                    ));
+                    );
                 }
             }
-        }
-        if let Some(s) = new_state {
-            *self = s;
         }
     }
 
