@@ -89,11 +89,11 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         parcels.shapes.len()
     );
     for p in parcels.shapes.into_iter() {
-        if p.points.len() > 1 && p
-            .points
-            .iter()
-            .find(|pt| !gps_bounds.contains(**pt))
-            .is_none()
+        if p.points.len() > 1
+            && p.points
+                .iter()
+                .find(|pt| !gps_bounds.contains(**pt))
+                .is_none()
         {
             map.parcels.push(raw_data::Parcel {
                 points: p.points,

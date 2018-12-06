@@ -34,7 +34,8 @@ impl Plugin for EditsManager {
             ctx.kml,
             &mut new_primary,
             self.wizard.wrap(ctx.input),
-        ).is_some()
+        )
+        .is_some()
         {
             // TODO NLL makes this easier
             true

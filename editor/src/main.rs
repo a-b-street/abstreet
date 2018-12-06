@@ -54,10 +54,10 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
     /*cpuprofiler::PROFILER
-        .lock()
-        .unwrap()
-        .start("./profile")
-        .unwrap();*/
+    .lock()
+    .unwrap()
+    .start("./profile")
+    .unwrap();*/
     ezgui::run(
         ui::UI::new(flags.sim_flags, flags.kml),
         "A/B Street",

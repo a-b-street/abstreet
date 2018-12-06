@@ -85,18 +85,23 @@ impl Plugin for TurnCyclerState {
                                 ctx.cs.get("current selected turn", Color::RED),
                             );
                         }
-                        None => for turn in &relevant_turns {
-                            let color = match turn.turn_type {
-                                TurnType::SharedSidewalkCorner => {
-                                    ctx.cs.get("shared sidewalk corner turn", Color::BLACK)
+                        None => {
+                            for turn in &relevant_turns {
+                                let color = match turn.turn_type {
+                                    TurnType::SharedSidewalkCorner => {
+                                        ctx.cs.get("shared sidewalk corner turn", Color::BLACK)
+                                    }
+                                    TurnType::Crosswalk => {
+                                        ctx.cs.get("crosswalk turn", Color::WHITE)
+                                    }
+                                    TurnType::Straight => ctx.cs.get("straight turn", Color::BLUE),
+                                    TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
+                                    TurnType::Left => ctx.cs.get("left turn", Color::RED),
                                 }
-                                TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::WHITE),
-                                TurnType::Straight => ctx.cs.get("straight turn", Color::BLUE),
-                                TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
-                                TurnType::Left => ctx.cs.get("left turn", Color::RED),
-                            }.alpha(0.5);
-                            DrawTurn::draw_full(turn, g, color);
-                        },
+                                .alpha(0.5);
+                                DrawTurn::draw_full(turn, g, color);
+                            }
+                        }
                     }
                 }
             }

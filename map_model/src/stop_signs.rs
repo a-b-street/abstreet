@@ -76,7 +76,8 @@ impl ControlStopSign {
                 } else {
                     None
                 }
-            }).collect();
+            })
+            .collect();
         for t1 in &priority_turns {
             for t2 in &priority_turns {
                 if map.get_t(*t1).conflicts_with(map.get_t(*t2)) {

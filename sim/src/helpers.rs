@@ -109,7 +109,8 @@ impl Sim {
                     start_from_border: i.id,
                     goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                     percent_use_transit: 0.5,
-                }).collect(),
+                })
+                .collect(),
         };
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {

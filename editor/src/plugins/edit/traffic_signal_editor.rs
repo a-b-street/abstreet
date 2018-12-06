@@ -22,9 +22,10 @@ pub struct TrafficSignalEditor {
 impl TrafficSignalEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<TrafficSignalEditor> {
         if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
-            if ctx.primary.map.maybe_get_traffic_signal(id).is_some() && ctx
-                .input
-                .key_pressed(Key::E, &format!("edit traffic signal for {}", id))
+            if ctx.primary.map.maybe_get_traffic_signal(id).is_some()
+                && ctx
+                    .input
+                    .key_pressed(Key::E, &format!("edit traffic signal for {}", id))
             {
                 return Some(TrafficSignalEditor {
                     i: id,
@@ -75,7 +76,8 @@ impl Plugin for TrafficSignalEditor {
                             .duration
                             .value_unsafe as usize
                     ),
-                ) {
+                )
+            {
                 let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
                 signal.cycles[self.current_cycle].edit_duration((new_duration as f64) * si::S);
                 ctx.primary.map.edit_traffic_signal(signal);
@@ -348,5 +350,6 @@ fn choose_preset(
         .choose_something::<ControlTrafficSignal>(
             "Use which preset for this intersection?",
             Box::new(move || choices.clone()),
-        ).map(|(_, ts)| ts)
+        )
+        .map(|(_, ts)| ts)
 }

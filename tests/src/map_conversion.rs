@@ -37,12 +37,14 @@ pub fn run(t: &mut TestRunner) {
                 "../data/raw_maps/montlake.abst",
                 map_model::MapEdits::new("montlake"),
                 &mut abstutil::Timer::new("raw to map"),
-            ).unwrap();
+            )
+            .unwrap();
             let map2 = map_model::Map::new(
                 "../data/raw_maps/montlake.abst",
                 map_model::MapEdits::new("montlake"),
                 &mut abstutil::Timer::new("raw to map"),
-            ).unwrap();
+            )
+            .unwrap();
 
             if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
                 // TODO tmp files

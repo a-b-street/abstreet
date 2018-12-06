@@ -58,14 +58,16 @@ pub fn load(
             abstutil::read_json(&format!(
                 "../data/edits/{}/{}.json",
                 sim.map_name, sim.edits_name
-            )).unwrap()
+            ))
+            .unwrap()
         };
 
         // Try loading the pre-baked map first
         let map: Map = abstutil::read_binary(
             &format!("../data/maps/{}_{}.abst", sim.map_name, sim.edits_name),
             timer,
-        ).unwrap_or_else(|_| {
+        )
+        .unwrap_or_else(|_| {
             let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
             Map::new(&map_path, edits, timer)
                 .expect(&format!("Couldn't load map from {}", map_path))
@@ -84,7 +86,8 @@ pub fn load(
                 scenario.map_name, edits.edits_name
             ),
             timer,
-        ).unwrap_or_else(|_| {
+        )
+        .unwrap_or_else(|_| {
             let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
             Map::new(&map_path, edits, timer)
                 .expect(&format!("Couldn't load map from {}", map_path))
@@ -141,6 +144,7 @@ fn load_edits(map_name: &str, flags: &SimFlags) -> MapEdits {
     let edits: MapEdits = abstutil::read_json(&format!(
         "../data/edits/{}/{}.json",
         map_name, flags.edits_name
-    )).unwrap();
+    ))
+    .unwrap();
     edits
 }

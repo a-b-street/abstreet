@@ -263,7 +263,8 @@ impl Pathfinder {
             can_use_bike_lanes: req.can_use_bike_lanes,
             can_use_bus_lanes: req.can_use_bus_lanes,
             can_use_transit: false,
-        }.pathfind(map, req.start, req.end)?;
+        }
+        .pathfind(map, req.start, req.end)?;
         let steps: Vec<PathStep> = internal_steps
             .into_iter()
             .map(|s| match s {
@@ -273,7 +274,8 @@ impl Pathfinder {
                 InternalPathStep::RideBus(_, _, _) => {
                     panic!("shortest_distance pathfind had {:?} as a step", s)
                 }
-            }).collect();
+            })
+            .collect();
         assert_eq!(
             steps[0].as_traversable(),
             Traversable::Lane(req.start.lane())
@@ -299,7 +301,8 @@ impl Pathfinder {
             can_use_bike_lanes: false,
             can_use_bus_lanes: false,
             can_use_transit: true,
-        }.pathfind(map, start, goal)?;
+        }
+        .pathfind(map, start, goal)?;
         for s in internal_steps.into_iter() {
             if let InternalPathStep::RideBus(stop1, stop2, route) = s {
                 return Some((stop1, stop2, route));

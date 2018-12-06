@@ -241,7 +241,8 @@ impl StopSign {
             .find(|req| {
                 base_t.conflicts_with(map.get_t(req.turn))
                     && ss.get_priority(req.turn) > base_priority
-            }).is_some()
+            })
+            .is_some()
     }
 
     fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
@@ -352,7 +353,8 @@ impl TrafficSignal {
                 } else {
                     None
                 }
-            }).collect();
+            })
+            .collect();
 
         let mut keep_requests: BTreeSet<Request> = BTreeSet::new();
         for req in self.requests.iter() {

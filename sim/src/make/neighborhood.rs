@@ -27,7 +27,8 @@ impl NeighborhoodBuilder {
                     .map(|pt| {
                         Pt2D::from_gps(*pt, gps_bounds)
                             .expect(&format!("Polygon {} has bad pt {}", self.name, pt))
-                    }).collect(),
+                    })
+                    .collect(),
             ),
         }
     }

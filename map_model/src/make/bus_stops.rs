@@ -132,7 +132,8 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                         can_use_bike_lanes: false,
                         can_use_bus_lanes: true,
                     },
-                ).is_none()
+                )
+                .is_none()
                 {
                     warn!(
                         "Removing route {} since {:?} and {:?} aren't connected",
@@ -143,5 +144,6 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                 }
             }
             ok
-        }).collect()
+        })
+        .collect()
 }

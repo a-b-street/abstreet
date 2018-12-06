@@ -7,11 +7,11 @@ pub struct RoadEditor {}
 
 impl RoadEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<RoadEditor> {
-        if ctx.primary.current_selection.is_none() && ctx.input.unimportant_key_pressed(
-            Key::E,
-            EDIT_MAP,
-            "Start editing roads",
-        ) {
+        if ctx.primary.current_selection.is_none()
+            && ctx
+                .input
+                .unimportant_key_pressed(Key::E, EDIT_MAP, "Start editing roads")
+        {
             return Some(RoadEditor {});
         }
         None

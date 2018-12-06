@@ -284,7 +284,8 @@ impl UI {
                             &ui.primary.sim,
                             &ui.primary.draw_map,
                         )
-                    }).expect("Can't get canonical_point of BuildingID(0) or Road(0)");
+                    })
+                    .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
                 ui.canvas.center_on_map_pt(focus_pt);
             }
         }

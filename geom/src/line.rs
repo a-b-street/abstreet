@@ -88,7 +88,8 @@ impl Line {
         if res_len != dist_along {
             println!("whats the delta btwn {} and {}?", res_len, dist_along);
         }
-        */    }
+        */
+    }
 
     pub fn unbounded_dist_along(&self, dist: si::Meter<f64>) -> Pt2D {
         let len = self.length();
@@ -103,7 +104,8 @@ impl Line {
         if res_len != dist_along {
             println!("whats the delta btwn {} and {}?", res_len, dist_along);
         }
-        */    }
+        */
+    }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         let dist = Line(self.0, pt).length() + Line(pt, self.1).length() - self.length();

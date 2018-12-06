@@ -40,7 +40,8 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         } else {
             // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
             (num_driving_lanes_per_road / 2).max(1)
-        }).collect();
+        })
+        .collect();
     // TODO Don't even bother trying to parse this yet.
     let has_bus_lane = r.osm_tags.contains_key("bus:lanes");
     // TODO This is circumstantial at best. :)

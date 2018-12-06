@@ -58,11 +58,13 @@ impl Plugin for OsmClassifier {
                     None
                 }
             }
-            ID::Building(b) => if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
-                Some(ctx.cs.get("OSM house", Color::GREEN))
-            } else {
-                None
-            },
+            ID::Building(b) => {
+                if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
+                    Some(ctx.cs.get("OSM house", Color::GREEN))
+                } else {
+                    None
+                }
+            }
             _ => None,
         }
     }

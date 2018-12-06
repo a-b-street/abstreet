@@ -35,7 +35,8 @@ impl WeightedUsizeChoice {
             .map(|(idx, pr)| Weighted {
                 weight: *pr,
                 item: idx as u32,
-            }).collect();
+            })
+            .collect();
         WeightedChoice::new(&mut items).sample(rng)
     }
 }

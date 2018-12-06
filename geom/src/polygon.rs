@@ -113,7 +113,8 @@ impl Polygon {
                         t.pt2.offset(dx, dy),
                         t.pt3.offset(dx, dy),
                     )
-                }).collect(),
+                })
+                .collect(),
         }
     }
 

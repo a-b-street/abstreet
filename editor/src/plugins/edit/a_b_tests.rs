@@ -13,11 +13,11 @@ pub enum ABTestManager {
 
 impl ABTestManager {
     pub fn new(ctx: &mut PluginCtx) -> Option<ABTestManager> {
-        if ctx.primary.current_selection.is_none() && ctx.input.unimportant_key_pressed(
-            Key::B,
-            SIM_SETUP,
-            "manage A/B tests",
-        ) {
+        if ctx.primary.current_selection.is_none()
+            && ctx
+                .input
+                .unimportant_key_pressed(Key::B, SIM_SETUP, "manage A/B tests")
+        {
             return Some(ABTestManager::PickABTest(Wizard::new()));
         }
         None

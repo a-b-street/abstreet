@@ -34,7 +34,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
             let pl_normal = line.shift(width_normal).unwrap();
             let pl_reverse = line.reversed().shift(width_reverse).unwrap().reversed();
             (*id, line.last_line().angle(), pl_normal, pl_reverse)
-        }).collect();
+        })
+        .collect();
 
     // Sort the polylines by the angle of their last segment.
     // TODO This might break weirdly for polylines with very short last lines!
@@ -74,7 +75,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
                     l.reversed()
                         .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
                         .map(|(pt, _)| pt)
-                }).collect::<Vec<Pt2D>>(),
+                })
+                .collect::<Vec<Pt2D>>(),
         );
         if endpoints.len() != 4 {
             error!("{} has only {} and {}, some of which are too short to make degenerate intersection geometry", i.id, id1, id2);
@@ -97,7 +99,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
             // If the two lines are too close in angle, they'll either not hit or even if they do, it
             // won't be right.
             let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
-                - pl2.last_line().angle().normalized_degrees()).abs();
+                - pl2.last_line().angle().normalized_degrees())
+            .abs();
 
             // TODO A tuning challenge. :)
             if angle_diff > 15.0 {

@@ -36,7 +36,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         (),
         texture_settings,
-    ).expect("Could not load font");
+    )
+    .expect("Could not load font");
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     while let Some(ev) = events.next(&mut window) {

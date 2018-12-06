@@ -68,7 +68,8 @@ impl DrawMap {
             .map(|b| {
                 timer.next();
                 DrawBuilding::new(b)
-            }).collect();
+            })
+            .collect();
         let parcels: Vec<DrawParcel> = map
             .all_parcels()
             .iter()

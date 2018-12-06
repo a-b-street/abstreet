@@ -26,7 +26,8 @@ impl DrawBusStop {
             lane.safe_dist_along(stop.sidewalk_pos.dist_along() + radius)
                 .map(|(pt, _)| pt)
                 .unwrap_or(lane.last_pt()),
-        ]).make_polygons_blindly(0.8 * LANE_THICKNESS);
+        ])
+        .make_polygons_blindly(0.8 * LANE_THICKNESS);
         DrawBusStop {
             id: stop.id,
             polygon,

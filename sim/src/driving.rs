@@ -719,7 +719,8 @@ impl DrivingSimState {
                     &params.vehicle,
                     start_dist - other_dist - params.vehicle.length,
                     0.0 * si::MPS,
-                ).unwrap();
+                )
+                .unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
                 //debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
                 return false;

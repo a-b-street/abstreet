@@ -569,7 +569,8 @@ impl WalkingSimState {
                 waiting_for_turn: ped.waiting_for_turn(),
                 preparing_bike: ped.bike_parking.is_some(),
                 on: ped.on,
-            }).collect()
+            })
+            .collect()
     }
 
     pub fn seed_pedestrian(

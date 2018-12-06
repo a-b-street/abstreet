@@ -26,7 +26,8 @@ impl NeighborhoodSummary {
                 .map(|(idx, (_, n))| {
                     timer.next();
                     Region::new(idx, n, map, draw_map)
-                }).collect(),
+                })
+                .collect(),
             active: false,
             last_summary: None,
         }
@@ -43,9 +44,10 @@ impl Plugin for NeighborhoodSummary {
                 self.active = false;
             }
         } else {
-            self.active = ctx.primary.current_selection.is_none() && ctx
-                .input
-                .unimportant_key_pressed(Key::Z, DEBUG, "show neighborhood summaries");
+            self.active = ctx.primary.current_selection.is_none()
+                && ctx
+                    .input
+                    .unimportant_key_pressed(Key::Z, DEBUG, "show neighborhood summaries");
         }
 
         if self.active && Some(ctx.primary.sim.time) != self.last_summary {
@@ -96,7 +98,8 @@ impl Region {
                 } else {
                     None
                 }
-            }).collect();
+            })
+            .collect();
         let mut summary = Text::new();
         summary.add_line(format!("{} - no summary yet", n.name));
         Region {

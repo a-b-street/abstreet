@@ -13,7 +13,7 @@ type DepthFormat = gfx::format::DepthStencil;
 
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
-gfx_defines!{
+gfx_defines! {
     vertex GpuFillVertex {
         position: [f32; 2] = "a_position",
     }
@@ -49,7 +49,8 @@ fn main() {
             gfx::Primitive::TriangleList,
             gfx::state::Rasterizer::new_fill(),
             fill_pipeline::new(),
-        ).unwrap();
+        )
+        .unwrap();
 
     // The geometry!
     let vertices = vec![

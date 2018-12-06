@@ -151,18 +151,21 @@ impl TestRunner {
                     .append(true)
                     .open(output_path.clone())
                     .unwrap(),
-            ).unwrap();
+            )
+            .unwrap();
             let _stderr_redirect = Redirect::stderr(
                 std::fs::OpenOptions::new()
                     .create(true)
                     .append(true)
                     .open(output_path.clone())
                     .unwrap(),
-            ).unwrap();
+            )
+            .unwrap();
 
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 test(&mut helper);
-            })).is_ok()
+            }))
+            .is_ok()
         };
 
         if pass && !self.flags.keep_output {

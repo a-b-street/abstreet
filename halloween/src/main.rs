@@ -41,7 +41,8 @@ impl UI {
             &flags.load_map,
             MapEdits::new("map name"),
             &mut Timer::new("load map for Halloween"),
-        ).unwrap();
+        )
+        .unwrap();
         UI {
             canvas: Canvas::new(),
             draw_map: DrawMap::new(map),

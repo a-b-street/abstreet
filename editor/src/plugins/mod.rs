@@ -53,7 +53,8 @@ pub fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -
         .choose_something::<Neighborhood>(
             query,
             Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
-        ).map(|(n, _)| n)
+        )
+        .map(|(n, _)| n)
 }
 
 pub fn load_neighborhood_builder(
@@ -66,7 +67,8 @@ pub fn load_neighborhood_builder(
         .choose_something::<NeighborhoodBuilder>(
             query,
             Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
-        ).map(|(_, n)| n)
+        )
+        .map(|(_, n)| n)
 }
 
 pub fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
@@ -75,7 +77,8 @@ pub fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Opti
         .choose_something::<Scenario>(
             query,
             Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
-        ).map(|(_, s)| s)
+        )
+        .map(|(_, s)| s)
 }
 
 pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
@@ -84,7 +87,8 @@ pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
         .choose_something::<String>(
             query,
             Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
-        ).map(|(n, _)| n)
+        )
+        .map(|(n, _)| n)
 }
 
 // TODO Implicitly need a blank edits entry
@@ -94,7 +98,8 @@ pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
         .choose_something::<String>(
             query,
             Box::new(move || abstutil::list_all_objects("edits", &map_name)),
-        ).map(|(n, _)| n)
+        )
+        .map(|(n, _)| n)
 }
 
 pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
@@ -103,7 +108,8 @@ pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
         .choose_something::<ABTest>(
             query,
             Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
-        ).map(|(_, t)| t)
+        )
+        .map(|(_, t)| t)
 }
 
 pub fn input_tick(wizard: &mut WrappedWizard, query: &str) -> Option<Tick> {

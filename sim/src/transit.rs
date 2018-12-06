@@ -102,12 +102,14 @@ impl TransitSimState {
                         can_use_bike_lanes: false,
                         can_use_bus_lanes: true,
                     },
-                ).expect(&format!(
+                )
+                .expect(&format!(
                     "No route between bus stops {:?} and {:?}",
                     stop1, stop2
                 ));
                 (next_stop, stop1.driving_pos.dist_along(), path)
-            }).collect()
+            })
+            .collect()
     }
 
     pub fn bus_created(&mut self, bus: CarID, route: BusRouteID, next_stop_idx: StopIdx) {
@@ -173,7 +175,8 @@ impl TransitSimState {
                             can_use_bike_lanes: false,
                             can_use_bus_lanes: true,
                         },
-                    ).expect(&format!(
+                    )
+                    .expect(&format!(
                         "No route between bus stops {:?} and {:?}",
                         stop, route.stops[next_stop]
                     ));

@@ -76,7 +76,8 @@ impl ParkingSimState {
                 } else {
                     None
                 }
-            }).collect()
+            })
+            .collect()
     }
 
     pub fn get_draw_car(&self, id: CarID) -> Option<DrawCarInput> {
@@ -211,7 +212,8 @@ impl ParkingLane {
                         pos,
                         angle,
                     }
-                }).collect(),
+                })
+                .collect(),
         }
     }
 

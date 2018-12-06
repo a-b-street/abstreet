@@ -204,7 +204,8 @@ fn make_walking_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     r.id, i.id
                 );
             }
-        }).collect();
+        })
+        .collect();
     roads.sort_by_key(|(_, angle)| angle.normalized_degrees() as i64);
 
     let mut result: Vec<Turn> = Vec::new();

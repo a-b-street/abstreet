@@ -17,7 +17,8 @@ pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
             Pt2D::new(2620.4658232463926, 1163.9861244298272),
             Pt2D::new(2610.979416102837, 1164.2392149291984),
             //Pt2D::new(2572.5481805300115, 1164.2059309889344),
-        ].iter()
+        ]
+        .iter()
         .map(|pt| Pt2D::new(pt.x() - 2500.0, pt.y() - 1000.0))
         .collect(),
     );

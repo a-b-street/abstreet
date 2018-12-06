@@ -447,15 +447,18 @@ fn shift_polyline_equivalence() {
     let pt2_s = line_intersection(
         &Line::new(pt1, pt2).shift(width),
         &Line::new(pt2, pt3).shift(width),
-    ).unwrap();
+    )
+    .unwrap();
     let pt3_s = line_intersection(
         &Line::new(pt2, pt3).shift(width),
         &Line::new(pt3, pt4).shift(width),
-    ).unwrap();
+    )
+    .unwrap();
     let pt4_s = line_intersection(
         &Line::new(pt3, pt4).shift(width),
         &Line::new(pt4, pt5).shift(width),
-    ).unwrap();
+    )
+    .unwrap();
     let pt5_s = Line::new(pt4, pt5).shift(width).pt2();
 
     assert_eq!(

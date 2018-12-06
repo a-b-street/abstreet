@@ -85,7 +85,8 @@ impl Command {
                     .find_closest_lane(
                         start_sidewalk.lane(),
                         vec![LaneType::Driving, LaneType::Biking],
-                    ).unwrap();
+                    )
+                    .unwrap();
                 let start = start_sidewalk.equiv_pos(start_lane, map);
                 let end = match goal {
                     DrivingGoal::ParkNear(b) => find_biking_goal_near_building(*b, map),

@@ -62,7 +62,8 @@ where
                 } else {
                     None
                 }
-            }).min_by_key(|(_, _, dist)| *dist)
+            })
+            .min_by_key(|(_, _, dist)| *dist)
             .map(|(key, pt, _)| (key.clone(), Pt2D::new(pt.x(), pt.y())))
     }
 

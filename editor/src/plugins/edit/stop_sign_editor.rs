@@ -12,9 +12,10 @@ pub struct StopSignEditor {
 impl StopSignEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<StopSignEditor> {
         if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
-            if ctx.primary.map.maybe_get_stop_sign(id).is_some() && ctx
-                .input
-                .key_pressed(Key::E, &format!("edit stop signs for {}", id))
+            if ctx.primary.map.maybe_get_stop_sign(id).is_some()
+                && ctx
+                    .input
+                    .key_pressed(Key::E, &format!("edit stop signs for {}", id))
             {
                 return Some(StopSignEditor { i: id });
             }
@@ -40,11 +41,13 @@ impl Plugin for StopSignEditor {
             let next_priority = match sign.get_priority(id) {
                 TurnPriority::Banned => TurnPriority::Stop,
                 TurnPriority::Stop => TurnPriority::Yield,
-                TurnPriority::Yield => if sign.could_be_priority_turn(id, map) {
-                    TurnPriority::Priority
-                } else {
-                    TurnPriority::Banned
-                },
+                TurnPriority::Yield => {
+                    if sign.could_be_priority_turn(id, map) {
+                        TurnPriority::Priority
+                    } else {
+                        TurnPriority::Banned
+                    }
+                }
                 TurnPriority::Priority => TurnPriority::Banned,
             };
             if input.key_pressed(Key::Space, &format!("toggle to {:?}", next_priority)) {
