@@ -2,7 +2,7 @@ use crate::runner::TestRunner;
 use dimensioned::si;
 use geom::EPSILON_DIST;
 use sim::kinematics::{results_of_accel_for_one_tick, Vehicle, EPSILON_SPEED};
-use sim::{CarID, Distance, Speed, VehicleType};
+use sim::{CarID, Distance, Speed, Tick, VehicleType};
 
 pub fn run(t: &mut TestRunner) {
     // TODO table driven test style?
@@ -55,6 +55,24 @@ pub fn run(t: &mut TestRunner) {
                 max_speed: Some(4.10644207854944 * si::MPS),
             };
             test_accel_to_stop_in_dist(v, 19.34189455075048 * si::M, 1.6099431710100307 * si::MPS);
+        }),
+    );
+
+    t.run_fast(
+        "time_parsing",
+        Box::new(|_| {
+            assert_eq!(Tick::parse("2.3"), Some(Tick::testonly_from_raw(23)));
+            assert_eq!(Tick::parse("02.3"), Some(Tick::testonly_from_raw(23)));
+            assert_eq!(Tick::parse("00:00:02.3"), Some(Tick::testonly_from_raw(23)));
+
+            assert_eq!(
+                Tick::parse("00:02:03.5"),
+                Some(Tick::testonly_from_raw(35 + 1200))
+            );
+            assert_eq!(
+                Tick::parse("01:02:03.5"),
+                Some(Tick::testonly_from_raw(35 + 1200 + 36000))
+            );
         }),
     );
 }

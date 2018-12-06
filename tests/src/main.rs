@@ -1,3 +1,4 @@
+mod geom;
 mod map_conversion;
 mod parking;
 mod physics;
@@ -16,6 +17,7 @@ fn main() {
 
     let mut t = runner::TestRunner::new(runner::Flags::from_args());
 
+    geom::run(t.suite("geom"));
     map_conversion::run(t.suite("map_conversion"));
     parking::run(t.suite("parking"));
     physics::run(t.suite("physics"));

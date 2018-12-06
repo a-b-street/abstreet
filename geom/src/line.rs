@@ -164,15 +164,3 @@ impl fmt::Display for Line {
 fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
     (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
 }
-
-#[test]
-fn test_dist_along_horiz_line() {
-    let l = Line::new(
-        Pt2D::new(147.17832753158294, 1651.034235433578),
-        Pt2D::new(185.9754103560146, 1651.0342354335778),
-    );
-    let pt = Pt2D::new(179.1628455160347, 1651.0342354335778);
-
-    assert!(l.contains_pt(pt));
-    assert!(l.dist_along_of_point(pt).is_some());
-}

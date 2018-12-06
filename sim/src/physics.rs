@@ -36,6 +36,10 @@ impl Tick {
         Tick(10 * secs)
     }
 
+    pub fn testonly_from_raw(t: u32) -> Tick {
+        Tick(t)
+    }
+
     // TODO Why have these two forms? Consolidate
     pub fn parse(string: &str) -> Option<Tick> {
         let parts: Vec<&str> = string.split(":").collect();
@@ -163,14 +167,4 @@ impl std::fmt::Display for Tick {
             hours, minutes, seconds, remainder
         )
     }
-}
-
-#[test]
-fn time_parsing() {
-    assert_eq!(Tick::parse("2.3"), Some(Tick(23)));
-    assert_eq!(Tick::parse("02.3"), Some(Tick(23)));
-    assert_eq!(Tick::parse("00:00:02.3"), Some(Tick(23)));
-
-    assert_eq!(Tick::parse("00:02:03.5"), Some(Tick(35 + 1200)));
-    assert_eq!(Tick::parse("01:02:03.5"), Some(Tick(35 + 1200 + 36000)));
 }
