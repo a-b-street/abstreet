@@ -42,10 +42,10 @@ impl NeighborhoodBuilder {
         let path = format!("../data/polygons/{}.poly", self.name);
         let mut f = File::create(&path)?;
 
-        write!(f, "{}\n", self.name);
-        write!(f, "1\n");
+        write!(f, "{}\n", self.name)?;
+        write!(f, "1\n")?;
         for gps in &self.points {
-            write!(f, "     {}    {}\n", gps.longitude, gps.latitude);
+            write!(f, "     {}    {}\n", gps.longitude, gps.latitude)?;
         }
         // Have to repeat the first point
         {
@@ -53,10 +53,10 @@ impl NeighborhoodBuilder {
                 f,
                 "     {}    {}\n",
                 self.points[0].longitude, self.points[0].latitude
-            );
+            )?;
         }
-        write!(f, "END\n");
-        write!(f, "END\n");
+        write!(f, "END\n")?;
+        write!(f, "END\n")?;
 
         println!("Exported {}", path);
         Ok(())

@@ -79,7 +79,7 @@ fn main() {
     let mut cam = Camera {
         center_x: initial_width / 2.0,
         center_y: initial_height / 2.0,
-        zoom: 1.0,
+        //zoom: 1.0,
     };
     loop {
         if !handle_input(&mut events_loop, &mut cam) {
@@ -109,7 +109,7 @@ struct Camera {
     // Center on some point
     center_x: f64,
     center_y: f64,
-    zoom: f64,
+    //zoom: f64,
 }
 
 fn handle_input(event_loop: &mut glutin::EventsLoop, cam: &mut Camera) -> bool {
