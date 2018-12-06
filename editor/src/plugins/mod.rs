@@ -1,13 +1,11 @@
-pub mod chokepoints;
-pub mod classification;
+pub mod debug;
+pub mod debug_mode;
 pub mod debug_objects;
 pub mod diff_all;
 pub mod diff_worlds;
 pub mod edit;
 pub mod edit_mode;
-pub mod floodfill;
 pub mod follow;
-pub mod geom_validation;
 pub mod hider;
 pub mod layers;
 pub mod logs;

@@ -9,17 +9,20 @@ use render::DrawMap;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
-pub enum Validator {
-    Inactive,
-    Active {
-        gen: generator::Generator<'static, (), (ID, ID)>,
-        current_problem: Option<(ID, ID)>,
-    },
+pub struct Validator {
+    gen: generator::Generator<'static, (), (ID, ID)>,
+    current_problem: Option<(ID, ID)>,
 }
 
 impl Validator {
-    pub fn new() -> Validator {
-        Validator::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<Validator> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::I, DEBUG, "Validate map geometry")
+        {
+            return Some(Validator::start(&ctx.primary.draw_map));
+        }
+        None
     }
 
     fn start(draw_map: &DrawMap) -> Validator {
@@ -73,7 +76,7 @@ impl Validator {
             done!();
         });
 
-        Validator::Active {
+        Validator {
             gen,
             current_problem: None,
         }
@@ -81,51 +84,32 @@ impl Validator {
 }
 
 impl Plugin for Validator {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let (input, canvas, map, sim, draw_map) = (
-            ctx.input,
-            ctx.canvas,
-            &ctx.primary.map,
-            &ctx.primary.sim,
-            &ctx.primary.draw_map,
-        );
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        // Initialize or advance?
+        if !self.current_problem.is_some() || ctx.input.key_pressed(Key::N, "see the next problem")
+        {
+            // TODO do this in a bg thread or something
+            self.current_problem = self.gen.next();
 
-        let mut new_state: Option<Validator> = None;
-        match self {
-            Validator::Inactive => {
-                if input.unimportant_key_pressed(Key::I, DEBUG, "Validate map geometry") {
-                    new_state = Some(Validator::start(draw_map));
-                }
+            if let Some((id1, id2)) = self.current_problem {
+                info!("{:?} and {:?} intersect", id1, id2);
+                ctx.canvas.center_on_map_pt(
+                    id1.canonical_point(&ctx.primary.map, &ctx.primary.sim, &ctx.primary.draw_map)
+                        .unwrap(),
+                );
+            // TODO also modify selection state to highlight stuff?
+            } else {
+                info!("No more problems!");
+                return false;
             }
-            Validator::Active {
-                gen,
-                current_problem,
-            } => {
-                // Initialize or advance?
-                if !current_problem.is_some() || input.key_pressed(Key::N, "see the next problem") {
-                    // TODO do this in a bg thread or something
-                    *current_problem = gen.next();
+        } else if ctx
+            .input
+            .key_pressed(Key::Return, "stop looking at problems")
+        {
+            return false;
+        }
 
-                    if let Some((id1, id2)) = current_problem {
-                        info!("{:?} and {:?} intersect", id1, id2);
-                        canvas.center_on_map_pt(id1.canonical_point(map, sim, draw_map).unwrap());
-                    // TODO also modify selection state to highlight stuff?
-                    } else {
-                        info!("No more problems!");
-                        new_state = Some(Validator::Inactive);
-                    }
-                } else if input.key_pressed(Key::Return, "stop looking at problems") {
-                    new_state = Some(Validator::Inactive);
-                }
-            }
-        };
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        match self {
-            Validator::Inactive => false,
-            _ => true,
-        }
+        true
     }
 }
 

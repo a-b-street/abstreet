@@ -129,7 +129,14 @@ maybe step 1...
 	- each of the editors can stop having inactive state. have new() that returns option
 
 and probably step 2...
+- start smaller, a Debug mode... stuff that shouldnt really be relevant in tutorial mode, for example
+	- chokepoints, classification, floodfill, geom validation, hider, toggleable layers, steep
+	- arguably some of these could stack, but I don't care much yet... dont worry about ambient plugins yet
+
+	- each of the editors can stop having inactive state. have new() that returns option
+	- the permanent ones (hider and toggleable layers) shouldnt even implement Plugin; theyre custom weirdness
 - make a single 'Mode' for normal exploration
+	- this has to be completely per UI or completely per map
 	- let a bunch of plugins run non-exclusively there, as relevant
 		- AmbientPlugin trait, maybe? or maybe just explicitly call on each field in order
 	- and still have a single blocking plugin possible, like warp
@@ -137,3 +144,4 @@ and probably step 2...
 and step 3...
 - dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.
 - clean up event vs new_event
+- use Escape to quit most plugins, since it'll only be callable normally from some modes

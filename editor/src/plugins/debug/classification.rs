@@ -3,34 +3,29 @@ use objects::{Ctx, DEBUG_EXTRA, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
 
-pub struct OsmClassifier {
-    active: bool,
-}
+pub struct OsmClassifier {}
 
 impl OsmClassifier {
-    pub fn new() -> OsmClassifier {
-        OsmClassifier { active: false }
+    pub fn new(ctx: &mut PluginCtx) -> Option<OsmClassifier> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::D6, DEBUG_EXTRA, "show OSM colors")
+        {
+            return Some(OsmClassifier {});
+        }
+        None
     }
 }
 
 impl Plugin for OsmClassifier {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let msg = if self.active {
-            "stop showing OSM colors"
-        } else {
-            "show OSM colors"
-        };
-        if ctx.input.unimportant_key_pressed(Key::D6, DEBUG_EXTRA, msg) {
-            self.active = !self.active;
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        if ctx.input.key_pressed(Key::D6, "stop showing OSM colors") {
+            return false;
         }
-        self.active
+        true
     }
 
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
-        if !self.active {
-            return None;
-        }
-
         match obj {
             ID::Lane(l) => {
                 if ctx.map.get_l(l).is_driving() {

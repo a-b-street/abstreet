@@ -9,58 +9,41 @@ use std::collections::HashSet;
 
 const TOP_N: usize = 10;
 
-pub enum ChokepointsFinder {
-    Inactive,
-    Active(HashSet<LaneID>, HashSet<IntersectionID>),
+pub struct ChokepointsFinder {
+    lanes: HashSet<LaneID>,
+    intersections: HashSet<IntersectionID>,
 }
 
 impl ChokepointsFinder {
-    pub fn new() -> ChokepointsFinder {
-        ChokepointsFinder::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<ChokepointsFinder> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::C, DEBUG_EXTRA, "find chokepoints of current sim")
+        {
+            return Some(find_chokepoints(&ctx.primary.sim));
+        }
+        None
     }
 }
 
 impl Plugin for ChokepointsFinder {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let mut new_state: Option<ChokepointsFinder> = None;
-        match self {
-            ChokepointsFinder::Inactive => {
-                if ctx.input.unimportant_key_pressed(
-                    Key::C,
-                    DEBUG_EXTRA,
-                    "find chokepoints of current sim",
-                ) {
-                    new_state = Some(find_chokepoints(&ctx.primary.sim));
-                }
-            }
-            ChokepointsFinder::Active(_, _) => {
-                if ctx
-                    .input
-                    .key_pressed(Key::Return, "stop showing chokepoints")
-                {
-                    new_state = Some(ChokepointsFinder::Inactive);
-                }
-            }
-        };
+    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        if ctx
+            .input
+            .key_pressed(Key::Return, "stop showing chokepoints")
+        {
+            return false;
+        }
 
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        match self {
-            ChokepointsFinder::Inactive => false,
-            _ => true,
-        }
+        true
     }
 
     fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
         let color = ctx.cs.get("chokepoint", Color::RED);
-        match self {
-            ChokepointsFinder::Inactive => None,
-            ChokepointsFinder::Active(lanes, intersections) => match obj {
-                ID::Lane(l) if lanes.contains(&l) => Some(color),
-                ID::Intersection(i) if intersections.contains(&i) => Some(color),
-                _ => None,
-            },
+        match obj {
+            ID::Lane(l) if self.lanes.contains(&l) => Some(color),
+            ID::Intersection(i) if self.intersections.contains(&i) => Some(color),
+            _ => None,
         }
     }
 }
@@ -96,5 +79,8 @@ fn find_chokepoints(sim: &Sim) -> ChokepointsFinder {
         .take(TOP_N)
         .map(|(i, _)| i)
         .collect();
-    ChokepointsFinder::Active(lanes, intersections)
+    ChokepointsFinder {
+        lanes,
+        intersections,
+    }
 }
