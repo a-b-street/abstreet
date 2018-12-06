@@ -8,6 +8,7 @@ use render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawT
 
 #[derive(Clone, Debug)]
 pub enum TurnCyclerState {
+    // TODO Can probably simplify this?
     Inactive,
     Active(LaneID, Option<usize>),
     Intersection(IntersectionID),
@@ -20,10 +21,8 @@ impl TurnCyclerState {
 }
 
 impl Plugin for TurnCyclerState {
-    fn event(&mut self, mut ctx: PluginCtx) -> bool {
-        let (input, selected) = (ctx.input, ctx.primary.current_selection);
-
-        let current_id = match selected {
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+        let current_id = match ctx.primary.current_selection {
             Some(ID::Lane(id)) => id,
             Some(ID::Intersection(id)) => {
                 *self = TurnCyclerState::Intersection(id);
@@ -38,11 +37,11 @@ impl Plugin for TurnCyclerState {
                 } else if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
                     stop_sign_rendering_hints(&mut ctx.hints, sign, &ctx.primary.map, ctx.cs);
                 }
-                return false;
+                return;
             }
             _ => {
                 *self = TurnCyclerState::Inactive;
-                return false;
+                return;
             }
         };
 
@@ -54,7 +53,10 @@ impl Plugin for TurnCyclerState {
             TurnCyclerState::Active(old_id, current_turn_index) => {
                 if current_id != *old_id {
                     new_state = Some(TurnCyclerState::Inactive);
-                } else if input.key_pressed(Key::Tab, "cycle through this lane's turns") {
+                } else if ctx
+                    .input
+                    .key_pressed(Key::Tab, "cycle through this lane's turns")
+                {
                     let idx = match *current_turn_index {
                         Some(i) => i + 1,
                         None => 0,
@@ -66,15 +68,9 @@ impl Plugin for TurnCyclerState {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            TurnCyclerState::Inactive => false,
-            // Only once they start tabbing through turns does this plugin block other input.
-            TurnCyclerState::Active(_, current_turn_index) => current_turn_index.is_some(),
-            TurnCyclerState::Intersection(_) => false,
-        }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         match self {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::Active(l, current_turn_index) => {
@@ -145,7 +141,7 @@ impl Plugin for TurnCyclerState {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+    fn new_color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         match (self, obj) {
             (TurnCyclerState::Active(l, Some(idx)), ID::Turn(t)) => {
                 // Quickly prune irrelevant lanes

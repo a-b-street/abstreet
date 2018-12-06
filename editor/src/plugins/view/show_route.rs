@@ -20,7 +20,7 @@ impl ShowRouteState {
 }
 
 impl Plugin for ShowRouteState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         let mut new_state: Option<ShowRouteState> = None;
 
         match self {
@@ -62,14 +62,9 @@ impl Plugin for ShowRouteState {
         if let Some(s) = new_state {
             *self = s;
         }
-
-        match self {
-            ShowRouteState::Inactive => false,
-            _ => true,
-        }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         match self {
             ShowRouteState::Active(_, _, Some(trace)) => {
                 g.draw_polygon(
@@ -90,7 +85,7 @@ impl Plugin for ShowRouteState {
     }
 }
 
-fn show_route(trip: TripID, ctx: PluginCtx) -> ShowRouteState {
+fn show_route(trip: TripID, ctx: &mut PluginCtx) -> ShowRouteState {
     let time = ctx.primary.sim.time;
     if let Some(agent) = ctx.primary.sim.trip_to_agent(trip) {
         // Trace along the entire route by passing in max distance
@@ -113,7 +108,7 @@ fn show_route(trip: TripID, ctx: PluginCtx) -> ShowRouteState {
     }
 }
 
-fn debug_all_routes(ctx: PluginCtx) -> ShowRouteState {
+fn debug_all_routes(ctx: &mut PluginCtx) -> ShowRouteState {
     let sim = &ctx.primary.sim;
     let mut traces: Vec<Trace> = Vec::new();
     for trip in sim.get_stats().canonical_pt_per_trip.keys() {

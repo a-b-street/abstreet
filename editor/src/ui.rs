@@ -116,33 +116,22 @@ impl GUI<RenderingHints> for UI {
             );
         }
 
-        if let Some(p) = self.get_active_plugin() {
-            p.draw(
-                g,
-                Ctx {
-                    cs: &mut self.cs.borrow_mut(),
-                    map: &self.primary.map,
-                    draw_map: &self.primary.draw_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                    hints: &hints,
-                },
-            );
-        } else {
-            // TODO Ew, this is a weird ambient plugin that doesn't consume input but might want to
-            // draw stuff... only if another plugin isn't already active (aka, this is a hack to
-            // turn this off when traffic signal editor is on.)
-            self.primary_plugins.turn_cycler().draw(
-                g,
-                Ctx {
-                    cs: &mut self.cs.borrow_mut(),
-                    map: &self.primary.map,
-                    draw_map: &self.primary.draw_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                    hints: &hints,
-                },
-            );
+        // TODO nll
+        {
+            let ctx = Ctx {
+                cs: &mut self.cs.borrow_mut(),
+                map: &self.primary.map,
+                draw_map: &self.primary.draw_map,
+                canvas: &self.canvas,
+                sim: &self.primary.sim,
+                hints: &hints,
+            };
+            if let Some(p) = self.get_active_plugin() {
+                p.draw(g, ctx);
+            } else {
+                // If no other mode was active, give the ambient plugins in ViewMode a chance.
+                self.primary_plugins.view_mode().draw(g, ctx);
+            }
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
@@ -172,16 +161,12 @@ impl PluginsPerMap {
         self.list[0].downcast_ref::<DebugMode>().unwrap()
     }
 
-    fn show_owner(&self) -> &Box<Plugin> {
+    fn view_mode(&self) -> &Box<Plugin> {
         &self.list[1]
     }
 
-    fn turn_cycler(&self) -> &Box<Plugin> {
-        &self.list[2]
-    }
-
     fn time_travel(&self) -> &TimeTravel {
-        self.list[3].downcast_ref::<TimeTravel>().unwrap()
+        self.list[2].downcast_ref::<TimeTravel>().unwrap()
     }
 
     fn layers(&self) -> &ToggleableLayers {
@@ -234,13 +219,8 @@ impl PerMapUI {
         let plugins = PluginsPerMap {
             list: vec![
                 Box::new(debug_mode),
-                Box::new(plugins::show_owner::ShowOwnerState::new()),
-                Box::new(plugins::turn_cycler::TurnCyclerState::new()),
+                Box::new(plugins::view_mode::ViewMode::new()),
                 Box::new(plugins::time_travel::TimeTravel::new()),
-                Box::new(plugins::debug_objects::DebugObjectsState::new()),
-                Box::new(plugins::follow::FollowState::new()),
-                Box::new(plugins::show_route::ShowRouteState::new()),
-                Box::new(plugins::show_activity::ShowActivityState::new()),
                 Box::new(neighborhood_summary),
             ],
         };
@@ -424,12 +404,11 @@ impl UI {
             hints,
         };
         if let Some(p) = self.get_active_plugin() {
-            return p.color_for(id, ctx);
+            p.color_for(id, ctx)
+        } else {
+            // If no other mode was active, give the ambient plugins in ViewMode a chance.
+            self.primary_plugins.view_mode().color_for(id, ctx)
         }
-
-        // TODO Ew, this is a weird ambient plugin that doesn't consume input but has an opinion on
-        // color.
-        self.primary_plugins.show_owner().color_for(id, ctx)
     }
 
     fn get_active_plugin(&self) -> Option<&Box<Plugin>> {

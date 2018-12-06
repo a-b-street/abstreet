@@ -1,84 +1,57 @@
 use ezgui::{Color, GfxCtx, Text, TEXT_FG_COLOR};
-use map_model::Map;
-use objects::{Ctx, ID};
+use objects::{Ctx, DEBUG, ID};
 use piston::input::Key;
 use plugins::{Plugin, PluginCtx};
-use render::DrawMap;
-use sim::Sim;
 
-pub enum DebugObjectsState {
-    Empty,
-    Selected(ID),
-    Tooltip(ID),
+pub struct DebugObjectsState {
+    control_held: bool,
+    selected: Option<ID>,
 }
 
 impl DebugObjectsState {
     pub fn new() -> DebugObjectsState {
-        DebugObjectsState::Empty
+        DebugObjectsState {
+            control_held: false,
+            selected: None,
+        }
     }
 }
 
 impl Plugin for DebugObjectsState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
-        let new_state = if let Some(id) = ctx.primary.current_selection {
-            // Don't break out of the tooltip state
-            if let DebugObjectsState::Tooltip(_) = self {
-                DebugObjectsState::Tooltip(id)
-            } else {
-                DebugObjectsState::Selected(id)
-            }
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+        self.selected = ctx.primary.current_selection;
+        if self.control_held {
+            self.control_held = !ctx.input.key_released(Key::LCtrl);
         } else {
-            DebugObjectsState::Empty
-        };
-        *self = new_state;
-
-        let mut new_state: Option<DebugObjectsState> = None;
-        match self {
-            DebugObjectsState::Empty => {}
-            DebugObjectsState::Selected(id) => {
-                if ctx
-                    .input
-                    .key_pressed(Key::LCtrl, &format!("Hold Ctrl to show {:?}'s tooltip", id))
-                {
-                    new_state = Some(DebugObjectsState::Tooltip(*id));
-                } else if ctx.input.key_pressed(Key::D, "debug") {
-                    id.debug(
-                        &ctx.primary.map,
-                        &mut ctx.primary.sim,
-                        &ctx.primary.draw_map,
-                    );
-                }
-            }
-            DebugObjectsState::Tooltip(id) => {
-                if ctx.input.key_released(Key::LCtrl) {
-                    new_state = Some(DebugObjectsState::Selected(*id));
-                }
-            }
-        };
-        if let Some(s) = new_state {
-            *self = s;
+            // TODO Can't really display an OSD action if we're not currently selecting something.
+            // Could only activate sometimes, but that seems a bit harder to use.
+            self.control_held =
+                ctx.input
+                    .unimportant_key_pressed(Key::LCtrl, DEBUG, "hold Ctrl to show tooltips");
         }
-        match self {
-            DebugObjectsState::Empty => false,
-            // TODO hmm, but when we press D to debug, we don't want other stuff to happen...
-            DebugObjectsState::Selected(_) => false,
-            DebugObjectsState::Tooltip(_) => true,
+
+        if let Some(id) = self.selected {
+            if ctx.input.key_pressed(Key::D, "debug") {
+                id.debug(
+                    &ctx.primary.map,
+                    &mut ctx.primary.sim,
+                    &ctx.primary.draw_map,
+                );
+            }
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        match *self {
-            DebugObjectsState::Empty => {}
-            DebugObjectsState::Selected(_) => {}
-            DebugObjectsState::Tooltip(id) => {
-                ctx.canvas
-                    .draw_mouse_tooltip(g, tooltip_lines(id, ctx.map, ctx.sim, ctx.draw_map));
+    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+        if self.control_held {
+            if let Some(id) = self.selected {
+                ctx.canvas.draw_mouse_tooltip(g, tooltip_lines(id, ctx));
             }
         }
     }
 }
 
-fn tooltip_lines(obj: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Text {
+fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
+    let (map, sim, draw_map) = (&ctx.map, &ctx.sim, &ctx.draw_map);
     let mut txt = Text::new();
     match obj {
         ID::Lane(id) => {

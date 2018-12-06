@@ -1,20 +1,16 @@
 pub mod debug;
 pub mod debug_mode;
-pub mod debug_objects;
 pub mod diff_all;
 pub mod diff_worlds;
 pub mod edit;
 pub mod edit_mode;
-pub mod follow;
 pub mod logs;
 pub mod neighborhood_summary;
 pub mod search;
-pub mod show_activity;
-pub mod show_owner;
-pub mod show_route;
 pub mod sim_controls;
 pub mod time_travel;
-pub mod turn_cycler;
+pub mod view;
+pub mod view_mode;
 pub mod warp;
 
 use abstutil;
@@ -30,8 +26,12 @@ pub trait Plugin: Any {
     fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
         None
     }
+    fn new_color_for(&self, _obj: ID, _ctx: &mut Ctx) -> Option<Color> {
+        None
+    }
 
     fn draw(&self, _g: &mut GfxCtx, _ctx: Ctx) {}
+    fn new_draw(&self, _g: &mut GfxCtx, _ctx: &mut Ctx) {}
 
     // True if active
     fn event(&mut self, _ctx: PluginCtx) -> bool {
@@ -42,6 +42,8 @@ pub trait Plugin: Any {
     fn new_event(&mut self, _ctx: &mut PluginCtx) -> bool {
         false
     }
+
+    fn ambient_event(&mut self, _ctx: &mut PluginCtx) {}
 }
 
 downcast!(Plugin);

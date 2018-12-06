@@ -17,7 +17,7 @@ impl ShowActivityState {
 }
 
 impl Plugin for ShowActivityState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         let mut new_state: Option<ShowActivityState> = None;
         match self {
             ShowActivityState::Inactive => {
@@ -51,13 +51,9 @@ impl Plugin for ShowActivityState {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            ShowActivityState::Inactive => false,
-            _ => true,
-        }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: Ctx) {
+    fn new_draw(&self, g: &mut GfxCtx, _ctx: &mut Ctx) {
         if let ShowActivityState::Active(_, ref heatmap) = self {
             heatmap.draw(g);
         }

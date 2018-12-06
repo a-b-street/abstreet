@@ -136,10 +136,25 @@ and probably step 2...
 	- each of the editors can stop having inactive state. have new() that returns option
 	- the permanent ones (hider and toggleable layers) shouldnt even implement Plugin; theyre custom weirdness
 - make a single 'Mode' for normal exploration
+	- the blocking ones: warp
+	- the ambient ones: debug objects, follow, neighborhood summary, show activity, show owner, show route, turn cycler
+		- still represent the inactive state? for now, sure
+		- have to solve the problem of overlapping keys to quit
+	- what is search? should it be ambient or not?
+	- dont forget neighborhood summary
+
+
 	- this has to be completely per UI or completely per map
 	- let a bunch of plugins run non-exclusively there, as relevant
 		- AmbientPlugin trait, maybe? or maybe just explicitly call on each field in order
 	- and still have a single blocking plugin possible, like warp
+	- rewrite turn_cycler; i dont understand it. also it used to block input after starting to tab through stuff. weird?
+
+	thursday pick-up:
+	- neighborhood summary
+	- search (sometimes ambient, sometimes blocking)
+	- warp (blocking)
+	- overlapping keys to quit stuff...
 
 and step 3...
 - dismantle the plugin abstraction in UI and probably also the trait. do something different for modes.
@@ -147,3 +162,5 @@ and step 3...
 - use Escape to quit most plugins, since it'll only be callable normally from some modes
 - make it more clear that keys cant overlap... in each mode, specify the trigger key it uses?
 	- except some of them are more conditional and that makes overlap fine
+- can we get rid of PluginsPerUI almost? since we'll likely get rid of plugins entirely... yeah?
+	- view and debug mode can coexist!
