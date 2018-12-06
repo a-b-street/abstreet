@@ -126,12 +126,12 @@ maybe step 1...
 	- it lives per UI, because of above condition
 	- for now, impl it as a hierarchial plugin itself that just delegates
 	- keep plugin trait for each of em for convenience in edit mode, though.
-
 	- each of the editors can stop having inactive state. have new() that returns option
 
 and probably step 2...
 - make a single 'Mode' for normal exploration
 	- let a bunch of plugins run non-exclusively there, as relevant
+		- AmbientPlugin trait, maybe? or maybe just explicitly call on each field in order
 	- and still have a single blocking plugin possible, like warp
 
 and step 3...

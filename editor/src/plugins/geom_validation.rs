@@ -114,7 +114,7 @@ impl Plugin for Validator {
                         info!("No more problems!");
                         new_state = Some(Validator::Inactive);
                     }
-                } else if input.key_pressed(Key::Escape, "stop looking at problems") {
+                } else if input.key_pressed(Key::Return, "stop looking at problems") {
                     new_state = Some(Validator::Inactive);
                 }
             }

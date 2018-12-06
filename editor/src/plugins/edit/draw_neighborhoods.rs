@@ -8,10 +8,7 @@ use sim::NeighborhoodBuilder;
 
 const POINT_RADIUS: f64 = 2.0;
 
-// load or new -> edit (drawing pts) -> MovingPt
-
 pub enum DrawNeighborhoodState {
-    Inactive,
     PickNeighborhood(Wizard),
     // Option<usize> is the point currently being hovered over
     EditNeighborhood(NeighborhoodBuilder, Option<usize>),
@@ -20,8 +17,14 @@ pub enum DrawNeighborhoodState {
 }
 
 impl DrawNeighborhoodState {
-    pub fn new() -> DrawNeighborhoodState {
-        DrawNeighborhoodState::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<DrawNeighborhoodState> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a neighborhood")
+        {
+            return Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
+        }
+        None
     }
 }
 
@@ -40,31 +43,26 @@ impl Plugin for DrawNeighborhoodState {
 
         let mut new_state: Option<DrawNeighborhoodState> = None;
         match self {
-            DrawNeighborhoodState::Inactive => {
-                if input.unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a neighborhood") {
-                    new_state = Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
-                }
-            }
             DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
                 if let Some(n) = pick_neighborhood(map, wizard.wrap(input)) {
                     new_state = Some(DrawNeighborhoodState::EditNeighborhood(n, None));
                 } else if wizard.aborted() {
-                    new_state = Some(DrawNeighborhoodState::Inactive);
+                    return false;
                 }
             }
             DrawNeighborhoodState::EditNeighborhood(ref mut n, ref mut current_idx) => {
                 osd.pad_if_nonempty();
                 osd.add_line(format!("Currently editing {}", n.name));
 
-                if input.key_pressed(Key::Escape, "quit") {
-                    new_state = Some(DrawNeighborhoodState::Inactive);
+                if input.key_pressed(Key::Return, "quit") {
+                    return false;
                 } else if input.key_pressed(Key::X, "export this as an Osmosis polygon filter") {
                     n.save_as_osmosis().unwrap();
                 } else if input.key_pressed(Key::P, "add a new point here") {
                     n.points.push(get_cursor_in_gps());
                 } else if n.points.len() >= 3 && input.key_pressed(Key::Return, "save") {
                     n.save();
-                    new_state = Some(DrawNeighborhoodState::Inactive);
+                    return false;
                 }
 
                 if new_state.is_none() {
@@ -98,17 +96,11 @@ impl Plugin for DrawNeighborhoodState {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            DrawNeighborhoodState::Inactive => false,
-            _ => true,
-        }
+        true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         let (raw_pts, current_idx) = match self {
-            DrawNeighborhoodState::Inactive => {
-                return;
-            }
             DrawNeighborhoodState::PickNeighborhood(wizard) => {
                 // TODO is this order wrong?
                 wizard.draw(g, ctx.canvas);

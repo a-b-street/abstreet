@@ -13,15 +13,23 @@ const TILE_DIMS: u32 = 2;
 
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
-    Inactive,
     Choosing(Menu<()>),
     // Remember the original modified color in case we revert.
     ChangingColor(String, Option<Color>),
 }
 
 impl ColorPicker {
-    pub fn new() -> ColorPicker {
-        ColorPicker::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<ColorPicker> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::D8, SETTINGS, "configure colors")
+        {
+            return Some(ColorPicker::Choosing(Menu::new(
+                "Pick a color to change",
+                ctx.cs.color_names(),
+            )));
+        }
+        None
     }
 }
 
@@ -31,18 +39,10 @@ impl Plugin for ColorPicker {
 
         let mut new_state: Option<ColorPicker> = None;
         match self {
-            ColorPicker::Inactive => {
-                if input.unimportant_key_pressed(Key::D8, SETTINGS, "configure colors") {
-                    new_state = Some(ColorPicker::Choosing(Menu::new(
-                        "Pick a color to change",
-                        cs.color_names(),
-                    )));
-                }
-            }
             ColorPicker::Choosing(ref mut menu) => {
                 match menu.event(input) {
                     InputResult::Canceled => {
-                        new_state = Some(ColorPicker::Inactive);
+                        return false;
                     }
                     InputResult::StillActive => {}
                     InputResult::Done(name, _) => {
@@ -55,16 +55,16 @@ impl Plugin for ColorPicker {
             }
             ColorPicker::ChangingColor(name, orig) => {
                 if input.key_pressed(
-                    Key::Escape,
+                    Key::Backspace,
                     &format!("stop changing color for {} and revert", name),
                 ) {
                     cs.reset_modified(name, *orig);
-                    new_state = Some(ColorPicker::Inactive);
+                    return false;
                 } else if input
                     .key_pressed(Key::Return, &format!("finalize new color for {}", name))
                 {
                     info!("Setting color for {}", name);
-                    new_state = Some(ColorPicker::Inactive);
+                    return false;
                 }
 
                 if let Some((m_x, m_y)) = input.get_moved_mouse() {
@@ -81,15 +81,11 @@ impl Plugin for ColorPicker {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            ColorPicker::Inactive => false,
-            _ => true,
-        }
+        true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         match self {
-            ColorPicker::Inactive => {}
             ColorPicker::Choosing(menu) => {
                 menu.draw(g, ctx.canvas);
             }

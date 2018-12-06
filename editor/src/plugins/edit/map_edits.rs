@@ -6,68 +6,54 @@ use plugins::{choose_edits, Plugin, PluginCtx};
 use sim::SimFlags;
 use ui::{PerMapUI, PluginsPerMap};
 
-pub enum EditsManager {
-    Inactive,
-    ManageEdits(Wizard),
+pub struct EditsManager {
+    wizard: Wizard,
 }
 
 impl EditsManager {
-    pub fn new() -> EditsManager {
-        EditsManager::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<EditsManager> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::Q, SIM_SETUP, "manage map edits")
+        {
+            return Some(EditsManager {
+                wizard: Wizard::new(),
+            });
+        }
+        None
     }
 }
 
 impl Plugin for EditsManager {
     fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let mut new_state: Option<EditsManager> = None;
-        match self {
-            EditsManager::Inactive => {
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::Q, SIM_SETUP, "manage map edits")
-                {
-                    new_state = Some(EditsManager::ManageEdits(Wizard::new()));
-                }
-            }
-            EditsManager::ManageEdits(ref mut wizard) => {
-                let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
+        let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
 
-                if manage_edits(
-                    &mut ctx.primary.current_flags,
-                    &ctx.primary.map,
-                    ctx.kml,
-                    &mut new_primary,
-                    wizard.wrap(ctx.input),
-                ).is_some()
-                {
-                    new_state = Some(EditsManager::Inactive);
-                } else if wizard.aborted() {
-                    new_state = Some(EditsManager::Inactive);
-                }
-                if let Some((p, plugins)) = new_primary {
-                    *ctx.primary = p;
-                    ctx.primary_plugins.as_mut().map(|p_plugins| {
-                        **p_plugins = plugins;
-                    });
-                }
-            }
+        let done = if manage_edits(
+            &mut ctx.primary.current_flags,
+            &ctx.primary.map,
+            ctx.kml,
+            &mut new_primary,
+            self.wizard.wrap(ctx.input),
+        ).is_some()
+        {
+            // TODO NLL makes this easier
+            true
+        } else if self.wizard.aborted() {
+            true
+        } else {
+            false
+        };
+        if let Some((p, plugins)) = new_primary {
+            *ctx.primary = p;
+            ctx.primary_plugins.as_mut().map(|p_plugins| {
+                **p_plugins = plugins;
+            });
         }
-        if let Some(s) = new_state {
-            *self = s;
-        }
-        match self {
-            EditsManager::Inactive => false,
-            _ => true,
-        }
+        !done
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
-        match self {
-            EditsManager::ManageEdits(ref wizard) => {
-                wizard.draw(g, ctx.canvas);
-            }
-            _ => {}
-        }
+        self.wizard.draw(g, ctx.canvas);
     }
 }
 

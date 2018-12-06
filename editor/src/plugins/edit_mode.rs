@@ -53,65 +53,27 @@ impl Plugin for EditMode {
             return false;
         }
 
-        // TODO Make better constructors
+        if let Some(p) = plugins::edit::a_b_tests::ABTestManager::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = plugins::edit::color_picker::ColorPicker::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) =
+            plugins::edit::draw_neighborhoods::DrawNeighborhoodState::new(&mut ctx)
         {
-            let mut x = plugins::edit::a_b_tests::ABTestManager::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = plugins::edit::color_picker::ColorPicker::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = plugins::edit::draw_neighborhoods::DrawNeighborhoodState::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = plugins::edit::map_edits::EditsManager::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = plugins::edit::road_editor::RoadEditor::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = plugins::edit::scenarios::ScenarioManager::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = StopSignEditor::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
-        }
-        {
-            let mut x = TrafficSignalEditor::new();
-            if x.new_event(&mut ctx) {
-                self.active_plugin = Some(Box::new(x));
-                return true;
-            }
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = plugins::edit::map_edits::EditsManager::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = plugins::edit::road_editor::RoadEditor::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = plugins::edit::scenarios::ScenarioManager::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = StopSignEditor::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
+        } else if let Some(p) = TrafficSignalEditor::new(&mut ctx) {
+            self.active_plugin = Some(Box::new(p));
         }
 
-        false
+        self.active_plugin.is_some()
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {

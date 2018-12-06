@@ -9,15 +9,20 @@ use plugins::{
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {
-    Inactive,
     PickScenario(Wizard),
     ManageScenario(Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
 }
 
 impl ScenarioManager {
-    pub fn new() -> ScenarioManager {
-        ScenarioManager::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<ScenarioManager> {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::W, SIM_SETUP, "manage scenarios")
+        {
+            return Some(ScenarioManager::PickScenario(Wizard::new()));
+        }
+        None
     }
 }
 
@@ -27,17 +32,12 @@ impl Plugin for ScenarioManager {
 
         let mut new_state: Option<ScenarioManager> = None;
         match self {
-            ScenarioManager::Inactive => {
-                if input.unimportant_key_pressed(Key::W, SIM_SETUP, "manage scenarios") {
-                    new_state = Some(ScenarioManager::PickScenario(Wizard::new()));
-                }
-            }
             ScenarioManager::PickScenario(ref mut wizard) => {
                 if let Some(scenario) = pick_scenario(map, wizard.wrap(input)) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     new_state = Some(ScenarioManager::ManageScenario(scenario, scroller));
                 } else if wizard.aborted() {
-                    new_state = Some(ScenarioManager::Inactive);
+                    return false;
                 }
             }
             ScenarioManager::ManageScenario(scenario, ref mut scroller) => {
@@ -53,9 +53,9 @@ impl Plugin for ScenarioManager {
                     ));
                 } else if input.key_pressed(Key::I, "instantiate this scenario") {
                     scenario.instantiate(sim, map);
-                    new_state = Some(ScenarioManager::Inactive);
+                    return false;
                 } else if scroller.event(input) {
-                    new_state = Some(ScenarioManager::Inactive);
+                    return false;
                 }
             }
             ScenarioManager::EditScenario(ref mut scenario, ref mut wizard) => {
@@ -72,15 +72,11 @@ impl Plugin for ScenarioManager {
         if let Some(s) = new_state {
             *self = s;
         }
-        match self {
-            ScenarioManager::Inactive => false,
-            _ => true,
-        }
+        true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
         match self {
-            ScenarioManager::Inactive => {}
             ScenarioManager::PickScenario(wizard) => {
                 wizard.draw(g, ctx.canvas);
             }
