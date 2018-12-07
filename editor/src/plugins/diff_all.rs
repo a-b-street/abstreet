@@ -23,7 +23,7 @@ impl DiffAllState {
 }
 
 impl Plugin for DiffAllState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let primary_sim = &ctx.primary.sim;
 
         match self {

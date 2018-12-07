@@ -38,7 +38,7 @@ impl SteepnessVisualizer {
 }
 
 impl Plugin for SteepnessVisualizer {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let msg = if self.active {
             "stop showing steepness"
         } else {

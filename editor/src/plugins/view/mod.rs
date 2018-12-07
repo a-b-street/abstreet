@@ -42,21 +42,21 @@ impl ViewMode {
 }
 
 impl Plugin for ViewMode {
-    fn event(&mut self, mut ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if self.warp.is_some() {
-            if self.warp.as_mut().unwrap().new_event(&mut ctx) {
+            if self.warp.as_mut().unwrap().blocking_event(ctx) {
                 return true;
             } else {
                 self.warp = None;
                 return false;
             }
-        } else if let Some(p) = warp::WarpState::new(&mut ctx) {
+        } else if let Some(p) = warp::WarpState::new(ctx) {
             self.warp = Some(Box::new(p));
             return true;
         }
 
         if self.search.is_some() {
-            if self.search.as_mut().unwrap().new_event(&mut ctx) {
+            if self.search.as_mut().unwrap().blocking_event(ctx) {
                 if self.search.as_ref().unwrap().is_blocking() {
                     return true;
                 }
@@ -64,13 +64,13 @@ impl Plugin for ViewMode {
                 self.search = None;
                 return false;
             }
-        } else if let Some(p) = search::SearchState::new(&mut ctx) {
+        } else if let Some(p) = search::SearchState::new(ctx) {
             self.search = Some(p);
             return true;
         }
 
         for p in self.ambient_plugins.iter_mut() {
-            p.ambient_event(&mut ctx);
+            p.ambient_event(ctx);
         }
         false
     }

@@ -19,7 +19,7 @@ impl RoadEditor {
 }
 
 impl Plugin for RoadEditor {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, selected, map, draw_map, sim) = (
             &mut ctx.input,
             ctx.primary.current_selection,

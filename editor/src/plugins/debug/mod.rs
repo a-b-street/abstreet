@@ -38,38 +38,36 @@ impl DebugMode {
 }
 
 impl Plugin for DebugMode {
-    fn event(&mut self, mut ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         // Always run ambient plugins. If either returns true, the selection state could have
         // changed.
-        if self
-            .hider
-            .event(&mut ctx.input, ctx.primary.current_selection)
-            || self.layers.event(&mut ctx.input)
+        if self.hider.event(ctx.input, ctx.primary.current_selection)
+            || self.layers.event(ctx.input)
         {
             ctx.primary.recalculate_current_selection = true;
             ctx.primary.current_selection = None;
         }
 
         if self.active_plugin.is_some() {
-            if self.active_plugin.as_mut().unwrap().new_event(&mut ctx) {
+            if self.active_plugin.as_mut().unwrap().blocking_event(ctx) {
                 return true;
             } else {
                 self.active_plugin = None;
                 return false;
             }
         } else if self.steepness.active {
-            return self.steepness.new_event(&mut ctx);
+            return self.steepness.blocking_event(ctx);
         }
 
-        if let Some(p) = chokepoints::ChokepointsFinder::new(&mut ctx) {
+        if let Some(p) = chokepoints::ChokepointsFinder::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = classification::OsmClassifier::new(&mut ctx) {
+        } else if let Some(p) = classification::OsmClassifier::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = floodfill::Floodfiller::new(&mut ctx) {
+        } else if let Some(p) = floodfill::Floodfiller::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = geom_validation::Validator::new(&mut ctx) {
+        } else if let Some(p) = geom_validation::Validator::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if self.steepness.new_event(&mut ctx) {
+        } else if self.steepness.blocking_event(ctx) {
             return true;
         }
 

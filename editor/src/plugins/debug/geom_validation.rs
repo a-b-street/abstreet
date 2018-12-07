@@ -85,7 +85,7 @@ impl Validator {
 }
 
 impl Plugin for Validator {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         // Initialize or advance?
         if !self.current_problem.is_some() || ctx.input.key_pressed(Key::N, "see the next problem")
         {

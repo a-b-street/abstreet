@@ -32,7 +32,7 @@ impl DisplayLogs {
 }
 
 impl Plugin for DisplayLogs {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if !self.active {
             if ctx
                 .input

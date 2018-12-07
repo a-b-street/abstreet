@@ -28,7 +28,7 @@ impl DiffWorldsState {
 }
 
 impl Plugin for DiffWorldsState {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             DiffWorldsState::Inactive => {
                 if ctx.secondary.is_some() {
@@ -96,7 +96,7 @@ impl Plugin for DiffWorldsState {
     }
 }
 
-fn diff_world(trip: TripID, ctx: PluginCtx) -> DiffWorldsState {
+fn diff_world(trip: TripID, ctx: &mut PluginCtx) -> DiffWorldsState {
     let primary_sim = &ctx.primary.sim;
     let primary_map = &ctx.primary.map;
     let (secondary_sim, secondary_map) = ctx

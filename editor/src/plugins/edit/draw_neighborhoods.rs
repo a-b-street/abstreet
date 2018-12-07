@@ -29,7 +29,7 @@ impl DrawNeighborhoodState {
 }
 
 impl Plugin for DrawNeighborhoodState {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, canvas, map, osd) = (
             &mut ctx.input,
             &ctx.canvas,

@@ -25,7 +25,7 @@ impl ABTestManager {
 }
 
 impl Plugin for ABTestManager {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             ABTestManager::PickABTest(ref mut wizard) => {
                 if let Some(ab_test) = pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input)) {

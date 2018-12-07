@@ -42,9 +42,9 @@ impl EditMode {
 }
 
 impl Plugin for EditMode {
-    fn event(&mut self, mut ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if self.active_plugin.is_some() {
-            if self.active_plugin.as_mut().unwrap().new_event(&mut ctx) {
+            if self.active_plugin.as_mut().unwrap().blocking_event(ctx) {
                 return true;
             } else {
                 self.active_plugin = None;
@@ -58,21 +58,21 @@ impl Plugin for EditMode {
             return false;
         }
 
-        if let Some(p) = a_b_tests::ABTestManager::new(&mut ctx) {
+        if let Some(p) = a_b_tests::ABTestManager::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = color_picker::ColorPicker::new(&mut ctx) {
+        } else if let Some(p) = color_picker::ColorPicker::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = draw_neighborhoods::DrawNeighborhoodState::new(&mut ctx) {
+        } else if let Some(p) = draw_neighborhoods::DrawNeighborhoodState::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = map_edits::EditsManager::new(&mut ctx) {
+        } else if let Some(p) = map_edits::EditsManager::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = road_editor::RoadEditor::new(&mut ctx) {
+        } else if let Some(p) = road_editor::RoadEditor::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = scenarios::ScenarioManager::new(&mut ctx) {
+        } else if let Some(p) = scenarios::ScenarioManager::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = stop_sign_editor::StopSignEditor::new(&mut ctx) {
+        } else if let Some(p) = stop_sign_editor::StopSignEditor::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = traffic_signal_editor::TrafficSignalEditor::new(&mut ctx) {
+        } else if let Some(p) = traffic_signal_editor::TrafficSignalEditor::new(ctx) {
             self.active_plugin = Some(Box::new(p));
         }
 

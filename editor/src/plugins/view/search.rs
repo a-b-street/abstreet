@@ -31,7 +31,7 @@ impl SearchState {
 }
 
 impl Plugin for SearchState {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             SearchState::EnteringSearch(tb) => match tb.event(&mut ctx.input) {
                 InputResult::Canceled => {

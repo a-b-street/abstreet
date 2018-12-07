@@ -393,26 +393,23 @@ impl UI {
         input: &mut UserInput,
         hints: &mut RenderingHints,
     ) -> bool {
-        let active = {
-            let mut ctx = PluginCtx {
-                primary: &mut self.primary,
-                primary_plugins: None,
-                secondary: &mut self.secondary,
-                canvas: &mut self.canvas,
-                cs: &mut self.cs.borrow_mut(),
-                input,
-                hints,
-                kml: &self.kml,
-            };
-            let len = self.plugins.list.len();
-            if idx < len {
-                ctx.primary_plugins = Some(&mut self.primary_plugins);
-                self.plugins.list[idx].event(ctx)
-            } else {
-                self.primary_plugins.list[idx - len].event(ctx)
-            }
+        let mut ctx = PluginCtx {
+            primary: &mut self.primary,
+            primary_plugins: None,
+            secondary: &mut self.secondary,
+            canvas: &mut self.canvas,
+            cs: &mut self.cs.borrow_mut(),
+            input,
+            hints,
+            kml: &self.kml,
         };
-        active
+        let len = self.plugins.list.len();
+        if idx < len {
+            ctx.primary_plugins = Some(&mut self.primary_plugins);
+            self.plugins.list[idx].blocking_event(&mut ctx)
+        } else {
+            self.primary_plugins.list[idx - len].blocking_event(&mut ctx)
+        }
     }
 
     fn save_editor_state(&self) {

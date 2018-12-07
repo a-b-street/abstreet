@@ -25,7 +25,7 @@ impl EditsManager {
 }
 
 impl Plugin for EditsManager {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
 
         if manage_edits(

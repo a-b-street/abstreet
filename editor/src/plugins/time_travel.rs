@@ -68,7 +68,7 @@ impl TimeTravel {
 }
 
 impl Plugin for TimeTravel {
-    fn event(&mut self, ctx: PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
         if let Some(tick) = self.current_tick {

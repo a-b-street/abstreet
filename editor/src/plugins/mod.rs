@@ -25,13 +25,8 @@ pub trait Plugin: Any {
 
     fn draw(&self, _g: &mut GfxCtx, _ctx: &mut Ctx) {}
 
-    // True if active
-    fn event(&mut self, _ctx: PluginCtx) -> bool {
-        false
-    }
-
-    // TODO Such hacks
-    fn new_event(&mut self, _ctx: &mut PluginCtx) -> bool {
+    // True if active, false if done
+    fn blocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
         false
     }
 

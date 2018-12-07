@@ -27,7 +27,7 @@ impl ScenarioManager {
 }
 
 impl Plugin for ScenarioManager {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, map, sim) = (&mut ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
 
         match self {

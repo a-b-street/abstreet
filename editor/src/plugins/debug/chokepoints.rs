@@ -27,7 +27,7 @@ impl ChokepointsFinder {
 }
 
 impl Plugin for ChokepointsFinder {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx
             .input
             .key_pressed(Key::Return, "stop showing chokepoints")

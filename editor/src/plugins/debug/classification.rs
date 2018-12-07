@@ -18,7 +18,7 @@ impl OsmClassifier {
 }
 
 impl Plugin for OsmClassifier {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx.input.key_pressed(Key::D6, "stop showing OSM colors") {
             return false;
         }

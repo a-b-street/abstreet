@@ -31,7 +31,7 @@ impl Floodfiller {
 }
 
 impl Plugin for Floodfiller {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx.input.key_pressed(Key::Return, "quit floodfilling") {
             return false;
         } else if !self.queue.is_empty() {

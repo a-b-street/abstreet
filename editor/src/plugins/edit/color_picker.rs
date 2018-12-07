@@ -34,7 +34,7 @@ impl ColorPicker {
 }
 
 impl Plugin for ColorPicker {
-    fn new_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let (input, canvas, cs) = (&mut ctx.input, &ctx.canvas, &mut ctx.cs);
 
         match self {
