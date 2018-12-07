@@ -162,3 +162,12 @@ and step 3...
 	- except some of them are more conditional and that makes overlap fine
 - can we get rid of PluginsPerUI almost? since we'll likely get rid of plugins entirely... yeah?
 	- view and debug mode can coexist!
+
+### Overlapping keys
+
+Is there a way to know that ambient plugins in ViewMode don't use the same keys?
+
+- when we construct them in ViewMode, could pass in a hardcoded key and visually see they're not used too much.
+- could get fancier and put all of the keys in a struct, move them out as we create plugins, thereby using the compiler to check. :D
+- what if some keys are only usable in some contexts and that's OK?
+- what if the plugin uses multiple keys? pass in both, at the expense of losing some readability at the creation site...

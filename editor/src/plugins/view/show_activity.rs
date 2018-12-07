@@ -5,43 +5,51 @@ use geom::{Bounds, Polygon, Pt2D};
 use piston::input::Key;
 use sim::{Sim, Tick};
 
-pub enum ShowActivityState {
+pub struct ShowActivityState {
+    state: State,
+    key: Key,
+}
+
+enum State {
     Inactive,
     Active(Tick, Heatmap),
 }
 
 impl ShowActivityState {
-    pub fn new() -> ShowActivityState {
-        ShowActivityState::Inactive
+    pub fn new(key: Key) -> ShowActivityState {
+        ShowActivityState {
+            state: State::Inactive,
+            key,
+        }
     }
 }
 
 impl Plugin for ShowActivityState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        match self {
-            ShowActivityState::Inactive => {
+        match self.state {
+            State::Inactive => {
                 if ctx.input.unimportant_key_pressed(
-                    Key::A,
+                    self.key,
                     DEBUG,
                     "show lanes with active traffic",
                 ) {
-                    *self = ShowActivityState::Active(
+                    self.state = State::Active(
                         ctx.primary.sim.time,
                         active_agent_heatmap(ctx.canvas.get_screen_bounds(), &ctx.primary.sim),
                     );
                 }
             }
-            ShowActivityState::Active(time, ref old_heatmap) => {
+            State::Active(time, ref old_heatmap) => {
                 if ctx
                     .input
-                    .key_pressed(Key::Return, "stop showing lanes with active traffic")
+                    .key_pressed(self.key, "stop showing lanes with active traffic")
                 {
-                    *self = ShowActivityState::Inactive;
+                    self.state = State::Inactive;
                     return;
                 }
                 let bounds = ctx.canvas.get_screen_bounds();
-                if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
-                    *self = ShowActivityState::Active(
+                if time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
+                    self.state = State::Active(
                         ctx.primary.sim.time,
                         active_agent_heatmap(bounds, &ctx.primary.sim),
                     );
@@ -51,7 +59,7 @@ impl Plugin for ShowActivityState {
     }
 
     fn draw(&self, g: &mut GfxCtx, _ctx: &mut Ctx) {
-        if let ShowActivityState::Active(_, ref heatmap) = self {
+        if let State::Active(_, ref heatmap) = self.state {
             heatmap.draw(g);
         }
     }

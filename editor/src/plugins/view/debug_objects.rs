@@ -4,15 +4,20 @@ use ezgui::{Color, GfxCtx, Text, TEXT_FG_COLOR};
 use piston::input::Key;
 
 pub struct DebugObjectsState {
-    control_held: bool,
+    tooltip_key_held: bool,
     selected: Option<ID>,
+
+    tooltip_key: Key,
+    debug_key: Key,
 }
 
 impl DebugObjectsState {
-    pub fn new() -> DebugObjectsState {
+    pub fn new(tooltip_key: Key, debug_key: Key) -> DebugObjectsState {
         DebugObjectsState {
-            control_held: false,
+            tooltip_key_held: false,
             selected: None,
+            tooltip_key,
+            debug_key,
         }
     }
 }
@@ -20,18 +25,20 @@ impl DebugObjectsState {
 impl Plugin for DebugObjectsState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         self.selected = ctx.primary.current_selection;
-        if self.control_held {
-            self.control_held = !ctx.input.key_released(Key::LCtrl);
+        if self.tooltip_key_held {
+            self.tooltip_key_held = !ctx.input.key_released(self.tooltip_key);
         } else {
             // TODO Can't really display an OSD action if we're not currently selecting something.
             // Could only activate sometimes, but that seems a bit harder to use.
-            self.control_held =
-                ctx.input
-                    .unimportant_key_pressed(Key::LCtrl, DEBUG, "hold Ctrl to show tooltips");
+            self.tooltip_key_held = ctx.input.unimportant_key_pressed(
+                self.tooltip_key,
+                DEBUG,
+                "hold Ctrl to show tooltips",
+            );
         }
 
         if let Some(id) = self.selected {
-            if ctx.input.key_pressed(Key::D, "debug") {
+            if ctx.input.key_pressed(self.debug_key, "debug") {
                 id.debug(
                     &ctx.primary.map,
                     &mut ctx.primary.sim,
@@ -42,7 +49,7 @@ impl Plugin for DebugObjectsState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
-        if self.control_held {
+        if self.tooltip_key_held {
             if let Some(id) = self.selected {
                 ctx.canvas.draw_mouse_tooltip(g, tooltip_lines(id, ctx));
             }

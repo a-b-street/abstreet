@@ -14,6 +14,7 @@ use crate::render::DrawMap;
 use abstutil::Timer;
 use ezgui::{Color, GfxCtx};
 use map_model::Map;
+use piston::input::Key;
 
 pub struct ViewMode {
     warp: Option<Box<Plugin>>,
@@ -27,15 +28,18 @@ impl ViewMode {
             warp: None,
             search: None,
             ambient_plugins: vec![
-                Box::new(follow::FollowState::new()),
-                Box::new(debug_objects::DebugObjectsState::new()),
+                Box::new(debug_objects::DebugObjectsState::new(Key::LCtrl, Key::D)),
+                Box::new(follow::FollowState::new(Key::F)),
                 Box::new(neighborhood_summary::NeighborhoodSummary::new(
-                    map, draw_map, timer,
+                    Key::Z,
+                    map,
+                    draw_map,
+                    timer,
                 )),
-                Box::new(show_activity::ShowActivityState::new()),
+                Box::new(show_activity::ShowActivityState::new(Key::A)),
                 Box::new(show_owner::ShowOwnerState::new()),
-                Box::new(show_route::ShowRouteState::new()),
-                Box::new(turn_cycler::TurnCyclerState::new()),
+                Box::new(show_route::ShowRouteState::new(Key::R, Key::L)),
+                Box::new(turn_cycler::TurnCyclerState::new(Key::Tab)),
             ],
         }
     }
@@ -50,7 +54,7 @@ impl Plugin for ViewMode {
                 self.warp = None;
                 return false;
             }
-        } else if let Some(p) = warp::WarpState::new(ctx) {
+        } else if let Some(p) = warp::WarpState::new(Key::J, ctx) {
             self.warp = Some(Box::new(p));
             return true;
         }
@@ -64,7 +68,7 @@ impl Plugin for ViewMode {
                 self.search = None;
                 return false;
             }
-        } else if let Some(p) = search::SearchState::new(ctx) {
+        } else if let Some(p) = search::SearchState::new(Key::Slash, ctx) {
             self.search = Some(p);
             return true;
         }

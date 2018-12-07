@@ -13,13 +13,20 @@ pub struct NeighborhoodSummary {
     regions: Vec<Region>,
     active: bool,
     last_summary: Option<Tick>,
+    key: Key,
 }
 
 impl NeighborhoodSummary {
-    pub fn new(map: &Map, draw_map: &DrawMap, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
+    pub fn new(
+        key: Key,
+        map: &Map,
+        draw_map: &DrawMap,
+        timer: &mut abstutil::Timer,
+    ) -> NeighborhoodSummary {
         let neighborhoods = Neighborhood::load_all(map.get_name(), &map.get_gps_bounds());
         timer.start_iter("precompute neighborhood members", neighborhoods.len());
         NeighborhoodSummary {
+            key,
             regions: neighborhoods
                 .into_iter()
                 .enumerate()
@@ -39,15 +46,17 @@ impl Plugin for NeighborhoodSummary {
         if self.active {
             if ctx
                 .input
-                .key_pressed(Key::Z, "stop showing neighborhood summaries")
+                .key_pressed(self.key, "stop showing neighborhood summaries")
             {
                 self.active = false;
             }
         } else {
             self.active = ctx.primary.current_selection.is_none()
-                && ctx
-                    .input
-                    .unimportant_key_pressed(Key::Z, DEBUG, "show neighborhood summaries");
+                && ctx.input.unimportant_key_pressed(
+                    self.key,
+                    DEBUG,
+                    "show neighborhood summaries",
+                );
         }
 
         if self.active && Some(ctx.primary.sim.time) != self.last_summary {

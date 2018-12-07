@@ -30,6 +30,7 @@ pub trait Plugin: Any {
         false
     }
 
+    // TODO Maybe keys should be passed in here.
     fn ambient_event(&mut self, _ctx: &mut PluginCtx) {}
 }
 

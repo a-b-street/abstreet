@@ -19,12 +19,11 @@ pub enum WarpState {
 }
 
 impl WarpState {
-    pub fn new(ctx: &mut PluginCtx) -> Option<WarpState> {
-        if ctx.input.unimportant_key_pressed(
-            Key::J,
-            DEBUG,
-            "start searching for something to warp to",
-        ) {
+    pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<WarpState> {
+        if ctx
+            .input
+            .unimportant_key_pressed(key, DEBUG, "start searching for something to warp to")
+        {
             return Some(WarpState::EnteringSearch(TextBox::new(
                 "Warp to what?",
                 None,
