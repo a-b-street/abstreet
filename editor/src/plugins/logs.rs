@@ -51,7 +51,7 @@ impl Plugin for DisplayLogs {
         self.active
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if self.active {
             LOGGER.lock().unwrap().draw(g, ctx.canvas);
         }

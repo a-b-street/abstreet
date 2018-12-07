@@ -75,7 +75,7 @@ impl Plugin for WarpState {
         true
     }
 
-    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let WarpState::EnteringSearch(tb) = self {
             tb.draw(g, ctx.canvas);
         }

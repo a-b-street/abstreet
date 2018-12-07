@@ -39,7 +39,7 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             if self.preparing_bike {
                 ctx.cs

@@ -49,7 +49,7 @@ impl Renderable for DrawParcel {
         ID::Parcel(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             let p = ctx.map.get_p(self.id);
             COLORS[p.block % COLORS.len()]

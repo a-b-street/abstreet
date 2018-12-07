@@ -41,7 +41,7 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             match self.state {
                 CarState::Debug => ctx

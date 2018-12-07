@@ -87,7 +87,7 @@ impl Renderable for DrawTurn {
         ID::Turn(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         // Some plugins hide icons entirely.
         if ctx.hints.hide_turn_icons.contains(&self.id) {
             return;

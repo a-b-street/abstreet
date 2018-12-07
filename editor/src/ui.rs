@@ -71,6 +71,15 @@ impl GUI<RenderingHints> for UI {
                 .get("map background", Color::rgb(242, 239, 233)),
         );
 
+        let mut ctx = Ctx {
+            cs: &mut self.cs.borrow_mut(),
+            map: &self.primary.map,
+            draw_map: &self.primary.draw_map,
+            canvas: &self.canvas,
+            sim: &self.primary.sim,
+            hints: &hints,
+        };
+
         let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
             self.canvas.get_screen_bounds(),
             self.primary_plugins.debug_mode(),
@@ -80,56 +89,26 @@ impl GUI<RenderingHints> for UI {
         );
         for obj in statics.into_iter() {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id(), &hints),
+                color: self.color_obj(obj.get_id(), &mut ctx),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
             };
-            obj.draw(
-                g,
-                opts,
-                Ctx {
-                    cs: &mut self.cs.borrow_mut(),
-                    map: &self.primary.map,
-                    draw_map: &self.primary.draw_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                    hints: &hints,
-                },
-            );
+            obj.draw(g, opts, &mut ctx);
         }
         for obj in dynamics.into_iter() {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id(), &hints),
+                color: self.color_obj(obj.get_id(), &mut ctx),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
             };
-            obj.draw(
-                g,
-                opts,
-                Ctx {
-                    cs: &mut self.cs.borrow_mut(),
-                    map: &self.primary.map,
-                    draw_map: &self.primary.draw_map,
-                    canvas: &self.canvas,
-                    sim: &self.primary.sim,
-                    hints: &hints,
-                },
-            );
+            obj.draw(g, opts, &mut ctx);
         }
 
-        let ctx = Ctx {
-            cs: &mut self.cs.borrow_mut(),
-            map: &self.primary.map,
-            draw_map: &self.primary.draw_map,
-            canvas: &self.canvas,
-            sim: &self.primary.sim,
-            hints: &hints,
-        };
         if let Some(p) = self.get_active_plugin() {
-            p.draw(g, ctx);
+            p.draw(g, &mut ctx);
         } else {
             // If no other mode was active, give the ambient plugins in ViewMode a chance.
-            self.primary_plugins.view_mode().draw(g, ctx);
+            self.primary_plugins.view_mode().draw(g, &mut ctx);
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
@@ -385,19 +364,11 @@ impl UI {
         None
     }
 
-    fn color_obj(&self, id: ID, hints: &RenderingHints) -> Option<Color> {
+    fn color_obj(&self, id: ID, ctx: &mut Ctx) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
-            return Some(self.cs.borrow_mut().get("selected", Color::BLUE));
+            return Some(ctx.cs.get("selected", Color::BLUE));
         }
 
-        let ctx = Ctx {
-            cs: &mut self.cs.borrow_mut(),
-            map: &self.primary.map,
-            draw_map: &self.primary.draw_map,
-            canvas: &self.canvas,
-            sim: &self.primary.sim,
-            hints,
-        };
         if let Some(p) = self.get_active_plugin() {
             p.color_for(id, ctx)
         } else {

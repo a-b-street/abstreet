@@ -59,7 +59,7 @@ impl Plugin for ShowRouteState {
         };
     }
 
-    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         match self {
             ShowRouteState::Active(_, _, Some(trace)) => {
                 g.draw_polygon(

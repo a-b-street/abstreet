@@ -41,7 +41,7 @@ impl Plugin for DebugObjectsState {
         }
     }
 
-    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if self.control_held {
             if let Some(id) = self.selected {
                 ctx.canvas.draw_mouse_tooltip(g, tooltip_lines(id, ctx));

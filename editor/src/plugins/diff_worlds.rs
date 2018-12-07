@@ -63,7 +63,7 @@ impl Plugin for DiffWorldsState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let DiffWorldsState::Active {
             line,
             primary_route,

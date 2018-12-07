@@ -172,7 +172,7 @@ impl Plugin for SimController {
         self.show_side_panel
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let Some(ref txt) = self.last_summary {
             ctx.canvas.draw_text(g, txt.clone(), TOP_RIGHT);
         }

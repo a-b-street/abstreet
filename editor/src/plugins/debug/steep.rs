@@ -50,7 +50,7 @@ impl Plugin for SteepnessVisualizer {
         self.active
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         if !self.active {
             return None;
         }

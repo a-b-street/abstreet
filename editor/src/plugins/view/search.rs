@@ -54,13 +54,13 @@ impl Plugin for SearchState {
         true
     }
 
-    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let SearchState::EnteringSearch(tb) = self {
             tb.draw(g, ctx.canvas);
         }
     }
 
-    fn new_color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             let osm_tags = match obj {
                 ID::Lane(l) => &ctx.map.get_parent(l).osm_tags,

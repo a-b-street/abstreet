@@ -45,7 +45,7 @@ pub const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
     fn get_id(&self) -> ID;
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx);
     fn get_bounds(&self) -> Bounds;
     fn contains_pt(&self, pt: Pt2D) -> bool;
 }

@@ -25,7 +25,7 @@ impl Plugin for OsmClassifier {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         match obj {
             ID::Lane(l) => {
                 if ctx.map.get_l(l).is_driving() {

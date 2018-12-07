@@ -19,15 +19,11 @@ use map_model::{IntersectionID, Map};
 use sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 
 pub trait Plugin: Any {
-    fn color_for(&self, _obj: ID, _ctx: Ctx) -> Option<Color> {
-        None
-    }
-    fn new_color_for(&self, _obj: ID, _ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, _obj: ID, _ctx: &mut Ctx) -> Option<Color> {
         None
     }
 
-    fn draw(&self, _g: &mut GfxCtx, _ctx: Ctx) {}
-    fn new_draw(&self, _g: &mut GfxCtx, _ctx: &mut Ctx) {}
+    fn draw(&self, _g: &mut GfxCtx, _ctx: &mut Ctx) {}
 
     // True if active
     fn event(&mut self, _ctx: PluginCtx) -> bool {

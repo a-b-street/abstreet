@@ -65,7 +65,7 @@ impl Plugin for DiffAllState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let DiffAllState::Active { ref lines, .. } = self {
             for line in lines {
                 g.draw_line(

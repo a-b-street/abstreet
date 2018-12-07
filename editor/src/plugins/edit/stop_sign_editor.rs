@@ -63,11 +63,11 @@ impl Plugin for StopSignEditor {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         draw_stop_sign(ctx.map.get_stop_sign(self.i), g, ctx.cs, ctx.map);
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         if let ID::Turn(t) = obj {
             if t.parent != self.i {
                 return None;

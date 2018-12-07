@@ -38,7 +38,7 @@ impl Plugin for ChokepointsFinder {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         let color = ctx.cs.get("chokepoint", Color::RED);
         match obj {
             ID::Lane(l) if self.lanes.contains(&l) => Some(color),

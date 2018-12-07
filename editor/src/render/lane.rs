@@ -75,7 +75,7 @@ impl DrawLane {
         }
     }
 
-    fn draw_debug(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw_debug(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         let circle_color = ctx
             .cs
             .get("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
@@ -103,7 +103,7 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
             let mut default = match l.lane_type {

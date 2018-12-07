@@ -61,7 +61,7 @@ impl Plugin for NeighborhoodSummary {
         }
     }
 
-    fn new_draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if !self.active {
             return;
         }

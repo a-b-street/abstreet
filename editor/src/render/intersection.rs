@@ -39,7 +39,7 @@ impl DrawIntersection {
         }
     }
 
-    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         g.draw_polygon(
             ctx.cs.get("stop sign background", Color::RED),
             &Polygon::regular_polygon(self.center, 8, 1.5, Angle::new_degs(360.0 / 16.0)),
@@ -47,7 +47,7 @@ impl DrawIntersection {
         // TODO draw "STOP"
     }
 
-    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: Ctx) {
+    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         let radius = 0.5;
 
         g.draw_polygon(
@@ -77,7 +77,7 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             if self.intersection_type == IntersectionType::Border {
                 return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));

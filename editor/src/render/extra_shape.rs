@@ -92,7 +92,7 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or(ctx.cs.get("extra shape", Color::CYAN));
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(color, &p),
