@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, SIM_SETUP};
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
 use crate::ui::{PerMapUI, PluginsPerMap};
-use ezgui::{GfxCtx, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use piston::input::Key;
 use sim::SimFlags;
@@ -33,6 +33,7 @@ impl Plugin for EditsManager {
             &ctx.primary.map,
             ctx.kml,
             &mut new_primary,
+            &ctx.canvas,
             self.wizard.wrap(ctx.input),
         )
         .is_some()
@@ -61,6 +62,7 @@ fn manage_edits(
     map: &Map,
     kml: &Option<String>,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
+    canvas: &Canvas,
     mut wizard: WrappedWizard,
 ) -> Option<()> {
     // TODO Indicate how many edits are there / if there are any unsaved edits
@@ -100,7 +102,7 @@ fn manage_edits(
             flags.edits_name = load_name;
 
             info!("Reloading everything...");
-            *new_primary = Some(PerMapUI::new(flags, kml));
+            *new_primary = Some(PerMapUI::new(flags, kml, canvas));
             Some(())
         }
         _ => unreachable!(),

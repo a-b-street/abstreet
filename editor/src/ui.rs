@@ -156,7 +156,11 @@ impl PluginsPerMap {
 }
 
 impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: &Option<String>) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(
+        flags: SimFlags,
+        kml: &Option<String>,
+        canvas: &Canvas,
+    ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
@@ -192,13 +196,15 @@ impl PerMapUI {
             recalculate_current_selection: false,
             current_flags: flags,
         };
-        let plugins = PluginsPerMap {
+        let mut plugins = PluginsPerMap {
             list: vec![
                 Box::new(debug_mode),
                 Box::new(view_mode),
                 Box::new(plugins::time_travel::TimeTravel::new()),
             ],
         };
+        plugins.layers_mut().handle_zoom(-1.0, canvas.cam_zoom);
+
         (state, plugins)
     }
 }
@@ -219,7 +225,8 @@ impl UI {
         // Do this first, so anything logged by sim::load isn't lost.
         let logs = plugins::logs::DisplayLogs::new();
 
-        let (primary, primary_plugins) = PerMapUI::new(flags, &kml);
+        let canvas = Canvas::new();
+        let (primary, primary_plugins) = PerMapUI::new(flags, &kml, &canvas);
         let mut ui = UI {
             primary,
             primary_plugins,
@@ -237,7 +244,7 @@ impl UI {
 
             active_plugin: None,
 
-            canvas: Canvas::new(),
+            canvas,
             cs: RefCell::new(ColorScheme::load().unwrap()),
 
             kml,
@@ -266,10 +273,6 @@ impl UI {
                 ui.canvas.center_on_map_pt(focus_pt);
             }
         }
-
-        ui.primary_plugins
-            .layers_mut()
-            .handle_zoom(-1.0, ui.canvas.cam_zoom);
 
         ui
     }

@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, SIM_SETUP};
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::ui::{PerMapUI, PluginsPerMap};
-use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use piston::input::Key;
 use sim::{ABTest, SimFlags};
@@ -38,7 +38,7 @@ impl Plugin for ABTestManager {
             ABTestManager::ManageABTest(test, ref mut scroller) => {
                 if ctx.input.key_pressed(Key::R, "run this A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
-                        launch_test(test, ctx.kml, &ctx.primary.current_flags);
+                        launch_test(test, ctx.kml, &ctx.primary.current_flags, &ctx.canvas);
                     *ctx.primary = new_primary;
                     ctx.primary_plugins.as_mut().map(|p_plugins| {
                         **p_plugins = new_primary_plugins;
@@ -91,6 +91,7 @@ fn launch_test(
     test: &ABTest,
     kml: &Option<String>,
     current_flags: &SimFlags,
+    canvas: &Canvas,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
@@ -111,6 +112,7 @@ fn launch_test(
             edits_name: test.edits1_name.clone(),
         },
         kml,
+        canvas,
     );
     let secondary = PerMapUI::new(
         SimFlags {
@@ -120,6 +122,7 @@ fn launch_test(
             edits_name: test.edits2_name.clone(),
         },
         kml,
+        canvas,
     );
     // That's all! The scenario will be instantiated.
     (primary, secondary)
