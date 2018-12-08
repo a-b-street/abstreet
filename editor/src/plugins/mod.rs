@@ -1,14 +1,14 @@
 pub mod debug;
-pub mod diff_all;
-pub mod diff_worlds;
 pub mod edit;
 pub mod logs;
+pub mod sim;
 pub mod sim_controls;
 pub mod time_travel;
 pub mod view;
 
 use crate::objects::{Ctx, ID};
 use crate::ui::PluginCtx;
+use ::sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use downcast::{
@@ -16,7 +16,6 @@ use downcast::{
 };
 use ezgui::{Color, GfxCtx, WrappedWizard};
 use map_model::{IntersectionID, Map};
-use sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 
 pub trait Plugin: Any {
     fn color_for(&self, _obj: ID, _ctx: &mut Ctx) -> Option<Color> {

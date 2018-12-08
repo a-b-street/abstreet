@@ -1,9 +1,9 @@
-use crate::objects::{Ctx, SIM};
+use crate::objects::SIM;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventLoopMode, GfxCtx, Text, TOP_RIGHT};
+use ezgui::EventLoopMode;
 use piston::input::Key;
-use sim::{Benchmark, ScoreSummary, TIMESTEP};
+use sim::{Benchmark, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
 
@@ -15,8 +15,6 @@ pub struct SimController {
     last_step: Option<Instant>,
     benchmark: Option<Benchmark>,
     sim_speed: String,
-    show_side_panel: bool,
-    last_summary: Option<Text>,
 }
 
 impl SimController {
@@ -26,20 +24,12 @@ impl SimController {
             last_step: None,
             benchmark: None,
             sim_speed: String::from("paused"),
-            show_side_panel: false,
-            last_summary: None,
         }
     }
 }
 
 impl Plugin for SimController {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::Period, SIM, "Toggle the sim info sidepanel")
-        {
-            self.show_side_panel = !self.show_side_panel;
-        }
         if ctx
             .input
             .unimportant_key_pressed(Key::LeftBracket, SIM, "slow down sim")
@@ -169,60 +159,10 @@ impl Plugin for SimController {
             self.sim_speed, self.desired_speed
         ));
 
-        if self.show_side_panel {
-            let mut txt = Text::new();
-            if let Some((s, _)) = ctx.secondary {
-                // TODO More coloring
-                txt.add_line(ctx.primary.sim.get_name().to_string());
-                summarize(&mut txt, ctx.primary.sim.get_score());
-                txt.add_line("".to_string());
-                txt.add_line(s.sim.get_name().to_string());
-                summarize(&mut txt, s.sim.get_score());
-            } else {
-                summarize(&mut txt, ctx.primary.sim.get_score());
-            }
-            self.last_summary = Some(txt);
-        } else {
-            self.last_summary = None;
-        }
-
         if self.last_step.is_some() {
             ctx.hints.mode = EventLoopMode::Animation;
         }
 
-        // Weird definition of active?
-        self.show_side_panel
+        false
     }
-
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
-        if let Some(ref txt) = self.last_summary {
-            ctx.canvas.draw_text(g, txt.clone(), TOP_RIGHT);
-        }
-    }
-}
-
-fn summarize(txt: &mut Text, summary: ScoreSummary) {
-    txt.add_styled_line(
-        "Walking".to_string(),
-        Color::BLACK,
-        Some(Color::rgba(255, 0, 0, 0.8)),
-    );
-    txt.add_line(format!(
-        "  {}/{} trips done",
-        (summary.total_walking_trips - summary.pending_walking_trips),
-        summary.pending_walking_trips
-    ));
-    txt.add_line(format!("  {} total", summary.total_walking_trip_time));
-
-    txt.add_styled_line(
-        "Driving".to_string(),
-        Color::BLACK,
-        Some(Color::rgba(0, 0, 255, 0.8)),
-    );
-    txt.add_line(format!(
-        "  {}/{} trips done",
-        (summary.total_driving_trips - summary.pending_driving_trips),
-        summary.pending_driving_trips
-    ));
-    txt.add_line(format!("  {} total", summary.total_driving_trip_time));
 }

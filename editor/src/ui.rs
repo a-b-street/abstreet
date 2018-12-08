@@ -235,9 +235,8 @@ impl UI {
             plugins: PluginsPerUI {
                 list: vec![
                     Box::new(EditMode::new()),
+                    Box::new(plugins::sim::SimMode::new()),
                     Box::new(logs),
-                    Box::new(plugins::diff_all::DiffAllState::new()),
-                    Box::new(plugins::diff_worlds::DiffWorldsState::new()),
                     Box::new(plugins::sim_controls::SimController::new()),
                 ],
             },
