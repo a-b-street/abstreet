@@ -77,6 +77,11 @@ impl Sim {
 // Spawning helpers
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
+        // TODO This really ought to be part of the scenario
+        for route in map.get_all_bus_routes() {
+            self.seed_bus_route(route, map);
+        }
+
         let mut s = Scenario {
             scenario_name: "small_spawn".to_string(),
             map_name: map.get_name().to_string(),
@@ -124,10 +129,6 @@ impl Sim {
             });
         }
         s.instantiate(self, map);
-
-        for route in map.get_all_bus_routes() {
-            self.seed_bus_route(route, map);
-        }
     }
 
     pub fn seed_parked_cars(

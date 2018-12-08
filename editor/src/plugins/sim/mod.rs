@@ -1,3 +1,4 @@
+mod controls;
 mod diff_all;
 mod diff_trip;
 mod show_score;
@@ -19,7 +20,10 @@ impl SimMode {
     pub fn new() -> SimMode {
         SimMode {
             diff_plugin: None,
-            ambient_plugins: vec![Box::new(show_score::ShowScoreState::new(Key::Period))],
+            ambient_plugins: vec![
+                Box::new(show_score::ShowScoreState::new(Key::Period)),
+                Box::new(controls::SimControls::new()),
+            ],
         }
     }
 }

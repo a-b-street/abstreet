@@ -30,8 +30,6 @@ pub struct UI {
     secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     plugins: PluginsPerUI,
-
-    // TODO describe An index into plugin_handlers.
     active_plugin: Option<usize>,
 
     canvas: Canvas,
@@ -237,7 +235,6 @@ impl UI {
                     Box::new(EditMode::new()),
                     Box::new(plugins::sim::SimMode::new()),
                     Box::new(logs),
-                    Box::new(plugins::sim_controls::SimController::new()),
                 ],
             },
 
@@ -305,9 +302,6 @@ impl UI {
             self.primary.current_selection = self.mouseover_something();
         }
 
-        // TODO Normally we'd return InputOnly here if there was an active plugin, but actually, we
-        // want some keys to always be pressable (sim controller stuff, quitting the game?)
-
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !self.run_plugin(idx, &mut input, &mut hints) {
@@ -323,6 +317,7 @@ impl UI {
             }
         }
 
+        // Can do this at any time.
         if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
             self.save_editor_state();
             self.cs.borrow().save();

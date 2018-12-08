@@ -2,7 +2,6 @@ pub mod debug;
 pub mod edit;
 pub mod logs;
 pub mod sim;
-pub mod sim_controls;
 pub mod time_travel;
 pub mod view;
 

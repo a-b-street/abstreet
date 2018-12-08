@@ -171,3 +171,12 @@ Is there a way to know that ambient plugins in ViewMode don't use the same keys?
 - could get fancier and put all of the keys in a struct, move them out as we create plugins, thereby using the compiler to check. :D
 - what if some keys are only usable in some contexts and that's OK?
 - what if the plugin uses multiple keys? pass in both, at the expense of losing some readability at the creation site...
+
+### One UI logic to rule em all
+
+Almost done organizing plugins. For the last stretch, I think I need to solve a few related problems...
+
+- Some modes can coexist or not. I want to write a single simple Plugin-like thing to do the delegation, outside of UI.
+- this single thing will be different for tutorial mode, but easily pull in common collections of stuff like SimMode and ViewMode.
+- this single thing will understand primary/secondary, the state that's per map, and the state that's independent
+- what's left in UI? there's so much there right now...
