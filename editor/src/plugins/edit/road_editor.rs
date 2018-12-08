@@ -1,6 +1,6 @@
 use crate::objects::{EDIT_MAP, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use map_model::{EditReason, LaneID, LaneType};
+use map_model::{EditReason, Lane, LaneID, LaneType, MapEdits, Road};
 use piston::input::Key;
 
 pub struct RoadEditor {}
@@ -20,93 +20,89 @@ impl RoadEditor {
 
 impl Plugin for RoadEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let (input, selected, map, draw_map, sim) = (
-            &mut ctx.input,
-            ctx.primary.current_selection,
-            &mut ctx.primary.map,
-            &mut ctx.primary.draw_map,
-            &mut ctx.primary.sim,
-        );
-        let mut edits = map.get_edits().clone();
-
-        // TODO a bit awkward that we can't pull this info from edits easily
-        let mut changed: Option<(LaneID, LaneType)> = None;
-
-        if input.key_pressed(Key::Return, "stop editing roads") {
+        if ctx.input.key_pressed(Key::Return, "stop editing roads") {
             return false;
-        } else if let Some(ID::Lane(id)) = selected {
-            let lane = map.get_l(id);
-            let road = map.get_r(lane.parent);
+        } else if let Some(ID::Lane(id)) = ctx.primary.current_selection {
+            let lane = ctx.primary.map.get_l(id);
+            let road = ctx.primary.map.get_r(lane.parent);
             let reason = EditReason::BasemapWrong; // TODO be able to choose
 
-            if lane.lane_type != LaneType::Sidewalk {
-                if lane.lane_type != LaneType::Driving
-                    && input.key_pressed(Key::D, "make this a driving lane")
+            if lane.lane_type == LaneType::Sidewalk {
+                return true;
+            }
+
+            if ctx.input.key_pressed(Key::Backspace, "delete this lane") {
+                let mut edits = ctx.primary.map.get_edits().clone();
+                edits.delete_lane(road, lane);
+                warn!("Have to reload the map from scratch to pick up this change!");
+                ctx.primary.map.store_new_edits(edits);
+            } else if let Some(new_type) = next_valid_type(ctx.primary.map.get_edits(), road, lane)
+            {
+                if ctx
+                    .input
+                    .key_pressed(Key::Space, &format!("toggle to {:?}", new_type))
                 {
-                    if edits.change_lane_type(reason, road, lane, LaneType::Driving) {
-                        changed = Some((lane.id, LaneType::Driving));
-                    }
-                }
-                if lane.lane_type != LaneType::Parking
-                    && input.key_pressed(Key::P, "make this a parking lane")
-                {
-                    if edits.change_lane_type(reason, road, lane, LaneType::Parking) {
-                        changed = Some((lane.id, LaneType::Parking));
-                    }
-                }
-                if lane.lane_type != LaneType::Biking
-                    && input.key_pressed(Key::B, "make this a bike lane")
-                {
-                    if edits.change_lane_type(reason, road, lane, LaneType::Biking) {
-                        changed = Some((lane.id, LaneType::Biking));
-                    }
-                }
-                if lane.lane_type != LaneType::Bus
-                    && input.key_pressed(Key::U, "make this a bus lane")
-                {
-                    if edits.change_lane_type(reason, road, lane, LaneType::Bus) {
-                        changed = Some((lane.id, LaneType::Bus));
-                    }
-                }
-                if input.key_pressed(Key::Backspace, "delete this lane") {
-                    if edits.delete_lane(road, lane) {
-                        warn!("Have to reload the map from scratch to pick up this change!");
-                    }
+                    let mut edits = ctx.primary.map.get_edits().clone();
+                    edits.change_lane_type(reason, road, lane, new_type);
+                    change_lane_type(lane.id, new_type, ctx);
+                    ctx.primary.map.store_new_edits(edits);
                 }
             }
         }
-        if let Some((id, new_type)) = changed {
-            let intersections = map.get_l(id).intersections();
-
-            // TODO generally tense about having two methods to carry out this change. weird
-            // intermediate states are scary. maybe pass old and new struct for intersection (aka
-            // list of turns)?
-
-            // Remove turns
-            for i in &intersections {
-                for t in &map.get_i(*i).turns {
-                    draw_map.edit_remove_turn(*t);
-                    sim.edit_remove_turn(map.get_t(*t));
-                }
-            }
-
-            // TODO Pretty sure control layer needs to recalculate based on the new turns
-            let old_type = map.get_l(id).lane_type;
-            map.edit_lane_type(id, new_type);
-            draw_map.edit_lane_type(id, map);
-            sim.edit_lane_type(id, old_type, map);
-
-            // Add turns back
-            for i in &intersections {
-                for t in &map.get_i(*i).turns {
-                    draw_map.edit_add_turn(*t, map);
-                    sim.edit_add_turn(map.get_t(*t));
-                }
-            }
-        }
-
-        map.store_new_edits(edits);
 
         true
+    }
+}
+
+fn next_valid_type(edits: &MapEdits, r: &Road, lane: &Lane) -> Option<LaneType> {
+    let mut new_type = next_type(lane.lane_type);
+    while new_type != lane.lane_type {
+        if edits.can_change_lane_type(r, lane, new_type) {
+            return Some(new_type);
+        }
+        new_type = next_type(new_type);
+    }
+    None
+}
+
+fn next_type(lt: LaneType) -> LaneType {
+    match lt {
+        LaneType::Driving => LaneType::Parking,
+        LaneType::Parking => LaneType::Biking,
+        LaneType::Biking => LaneType::Bus,
+        LaneType::Bus => LaneType::Driving,
+
+        LaneType::Sidewalk => panic!("next_type(Sidewalk) undefined; can't modify sidewalks"),
+    }
+}
+
+fn change_lane_type(id: LaneID, new_type: LaneType, ctx: &mut PluginCtx) {
+    let intersections = ctx.primary.map.get_l(id).intersections();
+
+    // TODO generally tense about having two methods to carry out this change. weird intermediate
+    // states are scary. maybe pass old and new struct for intersection (aka list of turns)?
+
+    // Remove turns
+    for i in &intersections {
+        for t in &ctx.primary.map.get_i(*i).turns {
+            ctx.primary.draw_map.edit_remove_turn(*t);
+            ctx.primary.sim.edit_remove_turn(ctx.primary.map.get_t(*t));
+        }
+    }
+
+    // TODO Pretty sure control layer needs to recalculate based on the new turns
+    let old_type = ctx.primary.map.get_l(id).lane_type;
+    ctx.primary.map.edit_lane_type(id, new_type);
+    ctx.primary.draw_map.edit_lane_type(id, &ctx.primary.map);
+    ctx.primary
+        .sim
+        .edit_lane_type(id, old_type, &ctx.primary.map);
+
+    // Add turns back
+    for i in &intersections {
+        for t in &ctx.primary.map.get_i(*i).turns {
+            ctx.primary.draw_map.edit_add_turn(*t, &ctx.primary.map);
+            ctx.primary.sim.edit_add_turn(ctx.primary.map.get_t(*t));
+        }
     }
 }

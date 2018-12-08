@@ -40,26 +40,23 @@ impl MapEdits {
         abstutil::save_object("edits", &self.map_name, &self.edits_name, self);
     }
 
+    pub fn can_change_lane_type(&self, r: &Road, lane: &Lane, new_type: LaneType) -> bool {
+        RoadEdit::change_lane_type(EditReason::BasemapWrong, r, lane, new_type).is_some()
+    }
+
     pub fn change_lane_type(
         &mut self,
         reason: EditReason,
         r: &Road,
         lane: &Lane,
         new_type: LaneType,
-    ) -> bool {
-        if let Some(edit) = RoadEdit::change_lane_type(reason, r, lane, new_type) {
-            self.roads.insert(r.id, edit);
-            return true;
-        }
-        false
+    ) {
+        let edit = RoadEdit::change_lane_type(reason, r, lane, new_type).unwrap();
+        self.roads.insert(r.id, edit);
     }
 
-    pub fn delete_lane(&mut self, r: &Road, lane: &Lane) -> bool {
-        if let Some(edit) = RoadEdit::delete_lane(r, lane) {
-            self.roads.insert(r.id, edit);
-            return true;
-        }
-        false
+    pub fn delete_lane(&mut self, r: &Road, lane: &Lane) {
+        self.roads.insert(r.id, RoadEdit::delete_lane(r, lane));
     }
 }
 
@@ -78,7 +75,6 @@ pub struct RoadEdit {
 }
 
 impl RoadEdit {
-    // TODO return Result, so we can enforce a reason coming back!
     fn change_lane_type(
         reason: EditReason,
         r: &Road,
@@ -86,16 +82,14 @@ impl RoadEdit {
         new_type: LaneType,
     ) -> Option<RoadEdit> {
         if lane.is_sidewalk() {
-            error!("Sidewalks are fixed; can't change their type");
-            return None;
+            panic!("Sidewalks are fixed; can't change their type");
         }
 
         let (mut forwards, mut backwards) = r.get_lane_types();
         let (is_fwd, idx) = r.dir_and_offset(lane.id);
         if is_fwd {
             if forwards[idx] == new_type {
-                error!("{} is already {:?}", lane.id, new_type);
-                return None;
+                panic!("{} is already {:?}", lane.id, new_type);
             }
             forwards[idx] = new_type;
             if !are_lanes_valid(&forwards) {
@@ -103,8 +97,7 @@ impl RoadEdit {
             }
         } else {
             if backwards[idx] == new_type {
-                error!("{} is already {:?}", lane.id, new_type);
-                return None;
+                panic!("{} is already {:?}", lane.id, new_type);
             }
             backwards[idx] = new_type;
             if !are_lanes_valid(&backwards) {
@@ -120,11 +113,9 @@ impl RoadEdit {
         })
     }
 
-    fn delete_lane(r: &Road, lane: &Lane) -> Option<RoadEdit> {
-        // Sidewalks are fixed
+    fn delete_lane(r: &Road, lane: &Lane) -> RoadEdit {
         if lane.is_sidewalk() {
-            error!("Can't delete sidewalks");
-            return None;
+            panic!("Can't delete sidewalks");
         }
 
         let (mut forwards, mut backwards) = r.get_lane_types();
@@ -135,12 +126,12 @@ impl RoadEdit {
             backwards.remove(idx);
         }
 
-        Some(RoadEdit {
+        RoadEdit {
             road: r.id,
             forwards_lanes: forwards,
             backwards_lanes: backwards,
             reason: EditReason::BasemapWrong,
-        })
+        }
     }
 }
 
