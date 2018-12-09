@@ -133,9 +133,6 @@ impl TestRunner {
             }
         }
 
-        print!("Running {}...", test_name);
-        std::io::stdout().flush().unwrap();
-
         let start = std::time::Instant::now();
         let mut helper = TestHelper {
             debug_with_savestate: None,
@@ -143,6 +140,21 @@ impl TestRunner {
         let output_path = format!("{}/{}.log", self.output_dir, test_name);
         std::fs::create_dir_all(std::path::Path::new(&output_path).parent().unwrap())
             .expect("Creating parent dir failed");
+
+        if self.flags.clickable_links {
+            print!(
+                "Running {}... {}",
+                test_name,
+                Paint::cyan(&format!("http://tail/{}", output_path))
+            );
+        } else {
+            print!(
+                "Running {}... {}",
+                test_name,
+                Paint::cyan(&format!("tail -f {}", output_path))
+            );
+        }
+        std::io::stdout().flush().unwrap();
 
         let pass = {
             let _stdout_redirect = Redirect::stdout(

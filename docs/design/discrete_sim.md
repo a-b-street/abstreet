@@ -60,6 +60,9 @@ out: replace accel_to_follow with something to warp to the right spot behind an
 agent and set the speed equal to min(follower's max speed, lead vehicle's
 current speed).
 
+- do we have a bug where vehicles can be too close when they're on adjacent but different traversables?
+- if we just warp to follow_dist away from a vehicle when we get too close, then we instantly decelerate.
+
 ## The software engineering question
 
 Is there a reasonable way to maintain both models and use one headless/editor
