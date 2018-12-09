@@ -21,11 +21,11 @@ impl Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\n{}\n", self.message)?;
+        writeln!(f, "\n{}", self.message)?;
         for c in &self.context {
-            write!(f, "  - {}\n", c)?;
+            writeln!(f, "  - {}", c)?;
         }
-        write!(f, "\n")?;
+        writeln!(f)?;
         Ok(())
     }
 }

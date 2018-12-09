@@ -103,16 +103,16 @@ impl Timer {
         let stop_name = self.outermost_name.clone();
         self.stop(&stop_name);
         assert!(self.stack.is_empty());
-        println!("");
+        println!();
         for line in self.results {
             println!("{}", line);
         }
-        println!("");
+        println!();
         if !self.notes.is_empty() {
             for line in self.notes {
                 println!("{}", line);
             }
-            println!("");
+            println!();
         }
         notes::dump_notes();
     }

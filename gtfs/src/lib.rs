@@ -57,10 +57,7 @@ pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {
 
         results.push(Route {
             name: route_id_to_name[&route_id].to_string(),
-            stops: group
-                .into_iter()
-                .map(|rec| stop_id_to_pt[&rec.unwrap()[3]])
-                .collect(),
+            stops: group.map(|rec| stop_id_to_pt[&rec.unwrap()[3]]).collect(),
         });
     }
 

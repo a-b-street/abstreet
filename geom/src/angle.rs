@@ -16,15 +16,15 @@ impl Angle {
         Angle(degs.to_radians())
     }
 
-    pub fn opposite(&self) -> Angle {
+    pub fn opposite(self) -> Angle {
         Angle(self.0 + f64::consts::PI)
     }
 
-    pub fn rotate_degs(&self, degrees: f64) -> Angle {
+    pub fn rotate_degs(self, degrees: f64) -> Angle {
         Angle(self.0 + degrees.to_radians())
     }
 
-    pub fn normalized_radians(&self) -> f64 {
+    pub fn normalized_radians(self) -> f64 {
         if self.0 < 0.0 {
             self.0 + (2.0 * f64::consts::PI)
         } else {
@@ -32,11 +32,11 @@ impl Angle {
         }
     }
 
-    pub fn normalized_degrees(&self) -> f64 {
+    pub fn normalized_degrees(self) -> f64 {
         self.normalized_radians().to_degrees()
     }
 
-    pub fn shortest_rotation_towards(&self, other: Angle) -> Angle {
+    pub fn shortest_rotation_towards(self, other: Angle) -> Angle {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         Angle::new_degs(
             ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0,

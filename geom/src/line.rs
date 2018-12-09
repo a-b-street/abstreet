@@ -126,7 +126,7 @@ impl Line {
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
-        const PERCENT_EPSILON: f64 = 0.0000000001;
+        const PERCENT_EPSILON: f64 = 0.000_000_000_1;
 
         if !self.contains_pt(pt) {
             return None;
@@ -154,9 +154,9 @@ impl Line {
 
 impl fmt::Display for Line {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Line::new(\n")?;
-        write!(f, "  Pt2D::new({}, {}),\n", self.0.x(), self.0.y())?;
-        write!(f, "  Pt2D::new({}, {}),\n", self.1.x(), self.1.y())?;
+        writeln!(f, "Line::new(")?;
+        writeln!(f, "  Pt2D::new({}, {}),", self.0.x(), self.0.y())?;
+        writeln!(f, "  Pt2D::new({}, {}),", self.1.x(), self.1.y())?;
         write!(f, ")")
     }
 }

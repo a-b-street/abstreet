@@ -73,7 +73,7 @@ pub fn load(
                         if key == "coordinates" {
                             let mut ok = true;
                             let mut pts: Vec<LonLat> = Vec::new();
-                            for pair in text.split(" ") {
+                            for pair in text.split(' ') {
                                 if let Some(pt) = parse_pt(pair, gps_bounds) {
                                     pts.push(pt);
                                 } else {
@@ -115,11 +115,11 @@ pub fn load(
         skipped_count
     );
     done(timer);
-    return Ok(ExtraShapes { shapes });
+    Ok(ExtraShapes { shapes })
 }
 
 fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
-    let coords: Vec<&str> = input.split(",").collect();
+    let coords: Vec<&str> = input.split(',').collect();
     if coords.len() != 2 {
         return None;
     }

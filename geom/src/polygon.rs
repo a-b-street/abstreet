@@ -47,14 +47,10 @@ impl Polygon {
             if tri.is_convex() {
                 ear_found = true;
 
-                for j in 0..al {
-                    let vi = avl[j];
-
-                    if vi != i0 && vi != i1 && vi != i2 {
-                        if tri.contains_pt(pts[vi]) {
-                            ear_found = false;
-                            break;
-                        }
+                for vi in avl.iter().take(al) {
+                    if *vi != i0 && *vi != i1 && *vi != i2 && tri.contains_pt(pts[*vi]) {
+                        ear_found = false;
+                        break;
                     }
                 }
             }
@@ -86,10 +82,7 @@ impl Polygon {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.triangles
-            .iter()
-            .find(|tri| tri.contains_pt(pt))
-            .is_some()
+        self.triangles.iter().any(|tri| tri.contains_pt(pt))
     }
 
     pub fn get_bounds(&self) -> Bounds {
@@ -225,15 +218,15 @@ impl Triangle {
 
         // Barycentric coefficients for pt
         // Use epsilon to deal with small denominators
-        let epsilon = 0.0000001;
+        let epsilon = 0.000_000_1;
         let l0 = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3))
             / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
         let l1 = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3))
             / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
         let l2 = 1.0 - l0 - l1;
 
-        for x in vec![l0, l1, l2] {
-            if x >= 1.0 || x <= 0.0 {
+        for x in &[l0, l1, l2] {
+            if *x >= 1.0 || *x <= 0.0 {
                 return false;
             }
         }

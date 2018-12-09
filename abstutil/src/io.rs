@@ -60,10 +60,7 @@ pub fn serialize_btreemap<S: Serializer, K: Serialize, V: Serialize>(
     map: &BTreeMap<K, V>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
-    map.iter()
-        .map(|(a, b)| (a.clone(), b.clone()))
-        .collect::<Vec<(_, _)>>()
-        .serialize(s)
+    map.iter().collect::<Vec<(_, _)>>().serialize(s)
 }
 
 pub fn deserialize_btreemap<
@@ -87,10 +84,7 @@ pub fn serialize_multimap<S: Serializer, K: Serialize + Eq + Hash, V: Serialize 
     s: S,
 ) -> Result<S::Ok, S::Error> {
     // TODO maybe need to sort to have deterministic output
-    map.iter_all()
-        .map(|(key, values)| (key.clone(), values.clone()))
-        .collect::<Vec<(_, _)>>()
-        .serialize(s)
+    map.iter_all().collect::<Vec<(_, _)>>().serialize(s)
 }
 
 pub fn deserialize_multimap<
@@ -238,7 +232,7 @@ impl Read for FileWithProgress {
                 elapsed_seconds(self.started_at)
             );
             if done {
-                println!("");
+                println!();
             } else {
                 stdout().flush().unwrap();
             }

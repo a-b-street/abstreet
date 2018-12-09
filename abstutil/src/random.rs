@@ -16,7 +16,7 @@ pub struct WeightedUsizeChoice {
 
 impl WeightedUsizeChoice {
     pub fn parse(string: &str) -> Option<WeightedUsizeChoice> {
-        let parts: Vec<&str> = string.split(",").collect();
+        let parts: Vec<&str> = string.split(',').collect();
         if parts.is_empty() {
             return None;
         }

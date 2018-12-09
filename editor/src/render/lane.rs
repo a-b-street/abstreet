@@ -50,7 +50,7 @@ impl DrawLane {
                 markings.push(calculate_parking_lines(lane));
             }
             LaneType::Driving | LaneType::Bus => {
-                for m in calculate_driving_lines(lane, road) {
+                if let Some(m) = calculate_driving_lines(lane, road) {
                     markings.push(m);
                 }
                 for m in calculate_turn_markings(map, lane) {
@@ -272,7 +272,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
     }
 
     for turn in map.get_turns_from_lane(lane.id) {
-        for m in turn_markings(turn, map) {
+        if let Some(m) = turn_markings(turn, map) {
             results.push(m);
         }
     }

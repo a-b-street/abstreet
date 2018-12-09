@@ -26,7 +26,7 @@ pub fn run(p3_offset: (f64, f64), g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String
     point!(p3, Pt2D::new(p1.x() + p3_offset.0, p1.y() + p3_offset.1));
     point!(p4, Pt2D::new(500.0, 120.0));
 
-    /*println!("");
+    /*println!();
     println!("p1 -> p2 is {}", p1.angle_to(p2));
     println!("p2 -> p3 is {}", p2.angle_to(p3));*/
 

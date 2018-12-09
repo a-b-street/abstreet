@@ -81,10 +81,8 @@ impl LogScroller {
         // TODO argh, we want to do this clamping in event() or something; otherwise we can
         // accumulate a bunch of invisible silly y_offsetness
         let mut low_idx = self.y_offset;
-        if low_idx + can_fit > self.lines.len() {
-            if can_fit <= self.lines.len() {
-                low_idx = self.lines.len() - can_fit;
-            }
+        if low_idx + can_fit > self.lines.len() && can_fit <= self.lines.len() {
+            low_idx = self.lines.len() - can_fit;
         }
         let high_idx = (low_idx + can_fit).min(self.lines.len());
 

@@ -33,7 +33,7 @@ enum Item {
 
 impl fmt::Display for TreeMenu {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TreeMenu:\n")?;
+        writeln!(f, "TreeMenu:")?;
         print(0, &self.root, f)
     }
 }
@@ -43,10 +43,10 @@ fn print(depth: usize, tree: &BTreeMap<String, Item>, f: &mut fmt::Formatter) ->
     for (name, item) in tree {
         match item {
             Item::Action(key) => {
-                write!(f, "{}- {} ({})\n", pad, name, describe_maybe_key(key))?;
+                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(key))?;
             }
             Item::Tree(key, subtree) => {
-                write!(f, "{}- {} ({})\n", pad, name, describe_maybe_key(key))?;
+                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(key))?;
                 print(depth + 1, subtree, f)?;
             }
         }

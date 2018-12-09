@@ -45,7 +45,7 @@ impl<'a> GfxCtx<'a> {
         c: graphics::Context,
     ) -> GfxCtx<'a> {
         GfxCtx {
-            glyphs: glyphs,
+            glyphs,
             gfx: g,
             orig_ctx: c,
             ctx: c,

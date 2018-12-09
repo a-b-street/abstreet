@@ -22,7 +22,7 @@ impl LonLat {
     // TODO use dimensioned?
     pub fn gps_dist_meters(&self, other: LonLat) -> f64 {
         // Haversine distance
-        let earth_radius_m = 6371000.0;
+        let earth_radius_m = 6_371_000.0;
         let lon1 = self.longitude.to_radians();
         let lon2 = other.longitude.to_radians();
         let lat1 = self.latitude.to_radians();

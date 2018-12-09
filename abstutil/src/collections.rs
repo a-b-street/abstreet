@@ -19,7 +19,10 @@ where
     }
 
     pub fn insert(&mut self, key: K, value: V) {
-        self.map.entry(key).or_insert(HashSet::new()).insert(value);
+        self.map
+            .entry(key)
+            .or_insert_with(HashSet::new)
+            .insert(value);
     }
 
     pub fn remove(&mut self, key: K, value: V) {

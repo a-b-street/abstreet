@@ -125,21 +125,18 @@ fn extract_calls_from_method(call_site: Function, method: &syn::ImplItemMethod) 
 fn extract_calls_from_expr(call_site: Function, args: &ArgMap, expr: &syn::Expr) -> Vec<Call> {
     let mut result: Vec<Call> = Vec::new();
 
-    match expr {
-        syn::Expr::MethodCall(ref call) => {
-            if let syn::Expr::Path(ref path) = *call.receiver {
-                let arg_type = args[&simple_name_of_path(&path.path)].clone();
-                result.push(Call::new(
-                    call_site,
-                    Function::new(arg_type, call.method.to_string()),
-                ));
-            }
+    if let syn::Expr::MethodCall(ref call) = expr {
+        if let syn::Expr::Path(ref path) = *call.receiver {
+            let arg_type = args[&simple_name_of_path(&path.path)].clone();
+            result.push(Call::new(
+                call_site,
+                Function::new(arg_type, call.method.to_string()),
+            ));
         }
         // TODO https://docs.rs/syn/0.14.9/syn/enum.Expr.html
         // There are so many other places to recurse and find possible calls. In ExprCall for
         // example, we'd have to go find the function body and figure out which of our arguments
         // were passed through.
-        _ => {}
     }
 
     result

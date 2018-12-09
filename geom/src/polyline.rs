@@ -402,7 +402,7 @@ impl PolyLine {
 
 impl fmt::Display for PolyLine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "PolyLine::new(vec![\n")?;
+        writeln!(f, "PolyLine::new(vec![")?;
         for (idx, pt) in self.pts.iter().enumerate() {
             write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
             if idx > 0 {
@@ -413,7 +413,7 @@ impl fmt::Display for PolyLine {
                     pt.y() - self.pts[idx - 1].y()
                 )?;
             }
-            write!(f, "\n")?;
+            writeln!(f)?;
         }
         write!(f, "])")
     }
