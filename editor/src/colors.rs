@@ -60,7 +60,7 @@ impl ColorScheme {
     }
 
     pub fn get_modified(&self, name: &str) -> Option<Color> {
-        self.modified.map.get(name).map(|c| *c)
+        self.modified.map.get(name).cloned()
     }
 
     pub fn reset_modified(&mut self, name: &str, orig: Option<Color>) {

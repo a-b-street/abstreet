@@ -40,15 +40,13 @@ impl Plugin for EditsManager {
         {
             if let Some((p, plugins)) = new_primary {
                 *ctx.primary = p;
-                ctx.primary_plugins.as_mut().map(|p_plugins| {
+                if let Some(p_plugins) = ctx.primary_plugins.as_mut() {
                     **p_plugins = plugins;
-                });
+                }
             }
             false
-        } else if self.wizard.aborted() {
-            false
         } else {
-            true
+            !self.wizard.aborted()
         }
     }
 

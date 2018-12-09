@@ -40,9 +40,9 @@ impl Plugin for ABTestManager {
                     let ((new_primary, new_primary_plugins), new_secondary) =
                         launch_test(test, ctx.kml, &ctx.primary.current_flags, &ctx.canvas);
                     *ctx.primary = new_primary;
-                    ctx.primary_plugins.as_mut().map(|p_plugins| {
+                    if let Some(p_plugins) = ctx.primary_plugins.as_mut() {
                         **p_plugins = new_primary_plugins;
-                    });
+                    }
                     *ctx.secondary = Some(new_secondary);
                     return false;
                 }

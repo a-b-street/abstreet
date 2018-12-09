@@ -4,6 +4,7 @@ use geom::EPSILON_DIST;
 use sim::kinematics::{results_of_accel_for_one_tick, Vehicle, EPSILON_SPEED};
 use sim::{CarID, Distance, Speed, Tick, VehicleType};
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
     // TODO table driven test style?
     t.run_fast(

@@ -98,11 +98,11 @@ impl Plugin for TimeTravel {
 
 impl GetDrawAgents for TimeTravel {
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
-        self.get_current_state().cars.get(&id).map(|d| d.clone())
+        self.get_current_state().cars.get(&id).cloned()
     }
 
     fn get_draw_ped(&self, id: PedestrianID, _map: &Map) -> Option<DrawPedestrianInput> {
-        self.get_current_state().peds.get(&id).map(|d| d.clone())
+        self.get_current_state().peds.get(&id).cloned()
     }
 
     fn get_draw_cars(&self, on: Traversable, _map: &Map) -> Vec<DrawCarInput> {
@@ -127,11 +127,7 @@ impl GetDrawAgents for TimeTravel {
     }
 
     fn get_all_draw_cars(&self, _map: &Map) -> Vec<DrawCarInput> {
-        self.get_current_state()
-            .cars
-            .values()
-            .map(|d| d.clone())
-            .collect()
+        self.get_current_state().cars.values().cloned().collect()
     }
 
     fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {

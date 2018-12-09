@@ -93,7 +93,7 @@ impl ID {
             ID::Parcel(id) => map.maybe_get_p(id).map(|p| Pt2D::center(&p.points)),
             ID::BusStop(id) => map.maybe_get_bs(id).map(|bs| bs.sidewalk_pos.pt(map)),
             ID::Area(id) => map.maybe_get_a(id).map(|a| Pt2D::center(&a.points)),
-            ID::Trip(id) => sim.get_stats().canonical_pt_per_trip.get(&id).map(|pt| *pt),
+            ID::Trip(id) => sim.get_stats().canonical_pt_per_trip.get(&id).cloned(),
         }
     }
 }

@@ -66,8 +66,8 @@ impl Plugin for ColorPicker {
                 if let Some((m_x, m_y)) = input.get_moved_mouse() {
                     // TODO argh too much casting
                     let (start_x, start_y) = get_screen_offset(canvas);
-                    let x = (m_x - (start_x as f64)) / (TILE_DIMS as f64) / 255.0;
-                    let y = (m_y - (start_y as f64)) / (TILE_DIMS as f64) / 255.0;
+                    let x = (m_x - f64::from(start_x)) / f64::from(TILE_DIMS) / 255.0;
+                    let y = (m_y - f64::from(start_y)) / f64::from(TILE_DIMS) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
                         cs.override_color(name, get_color(x as f32, y as f32));
                     }

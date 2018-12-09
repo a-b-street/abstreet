@@ -461,11 +461,8 @@ impl WalkingSimState {
                             // Now they'll start walking somewhere
                             self.peds.get_mut(&id).unwrap().bike_parking = None;
                         } else {
-                            {
-                                let p = self.peds.get(&id).unwrap();
-                                ready_to_bike
-                                    .push((*id, Position::new(p.on.as_lane(), p.dist_along)));
-                            }
+                            let p = &self.peds[&id];
+                            ready_to_bike.push((*id, Position::new(p.on.as_lane(), p.dist_along)));
                             self.peds.remove(&id);
                         }
                     }

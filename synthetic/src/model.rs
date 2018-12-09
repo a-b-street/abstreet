@@ -269,7 +269,7 @@ impl Model {
             }
             map.buildings.push(raw_data::Building {
                 // TODO Duplicate points :(
-                points: b.polygon().points().into_iter().map(|p| pt(p)).collect(),
+                points: b.polygon().points().into_iter().map(pt).collect(),
                 osm_tags,
                 osm_way_id: idx as i64,
             });

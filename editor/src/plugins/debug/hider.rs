@@ -30,7 +30,7 @@ impl Hider {
             Some(ID::Car(_)) | Some(ID::Pedestrian(_)) | None => {
                 return false;
             }
-            Some(id) => id.clone(),
+            Some(id) => id,
         };
         if input.unimportant_key_pressed(Key::H, DEBUG_EXTRA, &format!("hide {:?}", item)) {
             self.items.insert(item);

@@ -4,10 +4,13 @@
 touch `find * | grep '\.rs' | grep -v target | xargs`
 
 # TODO Remove all of these exceptions
+# TODO Report issues for some of these false positives
 cargo clippy -- \
 	-A clippy::cyclomatic_complexity \
 	-A clippy::expect_fun_call \
 	-A clippy::if_same_then_else \
+	-A clippy::large_enum_variant \
+	-A clippy::map_entry \
 	-A clippy::needless_pass_by_value \
 	-A clippy::new_ret_no_self \
 	-A clippy::new_without_default \
