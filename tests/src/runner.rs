@@ -193,6 +193,7 @@ impl TestRunner {
             output_path,
             debug_with_savestate: helper.debug_with_savestate,
         };
+        // TODO If the "Running..." line actually took two lines, this breaks
         print!("\r");
         result.print(&self.flags);
         self.results.push(result);
