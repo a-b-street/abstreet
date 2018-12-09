@@ -51,13 +51,11 @@ impl IntersectionSimState {
         let mut intersections: Vec<IntersectionPolicy> = Vec::new();
         for i in map.all_intersections() {
             intersections.push(match i.intersection_type {
-                IntersectionType::StopSign => {
-                    IntersectionPolicy::StopSignPolicy(StopSign::new(i.id))
-                }
+                IntersectionType::StopSign => IntersectionPolicy::StopSign(StopSign::new(i.id)),
                 IntersectionType::TrafficSignal => {
-                    IntersectionPolicy::TrafficSignalPolicy(TrafficSignal::new(i.id))
+                    IntersectionPolicy::TrafficSignal(TrafficSignal::new(i.id))
                 }
-                IntersectionType::Border => IntersectionPolicy::BorderPolicy,
+                IntersectionType::Border => IntersectionPolicy::Border,
             });
         }
         IntersectionSimState {
@@ -78,31 +76,29 @@ impl IntersectionSimState {
     // agent is the leader vehicle and at the end of the lane). The request may have been
     // previously granted, but the agent might not have been able to start the turn.
     pub fn submit_request(&mut self, req: Request) {
-        let i = self.intersections.get_mut(req.turn.parent.0).unwrap();
+        let i = &mut self.intersections[req.turn.parent.0];
         if i.is_accepted(&req) {
             return;
         }
         match i {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => {
+            IntersectionPolicy::StopSign(ref mut p) => {
                 if !p.started_waiting_at.contains_key(&req) {
                     p.approaching_agents.insert(req);
                 }
             }
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+            IntersectionPolicy::TrafficSignal(ref mut p) => {
                 p.requests.insert(req);
             }
-            IntersectionPolicy::BorderPolicy => {}
+            IntersectionPolicy::Border => {}
         }
     }
 
     pub fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
         for i in self.intersections.iter_mut() {
             match i {
-                IntersectionPolicy::StopSignPolicy(ref mut p) => p.step(events, time, map, view),
-                IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
-                    p.step(events, time, map, view)
-                }
-                IntersectionPolicy::BorderPolicy => {}
+                IntersectionPolicy::StopSign(ref mut p) => p.step(events, time, map, view),
+                IntersectionPolicy::TrafficSignal(ref mut p) => p.step(events, time, map, view),
+                IntersectionPolicy::Border => {}
             }
         }
     }
@@ -116,16 +112,16 @@ impl IntersectionSimState {
             }
             Ok(())
         } else {
-            return Err(Error::new(format!(
+            Err(Error::new(format!(
                 "{:?} entered, but wasn't accepted by the intersection yet",
                 req
-            )));
+            )))
         }
     }
 
     pub fn on_exit(&mut self, req: Request) {
         let id = req.turn.parent;
-        let i = self.intersections.get_mut(id.0).unwrap();
+        let i = &mut self.intersections[id.0];
         assert!(i.is_accepted(&req));
         i.on_exit(&req);
         if self.debug == Some(id) {
@@ -135,28 +131,28 @@ impl IntersectionSimState {
 
     pub fn debug(&mut self, id: IntersectionID, map: &Map) {
         if let Some(old) = self.debug {
-            match self.intersections.get_mut(old.0).unwrap() {
-                IntersectionPolicy::StopSignPolicy(ref mut p) => {
+            match self.intersections[old.0] {
+                IntersectionPolicy::StopSign(ref mut p) => {
                     p.debug = false;
                 }
-                IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+                IntersectionPolicy::TrafficSignal(ref mut p) => {
                     p.debug = false;
                 }
-                IntersectionPolicy::BorderPolicy => {}
+                IntersectionPolicy::Border => {}
             };
         }
 
         println!("{}", abstutil::to_json(&self.intersections[id.0]));
-        match self.intersections.get_mut(id.0).unwrap() {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => {
+        match self.intersections[id.0] {
+            IntersectionPolicy::StopSign(ref mut p) => {
                 p.debug = true;
                 println!("{}", abstutil::to_json(map.get_stop_sign(id)));
             }
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => {
+            IntersectionPolicy::TrafficSignal(ref mut p) => {
                 p.debug = true;
                 println!("{}", abstutil::to_json(map.get_traffic_signal(id)));
             }
-            IntersectionPolicy::BorderPolicy => {
+            IntersectionPolicy::Border => {
                 println!("{} is a border", id);
             }
         };
@@ -166,25 +162,25 @@ impl IntersectionSimState {
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
 #[derive(Serialize, Deserialize, PartialEq)]
 enum IntersectionPolicy {
-    StopSignPolicy(StopSign),
-    TrafficSignalPolicy(TrafficSignal),
-    BorderPolicy,
+    StopSign(StopSign),
+    TrafficSignal(TrafficSignal),
+    Border,
 }
 
 impl IntersectionPolicy {
     fn is_accepted(&self, req: &Request) -> bool {
         match self {
-            IntersectionPolicy::StopSignPolicy(ref p) => p.accepted.contains(req),
-            IntersectionPolicy::TrafficSignalPolicy(ref p) => p.accepted.contains(req),
-            IntersectionPolicy::BorderPolicy => true,
+            IntersectionPolicy::StopSign(ref p) => p.accepted.contains(req),
+            IntersectionPolicy::TrafficSignal(ref p) => p.accepted.contains(req),
+            IntersectionPolicy::Border => true,
         }
     }
 
     fn on_exit(&mut self, req: &Request) {
         match self {
-            IntersectionPolicy::StopSignPolicy(ref mut p) => p.accepted.remove(&req),
-            IntersectionPolicy::TrafficSignalPolicy(ref mut p) => p.accepted.remove(&req),
-            IntersectionPolicy::BorderPolicy => {
+            IntersectionPolicy::StopSign(ref mut p) => p.accepted.remove(&req),
+            IntersectionPolicy::TrafficSignal(ref mut p) => p.accepted.remove(&req),
+            IntersectionPolicy::Border => {
                 panic!("{:?} called on_exit for a border node; how?!", req);
             }
         };
@@ -225,8 +221,7 @@ impl StopSign {
         let base_t = map.get_t(turn);
         self.accepted
             .iter()
-            .find(|req| base_t.conflicts_with(map.get_t(req.turn)))
-            .is_some()
+            .any(|req| base_t.conflicts_with(map.get_t(req.turn)))
     }
 
     fn conflicts_with_waiting_with_higher_priority(
@@ -237,13 +232,9 @@ impl StopSign {
     ) -> bool {
         let base_t = map.get_t(turn);
         let base_priority = ss.get_priority(turn);
-        self.started_waiting_at
-            .keys()
-            .find(|req| {
-                base_t.conflicts_with(map.get_t(req.turn))
-                    && ss.get_priority(req.turn) > base_priority
-            })
-            .is_some()
+        self.started_waiting_at.keys().any(|req| {
+            base_t.conflicts_with(map.get_t(req.turn)) && ss.get_priority(req.turn) > base_priority
+        })
     }
 
     fn step(&mut self, events: &mut Vec<Event>, time: Tick, map: &Map, view: &WorldView) {
@@ -379,8 +370,7 @@ impl TrafficSignal {
                 let base_t = map.get_t(req.turn);
                 if priority_requests
                     .iter()
-                    .find(|t| base_t.conflicts_with(map.get_t(**t)))
-                    .is_some()
+                    .any(|t| base_t.conflicts_with(map.get_t(*t)))
                 {
                     keep_requests.insert(req.clone());
                     continue;
@@ -407,7 +397,6 @@ impl TrafficSignal {
         let base_t = map.get_t(turn);
         self.accepted
             .iter()
-            .find(|req| base_t.conflicts_with(map.get_t(req.turn)))
-            .is_some()
+            .any(|req| base_t.conflicts_with(map.get_t(req.turn)))
     }
 }

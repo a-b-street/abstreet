@@ -312,7 +312,7 @@ impl Sim {
     pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
         let (_, load) = self
             .find_all_savestates()
-            .and_then(|mut list| list.pop().ok_or(io_error("empty directory")))?;
+            .and_then(|mut list| list.pop().ok_or_else(|| io_error("empty directory")))?;
         info!("Loading {}", load);
         abstutil::read_json(&load)
     }

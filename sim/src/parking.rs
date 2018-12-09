@@ -29,7 +29,7 @@ impl ParkingSimState {
     pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
         self.lanes[id.0] = ParkingLane {
-            id: id,
+            id,
             spots: Vec::new(),
             occupants: Vec::new(),
         };
@@ -90,8 +90,8 @@ impl ParkingSimState {
             id: p.car,
             vehicle_length: p.vehicle.length,
             waiting_for_turn: None,
-            front: front,
-            angle: angle,
+            front,
+            angle,
             stopping_trace: None,
             state: CarState::Parked,
             vehicle_type: VehicleType::Car,
@@ -224,7 +224,7 @@ impl ParkingLane {
     }
 
     fn is_empty(&self) -> bool {
-        !self.occupants.iter().find(|x| x.is_some()).is_some()
+        !self.occupants.iter().any(|x| x.is_some())
     }
 }
 

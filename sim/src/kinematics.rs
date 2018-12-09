@@ -8,7 +8,7 @@ use serde_derive::{Deserialize, Serialize};
 use std;
 
 pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
-    value_unsafe: 0.00000001,
+    value_unsafe: 0.000_000_01,
     _marker: std::marker::PhantomData,
 };
 

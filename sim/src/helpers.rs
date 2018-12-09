@@ -175,10 +175,7 @@ impl Sim {
         self.spawner.start_trip_using_parked_car(
             Tick::zero(),
             map,
-            self.parking_state
-                .lookup_car(car)
-                .map(|p| p.clone())
-                .unwrap(),
+            self.parking_state.lookup_car(car).cloned().unwrap(),
             &self.parking_state,
             from_bldg,
             DrivingGoal::ParkNear(to_bldg),

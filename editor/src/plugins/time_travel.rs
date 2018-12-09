@@ -81,13 +81,11 @@ impl Plugin for TimeTravel {
             } else if ctx.input.key_pressed(Key::Return, "exit time traveler") {
                 self.current_tick = None;
             }
-        } else {
-            if ctx
-                .input
-                .unimportant_key_pressed(Key::T, SIM, "start time traveling")
-            {
-                self.current_tick = Some(ctx.primary.sim.time);
-            }
+        } else if ctx
+            .input
+            .unimportant_key_pressed(Key::T, SIM, "start time traveling")
+        {
+            self.current_tick = Some(ctx.primary.sim.time);
         }
 
         if let Some(tick) = self.current_tick {

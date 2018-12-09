@@ -2,6 +2,7 @@ use crate::common::{draw_polyline, BLACK, RED};
 use ezgui::GfxCtx;
 use geom::{PolyLine, Pt2D};
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
     let thin = 1.0;
     let width = 50.0;

@@ -2,6 +2,7 @@ use crate::common::BLUE;
 use ezgui::GfxCtx;
 use geom::{Polygon, Pt2D};
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
     let pts = vec![
         Pt2D::new(1158.5480421283125, 759.4168710122531), // 0

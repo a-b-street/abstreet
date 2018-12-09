@@ -20,7 +20,7 @@ pub type Acceleration = si::MeterPerSecond2<f64>;
 pub struct Tick(u32);
 
 impl Tick {
-    pub fn as_usize(&self) -> usize {
+    pub fn as_usize(self) -> usize {
         self.0 as usize
     }
 
@@ -42,14 +42,14 @@ impl Tick {
 
     // TODO Why have these two forms? Consolidate
     pub fn parse(string: &str) -> Option<Tick> {
-        let parts: Vec<&str> = string.split(":").collect();
+        let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
             return None;
         }
 
         let mut ticks: u32 = 0;
-        if parts.last().unwrap().contains(".") {
-            let last_parts: Vec<&str> = parts.last().unwrap().split(".").collect();
+        if parts.last().unwrap().contains('.') {
+            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
             if last_parts.len() != 2 {
                 return None;
             }
@@ -87,8 +87,8 @@ impl Tick {
         Some(Tick(hours + minutes + seconds + ms))
     }
 
-    pub fn as_time(&self) -> Time {
-        (self.0 as f64) * TIMESTEP
+    pub fn as_time(self) -> Time {
+        f64::from(self.0) * TIMESTEP
     }
 
     pub fn next(self) -> Tick {
@@ -99,11 +99,11 @@ impl Tick {
         Tick(self.0 - 1)
     }
 
-    pub fn is_multiple_of(&self, other: Tick) -> bool {
+    pub fn is_multiple_of(self, other: Tick) -> bool {
         self.0 % other.0 == 0
     }
 
-    fn get_parts(&self) -> (u32, u32, u32, u32) {
+    fn get_parts(self) -> (u32, u32, u32, u32) {
         // TODO hardcoding these to avoid floating point issues... urgh. :\
         let ticks_per_second = 10;
         let ticks_per_minute = 60 * ticks_per_second;
@@ -112,14 +112,14 @@ impl Tick {
         let hours = self.0 / ticks_per_hour;
         let mut remainder = self.0 % ticks_per_hour;
         let minutes = remainder / ticks_per_minute;
-        remainder = remainder % ticks_per_minute;
+        remainder %= ticks_per_minute;
         let seconds = remainder / ticks_per_second;
-        remainder = remainder % ticks_per_second;
+        remainder %= ticks_per_second;
 
         (hours, minutes, seconds, remainder)
     }
 
-    pub fn as_filename(&self) -> String {
+    pub fn as_filename(self) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         format!(
             "{0:02}h{1:02}m{2:02}.{3}s",

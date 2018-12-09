@@ -87,7 +87,7 @@ impl Text {
             .iter()
             .max_by_key(|l| l.iter().fold(0, |so_far, span| so_far + span.text.len()))
             .unwrap();
-        let mut concat = String::from("");
+        let mut concat = String::new();
         for span in longest_line {
             concat.push_str(&span.text);
         }

@@ -56,7 +56,7 @@ pub struct SeedParkedCars {
 impl Scenario {
     pub fn describe(&self) -> Vec<String> {
         abstutil::to_json(self)
-            .split("\n")
+            .split('\n')
             .map(|s| s.to_string())
             .collect()
     }
@@ -153,42 +153,40 @@ impl Scenario {
                             &mut sim.rng,
                         );
                     }
-                } else {
-                    if let Some(goal) =
-                        s.goal
-                            .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
-                    {
-                        let start_spot = SidewalkSpot::building(from_bldg, map);
+                } else if let Some(goal) =
+                    s.goal
+                        .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                {
+                    let start_spot = SidewalkSpot::building(from_bldg, map);
 
-                        if sim.rng.gen_bool(s.percent_use_transit) {
-                            // TODO This throws away some work. It also sequentially does expensive
-                            // work right here.
-                            if let Some((stop1, stop2, route)) = Pathfinder::should_use_transit(
+                    if sim.rng.gen_bool(s.percent_use_transit) {
+                        // TODO This throws away some work. It also sequentially does expensive
+                        // work right here.
+                        if let Some((stop1, stop2, route)) = Pathfinder::should_use_transit(
+                            map,
+                            start_spot.sidewalk_pos,
+                            goal.sidewalk_pos,
+                        ) {
+                            sim.spawner.start_trip_using_bus(
+                                spawn_time,
                                 map,
-                                start_spot.sidewalk_pos,
-                                goal.sidewalk_pos,
-                            ) {
-                                sim.spawner.start_trip_using_bus(
-                                    spawn_time,
-                                    map,
-                                    start_spot,
-                                    goal,
-                                    route,
-                                    stop1,
-                                    stop2,
-                                    &mut sim.trips_state,
-                                );
-                                continue;
-                            }
+                                start_spot,
+                                goal,
+                                route,
+                                stop1,
+                                stop2,
+                                &mut sim.trips_state,
+                            );
+                            continue;
                         }
-
-                        sim.spawner.start_trip_just_walking(
-                            spawn_time,
-                            start_spot,
-                            goal,
-                            &mut sim.trips_state,
-                        );
                     }
+
+                    sim.spawner.start_trip_just_walking(
+                        spawn_time,
+                        start_spot,
+                        goal,
+                        &mut sim.trips_state,
+                    );
                 }
             }
         }

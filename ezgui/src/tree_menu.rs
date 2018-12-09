@@ -21,7 +21,7 @@ impl TreeMenu {
             return;
         }
 
-        let parts: Vec<&str> = path.split("/").collect();
+        let parts: Vec<&str> = path.split('/').collect();
         populate_tree(VecDeque::from(parts), &mut self.root, hotkey, action);
     }
 }
@@ -43,10 +43,10 @@ fn print(depth: usize, tree: &BTreeMap<String, Item>, f: &mut fmt::Formatter) ->
     for (name, item) in tree {
         match item {
             Item::Action(key) => {
-                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(key))?;
+                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(*key))?;
             }
             Item::Tree(key, subtree) => {
-                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(key))?;
+                writeln!(f, "{}- {} ({})", pad, name, describe_maybe_key(*key))?;
                 print(depth + 1, subtree, f)?;
             }
         }
@@ -54,10 +54,10 @@ fn print(depth: usize, tree: &BTreeMap<String, Item>, f: &mut fmt::Formatter) ->
     Ok(())
 }
 
-fn describe_maybe_key(key: &Option<Key>) -> String {
+fn describe_maybe_key(key: Option<Key>) -> String {
     match key {
-        Some(k) => describe_key(*k),
-        None => "".to_string(),
+        Some(k) => describe_key(k),
+        None => String::new(),
     }
 }
 

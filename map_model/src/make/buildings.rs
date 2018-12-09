@@ -52,7 +52,7 @@ pub fn make_all_buildings(
                 osm_way_id: input[idx].osm_way_id,
                 front_path: FrontPath {
                     bldg: id,
-                    sidewalk: sidewalk_pos.clone(),
+                    sidewalk: *sidewalk_pos,
                     line,
                 },
             });

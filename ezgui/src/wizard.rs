@@ -131,11 +131,11 @@ impl<'a> WrappedWizard<'a> {
     }
 
     pub fn input_string(&mut self, query: &str) -> Option<String> {
-        self.input_something(query, None, Box::new(|line| Some(line)))
+        self.input_something(query, None, Box::new(Some))
     }
 
     pub fn input_string_prefilled(&mut self, query: &str, prefilled: String) -> Option<String> {
-        self.input_something(query, Some(prefilled), Box::new(|line| Some(line)))
+        self.input_something(query, Some(prefilled), Box::new(Some))
     }
 
     pub fn input_usize(&mut self, query: &str) -> Option<usize> {

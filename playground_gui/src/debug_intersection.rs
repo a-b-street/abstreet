@@ -5,6 +5,7 @@ use geom::{PolyLine, Pt2D};
 // Copied from map_model; no need to have to rebuild that crate
 const LANE_THICKNESS: f64 = 2.5;
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx) {
     let thin = 0.25;
     let shift1_width = LANE_THICKNESS * 0.5;

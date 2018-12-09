@@ -143,7 +143,6 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     }
 
     // Close off the polygon
-    let first_pt = endpoints[0].clone();
-    endpoints.push(first_pt);
+    endpoints.push(endpoints[0]);
     endpoints
 }

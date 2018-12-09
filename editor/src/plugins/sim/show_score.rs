@@ -60,7 +60,7 @@ fn panel(ctx: &mut PluginCtx) -> State {
         // TODO More coloring
         txt.add_line(ctx.primary.sim.get_name().to_string());
         summarize(&mut txt, ctx.primary.sim.get_score());
-        txt.add_line("".to_string());
+        txt.add_line(String::new());
         txt.add_line(s.sim.get_name().to_string());
         summarize(&mut txt, s.sim.get_score());
     } else {

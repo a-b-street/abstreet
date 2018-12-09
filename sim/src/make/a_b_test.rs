@@ -15,7 +15,7 @@ pub struct ABTest {
 impl ABTest {
     pub fn describe(&self) -> Vec<String> {
         abstutil::to_json(self)
-            .split("\n")
+            .split('\n')
             .map(|s| s.to_string())
             .collect()
     }

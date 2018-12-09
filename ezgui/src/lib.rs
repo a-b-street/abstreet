@@ -123,7 +123,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
         for tri in &poly.triangles {
             graphics::Polygon::new(color.0).draw(
-                &vec![
+                &[
                     [tri.pt1.x(), tri.pt1.y()],
                     [tri.pt2.x(), tri.pt2.y()],
                     [tri.pt3.x(), tri.pt3.y()],

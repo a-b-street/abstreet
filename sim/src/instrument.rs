@@ -16,7 +16,7 @@ pub fn capture_backtrace(event: &str) {
         // TODO compiler flag so capture_backtrace is usually a no-op. actually, looks like this
         // doesn't work in --release mode, so use that.
         let symbol_name = f.symbols()[0].name();
-        if !symbol_name.is_some() {
+        if symbol_name.is_none() {
             return;
         }
 
@@ -30,10 +30,8 @@ pub fn capture_backtrace(event: &str) {
             if name == "sim::sim::Sim::inner_step" {
                 break;
             }
-        } else {
-            if name.ends_with("::capture_backtrace") {
-                found_this_fxn = true;
-            }
+        } else if name.ends_with("::capture_backtrace") {
+            found_this_fxn = true;
         }
     }
 

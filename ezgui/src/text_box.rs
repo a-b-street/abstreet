@@ -17,7 +17,7 @@ impl TextBox {
     pub fn new(prompt: &str, prefilled: Option<String>) -> TextBox {
         TextBox {
             prompt: prompt.to_string(),
-            line: prefilled.unwrap_or(String::from("")),
+            line: prefilled.unwrap_or_else(String::new),
             cursor_x: 0,
             shift_pressed: false,
         }

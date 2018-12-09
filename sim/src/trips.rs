@@ -208,15 +208,12 @@ impl TripManager {
             spawned_at,
             finished_at: None,
             ped,
-            uses_car: legs
-                .iter()
-                .find(|l| match l {
-                    TripLeg::Drive(_, _) => true,
-                    TripLeg::DriveFromBorder(_, _) => true,
-                    TripLeg::ServeBusRoute(_, _) => true,
-                    _ => false,
-                })
-                .is_some(),
+            uses_car: legs.iter().any(|l| match l {
+                TripLeg::Drive(_, _) => true,
+                TripLeg::DriveFromBorder(_, _) => true,
+                TripLeg::ServeBusRoute(_, _) => true,
+                _ => false,
+            }),
             legs: VecDeque::from(legs),
         });
         id
@@ -226,7 +223,7 @@ impl TripManager {
     pub fn get_trip_using_car(&self, car: CarID) -> Option<TripID> {
         self.trips
             .iter()
-            .find(|t| t.legs.iter().find(|l| l.uses_car(car)).is_some())
+            .find(|t| t.legs.iter().any(|l| l.uses_car(car)))
             .map(|t| t.id)
     }
 
@@ -292,11 +289,11 @@ impl TripManager {
 
     // This will be None for parked cars
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
-        self.active_trip_mode.get(&id).map(|id| *id)
+        self.active_trip_mode.get(&id).cloned()
     }
 
     pub fn get_active_trips(&self) -> Vec<TripID> {
-        self.active_trip_mode.values().map(|id| *id).collect()
+        self.active_trip_mode.values().cloned().collect()
     }
 }
 

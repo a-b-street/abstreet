@@ -2,6 +2,7 @@ use crate::common::{draw_polyline, BLUE, GREEN, RED};
 use ezgui::GfxCtx;
 use geom::{Circle, PolyLine, Pt2D};
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx) {
     let mut vertical_pl = PolyLine::new(vec![
         Pt2D::new(1333.9512635794777, 413.3946082988369),

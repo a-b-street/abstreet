@@ -76,7 +76,7 @@ pub fn make_bus_stops(
             let stops: Vec<BusStopID> = stop_points
                 .iter()
                 .filter_map(|pt| point_to_stop_id.get(pt))
-                .map(|stop| *stop)
+                .cloned()
                 .collect();
             if stops.len() < 2 {
                 warn!(

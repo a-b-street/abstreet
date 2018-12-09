@@ -53,7 +53,7 @@ fn convert_polygon(input: PolygonType, name: String, map_name: String, gps_bound
         }
     }
     NeighborhoodBuilder {
-        map_name: map_name,
+        map_name,
         name,
         points,
     }

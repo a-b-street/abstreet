@@ -172,7 +172,7 @@ impl Map {
                 // TODO probably different behavior for oneways
                 // TODO need to factor in yellow center lines (but what's the right thing to even do?
                 // Reverse points for British-style driving on the left
-                let width = LANE_THICKNESS * ((lane.offset as f64) + 0.5);
+                let width = LANE_THICKNESS * (0.5 + f64::from(lane.offset));
                 let (lane_center_pts, probably_broken) = match unshifted_pts.shift(width) {
                     Some(pts) => (pts, false),
                     // TODO wasteful to calculate again, but eh
@@ -465,7 +465,7 @@ impl Map {
     }
 
     pub fn lookup_turn_by_idx(&self, idx: usize) -> Option<TurnID> {
-        self.turn_lookup.get(idx).map(|id| *id)
+        self.turn_lookup.get(idx).cloned()
     }
 
     // All these helpers should take IDs and return objects.
@@ -668,8 +668,7 @@ impl Map {
         } else if let Some(ts) = self.traffic_signals.get(&t.parent) {
             ts.cycles
                 .iter()
-                .find(|c| c.get_priority(t) != TurnPriority::Banned)
-                .is_some()
+                .any(|c| c.get_priority(t) != TurnPriority::Banned)
         } else {
             // Border nodes have no turns...
             panic!("{}'s intersection isn't a stop sign or traffic signal", t);
@@ -685,12 +684,10 @@ fn is_border(intersection: &Intersection, map: &Map) -> bool {
     let has_driving_in = intersection
         .incoming_lanes
         .iter()
-        .find(|l| map.get_l(**l).is_driving())
-        .is_some();
+        .any(|l| map.get_l(*l).is_driving());
     let has_driving_out = intersection
         .outgoing_lanes
         .iter()
-        .find(|l| map.get_l(**l).is_driving())
-        .is_some();
+        .any(|l| map.get_l(*l).is_driving());
     has_driving_in != has_driving_out
 }

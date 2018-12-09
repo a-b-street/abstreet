@@ -58,7 +58,7 @@ impl Intersection {
         self.incoming_lanes
             .iter()
             .filter(|l| map.get_l(**l).lane_type == lt)
-            .map(|l| *l)
+            .cloned()
             .collect()
     }
 
@@ -66,7 +66,7 @@ impl Intersection {
         self.outgoing_lanes
             .iter()
             .filter(|l| map.get_l(**l).lane_type == lt)
-            .map(|l| *l)
+            .cloned()
             .collect()
     }
 

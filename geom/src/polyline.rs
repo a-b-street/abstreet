@@ -165,7 +165,7 @@ impl PolyLine {
             let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
-            let pt2_shift = line_intersection(&l1, &l2).unwrap_or(l1.pt2());
+            let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -226,7 +226,7 @@ impl PolyLine {
             let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
-            let pt2_shift = line_intersection(&l1, &l2).unwrap_or(l1.pt2());
+            let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());

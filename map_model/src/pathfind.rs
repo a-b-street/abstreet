@@ -230,7 +230,7 @@ impl Path {
             }
         }
 
-        return Some(pts_so_far.unwrap());
+        Some(pts_so_far.unwrap())
     }
 
     pub fn get_steps(&self) -> &VecDeque<PathStep> {
@@ -285,7 +285,7 @@ impl Pathfinder {
             steps.last().unwrap().as_traversable(),
             Traversable::Lane(req.end.lane())
         );
-        return Some(Path::new(map, steps, req.end.dist_along()));
+        Some(Path::new(map, steps, req.end.dist_along()))
     }
 
     // Attempt the pathfinding and see if riding a bus is a step.
@@ -435,12 +435,13 @@ impl Pathfinder {
 
             // Expand
             for next in self.expand(map, current).into_iter() {
-                if !backrefs.contains_key(&next) {
-                    backrefs.insert(next, current);
+                backrefs.entry(next).or_insert_with(|| {
                     let cost = next.cost(map);
                     let heuristic = next.heuristic(self.goal_pt, map);
                     queue.push((dist_to_pri_queue(cost + heuristic) + cost_sofar, next));
-                }
+
+                    current
+                });
             }
         }
 

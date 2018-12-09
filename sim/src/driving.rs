@@ -185,7 +185,8 @@ impl Car {
                     parking_sim,
                     transit_sim,
                 );
-                let dist_to_maybe_stop_at = maybe_stop_early.unwrap_or(current_on.length(map));
+                let dist_to_maybe_stop_at =
+                    maybe_stop_early.unwrap_or_else(|| current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
 
                 // If our lookahead doesn't even hit the intersection / early stopping point, then
@@ -614,7 +615,7 @@ impl DrivingSimState {
                 }
                 Action::StartParkingBike => {
                     {
-                        let c = self.cars.get(&id).unwrap();
+                        let c = &self.cars[&id];
                         done_biking.push((*id, Position::new(c.on.as_lane(), c.dist_along)));
                     }
                     self.cars.remove(&id);
@@ -822,7 +823,7 @@ impl DrivingSimState {
         if let Some(queue) = self.queues.get(&on) {
             return queue.get_draw_cars(self, map, time);
         }
-        return Vec::new();
+        Vec::new()
     }
 
     pub fn get_all_draw_cars(&self, time: Tick, map: &Map) -> Vec<DrawCarInput> {

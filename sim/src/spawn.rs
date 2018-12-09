@@ -188,7 +188,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car,
-                                trip: trip,
+                                trip,
                                 owner: parked_car.owner,
                                 maybe_parked_car: Some(parked_car.clone()),
                                 vehicle: parked_car.vehicle.clone(),
@@ -216,7 +216,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car,
-                                trip: trip,
+                                trip,
                                 // TODO need a way to specify this in the scenario
                                 owner: None,
                                 maybe_parked_car: None,
@@ -247,7 +247,7 @@ impl Spawner {
                             now,
                             CreateCar {
                                 car: vehicle.id,
-                                trip: trip,
+                                trip,
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),

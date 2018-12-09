@@ -455,14 +455,7 @@ impl WalkingSimState {
                     });
                 }
                 Action::KeepPreparingBike => {
-                    let state = self
-                        .peds
-                        .get(&id)
-                        .unwrap()
-                        .bike_parking
-                        .as_ref()
-                        .unwrap()
-                        .clone();
+                    let state = self.peds[&id].bike_parking.as_ref().unwrap().clone();
                     if (now - state.started_at).as_time() >= TIME_TO_PREPARE_BIKE {
                         if state.is_parking {
                             // Now they'll start walking somewhere
@@ -687,7 +680,7 @@ impl WalkingSimState {
     }
 
     pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
-        let p = self.peds.get(&id).unwrap();
+        let p = &self.peds[&id];
         vec![format!("{} is part of {}", p.id, p.trip)]
     }
 

@@ -2,6 +2,7 @@ use crate::runner::TestRunner;
 use geom::{line_intersection, Line, PolyLine, Pt2D};
 use rand;
 
+#[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
     t.run_fast(
         "dist_along_horiz_line",

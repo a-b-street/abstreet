@@ -61,7 +61,7 @@ impl GUI<Text> for UI {
             State::LabelingBuilding(id, ref mut wizard) => {
                 if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
                     "Label the building",
-                    self.model.get_b_label(id).unwrap_or("".to_string()),
+                    self.model.get_b_label(id).unwrap_or_else(String::new),
                 ) {
                     self.model.set_b_label(id, label);
                     self.state = State::Viewing;
@@ -72,7 +72,7 @@ impl GUI<Text> for UI {
             State::LabelingRoad(pair, ref mut wizard) => {
                 if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
                     "Label this side of the road",
-                    self.model.get_r_label(pair).unwrap_or("".to_string()),
+                    self.model.get_r_label(pair).unwrap_or_else(String::new),
                 ) {
                     self.model.set_r_label(pair, label);
                     self.state = State::Viewing;
