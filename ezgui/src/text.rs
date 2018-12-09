@@ -1,7 +1,8 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use crate::{Color, GfxCtx};
+use crate::{Canvas, Color, GfxCtx};
 use graphics::{Image, Rectangle, Transformed};
+use textwrap;
 
 pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
 pub const TEXT_QUERY_COLOR: Color = Color([0.0, 0.0, 1.0, 0.5]);
@@ -11,6 +12,8 @@ const TEXT_BG_COLOR: Color = Color([0.0, 1.0, 0.0, 0.5]);
 const FONT_SIZE: u32 = 24;
 // TODO this is a hack, need a glyphs.height() method as well!
 pub const LINE_HEIGHT: f64 = 22.0;
+// TODO Totally made up. Should query the font or something.
+const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Clone)]
 struct TextSpan {
@@ -54,6 +57,14 @@ impl Text {
 
     pub fn add_line(&mut self, line: String) {
         self.lines.push(vec![TextSpan::default_style(line)]);
+    }
+
+    // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
+    pub fn add_wrapped_line(&mut self, canvas: &Canvas, line: String) {
+        let wrap_to = canvas.window_size.width / (MAX_CHAR_WIDTH as u32);
+        for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
+            self.add_line(l.to_string());
+        }
     }
 
     pub fn add_styled_line(

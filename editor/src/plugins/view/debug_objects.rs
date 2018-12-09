@@ -114,12 +114,12 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
         }
         ID::Car(id) => {
             for line in sim.car_tooltip(id) {
-                txt.add_line(line);
+                txt.add_wrapped_line(&ctx.canvas, line);
             }
         }
         ID::Pedestrian(id) => {
             for line in sim.ped_tooltip(id) {
-                txt.add_line(line);
+                txt.add_wrapped_line(&ctx.canvas, line);
             }
         }
         ID::ExtraShape(id) => {
