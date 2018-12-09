@@ -295,6 +295,16 @@ impl TripManager {
     pub fn get_active_trips(&self) -> Vec<TripID> {
         self.active_trip_mode.values().cloned().collect()
     }
+
+    pub fn tooltip_lines(&self, id: AgentID) -> Vec<String> {
+        // Only called for agents that _should_ have trips
+        let trip = &self.trips[self.active_trip_mode[&id].0];
+        vec![format!(
+            "{} has goal {:?}",
+            trip.id,
+            trip.legs.back().unwrap()
+        )]
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

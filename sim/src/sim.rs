@@ -276,13 +276,18 @@ impl Sim {
     }
 
     pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
-        self.walking_state.ped_tooltip(p)
+        let mut lines = self.walking_state.ped_tooltip(p);
+        lines.extend(self.trips_state.tooltip_lines(AgentID::Pedestrian(p)));
+        lines
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        self.driving_state
-            .tooltip_lines(car)
-            .unwrap_or_else(|| self.parking_state.tooltip_lines(car))
+        if let Some(mut lines) = self.driving_state.tooltip_lines(car) {
+            lines.extend(self.trips_state.tooltip_lines(AgentID::Car(car)));
+            lines
+        } else {
+            self.parking_state.tooltip_lines(car)
+        }
     }
 
     pub fn debug_car(&mut self, id: CarID) {
