@@ -6,6 +6,7 @@ touch `find * | grep '\.rs' | grep -v target | xargs`
 # TODO Remove all of these exceptions
 # TODO Report issues for some of these false positives
 cargo clippy -- \
+	-A clippy::borrowed_box \
 	-A clippy::cyclomatic_complexity \
 	-A clippy::expect_fun_call \
 	-A clippy::if_same_then_else \

@@ -93,7 +93,9 @@ impl Renderable for DrawExtraShape {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
-        let color = opts.color.unwrap_or(ctx.cs.get("extra shape", Color::CYAN));
+        let color = opts
+            .color
+            .unwrap_or_else(|| ctx.cs.get("extra shape", Color::CYAN));
         match self.shape {
             Shape::Polygon(ref p) => g.draw_polygon(color, &p),
             Shape::Circle(ref c) => g.draw_circle(color, c),

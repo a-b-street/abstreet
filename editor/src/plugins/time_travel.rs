@@ -131,10 +131,6 @@ impl GetDrawAgents for TimeTravel {
     }
 
     fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {
-        self.get_current_state()
-            .peds
-            .values()
-            .map(|d| d.clone())
-            .collect()
+        self.get_current_state().peds.values().cloned().collect()
     }
 }

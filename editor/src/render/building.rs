@@ -42,7 +42,7 @@ impl Renderable for DrawBuilding {
         //g.draw_polygon(ctx.cs.get("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
         g.draw_polygon(
             opts.color
-                .unwrap_or(ctx.cs.get("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8))),
+                .unwrap_or_else(|| ctx.cs.get("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8))),
             &self.fill_polygon,
         );
 

@@ -5,13 +5,13 @@ use ezgui::{GfxCtx, LogScroller};
 use lazy_static::lazy_static;
 use log::{set_logger, set_max_level, LevelFilter, Log, Metadata, Record};
 use piston::input::Key;
-use std::sync::Mutex;
+use std::sync::{Mutex, Once};
 
 lazy_static! {
     static ref LOGGER: Mutex<LogScroller> = Mutex::new(LogScroller::new_with_capacity(100));
-    static ref LOGGER_STARTED: Mutex<bool> = Mutex::new(false);
 }
 
+static START_LOGGER: Once = Once::new();
 static LOG_ADAPTER: LogAdapter = LogAdapter;
 
 pub struct DisplayLogs {
@@ -21,12 +21,10 @@ pub struct DisplayLogs {
 impl DisplayLogs {
     pub fn new() -> DisplayLogs {
         // Even when the rest of the UI is ripped out, retain this static state.
-        let mut lock = LOGGER_STARTED.lock().unwrap();
-        if !*lock {
+        START_LOGGER.call_once(|| {
             set_max_level(LevelFilter::Debug);
             set_logger(&LOG_ADAPTER).unwrap();
-            *lock = true;
-        }
+        });
         DisplayLogs { active: false }
     }
 }

@@ -22,10 +22,10 @@ impl DrawBusStop {
         let polygon = PolyLine::new(vec![
             lane.safe_dist_along(stop.sidewalk_pos.dist_along() - radius)
                 .map(|(pt, _)| pt)
-                .unwrap_or(lane.first_pt()),
+                .unwrap_or_else(|| lane.first_pt()),
             lane.safe_dist_along(stop.sidewalk_pos.dist_along() + radius)
                 .map(|(pt, _)| pt)
-                .unwrap_or(lane.last_pt()),
+                .unwrap_or_else(|| lane.last_pt()),
         ])
         .make_polygons_blindly(0.8 * LANE_THICKNESS);
         DrawBusStop {
@@ -42,10 +42,10 @@ impl Renderable for DrawBusStop {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         g.draw_polygon(
-            opts.color.unwrap_or(
+            opts.color.unwrap_or_else(|| {
                 ctx.cs
-                    .get("bus stop marking", Color::rgba(220, 160, 220, 0.8)),
-            ),
+                    .get("bus stop marking", Color::rgba(220, 160, 220, 0.8))
+            }),
             &self.polygon,
         );
     }

@@ -100,13 +100,9 @@ impl Region {
         let lanes = draw_map
             .get_matching_lanes(n.polygon.get_bounds())
             .into_iter()
-            .filter_map(|id| {
-                let l = map.get_l(id);
-                if n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt()) {
-                    Some(id)
-                } else {
-                    None
-                }
+            .filter(|id| {
+                let l = map.get_l(*id);
+                n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt())
             })
             .collect();
         let mut summary = Text::new();

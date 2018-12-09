@@ -318,7 +318,13 @@ fn make_vehicle_turn(map: &Map, i: IntersectionID, l1: LaneID, l2: LaneID) -> Tu
         let pieces = 5;
         PolyLine::new(
             (0..=pieces)
-                .map(|i| from_pt(curve.interp(1.0 / f64::from(i * pieces)).unwrap()))
+                .map(|i| {
+                    from_pt(
+                        curve
+                            .interp(1.0 / f64::from(pieces) * f64::from(i))
+                            .unwrap(),
+                    )
+                })
                 .collect(),
         )
     };

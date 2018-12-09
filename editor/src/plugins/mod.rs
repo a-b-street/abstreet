@@ -124,11 +124,7 @@ pub fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<In
     wizard.input_something(
         query,
         None,
-        Box::new(|line| {
-            usize::from_str_radix(&line, 10)
-                .ok()
-                .map(|id| IntersectionID(id))
-        }),
+        Box::new(|line| usize::from_str_radix(&line, 10).ok().map(IntersectionID)),
     )
 }
 
@@ -140,8 +136,8 @@ pub fn choose_origin_destination(
     let neighborhood = "Neighborhood";
     let border = "Border intersection";
     if wizard.choose_string(query, vec![neighborhood, border])? == neighborhood {
-        choose_neighborhood(map, wizard, query).map(|n| OriginDestination::Neighborhood(n))
+        choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
     } else {
-        choose_intersection(wizard, query).map(|i| OriginDestination::Border(i))
+        choose_intersection(wizard, query).map(OriginDestination::Border)
     }
 }

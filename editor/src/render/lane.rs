@@ -71,7 +71,7 @@ impl DrawLane {
             id: lane.id,
             polygon,
             markings,
-            draw_id_at: calculate_id_positions(lane).unwrap_or(Vec::new()),
+            draw_id_at: calculate_id_positions(lane).unwrap_or_default(),
         }
     }
 
@@ -106,17 +106,14 @@ impl Renderable for DrawLane {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
-            let mut default = match l.lane_type {
+            match l.lane_type {
+                _ if l.probably_broken => ctx.cs.get("broken lane", Color::rgb_f(1.0, 0.0, 0.565)),
                 LaneType::Driving => ctx.cs.get("driving lane", Color::BLACK),
                 LaneType::Bus => ctx.cs.get("bus lane", Color::rgb(190, 74, 76)),
                 LaneType::Parking => ctx.cs.get("parking lane", Color::grey(0.2)),
                 LaneType::Sidewalk => ctx.cs.get("sidewalk", Color::grey(0.8)),
                 LaneType::Biking => ctx.cs.get("bike lane", Color::rgb(15, 125, 75)),
-            };
-            if l.probably_broken {
-                default = ctx.cs.get("broken lane", Color::rgb_f(1.0, 0.0, 0.565));
             }
-            default
         });
         g.draw_polygon(color, &self.polygon);
 

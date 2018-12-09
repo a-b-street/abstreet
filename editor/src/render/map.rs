@@ -240,7 +240,7 @@ impl DrawMap {
         screen_bounds: Bounds,
         debug_mode: &DebugMode,
         map: &Map,
-        sim: Box<&GetDrawAgents>,
+        sim: &GetDrawAgents,
         show_turn_icons: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order

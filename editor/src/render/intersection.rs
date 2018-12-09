@@ -144,24 +144,21 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
     for turn in &map.get_turns_in_intersection(i) {
-        match turn.turn_type {
-            TurnType::SharedSidewalkCorner => {
-                // Avoid double-rendering
-                if map.get_l(turn.id.src).dst_i != i {
-                    continue;
-                }
-
-                let l1 = map.get_l(turn.id.src);
-                let l2 = map.get_l(turn.id.dst);
-
-                let shared_pt1 = l1.last_line().shift(LANE_THICKNESS / 2.0).pt2();
-                let pt1 = l1.last_line().reverse().shift(LANE_THICKNESS / 2.0).pt1();
-                let pt2 = l2.first_line().reverse().shift(LANE_THICKNESS / 2.0).pt2();
-                let shared_pt2 = l2.first_line().shift(LANE_THICKNESS / 2.0).pt1();
-
-                corners.push(Polygon::new(&vec![shared_pt1, pt1, pt2, shared_pt2]));
+        if turn.turn_type == TurnType::SharedSidewalkCorner {
+            // Avoid double-rendering
+            if map.get_l(turn.id.src).dst_i != i {
+                continue;
             }
-            _ => {}
+
+            let l1 = map.get_l(turn.id.src);
+            let l2 = map.get_l(turn.id.dst);
+
+            let shared_pt1 = l1.last_line().shift(LANE_THICKNESS / 2.0).pt2();
+            let pt1 = l1.last_line().reverse().shift(LANE_THICKNESS / 2.0).pt1();
+            let pt2 = l2.first_line().reverse().shift(LANE_THICKNESS / 2.0).pt2();
+            let shared_pt2 = l2.first_line().shift(LANE_THICKNESS / 2.0).pt1();
+
+            corners.push(Polygon::new(&vec![shared_pt1, pt1, pt2, shared_pt2]));
         }
     }
 

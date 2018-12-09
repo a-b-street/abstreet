@@ -247,7 +247,7 @@ impl UI {
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
-            Ok(ref state) if ui.primary.map.get_name().to_string() == state.map_name => {
+            Ok(ref state) if ui.primary.map.get_name() == &state.map_name => {
                 info!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
@@ -421,12 +421,12 @@ impl UI {
         info!("Saved editor_state");
     }
 
-    fn get_draw_agent_source(&self) -> Box<&GetDrawAgents> {
+    fn get_draw_agent_source(&self) -> &GetDrawAgents {
         let tt = self.primary_plugins.time_travel();
         if tt.is_active() {
-            Box::new(tt)
+            tt
         } else {
-            Box::new(&self.primary.sim)
+            &self.primary.sim
         }
     }
 }

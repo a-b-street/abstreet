@@ -89,12 +89,16 @@ impl Plugin for ColorPicker {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
                         let corner = ctx.canvas.screen_to_map((
-                            (x * TILE_DIMS + start_x) as f64,
-                            (y * TILE_DIMS + start_y) as f64,
+                            f64::from(x * TILE_DIMS + start_x),
+                            f64::from(y * TILE_DIMS + start_y),
                         ));
                         g.draw_polygon(
                             color,
-                            &Polygon::rectangle_topleft(corner, TILE_DIMS as f64, TILE_DIMS as f64),
+                            &Polygon::rectangle_topleft(
+                                corner,
+                                f64::from(TILE_DIMS),
+                                f64::from(TILE_DIMS),
+                            ),
                         );
                     }
                 }

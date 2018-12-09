@@ -42,8 +42,8 @@ impl Plugin for ShowOwnerState {
             *self = ShowOwnerState::Inactive;
         }
 
-        match self {
-            ShowOwnerState::Inactive => match selected {
+        if let ShowOwnerState::Inactive = self {
+            match selected {
                 Some(ID::Building(id)) => {
                     *self = ShowOwnerState::BuildingSelected(
                         id,
@@ -60,8 +60,7 @@ impl Plugin for ShowOwnerState {
                     *self = ShowOwnerState::ShapeSelected(id, ctx.primary.draw_map.get_es(id).road);
                 }
                 _ => {}
-            },
-            _ => {}
+            };
         }
     }
 
