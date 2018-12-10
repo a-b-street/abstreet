@@ -120,11 +120,17 @@ impl Car {
         let mut current_router = orig_router.clone();
         let mut dist_scanned_ahead = 0.0 * si::M;
 
+        if self.debug {
+            debug!(
+                "-- At {}, {} looking ahead. Starting {} along {:?}, with speed {}",
+                time, self.id, self.dist_along, self.on, self.speed
+            );
+        }
         loop {
             if self.debug {
                 debug!(
-                    "  -- At {}, {} looking ahead to {:?} with {} left to scan",
-                    time, self.id, current_on, dist_to_lookahead
+                    "  Looking ahead to {:?} with {} left to scan",
+                    current_on, dist_to_lookahead
                 );
             }
 
@@ -189,6 +195,9 @@ impl Car {
                 let dist_to_maybe_stop_at =
                     maybe_stop_early.unwrap_or_else(|| current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
+                if dist_from_stop < 0.0 * si::M {
+                    return Err(Error::new(format!("Router for {} looking ahead to {:?} said to stop at {:?}, but lookahead already at {}", self.id, current_on, maybe_stop_early, current_dist_along)));
+                }
 
                 // If our lookahead doesn't even hit the intersection / early stopping point, then
                 // ignore it. This means we won't request turns until we're close.
@@ -211,11 +220,16 @@ impl Car {
                         !granted
                     };
                     if should_stop {
-                        let accel = vehicle.accel_to_stop_in_dist(self.speed, dist_from_stop)?;
+                        let accel = vehicle.accel_to_stop_in_dist(
+                            self.speed,
+                            dist_scanned_ahead + dist_from_stop,
+                        )?;
                         if self.debug {
                             debug!(
                                 "  {} needs {} to stop for something that's currently {} away",
-                                self.id, accel, dist_from_stop
+                                self.id,
+                                accel,
+                                dist_scanned_ahead + dist_from_stop
                             );
                         }
                         constraints.push(accel);
@@ -258,7 +272,7 @@ impl Car {
                 format!("{}", self.speed)
             };
             debug!(
-                "At {}, {} chose {}, with current speed {}",
+                "  ... At {}, {} chose {}, with current speed {}",
                 time, self.id, describe_accel, describe_speed
             );
         }
@@ -289,23 +303,28 @@ impl Car {
             }
 
             let leftover_dist = self.dist_along - self.on.length(map);
-            // == 0.0 is important! If no floating point imprecision happens, cars will stop RIGHT
-            // at the end of a lane, with exactly 0 leftover distance. We don't want to bump them
-            // into the turn and illegally enter the intersection in that case. The alternative
-            // from AORTA, IIRC, is to make cars stop anywhere in a small buffer at the end of the
-            // lane.
+            if leftover_dist < 0.0 * si::M {
+                break;
+            }
+
+            // If we stop right at the end of a turn, we want to wind up at the start of the next
+            // lane. Otherwise trying to park right at 0m along a lane gets stuck at the end of the
+            // turn.
+            // But if we stop right at the end of a lane, we want to stay there and not enter the
+            // intersection.
             if leftover_dist <= EPSILON_DIST {
-                if leftover_dist > 0.0 * si::M {
-                    // But do force them to be right at the end of the Traversable, otherwise we're
-                    // in this bizarre, illegal state where dist_along is > the current
-                    // Traversable's length.
+                if self.on.maybe_lane().is_some() {
+                    // But do force them to be right at the end of the lane, otherwise we're in
+                    // this bizarre, illegal state where dist_along is > the current Traversable's
+                    // length.
                     self.dist_along = self.on.length(map) - EPSILON_DIST;
                     // Argh, but don't go negative! Use a different epsilon sometimes?
                     if self.dist_along < 0.0 * si::M {
                         self.dist_along = self.on.length(map) - std::f64::EPSILON * si::M;
                     }
+                    break;
                 }
-                break;
+                // Otherwise finish the turn.
             }
 
             if let Traversable::Turn(t) = self.on {
