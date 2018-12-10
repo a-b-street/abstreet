@@ -108,11 +108,7 @@ impl Map {
                 turns: Vec::new(),
                 elevation: i.elevation,
                 // Might change later
-                intersection_type: if i.has_traffic_signal {
-                    IntersectionType::TrafficSignal
-                } else {
-                    IntersectionType::StopSign
-                },
+                intersection_type: i.intersection_type,
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: BTreeSet::new(),
@@ -677,6 +673,16 @@ impl Map {
 }
 
 fn is_border(intersection: &Intersection, map: &Map) -> bool {
+    // Raw data said it is.
+    if intersection.intersection_type == IntersectionType::Border {
+        if !intersection.is_dead_end() {
+            panic!(
+                "{:?} isn't a dead-end, but raw data said it's a border node",
+                intersection
+            );
+        }
+        return true;
+    }
     // Bias for driving
     if !intersection.is_dead_end() {
         return false;

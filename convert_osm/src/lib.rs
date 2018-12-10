@@ -9,7 +9,7 @@ use crate::srtm::Elevation;
 use dimensioned::si;
 use geom::{GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, FindClosest, LANE_THICKNESS};
+use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
 use ordered_float::NotNaN;
 use std::path::Path;
 use structopt::StructOpt;
@@ -108,10 +108,10 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
                 .unwrap();
             let dist = distance(closest_intersection);
             if dist <= MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL {
-                if closest_intersection.has_traffic_signal {
+                if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
                     println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
                 }
-                closest_intersection.has_traffic_signal = true;
+                closest_intersection.intersection_type = IntersectionType::TrafficSignal;
             }
         }
     }

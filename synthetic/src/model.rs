@@ -2,7 +2,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
 use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::{raw_data, LaneType, RoadSpec, LANE_THICKNESS};
+use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::mem;
@@ -44,7 +44,7 @@ pub struct Model {
 #[derive(Serialize, Deserialize)]
 pub struct Intersection {
     center: Pt2D,
-    has_traffic_signal: bool,
+    intersection_type: IntersectionType,
 }
 
 impl Intersection {
@@ -192,10 +192,12 @@ impl Model {
         for (id, i) in &self.intersections {
             let color = if Some(*id) == current_i {
                 HIGHLIGHT_COLOR
-            } else if i.has_traffic_signal {
-                Color::GREEN
             } else {
-                Color::RED
+                match i.intersection_type {
+                    IntersectionType::TrafficSignal => Color::GREEN,
+                    IntersectionType::StopSign => Color::RED,
+                    IntersectionType::Border => Color::BLUE,
+                }
             };
             g.draw_circle(color, &i.circle());
         }
@@ -258,7 +260,7 @@ impl Model {
             map.intersections.push(raw_data::Intersection {
                 point: pt(i.center),
                 elevation: 0.0 * si::M,
-                has_traffic_signal: i.has_traffic_signal,
+                intersection_type: i.intersection_type,
             });
         }
 
@@ -291,7 +293,7 @@ impl Model {
             id,
             Intersection {
                 center,
-                has_traffic_signal: false,
+                intersection_type: IntersectionType::StopSign,
             },
         );
     }
@@ -302,7 +304,22 @@ impl Model {
 
     pub fn toggle_i_type(&mut self, id: IntersectionID) {
         let i = self.intersections.get_mut(&id).unwrap();
-        i.has_traffic_signal = !i.has_traffic_signal;
+        i.intersection_type = match i.intersection_type {
+            IntersectionType::StopSign => IntersectionType::TrafficSignal,
+            IntersectionType::TrafficSignal => {
+                let num_roads = self
+                    .roads
+                    .values()
+                    .filter(|r| r.i1 == id || r.i2 == id)
+                    .count();
+                if num_roads == 1 {
+                    IntersectionType::Border
+                } else {
+                    IntersectionType::StopSign
+                }
+            }
+            IntersectionType::Border => IntersectionType::StopSign,
+        };
     }
 
     pub fn remove_i(&mut self, id: IntersectionID) {

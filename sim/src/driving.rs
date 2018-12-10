@@ -312,15 +312,11 @@ impl Car {
             // turn.
             // But if we stop right at the end of a lane, we want to stay there and not enter the
             // intersection.
-            if leftover_dist <= EPSILON_DIST {
-                if self.on.maybe_lane().is_some() {
-                    // But do force them to be right at the end of the lane, otherwise we're in
-                    // this bizarre, illegal state where dist_along is > the current Traversable's
-                    // length.
-                    self.dist_along = self.on.length(map);
-                    break;
-                }
-                // Otherwise finish the turn.
+            if leftover_dist <= EPSILON_DIST && self.on.maybe_lane().is_some() {
+                // But do force them to be right at the end of the lane, otherwise we're in this
+                // bizarre, illegal state where dist_along is > the current Traversable's length.
+                self.dist_along = self.on.length(map);
+                break;
             }
 
             if let Traversable::Turn(t) = self.on {

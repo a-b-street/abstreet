@@ -1,4 +1,4 @@
-use crate::AreaType;
+use crate::{AreaType, IntersectionType};
 use dimensioned::si;
 use geom::{GPSBounds, LonLat};
 use gtfs::Route;
@@ -86,7 +86,8 @@ impl Road {
 pub struct Intersection {
     pub point: LonLat,
     pub elevation: si::Meter<f64>,
-    pub has_traffic_signal: bool,
+    // A raw Intersection can be forced into being a Border.
+    pub intersection_type: IntersectionType,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]

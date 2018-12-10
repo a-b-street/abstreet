@@ -3,7 +3,7 @@
 use crate::srtm;
 use dimensioned::si;
 use geom::{HashablePt2D, LonLat};
-use map_model::raw_data;
+use map_model::{raw_data, IntersectionType};
 use std::collections::{BTreeSet, HashMap};
 
 pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw_data::Map {
@@ -36,7 +36,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
         map.intersections.push(raw_data::Intersection {
             point: LonLat::new(pt.x(), pt.y()),
             elevation: elevation.get(pt.x(), pt.y()) * si::M,
-            has_traffic_signal: false,
+            intersection_type: IntersectionType::StopSign,
         });
     }
 
