@@ -317,11 +317,7 @@ impl Car {
                     // But do force them to be right at the end of the lane, otherwise we're in
                     // this bizarre, illegal state where dist_along is > the current Traversable's
                     // length.
-                    self.dist_along = self.on.length(map) - EPSILON_DIST;
-                    // Argh, but don't go negative! Use a different epsilon sometimes?
-                    if self.dist_along < 0.0 * si::M {
-                        self.dist_along = self.on.length(map) - std::f64::EPSILON * si::M;
-                    }
+                    self.dist_along = self.on.length(map);
                     break;
                 }
                 // Otherwise finish the turn.

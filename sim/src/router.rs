@@ -6,6 +6,7 @@ use crate::transit::TransitSimState;
 use crate::view::AgentView;
 use crate::{Distance, Event, ParkingSpot, Tick};
 use dimensioned::si;
+use geom::EPSILON_DIST;
 use map_model::{
     BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
 };
@@ -100,7 +101,9 @@ impl Router {
                 }
             }
             Goal::BikeThenStop(dist) => {
-                if view.dist_along == dist {
+                // Do an epsilon check here, to avoid a bug observed before (and because all
+                // distance checks really ought to be epsilon checks...)
+                if view.dist_along - dist < EPSILON_DIST {
                     return Some(Action::StartParkingBike);
                 }
             }
