@@ -55,13 +55,16 @@ fn find_chokepoints(sim: &Sim) -> ChokepointsFinder {
     let active = sim.active_agents();
     info!("Finding chokepoints from {} active agents", active.len());
     for a in active.into_iter() {
-        for step in sim.get_path(a).unwrap().get_steps() {
-            match step {
-                PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                    count_per_lane.update(vec![*l]);
-                }
-                PathStep::Turn(t) => {
-                    count_per_intersection.update(vec![t.parent]);
+        // Why would an active agent not have a path? Pedestrian riding a bus.
+        if let Some(path) = sim.get_path(a) {
+            for step in path.get_steps() {
+                match step {
+                    PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                        count_per_lane.update(vec![*l]);
+                    }
+                    PathStep::Turn(t) => {
+                        count_per_intersection.update(vec![t.parent]);
+                    }
                 }
             }
         }
