@@ -63,6 +63,7 @@ pub enum Action {
     WorkOnParking,
     StartParkingBike,
     Continue(Acceleration, Vec<Request>),
+    TmpVanish,
 }
 
 impl Car {
@@ -667,6 +668,10 @@ impl DrivingSimState {
                             intersections.submit_request(req.clone());
                         }
                     }
+                }
+                Action::TmpVanish => {
+                    self.cars.remove(&id);
+                    self.routers.remove(&id);
                 }
             }
         }
