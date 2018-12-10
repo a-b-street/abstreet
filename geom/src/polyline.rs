@@ -8,12 +8,16 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
     pts: Vec<Pt2D>,
+    // TODO Note that caching length doesn't improve profiling results (by running
+    // small_spawn_completes test in release mode). May not be worth doing this.
+    length: si::Meter<f64>,
 }
 
 impl PolyLine {
     pub fn new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
-        PolyLine { pts }
+        let length = recalculate_length(&pts);
+        PolyLine { pts, length }
     }
 
     // TODO copy or mut?
@@ -27,6 +31,7 @@ impl PolyLine {
     pub fn extend(&mut self, other: PolyLine) {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
         self.pts.extend(other.pts.iter().skip(1));
+        self.length = recalculate_length(&self.pts);
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {
@@ -42,9 +47,7 @@ impl PolyLine {
     }
 
     pub fn length(&self) -> si::Meter<f64> {
-        self.lines()
-            .iter()
-            .fold(0.0 * si::M, |so_far, l| so_far + l.length())
+        self.length
     }
 
     // Returns the excess distance left over from the end.
@@ -374,6 +377,7 @@ impl PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             self.pts.truncate(idx + 1);
             self.pts.push(pt);
+            self.length = recalculate_length(&self.pts);
         } else {
             panic!("Can't trim_to_pt: {} doesn't contain {}", self, pt);
         }
@@ -430,3 +434,9 @@ impl fmt::Display for PolyLine {
     result.push(first_pt);
     result.iter().map(|pair| [pair.0, pair.1]).collect()
 }*/
+
+fn recalculate_length(pts: &Vec<Pt2D>) -> si::Meter<f64> {
+    pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+        so_far + Line::new(pair[0], pair[1]).length()
+    })
+}
