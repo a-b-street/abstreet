@@ -435,12 +435,9 @@ impl WalkingSimState {
                     });
                 }
                 Action::KeepCrossingPath => {
-                    let done = {
-                        let p = self.peds.get_mut(&id).unwrap();
-                        p.moving = true;
-                        p.step_cross_path(events, delta_time, map)
-                    };
-                    if done {
+                    let p = self.peds.get_mut(&id).unwrap();
+                    p.moving = true;
+                    if p.step_cross_path(events, delta_time, map) {
                         self.peds.remove(&id);
                         // TODO Should we return stuff to sim, or do the interaction here?
                         trips.ped_reached_building_or_border(*id, now);

@@ -637,25 +637,20 @@ impl DrivingSimState {
                     }
                 }
                 Action::StartParkingBike => {
-                    {
-                        let c = &self.cars[&id];
-                        done_biking.push((*id, Position::new(c.on.as_lane(), c.dist_along)));
-                    }
+                    let c = &self.cars[&id];
+                    done_biking.push((*id, Position::new(c.on.as_lane(), c.dist_along)));
                     self.cars.remove(&id);
                     self.routers.remove(&id);
                 }
                 Action::Continue(accel, ref requests) => {
-                    let done = {
-                        let c = self.cars.get_mut(&id).unwrap();
-                        c.step_continue(
-                            events,
-                            self.routers.get_mut(&id).unwrap(),
-                            accel,
-                            map,
-                            intersections,
-                        )?
-                    };
-                    if done {
+                    let c = self.cars.get_mut(&id).unwrap();
+                    if c.step_continue(
+                        events,
+                        self.routers.get_mut(&id).unwrap(),
+                        accel,
+                        map,
+                        intersections,
+                    )? {
                         self.cars.remove(&id);
                         self.routers.remove(&id);
                         vanished_at_border.push(*id);
