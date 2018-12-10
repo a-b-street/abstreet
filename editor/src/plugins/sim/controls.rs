@@ -3,7 +3,7 @@ use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
 use ezgui::EventLoopMode;
 use piston::input::Key;
-use sim::{Benchmark, TIMESTEP};
+use sim::{Benchmark, Sim, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
 
@@ -77,15 +77,51 @@ impl Plugin for SimControls {
                 }
                 if ctx
                     .input
-                    .unimportant_key_pressed(Key::P, SIM, "load sim state")
+                    .unimportant_key_pressed(Key::Y, SIM, "load previous sim state")
                 {
-                    match ctx.primary.sim.load_most_recent() {
+                    match ctx
+                        .primary
+                        .sim
+                        .find_previous_savestate(ctx.primary.sim.time)
+                        .and_then(|path| Sim::load_savestate(path, None))
+                    {
+                        Ok(new_sim) => {
+                            // TODO From the perspective of other SimMode plugins, does this just
+                            // look like the simulation stepping forwards?
+                            ctx.primary.sim = new_sim;
+                            ctx.primary.recalculate_current_selection = true;
+
+                            if let Some((s, _)) = ctx.secondary {
+                                s.sim = Sim::load_savestate(
+                                    s.sim.find_previous_savestate(s.sim.time).unwrap(),
+                                    None,
+                                )
+                                .unwrap();
+                            }
+                        }
+                        Err(e) => error!("Couldn't load savestate: {}", e),
+                    };
+                }
+                if ctx
+                    .input
+                    .unimportant_key_pressed(Key::U, SIM, "load next sim state")
+                {
+                    match ctx
+                        .primary
+                        .sim
+                        .find_next_savestate(ctx.primary.sim.time)
+                        .and_then(|path| Sim::load_savestate(path, None))
+                    {
                         Ok(new_sim) => {
                             ctx.primary.sim = new_sim;
                             ctx.primary.recalculate_current_selection = true;
 
                             if let Some((s, _)) = ctx.secondary {
-                                s.sim = s.sim.load_most_recent().unwrap();
+                                s.sim = Sim::load_savestate(
+                                    s.sim.find_next_savestate(s.sim.time).unwrap(),
+                                    None,
+                                )
+                                .unwrap();
                             }
                         }
                         Err(e) => error!("Couldn't load savestate: {}", e),

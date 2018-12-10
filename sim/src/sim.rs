@@ -88,9 +88,15 @@ impl Sim {
         }
     }
 
-    pub fn load(path: String, new_run_name: String) -> Result<Sim, std::io::Error> {
+    pub fn load_savestate(
+        path: String,
+        new_run_name: Option<String>,
+    ) -> Result<Sim, std::io::Error> {
+        info!("Loading {}", path);
         abstutil::read_json(&path).map(|mut s: Sim| {
-            s.run_name = new_run_name;
+            if let Some(name) = new_run_name {
+                s.run_name = name;
+            }
             s
         })
     }
@@ -135,15 +141,8 @@ impl Sim {
             "At {} while processing {:?}",
             self.time, self.current_agent_for_debugging
         );
-        if let Ok(mut list) = self.find_all_savestates() {
-            // Find the most recent one BEFORE the current time
-            list.reverse();
-            for (tick, path) in list {
-                if tick < self.time {
-                    error!("Debug from {}", path);
-                    break;
-                }
-            }
+        if let Ok(path) = self.find_previous_savestate(self.time) {
+            error!("Debug from {}", path);
         }
     }
 
@@ -313,15 +312,6 @@ impl Sim {
         path
     }
 
-    // TODO Return a descriptive error again
-    pub fn load_most_recent(&self) -> Result<Sim, std::io::Error> {
-        let (_, load) = self
-            .find_all_savestates()
-            .and_then(|mut list| list.pop().ok_or_else(|| io_error("empty directory")))?;
-        info!("Loading {}", load);
-        abstutil::read_json(&load)
-    }
-
     // Earliest one is first
     fn find_all_savestates(&self) -> Result<Vec<(Tick, String)>, std::io::Error> {
         let mut results: Vec<(Tick, String)> = Vec::new();
@@ -349,6 +339,28 @@ impl Sim {
         }
         results.sort();
         Ok(results)
+    }
+
+    pub fn find_previous_savestate(&self, base_time: Tick) -> Result<String, std::io::Error> {
+        let mut list = self.find_all_savestates()?;
+        // Find the most recent one BEFORE the current time
+        list.reverse();
+        for (tick, path) in list {
+            if tick < base_time {
+                return Ok(path);
+            }
+        }
+        Err(io_error(&format!("no savestate before {}", base_time)))
+    }
+
+    pub fn find_next_savestate(&self, base_time: Tick) -> Result<String, std::io::Error> {
+        let list = self.find_all_savestates()?;
+        for (tick, path) in list {
+            if tick > base_time {
+                return Ok(path);
+            }
+        }
+        Err(io_error(&format!("no savestate after {}", base_time)))
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
