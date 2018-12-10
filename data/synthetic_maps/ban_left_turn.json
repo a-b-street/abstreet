@@ -8,7 +8,8 @@
           "x": 375.2584876887879,
           "y": 394.4733648122756
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": "west"
       }
     ],
     [
@@ -18,7 +19,8 @@
           "x": 426.5473937988281,
           "y": 394.67230224609377
         },
-        "intersection_type": "TrafficSignal"
+        "intersection_type": "TrafficSignal",
+        "label": null
       }
     ],
     [
@@ -28,7 +30,8 @@
           "x": 426.9548681897562,
           "y": 338.6898394428313
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": null
       }
     ],
     [
@@ -38,7 +41,8 @@
           "x": 481.2515387041076,
           "y": 338.6877104503858
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": "east"
       }
     ],
     [
@@ -48,7 +52,8 @@
           "x": 426.9279815253348,
           "y": 456.09920803179929
         },
-        "intersection_type": "Border"
+        "intersection_type": "Border",
+        "label": "south"
       }
     ],
     [
@@ -58,7 +63,8 @@
           "x": 427.35826112518097,
           "y": 285.7304272008598
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": "north"
       }
     ]
   ],

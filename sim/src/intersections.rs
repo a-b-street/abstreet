@@ -152,9 +152,7 @@ impl IntersectionSimState {
                 p.debug = true;
                 println!("{}", abstutil::to_json(map.get_traffic_signal(id)));
             }
-            IntersectionPolicy::Border => {
-                println!("{} has no IntersectionPolicy since it's a border", id);
-            }
+            IntersectionPolicy::Border => {}
         };
     }
 }

@@ -20,6 +20,7 @@ enum State {
     MovingBuilding(BuildingID),
     LabelingBuilding(BuildingID, Wizard),
     LabelingRoad((RoadID, Direction), Wizard),
+    LabelingIntersection(IntersectionID, Wizard),
     CreatingRoad(IntersectionID),
     EditingRoad(RoadID, Wizard),
     SavingModel(Wizard),
@@ -80,6 +81,17 @@ impl GUI<Text> for UI {
                     self.state = State::Viewing;
                 }
             }
+            State::LabelingIntersection(id, ref mut wizard) => {
+                if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
+                    "Label the intersection",
+                    self.model.get_i_label(id).unwrap_or_else(String::new),
+                ) {
+                    self.model.set_i_label(id, label);
+                    self.state = State::Viewing;
+                } else if wizard.aborted() {
+                    self.state = State::Viewing;
+                }
+            }
             State::CreatingRoad(i1) => {
                 if input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
@@ -124,6 +136,8 @@ impl GUI<Text> for UI {
                         self.model.remove_i(i);
                     } else if input.key_pressed(Key::T, "toggle intersection type") {
                         self.model.toggle_i_type(i);
+                    } else if input.key_pressed(Key::L, "label intersection") {
+                        self.state = State::LabelingIntersection(i, Wizard::new());
                     }
                 } else if let Some(b) = self.model.mouseover_building(cursor) {
                     if input.key_pressed(Key::LCtrl, "move building") {
@@ -185,6 +199,7 @@ impl GUI<Text> for UI {
             }
             State::LabelingBuilding(_, ref wizard)
             | State::LabelingRoad(_, ref wizard)
+            | State::LabelingIntersection(_, ref wizard)
             | State::EditingRoad(_, ref wizard)
             | State::SavingModel(ref wizard) => {
                 wizard.draw(g, &self.canvas);

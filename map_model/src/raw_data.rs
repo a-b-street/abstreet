@@ -88,6 +88,7 @@ pub struct Intersection {
     pub elevation: si::Meter<f64>,
     // A raw Intersection can be forced into being a Border.
     pub intersection_type: IntersectionType,
+    pub label: Option<String>,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]

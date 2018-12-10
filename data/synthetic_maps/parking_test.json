@@ -8,7 +8,8 @@
           "x": 288.5454406738281,
           "y": 486.2385864257813
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": null
       }
     ],
     [
@@ -18,7 +19,8 @@
           "x": 512.0357055664063,
           "y": 486.63079833984377
         },
-        "intersection_type": "StopSign"
+        "intersection_type": "StopSign",
+        "label": null
       }
     ]
   ],

@@ -36,6 +36,7 @@ pub struct Intersection {
     pub elevation: si::Meter<f64>,
 
     pub intersection_type: IntersectionType,
+    pub label: Option<String>,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?

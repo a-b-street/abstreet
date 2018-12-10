@@ -109,6 +109,7 @@ impl Map {
                 elevation: i.elevation,
                 // Might change later
                 intersection_type: i.intersection_type,
+                label: i.label.clone(),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: BTreeSet::new(),
@@ -626,6 +627,15 @@ impl Map {
     }
 
     // TODO reconsider names, or put somewhere else?
+    pub fn intersection(&self, label: &str) -> IntersectionID {
+        for i in &self.intersections {
+            if i.label == Some(label.to_string()) {
+                return i.id;
+            }
+        }
+        panic!("No intersection has label {}", label);
+    }
+
     pub fn bldg(&self, label: &str) -> BuildingID {
         for b in &self.buildings {
             if b.osm_tags.get("label") == Some(&label.to_string()) {

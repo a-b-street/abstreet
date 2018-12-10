@@ -45,6 +45,7 @@ pub struct Model {
 pub struct Intersection {
     center: Pt2D,
     intersection_type: IntersectionType,
+    label: Option<String>,
 }
 
 impl Intersection {
@@ -200,6 +201,12 @@ impl Model {
                 }
             };
             g.draw_circle(color, &i.circle());
+
+            if let Some(ref label) = i.label {
+                let mut txt = Text::new();
+                txt.add_line(label.to_string());
+                canvas.draw_text_at(g, txt, i.center);
+            }
         }
 
         for (id, b) in &self.buildings {
@@ -261,6 +268,7 @@ impl Model {
                 point: pt(i.center),
                 elevation: 0.0 * si::M,
                 intersection_type: i.intersection_type,
+                label: i.label.clone(),
             });
         }
 
@@ -294,12 +302,21 @@ impl Model {
             Intersection {
                 center,
                 intersection_type: IntersectionType::StopSign,
+                label: None,
             },
         );
     }
 
     pub fn move_i(&mut self, id: IntersectionID, center: Pt2D) {
         self.intersections.get_mut(&id).unwrap().center = center;
+    }
+
+    pub fn set_i_label(&mut self, id: IntersectionID, label: String) {
+        self.intersections.get_mut(&id).unwrap().label = Some(label);
+    }
+
+    pub fn get_i_label(&self, id: IntersectionID) -> Option<String> {
+        self.intersections[&id].label.clone()
     }
 
     pub fn toggle_i_type(&mut self, id: IntersectionID) {
