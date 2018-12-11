@@ -41,10 +41,11 @@ impl DrawTurn {
     }
 
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-        g.draw_polygon(
-            color,
-            &t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS).unwrap(),
-        );
+        if let Some(p) = t.geom.make_polygons(2.0 * BIG_ARROW_THICKNESS) {
+            g.draw_polygon(color, &p);
+        } else {
+            error!("Couldn't draw_full {} with geometry {}", t.id, t.geom);
+        }
         // And a cap on the arrow
         g.draw_rounded_arrow(
             color,

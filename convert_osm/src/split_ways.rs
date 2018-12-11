@@ -37,6 +37,7 @@ pub fn split_up_roads(input: &raw_data::Map, elevation: &srtm::Elevation) -> raw
             point: LonLat::new(pt.x(), pt.y()),
             elevation: elevation.get(pt.x(), pt.y()) * si::M,
             intersection_type: IntersectionType::StopSign,
+            label: None,
         });
     }
 

@@ -200,20 +200,22 @@ impl Map {
             }
         }
 
-        // TODO gathering results and assigning later is super gross mutability pattern
-        let mut intersection_polygons: Vec<Vec<Pt2D>> = Vec::new();
+        for i in m.intersections.iter_mut() {
+            // Is the intersection a border?
+            if is_border(i, &m.lanes) {
+                i.intersection_type = IntersectionType::Border;
+            }
+        }
+
         timer.start_iter("find each intersection polygon", m.intersections.len());
-        for i in &m.intersections {
+        for i in m.intersections.iter_mut() {
             timer.next();
 
             if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
                 panic!("{:?} is orphaned!", i);
             }
 
-            intersection_polygons.push(make::intersection_polygon(i, &m.roads));
-        }
-        for (idx, p) in intersection_polygons.into_iter().enumerate() {
-            m.intersections[idx].polygon = p;
+            i.polygon = make::intersection_polygon(i, &m.roads);
         }
 
         timer.start_iter("trim lanes at each intersection", m.intersections.len());
@@ -222,12 +224,19 @@ impl Map {
             make::trim_lines(&mut m.lanes, i);
         }
 
-        for i in 0..m.intersections.len() {
-            // Is the intersection a border?
-            if is_border(&m.intersections[i], &m) {
-                m.intersections[i].intersection_type = IntersectionType::Border;
+        for i in m.intersections.iter_mut() {
+            for t in make::make_all_turns(i, &m.roads.iter().collect(), &m.lanes.iter().collect()) {
+                assert!(!m.turns.contains_key(&t.id));
+                i.turns.push(t.id);
+                m.turn_lookup.push(t.id);
+                m.turns.insert(t.id, t);
             }
         }
+        for (idx, t) in m.turns.values_mut().enumerate() {
+            t.lookup_idx = idx;
+        }
+
+        // TODO Merge intersections
 
         let (stops, routes) =
             make::make_bus_stops(&m, &data.bus_routes, &gps_bounds, &bounds, timer);
@@ -235,20 +244,6 @@ impl Map {
         // The IDs are sorted in the BTreeMap, so this order winds up correct.
         for id in m.bus_stops.keys() {
             m.lanes[id.sidewalk.0].bus_stops.push(*id);
-        }
-
-        for i in &m.intersections {
-            for t in make::make_all_turns(i, &m) {
-                assert!(!m.turns.contains_key(&t.id));
-                m.turns.insert(t.id, t);
-            }
-        }
-        for (idx, t) in m.turns.values_mut().enumerate() {
-            t.lookup_idx = idx;
-        }
-        for t in m.turns.values() {
-            m.intersections[t.id.parent.0].turns.push(t.id);
-            m.turn_lookup.push(t.id);
         }
 
         let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
@@ -337,7 +332,11 @@ impl Map {
             }
             self.intersections[i.0].turns.clear();
 
-            for t in make::make_all_turns(self.get_i(i), &self) {
+            for t in make::make_all_turns(
+                self.get_i(i),
+                &self.roads.iter().collect(),
+                &self.lanes.iter().collect(),
+            ) {
                 // TODO ahh need to dedupe
                 self.intersections[i.0].turns.push(t.id);
                 self.turns.insert(t.id, t);
@@ -682,7 +681,7 @@ impl Map {
     }
 }
 
-fn is_border(intersection: &Intersection, map: &Map) -> bool {
+fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
     // Raw data said it is.
     if intersection.intersection_type == IntersectionType::Border {
         if !intersection.is_dead_end() {
@@ -700,10 +699,10 @@ fn is_border(intersection: &Intersection, map: &Map) -> bool {
     let has_driving_in = intersection
         .incoming_lanes
         .iter()
-        .any(|l| map.get_l(*l).is_driving());
+        .any(|l| lanes[l.0].is_driving());
     let has_driving_out = intersection
         .outgoing_lanes
         .iter()
-        .any(|l| map.get_l(*l).is_driving());
+        .any(|l| lanes[l.0].is_driving());
     has_driving_in != has_driving_out
 }

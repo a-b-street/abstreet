@@ -218,6 +218,16 @@ Cool, good enough to start. whew.
 - TODO: https://data-seattlecitygis.opendata.arcgis.com/datasets/channelization
 
 - https://data-seattlecitygis.opendata.arcgis.com/datasets/street-signs
+	- could figure out stop sign orientation from this
+
+- https://data.seattle.gov/dataset/Street-Pavement-Edge-1999/rm29-895w
+	- good base geometry
+
+- https://data.seattle.gov/Transportation/Traffic-Lanes/v5x7-g7qz
+	- some streets missing
+	- info on turn lanes
+
+- https://data.seattle.gov/Transportation/Intersections/e7db-mhd7
 
 ## Speeding up map loading
 

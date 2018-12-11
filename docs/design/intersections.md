@@ -131,7 +131,28 @@ Ah, the problem with just extending geometry... I think turns need to be
 polylines sometimes. Need to do the merging all the way at the end,
 unfortunately...
 
-## Nicer turn geometry
+### Attempt v2
 
-Take the current turn-as-a-line thing, make it a box, and use that corner as a
-control point or something for a curve.
+Could use https://data.seattle.gov/Transportation/Intersections/e7db-mhd7 as a
+source of truth? Match all OSM intersections to one of these.
+
+Shelby and 23rd...
+- want a big intersection to cover the two tiny horizontal roads
+- want to glue turns together from the original things (turn+lane+turn)
+
+- input is still a tiny road to collapse.
+- the two intersections it's connected to will logically become one
+- redo the intersection and lane geometry
+- use the original turns to create composites and just use those; dont recalculate turns
+
+- probably need a HalfMap (in between raw and Map) or something. the order...
+	- raw intersections -> real intersections
+	- raw roads -> real roads and intersections
+	- assign border intersections
+	- make the intersection polygons
+	- trim lanes
+	- populate turns
+
+	- then do the merging magic
+
+	- ... rest of map construction proceeds
