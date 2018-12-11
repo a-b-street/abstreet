@@ -245,6 +245,12 @@ impl UI {
 
             kml,
         };
+        // TODO Hacktastic way of sneaking this in!
+        if ui.primary.current_flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
+            ui.plugins
+                .list
+                .push(Box::new(plugins::tutorial::TutorialMode::new()));
+        }
 
         match abstutil::read_json::<EditorState>("editor_state") {
             Ok(ref state) if ui.primary.map.get_name() == &state.map_name => {

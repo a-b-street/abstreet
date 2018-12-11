@@ -3,6 +3,7 @@ pub mod edit;
 pub mod logs;
 pub mod sim;
 pub mod time_travel;
+pub mod tutorial;
 pub mod view;
 
 use crate::objects::{Ctx, ID};
