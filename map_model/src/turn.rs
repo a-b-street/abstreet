@@ -62,7 +62,7 @@ pub enum TurnPriority {
     Priority,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Turn {
     pub id: TurnID,
     pub turn_type: TurnType,

@@ -226,7 +226,7 @@ fn merge_intersections(mut m: HalfMap) -> HalfMap {
     m.intersections.push(Intersection {
         id: new_i,
         point: m.intersections[old_i1.0].point,
-        polygon: m.intersections[old_i1.0].polygon.clone(), // TODO tmp
+        polygon: Vec::new(),
         turns: Vec::new(),
         elevation: m.intersections[old_i1.0].elevation,
         intersection_type: m.intersections[old_i1.0].intersection_type,
@@ -238,7 +238,7 @@ fn merge_intersections(mut m: HalfMap) -> HalfMap {
 
     // For all of the connected roads and children lanes of the old intersections
     //      - Fix up the references to/from the intersection
-    //      - Reset the lane_center_pts to the original unshifted thing
+    //      - TODO Reset the lane_center_pts to the original unshifted thing
     for old_i in vec![old_i1, old_i2] {
         for r_id in m.intersections[old_i.0].roads.clone() {
             if r_id == delete_r {
@@ -275,11 +275,63 @@ fn merge_intersections(mut m: HalfMap) -> HalfMap {
     }
 
     // Find the intersection polygon again
-    // Trim the lanes again
+    // TODO It sucks.
+    {
+        let i = &mut m.intersections[new_i.0];
+        if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
+            panic!("{:?} is orphaned!", i);
+        }
 
-    // Populate the intersection with turns constructed from the old thing
-    //      TODO the new intersection polygon might change turns that shouldn't really be affected
-    //      (from and to a lane that wasn't deleted)
+        i.polygon = make::intersections::intersection_polygon(i, &m.roads);
+    }
+    // TODO Trim the lanes again
+
+    // Populate the intersection with turns constructed from the old turns
+    for old_i in vec![old_i1, old_i2] {
+        for id in m.intersections[old_i.0].turns.clone() {
+            let orig_turn = &m.turns[&id];
+
+            // Skip turns starting in the middle of the intersection.
+            if delete_lanes.contains(&orig_turn.id.src) {
+                continue;
+            }
+
+            let mut new_turn = orig_turn.clone();
+            new_turn.id.parent = new_i;
+
+            // The original turn never crossed the deleted road. Preserve its geometry.
+            // TODO But what if the intersection polygon changed and made lane trimmed lines change
+            // and so the turn geometry should change?
+            if !delete_lanes.contains(&new_turn.id.dst) {
+                m.intersections[new_i.0].turns.push(new_turn.id);
+                m.turns.insert(new_turn.id, new_turn);
+                continue;
+            }
+
+            if new_turn.between_sidewalks() {
+                // TODO Handle this. Gets weird because of bidirectionality.
+                continue;
+            }
+
+            // Make new composite turns! All of them will include the deleted lane's geometry.
+            new_turn
+                .geom
+                .extend(m.lanes[new_turn.id.dst.0].lane_center_pts.clone());
+
+            let other_old_i = if old_i == old_i1 { old_i2 } else { old_i1 };
+            for t in m.intersections[other_old_i.0].turns.clone() {
+                if t.src != new_turn.id.dst {
+                    continue;
+                }
+                let mut composite_turn = new_turn.clone();
+                composite_turn.id.dst = t.dst;
+                composite_turn.geom.extend(m.turns[&t].geom.clone());
+                // TODO Fiddle with turn_type
+                m.intersections[new_i.0].turns.push(composite_turn.id);
+                m.turns.insert(composite_turn.id, composite_turn);
+            }
+        }
+    }
 
     // Actually delete and compact stuff...
     for t in delete_turns {

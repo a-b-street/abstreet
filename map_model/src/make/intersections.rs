@@ -13,8 +13,8 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 // carves up part of that space, doesn't reach past it.
 pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
-    // the road), both with an endpoint at i.point, and the angle of the last segment of the center
-    // line.
+    // the road), both ending at the intersection (which may be different points for merged
+    // intersections!), and the angle of the last segment of the center line.
     let mut lines: Vec<(RoadID, Angle, PolyLine, PolyLine)> = i
         .roads
         .iter()
@@ -39,6 +39,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
 
     // Sort the polylines by the angle of their last segment.
     // TODO This might break weirdly for polylines with very short last lines!
+    // TODO This definitely can break for merged intersections. To get the lines "in order", maybe
+    // we have to look at all the endpoints and sort by angle from the center of the points?
     lines.sort_by_key(|(_, angle, _, _)| angle.normalized_degrees() as i64);
 
     // Special cases for degenerate intersections.
