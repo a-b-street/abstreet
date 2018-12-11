@@ -195,7 +195,16 @@ fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
 }
 
 fn merge_intersections(mut m: HalfMap) -> HalfMap {
-    let delete_r = RoadID(428);
+    //m = merge_intersection(RoadID(428), m);
+    //m = merge_intersection(RoadID(422), m);
+
+    m = merge_intersection(RoadID(422), m);
+    m = merge_intersection(RoadID(427), m);
+
+    m
+}
+
+fn merge_intersection(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
     let old_i1 = m.roads[delete_r.0].src_i;
     let old_i2 = m.roads[delete_r.0].dst_i;
 
