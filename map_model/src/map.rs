@@ -63,15 +63,11 @@ impl Map {
 
     pub fn create_from_raw(
         name: String,
-        mut data: raw_data::Map,
+        data: raw_data::Map,
         edits: MapEdits,
         timer: &mut Timer,
     ) -> Map {
         timer.start("raw_map to Map");
-
-        if false {
-            make::merge_intersections(&mut data, timer);
-        }
 
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
@@ -99,8 +95,6 @@ impl Map {
             t.lookup_idx = m.turn_lookup.len();
             m.turn_lookup.push(t.id);
         }
-
-        // TODO Merge intersections
 
         let (stops, routes) =
             make::make_bus_stops(&m, &data.bus_routes, &gps_bounds, &bounds, timer);
