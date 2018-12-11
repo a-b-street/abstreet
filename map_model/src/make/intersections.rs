@@ -11,7 +11,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
-pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
+pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road), both ending at the intersection (which may be different points for merged
     // intersections!), and the angle of the last segment of the center line.
@@ -149,15 +149,21 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     endpoints
 }
 
-// Different approach for merged intersections, based on lane lines already trimmed previously.
-pub fn merged_intersection_polygon(i: &Intersection, lanes: &Vec<Lane>) -> Vec<Pt2D> {
+// Make a polygon based on the end of each lane polygon. The lanes are trimmed based on
+// initial_intersection_polygon; this is a second pass. It's necessary for merged intersections,
+// but makes all intersections look really nice.
+pub fn toothy_intersection_polygon(i: &Intersection, lanes: &Vec<Lane>) -> Vec<Pt2D> {
     let mut pts: Vec<Pt2D> = Vec::new();
-    // TODO Use endpoints of the thick lane
+    // Use the endpoints of each lane's polygon, which look like teeth next to each other.
     for l in &i.incoming_lanes {
-        pts.push(lanes[l.0].last_pt());
+        let line = lanes[l.0].last_line();
+        pts.push(line.shift(LANE_THICKNESS / 2.0).pt2());
+        pts.push(line.reverse().shift(LANE_THICKNESS / 2.0).pt1());
     }
     for l in &i.outgoing_lanes {
-        pts.push(lanes[l.0].first_pt());
+        let line = lanes[l.0].first_line().reverse();
+        pts.push(line.shift(LANE_THICKNESS / 2.0).pt2());
+        pts.push(line.reverse().shift(LANE_THICKNESS / 2.0).pt1());
     }
 
     let center = Pt2D::center(&pts);

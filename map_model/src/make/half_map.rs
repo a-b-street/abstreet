@@ -146,7 +146,7 @@ pub fn make_half_map(
             panic!("{:?} is orphaned!", i);
         }
 
-        i.polygon = make::intersections::intersection_polygon(i, &m.roads);
+        i.polygon = make::intersections::initial_intersection_polygon(i, &m.roads);
     }
 
     timer.start_iter("trim lanes at each intersection", m.intersections.len());
@@ -165,7 +165,18 @@ pub fn make_half_map(
         }
     }
 
-    merge_intersections(m)
+    m = merge_intersections(m);
+
+    // Recalculate all intersection polygons again, using the lanes' "teeth" this time.
+    for i in m.intersections.iter_mut() {
+        if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
+            panic!("{:?} is orphaned!", i);
+        }
+
+        i.polygon = make::intersections::toothy_intersection_polygon(i, &m.lanes);
+    }
+
+    m
 }
 
 fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
@@ -280,17 +291,6 @@ fn merge_intersection(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                 }
             }
         }
-    }
-
-    // Find the intersection polygon again. Calculate it from the lane center pts this time, which
-    // were previously trimmed based on the original intersection polygons.
-    {
-        let i = &mut m.intersections[new_i.0];
-        if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
-            panic!("{:?} is orphaned!", i);
-        }
-
-        i.polygon = make::intersections::merged_intersection_polygon(i, &m.lanes);
     }
 
     // Populate the intersection with turns constructed from the old turns
