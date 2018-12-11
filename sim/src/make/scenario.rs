@@ -229,7 +229,7 @@ impl Scenario {
                         );
                     }
                 }
-            } else {
+            } else if s.num_peds > 0 {
                 warn!(
                     "Can't start_at_border for {} without sidewalk",
                     s.start_from_border
@@ -257,7 +257,7 @@ impl Scenario {
                         );
                     }
                 }
-            } else {
+            } else if s.num_cars > 0 {
                 warn!("Can't start car at border for {}", s.start_from_border);
             }
 
@@ -286,7 +286,7 @@ impl Scenario {
                         );
                     }
                 }
-            } else {
+            } else if s.num_bikes > 0 {
                 warn!("Can't start bike at border for {}", s.start_from_border);
             }
         }
