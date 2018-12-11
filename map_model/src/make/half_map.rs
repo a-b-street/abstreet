@@ -236,9 +236,8 @@ fn merge_intersections(mut m: HalfMap) -> HalfMap {
         roads: BTreeSet::new(),
     });
 
-    // For all of the connected roads and children lanes of the old intersections
-    //      - Fix up the references to/from the intersection
-    //      - TODO Reset the lane_center_pts to the original unshifted thing
+    // For all of the connected roads and children lanes of the old intersections, fix up the
+    // references to/from the intersection
     for old_i in vec![old_i1, old_i2] {
         for r_id in m.intersections[old_i.0].roads.clone() {
             if r_id == delete_r {
@@ -274,17 +273,16 @@ fn merge_intersections(mut m: HalfMap) -> HalfMap {
         }
     }
 
-    // Find the intersection polygon again
-    // TODO It sucks.
+    // Find the intersection polygon again. Calculate it from the lane center pts this time, which
+    // were previously trimmed based on the original intersection polygons.
     {
         let i = &mut m.intersections[new_i.0];
         if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
             panic!("{:?} is orphaned!", i);
         }
 
-        i.polygon = make::intersections::intersection_polygon(i, &m.roads);
+        i.polygon = make::intersections::merged_intersection_polygon(i, &m.lanes);
     }
-    // TODO Trim the lanes again
 
     // Populate the intersection with turns constructed from the old turns
     for old_i in vec![old_i1, old_i2] {

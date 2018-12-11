@@ -1,4 +1,4 @@
-use crate::{Intersection, Road, RoadID, LANE_THICKNESS};
+use crate::{Intersection, Lane, Road, RoadID, LANE_THICKNESS};
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, PolyLine, Pt2D};
@@ -147,4 +147,22 @@ pub fn intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     // Close off the polygon
     endpoints.push(endpoints[0]);
     endpoints
+}
+
+// Different approach for merged intersections, based on lane lines already trimmed previously.
+pub fn merged_intersection_polygon(i: &Intersection, lanes: &Vec<Lane>) -> Vec<Pt2D> {
+    let mut pts: Vec<Pt2D> = Vec::new();
+    // TODO Use endpoints of the thick lane
+    for l in &i.incoming_lanes {
+        pts.push(lanes[l.0].last_pt());
+    }
+    for l in &i.outgoing_lanes {
+        pts.push(lanes[l.0].first_pt());
+    }
+
+    let center = Pt2D::center(&pts);
+    pts.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
+    // Close off the polygon
+    pts.push(pts[0]);
+    pts
 }
