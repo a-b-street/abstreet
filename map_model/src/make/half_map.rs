@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{GPSBounds, HashablePt2D, PolyLine, Pt2D};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 pub struct HalfMap {
     pub roads: Vec<Road>,
@@ -165,7 +165,7 @@ pub fn make_half_map(
         }
     }
 
-    m
+    merge_intersections(m)
 }
 
 fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
@@ -192,4 +192,177 @@ fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
         .iter()
         .any(|l| lanes[l.0].is_driving());
     has_driving_in != has_driving_out
+}
+
+fn merge_intersections(mut m: HalfMap) -> HalfMap {
+    let delete_r = RoadID(428);
+    let old_i1 = m.roads[delete_r.0].src_i;
+    let old_i2 = m.roads[delete_r.0].dst_i;
+
+    let mut delete_roads: HashSet<RoadID> = HashSet::new();
+    let mut delete_lanes: HashSet<LaneID> = HashSet::new();
+    let mut delete_intersections: HashSet<IntersectionID> = HashSet::new();
+    let mut delete_turns: HashSet<TurnID> = HashSet::new();
+
+    // Delete the road
+    delete_roads.insert(delete_r);
+    // Delete all of its children lanes
+    for (id, _) in &m.roads[delete_r.0].children_forwards {
+        delete_lanes.insert(*id);
+    }
+    for (id, _) in &m.roads[delete_r.0].children_backwards {
+        delete_lanes.insert(*id);
+    }
+    // Delete the two connected intersections
+    delete_intersections.insert(old_i1);
+    delete_intersections.insert(old_i2);
+    // Delete all of the turns from the two intersections
+    delete_turns.extend(m.intersections[old_i1.0].turns.clone());
+    delete_turns.extend(m.intersections[old_i2.0].turns.clone());
+
+    // Make a new intersection to replace the two old ones
+    // TODO Arbitrarily take point, elevation, type, label from one of the old intersections.
+    let new_i = IntersectionID(m.intersections.len());
+    m.intersections.push(Intersection {
+        id: new_i,
+        point: m.intersections[old_i1.0].point,
+        polygon: m.intersections[old_i1.0].polygon.clone(), // TODO tmp
+        turns: Vec::new(),
+        elevation: m.intersections[old_i1.0].elevation,
+        intersection_type: m.intersections[old_i1.0].intersection_type,
+        label: m.intersections[old_i1.0].label.clone(),
+        incoming_lanes: Vec::new(),
+        outgoing_lanes: Vec::new(),
+        roads: BTreeSet::new(),
+    });
+
+    // For all of the connected roads and children lanes of the old intersections
+    //      - Fix up the references to/from the intersection
+    //      - Reset the lane_center_pts to the original unshifted thing
+    for old_i in vec![old_i1, old_i2] {
+        for r_id in m.intersections[old_i.0].roads.clone() {
+            if r_id == delete_r {
+                continue;
+            }
+            m.intersections[new_i.0].roads.insert(r_id);
+
+            let r = &mut m.roads[r_id.0];
+            if r.src_i == old_i {
+                // Outgoing from old_i
+                r.src_i = new_i;
+                for (l, _) in &r.children_forwards {
+                    m.lanes[l.0].src_i = new_i;
+                    m.intersections[new_i.0].outgoing_lanes.push(*l);
+                }
+                for (l, _) in &r.children_backwards {
+                    m.lanes[l.0].dst_i = new_i;
+                    m.intersections[new_i.0].incoming_lanes.push(*l);
+                }
+            } else {
+                assert_eq!(r.dst_i, old_i);
+                // Incoming to old_i
+                r.dst_i = new_i;
+                for (l, _) in &r.children_backwards {
+                    m.lanes[l.0].src_i = new_i;
+                    m.intersections[new_i.0].outgoing_lanes.push(*l);
+                }
+                for (l, _) in &r.children_forwards {
+                    m.lanes[l.0].dst_i = new_i;
+                    m.intersections[new_i.0].incoming_lanes.push(*l);
+                }
+            }
+        }
+    }
+
+    // Find the intersection polygon again
+    // Trim the lanes again
+
+    // Populate the intersection with turns constructed from the old thing
+    //      TODO the new intersection polygon might change turns that shouldn't really be affected
+    //      (from and to a lane that wasn't deleted)
+
+    // Actually delete and compact stuff...
+    for t in delete_turns {
+        m.turns.remove(&t);
+    }
+
+    let mut rename_roads: HashMap<RoadID, RoadID> = HashMap::new();
+    let mut keep_roads: Vec<Road> = Vec::new();
+    for r in m.roads.drain(0..) {
+        if delete_roads.contains(&r.id) {
+            continue;
+        }
+        rename_roads.insert(r.id, RoadID(keep_roads.len()));
+        keep_roads.push(r);
+    }
+    m.roads = keep_roads;
+
+    let mut rename_lanes: HashMap<LaneID, LaneID> = HashMap::new();
+    let mut keep_lanes: Vec<Lane> = Vec::new();
+    for l in m.lanes.drain(0..) {
+        if delete_lanes.contains(&l.id) {
+            continue;
+        }
+        rename_lanes.insert(l.id, LaneID(keep_lanes.len()));
+        keep_lanes.push(l);
+    }
+    m.lanes = keep_lanes;
+
+    let mut rename_intersections: HashMap<IntersectionID, IntersectionID> = HashMap::new();
+    let mut keep_intersections: Vec<Intersection> = Vec::new();
+    for i in m.intersections.drain(0..) {
+        if delete_intersections.contains(&i.id) {
+            continue;
+        }
+        rename_intersections.insert(i.id, IntersectionID(keep_intersections.len()));
+        keep_intersections.push(i);
+    }
+    m.intersections = keep_intersections;
+
+    // Fix up IDs everywhere
+    for r in m.roads.iter_mut() {
+        r.id = rename_roads[&r.id];
+        for (l, _) in r.children_forwards.iter_mut() {
+            *l = rename_lanes[l];
+        }
+        for (l, _) in r.children_backwards.iter_mut() {
+            *l = rename_lanes[l];
+        }
+        r.src_i = rename_intersections[&r.src_i];
+        r.dst_i = rename_intersections[&r.dst_i];
+    }
+    for l in m.lanes.iter_mut() {
+        l.id = rename_lanes[&l.id];
+        l.parent = rename_roads[&l.parent];
+        l.src_i = rename_intersections[&l.src_i];
+        l.dst_i = rename_intersections[&l.dst_i];
+    }
+    for i in m.intersections.iter_mut() {
+        i.id = rename_intersections[&i.id];
+        for t in i.turns.iter_mut() {
+            t.parent = rename_intersections[&t.parent];
+            t.src = rename_lanes[&t.src];
+            t.dst = rename_lanes[&t.dst];
+        }
+        for l in i.incoming_lanes.iter_mut() {
+            *l = rename_lanes[l];
+        }
+        for l in i.outgoing_lanes.iter_mut() {
+            *l = rename_lanes[l];
+        }
+        i.roads = i.roads.iter().map(|r| rename_roads[r]).collect();
+    }
+    let mut new_turns: BTreeMap<TurnID, Turn> = BTreeMap::new();
+    for (_, mut t) in m.turns.into_iter() {
+        let id = TurnID {
+            parent: rename_intersections[&t.id.parent],
+            src: rename_lanes[&t.id.src],
+            dst: rename_lanes[&t.id.dst],
+        };
+        t.id = id;
+        new_turns.insert(t.id, t);
+    }
+    m.turns = new_turns;
+
+    m
 }

@@ -147,7 +147,7 @@ Shelby and 23rd...
 
 - probably need a HalfMap (in between raw and Map) or something. the order...
 	- raw intersections -> real intersections
-	- raw roads -> real roads and intersections
+	- raw roads -> real roads and lanes
 	- assign border intersections
 	- make the intersection polygons
 	- trim lanes
