@@ -154,5 +154,6 @@ Shelby and 23rd...
 	- populate turns
 
 	- then do the merging magic
+	- need to fix up IDs everywhere
 
 	- ... rest of map construction proceeds
