@@ -19,7 +19,6 @@ use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::panic;
 use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
@@ -42,21 +41,67 @@ pub struct UI {
 }
 
 impl GUI<RenderingHints> for UI {
-    fn event(&mut self, input: UserInput) -> (EventLoopMode, RenderingHints) {
-        match panic::catch_unwind(panic::AssertUnwindSafe(|| self.inner_event(input))) {
-            Ok(hints) => (hints.mode, hints),
-            Err(err) => {
-                error!("********************************************************************************");
-                error!("UI broke! Primary sim:");
-                self.primary.sim.dump_before_abort();
-                if let Some((s, _)) = &self.secondary {
-                    error!("Secondary sim:");
-                    s.sim.dump_before_abort();
+    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, RenderingHints) {
+        let mut hints = RenderingHints {
+            mode: EventLoopMode::InputOnly,
+            osd: Text::new(),
+            suppress_intersection_icon: None,
+            color_crosswalks: HashMap::new(),
+            hide_crosswalks: HashSet::new(),
+            hide_turn_icons: HashSet::new(),
+        };
+
+        // First update the camera and handle zoom
+        let old_zoom = self.canvas.cam_zoom;
+        self.canvas.handle_event(&mut input);
+        let new_zoom = self.canvas.cam_zoom;
+        self.primary_plugins
+            .layers_mut()
+            .handle_zoom(old_zoom, new_zoom);
+
+        // Always handle mouseover
+        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+            self.primary.current_selection = None;
+        }
+        if !self.canvas.is_dragging()
+            && input.get_moved_mouse().is_some()
+            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+        {
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        // If there's an active plugin, just run it.
+        if let Some(idx) = self.active_plugin {
+            if !self.run_plugin(idx, &mut input, &mut hints) {
+                self.active_plugin = None;
+            }
+        } else {
+            // Run each plugin, short-circuiting if the plugin claimed it was active.
+            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
+                if self.run_plugin(idx, &mut input, &mut hints) {
+                    self.active_plugin = Some(idx);
+                    break;
                 }
-                self.save_editor_state();
-                panic::resume_unwind(err);
             }
         }
+
+        // Can do this at any time.
+        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
+            self.save_editor_state();
+            self.cs.borrow().save();
+            info!("Saved color_scheme");
+            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+            process::exit(0);
+        }
+
+        if self.primary.recalculate_current_selection {
+            self.primary.recalculate_current_selection = false;
+            self.primary.current_selection = self.mouseover_something();
+        }
+
+        input.populate_osd(&mut hints.osd);
+
+        (hints.mode, hints)
     }
 
     fn get_mut_canvas(&mut self) -> &mut Canvas {
@@ -108,6 +153,17 @@ impl GUI<RenderingHints> for UI {
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
+    }
+
+    fn dump_before_abort(&self) {
+        error!("********************************************************************************");
+        error!("UI broke! Primary sim:");
+        self.primary.sim.dump_before_abort();
+        if let Some((s, _)) = &self.secondary {
+            error!("Secondary sim:");
+            s.sim.dump_before_abort();
+        }
+        self.save_editor_state();
     }
 }
 
@@ -279,69 +335,6 @@ impl UI {
         }
 
         ui
-    }
-
-    fn inner_event(&mut self, mut input: UserInput) -> RenderingHints {
-        let mut hints = RenderingHints {
-            mode: EventLoopMode::InputOnly,
-            osd: Text::new(),
-            suppress_intersection_icon: None,
-            color_crosswalks: HashMap::new(),
-            hide_crosswalks: HashSet::new(),
-            hide_turn_icons: HashSet::new(),
-        };
-
-        // First update the camera and handle zoom
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(&mut input);
-        let new_zoom = self.canvas.cam_zoom;
-        self.primary_plugins
-            .layers_mut()
-            .handle_zoom(old_zoom, new_zoom);
-
-        // Always handle mouseover
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.primary.current_selection = None;
-        }
-        if !self.canvas.is_dragging()
-            && input.get_moved_mouse().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
-        {
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        // If there's an active plugin, just run it.
-        if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(idx, &mut input, &mut hints) {
-                self.active_plugin = None;
-            }
-        } else {
-            // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
-                if self.run_plugin(idx, &mut input, &mut hints) {
-                    self.active_plugin = Some(idx);
-                    break;
-                }
-            }
-        }
-
-        // Can do this at any time.
-        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
-            self.save_editor_state();
-            self.cs.borrow().save();
-            info!("Saved color_scheme");
-            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
-            process::exit(0);
-        }
-
-        if self.primary.recalculate_current_selection {
-            self.primary.recalculate_current_selection = false;
-            self.primary.current_selection = self.mouseover_something();
-        }
-
-        input.populate_osd(&mut hints.osd);
-
-        hints
     }
 
     fn mouseover_something(&self) -> Option<ID> {

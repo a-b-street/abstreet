@@ -4,11 +4,14 @@ use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
+use std::panic;
 
 pub trait GUI<T> {
     fn event(&mut self, input: UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     fn draw(&self, g: &mut GfxCtx, data: T);
+    // Will be called if event or draw panics.
+    fn dump_before_abort(&self) {}
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -40,7 +43,16 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     while let Some(ev) = events.next(&mut window) {
-        let (new_event_mode, data) = gui.event(UserInput::new(ev.clone()));
+        let (new_event_mode, data) = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            gui.event(UserInput::new(ev.clone()))
+        })) {
+            Ok(pair) => pair,
+            Err(err) => {
+                gui.dump_before_abort();
+                panic::resume_unwind(err);
+            }
+        };
+
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
             events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
@@ -52,7 +64,12 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 let mut g = GfxCtx::new(&mut glyphs, g, c);
                 gui.get_mut_canvas()
                     .start_drawing(&mut g, window.draw_size());
-                gui.draw(&mut g, data);
+                if let Err(err) =
+                    panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
+                {
+                    gui.dump_before_abort();
+                    panic::resume_unwind(err);
+                }
             });
         }
     }
