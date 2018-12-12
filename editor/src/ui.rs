@@ -16,6 +16,7 @@ use piston::input::Key;
 use serde_derive::{Deserialize, Serialize};
 use sim;
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::panic;
@@ -85,15 +86,10 @@ impl GUI<RenderingHints> for UI {
             self.get_draw_agent_source(),
             self,
         );
-        for obj in statics.into_iter() {
-            let opts = RenderOptions {
-                color: self.color_obj(obj.get_id(), &mut ctx),
-                cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
-            };
-            obj.draw(g, opts, &mut ctx);
-        }
-        for obj in dynamics.into_iter() {
+        for obj in statics
+            .into_iter()
+            .chain(dynamics.iter().map(|obj| Box::new(obj.borrow())))
+        {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id(), &mut ctx),
                 cam_zoom: self.canvas.cam_zoom,
@@ -359,12 +355,11 @@ impl UI {
             self,
         );
         // Check front-to-back
-        for obj in dynamics.into_iter() {
-            if obj.contains_pt(pt) {
-                return Some(obj.get_id());
-            }
-        }
-        for obj in statics.into_iter().rev() {
+        for obj in dynamics
+            .iter()
+            .map(|obj| Box::new(obj.borrow()))
+            .chain(statics.into_iter().rev())
+        {
             if obj.contains_pt(pt) {
                 return Some(obj.get_id());
             }

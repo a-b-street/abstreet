@@ -466,3 +466,26 @@ Ideas:
 	- event() needs to return (AnimationMode, T)
 	- draw takes T
 	- GUI trait becomes generic.
+
+## Finishing the plugin refactor
+
+- time travel needs to be per map
+	- make sure SimMode can handle loading entirely new map or starting an a/btest
+	- diff needs to be per UI
+- are modes exclusive or not? how will tutorial mode work?
+	- UI takes a single Mode or State or something. not multiple. the blocking vs not behavior happens elsewhere. tutorial mode will use this, mixing in View/Debug/Edit/Sim as relevant. plugins per UI vs map is confusing, but that might actually be lifted into this more abstract ui state thing?
+	- could SimMode own primary and secondary? UI shouldn't.
+
+	- do make one plugin for UI that toggles between the others... at least edit and sim exclusion.
+	- can that one thing have some state per map and some per UI? sure. what're the only places that touch that? a/b test editor, map editor, sim controls
+	- just move PluginsPerUI and PluginsPerMap into this one place
+	- PluginCtx stays the same... (but moves to plugins/mod)
+	- and the single plugin that UI talks to is a totally new trait with different context. ;)
+	- UI will need to reach into this single plugin for different stuff.
+
+
+
+
+First simplify UI in smaller ways.
+- get_objects_onscreen should return one list of things
+	- and between drawing and mousing over, dont recalculate all of the DrawCar/Ped stuff!
