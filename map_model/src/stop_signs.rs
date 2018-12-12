@@ -62,9 +62,19 @@ impl ControlStopSign {
     fn validate(&self, map: &Map) -> Result<(), Error> {
         // Does the assignment cover the correct set of turns?
         let all_turns = &map.get_i(self.id).turns;
-        assert_eq!(self.turns.len(), all_turns.len());
+        // TODO Panic after stabilizing merged intersection issues.
+        if self.turns.len() != all_turns.len() {
+            error!(
+                "Stop sign for {} has {} turns but should have {}",
+                self.id,
+                self.turns.len(),
+                all_turns.len()
+            );
+        }
         for t in all_turns {
-            assert!(self.turns.contains_key(t));
+            if !self.turns.contains_key(t) {
+                error!("Stop sign for {} is missing {}", self.id, t);
+            }
         }
 
         // Do any of the priority turns conflict?

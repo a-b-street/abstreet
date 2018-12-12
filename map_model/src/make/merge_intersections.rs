@@ -11,29 +11,27 @@ const MIN_ROAD_LENGTH: si::Meter<f64> = si::Meter {
 };
 
 pub fn merge_intersections(mut m: HalfMap, timer: &mut Timer) -> HalfMap {
-    m = merge(RoadID(422), m);
-    m = merge(RoadID(427), m);
+    timer.start_iter("merge short roads", m.roads.len());
 
-    // TODO Hits a bug. Figure it out next.
-    if false {
-        timer.start_iter("merge short roads", m.roads.len());
-
-        let mut merged = 0;
-        for i in 0..m.roads.len() {
-            timer.next();
-            // We destroy roads and shorten this list as we go. Don't break, so the timer finishes.
-            if i >= m.roads.len() {
-                continue;
-            }
-
-            if m.roads[i].center_pts.length() < MIN_ROAD_LENGTH {
-                m = merge(RoadID(i), m);
-                merged += 1;
-            }
+    let mut merged = 0;
+    for i in 0..m.roads.len() {
+        timer.next();
+        // We destroy roads and shorten this list as we go. Don't break, so the timer finishes.
+        if i >= m.roads.len() {
+            continue;
         }
 
-        info!("Merged {} short roads", merged);
+        let r = &m.roads[i];
+        if r.center_pts.length() < MIN_ROAD_LENGTH
+            && !m.intersections[r.src_i.0].is_dead_end()
+            && !m.intersections[r.dst_i.0].is_dead_end()
+        {
+            m = merge(RoadID(i), m);
+            merged += 1;
+        }
     }
+
+    info!("Merged {} short roads", merged);
 
     m
 }
