@@ -105,8 +105,10 @@ impl GUI<RenderingHints> for UI {
         if let Some(p) = self.get_active_plugin() {
             p.draw(g, &mut ctx);
         } else {
-            // If no other mode was active, give the ambient plugins in ViewMode a chance.
+            // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
+            // chance.
             self.primary_plugins.view_mode().draw(g, &mut ctx);
+            self.plugins.sim_mode().draw(g, &mut ctx);
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
@@ -215,6 +217,10 @@ struct PluginsPerUI {
 impl PluginsPerUI {
     fn edit_mode(&self) -> &EditMode {
         self.list[0].downcast_ref::<EditMode>().unwrap()
+    }
+
+    fn sim_mode(&self) -> &Box<Plugin> {
+        &self.list[1]
     }
 }
 

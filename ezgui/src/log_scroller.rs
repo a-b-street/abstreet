@@ -40,7 +40,7 @@ impl LogScroller {
     pub fn event(&mut self, input: &mut UserInput) -> bool {
         let ev = input.use_event_directly().clone();
 
-        if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
+        if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
             return true;
         }
 

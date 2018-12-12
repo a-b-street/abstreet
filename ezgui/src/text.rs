@@ -15,7 +15,7 @@ pub const LINE_HEIGHT: f64 = 22.0;
 // TODO Totally made up. Should query the font or something.
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct TextSpan {
     text: String,
     fg_color: Color,
@@ -35,7 +35,7 @@ impl TextSpan {
 }
 
 // TODO parse style from markup tags
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Text {
     lines: Vec<Vec<TextSpan>>,
     bg_color: Color,
