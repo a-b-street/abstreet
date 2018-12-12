@@ -390,6 +390,16 @@ no context. So how about this for an alternative:
 	- could a macro help with registration?
 - get() being mutable means we have to use RefCell or propogate mutability in lots of sad places
 
+### Round 2
+
+Alright, the mutability is making some plugin refactoring hard, and I'm
+repeating colors, because it's never safe to refer to some other string that
+might or might not have been populated yet.
+
+Macros don't look like they'll help here.
+
+So time for hacktastic, old-school codegen. Grep. Sadly, I think python is the easiest route. :\
+
 ## Mutex plugins
 
 The state of the world today:
