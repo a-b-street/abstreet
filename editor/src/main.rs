@@ -7,6 +7,7 @@ mod colors;
 mod objects;
 mod plugins;
 mod render;
+mod state;
 mod ui;
 
 use sim::SimFlags;

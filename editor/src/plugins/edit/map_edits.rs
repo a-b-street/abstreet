@@ -1,6 +1,7 @@
 use crate::objects::{Ctx, SIM_SETUP};
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
-use crate::ui::{PerMapUI, PluginsPerMap};
+use crate::state::PluginsPerMap;
+use crate::ui::PerMapUI;
 use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use piston::input::Key;

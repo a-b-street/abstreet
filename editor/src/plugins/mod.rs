@@ -8,7 +8,8 @@ pub mod view;
 
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::ui::{PerMapUI, PluginsPerMap};
+use crate::state::PluginsPerMap;
+use crate::ui::PerMapUI;
 use ::sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;

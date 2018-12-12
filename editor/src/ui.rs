@@ -2,13 +2,9 @@ use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID, ROOT_MENU};
-use crate::plugins;
-use crate::plugins::debug::layers::ToggleableLayers;
-use crate::plugins::debug::DebugMode;
-use crate::plugins::edit::EditMode;
-use crate::plugins::time_travel::TimeTravel;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, RenderOptions};
+use crate::state::{PluginsPerMap, PluginsPerUI};
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
 use map_model::{BuildingID, IntersectionID, LaneID, Map};
@@ -180,33 +176,6 @@ pub struct PerMapUI {
     pub current_flags: SimFlags,
 }
 
-pub struct PluginsPerMap {
-    // Anything that holds onto any kind of ID has to live here!
-    list: Vec<Box<Plugin>>,
-}
-
-impl PluginsPerMap {
-    fn debug_mode(&self) -> &DebugMode {
-        self.list[0].downcast_ref::<DebugMode>().unwrap()
-    }
-
-    fn view_mode(&self) -> &Box<Plugin> {
-        &self.list[1]
-    }
-
-    fn time_travel(&self) -> &TimeTravel {
-        self.list[2].downcast_ref::<TimeTravel>().unwrap()
-    }
-
-    fn layers(&self) -> &ToggleableLayers {
-        &self.list[0].downcast_ref::<DebugMode>().unwrap().layers
-    }
-
-    fn layers_mut(&mut self) -> &mut ToggleableLayers {
-        &mut self.list[0].downcast_mut::<DebugMode>().unwrap().layers
-    }
-}
-
 impl PerMapUI {
     pub fn new(
         flags: SimFlags,
@@ -234,11 +203,6 @@ impl PerMapUI {
         let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
         timer.stop("draw_map");
 
-        let debug_mode = DebugMode::new(&map);
-        let view_mode = plugins::view::ViewMode::new(&map, &draw_map, &mut timer);
-
-        timer.done();
-
         let state = PerMapUI {
             map,
             draw_map,
@@ -248,38 +212,17 @@ impl PerMapUI {
             recalculate_current_selection: false,
             current_flags: flags,
         };
-        let mut plugins = PluginsPerMap {
-            list: vec![
-                Box::new(debug_mode),
-                Box::new(view_mode),
-                Box::new(plugins::time_travel::TimeTravel::new()),
-            ],
-        };
-        plugins.layers_mut().handle_zoom(-1.0, canvas.cam_zoom);
-
+        let plugins = PluginsPerMap::new(&state, canvas, &mut timer);
+        timer.done();
         (state, plugins)
-    }
-}
-
-// aka plugins that don't depend on map
-struct PluginsPerUI {
-    list: Vec<Box<Plugin>>,
-}
-
-impl PluginsPerUI {
-    fn edit_mode(&self) -> &EditMode {
-        self.list[0].downcast_ref::<EditMode>().unwrap()
-    }
-
-    fn sim_mode(&self) -> &Box<Plugin> {
-        &self.list[1]
     }
 }
 
 impl UI {
     pub fn new(flags: SimFlags, kml: Option<String>) -> UI {
-        // Do this first, so anything logged by sim::load isn't lost.
-        let logs = plugins::logs::DisplayLogs::new();
+        // Do this first to trigger the log console initialization, so anything logged by sim::load
+        // isn't lost.
+        let plugins = PluginsPerUI::new(&flags);
 
         let canvas = Canvas::new();
         let (primary, primary_plugins) = PerMapUI::new(flags, &kml, &canvas);
@@ -288,13 +231,7 @@ impl UI {
             primary_plugins,
             secondary: None,
 
-            plugins: PluginsPerUI {
-                list: vec![
-                    Box::new(EditMode::new()),
-                    Box::new(plugins::sim::SimMode::new()),
-                    Box::new(logs),
-                ],
-            },
+            plugins,
 
             active_plugin: None,
 
@@ -303,12 +240,6 @@ impl UI {
 
             kml,
         };
-        // TODO Hacktastic way of sneaking this in!
-        if ui.primary.current_flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
-            ui.plugins
-                .list
-                .push(Box::new(plugins::tutorial::TutorialMode::new()));
-        }
 
         match abstutil::read_json::<EditorState>("editor_state") {
             Ok(ref state) if ui.primary.map.get_name() == &state.map_name => {
