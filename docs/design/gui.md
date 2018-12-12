@@ -489,3 +489,5 @@ Ideas:
 First simplify UI in smaller ways.
 - get_objects_onscreen should return one list of things
 	- and between drawing and mousing over, dont recalculate all of the DrawCar/Ped stuff!
+
+- stop doing the generic plugin stuff in UI. be direct, since we have very few "plugins".

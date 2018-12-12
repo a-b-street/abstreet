@@ -7,7 +7,7 @@ use crate::plugins::debug::layers::ToggleableLayers;
 use crate::plugins::debug::DebugMode;
 use crate::plugins::edit::EditMode;
 use crate::plugins::time_travel::TimeTravel;
-use crate::plugins::Plugin;
+use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, RenderOptions};
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
@@ -465,17 +465,4 @@ impl ShowTurnIcons for UI {
                 }
             }
     }
-}
-
-// This mirrors many, but not all, of the fields in UI.
-pub struct PluginCtx<'a> {
-    pub primary: &'a mut PerMapUI,
-    // Only filled out for PluginsPerUI, not for PluginsPerMap.
-    pub primary_plugins: Option<&'a mut PluginsPerMap>,
-    pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
-    pub canvas: &'a mut Canvas,
-    pub cs: &'a mut ColorScheme,
-    pub input: &'a mut UserInput,
-    pub hints: &'a mut RenderingHints,
-    pub kml: &'a Option<String>,
 }

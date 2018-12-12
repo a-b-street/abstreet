@@ -6,15 +6,16 @@ pub mod time_travel;
 pub mod tutorial;
 pub mod view;
 
-use crate::objects::{Ctx, ID};
-use crate::ui::PluginCtx;
+use crate::colors::ColorScheme;
+use crate::objects::{Ctx, RenderingHints, ID};
+use crate::ui::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use downcast::{
     downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
 };
-use ezgui::{Color, GfxCtx, WrappedWizard};
+use ezgui::{Canvas, Color, GfxCtx, UserInput, WrappedWizard};
 use map_model::{IntersectionID, Map};
 
 pub trait Plugin: Any {
@@ -34,6 +35,19 @@ pub trait Plugin: Any {
 }
 
 downcast!(Plugin);
+
+// This mirrors many, but not all, of the fields in UI.
+pub struct PluginCtx<'a> {
+    pub primary: &'a mut PerMapUI,
+    // Only filled out for PluginsPerUI, not for PluginsPerMap.
+    pub primary_plugins: Option<&'a mut PluginsPerMap>,
+    pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
+    pub canvas: &'a mut Canvas,
+    pub cs: &'a mut ColorScheme,
+    pub input: &'a mut UserInput,
+    pub hints: &'a mut RenderingHints,
+    pub kml: &'a Option<String>,
+}
 
 // TODO Further refactoring should be done, but at least group these here to start.
 // General principles are to avoid actually deserializing the objects unless needed.
