@@ -3,7 +3,7 @@ mod classification;
 mod floodfill;
 mod geom_validation;
 mod hider;
-pub mod layers;
+mod layers;
 mod steep;
 
 use crate::objects::{Ctx, ID};

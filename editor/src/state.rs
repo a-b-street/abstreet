@@ -1,6 +1,5 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::plugins::debug::layers::ToggleableLayers;
 use crate::plugins::debug::DebugMode;
 use crate::plugins::edit::EditMode;
 use crate::plugins::logs::DisplayLogs;
@@ -63,13 +62,19 @@ impl DefaultUIState {
         }
     }
 
-    fn get_active_plugin(&self) -> Option<&Box<Plugin>> {
+    fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
-        let len = self.plugins.list.len();
-        if idx < len {
-            Some(&self.plugins.list[idx])
-        } else {
-            Some(&self.primary_plugins.list[idx - len])
+        match idx {
+            x if x == 0 => Some(&self.plugins.edit_mode),
+            x if x == 1 => Some(&self.plugins.sim_mode),
+            x if x == 2 => Some(&self.plugins.logs),
+            x if x == 3 => Some(self.plugins.tutorial_mode.as_ref().unwrap()),
+            x if x == 4 => Some(&self.primary_plugins.debug_mode),
+            x if x == 5 => Some(&self.primary_plugins.view_mode),
+            x if x == 6 => Some(&self.primary_plugins.time_travel),
+            _ => {
+                panic!("Illegal active_plugin {}", idx);
+            }
         }
     }
 
@@ -92,12 +97,28 @@ impl DefaultUIState {
             hints,
             recalculate_current_selection,
         };
-        let len = self.plugins.list.len();
-        if idx < len {
-            ctx.primary_plugins = Some(&mut self.primary_plugins);
-            self.plugins.list[idx].blocking_event(&mut ctx)
-        } else {
-            self.primary_plugins.list[idx - len].blocking_event(&mut ctx)
+        match idx {
+            x if x == 0 => {
+                ctx.primary_plugins = Some(&mut self.primary_plugins);
+                self.plugins.edit_mode.blocking_event(&mut ctx)
+            }
+            x if x == 1 => {
+                ctx.primary_plugins = Some(&mut self.primary_plugins);
+                self.plugins.sim_mode.blocking_event(&mut ctx)
+            }
+            x if x == 2 => self.plugins.logs.blocking_event(&mut ctx),
+            x if x == 3 => self
+                .plugins
+                .tutorial_mode
+                .as_mut()
+                .unwrap()
+                .blocking_event(&mut ctx),
+            x if x == 4 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
+            x if x == 5 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 6 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            _ => {
+                panic!("Illegal active_plugin {}", idx);
+            }
         }
     }
 }
@@ -105,7 +126,8 @@ impl DefaultUIState {
 impl UIState for DefaultUIState {
     fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
         self.primary_plugins
-            .layers_mut()
+            .debug_mode
+            .layers
             .handle_zoom(old_zoom, new_zoom);
     }
 
@@ -128,7 +150,10 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
+            for idx in 0..=6 {
+                if idx == 3 && self.plugins.tutorial_mode.is_none() {
+                    continue;
+                }
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -142,7 +167,7 @@ impl UIState for DefaultUIState {
         canvas: &Canvas,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         let draw_agent_source: &GetDrawAgents = {
-            let tt = self.primary_plugins.time_travel();
+            let tt = &self.primary_plugins.time_travel;
             if tt.is_active() {
                 tt
             } else {
@@ -152,7 +177,7 @@ impl UIState for DefaultUIState {
 
         self.primary.draw_map.get_objects_onscreen(
             canvas.get_screen_bounds(),
-            self.primary_plugins.debug_mode(),
+            &self.primary_plugins.debug_mode,
             &self.primary.map,
             draw_agent_source,
             self,
@@ -160,7 +185,11 @@ impl UIState for DefaultUIState {
     }
 
     fn is_debug_mode_enabled(&self) -> bool {
-        self.primary_plugins.layers().debug_mode.is_enabled()
+        self.primary_plugins
+            .debug_mode
+            .layers
+            .debug_mode
+            .is_enabled()
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
@@ -169,8 +198,8 @@ impl UIState for DefaultUIState {
         } else {
             // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
             // chance.
-            self.primary_plugins.view_mode().draw(g, ctx);
-            self.plugins.sim_mode().draw(g, ctx);
+            self.primary_plugins.view_mode.draw(g, ctx);
+            self.plugins.sim_mode.draw(g, ctx);
         }
     }
 
@@ -193,7 +222,7 @@ impl UIState for DefaultUIState {
             p.color_for(id, ctx)
         } else {
             // If no other mode was active, give the ambient plugins in ViewMode a chance.
-            self.primary_plugins.view_mode().color_for(id, ctx)
+            self.primary_plugins.view_mode.color_for(id, ctx)
         }
     }
 
@@ -209,10 +238,11 @@ pub trait ShowTurnIcons {
 impl ShowTurnIcons for DefaultUIState {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         self.primary_plugins
-            .layers()
+            .debug_mode
+            .layers
             .show_all_turn_icons
             .is_enabled()
-            || self.plugins.edit_mode().show_turn_icons(id)
+            || self.plugins.edit_mode.show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id
@@ -225,71 +255,45 @@ impl ShowTurnIcons for DefaultUIState {
 
 // aka plugins that don't depend on map
 pub struct PluginsPerUI {
-    pub list: Vec<Box<Plugin>>,
+    edit_mode: EditMode,
+    sim_mode: SimMode,
+    logs: DisplayLogs,
+    tutorial_mode: Option<TutorialMode>,
 }
 
 impl PluginsPerUI {
     pub fn new(flags: &SimFlags) -> PluginsPerUI {
         let mut plugins = PluginsPerUI {
-            list: vec![
-                Box::new(EditMode::new()),
-                Box::new(SimMode::new()),
-                Box::new(DisplayLogs::new()),
-            ],
+            edit_mode: EditMode::new(),
+            sim_mode: SimMode::new(),
+            logs: DisplayLogs::new(),
+            tutorial_mode: None,
         };
 
         // TODO Hacktastic way of sneaking this in!
         if flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
-            plugins.list.push(Box::new(TutorialMode::new()));
+            plugins.tutorial_mode = Some(TutorialMode::new());
         }
 
         plugins
-    }
-
-    pub fn edit_mode(&self) -> &EditMode {
-        self.list[0].downcast_ref::<EditMode>().unwrap()
-    }
-
-    pub fn sim_mode(&self) -> &Box<Plugin> {
-        &self.list[1]
     }
 }
 
 pub struct PluginsPerMap {
     // Anything that holds onto any kind of ID has to live here!
-    pub list: Vec<Box<Plugin>>,
+    debug_mode: DebugMode,
+    view_mode: ViewMode,
+    time_travel: TimeTravel,
 }
 
 impl PluginsPerMap {
     pub fn new(state: &PerMapUI, canvas: &Canvas, timer: &mut Timer) -> PluginsPerMap {
         let mut plugins = PluginsPerMap {
-            list: vec![
-                Box::new(DebugMode::new(&state.map)),
-                Box::new(ViewMode::new(&state.map, &state.draw_map, timer)),
-                Box::new(TimeTravel::new()),
-            ],
+            debug_mode: DebugMode::new(&state.map),
+            view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
+            time_travel: TimeTravel::new(),
         };
-        plugins.layers_mut().handle_zoom(-1.0, canvas.cam_zoom);
+        plugins.debug_mode.layers.handle_zoom(-1.0, canvas.cam_zoom);
         plugins
-    }
-
-    pub fn debug_mode(&self) -> &DebugMode {
-        self.list[0].downcast_ref::<DebugMode>().unwrap()
-    }
-
-    pub fn view_mode(&self) -> &Box<Plugin> {
-        &self.list[1]
-    }
-
-    pub fn time_travel(&self) -> &TimeTravel {
-        self.list[2].downcast_ref::<TimeTravel>().unwrap()
-    }
-
-    pub fn layers(&self) -> &ToggleableLayers {
-        &self.list[0].downcast_ref::<DebugMode>().unwrap().layers
-    }
-
-    pub fn layers_mut(&mut self) -> &mut ToggleableLayers {
-        &mut self.list[0].downcast_mut::<DebugMode>().unwrap().layers
     }
 }
