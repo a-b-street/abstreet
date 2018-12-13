@@ -41,7 +41,11 @@ pub struct DefaultUIState {
     primary_plugins: PluginsPerMap,
     // When running an A/B test, this is populated too.
     secondary: Option<(PerMapUI, PluginsPerMap)>,
-    plugins: PluginsPerUI,
+
+    edit_mode: EditMode,
+    sim_mode: SimMode,
+    logs: DisplayLogs,
+
     active_plugin: Option<usize>,
 }
 
@@ -49,13 +53,15 @@ impl DefaultUIState {
     pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
-        let plugins = PluginsPerUI::new();
+        let logs = DisplayLogs::new();
         let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
         DefaultUIState {
             primary,
             primary_plugins,
             secondary: None,
-            plugins,
+            edit_mode: EditMode::new(),
+            sim_mode: SimMode::new(),
+            logs,
             active_plugin: None,
         }
     }
@@ -63,9 +69,9 @@ impl DefaultUIState {
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.plugins.edit_mode),
-            x if x == 1 => Some(&self.plugins.sim_mode),
-            x if x == 2 => Some(&self.plugins.logs),
+            x if x == 0 => Some(&self.edit_mode),
+            x if x == 1 => Some(&self.sim_mode),
+            x if x == 2 => Some(&self.logs),
             x if x == 3 => Some(&self.primary_plugins.debug_mode),
             x if x == 4 => Some(&self.primary_plugins.view_mode),
             x if x == 5 => Some(&self.primary_plugins.time_travel),
@@ -97,13 +103,13 @@ impl DefaultUIState {
         match idx {
             x if x == 0 => {
                 ctx.primary_plugins = Some(&mut self.primary_plugins);
-                self.plugins.edit_mode.blocking_event(&mut ctx)
+                self.edit_mode.blocking_event(&mut ctx)
             }
             x if x == 1 => {
                 ctx.primary_plugins = Some(&mut self.primary_plugins);
-                self.plugins.sim_mode.blocking_event(&mut ctx)
+                self.sim_mode.blocking_event(&mut ctx)
             }
-            x if x == 2 => self.plugins.logs.blocking_event(&mut ctx),
+            x if x == 2 => self.logs.blocking_event(&mut ctx),
             x if x == 3 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
             x if x == 4 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
             x if x == 5 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
@@ -187,7 +193,7 @@ impl UIState for DefaultUIState {
             // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
             // chance.
             self.primary_plugins.view_mode.draw(g, ctx);
-            self.plugins.sim_mode.draw(g, ctx);
+            self.sim_mode.draw(g, ctx);
         }
     }
 
@@ -230,7 +236,7 @@ impl ShowTurnIcons for DefaultUIState {
             .layers
             .show_all_turn_icons
             .is_enabled()
-            || self.plugins.edit_mode.show_turn_icons(id)
+            || self.edit_mode.show_turn_icons(id)
             || {
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id
@@ -238,23 +244,6 @@ impl ShowTurnIcons for DefaultUIState {
                     false
                 }
             }
-    }
-}
-
-// aka plugins that don't depend on map
-pub struct PluginsPerUI {
-    edit_mode: EditMode,
-    sim_mode: SimMode,
-    logs: DisplayLogs,
-}
-
-impl PluginsPerUI {
-    pub fn new() -> PluginsPerUI {
-        PluginsPerUI {
-            edit_mode: EditMode::new(),
-            sim_mode: SimMode::new(),
-            logs: DisplayLogs::new(),
-        }
     }
 }
 

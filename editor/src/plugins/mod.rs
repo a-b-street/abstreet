@@ -39,7 +39,7 @@ downcast!(Plugin);
 // This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {
     pub primary: &'a mut PerMapUI,
-    // Only filled out for PluginsPerUI, not for PluginsPerMap.
+    // Only filled out in a few cases.
     pub primary_plugins: Option<&'a mut PluginsPerMap>,
     pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
     pub canvas: &'a mut Canvas,
