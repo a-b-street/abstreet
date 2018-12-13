@@ -1,8 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::Renderable;
-use crate::state::{DefaultUIState, UIState};
-use crate::ui::PerMapUI;
+use crate::state::{DefaultUIState, PerMapUI, UIState};
 use ezgui::{Canvas, Color, GfxCtx, LogScroller, UserInput};
 use sim::SimFlags;
 

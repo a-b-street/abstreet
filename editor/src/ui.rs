@@ -2,15 +2,13 @@ use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID, ROOT_MENU};
-use crate::render::{DrawMap, RenderOptions};
-use crate::state::{PluginsPerMap, UIState};
+use crate::render::RenderOptions;
+use crate::state::UIState;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
-use map_model::{BuildingID, LaneID, Map};
+use map_model::{BuildingID, LaneID};
 use piston::input::Key;
 use serde_derive::{Deserialize, Serialize};
-use sim;
-use sim::{Sim, SimFlags, Tick};
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::process;
@@ -114,54 +112,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn dump_before_abort(&self) {
         self.state.dump_before_abort();
         self.save_editor_state();
-    }
-}
-
-// All of the state that's bound to a specific map+edit has to live here.
-// TODO How can we arrange the code so that we statically know that we don't pass anything from UI
-// to something in PerMapUI?
-pub struct PerMapUI {
-    pub map: Map,
-    pub draw_map: DrawMap,
-    pub sim: Sim,
-
-    pub current_selection: Option<ID>,
-    pub current_flags: SimFlags,
-}
-
-impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> (PerMapUI, PluginsPerMap) {
-        let mut timer = abstutil::Timer::new("setup PerMapUI");
-
-        let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
-        let extra_shapes: Vec<kml::ExtraShape> = if let Some(path) = kml {
-            if path.ends_with(".kml") {
-                kml::load(&path, &map.get_gps_bounds(), &mut timer)
-                    .expect("Couldn't load extra KML shapes")
-                    .shapes
-            } else {
-                let shapes: kml::ExtraShapes =
-                    abstutil::read_binary(&path, &mut timer).expect("Couldn't load ExtraShapes");
-                shapes.shapes
-            }
-        } else {
-            Vec::new()
-        };
-
-        timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
-        timer.stop("draw_map");
-
-        let state = PerMapUI {
-            map,
-            draw_map,
-            sim,
-            current_selection: None,
-            current_flags: flags,
-        };
-        let plugins = PluginsPerMap::new(&state, canvas, &mut timer);
-        timer.done();
-        (state, plugins)
     }
 }
 

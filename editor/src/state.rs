@@ -7,12 +7,11 @@ use crate::plugins::sim::SimMode;
 use crate::plugins::time_travel::TimeTravel;
 use crate::plugins::view::ViewMode;
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::Renderable;
-use crate::ui::PerMapUI;
+use crate::render::{DrawMap, Renderable};
 use abstutil::Timer;
 use ezgui::{Canvas, Color, GfxCtx, UserInput};
-use map_model::IntersectionID;
-use sim::{GetDrawAgents, SimFlags};
+use map_model::{IntersectionID, Map};
+use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 
 pub trait UIState {
     fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64);
@@ -244,6 +243,52 @@ impl ShowTurnIcons for DefaultUIState {
                     false
                 }
             }
+    }
+}
+
+// All of the state that's bound to a specific map+edit has to live here.
+pub struct PerMapUI {
+    pub map: Map,
+    pub draw_map: DrawMap,
+    pub sim: Sim,
+
+    pub current_selection: Option<ID>,
+    pub current_flags: SimFlags,
+}
+
+impl PerMapUI {
+    pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> (PerMapUI, PluginsPerMap) {
+        let mut timer = abstutil::Timer::new("setup PerMapUI");
+
+        let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
+        let extra_shapes: Vec<kml::ExtraShape> = if let Some(path) = kml {
+            if path.ends_with(".kml") {
+                kml::load(&path, &map.get_gps_bounds(), &mut timer)
+                    .expect("Couldn't load extra KML shapes")
+                    .shapes
+            } else {
+                let shapes: kml::ExtraShapes =
+                    abstutil::read_binary(&path, &mut timer).expect("Couldn't load ExtraShapes");
+                shapes.shapes
+            }
+        } else {
+            Vec::new()
+        };
+
+        timer.start("draw_map");
+        let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
+        timer.stop("draw_map");
+
+        let state = PerMapUI {
+            map,
+            draw_map,
+            sim,
+            current_selection: None,
+            current_flags: flags,
+        };
+        let plugins = PluginsPerMap::new(&state, canvas, &mut timer);
+        timer.done();
+        (state, plugins)
     }
 }
 
