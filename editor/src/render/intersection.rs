@@ -39,7 +39,7 @@ impl DrawIntersection {
         }
     }
 
-    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: &Ctx) {
         g.draw_polygon(
             ctx.cs.get_def("stop sign background", Color::RED),
             &Polygon::regular_polygon(self.center, 8, 1.5, Angle::new_degs(360.0 / 16.0)),
@@ -47,7 +47,7 @@ impl DrawIntersection {
         // TODO draw "STOP"
     }
 
-    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let radius = 0.5;
 
         g.draw_polygon(
@@ -77,7 +77,7 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             if self.intersection_type == IntersectionType::Border {
                 return ctx
@@ -170,7 +170,7 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
 pub fn draw_signal_cycle(
     cycle: &Cycle,
     g: &mut GfxCtx,
-    cs: &mut ColorScheme,
+    cs: &ColorScheme,
     map: &Map,
     draw_map: &DrawMap,
     hide_crosswalks: &HashSet<TurnID>,
@@ -200,7 +200,7 @@ pub fn draw_signal_cycle(
     }
 }
 
-pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &mut ColorScheme, map: &Map) {
+pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &ColorScheme, map: &Map) {
     let priority_color = cs.get_def("stop sign priority turns", Color::GREEN);
     // TODO pink yield color from traffic signals is nice, but it's too close to red for stop...
     let yield_color = cs.get_def("stop sign yield turns", Color::YELLOW.alpha(0.8));
@@ -240,7 +240,7 @@ pub fn stop_sign_rendering_hints(
     hints: &mut RenderingHints,
     sign: &ControlStopSign,
     map: &Map,
-    cs: &mut ColorScheme,
+    cs: &ColorScheme,
 ) {
     hints.suppress_intersection_icon = Some(sign.id);
     for (t, pri) in &sign.turns {

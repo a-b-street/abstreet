@@ -47,7 +47,7 @@ impl Plugin for ShowScoreState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let State::Active(_, ref text) = self.state {
             ctx.canvas.draw_text(g, text.clone(), TOP_RIGHT);
         }

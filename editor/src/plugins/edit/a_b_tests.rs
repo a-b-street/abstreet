@@ -55,7 +55,7 @@ impl Plugin for ABTestManager {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self {
             ABTestManager::PickABTest(wizard) => {
                 wizard.draw(g, ctx.canvas);

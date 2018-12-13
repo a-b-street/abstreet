@@ -58,7 +58,7 @@ impl Plugin for ShowActivityState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         if let State::Active(_, ref heatmap) = self.state {
             heatmap.draw(g);
         }

@@ -77,7 +77,7 @@ impl Plugin for ColorPicker {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self {
             ColorPicker::Choosing(menu) => {
                 menu.draw(g, ctx.canvas);

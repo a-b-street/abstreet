@@ -89,7 +89,7 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             // TODO if it's a bus, color it differently -- but how? :\
             match self.state {

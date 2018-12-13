@@ -90,7 +90,7 @@ impl Plugin for DrawNeighborhoodState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let (raw_pts, current_idx) = match self {
             DrawNeighborhoodState::PickNeighborhood(wizard) => {
                 // TODO is this order wrong?

@@ -26,7 +26,7 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
         let color = match self.area_type {
             AreaType::Park => ctx.cs.get_def("park area", Color::GREEN),
             AreaType::Swamp => ctx.cs.get_def("swamp area", Color::rgb_f(0.0, 1.0, 0.6)),

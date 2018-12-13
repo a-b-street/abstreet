@@ -40,7 +40,7 @@ impl Renderable for DrawBusStop {
         ID::BusStop(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
         g.draw_polygon(
             opts.color.unwrap_or_else(|| {
                 ctx.cs

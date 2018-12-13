@@ -11,9 +11,7 @@ use map_model::{
 const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 // Just a function to draw something later.
-// TODO It's not ideal to delay the call to ColorScheme, but it's also weird to plumb it through
-// DrawMap creation.
-type Marking = Box<Fn(&mut GfxCtx, &mut ColorScheme)>;
+type Marking = Box<Fn(&mut GfxCtx, &ColorScheme)>;
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -75,7 +73,7 @@ impl DrawLane {
         }
     }
 
-    fn draw_debug(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw_debug(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let circle_color = ctx
             .cs
             .get_def("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
@@ -103,7 +101,7 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
             match l.lane_type {

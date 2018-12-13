@@ -47,7 +47,7 @@ impl Plugin for DiffTripState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let Some(l) = &self.line {
             g.draw_line(
                 ctx.cs.get_def("diff agents line", Color::YELLOW),

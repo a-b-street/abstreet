@@ -44,7 +44,7 @@ impl Plugin for DiffAllState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         for line in &self.lines {
             g.draw_line(
                 ctx.cs.get_def("diff agents line", Color::YELLOW),

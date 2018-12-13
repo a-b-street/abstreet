@@ -31,7 +31,7 @@ impl Plugin for TutorialMode {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self {
             TutorialMode::GiveInstructions(ref scroller) => {
                 scroller.draw(g, ctx.canvas);

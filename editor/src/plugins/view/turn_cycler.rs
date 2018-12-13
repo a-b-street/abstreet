@@ -70,7 +70,7 @@ impl Plugin for TurnCyclerState {
         };
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self.state {
             State::Inactive => {}
             State::ShowLane(l) => {

@@ -1,3 +1,4 @@
+use crate::init_colors;
 use abstutil;
 use ezgui::Color;
 use serde_derive::{Deserialize, Serialize};
@@ -5,7 +6,6 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 
 pub struct ColorScheme {
-    // Filled out by lazy calls to get_def()
     map: HashMap<String, Color>,
 
     // A subset of map
@@ -20,7 +20,7 @@ struct ModifiedColors {
 impl ColorScheme {
     pub fn load() -> Result<ColorScheme, Error> {
         let modified: ModifiedColors = abstutil::read_json("color_scheme")?;
-        let mut map: HashMap<String, Color> = HashMap::new();
+        let mut map: HashMap<String, Color> = init_colors::default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
         }
@@ -32,20 +32,10 @@ impl ColorScheme {
         abstutil::write_json("color_scheme", &self.modified).expect("Saving color_scheme failed");
     }
 
-    // Get, but specify the default inline
-    pub fn get_def(&mut self, name: &str, default: Color) -> Color {
-        if let Some(existing) = self.map.get(name) {
-            if default != *existing && !self.modified.map.contains_key(name) {
-                panic!(
-                    "Two colors defined for {}: {} and {}",
-                    name, existing, default
-                );
-            }
-            return *existing;
-        }
-
-        self.map.insert(name.to_string(), default);
-        default
+    // Get, but specify the default inline. The default is extracted before compilation by a script
+    // and used to generate init_colors.rs.
+    pub fn get_def(&self, name: &str, _default: Color) -> Color {
+        self.map[name]
     }
 
     // Just for the color picker plugin, that's why the funky return value
@@ -70,8 +60,9 @@ impl ColorScheme {
             self.map.insert(name.to_string(), c);
         } else {
             self.modified.map.remove(name);
-            // Just, uh, wait for the default to be populated next time. :P
-            self.map.remove(name);
+            // Restore the original default.
+            self.map
+                .insert(name.to_string(), init_colors::default_colors()[name]);
         }
     }
 }

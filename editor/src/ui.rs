@@ -13,7 +13,6 @@ use serde_derive::{Deserialize, Serialize};
 use sim;
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use std::borrow::Borrow;
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::process;
 
@@ -29,8 +28,7 @@ pub struct UI {
     active_plugin: Option<usize>,
 
     canvas: Canvas,
-    // TODO mutable ColorScheme to slurp up defaults is NOT ideal.
-    cs: RefCell<ColorScheme>,
+    cs: ColorScheme,
 
     // Remember this to support loading a new PerMapUI
     kml: Option<String>,
@@ -84,7 +82,7 @@ impl GUI<RenderingHints> for UI {
         // Can do this at any time.
         if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
             self.save_editor_state();
-            self.cs.borrow().save();
+            self.cs.save();
             info!("Saved color_scheme");
             //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             process::exit(0);
@@ -105,14 +103,10 @@ impl GUI<RenderingHints> for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, hints: RenderingHints) {
-        g.clear(
-            self.cs
-                .borrow_mut()
-                .get_def("map background", Color::rgb(242, 239, 233)),
-        );
+        g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
-        let mut ctx = Ctx {
-            cs: &mut self.cs.borrow_mut(),
+        let ctx = Ctx {
+            cs: &self.cs,
             map: &self.primary.map,
             draw_map: &self.primary.draw_map,
             canvas: &self.canvas,
@@ -132,20 +126,20 @@ impl GUI<RenderingHints> for UI {
             .chain(dynamics.iter().map(|obj| Box::new(obj.borrow())))
         {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id(), &mut ctx),
+                color: self.color_obj(obj.get_id(), &ctx),
                 cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
             };
-            obj.draw(g, opts, &mut ctx);
+            obj.draw(g, opts, &ctx);
         }
 
         if let Some(p) = self.get_active_plugin() {
-            p.draw(g, &mut ctx);
+            p.draw(g, &ctx);
         } else {
             // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
             // chance.
-            self.primary_plugins.view_mode().draw(g, &mut ctx);
-            self.plugins.sim_mode().draw(g, &mut ctx);
+            self.primary_plugins.view_mode().draw(g, &ctx);
+            self.plugins.sim_mode().draw(g, &ctx);
         }
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
@@ -236,7 +230,7 @@ impl UI {
             active_plugin: None,
 
             canvas,
-            cs: RefCell::new(ColorScheme::load().unwrap()),
+            cs: ColorScheme::load().unwrap(),
 
             kml,
         };
@@ -292,7 +286,7 @@ impl UI {
         None
     }
 
-    fn color_obj(&self, id: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
             return Some(ctx.cs.get_def("selected", Color::BLUE));
         }
@@ -326,7 +320,7 @@ impl UI {
             primary_plugins: None,
             secondary: &mut self.secondary,
             canvas: &mut self.canvas,
-            cs: &mut self.cs.borrow_mut(),
+            cs: &mut self.cs,
             input,
             hints,
             kml: &self.kml,

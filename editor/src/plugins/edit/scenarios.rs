@@ -68,7 +68,7 @@ impl Plugin for ScenarioManager {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self {
             ScenarioManager::PickScenario(wizard) => {
                 wizard.draw(g, ctx.canvas);

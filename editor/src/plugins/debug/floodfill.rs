@@ -55,7 +55,7 @@ impl Plugin for Floodfiller {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
         if let ID::Lane(l) = obj {
             if self.visited.contains(&l) {
                 return Some(ctx.cs.get_def("visited in floodfill", Color::BLUE));

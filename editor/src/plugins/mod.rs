@@ -20,11 +20,11 @@ use ezgui::{Canvas, Color, GfxCtx, UserInput, WrappedWizard};
 use map_model::{IntersectionID, Map};
 
 pub trait Plugin: Any {
-    fn color_for(&self, _obj: ID, _ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, _obj: ID, _ctx: &Ctx) -> Option<Color> {
         None
     }
 
-    fn draw(&self, _g: &mut GfxCtx, _ctx: &mut Ctx) {}
+    fn draw(&self, _g: &mut GfxCtx, _ctx: &Ctx) {}
 
     // True if active, false if done
     fn blocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {

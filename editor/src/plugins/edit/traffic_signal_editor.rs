@@ -207,7 +207,7 @@ impl Plugin for TrafficSignalEditor {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
 
         draw_signal_cycle(
@@ -304,7 +304,7 @@ impl Plugin for TrafficSignalEditor {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
         if let ID::Turn(t) = obj {
             if t.parent != self.i {
                 return None;

@@ -79,13 +79,13 @@ impl Plugin for EditMode {
         self.active_plugin.is_some()
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let Some(ref plugin) = self.active_plugin {
             plugin.draw(g, ctx);
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
         if let Some(ref plugin) = self.active_plugin {
             return plugin.color_for(obj, ctx);
         }

@@ -79,7 +79,7 @@ impl Plugin for ViewMode {
         false
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         // Always draw these, even when a blocking plugin is active.
         for p in &self.ambient_plugins {
             p.draw(g, ctx);
@@ -93,7 +93,7 @@ impl Plugin for ViewMode {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
         // warp doesn't implement color_for.
 
         if let Some(ref p) = self.search {

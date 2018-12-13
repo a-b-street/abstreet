@@ -55,7 +55,7 @@ impl Plugin for SimMode {
         self.diff_plugin.is_some()
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let Some(ref plugin) = self.diff_plugin {
             plugin.draw(g, ctx);
         }
