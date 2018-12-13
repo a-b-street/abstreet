@@ -9,6 +9,7 @@ mod objects;
 mod plugins;
 mod render;
 mod state;
+mod tutorial;
 mod ui;
 
 use sim::SimFlags;
@@ -32,10 +33,26 @@ fn main() {
     .unwrap()
     .start("./profile")
     .unwrap();*/
-    ezgui::run(
-        ui::UI::<state::DefaultUIState>::new(flags.sim_flags, flags.kml),
-        "A/B Street",
-        1024,
-        768,
-    );
+    let canvas = ezgui::Canvas::new();
+    if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
+        ezgui::run(
+            ui::UI::new(
+                tutorial::TutorialState::new(flags.sim_flags, &canvas),
+                canvas,
+            ),
+            "A/B Street",
+            1024,
+            768,
+        );
+    } else {
+        ezgui::run(
+            ui::UI::new(
+                state::DefaultUIState::new(flags.sim_flags, flags.kml, &canvas),
+                canvas,
+            ),
+            "A/B Street",
+            1024,
+            768,
+        );
+    }
 }

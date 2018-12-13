@@ -1,7 +1,66 @@
-use crate::objects::Ctx;
+use crate::colors::ColorScheme;
+use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{GfxCtx, LogScroller};
+use crate::render::Renderable;
+use crate::state::{DefaultUIState, UIState};
+use crate::ui::PerMapUI;
+use ezgui::{Canvas, Color, GfxCtx, LogScroller, UserInput};
+use sim::SimFlags;
 
+pub struct TutorialState {
+    state: DefaultUIState,
+}
+
+impl TutorialState {
+    pub fn new(flags: SimFlags, canvas: &Canvas) -> TutorialState {
+        TutorialState {
+            state: DefaultUIState::new(flags, None, canvas),
+        }
+    }
+}
+
+impl UIState for TutorialState {
+    fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
+        self.state.handle_zoom(old_zoom, new_zoom);
+    }
+    fn set_current_selection(&mut self, obj: Option<ID>) {
+        self.state.set_current_selection(obj);
+    }
+    fn event(
+        &mut self,
+        input: &mut UserInput,
+        hints: &mut RenderingHints,
+        recalculate_current_selection: &mut bool,
+        cs: &mut ColorScheme,
+        canvas: &mut Canvas,
+    ) {
+        self.state
+            .event(input, hints, recalculate_current_selection, cs, canvas);
+    }
+    fn get_objects_onscreen(
+        &self,
+        canvas: &Canvas,
+    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
+        self.state.get_objects_onscreen(canvas)
+    }
+    fn is_debug_mode_enabled(&self) -> bool {
+        self.state.is_debug_mode_enabled()
+    }
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+        self.state.draw(g, ctx);
+    }
+    fn dump_before_abort(&self) {
+        self.state.dump_before_abort();
+    }
+    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
+        self.state.color_obj(id, ctx)
+    }
+    fn primary(&self) -> &PerMapUI {
+        self.state.primary()
+    }
+}
+
+// TODO Bring this stuff back
 pub enum TutorialMode {
     GiveInstructions(LogScroller),
     Play,

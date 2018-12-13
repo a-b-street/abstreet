@@ -5,7 +5,6 @@ use crate::plugins::edit::EditMode;
 use crate::plugins::logs::DisplayLogs;
 use crate::plugins::sim::SimMode;
 use crate::plugins::time_travel::TimeTravel;
-use crate::plugins::tutorial::TutorialMode;
 use crate::plugins::view::ViewMode;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::Renderable;
@@ -50,8 +49,7 @@ impl DefaultUIState {
     pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
-        let plugins = PluginsPerUI::new(&flags);
-
+        let plugins = PluginsPerUI::new();
         let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
         DefaultUIState {
             primary,
@@ -68,10 +66,9 @@ impl DefaultUIState {
             x if x == 0 => Some(&self.plugins.edit_mode),
             x if x == 1 => Some(&self.plugins.sim_mode),
             x if x == 2 => Some(&self.plugins.logs),
-            x if x == 3 => Some(self.plugins.tutorial_mode.as_ref().unwrap()),
-            x if x == 4 => Some(&self.primary_plugins.debug_mode),
-            x if x == 5 => Some(&self.primary_plugins.view_mode),
-            x if x == 6 => Some(&self.primary_plugins.time_travel),
+            x if x == 3 => Some(&self.primary_plugins.debug_mode),
+            x if x == 4 => Some(&self.primary_plugins.view_mode),
+            x if x == 5 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -107,15 +104,9 @@ impl DefaultUIState {
                 self.plugins.sim_mode.blocking_event(&mut ctx)
             }
             x if x == 2 => self.plugins.logs.blocking_event(&mut ctx),
-            x if x == 3 => self
-                .plugins
-                .tutorial_mode
-                .as_mut()
-                .unwrap()
-                .blocking_event(&mut ctx),
-            x if x == 4 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
-            x if x == 5 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 6 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 3 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
+            x if x == 4 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 5 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -150,10 +141,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=6 {
-                if idx == 3 && self.plugins.tutorial_mode.is_none() {
-                    continue;
-                }
+            for idx in 0..=5 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -258,24 +246,15 @@ pub struct PluginsPerUI {
     edit_mode: EditMode,
     sim_mode: SimMode,
     logs: DisplayLogs,
-    tutorial_mode: Option<TutorialMode>,
 }
 
 impl PluginsPerUI {
-    pub fn new(flags: &SimFlags) -> PluginsPerUI {
-        let mut plugins = PluginsPerUI {
+    pub fn new() -> PluginsPerUI {
+        PluginsPerUI {
             edit_mode: EditMode::new(),
             sim_mode: SimMode::new(),
             logs: DisplayLogs::new(),
-            tutorial_mode: None,
-        };
-
-        // TODO Hacktastic way of sneaking this in!
-        if flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
-            plugins.tutorial_mode = Some(TutorialMode::new());
         }
-
-        plugins
     }
 }
 

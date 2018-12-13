@@ -3,7 +3,7 @@ use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID, ROOT_MENU};
 use crate::render::{DrawMap, RenderOptions};
-use crate::state::{DefaultUIState, PluginsPerMap, UIState};
+use crate::state::{PluginsPerMap, UIState};
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
 use map_model::{BuildingID, LaneID, Map};
@@ -166,10 +166,7 @@ impl PerMapUI {
 }
 
 impl<S: UIState> UI<S> {
-    pub fn new(flags: SimFlags, kml: Option<String>) -> UI<DefaultUIState> {
-        let canvas = Canvas::new();
-        let state = DefaultUIState::new(flags, kml, &canvas);
-
+    pub fn new(state: S, canvas: Canvas) -> UI<S> {
         let mut ui = UI {
             state,
             canvas,
