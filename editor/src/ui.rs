@@ -17,14 +17,13 @@ use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
-pub struct UI {
-    // TODO Use generics instead
-    state: Box<UIState>,
+pub struct UI<S: UIState> {
+    state: S,
     canvas: Canvas,
     cs: ColorScheme,
 }
 
-impl GUI<RenderingHints> for UI {
+impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn event(&mut self, mut input: UserInput) -> (EventLoopMode, RenderingHints) {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
@@ -166,10 +165,10 @@ impl PerMapUI {
     }
 }
 
-impl UI {
-    pub fn new(flags: SimFlags, kml: Option<String>) -> UI {
+impl<S: UIState> UI<S> {
+    pub fn new(flags: SimFlags, kml: Option<String>) -> UI<DefaultUIState> {
         let canvas = Canvas::new();
-        let state = Box::new(DefaultUIState::new(flags, kml, &canvas));
+        let state = DefaultUIState::new(flags, kml, &canvas);
 
         let mut ui = UI {
             state,
