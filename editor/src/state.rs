@@ -37,7 +37,7 @@ pub trait UIState {
 }
 
 pub struct DefaultUIState {
-    primary: PerMapUI,
+    pub primary: PerMapUI,
     primary_plugins: PluginsPerMap,
     // When running an A/B test, this is populated too.
     secondary: Option<(PerMapUI, PluginsPerMap)>,
