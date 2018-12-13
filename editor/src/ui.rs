@@ -2,16 +2,15 @@ use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID, ROOT_MENU};
-use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, RenderOptions};
-use crate::state::{PluginsPerMap, PluginsPerUI};
+use crate::state::{DefaultUIState, PluginsPerMap, UIState};
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, BOTTOM_LEFT, GUI};
 use kml;
-use map_model::{BuildingID, IntersectionID, LaneID, Map};
+use map_model::{BuildingID, LaneID, Map};
 use piston::input::Key;
 use serde_derive::{Deserialize, Serialize};
 use sim;
-use sim::{GetDrawAgents, Sim, SimFlags, Tick};
+use sim::{Sim, SimFlags, Tick};
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::process;
@@ -19,14 +18,8 @@ use std::process;
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
 
 pub struct UI {
-    primary: PerMapUI,
-    primary_plugins: PluginsPerMap,
-    // When running an A/B test, this is populated too.
-    secondary: Option<(PerMapUI, PluginsPerMap)>,
-
-    plugins: PluginsPerUI,
-    active_plugin: Option<usize>,
-
+    // TODO Use generics instead
+    state: Box<UIState>,
     canvas: Canvas,
     cs: ColorScheme,
 }
@@ -46,45 +39,29 @@ impl GUI<RenderingHints> for UI {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(&mut input);
         let new_zoom = self.canvas.cam_zoom;
-        self.primary_plugins
-            .layers_mut()
-            .handle_zoom(old_zoom, new_zoom);
+        self.state.handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.primary.current_selection = None;
+            self.state.set_current_selection(None);
         }
         if !self.canvas.is_dragging()
             && input.get_moved_mouse().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            self.primary.current_selection = self.mouseover_something();
+            self.state.set_current_selection(self.mouseover_something());
         }
 
-        // If there's an active plugin, just run it.
         let mut recalculate_current_selection = false;
-        if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(
-                idx,
-                &mut input,
-                &mut hints,
-                &mut recalculate_current_selection,
-            ) {
-                self.active_plugin = None;
-            }
-        } else {
-            // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
-                if self.run_plugin(
-                    idx,
-                    &mut input,
-                    &mut hints,
-                    &mut recalculate_current_selection,
-                ) {
-                    self.active_plugin = Some(idx);
-                    break;
-                }
-            }
+        self.state.event(
+            &mut input,
+            &mut hints,
+            &mut recalculate_current_selection,
+            &mut self.cs,
+            &mut self.canvas,
+        );
+        if recalculate_current_selection {
+            self.state.set_current_selection(self.mouseover_something());
         }
 
         // Can do this at any time.
@@ -94,10 +71,6 @@ impl GUI<RenderingHints> for UI {
             info!("Saved color_scheme");
             //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             process::exit(0);
-        }
-
-        if recalculate_current_selection {
-            self.primary.current_selection = self.mouseover_something();
         }
 
         input.populate_osd(&mut hints.osd);
@@ -114,20 +87,14 @@ impl GUI<RenderingHints> for UI {
 
         let ctx = Ctx {
             cs: &self.cs,
-            map: &self.primary.map,
-            draw_map: &self.primary.draw_map,
+            map: &self.state.primary().map,
+            draw_map: &self.state.primary().draw_map,
             canvas: &self.canvas,
-            sim: &self.primary.sim,
+            sim: &self.state.primary().sim,
             hints: &hints,
         };
 
-        let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
-            self.canvas.get_screen_bounds(),
-            self.primary_plugins.debug_mode(),
-            &self.primary.map,
-            self.get_draw_agent_source(),
-            self,
-        );
+        let (statics, dynamics) = self.state.get_objects_onscreen(&self.canvas);
         for obj in statics
             .into_iter()
             .chain(dynamics.iter().map(|obj| Box::new(obj.borrow())))
@@ -135,31 +102,18 @@ impl GUI<RenderingHints> for UI {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id(), &ctx),
                 cam_zoom: self.canvas.cam_zoom,
-                debug_mode: self.primary_plugins.layers().debug_mode.is_enabled(),
+                debug_mode: self.state.is_debug_mode_enabled(),
             };
             obj.draw(g, opts, &ctx);
         }
 
-        if let Some(p) = self.get_active_plugin() {
-            p.draw(g, &ctx);
-        } else {
-            // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
-            // chance.
-            self.primary_plugins.view_mode().draw(g, &ctx);
-            self.plugins.sim_mode().draw(g, &ctx);
-        }
+        self.state.draw(g, &ctx);
 
         self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
     }
 
     fn dump_before_abort(&self) {
-        error!("********************************************************************************");
-        error!("UI broke! Primary sim:");
-        self.primary.sim.dump_before_abort();
-        if let Some((s, _)) = &self.secondary {
-            error!("Secondary sim:");
-            s.sim.dump_before_abort();
-        }
+        self.state.dump_before_abort();
         self.save_editor_state();
     }
 }
@@ -214,27 +168,17 @@ impl PerMapUI {
 
 impl UI {
     pub fn new(flags: SimFlags, kml: Option<String>) -> UI {
-        // Do this first to trigger the log console initialization, so anything logged by sim::load
-        // isn't lost.
-        let plugins = PluginsPerUI::new(&flags);
-
         let canvas = Canvas::new();
-        let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
+        let state = Box::new(DefaultUIState::new(flags, kml, &canvas));
+
         let mut ui = UI {
-            primary,
-            primary_plugins,
-            secondary: None,
-
-            plugins,
-
-            active_plugin: None,
-
+            state,
             canvas,
             cs: ColorScheme::load().unwrap(),
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
-            Ok(ref state) if ui.primary.map.get_name() == &state.map_name => {
+            Ok(ref state) if ui.state.primary().map.get_name() == &state.map_name => {
                 info!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
@@ -244,12 +188,16 @@ impl UI {
                 warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 // TODO window_size isn't set yet, so this actually kinda breaks
                 let focus_pt = ID::Building(BuildingID(0))
-                    .canonical_point(&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
+                    .canonical_point(
+                        &ui.state.primary().map,
+                        &ui.state.primary().sim,
+                        &ui.state.primary().draw_map,
+                    )
                     .or_else(|| {
                         ID::Lane(LaneID(0)).canonical_point(
-                            &ui.primary.map,
-                            &ui.primary.sim,
-                            &ui.primary.draw_map,
+                            &ui.state.primary().map,
+                            &ui.state.primary().sim,
+                            &ui.state.primary().draw_map,
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
@@ -263,13 +211,7 @@ impl UI {
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space();
 
-        let (statics, dynamics) = self.primary.draw_map.get_objects_onscreen(
-            self.canvas.get_screen_bounds(),
-            self.primary_plugins.debug_mode(),
-            &self.primary.map,
-            self.get_draw_agent_source(),
-            self,
-        );
+        let (statics, dynamics) = self.state.get_objects_onscreen(&self.canvas);
         // Check front-to-back
         for obj in dynamics
             .iter()
@@ -285,57 +227,12 @@ impl UI {
     }
 
     fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
-        if Some(id) == self.primary.current_selection {
-            return Some(ctx.cs.get_def("selected", Color::BLUE));
-        }
-
-        if let Some(p) = self.get_active_plugin() {
-            p.color_for(id, ctx)
-        } else {
-            // If no other mode was active, give the ambient plugins in ViewMode a chance.
-            self.primary_plugins.view_mode().color_for(id, ctx)
-        }
-    }
-
-    fn get_active_plugin(&self) -> Option<&Box<Plugin>> {
-        let idx = self.active_plugin?;
-        let len = self.plugins.list.len();
-        if idx < len {
-            Some(&self.plugins.list[idx])
-        } else {
-            Some(&self.primary_plugins.list[idx - len])
-        }
-    }
-
-    fn run_plugin(
-        &mut self,
-        idx: usize,
-        input: &mut UserInput,
-        hints: &mut RenderingHints,
-        recalculate_current_selection: &mut bool,
-    ) -> bool {
-        let mut ctx = PluginCtx {
-            primary: &mut self.primary,
-            primary_plugins: None,
-            secondary: &mut self.secondary,
-            canvas: &mut self.canvas,
-            cs: &mut self.cs,
-            input,
-            hints,
-            recalculate_current_selection,
-        };
-        let len = self.plugins.list.len();
-        if idx < len {
-            ctx.primary_plugins = Some(&mut self.primary_plugins);
-            self.plugins.list[idx].blocking_event(&mut ctx)
-        } else {
-            self.primary_plugins.list[idx - len].blocking_event(&mut ctx)
-        }
+        self.state.color_obj(id, ctx)
     }
 
     fn save_editor_state(&self) {
         let state = EditorState {
-            map_name: self.primary.map.get_name().clone(),
+            map_name: self.state.primary().map.get_name().clone(),
             cam_x: self.canvas.cam_x,
             cam_y: self.canvas.cam_y,
             cam_zoom: self.canvas.cam_zoom,
@@ -343,15 +240,6 @@ impl UI {
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
         abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
         info!("Saved editor_state");
-    }
-
-    fn get_draw_agent_source(&self) -> &GetDrawAgents {
-        let tt = self.primary_plugins.time_travel();
-        if tt.is_active() {
-            tt
-        } else {
-            &self.primary.sim
-        }
     }
 }
 
@@ -361,25 +249,4 @@ pub struct EditorState {
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
-}
-
-pub trait ShowTurnIcons {
-    fn show_icons_for(&self, id: IntersectionID) -> bool;
-}
-
-impl ShowTurnIcons for UI {
-    fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.primary_plugins
-            .layers()
-            .show_all_turn_icons
-            .is_enabled()
-            || self.plugins.edit_mode().show_turn_icons(id)
-            || {
-                if let Some(ID::Turn(t)) = self.primary.current_selection {
-                    t.parent == id
-                } else {
-                    false
-                }
-            }
-    }
 }

@@ -12,7 +12,7 @@ use crate::render::parcel::DrawParcel;
 use crate::render::pedestrian::DrawPedestrian;
 use crate::render::turn::DrawTurn;
 use crate::render::{draw_vehicle, Renderable};
-use crate::ui::ShowTurnIcons;
+use crate::state::ShowTurnIcons;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use geom::Bounds;
