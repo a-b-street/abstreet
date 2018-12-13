@@ -38,19 +38,19 @@ impl Plugin for OsmClassifier {
                     {
                         // From https://wiki.openstreetmap.org/wiki/Map_Features#Highway
                         Some("motorway") | Some("motorway_link") => {
-                            Some(ctx.cs.get("OSM motorway", Color::rgb(231, 141, 159)))
+                            Some(ctx.cs.get_def("OSM motorway", Color::rgb(231, 141, 159)))
                         }
                         Some("trunk") | Some("trunk_link") => {
-                            Some(ctx.cs.get("OSM trunk", Color::rgb(249, 175, 152)))
+                            Some(ctx.cs.get_def("OSM trunk", Color::rgb(249, 175, 152)))
                         }
                         Some("primary") | Some("primary_link") => {
-                            Some(ctx.cs.get("OSM primary", Color::rgb(252, 213, 160)))
+                            Some(ctx.cs.get_def("OSM primary", Color::rgb(252, 213, 160)))
                         }
                         Some("secondary") | Some("secondary_link") => {
-                            Some(ctx.cs.get("OSM secondary", Color::rgb(252, 213, 160)))
+                            Some(ctx.cs.get_def("OSM secondary", Color::rgb(252, 213, 160)))
                         }
                         Some("residential") => {
-                            Some(ctx.cs.get("OSM residential", Color::rgb(254, 254, 254)))
+                            Some(ctx.cs.get_def("OSM residential", Color::rgb(254, 254, 254)))
                         }
                         _ => None,
                     }
@@ -60,7 +60,7 @@ impl Plugin for OsmClassifier {
             }
             ID::Building(b) => {
                 if ctx.map.get_b(b).osm_tags.contains_key("addr:housenumber") {
-                    Some(ctx.cs.get("OSM house", Color::GREEN))
+                    Some(ctx.cs.get_def("OSM house", Color::GREEN))
                 } else {
                     None
                 }

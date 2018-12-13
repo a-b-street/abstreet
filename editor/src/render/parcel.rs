@@ -57,7 +57,7 @@ impl Renderable for DrawParcel {
         g.draw_polygon(color, &self.fill_polygon);
 
         g.draw_polygon(
-            ctx.cs.get("parcel boundary", Color::grey(0.3)),
+            ctx.cs.get_def("parcel boundary", Color::grey(0.3)),
             &self.boundary_polygon,
         );
     }

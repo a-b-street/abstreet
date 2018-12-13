@@ -112,7 +112,7 @@ impl Plugin for DrawNeighborhoodState {
 
         if pts.len() == 2 {
             g.draw_line(
-                ctx.cs.get("neighborhood point", Color::RED),
+                ctx.cs.get_def("neighborhood point", Color::RED),
                 POINT_RADIUS / 2.0,
                 &Line::new(pts[0], pts[1]),
             );
@@ -120,25 +120,26 @@ impl Plugin for DrawNeighborhoodState {
         if pts.len() >= 3 {
             g.draw_polygon(
                 ctx.cs
-                    .get("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
+                    .get_def("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
                 &Polygon::new(&pts),
             );
         }
         for pt in &pts {
             g.draw_circle(
-                ctx.cs.get("neighborhood point", Color::RED),
+                ctx.cs.get_def("neighborhood point", Color::RED),
                 &Circle::new(*pt, POINT_RADIUS),
             );
         }
         if let Some(last) = pts.last() {
             g.draw_circle(
-                ctx.cs.get("neighborhood last placed point", Color::GREEN),
+                ctx.cs
+                    .get_def("neighborhood last placed point", Color::GREEN),
                 &Circle::new(*last, POINT_RADIUS),
             );
         }
         if let Some(idx) = current_idx {
             g.draw_circle(
-                ctx.cs.get("neighborhood point to move", Color::CYAN),
+                ctx.cs.get_def("neighborhood point to move", Color::CYAN),
                 &Circle::new(pts[idx], POINT_RADIUS),
             );
         }

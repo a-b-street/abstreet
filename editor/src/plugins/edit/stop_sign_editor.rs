@@ -73,10 +73,12 @@ impl Plugin for StopSignEditor {
                 return None;
             }
             match ctx.map.get_stop_sign(self.i).get_priority(t) {
-                TurnPriority::Priority => Some(ctx.cs.get("priority stop sign turn", Color::GREEN)),
-                TurnPriority::Yield => Some(ctx.cs.get("yield stop sign turn", Color::YELLOW)),
-                TurnPriority::Stop => Some(ctx.cs.get("stop turn", Color::RED)),
-                TurnPriority::Banned => Some(ctx.cs.get("banned turn", Color::BLACK)),
+                TurnPriority::Priority => {
+                    Some(ctx.cs.get_def("priority stop sign turn", Color::GREEN))
+                }
+                TurnPriority::Yield => Some(ctx.cs.get_def("yield stop sign turn", Color::YELLOW)),
+                TurnPriority::Stop => Some(ctx.cs.get_def("stop turn", Color::RED)),
+                TurnPriority::Banned => Some(ctx.cs.get_def("banned turn", Color::BLACK)),
             }
         } else {
             None

@@ -47,7 +47,7 @@ impl Plugin for DiffAllState {
     fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         for line in &self.lines {
             g.draw_line(
-                ctx.cs.get("diff agents line", Color::YELLOW),
+                ctx.cs.get_def("diff agents line", Color::YELLOW),
                 LANE_THICKNESS,
                 line,
             );

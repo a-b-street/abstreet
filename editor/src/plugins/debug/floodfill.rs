@@ -58,14 +58,14 @@ impl Plugin for Floodfiller {
     fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
         if let ID::Lane(l) = obj {
             if self.visited.contains(&l) {
-                return Some(ctx.cs.get("visited in floodfill", Color::BLUE));
+                return Some(ctx.cs.get_def("visited in floodfill", Color::BLUE));
             }
             if !self.queue.is_empty() && *self.queue.front().unwrap() == l {
-                return Some(ctx.cs.get("next to visit in floodfill", Color::GREEN));
+                return Some(ctx.cs.get_def("next to visit in floodfill", Color::GREEN));
             }
             // TODO linear search shouldnt suck too much for interactive mode
             if self.queue.contains(&l) {
-                return Some(ctx.cs.get("queued in floodfill", Color::RED));
+                return Some(ctx.cs.get_def("queued in floodfill", Color::RED));
             }
         }
         None

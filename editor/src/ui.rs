@@ -108,7 +108,7 @@ impl GUI<RenderingHints> for UI {
         g.clear(
             self.cs
                 .borrow_mut()
-                .get("map background", Color::rgb(242, 239, 233)),
+                .get_def("map background", Color::rgb(242, 239, 233)),
         );
 
         let mut ctx = Ctx {
@@ -294,7 +294,7 @@ impl UI {
 
     fn color_obj(&self, id: ID, ctx: &mut Ctx) -> Option<Color> {
         if Some(id) == self.primary.current_selection {
-            return Some(ctx.cs.get("selected", Color::BLUE));
+            return Some(ctx.cs.get_def("selected", Color::BLUE));
         }
 
         if let Some(p) = self.get_active_plugin() {

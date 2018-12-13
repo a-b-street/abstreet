@@ -77,12 +77,12 @@ impl Plugin for TurnCyclerState {
                 for turn in &ctx.map.get_turns_from_lane(l) {
                     let color = match turn.turn_type {
                         TurnType::SharedSidewalkCorner => {
-                            ctx.cs.get("shared sidewalk corner turn", Color::BLACK)
+                            ctx.cs.get_def("shared sidewalk corner turn", Color::BLACK)
                         }
-                        TurnType::Crosswalk => ctx.cs.get("crosswalk turn", Color::WHITE),
-                        TurnType::Straight => ctx.cs.get("straight turn", Color::BLUE),
-                        TurnType::Right => ctx.cs.get("right turn", Color::GREEN),
-                        TurnType::Left => ctx.cs.get("left turn", Color::RED),
+                        TurnType::Crosswalk => ctx.cs.get_def("crosswalk turn", Color::WHITE),
+                        TurnType::Straight => ctx.cs.get_def("straight turn", Color::BLUE),
+                        TurnType::Right => ctx.cs.get_def("right turn", Color::GREEN),
+                        TurnType::Left => ctx.cs.get_def("left turn", Color::RED),
                     }
                     .alpha(0.5);
                     DrawTurn::draw_full(turn, g, color);
@@ -94,7 +94,7 @@ impl Plugin for TurnCyclerState {
                     DrawTurn::draw_full(
                         turns[idx % turns.len()],
                         g,
-                        ctx.cs.get("current selected turn", Color::RED),
+                        ctx.cs.get_def("current selected turn", Color::RED),
                     );
                 }
             }
@@ -119,11 +119,11 @@ impl Plugin for TurnCyclerState {
                         let width = 50.0;
                         let height = 100.0;
                         g.draw_polygon(
-                            ctx.cs.get("timer foreground", Color::RED),
+                            ctx.cs.get_def("timer foreground", Color::RED),
                             &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
                         );
                         g.draw_polygon(
-                            ctx.cs.get("timer background", Color::BLACK),
+                            ctx.cs.get_def("timer background", Color::BLACK),
                             &Polygon::rectangle_topleft(
                                 Pt2D::new(10.0, 10.0),
                                 width,

@@ -7,7 +7,7 @@ def run():
 
     for path, _, files in os.walk('.'):
         for f in files:
-            if f.endswith('.rs') and f != 'colors.rs' and f != 'objects.rs':
+            if f.endswith('.rs') and f != 'colors.rs':
                 for k, v in read_file(os.path.join(path, f)):
                     # TODO Check for double-definitions
                     mapping[k] = v
@@ -17,13 +17,12 @@ def run():
 
 
 def read_file(filename):
-    print filename
     entries = []
     with open(filename, 'r') as f:
         src = ''.join(f.readlines())
         while src:
-            if src.startswith('get('):
-                src = src[len('get('):]
+            if src.startswith('get_def('):
+                src = src[len('get_def('):]
 
                 # Look for the opening "
                 while src[0] != '"':
@@ -46,7 +45,7 @@ def read_file(filename):
                 while not src.startswith('Color'):
                     src = src[1:]
 
-                # Wait for the ()'s to be mismatched, meaning we found the ) of the get()
+                # Wait for the ()'s to be mismatched, meaning we found the ) of the get_def()
                 counter = 0
                 value = ''
                 while True:

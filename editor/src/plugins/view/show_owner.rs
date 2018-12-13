@@ -65,7 +65,7 @@ impl Plugin for ShowOwnerState {
     }
 
     fn color_for(&self, obj: ID, ctx: &mut Ctx) -> Option<Color> {
-        let color = ctx.cs.get("car/building owner", Color::PURPLE);
+        let color = ctx.cs.get_def("car/building owner", Color::PURPLE);
         match (self, obj) {
             (ShowOwnerState::BuildingSelected(_, cars), ID::Car(id)) => {
                 if cars.contains(&id) {

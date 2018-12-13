@@ -28,9 +28,9 @@ impl Renderable for DrawArea {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = match self.area_type {
-            AreaType::Park => ctx.cs.get("park area", Color::GREEN),
-            AreaType::Swamp => ctx.cs.get("swamp area", Color::rgb_f(0.0, 1.0, 0.6)),
-            AreaType::Water => ctx.cs.get("water area", Color::BLUE),
+            AreaType::Park => ctx.cs.get_def("park area", Color::GREEN),
+            AreaType::Swamp => ctx.cs.get_def("swamp area", Color::rgb_f(0.0, 1.0, 0.6)),
+            AreaType::Water => ctx.cs.get_def("water area", Color::BLUE),
         };
         g.draw_polygon(opts.color.unwrap_or(color), &self.fill_polygon);
     }

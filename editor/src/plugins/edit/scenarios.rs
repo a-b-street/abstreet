@@ -80,7 +80,7 @@ impl Plugin for ScenarioManager {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
                     g.draw_polygon(
                         ctx.cs
-                            .get("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
+                            .get_def("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
                         &neighborhood.polygon,
                     );
                 }

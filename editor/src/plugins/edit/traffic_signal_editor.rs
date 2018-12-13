@@ -237,7 +237,8 @@ impl Plugin for TrafficSignalEditor {
 
         let old_ctx = g.fork_screenspace();
         g.draw_polygon(
-            ctx.cs.get("signal editor panel", Color::BLACK.alpha(0.95)),
+            ctx.cs
+                .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
             &Polygon::rectangle_topleft(
                 Pt2D::new(10.0, 10.0),
                 2.0 * width * zoom,
@@ -247,7 +248,7 @@ impl Plugin for TrafficSignalEditor {
         // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
         // center a map-space thing inside a screen-space box.
         g.draw_polygon(
-            ctx.cs.get(
+            ctx.cs.get_def(
                 "current cycle in signal editor panel",
                 Color::BLUE.alpha(0.95),
             ),
@@ -292,7 +293,7 @@ impl Plugin for TrafficSignalEditor {
             DrawTurn::draw_full(
                 ctx.map.get_t(id),
                 g,
-                ctx.cs.get("selected turn icon", Color::BLUE.alpha(0.5)),
+                ctx.cs.get_def("selected turn icon", Color::BLUE.alpha(0.5)),
             );
         }
 
@@ -311,13 +312,13 @@ impl Plugin for TrafficSignalEditor {
             let cycle = &ctx.map.get_traffic_signal(self.i).cycles[self.current_cycle];
 
             return Some(match cycle.get_priority(t) {
-                TurnPriority::Priority => {
-                    ctx.cs.get("priority turn in current cycle", Color::GREEN)
-                }
+                TurnPriority::Priority => ctx
+                    .cs
+                    .get_def("priority turn in current cycle", Color::GREEN),
                 TurnPriority::Yield => ctx
                     .cs
-                    .get("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                TurnPriority::Banned => ctx.cs.get("turn not in current cycle", Color::BLACK),
+                    .get_def("yield turn in current cycle", Color::rgb(255, 105, 180)),
+                TurnPriority::Banned => ctx.cs.get_def("turn not in current cycle", Color::BLACK),
                 TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
             });
         }

@@ -41,7 +41,7 @@ impl DrawIntersection {
 
     fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         g.draw_polygon(
-            ctx.cs.get("stop sign background", Color::RED),
+            ctx.cs.get_def("stop sign background", Color::RED),
             &Polygon::regular_polygon(self.center, 8, 1.5, Angle::new_degs(360.0 / 16.0)),
         );
         // TODO draw "STOP"
@@ -51,22 +51,22 @@ impl DrawIntersection {
         let radius = 0.5;
 
         g.draw_polygon(
-            ctx.cs.get("traffic signal box", Color::BLACK),
+            ctx.cs.get_def("traffic signal box", Color::BLACK),
             &Polygon::rectangle(self.center, 4.0 * radius, 8.0 * radius),
         );
 
         g.draw_circle(
-            ctx.cs.get("traffic signal yellow", Color::YELLOW),
+            ctx.cs.get_def("traffic signal yellow", Color::YELLOW),
             &Circle::new(self.center, radius),
         );
 
         g.draw_circle(
-            ctx.cs.get("traffic signal green", Color::GREEN),
+            ctx.cs.get_def("traffic signal green", Color::GREEN),
             &Circle::new(self.center.offset(0.0, radius * 2.0), radius),
         );
 
         g.draw_circle(
-            ctx.cs.get("traffic signal red", Color::RED),
+            ctx.cs.get_def("traffic signal red", Color::RED),
             &Circle::new(self.center.offset(0.0, radius * -2.0), radius),
         );
     }
@@ -80,7 +80,9 @@ impl Renderable for DrawIntersection {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         let color = opts.color.unwrap_or_else(|| {
             if self.intersection_type == IntersectionType::Border {
-                return ctx.cs.get("border intersection", Color::rgb(50, 205, 50));
+                return ctx
+                    .cs
+                    .get_def("border intersection", Color::rgb(50, 205, 50));
             }
 
             let _changed = if let Some(s) = ctx.map.maybe_get_traffic_signal(self.id) {
@@ -91,7 +93,7 @@ impl Renderable for DrawIntersection {
                 false
             };
             // TODO Make some other way to view map edits. rgb_f(0.8, 0.6, 0.6) was distracting.
-            ctx.cs.get("unchanged intersection", Color::grey(0.6))
+            ctx.cs.get_def("unchanged intersection", Color::grey(0.6))
         });
         g.draw_polygon(color, &self.polygon);
 
@@ -102,13 +104,13 @@ impl Renderable for DrawIntersection {
                     *ctx.hints
                         .color_crosswalks
                         .get(&crosswalk.id1)
-                        .unwrap_or(&ctx.cs.get("crosswalk", Color::WHITE)),
+                        .unwrap_or(&ctx.cs.get_def("crosswalk", Color::WHITE)),
                 );
             }
         }
 
         for corner in &self.sidewalk_corners {
-            g.draw_polygon(ctx.cs.get("sidewalk corner", Color::grey(0.7)), corner);
+            g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
         }
 
         if ctx.hints.suppress_intersection_icon != Some(self.id) {
@@ -173,15 +175,15 @@ pub fn draw_signal_cycle(
     draw_map: &DrawMap,
     hide_crosswalks: &HashSet<TurnID>,
 ) {
-    let priority_color = cs.get("turns protected by traffic signal right now", Color::GREEN);
-    let yield_color = cs.get(
+    let priority_color = cs.get_def("turns protected by traffic signal right now", Color::GREEN);
+    let yield_color = cs.get_def(
         "turns allowed with yielding by traffic signal right now",
         Color::rgba(255, 105, 180, 0.8),
     );
 
     for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
         if !hide_crosswalks.contains(&crosswalk.id1) {
-            crosswalk.draw(g, cs.get("crosswalk", Color::WHITE));
+            crosswalk.draw(g, cs.get_def("crosswalk", Color::WHITE));
         }
     }
     for t in &cycle.priority_turns {
@@ -199,10 +201,10 @@ pub fn draw_signal_cycle(
 }
 
 pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &mut ColorScheme, map: &Map) {
-    let priority_color = cs.get("stop sign priority turns", Color::GREEN);
+    let priority_color = cs.get_def("stop sign priority turns", Color::GREEN);
     // TODO pink yield color from traffic signals is nice, but it's too close to red for stop...
-    let yield_color = cs.get("stop sign yield turns", Color::YELLOW.alpha(0.8));
-    let stop_color = cs.get("stop sign stop turns", Color::RED.alpha(0.8));
+    let yield_color = cs.get_def("stop sign yield turns", Color::YELLOW.alpha(0.8));
+    let stop_color = cs.get_def("stop sign stop turns", Color::RED.alpha(0.8));
 
     // TODO first crosswalks... actually, give rendering hints to override the color. dont do that
     // here.
@@ -251,12 +253,12 @@ pub fn stop_sign_rendering_hints(
             TurnPriority::Yield => {
                 hints
                     .color_crosswalks
-                    .insert(*t, cs.get("stop sign yield crosswalk", Color::YELLOW));
+                    .insert(*t, cs.get_def("stop sign yield crosswalk", Color::YELLOW));
             }
             TurnPriority::Stop => {
                 hints
                     .color_crosswalks
-                    .insert(*t, cs.get("stop sign stop crosswalk", Color::RED));
+                    .insert(*t, cs.get_def("stop sign stop crosswalk", Color::RED));
             }
             TurnPriority::Banned => {
                 hints.hide_crosswalks.insert(*t);

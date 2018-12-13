@@ -44,7 +44,7 @@ impl Renderable for DrawBusStop {
         g.draw_polygon(
             opts.color.unwrap_or_else(|| {
                 ctx.cs
-                    .get("bus stop marking", Color::rgba(220, 160, 220, 0.8))
+                    .get_def("bus stop marking", Color::rgba(220, 160, 220, 0.8))
             }),
             &self.polygon,
         );

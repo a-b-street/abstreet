@@ -95,30 +95,30 @@ impl Renderable for DrawCar {
             match self.state {
                 CarState::Debug => ctx
                     .cs
-                    .get("debug car", Color::rgba(0, 0, 255, 0.8))
+                    .get_def("debug car", Color::rgba(0, 0, 255, 0.8))
                     .shift(self.id.0),
-                CarState::Moving => ctx.cs.get("moving car", Color::CYAN).shift(self.id.0),
-                CarState::Stuck => ctx.cs.get("stuck car", Color::RED).shift(self.id.0),
+                CarState::Moving => ctx.cs.get_def("moving car", Color::CYAN).shift(self.id.0),
+                CarState::Stuck => ctx.cs.get_def("stuck car", Color::RED).shift(self.id.0),
                 CarState::Parked => ctx
                     .cs
-                    .get("parked car", Color::rgb(180, 233, 76))
+                    .get_def("parked car", Color::rgb(180, 233, 76))
                     .shift(self.id.0),
             }
         });
         g.draw_polygon(color, &self.body_polygon);
         for p in &self.window_polygons {
-            g.draw_polygon(ctx.cs.get("car window", Color::BLACK), p);
+            g.draw_polygon(ctx.cs.get_def("car window", Color::BLACK), p);
         }
 
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
-            g.draw_arrow(ctx.cs.get("car turn arrow", Color::CYAN), 0.25, 1.0, a);
+            g.draw_arrow(ctx.cs.get_def("car turn arrow", Color::CYAN), 0.25, 1.0, a);
         }
 
         if let Some(ref t) = self.stopping_buffer {
             g.draw_polygon(
                 ctx.cs
-                    .get("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
+                    .get_def("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
                 t,
             );
         }

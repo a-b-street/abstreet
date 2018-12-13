@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 
 pub struct ColorScheme {
-    // Filled out by lazy calls to get()
+    // Filled out by lazy calls to get_def()
     map: HashMap<String, Color>,
 
     // A subset of map
@@ -32,7 +32,8 @@ impl ColorScheme {
         abstutil::write_json("color_scheme", &self.modified).expect("Saving color_scheme failed");
     }
 
-    pub fn get(&mut self, name: &str, default: Color) -> Color {
+    // Get, but specify the default inline
+    pub fn get_def(&mut self, name: &str, default: Color) -> Color {
         if let Some(existing) = self.map.get(name) {
             if default != *existing && !self.modified.map.contains_key(name) {
                 panic!(

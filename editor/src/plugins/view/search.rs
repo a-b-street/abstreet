@@ -71,7 +71,7 @@ impl Plugin for SearchState {
             };
             for (k, v) in osm_tags {
                 if format!("{}={}", k, v).contains(filter) {
-                    return Some(ctx.cs.get("search result", Color::RED));
+                    return Some(ctx.cs.get_def("search result", Color::RED));
                 }
             }
         }

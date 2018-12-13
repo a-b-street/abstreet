@@ -50,7 +50,7 @@ impl Plugin for DiffTripState {
     fn draw(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         if let Some(l) = &self.line {
             g.draw_line(
-                ctx.cs.get("diff agents line", Color::YELLOW),
+                ctx.cs.get_def("diff agents line", Color::YELLOW),
                 LANE_THICKNESS,
                 l,
             );
@@ -58,14 +58,14 @@ impl Plugin for DiffTripState {
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
                 ctx.cs
-                    .get("primary agent route", Color::rgba(255, 0, 0, 0.5)),
+                    .get_def("primary agent route", Color::rgba(255, 0, 0, 0.5)),
                 &t.make_polygons_blindly(LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
                 ctx.cs
-                    .get("secondary agent route", Color::rgba(0, 0, 255, 0.5)),
+                    .get_def("secondary agent route", Color::rgba(0, 0, 255, 0.5)),
                 &t.make_polygons_blindly(LANE_THICKNESS),
             );
         }

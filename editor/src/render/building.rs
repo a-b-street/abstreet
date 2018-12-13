@@ -39,15 +39,17 @@ impl Renderable for DrawBuilding {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &mut Ctx) {
         // Buildings look better without boundaries, actually
-        //g.draw_polygon(ctx.cs.get("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
+        //g.draw_polygon(ctx.cs.get_def("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
         g.draw_polygon(
-            opts.color
-                .unwrap_or_else(|| ctx.cs.get("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8))),
+            opts.color.unwrap_or_else(|| {
+                ctx.cs
+                    .get_def("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8))
+            }),
             &self.fill_polygon,
         );
 
         g.draw_line(
-            ctx.cs.get("building path", Color::grey(0.6)),
+            ctx.cs.get_def("building path", Color::grey(0.6)),
             1.0,
             &self.front_path,
         );

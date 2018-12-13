@@ -43,11 +43,11 @@ impl Renderable for DrawPedestrian {
         let color = opts.color.unwrap_or_else(|| {
             if self.preparing_bike {
                 ctx.cs
-                    .get("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                    .get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
                     .shift(self.id.0)
             } else {
                 ctx.cs
-                    .get("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
+                    .get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
                     .shift(self.id.0)
             }
         });
@@ -56,7 +56,7 @@ impl Renderable for DrawPedestrian {
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
             g.draw_rounded_arrow(
-                ctx.cs.get("pedestrian turn arrow", Color::CYAN),
+                ctx.cs.get_def("pedestrian turn arrow", Color::CYAN),
                 0.25,
                 0.3,
                 a,

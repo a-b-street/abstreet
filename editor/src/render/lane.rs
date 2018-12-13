@@ -35,7 +35,7 @@ impl DrawLane {
             markings.push(Box::new(move |g, cs| {
                 for line in &lines {
                     g.draw_rounded_line(
-                        cs.get("road center line", Color::YELLOW),
+                        cs.get_def("road center line", Color::YELLOW),
                         BIG_ARROW_THICKNESS,
                         line,
                     );
@@ -78,11 +78,11 @@ impl DrawLane {
     fn draw_debug(&self, g: &mut GfxCtx, ctx: &mut Ctx) {
         let circle_color = ctx
             .cs
-            .get("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
+            .get_def("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
 
         for l in ctx.map.get_l(self.id).lane_center_pts.lines() {
             g.draw_line(
-                ctx.cs.get("debug line", Color::RED),
+                ctx.cs.get_def("debug line", Color::RED),
                 PARCEL_BOUNDARY_THICKNESS / 2.0,
                 &l,
             );
@@ -107,12 +107,14 @@ impl Renderable for DrawLane {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
             match l.lane_type {
-                _ if l.probably_broken => ctx.cs.get("broken lane", Color::rgb_f(1.0, 0.0, 0.565)),
-                LaneType::Driving => ctx.cs.get("driving lane", Color::BLACK),
-                LaneType::Bus => ctx.cs.get("bus lane", Color::rgb(190, 74, 76)),
-                LaneType::Parking => ctx.cs.get("parking lane", Color::grey(0.2)),
-                LaneType::Sidewalk => ctx.cs.get("sidewalk", Color::grey(0.8)),
-                LaneType::Biking => ctx.cs.get("bike lane", Color::rgb(15, 125, 75)),
+                _ if l.probably_broken => {
+                    ctx.cs.get_def("broken lane", Color::rgb_f(1.0, 0.0, 0.565))
+                }
+                LaneType::Driving => ctx.cs.get_def("driving lane", Color::BLACK),
+                LaneType::Bus => ctx.cs.get_def("bus lane", Color::rgb(190, 74, 76)),
+                LaneType::Parking => ctx.cs.get_def("parking lane", Color::grey(0.2)),
+                LaneType::Sidewalk => ctx.cs.get_def("sidewalk", Color::grey(0.8)),
+                LaneType::Biking => ctx.cs.get_def("bike lane", Color::rgb(15, 125, 75)),
             }
         });
         g.draw_polygon(color, &self.polygon);
@@ -162,7 +164,7 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
 
     Box::new(move |g, cs| {
         for line in &lines {
-            g.draw_line(cs.get("sidewalk lines", Color::grey(0.7)), 0.25, line);
+            g.draw_line(cs.get_def("sidewalk lines", Color::grey(0.7)), 0.25, line);
         }
     })
 }
@@ -195,7 +197,7 @@ fn calculate_parking_lines(lane: &Lane) -> Marking {
 
     Box::new(move |g, cs| {
         for line in &lines {
-            g.draw_line(cs.get("parking line", Color::WHITE), 0.25, line);
+            g.draw_line(cs.get_def("parking line", Color::WHITE), 0.25, line);
         }
     })
 }
@@ -225,7 +227,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
 
     Some(Box::new(move |g, cs| {
         for p in &polygons {
-            g.draw_polygon(cs.get("dashed lane line", Color::WHITE), p);
+            g.draw_polygon(cs.get_def("dashed lane line", Color::WHITE), p);
         }
     }))
 }
@@ -243,7 +245,7 @@ fn calculate_stop_sign_line(lane: &Lane, map: &Map) -> Option<Marking> {
     let line = perp_line(Line::new(pt1, pt2), LANE_THICKNESS);
 
     Some(Box::new(move |g, cs| {
-        g.draw_rounded_line(cs.get("stop line for lane", Color::RED), 0.45, &line);
+        g.draw_rounded_line(cs.get_def("stop line for lane", Color::RED), 0.45, &line);
     }))
 }
 
@@ -296,7 +298,9 @@ fn turn_markings(turn: &Turn, map: &Map) -> Option<Marking> {
     );
 
     Some(Box::new(move |g, cs| {
-        let color = cs.get("turn restrictions on lane", Color::WHITE).alpha(0.8);
+        let color = cs
+            .get_def("turn restrictions on lane", Color::WHITE)
+            .alpha(0.8);
         g.draw_polygon(color, &base_polygon);
         g.draw_rounded_arrow(color, 0.05, 0.5, &turn_line);
     }))

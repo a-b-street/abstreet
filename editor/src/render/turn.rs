@@ -96,13 +96,13 @@ impl Renderable for DrawTurn {
         }
 
         g.draw_circle(
-            ctx.cs.get("turn icon circle", Color::grey(0.3)),
+            ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
             &self.icon_circle,
         );
 
         g.draw_arrow(
             opts.color
-                .unwrap_or_else(|| ctx.cs.get("inactive turn icon", Color::grey(0.7))),
+                .unwrap_or_else(|| ctx.cs.get_def("inactive turn icon", Color::grey(0.7))),
             TURN_ICON_ARROW_THICKNESS,
             TURN_ICON_ARROW_TIP_LENGTH,
             &self.icon_arrow,
