@@ -3,7 +3,7 @@ use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
-use ezgui::{Color, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use piston::input::Key;
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
@@ -78,11 +78,7 @@ impl Plugin for ScenarioManager {
             }
             ScenarioManager::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon(
-                        ctx.cs
-                            .get_def("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
-                        &neighborhood.polygon,
-                    );
+                    g.draw_polygon(ctx.cs.get("neighborhood polygon"), &neighborhood.polygon);
                 }
                 wizard.draw(g, ctx.canvas);
             }

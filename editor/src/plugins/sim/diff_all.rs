@@ -1,6 +1,6 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx};
+use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
 use piston::input::Key;
@@ -46,11 +46,7 @@ impl Plugin for DiffAllState {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         for line in &self.lines {
-            g.draw_line(
-                ctx.cs.get_def("diff agents line", Color::YELLOW),
-                LANE_THICKNESS,
-                line,
-            );
+            g.draw_line(ctx.cs.get("diff agents line"), LANE_THICKNESS, line);
         }
     }
 }

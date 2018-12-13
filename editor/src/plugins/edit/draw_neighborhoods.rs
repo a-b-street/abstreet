@@ -126,7 +126,7 @@ impl Plugin for DrawNeighborhoodState {
         }
         for pt in &pts {
             g.draw_circle(
-                ctx.cs.get_def("neighborhood point", Color::RED),
+                ctx.cs.get("neighborhood point"),
                 &Circle::new(*pt, POINT_RADIUS),
             );
         }

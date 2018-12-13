@@ -80,7 +80,7 @@ impl Plugin for ShowRouteState {
             State::DebugAllRoutes(_, traces) => {
                 for t in traces {
                     g.draw_polygon(
-                        ctx.cs.get_def("route", Color::rgba(255, 0, 0, 0.8)),
+                        ctx.cs.get("route"),
                         &t.make_polygons_blindly(LANE_THICKNESS),
                     );
                 }

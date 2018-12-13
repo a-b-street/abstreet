@@ -38,6 +38,10 @@ impl ColorScheme {
         self.map[name]
     }
 
+    pub fn get(&self, name: &str) -> Color {
+        self.map[name]
+    }
+
     // Just for the color picker plugin, that's why the funky return value
     pub fn color_names(&self) -> Vec<(String, ())> {
         let mut names: Vec<(String, ())> = self.map.keys().map(|n| (n.clone(), ())).collect();

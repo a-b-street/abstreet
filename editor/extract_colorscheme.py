@@ -10,7 +10,8 @@ def run():
         for f in files:
             if f.endswith('.rs') and f != 'colors.rs':
                 for k, v in read_file(os.path.join(path, f)):
-                    # TODO Check for double-definitions
+                    if k in mapping:
+                        raise ValueError('Color {} defined twice'.format(k))
                     mapping[k] = v
 
     with open('src/init_colors.rs', 'w') as f:

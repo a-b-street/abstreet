@@ -183,7 +183,7 @@ pub fn draw_signal_cycle(
 
     for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
         if !hide_crosswalks.contains(&crosswalk.id1) {
-            crosswalk.draw(g, cs.get_def("crosswalk", Color::WHITE));
+            crosswalk.draw(g, cs.get("crosswalk"));
         }
     }
     for t in &cycle.priority_turns {
