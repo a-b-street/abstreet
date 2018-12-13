@@ -62,14 +62,25 @@ impl GUI<RenderingHints> for UI {
         }
 
         // If there's an active plugin, just run it.
+        let mut recalculate_current_selection = false;
         if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(idx, &mut input, &mut hints) {
+            if !self.run_plugin(
+                idx,
+                &mut input,
+                &mut hints,
+                &mut recalculate_current_selection,
+            ) {
                 self.active_plugin = None;
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
             for idx in 0..self.plugins.list.len() + self.primary_plugins.list.len() {
-                if self.run_plugin(idx, &mut input, &mut hints) {
+                if self.run_plugin(
+                    idx,
+                    &mut input,
+                    &mut hints,
+                    &mut recalculate_current_selection,
+                ) {
                     self.active_plugin = Some(idx);
                     break;
                 }
@@ -85,8 +96,7 @@ impl GUI<RenderingHints> for UI {
             process::exit(0);
         }
 
-        if self.primary.recalculate_current_selection {
-            self.primary.recalculate_current_selection = false;
+        if recalculate_current_selection {
             self.primary.current_selection = self.mouseover_something();
         }
 
@@ -163,16 +173,11 @@ pub struct PerMapUI {
     pub sim: Sim,
 
     pub current_selection: Option<ID>,
-    pub recalculate_current_selection: bool,
     pub current_flags: SimFlags,
 }
 
 impl PerMapUI {
-    pub fn new(
-        flags: SimFlags,
-        kml: Option<String>,
-        canvas: &Canvas,
-    ) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
@@ -198,9 +203,7 @@ impl PerMapUI {
             map,
             draw_map,
             sim,
-
             current_selection: None,
-            recalculate_current_selection: false,
             current_flags: flags,
         };
         let plugins = PluginsPerMap::new(&state, canvas, &mut timer);
@@ -309,6 +312,7 @@ impl UI {
         idx: usize,
         input: &mut UserInput,
         hints: &mut RenderingHints,
+        recalculate_current_selection: &mut bool,
     ) -> bool {
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
@@ -318,6 +322,7 @@ impl UI {
             cs: &mut self.cs,
             input,
             hints,
+            recalculate_current_selection,
         };
         let len = self.plugins.list.len();
         if idx < len {

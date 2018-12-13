@@ -44,7 +44,7 @@ impl Plugin for DebugMode {
         if self.hider.event(ctx.input, ctx.primary.current_selection)
             || self.layers.event(ctx.input)
         {
-            ctx.primary.recalculate_current_selection = true;
+            *ctx.recalculate_current_selection = true;
             ctx.primary.current_selection = None;
         }
 

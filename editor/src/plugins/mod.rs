@@ -47,6 +47,7 @@ pub struct PluginCtx<'a> {
     pub cs: &'a mut ColorScheme,
     pub input: &'a mut UserInput,
     pub hints: &'a mut RenderingHints,
+    pub recalculate_current_selection: &'a mut bool,
 }
 
 // TODO Further refactoring should be done, but at least group these here to start.

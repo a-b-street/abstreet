@@ -61,7 +61,7 @@ impl Plugin for SimControls {
             mem::swap(primary_plugins, &mut secondary_plugins);
             ctx.primary_plugins = Some(primary_plugins);
             *ctx.secondary = Some((secondary, secondary_plugins));
-            ctx.primary.recalculate_current_selection = true;
+            *ctx.recalculate_current_selection = true;
         }
 
         match self.state {
@@ -89,7 +89,7 @@ impl Plugin for SimControls {
                             // TODO From the perspective of other SimMode plugins, does this just
                             // look like the simulation stepping forwards?
                             ctx.primary.sim = new_sim;
-                            ctx.primary.recalculate_current_selection = true;
+                            *ctx.recalculate_current_selection = true;
 
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim = Sim::load_savestate(
@@ -114,7 +114,7 @@ impl Plugin for SimControls {
                     {
                         Ok(new_sim) => {
                             ctx.primary.sim = new_sim;
-                            ctx.primary.recalculate_current_selection = true;
+                            *ctx.recalculate_current_selection = true;
 
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim = Sim::load_savestate(
@@ -135,7 +135,7 @@ impl Plugin for SimControls {
                         .unimportant_key_pressed(Key::S, SIM, "Seed the map with agents")
                 {
                     ctx.primary.sim.small_spawn(&ctx.primary.map);
-                    ctx.primary.recalculate_current_selection = true;
+                    *ctx.recalculate_current_selection = true;
                 }
 
                 if ctx
@@ -152,7 +152,7 @@ impl Plugin for SimControls {
                     .unimportant_key_pressed(Key::M, SIM, "run one step")
                 {
                     ctx.primary.sim.step(&ctx.primary.map);
-                    ctx.primary.recalculate_current_selection = true;
+                    *ctx.recalculate_current_selection = true;
                     if let Some((s, _)) = ctx.secondary {
                         s.sim.step(&s.map);
                     }
@@ -176,7 +176,7 @@ impl Plugin for SimControls {
                         let dt_s = elapsed_seconds(*last_step);
                         if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
                             ctx.primary.sim.step(&ctx.primary.map);
-                            ctx.primary.recalculate_current_selection = true;
+                            *ctx.recalculate_current_selection = true;
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim.step(&s.map);
                             }
