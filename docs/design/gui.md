@@ -501,3 +501,7 @@ First simplify UI in smaller ways.
 	- and between drawing and mousing over, dont recalculate all of the DrawCar/Ped stuff!
 
 - stop doing the generic plugin stuff in UI. be direct, since we have very few "plugins".
+
+
+
+Tutorial mode needs to wrap the other stuff (and omit DebugMode!) to reach into SimMode and install a callback. Forces us back to this problem again. Radical idea: What state and code in UI is even important to preserve? Should TutorialMode literally be a new UI impl?

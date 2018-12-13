@@ -32,7 +32,6 @@ impl Plugin for EditsManager {
         if manage_edits(
             &mut ctx.primary.current_flags,
             &ctx.primary.map,
-            ctx.kml,
             &mut new_primary,
             &ctx.canvas,
             self.wizard.wrap(ctx.input),
@@ -59,7 +58,6 @@ impl Plugin for EditsManager {
 fn manage_edits(
     current_flags: &mut SimFlags,
     map: &Map,
-    kml: &Option<String>,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     canvas: &Canvas,
     mut wizard: WrappedWizard,
@@ -101,7 +99,7 @@ fn manage_edits(
             flags.edits_name = load_name;
 
             info!("Reloading everything...");
-            *new_primary = Some(PerMapUI::new(flags, kml, canvas));
+            *new_primary = Some(PerMapUI::new(flags, None, canvas));
             Some(())
         }
         _ => unreachable!(),

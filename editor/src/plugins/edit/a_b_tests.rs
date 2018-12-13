@@ -39,7 +39,7 @@ impl Plugin for ABTestManager {
             ABTestManager::ManageABTest(test, ref mut scroller) => {
                 if ctx.input.key_pressed(Key::R, "run this A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
-                        launch_test(test, ctx.kml, &ctx.primary.current_flags, &ctx.canvas);
+                        launch_test(test, &ctx.primary.current_flags, &ctx.canvas);
                     *ctx.primary = new_primary;
                     if let Some(p_plugins) = ctx.primary_plugins.as_mut() {
                         **p_plugins = new_primary_plugins;
@@ -90,7 +90,6 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 
 fn launch_test(
     test: &ABTest,
-    kml: &Option<String>,
     current_flags: &SimFlags,
     canvas: &Canvas,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
@@ -112,7 +111,7 @@ fn launch_test(
             run_name: format!("{} with {}", test.test_name, test.edits1_name),
             edits_name: test.edits1_name.clone(),
         },
-        kml,
+        None,
         canvas,
     );
     let secondary = PerMapUI::new(
@@ -122,7 +121,7 @@ fn launch_test(
             run_name: format!("{} with {}", test.test_name, test.edits2_name),
             edits_name: test.edits2_name.clone(),
         },
-        kml,
+        None,
         canvas,
     );
     // That's all! The scenario will be instantiated.

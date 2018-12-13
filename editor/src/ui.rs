@@ -29,9 +29,6 @@ pub struct UI {
 
     canvas: Canvas,
     cs: ColorScheme,
-
-    // Remember this to support loading a new PerMapUI
-    kml: Option<String>,
 }
 
 impl GUI<RenderingHints> for UI {
@@ -173,7 +170,7 @@ pub struct PerMapUI {
 impl PerMapUI {
     pub fn new(
         flags: SimFlags,
-        kml: &Option<String>,
+        kml: Option<String>,
         canvas: &Canvas,
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
@@ -219,7 +216,7 @@ impl UI {
         let plugins = PluginsPerUI::new(&flags);
 
         let canvas = Canvas::new();
-        let (primary, primary_plugins) = PerMapUI::new(flags, &kml, &canvas);
+        let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
         let mut ui = UI {
             primary,
             primary_plugins,
@@ -231,8 +228,6 @@ impl UI {
 
             canvas,
             cs: ColorScheme::load().unwrap(),
-
-            kml,
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
@@ -323,7 +318,6 @@ impl UI {
             cs: &mut self.cs,
             input,
             hints,
-            kml: &self.kml,
         };
         let len = self.plugins.list.len();
         if idx < len {

@@ -47,7 +47,6 @@ pub struct PluginCtx<'a> {
     pub cs: &'a mut ColorScheme,
     pub input: &'a mut UserInput,
     pub hints: &'a mut RenderingHints,
-    pub kml: &'a Option<String>,
 }
 
 // TODO Further refactoring should be done, but at least group these here to start.
