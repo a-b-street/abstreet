@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 
 import os
+import subprocess
 
 def run():
     mapping = {}
@@ -24,6 +25,8 @@ def run():
             f.write('    m.insert("{}".to_string(), {});\n'.format(k, mapping[k]))
         f.write('    m\n')
         f.write('}\n')
+
+    subprocess.call(['rustfmt', 'src/init_colors.rs'])
 
 
 def read_file(filename):

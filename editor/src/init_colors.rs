@@ -13,28 +13,43 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("OSM trunk".to_string(), Color::rgb(249, 175, 152));
     m.insert("banned turn".to_string(), Color::BLACK);
     m.insert("bike lane".to_string(), Color::rgb(15, 125, 75));
-    m.insert("bike stopping buffer".to_string(), Color::rgba(255, 0, 0, 0.7));
+    m.insert(
+        "bike stopping buffer".to_string(),
+        Color::rgba(255, 0, 0, 0.7),
+    );
     m.insert("border intersection".to_string(), Color::rgb(50, 205, 50));
     m.insert("broken lane".to_string(), Color::rgb_f(1.0, 0.0, 0.565));
     m.insert("building".to_string(), Color::rgba_f(0.7, 0.7, 0.7, 0.8));
     m.insert("building boundary".to_string(), Color::rgb(0, 100, 0));
     m.insert("building path".to_string(), Color::grey(0.6));
     m.insert("bus lane".to_string(), Color::rgb(190, 74, 76));
-    m.insert("bus stop marking".to_string(), Color::rgba(220, 160, 220, 0.8));
-    m.insert("car stopping buffer".to_string(), Color::rgba(255, 0, 0, 0.7));
+    m.insert(
+        "bus stop marking".to_string(),
+        Color::rgba(220, 160, 220, 0.8),
+    );
+    m.insert(
+        "car stopping buffer".to_string(),
+        Color::rgba(255, 0, 0, 0.7),
+    );
     m.insert("car turn arrow".to_string(), Color::CYAN);
     m.insert("car window".to_string(), Color::BLACK);
     m.insert("car/building owner".to_string(), Color::PURPLE);
     m.insert("chokepoint".to_string(), Color::RED);
     m.insert("crosswalk".to_string(), Color::WHITE);
     m.insert("crosswalk turn".to_string(), Color::WHITE);
-    m.insert("current cycle in signal editor panel".to_string(), Color::BLUE.alpha(0.95));
+    m.insert(
+        "current cycle in signal editor panel".to_string(),
+        Color::BLUE.alpha(0.95),
+    );
     m.insert("current selected turn".to_string(), Color::RED);
     m.insert("dashed lane line".to_string(), Color::WHITE);
     m.insert("debug bike".to_string(), Color::rgba(0, 0, 255, 0.8));
     m.insert("debug car".to_string(), Color::rgba(0, 0, 255, 0.8));
     m.insert("debug line".to_string(), Color::RED);
-    m.insert("debug line endpoint".to_string(), Color::rgb_f(0.8, 0.1, 0.1));
+    m.insert(
+        "debug line endpoint".to_string(),
+        Color::rgb_f(0.8, 0.1, 0.1),
+    );
     m.insert("diff agents line".to_string(), Color::YELLOW);
     m.insert("driving lane".to_string(), Color::BLACK);
     m.insert("extra shape".to_string(), Color::CYAN);
@@ -46,7 +61,10 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("neighborhood last placed point".to_string(), Color::GREEN);
     m.insert("neighborhood point".to_string(), Color::RED);
     m.insert("neighborhood point to move".to_string(), Color::CYAN);
-    m.insert("neighborhood polygon".to_string(), Color::rgba(0, 0, 255, 0.6));
+    m.insert(
+        "neighborhood polygon".to_string(),
+        Color::rgba(0, 0, 255, 0.6),
+    );
     m.insert("next to visit in floodfill".to_string(), Color::GREEN);
     m.insert("parcel boundary".to_string(), Color::grey(0.3));
     m.insert("park area".to_string(), Color::GREEN);
@@ -54,9 +72,15 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("parking lane".to_string(), Color::grey(0.2));
     m.insert("parking line".to_string(), Color::WHITE);
     m.insert("pedestrian".to_string(), Color::rgb_f(0.2, 0.7, 0.7));
-    m.insert("pedestrian preparing bike".to_string(), Color::rgb(255, 0, 144));
+    m.insert(
+        "pedestrian preparing bike".to_string(),
+        Color::rgb(255, 0, 144),
+    );
     m.insert("pedestrian turn arrow".to_string(), Color::CYAN);
-    m.insert("primary agent route".to_string(), Color::rgba(255, 0, 0, 0.5));
+    m.insert(
+        "primary agent route".to_string(),
+        Color::rgba(255, 0, 0, 0.5),
+    );
     m.insert("priority stop sign turn".to_string(), Color::GREEN);
     m.insert("priority turn in current cycle".to_string(), Color::GREEN);
     m.insert("queued in floodfill".to_string(), Color::RED);
@@ -64,7 +88,10 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("road center line".to_string(), Color::YELLOW);
     m.insert("route".to_string(), Color::rgba(255, 0, 0, 0.8));
     m.insert("search result".to_string(), Color::RED);
-    m.insert("secondary agent route".to_string(), Color::rgba(0, 0, 255, 0.5));
+    m.insert(
+        "secondary agent route".to_string(),
+        Color::rgba(0, 0, 255, 0.5),
+    );
     m.insert("selected".to_string(), Color::BLUE);
     m.insert("selected turn icon".to_string(), Color::BLUE.alpha(0.5));
     m.insert("shared sidewalk corner turn".to_string(), Color::BLACK);
@@ -78,7 +105,10 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("stop sign stop crosswalk".to_string(), Color::RED);
     m.insert("stop sign stop turns".to_string(), Color::RED.alpha(0.8));
     m.insert("stop sign yield crosswalk".to_string(), Color::YELLOW);
-    m.insert("stop sign yield turns".to_string(), Color::YELLOW.alpha(0.8));
+    m.insert(
+        "stop sign yield turns".to_string(),
+        Color::YELLOW.alpha(0.8),
+    );
     m.insert("stop turn".to_string(), Color::RED);
     m.insert("straight turn".to_string(), Color::BLUE);
     m.insert("stuck bike".to_string(), Color::RED);
@@ -93,12 +123,21 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("turn icon circle".to_string(), Color::grey(0.3));
     m.insert("turn not in current cycle".to_string(), Color::BLACK);
     m.insert("turn restrictions on lane".to_string(), Color::WHITE);
-    m.insert("turns allowed with yielding by traffic signal right now".to_string(), Color::rgba(255, 105, 180, 0.8));
-    m.insert("turns protected by traffic signal right now".to_string(), Color::GREEN);
+    m.insert(
+        "turns allowed with yielding by traffic signal right now".to_string(),
+        Color::rgba(255, 105, 180, 0.8),
+    );
+    m.insert(
+        "turns protected by traffic signal right now".to_string(),
+        Color::GREEN,
+    );
     m.insert("unchanged intersection".to_string(), Color::grey(0.6));
     m.insert("visited in floodfill".to_string(), Color::BLUE);
     m.insert("water area".to_string(), Color::BLUE);
     m.insert("yield stop sign turn".to_string(), Color::YELLOW);
-    m.insert("yield turn in current cycle".to_string(), Color::rgb(255, 105, 180));
+    m.insert(
+        "yield turn in current cycle".to_string(),
+        Color::rgb(255, 105, 180),
+    );
     m
 }
