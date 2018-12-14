@@ -130,7 +130,10 @@ impl Plugin for TrafficSignalEditor {
                     TurnPriority::Priority => Some(TurnPriority::Banned),
                 };
                 if let Some(pri) = next_priority {
-                    if input.key_pressed(Key::Space, &format!("toggle to {:?}", pri)) {
+                    if input.key_pressed(
+                        Key::Space,
+                        &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
+                    ) {
                         cycle.edit_turn(id, pri, &ctx.primary.map);
                     }
                 }

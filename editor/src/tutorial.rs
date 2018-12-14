@@ -29,7 +29,15 @@ impl TutorialState {
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
                 "".to_string(),
-                "There'll be some instructions here eventually. Fix all the traffic!".to_string(),
+                "Goal: Make the traffic signal more fair.".to_string(),
+                "Hover over things to see possible actions. You can also press:".to_string(),
+                "".to_string(),
+                "SPACE to run/pause the game.".to_string(),
+                "[ to slow down".to_string(),
+                "] to speed up".to_string(),
+                "t to go back in time".to_string(),
+                "".to_string(),
+                "Press ENTER to start the game!".to_string(),
             ])),
         }
     }
