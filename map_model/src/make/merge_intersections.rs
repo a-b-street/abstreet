@@ -76,7 +76,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
 
     // For all of the connected roads and children lanes of the old intersections, fix up the
     // references to/from the intersection
-    for old_i in vec![old_i1, old_i2] {
+    for old_i in &[old_i1, old_i2] {
         for r_id in m.intersections[old_i.0].roads.clone() {
             if r_id == delete_r {
                 continue;
@@ -84,7 +84,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
             m.intersections[new_i.0].roads.insert(r_id);
 
             let r = &mut m.roads[r_id.0];
-            if r.src_i == old_i {
+            if r.src_i == *old_i {
                 // Outgoing from old_i
                 r.src_i = new_i;
                 for (l, _) in &r.children_forwards {
@@ -96,7 +96,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                     m.intersections[new_i.0].incoming_lanes.push(*l);
                 }
             } else {
-                assert_eq!(r.dst_i, old_i);
+                assert_eq!(r.dst_i, *old_i);
                 // Incoming to old_i
                 r.dst_i = new_i;
                 for (l, _) in &r.children_backwards {
@@ -112,7 +112,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
     }
 
     // Populate the intersection with turns constructed from the old turns
-    for old_i in vec![old_i1, old_i2] {
+    for old_i in &[old_i1, old_i2] {
         for id in m.intersections[old_i.0].turns.clone() {
             let orig_turn = &m.turns[&id];
 
@@ -143,7 +143,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                 .geom
                 .extend(m.lanes[new_turn.id.dst.0].lane_center_pts.clone());
 
-            let other_old_i = if old_i == old_i1 { old_i2 } else { old_i1 };
+            let other_old_i = if *old_i == old_i1 { old_i2 } else { old_i1 };
             for t in m.intersections[other_old_i.0].turns.clone() {
                 if t.src != new_turn.id.dst {
                     continue;

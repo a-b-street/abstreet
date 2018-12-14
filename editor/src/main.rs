@@ -34,7 +34,7 @@ fn main() {
     .start("./profile")
     .unwrap();*/
     let canvas = ezgui::Canvas::new();
-    if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst".to_string() {
+    if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst" {
         ezgui::run(
             ui::UI::new(
                 tutorial::TutorialState::new(flags.sim_flags, &canvas),

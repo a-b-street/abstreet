@@ -70,7 +70,10 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
 
             txt.add_line(format!("{} is ", l.id,));
             txt.append(
-                r.osm_tags.get("name").unwrap_or(&"???".to_string()).to_string(),
+                r.osm_tags
+                    .get("name")
+                    .unwrap_or(&"???".to_string())
+                    .to_string(),
                 Color::BLUE,
                 None,
             );
