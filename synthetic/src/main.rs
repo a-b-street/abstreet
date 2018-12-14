@@ -42,8 +42,8 @@ impl UI {
 }
 
 impl GUI<Text> for UI {
-    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, Text) {
-        self.canvas.handle_event(&mut input);
+    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, Text) {
+        self.canvas.handle_event(input);
         let cursor = self.canvas.get_cursor_in_map_space();
 
         match self.state {
@@ -60,7 +60,7 @@ impl GUI<Text> for UI {
                 }
             }
             State::LabelingBuilding(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
+                if let Some(label) = wizard.wrap(input).input_string_prefilled(
                     "Label the building",
                     self.model.get_b_label(id).unwrap_or_else(String::new),
                 ) {
@@ -71,7 +71,7 @@ impl GUI<Text> for UI {
                 }
             }
             State::LabelingRoad(pair, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
+                if let Some(label) = wizard.wrap(input).input_string_prefilled(
                     "Label this side of the road",
                     self.model.get_r_label(pair).unwrap_or_else(String::new),
                 ) {
@@ -82,7 +82,7 @@ impl GUI<Text> for UI {
                 }
             }
             State::LabelingIntersection(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(&mut input).input_string_prefilled(
+                if let Some(label) = wizard.wrap(input).input_string_prefilled(
                     "Label the intersection",
                     self.model.get_i_label(id).unwrap_or_else(String::new),
                 ) {
@@ -104,7 +104,7 @@ impl GUI<Text> for UI {
             }
             State::EditingRoad(id, ref mut wizard) => {
                 if let Some(s) = wizard
-                    .wrap(&mut input)
+                    .wrap(input)
                     .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
                     self.model.edit_lanes(id, s);
@@ -114,10 +114,7 @@ impl GUI<Text> for UI {
                 }
             }
             State::SavingModel(ref mut wizard) => {
-                if let Some(name) = wizard
-                    .wrap(&mut input)
-                    .input_string("Name the synthetic map")
-                {
+                if let Some(name) = wizard.wrap(input).input_string("Name the synthetic map") {
                     self.model.name = Some(name);
                     self.model.save();
                     self.model.export();

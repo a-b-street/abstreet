@@ -1,3 +1,4 @@
+use crate::input::ContextMenu;
 use crate::{Canvas, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
@@ -7,7 +8,7 @@ use piston::window::{Window, WindowSettings};
 use std::panic;
 
 pub trait GUI<T> {
-    fn event(&mut self, input: UserInput) -> (EventLoopMode, T);
+    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     fn draw(&self, g: &mut GfxCtx, data: T);
     // Will be called if event or draw panics.
@@ -42,16 +43,23 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     .expect("Could not load font");
 
     let mut last_event_mode = EventLoopMode::InputOnly;
+    let mut context_menu: Option<ContextMenu> = None;
     while let Some(ev) = events.next(&mut window) {
-        let (new_event_mode, data) = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            gui.event(UserInput::new(ev.clone()))
-        })) {
-            Ok(pair) => pair,
-            Err(err) => {
-                gui.dump_before_abort();
-                panic::resume_unwind(err);
-            }
-        };
+        // It's impossible / very unlikey we'll grab the cursor in map space before the very first
+        // start_drawing call.
+        let mut input = UserInput::new(ev.clone(), context_menu, gui.get_mut_canvas());
+        let (new_event_mode, data) =
+            match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
+                Ok(pair) => pair,
+                Err(err) => {
+                    gui.dump_before_abort();
+                    panic::resume_unwind(err);
+                }
+            };
+        context_menu = input.context_menu;
+        if context_menu.as_ref().map(|m| m.is_empty()).unwrap_or(false) {
+            context_menu = None;
+        }
 
         // Don't constantly reset the events struct -- only when laziness changes.
         if new_event_mode != last_event_mode {
@@ -69,6 +77,11 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 {
                     gui.dump_before_abort();
                     panic::resume_unwind(err);
+                }
+
+                // Always draw the context-menu last.
+                if let Some(ref menu) = context_menu {
+                    menu.draw(&mut g, gui.get_mut_canvas());
                 }
             });
         }

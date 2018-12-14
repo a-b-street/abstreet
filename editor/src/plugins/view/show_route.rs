@@ -37,7 +37,7 @@ impl Plugin for ShowRouteState {
                     if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
                         if ctx
                             .input
-                            .key_pressed(self.toggle_key, &format!("show {}'s route", agent))
+                            .contextual_action(self.toggle_key, &format!("show {}'s route", agent))
                         {
                             self.state = show_route(trip, ctx);
                         }

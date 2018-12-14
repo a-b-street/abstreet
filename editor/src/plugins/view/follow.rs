@@ -20,7 +20,7 @@ impl Plugin for FollowState {
                 if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
                     if ctx
                         .input
-                        .key_pressed(self.key, &format!("follow {}", agent))
+                        .contextual_action(self.key, &format!("follow {}", agent))
                     {
                         self.trip = Some(trip);
                     }

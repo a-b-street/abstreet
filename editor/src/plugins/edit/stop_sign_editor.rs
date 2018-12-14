@@ -15,7 +15,7 @@ impl StopSignEditor {
             if ctx.primary.map.maybe_get_stop_sign(id).is_some()
                 && ctx
                     .input
-                    .key_pressed(Key::E, &format!("edit stop signs for {}", id))
+                    .contextual_action(Key::E, &format!("edit stop signs for {}", id))
             {
                 return Some(StopSignEditor { i: id });
             }
@@ -50,7 +50,7 @@ impl Plugin for StopSignEditor {
                 }
                 TurnPriority::Priority => TurnPriority::Banned,
             };
-            if input.key_pressed(Key::Space, &format!("toggle to {:?}", next_priority)) {
+            if input.contextual_action(Key::Space, &format!("toggle to {:?}", next_priority)) {
                 sign.set_priority(id, next_priority, map);
                 map.edit_stop_sign(sign);
             }

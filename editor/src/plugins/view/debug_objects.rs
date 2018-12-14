@@ -39,7 +39,7 @@ impl Plugin for DebugObjectsState {
         }
 
         if let Some(id) = self.selected {
-            if ctx.input.key_pressed(self.debug_key, "debug") {
+            if ctx.input.contextual_action(self.debug_key, "debug") {
                 id.debug(
                     &ctx.primary.map,
                     &mut ctx.primary.sim,

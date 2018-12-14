@@ -505,3 +505,51 @@ First simplify UI in smaller ways.
 
 
 Tutorial mode needs to wrap the other stuff (and omit DebugMode!) to reach into SimMode and install a callback. Forces us back to this problem again. Radical idea: What state and code in UI is even important to preserve? Should TutorialMode literally be a new UI impl?
+
+## Right-click context menus
+
+First change the call-sites to do something new, then figure out how to draw it.
+
+- For now, seemingly we don't need to indicate the thing that the menu is
+  logically attached to, since we can just record the current cursor
+  position...
+- What if the thing we select is moving? Do we always pause when we launch a
+  menu? (and stop doing everything else except drawing!)
+- once we right click something, we keep the same current_selection until the menu is canceled.
+- The current impl of context menus is basically forcing lots of behavior in
+  ezgui. Seems desirable, since the opinionated UserInput is already there.
+  Probably input populating the OSD and drawing the OSD should also move to
+  ezgui and always happen.
+
+- for now, repopulate the context menu every time.
+	- but arguably, the huge monolithic event()s in a bunch of plugins
+	  leads naturally to weird problems like conflicts and overlapping keys
+	- the alternate to distributed, "decoupled" plugins is the opposite:
+	  complete centralizedness
+	- one place builds context menus for Lanes. queries the state of
+	  different plugins to add an entry or not.
+	- once we have a menu built and in place, we know we pause the sim.
+	  dont have to rebuild it.
+
+## Persistent menus
+
+Having options appear and disappear here based on context is NOT good -- too
+modal a UI, placement of things jumps around. What we want instead:
+
+- Statically specify menus
+	- Much easier to organize now that we have modes, at least
+	- Menu items are stuff that today just takes a key to start (without selecting something first)
+	- Being forced to statically specify stuff will help organize the code
+	  and my mental model of possible controls too; it's a very simple
+          visual depiction of exclusiveness
+- Grey out things when they don't make sense
+	- Could know that each tick by seeing if we called input.menu_selected(foo) or not
+
+I think we should wind up with 3 types of controls:
+
+- top menus (can be greyed out by context)
+- right-click context menus for specific objects
+- Extra controls for special modes (floodfiller, editors) that pops up as a sidebar
+	- Things in the OSD now should also be written there (current sim time, what intersection am I editing, etc)
+
+And all of these displayed menus can display a hotkey to the side.

@@ -25,7 +25,7 @@ impl TrafficSignalEditor {
             if ctx.primary.map.maybe_get_traffic_signal(id).is_some()
                 && ctx
                     .input
-                    .key_pressed(Key::E, &format!("edit traffic signal for {}", id))
+                    .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
             {
                 return Some(TrafficSignalEditor {
                     i: id,
@@ -130,7 +130,7 @@ impl Plugin for TrafficSignalEditor {
                     TurnPriority::Priority => Some(TurnPriority::Banned),
                 };
                 if let Some(pri) = next_priority {
-                    if input.key_pressed(
+                    if input.contextual_action(
                         Key::Space,
                         &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                     ) {

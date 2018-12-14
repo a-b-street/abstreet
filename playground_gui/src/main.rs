@@ -39,7 +39,7 @@ impl UI {
 }
 
 impl GUI<()> for UI {
-    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, ()) {
+    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, ()) {
         if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
             process::exit(0);
         }
@@ -95,7 +95,7 @@ impl GUI<()> for UI {
             self.canvas.center_on_map_pt(Pt2D::new(1166.0, 766.0));
         }
 
-        self.canvas.handle_event(&mut input);
+        self.canvas.handle_event(input);
 
         (EventLoopMode::InputOnly, ())
     }

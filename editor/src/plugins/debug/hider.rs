@@ -32,7 +32,7 @@ impl Hider {
             }
             Some(id) => id,
         };
-        if input.unimportant_key_pressed(Key::H, DEBUG_EXTRA, &format!("hide {:?}", item)) {
+        if input.contextual_action(Key::H, &format!("hide {:?}", item)) {
             self.items.insert(item);
             info!("Hiding {:?}", item);
             return true;

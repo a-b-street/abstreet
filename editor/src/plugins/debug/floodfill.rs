@@ -16,7 +16,7 @@ impl Floodfiller {
         if let Some(ID::Lane(id)) = ctx.primary.current_selection {
             if ctx
                 .input
-                .key_pressed(Key::F, "start floodfilling from this lane")
+                .contextual_action(Key::F, "start floodfilling from this lane")
             {
                 let mut queue = VecDeque::new();
                 queue.push_back(id);

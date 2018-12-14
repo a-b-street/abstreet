@@ -1,13 +1,12 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::keys::describe_key;
 use crate::tree_menu::TreeMenu;
-use crate::Text;
+use crate::{Canvas, Color, GfxCtx, Text, TEXT_FG_COLOR};
+use geom::Pt2D;
 use piston::input::{
     Button, Event, IdleArgs, Key, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
     ReleaseEvent, UpdateEvent,
 };
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -16,6 +15,8 @@ pub struct UserInput {
     event_consumed: bool,
     unimportant_actions: Vec<String>,
     important_actions: Vec<String>,
+
+    pub(crate) context_menu: Option<ContextMenu>,
 
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
@@ -26,20 +27,40 @@ pub struct UserInput {
     unimportant_actions_tree: TreeMenu,
 }
 
-// TODO it'd be nice to automatically detect cases where two callers are trying to check for the
-// same key in the same round. probably indicates a lack of exclusive editor-or-simulation checks
-
 impl UserInput {
-    pub fn new(event: Event) -> UserInput {
-        UserInput {
+    pub(crate) fn new(
+        event: Event,
+        context_menu: Option<ContextMenu>,
+        canvas: &Canvas,
+    ) -> UserInput {
+        let mut input = UserInput {
             event,
             event_consumed: false,
             unimportant_actions: Vec::new(),
             important_actions: Vec::new(),
+            context_menu,
             reserved_keys: HashMap::new(),
             empty_event: Event::from(IdleArgs { dt: 0.0 }),
             unimportant_actions_tree: TreeMenu::new(),
+        };
+
+        // Create the context menu here, even if one already existed.
+        if input.button_pressed(MouseButton::Right) {
+            input.context_menu = Some(ContextMenu {
+                actions: BTreeMap::new(),
+                origin: canvas.get_cursor_in_map_space(),
+            });
         }
+        // TODO Or left clicking outside of the menu
+        // TODO If the user left clicks on a menu item, then mark that action as selected, and
+        // ensure contextual_action is called this round.
+        // TODO If the user hovers on a menu item, mark it for later highlighting.
+        if input.context_menu.is_some() && input.key_pressed(Key::Escape, "cancel the context menu")
+        {
+            input.context_menu = None;
+        }
+
+        input
     }
 
     pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
@@ -124,6 +145,40 @@ impl UserInput {
         false
     }
 
+    pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
+        if let Some(ref mut menu) = self.context_menu.as_mut() {
+            // We could be initially populating the menu because the user just right-clicked, or
+            // this could be a later round.
+            if let Some(prev_action) = menu.actions.get(&hotkey) {
+                if prev_action != action {
+                    panic!(
+                        "Context menu uses hotkey {:?} for both {} and {}",
+                        hotkey, prev_action, action
+                    );
+                }
+            } else {
+                menu.actions.insert(hotkey, action.to_string());
+            }
+
+            if self.event_consumed {
+                return false;
+            }
+
+            if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
+                if hotkey == pressed {
+                    self.consume_event();
+                    self.context_menu = None;
+                    return true;
+                }
+            }
+            false
+        } else {
+            // If the menu's not active (the user hasn't right-clicked yet), then still allow the
+            // legacy behavior of just pressing the hotkey.
+            self.key_pressed(hotkey, &format!("CONTEXTUAL: {}", action))
+        }
+    }
+
     pub fn unimportant_key_pressed(&mut self, key: Key, category: &str, action: &str) -> bool {
         self.reserve_key(key, action);
 
@@ -159,7 +214,7 @@ impl UserInput {
     }
 
     // No consuming for these?
-    pub fn button_pressed(&mut self, btn: MouseButton) -> bool {
+    pub(crate) fn button_pressed(&mut self, btn: MouseButton) -> bool {
         if let Some(Button::Mouse(pressed)) = self.event.press_args() {
             btn == pressed
         } else {
@@ -167,7 +222,7 @@ impl UserInput {
         }
     }
 
-    pub fn button_released(&mut self, btn: MouseButton) -> bool {
+    pub(crate) fn button_released(&mut self, btn: MouseButton) -> bool {
         if let Some(Button::Mouse(released)) = self.event.release_args() {
             btn == released
         } else {
@@ -181,7 +236,7 @@ impl UserInput {
             .map(|pair| (pair[0], pair[1]))
     }
 
-    pub fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
+    pub(crate) fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
         self.event
             .mouse_scroll_args()
             .map(|pair| (pair[0], pair[1]))
@@ -220,10 +275,10 @@ impl UserInput {
         self.event_consumed
     }
 
-    pub fn populate_osd(self, osd: &mut Text) {
+    pub fn populate_osd(&mut self, osd: &mut Text) {
         // TODO have a way to toggle showing all actions!
-        for a in self.important_actions.into_iter() {
-            osd.add_line(a);
+        for a in &self.important_actions {
+            osd.add_line(a.clone());
         }
 
         //println!("{}", self.unimportant_actions_tree);
@@ -234,5 +289,25 @@ impl UserInput {
             println!("both {} and {} read key {:?}", prev_action, action, key);
         }
         self.reserved_keys.insert(key, action.to_string());
+    }
+}
+
+pub(crate) struct ContextMenu {
+    actions: BTreeMap<Key, String>,
+    origin: Pt2D,
+}
+
+impl ContextMenu {
+    pub(crate) fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        let mut txt = Text::new();
+        for (hotkey, action) in &self.actions {
+            txt.add_styled_line(describe_key(*hotkey), Color::BLUE, None);
+            txt.append(format!(" - {}", action), TEXT_FG_COLOR, None);
+        }
+        canvas.draw_text_at(g, txt, self.origin);
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.actions.is_empty()
     }
 }

@@ -24,7 +24,7 @@ impl DiffTripState {
             if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
                 if ctx
                     .input
-                    .key_pressed(key, &format!("Show {}'s parallel world", agent))
+                    .contextual_action(key, &format!("Show {}'s parallel world", agent))
                 {
                     return Some(diff_trip(trip, ctx));
                 }

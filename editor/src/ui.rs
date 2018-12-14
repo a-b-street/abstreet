@@ -22,7 +22,7 @@ pub struct UI<S: UIState> {
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
-    fn event(&mut self, mut input: UserInput) -> (EventLoopMode, RenderingHints) {
+    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, RenderingHints) {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
@@ -34,7 +34,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         // First update the camera and handle zoom
         let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(&mut input);
+        self.canvas.handle_event(input);
         let new_zoom = self.canvas.cam_zoom;
         self.state.handle_zoom(old_zoom, new_zoom);
 
@@ -51,7 +51,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         let mut recalculate_current_selection = false;
         self.state.event(
-            &mut input,
+            input,
             &mut hints,
             &mut recalculate_current_selection,
             &mut self.cs,

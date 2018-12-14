@@ -31,7 +31,10 @@ impl Plugin for RoadEditor {
                 return true;
             }
 
-            if ctx.input.key_pressed(Key::Backspace, "delete this lane") {
+            if ctx
+                .input
+                .contextual_action(Key::Backspace, "delete this lane")
+            {
                 let mut edits = ctx.primary.map.get_edits().clone();
                 edits.delete_lane(road, lane);
                 warn!("Have to reload the map from scratch to pick up this change!");
@@ -40,7 +43,7 @@ impl Plugin for RoadEditor {
             {
                 if ctx
                     .input
-                    .key_pressed(Key::Space, &format!("toggle to {:?}", new_type))
+                    .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
                 {
                     let mut edits = ctx.primary.map.get_edits().clone();
                     edits.change_lane_type(reason, road, lane, new_type);
