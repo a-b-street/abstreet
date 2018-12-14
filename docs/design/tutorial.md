@@ -180,3 +180,9 @@ Almost done organizing plugins. For the last stretch, I think I need to solve a 
 - this single thing will be different for tutorial mode, but easily pull in common collections of stuff like SimMode and ViewMode.
 - this single thing will understand primary/secondary, the state that's per map, and the state that's independent
 - what's left in UI? there's so much there right now...
+
+## Listening to sim
+
+Callbacks get so confusing. How about SimMode just exposes the most recent
+events, and other things can reach in and query. They're responsible for not
+double-counting.

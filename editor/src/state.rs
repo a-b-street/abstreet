@@ -42,7 +42,7 @@ pub struct DefaultUIState {
     secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     edit_mode: EditMode,
-    sim_mode: SimMode,
+    pub sim_mode: SimMode,
     logs: DisplayLogs,
 
     active_plugin: Option<usize>,

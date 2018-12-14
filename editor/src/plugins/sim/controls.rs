@@ -3,7 +3,7 @@ use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
 use ezgui::EventLoopMode;
 use piston::input::Key;
-use sim::{Benchmark, Sim, TIMESTEP};
+use sim::{Benchmark, Event, Sim, Tick, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
 
@@ -12,6 +12,8 @@ const ADJUST_SPEED: f64 = 0.1;
 pub struct SimControls {
     desired_speed: f64, // sim seconds per real second
     state: State,
+    // Optional because the 0th tick actually happens, and callers comparing wouldn't see that.
+    pub primary_events: Option<(Tick, Vec<Event>)>,
 }
 
 enum State {
@@ -28,6 +30,7 @@ impl SimControls {
         SimControls {
             desired_speed: 1.0,
             state: State::Paused,
+            primary_events: None,
         }
     }
 }
@@ -151,7 +154,10 @@ impl Plugin for SimControls {
                     .input
                     .unimportant_key_pressed(Key::M, SIM, "run one step")
                 {
-                    ctx.primary.sim.step(&ctx.primary.map);
+                    let tick = ctx.primary.sim.time;
+                    let events = ctx.primary.sim.step(&ctx.primary.map);
+                    self.primary_events = Some((tick, events));
+
                     *ctx.recalculate_current_selection = true;
                     if let Some((s, _)) = ctx.secondary {
                         s.sim.step(&s.map);
@@ -175,7 +181,10 @@ impl Plugin for SimControls {
                         // TODO https://gafferongames.com/post/fix_your_timestep/
                         let dt_s = elapsed_seconds(*last_step);
                         if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
-                            ctx.primary.sim.step(&ctx.primary.map);
+                            let tick = ctx.primary.sim.time;
+                            let events = ctx.primary.sim.step(&ctx.primary.map);
+                            self.primary_events = Some((tick, events));
+
                             *ctx.recalculate_current_selection = true;
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim.step(&s.map);

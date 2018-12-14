@@ -7,6 +7,7 @@ use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::GfxCtx;
 use piston::input::Key;
+use sim::{Event, Tick};
 
 // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even when the
 // initial time is 0? But we probably have no state then, so...
@@ -24,6 +25,22 @@ impl SimMode {
                 Box::new(show_score::ShowScoreState::new(Key::Period)),
                 Box::new(controls::SimControls::new()),
             ],
+        }
+    }
+
+    pub fn get_new_primary_events(
+        &self,
+        last_seen_tick: Option<Tick>,
+    ) -> Option<(Tick, &Vec<Event>)> {
+        let (tick, events) = self.ambient_plugins[1]
+            .downcast_ref::<controls::SimControls>()
+            .unwrap()
+            .primary_events
+            .as_ref()?;
+        if last_seen_tick.is_none() || last_seen_tick != Some(*tick) {
+            Some((*tick, events))
+        } else {
+            None
         }
     }
 }

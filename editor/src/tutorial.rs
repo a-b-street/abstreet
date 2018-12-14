@@ -3,7 +3,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::Renderable;
 use crate::state::{DefaultUIState, PerMapUI, UIState};
 use ezgui::{Canvas, Color, GfxCtx, LogScroller, UserInput};
-use sim::SimFlags;
+use map_model::Traversable;
+use sim::{AgentID, Event, SimFlags, Tick};
 
 pub struct TutorialState {
     main: DefaultUIState,
@@ -12,7 +13,11 @@ pub struct TutorialState {
 
 enum State {
     GiveInstructions(LogScroller),
-    Play,
+    Play {
+        last_tick_observed: Option<Tick>,
+        spawned_from_south: usize,
+        spawned_from_north: usize,
+    },
 }
 
 impl TutorialState {
@@ -47,12 +52,38 @@ impl UIState for TutorialState {
             State::GiveInstructions(ref mut scroller) => {
                 if scroller.event(input) {
                     setup_scenario(&mut self.main.primary);
-                    self.state = State::Play;
+                    self.state = State::Play {
+                        last_tick_observed: None,
+                        spawned_from_north: 0,
+                        spawned_from_south: 0,
+                    };
                 }
             }
-            State::Play => {
+            State::Play {
+                ref mut last_tick_observed,
+                ref mut spawned_from_north,
+                ref mut spawned_from_south,
+            } => {
                 self.main
                     .event(input, hints, recalculate_current_selection, cs, canvas);
+
+                if let Some((tick, events)) = self
+                    .main
+                    .sim_mode
+                    .get_new_primary_events(*last_tick_observed)
+                {
+                    *last_tick_observed = Some(tick);
+                    for ev in events {
+                        if let Event::AgentEntersTraversable(
+                            AgentID::Car(car),
+                            Traversable::Lane(lane),
+                        ) = ev
+                        {
+                            *spawned_from_south += 1;
+                            info!("Bump counter!");
+                        }
+                    }
+                }
             }
         }
     }
@@ -70,7 +101,7 @@ impl UIState for TutorialState {
             State::GiveInstructions(ref scroller) => {
                 scroller.draw(g, ctx.canvas);
             }
-            State::Play => {
+            State::Play { .. } => {
                 self.main.draw(g, ctx);
             }
         }
