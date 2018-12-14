@@ -2,6 +2,7 @@ use crate::objects::{Ctx, DEBUG, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Text, TEXT_FG_COLOR};
 use piston::input::Key;
+use std::collections::BTreeMap;
 
 pub struct DebugObjectsState {
     tooltip_key_held: bool,
@@ -67,11 +68,12 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
             let i1 = map.get_source_intersection(id);
             let i2 = map.get_destination_intersection(id);
 
-            txt.add_line(format!(
-                "{} is {}",
-                l.id,
-                r.osm_tags.get("name").unwrap_or(&"???".to_string())
-            ));
+            txt.add_line(format!("{} is ", l.id,));
+            txt.append(
+                r.osm_tags.get("name").unwrap_or(&"???".to_string()).to_string(),
+                Color::BLUE,
+                None,
+            );
             txt.add_line(format!("From OSM way {}", r.osm_way_id));
             txt.add_line(format!("Parent {} points to {}", r.id, r.dst_i));
             txt.add_line(format!(
@@ -84,9 +86,7 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
                 r.id,
                 r.center_pts.length()
             ));
-            for (k, v) in &r.osm_tags {
-                txt.add_line(format!("{} = {}", k, v));
-            }
+            styled_kv(&mut txt, &r.osm_tags);
             if l.is_parking() {
                 txt.add_line(format!("Has {} parking spots", l.number_parking_spots()));
             }
@@ -106,11 +106,7 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
                 "Building #{:?} (from OSM way {})",
                 id, b.osm_way_id
             ));
-            for (k, v) in &b.osm_tags {
-                txt.add_styled_line(k.to_string(), Color::RED, None);
-                txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
-                txt.append(v.to_string(), Color::BLUE, None);
-            }
+            styled_kv(&mut txt, &b.osm_tags);
         }
         ID::Car(id) => {
             for line in sim.car_tooltip(id) {
@@ -123,11 +119,7 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
             }
         }
         ID::ExtraShape(id) => {
-            for (k, v) in &draw_map.get_es(id).attributes {
-                txt.add_styled_line(k.to_string(), Color::RED, None);
-                txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
-                txt.append(v.to_string(), Color::BLUE, None);
-            }
+            styled_kv(&mut txt, &draw_map.get_es(id).attributes);
         }
         ID::Parcel(id) => {
             txt.add_line(id.to_string());
@@ -143,11 +135,17 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
         ID::Area(id) => {
             let a = map.get_a(id);
             txt.add_line(format!("{} (from OSM way {})", id, a.osm_way_id));
-            for (k, v) in &a.osm_tags {
-                txt.add_line(format!("{} = {}", k, v));
-            }
+            styled_kv(&mut txt, &a.osm_tags);
         }
         ID::Trip(_) => {}
     };
     txt
+}
+
+fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
+    for (k, v) in tags {
+        txt.add_styled_line(k.to_string(), Color::RED, None);
+        txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
+        txt.append(v.to_string(), Color::BLUE, None);
+    }
 }
