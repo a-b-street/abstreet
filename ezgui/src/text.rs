@@ -49,6 +49,12 @@ impl Text {
         }
     }
 
+    pub fn from_line(line: String) -> Text {
+        let mut txt = Text::new();
+        txt.add_line(line);
+        txt
+    }
+
     pub fn pad_if_nonempty(&mut self) {
         if !self.lines.is_empty() {
             self.lines.push(Vec::new());

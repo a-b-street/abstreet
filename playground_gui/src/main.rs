@@ -125,9 +125,7 @@ impl GUI<()> for UI {
 
         if self.show_labels {
             for (pt, label) in labels.into_iter() {
-                let mut txt = Text::new();
-                txt.add_line(label);
-                self.canvas.draw_text_at(g, txt, pt);
+                self.canvas.draw_text_at(g, Text::from_line(label), pt);
             }
         }
     }

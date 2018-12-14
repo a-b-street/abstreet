@@ -105,15 +105,13 @@ impl Region {
                 n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt())
             })
             .collect();
-        let mut summary = Text::new();
-        summary.add_line(format!("{} - no summary yet", n.name));
         Region {
             name: n.name.clone(),
             polygon: n.polygon.clone(),
             center,
             lanes,
             color: COLORS[idx % COLORS.len()],
-            summary,
+            summary: Text::from_line(format!("{} - no summary yet", n.name)),
         }
     }
 

@@ -89,9 +89,8 @@ impl DrawLane {
         }
 
         for pt in &self.draw_id_at {
-            let mut txt = Text::new();
-            txt.add_line(format!("{}", self.id.0));
-            ctx.canvas.draw_text_at(g, txt, *pt);
+            ctx.canvas
+                .draw_text_at(g, Text::from_line(format!("{}", self.id.0)), *pt);
         }
     }
 }

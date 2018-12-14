@@ -110,21 +110,22 @@ impl UIState for TutorialState {
             } => {
                 self.main.draw(g, ctx);
 
-                let mut txt = Text::new();
-                txt.add_line(format!(
-                    "{} / {}",
-                    spawned_from_north, SPAWN_CARS_PER_BORDER
-                ));
-                ctx.canvas
-                    .draw_text_at(g, txt, ctx.map.get_i(ctx.map.intersection("north")).point);
-
-                let mut txt = Text::new();
-                txt.add_line(format!(
-                    "{} / {}",
-                    spawned_from_south, SPAWN_CARS_PER_BORDER
-                ));
-                ctx.canvas
-                    .draw_text_at(g, txt, ctx.map.get_i(ctx.map.intersection("south")).point);
+                ctx.canvas.draw_text_at(
+                    g,
+                    Text::from_line(format!(
+                        "{} / {}",
+                        spawned_from_north, SPAWN_CARS_PER_BORDER
+                    )),
+                    ctx.map.get_i(ctx.map.intersection("north")).point,
+                );
+                ctx.canvas.draw_text_at(
+                    g,
+                    Text::from_line(format!(
+                        "{} / {}",
+                        spawned_from_south, SPAWN_CARS_PER_BORDER
+                    )),
+                    ctx.map.get_i(ctx.map.intersection("south")).point,
+                );
             }
         }
     }

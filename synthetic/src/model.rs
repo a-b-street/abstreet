@@ -127,14 +127,18 @@ impl Road {
         );
 
         if let Some(ref label) = self.fwd_label {
-            let mut txt = Text::new();
-            txt.add_line(label.to_string());
-            canvas.draw_text_at(g, txt, self.polygon(FORWARDS, model).center());
+            canvas.draw_text_at(
+                g,
+                Text::from_line(label.to_string()),
+                self.polygon(FORWARDS, model).center(),
+            );
         }
         if let Some(ref label) = self.back_label {
-            let mut txt = Text::new();
-            txt.add_line(label.to_string());
-            canvas.draw_text_at(g, txt, self.polygon(BACKWARDS, model).center());
+            canvas.draw_text_at(
+                g,
+                Text::from_line(label.to_string()),
+                self.polygon(BACKWARDS, model).center(),
+            );
         }
     }
 
@@ -203,9 +207,7 @@ impl Model {
             g.draw_circle(color, &i.circle());
 
             if let Some(ref label) = i.label {
-                let mut txt = Text::new();
-                txt.add_line(label.to_string());
-                canvas.draw_text_at(g, txt, i.center);
+                canvas.draw_text_at(g, Text::from_line(label.to_string()), i.center);
             }
         }
 
@@ -218,9 +220,7 @@ impl Model {
             g.draw_polygon(color, &b.polygon());
 
             if let Some(ref label) = b.label {
-                let mut txt = Text::new();
-                txt.add_line(label.to_string());
-                canvas.draw_text_at(g, txt, b.center);
+                canvas.draw_text_at(g, Text::from_line(label.to_string()), b.center);
             }
         }
     }

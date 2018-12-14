@@ -275,11 +275,9 @@ impl Plugin for TrafficSignalEditor {
             hide_crosswalks.extend(cycle.get_absent_crosswalks(&ctx.map));
             draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map, &hide_crosswalks);
 
-            let mut txt = Text::new();
-            txt.add_line(format!("Cycle {}: {}", idx + 1, cycle.duration));
             ctx.canvas.draw_text_at_screenspace_topleft(
                 g,
-                txt,
+                Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
                 (
                     10.0 + (width * zoom),
                     10.0 + (padding + height) * (idx as f64) * zoom,
