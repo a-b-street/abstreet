@@ -8,7 +8,7 @@
           "x": 375.2584876887879,
           "y": 394.4733648122756
         },
-        "intersection_type": "StopSign",
+        "intersection_type": "Border",
         "label": "west"
       }
     ],
@@ -30,19 +30,8 @@
           "x": 426.9548681897562,
           "y": 338.6898394428313
         },
-        "intersection_type": "StopSign",
-        "label": null
-      }
-    ],
-    [
-      4,
-      {
-        "center": {
-          "x": 481.2515387041076,
-          "y": 338.6877104503858
-        },
-        "intersection_type": "StopSign",
-        "label": "east"
+        "intersection_type": "Border",
+        "label": "north"
       }
     ],
     [
@@ -54,17 +43,6 @@
         },
         "intersection_type": "Border",
         "label": "south"
-      }
-    ],
-    [
-      7,
-      {
-        "center": {
-          "x": 427.35826112518097,
-          "y": 285.7304272008598
-        },
-        "intersection_type": "StopSign",
-        "label": "north"
       }
     ]
   ],
@@ -107,7 +85,7 @@
           ]
         },
         "fwd_label": null,
-        "back_label": null
+        "back_label": "north entrance"
       }
     ],
     [
@@ -129,45 +107,7 @@
           ]
         },
         "fwd_label": null,
-        "back_label": null
-      }
-    ],
-    [
-      [
-        3,
-        4
-      ],
-      {
-        "i1": 3,
-        "i2": 4,
-        "lanes": {
-          "fwd": [
-            "Driving",
-            "Parking"
-          ],
-          "back": []
-        },
-        "fwd_label": null,
-        "back_label": null
-      }
-    ],
-    [
-      [
-        3,
-        7
-      ],
-      {
-        "i1": 7,
-        "i2": 3,
-        "lanes": {
-          "fwd": [
-            "Driving",
-            "Parking"
-          ],
-          "back": []
-        },
-        "fwd_label": null,
-        "back_label": null
+        "back_label": "south entrance"
       }
     ]
   ],

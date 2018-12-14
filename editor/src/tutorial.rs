@@ -2,9 +2,9 @@ use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::Renderable;
 use crate::state::{DefaultUIState, PerMapUI, UIState};
-use ezgui::{Canvas, Color, GfxCtx, LogScroller, UserInput};
+use ezgui::{Canvas, Color, GfxCtx, LogScroller, Text, UserInput};
 use map_model::Traversable;
-use sim::{AgentID, Event, SimFlags, Tick};
+use sim::{Event, SimFlags, Tick};
 
 pub struct TutorialState {
     main: DefaultUIState,
@@ -19,6 +19,8 @@ enum State {
         spawned_from_north: usize,
     },
 }
+
+const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
     pub fn new(flags: SimFlags, canvas: &Canvas) -> TutorialState {
@@ -74,13 +76,13 @@ impl UIState for TutorialState {
                 {
                     *last_tick_observed = Some(tick);
                     for ev in events {
-                        if let Event::AgentEntersTraversable(
-                            AgentID::Car(car),
-                            Traversable::Lane(lane),
-                        ) = ev
-                        {
-                            *spawned_from_south += 1;
-                            info!("Bump counter!");
+                        if let Event::AgentEntersTraversable(_, Traversable::Lane(lane)) = ev {
+                            if *lane == self.main.primary.map.driving_lane("north entrance") {
+                                *spawned_from_north += 1;
+                            }
+                            if *lane == self.main.primary.map.driving_lane("south entrance") {
+                                *spawned_from_south += 1;
+                            }
                         }
                     }
                 }
@@ -101,8 +103,28 @@ impl UIState for TutorialState {
             State::GiveInstructions(ref scroller) => {
                 scroller.draw(g, ctx.canvas);
             }
-            State::Play { .. } => {
+            State::Play {
+                spawned_from_north,
+                spawned_from_south,
+                ..
+            } => {
                 self.main.draw(g, ctx);
+
+                let mut txt = Text::new();
+                txt.add_line(format!(
+                    "{} / {}",
+                    spawned_from_north, SPAWN_CARS_PER_BORDER
+                ));
+                ctx.canvas
+                    .draw_text_at(g, txt, ctx.map.get_i(ctx.map.intersection("north")).point);
+
+                let mut txt = Text::new();
+                txt.add_line(format!(
+                    "{} / {}",
+                    spawned_from_south, SPAWN_CARS_PER_BORDER
+                ));
+                ctx.canvas
+                    .draw_text_at(g, txt, ctx.map.get_i(ctx.map.intersection("south")).point);
             }
         }
     }
@@ -125,7 +147,7 @@ fn setup_scenario(primary: &mut PerMapUI) {
         BorderSpawnOverTime {
             // TODO Can we express something like "100 cars per minute, for an hour"
             num_peds: 0,
-            num_cars: 100 * 10,
+            num_cars: SPAWN_CARS_PER_BORDER,
             num_bikes: 0,
             percent_use_transit: 0.0,
             start_tick: Tick::zero(),

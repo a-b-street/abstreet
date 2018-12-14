@@ -494,6 +494,22 @@ impl Map {
         panic!("No building has label {}", label);
     }
 
+    pub fn driving_lane(&self, label: &str) -> LaneID {
+        for l in &self.lanes {
+            if !l.is_driving() {
+                continue;
+            }
+            let r = self.get_parent(l.id);
+            if (r.is_forwards(l.id) && r.osm_tags.get("fwd_label") == Some(&label.to_string()))
+                || (r.is_backwards(l.id)
+                    && r.osm_tags.get("back_label") == Some(&label.to_string()))
+            {
+                return l.id;
+            }
+        }
+        panic!("No driving lane has label {}", label);
+    }
+
     pub fn parking_lane(&self, label: &str, expected_spots: usize) -> LaneID {
         for l in &self.lanes {
             if !l.is_parking() {
