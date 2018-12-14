@@ -415,6 +415,10 @@ impl Sim {
         self.intersection_state.get_accepted_agents(id)
     }
 
+    pub fn is_in_overtime(&self, id: IntersectionID) -> bool {
+        self.intersection_state.is_in_overtime(id)
+    }
+
     pub fn get_stats(&self) -> &SimStats {
         &self.stats
     }

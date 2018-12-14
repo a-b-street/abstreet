@@ -98,6 +98,7 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("sidewalk corner".to_string(), Color::grey(0.7));
     m.insert("sidewalk lines".to_string(), Color::grey(0.7));
     m.insert("signal editor panel".to_string(), Color::BLACK.alpha(0.95));
+    m.insert("signal overtime timer".to_string(), Color::PINK);
     m.insert(
         "something associated with something else".to_string(),
         Color::PURPLE,

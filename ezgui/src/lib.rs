@@ -53,6 +53,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     // Up to the caller to call unfork()!
+    // TODO Canvas doesn't understand this change, so things like text drawing that use
+    // map_to_screen will just be confusing.
     pub fn fork(&mut self, top_left: Pt2D, zoom: f64) -> graphics::Context {
         mem::replace(
             &mut self.ctx,

@@ -157,3 +157,8 @@ Shelby and 23rd...
 	- need to fix up IDs everywhere
 
 	- ... rest of map construction proceeds
+
+## Live editing
+
+Traffic signal changes can happen live, because weird changes will just look
+like brief blips of overtime. Same for stop signs, I think...

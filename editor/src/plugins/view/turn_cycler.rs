@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, TurnType};
 use piston::input::Key;
@@ -34,12 +34,14 @@ impl Plugin for TurnCyclerState {
                 self.state = State::ShowIntersection(id);
 
                 if let Some(signal) = ctx.primary.map.maybe_get_traffic_signal(id) {
-                    let (cycle, _) =
-                        signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
                     ctx.hints.suppress_intersection_icon = Some(id);
-                    ctx.hints
-                        .hide_crosswalks
-                        .extend(cycle.get_absent_crosswalks(&ctx.primary.map));
+                    if !ctx.primary.sim.is_in_overtime(id) {
+                        let (cycle, _) =
+                            signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
+                        ctx.hints
+                            .hide_crosswalks
+                            .extend(cycle.get_absent_crosswalks(&ctx.primary.map));
+                    }
                 } else if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
                     stop_sign_rendering_hints(&mut ctx.hints, sign, &ctx.primary.map, ctx.cs);
                 }
@@ -100,37 +102,54 @@ impl Plugin for TurnCyclerState {
             }
             State::ShowIntersection(id) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(id) {
-                    // TODO Cycle might be over-run; should depict that by asking sim layer.
-                    let (cycle, time_left) =
-                        signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-
-                    draw_signal_cycle(
-                        cycle,
-                        g,
-                        ctx.cs,
-                        ctx.map,
-                        ctx.draw_map,
-                        &ctx.hints.hide_crosswalks,
-                    );
-
-                    // Draw a little timer box in the top-left corner of the screen.
-                    {
+                    if ctx.sim.is_in_overtime(id) {
                         let old_ctx = g.fork_screenspace();
                         let width = 50.0;
                         let height = 100.0;
                         g.draw_polygon(
-                            ctx.cs.get_def("timer foreground", Color::RED),
+                            ctx.cs.get_def("signal overtime timer", Color::PINK),
                             &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
                         );
-                        g.draw_polygon(
-                            ctx.cs.get_def("timer background", Color::BLACK),
-                            &Polygon::rectangle_topleft(
-                                Pt2D::new(10.0, 10.0),
-                                width,
-                                (time_left / cycle.duration).value_unsafe * height,
-                            ),
+                        // TODO We can't use draw_text_at, because canvas doesn't know about forked
+                        // contexts.
+                        ctx.canvas.draw_text_at_screenspace_topleft(
+                            g,
+                            Text::from_line("Overtime!".to_string()),
+                            (10.0 + width / 2.0, 10.0 + height / 2.0),
                         );
                         g.unfork(old_ctx);
+                    } else {
+                        let (cycle, time_left) =
+                            signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+
+                        draw_signal_cycle(
+                            cycle,
+                            g,
+                            ctx.cs,
+                            ctx.map,
+                            ctx.draw_map,
+                            &ctx.hints.hide_crosswalks,
+                        );
+
+                        // Draw a little timer box in the top-left corner of the screen.
+                        {
+                            let old_ctx = g.fork_screenspace();
+                            let width = 50.0;
+                            let height = 100.0;
+                            g.draw_polygon(
+                                ctx.cs.get_def("timer foreground", Color::RED),
+                                &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
+                            );
+                            g.draw_polygon(
+                                ctx.cs.get_def("timer background", Color::BLACK),
+                                &Polygon::rectangle_topleft(
+                                    Pt2D::new(10.0, 10.0),
+                                    width,
+                                    (time_left / cycle.duration).value_unsafe * height,
+                                ),
+                            );
+                            g.unfork(old_ctx);
+                        }
                     }
                 } else if let Some(sign) = ctx.map.maybe_get_stop_sign(id) {
                     draw_stop_sign(sign, g, ctx.cs, ctx.map);

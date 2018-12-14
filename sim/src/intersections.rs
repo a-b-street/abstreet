@@ -166,6 +166,14 @@ impl IntersectionSimState {
             IntersectionPolicy::Border => HashSet::new(),
         }
     }
+
+    pub fn is_in_overtime(&self, id: IntersectionID) -> bool {
+        match self.intersections[id.0] {
+            IntersectionPolicy::StopSign(_) => unreachable!(),
+            IntersectionPolicy::TrafficSignal(ref p) => p.overtime,
+            IntersectionPolicy::Border => unreachable!(),
+        }
+    }
 }
 
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
@@ -307,6 +315,7 @@ struct TrafficSignal {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
     requests: BTreeSet<Request>,
+    overtime: bool,
     debug: bool,
 }
 
@@ -316,6 +325,7 @@ impl TrafficSignal {
             id,
             accepted: BTreeSet::new(),
             requests: BTreeSet::new(),
+            overtime: false,
             debug: false,
         }
     }
@@ -334,9 +344,11 @@ impl TrafficSignal {
                         req.agent, req.turn
                     );
                 }
+                self.overtime = true;
                 return;
             }
         }
+        self.overtime = false;
 
         let priority_requests: BTreeSet<TurnID> = self
             .requests
