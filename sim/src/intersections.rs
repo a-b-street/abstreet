@@ -158,9 +158,7 @@ impl IntersectionSimState {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         match self.intersections[id.0] {
-            IntersectionPolicy::StopSign(ref p) => {
-                p.accepted.iter().map(|req| req.agent).collect()
-            }
+            IntersectionPolicy::StopSign(ref p) => p.accepted.iter().map(|req| req.agent).collect(),
             IntersectionPolicy::TrafficSignal(ref p) => {
                 p.accepted.iter().map(|req| req.agent).collect()
             }
@@ -228,13 +226,6 @@ impl StopSign {
         }
     }
 
-    fn conflicts_with_accepted(&self, turn: TurnID, map: &Map) -> bool {
-        let base_t = map.get_t(turn);
-        self.accepted
-            .iter()
-            .any(|req| base_t.conflicts_with(map.get_t(req.turn)))
-    }
-
     fn conflicts_with_waiting_with_higher_priority(
         &self,
         turn: TurnID,
@@ -284,7 +275,7 @@ impl StopSign {
             assert_eq!(req.turn.parent, self.id);
             assert_eq!(self.accepted.contains(&req), false);
 
-            if self.conflicts_with_accepted(req.turn, map) {
+            if conflicts_with_accepted(&self.accepted, req.turn, map) {
                 continue;
             }
 
@@ -336,7 +327,7 @@ impl TrafficSignal {
 
         // For now, just maintain safety when agents over-run.
         for req in self.accepted.iter() {
-            if cycle.get_priority(req.turn) == TurnPriority::Stop {
+            if cycle.get_priority(req.turn) < TurnPriority::Yield {
                 if self.debug {
                     debug!(
                         "{:?} is still doing {:?} after the cycle is over",
@@ -365,10 +356,10 @@ impl TrafficSignal {
             assert_eq!(self.accepted.contains(&req), false);
 
             // Can't go at all this cycle.
-            if cycle.get_priority(req.turn) == TurnPriority::Stop
+            if cycle.get_priority(req.turn) < TurnPriority::Yield
                 // Don't accept cars unless they're in front. TODO or behind other accepted cars.
                 || !view.is_leader(req.agent)
-                || self.conflicts_with_accepted(req.turn, map)
+                || conflicts_with_accepted(&self.accepted, req.turn, map)
             {
                 keep_requests.insert(req.clone());
                 continue;
@@ -402,12 +393,11 @@ impl TrafficSignal {
 
         self.requests = keep_requests;
     }
+}
 
-    // TODO Code duplication :(
-    fn conflicts_with_accepted(&self, turn: TurnID, map: &Map) -> bool {
-        let base_t = map.get_t(turn);
-        self.accepted
-            .iter()
-            .any(|req| base_t.conflicts_with(map.get_t(req.turn)))
-    }
+fn conflicts_with_accepted(accepted: &BTreeSet<Request>, turn: TurnID, map: &Map) -> bool {
+    let base_t = map.get_t(turn);
+    accepted
+        .iter()
+        .any(|req| base_t.conflicts_with(map.get_t(req.turn)))
 }
