@@ -33,7 +33,6 @@ pub fn default_colors() -> HashMap<String, Color> {
     );
     m.insert("car turn arrow".to_string(), Color::CYAN);
     m.insert("car window".to_string(), Color::BLACK);
-    m.insert("car/building owner".to_string(), Color::PURPLE);
     m.insert("chokepoint".to_string(), Color::RED);
     m.insert("crosswalk".to_string(), Color::WHITE);
     m.insert("crosswalk turn".to_string(), Color::WHITE);
@@ -99,6 +98,10 @@ pub fn default_colors() -> HashMap<String, Color> {
     m.insert("sidewalk corner".to_string(), Color::grey(0.7));
     m.insert("sidewalk lines".to_string(), Color::grey(0.7));
     m.insert("signal editor panel".to_string(), Color::BLACK.alpha(0.95));
+    m.insert(
+        "something associated with something else".to_string(),
+        Color::PURPLE,
+    );
     m.insert("stop line for lane".to_string(), Color::RED);
     m.insert("stop sign background".to_string(), Color::RED);
     m.insert("stop sign priority turns".to_string(), Color::GREEN);

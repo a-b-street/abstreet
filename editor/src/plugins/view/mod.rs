@@ -3,7 +3,7 @@ mod follow;
 mod neighborhood_summary;
 mod search;
 mod show_activity;
-mod show_owner;
+mod show_associated;
 mod show_route;
 mod turn_cycler;
 mod warp;
@@ -37,7 +37,7 @@ impl ViewMode {
                     timer,
                 )),
                 Box::new(show_activity::ShowActivityState::new(Key::A)),
-                Box::new(show_owner::ShowOwnerState::new()),
+                Box::new(show_associated::ShowAssociatedState::new()),
                 Box::new(show_route::ShowRouteState::new(Key::R, Key::L)),
                 Box::new(turn_cycler::TurnCyclerState::new(Key::Tab)),
             ],

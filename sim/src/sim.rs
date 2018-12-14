@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::driving::DrivingSimState;
 use crate::instrument::capture_backtrace;
 use crate::intersections::IntersectionSimState;
@@ -20,6 +18,7 @@ use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, 
 use rand::{FromEntropy, SeedableRng, XorShiftRng};
 use serde_derive::{Deserialize, Serialize};
 use std;
+use std::collections::HashSet;
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]
@@ -410,6 +409,10 @@ impl Sim {
         self.driving_state
             .get_owner_of_car(id)
             .or_else(|| self.parking_state.get_owner_of_car(id))
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+        self.intersection_state.get_accepted_agents(id)
     }
 
     pub fn get_stats(&self) -> &SimStats {

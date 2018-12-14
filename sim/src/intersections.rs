@@ -9,7 +9,7 @@ use dimensioned::si;
 use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
 use serde_derive::{Deserialize, Serialize};
 use std;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const WAIT_AT_STOP_SIGN: Time = si::Second {
     value_unsafe: 1.5,
@@ -154,6 +154,19 @@ impl IntersectionSimState {
             }
             IntersectionPolicy::Border => {}
         };
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+        match self.intersections[id.0] {
+            IntersectionPolicy::StopSign(ref p) => {
+                p.accepted.iter().map(|req| req.agent).collect()
+            }
+            IntersectionPolicy::TrafficSignal(ref p) => {
+                p.accepted.iter().map(|req| req.agent).collect()
+            }
+            // Technically anybody on incoming lanes
+            IntersectionPolicy::Border => HashSet::new(),
+        }
     }
 }
 
