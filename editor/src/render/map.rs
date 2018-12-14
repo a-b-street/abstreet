@@ -263,11 +263,13 @@ impl DrawMap {
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
-                        for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
-                            cars.push(draw_vehicle(c, map));
-                        }
-                        for p in sim.get_draw_peds(Traversable::Lane(*id), map).into_iter() {
-                            peds.push(Box::new(DrawPedestrian::new(p, map)));
+                        if !show_turn_icons.show_icons_for(map.get_l(*id).dst_i) {
+                            for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
+                                cars.push(draw_vehicle(c, map));
+                            }
+                            for p in sim.get_draw_peds(Traversable::Lane(*id), map).into_iter() {
+                                peds.push(Box::new(DrawPedestrian::new(p, map)));
+                            }
                         }
                     }
                     ID::Intersection(id) => {
@@ -275,12 +277,13 @@ impl DrawMap {
                         for t in &map.get_i(*id).turns {
                             if show_turn_icons.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
-                            }
-                            for c in sim.get_draw_cars(Traversable::Turn(*t), map).into_iter() {
-                                cars.push(draw_vehicle(c, map));
-                            }
-                            for p in sim.get_draw_peds(Traversable::Turn(*t), map).into_iter() {
-                                peds.push(Box::new(DrawPedestrian::new(p, map)));
+                            } else {
+                                for c in sim.get_draw_cars(Traversable::Turn(*t), map).into_iter() {
+                                    cars.push(draw_vehicle(c, map));
+                                }
+                                for p in sim.get_draw_peds(Traversable::Turn(*t), map).into_iter() {
+                                    peds.push(Box::new(DrawPedestrian::new(p, map)));
+                                }
                             }
                         }
                     }
