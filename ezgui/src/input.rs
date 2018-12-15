@@ -16,6 +16,7 @@ pub struct UserInput {
     unimportant_actions: Vec<String>,
     important_actions: Vec<String>,
 
+    // While this is present, UserInput lies about anything happening.
     pub(crate) context_menu: Option<ContextMenu>,
 
     // If two different callers both expect the same key, there's likely an unintentional conflict.
@@ -55,9 +56,17 @@ impl UserInput {
         // TODO If the user left clicks on a menu item, then mark that action as selected, and
         // ensure contextual_action is called this round.
         // TODO If the user hovers on a menu item, mark it for later highlighting.
-        if input.context_menu.is_some() && input.key_pressed(Key::Escape, "cancel the context menu")
-        {
-            input.context_menu = None;
+        if input.context_menu.is_some() {
+            // We have to directly look at stuff here; all of input's methods lie and pretend
+            // nothing is happening.
+            // TODO Would it be cleaner to just consume the event? But then contextual_action will
+            // be confused.
+            if let Some(Button::Keyboard(key)) = input.event.press_args() {
+                if key == Key::Escape {
+                    input.context_menu = None;
+                    input.consume_event();
+                }
+            }
         }
 
         input
@@ -66,7 +75,10 @@ impl UserInput {
     pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
         assert!(num_options >= 1 && num_options <= 9);
 
-        // TODO less repetition, an array of keys probably
+        if self.context_menu.is_some() {
+            return None;
+        }
+
         if num_options >= 1 {
             self.reserve_key(Key::D1, action);
         }
@@ -128,6 +140,10 @@ impl UserInput {
     }
 
     pub fn key_pressed(&mut self, key: Key, action: &str) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         self.reserve_key(key, action);
 
         if self.event_consumed {
@@ -180,6 +196,10 @@ impl UserInput {
     }
 
     pub fn unimportant_key_pressed(&mut self, key: Key, category: &str, action: &str) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         self.reserve_key(key, action);
 
         if self.event_consumed {
@@ -200,6 +220,10 @@ impl UserInput {
     }
 
     pub fn key_released(&mut self, key: Key) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         if self.event_consumed {
             return false;
         }
@@ -215,6 +239,10 @@ impl UserInput {
 
     // No consuming for these?
     pub(crate) fn button_pressed(&mut self, btn: MouseButton) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         if let Some(Button::Mouse(pressed)) = self.event.press_args() {
             btn == pressed
         } else {
@@ -223,6 +251,10 @@ impl UserInput {
     }
 
     pub(crate) fn button_released(&mut self, btn: MouseButton) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         if let Some(Button::Mouse(released)) = self.event.release_args() {
             btn == released
         } else {
@@ -231,18 +263,30 @@ impl UserInput {
     }
 
     pub fn get_moved_mouse(&self) -> Option<(f64, f64)> {
+        if self.context_menu.is_some() {
+            return None;
+        }
+
         self.event
             .mouse_cursor_args()
             .map(|pair| (pair[0], pair[1]))
     }
 
     pub(crate) fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
+        if self.context_menu.is_some() {
+            return None;
+        }
+
         self.event
             .mouse_scroll_args()
             .map(|pair| (pair[0], pair[1]))
     }
 
     pub fn is_update_event(&mut self) -> bool {
+        if self.context_menu.is_some() {
+            return false;
+        }
+
         if self.event_consumed {
             return false;
         }
@@ -270,13 +314,12 @@ impl UserInput {
         self.event_consumed = true;
     }
 
-    // TODO Not sure this is a good idea
-    pub fn has_been_consumed(&self) -> bool {
+    // Just for Wizard
+    pub(crate) fn has_been_consumed(&self) -> bool {
         self.event_consumed
     }
 
     pub fn populate_osd(&mut self, osd: &mut Text) {
-        // TODO have a way to toggle showing all actions!
         for a in &self.important_actions {
             osd.add_line(a.clone());
         }
