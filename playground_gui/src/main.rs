@@ -104,7 +104,7 @@ impl GUI<()> for UI {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: ()) {
+    fn draw(&self, g: &mut GfxCtx, _: &()) {
         g.clear(common::WHITE);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();

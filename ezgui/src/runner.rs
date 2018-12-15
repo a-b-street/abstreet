@@ -10,7 +10,7 @@ use std::panic;
 pub trait GUI<T> {
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
-    fn draw(&self, g: &mut GfxCtx, data: T);
+    fn draw(&self, g: &mut GfxCtx, data: &T);
     // Will be called if event or draw panics.
     fn dump_before_abort(&self) {}
 }
@@ -44,46 +44,51 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu: Option<ContextMenu> = None;
+    let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
-        // It's impossible / very unlikey we'll grab the cursor in map space before the very first
-        // start_drawing call.
-        let mut input = UserInput::new(ev.clone(), context_menu, gui.get_mut_canvas());
-        let (new_event_mode, data) =
-            match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
-                Ok(pair) => pair,
-                Err(err) => {
-                    gui.dump_before_abort();
-                    panic::resume_unwind(err);
-                }
-            };
-        context_menu = input.context_menu;
-        if context_menu.as_ref().map(|m| m.is_empty()).unwrap_or(false) {
-            context_menu = None;
-        }
-
-        // Don't constantly reset the events struct -- only when laziness changes.
-        if new_event_mode != last_event_mode {
-            events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
-            last_event_mode = new_event_mode;
-        }
-
         if let Some(args) = ev.render_args() {
-            gl.draw(args.viewport(), |c, g| {
-                let mut g = GfxCtx::new(&mut glyphs, g, c);
-                gui.get_mut_canvas()
-                    .start_drawing(&mut g, window.draw_size());
-                if let Err(err) =
-                    panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
-                {
-                    gui.dump_before_abort();
-                    panic::resume_unwind(err);
-                }
+            // If the very first event is render, then just wait.
+            if let Some(ref data) = last_data {
+                gl.draw(args.viewport(), |c, g| {
+                    let mut g = GfxCtx::new(&mut glyphs, g, c);
+                    gui.get_mut_canvas()
+                        .start_drawing(&mut g, window.draw_size());
+                    if let Err(err) =
+                        panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
+                    {
+                        gui.dump_before_abort();
+                        panic::resume_unwind(err);
+                    }
 
-                // Always draw the context-menu last.
-                if let Some(ref menu) = context_menu {
-                    menu.draw(&mut g, gui.get_mut_canvas());
-                }
-            });
+                    // Always draw the context-menu last.
+                    if let Some(ref menu) = context_menu {
+                        menu.draw(&mut g, gui.get_mut_canvas());
+                    }
+                });
+            }
+        } else {
+            // It's impossible / very unlikey we'll grab the cursor in map space before the very first
+            // start_drawing call.
+            let mut input = UserInput::new(ev, context_menu, gui.get_mut_canvas());
+            let (new_event_mode, data) =
+                match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
+                    Ok(pair) => pair,
+                    Err(err) => {
+                        gui.dump_before_abort();
+                        panic::resume_unwind(err);
+                    }
+                };
+            last_data = Some(data);
+            context_menu = input.context_menu;
+            if context_menu.as_ref().map(|m| m.is_empty()).unwrap_or(false) {
+                context_menu = None;
+            }
+
+            // Don't constantly reset the events struct -- only when laziness changes.
+            if new_event_mode != last_event_mode {
+                events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
+                last_event_mode = new_event_mode;
+            }
         }
     }
 }

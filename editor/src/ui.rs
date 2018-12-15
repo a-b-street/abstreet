@@ -79,7 +79,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, hints: RenderingHints) {
+    fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints) {
         g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
         let ctx = Ctx {
@@ -106,7 +106,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         self.state.draw(g, &ctx);
 
-        self.canvas.draw_text(g, hints.osd, BOTTOM_LEFT);
+        // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
+        // soon, so meh
+        self.canvas.draw_text(g, hints.osd.clone(), BOTTOM_LEFT);
     }
 
     fn dump_before_abort(&self) {

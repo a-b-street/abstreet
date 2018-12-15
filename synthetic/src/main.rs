@@ -180,7 +180,7 @@ impl GUI<Text> for UI {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, osd: Text) {
+    fn draw(&self, g: &mut GfxCtx, osd: &Text) {
         self.model.draw(g, &self.canvas);
 
         match self.state {
@@ -204,7 +204,7 @@ impl GUI<Text> for UI {
             _ => {}
         };
 
-        self.canvas.draw_text(g, osd, ezgui::BOTTOM_LEFT);
+        self.canvas.draw_text(g, osd.clone(), ezgui::BOTTOM_LEFT);
     }
 }
 

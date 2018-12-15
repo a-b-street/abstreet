@@ -56,7 +56,7 @@ impl GUI<()> for UI {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: ()) {
+    fn draw(&self, g: &mut GfxCtx, _: &()) {
         self.draw_map
             .draw(g, self.cycler.value(), self.canvas.get_screen_bounds());
     }
