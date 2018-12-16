@@ -5,8 +5,6 @@ use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, Wizard, 
 use geom::Line;
 use std::{env, process};
 
-const KEY_CATEGORY: &str = "";
-
 struct UI {
     canvas: Canvas,
     model: Model,
@@ -153,7 +151,7 @@ impl GUI<Text> for UI {
                     } else if input.key_pressed(Key::L, "label side of the road") {
                         self.state = State::LabelingRoad((r, dir), Wizard::new());
                     }
-                } else if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
+                } else if input.unimportant_key_pressed(Key::Escape, "quit") {
                     process::exit(0);
                 } else if input.key_pressed(Key::S, "save") {
                     if self.model.name.is_some() {

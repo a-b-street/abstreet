@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use crate::objects::{Ctx, SETTINGS};
+use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Key;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
@@ -22,7 +22,7 @@ impl ColorPicker {
     pub fn new(ctx: &mut PluginCtx) -> Option<ColorPicker> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::Num8, SETTINGS, "configure colors")
+            .unimportant_key_pressed(Key::Num8, "configure colors")
         {
             return Some(ColorPicker::Choosing(Menu::new(
                 "Pick a color to change",

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use counter::Counter;
 use ezgui::{Color, Key};
@@ -17,7 +17,7 @@ impl ChokepointsFinder {
     pub fn new(ctx: &mut PluginCtx) -> Option<ChokepointsFinder> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::C, DEBUG_EXTRA, "find chokepoints of current sim")
+            .unimportant_key_pressed(Key::C, "find chokepoints of current sim")
         {
             return Some(find_chokepoints(&ctx.primary.sim));
         }

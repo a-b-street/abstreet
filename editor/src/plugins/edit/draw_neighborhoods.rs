@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, EDIT_MAP};
+use crate::objects::Ctx;
 use crate::plugins::{load_neighborhood_builder, Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Line, Polygon, Pt2D};
@@ -19,7 +19,7 @@ impl DrawNeighborhoodState {
     pub fn new(ctx: &mut PluginCtx) -> Option<DrawNeighborhoodState> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::N, EDIT_MAP, "start drawing a neighborhood")
+            .unimportant_key_pressed(Key::N, "start drawing a neighborhood")
         {
             return Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
         }

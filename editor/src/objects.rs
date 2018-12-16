@@ -118,14 +118,3 @@ pub struct Ctx<'a> {
     pub sim: &'a Sim,
     pub hints: &'a RenderingHints,
 }
-
-// TODO not the right module for this, totally temp
-
-pub const ROOT_MENU: &str = "";
-pub const DEBUG: &str = "Debug";
-pub const DEBUG_EXTRA: &str = "Debug/Show extra";
-pub const DEBUG_LAYERS: &str = "Debug/Show layers";
-pub const EDIT_MAP: &str = "Edit map";
-pub const SETTINGS: &str = "Settings";
-pub const SIM: &str = "Sim";
-pub const SIM_SETUP: &str = "Sim/Setup";

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, Key};
 
@@ -8,7 +8,7 @@ impl OsmClassifier {
     pub fn new(ctx: &mut PluginCtx) -> Option<OsmClassifier> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::Num6, DEBUG_EXTRA, "show OSM colors")
+            .unimportant_key_pressed(Key::Num6, "show OSM colors")
         {
             return Some(OsmClassifier {});
         }

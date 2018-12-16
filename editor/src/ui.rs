@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
-use crate::objects::{Ctx, RenderingHints, ID, ROOT_MENU};
+use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::RenderOptions;
 use crate::state::UIState;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, BOTTOM_LEFT, GUI};
@@ -61,7 +61,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         }
 
         // Can do this at any time.
-        if input.unimportant_key_pressed(Key::Escape, ROOT_MENU, "quit") {
+        if input.unimportant_key_pressed(Key::Escape, "quit") {
             self.save_editor_state();
             self.cs.save();
             info!("Saved color_scheme");

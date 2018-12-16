@@ -1,4 +1,4 @@
-use crate::objects::{EDIT_MAP, ID};
+use crate::objects::ID;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Key;
 use map_model::{EditReason, Lane, LaneID, LaneType, MapEdits, Road};
@@ -10,7 +10,7 @@ impl RoadEditor {
         if ctx.primary.current_selection.is_none()
             && ctx
                 .input
-                .unimportant_key_pressed(Key::E, EDIT_MAP, "Start editing roads")
+                .unimportant_key_pressed(Key::E, "Start editing roads")
         {
             return Some(RoadEditor {});
         }

@@ -1,4 +1,3 @@
-use crate::objects::SIM;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::MultiMap;
 use ezgui::Key;
@@ -83,7 +82,7 @@ impl Plugin for TimeTravel {
             }
         } else if ctx
             .input
-            .unimportant_key_pressed(Key::T, SIM, "start time traveling")
+            .unimportant_key_pressed(Key::T, "start time traveling")
         {
             self.current_tick = Some(ctx.primary.sim.time);
         }

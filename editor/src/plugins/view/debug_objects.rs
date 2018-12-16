@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text, TEXT_FG_COLOR};
 use std::collections::BTreeMap;
@@ -30,11 +30,9 @@ impl Plugin for DebugObjectsState {
         } else {
             // TODO Can't really display an OSD action if we're not currently selecting something.
             // Could only activate sometimes, but that seems a bit harder to use.
-            self.tooltip_key_held = ctx.input.unimportant_key_pressed(
-                self.tooltip_key,
-                DEBUG,
-                "hold Ctrl to show tooltips",
-            );
+            self.tooltip_key_held = ctx
+                .input
+                .unimportant_key_pressed(self.tooltip_key, "hold Ctrl to show tooltips");
         }
 
         if let Some(id) = self.selected {

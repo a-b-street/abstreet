@@ -1,4 +1,4 @@
-use crate::objects::{DEBUG, ID};
+use crate::objects::ID;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use ezgui::Key;
@@ -19,7 +19,7 @@ impl Validator {
     pub fn new(ctx: &mut PluginCtx) -> Option<Validator> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::I, DEBUG, "Validate map geometry")
+            .unimportant_key_pressed(Key::I, "Validate map geometry")
         {
             return Some(Validator::start(&ctx.primary.draw_map));
         }

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG};
+use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::{Bounds, Polygon, Pt2D};
@@ -27,11 +27,10 @@ impl Plugin for ShowActivityState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match self.state {
             State::Inactive => {
-                if ctx.input.unimportant_key_pressed(
-                    self.key,
-                    DEBUG,
-                    "show lanes with active traffic",
-                ) {
+                if ctx
+                    .input
+                    .unimportant_key_pressed(self.key, "show lanes with active traffic")
+                {
                     self.state = State::Active(
                         ctx.primary.sim.time,
                         active_agent_heatmap(ctx.canvas.get_screen_bounds(), &ctx.primary.sim),

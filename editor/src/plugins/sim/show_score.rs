@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, SIM};
+use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text, TOP_RIGHT};
 use sim::{ScoreSummary, Tick};
@@ -28,7 +28,7 @@ impl Plugin for ShowScoreState {
             State::Inactive => {
                 if ctx
                     .input
-                    .unimportant_key_pressed(self.key, SIM, "Show the sim info sidepanel")
+                    .unimportant_key_pressed(self.key, "Show the sim info sidepanel")
                 {
                     self.state = panel(ctx);
                 }

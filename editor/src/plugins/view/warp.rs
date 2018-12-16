@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
@@ -21,7 +21,7 @@ impl WarpState {
     pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<WarpState> {
         if ctx
             .input
-            .unimportant_key_pressed(key, DEBUG, "start searching for something to warp to")
+            .unimportant_key_pressed(key, "start searching for something to warp to")
         {
             return Some(WarpState::EnteringSearch(TextBox::new(
                 "Warp to what?",

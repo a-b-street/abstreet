@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, SIM_SETUP};
+use crate::objects::Ctx;
 use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
@@ -17,7 +17,7 @@ impl ScenarioManager {
     pub fn new(ctx: &mut PluginCtx) -> Option<ScenarioManager> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::W, SIM_SETUP, "manage scenarios")
+            .unimportant_key_pressed(Key::W, "manage scenarios")
         {
             return Some(ScenarioManager::PickScenario(Wizard::new()));
         }

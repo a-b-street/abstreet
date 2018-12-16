@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, InputResult, Key, TextBox};
 
@@ -9,10 +9,7 @@ pub enum SearchState {
 
 impl SearchState {
     pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<SearchState> {
-        if ctx
-            .input
-            .unimportant_key_pressed(key, DEBUG_EXTRA, "start searching")
-        {
+        if ctx.input.unimportant_key_pressed(key, "start searching") {
             return Some(SearchState::EnteringSearch(TextBox::new(
                 "Search for what?",
                 None,

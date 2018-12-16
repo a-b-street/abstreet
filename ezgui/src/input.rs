@@ -1,4 +1,3 @@
-use crate::tree_menu::TreeMenu;
 use crate::{Canvas, Color, Event, GfxCtx, Key, Text, TEXT_FG_COLOR};
 use geom::{Polygon, Pt2D};
 use std::collections::{BTreeMap, HashMap};
@@ -16,8 +15,6 @@ pub struct UserInput {
 
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
-
-    unimportant_actions_tree: TreeMenu,
 }
 
 impl UserInput {
@@ -33,7 +30,6 @@ impl UserInput {
             important_actions: Vec::new(),
             context_menu,
             reserved_keys: HashMap::new(),
-            unimportant_actions_tree: TreeMenu::new(),
         };
 
         // TODO Or left clicking outside of the menu
@@ -214,7 +210,7 @@ impl UserInput {
         }
     }
 
-    pub fn unimportant_key_pressed(&mut self, key: Key, category: &str, action: &str) -> bool {
+    pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
         if self.context_menu.is_some() {
             return false;
         }
@@ -231,8 +227,6 @@ impl UserInput {
         }
         self.unimportant_actions
             .push(format!("Press {} to {}", key.describe(), action));
-        self.unimportant_actions_tree
-            .add_action(Some(key), category, action);
         false
     }
 
@@ -334,8 +328,6 @@ impl UserInput {
         for a in &self.important_actions {
             osd.add_line(a.clone());
         }
-
-        //println!("{}", self.unimportant_actions_tree);
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {

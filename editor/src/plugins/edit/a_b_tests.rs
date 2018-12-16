@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, SIM_SETUP};
+use crate::objects::Ctx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
 use ezgui::{Canvas, GfxCtx, Key, LogScroller, Wizard, WrappedWizard};
@@ -15,7 +15,7 @@ impl ABTestManager {
         if ctx.primary.current_selection.is_none()
             && ctx
                 .input
-                .unimportant_key_pressed(Key::B, SIM_SETUP, "manage A/B tests")
+                .unimportant_key_pressed(Key::B, "manage A/B tests")
         {
             return Some(ABTestManager::PickABTest(Wizard::new()));
         }

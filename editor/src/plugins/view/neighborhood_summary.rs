@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, DEBUG};
+use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
@@ -51,11 +51,9 @@ impl Plugin for NeighborhoodSummary {
             }
         } else {
             self.active = ctx.primary.current_selection.is_none()
-                && ctx.input.unimportant_key_pressed(
-                    self.key,
-                    DEBUG,
-                    "show neighborhood summaries",
-                );
+                && ctx
+                    .input
+                    .unimportant_key_pressed(self.key, "show neighborhood summaries");
         }
 
         if self.active && Some(ctx.primary.sim.time) != self.last_summary {

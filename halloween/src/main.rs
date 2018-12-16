@@ -17,7 +17,6 @@ struct Flags {
     load_map: String,
 }
 
-const KEY_CATEGORY: &str = "";
 const ANIMATION_PERIOD_S: f64 = 2.0;
 
 struct UI {
@@ -44,7 +43,7 @@ impl UI {
 
 impl GUI<()> for UI {
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, ()) {
-        if input.unimportant_key_pressed(Key::Escape, KEY_CATEGORY, "quit") {
+        if input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
         self.canvas.handle_event(input);

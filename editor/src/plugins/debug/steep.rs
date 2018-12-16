@@ -2,7 +2,7 @@
 
 // TODO check out https://accessmap.io/ for inspiration on how to depict elevation
 
-use crate::objects::{Ctx, DEBUG_EXTRA, ID};
+use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::Map;
@@ -43,10 +43,7 @@ impl Plugin for SteepnessVisualizer {
         } else {
             "visualize steepness"
         };
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::Num5, DEBUG_EXTRA, msg)
-        {
+        if ctx.input.unimportant_key_pressed(Key::Num5, msg) {
             self.active = !self.active;
         }
         self.active

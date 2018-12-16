@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ROOT_MENU};
+use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::format_log_record;
 use ezgui::{GfxCtx, Key, LogScroller};
@@ -31,10 +31,7 @@ impl DisplayLogs {
 impl Plugin for DisplayLogs {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if !self.active {
-            if ctx
-                .input
-                .unimportant_key_pressed(Key::Comma, ROOT_MENU, "show logs")
-            {
+            if ctx.input.unimportant_key_pressed(Key::Comma, "show logs") {
                 self.active = true;
                 return true;
             } else {

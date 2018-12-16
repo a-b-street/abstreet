@@ -1,4 +1,4 @@
-use crate::objects::{DEBUG_EXTRA, ID};
+use crate::objects::ID;
 use ezgui::{Key, UserInput};
 use std::collections::HashSet;
 
@@ -18,7 +18,7 @@ impl Hider {
     }
 
     pub fn event(&mut self, input: &mut UserInput, selected: Option<ID>) -> bool {
-        if input.unimportant_key_pressed(Key::K, DEBUG_EXTRA, "unhide everything") {
+        if input.unimportant_key_pressed(Key::K, "unhide everything") {
             info!("Unhiding {} things", self.items.len());
             self.items.clear();
             return true;

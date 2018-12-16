@@ -1,4 +1,3 @@
-use crate::objects::SIM;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, Key};
@@ -38,14 +37,14 @@ impl Plugin for SimControls {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if ctx
             .input
-            .unimportant_key_pressed(Key::LeftBracket, SIM, "slow down sim")
+            .unimportant_key_pressed(Key::LeftBracket, "slow down sim")
         {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
         }
         if ctx
             .input
-            .unimportant_key_pressed(Key::RightBracket, SIM, "speed up sim")
+            .unimportant_key_pressed(Key::RightBracket, "speed up sim")
         {
             self.desired_speed += ADJUST_SPEED;
         }
@@ -68,10 +67,7 @@ impl Plugin for SimControls {
 
         match self.state {
             State::Paused => {
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::O, SIM, "save sim state")
-                {
+                if ctx.input.unimportant_key_pressed(Key::O, "save sim state") {
                     ctx.primary.sim.save();
                     if let Some((s, _)) = ctx.secondary {
                         s.sim.save();
@@ -79,7 +75,7 @@ impl Plugin for SimControls {
                 }
                 if ctx
                     .input
-                    .unimportant_key_pressed(Key::Y, SIM, "load previous sim state")
+                    .unimportant_key_pressed(Key::Y, "load previous sim state")
                 {
                     match ctx
                         .primary
@@ -106,7 +102,7 @@ impl Plugin for SimControls {
                 }
                 if ctx
                     .input
-                    .unimportant_key_pressed(Key::U, SIM, "load next sim state")
+                    .unimportant_key_pressed(Key::U, "load next sim state")
                 {
                     match ctx
                         .primary
@@ -134,25 +130,19 @@ impl Plugin for SimControls {
                 if ctx.primary.sim.is_empty()
                     && ctx
                         .input
-                        .unimportant_key_pressed(Key::S, SIM, "Seed the map with agents")
+                        .unimportant_key_pressed(Key::S, "Seed the map with agents")
                 {
                     ctx.primary.sim.small_spawn(&ctx.primary.map);
                     *ctx.recalculate_current_selection = true;
                 }
 
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::Space, SIM, "run sim")
-                {
+                if ctx.input.unimportant_key_pressed(Key::Space, "run sim") {
                     self.state = State::Running {
                         last_step: Instant::now(),
                         benchmark: ctx.primary.sim.start_benchmark(),
                         speed: "running".to_string(),
                     };
-                } else if ctx
-                    .input
-                    .unimportant_key_pressed(Key::M, SIM, "run one step")
-                {
+                } else if ctx.input.unimportant_key_pressed(Key::M, "run one step") {
                     let tick = ctx.primary.sim.time;
                     let events = ctx.primary.sim.step(&ctx.primary.map);
                     self.primary_events = Some((tick, events));
@@ -168,10 +158,7 @@ impl Plugin for SimControls {
                 ref mut benchmark,
                 ref mut speed,
             } => {
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::Space, SIM, "pause sim")
-                {
+                if ctx.input.unimportant_key_pressed(Key::Space, "pause sim") {
                     self.state = State::Paused;
                 } else {
                     ctx.hints.mode = EventLoopMode::Animation;
