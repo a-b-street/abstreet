@@ -53,6 +53,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     let mut g = GfxCtx::new(&mut glyphs, g, c);
                     gui.get_mut_canvas()
                         .start_drawing(&mut g, window.draw_size());
+
                     if let Err(err) =
                         panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
                     {
@@ -61,7 +62,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     }
 
                     // Always draw the context-menu last.
-                    if let Some(ref menu) = context_menu {
+                    if let Some(ref mut menu) = context_menu {
+                        // TODO Weird to do this here (all to pass along &mut glyphs), but for the
+                        // moment, that's how Text::dims works. :\
+                        menu.calculate_geometry(&mut g, gui.get_mut_canvas());
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }
                 });

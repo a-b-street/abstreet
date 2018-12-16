@@ -1,7 +1,7 @@
 use crate::keys::describe_key;
 use crate::tree_menu::TreeMenu;
 use crate::{Canvas, Color, GfxCtx, Text, TEXT_FG_COLOR};
-use geom::Pt2D;
+use geom::{Polygon, Pt2D};
 use piston::input::{
     Button, Event, IdleArgs, Key, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
     ReleaseEvent, UpdateEvent,
@@ -45,26 +45,46 @@ impl UserInput {
             unimportant_actions_tree: TreeMenu::new(),
         };
 
+        // TODO Or left clicking outside of the menu
+        // TODO If the user left clicks on a menu item, then mark that action as selected, and
+        // ensure contextual_action is called this round.
+        // TODO If the user hovers on a menu item, mark it for later highlighting.
+
         // Create the context menu here, even if one already existed.
         if input.button_pressed(MouseButton::Right) {
             input.context_menu = Some(ContextMenu {
                 actions: BTreeMap::new(),
                 origin: canvas.get_cursor_in_map_space(),
+                geometry: None,
+                selected: None,
             });
-        }
-        // TODO Or left clicking outside of the menu
-        // TODO If the user left clicks on a menu item, then mark that action as selected, and
-        // ensure contextual_action is called this round.
-        // TODO If the user hovers on a menu item, mark it for later highlighting.
-        if input.context_menu.is_some() {
-            // We have to directly look at stuff here; all of input's methods lie and pretend
-            // nothing is happening.
-            // TODO Would it be cleaner to just consume the event? But then contextual_action will
-            // be confused.
-            if let Some(Button::Keyboard(key)) = input.event.press_args() {
-                if key == Key::Escape {
-                    input.context_menu = None;
-                    input.consume_event();
+        } else if let Some(ref mut menu) = input.context_menu {
+            if let Some((ref row, height)) = menu.geometry {
+                // We have to directly look at stuff here; all of input's methods lie and pretend
+                // nothing is happening.
+                // TODO Would it be cleaner to just consume the event? But then contextual_action will
+                // be confused.
+                if let Some(Button::Keyboard(key)) = input.event.press_args() {
+                    if key == Key::Escape {
+                        input.context_menu = None;
+                        input.consume_event();
+                    }
+                } else if let Some(pair) = input.event.mouse_cursor_args() {
+                    let cursor_pt = canvas.screen_to_map((pair[0], pair[1]));
+                    let mut matched = false;
+                    for i in 0..menu.actions.len() {
+                        if row
+                            .translate(0.0, (i as f64) * height)
+                            .contains_pt(cursor_pt)
+                        {
+                            menu.selected = Some(i);
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if !matched {
+                        menu.selected = None;
+                    }
                 }
             }
         }
@@ -338,14 +358,45 @@ impl UserInput {
 pub(crate) struct ContextMenu {
     actions: BTreeMap<Key, String>,
     origin: Pt2D,
+    // The rectangle representing the top row of the menu, then the height of one row
+    geometry: Option<(Polygon, f64)>,
+    selected: Option<usize>,
 }
 
 impl ContextMenu {
-    pub(crate) fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub(crate) fn calculate_geometry(&mut self, g: &mut GfxCtx, canvas: &Canvas) {
+        if self.geometry.is_some() {
+            return;
+        }
+
         let mut txt = Text::new();
         for (hotkey, action) in &self.actions {
-            txt.add_styled_line(describe_key(*hotkey), Color::BLUE, None);
-            txt.append(format!(" - {}", action), TEXT_FG_COLOR, None);
+            txt.add_line(format!("{} - {}", describe_key(*hotkey), action));
+        }
+        let (screen_width, screen_height) = txt.dims(g);
+        let map_width = screen_width / canvas.cam_zoom;
+        let map_height = screen_height / canvas.cam_zoom;
+        let top_left = Pt2D::new(
+            self.origin.x() - (map_width / 2.0),
+            self.origin.y() - (map_height / 2.0),
+        );
+        let row_height = map_height / (self.actions.len() as f64);
+        self.geometry = Some((
+            Polygon::rectangle_topleft(top_left, map_width, row_height),
+            row_height,
+        ));
+    }
+
+    pub(crate) fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        let mut txt = Text::new();
+        for (idx, (hotkey, action)) in self.actions.iter().enumerate() {
+            let bg = if Some(idx) == self.selected {
+                Some(Color::WHITE)
+            } else {
+                None
+            };
+            txt.add_styled_line(describe_key(*hotkey), Color::BLUE, bg);
+            txt.append(format!(" - {}", action), TEXT_FG_COLOR, bg);
         }
         canvas.draw_text_at(g, txt, self.origin);
     }
