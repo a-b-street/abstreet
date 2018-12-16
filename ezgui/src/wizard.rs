@@ -1,4 +1,4 @@
-use crate::{Canvas, GfxCtx, InputResult, LogScroller, Menu, TextBox, UserInput};
+use crate::{Canvas, GfxCtx, InputResult, LogScroller, ScrollingMenu, TextBox, UserInput};
 use abstutil::Cloneable;
 use log::warn;
 use std::collections::VecDeque;
@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<Menu<Box<Cloneable>>>,
+    menu: Option<ScrollingMenu<Box<Cloneable>>>,
     log_scroller: Option<LogScroller>,
 
     // In the order of queries made
@@ -205,7 +205,7 @@ impl<'a> WrappedWizard<'a> {
                 .iter()
                 .map(|(s, item)| (s.to_string(), item.clone_box()))
                 .collect();
-            self.wizard.menu = Some(Menu::new(query, boxed_choices));
+            self.wizard.menu = Some(ScrollingMenu::new(query, boxed_choices));
         }
 
         if let Some((choice, item)) =
@@ -234,7 +234,7 @@ impl<'a> WrappedWizard<'a> {
 // The caller initializes the menu, if needed. Pass in Option that must be Some().
 // Bit weird to be a free function, but need to borrow a different menu and also the alive bit.
 fn input_with_menu<T: Clone>(
-    menu: &mut Option<Menu<T>>,
+    menu: &mut Option<ScrollingMenu<T>>,
     alive: &mut bool,
     input: &mut UserInput,
 ) -> Option<(String, T)> {

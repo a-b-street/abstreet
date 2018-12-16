@@ -3,7 +3,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Key;
-use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
+use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
 use geom::Polygon;
 
 // TODO assumes minimum screen size
@@ -13,7 +13,7 @@ const TILE_DIMS: u32 = 2;
 
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
-    Choosing(Menu<()>),
+    Choosing(ScrollingMenu<()>),
     // Remember the original modified color in case we revert.
     ChangingColor(String, Option<Color>),
 }
@@ -24,7 +24,7 @@ impl ColorPicker {
             .input
             .unimportant_key_pressed(Key::Num8, "configure colors")
         {
-            return Some(ColorPicker::Choosing(Menu::new(
+            return Some(ColorPicker::Choosing(ScrollingMenu::new(
                 "Pick a color to change",
                 ctx.cs.color_names(),
             )));

@@ -1,18 +1,19 @@
 use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 
 // Stores some associated data with each choice
-pub struct Menu<T: Clone> {
+// TODO Dedupe with the other menu, which doesn't need to scroll.
+pub struct ScrollingMenu<T: Clone> {
     prompt: String,
     choices: Vec<(String, T)>,
     current_idx: usize,
 }
 
-impl<T: Clone> Menu<T> {
-    pub fn new(prompt: &str, choices: Vec<(String, T)>) -> Menu<T> {
+impl<T: Clone> ScrollingMenu<T> {
+    pub fn new(prompt: &str, choices: Vec<(String, T)>) -> ScrollingMenu<T> {
         if choices.is_empty() {
             panic!("Can't create a menu without choices for \"{}\"", prompt);
         }
-        Menu {
+        ScrollingMenu {
             prompt: prompt.to_string(),
             choices,
             current_idx: 0,
