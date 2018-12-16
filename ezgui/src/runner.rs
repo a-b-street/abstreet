@@ -1,4 +1,5 @@
 use crate::input::ContextMenu;
+use crate::menu::Menu;
 use crate::{Canvas, Event, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
@@ -53,10 +54,11 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     }
 
                     // Always draw the context-menu last.
-                    if let Some(ref mut menu) = context_menu {
-                        // TODO Can get rid of this weird method now!
-                        menu.calculate_geometry(gui.get_mut_canvas());
-                        menu.draw(&mut g, gui.get_mut_canvas());
+                    if let Some(ref menu) = context_menu {
+                        menu.menu
+                            .as_ref()
+                            .unwrap()
+                            .draw(&mut g, gui.get_mut_canvas());
                     }
                 });
             }
@@ -93,8 +95,22 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 };
             last_data = Some(data);
             context_menu = input.context_menu;
-            if context_menu.as_ref().map(|m| m.is_empty()).unwrap_or(false) {
-                context_menu = None;
+            if let Some(ref mut menu) = context_menu {
+                if menu.menu.is_none() {
+                    if menu.actions.is_empty() {
+                        context_menu = None;
+                    } else {
+                        menu.menu = Some(Menu::new(
+                            None,
+                            menu.actions
+                                .iter()
+                                .map(|(hotkey, action)| (*hotkey, action.clone(), *hotkey))
+                                .collect(),
+                            menu.origin,
+                            gui.get_mut_canvas(),
+                        ));
+                    }
+                }
             }
 
             // Don't constantly reset the events struct -- only when laziness changes.

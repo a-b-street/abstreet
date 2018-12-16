@@ -1,5 +1,6 @@
-use crate::{Canvas, Color, Event, GfxCtx, Key, Text, TEXT_FG_COLOR};
-use geom::{Polygon, Pt2D};
+use crate::menu::Menu;
+use crate::{Canvas, Event, InputResult, Key, Text};
+use geom::Pt2D;
 use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -11,10 +12,21 @@ pub struct UserInput {
     important_actions: Vec<String>,
 
     // While this is present, UserInput lies about anything happening.
+    // TODO Needed?
     pub(crate) context_menu: Option<ContextMenu>,
 
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
+}
+
+pub struct ContextMenu {
+    // We don't really need these once the Menu is present, but eh.
+    // TODO Maybe express this as a 3-state enum.
+    pub actions: BTreeMap<Key, String>,
+    pub origin: Pt2D,
+
+    pub menu: Option<Menu<Key>>,
+    clicked: Option<Key>,
 }
 
 impl UserInput {
@@ -34,45 +46,24 @@ impl UserInput {
 
         // Create the context menu here, even if one already existed.
         if input.right_mouse_button_pressed() {
+            input.event_consumed = true;
             input.context_menu = Some(ContextMenu {
                 actions: BTreeMap::new(),
                 origin: canvas.get_cursor_in_map_space(),
-                geometry: None,
-                selected: None,
+                menu: None,
                 clicked: None,
             });
         } else if let Some(ref mut menu) = input.context_menu {
-            if let Some((ref row, height)) = menu.geometry {
-                // We have to directly look at stuff here; all of input's methods lie and pretend
-                // nothing is happening.
-                // TODO Would it be cleaner to just consume the event? But then contextual_action will
-                // be confused.
-                if input.event == Event::KeyPress(Key::Escape) {
+            // Can't call consume_event() because context_menu is borrowed.
+            input.event_consumed = true;
+
+            match menu.menu.as_mut().unwrap().event(input.event, canvas) {
+                InputResult::Canceled => {
                     input.context_menu = None;
-                    input.consume_event();
-                } else if input.event == Event::LeftMouseButtonDown {
-                    if let Some(i) = menu.selected {
-                        menu.clicked = Some(*menu.actions.keys().nth(i).unwrap());
-                    } else {
-                        input.context_menu = None;
-                        input.consume_event();
-                    }
-                } else if let Event::MouseMovedTo(x, y) = input.event {
-                    let cursor_pt = canvas.screen_to_map((x, y));
-                    let mut matched = false;
-                    for i in 0..menu.actions.len() {
-                        if row
-                            .translate(0.0, (i as f64) * height)
-                            .contains_pt(cursor_pt)
-                        {
-                            menu.selected = Some(i);
-                            matched = true;
-                            break;
-                        }
-                    }
-                    if !matched {
-                        menu.selected = None;
-                    }
+                }
+                InputResult::StillActive => {}
+                InputResult::Done(_, hotkey) => {
+                    menu.clicked = Some(hotkey);
                 }
             }
         }
@@ -169,8 +160,9 @@ impl UserInput {
 
     pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
         if let Some(ref mut menu) = self.context_menu.as_mut() {
+            // When the context menu is active, the event is always consumed so nothing else
+            // touches it. So don't consume or check consumption right here.
             if menu.clicked == Some(hotkey) {
-                self.consume_event();
                 self.context_menu = None;
                 return true;
             }
@@ -188,12 +180,7 @@ impl UserInput {
                 menu.actions.insert(hotkey, action.to_string());
             }
 
-            if self.event_consumed {
-                return false;
-            }
-
             if self.event == Event::KeyPress(hotkey) {
-                self.consume_event();
                 self.context_menu = None;
                 return true;
             }
@@ -330,57 +317,5 @@ impl UserInput {
             println!("both {} and {} read key {:?}", prev_action, action, key);
         }
         self.reserved_keys.insert(key, action.to_string());
-    }
-}
-
-pub(crate) struct ContextMenu {
-    actions: BTreeMap<Key, String>,
-    origin: Pt2D,
-    // The rectangle representing the top row of the menu, then the height of one row
-    geometry: Option<(Polygon, f64)>,
-    selected: Option<usize>,
-    clicked: Option<Key>,
-}
-
-impl ContextMenu {
-    pub(crate) fn calculate_geometry(&mut self, canvas: &mut Canvas) {
-        if self.geometry.is_some() {
-            return;
-        }
-
-        let mut txt = Text::new();
-        for (hotkey, action) in &self.actions {
-            txt.add_line(format!("{} - {}", hotkey.describe(), action));
-        }
-        let (screen_width, screen_height) = canvas.text_dims(&txt);
-        let map_width = screen_width / canvas.cam_zoom;
-        let map_height = screen_height / canvas.cam_zoom;
-        let top_left = Pt2D::new(
-            self.origin.x() - (map_width / 2.0),
-            self.origin.y() - (map_height / 2.0),
-        );
-        let row_height = map_height / (self.actions.len() as f64);
-        self.geometry = Some((
-            Polygon::rectangle_topleft(top_left, map_width, row_height),
-            row_height,
-        ));
-    }
-
-    pub(crate) fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        let mut txt = Text::new();
-        for (idx, (hotkey, action)) in self.actions.iter().enumerate() {
-            let bg = if Some(idx) == self.selected {
-                Some(Color::WHITE)
-            } else {
-                None
-            };
-            txt.add_styled_line(hotkey.describe(), Color::BLUE, bg);
-            txt.append(format!(" - {}", action), TEXT_FG_COLOR, bg);
-        }
-        canvas.draw_text_at(g, txt, self.origin);
-    }
-
-    pub(crate) fn is_empty(&self) -> bool {
-        self.actions.is_empty()
     }
 }

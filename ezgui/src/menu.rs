@@ -1,4 +1,4 @@
-use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, Text, UserInput};
+use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, Text};
 use geom::{Polygon, Pt2D};
 
 // Stores some associated data with each choice
@@ -51,15 +51,7 @@ impl<T: Clone> Menu<T> {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> InputResult<T> {
-        // We have to directly look at stuff here; all of input's methods lie and pretend nothing
-        // is happening.
-        let maybe_ev = input.use_event_directly();
-        if maybe_ev.is_none() {
-            return InputResult::StillActive;
-        }
-        let ev = maybe_ev.unwrap();
-
+    pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<T> {
         // Handle the mouse
         if ev == Event::LeftMouseButtonDown {
             if let Some(i) = self.current_idx {
