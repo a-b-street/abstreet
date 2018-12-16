@@ -25,27 +25,19 @@ pub use crate::text::{Text, TEXT_FG_COLOR};
 pub use crate::text_box::TextBox;
 pub use crate::wizard::{Wizard, WrappedWizard};
 use geom::Pt2D;
-use graphics::character::CharacterCache;
 use graphics::Transformed;
-use opengl_graphics::{GlGraphics, Texture};
+use opengl_graphics::GlGraphics;
 use std::mem;
 
-//struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {
 pub struct GfxCtx<'a> {
-    glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
     orig_ctx: graphics::Context,
     ctx: graphics::Context,
     gfx: &'a mut GlGraphics,
 }
 
 impl<'a> GfxCtx<'a> {
-    pub fn new(
-        glyphs: &'a mut CharacterCache<Texture = Texture, Error = String>,
-        g: &'a mut GlGraphics,
-        c: graphics::Context,
-    ) -> GfxCtx<'a> {
+    pub fn new(g: &'a mut GlGraphics, c: graphics::Context) -> GfxCtx<'a> {
         GfxCtx {
-            glyphs,
             gfx: g,
             orig_ctx: c,
             ctx: c,

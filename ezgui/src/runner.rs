@@ -1,7 +1,7 @@
 use crate::input::ContextMenu;
 use crate::{Canvas, Event, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
-use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
+use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::{Window, WindowSettings};
 use std::panic;
@@ -32,15 +32,6 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let mut glyphs = GlyphCache::new(
-        // TODO don't assume this exists!
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        (),
-        texture_settings,
-    )
-    .expect("Could not load font");
-
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu: Option<ContextMenu> = None;
     let mut last_data: Option<T> = None;
@@ -50,7 +41,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
             // If the very first event is render, then just wait.
             if let Some(ref data) = last_data {
                 gl.draw(args.viewport(), |c, g| {
-                    let mut g = GfxCtx::new(&mut glyphs, g, c);
+                    let mut g = GfxCtx::new(g, c);
                     gui.get_mut_canvas()
                         .start_drawing(&mut g, window.draw_size());
 
@@ -63,9 +54,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
 
                     // Always draw the context-menu last.
                     if let Some(ref mut menu) = context_menu {
-                        // TODO Weird to do this here (all to pass along &mut glyphs), but for the
-                        // moment, that's how Text::dims works. :\
-                        menu.calculate_geometry(&mut g, gui.get_mut_canvas());
+                        // TODO Can get rid of this weird method now!
+                        menu.calculate_geometry(gui.get_mut_canvas());
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }
                 });

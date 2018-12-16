@@ -3,7 +3,9 @@
 use crate::{text, GfxCtx, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
+use opengl_graphics::{Filter, GlyphCache, TextureSettings};
 use piston::window::Size;
+use std::cell::RefCell;
 
 const ZOOM_SPEED: f64 = 0.1;
 
@@ -20,10 +22,24 @@ pub struct Canvas {
     left_mouse_drag_from: Option<(f64, f64)>,
 
     pub window_size: Size,
+
+    glyphs: RefCell<GlyphCache<'static>>,
 }
 
 impl Canvas {
     pub fn new() -> Canvas {
+        let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+        // TODO We could also preload everything and not need the RefCell.
+        let glyphs = RefCell::new(
+            GlyphCache::new(
+                // TODO don't assume this exists!
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                (),
+                texture_settings,
+            )
+            .expect("Could not load font"),
+        );
+
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -37,6 +53,8 @@ impl Canvas {
                 width: 0,
                 height: 0,
             },
+
+            glyphs,
         }
     }
 
@@ -77,20 +95,22 @@ impl Canvas {
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
-        let (width, height) = txt.dims(g);
+        let glyphs = &mut self.glyphs.borrow_mut();
+        let (width, height) = txt.dims(glyphs);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        text::draw_text_bubble(g, (x1, y1), txt);
+        text::draw_text_bubble(g, glyphs, (x1, y1), txt);
     }
 
     pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
-        let (width, height) = txt.dims(g);
+        let glyphs = &mut self.glyphs.borrow_mut();
+        let (width, height) = txt.dims(glyphs);
         let (x, y) = self.map_to_screen(pt);
-        text::draw_text_bubble(g, (x - (width / 2.0), y - (height / 2.0)), txt);
+        text::draw_text_bubble(g, glyphs, (x - (width / 2.0), y - (height / 2.0)), txt);
     }
 
     pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, (x, y): (f64, f64)) {
-        text::draw_text_bubble(g, (x, y), txt);
+        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), (x, y), txt);
     }
 
     pub fn draw_text(
@@ -102,7 +122,8 @@ impl Canvas {
         if txt.is_empty() {
             return;
         }
-        let (width, height) = txt.dims(g);
+        let glyphs = &mut self.glyphs.borrow_mut();
+        let (width, height) = txt.dims(glyphs);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (f64::from(self.window_size.width) - width) / 2.0,
@@ -113,7 +134,11 @@ impl Canvas {
             VerticalAlignment::Center => (f64::from(self.window_size.height) - height) / 2.0,
             VerticalAlignment::Bottom => f64::from(self.window_size.height) - height,
         };
-        text::draw_text_bubble(g, (x1, y1), txt);
+        text::draw_text_bubble(g, glyphs, (x1, y1), txt);
+    }
+
+    pub(crate) fn text_dims(&self, txt: &Text) -> (f64, f64) {
+        txt.dims(&mut self.glyphs.borrow_mut())
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

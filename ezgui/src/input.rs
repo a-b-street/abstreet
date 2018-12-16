@@ -343,7 +343,7 @@ pub(crate) struct ContextMenu {
 }
 
 impl ContextMenu {
-    pub(crate) fn calculate_geometry(&mut self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub(crate) fn calculate_geometry(&mut self, canvas: &mut Canvas) {
         if self.geometry.is_some() {
             return;
         }
@@ -352,7 +352,7 @@ impl ContextMenu {
         for (hotkey, action) in &self.actions {
             txt.add_line(format!("{} - {}", hotkey.describe(), action));
         }
-        let (screen_width, screen_height) = txt.dims(g);
+        let (screen_width, screen_height) = canvas.text_dims(&txt);
         let map_width = screen_width / canvas.cam_zoom;
         let map_height = screen_height / canvas.cam_zoom;
         let top_left = Pt2D::new(

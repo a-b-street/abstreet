@@ -1,7 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use crate::{Canvas, Color, GfxCtx};
+use graphics::character::CharacterCache;
 use graphics::{Image, Rectangle, Transformed};
+use opengl_graphics::GlyphCache;
 use textwrap;
 
 pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
@@ -98,7 +100,7 @@ impl Text {
         self.lines.is_empty()
     }
 
-    pub fn dims(&self, g: &mut GfxCtx) -> (f64, f64) {
+    pub(crate) fn dims(&self, glyphs: &mut GlyphCache) -> (f64, f64) {
         let longest_line = self
             .lines
             .iter()
@@ -108,14 +110,14 @@ impl Text {
         for span in longest_line {
             concat.push_str(&span.text);
         }
-        let width = g.glyphs.width(FONT_SIZE, &concat).unwrap();
+        let width = glyphs.width(FONT_SIZE, &concat).unwrap();
         let height = (self.lines.len() as f64) * LINE_HEIGHT;
         (width, height)
     }
 }
 
-pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
-    let (total_width, total_height) = txt.dims(g);
+pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, (x1, y1): (f64, f64), txt: Text) {
+    let (total_width, total_height) = txt.dims(glyphs);
     Rectangle::new(txt.bg_color.0).draw(
         [x1, y1, total_width, total_height],
         &g.orig_ctx.draw_state,
@@ -130,7 +132,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
         for span in line {
             if let Some(color) = span.highlight_color {
                 // TODO do we ever want to use total_width?
-                let width = g.glyphs.width(FONT_SIZE, &span.text).unwrap();
+                let width = glyphs.width(FONT_SIZE, &span.text).unwrap();
                 Rectangle::new(color.0).draw(
                     [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
                     &g.orig_ctx.draw_state,
@@ -142,7 +144,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, (x1, y1): (f64, f64), txt: Text) {
             let fg_text = Image::new_color(span.fg_color.0);
 
             for ch in span.text.chars() {
-                if let Ok(draw_ch) = g.glyphs.character(FONT_SIZE, ch) {
+                if let Ok(draw_ch) = glyphs.character(FONT_SIZE, ch) {
                     let char_ctx = g
                         .orig_ctx
                         .transform
