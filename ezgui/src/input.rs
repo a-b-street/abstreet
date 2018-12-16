@@ -32,11 +32,6 @@ impl UserInput {
             reserved_keys: HashMap::new(),
         };
 
-        // TODO Or left clicking outside of the menu
-        // TODO If the user left clicks on a menu item, then mark that action as selected, and
-        // ensure contextual_action is called this round.
-        // TODO If the user hovers on a menu item, mark it for later highlighting.
-
         // Create the context menu here, even if one already existed.
         if input.right_mouse_button_pressed() {
             input.context_menu = Some(ContextMenu {

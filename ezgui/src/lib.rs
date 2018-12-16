@@ -5,6 +5,7 @@ mod color;
 mod event;
 mod input;
 mod log_scroller;
+mod menu;
 mod runner;
 mod scrolling_menu;
 mod text;
