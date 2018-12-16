@@ -57,6 +57,7 @@ impl UserInput {
                 origin: canvas.get_cursor_in_map_space(),
                 geometry: None,
                 selected: None,
+                clicked: None,
             });
         } else if let Some(ref mut menu) = input.context_menu {
             if let Some((ref row, height)) = menu.geometry {
@@ -68,6 +69,15 @@ impl UserInput {
                     if key == Key::Escape {
                         input.context_menu = None;
                         input.consume_event();
+                    }
+                } else if let Some(Button::Mouse(button)) = input.event.press_args() {
+                    if button == MouseButton::Left {
+                        if let Some(i) = menu.selected {
+                            menu.clicked = Some(*menu.actions.keys().nth(i).unwrap());
+                        } else {
+                            input.context_menu = None;
+                            input.consume_event();
+                        }
                     }
                 } else if let Some(pair) = input.event.mouse_cursor_args() {
                     let cursor_pt = canvas.screen_to_map((pair[0], pair[1]));
@@ -183,6 +193,12 @@ impl UserInput {
 
     pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
         if let Some(ref mut menu) = self.context_menu.as_mut() {
+            if menu.clicked == Some(hotkey) {
+                self.consume_event();
+                self.context_menu = None;
+                return true;
+            }
+
             // We could be initially populating the menu because the user just right-clicked, or
             // this could be a later round.
             if let Some(prev_action) = menu.actions.get(&hotkey) {
@@ -361,6 +377,7 @@ pub(crate) struct ContextMenu {
     // The rectangle representing the top row of the menu, then the height of one row
     geometry: Option<(Polygon, f64)>,
     selected: Option<usize>,
+    clicked: Option<Key>,
 }
 
 impl ContextMenu {
