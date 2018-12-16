@@ -8,23 +8,48 @@ pub struct Menu<T: Clone> {
     current_idx: Option<usize>,
 
     origin: Pt2D,
-    // The rectangle representing the top row of the menu (not including the optional prompt), then
-    // the height of one row
-    // TODO Needing a separate call to initialize geometry sucks.
-    geometry: Option<(Polygon, f64)>,
+    first_choice_row: Polygon,
+    row_height: f64,
 }
 
 impl<T: Clone> Menu<T> {
-    /*pub fn new(prompt: &str, choices: Vec<(String, T)>) -> Menu<T> {
+    pub fn new(
+        prompt: Option<String>,
+        choices: Vec<(Key, String, T)>,
+        origin: Pt2D,
+        canvas: &Canvas,
+    ) -> Menu<T> {
         if choices.is_empty() {
-            panic!("Can't create a menu without choices for \"{}\"", prompt);
+            panic!("Can't create a menu without choices for {:?}", prompt);
         }
+
+        // Calculate geometry.
+        let mut txt = Text::new();
+        // TODO prompt
+        for (hotkey, choice, _) in &choices {
+            txt.add_line(format!("{} - {}", hotkey.describe(), choice));
+        }
+        let (screen_width, screen_height) = canvas.text_dims(&txt);
+        // Once a menu is created, all other controls (like zooming) are disabled, so this value
+        // stays true.
+        let map_width = screen_width / canvas.cam_zoom;
+        let map_height = screen_height / canvas.cam_zoom;
+        let top_left = Pt2D::new(
+            origin.x() - (map_width / 2.0),
+            origin.y() - (map_height / 2.0),
+        );
+        let row_height = map_height / (choices.len() as f64);
+
         Menu {
-            prompt: prompt.to_string(),
+            prompt,
             choices,
-            current_idx: 0,
+            // TODO Different for wizards
+            current_idx: None,
+            origin,
+            first_choice_row: Polygon::rectangle_topleft(top_left, map_width, row_height),
+            row_height,
         }
-    }*/
+    }
 
     pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> InputResult<T> {
         // We have to directly look at stuff here; all of input's methods lie and pretend nothing
@@ -36,31 +61,31 @@ impl<T: Clone> Menu<T> {
         let ev = maybe_ev.unwrap();
 
         // Handle the mouse
-        if let Some((ref row, height)) = self.geometry {
-            if ev == Event::LeftMouseButtonDown {
-                if let Some(i) = self.current_idx {
-                    let (_, choice, data) = self.choices[i].clone();
-                    return InputResult::Done(choice, data);
-                } else {
-                    return InputResult::Canceled;
-                }
-            } else if let Event::MouseMovedTo(x, y) = ev {
-                let cursor_pt = canvas.screen_to_map((x, y));
-                let mut matched = false;
-                for i in 0..self.choices.len() {
-                    if row
-                        .translate(0.0, (i as f64) * height)
-                        .contains_pt(cursor_pt)
-                    {
-                        self.current_idx = Some(i);
-                        matched = true;
-                        break;
-                    }
-                }
-                if !matched {
-                    self.current_idx = None;
+        if ev == Event::LeftMouseButtonDown {
+            if let Some(i) = self.current_idx {
+                let (_, choice, data) = self.choices[i].clone();
+                return InputResult::Done(choice, data);
+            } else {
+                return InputResult::Canceled;
+            }
+        } else if let Event::MouseMovedTo(x, y) = ev {
+            let cursor_pt = canvas.screen_to_map((x, y));
+            let mut matched = false;
+            for i in 0..self.choices.len() {
+                if self
+                    .first_choice_row
+                    .translate(0.0, (i as f64) * self.row_height)
+                    .contains_pt(cursor_pt)
+                {
+                    self.current_idx = Some(i);
+                    matched = true;
+                    break;
                 }
             }
+            if !matched {
+                self.current_idx = None;
+            }
+            return InputResult::StillActive;
         }
 
         // Handle keys
@@ -85,30 +110,6 @@ impl<T: Clone> Menu<T> {
         }
 
         InputResult::StillActive
-    }
-
-    pub(crate) fn calculate_geometry(&mut self, canvas: &mut Canvas) {
-        if self.geometry.is_some() {
-            return;
-        }
-
-        let mut txt = Text::new();
-        // TODO prompt
-        for (hotkey, choice, _) in &self.choices {
-            txt.add_line(format!("{} - {}", hotkey.describe(), choice));
-        }
-        let (screen_width, screen_height) = canvas.text_dims(&txt);
-        let map_width = screen_width / canvas.cam_zoom;
-        let map_height = screen_height / canvas.cam_zoom;
-        let top_left = Pt2D::new(
-            self.origin.x() - (map_width / 2.0),
-            self.origin.y() - (map_height / 2.0),
-        );
-        let row_height = map_height / (self.choices.len() as f64);
-        self.geometry = Some((
-            Polygon::rectangle_topleft(top_left, map_width, row_height),
-            row_height,
-        ));
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
