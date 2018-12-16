@@ -1,11 +1,6 @@
-use crate::keys::describe_key;
 use crate::tree_menu::TreeMenu;
-use crate::{Canvas, Color, GfxCtx, Text, TEXT_FG_COLOR};
+use crate::{Canvas, Color, Event, GfxCtx, Key, Text, TEXT_FG_COLOR};
 use geom::{Polygon, Pt2D};
-use piston::input::{
-    Button, Event, IdleArgs, Key, MouseButton, MouseCursorEvent, MouseScrollEvent, PressEvent,
-    ReleaseEvent, UpdateEvent,
-};
 use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -21,9 +16,6 @@ pub struct UserInput {
 
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
-
-    // TODO hack :(
-    empty_event: Event,
 
     unimportant_actions_tree: TreeMenu,
 }
@@ -41,7 +33,6 @@ impl UserInput {
             important_actions: Vec::new(),
             context_menu,
             reserved_keys: HashMap::new(),
-            empty_event: Event::from(IdleArgs { dt: 0.0 }),
             unimportant_actions_tree: TreeMenu::new(),
         };
 
@@ -51,7 +42,7 @@ impl UserInput {
         // TODO If the user hovers on a menu item, mark it for later highlighting.
 
         // Create the context menu here, even if one already existed.
-        if input.button_pressed(MouseButton::Right) {
+        if input.right_mouse_button_pressed() {
             input.context_menu = Some(ContextMenu {
                 actions: BTreeMap::new(),
                 origin: canvas.get_cursor_in_map_space(),
@@ -65,22 +56,18 @@ impl UserInput {
                 // nothing is happening.
                 // TODO Would it be cleaner to just consume the event? But then contextual_action will
                 // be confused.
-                if let Some(Button::Keyboard(key)) = input.event.press_args() {
-                    if key == Key::Escape {
+                if input.event == Event::KeyPress(Key::Escape) {
+                    input.context_menu = None;
+                    input.consume_event();
+                } else if input.event == Event::LeftMouseButtonDown {
+                    if let Some(i) = menu.selected {
+                        menu.clicked = Some(*menu.actions.keys().nth(i).unwrap());
+                    } else {
                         input.context_menu = None;
                         input.consume_event();
                     }
-                } else if let Some(Button::Mouse(button)) = input.event.press_args() {
-                    if button == MouseButton::Left {
-                        if let Some(i) = menu.selected {
-                            menu.clicked = Some(*menu.actions.keys().nth(i).unwrap());
-                        } else {
-                            input.context_menu = None;
-                            input.consume_event();
-                        }
-                    }
-                } else if let Some(pair) = input.event.mouse_cursor_args() {
-                    let cursor_pt = canvas.screen_to_map((pair[0], pair[1]));
+                } else if let Event::MouseMovedTo(x, y) = input.event {
+                    let cursor_pt = canvas.screen_to_map((x, y));
                     let mut matched = false;
                     for i in 0..menu.actions.len() {
                         if row
@@ -110,48 +97,48 @@ impl UserInput {
         }
 
         if num_options >= 1 {
-            self.reserve_key(Key::D1, action);
+            self.reserve_key(Key::Num1, action);
         }
         if num_options >= 2 {
-            self.reserve_key(Key::D2, action);
+            self.reserve_key(Key::Num2, action);
         }
         if num_options >= 3 {
-            self.reserve_key(Key::D3, action);
+            self.reserve_key(Key::Num3, action);
         }
         if num_options >= 4 {
-            self.reserve_key(Key::D4, action);
+            self.reserve_key(Key::Num4, action);
         }
         if num_options >= 5 {
-            self.reserve_key(Key::D5, action);
+            self.reserve_key(Key::Num5, action);
         }
         if num_options >= 6 {
-            self.reserve_key(Key::D6, action);
+            self.reserve_key(Key::Num6, action);
         }
         if num_options >= 7 {
-            self.reserve_key(Key::D7, action);
+            self.reserve_key(Key::Num7, action);
         }
         if num_options >= 8 {
-            self.reserve_key(Key::D8, action);
+            self.reserve_key(Key::Num8, action);
         }
         if num_options >= 9 {
-            self.reserve_key(Key::D9, action);
+            self.reserve_key(Key::Num9, action);
         }
 
         if self.event_consumed {
             return None;
         }
 
-        let num = if let Some(Button::Keyboard(key)) = self.event.press_args() {
+        let num = if let Event::KeyPress(key) = self.event {
             match key {
-                Key::D1 => Some(1),
-                Key::D2 => Some(2),
-                Key::D3 => Some(3),
-                Key::D4 => Some(4),
-                Key::D5 => Some(5),
-                Key::D6 => Some(6),
-                Key::D7 => Some(7),
-                Key::D8 => Some(8),
-                Key::D9 => Some(9),
+                Key::Num1 => Some(1),
+                Key::Num2 => Some(2),
+                Key::Num3 => Some(3),
+                Key::Num4 => Some(4),
+                Key::Num5 => Some(5),
+                Key::Num6 => Some(6),
+                Key::Num7 => Some(7),
+                Key::Num8 => Some(8),
+                Key::Num9 => Some(9),
                 _ => None,
             }
         } else {
@@ -180,14 +167,12 @@ impl UserInput {
             return false;
         }
 
-        if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
-            if key == pressed {
-                self.consume_event();
-                return true;
-            }
+        if self.event == Event::KeyPress(key) {
+            self.consume_event();
+            return true;
         }
         self.important_actions
-            .push(format!("Press {} to {}", describe_key(key), action));
+            .push(format!("Press {} to {}", key.describe(), action));
         false
     }
 
@@ -216,12 +201,10 @@ impl UserInput {
                 return false;
             }
 
-            if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
-                if hotkey == pressed {
-                    self.consume_event();
-                    self.context_menu = None;
-                    return true;
-                }
+            if self.event == Event::KeyPress(hotkey) {
+                self.consume_event();
+                self.context_menu = None;
+                return true;
             }
             false
         } else {
@@ -242,14 +225,12 @@ impl UserInput {
             return false;
         }
 
-        if let Some(Button::Keyboard(pressed)) = self.event.press_args() {
-            if key == pressed {
-                self.consume_event();
-                return true;
-            }
+        if self.event == Event::KeyPress(key) {
+            self.consume_event();
+            return true;
         }
         self.unimportant_actions
-            .push(format!("Press {} to {}", describe_key(key), action));
+            .push(format!("Press {} to {}", key.describe(), action));
         self.unimportant_actions_tree
             .add_action(Some(key), category, action);
         false
@@ -264,38 +245,31 @@ impl UserInput {
             return false;
         }
 
-        if let Some(Button::Keyboard(released)) = self.event.release_args() {
-            if key == released {
-                self.consume_event();
-                return true;
-            }
+        if self.event == Event::KeyRelease(key) {
+            self.consume_event();
+            return true;
         }
         false
     }
 
     // No consuming for these?
-    pub(crate) fn button_pressed(&mut self, btn: MouseButton) -> bool {
+    pub(crate) fn left_mouse_button_pressed(&mut self) -> bool {
         if self.context_menu.is_some() {
             return false;
         }
-
-        if let Some(Button::Mouse(pressed)) = self.event.press_args() {
-            btn == pressed
-        } else {
-            false
-        }
+        self.event == Event::LeftMouseButtonDown
     }
-
-    pub(crate) fn button_released(&mut self, btn: MouseButton) -> bool {
+    pub(crate) fn left_mouse_button_released(&mut self) -> bool {
         if self.context_menu.is_some() {
             return false;
         }
-
-        if let Some(Button::Mouse(released)) = self.event.release_args() {
-            btn == released
-        } else {
-            false
+        self.event == Event::LeftMouseButtonUp
+    }
+    pub(crate) fn right_mouse_button_pressed(&mut self) -> bool {
+        if self.context_menu.is_some() {
+            return false;
         }
+        self.event == Event::RightMouseButtonDown
     }
 
     pub fn get_moved_mouse(&self) -> Option<(f64, f64)> {
@@ -303,19 +277,21 @@ impl UserInput {
             return None;
         }
 
-        self.event
-            .mouse_cursor_args()
-            .map(|pair| (pair[0], pair[1]))
+        if let Event::MouseMovedTo(x, y) = self.event {
+            return Some((x, y));
+        }
+        None
     }
 
-    pub(crate) fn get_mouse_scroll(&self) -> Option<(f64, f64)> {
+    pub(crate) fn get_mouse_scroll(&self) -> Option<f64> {
         if self.context_menu.is_some() {
             return None;
         }
 
-        self.event
-            .mouse_scroll_args()
-            .map(|pair| (pair[0], pair[1]))
+        if let Event::MouseWheelScroll(dy) = self.event {
+            return Some(dy);
+        }
+        None
     }
 
     pub fn is_update_event(&mut self) -> bool {
@@ -327,7 +303,7 @@ impl UserInput {
             return false;
         }
 
-        if self.event.update_args().is_some() {
+        if self.event == Event::Update {
             self.consume_event();
             return true;
         }
@@ -335,14 +311,13 @@ impl UserInput {
         false
     }
 
-    // The point of hiding this is to make it easy to migrate between Piston and gfx+winit, but
-    // within this crate, everything has to be adjusted anyway.
-    pub(crate) fn use_event_directly(&mut self) -> &Event {
+    // TODO I'm not sure this is even useful anymore
+    pub(crate) fn use_event_directly(&mut self) -> Option<Event> {
         if self.event_consumed {
-            return &self.empty_event;
+            return None;
         }
         self.consume_event();
-        &self.event
+        Some(self.event)
     }
 
     fn consume_event(&mut self) {
@@ -388,7 +363,7 @@ impl ContextMenu {
 
         let mut txt = Text::new();
         for (hotkey, action) in &self.actions {
-            txt.add_line(format!("{} - {}", describe_key(*hotkey), action));
+            txt.add_line(format!("{} - {}", hotkey.describe(), action));
         }
         let (screen_width, screen_height) = txt.dims(g);
         let map_width = screen_width / canvas.cam_zoom;
@@ -412,7 +387,7 @@ impl ContextMenu {
             } else {
                 None
             };
-            txt.add_styled_line(describe_key(*hotkey), Color::BLUE, bg);
+            txt.add_styled_line(hotkey.describe(), Color::BLUE, bg);
             txt.append(format!(" - {}", action), TEXT_FG_COLOR, bg);
         }
         canvas.draw_text_at(g, txt, self.origin);

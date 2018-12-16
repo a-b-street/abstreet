@@ -1,9 +1,8 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Key};
 use map_model::{Trace, LANE_THICKNESS};
-use piston::input::Key;
 use sim::{Tick, TripID};
 use std::f64;
 

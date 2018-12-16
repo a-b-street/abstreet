@@ -4,9 +4,8 @@
 
 use crate::objects::{Ctx, DEBUG_EXTRA, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::Color;
+use ezgui::{Color, Key};
 use map_model::Map;
-use piston::input::Key;
 use std::f64;
 
 pub struct SteepnessVisualizer {
@@ -44,7 +43,10 @@ impl Plugin for SteepnessVisualizer {
         } else {
             "visualize steepness"
         };
-        if ctx.input.unimportant_key_pressed(Key::D5, DEBUG_EXTRA, msg) {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::Num5, DEBUG_EXTRA, msg)
+        {
             self.active = !self.active;
         }
         self.active

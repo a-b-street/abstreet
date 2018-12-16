@@ -1,5 +1,4 @@
-use crate::keys::describe_key;
-use piston::input::Key;
+use crate::Key;
 use std::collections::{BTreeMap, VecDeque};
 use std::fmt;
 
@@ -56,7 +55,7 @@ fn print(depth: usize, tree: &BTreeMap<String, Item>, f: &mut fmt::Formatter) ->
 
 fn describe_maybe_key(key: Option<Key>) -> String {
     match key {
-        Some(k) => describe_key(k),
+        Some(k) => k.describe(),
         None => String::new(),
     }
 }

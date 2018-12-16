@@ -7,4 +7,3 @@ edition = "2018"
 [dependencies]
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
-piston = "*"

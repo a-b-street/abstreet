@@ -2,8 +2,8 @@
 
 mod canvas;
 mod color;
+mod event;
 mod input;
-mod keys;
 mod log_scroller;
 mod menu;
 mod runner;
@@ -16,6 +16,7 @@ pub use crate::canvas::{
     Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
 };
 pub use crate::color::Color;
+pub use crate::event::{Event, Key};
 pub use crate::input::UserInput;
 pub use crate::log_scroller::LogScroller;
 pub use crate::menu::Menu;
@@ -27,7 +28,6 @@ use geom::Pt2D;
 use graphics::character::CharacterCache;
 use graphics::Transformed;
 use opengl_graphics::{GlGraphics, Texture};
-use piston::input::Key;
 use std::mem;
 
 //struct GfxCtx<'a, G: 'a + Graphics, C: 'a + CharacterCache<Texture = G::Texture>> {

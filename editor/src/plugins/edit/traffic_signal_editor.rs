@@ -2,10 +2,9 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Text, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Key, Text, Wizard, WrappedWizard};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
-use piston::input::Key;
 use std::collections::HashSet;
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
@@ -142,7 +141,7 @@ impl Plugin for TrafficSignalEditor {
             ctx.primary.map.edit_traffic_signal(signal);
         } else {
             self.icon_selected = None;
-            if input.key_pressed(Key::Return, "quit the editor") {
+            if input.key_pressed(Key::Enter, "quit the editor") {
                 return false;
             }
 

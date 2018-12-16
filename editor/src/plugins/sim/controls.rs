@@ -1,8 +1,7 @@
 use crate::objects::SIM;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
-use ezgui::EventLoopMode;
-use piston::input::Key;
+use ezgui::{EventLoopMode, Key};
 use sim::{Benchmark, Event, Sim, Tick, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};

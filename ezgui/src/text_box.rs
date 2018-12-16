@@ -1,6 +1,4 @@
-use crate::keys::key_to_char;
-use crate::{text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
-use piston::input::{Button, ButtonEvent, Key, PressEvent, ReleaseEvent};
+use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 
 // TODO right now, only a single line
 
@@ -55,59 +53,37 @@ impl TextBox {
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {
-        let ev = input.use_event_directly().clone();
+        let maybe_ev = input.use_event_directly();
+        if maybe_ev.is_none() {
+            return InputResult::StillActive;
+        }
+        let ev = maybe_ev.unwrap();
 
-        if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
+        if ev == Event::KeyPress(Key::Escape) {
             return InputResult::Canceled;
-        }
-
-        // Done?
-        if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::Enter) {
             return InputResult::Done(self.line.clone(), ());
-        }
-
-        // Key state tracking
-        if let Some(Button::Keyboard(Key::LShift)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::LeftShift) {
             self.shift_pressed = true;
-        }
-        if let Some(Button::Keyboard(Key::LShift)) = ev.release_args() {
+        } else if ev == Event::KeyRelease(Key::LeftShift) {
             self.shift_pressed = false;
-        }
-
-        // Cursor movement
-        if let Some(Button::Keyboard(Key::Left)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::LeftArrow) {
             if self.cursor_x > 0 {
                 self.cursor_x -= 1;
             }
-        }
-        if let Some(Button::Keyboard(Key::Right)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::RightArrow) {
             self.cursor_x = (self.cursor_x + 1).min(self.line.len());
-        }
-
-        // Backspace
-        if let Some(Button::Keyboard(Key::Backspace)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::Backspace) {
             if self.cursor_x > 0 {
                 self.line.remove(self.cursor_x - 1);
                 self.cursor_x -= 1;
             }
-        }
-
-        // Insert
-        if let Some(Button::Keyboard(key)) = ev.press_args() {
-            if let Some(mut c) = key_to_char(key) {
-                if !self.shift_pressed {
-                    c = c.to_lowercase().next().unwrap();
-                }
+        } else if let Event::KeyPress(key) = ev {
+            if let Some(c) = key.to_char(self.shift_pressed) {
                 self.line.insert(self.cursor_x, c);
                 self.cursor_x += 1;
             }
-        } else if let Some(args) = ev.button_args() {
-            // TODO Need to re-frame key_to_char to understand scancodes. Yay. ><
-            if self.shift_pressed && args.scancode == Some(39) {
-                self.line.insert(self.cursor_x, ':');
-                self.cursor_x += 1;
-            }
-        }
+        };
         InputResult::StillActive
     }
 }

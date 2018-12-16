@@ -1,7 +1,6 @@
 use crate::objects::{Ctx, SIM};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Text, TOP_RIGHT};
-use piston::input::Key;
+use ezgui::{Color, GfxCtx, Key, Text, TOP_RIGHT};
 use sim::{ScoreSummary, Tick};
 
 pub struct ShowScoreState {

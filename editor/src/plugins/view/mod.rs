@@ -12,9 +12,8 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::Timer;
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Key};
 use map_model::Map;
-use piston::input::Key;
 
 pub struct ViewMode {
     warp: Option<Box<Plugin>>,
@@ -28,7 +27,10 @@ impl ViewMode {
             warp: None,
             search: None,
             ambient_plugins: vec![
-                Box::new(debug_objects::DebugObjectsState::new(Key::LCtrl, Key::D)),
+                Box::new(debug_objects::DebugObjectsState::new(
+                    Key::LeftControl,
+                    Key::D,
+                )),
                 Box::new(follow::FollowState::new(Key::F)),
                 Box::new(neighborhood_summary::NeighborhoodSummary::new(
                     Key::Z,

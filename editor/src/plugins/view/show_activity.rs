@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, DEBUG};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Key};
 use geom::{Bounds, Polygon, Pt2D};
-use piston::input::Key;
 use sim::{Sim, Tick};
 
 pub struct ShowActivityState {

@@ -1,7 +1,6 @@
 use crate::objects::{Ctx, DEBUG_EXTRA, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, InputResult, TextBox};
-use piston::input::Key;
+use ezgui::{Color, GfxCtx, InputResult, Key, TextBox};
 
 pub enum SearchState {
     EnteringSearch(TextBox),
@@ -44,7 +43,7 @@ impl Plugin for SearchState {
             },
             SearchState::FilterOSM(filter) => {
                 if ctx.input.key_pressed(
-                    Key::Return,
+                    Key::Enter,
                     &format!("clear the current search for {}", filter),
                 ) {
                     return false;

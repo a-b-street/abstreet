@@ -1,12 +1,12 @@
 use crate::objects::{DEBUG, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
+use ezgui::Key;
 use generator;
 use generator::done;
 use geo;
 use geo::prelude::Intersects;
 use geom::Polygon;
-use piston::input::Key;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
@@ -104,7 +104,7 @@ impl Plugin for Validator {
             }
         } else if ctx
             .input
-            .key_pressed(Key::Return, "stop looking at problems")
+            .key_pressed(Key::Enter, "stop looking at problems")
         {
             return false;
         }

@@ -1,10 +1,9 @@
 use crate::objects::{Ctx, ROOT_MENU};
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::format_log_record;
-use ezgui::{GfxCtx, LogScroller};
+use ezgui::{GfxCtx, Key, LogScroller};
 use lazy_static::lazy_static;
 use log::{set_logger, set_max_level, LevelFilter, Log, Metadata, Record};
-use piston::input::Key;
 use std::sync::{Mutex, Once};
 
 lazy_static! {

@@ -1,6 +1,5 @@
 use crate::objects::{DEBUG_EXTRA, ID};
-use ezgui::UserInput;
-use piston::input::Key;
+use ezgui::{Key, UserInput};
 use std::collections::HashSet;
 
 pub struct Hider {

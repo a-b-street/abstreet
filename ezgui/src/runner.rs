@@ -1,9 +1,8 @@
 use crate::input::ContextMenu;
-use crate::{Canvas, GfxCtx, UserInput};
+use crate::{Canvas, Event, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{Filter, GlGraphics, GlyphCache, OpenGL, TextureSettings};
 use piston::event_loop::{EventLoop, EventSettings, Events};
-use piston::input::RenderEvent;
 use piston::window::{Window, WindowSettings};
 use std::panic;
 
@@ -46,6 +45,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut context_menu: Option<ContextMenu> = None;
     let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
+        use piston::input::RenderEvent;
         if let Some(args) = ev.render_args() {
             // If the very first event is render, then just wait.
             if let Some(ref data) = last_data {
@@ -71,9 +71,28 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 });
             }
         } else {
+            // Skip some events.
+            use piston::input::{
+                AfterRenderEvent, CursorEvent, FocusEvent, MouseRelativeEvent, ResizeEvent,
+                TextEvent,
+            };
+            if ev.resize_args().is_some()
+                || ev.focus_args().is_some()
+                || ev.cursor_args().is_some()
+                || ev.mouse_relative_args().is_some()
+                || ev.after_render_args().is_some()
+                || ev.text_args().is_some()
+            {
+                continue;
+            }
+
             // It's impossible / very unlikey we'll grab the cursor in map space before the very first
             // start_drawing call.
-            let mut input = UserInput::new(ev, context_menu, gui.get_mut_canvas());
+            let mut input = UserInput::new(
+                Event::from_piston_event(ev),
+                context_menu,
+                gui.get_mut_canvas(),
+            );
             let (new_event_mode, data) =
                 match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
                     Ok(pair) => pair,

@@ -1,5 +1,4 @@
-use crate::{text, Canvas, GfxCtx, InputResult, Text, UserInput, CENTERED};
-use piston::input::{Button, Key, PressEvent};
+use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -21,25 +20,24 @@ impl<T: Clone> Menu<T> {
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<T> {
-        let ev = input.use_event_directly().clone();
-
-        if let Some(Button::Keyboard(Key::Escape)) = ev.press_args() {
-            return InputResult::Canceled;
+        let maybe_ev = input.use_event_directly();
+        if maybe_ev.is_none() {
+            return InputResult::StillActive;
         }
+        let ev = maybe_ev.unwrap();
 
-        if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
+        if ev == Event::KeyPress(Key::Escape) {
+            return InputResult::Canceled;
+        } else if ev == Event::KeyPress(Key::Enter) {
             // TODO instead of requiring clone, we could drain choices to take ownership of the
             // item. but without consuming self here, it's a bit sketchy to do that.
             let (name, item) = self.choices[self.current_idx].clone();
             return InputResult::Done(name, item);
-        }
-
-        if let Some(Button::Keyboard(Key::Up)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::UpArrow) {
             if self.current_idx > 0 {
                 self.current_idx -= 1;
             }
-        }
-        if let Some(Button::Keyboard(Key::Down)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::DownArrow) {
             if self.current_idx < self.choices.len() - 1 {
                 self.current_idx += 1;
             }

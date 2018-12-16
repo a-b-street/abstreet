@@ -1,9 +1,8 @@
 use crate::objects::{Ctx, EDIT_MAP};
 use crate::plugins::{load_neighborhood_builder, Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Line, Polygon, Pt2D};
 use map_model::Map;
-use piston::input::Key;
 use sim::NeighborhoodBuilder;
 
 const POINT_RADIUS: f64 = 2.0;
@@ -53,13 +52,13 @@ impl Plugin for DrawNeighborhoodState {
                 osd.pad_if_nonempty();
                 osd.add_line(format!("Currently editing {}", n.name));
 
-                if input.key_pressed(Key::Return, "quit") {
+                if input.key_pressed(Key::Enter, "quit") {
                     return false;
                 } else if input.key_pressed(Key::X, "export this as an Osmosis polygon filter") {
                     n.save_as_osmosis().unwrap();
                 } else if input.key_pressed(Key::P, "add a new point here") {
                     n.points.push(get_cursor_in_gps());
-                } else if n.points.len() >= 3 && input.key_pressed(Key::Return, "save") {
+                } else if n.points.len() >= 3 && input.key_pressed(Key::Enter, "save") {
                     n.save();
                     return false;
                 }
@@ -72,7 +71,7 @@ impl Plugin for DrawNeighborhoodState {
                 if let Some(idx) = current_idx {
                     // TODO mouse dragging might be more intuitive, but it's unclear how to
                     // override part of canvas.handle_event
-                    if input.key_pressed(Key::LCtrl, "hold to move this point") {
+                    if input.key_pressed(Key::LeftControl, "hold to move this point") {
                         *self = DrawNeighborhoodState::MovingPoint(n.clone(), *idx);
                     }
                 }
@@ -82,7 +81,7 @@ impl Plugin for DrawNeighborhoodState {
                 osd.add_line(format!("Currently editing {}", n.name));
 
                 n.points[*idx] = get_cursor_in_gps();
-                if input.key_released(Key::LCtrl) {
+                if input.key_released(Key::LeftControl) {
                     *self = DrawNeighborhoodState::EditNeighborhood(n.clone(), Some(*idx));
                 }
             }

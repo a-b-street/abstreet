@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::Color;
+use ezgui::{Color, Key};
 use map_model::{LaneID, Map};
-use piston::input::Key;
 use std::collections::{HashSet, VecDeque};
 
 pub struct Floodfiller {
@@ -32,7 +31,7 @@ impl Floodfiller {
 
 impl Plugin for Floodfiller {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Return, "quit floodfilling") {
+        if ctx.input.key_pressed(Key::Enter, "quit floodfilling") {
             return false;
         } else if !self.queue.is_empty() {
             if ctx

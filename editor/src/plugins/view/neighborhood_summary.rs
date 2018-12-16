@@ -2,10 +2,9 @@ use crate::objects::{Ctx, DEBUG};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
-use ezgui::{Color, GfxCtx, Text};
+use ezgui::{Color, GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{LaneID, Map};
-use piston::input::Key;
 use sim::{Neighborhood, Sim, Tick};
 use std::collections::HashSet;
 

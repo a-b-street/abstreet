@@ -3,7 +3,6 @@
 use crate::{text, GfxCtx, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
-use piston::input::MouseButton;
 use piston::window::Size;
 
 const ZOOM_SPEED: f64 = 0.1;
@@ -56,13 +55,13 @@ impl Canvas {
                 self.left_mouse_drag_from = Some((m_x, m_y));
             }
         }
-        if input.button_pressed(MouseButton::Left) {
+        if input.left_mouse_button_pressed() {
             self.left_mouse_drag_from = Some((self.cursor_x, self.cursor_y));
         }
-        if input.button_released(MouseButton::Left) {
+        if input.left_mouse_button_released() {
             self.left_mouse_drag_from = None;
         }
-        if let Some((_, scroll)) = input.get_mouse_scroll() {
+        if let Some(scroll) = input.get_mouse_scroll() {
             // Zoom slower at low zooms, faster at high.
             let delta = scroll * ZOOM_SPEED * self.cam_zoom;
             self.zoom_towards_mouse(delta);

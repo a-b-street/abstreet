@@ -3,9 +3,8 @@ use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
-use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, Key, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
-use piston::input::Key;
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {

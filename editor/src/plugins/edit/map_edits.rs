@@ -1,9 +1,8 @@
 use crate::objects::{Ctx, SIM_SETUP};
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, Key, Wizard, WrappedWizard};
 use map_model::Map;
-use piston::input::Key;
 use sim::SimFlags;
 
 pub struct EditsManager {

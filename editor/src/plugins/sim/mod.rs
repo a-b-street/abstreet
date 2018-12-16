@@ -5,8 +5,7 @@ mod show_score;
 
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::GfxCtx;
-use piston::input::Key;
+use ezgui::{GfxCtx, Key};
 use sim::{Event, Tick};
 
 // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even when the
@@ -22,7 +21,7 @@ impl SimMode {
         SimMode {
             diff_plugin: None,
             ambient_plugins: vec![
-                Box::new(show_score::ShowScoreState::new(Key::Period)),
+                Box::new(show_score::ShowScoreState::new(Key::Dot)),
                 Box::new(controls::SimControls::new()),
             ],
         }

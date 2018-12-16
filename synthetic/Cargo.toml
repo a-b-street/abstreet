@@ -10,6 +10,5 @@ dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-piston = "*"
 serde = "1.0"
 serde_derive = "1.0"

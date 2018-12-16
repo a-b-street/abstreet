@@ -1,9 +1,8 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_stop_sign, stop_sign_rendering_hints};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Key};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
-use piston::input::Key;
 
 pub struct StopSignEditor {
     i: IntersectionID,
@@ -54,7 +53,7 @@ impl Plugin for StopSignEditor {
                 sign.set_priority(id, next_priority, map);
                 map.edit_stop_sign(sign);
             }
-        } else if input.key_pressed(Key::Return, "quit the editor") {
+        } else if input.key_pressed(Key::Enter, "quit the editor") {
             return false;
         } else if input.key_pressed(Key::R, "reset to default stop sign") {
             let sign = ControlStopSign::new(map, self.i);

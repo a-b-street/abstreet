@@ -2,9 +2,9 @@
 
 use crate::objects::{Ctx, SETTINGS};
 use crate::plugins::{Plugin, PluginCtx};
+use ezgui::Key;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, Menu};
 use geom::Polygon;
-use piston::input::Key;
 
 // TODO assumes minimum screen size
 const WIDTH: u32 = 255;
@@ -22,7 +22,7 @@ impl ColorPicker {
     pub fn new(ctx: &mut PluginCtx) -> Option<ColorPicker> {
         if ctx
             .input
-            .unimportant_key_pressed(Key::D8, SETTINGS, "configure colors")
+            .unimportant_key_pressed(Key::Num8, SETTINGS, "configure colors")
         {
             return Some(ColorPicker::Choosing(Menu::new(
                 "Pick a color to change",
@@ -56,8 +56,7 @@ impl Plugin for ColorPicker {
                 ) {
                     cs.reset_modified(name, *orig);
                     return false;
-                } else if input
-                    .key_pressed(Key::Return, &format!("finalize new color for {}", name))
+                } else if input.key_pressed(Key::Enter, &format!("finalize new color for {}", name))
                 {
                     info!("Setting color for {}", name);
                     return false;

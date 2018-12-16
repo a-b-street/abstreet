@@ -1,5 +1,4 @@
-use crate::{text, Canvas, GfxCtx, Text, UserInput, CENTERED};
-use piston::input::{Button, Key, PressEvent};
+use crate::{text, Canvas, Event, GfxCtx, Key, Text, UserInput, CENTERED};
 use std::collections::VecDeque;
 
 pub struct LogScroller {
@@ -38,18 +37,19 @@ impl LogScroller {
 
     // True if done
     pub fn event(&mut self, input: &mut UserInput) -> bool {
-        let ev = input.use_event_directly().clone();
-
-        if let Some(Button::Keyboard(Key::Return)) = ev.press_args() {
-            return true;
+        let maybe_ev = input.use_event_directly();
+        if maybe_ev.is_none() {
+            return false;
         }
+        let ev = maybe_ev.unwrap();
 
-        if let Some(Button::Keyboard(Key::Up)) = ev.press_args() {
+        if ev == Event::KeyPress(Key::Enter) {
+            return true;
+        } else if ev == Event::KeyPress(Key::UpArrow) {
             if self.y_offset > 0 {
                 self.y_offset -= 1;
             }
-        }
-        if let Some(Button::Keyboard(Key::Down)) = ev.press_args() {
+        } else if ev == Event::KeyPress(Key::DownArrow) {
             self.y_offset += 1;
         }
 

@@ -1,9 +1,8 @@
 mod model;
 
 use crate::model::{BuildingID, Direction, IntersectionID, Model, RoadID};
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Text, UserInput, Wizard, GUI};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, Wizard, GUI};
 use geom::Line;
-use piston::input::Key;
 use std::{env, process};
 
 const KEY_CATEGORY: &str = "";
@@ -49,13 +48,13 @@ impl GUI<Text> for UI {
         match self.state {
             State::MovingIntersection(id) => {
                 self.model.move_i(id, cursor);
-                if input.key_released(Key::LCtrl) {
+                if input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
             }
             State::MovingBuilding(id) => {
                 self.model.move_b(id, cursor);
-                if input.key_released(Key::LCtrl) {
+                if input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
             }
@@ -125,7 +124,7 @@ impl GUI<Text> for UI {
             }
             State::Viewing => {
                 if let Some(i) = self.model.mouseover_intersection(cursor) {
-                    if input.key_pressed(Key::LCtrl, "move intersection") {
+                    if input.key_pressed(Key::LeftControl, "move intersection") {
                         self.state = State::MovingIntersection(i);
                     } else if input.key_pressed(Key::R, "create road") {
                         self.state = State::CreatingRoad(i);
@@ -137,7 +136,7 @@ impl GUI<Text> for UI {
                         self.state = State::LabelingIntersection(i, Wizard::new());
                     }
                 } else if let Some(b) = self.model.mouseover_building(cursor) {
-                    if input.key_pressed(Key::LCtrl, "move building") {
+                    if input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
                     } else if input.key_pressed(Key::Backspace, "delete building") {
                         self.model.remove_b(b);

@@ -1,7 +1,7 @@
 use crate::objects::{EDIT_MAP, ID};
 use crate::plugins::{Plugin, PluginCtx};
+use ezgui::Key;
 use map_model::{EditReason, Lane, LaneID, LaneType, MapEdits, Road};
-use piston::input::Key;
 
 pub struct RoadEditor {}
 
@@ -20,7 +20,7 @@ impl RoadEditor {
 
 impl Plugin for RoadEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Return, "stop editing roads") {
+        if ctx.input.key_pressed(Key::Enter, "stop editing roads") {
             return false;
         } else if let Some(ID::Lane(id)) = ctx.primary.current_selection {
             let lane = ctx.primary.map.get_l(id);

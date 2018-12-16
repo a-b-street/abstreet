@@ -5,9 +5,8 @@ mod debug_polyline;
 mod moving_polyline;
 mod trim_polyline;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Text, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, Text, UserInput, GUI};
 use geom::Pt2D;
-use piston::input::Key;
 use std::f64;
 use std::process;
 
@@ -69,27 +68,27 @@ impl GUI<()> for UI {
                 ))
             );
         }
-        if input.unimportant_key_pressed(Key::D1, KEY_CATEGORY, "switch to mode 1") {
+        if input.unimportant_key_pressed(Key::Num1, KEY_CATEGORY, "switch to mode 1") {
             self.current_mode = 1;
             self.canvas.cam_zoom = 1.0;
             self.canvas.center_on_map_pt(Pt2D::new(305.0, 324.0));
         }
-        if input.unimportant_key_pressed(Key::D2, KEY_CATEGORY, "switch to mode 2") {
+        if input.unimportant_key_pressed(Key::Num2, KEY_CATEGORY, "switch to mode 2") {
             self.current_mode = 2;
             self.canvas.cam_zoom = 10.0;
             self.canvas.center_on_map_pt(Pt2D::new(1352.0, 403.0));
         }
-        if input.unimportant_key_pressed(Key::D3, KEY_CATEGORY, "switch to mode 3") {
+        if input.unimportant_key_pressed(Key::Num3, KEY_CATEGORY, "switch to mode 3") {
             self.current_mode = 3;
             self.canvas.cam_zoom = 3.8;
             self.canvas.center_on_map_pt(Pt2D::new(2025.0, 1277.0));
         }
-        if input.unimportant_key_pressed(Key::D4, KEY_CATEGORY, "switch to mode 4") {
+        if input.unimportant_key_pressed(Key::Num4, KEY_CATEGORY, "switch to mode 4") {
             self.current_mode = 4;
             self.canvas.cam_zoom = 10.5;
             self.canvas.center_on_map_pt(Pt2D::new(122.0, 166.0));
         }
-        if input.unimportant_key_pressed(Key::D5, KEY_CATEGORY, "switch to mode 5") {
+        if input.unimportant_key_pressed(Key::Num5, KEY_CATEGORY, "switch to mode 5") {
             self.current_mode = 5;
             self.canvas.cam_zoom = 19.0;
             self.canvas.center_on_map_pt(Pt2D::new(1166.0, 766.0));
@@ -120,8 +119,6 @@ impl GUI<()> for UI {
 
         // TODO detect "breakages" by dist from p2 to p2_c beyond threshold
         // TODO still try the angle bisection method
-        // TODO bezier curves could be ideal for both drawing and car paths, but no easy way to
-        // try them out in piston
 
         if self.show_labels {
             for (pt, label) in labels.into_iter() {

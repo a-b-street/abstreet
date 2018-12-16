@@ -4,9 +4,8 @@ mod timer;
 use crate::render::DrawMap;
 use crate::timer::Cycler;
 use abstutil::Timer;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, UserInput, GUI};
 use map_model::{Map, MapEdits};
-use piston::input::Key;
 use std::process;
 use structopt::StructOpt;
 

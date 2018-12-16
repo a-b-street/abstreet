@@ -1,9 +1,8 @@
 use crate::objects::{Ctx, SIM_SETUP};
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, Key, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
-use piston::input::Key;
 use sim::{ABTest, SimFlags};
 
 pub enum ABTestManager {

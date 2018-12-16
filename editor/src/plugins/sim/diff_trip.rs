@@ -1,10 +1,9 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Key};
 use geom::Line;
 use map_model::{Trace, LANE_THICKNESS};
-use piston::input::Key;
 use sim::{Tick, TripID};
 use std::f64;
 
@@ -37,7 +36,7 @@ impl DiffTripState {
 impl Plugin for DiffTripState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx.input.key_pressed(
-            Key::Return,
+            Key::Enter,
             &format!("Stop showing {}'s parallel world", self.trip),
         ) {
             return false;

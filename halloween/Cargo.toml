@@ -10,5 +10,4 @@ abstutil = { path = "../abstutil" }
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-piston = "*"
 structopt = "0.2"

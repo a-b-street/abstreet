@@ -1,10 +1,9 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
-use ezgui::{Color, GfxCtx, Text};
+use ezgui::{Color, GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, TurnType};
-use piston::input::Key;
 
 pub struct TurnCyclerState {
     state: State,
