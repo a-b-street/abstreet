@@ -1,5 +1,4 @@
 use crate::input::ContextMenu;
-use crate::menu::Menu;
 use crate::{Canvas, Event, GfxCtx, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
@@ -34,7 +33,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut gl = GlGraphics::new(opengl);
 
     let mut last_event_mode = EventLoopMode::InputOnly;
-    let mut context_menu: Option<ContextMenu> = None;
+    let mut context_menu = ContextMenu::Inactive;
     let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
         use piston::input::RenderEvent;
@@ -54,11 +53,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     }
 
                     // Always draw the context-menu last.
-                    if let Some(ref menu) = context_menu {
-                        menu.menu
-                            .as_ref()
-                            .unwrap()
-                            .draw(&mut g, gui.get_mut_canvas());
+                    if let ContextMenu::Displaying(ref menu) = context_menu {
+                        menu.draw(&mut g, gui.get_mut_canvas());
                     }
                 });
             }
@@ -94,24 +90,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     }
                 };
             last_data = Some(data);
-            context_menu = input.context_menu;
-            if let Some(ref mut menu) = context_menu {
-                if menu.menu.is_none() {
-                    if menu.actions.is_empty() {
-                        context_menu = None;
-                    } else {
-                        menu.menu = Some(Menu::new(
-                            None,
-                            menu.actions
-                                .iter()
-                                .map(|(hotkey, action)| (*hotkey, action.clone(), *hotkey))
-                                .collect(),
-                            menu.origin,
-                            gui.get_mut_canvas(),
-                        ));
-                    }
-                }
-            }
+            context_menu = input.context_menu.maybe_build(gui.get_mut_canvas());
 
             // Don't constantly reset the events struct -- only when laziness changes.
             if new_event_mode != last_event_mode {

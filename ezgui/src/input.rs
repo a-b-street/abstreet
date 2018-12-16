@@ -10,31 +10,47 @@ pub struct UserInput {
     event_consumed: bool,
     unimportant_actions: Vec<String>,
     important_actions: Vec<String>,
-
-    // While this is present, UserInput lies about anything happening.
-    // TODO Needed?
-    pub(crate) context_menu: Option<ContextMenu>,
-
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
+
+    // When this is active, most methods lie about having input.
+    // TODO This is hacky, but if we consume_event in things like get_moved_mouse, then canvas
+    // dragging and UI mouseover become mutex. :\
+    pub(crate) context_menu: ContextMenu,
 }
 
-pub struct ContextMenu {
-    // We don't really need these once the Menu is present, but eh.
-    // TODO Maybe express this as a 3-state enum.
-    pub actions: BTreeMap<Key, String>,
-    pub origin: Pt2D,
+pub enum ContextMenu {
+    Inactive,
+    Building(Pt2D, BTreeMap<Key, String>),
+    Displaying(Menu<Key>),
+    Clicked(Key),
+}
 
-    pub menu: Option<Menu<Key>>,
-    clicked: Option<Key>,
+impl ContextMenu {
+    pub fn maybe_build(self, canvas: &Canvas) -> ContextMenu {
+        match self {
+            ContextMenu::Building(origin, actions) => {
+                if actions.is_empty() {
+                    ContextMenu::Inactive
+                } else {
+                    ContextMenu::Displaying(Menu::new(
+                        None,
+                        actions
+                            .into_iter()
+                            .map(|(hotkey, action)| (hotkey, action, hotkey))
+                            .collect(),
+                        origin,
+                        canvas,
+                    ))
+                }
+            }
+            _ => self,
+        }
+    }
 }
 
 impl UserInput {
-    pub(crate) fn new(
-        event: Event,
-        context_menu: Option<ContextMenu>,
-        canvas: &Canvas,
-    ) -> UserInput {
+    pub(crate) fn new(event: Event, context_menu: ContextMenu, canvas: &Canvas) -> UserInput {
         let mut input = UserInput {
             event,
             event_consumed: false,
@@ -47,23 +63,26 @@ impl UserInput {
         // Create the context menu here, even if one already existed.
         if input.right_mouse_button_pressed() {
             input.event_consumed = true;
-            input.context_menu = Some(ContextMenu {
-                actions: BTreeMap::new(),
-                origin: canvas.get_cursor_in_map_space(),
-                menu: None,
-                clicked: None,
-            });
-        } else if let Some(ref mut menu) = input.context_menu {
-            // Can't call consume_event() because context_menu is borrowed.
-            input.event_consumed = true;
-
-            match menu.menu.as_mut().unwrap().event(input.event, canvas) {
-                InputResult::Canceled => {
-                    input.context_menu = None;
+            input.context_menu =
+                ContextMenu::Building(canvas.get_cursor_in_map_space(), BTreeMap::new());
+        } else {
+            match input.context_menu {
+                ContextMenu::Inactive => {}
+                ContextMenu::Displaying(ref mut menu) => {
+                    // Can't call consume_event() because context_menu is borrowed.
+                    input.event_consumed = true;
+                    match menu.event(input.event, canvas) {
+                        InputResult::Canceled => {
+                            input.context_menu = ContextMenu::Inactive;
+                        }
+                        InputResult::StillActive => {}
+                        InputResult::Done(_, hotkey) => {
+                            input.context_menu = ContextMenu::Clicked(hotkey);
+                        }
+                    }
                 }
-                InputResult::StillActive => {}
-                InputResult::Done(_, hotkey) => {
-                    menu.clicked = Some(hotkey);
+                ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
+                    panic!("UserInput::new given a ContextMenu in an impossible state");
                 }
             }
         }
@@ -74,7 +93,7 @@ impl UserInput {
     pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
         assert!(num_options >= 1 && num_options <= 9);
 
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return None;
         }
 
@@ -139,7 +158,7 @@ impl UserInput {
     }
 
     pub fn key_pressed(&mut self, key: Key, action: &str) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
 
@@ -159,41 +178,44 @@ impl UserInput {
     }
 
     pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
-        if let Some(ref mut menu) = self.context_menu.as_mut() {
-            // When the context menu is active, the event is always consumed so nothing else
-            // touches it. So don't consume or check consumption right here.
-            if menu.clicked == Some(hotkey) {
-                self.context_menu = None;
-                return true;
+        match self.context_menu {
+            ContextMenu::Inactive => {
+                // If the menu's not active (the user hasn't right-clicked yet), then still allow the
+                // legacy behavior of just pressing the hotkey.
+                return self.key_pressed(hotkey, &format!("CONTEXTUAL: {}", action));
             }
-
-            // We could be initially populating the menu because the user just right-clicked, or
-            // this could be a later round.
-            if let Some(prev_action) = menu.actions.get(&hotkey) {
-                if prev_action != action {
-                    panic!(
-                        "Context menu uses hotkey {:?} for both {} and {}",
-                        hotkey, prev_action, action
-                    );
+            ContextMenu::Building(_, ref mut actions) => {
+                // The event this round was the right click, so don't check if the right keypress
+                // happened.
+                if let Some(prev_action) = actions.get(&hotkey) {
+                    if prev_action != action {
+                        panic!(
+                            "Context menu uses hotkey {:?} for both {} and {}",
+                            hotkey, prev_action, action
+                        );
+                    }
+                } else {
+                    actions.insert(hotkey, action.to_string());
                 }
-            } else {
-                menu.actions.insert(hotkey, action.to_string());
             }
-
-            if self.event == Event::KeyPress(hotkey) {
-                self.context_menu = None;
-                return true;
+            ContextMenu::Displaying(_) => {
+                if self.event == Event::KeyPress(hotkey) {
+                    self.context_menu = ContextMenu::Inactive;
+                    return true;
+                }
             }
-            false
-        } else {
-            // If the menu's not active (the user hasn't right-clicked yet), then still allow the
-            // legacy behavior of just pressing the hotkey.
-            self.key_pressed(hotkey, &format!("CONTEXTUAL: {}", action))
+            ContextMenu::Clicked(key) => {
+                if key == hotkey {
+                    self.context_menu = ContextMenu::Inactive;
+                    return true;
+                }
+            }
         }
+        false
     }
 
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
 
@@ -213,7 +235,7 @@ impl UserInput {
     }
 
     pub fn key_released(&mut self, key: Key) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
 
@@ -230,26 +252,26 @@ impl UserInput {
 
     // No consuming for these?
     pub(crate) fn left_mouse_button_pressed(&mut self) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
         self.event == Event::LeftMouseButtonDown
     }
     pub(crate) fn left_mouse_button_released(&mut self) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
         self.event == Event::LeftMouseButtonUp
     }
     pub(crate) fn right_mouse_button_pressed(&mut self) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
         self.event == Event::RightMouseButtonDown
     }
 
     pub fn get_moved_mouse(&self) -> Option<(f64, f64)> {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return None;
         }
 
@@ -260,7 +282,7 @@ impl UserInput {
     }
 
     pub(crate) fn get_mouse_scroll(&self) -> Option<f64> {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return None;
         }
 
@@ -271,7 +293,7 @@ impl UserInput {
     }
 
     pub fn is_update_event(&mut self) -> bool {
-        if self.context_menu.is_some() {
+        if self.context_menu_active() {
             return false;
         }
 
@@ -317,5 +339,12 @@ impl UserInput {
             println!("both {} and {} read key {:?}", prev_action, action, key);
         }
         self.reserved_keys.insert(key, action.to_string());
+    }
+
+    fn context_menu_active(&self) -> bool {
+        match self.context_menu {
+            ContextMenu::Inactive => false,
+            _ => true,
+        }
     }
 }
