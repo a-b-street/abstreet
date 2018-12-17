@@ -21,7 +21,8 @@ pub enum Event {
 impl Event {
     pub fn from_piston_event(ev: pi::Event) -> Event {
         use piston::input::{
-            ButtonEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent, UpdateEvent,
+            ButtonEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent, TouchEvent,
+            UpdateEvent,
         };
 
         if let Some(pi::Button::Mouse(button)) = ev.press_args() {
@@ -53,6 +54,10 @@ impl Event {
         }
         if let Some(pair) = ev.mouse_cursor_args() {
             return Event::MouseMovedTo(pair[0], pair[1]);
+        }
+        if let Some(args) = ev.touch_args() {
+            // The docs say these are normalized [0, 1] coordinates, but... they're not. :D
+            return Event::MouseMovedTo(args.x, args.y);
         }
         if let Some(pair) = ev.mouse_scroll_args() {
             return Event::MouseWheelScroll(pair[1]);
