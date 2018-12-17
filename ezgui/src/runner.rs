@@ -1,5 +1,5 @@
 use crate::input::ContextMenu;
-use crate::{Canvas, Event, GfxCtx, UserInput};
+use crate::{Canvas, Event, GfxCtx, TopMenu, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
@@ -7,6 +7,10 @@ use piston::window::{Window, WindowSettings};
 use std::panic;
 
 pub trait GUI<T> {
+    // Called once
+    fn top_menu() -> Option<TopMenu> {
+        None
+    }
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     fn draw(&self, g: &mut GfxCtx, data: &T);

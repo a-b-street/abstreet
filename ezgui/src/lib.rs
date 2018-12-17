@@ -10,6 +10,7 @@ mod runner;
 mod scrolling_menu;
 mod text;
 mod text_box;
+mod top_menu;
 mod wizard;
 
 pub use crate::canvas::{
@@ -23,6 +24,7 @@ pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::scrolling_menu::ScrollingMenu;
 pub use crate::text::{Text, TEXT_FG_COLOR};
 pub use crate::text_box::TextBox;
+pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
 use geom::Pt2D;
 use graphics::Transformed;
