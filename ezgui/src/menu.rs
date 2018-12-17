@@ -1,3 +1,4 @@
+use crate::text::LINE_HEIGHT;
 use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, Text};
 use geom::{Polygon, Pt2D};
 
@@ -16,6 +17,7 @@ pub struct Menu<T: Clone> {
 pub enum Position {
     CenteredAt(Pt2D),
     TopLeft(Pt2D),
+    TopRightOfScreen,
 }
 
 impl<T: Clone> Menu<T> {
@@ -57,6 +59,11 @@ impl<T: Clone> Menu<T> {
                 } else {
                     pt
                 }
+            }
+            Position::TopRightOfScreen => {
+                let map_screen_edge =
+                    canvas.screen_to_map((canvas.window_size.width as f64, LINE_HEIGHT));
+                map_screen_edge.offset(-1.0 * map_width, 0.0)
             }
         };
 

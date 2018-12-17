@@ -14,12 +14,17 @@ pub struct UserInput {
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
 
-    // When this is active, most methods lie about having input.
+    // When context or top menus are active, most methods lie about having input.
     // TODO This is hacky, but if we consume_event in things like get_moved_mouse, then canvas
     // dragging and UI mouseover become mutex. :\
+    // TODO Logically these are borrowed, but I think that requires lots of lifetime plumbing right
+    // now...
     pub(crate) context_menu: ContextMenu,
     pub(crate) top_menu: Option<TopMenu>,
+    pub(crate) modal_state: ModalMenuState,
 
+    // This could be from context_menu or modal_state.
+    // TODO Is that potentially confusing?
     pub(crate) chosen_action: Option<String>,
 }
 
@@ -59,6 +64,7 @@ impl UserInput {
         event: Event,
         context_menu: ContextMenu,
         mut top_menu: Option<TopMenu>,
+        modal_state: ModalMenuState,
         canvas: &Canvas,
     ) -> UserInput {
         let mut input = UserInput {
@@ -69,6 +75,7 @@ impl UserInput {
             context_menu,
             // Don't move it in yet!
             top_menu: None,
+            modal_state,
             reserved_keys: HashMap::new(),
             chosen_action: None,
         };
@@ -87,7 +94,9 @@ impl UserInput {
                         );
                     } else {
                         match input.context_menu {
-                            ContextMenu::Inactive => {}
+                            ContextMenu::Inactive => {
+                                // TODO do stuff to modal state here
+                            }
                             ContextMenu::Displaying(ref mut menu) => {
                                 // Can't call consume_event() because context_menu is borrowed.
                                 assert!(!input.event_consumed);
@@ -266,6 +275,50 @@ impl UserInput {
         }
     }
 
+    pub fn set_mode(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
+        if let Some((ref existing_mode, _)) = self.modal_state.active {
+            if existing_mode != mode {
+                panic!("set_mode called on both {} and {}", existing_mode, mode);
+            }
+        } else {
+            if let Some(ref m) = self.modal_state.modes.get(mode) {
+                self.modal_state.active = Some((
+                    mode.to_string(),
+                    Menu::new(
+                        Some(prompt),
+                        m.actions
+                            .iter()
+                            .map(|(key, action)| (Some(*key), action.to_string(), false, *key))
+                            .collect(),
+                        false,
+                        Position::TopRightOfScreen,
+                        canvas,
+                    ),
+                ));
+            } else {
+                panic!("set_mode called on unknown {}", mode);
+            }
+        }
+    }
+
+    pub fn modal_action(&mut self, action: &str) -> bool {
+        if let Some((ref mode, _)) = self.modal_state.active {
+            if self.chosen_action == Some(action.to_string()) {
+                self.chosen_action = None;
+                return true;
+            }
+
+            if let Some(key) = self.modal_state.modes[mode].get_key(action) {
+                // TODO mark menu active
+                self.unimportant_key_pressed(key, action)
+            } else {
+                panic!("modal_action {} undefined in mode {}", action, mode);
+            }
+        } else {
+            panic!("modal_action({}) without set_mode", action);
+        }
+    }
+
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {
         if self.context_menu_active() {
             return false;
@@ -402,8 +455,8 @@ impl UserInput {
 }
 
 pub struct ModalMenu {
-    pub(crate) name: String,
-    pub(crate) actions: Vec<(Key, String)>,
+    name: String,
+    actions: Vec<(Key, String)>,
 }
 
 impl ModalMenu {
@@ -428,6 +481,31 @@ impl ModalMenu {
         ModalMenu {
             name: name.to_string(),
             actions,
+        }
+    }
+
+    fn get_key(&self, action: &str) -> Option<Key> {
+        // TODO Could precompute hash
+        for (key, a) in &self.actions {
+            if action == a {
+                return Some(*key);
+            }
+        }
+        None
+    }
+}
+
+pub struct ModalMenuState {
+    modes: HashMap<String, ModalMenu>,
+    pub(crate) active: Option<(String, Menu<Key>)>,
+}
+
+impl ModalMenuState {
+    pub fn new(modes: Vec<ModalMenu>) -> ModalMenuState {
+        // TODO Make sure mode names aren't repeated
+        ModalMenuState {
+            modes: modes.into_iter().map(|m| (m.name.clone(), m)).collect(),
+            active: None,
         }
     }
 }

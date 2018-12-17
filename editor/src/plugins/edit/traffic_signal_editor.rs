@@ -48,6 +48,12 @@ impl Plugin for TrafficSignalEditor {
         let input = &mut ctx.input;
         let selected = ctx.primary.current_selection;
 
+        input.set_mode(
+            "Traffic Signal Editor",
+            format!("Traffic Signal Editor for {}", self.i),
+            &ctx.canvas,
+        );
+
         ctx.hints.suppress_intersection_icon = Some(self.i);
         ctx.hints.hide_crosswalks.extend(
             ctx.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle]
@@ -141,7 +147,7 @@ impl Plugin for TrafficSignalEditor {
             ctx.primary.map.edit_traffic_signal(signal);
         } else {
             self.icon_selected = None;
-            if input.key_pressed(Key::Enter, "quit the editor") {
+            if input.modal_action("quit") {
                 return false;
             }
 
@@ -160,39 +166,37 @@ impl Plugin for TrafficSignalEditor {
                 }
             }
 
-            if input.key_pressed(Key::D, "change cycle duration") {
+            if input.modal_action("change cycle duration") {
                 self.cycle_duration_wizard = Some(Wizard::new());
-            } else if input.key_pressed(Key::P, "choose a preset for this intersection") {
+            } else if input.modal_action("choose a preset signal") {
                 self.preset_wizard = Some(Wizard::new());
             }
 
             let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
-            if self.current_cycle != 0 && input.key_pressed(Key::K, "move current cycle up") {
+            if self.current_cycle != 0 && input.modal_action("move current cycle up") {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle - 1);
                 self.current_cycle -= 1;
                 ctx.primary.map.edit_traffic_signal(signal);
             } else if self.current_cycle != signal.cycles.len() - 1
-                && input.key_pressed(Key::J, "move current cycle down")
+                && input.modal_action("move current cycle down")
             {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle + 1);
                 self.current_cycle += 1;
                 ctx.primary.map.edit_traffic_signal(signal);
-            } else if signal.cycles.len() > 1
-                && input.key_pressed(Key::Backspace, "delete current cycle")
-            {
+            } else if signal.cycles.len() > 1 && input.modal_action("delete current cycle") {
                 signal.cycles.remove(self.current_cycle);
                 if self.current_cycle == signal.cycles.len() {
                     self.current_cycle -= 1;
                 }
                 ctx.primary.map.edit_traffic_signal(signal);
-            } else if input.key_pressed(Key::N, "add a new empty cycle") {
+            } else if input.modal_action("add a new empty cycle") {
                 signal.cycles.insert(self.current_cycle, Cycle::new(self.i));
                 ctx.primary.map.edit_traffic_signal(signal);
-            } else if input.key_pressed(Key::M, "add a new pedestrian scramble cycle") {
+            } else if input.modal_action("add a new pedestrian scramble cycle") {
                 let mut cycle = Cycle::new(self.i);
                 for t in ctx.primary.map.get_turns_in_intersection(self.i) {
                     // edit_turn adds the other_crosswalk_id and asserts no duplicates.

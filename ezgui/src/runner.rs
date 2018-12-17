@@ -1,10 +1,9 @@
-use crate::input::ContextMenu;
+use crate::input::{ContextMenu, ModalMenuState};
 use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::{Window, WindowSettings};
-use std::collections::HashMap;
 use std::{panic, process};
 
 pub trait GUI<T> {
@@ -46,10 +45,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu = ContextMenu::Inactive;
     let mut top_menu = G::top_menu(gui.get_mut_canvas());
-    let modal_menus: HashMap<String, ModalMenu> = G::modal_menus()
-        .into_iter()
-        .map(|m| (m.name.clone(), m))
-        .collect();
+    let mut modal_state = ModalMenuState::new(G::modal_menus());
     let mut last_data: Option<T> = None;
 
     while let Some(ev) = events.next(&mut window) {
@@ -69,8 +65,11 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                         panic::resume_unwind(err);
                     }
 
-                    // Always draw the top menu and context menus last.
+                    // Always draw the menus last.
                     if let Some(ref menu) = top_menu {
+                        menu.draw(&mut g, gui.get_mut_canvas());
+                    }
+                    if let Some((_, ref menu)) = modal_state.active {
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }
                     if let ContextMenu::Displaying(ref menu) = context_menu {
@@ -104,6 +103,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 Event::from_piston_event(ev),
                 context_menu,
                 top_menu,
+                modal_state,
                 gui.get_mut_canvas(),
             );
             let (new_event_mode, data) =
@@ -117,9 +117,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
             last_data = Some(data);
             context_menu = input.context_menu.maybe_build(gui.get_mut_canvas());
             top_menu = input.top_menu;
+            modal_state = input.modal_state;
             if let Some(action) = input.chosen_action {
                 panic!(
-                    "\"{}\" chosen from the top menu, but nothing consumed it",
+                    "\"{}\" chosen from the top or modal menu, but nothing consumed it",
                     action
                 );
             }
