@@ -23,58 +23,61 @@ pub struct UI<S: UIState> {
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
-    fn top_menu() -> Option<TopMenu> {
-        Some(TopMenu::new(vec![
-            Folder::new(
-                "File",
-                vec![(Key::Comma, "show log console"), (Key::Escape, "quit")],
-            ),
-            Folder::new(
-                "Debug",
-                vec![
-                    (Key::C, "find chokepoints"),
-                    (Key::Num6, "show OSM colors"),
-                    (Key::I, "validate map geometry"),
-                    (Key::K, "unhide everything"),
-                    (Key::Num5, "visualize road steepness"),
-                ],
-            ),
-            Folder::new(
-                "Edit",
-                vec![
-                    (Key::B, "manage A/B tests"),
-                    (Key::Num8, "configure colors"),
-                    (Key::N, "manage neighborhoods"),
-                    (Key::Q, "manage map edits"),
-                    (Key::E, "edit roads"),
-                    (Key::W, "manage scenarios"),
-                ],
-            ),
-            Folder::new(
-                "Sim",
-                vec![
-                    (Key::LeftBracket, "slow down sim"),
-                    (Key::RightBracket, "speed up sim"),
-                    (Key::O, "save sim state"),
-                    (Key::Y, "load previous sim state"),
-                    (Key::U, "load next sim state"),
-                    (Key::S, "seed the sim with agents"),
-                    (Key::Space, "run/pause sim"),
-                    (Key::M, "run one step of sim"),
-                    (Key::Dot, "show sim info sidepanel"),
-                    (Key::T, "start time traveling"),
-                ],
-            ),
-            Folder::new(
-                "View",
-                vec![
-                    (Key::Z, "show neighborhood summaries"),
-                    (Key::Slash, "search for something"),
-                    (Key::A, "show lanes with active traffic"),
-                    (Key::J, "warp to an object"),
-                ],
-            ),
-        ]))
+    fn top_menu(canvas: &Canvas) -> Option<TopMenu> {
+        Some(TopMenu::new(
+            vec![
+                Folder::new(
+                    "File",
+                    vec![(Key::Comma, "show log console"), (Key::Escape, "quit")],
+                ),
+                Folder::new(
+                    "Debug",
+                    vec![
+                        (Key::C, "find chokepoints"),
+                        (Key::Num6, "show OSM colors"),
+                        (Key::I, "validate map geometry"),
+                        (Key::K, "unhide everything"),
+                        (Key::Num5, "visualize road steepness"),
+                    ],
+                ),
+                Folder::new(
+                    "Edit",
+                    vec![
+                        (Key::B, "manage A/B tests"),
+                        (Key::Num8, "configure colors"),
+                        (Key::N, "manage neighborhoods"),
+                        (Key::Q, "manage map edits"),
+                        (Key::E, "edit roads"),
+                        (Key::W, "manage scenarios"),
+                    ],
+                ),
+                Folder::new(
+                    "Sim",
+                    vec![
+                        (Key::LeftBracket, "slow down sim"),
+                        (Key::RightBracket, "speed up sim"),
+                        (Key::O, "save sim state"),
+                        (Key::Y, "load previous sim state"),
+                        (Key::U, "load next sim state"),
+                        (Key::S, "seed the sim with agents"),
+                        (Key::Space, "run/pause sim"),
+                        (Key::M, "run one step of sim"),
+                        (Key::Dot, "show sim info sidepanel"),
+                        (Key::T, "start time traveling"),
+                    ],
+                ),
+                Folder::new(
+                    "View",
+                    vec![
+                        (Key::Z, "show neighborhood summaries"),
+                        (Key::Slash, "search for something"),
+                        (Key::A, "show lanes with active traffic"),
+                        (Key::J, "warp to an object"),
+                    ],
+                ),
+            ],
+            canvas,
+        ))
     }
 
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, RenderingHints) {

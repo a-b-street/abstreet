@@ -8,7 +8,7 @@ use std::panic;
 
 pub trait GUI<T> {
     // Called once
-    fn top_menu() -> Option<TopMenu> {
+    fn top_menu(_canvas: &Canvas) -> Option<TopMenu> {
         None
     }
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
@@ -38,7 +38,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu = ContextMenu::Inactive;
-    let top_menu = G::top_menu();
+    let mut top_menu = G::top_menu(gui.get_mut_canvas());
     let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
         use piston::input::RenderEvent;
@@ -89,6 +89,9 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 context_menu,
                 gui.get_mut_canvas(),
             );
+            if let Some(ref mut menu) = top_menu {
+                menu.event(&mut input);
+            }
             let (new_event_mode, data) =
                 match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
                     Ok(pair) => pair,
