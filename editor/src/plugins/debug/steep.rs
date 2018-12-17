@@ -38,12 +38,7 @@ impl SteepnessVisualizer {
 
 impl Plugin for SteepnessVisualizer {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let msg = if self.active {
-            "stop showing steepness"
-        } else {
-            "visualize steepness"
-        };
-        if ctx.input.action_chosen(msg) {
+        if ctx.input.action_chosen("show/hide road steepness") {
             self.active = !self.active;
         }
         self.active

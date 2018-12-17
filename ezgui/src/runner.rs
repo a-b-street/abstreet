@@ -87,7 +87,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
             let mut input = UserInput::new(
                 Event::from_piston_event(ev),
                 context_menu,
-                &mut top_menu,
+                top_menu,
                 gui.get_mut_canvas(),
             );
             let (new_event_mode, data) =
@@ -100,6 +100,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 };
             last_data = Some(data);
             context_menu = input.context_menu.maybe_build(gui.get_mut_canvas());
+            top_menu = input.top_menu;
             if let Some(action) = input.chosen_action {
                 panic!(
                     "\"{}\" chosen from the top menu, but nothing consumed it",

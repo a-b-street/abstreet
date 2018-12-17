@@ -19,10 +19,7 @@ pub enum WarpState {
 
 impl WarpState {
     pub fn new(ctx: &mut PluginCtx) -> Option<WarpState> {
-        if ctx
-            .input
-            .action_chosen("start searching for something to warp to")
-        {
+        if ctx.input.action_chosen("warp to an object") {
             return Some(WarpState::EnteringSearch(TextBox::new(
                 "Warp to what?",
                 None,

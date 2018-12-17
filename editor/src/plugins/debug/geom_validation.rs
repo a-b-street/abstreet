@@ -17,7 +17,7 @@ pub struct Validator {
 
 impl Validator {
     pub fn new(ctx: &mut PluginCtx) -> Option<Validator> {
-        if ctx.input.action_chosen("Validate map geometry") {
+        if ctx.input.action_chosen("validate map geometry") {
             return Some(Validator::start(&ctx.primary.draw_map));
         }
         None

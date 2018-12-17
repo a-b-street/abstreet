@@ -31,7 +31,7 @@ impl DisplayLogs {
 impl Plugin for DisplayLogs {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if !self.active {
-            if ctx.input.action_chosen("show logs") {
+            if ctx.input.action_chosen("show log console") {
                 self.active = true;
                 return true;
             } else {

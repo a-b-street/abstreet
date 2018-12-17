@@ -1,5 +1,5 @@
 use crate::objects::ID;
-use ezgui::{Key, ToggleableLayer, UserInput};
+use ezgui::{ToggleableLayer, UserInput};
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
@@ -18,21 +18,13 @@ pub struct ToggleableLayers {
 impl ToggleableLayers {
     pub fn new() -> ToggleableLayers {
         ToggleableLayers {
-            show_lanes: ToggleableLayer::new("lanes", Key::Num3, Some(MIN_ZOOM_FOR_LANES)),
-            show_buildings: ToggleableLayer::new("buildings", Key::Num1, Some(0.0)),
-            show_intersections: ToggleableLayer::new(
-                "intersections",
-                Key::Num2,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_parcels: ToggleableLayer::new("parcels", Key::Num4, Some(MIN_ZOOM_FOR_PARCE)),
-            show_extra_shapes: ToggleableLayer::new(
-                "extra KML shapes",
-                Key::Num7,
-                Some(MIN_ZOOM_FOR_LANES),
-            ),
-            show_all_turn_icons: ToggleableLayer::new("turn icons", Key::Num9, None),
-            debug_mode: ToggleableLayer::new("debug mode", Key::G, None),
+            show_lanes: ToggleableLayer::new("lanes", Some(MIN_ZOOM_FOR_LANES)),
+            show_buildings: ToggleableLayer::new("buildings", Some(0.0)),
+            show_intersections: ToggleableLayer::new("intersections", Some(MIN_ZOOM_FOR_LANES)),
+            show_parcels: ToggleableLayer::new("parcels", Some(MIN_ZOOM_FOR_PARCE)),
+            show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_LANES)),
+            show_all_turn_icons: ToggleableLayer::new("all turn icons", None),
+            debug_mode: ToggleableLayer::new("geometry debug mode", None),
         }
     }
 

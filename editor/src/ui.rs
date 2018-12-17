@@ -40,11 +40,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                         (Key::Num2, "show/hide intersections"),
                         (Key::Num3, "show/hide lanes"),
                         (Key::Num4, "show/hide parcels"),
-                        (Key::Num5, "visualize road steepness"),
+                        (Key::Num5, "show/hide road steepness"),
                         (Key::Num6, "show OSM colors"),
                         (Key::Num7, "show/hide extra shapes"),
                         (Key::Num9, "show/hide all turn icons"),
-                        (Key::G, "toggle geometry debug mode"),
+                        (Key::G, "show/hide geometry debug mode"),
                     ],
                 ),
                 Folder::new(

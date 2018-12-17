@@ -18,7 +18,7 @@ impl Plugin for ShowScoreState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match self {
             ShowScoreState::Inactive => {
-                if ctx.input.action_chosen("Show the sim info sidepanel") {
+                if ctx.input.action_chosen("show sim info sidepanel") {
                     *self = panel(ctx);
                 }
             }

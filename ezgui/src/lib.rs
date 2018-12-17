@@ -148,7 +148,6 @@ impl<'a> GfxCtx<'a> {
 
 pub struct ToggleableLayer {
     layer_name: String,
-    key: Key,
     // If None, never automatically enable at a certain zoom level.
     min_zoom: Option<f64>,
 
@@ -156,9 +155,8 @@ pub struct ToggleableLayer {
 }
 
 impl ToggleableLayer {
-    pub fn new(layer_name: &str, key: Key, min_zoom: Option<f64>) -> ToggleableLayer {
+    pub fn new(layer_name: &str, min_zoom: Option<f64>) -> ToggleableLayer {
         ToggleableLayer {
-            key,
             min_zoom,
             layer_name: layer_name.to_string(),
             enabled: false,
@@ -181,7 +179,7 @@ impl ToggleableLayer {
 
     // True if there was a change
     pub fn event(&mut self, input: &mut input::UserInput) -> bool {
-        if input.unimportant_key_pressed(self.key, &format!("toggle {}", self.layer_name)) {
+        if input.action_chosen(&format!("show/hide {}", self.layer_name)) {
             self.enabled = !self.enabled;
             return true;
         }

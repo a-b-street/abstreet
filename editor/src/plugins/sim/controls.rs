@@ -121,13 +121,13 @@ impl Plugin for SimControls {
                     *ctx.recalculate_current_selection = true;
                 }
 
-                if ctx.input.action_chosen("run sim") {
+                if ctx.input.action_chosen("run/pause sim") {
                     self.state = State::Running {
                         last_step: Instant::now(),
                         benchmark: ctx.primary.sim.start_benchmark(),
                         speed: "running".to_string(),
                     };
-                } else if ctx.input.action_chosen("run one step") {
+                } else if ctx.input.action_chosen("run one step of sim") {
                     let tick = ctx.primary.sim.time;
                     let events = ctx.primary.sim.step(&ctx.primary.map);
                     self.primary_events = Some((tick, events));
@@ -143,7 +143,7 @@ impl Plugin for SimControls {
                 ref mut benchmark,
                 ref mut speed,
             } => {
-                if ctx.input.action_chosen("pause sim") {
+                if ctx.input.action_chosen("run/pause sim") {
                     self.state = State::Paused;
                 } else {
                     ctx.hints.mode = EventLoopMode::Animation;

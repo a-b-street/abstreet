@@ -18,6 +18,7 @@ pub struct UserInput {
     // TODO This is hacky, but if we consume_event in things like get_moved_mouse, then canvas
     // dragging and UI mouseover become mutex. :\
     pub(crate) context_menu: ContextMenu,
+    pub(crate) top_menu: Option<TopMenu>,
 
     pub(crate) chosen_action: Option<String>,
 }
@@ -57,7 +58,7 @@ impl UserInput {
     pub(crate) fn new(
         event: Event,
         context_menu: ContextMenu,
-        top_menu: &mut Option<TopMenu>,
+        mut top_menu: Option<TopMenu>,
         canvas: &Canvas,
     ) -> UserInput {
         let mut input = UserInput {
@@ -66,6 +67,8 @@ impl UserInput {
             unimportant_actions: Vec::new(),
             important_actions: Vec::new(),
             context_menu,
+            // Don't move it in yet!
+            top_menu: None,
             reserved_keys: HashMap::new(),
             chosen_action: None,
         };
@@ -112,6 +115,7 @@ impl UserInput {
                 }
             }
         }
+        input.top_menu = top_menu;
 
         input
     }
@@ -244,6 +248,15 @@ impl UserInput {
         if self.chosen_action == Some(action.to_string()) {
             self.chosen_action = None;
             return true;
+        }
+        if !self
+            .top_menu
+            .as_ref()
+            .map(|m| m.valid_actions.contains(action))
+            .unwrap_or(false)
+        {
+            // TODO Panic
+            println!("action_chosen(\"{}\") doesn't match the TopMenu!", action);
         }
         false
     }

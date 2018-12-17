@@ -6,6 +6,7 @@ use std::collections::HashSet;
 
 pub struct TopMenu {
     folders: Vec<Folder>,
+    pub(crate) valid_actions: HashSet<String>,
 
     txt: Text,
 
@@ -52,6 +53,7 @@ impl TopMenu {
 
         TopMenu {
             folders,
+            valid_actions: actions,
             txt,
             highlighted: None,
             submenu: None,

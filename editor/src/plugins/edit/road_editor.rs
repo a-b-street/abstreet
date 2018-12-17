@@ -7,8 +7,7 @@ pub struct RoadEditor {}
 
 impl RoadEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<RoadEditor> {
-        if ctx.primary.current_selection.is_none() && ctx.input.action_chosen("Start editing roads")
-        {
+        if ctx.primary.current_selection.is_none() && ctx.input.action_chosen("edit roads") {
             return Some(RoadEditor {});
         }
         None
