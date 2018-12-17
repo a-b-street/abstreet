@@ -2,8 +2,8 @@
 
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::Key;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
+use ezgui::{Key, ScreenPt};
 use geom::Polygon;
 
 // TODO assumes minimum screen size
@@ -59,11 +59,11 @@ impl Plugin for ColorPicker {
                     return false;
                 }
 
-                if let Some((m_x, m_y)) = input.get_moved_mouse() {
+                if let Some(pt) = input.get_moved_mouse() {
                     // TODO argh too much casting
                     let (start_x, start_y) = get_screen_offset(canvas);
-                    let x = (m_x - f64::from(start_x)) / f64::from(TILE_DIMS) / 255.0;
-                    let y = (m_y - f64::from(start_y)) / f64::from(TILE_DIMS) / 255.0;
+                    let x = (pt.x - f64::from(start_x)) / f64::from(TILE_DIMS) / 255.0;
+                    let y = (pt.y - f64::from(start_y)) / f64::from(TILE_DIMS) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
                         cs.override_color(name, get_color(x as f32, y as f32));
                     }
@@ -84,7 +84,7 @@ impl Plugin for ColorPicker {
                 for x in 0..WIDTH {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
-                        let corner = ctx.canvas.screen_to_map((
+                        let corner = ctx.canvas.screen_to_map(ScreenPt::new(
                             f64::from(x * TILE_DIMS + start_x),
                             f64::from(y * TILE_DIMS + start_y),
                         ));

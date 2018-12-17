@@ -1,6 +1,7 @@
 use crate::menu::{Menu, Position};
+use crate::screen_geom::ScreenRectangle;
 use crate::text::LINE_HEIGHT;
-use crate::{Canvas, Color, GfxCtx, InputResult, Key, Text, UserInput};
+use crate::{Canvas, Color, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::{HashMap, HashSet};
 
@@ -101,7 +102,9 @@ impl TopMenu {
                             })
                             .collect(),
                         false,
-                        Position::TopLeft(canvas.screen_to_map((f.rectangle.x1, f.rectangle.y2))),
+                        Position::TopLeft(
+                            canvas.screen_to_map(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
+                        ),
                         canvas,
                     ),
                 ));
@@ -150,7 +153,7 @@ impl TopMenu {
         }
         g.unfork(old_ctx);
 
-        canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), (0.0, 0.0));
+        canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), ScreenPt::new(0.0, 0.0));
 
         if let Some((_, ref menu)) = self.submenu {
             menu.draw(g, canvas);
@@ -162,7 +165,7 @@ pub struct Folder {
     name: String,
     actions: Vec<(Key, String)>,
 
-    rectangle: Rectangle,
+    rectangle: ScreenRectangle,
 }
 
 impl Folder {
@@ -174,26 +177,12 @@ impl Folder {
                 .map(|(key, action)| (key, action.to_string()))
                 .collect(),
             // TopMenu::new will calculate this.
-            rectangle: Rectangle {
+            rectangle: ScreenRectangle {
                 x1: 0.0,
                 y1: 0.0,
                 x2: 0.0,
                 y2: 0.0,
             },
         }
-    }
-}
-
-// Everything in good ol' screenspace
-struct Rectangle {
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
-}
-
-impl Rectangle {
-    fn contains(&self, (x, y): (f64, f64)) -> bool {
-        x >= self.x1 && x <= self.x2 && y >= self.y1 && y <= self.y2
     }
 }

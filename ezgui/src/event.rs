@@ -1,3 +1,4 @@
+use crate::ScreenPt;
 use piston::input as pi;
 
 #[derive(Clone, Copy, PartialEq)]
@@ -14,8 +15,7 @@ pub enum Event {
     KeyRelease(Key),
     // Time has passed; EventLoopMode::Animation is active
     Update,
-    // Screen space
-    MouseMovedTo(f64, f64),
+    MouseMovedTo(ScreenPt),
     // Vertical only
     MouseWheelScroll(f64),
 }
@@ -61,11 +61,11 @@ impl Event {
             return Event::Update;
         }
         if let Some(pair) = ev.mouse_cursor_args() {
-            return Event::MouseMovedTo(pair[0], pair[1]);
+            return Event::MouseMovedTo(ScreenPt::new(pair[0], pair[1]));
         }
         if let Some(args) = ev.touch_args() {
             // The docs say these are normalized [0, 1] coordinates, but... they're not. :D
-            return Event::MouseMovedTo(args.x, args.y);
+            return Event::MouseMovedTo(ScreenPt::new(args.x, args.y));
         }
         if let Some(pair) = ev.mouse_scroll_args() {
             return Event::MouseWheelScroll(pair[1]);

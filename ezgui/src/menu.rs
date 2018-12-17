@@ -1,5 +1,5 @@
 use crate::text::LINE_HEIGHT;
-use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, Text};
+use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
 use geom::{Polygon, Pt2D};
 
 // Stores some associated data with each choice
@@ -61,8 +61,8 @@ impl<T: Clone> Menu<T> {
                 }
             }
             Position::TopRightOfScreen => {
-                let map_screen_edge =
-                    canvas.screen_to_map((canvas.window_size.width as f64, LINE_HEIGHT));
+                let map_screen_edge = canvas
+                    .screen_to_map(ScreenPt::new(canvas.window_size.width as f64, LINE_HEIGHT));
                 map_screen_edge.offset(-1.0 * map_width, 0.0)
             }
         };
@@ -92,8 +92,8 @@ impl<T: Clone> Menu<T> {
             }
         } else if ev == Event::RightMouseButtonDown {
             return InputResult::Canceled;
-        } else if let Event::MouseMovedTo(x, y) = ev {
-            let cursor_pt = canvas.screen_to_map((x, y));
+        } else if let Event::MouseMovedTo(pt) = ev {
+            let cursor_pt = canvas.screen_to_map(pt);
             let mut matched = false;
             for i in 0..self.choices.len() {
                 if self.choices[i].2

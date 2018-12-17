@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use crate::{text, GfxCtx, Text, UserInput};
+use crate::{text, GfxCtx, ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
 use opengl_graphics::{Filter, GlyphCache, TextureSettings};
@@ -19,7 +19,7 @@ pub struct Canvas {
     cursor_x: f64,
     cursor_y: f64,
 
-    left_mouse_drag_from: Option<(f64, f64)>,
+    left_mouse_drag_from: Option<ScreenPt>,
 
     pub window_size: Size,
 
@@ -63,18 +63,18 @@ impl Canvas {
     }
 
     pub fn handle_event(&mut self, input: &mut UserInput) {
-        if let Some((m_x, m_y)) = input.get_moved_mouse() {
-            self.cursor_x = m_x;
-            self.cursor_y = m_y;
+        if let Some(pt) = input.get_moved_mouse() {
+            self.cursor_x = pt.x;
+            self.cursor_y = pt.y;
 
-            if let Some((click_x, click_y)) = self.left_mouse_drag_from {
-                self.cam_x += click_x - m_x;
-                self.cam_y += click_y - m_y;
-                self.left_mouse_drag_from = Some((m_x, m_y));
+            if let Some(click) = self.left_mouse_drag_from {
+                self.cam_x += click.x - pt.x;
+                self.cam_y += click.y - pt.y;
+                self.left_mouse_drag_from = Some(pt);
             }
         }
         if input.left_mouse_button_pressed() {
-            self.left_mouse_drag_from = Some((self.cursor_x, self.cursor_y));
+            self.left_mouse_drag_from = Some(ScreenPt::new(self.cursor_x, self.cursor_y));
         }
         if input.left_mouse_button_released() {
             self.left_mouse_drag_from = None;
@@ -99,23 +99,32 @@ impl Canvas {
         let (width, height) = txt.dims(glyphs);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
-        text::draw_text_bubble(g, glyphs, (x1, y1), txt);
+        text::draw_text_bubble(g, glyphs, ScreenPt::new(x1, y1), txt);
     }
 
-    pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
+    pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, map_pt: Pt2D) {
         let glyphs = &mut self.glyphs.borrow_mut();
         let (width, height) = txt.dims(glyphs);
-        let (x, y) = self.map_to_screen(pt);
-        text::draw_text_bubble(g, glyphs, (x - (width / 2.0), y - (height / 2.0)), txt);
+        let pt = self.map_to_screen(map_pt);
+        text::draw_text_bubble(
+            g,
+            glyphs,
+            ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
+            txt,
+        );
     }
 
     pub fn draw_text_at_topleft(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
-        let (x, y) = self.map_to_screen(pt);
-        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), (x, y), txt);
+        text::draw_text_bubble(
+            g,
+            &mut self.glyphs.borrow_mut(),
+            self.map_to_screen(pt),
+            txt,
+        );
     }
 
-    pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, (x, y): (f64, f64)) {
-        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), (x, y), txt);
+    pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, pt: ScreenPt) {
+        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), pt, txt);
     }
 
     pub fn draw_text(
@@ -139,7 +148,7 @@ impl Canvas {
             VerticalAlignment::Center => (f64::from(self.window_size.height) - height) / 2.0,
             VerticalAlignment::Bottom => f64::from(self.window_size.height) - height,
         };
-        text::draw_text_bubble(g, glyphs, (x1, y1), txt);
+        text::draw_text_bubble(g, glyphs, ScreenPt::new(x1, y1), txt);
     }
 
     pub(crate) fn text_dims(&self, txt: &Text) -> (f64, f64) {
@@ -159,18 +168,18 @@ impl Canvas {
     }
 
     pub fn get_cursor_in_map_space(&self) -> Pt2D {
-        self.screen_to_map((self.cursor_x, self.cursor_y))
+        self.screen_to_map(ScreenPt::new(self.cursor_x, self.cursor_y))
     }
 
-    pub fn screen_to_map(&self, (x, y): (f64, f64)) -> Pt2D {
+    pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {
         Pt2D::new(
-            (x + self.cam_x) / self.cam_zoom,
-            (y + self.cam_y) / self.cam_zoom,
+            (pt.x + self.cam_x) / self.cam_zoom,
+            (pt.y + self.cam_y) / self.cam_zoom,
         )
     }
 
     pub fn center_to_map_pt(&self) -> Pt2D {
-        self.screen_to_map((
+        self.screen_to_map(ScreenPt::new(
             f64::from(self.window_size.width) / 2.0,
             f64::from(self.window_size.height) / 2.0,
         ))
@@ -181,8 +190,8 @@ impl Canvas {
         self.cam_y = (pt.y() * self.cam_zoom) - (f64::from(self.window_size.height) / 2.0);
     }
 
-    fn map_to_screen(&self, pt: Pt2D) -> (f64, f64) {
-        (
+    fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
+        ScreenPt::new(
             (pt.x() * self.cam_zoom) - self.cam_x,
             (pt.y() * self.cam_zoom) - self.cam_y,
         )
@@ -190,8 +199,8 @@ impl Canvas {
 
     pub fn get_screen_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
-        b.update(self.screen_to_map((0.0, 0.0)));
-        b.update(self.screen_to_map((
+        b.update(self.screen_to_map(ScreenPt::new(0.0, 0.0)));
+        b.update(self.screen_to_map(ScreenPt::new(
             f64::from(self.window_size.width),
             f64::from(self.window_size.height),
         )));

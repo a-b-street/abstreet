@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use crate::{Canvas, Color, GfxCtx};
+use crate::{Canvas, Color, GfxCtx, ScreenPt};
 use graphics::character::CharacterCache;
 use graphics::{Image, Rectangle, Transformed};
 use opengl_graphics::GlyphCache;
@@ -131,20 +131,20 @@ impl Text {
     }
 }
 
-pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, (x1, y1): (f64, f64), txt: Text) {
+pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: ScreenPt, txt: Text) {
     let (total_width, total_height) = txt.dims(glyphs);
     if let Some(c) = txt.bg_color {
         Rectangle::new(c.0).draw(
-            [x1, y1, total_width, total_height],
+            [top_left.x, top_left.y, total_width, total_height],
             &g.orig_ctx.draw_state,
             g.orig_ctx.transform,
             g.gfx,
         );
     }
 
-    let mut y = y1 + LINE_HEIGHT;
+    let mut y = top_left.y + LINE_HEIGHT;
     for line in &txt.lines {
-        let mut x = x1;
+        let mut x = top_left.x;
 
         for span in line {
             if let Some(color) = span.highlight_color {

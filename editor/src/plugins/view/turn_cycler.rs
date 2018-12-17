@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
-use ezgui::{Color, GfxCtx, Key, Text};
+use ezgui::{Color, GfxCtx, Key, ScreenPt, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, TurnType};
 
@@ -106,7 +106,7 @@ impl Plugin for TurnCyclerState {
                         ctx.canvas.draw_text_at_screenspace_topleft(
                             g,
                             Text::from_line("Overtime!".to_string()),
-                            (10.0 + width / 2.0, 10.0 + height / 2.0),
+                            ScreenPt::new(10.0 + width / 2.0, 10.0 + height / 2.0),
                         );
                         g.unfork(old_ctx);
                     } else {

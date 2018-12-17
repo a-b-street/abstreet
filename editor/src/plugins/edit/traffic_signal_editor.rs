@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, Text, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Key, ScreenPt, Text, Wizard, WrappedWizard};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 use std::collections::HashSet;
@@ -284,7 +284,7 @@ impl Plugin for TrafficSignalEditor {
             ctx.canvas.draw_text_at_screenspace_topleft(
                 g,
                 Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
-                (
+                ScreenPt::new(
                     10.0 + (width * zoom),
                     10.0 + (padding + height) * (idx as f64) * zoom,
                 ),

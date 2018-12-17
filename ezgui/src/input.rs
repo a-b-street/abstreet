@@ -1,6 +1,6 @@
 use crate::menu::{Menu, Position};
 use crate::top_menu::TopMenu;
-use crate::{Canvas, Event, InputResult, Key, Text};
+use crate::{Canvas, Event, InputResult, Key, ScreenPt, Text};
 use geom::Pt2D;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -375,13 +375,13 @@ impl UserInput {
         self.event == Event::RightMouseButtonDown
     }
 
-    pub fn get_moved_mouse(&self) -> Option<(f64, f64)> {
+    pub fn get_moved_mouse(&self) -> Option<ScreenPt> {
         if self.context_menu_active() {
             return None;
         }
 
-        if let Event::MouseMovedTo(x, y) = self.event {
-            return Some((x, y));
+        if let Event::MouseMovedTo(pt) = self.event {
+            return Some(pt);
         }
         None
     }
