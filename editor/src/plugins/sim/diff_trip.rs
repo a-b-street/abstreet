@@ -18,12 +18,12 @@ pub struct DiffTripState {
 }
 
 impl DiffTripState {
-    pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<DiffTripState> {
+    pub fn new(ctx: &mut PluginCtx) -> Option<DiffTripState> {
         if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
             if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
                 if ctx
                     .input
-                    .contextual_action(key, &format!("Show {}'s parallel world", agent))
+                    .contextual_action(Key::B, &format!("Show {}'s parallel world", agent))
                 {
                     return Some(diff_trip(trip, ctx));
                 }

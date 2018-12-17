@@ -5,7 +5,7 @@ mod show_score;
 
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{GfxCtx, Key};
+use ezgui::GfxCtx;
 use sim::{Event, Tick};
 
 // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even when the
@@ -21,6 +21,8 @@ impl SimMode {
         SimMode {
             diff_plugin: None,
             ambient_plugins: vec![
+                // TODO Could be a little simpler to instantiate this lazily, stop representing
+                // inactive state.
                 Box::new(show_score::ShowScoreState::new()),
                 Box::new(controls::SimControls::new()),
             ],
@@ -56,9 +58,9 @@ impl Plugin for SimMode {
         }
 
         if ctx.secondary.is_some() {
-            if let Some(p) = diff_all::DiffAllState::new(Key::D, ctx) {
+            if let Some(p) = diff_all::DiffAllState::new(ctx) {
                 self.diff_plugin = Some(Box::new(p));
-            } else if let Some(p) = diff_trip::DiffTripState::new(Key::B, ctx) {
+            } else if let Some(p) = diff_trip::DiffTripState::new(ctx) {
                 self.diff_plugin = Some(Box::new(p));
             }
         }

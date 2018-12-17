@@ -5,12 +5,7 @@ use ezgui::{Color, GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, TurnType};
 
-pub struct TurnCyclerState {
-    state: State,
-    key: Key,
-}
-
-enum State {
+pub enum TurnCyclerState {
     Inactive,
     ShowLane(LaneID),
     CycleTurns(LaneID, usize),
@@ -18,11 +13,8 @@ enum State {
 }
 
 impl TurnCyclerState {
-    pub fn new(key: Key) -> TurnCyclerState {
-        TurnCyclerState {
-            key,
-            state: State::Inactive,
-        }
+    pub fn new() -> TurnCyclerState {
+        TurnCyclerState::Inactive
     }
 }
 
@@ -30,7 +22,7 @@ impl Plugin for TurnCyclerState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match ctx.primary.current_selection {
             Some(ID::Intersection(id)) => {
-                self.state = State::ShowIntersection(id);
+                *self = TurnCyclerState::ShowIntersection(id);
 
                 if let Some(signal) = ctx.primary.map.maybe_get_traffic_signal(id) {
                     ctx.hints.suppress_intersection_icon = Some(id);
@@ -46,36 +38,36 @@ impl Plugin for TurnCyclerState {
                 }
             }
             Some(ID::Lane(id)) => {
-                if let State::CycleTurns(current, idx) = self.state {
-                    if current != id {
-                        self.state = State::ShowLane(id);
+                if let TurnCyclerState::CycleTurns(current, idx) = self {
+                    if *current != id {
+                        *self = TurnCyclerState::ShowLane(id);
                     } else if ctx
                         .input
-                        .key_pressed(self.key, "cycle through this lane's turns")
+                        .key_pressed(Key::Tab, "cycle through this lane's turns")
                     {
-                        self.state = State::CycleTurns(id, idx + 1);
+                        *self = TurnCyclerState::CycleTurns(id, *idx + 1);
                     }
                 } else {
-                    self.state = State::ShowLane(id);
+                    *self = TurnCyclerState::ShowLane(id);
                     if ctx
                         .input
-                        .key_pressed(self.key, "cycle through this lane's turns")
+                        .key_pressed(Key::Tab, "cycle through this lane's turns")
                     {
-                        self.state = State::CycleTurns(id, 0);
+                        *self = TurnCyclerState::CycleTurns(id, 0);
                     }
                 }
             }
             _ => {
-                self.state = State::Inactive;
+                *self = TurnCyclerState::Inactive;
             }
         };
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        match self.state {
-            State::Inactive => {}
-            State::ShowLane(l) => {
-                for turn in &ctx.map.get_turns_from_lane(l) {
+        match self {
+            TurnCyclerState::Inactive => {}
+            TurnCyclerState::ShowLane(l) => {
+                for turn in &ctx.map.get_turns_from_lane(*l) {
                     let color = match turn.turn_type {
                         TurnType::SharedSidewalkCorner => {
                             ctx.cs.get_def("shared sidewalk corner turn", Color::BLACK)
@@ -89,19 +81,19 @@ impl Plugin for TurnCyclerState {
                     DrawTurn::draw_full(turn, g, color);
                 }
             }
-            State::CycleTurns(l, idx) => {
-                let turns = ctx.map.get_turns_from_lane(l);
+            TurnCyclerState::CycleTurns(l, idx) => {
+                let turns = ctx.map.get_turns_from_lane(*l);
                 if !turns.is_empty() {
                     DrawTurn::draw_full(
-                        turns[idx % turns.len()],
+                        turns[*idx % turns.len()],
                         g,
                         ctx.cs.get_def("current selected turn", Color::RED),
                     );
                 }
             }
-            State::ShowIntersection(id) => {
-                if let Some(signal) = ctx.map.maybe_get_traffic_signal(id) {
-                    if ctx.sim.is_in_overtime(id) {
+            TurnCyclerState::ShowIntersection(id) => {
+                if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
+                    if ctx.sim.is_in_overtime(*id) {
                         let old_ctx = g.fork_screenspace();
                         let width = 50.0;
                         let height = 100.0;
@@ -150,7 +142,7 @@ impl Plugin for TurnCyclerState {
                             g.unfork(old_ctx);
                         }
                     }
-                } else if let Some(sign) = ctx.map.maybe_get_stop_sign(id) {
+                } else if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
                     draw_stop_sign(sign, g, ctx.cs, ctx.map);
                 }
             }

@@ -4,12 +4,11 @@ use sim::TripID;
 
 pub struct FollowState {
     trip: Option<TripID>,
-    key: Key,
 }
 
 impl FollowState {
-    pub fn new(key: Key) -> FollowState {
-        FollowState { trip: None, key }
+    pub fn new() -> FollowState {
+        FollowState { trip: None }
     }
 }
 
@@ -20,7 +19,7 @@ impl Plugin for FollowState {
                 if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
                     if ctx
                         .input
-                        .contextual_action(self.key, &format!("follow {}", agent))
+                        .contextual_action(Key::F, &format!("follow {}", agent))
                     {
                         self.trip = Some(trip);
                     }
@@ -36,7 +35,7 @@ impl Plugin for FollowState {
                 // get_canonical_point_for_trip
                 warn!("{} is gone... temporarily or not?", trip);
             }
-            if ctx.input.key_pressed(self.key, "stop following") {
+            if ctx.input.key_pressed(Key::F, "stop following") {
                 self.trip = None;
             }
         }

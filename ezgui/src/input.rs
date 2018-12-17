@@ -212,7 +212,7 @@ impl UserInput {
             ContextMenu::Inactive => {
                 // If the menu's not active (the user hasn't right-clicked yet), then still allow the
                 // legacy behavior of just pressing the hotkey.
-                return self.key_pressed(hotkey, &format!("CONTEXTUAL: {}", action));
+                return self.unimportant_key_pressed(hotkey, &format!("CONTEXTUAL: {}", action));
             }
             ContextMenu::Building(_, ref mut actions) => {
                 // The event this round was the right click, so don't check if the right keypress
