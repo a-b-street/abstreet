@@ -2,6 +2,8 @@ use piston::input as pi;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Event {
+    // TODO Get rid of this after handling all cases.
+    Unknown,
     LeftMouseButtonDown,
     LeftMouseButtonUp,
     RightMouseButtonDown,
@@ -43,10 +45,16 @@ impl Event {
         }
 
         if let Some(pi::Button::Keyboard(key)) = ev.press_args() {
-            return Event::KeyPress(Key::from_piston_key(key, ev.button_args()));
+            if let Some(key) = Key::from_piston_key(key, ev.button_args()) {
+                return Event::KeyPress(key);
+            }
+            return Event::Unknown;
         }
         if let Some(pi::Button::Keyboard(key)) = ev.release_args() {
-            return Event::KeyRelease(Key::from_piston_key(key, ev.button_args()));
+            if let Some(key) = Key::from_piston_key(key, ev.button_args()) {
+                return Event::KeyRelease(key);
+            }
+            return Event::Unknown;
         }
 
         if ev.update_args().is_some() {
@@ -211,14 +219,14 @@ impl Key {
         }
     }
 
-    fn from_piston_key(key: pi::Key, args: Option<pi::ButtonArgs>) -> Key {
+    fn from_piston_key(key: pi::Key, args: Option<pi::ButtonArgs>) -> Option<Key> {
         if let Some(a) = args {
             if a.scancode == Some(39) {
-                return Key::Semicolon;
+                return Some(Key::Semicolon);
             }
         }
 
-        match key {
+        Some(match key {
             pi::Key::A => Key::A,
             pi::Key::B => Key::B,
             pi::Key::C => Key::C,
@@ -273,8 +281,9 @@ impl Key {
             pi::Key::Up => Key::UpArrow,
             pi::Key::Down => Key::DownArrow,
             _ => {
-                panic!("Unknown piston key {:?}", key);
+                println!("Unknown piston key {:?}", key);
+                return None;
             }
-        }
+        })
     }
 }
