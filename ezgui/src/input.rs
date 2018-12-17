@@ -39,6 +39,7 @@ impl ContextMenu {
                             .into_iter()
                             .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
                             .collect(),
+                        false,
                         origin,
                         canvas,
                     ))

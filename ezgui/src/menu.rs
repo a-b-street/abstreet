@@ -16,6 +16,7 @@ impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Option<String>,
         choices: Vec<(Option<Key>, String, T)>,
+        select_first: bool,
         origin: Pt2D,
         canvas: &Canvas,
     ) -> Menu<T> {
@@ -47,8 +48,7 @@ impl<T: Clone> Menu<T> {
         Menu {
             prompt,
             choices,
-            // TODO Different for wizards
-            current_idx: None,
+            current_idx: if select_first { Some(0) } else { None },
             origin,
             first_choice_row: Polygon::rectangle_topleft(top_left, map_width, row_height),
             row_height,

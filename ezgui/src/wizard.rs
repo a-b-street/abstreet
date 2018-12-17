@@ -215,6 +215,7 @@ impl<'a> WrappedWizard<'a> {
             self.wizard.menu = Some(Menu::new(
                 Some(query.to_string()),
                 boxed_choices,
+                true,
                 self.canvas.center_to_map_pt(),
                 self.canvas,
             ));
