@@ -38,6 +38,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
 
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu = ContextMenu::Inactive;
+    let top_menu = G::top_menu();
     let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
         use piston::input::RenderEvent;
@@ -56,7 +57,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                         panic::resume_unwind(err);
                     }
 
-                    // Always draw the context-menu last.
+                    // Always draw the top menu and context menus last.
+                    if let Some(ref menu) = top_menu {
+                        menu.draw(&mut g, gui.get_mut_canvas());
+                    }
                     if let ContextMenu::Displaying(ref menu) = context_menu {
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }

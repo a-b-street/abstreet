@@ -40,14 +40,21 @@ impl TextSpan {
 #[derive(Debug, Clone)]
 pub struct Text {
     lines: Vec<Vec<TextSpan>>,
-    bg_color: Color,
+    bg_color: Option<Color>,
 }
 
 impl Text {
     pub fn new() -> Text {
         Text {
             lines: Vec::new(),
-            bg_color: TEXT_BG_COLOR,
+            bg_color: Some(TEXT_BG_COLOR),
+        }
+    }
+
+    pub fn with_bg_color(bg_color: Option<Color>) -> Text {
+        Text {
+            lines: Vec::new(),
+            bg_color,
         }
     }
 
@@ -89,6 +96,10 @@ impl Text {
     }
 
     pub fn append(&mut self, text: String, fg_color: Color, highlight_color: Option<Color>) {
+        if self.lines.is_empty() {
+            self.lines.push(Vec::new());
+        }
+
         self.lines.last_mut().unwrap().push(TextSpan {
             text,
             fg_color,
@@ -122,12 +133,14 @@ impl Text {
 
 pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, (x1, y1): (f64, f64), txt: Text) {
     let (total_width, total_height) = txt.dims(glyphs);
-    Rectangle::new(txt.bg_color.0).draw(
-        [x1, y1, total_width, total_height],
-        &g.orig_ctx.draw_state,
-        g.orig_ctx.transform,
-        g.gfx,
-    );
+    if let Some(c) = txt.bg_color {
+        Rectangle::new(c.0).draw(
+            [x1, y1, total_width, total_height],
+            &g.orig_ctx.draw_state,
+            g.orig_ctx.transform,
+            g.gfx,
+        );
+    }
 
     let mut y = y1 + LINE_HEIGHT;
     for line in &txt.lines {
