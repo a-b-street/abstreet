@@ -125,6 +125,7 @@ pub enum Key {
     Backspace,
     LeftShift,
     LeftControl,
+    LeftAlt,
     LeftArrow,
     RightArrow,
     UpArrow,
@@ -183,6 +184,7 @@ impl Key {
             | Key::Backspace
             | Key::LeftShift
             | Key::LeftControl
+            | Key::LeftAlt
             | Key::LeftArrow
             | Key::RightArrow
             | Key::UpArrow
@@ -198,6 +200,7 @@ impl Key {
             Key::Backspace => "Backspace".to_string(),
             Key::LeftShift => "Shift".to_string(),
             Key::LeftControl => "Control".to_string(),
+            Key::LeftAlt => "Alt".to_string(),
             Key::LeftArrow => "Left arrow key".to_string(),
             Key::RightArrow => "Right arrow key".to_string(),
             Key::UpArrow => "Up arrow key".to_string(),
@@ -264,6 +267,7 @@ impl Key {
             pi::Key::Backspace => Key::Backspace,
             pi::Key::LShift => Key::LeftShift,
             pi::Key::LCtrl => Key::LeftControl,
+            pi::Key::LAlt => Key::LeftAlt,
             pi::Key::Left => Key::LeftArrow,
             pi::Key::Right => Key::RightArrow,
             pi::Key::Up => Key::UpArrow,

@@ -1,6 +1,6 @@
 use crate::menu::{Menu, Position};
 use crate::text::LINE_HEIGHT;
-use crate::{Canvas, Color, GfxCtx, Key, Text, UserInput};
+use crate::{Canvas, Color, GfxCtx, InputResult, Key, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::HashSet;
 
@@ -10,7 +10,7 @@ pub struct TopMenu {
     txt: Text,
 
     highlighted: Option<usize>,
-    submenu: Option<Menu<Key>>,
+    submenu: Option<(usize, Menu<Key>)>,
 }
 
 impl TopMenu {
@@ -59,21 +59,49 @@ impl TopMenu {
                 .folders
                 .iter()
                 .position(|f| f.rectangle.contains(cursor));
-            return;
         }
 
-        if self.highlighted.is_some() && input.left_mouse_button_pressed() {
-            let f = &self.folders[self.highlighted.unwrap()];
-            self.submenu = Some(Menu::new(
-                None,
-                f.actions
-                    .iter()
-                    .map(|(key, action)| (Some(*key), action.to_string(), *key))
-                    .collect(),
-                false,
-                Position::TopLeft(canvas.screen_to_map((f.rectangle.x1, f.rectangle.y2))),
-                canvas,
-            ));
+        if let Some(idx) = self.highlighted {
+            if input.left_mouse_button_pressed()
+                || self
+                    .submenu
+                    .as_ref()
+                    .map(|(existing_idx, _)| idx != *existing_idx)
+                    .unwrap_or(false)
+            {
+                let f = &self.folders[idx];
+                self.submenu = Some((
+                    idx,
+                    Menu::new(
+                        None,
+                        f.actions
+                            .iter()
+                            .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                            .collect(),
+                        false,
+                        Position::TopLeft(canvas.screen_to_map((f.rectangle.x1, f.rectangle.y2))),
+                        canvas,
+                    ),
+                ));
+                return;
+            }
+        }
+
+        if let Some((_, ref mut submenu)) = self.submenu {
+            if let Some(ev) = input.use_event_directly() {
+                match submenu.event(ev, canvas) {
+                    InputResult::StillActive => {}
+                    InputResult::Canceled => {
+                        self.submenu = None;
+                        self.highlighted = None;
+                    }
+                    InputResult::Done(_, key) => {
+                        println!("submenu finished with {:?}", key);
+                        self.submenu = None;
+                        self.highlighted = None;
+                    }
+                };
+            }
         }
     }
 
@@ -99,7 +127,7 @@ impl TopMenu {
 
         canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), (0.0, 0.0));
 
-        if let Some(ref menu) = self.submenu {
+        if let Some((_, ref menu)) = self.submenu {
             menu.draw(g, canvas);
         }
     }
