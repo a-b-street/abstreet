@@ -1,15 +1,19 @@
 use crate::input::ContextMenu;
-use crate::{Canvas, Event, GfxCtx, TopMenu, UserInput};
+use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::{Window, WindowSettings};
+use std::collections::HashMap;
 use std::{panic, process};
 
 pub trait GUI<T> {
     // Called once
     fn top_menu(_canvas: &Canvas) -> Option<TopMenu> {
         None
+    }
+    fn modal_menus() -> Vec<ModalMenu> {
+        Vec::new()
     }
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
@@ -38,10 +42,16 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
+    // TODO Probably time to bundle this state up. :)
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu = ContextMenu::Inactive;
     let mut top_menu = G::top_menu(gui.get_mut_canvas());
+    let modal_menus: HashMap<String, ModalMenu> = G::modal_menus()
+        .into_iter()
+        .map(|m| (m.name.clone(), m))
+        .collect();
     let mut last_data: Option<T> = None;
+
     while let Some(ev) = events.next(&mut window) {
         use piston::input::{CloseEvent, RenderEvent};
         if let Some(args) = ev.render_args() {

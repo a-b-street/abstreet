@@ -2,7 +2,7 @@ use crate::menu::{Menu, Position};
 use crate::top_menu::TopMenu;
 use crate::{Canvas, Event, InputResult, Key, Text};
 use geom::Pt2D;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -397,6 +397,37 @@ impl UserInput {
         match self.context_menu {
             ContextMenu::Inactive => false,
             _ => true,
+        }
+    }
+}
+
+pub struct ModalMenu {
+    pub(crate) name: String,
+    pub(crate) actions: Vec<(Key, String)>,
+}
+
+impl ModalMenu {
+    pub fn new(name: &str, raw_actions: Vec<(Key, &str)>) -> ModalMenu {
+        let mut keys: HashSet<Key> = HashSet::new();
+        let mut action_names: HashSet<String> = HashSet::new();
+        let mut actions = Vec::new();
+        for (key, action) in raw_actions {
+            if keys.contains(&key) {
+                panic!("ModalMenu {} uses {:?} twice", name, key);
+            }
+            keys.insert(key);
+
+            if action_names.contains(action) {
+                panic!("ModalMenu {} defines \"{}\" twice", name, action);
+            }
+            action_names.insert(action.to_string());
+
+            actions.push((key, action.to_string()));
+        }
+
+        ModalMenu {
+            name: name.to_string(),
+            actions,
         }
     }
 }

@@ -18,7 +18,7 @@ pub use crate::canvas::{
 };
 pub use crate::color::Color;
 pub use crate::event::{Event, Key};
-pub use crate::input::UserInput;
+pub use crate::input::{ModalMenu, UserInput};
 pub use crate::log_scroller::LogScroller;
 pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::scrolling_menu::ScrollingMenu;

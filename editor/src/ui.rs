@@ -5,7 +5,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::RenderOptions;
 use crate::state::UIState;
 use ezgui::{
-    Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, Text, TopMenu, UserInput, BOTTOM_LEFT, GUI,
+    Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu, UserInput,
+    BOTTOM_LEFT, GUI,
 };
 use kml;
 use map_model::{BuildingID, LaneID};
@@ -69,7 +70,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                         (Key::S, "seed the sim with agents"),
                         (Key::Space, "run/pause sim"),
                         (Key::M, "run one step of sim"),
-                        (Key::Dot, "show sim info sidepanel"),
+                        (Key::Dot, "show/hide sim info sidepanel"),
                         (Key::T, "start time traveling"),
                     ],
                 ),
@@ -85,6 +86,81 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ],
             canvas,
         ))
+    }
+
+    fn modal_menus() -> Vec<ModalMenu> {
+        vec![
+            ModalMenu::new(
+                "Traffic Signal Editor",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::D, "change cycle duration"),
+                    (Key::P, "choose a preset signal"),
+                    (Key::K, "move current cycle up"),
+                    (Key::J, "move current cycle down"),
+                    (Key::Backspace, "delete current cycle"),
+                    (Key::N, "add a new empty cycle"),
+                    (Key::M, "add a new pedestrian scramble cycle"),
+                ],
+            ),
+            ModalMenu::new(
+                "Scenario Editor",
+                vec![(Key::Q, "save"), (Key::E, "edit"), (Key::I, "instantiate")],
+            ),
+            ModalMenu::new("Road Editor", vec![(Key::Enter, "quit")]),
+            ModalMenu::new(
+                "Color Picker",
+                vec![
+                    (Key::Backspace, "revert color"),
+                    (Key::Enter, "finalize color"),
+                ],
+            ),
+            ModalMenu::new(
+                "Stop Sign Editor",
+                vec![(Key::Enter, "quit"), (Key::R, "reset to default")],
+            ),
+            ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
+            ModalMenu::new(
+                "Neighborhood Editor",
+                vec![
+                    // TODO one key for save XOR quit, based on internal state...
+                    (Key::Enter, "save and quit"),
+                    (Key::X, "export as an Osmosis polygon filter"),
+                    (Key::P, "add a new point"),
+                ],
+            ),
+            ModalMenu::new(
+                "Time Traveler",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::Comma, "rewind"),
+                    (Key::Dot, "forwards"),
+                ],
+            ),
+            ModalMenu::new(
+                "Geometry Debugger",
+                vec![(Key::Enter, "quit"), (Key::N, "see next problem")],
+            ),
+            ModalMenu::new("OSM Classifier", vec![(Key::Num6, "quit")]),
+            ModalMenu::new(
+                "Floodfiller",
+                vec![
+                    (Key::Space, "step forwards"),
+                    (Key::Tab, "finish floodfilling"),
+                ],
+            ),
+            ModalMenu::new("Chokepoints Debugger", vec![(Key::Enter, "quit")]),
+            ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
+            ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
+            ModalMenu::new("Agent Follower", vec![(Key::F, "quit")]),
+            ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
+            ModalMenu::new("Neighborhood Summaries", vec![(Key::Z, "quit")]),
+            ModalMenu::new(
+                "Agent Route Debugger",
+                vec![(Key::R, "quit"), (Key::L, "show/hide all agents' routes")],
+            ),
+            ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
+        ]
     }
 
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, RenderingHints) {

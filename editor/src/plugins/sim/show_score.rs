@@ -1,6 +1,6 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Key, Text, TOP_RIGHT};
+use ezgui::{Color, GfxCtx, Text, TOP_RIGHT};
 use sim::{ScoreSummary, Tick};
 
 pub enum ShowScoreState {
@@ -18,15 +18,12 @@ impl Plugin for ShowScoreState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match self {
             ShowScoreState::Inactive => {
-                if ctx.input.action_chosen("show sim info sidepanel") {
+                if ctx.input.action_chosen("show/hide sim info sidepanel") {
                     *self = panel(ctx);
                 }
             }
             ShowScoreState::Active(last_tick, _) => {
-                if ctx
-                    .input
-                    .key_pressed(Key::Dot, "Hide the sim info sidepanel")
-                {
+                if ctx.input.action_chosen("show/hide sim info sidepanel") {
                     *self = ShowScoreState::Inactive;
                 } else if *last_tick != ctx.primary.sim.time {
                     *self = panel(ctx);
