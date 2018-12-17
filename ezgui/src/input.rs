@@ -45,7 +45,7 @@ impl ContextMenu {
                         None,
                         actions
                             .into_iter()
-                            .map(|(hotkey, action)| (Some(hotkey), action, true, hotkey))
+                            .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
                             .collect(),
                         false,
                         Position::TopLeftAt(origin),
@@ -274,7 +274,7 @@ impl UserInput {
 
         if let Some(ref mut menu) = self.top_menu {
             if let Some(key) = menu.actions.get(action).cloned() {
-                menu.valid_actions.insert(action.to_string());
+                menu.valid_actions.insert(key);
                 self.unimportant_key_pressed(key, action)
             } else {
                 panic!(
@@ -288,25 +288,25 @@ impl UserInput {
     }
 
     pub fn set_mode(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
-        if let Some((ref existing_mode, _)) = self.modal_state.active {
+        if let Some((ref existing_mode, ref mut menu)) = self.modal_state.active {
             if existing_mode != mode {
                 panic!("set_mode called on both {} and {}", existing_mode, mode);
             }
+            menu.mark_all_inactive();
         } else {
             if let Some(ref m) = self.modal_state.modes.get(mode) {
-                self.modal_state.active = Some((
-                    mode.to_string(),
-                    Menu::new(
-                        Some(prompt),
-                        m.actions
-                            .iter()
-                            .map(|(key, action)| (Some(*key), action.to_string(), false, *key))
-                            .collect(),
-                        false,
-                        Position::TopRightOfScreen,
-                        canvas,
-                    ),
-                ));
+                let mut menu = Menu::new(
+                    Some(prompt),
+                    m.actions
+                        .iter()
+                        .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                        .collect(),
+                    false,
+                    Position::TopRightOfScreen,
+                    canvas,
+                );
+                menu.mark_all_inactive();
+                self.modal_state.active = Some((mode.to_string(), menu));
             } else {
                 panic!("set_mode called on unknown {}", mode);
             }
@@ -314,14 +314,14 @@ impl UserInput {
     }
 
     pub fn modal_action(&mut self, action: &str) -> bool {
-        if let Some((ref mode, _)) = self.modal_state.active {
+        if let Some((ref mode, ref mut menu)) = self.modal_state.active {
             if self.chosen_action == Some(action.to_string()) {
                 self.chosen_action = None;
                 return true;
             }
 
             if let Some(key) = self.modal_state.modes[mode].get_key(action) {
-                // TODO mark menu active
+                menu.mark_active(key);
                 self.unimportant_key_pressed(key, action)
             } else {
                 panic!("modal_action {} undefined in mode {}", action, mode);

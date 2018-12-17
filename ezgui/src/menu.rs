@@ -23,7 +23,7 @@ pub enum Position {
 impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Option<String>,
-        choices: Vec<(Option<Key>, String, bool, T)>,
+        choices: Vec<(Option<Key>, String, T)>,
         select_first: bool,
         pos: Position,
         canvas: &Canvas,
@@ -37,7 +37,7 @@ impl<T: Clone> Menu<T> {
         if let Some(ref line) = prompt {
             txt.add_line(line.to_string());
         }
-        for (hotkey, choice, _, _) in &choices {
+        for (hotkey, choice, _) in &choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));
             } else {
@@ -60,7 +60,11 @@ impl<T: Clone> Menu<T> {
         };
 
         Menu {
-            choices,
+            // All choices start active.
+            choices: choices
+                .into_iter()
+                .map(|(key, choice, data)| (key, choice, true, data))
+                .collect(),
             current_idx: if select_first { Some(0) } else { None },
             top_left,
             first_choice_row: if prompt.is_some() {
@@ -186,5 +190,24 @@ impl<T: Clone> Menu<T> {
     pub fn current_choice(&self) -> Option<&T> {
         let idx = self.current_idx?;
         Some(&self.choices[idx].3)
+    }
+
+    // If there's no matching choice, be silent. The two callers don't care.
+    pub fn mark_active(&mut self, action_key: Key) {
+        for (key, _, ref mut active, _) in self.choices.iter_mut() {
+            if Some(action_key) == *key {
+                if *active {
+                    panic!("Menu choice with key {:?} was already active", action_key);
+                }
+                *active = true;
+                return;
+            }
+        }
+    }
+
+    pub fn mark_all_inactive(&mut self) {
+        for (_, _, ref mut active, _) in self.choices.iter_mut() {
+            *active = false;
+        }
     }
 }

@@ -14,7 +14,7 @@ pub struct TopMenu {
     highlighted: Option<usize>,
     submenu: Option<(usize, Menu<Key>)>,
     // Reset every round
-    pub(crate) valid_actions: HashSet<String>,
+    pub(crate) valid_actions: HashSet<Key>,
 }
 
 impl TopMenu {
@@ -84,28 +84,23 @@ impl TopMenu {
                     .unwrap_or(false)
             {
                 let f = &self.folders[idx];
+                let mut menu = Menu::new(
+                    None,
+                    f.actions
+                        .iter()
+                        .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                        .collect(),
+                    false,
+                    Position::TopLeftAt(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
+                    canvas,
+                );
+                menu.mark_all_inactive();
                 // valid_actions can't change once this submenu is created, so determine what
                 // actions are valid right now.
-                self.submenu = Some((
-                    idx,
-                    Menu::new(
-                        None,
-                        f.actions
-                            .iter()
-                            .map(|(key, action)| {
-                                (
-                                    Some(*key),
-                                    action.to_string(),
-                                    self.valid_actions.contains(action),
-                                    *key,
-                                )
-                            })
-                            .collect(),
-                        false,
-                        Position::TopLeftAt(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
-                        canvas,
-                    ),
-                ));
+                for key in &self.valid_actions {
+                    menu.mark_active(*key);
+                }
+                self.submenu = Some((idx, menu));
                 return InputResult::StillActive;
             }
         }
