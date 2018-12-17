@@ -4,7 +4,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::{Window, WindowSettings};
-use std::panic;
+use std::{panic, process};
 
 pub trait GUI<T> {
     // Called once
@@ -16,6 +16,8 @@ pub trait GUI<T> {
     fn draw(&self, g: &mut GfxCtx, data: &T);
     // Will be called if event or draw panics.
     fn dump_before_abort(&self) {}
+    // Only before a normal exit, like window close
+    fn before_quit(&self) {}
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -41,7 +43,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
     let mut top_menu = G::top_menu(gui.get_mut_canvas());
     let mut last_data: Option<T> = None;
     while let Some(ev) = events.next(&mut window) {
-        use piston::input::RenderEvent;
+        use piston::input::{CloseEvent, RenderEvent};
         if let Some(args) = ev.render_args() {
             // If the very first event is render, then just wait.
             if let Some(ref data) = last_data {
@@ -66,6 +68,9 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     }
                 });
             }
+        } else if ev.close_args().is_some() {
+            gui.before_quit();
+            process::exit(0);
         } else {
             // Skip some events.
             use piston::input::{

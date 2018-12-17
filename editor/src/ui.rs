@@ -128,10 +128,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         // Can do this at any time.
         if input.action_chosen("quit") {
-            self.save_editor_state();
-            self.cs.save();
-            info!("Saved color_scheme");
-            //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+            self.before_quit();
             process::exit(0);
         }
 
@@ -179,6 +176,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn dump_before_abort(&self) {
         self.state.dump_before_abort();
         self.save_editor_state();
+    }
+
+    fn before_quit(&self) {
+        self.save_editor_state();
+        self.cs.save();
+        info!("Saved color_scheme");
+        //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
     }
 }
 
