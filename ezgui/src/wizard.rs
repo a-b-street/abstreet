@@ -220,19 +220,29 @@ impl<'a> WrappedWizard<'a> {
             ));
         }
 
-        if let Some((choice, item)) = input_with_menu(
-            &mut self.wizard.menu,
-            &mut self.wizard.alive,
-            self.input,
-            self.canvas,
-        ) {
-            self.wizard
-                .confirmed_state
-                .push(Box::new((choice.to_string(), item.clone())));
-            let downcasted_item: &R = item.as_any().downcast_ref::<R>().unwrap();
-            Some((choice, downcasted_item.clone()))
-        } else {
-            None
+        assert!(self.wizard.alive);
+
+        // Otherwise, we try to use one event for two inputs potentially
+        if self.input.has_been_consumed() {
+            return None;
+        }
+
+        let ev = self.input.use_event_directly().unwrap();
+        match self.wizard.menu.as_mut().unwrap().event(ev, self.canvas) {
+            InputResult::Canceled => {
+                self.wizard.menu = None;
+                self.wizard.alive = false;
+                None
+            }
+            InputResult::StillActive => None,
+            InputResult::Done(choice, item) => {
+                self.wizard.menu = None;
+                self.wizard
+                    .confirmed_state
+                    .push(Box::new((choice.to_string(), item.clone())));
+                let downcasted_item: &R = item.as_any().downcast_ref::<R>().unwrap();
+                Some((choice, downcasted_item.clone()))
+            }
         }
     }
 
@@ -243,35 +253,5 @@ impl<'a> WrappedWizard<'a> {
             choices.into_iter().map(|s| (s.to_string(), ())).collect();
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)
-    }
-}
-
-// The caller initializes the menu, if needed. Pass in Option that must be Some().
-// Bit weird to be a free function, but need to borrow a different menu and also the alive bit.
-fn input_with_menu<T: Clone>(
-    menu: &mut Option<Menu<T>>,
-    alive: &mut bool,
-    input: &mut UserInput,
-    canvas: &Canvas,
-) -> Option<(String, T)> {
-    assert!(*alive);
-
-    // Otherwise, we try to use one event for two inputs potentially
-    if input.has_been_consumed() {
-        return None;
-    }
-
-    let ev = input.use_event_directly().unwrap();
-    match menu.as_mut().unwrap().event(ev, canvas) {
-        InputResult::Canceled => {
-            *menu = None;
-            *alive = false;
-            None
-        }
-        InputResult::StillActive => None,
-        InputResult::Done(name, poly) => {
-            *menu = None;
-            Some((name, poly))
-        }
     }
 }
