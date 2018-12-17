@@ -12,6 +12,8 @@ pub struct TopMenu {
 
     highlighted: Option<usize>,
     submenu: Option<(usize, Menu<Key>)>,
+    // Reset every round
+    pub(crate) valid_actions: HashSet<String>,
 }
 
 impl TopMenu {
@@ -57,6 +59,7 @@ impl TopMenu {
             txt,
             highlighted: None,
             submenu: None,
+            valid_actions: HashSet::new(),
         }
     }
 
@@ -80,13 +83,22 @@ impl TopMenu {
                     .unwrap_or(false)
             {
                 let f = &self.folders[idx];
+                // valid_actions can't change once this submenu is created, so determine what
+                // actions are valid right now.
                 self.submenu = Some((
                     idx,
                     Menu::new(
                         None,
                         f.actions
                             .iter()
-                            .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                            .map(|(key, action)| {
+                                (
+                                    Some(*key),
+                                    action.to_string(),
+                                    self.valid_actions.contains(action),
+                                    *key,
+                                )
+                            })
                             .collect(),
                         false,
                         Position::TopLeft(canvas.screen_to_map((f.rectangle.x1, f.rectangle.y2))),

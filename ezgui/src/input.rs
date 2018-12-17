@@ -41,7 +41,7 @@ impl ContextMenu {
                         None,
                         actions
                             .into_iter()
-                            .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
+                            .map(|(hotkey, action)| (Some(hotkey), action, true, hotkey))
                             .collect(),
                         false,
                         Position::TopLeft(origin),
@@ -114,6 +114,7 @@ impl UserInput {
                     input.chosen_action = Some(action);
                 }
             }
+            menu.valid_actions.clear();
         }
         input.top_menu = top_menu;
 
@@ -250,9 +251,10 @@ impl UserInput {
             return true;
         }
 
-        if let Some(ref menu) = self.top_menu {
-            if let Some(key) = menu.actions.get(action) {
-                self.unimportant_key_pressed(*key, action)
+        if let Some(ref mut menu) = self.top_menu {
+            if let Some(key) = menu.actions.get(action).cloned() {
+                menu.valid_actions.insert(action.to_string());
+                self.unimportant_key_pressed(key, action)
             } else {
                 panic!(
                     "action_chosen(\"{}\") doesn't match actions in the TopMenu!",

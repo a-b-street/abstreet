@@ -4,7 +4,8 @@ use geom::{Polygon, Pt2D};
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
     prompt: Option<String>,
-    choices: Vec<(Option<Key>, String, T)>,
+    // The bool is whether this choice is active or not
+    choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
 
     top_left: Pt2D,
@@ -20,7 +21,7 @@ pub enum Position {
 impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Option<String>,
-        choices: Vec<(Option<Key>, String, T)>,
+        choices: Vec<(Option<Key>, String, bool, T)>,
         select_first: bool,
         pos: Position,
         canvas: &Canvas,
@@ -34,7 +35,7 @@ impl<T: Clone> Menu<T> {
         if let Some(ref line) = prompt {
             txt.add_line(line.to_string());
         }
-        for (hotkey, choice, _) in &choices {
+        for (hotkey, choice, _, _) in &choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));
             } else {
@@ -73,8 +74,12 @@ impl<T: Clone> Menu<T> {
         // Handle the mouse
         if ev == Event::LeftMouseButtonDown {
             if let Some(i) = self.current_idx {
-                let (_, choice, data) = self.choices[i].clone();
-                return InputResult::Done(choice, data);
+                let (_, choice, active, data) = self.choices[i].clone();
+                if active {
+                    return InputResult::Done(choice, data);
+                } else {
+                    return InputResult::StillActive;
+                }
             } else {
                 return InputResult::Canceled;
             }
@@ -84,10 +89,11 @@ impl<T: Clone> Menu<T> {
             let cursor_pt = canvas.screen_to_map((x, y));
             let mut matched = false;
             for i in 0..self.choices.len() {
-                if self
-                    .first_choice_row
-                    .translate(0.0, (i as f64) * self.row_height)
-                    .contains_pt(cursor_pt)
+                if self.choices[i].2
+                    && self
+                        .first_choice_row
+                        .translate(0.0, (i as f64) * self.row_height)
+                        .contains_pt(cursor_pt)
                 {
                     self.current_idx = Some(i);
                     matched = true;
@@ -108,8 +114,12 @@ impl<T: Clone> Menu<T> {
         // TODO Disable arrow keys in context menus and the top menu?
         if let Some(idx) = self.current_idx {
             if ev == Event::KeyPress(Key::Enter) {
-                let (_, name, data) = self.choices[idx].clone();
-                return InputResult::Done(name, data);
+                let (_, name, active, data) = self.choices[idx].clone();
+                if active {
+                    return InputResult::Done(name, data);
+                } else {
+                    return InputResult::StillActive;
+                }
             } else if ev == Event::KeyPress(Key::UpArrow) {
                 if idx > 0 {
                     self.current_idx = Some(idx - 1);
@@ -133,17 +143,29 @@ impl<T: Clone> Menu<T> {
                 Some(text::TEXT_QUERY_COLOR),
             );
         }
-        for (idx, (hotkey, choice, _)) in self.choices.iter().enumerate() {
+        for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
                 Some(Color::WHITE)
             } else {
                 None
             };
-            if let Some(key) = hotkey {
-                txt.add_styled_line(key.describe(), Color::BLUE, bg);
-                txt.append(format!(" - {}", choice), text::TEXT_FG_COLOR, bg);
+            if *active {
+                if let Some(key) = hotkey {
+                    txt.add_styled_line(key.describe(), Color::BLUE, bg);
+                    txt.append(format!(" - {}", choice), text::TEXT_FG_COLOR, bg);
+                } else {
+                    txt.add_styled_line(choice.to_string(), text::TEXT_FG_COLOR, bg);
+                }
             } else {
-                txt.add_styled_line(choice.to_string(), text::TEXT_FG_COLOR, bg);
+                if let Some(key) = hotkey {
+                    txt.add_styled_line(
+                        format!("{} - {}", key.describe(), choice),
+                        Color::grey(0.8),
+                        bg,
+                    );
+                } else {
+                    txt.add_styled_line(format!("{}", choice), Color::grey(0.8), bg);
+                }
             }
         }
         canvas.draw_text_at_topleft(g, txt, self.top_left);
@@ -151,6 +173,6 @@ impl<T: Clone> Menu<T> {
 
     pub fn current_choice(&self) -> Option<&T> {
         let idx = self.current_idx?;
-        Some(&self.choices[idx].2)
+        Some(&self.choices[idx].3)
     }
 }

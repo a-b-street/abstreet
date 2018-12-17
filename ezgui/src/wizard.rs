@@ -208,9 +208,9 @@ impl<'a> WrappedWizard<'a> {
                 )]));
                 return None;
             }
-            let boxed_choices: Vec<(Option<Key>, String, Box<Cloneable>)> = choices
+            let boxed_choices: Vec<(Option<Key>, String, bool, Box<Cloneable>)> = choices
                 .iter()
-                .map(|(s, item)| (None, s.to_string(), item.clone_box()))
+                .map(|(s, item)| (None, s.to_string(), true, item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
                 Some(query.to_string()),
