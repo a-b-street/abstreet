@@ -42,7 +42,7 @@ impl Plugin for DrawNeighborhoodState {
 
         match self {
             DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
-                if let Some(n) = pick_neighborhood(map, wizard.wrap(input)) {
+                if let Some(n) = pick_neighborhood(map, wizard.wrap(input, ctx.canvas)) {
                     *self = DrawNeighborhoodState::EditNeighborhood(n, None);
                 } else if wizard.aborted() {
                     return false;

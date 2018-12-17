@@ -27,7 +27,9 @@ impl Plugin for ABTestManager {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             ABTestManager::PickABTest(ref mut wizard) => {
-                if let Some(ab_test) = pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input)) {
+                if let Some(ab_test) =
+                    pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input, ctx.canvas))
+                {
                     let scroller = LogScroller::new_from_lines(ab_test.describe());
                     *self = ABTestManager::ManageABTest(ab_test, scroller);
                 } else if wizard.aborted() {

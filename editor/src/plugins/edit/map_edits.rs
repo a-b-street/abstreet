@@ -32,7 +32,7 @@ impl Plugin for EditsManager {
             &ctx.primary.map,
             &mut new_primary,
             &ctx.canvas,
-            self.wizard.wrap(ctx.input),
+            self.wizard.wrap(ctx.input, ctx.canvas),
         )
         .is_some()
         {

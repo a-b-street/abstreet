@@ -4,7 +4,7 @@ use geom::{Polygon, Pt2D};
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
     prompt: Option<String>,
-    choices: Vec<(Key, String, T)>,
+    choices: Vec<(Option<Key>, String, T)>,
     current_idx: Option<usize>,
 
     origin: Pt2D,
@@ -15,7 +15,7 @@ pub struct Menu<T: Clone> {
 impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Option<String>,
-        choices: Vec<(Key, String, T)>,
+        choices: Vec<(Option<Key>, String, T)>,
         origin: Pt2D,
         canvas: &Canvas,
     ) -> Menu<T> {
@@ -27,7 +27,11 @@ impl<T: Clone> Menu<T> {
         let mut txt = Text::new();
         // TODO prompt
         for (hotkey, choice, _) in &choices {
-            txt.add_line(format!("{} - {}", hotkey.describe(), choice));
+            if let Some(key) = hotkey {
+                txt.add_line(format!("{} - {}", key.describe(), choice));
+            } else {
+                txt.add_line(choice.to_string());
+            }
         }
         let (screen_width, screen_height) = canvas.text_dims(&txt);
         // Once a menu is created, all other controls (like zooming) are disabled, so this value
@@ -113,8 +117,12 @@ impl<T: Clone> Menu<T> {
             } else {
                 None
             };
-            txt.add_styled_line(hotkey.describe(), Color::BLUE, bg);
-            txt.append(format!(" - {}", choice), text::TEXT_FG_COLOR, bg);
+            if let Some(key) = hotkey {
+                txt.add_styled_line(key.describe(), Color::BLUE, bg);
+                txt.append(format!(" - {}", choice), text::TEXT_FG_COLOR, bg);
+            } else {
+                txt.add_styled_line(choice.to_string(), text::TEXT_FG_COLOR, bg);
+            }
         }
         canvas.draw_text_at(g, txt, self.origin);
     }

@@ -31,7 +31,7 @@ impl Plugin for ScenarioManager {
 
         match self {
             ScenarioManager::PickScenario(ref mut wizard) => {
-                if let Some(scenario) = pick_scenario(map, wizard.wrap(input)) {
+                if let Some(scenario) = pick_scenario(map, wizard.wrap(input, ctx.canvas)) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     *self = ScenarioManager::ManageScenario(scenario, scroller);
                 } else if wizard.aborted() {
@@ -54,7 +54,7 @@ impl Plugin for ScenarioManager {
                 }
             }
             ScenarioManager::EditScenario(ref mut scenario, ref mut wizard) => {
-                if let Some(()) = edit_scenario(map, scenario, wizard.wrap(input)) {
+                if let Some(()) = edit_scenario(map, scenario, wizard.wrap(input, ctx.canvas)) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);

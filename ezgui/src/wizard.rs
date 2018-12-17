@@ -1,4 +1,5 @@
-use crate::{Canvas, GfxCtx, InputResult, LogScroller, ScrollingMenu, TextBox, UserInput};
+use crate::menu::Menu;
+use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, TextBox, UserInput};
 use abstutil::Cloneable;
 use log::warn;
 use std::collections::VecDeque;
@@ -6,7 +7,7 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<ScrollingMenu<Box<Cloneable>>>,
+    menu: Option<Menu<Box<Cloneable>>>,
     log_scroller: Option<LogScroller>,
 
     // In the order of queries made
@@ -36,13 +37,18 @@ impl Wizard {
         }
     }
 
-    pub fn wrap<'a>(&'a mut self, input: &'a mut UserInput) -> WrappedWizard<'a> {
+    pub fn wrap<'a>(
+        &'a mut self,
+        input: &'a mut UserInput,
+        canvas: &'a Canvas,
+    ) -> WrappedWizard<'a> {
         assert!(self.alive);
 
         let ready_results = VecDeque::from(self.confirmed_state.clone());
         WrappedWizard {
             wizard: self,
             input,
+            canvas,
             ready_results,
         }
     }
@@ -54,7 +60,7 @@ impl Wizard {
     // The caller can ask for any type at any time
     pub fn current_menu_choice<R: 'static + Cloneable>(&self) -> Option<&R> {
         if let Some(ref menu) = self.menu {
-            let item: &R = menu.current_choice().as_any().downcast_ref::<R>()?;
+            let item: &R = menu.current_choice()?.as_any().downcast_ref::<R>()?;
             return Some(item);
         }
         None
@@ -102,6 +108,7 @@ impl Wizard {
 pub struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
+    canvas: &'a Canvas,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<Cloneable>>,
@@ -201,16 +208,24 @@ impl<'a> WrappedWizard<'a> {
                 )]));
                 return None;
             }
-            let boxed_choices: Vec<(String, Box<Cloneable>)> = choices
+            let boxed_choices: Vec<(Option<Key>, String, Box<Cloneable>)> = choices
                 .iter()
-                .map(|(s, item)| (s.to_string(), item.clone_box()))
+                .map(|(s, item)| (None, s.to_string(), item.clone_box()))
                 .collect();
-            self.wizard.menu = Some(ScrollingMenu::new(query, boxed_choices));
+            self.wizard.menu = Some(Menu::new(
+                Some(query.to_string()),
+                boxed_choices,
+                self.canvas.center_to_map_pt(),
+                self.canvas,
+            ));
         }
 
-        if let Some((choice, item)) =
-            input_with_menu(&mut self.wizard.menu, &mut self.wizard.alive, self.input)
-        {
+        if let Some((choice, item)) = input_with_menu(
+            &mut self.wizard.menu,
+            &mut self.wizard.alive,
+            self.input,
+            self.canvas,
+        ) {
             self.wizard
                 .confirmed_state
                 .push(Box::new((choice.to_string(), item.clone())));
@@ -234,9 +249,10 @@ impl<'a> WrappedWizard<'a> {
 // The caller initializes the menu, if needed. Pass in Option that must be Some().
 // Bit weird to be a free function, but need to borrow a different menu and also the alive bit.
 fn input_with_menu<T: Clone>(
-    menu: &mut Option<ScrollingMenu<T>>,
+    menu: &mut Option<Menu<T>>,
     alive: &mut bool,
     input: &mut UserInput,
+    canvas: &Canvas,
 ) -> Option<(String, T)> {
     assert!(*alive);
 
@@ -245,7 +261,8 @@ fn input_with_menu<T: Clone>(
         return None;
     }
 
-    match menu.as_mut().unwrap().event(input) {
+    let ev = input.use_event_directly().unwrap();
+    match menu.as_mut().unwrap().event(ev, canvas) {
         InputResult::Canceled => {
             *menu = None;
             *alive = false;
