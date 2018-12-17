@@ -96,6 +96,10 @@ impl Text {
         });
     }
 
+    pub fn num_lines(&self) -> usize {
+        self.lines.len()
+    }
+
     pub(crate) fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }

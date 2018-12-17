@@ -26,7 +26,9 @@ impl<T: Clone> Menu<T> {
 
         // Calculate geometry.
         let mut txt = Text::new();
-        // TODO prompt
+        if let Some(ref line) = prompt {
+            txt.add_line(line.to_string());
+        }
         for (hotkey, choice, _) in &choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));
@@ -39,11 +41,14 @@ impl<T: Clone> Menu<T> {
         // stays true.
         let map_width = screen_width / canvas.cam_zoom;
         let map_height = screen_height / canvas.cam_zoom;
-        let top_left = Pt2D::new(
+        let mut top_left = Pt2D::new(
             origin.x() - (map_width / 2.0),
             origin.y() - (map_height / 2.0),
         );
-        let row_height = map_height / (choices.len() as f64);
+        let row_height = map_height / (txt.num_lines() as f64);
+        if prompt.is_some() {
+            top_left = top_left.offset(0.0, row_height);
+        }
 
         Menu {
             prompt,
@@ -110,7 +115,13 @@ impl<T: Clone> Menu<T> {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut txt = Text::new();
-        // TODO prompt using Some(text::TEXT_QUERY_COLOR)
+        if let Some(ref line) = self.prompt {
+            txt.add_styled_line(
+                line.to_string(),
+                text::TEXT_FG_COLOR,
+                Some(text::TEXT_QUERY_COLOR),
+            );
+        }
         for (idx, (hotkey, choice, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
                 Some(Color::WHITE)
