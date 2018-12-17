@@ -1,4 +1,4 @@
-use crate::menu::Menu;
+use crate::menu::{Menu, Position};
 use crate::{Canvas, Event, InputResult, Key, Text};
 use geom::Pt2D;
 use std::collections::{BTreeMap, HashMap};
@@ -40,7 +40,7 @@ impl ContextMenu {
                             .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
                             .collect(),
                         false,
-                        origin,
+                        Position::TopLeft(origin),
                         canvas,
                     ))
                 }

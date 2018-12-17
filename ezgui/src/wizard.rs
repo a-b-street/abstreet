@@ -1,4 +1,4 @@
-use crate::menu::Menu;
+use crate::menu::{Menu, Position};
 use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, TextBox, UserInput};
 use abstutil::Cloneable;
 use log::warn;
@@ -216,7 +216,7 @@ impl<'a> WrappedWizard<'a> {
                 Some(query.to_string()),
                 boxed_choices,
                 true,
-                self.canvas.center_to_map_pt(),
+                Position::CenteredAt(self.canvas.center_to_map_pt()),
                 self.canvas,
             ));
         }

@@ -109,6 +109,11 @@ impl Canvas {
         text::draw_text_bubble(g, glyphs, (x - (width / 2.0), y - (height / 2.0)), txt);
     }
 
+    pub fn draw_text_at_topleft(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
+        let (x, y) = self.map_to_screen(pt);
+        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), (x, y), txt);
+    }
+
     pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, (x, y): (f64, f64)) {
         text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), (x, y), txt);
     }

@@ -1,4 +1,4 @@
-use crate::menu::Menu;
+use crate::menu::{Menu, Position};
 use crate::text::LINE_HEIGHT;
 use crate::{Canvas, Color, GfxCtx, Key, Text, UserInput};
 use geom::{Polygon, Pt2D};
@@ -63,15 +63,15 @@ impl TopMenu {
         }
 
         if self.highlighted.is_some() && input.left_mouse_button_pressed() {
+            let f = &self.folders[self.highlighted.unwrap()];
             self.submenu = Some(Menu::new(
                 None,
-                self.folders[self.highlighted.unwrap()]
-                    .actions
+                f.actions
                     .iter()
                     .map(|(key, action)| (Some(*key), action.to_string(), *key))
                     .collect(),
                 false,
-                canvas.get_cursor_in_map_space(),
+                Position::TopLeft(canvas.screen_to_map((f.rectangle.x1, f.rectangle.y2))),
                 canvas,
             ));
         }

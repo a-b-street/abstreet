@@ -7,9 +7,14 @@ pub struct Menu<T: Clone> {
     choices: Vec<(Option<Key>, String, T)>,
     current_idx: Option<usize>,
 
-    origin: Pt2D,
+    top_left: Pt2D,
     first_choice_row: Polygon,
     row_height: f64,
+}
+
+pub enum Position {
+    CenteredAt(Pt2D),
+    TopLeft(Pt2D),
 }
 
 impl<T: Clone> Menu<T> {
@@ -17,7 +22,7 @@ impl<T: Clone> Menu<T> {
         prompt: Option<String>,
         choices: Vec<(Option<Key>, String, T)>,
         select_first: bool,
-        origin: Pt2D,
+        pos: Position,
         canvas: &Canvas,
     ) -> Menu<T> {
         if choices.is_empty() {
@@ -41,20 +46,24 @@ impl<T: Clone> Menu<T> {
         // stays true.
         let map_width = screen_width / canvas.cam_zoom;
         let map_height = screen_height / canvas.cam_zoom;
-        let mut top_left = Pt2D::new(
-            origin.x() - (map_width / 2.0),
-            origin.y() - (map_height / 2.0),
-        );
         let row_height = map_height / (txt.num_lines() as f64);
-        if prompt.is_some() {
-            top_left = top_left.offset(0.0, row_height);
-        }
+        let top_left = match pos {
+            Position::TopLeft(pt) => pt,
+            Position::CenteredAt(at) => {
+                let pt = Pt2D::new(at.x() - (map_width / 2.0), at.y() - (map_height / 2.0));
+                if prompt.is_some() {
+                    pt.offset(0.0, row_height)
+                } else {
+                    pt
+                }
+            }
+        };
 
         Menu {
             prompt,
             choices,
             current_idx: if select_first { Some(0) } else { None },
-            origin,
+            top_left,
             first_choice_row: Polygon::rectangle_topleft(top_left, map_width, row_height),
             row_height,
         }
@@ -135,7 +144,7 @@ impl<T: Clone> Menu<T> {
                 txt.add_styled_line(choice.to_string(), text::TEXT_FG_COLOR, bg);
             }
         }
-        canvas.draw_text_at(g, txt, self.origin);
+        canvas.draw_text_at_topleft(g, txt, self.top_left);
     }
 
     pub fn current_choice(&self) -> Option<&T> {

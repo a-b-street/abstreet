@@ -204,7 +204,7 @@ impl Key {
             Key::DownArrow => "Down arrow key".to_string(),
             // These have to_char, but override here
             Key::Space => "Space".to_string(),
-            _ => self.to_char(true).unwrap().to_string(),
+            _ => self.to_char(false).unwrap().to_string(),
         }
     }
 
