@@ -8,8 +8,8 @@ pub enum SearchState {
 }
 
 impl SearchState {
-    pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<SearchState> {
-        if ctx.input.unimportant_key_pressed(key, "start searching") {
+    pub fn new(ctx: &mut PluginCtx) -> Option<SearchState> {
+        if ctx.input.action_chosen("start searching") {
             return Some(SearchState::EnteringSearch(TextBox::new(
                 "Search for what?",
                 None,

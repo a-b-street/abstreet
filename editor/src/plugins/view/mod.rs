@@ -27,18 +27,12 @@ impl ViewMode {
             warp: None,
             search: None,
             ambient_plugins: vec![
-                Box::new(debug_objects::DebugObjectsState::new(
-                    Key::LeftControl,
-                    Key::D,
-                )),
+                Box::new(debug_objects::DebugObjectsState::new()),
                 Box::new(follow::FollowState::new(Key::F)),
                 Box::new(neighborhood_summary::NeighborhoodSummary::new(
-                    Key::Z,
-                    map,
-                    draw_map,
-                    timer,
+                    map, draw_map, timer,
                 )),
-                Box::new(show_activity::ShowActivityState::new(Key::A)),
+                Box::new(show_activity::ShowActivityState::new()),
                 Box::new(show_associated::ShowAssociatedState::new()),
                 Box::new(show_route::ShowRouteState::new(Key::R, Key::L)),
                 Box::new(turn_cycler::TurnCyclerState::new(Key::Tab)),
@@ -56,7 +50,7 @@ impl Plugin for ViewMode {
                 self.warp = None;
                 return false;
             }
-        } else if let Some(p) = warp::WarpState::new(Key::J, ctx) {
+        } else if let Some(p) = warp::WarpState::new(ctx) {
             self.warp = Some(Box::new(p));
             return true;
         }
@@ -70,7 +64,7 @@ impl Plugin for ViewMode {
                 self.search = None;
                 return false;
             }
-        } else if let Some(p) = search::SearchState::new(Key::Slash, ctx) {
+        } else if let Some(p) = search::SearchState::new(ctx) {
             self.search = Some(p);
             return true;
         }

@@ -6,10 +6,7 @@ pub struct OsmClassifier {}
 
 impl OsmClassifier {
     pub fn new(ctx: &mut PluginCtx) -> Option<OsmClassifier> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::Num6, "show OSM colors")
-        {
+        if ctx.input.action_chosen("show OSM colors") {
             return Some(OsmClassifier {});
         }
         None

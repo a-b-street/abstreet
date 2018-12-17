@@ -15,10 +15,7 @@ pub struct ChokepointsFinder {
 
 impl ChokepointsFinder {
     pub fn new(ctx: &mut PluginCtx) -> Option<ChokepointsFinder> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::C, "find chokepoints of current sim")
-        {
+        if ctx.input.action_chosen("find chokepoints of current sim") {
             return Some(find_chokepoints(&ctx.primary.sim));
         }
         None

@@ -80,10 +80,7 @@ impl Plugin for TimeTravel {
             } else if ctx.input.key_pressed(Key::Enter, "exit time traveler") {
                 self.current_tick = None;
             }
-        } else if ctx
-            .input
-            .unimportant_key_pressed(Key::T, "start time traveling")
-        {
+        } else if ctx.input.action_chosen("start time traveling") {
             self.current_tick = Some(ctx.primary.sim.time);
         }
 

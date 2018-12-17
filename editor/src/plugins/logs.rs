@@ -1,7 +1,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::format_log_record;
-use ezgui::{GfxCtx, Key, LogScroller};
+use ezgui::{GfxCtx, LogScroller};
 use lazy_static::lazy_static;
 use log::{set_logger, set_max_level, LevelFilter, Log, Metadata, Record};
 use std::sync::{Mutex, Once};
@@ -31,7 +31,7 @@ impl DisplayLogs {
 impl Plugin for DisplayLogs {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if !self.active {
-            if ctx.input.unimportant_key_pressed(Key::Comma, "show logs") {
+            if ctx.input.action_chosen("show logs") {
                 self.active = true;
                 return true;
             } else {

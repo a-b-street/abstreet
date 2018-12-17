@@ -4,7 +4,7 @@
 
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, Key};
+use ezgui::Color;
 use map_model::Map;
 use std::f64;
 
@@ -43,7 +43,7 @@ impl Plugin for SteepnessVisualizer {
         } else {
             "visualize steepness"
         };
-        if ctx.input.unimportant_key_pressed(Key::Num5, msg) {
+        if ctx.input.action_chosen(msg) {
             self.active = !self.active;
         }
         self.active

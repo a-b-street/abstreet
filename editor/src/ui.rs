@@ -127,7 +127,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         }
 
         // Can do this at any time.
-        if input.unimportant_key_pressed(Key::Escape, "quit") {
+        if input.action_chosen("quit") {
             self.save_editor_state();
             self.cs.save();
             info!("Saved color_scheme");

@@ -35,17 +35,11 @@ impl SimControls {
 
 impl Plugin for SimControls {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::LeftBracket, "slow down sim")
-        {
+        if ctx.input.action_chosen("slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
         }
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::RightBracket, "speed up sim")
-        {
+        if ctx.input.action_chosen("speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
 
@@ -67,16 +61,13 @@ impl Plugin for SimControls {
 
         match self.state {
             State::Paused => {
-                if ctx.input.unimportant_key_pressed(Key::O, "save sim state") {
+                if ctx.input.action_chosen("save sim state") {
                     ctx.primary.sim.save();
                     if let Some((s, _)) = ctx.secondary {
                         s.sim.save();
                     }
                 }
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::Y, "load previous sim state")
-                {
+                if ctx.input.action_chosen("load previous sim state") {
                     match ctx
                         .primary
                         .sim
@@ -100,10 +91,7 @@ impl Plugin for SimControls {
                         Err(e) => error!("Couldn't load savestate: {}", e),
                     };
                 }
-                if ctx
-                    .input
-                    .unimportant_key_pressed(Key::U, "load next sim state")
-                {
+                if ctx.input.action_chosen("load next sim state") {
                     match ctx
                         .primary
                         .sim
@@ -127,22 +115,19 @@ impl Plugin for SimControls {
                 }
 
                 // Interactively spawning stuff would ruin an A/B test, don't allow it
-                if ctx.primary.sim.is_empty()
-                    && ctx
-                        .input
-                        .unimportant_key_pressed(Key::S, "Seed the map with agents")
+                if ctx.primary.sim.is_empty() && ctx.input.action_chosen("Seed the map with agents")
                 {
                     ctx.primary.sim.small_spawn(&ctx.primary.map);
                     *ctx.recalculate_current_selection = true;
                 }
 
-                if ctx.input.unimportant_key_pressed(Key::Space, "run sim") {
+                if ctx.input.action_chosen("run sim") {
                     self.state = State::Running {
                         last_step: Instant::now(),
                         benchmark: ctx.primary.sim.start_benchmark(),
                         speed: "running".to_string(),
                     };
-                } else if ctx.input.unimportant_key_pressed(Key::M, "run one step") {
+                } else if ctx.input.action_chosen("run one step") {
                     let tick = ctx.primary.sim.time;
                     let events = ctx.primary.sim.step(&ctx.primary.map);
                     self.primary_events = Some((tick, events));
@@ -158,7 +143,7 @@ impl Plugin for SimControls {
                 ref mut benchmark,
                 ref mut speed,
             } => {
-                if ctx.input.unimportant_key_pressed(Key::Space, "pause sim") {
+                if ctx.input.action_chosen("pause sim") {
                     self.state = State::Paused;
                 } else {
                     ctx.hints.mode = EventLoopMode::Animation;

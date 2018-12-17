@@ -18,7 +18,7 @@ impl Hider {
     }
 
     pub fn event(&mut self, input: &mut UserInput, selected: Option<ID>) -> bool {
-        if input.unimportant_key_pressed(Key::K, "unhide everything") {
+        if input.action_chosen("unhide everything") {
             info!("Unhiding {} things", self.items.len());
             self.items.clear();
             return true;

@@ -15,10 +15,7 @@ pub enum ScenarioManager {
 
 impl ScenarioManager {
     pub fn new(ctx: &mut PluginCtx) -> Option<ScenarioManager> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::W, "manage scenarios")
-        {
+        if ctx.input.action_chosen("manage scenarios") {
             return Some(ScenarioManager::PickScenario(Wizard::new()));
         }
         None

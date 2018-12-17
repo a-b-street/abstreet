@@ -1,7 +1,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ezgui::{Canvas, GfxCtx, Key, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::SimFlags;
 
@@ -11,10 +11,7 @@ pub struct EditsManager {
 
 impl EditsManager {
     pub fn new(ctx: &mut PluginCtx) -> Option<EditsManager> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::Q, "manage map edits")
-        {
+        if ctx.input.action_chosen("manage map edits") {
             return Some(EditsManager {
                 wizard: Wizard::new(),
             });

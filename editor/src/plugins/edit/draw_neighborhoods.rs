@@ -17,10 +17,7 @@ pub enum DrawNeighborhoodState {
 
 impl DrawNeighborhoodState {
     pub fn new(ctx: &mut PluginCtx) -> Option<DrawNeighborhoodState> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::N, "start drawing a neighborhood")
-        {
+        if ctx.input.action_chosen("start drawing a neighborhood") {
             return Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
         }
         None

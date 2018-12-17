@@ -21,7 +21,7 @@ impl SimMode {
         SimMode {
             diff_plugin: None,
             ambient_plugins: vec![
-                Box::new(show_score::ShowScoreState::new(Key::Dot)),
+                Box::new(show_score::ShowScoreState::new()),
                 Box::new(controls::SimControls::new()),
             ],
         }

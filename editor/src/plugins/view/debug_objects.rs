@@ -6,18 +6,13 @@ use std::collections::BTreeMap;
 pub struct DebugObjectsState {
     tooltip_key_held: bool,
     selected: Option<ID>,
-
-    tooltip_key: Key,
-    debug_key: Key,
 }
 
 impl DebugObjectsState {
-    pub fn new(tooltip_key: Key, debug_key: Key) -> DebugObjectsState {
+    pub fn new() -> DebugObjectsState {
         DebugObjectsState {
             tooltip_key_held: false,
             selected: None,
-            tooltip_key,
-            debug_key,
         }
     }
 }
@@ -26,17 +21,17 @@ impl Plugin for DebugObjectsState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         self.selected = ctx.primary.current_selection;
         if self.tooltip_key_held {
-            self.tooltip_key_held = !ctx.input.key_released(self.tooltip_key);
+            self.tooltip_key_held = !ctx.input.key_released(Key::LeftControl);
         } else {
             // TODO Can't really display an OSD action if we're not currently selecting something.
             // Could only activate sometimes, but that seems a bit harder to use.
             self.tooltip_key_held = ctx
                 .input
-                .unimportant_key_pressed(self.tooltip_key, "hold Ctrl to show tooltips");
+                .unimportant_key_pressed(Key::LeftControl, "hold Ctrl to show tooltips");
         }
 
         if let Some(id) = self.selected {
-            if ctx.input.contextual_action(self.debug_key, "debug") {
+            if ctx.input.contextual_action(Key::D, "debug") {
                 id.debug(
                     &ctx.primary.map,
                     &mut ctx.primary.sim,

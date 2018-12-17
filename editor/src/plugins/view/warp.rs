@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
-use ezgui::{EventLoopMode, GfxCtx, InputResult, Key, TextBox};
+use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use sim::{CarID, PedestrianID, Sim, TripID};
@@ -18,10 +18,10 @@ pub enum WarpState {
 }
 
 impl WarpState {
-    pub fn new(key: Key, ctx: &mut PluginCtx) -> Option<WarpState> {
+    pub fn new(ctx: &mut PluginCtx) -> Option<WarpState> {
         if ctx
             .input
-            .unimportant_key_pressed(key, "start searching for something to warp to")
+            .action_chosen("start searching for something to warp to")
         {
             return Some(WarpState::EnteringSearch(TextBox::new(
                 "Warp to what?",

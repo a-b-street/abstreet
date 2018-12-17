@@ -3,57 +3,46 @@ use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text, TOP_RIGHT};
 use sim::{ScoreSummary, Tick};
 
-pub struct ShowScoreState {
-    key: Key,
-    state: State,
-}
-
-enum State {
+pub enum ShowScoreState {
     Inactive,
     Active(Tick, Text),
 }
 
 impl ShowScoreState {
-    pub fn new(key: Key) -> ShowScoreState {
-        ShowScoreState {
-            key,
-            state: State::Inactive,
-        }
+    pub fn new() -> ShowScoreState {
+        ShowScoreState::Inactive
     }
 }
 
 impl Plugin for ShowScoreState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        match self.state {
-            State::Inactive => {
-                if ctx
-                    .input
-                    .unimportant_key_pressed(self.key, "Show the sim info sidepanel")
-                {
-                    self.state = panel(ctx);
+        match self {
+            ShowScoreState::Inactive => {
+                if ctx.input.action_chosen("Show the sim info sidepanel") {
+                    *self = panel(ctx);
                 }
             }
-            State::Active(last_tick, _) => {
+            ShowScoreState::Active(last_tick, _) => {
                 if ctx
                     .input
-                    .key_pressed(self.key, "Hide the sim info sidepanel")
+                    .key_pressed(Key::Dot, "Hide the sim info sidepanel")
                 {
-                    self.state = State::Inactive;
-                } else if last_tick != ctx.primary.sim.time {
-                    self.state = panel(ctx);
+                    *self = ShowScoreState::Inactive;
+                } else if *last_tick != ctx.primary.sim.time {
+                    *self = panel(ctx);
                 }
             }
         }
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        if let State::Active(_, ref text) = self.state {
+        if let ShowScoreState::Active(_, ref text) = self {
             ctx.canvas.draw_text(g, text.clone(), TOP_RIGHT);
         }
     }
 }
 
-fn panel(ctx: &mut PluginCtx) -> State {
+fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
     let mut txt = Text::new();
     if let Some((s, _)) = ctx.secondary {
         // TODO More coloring
@@ -65,7 +54,7 @@ fn panel(ctx: &mut PluginCtx) -> State {
     } else {
         summarize(&mut txt, ctx.primary.sim.get_score());
     }
-    State::Active(ctx.primary.sim.time, txt)
+    ShowScoreState::Active(ctx.primary.sim.time, txt)
 }
 
 fn summarize(txt: &mut Text, summary: ScoreSummary) {

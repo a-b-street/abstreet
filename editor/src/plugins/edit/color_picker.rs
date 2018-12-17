@@ -20,10 +20,7 @@ pub enum ColorPicker {
 
 impl ColorPicker {
     pub fn new(ctx: &mut PluginCtx) -> Option<ColorPicker> {
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::Num8, "configure colors")
-        {
+        if ctx.input.action_chosen("configure colors") {
             return Some(ColorPicker::Choosing(ScrollingMenu::new(
                 "Pick a color to change",
                 ctx.cs.color_names(),
