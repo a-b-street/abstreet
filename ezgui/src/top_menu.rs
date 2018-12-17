@@ -1,3 +1,4 @@
+use crate::menu::Menu;
 use crate::text::LINE_HEIGHT;
 use crate::{Canvas, Color, GfxCtx, Key, Text, UserInput};
 use geom::{Polygon, Pt2D};
@@ -9,6 +10,7 @@ pub struct TopMenu {
     txt: Text,
 
     highlighted: Option<usize>,
+    submenu: Option<Menu<Key>>,
 }
 
 impl TopMenu {
@@ -46,16 +48,32 @@ impl TopMenu {
             folders,
             txt,
             highlighted: None,
+            submenu: None,
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) {
+    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) {
         if let Some(cursor) = input.get_moved_mouse() {
             // TODO Could quickly filter out by checking y
             self.highlighted = self
                 .folders
                 .iter()
                 .position(|f| f.rectangle.contains(cursor));
+            return;
+        }
+
+        if self.highlighted.is_some() && input.left_mouse_button_pressed() {
+            self.submenu = Some(Menu::new(
+                None,
+                self.folders[self.highlighted.unwrap()]
+                    .actions
+                    .iter()
+                    .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                    .collect(),
+                false,
+                canvas.get_cursor_in_map_space(),
+                canvas,
+            ));
         }
     }
 
@@ -80,6 +98,10 @@ impl TopMenu {
         g.unfork(old_ctx);
 
         canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), (0.0, 0.0));
+
+        if let Some(ref menu) = self.submenu {
+            menu.draw(g, canvas);
+        }
     }
 }
 

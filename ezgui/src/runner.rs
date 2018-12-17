@@ -90,7 +90,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 gui.get_mut_canvas(),
             );
             if let Some(ref mut menu) = top_menu {
-                menu.event(&mut input);
+                menu.event(&mut input, gui.get_mut_canvas());
             }
             let (new_event_mode, data) =
                 match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
