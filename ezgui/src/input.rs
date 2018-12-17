@@ -249,16 +249,19 @@ impl UserInput {
             self.chosen_action = None;
             return true;
         }
-        if !self
-            .top_menu
-            .as_ref()
-            .map(|m| m.valid_actions.contains(action))
-            .unwrap_or(false)
-        {
-            // TODO Panic
-            println!("action_chosen(\"{}\") doesn't match the TopMenu!", action);
+
+        if let Some(ref menu) = self.top_menu {
+            if let Some(key) = menu.actions.get(action) {
+                self.unimportant_key_pressed(*key, action)
+            } else {
+                panic!(
+                    "action_chosen(\"{}\") doesn't match actions in the TopMenu!",
+                    action
+                );
+            }
+        } else {
+            panic!("action_chosen(\"{}\") without a TopMenu defined!", action);
         }
-        false
     }
 
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {

@@ -2,11 +2,11 @@ use crate::menu::{Menu, Position};
 use crate::text::LINE_HEIGHT;
 use crate::{Canvas, Color, GfxCtx, InputResult, Key, Text, UserInput};
 use geom::{Polygon, Pt2D};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 pub struct TopMenu {
     folders: Vec<Folder>,
-    pub(crate) valid_actions: HashSet<String>,
+    pub(crate) actions: HashMap<String, Key>,
 
     txt: Text,
 
@@ -17,7 +17,7 @@ pub struct TopMenu {
 impl TopMenu {
     pub fn new(mut folders: Vec<Folder>, canvas: &Canvas) -> TopMenu {
         let mut keys: HashSet<Key> = HashSet::new();
-        let mut actions: HashSet<String> = HashSet::new();
+        let mut actions: HashMap<String, Key> = HashMap::new();
         for f in &folders {
             for (key, action) in &f.actions {
                 if keys.contains(key) {
@@ -25,10 +25,10 @@ impl TopMenu {
                 }
                 keys.insert(*key);
 
-                if actions.contains(action) {
+                if actions.contains_key(action) {
                     panic!("TopMenu assigns \"{:?}\" twice", action);
                 }
-                actions.insert(action.to_string());
+                actions.insert(action.to_string(), *key);
             }
         }
 
@@ -53,7 +53,7 @@ impl TopMenu {
 
         TopMenu {
             folders,
-            valid_actions: actions,
+            actions,
             txt,
             highlighted: None,
             submenu: None,
