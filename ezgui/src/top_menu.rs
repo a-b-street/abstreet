@@ -16,12 +16,18 @@ pub struct TopMenu {
 impl TopMenu {
     pub fn new(mut folders: Vec<Folder>, canvas: &Canvas) -> TopMenu {
         let mut keys: HashSet<Key> = HashSet::new();
+        let mut actions: HashSet<String> = HashSet::new();
         for f in &folders {
-            for (key, _) in &f.actions {
+            for (key, action) in &f.actions {
                 if keys.contains(key) {
                     panic!("TopMenu uses {:?} twice", key);
                 }
                 keys.insert(*key);
+
+                if actions.contains(action) {
+                    panic!("TopMenu assigns \"{:?}\" twice", action);
+                }
+                actions.insert(action.to_string());
             }
         }
 
@@ -52,7 +58,9 @@ impl TopMenu {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) {
+    // Canceled means the top menu isn't blocking input, still active means it is, and done means
+    // something was clicked!
+    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> InputResult<Key> {
         if let Some(cursor) = input.get_moved_mouse() {
             // TODO Could quickly filter out by checking y
             self.highlighted = self
@@ -83,7 +91,7 @@ impl TopMenu {
                         canvas,
                     ),
                 ));
-                return;
+                return InputResult::StillActive;
             }
         }
 
@@ -95,14 +103,17 @@ impl TopMenu {
                         self.submenu = None;
                         self.highlighted = None;
                     }
-                    InputResult::Done(_, key) => {
-                        println!("submenu finished with {:?}", key);
+                    InputResult::Done(action, key) => {
                         self.submenu = None;
                         self.highlighted = None;
+                        return InputResult::Done(action, key);
                     }
                 };
             }
+            return InputResult::StillActive;
         }
+
+        InputResult::Canceled
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {

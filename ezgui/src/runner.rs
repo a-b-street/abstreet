@@ -87,11 +87,9 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
             let mut input = UserInput::new(
                 Event::from_piston_event(ev),
                 context_menu,
+                &mut top_menu,
                 gui.get_mut_canvas(),
             );
-            if let Some(ref mut menu) = top_menu {
-                menu.event(&mut input, gui.get_mut_canvas());
-            }
             let (new_event_mode, data) =
                 match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
                     Ok(pair) => pair,
@@ -102,6 +100,12 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                 };
             last_data = Some(data);
             context_menu = input.context_menu.maybe_build(gui.get_mut_canvas());
+            if let Some(action) = input.chosen_action {
+                panic!(
+                    "\"{}\" chosen from the top menu, but nothing consumed it",
+                    action
+                );
+            }
 
             // Don't constantly reset the events struct -- only when laziness changes.
             if new_event_mode != last_event_mode {

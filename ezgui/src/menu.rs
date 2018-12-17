@@ -78,6 +78,8 @@ impl<T: Clone> Menu<T> {
             } else {
                 return InputResult::Canceled;
             }
+        } else if ev == Event::RightMouseButtonDown {
+            return InputResult::Canceled;
         } else if let Event::MouseMovedTo(x, y) = ev {
             let cursor_pt = canvas.screen_to_map((x, y));
             let mut matched = false;

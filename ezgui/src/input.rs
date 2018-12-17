@@ -1,4 +1,5 @@
 use crate::menu::{Menu, Position};
+use crate::top_menu::TopMenu;
 use crate::{Canvas, Event, InputResult, Key, Text};
 use geom::Pt2D;
 use std::collections::{BTreeMap, HashMap};
@@ -17,6 +18,8 @@ pub struct UserInput {
     // TODO This is hacky, but if we consume_event in things like get_moved_mouse, then canvas
     // dragging and UI mouseover become mutex. :\
     pub(crate) context_menu: ContextMenu,
+
+    pub(crate) chosen_action: Option<String>,
 }
 
 pub enum ContextMenu {
@@ -51,7 +54,12 @@ impl ContextMenu {
 }
 
 impl UserInput {
-    pub(crate) fn new(event: Event, context_menu: ContextMenu, canvas: &Canvas) -> UserInput {
+    pub(crate) fn new(
+        event: Event,
+        context_menu: ContextMenu,
+        top_menu: &mut Option<TopMenu>,
+        canvas: &Canvas,
+    ) -> UserInput {
         let mut input = UserInput {
             event,
             event_consumed: false,
@@ -59,31 +67,48 @@ impl UserInput {
             important_actions: Vec::new(),
             context_menu,
             reserved_keys: HashMap::new(),
+            chosen_action: None,
         };
 
-        // Create the context menu here, even if one already existed.
-        if input.right_mouse_button_pressed() {
-            input.event_consumed = true;
-            input.context_menu =
-                ContextMenu::Building(canvas.get_cursor_in_map_space(), BTreeMap::new());
-        } else {
-            match input.context_menu {
-                ContextMenu::Inactive => {}
-                ContextMenu::Displaying(ref mut menu) => {
-                    // Can't call consume_event() because context_menu is borrowed.
-                    input.event_consumed = true;
-                    match menu.event(input.event, canvas) {
-                        InputResult::Canceled => {
-                            input.context_menu = ContextMenu::Inactive;
-                        }
-                        InputResult::StillActive => {}
-                        InputResult::Done(_, hotkey) => {
-                            input.context_menu = ContextMenu::Clicked(hotkey);
+        if let Some(ref mut menu) = top_menu {
+            match menu.event(&mut input, canvas) {
+                // Keep going; the input hasn't been consumed.
+                InputResult::Canceled => {
+                    // Create the context menu here, even if one already existed.
+                    if input.right_mouse_button_pressed() {
+                        assert!(!input.event_consumed);
+                        input.event_consumed = true;
+                        input.context_menu = ContextMenu::Building(
+                            canvas.get_cursor_in_map_space(),
+                            BTreeMap::new(),
+                        );
+                    } else {
+                        match input.context_menu {
+                            ContextMenu::Inactive => {}
+                            ContextMenu::Displaying(ref mut menu) => {
+                                // Can't call consume_event() because context_menu is borrowed.
+                                assert!(!input.event_consumed);
+                                input.event_consumed = true;
+                                match menu.event(input.event, canvas) {
+                                    InputResult::Canceled => {
+                                        input.context_menu = ContextMenu::Inactive;
+                                    }
+                                    InputResult::StillActive => {}
+                                    InputResult::Done(_, hotkey) => {
+                                        input.context_menu = ContextMenu::Clicked(hotkey);
+                                    }
+                                }
+                            }
+                            ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
+                                panic!("UserInput::new given a ContextMenu in an impossible state");
+                            }
                         }
                     }
                 }
-                ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
-                    panic!("UserInput::new given a ContextMenu in an impossible state");
+                // The context menu can't coexist.
+                InputResult::StillActive => {}
+                InputResult::Done(action, _) => {
+                    input.chosen_action = Some(action);
                 }
             }
         }
@@ -211,6 +236,14 @@ impl UserInput {
                     return true;
                 }
             }
+        }
+        false
+    }
+
+    pub fn action_chosen(&mut self, action: &str) -> bool {
+        if self.chosen_action == Some(action.to_string()) {
+            self.chosen_action = None;
+            return true;
         }
         false
     }
