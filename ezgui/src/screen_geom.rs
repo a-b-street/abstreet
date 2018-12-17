@@ -21,4 +21,13 @@ impl ScreenRectangle {
     pub fn contains(&self, pt: ScreenPt) -> bool {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }
+
+    pub fn translate(&self, dx: f64, dy: f64) -> ScreenRectangle {
+        ScreenRectangle {
+            x1: self.x1 + dx,
+            y1: self.y1 + dy,
+            x2: self.x2 + dx,
+            y2: self.y2 + dy,
+        }
+    }
 }

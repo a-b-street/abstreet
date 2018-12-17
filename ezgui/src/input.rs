@@ -1,7 +1,6 @@
 use crate::menu::{Menu, Position};
 use crate::top_menu::TopMenu;
 use crate::{Canvas, Event, InputResult, Key, ScreenPt, Text};
-use geom::Pt2D;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -30,7 +29,7 @@ pub struct UserInput {
 
 pub enum ContextMenu {
     Inactive,
-    Building(Pt2D, BTreeMap<Key, String>),
+    Building(ScreenPt, BTreeMap<Key, String>),
     Displaying(Menu<Key>),
     Clicked(Key),
 }
@@ -49,7 +48,7 @@ impl ContextMenu {
                             .map(|(hotkey, action)| (Some(hotkey), action, true, hotkey))
                             .collect(),
                         false,
-                        Position::TopLeft(origin),
+                        Position::TopLeftAt(origin),
                         canvas,
                     ))
                 }
@@ -89,7 +88,7 @@ impl UserInput {
                         assert!(!input.event_consumed);
                         input.event_consumed = true;
                         input.context_menu = ContextMenu::Building(
-                            canvas.get_cursor_in_map_space(),
+                            canvas.get_cursor_in_screen_space(),
                             BTreeMap::new(),
                         );
                     } else {
@@ -101,7 +100,7 @@ impl UserInput {
                                 // Can't call consume_event() because context_menu is borrowed.
                                 assert!(!input.event_consumed);
                                 input.event_consumed = true;
-                                match menu.event(input.event, canvas) {
+                                match menu.event(input.event) {
                                     InputResult::Canceled => {
                                         input.context_menu = ContextMenu::Inactive;
                                     }

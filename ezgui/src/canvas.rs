@@ -74,7 +74,7 @@ impl Canvas {
             }
         }
         if input.left_mouse_button_pressed() {
-            self.left_mouse_drag_from = Some(ScreenPt::new(self.cursor_x, self.cursor_y));
+            self.left_mouse_drag_from = Some(self.get_cursor_in_screen_space());
         }
         if input.left_mouse_button_released() {
             self.left_mouse_drag_from = None;
@@ -167,8 +167,12 @@ impl Canvas {
         self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
     }
 
+    pub fn get_cursor_in_screen_space(&self) -> ScreenPt {
+        ScreenPt::new(self.cursor_x, self.cursor_y)
+    }
+
     pub fn get_cursor_in_map_space(&self) -> Pt2D {
-        self.screen_to_map(ScreenPt::new(self.cursor_x, self.cursor_y))
+        self.screen_to_map(self.get_cursor_in_screen_space())
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {
@@ -178,11 +182,15 @@ impl Canvas {
         )
     }
 
-    pub fn center_to_map_pt(&self) -> Pt2D {
-        self.screen_to_map(ScreenPt::new(
+    pub fn center_to_screen_pt(&self) -> ScreenPt {
+        ScreenPt::new(
             f64::from(self.window_size.width) / 2.0,
             f64::from(self.window_size.height) / 2.0,
-        ))
+        )
+    }
+
+    pub fn center_to_map_pt(&self) -> Pt2D {
+        self.screen_to_map(self.center_to_screen_pt())
     }
 
     pub fn center_on_map_pt(&mut self, pt: Pt2D) {

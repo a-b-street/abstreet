@@ -1,6 +1,6 @@
+use crate::screen_geom::ScreenRectangle;
 use crate::text::LINE_HEIGHT;
 use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
-use geom::{Polygon, Pt2D};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -9,14 +9,14 @@ pub struct Menu<T: Clone> {
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
 
-    top_left: Pt2D,
-    first_choice_row: Polygon,
+    top_left: ScreenPt,
+    first_choice_row: ScreenRectangle,
     row_height: f64,
 }
 
 pub enum Position {
-    CenteredAt(Pt2D),
-    TopLeft(Pt2D),
+    ScreenCenter,
+    TopLeftAt(ScreenPt),
     TopRightOfScreen,
 }
 
@@ -44,40 +44,46 @@ impl<T: Clone> Menu<T> {
                 txt.add_line(choice.to_string());
             }
         }
-        let (screen_width, screen_height) = canvas.text_dims(&txt);
-        // Once a menu is created, all other controls (like zooming) are disabled, so this value
-        // stays true.
-        let map_width = screen_width / canvas.cam_zoom;
-        let map_height = screen_height / canvas.cam_zoom;
-        let row_height = map_height / (txt.num_lines() as f64);
+        let (total_width, total_height) = canvas.text_dims(&txt);
+        let row_height = total_height / (txt.num_lines() as f64);
         let top_left = match pos {
-            Position::TopLeft(pt) => pt,
-            Position::CenteredAt(at) => {
-                let pt = Pt2D::new(at.x() - (map_width / 2.0), at.y() - (map_height / 2.0));
-                if prompt.is_some() {
-                    pt.offset(0.0, row_height)
-                } else {
-                    pt
-                }
+            Position::TopLeftAt(pt) => pt,
+            Position::ScreenCenter => {
+                let mut pt = canvas.center_to_screen_pt();
+                pt.x -= total_width / 2.0;
+                pt.y -= total_height / 2.0;
+                pt
             }
             Position::TopRightOfScreen => {
-                let map_screen_edge = canvas
-                    .screen_to_map(ScreenPt::new(canvas.window_size.width as f64, LINE_HEIGHT));
-                map_screen_edge.offset(-1.0 * map_width, 0.0)
+                ScreenPt::new((canvas.window_size.width as f64) - total_width, LINE_HEIGHT)
             }
         };
 
         Menu {
-            prompt,
             choices,
             current_idx: if select_first { Some(0) } else { None },
             top_left,
-            first_choice_row: Polygon::rectangle_topleft(top_left, map_width, row_height),
+            first_choice_row: if prompt.is_some() {
+                ScreenRectangle {
+                    x1: top_left.x,
+                    y1: top_left.y + row_height,
+                    x2: top_left.x + total_width,
+                    y2: top_left.y + (2.0 * row_height),
+                }
+            } else {
+                ScreenRectangle {
+                    x1: top_left.x,
+                    y1: top_left.y,
+                    x2: top_left.x + total_width,
+                    y2: top_left.y + row_height,
+                }
+            },
             row_height,
+            prompt,
         }
     }
 
-    pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<T> {
+    pub fn event(&mut self, ev: Event) -> InputResult<T> {
         // Handle the mouse
         if ev == Event::LeftMouseButtonDown {
             if let Some(i) = self.current_idx {
@@ -93,14 +99,13 @@ impl<T: Clone> Menu<T> {
         } else if ev == Event::RightMouseButtonDown {
             return InputResult::Canceled;
         } else if let Event::MouseMovedTo(pt) = ev {
-            let cursor_pt = canvas.screen_to_map(pt);
             let mut matched = false;
             for i in 0..self.choices.len() {
                 if self.choices[i].2
                     && self
                         .first_choice_row
                         .translate(0.0, (i as f64) * self.row_height)
-                        .contains_pt(cursor_pt)
+                        .contains(pt)
                 {
                     self.current_idx = Some(i);
                     matched = true;
@@ -175,7 +180,7 @@ impl<T: Clone> Menu<T> {
                 }
             }
         }
-        canvas.draw_text_at_topleft(g, txt, self.top_left);
+        canvas.draw_text_at_screenspace_topleft(g, txt, self.top_left);
     }
 
     pub fn current_choice(&self) -> Option<&T> {

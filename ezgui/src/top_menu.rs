@@ -102,9 +102,7 @@ impl TopMenu {
                             })
                             .collect(),
                         false,
-                        Position::TopLeft(
-                            canvas.screen_to_map(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
-                        ),
+                        Position::TopLeftAt(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
                         canvas,
                     ),
                 ));
@@ -114,7 +112,7 @@ impl TopMenu {
 
         if let Some((_, ref mut submenu)) = self.submenu {
             if let Some(ev) = input.use_event_directly() {
-                match submenu.event(ev, canvas) {
+                match submenu.event(ev) {
                     InputResult::StillActive => {}
                     InputResult::Canceled => {
                         self.submenu = None;

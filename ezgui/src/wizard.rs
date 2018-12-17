@@ -216,7 +216,7 @@ impl<'a> WrappedWizard<'a> {
                 Some(query.to_string()),
                 boxed_choices,
                 true,
-                Position::CenteredAt(self.canvas.center_to_map_pt()),
+                Position::ScreenCenter,
                 self.canvas,
             ));
         }
@@ -229,7 +229,7 @@ impl<'a> WrappedWizard<'a> {
         }
 
         let ev = self.input.use_event_directly().unwrap();
-        match self.wizard.menu.as_mut().unwrap().event(ev, self.canvas) {
+        match self.wizard.menu.as_mut().unwrap().event(ev) {
             InputResult::Canceled => {
                 self.wizard.menu = None;
                 self.wizard.alive = false;
