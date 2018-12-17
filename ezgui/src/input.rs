@@ -94,7 +94,20 @@ impl UserInput {
                     } else {
                         match input.context_menu {
                             ContextMenu::Inactive => {
-                                // TODO do stuff to modal state here
+                                if let Some((_, ref mut menu)) = input.modal_state.active {
+                                    // context_menu is borrowed, so can't call methods on input.
+                                    match menu.event(input.event) {
+                                        // TODO Only consume the input if it was a mouse on top of
+                                        // the menu... because we don't want to also mouseover
+                                        // stuff underneath
+                                        InputResult::Canceled | InputResult::StillActive => {}
+                                        InputResult::Done(action, _) => {
+                                            assert!(!input.event_consumed);
+                                            input.event_consumed = true;
+                                            input.chosen_action = Some(action);
+                                        }
+                                    }
+                                }
                             }
                             ContextMenu::Displaying(ref mut menu) => {
                                 // Can't call consume_event() because context_menu is borrowed.
