@@ -14,8 +14,7 @@ pub struct DiffAllState {
 
 impl DiffAllState {
     pub fn new(ctx: &mut PluginCtx) -> Option<DiffAllState> {
-        if ctx.primary.current_selection.is_none()
-            && ctx.input.key_pressed(Key::D, "Diff all trips")
+        if ctx.primary.current_selection.is_none() && ctx.input.action_chosen("diff all A/B trips")
         {
             return Some(diff_all(
                 &ctx.primary.sim,

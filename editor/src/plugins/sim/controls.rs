@@ -1,6 +1,6 @@
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::elapsed_seconds;
-use ezgui::{EventLoopMode, Key};
+use ezgui::EventLoopMode;
 use sim::{Benchmark, Event, Sim, Tick, TIMESTEP};
 use std::mem;
 use std::time::{Duration, Instant};
@@ -43,11 +43,7 @@ impl Plugin for SimControls {
             self.desired_speed += ADJUST_SPEED;
         }
 
-        if ctx.secondary.is_some()
-            && ctx
-                .input
-                .key_pressed(Key::S, "Swap the primary/secondary sim")
-        {
+        if ctx.secondary.is_some() && ctx.input.action_chosen("swap the primary/secondary sim") {
             info!("Swapping primary/secondary sim");
             // Check out this cool little trick. :D
             let primary_plugins = ctx.primary_plugins.take().unwrap();
