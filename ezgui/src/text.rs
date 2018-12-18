@@ -146,10 +146,21 @@ pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: Scree
     for line in &txt.lines {
         let mut x = top_left.x;
 
-        for span in line {
+        let first_bg_color = line[0].highlight_color;
+        let mut same_bg_color = true;
+        for (idx, span) in line.into_iter().enumerate() {
+            if span.highlight_color != first_bg_color {
+                same_bg_color = false;
+            }
+
             if let Some(color) = span.highlight_color {
-                // TODO do we ever want to use total_width?
-                let width = glyphs.width(FONT_SIZE, &span.text).unwrap();
+                // If this is the last span and all spans use the same background color, then
+                // extend the background over the entire width of the text box.
+                let width = if idx == line.len() - 1 && same_bg_color {
+                    total_width - (x - top_left.x)
+                } else {
+                    glyphs.width(FONT_SIZE, &span.text).unwrap()
+                };
                 Rectangle::new(color.0).draw(
                     [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
                     &g.orig_ctx.draw_state,
