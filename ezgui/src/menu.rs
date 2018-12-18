@@ -210,4 +210,10 @@ impl<T: Clone> Menu<T> {
             *active = false;
         }
     }
+
+    // Assume that this doesn't vastly affect width.
+    pub fn change_prompt(&mut self, prompt: String) {
+        assert!(self.prompt.is_some());
+        self.prompt = Some(prompt);
+    }
 }

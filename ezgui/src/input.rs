@@ -296,6 +296,7 @@ impl UserInput {
                 panic!("set_mode called on both {} and {}", existing_mode, mode);
             }
             menu.mark_all_inactive();
+            menu.change_prompt(prompt);
         } else {
             if let Some(ref m) = self.modal_state.modes.get(mode) {
                 let mut menu = Menu::new(
