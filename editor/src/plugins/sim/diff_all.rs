@@ -27,21 +27,25 @@ impl DiffAllState {
 
 impl Plugin for DiffAllState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        ctx.input.set_mode("A/B All Trips Explorer", &ctx.canvas);
-        if ctx.input.modal_action("quit") {
-            return false;
-        }
         if self.time != ctx.primary.sim.time {
             *self = diff_all(
                 &ctx.primary.sim,
                 ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap(),
             );
         }
-        ctx.hints.osd.add_line(format!(
-            "{} trips same, {} trips different",
-            self.same_trips,
-            self.lines.len()
-        ));
+
+        ctx.input.set_mode_with_prompt(
+            "A/B All Trips Explorer",
+            format!(
+                "Comparing all A/B trips: {} same, {} difference",
+                self.same_trips,
+                self.lines.len()
+            ),
+            &ctx.canvas,
+        );
+        if ctx.input.modal_action("quit") {
+            return false;
+        }
         true
     }
 

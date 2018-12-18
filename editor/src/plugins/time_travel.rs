@@ -70,7 +70,11 @@ impl Plugin for TimeTravel {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
         if let Some(tick) = self.current_tick {
-            ctx.input.set_mode("Time Traveler", &ctx.canvas);
+            ctx.input.set_mode_with_prompt(
+                "Time Traveler",
+                format!("Time Traveler at {}", tick),
+                &ctx.canvas,
+            );
             if tick > self.first_tick && ctx.input.modal_action("rewind") {
                 self.current_tick = Some(tick.prev());
             } else if tick.as_usize() + 1 < self.first_tick.as_usize() + self.state_per_tick.len()
@@ -82,10 +86,6 @@ impl Plugin for TimeTravel {
             }
         } else if ctx.input.action_chosen("start time traveling") {
             self.current_tick = Some(ctx.primary.sim.time);
-        }
-
-        if let Some(tick) = self.current_tick {
-            ctx.hints.osd.add_line(format!("Time traveling: {}", tick));
         }
 
         self.is_active()
