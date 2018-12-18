@@ -62,6 +62,9 @@ impl UIState for TutorialState {
             State::GiveInstructions(ref mut scroller) => {
                 if scroller.event(input) {
                     setup_scenario(&mut self.main.primary);
+                    // TODO Levels of indirection now feel bad. I almost want dependency injection
+                    // -- just give me the SimControls.
+                    self.main.sim_mode.run_sim(&mut self.main.primary.sim);
                     self.state = State::Play {
                         last_tick_observed: None,
                         spawned_from_north: 0,

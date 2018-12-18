@@ -31,6 +31,14 @@ impl SimControls {
             primary_events: None,
         }
     }
+
+    pub fn run_sim(&mut self, primary_sim: &mut Sim) {
+        self.state = State::Running {
+            last_step: Instant::now(),
+            benchmark: primary_sim.start_benchmark(),
+            speed: "running".to_string(),
+        };
+    }
 }
 
 impl Plugin for SimControls {
@@ -118,11 +126,7 @@ impl Plugin for SimControls {
                 }
 
                 if ctx.input.action_chosen("run/pause sim") {
-                    self.state = State::Running {
-                        last_step: Instant::now(),
-                        benchmark: ctx.primary.sim.start_benchmark(),
-                        speed: "running".to_string(),
-                    };
+                    self.run_sim(&mut ctx.primary.sim);
                 } else if ctx.input.action_chosen("run one step of sim") {
                     let tick = ctx.primary.sim.time;
                     let events = ctx.primary.sim.step(&ctx.primary.map);

@@ -6,7 +6,7 @@ mod show_score;
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::GfxCtx;
-use sim::{Event, Tick};
+use sim::{Event, Sim, Tick};
 
 // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even when the
 // initial time is 0? But we probably have no state then, so...
@@ -43,6 +43,13 @@ impl SimMode {
         } else {
             None
         }
+    }
+
+    pub fn run_sim(&mut self, primary_sim: &mut Sim) {
+        self.ambient_plugins[1]
+            .downcast_mut::<controls::SimControls>()
+            .unwrap()
+            .run_sim(primary_sim);
     }
 }
 
