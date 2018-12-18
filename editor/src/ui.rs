@@ -122,8 +122,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ModalMenu::new(
                 "Neighborhood Editor",
                 vec![
-                    // TODO one key for save XOR quit, based on internal state...
-                    (Key::Enter, "save and quit"),
+                    (Key::Enter, "save"),
+                    (Key::Escape, "quit"),
                     (Key::X, "export as an Osmosis polygon filter"),
                     (Key::P, "add a new point"),
                 ],

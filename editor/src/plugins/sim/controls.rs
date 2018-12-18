@@ -111,7 +111,7 @@ impl Plugin for SimControls {
                 }
 
                 // Interactively spawning stuff would ruin an A/B test, don't allow it
-                if ctx.primary.sim.is_empty() && ctx.input.action_chosen("Seed the map with agents")
+                if ctx.primary.sim.is_empty() && ctx.input.action_chosen("seed the sim with agents")
                 {
                     ctx.primary.sim.small_spawn(&ctx.primary.map);
                     *ctx.recalculate_current_selection = true;
