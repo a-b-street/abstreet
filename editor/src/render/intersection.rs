@@ -1,6 +1,8 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::{DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable};
+use crate::render::{
+    DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
+};
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
 use map_model::{
@@ -97,27 +99,29 @@ impl Renderable for DrawIntersection {
         });
         g.draw_polygon(color, &self.polygon);
 
-        for crosswalk in &self.crosswalks {
-            if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1) {
-                crosswalk.draw(
-                    g,
-                    *ctx.hints
-                        .color_crosswalks
-                        .get(&crosswalk.id1)
-                        .unwrap_or(&ctx.cs.get_def("crosswalk", Color::WHITE)),
-                );
+        if opts.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
+            for crosswalk in &self.crosswalks {
+                if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1) {
+                    crosswalk.draw(
+                        g,
+                        *ctx.hints
+                            .color_crosswalks
+                            .get(&crosswalk.id1)
+                            .unwrap_or(&ctx.cs.get_def("crosswalk", Color::WHITE)),
+                    );
+                }
             }
-        }
 
-        for corner in &self.sidewalk_corners {
-            g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
-        }
+            for corner in &self.sidewalk_corners {
+                g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
+            }
 
-        if ctx.hints.suppress_intersection_icon != Some(self.id) {
-            if self.intersection_type == IntersectionType::TrafficSignal {
-                self.draw_traffic_signal(g, ctx);
-            } else if self.should_draw_stop_sign {
-                self.draw_stop_sign(g, ctx);
+            if ctx.hints.suppress_intersection_icon != Some(self.id) {
+                if self.intersection_type == IntersectionType::TrafficSignal {
+                    self.draw_traffic_signal(g, ctx);
+                } else if self.should_draw_stop_sign {
+                    self.draw_stop_sign(g, ctx);
+                }
             }
         }
     }

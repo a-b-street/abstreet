@@ -1,14 +1,15 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
-use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
+use crate::render::{
+    RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS,
+    PARCEL_BOUNDARY_THICKNESS,
+};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
-
-const MIN_ZOOM_FOR_LANE_MARKERS: f64 = 5.0;
 
 // Just a function to draw something later.
 type Marking = Box<Fn(&mut GfxCtx, &ColorScheme)>;
@@ -116,7 +117,7 @@ impl Renderable for DrawLane {
         });
         g.draw_polygon(color, &self.polygon);
 
-        if opts.cam_zoom >= MIN_ZOOM_FOR_LANE_MARKERS {
+        if opts.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for m in &self.markings {
                 m(g, ctx.cs);
             }

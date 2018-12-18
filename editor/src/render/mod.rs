@@ -41,6 +41,8 @@ const TURN_ICON_ARROW_TIP_LENGTH: f64 = BIG_ARROW_TIP_LENGTH * 0.8;
 const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
 pub const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
 
+pub const MIN_ZOOM_FOR_MARKINGS: f64 = 5.0;
+
 // Does something belong here or as a method on ID? If it ONLY applies to renderable things, then
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
