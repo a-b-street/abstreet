@@ -115,12 +115,14 @@ impl Renderable for DrawCar {
             g.draw_arrow(ctx.cs.get_def("car turn arrow", Color::CYAN), 0.25, 1.0, a);
         }
 
-        if let Some(ref t) = self.stopping_buffer {
-            g.draw_polygon(
-                ctx.cs
-                    .get_def("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
-                t,
-            );
+        if opts.debug_mode {
+            if let Some(ref t) = self.stopping_buffer {
+                g.draw_polygon(
+                    ctx.cs
+                        .get_def("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
+                    t,
+                );
+            }
         }
     }
 
