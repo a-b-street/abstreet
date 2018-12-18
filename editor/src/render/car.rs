@@ -1,9 +1,10 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Line, PolyLine, Polygon, Pt2D};
-use map_model::Map;
+use geom::{Angle, Bounds, Circle, PolyLine, Polygon, Pt2D};
+use map_model::{Map, TurnType};
 use sim::{CarID, CarState, DrawCarInput};
+use std;
 
 const CAR_WIDTH: f64 = 2.0;
 
@@ -11,8 +12,10 @@ pub struct DrawCar {
     pub id: CarID,
     body_polygon: Polygon,
     window_polygons: Vec<Polygon>,
-    // TODO ideally, draw the turn icon inside the car quad. how can we do that easily?
-    turn_arrow: Option<Line>,
+    left_blinker: Circle,
+    right_blinker: Circle,
+    left_blinker_on: bool,
+    right_blinker_on: bool,
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
     state: CarState,
@@ -20,14 +23,15 @@ pub struct DrawCar {
 
 impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map) -> DrawCar {
-        let turn_arrow = if let Some(t) = input.waiting_for_turn {
-            let angle = map.get_t(t).angle();
-            let arrow_pt = input
-                .front
-                .project_away(input.vehicle_length.value_unsafe / 2.0, angle.opposite());
-            Some(Line::new(arrow_pt, input.front))
+        let (left_blinker_on, right_blinker_on) = if let Some(t) = input.waiting_for_turn {
+            match map.get_t(t).turn_type {
+                TurnType::Left => (true, false),
+                TurnType::Right => (false, true),
+                TurnType::Straight => (true, true),
+                _ => unreachable!(),
+            }
         } else {
-            None
+            (false, false)
         };
 
         let stopping_buffer = input
@@ -39,7 +43,6 @@ impl DrawCar {
 
         DrawCar {
             id: input.id,
-            turn_arrow,
             body_polygon: thick_line_from_angle(
                 CAR_WIDTH,
                 input.vehicle_length.value_unsafe,
@@ -78,6 +81,28 @@ impl DrawCar {
                     input.angle.rotate_degs(90.0),
                 ),
             ],
+            left_blinker: Circle::new(
+                input
+                    .front
+                    .project_away(
+                        input.vehicle_length.value_unsafe - 0.5,
+                        input.angle.opposite(),
+                    )
+                    .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
+                0.2,
+            ),
+            right_blinker: Circle::new(
+                input
+                    .front
+                    .project_away(
+                        input.vehicle_length.value_unsafe - 0.5,
+                        input.angle.opposite(),
+                    )
+                    .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
+                0.2,
+            ),
+            left_blinker_on,
+            right_blinker_on,
             stopping_buffer,
             state: input.state,
         }
@@ -110,9 +135,24 @@ impl Renderable for DrawCar {
             g.draw_polygon(ctx.cs.get_def("car window", Color::BLACK), p);
         }
 
-        // TODO tune color, sizes
-        if let Some(ref a) = self.turn_arrow {
-            g.draw_arrow(ctx.cs.get_def("car turn arrow", Color::CYAN), 0.25, 1.0, a);
+        let blinker_on = ctx.cs.get_def("blinker on", Color::BLACK);
+        // Don't use the simulation time, because then fast simulations would have cars blinking
+        // _very_ fast or slow. Unless that's what people expect?
+        let mut any_blinkers_on = std::time::SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .subsec_millis()
+            % 300
+            < 150;
+        // But if a car is trying to go straight, don't blink at all.
+        if self.left_blinker_on && self.right_blinker_on {
+            any_blinkers_on = true;
+        }
+        if any_blinkers_on && self.left_blinker_on {
+            g.draw_circle(blinker_on, &self.left_blinker);
+        }
+        if any_blinkers_on && self.right_blinker_on {
+            g.draw_circle(blinker_on, &self.right_blinker);
         }
 
         if opts.debug_mode {

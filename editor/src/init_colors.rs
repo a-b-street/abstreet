@@ -17,6 +17,7 @@ pub fn default_colors() -> HashMap<String, Color> {
         "bike stopping buffer".to_string(),
         Color::rgba(255, 0, 0, 0.7),
     );
+    m.insert("blinker on".to_string(), Color::BLACK);
     m.insert("border intersection".to_string(), Color::rgb(50, 205, 50));
     m.insert("broken lane".to_string(), Color::rgb_f(1.0, 0.0, 0.565));
     m.insert("building".to_string(), Color::rgba_f(0.7, 0.7, 0.7, 0.8));
@@ -31,7 +32,6 @@ pub fn default_colors() -> HashMap<String, Color> {
         "car stopping buffer".to_string(),
         Color::rgba(255, 0, 0, 0.7),
     );
-    m.insert("car turn arrow".to_string(), Color::CYAN);
     m.insert("car window".to_string(), Color::BLACK);
     m.insert("chokepoint".to_string(), Color::RED);
     m.insert("crosswalk".to_string(), Color::WHITE);
