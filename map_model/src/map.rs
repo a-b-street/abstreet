@@ -476,25 +476,25 @@ impl Map {
     }
 
     // TODO reconsider names, or put somewhere else?
-    pub fn intersection(&self, label: &str) -> IntersectionID {
+    pub fn intersection(&self, label: &str) -> &Intersection {
         for i in &self.intersections {
             if i.label == Some(label.to_string()) {
-                return i.id;
+                return i;
             }
         }
         panic!("No intersection has label {}", label);
     }
 
-    pub fn bldg(&self, label: &str) -> BuildingID {
+    pub fn bldg(&self, label: &str) -> &Building {
         for b in &self.buildings {
             if b.osm_tags.get("label") == Some(&label.to_string()) {
-                return b.id;
+                return b;
             }
         }
         panic!("No building has label {}", label);
     }
 
-    pub fn driving_lane(&self, label: &str) -> LaneID {
+    pub fn driving_lane(&self, label: &str) -> &Lane {
         for l in &self.lanes {
             if !l.is_driving() {
                 continue;
@@ -504,13 +504,13 @@ impl Map {
                 || (r.is_backwards(l.id)
                     && r.osm_tags.get("back_label") == Some(&label.to_string()))
             {
-                return l.id;
+                return l;
             }
         }
         panic!("No driving lane has label {}", label);
     }
 
-    pub fn parking_lane(&self, label: &str, expected_spots: usize) -> LaneID {
+    pub fn parking_lane(&self, label: &str, expected_spots: usize) -> &Lane {
         for l in &self.lanes {
             if !l.is_parking() {
                 continue;
@@ -527,7 +527,7 @@ impl Map {
                         l.id, label, actual_spots, expected_spots
                     );
                 }
-                return l.id;
+                return l;
             }
         }
         panic!("No parking lane has label {}", label);

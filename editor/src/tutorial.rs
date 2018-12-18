@@ -60,6 +60,9 @@ impl UIState for TutorialState {
     ) {
         match self.state {
             State::GiveInstructions(ref mut scroller) => {
+                // TODO We really want to do this once in the constructor, but window size isn't
+                // known yet.
+                canvas.center_on_map_pt(self.main.primary.map.intersection("bottleneck").point);
                 if scroller.event(input) {
                     setup_scenario(&mut self.main.primary);
                     // TODO Levels of indirection now feel bad. I almost want dependency injection
@@ -88,10 +91,10 @@ impl UIState for TutorialState {
                     *last_tick_observed = Some(tick);
                     for ev in events {
                         if let Event::AgentEntersTraversable(_, Traversable::Lane(lane)) = ev {
-                            if *lane == self.main.primary.map.driving_lane("north entrance") {
+                            if *lane == self.main.primary.map.driving_lane("north entrance").id {
                                 *spawned_from_north += 1;
                             }
-                            if *lane == self.main.primary.map.driving_lane("south entrance") {
+                            if *lane == self.main.primary.map.driving_lane("south entrance").id {
                                 *spawned_from_south += 1;
                             }
                         }
@@ -127,7 +130,7 @@ impl UIState for TutorialState {
                         "{} / {}",
                         spawned_from_north, SPAWN_CARS_PER_BORDER
                     )),
-                    ctx.map.get_i(ctx.map.intersection("north")).point,
+                    ctx.map.intersection("north").point,
                 );
                 ctx.canvas.draw_text_at(
                     g,
@@ -135,7 +138,7 @@ impl UIState for TutorialState {
                         "{} / {}",
                         spawned_from_south, SPAWN_CARS_PER_BORDER
                     )),
-                    ctx.map.get_i(ctx.map.intersection("south")).point,
+                    ctx.map.intersection("south").point,
                 );
             }
         }
@@ -164,8 +167,8 @@ fn setup_scenario(primary: &mut PerMapUI) {
             percent_use_transit: 0.0,
             start_tick: Tick::zero(),
             stop_tick: Tick::from_minutes(10),
-            start_from_border: primary.map.intersection(from),
-            goal: OriginDestination::Border(primary.map.intersection(to)),
+            start_from_border: primary.map.intersection(from).id,
+            goal: OriginDestination::Border(primary.map.intersection(to).id),
         }
     }
 

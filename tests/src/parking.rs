@@ -13,10 +13,10 @@ pub fn run(t: &mut TestRunner) {
                 None,
                 &mut Timer::new("setup test"),
             );
-            let north_bldg = map.bldg("north");
-            let south_bldg = map.bldg("south");
-            let north_parking = map.parking_lane("north", 23);
-            let south_parking = map.parking_lane("south", 23);
+            let north_bldg = map.bldg("north").id;
+            let south_bldg = map.bldg("south").id;
+            let north_parking = map.parking_lane("north", 23).id;
+            let south_parking = map.parking_lane("south", 23).id;
 
             let car = sim.seed_specific_parked_cars(south_parking, south_bldg, vec![2])[0];
             // Fill up some of the first spots, forcing parking to happen at spot 4
@@ -46,10 +46,10 @@ pub fn run(t: &mut TestRunner) {
                 None,
                 &mut Timer::new("setup test"),
             );
-            let north_bldg = map.bldg("north");
-            let south_bldg = map.bldg("south");
-            let north_parking = map.parking_lane("north", 23);
-            let south_parking = map.parking_lane("south", 23);
+            let north_bldg = map.bldg("north").id;
+            let south_bldg = map.bldg("south").id;
+            let north_parking = map.parking_lane("north", 23).id;
+            let south_parking = map.parking_lane("south", 23).id;
 
             let car = sim.seed_specific_parked_cars(south_parking, south_bldg, vec![2])[0];
             // Fill up all of the north spots, forcing parking to happen on the south lane behind
