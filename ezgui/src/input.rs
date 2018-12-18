@@ -8,7 +8,6 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 pub struct UserInput {
     event: Event,
     event_consumed: bool,
-    unimportant_actions: Vec<String>,
     important_actions: Vec<String>,
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
@@ -70,7 +69,6 @@ impl UserInput {
         let mut input = UserInput {
             event,
             event_consumed: false,
-            unimportant_actions: Vec::new(),
             important_actions: Vec::new(),
             context_menu,
             // Don't move it in yet!
@@ -142,73 +140,6 @@ impl UserInput {
         input.top_menu = top_menu;
 
         input
-    }
-
-    pub fn number_chosen(&mut self, num_options: usize, action: &str) -> Option<usize> {
-        assert!(num_options >= 1 && num_options <= 9);
-
-        if self.context_menu_active() {
-            return None;
-        }
-
-        if num_options >= 1 {
-            self.reserve_key(Key::Num1, action);
-        }
-        if num_options >= 2 {
-            self.reserve_key(Key::Num2, action);
-        }
-        if num_options >= 3 {
-            self.reserve_key(Key::Num3, action);
-        }
-        if num_options >= 4 {
-            self.reserve_key(Key::Num4, action);
-        }
-        if num_options >= 5 {
-            self.reserve_key(Key::Num5, action);
-        }
-        if num_options >= 6 {
-            self.reserve_key(Key::Num6, action);
-        }
-        if num_options >= 7 {
-            self.reserve_key(Key::Num7, action);
-        }
-        if num_options >= 8 {
-            self.reserve_key(Key::Num8, action);
-        }
-        if num_options >= 9 {
-            self.reserve_key(Key::Num9, action);
-        }
-
-        if self.event_consumed {
-            return None;
-        }
-
-        let num = if let Event::KeyPress(key) = self.event {
-            match key {
-                Key::Num1 => Some(1),
-                Key::Num2 => Some(2),
-                Key::Num3 => Some(3),
-                Key::Num4 => Some(4),
-                Key::Num5 => Some(5),
-                Key::Num6 => Some(6),
-                Key::Num7 => Some(7),
-                Key::Num8 => Some(8),
-                Key::Num9 => Some(9),
-                _ => None,
-            }
-        } else {
-            None
-        };
-        match num {
-            Some(n) if n <= num_options => {
-                self.consume_event();
-                Some(n)
-            }
-            _ => {
-                self.important_actions.push(String::from(action));
-                None
-            }
-        }
     }
 
     pub fn key_pressed(&mut self, key: Key, action: &str) -> bool {
@@ -354,8 +285,6 @@ impl UserInput {
             self.consume_event();
             return true;
         }
-        self.unimportant_actions
-            .push(format!("Press {} to {}", key.describe(), action));
         false
     }
 

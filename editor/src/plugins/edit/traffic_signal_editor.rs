@@ -151,19 +151,13 @@ impl Plugin for TrafficSignalEditor {
                 return false;
             }
 
+            if self.current_cycle != 0 && input.modal_action("select previous cycle") {
+                self.current_cycle -= 1;
+            }
+            if self.current_cycle != ctx.primary.map.get_traffic_signal(self.i).cycles.len() - 1
+                && input.modal_action("select next cycle")
             {
-                let cycles = &ctx.primary.map.get_traffic_signal(self.i).cycles;
-                if let Some(n) = input.number_chosen(
-                    cycles.len(),
-                    &format!(
-                        "Showing cycle {} of {}. Switch by pressing 1 - {}.",
-                        self.current_cycle + 1,
-                        cycles.len(),
-                        cycles.len()
-                    ),
-                ) {
-                    self.current_cycle = n - 1;
-                }
+                self.current_cycle += 1;
             }
 
             if input.modal_action("change cycle duration") {

@@ -100,6 +100,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::P, "choose a preset signal"),
                     (Key::K, "move current cycle up"),
                     (Key::J, "move current cycle down"),
+                    (Key::UpArrow, "select previous cycle"),
+                    (Key::DownArrow, "select next cycle"),
                     (Key::Backspace, "delete current cycle"),
                     (Key::N, "add a new empty cycle"),
                     (Key::M, "add a new pedestrian scramble cycle"),

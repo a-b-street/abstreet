@@ -8,6 +8,7 @@ pub struct Menu<T: Clone> {
     // The bool is whether this choice is active or not
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
+    keys_enabled: bool,
 
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
@@ -66,6 +67,7 @@ impl<T: Clone> Menu<T> {
                 .map(|(key, choice, data)| (key, choice, true, data))
                 .collect(),
             current_idx: if select_first { Some(0) } else { None },
+            keys_enabled: select_first,
             top_left,
             first_choice_row: if prompt.is_some() {
                 ScreenRectangle {
@@ -127,8 +129,8 @@ impl<T: Clone> Menu<T> {
             return InputResult::Canceled;
         }
 
-        // TODO Disable arrow keys in context menus and the top menu?
-        if let Some(idx) = self.current_idx {
+        if self.keys_enabled {
+            let idx = self.current_idx.unwrap();
             if ev == Event::KeyPress(Key::Enter) {
                 let (_, name, active, data) = self.choices[idx].clone();
                 if active {
