@@ -150,6 +150,14 @@ impl<T: Clone> Menu<T> {
             }
         }
 
+        if let Event::KeyPress(key) = ev {
+            for (maybe_key, choice, active, data) in &self.choices {
+                if *active && Some(key) == *maybe_key {
+                    return InputResult::Done(choice.to_string(), data.clone());
+                }
+            }
+        }
+
         InputResult::StillActive
     }
 

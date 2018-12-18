@@ -261,7 +261,9 @@ impl UserInput {
 
             if let Some(key) = self.modal_state.modes[mode].get_key(action) {
                 menu.mark_active(key);
-                self.unimportant_key_pressed(key, action)
+                // Don't check for the keypress here; Menu's event() will have already processed it
+                // and set chosen_action.
+                false
             } else {
                 panic!("modal_action {} undefined in mode {}", action, mode);
             }
