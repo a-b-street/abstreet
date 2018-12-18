@@ -58,13 +58,7 @@ impl GUI<()> for UI {
         }
         if input.unimportant_key_pressed(Key::C, "print current camera state") {
             println!("cam_zoom = {}", self.canvas.cam_zoom);
-            println!(
-                "center_on_map_pt({})",
-                self.canvas.screen_to_map((
-                    f64::from(self.canvas.window_size.width) / 2.0,
-                    f64::from(self.canvas.window_size.height) / 2.0
-                ))
-            );
+            println!("center_on_map_pt({})", self.canvas.center_to_map_pt());
         }
         if input.unimportant_key_pressed(Key::Num1, "switch to mode 1") {
             self.current_mode = 1;

@@ -132,7 +132,7 @@ impl TopMenu {
             Color::BLACK.alpha(0.5),
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
-                canvas.window_size.width as f64,
+                f64::from(canvas.window_size.width),
                 LINE_HEIGHT,
             ),
         );

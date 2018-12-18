@@ -55,9 +55,10 @@ impl<T: Clone> Menu<T> {
                 pt.y -= total_height / 2.0;
                 pt
             }
-            Position::TopRightOfScreen => {
-                ScreenPt::new((canvas.window_size.width as f64) - total_width, LINE_HEIGHT)
-            }
+            Position::TopRightOfScreen => ScreenPt::new(
+                f64::from(canvas.window_size.width) - total_width,
+                LINE_HEIGHT,
+            ),
         };
 
         Menu {
@@ -182,7 +183,7 @@ impl<T: Clone> Menu<T> {
                         bg,
                     );
                 } else {
-                    txt.add_styled_line(format!("{}", choice), Color::grey(0.8), bg);
+                    txt.add_styled_line(choice.to_string(), Color::grey(0.8), bg);
                 }
             }
         }
