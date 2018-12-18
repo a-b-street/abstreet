@@ -27,7 +27,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new() -> Canvas {
+    pub fn new(initial_width: u32, initial_height: u32) -> Canvas {
         let texture_settings = TextureSettings::new().filter(Filter::Nearest);
         // TODO We could also preload everything and not need the RefCell.
         let glyphs = RefCell::new(
@@ -50,8 +50,8 @@ impl Canvas {
 
             left_mouse_drag_from: None,
             window_size: Size {
-                width: 0,
-                height: 0,
+                width: initial_width,
+                height: initial_height,
             },
 
             glyphs,

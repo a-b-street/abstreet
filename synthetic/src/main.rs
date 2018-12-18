@@ -31,7 +31,7 @@ impl UI {
             Model::new()
         };
         UI {
-            canvas: Canvas::new(),
+            canvas: Canvas::new(1024, 768),
             model,
             state: State::Viewing,
         }
@@ -210,5 +210,5 @@ impl GUI<Text> for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run(UI::new(args.get(1)), "Synthetic map editor", 1024, 768);
+    ezgui::run(UI::new(args.get(1)), "Synthetic map editor");
 }

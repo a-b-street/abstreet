@@ -23,8 +23,8 @@ enum State {
 const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
-    pub fn new(flags: SimFlags, canvas: &Canvas) -> TutorialState {
-        TutorialState {
+    pub fn new(flags: SimFlags, canvas: &mut Canvas) -> TutorialState {
+        let s = TutorialState {
             main: DefaultUIState::new(flags, None, canvas),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
@@ -35,7 +35,8 @@ impl TutorialState {
                 "".to_string(),
                 "Press ENTER to start the game!".to_string(),
             ])),
-        }
+        };
+        s
     }
 }
 
@@ -56,9 +57,6 @@ impl UIState for TutorialState {
     ) {
         match self.state {
             State::GiveInstructions(ref mut scroller) => {
-                // TODO We really want to do this once in the constructor, but window size isn't
-                // known yet.
-                canvas.center_on_map_pt(self.main.primary.map.intersection("bottleneck").point);
                 if scroller.event(input) {
                     setup_scenario(&mut self.main.primary);
                     // TODO Levels of indirection now feel bad. I almost want dependency injection

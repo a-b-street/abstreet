@@ -281,7 +281,6 @@ impl<S: UIState> UI<S> {
             }
             _ => {
                 warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
-                // TODO window_size isn't set yet, so this actually kinda breaks
                 let focus_pt = ID::Building(BuildingID(0))
                     .canonical_point(
                         &ui.state.primary().map,

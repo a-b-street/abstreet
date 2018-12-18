@@ -33,16 +33,14 @@ fn main() {
     .unwrap()
     .start("./profile")
     .unwrap();*/
-    let canvas = ezgui::Canvas::new();
+    let mut canvas = ezgui::Canvas::new(1024, 768);
     if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst" {
         ezgui::run(
             ui::UI::new(
-                tutorial::TutorialState::new(flags.sim_flags, &canvas),
+                tutorial::TutorialState::new(flags.sim_flags, &mut canvas),
                 canvas,
             ),
             "A/B Street",
-            1024,
-            768,
         );
     } else {
         ezgui::run(
@@ -51,8 +49,6 @@ fn main() {
                 canvas,
             ),
             "A/B Street",
-            1024,
-            768,
         );
     }
 }

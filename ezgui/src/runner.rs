@@ -29,9 +29,10 @@ pub enum EventLoopMode {
     InputOnly,
 }
 
-pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, initial_height: u32) {
+pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let opengl = OpenGL::V3_2;
-    let settings = WindowSettings::new(window_title, [initial_width, initial_height])
+    let initial_size = gui.get_mut_canvas().window_size;
+    let settings = WindowSettings::new(window_title, [initial_size.width, initial_size.height])
         .opengl(opengl)
         .exit_on_esc(false)
         // TODO it'd be cool to dynamically tweak antialiasing settings as we zoom in

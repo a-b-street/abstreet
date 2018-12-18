@@ -19,7 +19,7 @@ pub struct UI {
 
 impl UI {
     pub fn new() -> UI {
-        let mut canvas = Canvas::new();
+        let mut canvas = Canvas::new(1024, 768);
         // Start with mode 1's settings
         canvas.window_size.width = 1024;
         canvas.window_size.height = 768;
@@ -121,5 +121,5 @@ impl GUI<()> for UI {
 }
 
 fn main() {
-    ezgui::run(UI::new(), "GUI Playground", 1024, 768);
+    ezgui::run(UI::new(), "GUI Playground");
 }

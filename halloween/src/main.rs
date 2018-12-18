@@ -34,7 +34,7 @@ impl UI {
         )
         .unwrap();
         UI {
-            canvas: Canvas::new(),
+            canvas: Canvas::new(1024, 768),
             draw_map: DrawMap::new(map),
             cycler: Cycler::new(ANIMATION_PERIOD_S),
         }
@@ -62,5 +62,5 @@ impl GUI<()> for UI {
 
 fn main() {
     let flags = Flags::from_args();
-    ezgui::run(UI::new(flags), "Halloween tech demo", 1024, 768);
+    ezgui::run(UI::new(flags), "Halloween tech demo");
 }
