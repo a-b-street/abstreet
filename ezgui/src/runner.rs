@@ -124,6 +124,9 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str, initial_width: u32, ini
                     action
                 );
             }
+            if !input.set_mode_called {
+                modal_state.active = None;
+            }
 
             // Don't constantly reset the events struct -- only when laziness changes.
             if new_event_mode != last_event_mode {

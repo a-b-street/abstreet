@@ -25,6 +25,7 @@ pub struct UserInput {
     // This could be from context_menu or modal_state.
     // TODO Is that potentially confusing?
     pub(crate) chosen_action: Option<String>,
+    pub(crate) set_mode_called: bool,
 }
 
 pub enum ContextMenu {
@@ -77,6 +78,7 @@ impl UserInput {
             modal_state,
             reserved_keys: HashMap::new(),
             chosen_action: None,
+            set_mode_called: false,
         };
 
         if let Some(ref mut menu) = top_menu {
@@ -288,6 +290,7 @@ impl UserInput {
     }
 
     pub fn set_mode(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
+        self.set_mode_called = true;
         if let Some((ref existing_mode, ref mut menu)) = self.modal_state.active {
             if existing_mode != mode {
                 panic!("set_mode called on both {} and {}", existing_mode, mode);
