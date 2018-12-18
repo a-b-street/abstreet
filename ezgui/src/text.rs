@@ -1,8 +1,9 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
+use graphics;
 use graphics::character::CharacterCache;
-use graphics::{Image, Rectangle, Transformed};
+use graphics::{Rectangle, Transformed};
 use opengl_graphics::GlyphCache;
 use textwrap;
 
@@ -153,13 +154,14 @@ pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: Scree
                 same_bg_color = false;
             }
 
+            let span_width = glyphs.width(FONT_SIZE, &span.text).unwrap();
             if let Some(color) = span.highlight_color {
                 // If this is the last span and all spans use the same background color, then
                 // extend the background over the entire width of the text box.
                 let width = if idx == line.len() - 1 && same_bg_color {
                     total_width - (x - top_left.x)
                 } else {
-                    glyphs.width(FONT_SIZE, &span.text).unwrap()
+                    span_width
                 };
                 Rectangle::new(color.0).draw(
                     [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
@@ -169,20 +171,16 @@ pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: Scree
                 );
             }
 
-            let fg_text = Image::new_color(span.fg_color.0);
-
-            for ch in span.text.chars() {
-                if let Ok(draw_ch) = glyphs.character(FONT_SIZE, ch) {
-                    let char_ctx = g
-                        .orig_ctx
-                        .transform
-                        .trans(x + draw_ch.left(), y - draw_ch.top());
-                    fg_text.draw(draw_ch.texture, &g.orig_ctx.draw_state, char_ctx, g.gfx);
-                    x += draw_ch.width();
-                } else {
-                    panic!("Couldn't get glyph for {}", ch);
-                }
-            }
+            graphics::Text::new_color(span.fg_color.0, FONT_SIZE)
+                .draw(
+                    &span.text,
+                    glyphs,
+                    &g.orig_ctx.draw_state,
+                    g.orig_ctx.transform.trans(x, y),
+                    g.gfx,
+                )
+                .unwrap();
+            x += span_width;
         }
         y += LINE_HEIGHT;
     }
