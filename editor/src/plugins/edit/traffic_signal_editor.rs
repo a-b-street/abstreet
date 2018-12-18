@@ -166,6 +166,13 @@ impl Plugin for TrafficSignalEditor {
                 self.preset_wizard = Some(Wizard::new());
             }
 
+            let has_sidewalks = ctx
+                .primary
+                .map
+                .get_turns_in_intersection(self.i)
+                .iter()
+                .any(|t| t.between_sidewalks());
+
             let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
             if self.current_cycle != 0 && input.modal_action("move current cycle up") {
                 signal
@@ -190,7 +197,7 @@ impl Plugin for TrafficSignalEditor {
             } else if input.modal_action("add a new empty cycle") {
                 signal.cycles.insert(self.current_cycle, Cycle::new(self.i));
                 ctx.primary.map.edit_traffic_signal(signal);
-            } else if input.modal_action("add a new pedestrian scramble cycle") {
+            } else if has_sidewalks && input.modal_action("add a new pedestrian scramble cycle") {
                 let mut cycle = Cycle::new(self.i);
                 for t in ctx.primary.map.get_turns_in_intersection(self.i) {
                     // edit_turn adds the other_crosswalk_id and asserts no duplicates.
