@@ -1,6 +1,6 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{GfxCtx, Key};
+use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
 use sim::{Sim, Tick};
@@ -27,7 +27,8 @@ impl DiffAllState {
 
 impl Plugin for DiffAllState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Enter, "Stop diffing all trips") {
+        ctx.input.set_mode("A/B All Trips Explorer", &ctx.canvas);
+        if ctx.input.modal_action("quit") {
             return false;
         }
         if self.time != ctx.primary.sim.time {

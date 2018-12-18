@@ -1,6 +1,6 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Key};
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use sim::{Sim, Tick};
 
@@ -27,10 +27,8 @@ impl Plugin for ShowActivityState {
                 }
             }
             ShowActivityState::Active(time, ref old_heatmap) => {
-                if ctx
-                    .input
-                    .key_pressed(Key::A, "stop showing lanes with active traffic")
-                {
+                ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
+                if ctx.input.modal_action("quit") {
                     *self = ShowActivityState::Inactive;
                     return;
                 }

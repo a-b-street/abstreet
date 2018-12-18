@@ -107,15 +107,12 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ),
             ModalMenu::new(
                 "Scenario Editor",
-                vec![(Key::Q, "save"), (Key::E, "edit"), (Key::I, "instantiate")],
+                vec![(Key::S, "save"), (Key::E, "edit"), (Key::I, "instantiate")],
             ),
             ModalMenu::new("Road Editor", vec![(Key::Enter, "quit")]),
             ModalMenu::new(
                 "Color Picker",
-                vec![
-                    (Key::Backspace, "revert color"),
-                    (Key::Enter, "finalize color"),
-                ],
+                vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
             ModalMenu::new(
                 "Stop Sign Editor",
@@ -147,6 +144,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ModalMenu::new(
                 "Floodfiller",
                 vec![
+                    (Key::Enter, "quit"),
                     (Key::Space, "step forwards"),
                     (Key::Tab, "finish floodfilling"),
                 ],
@@ -159,7 +157,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Z, "quit")]),
             ModalMenu::new(
                 "Agent Route Debugger",
-                vec![(Key::R, "quit"), (Key::L, "show/hide all agents' routes")],
+                vec![(Key::R, "quit"), (Key::L, "show route for all agents")],
             ),
             ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
         ]

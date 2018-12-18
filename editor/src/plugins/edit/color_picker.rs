@@ -2,8 +2,8 @@
 
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
+use ezgui::ScreenPt;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
-use ezgui::{Key, ScreenPt};
 use geom::Polygon;
 
 // TODO assumes minimum screen size
@@ -32,40 +32,40 @@ impl ColorPicker {
 
 impl Plugin for ColorPicker {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let (input, canvas, cs) = (&mut ctx.input, &ctx.canvas, &mut ctx.cs);
-
         match self {
             ColorPicker::Choosing(ref mut menu) => {
-                match menu.event(input) {
+                match menu.event(&mut ctx.input) {
                     InputResult::Canceled => {
                         return false;
                     }
                     InputResult::StillActive => {}
                     InputResult::Done(name, _) => {
-                        *self = ColorPicker::ChangingColor(name.clone(), cs.get_modified(&name));
+                        *self =
+                            ColorPicker::ChangingColor(name.clone(), ctx.cs.get_modified(&name));
                     }
                 };
             }
             ColorPicker::ChangingColor(name, orig) => {
-                if input.key_pressed(
-                    Key::Backspace,
-                    &format!("stop changing color for {} and revert", name),
-                ) {
-                    cs.reset_modified(name, *orig);
+                ctx.input.set_mode_with_prompt(
+                    "Color Picker",
+                    format!("Color Picker for {}", name),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("revert") {
+                    ctx.cs.reset_modified(name, *orig);
                     return false;
-                } else if input.key_pressed(Key::Enter, &format!("finalize new color for {}", name))
-                {
+                } else if ctx.input.modal_action("finalize") {
                     info!("Setting color for {}", name);
                     return false;
                 }
 
-                if let Some(pt) = input.get_moved_mouse() {
+                if let Some(pt) = ctx.input.get_moved_mouse() {
                     // TODO argh too much casting
-                    let (start_x, start_y) = get_screen_offset(canvas);
+                    let (start_x, start_y) = get_screen_offset(&ctx.canvas);
                     let x = (pt.x - f64::from(start_x)) / f64::from(TILE_DIMS) / 255.0;
                     let y = (pt.y - f64::from(start_y)) / f64::from(TILE_DIMS) / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        cs.override_color(name, get_color(x as f32, y as f32));
+                        ctx.cs.override_color(name, get_color(x as f32, y as f32));
                     }
                 }
             }

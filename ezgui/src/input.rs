@@ -289,7 +289,7 @@ impl UserInput {
         }
     }
 
-    pub fn set_mode(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
+    pub fn set_mode_with_prompt(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
         self.set_mode_called = true;
         if let Some((ref existing_mode, ref mut menu)) = self.modal_state.active {
             if existing_mode != mode {
@@ -314,6 +314,10 @@ impl UserInput {
                 panic!("set_mode called on unknown {}", mode);
             }
         }
+    }
+
+    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) {
+        self.set_mode_with_prompt(mode, mode.to_string(), canvas);
     }
 
     pub fn modal_action(&mut self, action: &str) -> bool {

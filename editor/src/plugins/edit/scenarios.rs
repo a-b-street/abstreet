@@ -3,7 +3,7 @@ use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
-use ezgui::{GfxCtx, Key, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
 
@@ -24,11 +24,11 @@ impl ScenarioManager {
 
 impl Plugin for ScenarioManager {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let (input, map, sim) = (&mut ctx.input, &ctx.primary.map, &mut ctx.primary.sim);
-
         match self {
             ScenarioManager::PickScenario(ref mut wizard) => {
-                if let Some(scenario) = pick_scenario(map, wizard.wrap(input, ctx.canvas)) {
+                if let Some(scenario) =
+                    pick_scenario(&ctx.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
+                {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     *self = ScenarioManager::ManageScenario(scenario, scroller);
                 } else if wizard.aborted() {
@@ -36,22 +36,28 @@ impl Plugin for ScenarioManager {
                 }
             }
             ScenarioManager::ManageScenario(scenario, ref mut scroller) => {
-                // TODO Keys on top of the scroller? Weird...
-                // TODO Would use S for save, except sim controls always runs... maybe it shouldnt'
-                // do that after all.
-                if input.key_pressed(Key::Q, "save this scenario") {
+                ctx.input.set_mode_with_prompt(
+                    "Scenario Editor",
+                    format!("Scenario Editor for {}", scenario.scenario_name),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("save") {
                     scenario.save();
-                } else if input.key_pressed(Key::E, "edit this scenario") {
+                } else if ctx.input.modal_action("edit") {
                     *self = ScenarioManager::EditScenario(scenario.clone(), Wizard::new());
-                } else if input.key_pressed(Key::I, "instantiate this scenario") {
-                    scenario.instantiate(sim, map);
+                } else if ctx.input.modal_action("instantiate") {
+                    scenario.instantiate(&mut ctx.primary.sim, &ctx.primary.map);
                     return false;
-                } else if scroller.event(input) {
+                } else if scroller.event(&mut ctx.input) {
                     return false;
                 }
             }
             ScenarioManager::EditScenario(ref mut scenario, ref mut wizard) => {
-                if let Some(()) = edit_scenario(map, scenario, wizard.wrap(input, ctx.canvas)) {
+                if let Some(()) = edit_scenario(
+                    &ctx.primary.map,
+                    scenario,
+                    wizard.wrap(&mut ctx.input, ctx.canvas),
+                ) {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);

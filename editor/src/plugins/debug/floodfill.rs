@@ -5,6 +5,7 @@ use map_model::{LaneID, Map};
 use std::collections::{HashSet, VecDeque};
 
 pub struct Floodfiller {
+    origin: LaneID,
     visited: HashSet<LaneID>,
     // Order of expansion doesn't really matter, could use other things here
     queue: VecDeque<LaneID>,
@@ -20,6 +21,7 @@ impl Floodfiller {
                 let mut queue = VecDeque::new();
                 queue.push_back(id);
                 return Some(Floodfiller {
+                    origin: id,
                     queue,
                     visited: HashSet::new(),
                 });
@@ -31,19 +33,18 @@ impl Floodfiller {
 
 impl Plugin for Floodfiller {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Enter, "quit floodfilling") {
+        ctx.input.set_mode_with_prompt(
+            "Floodfiller",
+            format!("Floodfiller from {}", self.origin),
+            &ctx.canvas,
+        );
+        if ctx.input.modal_action("quit") {
             return false;
         } else if !self.queue.is_empty() {
-            if ctx
-                .input
-                .key_pressed(Key::Space, "step floodfilling forwards")
-            {
+            if ctx.input.modal_action("step forwards") {
                 step(&mut self.visited, &mut self.queue, &ctx.primary.map);
             }
-            if ctx
-                .input
-                .key_pressed(Key::Tab, "floodfill the rest of the map")
-            {
+            if ctx.input.modal_action("finish floodfilling") {
                 loop {
                     if step(&mut self.visited, &mut self.queue, &ctx.primary.map) {
                         break;

@@ -48,7 +48,7 @@ impl Plugin for TrafficSignalEditor {
         let input = &mut ctx.input;
         let selected = ctx.primary.current_selection;
 
-        input.set_mode(
+        input.set_mode_with_prompt(
             "Traffic Signal Editor",
             format!("Traffic Signal Editor for {}", self.i),
             &ctx.canvas,

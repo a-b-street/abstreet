@@ -2,7 +2,7 @@ use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
-use ezgui::{Color, GfxCtx, Key, Text};
+use ezgui::{Color, GfxCtx, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{LaneID, Map};
 use sim::{Neighborhood, Sim, Tick};
@@ -36,10 +36,8 @@ impl NeighborhoodSummary {
 impl Plugin for NeighborhoodSummary {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if self.active {
-            if ctx
-                .input
-                .key_pressed(Key::Z, "stop showing neighborhood summaries")
-            {
+            ctx.input.set_mode("Neighborhood Summaries", &ctx.canvas);
+            if ctx.input.modal_action("quit") {
                 self.active = false;
             }
         } else {

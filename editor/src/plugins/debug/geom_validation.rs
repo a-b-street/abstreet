@@ -1,7 +1,6 @@
 use crate::objects::ID;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
-use ezgui::Key;
 use generator;
 use generator::done;
 use geo;
@@ -83,8 +82,10 @@ impl Validator {
 
 impl Plugin for Validator {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        ctx.input.set_mode("Geometry Debugger", &ctx.canvas);
+
         // Initialize or advance?
-        if self.current_problem.is_none() || ctx.input.key_pressed(Key::N, "see the next problem") {
+        if self.current_problem.is_none() || ctx.input.modal_action("see next problem") {
             // TODO do this in a bg thread or something
             self.current_problem = self.gen.next();
 
@@ -99,10 +100,7 @@ impl Plugin for Validator {
                 info!("No more problems!");
                 return false;
             }
-        } else if ctx
-            .input
-            .key_pressed(Key::Enter, "stop looking at problems")
-        {
+        } else if ctx.input.modal_action("quit") {
             return false;
         }
 

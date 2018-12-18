@@ -35,10 +35,12 @@ impl DiffTripState {
 
 impl Plugin for DiffTripState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(
-            Key::Enter,
-            &format!("Stop showing {}'s parallel world", self.trip),
-        ) {
+        ctx.input.set_mode_with_prompt(
+            "A/B Trip Explorer",
+            format!("A/B Trip Explorer for {}", self.trip),
+            &ctx.canvas,
+        );
+        if ctx.input.modal_action("auit") {
             return false;
         } else if self.time != ctx.primary.sim.time {
             *self = diff_trip(self.trip, ctx);

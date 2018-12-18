@@ -35,7 +35,12 @@ impl Plugin for FollowState {
                 // get_canonical_point_for_trip
                 warn!("{} is gone... temporarily or not?", trip);
             }
-            if ctx.input.key_pressed(Key::F, "stop following") {
+            ctx.input.set_mode_with_prompt(
+                "Agent Follower",
+                format!("Agent Follower for {}", trip),
+                &ctx.canvas,
+            );
+            if ctx.input.modal_action("quit") {
                 self.trip = None;
             }
         }

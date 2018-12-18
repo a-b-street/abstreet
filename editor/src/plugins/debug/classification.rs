@@ -1,6 +1,6 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, Key};
+use ezgui::Color;
 
 pub struct OsmClassifier {}
 
@@ -15,7 +15,8 @@ impl OsmClassifier {
 
 impl Plugin for OsmClassifier {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Num6, "stop showing OSM colors") {
+        ctx.input.set_mode("OSM Classifier", &ctx.canvas);
+        if ctx.input.modal_action("quit") {
             return false;
         }
         true

@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use counter::Counter;
-use ezgui::{Color, Key};
+use ezgui::Color;
 use map_model::{IntersectionID, LaneID, PathStep};
 use sim::Sim;
 use std::collections::HashSet;
@@ -24,10 +24,9 @@ impl ChokepointsFinder {
 
 impl Plugin for ChokepointsFinder {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx
-            .input
-            .key_pressed(Key::Enter, "stop showing chokepoints")
-        {
+        ctx.input.set_mode("Chokepoints Debugger", &ctx.canvas);
+
+        if ctx.input.modal_action("quit") {
             return false;
         }
 

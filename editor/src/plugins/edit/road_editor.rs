@@ -16,7 +16,8 @@ impl RoadEditor {
 
 impl Plugin for RoadEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if ctx.input.key_pressed(Key::Enter, "stop editing roads") {
+        ctx.input.set_mode("Road Editor", &ctx.canvas);
+        if ctx.input.modal_action("quit") {
             return false;
         } else if let Some(ID::Lane(id)) = ctx.primary.current_selection {
             let lane = ctx.primary.map.get_l(id);

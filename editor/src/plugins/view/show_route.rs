@@ -34,19 +34,26 @@ impl Plugin for ShowRouteState {
                 };
             }
             ShowRouteState::Active(time, trip, _) => {
-                if ctx.input.key_pressed(Key::R, "stop showing route") {
+                ctx.input.set_mode_with_prompt(
+                    "Agent Route Debugger",
+                    format!("Agent Route Debugger for {}", trip),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("quit") {
                     *self = ShowRouteState::Inactive;
-                } else if ctx
-                    .input
-                    .key_pressed(Key::L, "show routes for all trips, to debug")
-                {
+                } else if ctx.input.modal_action("show route for all agents") {
                     *self = debug_all_routes(ctx);
                 } else if *time != ctx.primary.sim.time {
                     *self = show_route(*trip, ctx);
                 }
             }
             ShowRouteState::DebugAllRoutes(time, _) => {
-                if ctx.input.key_pressed(Key::L, "stop showing all routes") {
+                ctx.input.set_mode_with_prompt(
+                    "Agent Route Debugger",
+                    "Agent Route Debugger for all routes".to_string(),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("quit") {
                     *self = ShowRouteState::Inactive;
                 } else if *time != ctx.primary.sim.time {
                     *self = debug_all_routes(ctx);

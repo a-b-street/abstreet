@@ -1,6 +1,5 @@
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::MultiMap;
-use ezgui::Key;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick};
 use std::collections::BTreeMap;
@@ -71,13 +70,14 @@ impl Plugin for TimeTravel {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
         if let Some(tick) = self.current_tick {
-            if tick > self.first_tick && ctx.input.key_pressed(Key::Comma, "rewind") {
+            ctx.input.set_mode("Time Traveler", &ctx.canvas);
+            if tick > self.first_tick && ctx.input.modal_action("rewind") {
                 self.current_tick = Some(tick.prev());
             } else if tick.as_usize() + 1 < self.first_tick.as_usize() + self.state_per_tick.len()
-                && ctx.input.key_pressed(Key::Dot, "forward")
+                && ctx.input.modal_action("forwards")
             {
                 self.current_tick = Some(tick.next());
-            } else if ctx.input.key_pressed(Key::Enter, "exit time traveler") {
+            } else if ctx.input.modal_action("quit") {
                 self.current_tick = None;
             }
         } else if ctx.input.action_chosen("start time traveling") {

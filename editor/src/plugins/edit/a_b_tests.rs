@@ -1,7 +1,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ezgui::{Canvas, GfxCtx, Key, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Canvas, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
 
@@ -33,7 +33,12 @@ impl Plugin for ABTestManager {
                 }
             }
             ABTestManager::ManageABTest(test, ref mut scroller) => {
-                if ctx.input.key_pressed(Key::R, "run this A/B test") {
+                ctx.input.set_mode_with_prompt(
+                    "A/B Test Editor",
+                    format!("A/B Test Editor for {}", test.test_name),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("run A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
                         launch_test(test, &ctx.primary.current_flags, &ctx.canvas);
                     *ctx.primary = new_primary;

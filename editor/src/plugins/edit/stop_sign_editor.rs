@@ -33,6 +33,12 @@ impl Plugin for StopSignEditor {
         let map = &mut ctx.primary.map;
         let selected = ctx.primary.current_selection;
 
+        input.set_mode_with_prompt(
+            "Stop Sign Editor",
+            format!("Stop Sign Editor for {}", self.i),
+            &ctx.canvas,
+        );
+
         stop_sign_rendering_hints(&mut ctx.hints, map.get_stop_sign(self.i), map, ctx.cs);
 
         if let Some(ID::Turn(id)) = selected {
@@ -53,9 +59,9 @@ impl Plugin for StopSignEditor {
                 sign.set_priority(id, next_priority, map);
                 map.edit_stop_sign(sign);
             }
-        } else if input.key_pressed(Key::Enter, "quit the editor") {
+        } else if input.modal_action("quit") {
             return false;
-        } else if input.key_pressed(Key::R, "reset to default stop sign") {
+        } else if input.modal_action("reset to default") {
             let sign = ControlStopSign::new(map, self.i);
             map.edit_stop_sign(sign);
         }
