@@ -124,7 +124,7 @@ impl<T: Clone> Menu<T> {
                     break;
                 }
             }
-            if !matched {
+            if !matched && !self.keys_enabled {
                 self.current_idx = None;
             }
             return InputResult::StillActive;
