@@ -107,7 +107,7 @@ impl TopMenu {
 
         if let Some((_, ref mut submenu)) = self.submenu {
             if let Some(ev) = input.use_event_directly() {
-                match submenu.event(ev) {
+                match submenu.event(ev, canvas) {
                     InputResult::StillActive => {}
                     InputResult::Canceled => {
                         self.submenu = None;

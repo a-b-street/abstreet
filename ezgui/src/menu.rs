@@ -9,12 +9,14 @@ pub struct Menu<T: Clone> {
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
     keys_enabled: bool,
+    pos: Position,
 
+    row_height: f64,
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
-    row_height: f64,
 }
 
+#[derive(Clone)]
 pub enum Position {
     ScreenCenter,
     TopLeftAt(ScreenPt),
@@ -25,7 +27,7 @@ impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Option<String>,
         choices: Vec<(Option<Key>, String, T)>,
-        select_first: bool,
+        keys_enabled: bool,
         pos: Position,
         canvas: &Canvas,
     ) -> Menu<T> {
@@ -47,6 +49,7 @@ impl<T: Clone> Menu<T> {
         }
         let (total_width, total_height) = canvas.text_dims(&txt);
         let row_height = total_height / (txt.num_lines() as f64);
+
         let top_left = match pos {
             Position::TopLeftAt(pt) => pt,
             Position::ScreenCenter => {
@@ -62,13 +65,17 @@ impl<T: Clone> Menu<T> {
         };
 
         Menu {
+            prompt: prompt.clone(),
             // All choices start active.
             choices: choices
                 .into_iter()
                 .map(|(key, choice, data)| (key, choice, true, data))
                 .collect(),
-            current_idx: if select_first { Some(0) } else { None },
-            keys_enabled: select_first,
+            current_idx: if keys_enabled { Some(0) } else { None },
+            keys_enabled,
+            pos,
+
+            row_height,
             top_left,
             first_choice_row: if prompt.is_some() {
                 ScreenRectangle {
@@ -85,12 +92,10 @@ impl<T: Clone> Menu<T> {
                     y2: top_left.y + row_height,
                 }
             },
-            row_height,
-            prompt,
         }
     }
 
-    pub fn event(&mut self, ev: Event) -> InputResult<T> {
+    pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<T> {
         // Handle the mouse
         if ev == Event::LeftMouseButtonDown {
             if let Some(i) = self.current_idx {
@@ -156,6 +161,23 @@ impl<T: Clone> Menu<T> {
                     return InputResult::Done(choice.to_string(), data.clone());
                 }
             }
+        }
+
+        if let Event::WindowResized(_, _) = ev {
+            // Recreate the menu, then steal the geometry from it.
+            let new = Menu::new(
+                self.prompt.clone(),
+                self.choices
+                    .iter()
+                    .map(|(key, choice, _, data)| (*key, choice.to_string(), data.clone()))
+                    .collect(),
+                self.keys_enabled,
+                self.pos.clone(),
+                canvas,
+            );
+            self.top_left = new.top_left;
+            self.first_choice_row = new.first_choice_row;
+            return InputResult::StillActive;
         }
 
         InputResult::StillActive

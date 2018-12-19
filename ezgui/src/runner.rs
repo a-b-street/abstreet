@@ -3,7 +3,7 @@ use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
-use piston::window::{Window, WindowSettings};
+use piston::window::WindowSettings;
 use std::{panic, process};
 
 pub trait GUI<T> {
@@ -56,8 +56,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             if let Some(ref data) = last_data {
                 gl.draw(args.viewport(), |c, g| {
                     let mut g = GfxCtx::new(g, c);
-                    gui.get_mut_canvas()
-                        .start_drawing(&mut g, window.draw_size());
+                    gui.get_mut_canvas().start_drawing(&mut g);
 
                     if let Err(err) =
                         panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
@@ -84,15 +83,13 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
         } else {
             // Skip some events.
             use piston::input::{
-                AfterRenderEvent, CursorEvent, FocusEvent, IdleEvent, MouseRelativeEvent,
-                ResizeEvent, TextEvent,
+                AfterRenderEvent, CursorEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
             };
             if ev.after_render_args().is_some()
                 || ev.cursor_args().is_some()
                 || ev.focus_args().is_some()
                 || ev.idle_args().is_some()
                 || ev.mouse_relative_args().is_some()
-                || ev.resize_args().is_some()
                 || ev.text_args().is_some()
             {
                 continue;

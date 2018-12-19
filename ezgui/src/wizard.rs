@@ -229,7 +229,7 @@ impl<'a> WrappedWizard<'a> {
         }
 
         let ev = self.input.use_event_directly().unwrap();
-        match self.wizard.menu.as_mut().unwrap().event(ev) {
+        match self.wizard.menu.as_mut().unwrap().event(ev, self.canvas) {
             InputResult::Canceled => {
                 self.wizard.menu = None;
                 self.wizard.alive = false;

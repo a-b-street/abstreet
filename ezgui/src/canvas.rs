@@ -86,8 +86,7 @@ impl Canvas {
         }
     }
 
-    pub(crate) fn start_drawing(&mut self, g: &mut GfxCtx, window_size: Size) {
-        self.window_size = window_size;
+    pub(crate) fn start_drawing(&self, g: &mut GfxCtx) {
         g.ctx = g
             .orig_ctx
             .trans(-self.cam_x, -self.cam_y)

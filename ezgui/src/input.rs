@@ -64,7 +64,7 @@ impl UserInput {
         context_menu: ContextMenu,
         mut top_menu: Option<TopMenu>,
         modal_state: ModalMenuState,
-        canvas: &Canvas,
+        canvas: &mut Canvas,
     ) -> UserInput {
         let mut input = UserInput {
             event,
@@ -78,6 +78,12 @@ impl UserInput {
             chosen_action: None,
             set_mode_called: false,
         };
+
+        // First things first...
+        if let Event::WindowResized(width, height) = input.event {
+            canvas.window_size.width = width;
+            canvas.window_size.height = height;
+        }
 
         if let Some(ref mut menu) = top_menu {
             match menu.event(&mut input, canvas) {
@@ -96,7 +102,7 @@ impl UserInput {
                             ContextMenu::Inactive => {
                                 if let Some((_, ref mut menu)) = input.modal_state.active {
                                     // context_menu is borrowed, so can't call methods on input.
-                                    match menu.event(input.event) {
+                                    match menu.event(input.event, canvas) {
                                         // TODO Only consume the input if it was a mouse on top of
                                         // the menu... because we don't want to also mouseover
                                         // stuff underneath
@@ -113,7 +119,7 @@ impl UserInput {
                                 // Can't call consume_event() because context_menu is borrowed.
                                 assert!(!input.event_consumed);
                                 input.event_consumed = true;
-                                match menu.event(input.event) {
+                                match menu.event(input.event, canvas) {
                                     InputResult::Canceled => {
                                         input.context_menu = ContextMenu::Inactive;
                                     }

@@ -18,13 +18,14 @@ pub enum Event {
     MouseMovedTo(ScreenPt),
     // Vertical only
     MouseWheelScroll(f64),
+    WindowResized(u32, u32),
 }
 
 impl Event {
     pub fn from_piston_event(ev: pi::Event) -> Event {
         use piston::input::{
-            ButtonEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent, TouchEvent,
-            UpdateEvent,
+            ButtonEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent, ResizeEvent,
+            TouchEvent, UpdateEvent,
         };
 
         if let Some(pi::Button::Mouse(button)) = ev.press_args() {
@@ -69,6 +70,9 @@ impl Event {
         }
         if let Some(pair) = ev.mouse_scroll_args() {
             return Event::MouseWheelScroll(pair[1]);
+        }
+        if let Some(pair) = ev.resize_args() {
+            return Event::WindowResized(pair[0], pair[1]);
         }
 
         panic!("Unknown piston event {:?}", ev);
