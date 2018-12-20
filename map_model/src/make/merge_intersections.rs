@@ -17,16 +17,18 @@ pub fn merge_intersections(mut m: HalfMap, timer: &mut Timer) -> HalfMap {
     for i in 0..m.roads.len() {
         timer.next();
         // We destroy roads and shorten this list as we go. Don't break, so the timer finishes.
-        if i >= m.roads.len() {
+        if i - merged >= m.roads.len() {
             continue;
         }
 
-        let r = &m.roads[i];
+        // When we delete road X, the entire list of roads shifts down, so on the next iteration,
+        // we want to reconsider the new X.
+        let r = &m.roads[i - merged];
         if r.center_pts.length() < MIN_ROAD_LENGTH
             && !m.intersections[r.src_i.0].is_dead_end()
             && !m.intersections[r.dst_i.0].is_dead_end()
         {
-            m = merge(RoadID(i), m);
+            m = merge(r.id, m);
             merged += 1;
         }
     }
@@ -39,6 +41,7 @@ pub fn merge_intersections(mut m: HalfMap, timer: &mut Timer) -> HalfMap {
 fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
     let old_i1 = m.roads[delete_r.0].src_i;
     let old_i2 = m.roads[delete_r.0].dst_i;
+    // Note delete_r might be a loop.
 
     let mut delete = Deleter::new();
 
@@ -95,8 +98,9 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                     m.lanes[l.0].dst_i = new_i;
                     m.intersections[new_i.0].incoming_lanes.push(*l);
                 }
-            } else {
-                assert_eq!(r.dst_i, *old_i);
+            }
+            // This isn't an else, because r might be a loop.
+            if r.dst_i == *old_i {
                 // Incoming to old_i
                 r.dst_i = new_i;
                 for (l, _) in &r.children_backwards {
@@ -124,10 +128,10 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
             let mut new_turn = orig_turn.clone();
             new_turn.id.parent = new_i;
 
-            // The original turn never crossed the deleted road. Preserve its geometry.
-            // TODO But what if the intersection polygon changed and made lane trimmed lines change
-            // and so the turn geometry should change?
             if !delete.lanes.contains(&new_turn.id.dst) {
+                // The original turn never crossed the deleted road. Preserve its geometry.
+                // TODO But what if the intersection polygon changed and made lane trimmed lines
+                // change and so the turn geometry should change?
                 m.intersections[new_i.0].turns.push(new_turn.id);
                 m.turns.insert(new_turn.id, new_turn);
                 continue;
@@ -155,6 +159,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                 let mut composite_turn = new_turn.clone();
                 composite_turn.id.dst = t.dst;
                 composite_turn.geom.extend(m.turns[&t].geom.clone());
+                // TODO Deal with inner loops!
                 // TODO Fiddle with turn_type
                 m.intersections[new_i.0].turns.push(composite_turn.id);
                 m.turns.insert(composite_turn.id, composite_turn);
@@ -183,7 +188,6 @@ impl Deleter {
     }
 
     fn apply(self, mut m: HalfMap) -> HalfMap {
-        // Actually delete and compact stuff...
         for t in self.turns {
             m.turns.remove(&t);
         }
