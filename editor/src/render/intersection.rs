@@ -80,22 +80,16 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            if self.intersection_type == IntersectionType::Border {
-                return ctx
-                    .cs
-                    .get_def("border intersection", Color::rgb(50, 205, 50));
+        let color = opts.color.unwrap_or_else(|| match self.intersection_type {
+            IntersectionType::Border => ctx
+                .cs
+                .get_def("border intersection", Color::rgb(50, 205, 50)),
+            IntersectionType::StopSign => {
+                ctx.cs.get_def("stop sign intersection", Color::grey(0.6))
             }
-
-            let _changed = if let Some(s) = ctx.map.maybe_get_traffic_signal(self.id) {
-                s.is_changed()
-            } else if let Some(s) = ctx.map.maybe_get_stop_sign(self.id) {
-                s.is_changed()
-            } else {
-                false
-            };
-            // TODO Make some other way to view map edits. rgb_f(0.8, 0.6, 0.6) was distracting.
-            ctx.cs.get_def("unchanged intersection", Color::grey(0.6))
+            IntersectionType::TrafficSignal => ctx
+                .cs
+                .get_def("traffic signal intersection", Color::grey(0.4)),
         });
         g.draw_polygon(color, &self.polygon);
 
