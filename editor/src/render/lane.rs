@@ -61,7 +61,7 @@ impl DrawLane {
         if lane.is_driving()
             && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
         {
-            if let Some(m) = calculate_stop_sign_line(lane, map) {
+            if let Some(m) = calculate_stop_sign_line(road, lane, map) {
                 markings.push(m);
             }
         }
@@ -230,20 +230,28 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
     }))
 }
 
-fn calculate_stop_sign_line(lane: &Lane, map: &Map) -> Option<Marking> {
+fn calculate_stop_sign_line(road: &Road, lane: &Lane, map: &Map) -> Option<Marking> {
     if map.get_stop_sign(lane.dst_i).is_priority_lane(lane.id) {
         return None;
     }
 
     // TODO maybe draw the stop sign octagon on each lane?
 
-    let (pt1, angle) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
+    let (pt1, angle) = lane.safe_dist_along(lane.length() - (1.0 * si::M))?;
     // Reuse perp_line. Project away an arbitrary amount
     let pt2 = pt1.project_away(1.0, angle);
-    let line = perp_line(Line::new(pt1, pt2), LANE_THICKNESS);
+    // Don't clobber the yellow line.
+    let line = if road.is_canonical_lane(lane.id) {
+        perp_line(
+            Line::new(pt1, pt2).shift(BIG_ARROW_THICKNESS / 2.0),
+            LANE_THICKNESS - BIG_ARROW_THICKNESS,
+        )
+    } else {
+        perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
+    };
 
     Some(Box::new(move |g, cs| {
-        g.draw_rounded_line(cs.get_def("stop line for lane", Color::RED), 0.45, &line);
+        g.draw_line(cs.get_def("stop line for lane", Color::RED), 0.45, &line);
     }))
 }
 

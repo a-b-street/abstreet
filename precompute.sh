@@ -2,6 +2,16 @@
 
 set -e
 
+release_mode=""
+for arg in "$@"; do
+	if [ "$arg" == "--release" ]; then
+		release_mode="--release";
+	else
+		echo "Unknown argument $arg";
+		exit 1;
+	fi
+done
+
 mkdir -p data/maps/
 
 for map_path in `ls data/raw_maps/`; do
@@ -13,7 +23,7 @@ for map_path in `ls data/raw_maps/`; do
 			edits=`basename "$edit_path" .json`;
 			echo "Precomputing $map with $edits";
 			cd precompute;
-			cargo run --release ../data/raw_maps/$map.abst --edits_name="$edits";
+			cargo run $release_mode ../data/raw_maps/$map.abst --edits_name="$edits";
 			cd ..;
 		done
 	fi
