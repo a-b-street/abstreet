@@ -1,10 +1,10 @@
 use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
-use ezgui::{Canvas, Color, EventLoopMode, Text};
+use ezgui::{Canvas, EventLoopMode, Text};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -103,9 +103,7 @@ pub struct RenderingHints {
     pub osd: Text,
 
     // Miscellaneous cases where a plugin needs to control rendering.
-    pub suppress_intersection_icon: Option<IntersectionID>,
-    pub color_crosswalks: HashMap<TurnID, Color>,
-    pub hide_crosswalks: HashSet<TurnID>,
+    pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub hide_turn_icons: HashSet<TurnID>,
 }
 

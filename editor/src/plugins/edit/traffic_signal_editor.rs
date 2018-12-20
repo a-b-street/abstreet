@@ -5,7 +5,6 @@ use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key, ScreenPt, Text, Wizard, WrappedWizard};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
-use std::collections::HashSet;
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -54,11 +53,7 @@ impl Plugin for TrafficSignalEditor {
             &ctx.canvas,
         );
 
-        ctx.hints.suppress_intersection_icon = Some(self.i);
-        ctx.hints.hide_crosswalks.extend(
-            ctx.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle]
-                .get_absent_crosswalks(&ctx.primary.map),
-        );
+        ctx.hints.suppress_traffic_signal_details = Some(self.i);
         for t in ctx.primary.map.get_turns_in_intersection(self.i) {
             // TODO bit weird, now looks like there's missing space between some icons. Do
             // we ever need to have an icon for SharedSidewalkCorner?
@@ -223,7 +218,6 @@ impl Plugin for TrafficSignalEditor {
             ctx.cs,
             ctx.map,
             ctx.draw_map,
-            &ctx.hints.hide_crosswalks,
         );
 
         // Draw all of the cycles off to the side
@@ -278,9 +272,7 @@ impl Plugin for TrafficSignalEditor {
                 ),
                 zoom,
             );
-            let mut hide_crosswalks = HashSet::new();
-            hide_crosswalks.extend(cycle.get_absent_crosswalks(&ctx.map));
-            draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map, &hide_crosswalks);
+            draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map);
 
             ctx.canvas.draw_text_at_screenspace_topleft(
                 g,

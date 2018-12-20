@@ -24,7 +24,7 @@ const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
     pub fn new(flags: SimFlags, canvas: &mut Canvas) -> TutorialState {
-        let s = TutorialState {
+        TutorialState {
             main: DefaultUIState::new(flags, None, canvas),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
@@ -35,8 +35,7 @@ impl TutorialState {
                 "".to_string(),
                 "Press ENTER to start the game!".to_string(),
             ])),
-        };
-        s
+        }
     }
 }
 

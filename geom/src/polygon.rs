@@ -1,4 +1,4 @@
-use crate::{Angle, Bounds, HashablePt2D, Pt2D};
+use crate::{Bounds, HashablePt2D, Pt2D};
 use std::f64;
 
 #[derive(Clone, Debug)]
@@ -133,30 +133,6 @@ impl Polygon {
         pts.sort();
         pts.dedup();
         Pt2D::center(&pts.iter().map(|pt| Pt2D::from(*pt)).collect())
-    }
-
-    pub fn regular_polygon(center: Pt2D, sides: usize, length: f64, rotation: Angle) -> Polygon {
-        use geo::algorithm::rotate::Rotate;
-        use geo::{LineString, Point};
-
-        let mut pts = Vec::new();
-        for i in 0..sides {
-            let theta = (i as f64) * 2.0 * f64::consts::PI / (sides as f64);
-            pts.push(Point::new(
-                length * theta.cos() + center.x(),
-                length * theta.sin() + center.y(),
-            ));
-        }
-        let first_pt = pts[0];
-        pts.push(first_pt);
-        let rotated = LineString::from(pts).rotate(rotation.normalized_degrees());
-        Polygon::new(
-            &rotated
-                .into_points()
-                .into_iter()
-                .map(|pt| Pt2D::new(pt.x(), pt.y()))
-                .collect(),
-        )
     }
 
     pub fn rectangle(center: Pt2D, width: f64, height: f64) -> Polygon {

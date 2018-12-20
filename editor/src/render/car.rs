@@ -138,16 +138,17 @@ impl Renderable for DrawCar {
         let blinker_on = ctx.cs.get_def("blinker on", Color::BLACK);
         // Don't use the simulation time, because then fast simulations would have cars blinking
         // _very_ fast or slow. Unless that's what people expect?
-        let mut any_blinkers_on = std::time::SystemTime::now()
-            .duration_since(std::time::SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .subsec_millis()
-            % 300
-            < 150;
         // But if a car is trying to go straight, don't blink at all.
-        if self.left_blinker_on && self.right_blinker_on {
-            any_blinkers_on = true;
-        }
+        let any_blinkers_on = if self.left_blinker_on && self.right_blinker_on {
+            true
+        } else {
+            std::time::SystemTime::now()
+                .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .subsec_millis()
+                % 300
+                < 150
+        };
         if any_blinkers_on && self.left_blinker_on {
             g.draw_circle(blinker_on, &self.left_blinker);
         }

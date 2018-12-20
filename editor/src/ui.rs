@@ -12,7 +12,7 @@ use kml;
 use map_model::{BuildingID, LaneID};
 use serde_derive::{Deserialize, Serialize};
 use std::borrow::Borrow;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::process;
 
 const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
@@ -169,9 +169,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
-            suppress_intersection_icon: None,
-            color_crosswalks: HashMap::new(),
-            hide_crosswalks: HashSet::new(),
+            suppress_traffic_signal_details: None,
             hide_turn_icons: HashSet::new(),
         };
 

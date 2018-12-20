@@ -1,15 +1,14 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, RenderingHints, ID};
+use crate::objects::{Ctx, ID};
 use crate::render::{
     DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
 };
 use ezgui::{Color, GfxCtx, Text};
-use geom::{Angle, Bounds, Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use map_model::{
-    ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID,
-    TurnPriority, TurnType, LANE_THICKNESS,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
+    LANE_THICKNESS,
 };
-use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -19,7 +18,6 @@ pub struct DrawIntersection {
     sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
     intersection_type: IntersectionType,
-    should_draw_stop_sign: bool,
 }
 
 impl DrawIntersection {
@@ -36,21 +34,12 @@ impl DrawIntersection {
             crosswalks: calculate_crosswalks(inter.id, map),
             sidewalk_corners: calculate_corners(inter.id, map),
             intersection_type: inter.intersection_type,
-            should_draw_stop_sign: inter.intersection_type == IntersectionType::StopSign
-                && !inter.is_degenerate(),
         }
-    }
-
-    fn draw_stop_sign(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        g.draw_polygon(
-            ctx.cs.get_def("stop sign background", Color::RED),
-            &Polygon::regular_polygon(self.center, 8, 1.5, Angle::new_degs(360.0 / 16.0)),
-        );
-        // TODO draw "STOP"
     }
 
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let signal = ctx.map.get_traffic_signal(self.id);
+        // TODO The size and placement of the timer isn't great in all cases yet.
         let center = ctx.map.get_i(self.id).point;
         let timer_width = 2.0;
         let timer_height = 4.0;
@@ -66,14 +55,7 @@ impl DrawIntersection {
             let (cycle, time_left) =
                 signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
-            draw_signal_cycle(
-                cycle,
-                g,
-                ctx.cs,
-                ctx.map,
-                ctx.draw_map,
-                &ctx.hints.hide_crosswalks,
-            );
+            draw_signal_cycle(cycle, g, ctx.cs, ctx.map, ctx.draw_map);
 
             // Draw a little timer box in the middle of the intersection.
             g.draw_polygon(
@@ -118,27 +100,17 @@ impl Renderable for DrawIntersection {
         g.draw_polygon(color, &self.polygon);
 
         if opts.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
-            for crosswalk in &self.crosswalks {
-                if !ctx.hints.hide_crosswalks.contains(&crosswalk.id1) {
-                    crosswalk.draw(
-                        g,
-                        *ctx.hints
-                            .color_crosswalks
-                            .get(&crosswalk.id1)
-                            .unwrap_or(&ctx.cs.get_def("crosswalk", Color::WHITE)),
-                    );
-                }
-            }
-
             for corner in &self.sidewalk_corners {
                 g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
             }
 
-            if ctx.hints.suppress_intersection_icon != Some(self.id) {
-                if self.intersection_type == IntersectionType::TrafficSignal {
+            if self.intersection_type == IntersectionType::TrafficSignal {
+                if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
                     self.draw_traffic_signal(g, ctx);
-                } else if self.should_draw_stop_sign {
-                    self.draw_stop_sign(g, ctx);
+                }
+            } else {
+                for crosswalk in &self.crosswalks {
+                    crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
                 }
             }
         }
@@ -195,7 +167,6 @@ pub fn draw_signal_cycle(
     cs: &ColorScheme,
     map: &Map,
     draw_map: &DrawMap,
-    hide_crosswalks: &HashSet<TurnID>,
 ) {
     let priority_color = cs.get_def("turns protected by traffic signal right now", Color::GREEN);
     let yield_color = cs.get_def(
@@ -204,7 +175,7 @@ pub fn draw_signal_cycle(
     );
 
     for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
-        if !hide_crosswalks.contains(&crosswalk.id1) {
+        if cycle.get_priority(crosswalk.id1) == TurnPriority::Priority {
             crosswalk.draw(g, cs.get("crosswalk"));
         }
     }
@@ -219,72 +190,5 @@ pub fn draw_signal_cycle(
         if !turn.between_sidewalks() {
             DrawTurn::draw_dashed(turn, g, yield_color);
         }
-    }
-}
-
-pub fn draw_stop_sign(sign: &ControlStopSign, g: &mut GfxCtx, cs: &ColorScheme, map: &Map) {
-    let priority_color = cs.get_def("stop sign priority turns", Color::GREEN);
-    // TODO pink yield color from traffic signals is nice, but it's too close to red for stop...
-    let yield_color = cs.get_def("stop sign yield turns", Color::YELLOW.alpha(0.8));
-    let stop_color = cs.get_def("stop sign stop turns", Color::RED.alpha(0.8));
-
-    // TODO first crosswalks... actually, give rendering hints to override the color. dont do that
-    // here.
-
-    // First draw solid-line priority turns.
-    for (t, priority) in &sign.turns {
-        let turn = map.get_t(*t);
-        if turn.between_sidewalks() || *priority != TurnPriority::Priority {
-            continue;
-        }
-        DrawTurn::draw_full(turn, g, priority_color);
-    }
-
-    // Then dashed lines.
-    for (t, priority) in &sign.turns {
-        let turn = map.get_t(*t);
-        if turn.between_sidewalks() {
-            continue;
-        }
-        match *priority {
-            TurnPriority::Yield => {
-                DrawTurn::draw_dashed(turn, g, yield_color);
-            }
-            TurnPriority::Stop => {
-                DrawTurn::draw_dashed(turn, g, stop_color);
-            }
-            _ => {}
-        };
-    }
-}
-
-pub fn stop_sign_rendering_hints(
-    hints: &mut RenderingHints,
-    sign: &ControlStopSign,
-    map: &Map,
-    cs: &ColorScheme,
-) {
-    hints.suppress_intersection_icon = Some(sign.id);
-    for (t, pri) in &sign.turns {
-        if map.get_t(*t).turn_type != TurnType::Crosswalk {
-            continue;
-        }
-        match pri {
-            // Leave the default white.
-            TurnPriority::Priority => {}
-            TurnPriority::Yield => {
-                hints
-                    .color_crosswalks
-                    .insert(*t, cs.get_def("stop sign yield crosswalk", Color::YELLOW));
-            }
-            TurnPriority::Stop => {
-                hints
-                    .color_crosswalks
-                    .insert(*t, cs.get_def("stop sign stop crosswalk", Color::RED));
-            }
-            TurnPriority::Banned => {
-                hints.hide_crosswalks.insert(*t);
-            }
-        };
     }
 }

@@ -1,14 +1,13 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::{draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
+use crate::render::DrawTurn;
 use ezgui::{Color, GfxCtx, Key};
-use map_model::{IntersectionID, LaneID, TurnType};
+use map_model::{LaneID, TurnType};
 
 pub enum TurnCyclerState {
     Inactive,
     ShowLane(LaneID),
     CycleTurns(LaneID, usize),
-    ShowIntersection(IntersectionID),
 }
 
 impl TurnCyclerState {
@@ -20,13 +19,6 @@ impl TurnCyclerState {
 impl Plugin for TurnCyclerState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match ctx.primary.current_selection {
-            Some(ID::Intersection(id)) => {
-                *self = TurnCyclerState::ShowIntersection(id);
-
-                if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
-                    stop_sign_rendering_hints(&mut ctx.hints, sign, &ctx.primary.map, ctx.cs);
-                }
-            }
             Some(ID::Lane(id)) => {
                 if let TurnCyclerState::CycleTurns(current, idx) = self {
                     if *current != id {
@@ -79,11 +71,6 @@ impl Plugin for TurnCyclerState {
                         g,
                         ctx.cs.get_def("current selected turn", Color::RED),
                     );
-                }
-            }
-            TurnCyclerState::ShowIntersection(id) => {
-                if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
-                    draw_stop_sign(sign, g, ctx.cs, ctx.map);
                 }
             }
         }

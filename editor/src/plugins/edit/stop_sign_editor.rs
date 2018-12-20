@@ -1,7 +1,6 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::{draw_stop_sign, stop_sign_rendering_hints};
-use ezgui::{Color, GfxCtx, Key};
+use ezgui::{Color, Key};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 
 pub struct StopSignEditor {
@@ -39,8 +38,6 @@ impl Plugin for StopSignEditor {
             &ctx.canvas,
         );
 
-        stop_sign_rendering_hints(&mut ctx.hints, map.get_stop_sign(self.i), map, ctx.cs);
-
         if let Some(ID::Turn(id)) = selected {
             let mut sign = map.get_stop_sign(self.i).clone();
             let next_priority = match sign.get_priority(id) {
@@ -66,10 +63,6 @@ impl Plugin for StopSignEditor {
             map.edit_stop_sign(sign);
         }
         true
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        draw_stop_sign(ctx.map.get_stop_sign(self.i), g, ctx.cs, ctx.map);
     }
 
     fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {

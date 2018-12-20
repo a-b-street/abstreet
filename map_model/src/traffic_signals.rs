@@ -381,19 +381,6 @@ impl Cycle {
     pub fn edit_duration(&mut self, new_duration: si::Second<f64>) {
         self.duration = new_duration;
     }
-
-    pub fn get_absent_crosswalks(&self, map: &Map) -> Vec<TurnID> {
-        let mut result = Vec::new();
-        for t in map.get_turns_in_intersection(self.parent).into_iter() {
-            if t.between_sidewalks()
-                && !self.priority_turns.contains(&t.id)
-                && !self.yield_turns.contains(&t.id)
-            {
-                result.push(t.id);
-            }
-        }
-        result
-    }
 }
 
 // Add all legal priority turns to existing cycles.
