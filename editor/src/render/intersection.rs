@@ -3,8 +3,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::{
     DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
 };
-use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Circle, Polygon, Pt2D};
+use ezgui::{Color, GfxCtx, Text};
+use geom::{Angle, Bounds, Polygon, Pt2D};
 use map_model::{
     ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnID,
     TurnPriority, TurnType, LANE_THICKNESS,
@@ -50,27 +50,45 @@ impl DrawIntersection {
     }
 
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        let radius = 0.5;
+        let signal = ctx.map.get_traffic_signal(self.id);
+        let center = ctx.map.get_i(self.id).point;
+        let timer_width = 2.0;
+        let timer_height = 4.0;
 
-        g.draw_polygon(
-            ctx.cs.get_def("traffic signal box", Color::BLACK),
-            &Polygon::rectangle(self.center, 4.0 * radius, 8.0 * radius),
-        );
+        if ctx.sim.is_in_overtime(self.id) {
+            g.draw_polygon(
+                ctx.cs.get_def("signal overtime timer", Color::PINK),
+                &Polygon::rectangle(center, timer_width, timer_height),
+            );
+            ctx.canvas
+                .draw_text_at(g, Text::from_line("Overtime!".to_string()), center);
+        } else {
+            let (cycle, time_left) =
+                signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
-        g.draw_circle(
-            ctx.cs.get_def("traffic signal yellow", Color::YELLOW),
-            &Circle::new(self.center, radius),
-        );
+            draw_signal_cycle(
+                cycle,
+                g,
+                ctx.cs,
+                ctx.map,
+                ctx.draw_map,
+                &ctx.hints.hide_crosswalks,
+            );
 
-        g.draw_circle(
-            ctx.cs.get_def("traffic signal green", Color::GREEN),
-            &Circle::new(self.center.offset(0.0, radius * 2.0), radius),
-        );
-
-        g.draw_circle(
-            ctx.cs.get_def("traffic signal red", Color::RED),
-            &Circle::new(self.center.offset(0.0, radius * -2.0), radius),
-        );
+            // Draw a little timer box in the middle of the intersection.
+            g.draw_polygon(
+                ctx.cs.get_def("timer foreground", Color::RED),
+                &Polygon::rectangle(center, timer_width, timer_height),
+            );
+            g.draw_polygon(
+                ctx.cs.get_def("timer background", Color::BLACK),
+                &Polygon::rectangle_topleft(
+                    center.offset(-timer_width / 2.0, -timer_height / 2.0),
+                    timer_width,
+                    (time_left / cycle.duration).value_unsafe * timer_height,
+                ),
+            );
+        }
     }
 }
 

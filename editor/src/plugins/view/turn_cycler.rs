@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
-use ezgui::{Color, GfxCtx, Key, Text};
-use geom::Polygon;
+use crate::render::{draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
+use ezgui::{Color, GfxCtx, Key};
 use map_model::{IntersectionID, LaneID, TurnType};
 
 pub enum TurnCyclerState {
@@ -24,16 +23,7 @@ impl Plugin for TurnCyclerState {
             Some(ID::Intersection(id)) => {
                 *self = TurnCyclerState::ShowIntersection(id);
 
-                if let Some(signal) = ctx.primary.map.maybe_get_traffic_signal(id) {
-                    ctx.hints.suppress_intersection_icon = Some(id);
-                    if !ctx.primary.sim.is_in_overtime(id) {
-                        let (cycle, _) =
-                            signal.current_cycle_and_remaining_time(ctx.primary.sim.time.as_time());
-                        ctx.hints
-                            .hide_crosswalks
-                            .extend(cycle.get_absent_crosswalks(&ctx.primary.map));
-                    }
-                } else if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
+                if let Some(sign) = ctx.primary.map.maybe_get_stop_sign(id) {
                     stop_sign_rendering_hints(&mut ctx.hints, sign, &ctx.primary.map, ctx.cs);
                 }
             }
@@ -92,49 +82,7 @@ impl Plugin for TurnCyclerState {
                 }
             }
             TurnCyclerState::ShowIntersection(id) => {
-                if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
-                    let center = ctx.map.get_i(*id).point;
-                    let timer_width = 2.0;
-                    let timer_height = 4.0;
-
-                    if ctx.sim.is_in_overtime(*id) {
-                        g.draw_polygon(
-                            ctx.cs.get_def("signal overtime timer", Color::PINK),
-                            &Polygon::rectangle(center, timer_width, timer_height),
-                        );
-                        ctx.canvas.draw_text_at(
-                            g,
-                            Text::from_line("Overtime!".to_string()),
-                            center,
-                        );
-                    } else {
-                        let (cycle, time_left) =
-                            signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-
-                        draw_signal_cycle(
-                            cycle,
-                            g,
-                            ctx.cs,
-                            ctx.map,
-                            ctx.draw_map,
-                            &ctx.hints.hide_crosswalks,
-                        );
-
-                        // Draw a little timer box in the middle of the intersection.
-                        g.draw_polygon(
-                            ctx.cs.get_def("timer foreground", Color::RED),
-                            &Polygon::rectangle(center, timer_width, timer_height),
-                        );
-                        g.draw_polygon(
-                            ctx.cs.get_def("timer background", Color::BLACK),
-                            &Polygon::rectangle_topleft(
-                                center.offset(-timer_width / 2.0, -timer_height / 2.0),
-                                timer_width,
-                                (time_left / cycle.duration).value_unsafe * timer_height,
-                            ),
-                        );
-                    }
-                } else if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
+                if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
                     draw_stop_sign(sign, g, ctx.cs, ctx.map);
                 }
             }
