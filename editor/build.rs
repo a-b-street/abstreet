@@ -12,5 +12,6 @@ fn main() {
         .status()
         .unwrap()
         .success());
+    // TODO Uncomment this to avoid spurious rebuilds, but don't check this in.
     //println!("cargo:rerun-if-changed=build.rs");
 }

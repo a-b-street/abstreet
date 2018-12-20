@@ -1,8 +1,8 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_stop_sign, stop_sign_rendering_hints, DrawTurn};
-use ezgui::{Color, GfxCtx, Key, ScreenPt, Text};
-use geom::{Polygon, Pt2D};
+use ezgui::{Color, GfxCtx, Key, Text};
+use geom::Polygon;
 use map_model::{IntersectionID, LaneID, TurnType};
 
 pub enum TurnCyclerState {
@@ -93,22 +93,20 @@ impl Plugin for TurnCyclerState {
             }
             TurnCyclerState::ShowIntersection(id) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(*id) {
+                    let center = ctx.map.get_i(*id).point;
+                    let timer_width = 2.0;
+                    let timer_height = 4.0;
+
                     if ctx.sim.is_in_overtime(*id) {
-                        let old_ctx = g.fork_screenspace();
-                        let width = 50.0;
-                        let height = 100.0;
                         g.draw_polygon(
                             ctx.cs.get_def("signal overtime timer", Color::PINK),
-                            &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
+                            &Polygon::rectangle(center, timer_width, timer_height),
                         );
-                        // TODO We can't use draw_text_at, because canvas doesn't know about forked
-                        // contexts.
-                        ctx.canvas.draw_text_at_screenspace_topleft(
+                        ctx.canvas.draw_text_at(
                             g,
                             Text::from_line("Overtime!".to_string()),
-                            ScreenPt::new(10.0 + width / 2.0, 10.0 + height / 2.0),
+                            center,
                         );
-                        g.unfork(old_ctx);
                     } else {
                         let (cycle, time_left) =
                             signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
@@ -122,25 +120,19 @@ impl Plugin for TurnCyclerState {
                             &ctx.hints.hide_crosswalks,
                         );
 
-                        // Draw a little timer box in the top-left corner of the screen.
-                        {
-                            let old_ctx = g.fork_screenspace();
-                            let width = 50.0;
-                            let height = 100.0;
-                            g.draw_polygon(
-                                ctx.cs.get_def("timer foreground", Color::RED),
-                                &Polygon::rectangle_topleft(Pt2D::new(10.0, 10.0), width, height),
-                            );
-                            g.draw_polygon(
-                                ctx.cs.get_def("timer background", Color::BLACK),
-                                &Polygon::rectangle_topleft(
-                                    Pt2D::new(10.0, 10.0),
-                                    width,
-                                    (time_left / cycle.duration).value_unsafe * height,
-                                ),
-                            );
-                            g.unfork(old_ctx);
-                        }
+                        // Draw a little timer box in the middle of the intersection.
+                        g.draw_polygon(
+                            ctx.cs.get_def("timer foreground", Color::RED),
+                            &Polygon::rectangle(center, timer_width, timer_height),
+                        );
+                        g.draw_polygon(
+                            ctx.cs.get_def("timer background", Color::BLACK),
+                            &Polygon::rectangle_topleft(
+                                center.offset(-timer_width / 2.0, -timer_height / 2.0),
+                                timer_width,
+                                (time_left / cycle.duration).value_unsafe * timer_height,
+                            ),
+                        );
                     }
                 } else if let Some(sign) = ctx.map.maybe_get_stop_sign(*id) {
                     draw_stop_sign(sign, g, ctx.cs, ctx.map);
