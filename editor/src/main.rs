@@ -4,7 +4,6 @@
 mod macros;
 
 mod colors;
-mod init_colors;
 mod objects;
 mod plugins;
 mod render;

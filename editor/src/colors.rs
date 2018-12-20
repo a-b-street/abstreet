@@ -1,4 +1,3 @@
-use crate::init_colors;
 use abstutil;
 use ezgui::Color;
 use serde_derive::{Deserialize, Serialize};
@@ -20,7 +19,7 @@ struct ModifiedColors {
 impl ColorScheme {
     pub fn load() -> Result<ColorScheme, Error> {
         let modified: ModifiedColors = abstutil::read_json("color_scheme")?;
-        let mut map: HashMap<String, Color> = init_colors::default_colors();
+        let mut map: HashMap<String, Color> = default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
         }
@@ -33,7 +32,7 @@ impl ColorScheme {
     }
 
     // Get, but specify the default inline. The default is extracted before compilation by a script
-    // and used to generate init_colors.rs.
+    // and used to generate default_colors().
     pub fn get_def(&self, name: &str, _default: Color) -> Color {
         self.map[name]
     }
@@ -65,8 +64,9 @@ impl ColorScheme {
         } else {
             self.modified.map.remove(name);
             // Restore the original default.
-            self.map
-                .insert(name.to_string(), init_colors::default_colors()[name]);
+            self.map.insert(name.to_string(), default_colors()[name]);
         }
     }
 }
+
+include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));
