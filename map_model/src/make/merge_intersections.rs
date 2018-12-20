@@ -148,6 +148,10 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                 if t.src != new_turn.id.dst {
                     continue;
                 }
+                // Don't make a composite turn that just loops around.
+                if t.dst == new_turn.id.src {
+                    continue;
+                }
                 let mut composite_turn = new_turn.clone();
                 composite_turn.id.dst = t.dst;
                 composite_turn.geom.extend(m.turns[&t].geom.clone());
