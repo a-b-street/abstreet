@@ -15,4 +15,4 @@ map_model = { path = "../map_model" }
 rand = "0.5.1"
 sim = { path = "../sim" }
 structopt = "0.2"
-yansi = "0.4.0"
+termion = "1.5.1"

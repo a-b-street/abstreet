@@ -7,7 +7,8 @@ use sim::Sim;
 use std;
 use std::io::Write;
 use structopt::StructOpt;
-use yansi::Paint;
+use termion;
+use termion::color;
 
 #[derive(StructOpt)]
 #[structopt(name = "tests")]
@@ -47,36 +48,52 @@ struct TestResult {
 
 impl TestResult {
     fn print(&self, flags: &Flags) {
+        let reset_color = color::Fg(color::Reset);
+
         if self.pass {
             println!(
-                "- {} ({}): {}",
+                "- {} ({}): {}PASS{}",
                 self.test_name,
                 self.duration,
-                Paint::green("PASS")
+                color::Fg(color::Green),
+                reset_color
             );
         } else {
             println!(
-                "- {} ({}): {}",
+                "- {} ({}): {}FAIL{}",
                 self.test_name,
                 self.duration,
-                Paint::red("FAIL")
+                color::Fg(color::Red),
+                reset_color
             );
         }
         if !self.pass || flags.keep_output {
             if flags.clickable_links {
                 println!(
-                    "    {}",
-                    Paint::cyan(&format!("http://most/{}", self.output_path))
+                    "    {}http://most/{}{}",
+                    color::Fg(color::Cyan),
+                    self.output_path,
+                    reset_color
                 );
             } else {
-                println!("    {}", Paint::cyan(&self.output_path));
+                println!(
+                    "    {}{}{}",
+                    color::Fg(color::Cyan),
+                    self.output_path,
+                    reset_color
+                );
             }
 
             if let Some(ref path) = self.debug_with_savestate {
                 if flags.clickable_links {
-                    println!("    {}", Paint::yellow(format!("http://ui/{}", path)));
+                    println!(
+                        "    {}http://ui/{}{}",
+                        color::Fg(color::Yellow),
+                        path,
+                        reset_color
+                    );
                 } else {
-                    println!("    {}", Paint::yellow(path));
+                    println!("    {}{}{}", color::Fg(color::Yellow), path, reset_color);
                 }
             }
         }
@@ -114,6 +131,8 @@ impl TestRunner {
     }
 
     fn run(&mut self, specific_test_name: &str, fast: bool, test: Box<Fn(&mut TestHelper)>) {
+        let reset_color = color::Fg(color::Reset);
+
         let test_name = format!(
             "{}/{}",
             self.current_suite
@@ -141,19 +160,25 @@ impl TestRunner {
         std::fs::create_dir_all(std::path::Path::new(&output_path).parent().unwrap())
             .expect("Creating parent dir failed");
 
-        if self.flags.clickable_links {
+        let line_width = if self.flags.clickable_links {
             print!(
-                "Running {}... {}",
+                "Running {}... {}http://tail/{}{}",
                 test_name,
-                Paint::cyan(&format!("http://tail/{}", output_path))
+                color::Fg(color::Cyan),
+                output_path,
+                reset_color
             );
+            format!("Running {}... http://tail/{}", test_name, output_path).len()
         } else {
             print!(
-                "Running {}... {}",
+                "Running {}... {}tail -f {}{}",
                 test_name,
-                Paint::cyan(&format!("tail -f {}", output_path))
+                color::Fg(color::Cyan),
+                output_path,
+                reset_color
             );
-        }
+            format!("Running {}... {}", test_name, output_path).len()
+        };
         std::io::stdout().flush().unwrap();
 
         let pass = {
@@ -193,8 +218,18 @@ impl TestRunner {
             output_path,
             debug_with_savestate: helper.debug_with_savestate,
         };
-        // TODO If the "Running..." line actually took two lines, this breaks
-        print!("\r");
+
+        let (terminal_width, _) = termion::terminal_size().unwrap();
+        // TODO Repeat for more than one line up, if needed.
+        print!(
+            "{}{}",
+            termion::clear::CurrentLine,
+            termion::cursor::Left(terminal_width)
+        );
+        if line_width > terminal_width as usize {
+            print!("{}{}", termion::cursor::Up(1), termion::clear::CurrentLine);
+        }
+
         result.print(&self.flags);
         self.results.push(result);
     }
