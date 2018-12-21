@@ -16,6 +16,7 @@
 - https://www.livablecities.org/
 - https://www.reddit.com/r/openstreetmap/comments/a39uv0/ok_so/
 - https://mic.comotion.uw.edu/
+- https://www.seattleinprogress.com/
 
 ## Similar projects
 

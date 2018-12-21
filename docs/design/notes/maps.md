@@ -1,28 +1,5 @@
 # Map-related design notes
 
-## Map making
-
-Stages are roughly:
-
-- extract parcels inside a bbox from a .kml
-- load elevation into memory from a .hgt
-- get raw OSM ways from a .osm
-- (elevation, raw OSM ways) -> split up OSM stuff
-- find and remove disconnected things, then also compute bbox of result
-- merge in the parcels fitting the specific bbox
-- load traffic signal from a .shp and match to nearest intersection
-
-- create finalish Intersection structs
-- * split roads into lanes based on lane specs. also update Intersections.
-- * trim road lines for each intersection
-- * make turns for each intersection
-- * make each building, finding the front path using lanes
-- map over parcels directly
-
-The live edits will modify lane specs and turns. Will have to re-do starred
-items most likely. Should be straightforward to only redo small parts of those
-stages.
-
 ## Lanes
 
 It's time to model more things:
@@ -229,6 +206,12 @@ Cool, good enough to start. whew.
 
 - https://data.seattle.gov/Transportation/Intersections/e7db-mhd7
 
+- https://gis-kingcounty.opendata.arcgis.com/datasets/transit-signals-for-king-county-metro--tsp-signals-point?geometry=-122.315%2C47.641%2C-122.291%2C47.646
+	- description says number of phases
+
+- https://www.wsdot.wa.gov/mapsdata/tools/trafficplanningtrends.htm
+	- small start to demand data
+
 ## Speeding up map loading
 
 - can we use quadtrees for the expensive building/sidewalk matching?
@@ -264,18 +247,6 @@ it?
 	- do these need to be objects in the GUI? at first no, just make a
 	  plugin draw them, but eventually, yes. they should probably be a
 	  map_model concept.
-
-## Invariants
-
-- min length for lanes, turns
-- length for related lanes (sidewalk spot / parking / driving) matching up
-- connectivity
-	- from any sidewalk to any other
-	- from any driving lane to any other
-- no loop lanes (same src and dst endpt)... but what about cul-de-sacs then?
-- associated lanes
-	- parking lane or bus stop without driving lane
-- all turns renderable by draw_full (making thick polygon can fail)
 
 ## Border nodes
 
