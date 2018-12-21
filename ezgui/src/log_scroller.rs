@@ -70,8 +70,7 @@ impl LogScroller {
         let can_fit = {
             // Subtract 1 for the title, and an additional TODO hacky
             // few to avoid the bottom OSD and stuff.
-            let n =
-                (f64::from(canvas.window_size.height) / text::LINE_HEIGHT).floor() as isize - 1 - 6;
+            let n = (canvas.window_height / text::LINE_HEIGHT).floor() as isize - 1 - 6;
             if n <= 0 {
                 0
             } else {

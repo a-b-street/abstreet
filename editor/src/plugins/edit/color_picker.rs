@@ -9,7 +9,7 @@ use geom::Polygon;
 // TODO assumes minimum screen size
 const WIDTH: u32 = 255;
 const HEIGHT: u32 = 255;
-const TILE_DIMS: u32 = 2;
+const TILE_DIMS: f64 = 2.0;
 
 // TODO parts of this should be in ezgui
 pub enum ColorPicker {
@@ -62,8 +62,8 @@ impl Plugin for ColorPicker {
                 if let Some(pt) = ctx.input.get_moved_mouse() {
                     // TODO argh too much casting
                     let (start_x, start_y) = get_screen_offset(&ctx.canvas);
-                    let x = (pt.x - f64::from(start_x)) / f64::from(TILE_DIMS) / 255.0;
-                    let y = (pt.y - f64::from(start_y)) / f64::from(TILE_DIMS) / 255.0;
+                    let x = (pt.x - start_x) / TILE_DIMS / 255.0;
+                    let y = (pt.y - start_y) / TILE_DIMS / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
                         ctx.cs.override_color(name, get_color(x as f32, y as f32));
                     }
@@ -85,16 +85,12 @@ impl Plugin for ColorPicker {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
                         let corner = ctx.canvas.screen_to_map(ScreenPt::new(
-                            f64::from(x * TILE_DIMS + start_x),
-                            f64::from(y * TILE_DIMS + start_y),
+                            f64::from(x) * TILE_DIMS + start_x,
+                            f64::from(y) * TILE_DIMS + start_y,
                         ));
                         g.draw_polygon(
                             color,
-                            &Polygon::rectangle_topleft(
-                                corner,
-                                f64::from(TILE_DIMS),
-                                f64::from(TILE_DIMS),
-                            ),
+                            &Polygon::rectangle_topleft(corner, TILE_DIMS, TILE_DIMS),
                         );
                     }
                 }
@@ -103,11 +99,11 @@ impl Plugin for ColorPicker {
     }
 }
 
-fn get_screen_offset(canvas: &Canvas) -> (u32, u32) {
-    let total_width = TILE_DIMS * WIDTH;
-    let total_height = TILE_DIMS * HEIGHT;
-    let start_x = (canvas.window_size.width - total_width) / 2;
-    let start_y = (canvas.window_size.height - total_height) / 2;
+fn get_screen_offset(canvas: &Canvas) -> (f64, f64) {
+    let total_width = TILE_DIMS * f64::from(WIDTH);
+    let total_height = TILE_DIMS * f64::from(HEIGHT);
+    let start_x = (canvas.window_width - total_width) / 2.0;
+    let start_y = (canvas.window_height - total_height) / 2.0;
     (start_x, start_y)
 }
 

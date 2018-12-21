@@ -31,13 +31,18 @@ pub enum EventLoopMode {
 
 pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let opengl = OpenGL::V3_2;
-    let initial_size = gui.get_mut_canvas().window_size;
-    let settings = WindowSettings::new(window_title, [initial_size.width, initial_size.height])
-        .opengl(opengl)
-        .exit_on_esc(false)
-        // TODO it'd be cool to dynamically tweak antialiasing settings as we zoom in
-        .samples(2)
-        .srgb(false);
+    let settings = WindowSettings::new(
+        window_title,
+        [
+            gui.get_mut_canvas().window_width as u32,
+            gui.get_mut_canvas().window_height as u32,
+        ],
+    )
+    .opengl(opengl)
+    .exit_on_esc(false)
+    // TODO it'd be cool to dynamically tweak antialiasing settings as we zoom in
+    .samples(2)
+    .srgb(false);
     let mut window: GlutinWindow = settings.build().expect("Could not create window");
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);

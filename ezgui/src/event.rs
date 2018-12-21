@@ -18,7 +18,7 @@ pub enum Event {
     MouseMovedTo(ScreenPt),
     // Vertical only
     MouseWheelScroll(f64),
-    WindowResized(u32, u32),
+    WindowResized(f64, f64),
 }
 
 impl Event {
@@ -72,7 +72,7 @@ impl Event {
             return Event::MouseWheelScroll(pair[1]);
         }
         if let Some(pair) = ev.resize_args() {
-            return Event::WindowResized(pair[0], pair[1]);
+            return Event::WindowResized(f64::from(pair[0]), f64::from(pair[1]));
         }
 
         panic!("Unknown piston event {:?}", ev);

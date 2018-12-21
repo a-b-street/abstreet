@@ -81,8 +81,8 @@ impl UserInput {
 
         // First things first...
         if let Event::WindowResized(width, height) = input.event {
-            canvas.window_size.width = width;
-            canvas.window_size.height = height;
+            canvas.window_width = width;
+            canvas.window_height = height;
         }
 
         if let Some(ref mut menu) = top_menu {

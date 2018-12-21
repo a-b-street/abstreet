@@ -58,10 +58,9 @@ impl<T: Clone> Menu<T> {
                 pt.y -= total_height / 2.0;
                 pt
             }
-            Position::TopRightOfScreen => ScreenPt::new(
-                f64::from(canvas.window_size.width) - total_width,
-                LINE_HEIGHT,
-            ),
+            Position::TopRightOfScreen => {
+                ScreenPt::new(canvas.window_width - total_width, LINE_HEIGHT)
+            }
         };
 
         Menu {

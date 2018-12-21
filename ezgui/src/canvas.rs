@@ -4,7 +4,6 @@ use crate::{text, GfxCtx, ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
 use opengl_graphics::{Filter, GlyphCache, TextureSettings};
-use piston::window::Size;
 use std::cell::RefCell;
 
 const ZOOM_SPEED: f64 = 0.1;
@@ -21,7 +20,8 @@ pub struct Canvas {
 
     left_mouse_drag_from: Option<ScreenPt>,
 
-    pub window_size: Size,
+    pub window_width: f64,
+    pub window_height: f64,
 
     glyphs: RefCell<GlyphCache<'static>>,
 }
@@ -49,10 +49,8 @@ impl Canvas {
             cursor_y: 0.0,
 
             left_mouse_drag_from: None,
-            window_size: Size {
-                width: initial_width,
-                height: initial_height,
-            },
+            window_width: f64::from(initial_width),
+            window_height: f64::from(initial_height),
 
             glyphs,
         }
@@ -139,13 +137,13 @@ impl Canvas {
         let (width, height) = txt.dims(glyphs);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
-            HorizontalAlignment::Center => (f64::from(self.window_size.width) - width) / 2.0,
-            HorizontalAlignment::Right => f64::from(self.window_size.width) - width,
+            HorizontalAlignment::Center => (self.window_width - width) / 2.0,
+            HorizontalAlignment::Right => self.window_width - width,
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
-            VerticalAlignment::Center => (f64::from(self.window_size.height) - height) / 2.0,
-            VerticalAlignment::Bottom => f64::from(self.window_size.height) - height,
+            VerticalAlignment::Center => (self.window_height - height) / 2.0,
+            VerticalAlignment::Bottom => self.window_height - height,
         };
         text::draw_text_bubble(g, glyphs, ScreenPt::new(x1, y1), txt);
     }
@@ -182,10 +180,7 @@ impl Canvas {
     }
 
     pub fn center_to_screen_pt(&self) -> ScreenPt {
-        ScreenPt::new(
-            f64::from(self.window_size.width) / 2.0,
-            f64::from(self.window_size.height) / 2.0,
-        )
+        ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0)
     }
 
     pub fn center_to_map_pt(&self) -> Pt2D {
@@ -193,8 +188,8 @@ impl Canvas {
     }
 
     pub fn center_on_map_pt(&mut self, pt: Pt2D) {
-        self.cam_x = (pt.x() * self.cam_zoom) - (f64::from(self.window_size.width) / 2.0);
-        self.cam_y = (pt.y() * self.cam_zoom) - (f64::from(self.window_size.height) / 2.0);
+        self.cam_x = (pt.x() * self.cam_zoom) - (self.window_width / 2.0);
+        self.cam_y = (pt.y() * self.cam_zoom) - (self.window_height / 2.0);
     }
 
     fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
@@ -207,10 +202,7 @@ impl Canvas {
     pub fn get_screen_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
         b.update(self.screen_to_map(ScreenPt::new(0.0, 0.0)));
-        b.update(self.screen_to_map(ScreenPt::new(
-            f64::from(self.window_size.width),
-            f64::from(self.window_size.height),
-        )));
+        b.update(self.screen_to_map(ScreenPt::new(self.window_width, self.window_height)));
         b
     }
 }

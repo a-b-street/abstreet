@@ -77,7 +77,7 @@ impl Text {
 
     // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
     pub fn add_wrapped_line(&mut self, canvas: &Canvas, line: String) {
-        let wrap_to = canvas.window_size.width / (MAX_CHAR_WIDTH as u32);
+        let wrap_to = canvas.window_width / MAX_CHAR_WIDTH;
         for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
             self.add_line(l.to_string());
         }

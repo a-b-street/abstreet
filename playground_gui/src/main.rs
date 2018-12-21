@@ -20,10 +20,6 @@ pub struct UI {
 impl UI {
     pub fn new() -> UI {
         let mut canvas = Canvas::new(1024, 768);
-        // Start with mode 1's settings
-        canvas.window_size.width = 1024;
-        canvas.window_size.height = 768;
-        canvas.cam_zoom = 1.0;
         canvas.center_on_map_pt(Pt2D::new(305.0, 324.0));
 
         UI {

@@ -130,11 +130,7 @@ impl TopMenu {
         let old_ctx = g.fork_screenspace();
         g.draw_polygon(
             Color::BLACK.alpha(0.5),
-            &Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                f64::from(canvas.window_size.width),
-                LINE_HEIGHT,
-            ),
+            &Polygon::rectangle_topleft(Pt2D::new(0.0, 0.0), canvas.window_width, LINE_HEIGHT),
         );
 
         if let Some(idx) = self.highlighted {
