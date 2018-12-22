@@ -58,15 +58,14 @@ impl Plugin for DiffTripState {
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
-                ctx.cs
-                    .get_def("primary agent route", Color::rgba(255, 0, 0, 0.5)),
+                ctx.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
                 &t.make_polygons_blindly(LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
                 ctx.cs
-                    .get_def("secondary agent route", Color::rgba(0, 0, 255, 0.5)),
+                    .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
                 &t.make_polygons_blindly(LANE_THICKNESS),
             );
         }

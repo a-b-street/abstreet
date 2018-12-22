@@ -57,8 +57,8 @@ fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
 fn summarize(txt: &mut Text, summary: ScoreSummary) {
     txt.add_styled_line(
         "Walking".to_string(),
-        Color::BLACK,
-        Some(Color::rgba(255, 0, 0, 0.8)),
+        Some(Color::BLACK),
+        Some(Color::RED.alpha(0.8)),
     );
     txt.add_line(format!(
         "  {}/{} trips done",
@@ -69,8 +69,8 @@ fn summarize(txt: &mut Text, summary: ScoreSummary) {
 
     txt.add_styled_line(
         "Driving".to_string(),
-        Color::BLACK,
-        Some(Color::rgba(0, 0, 255, 0.8)),
+        Some(Color::BLACK),
+        Some(Color::BLUE.alpha(0.8)),
     );
     txt.add_line(format!(
         "  {}/{} trips done",

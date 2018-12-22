@@ -51,7 +51,7 @@ impl Color {
         Color([r, g, b, a])
     }
 
-    pub fn grey(f: f32) -> Color {
+    pub const fn grey(f: f32) -> Color {
         Color([f, f, f, 1.0])
     }
 

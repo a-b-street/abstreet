@@ -49,11 +49,7 @@ impl<T: Clone> ScrollingMenu<T> {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut txt = Text::new();
-        txt.add_styled_line(
-            self.prompt.clone(),
-            text::TEXT_FG_COLOR,
-            Some(text::TEXT_QUERY_COLOR),
-        );
+        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
 
         // TODO Silly results from doing this:
         // - The menu width changes as we scroll
@@ -88,11 +84,7 @@ impl<T: Clone> ScrollingMenu<T> {
                 continue;
             }
             if self.current_idx == idx {
-                txt.add_styled_line(
-                    line.clone(),
-                    text::TEXT_FG_COLOR,
-                    Some(text::TEXT_FOCUS_COLOR),
-                );
+                txt.add_styled_line(line.clone(), None, Some(text::SELECTED_COLOR));
             } else {
                 txt.add_line(line.clone());
             }

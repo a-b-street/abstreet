@@ -23,30 +23,18 @@ impl TextBox {
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut txt = Text::new();
-        txt.add_styled_line(
-            self.prompt.clone(),
-            text::TEXT_FG_COLOR,
-            Some(text::TEXT_QUERY_COLOR),
-        );
+        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
 
         txt.add_line(self.line[0..self.cursor_x].to_string());
         if self.cursor_x < self.line.len() {
             txt.append(
                 self.line[self.cursor_x..=self.cursor_x].to_string(),
-                text::TEXT_FG_COLOR,
-                Some(text::TEXT_FOCUS_COLOR),
-            );
-            txt.append(
-                self.line[self.cursor_x + 1..].to_string(),
-                text::TEXT_FG_COLOR,
                 None,
+                Some(text::SELECTED_COLOR),
             );
+            txt.append(self.line[self.cursor_x + 1..].to_string(), None, None);
         } else {
-            txt.append(
-                " ".to_string(),
-                text::TEXT_FG_COLOR,
-                Some(text::TEXT_FOCUS_COLOR),
-            );
+            txt.append(" ".to_string(), None, Some(text::SELECTED_COLOR));
         }
 
         canvas.draw_text(g, txt, CENTERED);

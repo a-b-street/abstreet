@@ -1,6 +1,6 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Key, Text, TEXT_FG_COLOR};
+use ezgui::{Color, GfxCtx, Key, Text};
 use std::collections::BTreeMap;
 
 pub struct DebugObjectsState {
@@ -66,7 +66,7 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
                     .get("name")
                     .unwrap_or(&"???".to_string())
                     .to_string(),
-                Color::BLUE,
+                Some(Color::BLUE),
                 None,
             );
             txt.add_line(format!("From OSM way {}", r.osm_way_id));
@@ -139,8 +139,8 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
-        txt.add_styled_line(k.to_string(), Color::RED, None);
-        txt.append(" = ".to_string(), TEXT_FG_COLOR, None);
-        txt.append(v.to_string(), Color::BLUE, None);
+        txt.add_styled_line(k.to_string(), Some(Color::RED), None);
+        txt.append(" = ".to_string(), None, None);
+        txt.append(v.to_string(), Some(Color::BLUE), None);
     }
 }

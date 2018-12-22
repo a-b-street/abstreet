@@ -8,10 +8,12 @@ use opengl_graphics::GlyphCache;
 use ordered_float::NotNaN;
 use textwrap;
 
-pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
-pub const TEXT_QUERY_COLOR: Color = Color([0.0, 0.0, 1.0, 0.5]);
-pub const TEXT_FOCUS_COLOR: Color = Color([1.0, 0.0, 0.0, 0.5]);
-const TEXT_BG_COLOR: Color = Color([0.0, 1.0, 0.0, 0.5]);
+const FG_COLOR: Color = Color::WHITE;
+pub const PROMPT_COLOR: Color = Color::BLUE;
+pub const SELECTED_COLOR: Color = Color::RED;
+pub const HOTKEY_COLOR: Color = Color::GREEN;
+pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.8);
+const BG_COLOR: Color = Color::BLACK;
 
 const FONT_SIZE: u32 = 24;
 // TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and
@@ -33,7 +35,7 @@ impl TextSpan {
     fn default_style(text: String) -> TextSpan {
         TextSpan {
             text,
-            fg_color: TEXT_FG_COLOR,
+            fg_color: FG_COLOR,
             highlight_color: None,
         }
     }
@@ -50,7 +52,7 @@ impl Text {
     pub fn new() -> Text {
         Text {
             lines: Vec::new(),
-            bg_color: Some(TEXT_BG_COLOR),
+            bg_color: Some(BG_COLOR),
         }
     }
 
@@ -88,24 +90,29 @@ impl Text {
     pub fn add_styled_line(
         &mut self,
         line: String,
-        fg_color: Color,
+        fg_color: Option<Color>,
         highlight_color: Option<Color>,
     ) {
         self.lines.push(vec![TextSpan {
             text: line,
-            fg_color,
+            fg_color: fg_color.unwrap_or(FG_COLOR),
             highlight_color,
         }]);
     }
 
-    pub fn append(&mut self, text: String, fg_color: Color, highlight_color: Option<Color>) {
+    pub fn append(
+        &mut self,
+        text: String,
+        fg_color: Option<Color>,
+        highlight_color: Option<Color>,
+    ) {
         if self.lines.is_empty() {
             self.lines.push(Vec::new());
         }
 
         self.lines.last_mut().unwrap().push(TextSpan {
             text,
-            fg_color,
+            fg_color: fg_color.unwrap_or(FG_COLOR),
             highlight_color,
         });
     }

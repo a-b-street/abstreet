@@ -121,7 +121,7 @@ impl Plugin for DrawNeighborhoodState {
         if pts.len() >= 3 {
             g.draw_polygon(
                 ctx.cs
-                    .get_def("neighborhood polygon", Color::rgba(0, 0, 255, 0.6)),
+                    .get_def("neighborhood polygon", Color::BLUE.alpha(0.6)),
                 &Polygon::new(&pts),
             );
         }

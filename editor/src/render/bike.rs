@@ -46,7 +46,7 @@ impl Renderable for DrawBike {
             match self.state {
                 CarState::Debug => ctx
                     .cs
-                    .get_def("debug bike", Color::rgba(0, 0, 255, 0.8))
+                    .get_def("debug bike", Color::BLUE.alpha(0.8))
                     .shift(self.id.0),
                 // TODO Hard to see on the greenish bike lanes? :P
                 CarState::Moving => ctx.cs.get_def("moving bike", Color::GREEN).shift(self.id.0),
@@ -59,7 +59,7 @@ impl Renderable for DrawBike {
         if let Some(ref t) = self.stopping_buffer {
             g.draw_polygon(
                 ctx.cs
-                    .get_def("bike stopping buffer", Color::rgba(255, 0, 0, 0.7)),
+                    .get_def("bike stopping buffer", Color::RED.alpha(0.7)),
                 t,
             );
         }

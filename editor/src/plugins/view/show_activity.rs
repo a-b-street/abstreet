@@ -97,7 +97,7 @@ impl Heatmap {
 
                 let percent = (self.counts[x][y] as f32) / (self.max as f32);
                 // TODO Map percent to hot/cold colors. For now, don't ever become totally opaque.
-                let color = Color::rgba(255, 0, 0, percent * 0.8);
+                let color = Color::RED.alpha(percent * 0.8);
                 g.draw_polygon(
                     color,
                     &Polygon::rectangle_topleft(

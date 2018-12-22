@@ -1,6 +1,6 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::text::LINE_HEIGHT;
-use crate::{text, Canvas, Color, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
+use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -185,34 +185,30 @@ impl<T: Clone> Menu<T> {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut txt = Text::new();
         if let Some(ref line) = self.prompt {
-            txt.add_styled_line(
-                line.to_string(),
-                text::TEXT_FG_COLOR,
-                Some(text::TEXT_QUERY_COLOR),
-            );
+            txt.add_styled_line(line.to_string(), None, Some(text::PROMPT_COLOR));
         }
         for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
-                Some(Color::WHITE)
+                Some(text::SELECTED_COLOR)
             } else {
                 None
             };
             if *active {
                 if let Some(key) = hotkey {
-                    txt.add_styled_line(key.describe(), Color::BLUE, bg);
-                    txt.append(format!(" - {}", choice), text::TEXT_FG_COLOR, bg);
+                    txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg);
+                    txt.append(format!(" - {}", choice), None, bg);
                 } else {
-                    txt.add_styled_line(choice.to_string(), text::TEXT_FG_COLOR, bg);
+                    txt.add_styled_line(choice.to_string(), None, bg);
                 }
             } else {
                 if let Some(key) = hotkey {
                     txt.add_styled_line(
                         format!("{} - {}", key.describe(), choice),
-                        Color::grey(0.8),
+                        Some(text::INACTIVE_CHOICE_COLOR),
                         bg,
                     );
                 } else {
-                    txt.add_styled_line(choice.to_string(), Color::grey(0.8), bg);
+                    txt.add_styled_line(choice.to_string(), Some(text::INACTIVE_CHOICE_COLOR), bg);
                 }
             }
         }

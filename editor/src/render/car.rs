@@ -120,7 +120,7 @@ impl Renderable for DrawCar {
             match self.state {
                 CarState::Debug => ctx
                     .cs
-                    .get_def("debug car", Color::rgba(0, 0, 255, 0.8))
+                    .get_def("debug car", Color::BLUE.alpha(0.8))
                     .shift(self.id.0),
                 CarState::Moving => ctx.cs.get_def("moving car", Color::CYAN).shift(self.id.0),
                 CarState::Stuck => ctx.cs.get_def("stuck car", Color::RED).shift(self.id.0),
@@ -159,8 +159,7 @@ impl Renderable for DrawCar {
         if opts.debug_mode {
             if let Some(ref t) = self.stopping_buffer {
                 g.draw_polygon(
-                    ctx.cs
-                        .get_def("car stopping buffer", Color::rgba(255, 0, 0, 0.7)),
+                    ctx.cs.get_def("car stopping buffer", Color::RED.alpha(0.7)),
                     t,
                 );
             }

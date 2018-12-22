@@ -60,11 +60,7 @@ impl LogScroller {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let mut txt = Text::new();
         // TODO Force padding of everything to a fixed 80% of the screen or so
-        txt.add_styled_line(
-            "Logs".to_string(),
-            text::TEXT_FG_COLOR,
-            Some(text::TEXT_QUERY_COLOR),
-        );
+        txt.add_styled_line("Logs".to_string(), None, Some(text::PROMPT_COLOR));
 
         // How many lines can we fit on the screen?
         let can_fit = {

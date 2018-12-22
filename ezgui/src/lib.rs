@@ -24,7 +24,7 @@ pub use crate::log_scroller::LogScroller;
 pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::screen_geom::ScreenPt;
 pub use crate::scrolling_menu::ScrollingMenu;
-pub use crate::text::{Text, TEXT_FG_COLOR};
+pub use crate::text::Text;
 pub use crate::text_box::TextBox;
 pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
