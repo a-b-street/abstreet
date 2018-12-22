@@ -48,7 +48,7 @@ impl DrawTurn {
             &t.geom.make_polygons_blindly(2.0 * BIG_ARROW_THICKNESS),
         );
         // And a cap on the arrow
-        g.draw_rounded_arrow(
+        g.draw_arrow(
             color,
             BIG_ARROW_THICKNESS,
             BIG_ARROW_TIP_LENGTH,
@@ -74,7 +74,7 @@ impl DrawTurn {
         } else {
             Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
-        g.draw_rounded_arrow(
+        g.draw_arrow(
             color,
             BIG_ARROW_THICKNESS / 2.0,
             BIG_ARROW_TIP_LENGTH,

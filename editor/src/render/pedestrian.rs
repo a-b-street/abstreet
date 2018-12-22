@@ -55,7 +55,7 @@ impl Renderable for DrawPedestrian {
 
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
-            g.draw_rounded_arrow(
+            g.draw_arrow(
                 ctx.cs.get_def("pedestrian turn arrow", Color::CYAN),
                 0.25,
                 0.3,

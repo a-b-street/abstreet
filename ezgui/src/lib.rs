@@ -85,22 +85,6 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, head_size: f64, line: &geom::Line) {
-        graphics::Line::new(color.0, thickness).draw_arrow(
-            line_to_array(line),
-            head_size,
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );
-    }
-
-    pub fn draw_rounded_arrow(
-        &mut self,
-        color: Color,
-        thickness: f64,
-        head_size: f64,
-        line: &geom::Line,
-    ) {
         graphics::Line::new_round(color.0, thickness).draw_arrow(
             line_to_array(line),
             head_size,
