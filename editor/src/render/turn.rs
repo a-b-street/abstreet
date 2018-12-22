@@ -96,7 +96,11 @@ impl Renderable for DrawTurn {
         }
 
         g.draw_circle(
-            ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
+            if opts.is_selected {
+                ctx.cs.get("selected")
+            } else {
+                ctx.cs.get_def("turn icon circle", Color::grey(0.3))
+            },
             &self.icon_circle,
         );
 

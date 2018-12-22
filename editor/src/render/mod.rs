@@ -56,6 +56,7 @@ pub struct RenderOptions {
     // TODO This should be accessible through ctx...
     pub cam_zoom: f64,
     pub debug_mode: bool,
+    pub is_selected: bool,
 }
 
 pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {

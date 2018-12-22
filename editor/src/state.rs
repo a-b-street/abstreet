@@ -16,6 +16,7 @@ use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 pub trait UIState {
     fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64);
     fn set_current_selection(&mut self, obj: Option<ID>);
+    fn is_current_selection(&self, obj: ID) -> bool;
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -131,6 +132,10 @@ impl UIState for DefaultUIState {
         self.primary.current_selection = obj;
     }
 
+    fn is_current_selection(&self, obj: ID) -> bool {
+        self.primary.current_selection == Some(obj)
+    }
+
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -207,9 +212,14 @@ impl UIState for DefaultUIState {
     }
 
     fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
-        if Some(id) == self.primary.current_selection {
-            return Some(ctx.cs.get_def("selected", Color::BLUE));
-        }
+        match id {
+            ID::Turn(_) => {}
+            _ => {
+                if Some(id) == self.primary.current_selection {
+                    return Some(ctx.cs.get_def("selected", Color::BLUE));
+                }
+            }
+        };
 
         if let Some(p) = self.get_active_plugin() {
             p.color_for(id, ctx)

@@ -287,11 +287,12 @@ impl Plugin for TrafficSignalEditor {
         g.unfork(old_ctx);
 
         if let Some(id) = self.icon_selected {
-            DrawTurn::draw_full(
-                ctx.map.get_t(id),
-                g,
-                ctx.cs.get_def("selected turn icon", Color::BLUE.alpha(0.5)),
-            );
+            // TODO What should we do for currently banned turns?
+            if cycles[self.current_cycle].get_priority(id) == TurnPriority::Yield {
+                DrawTurn::draw_dashed(ctx.map.get_t(id), g, ctx.cs.get("selected"));
+            } else {
+                DrawTurn::draw_full(ctx.map.get_t(id), g, ctx.cs.get("selected"));
+            }
         }
 
         if let Some(ref wizard) = self.cycle_duration_wizard {

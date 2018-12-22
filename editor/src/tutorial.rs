@@ -46,6 +46,9 @@ impl UIState for TutorialState {
     fn set_current_selection(&mut self, obj: Option<ID>) {
         self.main.set_current_selection(obj);
     }
+    fn is_current_selection(&self, obj: ID) -> bool {
+        self.main.is_current_selection(obj)
+    }
     fn event(
         &mut self,
         input: &mut UserInput,
