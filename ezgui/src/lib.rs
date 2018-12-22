@@ -75,21 +75,13 @@ impl<'a> GfxCtx<'a> {
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
     pub fn draw_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
-        graphics::Line::new(color.0, thickness).draw(
-            line_to_array(line),
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );
+        self.draw_polygon(color, &line.to_polyline().make_polygons_blindly(thickness));
     }
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
-        graphics::Line::new_round(color.0, thickness).draw(
-            line_to_array(line),
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );
+        self.draw_line(color, thickness, line);
+        self.draw_circle(color, &geom::Circle::new(line.pt1(), thickness / 2.0));
+        self.draw_circle(color, &geom::Circle::new(line.pt2(), thickness / 2.0));
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, head_size: f64, line: &geom::Line) {

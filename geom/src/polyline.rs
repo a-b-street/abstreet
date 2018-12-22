@@ -152,7 +152,7 @@ impl PolyLine {
 
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift(width);
-            return PolyLine::new(vec![l.pt1(), l.pt2()]);
+            return l.to_polyline();
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -213,7 +213,7 @@ impl PolyLine {
     fn shift_blindly_with_sharp_angles(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift(width);
-            return PolyLine::new(vec![l.pt1(), l.pt2()]);
+            return l.to_polyline();
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
