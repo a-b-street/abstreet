@@ -1,7 +1,7 @@
 use crate::menu::{Menu, Position};
 use crate::screen_geom::ScreenRectangle;
-use crate::text::LINE_HEIGHT;
-use crate::{Canvas, Color, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
+use crate::text;
+use crate::{Canvas, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::{HashMap, HashSet};
 
@@ -37,7 +37,7 @@ impl TopMenu {
 
         let mut txt = Text::with_bg_color(None);
         for f in &folders {
-            txt.append(format!("{}     ", f.name), Some(Color::WHITE), None);
+            txt.append(format!("{}     ", f.name), None, None);
         }
 
         // Calculate rectangles for the folders
@@ -129,14 +129,19 @@ impl TopMenu {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
         let old_ctx = g.fork_screenspace();
         g.draw_polygon(
-            Color::BLACK.alpha(0.5),
-            &Polygon::rectangle_topleft(Pt2D::new(0.0, 0.0), canvas.window_width, LINE_HEIGHT),
+            // TODO don't do alpha after mouseover beneath top menu is fixed
+            text::BG_COLOR.alpha(0.5),
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                canvas.window_width,
+                text::LINE_HEIGHT,
+            ),
         );
 
         if let Some(idx) = self.highlighted {
             let r = &self.folders[idx].rectangle;
             g.draw_polygon(
-                Color::RED,
+                text::SELECTED_COLOR,
                 &Polygon::rectangle_topleft(Pt2D::new(r.x1, r.y1), r.x2 - r.x1, r.y2 - r.y1),
             );
         }

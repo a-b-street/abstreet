@@ -57,7 +57,7 @@ fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
 fn summarize(txt: &mut Text, summary: ScoreSummary) {
     txt.add_styled_line(
         "Walking".to_string(),
-        Some(Color::BLACK),
+        None,
         Some(Color::RED.alpha(0.8)),
     );
     txt.add_line(format!(
@@ -69,7 +69,7 @@ fn summarize(txt: &mut Text, summary: ScoreSummary) {
 
     txt.add_styled_line(
         "Driving".to_string(),
-        Some(Color::BLACK),
+        None,
         Some(Color::BLUE.alpha(0.8)),
     );
     txt.add_line(format!(
