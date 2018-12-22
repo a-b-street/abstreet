@@ -5,6 +5,7 @@ use graphics;
 use graphics::character::CharacterCache;
 use graphics::{Rectangle, Transformed};
 use opengl_graphics::GlyphCache;
+use ordered_float::NotNaN;
 use textwrap;
 
 pub const TEXT_FG_COLOR: Color = Color([0.0, 0.0, 0.0, 1.0]);
@@ -118,16 +119,22 @@ impl Text {
     }
 
     pub(crate) fn dims(&self, glyphs: &mut GlyphCache) -> (f64, f64) {
-        let longest_line = self
+        let width = self
             .lines
             .iter()
-            .max_by_key(|l| l.iter().fold(0, |so_far, span| so_far + span.text.len()))
+            .map(|l| {
+                glyphs
+                    .width(
+                        FONT_SIZE,
+                        &l.iter().fold(String::new(), |mut so_far, span| {
+                            so_far.push_str(&span.text);
+                            so_far
+                        }),
+                    )
+                    .unwrap()
+            })
+            .max_by_key(|w| NotNaN::new(*w).unwrap())
             .unwrap();
-        let mut concat = String::new();
-        for span in longest_line {
-            concat.push_str(&span.text);
-        }
-        let width = glyphs.width(FONT_SIZE, &concat).unwrap();
         let height = (self.lines.len() as f64) * LINE_HEIGHT;
         (width, height)
     }
