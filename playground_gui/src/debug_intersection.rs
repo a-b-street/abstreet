@@ -67,12 +67,12 @@ impl Iterator for RelatedColors {
     fn next(&mut self) -> Option<Color> {
         self.count -= 2;
         let multiplier = 0.1 * (self.count as f32);
-        Some(Color([
+        Some(Color::rgba_f(
             self.r * multiplier,
             self.g * multiplier,
             self.b * multiplier,
             0.8,
-        ]))
+        ))
     }
 }
 

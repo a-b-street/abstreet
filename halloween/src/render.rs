@@ -4,13 +4,13 @@ use geom::{Bounds, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, Road, RoadID, LANE_THICKNESS};
 
 // black
-const BACKGROUND: Color = Color([0.0, 0.0, 0.0, 1.0]);
+const BACKGROUND: Color = Color::rgb_f(0.0, 0.0, 0.0);
 // light orange
-const ROAD: Color = Color([1.0, 154.0 / 255.0, 0.0, 1.0]);
+const ROAD: Color = Color::rgb_f(1.0, 154.0 / 255.0, 0.0);
 // purple
-const BUILDING: Color = Color([136.0 / 255.0, 30.0 / 255.0, 228.0 / 255.0, 1.0]);
+const BUILDING: Color = Color::rgb_f(136.0 / 255.0, 30.0 / 255.0, 228.0 / 255.0);
 // dark orange / red
-const PATH: Color = Color([247.0 / 255.0, 95.0 / 255.0, 28.0 / 255.0, 1.0]);
+const PATH: Color = Color::rgb_f(247.0 / 255.0, 95.0 / 255.0, 28.0 / 255.0);
 
 const LINE_WIDTH: f64 = 1.0;
 

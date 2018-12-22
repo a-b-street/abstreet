@@ -8,21 +8,20 @@ use map_model::{Parcel, ParcelID};
 
 const COLORS: [Color; 14] = [
     // TODO these are awful choices
-    // TODO can we express these with the nicer functions? probably need constexpr
-    Color([1.0, 1.0, 0.0, 1.0]),
-    Color([1.0, 0.0, 1.0, 1.0]),
-    Color([0.0, 1.0, 1.0, 1.0]),
-    Color([0.5, 0.2, 0.7, 1.0]),
-    Color([0.5, 0.5, 0.0, 0.5]),
-    Color([0.5, 0.0, 0.5, 0.5]),
-    Color([0.0, 0.5, 0.5, 0.5]),
-    Color([0.0, 0.0, 0.5, 0.5]),
-    Color([0.3, 0.2, 0.5, 0.5]),
-    Color([0.4, 0.2, 0.5, 0.5]),
-    Color([0.5, 0.2, 0.5, 0.5]),
-    Color([0.6, 0.2, 0.5, 0.5]),
-    Color([0.7, 0.2, 0.5, 0.5]),
-    Color([0.8, 0.2, 0.5, 0.5]),
+    Color::rgba_f(1.0, 1.0, 0.0, 1.0),
+    Color::rgba_f(1.0, 0.0, 1.0, 1.0),
+    Color::rgba_f(0.0, 1.0, 1.0, 1.0),
+    Color::rgba_f(0.5, 0.2, 0.7, 1.0),
+    Color::rgba_f(0.5, 0.5, 0.0, 0.5),
+    Color::rgba_f(0.5, 0.0, 0.5, 0.5),
+    Color::rgba_f(0.0, 0.5, 0.5, 0.5),
+    Color::rgba_f(0.0, 0.0, 0.5, 0.5),
+    Color::rgba_f(0.3, 0.2, 0.5, 0.5),
+    Color::rgba_f(0.4, 0.2, 0.5, 0.5),
+    Color::rgba_f(0.5, 0.2, 0.5, 0.5),
+    Color::rgba_f(0.6, 0.2, 0.5, 0.5),
+    Color::rgba_f(0.7, 0.2, 0.5, 0.5),
+    Color::rgba_f(0.8, 0.2, 0.5, 0.5),
 ];
 
 #[derive(Debug)]
