@@ -38,6 +38,8 @@ impl Plugin for TurnCyclerState {
                         *self = TurnCyclerState::CycleTurns(id, 0);
                     }
                 }
+
+                ctx.hints.suppress_traffic_signal_details = Some(ctx.primary.map.get_l(id).dst_i);
             }
             _ => {
                 *self = TurnCyclerState::Inactive;
@@ -50,29 +52,28 @@ impl Plugin for TurnCyclerState {
             TurnCyclerState::Inactive => {}
             TurnCyclerState::ShowLane(l) => {
                 for turn in &ctx.map.get_turns_from_lane(*l) {
-                    let color = match turn.turn_type {
-                        TurnType::SharedSidewalkCorner => {
-                            ctx.cs.get_def("shared sidewalk corner turn", Color::BLACK)
-                        }
-                        TurnType::Crosswalk => ctx.cs.get_def("crosswalk turn", Color::WHITE),
-                        TurnType::Straight => ctx.cs.get_def("straight turn", Color::BLUE),
-                        TurnType::Right => ctx.cs.get_def("right turn", Color::GREEN),
-                        TurnType::Left => ctx.cs.get_def("left turn", Color::RED),
-                    }
-                    .alpha(0.5);
-                    DrawTurn::draw_full(turn, g, color);
+                    DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, ctx).alpha(0.5));
                 }
             }
             TurnCyclerState::CycleTurns(l, idx) => {
                 let turns = ctx.map.get_turns_from_lane(*l);
+                let t = turns[*idx % turns.len()];
                 if !turns.is_empty() {
-                    DrawTurn::draw_full(
-                        turns[*idx % turns.len()],
-                        g,
-                        ctx.cs.get_def("current selected turn", Color::RED),
-                    );
+                    DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ctx));
                 }
             }
         }
+    }
+}
+
+fn color_turn_type(t: TurnType, ctx: &Ctx) -> Color {
+    match t {
+        TurnType::SharedSidewalkCorner => {
+            ctx.cs.get_def("shared sidewalk corner turn", Color::BLACK)
+        }
+        TurnType::Crosswalk => ctx.cs.get_def("crosswalk turn", Color::WHITE),
+        TurnType::Straight => ctx.cs.get_def("straight turn", Color::BLUE),
+        TurnType::Right => ctx.cs.get_def("right turn", Color::GREEN),
+        TurnType::Left => ctx.cs.get_def("left turn", Color::RED),
     }
 }
