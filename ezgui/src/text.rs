@@ -13,9 +13,10 @@ pub const TEXT_FOCUS_COLOR: Color = Color([1.0, 0.0, 0.0, 0.5]);
 const TEXT_BG_COLOR: Color = Color([0.0, 1.0, 0.0, 0.5]);
 
 const FONT_SIZE: u32 = 24;
-// TODO this is a hack, need a glyphs.height() method as well!
-pub const LINE_HEIGHT: f64 = 22.0;
-// TODO Totally made up. Should query the font or something.
+// TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and
+// they need adjustments to their positioning.
+pub const LINE_HEIGHT: f64 = 32.0;
+const SHIFT_TEXT_UP: f64 = 7.0;
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone)]
@@ -176,7 +177,7 @@ pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: Scree
                     &span.text,
                     glyphs,
                     &g.orig_ctx.draw_state,
-                    g.orig_ctx.transform.trans(x, y),
+                    g.orig_ctx.transform.trans(x, y - SHIFT_TEXT_UP),
                     g.gfx,
                 )
                 .unwrap();
