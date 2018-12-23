@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, ScreenPt, Text, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Key, ScreenPt, Text, Wizard, WrappedWizard, TOP_MENU_HEIGHT};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
@@ -241,8 +241,8 @@ impl Plugin for TrafficSignalEditor {
             ctx.cs
                 .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
             &Polygon::rectangle_topleft(
-                Pt2D::new(10.0, 10.0),
-                2.0 * width * zoom,
+                Pt2D::new(10.0, TOP_MENU_HEIGHT + 10.0),
+                1.0 * width * zoom,
                 (padding + height) * (cycles.len() as f64) * zoom,
             ),
         );
@@ -256,9 +256,10 @@ impl Plugin for TrafficSignalEditor {
             &Polygon::rectangle_topleft(
                 Pt2D::new(
                     10.0,
-                    10.0 + (padding + height) * (self.current_cycle as f64) * zoom,
+                    10.0 + TOP_MENU_HEIGHT
+                        + (padding + height) * (self.current_cycle as f64) * zoom,
                 ),
-                2.0 * width * zoom,
+                width * zoom,
                 (padding + height) * zoom,
             ),
         );
@@ -279,7 +280,7 @@ impl Plugin for TrafficSignalEditor {
                 Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
                 ScreenPt::new(
                     10.0 + (width * zoom),
-                    10.0 + (padding + height) * (idx as f64) * zoom,
+                    10.0 + TOP_MENU_HEIGHT + (padding + height) * (idx as f64) * zoom,
                 ),
             );
         }

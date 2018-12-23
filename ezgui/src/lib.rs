@@ -33,6 +33,10 @@ use graphics::Transformed;
 use opengl_graphics::GlGraphics;
 use std::mem;
 
+// TODO Not super happy about exposing this; fork_screenspace for external callers should be
+// smarter.
+pub const TOP_MENU_HEIGHT: f64 = text::LINE_HEIGHT;
+
 pub struct GfxCtx<'a> {
     orig_ctx: graphics::Context,
     ctx: graphics::Context,
