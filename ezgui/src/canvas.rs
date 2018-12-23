@@ -80,7 +80,8 @@ impl Canvas {
                 self.left_mouse_drag_from = Some(pt);
             }
         }
-        if input.left_mouse_button_pressed() {
+        // Can't start dragging on top of covered area
+        if input.left_mouse_button_pressed() && self.get_cursor_in_map_space().is_some() {
             self.left_mouse_drag_from = Some(self.get_cursor_in_screen_space());
         }
         if input.left_mouse_button_released() {
