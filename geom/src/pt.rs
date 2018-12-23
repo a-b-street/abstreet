@@ -52,6 +52,15 @@ impl Pt2D {
     }
 
     pub fn to_gps(&self, b: &GPSBounds) -> Option<LonLat> {
+        if b.represents_world_space {
+            let pt = LonLat::new(self.x, self.y);
+            if b.contains(pt) {
+                return Some(pt);
+            } else {
+                return None;
+            }
+        }
+
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x, pt.y)
