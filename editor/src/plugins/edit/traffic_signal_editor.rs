@@ -1,9 +1,8 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::{draw_signal_cycle, DrawTurn};
+use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, ScreenPt, Text, Wizard, WrappedWizard, TOP_MENU_HEIGHT};
-use geom::{Bounds, Polygon, Pt2D};
+use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
@@ -190,10 +189,12 @@ impl Plugin for TrafficSignalEditor {
                 }
                 ctx.primary.map.edit_traffic_signal(signal);
             } else if input.modal_action("add a new empty cycle") {
-                signal.cycles.insert(self.current_cycle, Cycle::new(self.i));
+                signal
+                    .cycles
+                    .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
                 ctx.primary.map.edit_traffic_signal(signal);
             } else if has_sidewalks && input.modal_action("add a new pedestrian scramble cycle") {
-                let mut cycle = Cycle::new(self.i);
+                let mut cycle = Cycle::new(self.i, signal.cycles.len());
                 for t in ctx.primary.map.get_turns_in_intersection(self.i) {
                     // edit_turn adds the other_crosswalk_id and asserts no duplicates.
                     if t.turn_type == TurnType::SharedSidewalkCorner
@@ -212,80 +213,9 @@ impl Plugin for TrafficSignalEditor {
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
 
-        draw_signal_cycle(
-            &cycles[self.current_cycle],
-            g,
-            ctx.cs,
-            ctx.map,
-            ctx.draw_map,
-        );
+        draw_signal_cycle(&cycles[self.current_cycle], g, ctx);
 
-        // Draw all of the cycles off to the side
-        let padding = 5.0;
-        let zoom = 10.0;
-        let (top_left, width, height) = {
-            let mut b = Bounds::new();
-            for pt in &ctx.map.get_i(self.i).polygon {
-                b.update(*pt);
-            }
-            (
-                Pt2D::new(b.min_x, b.min_y),
-                b.max_x - b.min_x,
-                // Vertically pad
-                b.max_y - b.min_y,
-            )
-        };
-
-        let old_ctx = g.fork_screenspace();
-        g.draw_polygon(
-            ctx.cs
-                .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
-            &Polygon::rectangle_topleft(
-                Pt2D::new(10.0, TOP_MENU_HEIGHT + 10.0),
-                1.0 * width * zoom,
-                (padding + height) * (cycles.len() as f64) * zoom,
-            ),
-        );
-        // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
-        // center a map-space thing inside a screen-space box.
-        g.draw_polygon(
-            ctx.cs.get_def(
-                "current cycle in signal editor panel",
-                Color::BLUE.alpha(0.95),
-            ),
-            &Polygon::rectangle_topleft(
-                Pt2D::new(
-                    10.0,
-                    10.0 + TOP_MENU_HEIGHT
-                        + (padding + height) * (self.current_cycle as f64) * zoom,
-                ),
-                width * zoom,
-                (padding + height) * zoom,
-            ),
-        );
-
-        for (idx, cycle) in cycles.iter().enumerate() {
-            g.fork(
-                // TODO Apply the offset here too?
-                Pt2D::new(
-                    top_left.x(),
-                    top_left.y() - height * (idx as f64) - padding * ((idx as f64) + 1.0),
-                ),
-                zoom,
-            );
-            draw_signal_cycle(&cycle, g, ctx.cs, ctx.map, ctx.draw_map);
-
-            ctx.canvas.draw_text_at_screenspace_topleft(
-                g,
-                Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
-                ScreenPt::new(
-                    10.0 + (width * zoom),
-                    10.0 + TOP_MENU_HEIGHT + (padding + height) * (idx as f64) * zoom,
-                ),
-            );
-        }
-
-        g.unfork(old_ctx);
+        draw_signal_diagram(self.i, self.current_cycle, g, ctx);
 
         if let Some(id) = self.icon_selected {
             // TODO What should we do for currently banned turns?

@@ -1,13 +1,14 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::DrawTurn;
+use crate::render::{draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key};
-use map_model::{LaneID, TurnType};
+use map_model::{IntersectionID, LaneID, TurnType};
 
 pub enum TurnCyclerState {
     Inactive,
     ShowLane(LaneID),
     CycleTurns(LaneID, usize),
+    ShowIntersection(IntersectionID),
 }
 
 impl TurnCyclerState {
@@ -41,6 +42,9 @@ impl Plugin for TurnCyclerState {
 
                 ctx.hints.suppress_traffic_signal_details = Some(ctx.primary.map.get_l(id).dst_i);
             }
+            Some(ID::Intersection(id)) => {
+                *self = TurnCyclerState::ShowIntersection(id);
+            }
             _ => {
                 *self = TurnCyclerState::Inactive;
             }
@@ -61,6 +65,14 @@ impl Plugin for TurnCyclerState {
                 if !turns.is_empty() {
                     DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ctx));
                 }
+            }
+            TurnCyclerState::ShowIntersection(i) => {
+                // TODO depict overtime, time left, etc
+                let (cycle, _) = ctx
+                    .map
+                    .get_traffic_signal(*i)
+                    .current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                draw_signal_diagram(*i, cycle.idx, g, ctx);
             }
         }
     }

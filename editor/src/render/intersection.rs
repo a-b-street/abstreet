@@ -1,9 +1,6 @@
-use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
-use crate::render::{
-    DrawCrosswalk, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
-};
-use ezgui::{Color, GfxCtx, Text};
+use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
+use ezgui::{Color, GfxCtx, ScreenPt, Text, TOP_MENU_HEIGHT};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
@@ -55,7 +52,7 @@ impl DrawIntersection {
             let (cycle, time_left) =
                 signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
 
-            draw_signal_cycle(cycle, g, ctx.cs, ctx.map, ctx.draw_map);
+            draw_signal_cycle(cycle, g, ctx);
 
             // Draw a little timer box in the middle of the intersection.
             g.draw_polygon(
@@ -155,34 +152,99 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-pub fn draw_signal_cycle(
-    cycle: &Cycle,
-    g: &mut GfxCtx,
-    cs: &ColorScheme,
-    map: &Map,
-    draw_map: &DrawMap,
-) {
-    let priority_color = cs.get_def("turns protected by traffic signal right now", Color::GREEN);
-    let yield_color = cs.get_def(
+pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
+    let priority_color = ctx
+        .cs
+        .get_def("turns protected by traffic signal right now", Color::GREEN);
+    let yield_color = ctx.cs.get_def(
         "turns allowed with yielding by traffic signal right now",
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    for crosswalk in &draw_map.get_i(cycle.parent).crosswalks {
+    for crosswalk in &ctx.draw_map.get_i(cycle.parent).crosswalks {
         if cycle.get_priority(crosswalk.id1) == TurnPriority::Priority {
-            crosswalk.draw(g, cs.get("crosswalk"));
+            crosswalk.draw(g, ctx.cs.get("crosswalk"));
         }
     }
     for t in &cycle.priority_turns {
-        let turn = map.get_t(*t);
+        let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
             DrawTurn::draw_full(turn, g, priority_color);
         }
     }
     for t in &cycle.yield_turns {
-        let turn = map.get_t(*t);
+        let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
             DrawTurn::draw_dashed(turn, g, yield_color);
         }
     }
+}
+
+pub fn draw_signal_diagram(i: IntersectionID, current_cycle: usize, g: &mut GfxCtx, ctx: &Ctx) {
+    // Draw all of the cycles off to the side
+    let padding = 5.0;
+    let zoom = 10.0;
+    let (top_left, width, height) = {
+        let mut b = Bounds::new();
+        for pt in &ctx.map.get_i(i).polygon {
+            b.update(*pt);
+        }
+        (
+            Pt2D::new(b.min_x, b.min_y),
+            b.max_x - b.min_x,
+            // Vertically pad
+            b.max_y - b.min_y,
+        )
+    };
+
+    let cycles = &ctx.map.get_traffic_signal(i).cycles;
+    let old_ctx = g.fork_screenspace();
+    g.draw_polygon(
+        ctx.cs
+            .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
+        &Polygon::rectangle_topleft(
+            Pt2D::new(10.0, TOP_MENU_HEIGHT + 10.0),
+            1.0 * width * zoom,
+            (padding + height) * (cycles.len() as f64) * zoom,
+        ),
+    );
+    // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
+    // center a map-space thing inside a screen-space box.
+    g.draw_polygon(
+        ctx.cs.get_def(
+            "current cycle in signal editor panel",
+            Color::BLUE.alpha(0.95),
+        ),
+        &Polygon::rectangle_topleft(
+            Pt2D::new(
+                10.0,
+                10.0 + TOP_MENU_HEIGHT + (padding + height) * (current_cycle as f64) * zoom,
+            ),
+            width * zoom,
+            (padding + height) * zoom,
+        ),
+    );
+
+    for (idx, cycle) in cycles.iter().enumerate() {
+        g.fork(
+            // TODO Apply the offset here too?
+            Pt2D::new(
+                top_left.x(),
+                top_left.y() - height * (idx as f64) - padding * ((idx as f64) + 1.0),
+            ),
+            zoom,
+        );
+        draw_signal_cycle(&cycle, g, ctx);
+
+        ctx.canvas.draw_text_at_screenspace_topleft(
+            g,
+            Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
+            ScreenPt::new(
+                10.0 + (width * zoom),
+                10.0 + TOP_MENU_HEIGHT + (padding + height) * (idx as f64) * zoom,
+            ),
+        );
+    }
+
+    g.unfork(old_ctx);
 }
