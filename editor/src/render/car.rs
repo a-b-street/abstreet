@@ -12,8 +12,8 @@ pub struct DrawCar {
     pub id: CarID,
     body_polygon: Polygon,
     window_polygons: Vec<Polygon>,
-    left_blinker: Circle,
-    right_blinker: Circle,
+    left_blinkers: (Circle, Circle),
+    right_blinkers: (Circle, Circle),
     left_blinker_on: bool,
     right_blinker_on: bool,
     // TODO maybe also draw lookahead buffer to know what the car is considering
@@ -40,6 +40,13 @@ impl DrawCar {
 
         let front_window_length_gap = 0.2;
         let front_window_thickness = 0.3;
+
+        let front_blinker = input.front.project_away(0.5, input.angle.opposite());
+        let back_blinker = input.front.project_away(
+            input.vehicle_length.value_unsafe - 0.5,
+            input.angle.opposite(),
+        );
+        let blinker_radius = 0.3;
 
         DrawCar {
             id: input.id,
@@ -81,25 +88,28 @@ impl DrawCar {
                     input.angle.rotate_degs(90.0),
                 ),
             ],
-            left_blinker: Circle::new(
-                input
-                    .front
-                    .project_away(
-                        input.vehicle_length.value_unsafe - 0.5,
-                        input.angle.opposite(),
-                    )
-                    .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
-                0.2,
+            left_blinkers: (
+                Circle::new(
+                    front_blinker
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
+                    blinker_radius,
+                ),
+                Circle::new(
+                    back_blinker
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
+                    blinker_radius,
+                ),
             ),
-            right_blinker: Circle::new(
-                input
-                    .front
-                    .project_away(
-                        input.vehicle_length.value_unsafe - 0.5,
-                        input.angle.opposite(),
-                    )
-                    .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
-                0.2,
+            right_blinkers: (
+                Circle::new(
+                    front_blinker
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
+                    blinker_radius,
+                ),
+                Circle::new(
+                    back_blinker.project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
+                    blinker_radius,
+                ),
             ),
             left_blinker_on,
             right_blinker_on,
@@ -123,7 +133,10 @@ impl Renderable for DrawCar {
                     .get_def("debug car", Color::BLUE.alpha(0.8))
                     .shift(self.id.0),
                 CarState::Moving => ctx.cs.get_def("moving car", Color::CYAN).shift(self.id.0),
-                CarState::Stuck => ctx.cs.get_def("stuck car", Color::RED).shift(self.id.0),
+                CarState::Stuck => ctx
+                    .cs
+                    .get_def("stuck car", Color::rgb_f(0.5, 0.0, 0.0))
+                    .shift(self.id.0),
                 CarState::Parked => ctx
                     .cs
                     .get_def("parked car", Color::rgb(180, 233, 76))
@@ -135,7 +148,7 @@ impl Renderable for DrawCar {
             g.draw_polygon(ctx.cs.get_def("car window", Color::BLACK), p);
         }
 
-        let blinker_on = ctx.cs.get_def("blinker on", Color::BLACK);
+        let blinker_on = ctx.cs.get_def("blinker on", Color::RED);
         // Don't use the simulation time, because then fast simulations would have cars blinking
         // _very_ fast or slow. Unless that's what people expect?
         // But if a car is trying to go straight, don't blink at all.
@@ -149,11 +162,20 @@ impl Renderable for DrawCar {
                 % 300
                 < 150
         };
-        if any_blinkers_on && self.left_blinker_on {
-            g.draw_circle(blinker_on, &self.left_blinker);
-        }
-        if any_blinkers_on && self.right_blinker_on {
-            g.draw_circle(blinker_on, &self.right_blinker);
+        if any_blinkers_on {
+            // If both are on, don't show the front ones -- just the back brake lights
+            if self.left_blinker_on {
+                if !self.right_blinker_on {
+                    g.draw_circle(blinker_on, &self.left_blinkers.0);
+                }
+                g.draw_circle(blinker_on, &self.left_blinkers.1);
+            }
+            if self.right_blinker_on {
+                if !self.left_blinker_on {
+                    g.draw_circle(blinker_on, &self.right_blinkers.0);
+                }
+                g.draw_circle(blinker_on, &self.right_blinkers.1);
+            }
         }
 
         if opts.debug_mode {
