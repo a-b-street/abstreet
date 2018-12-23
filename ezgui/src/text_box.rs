@@ -13,10 +13,11 @@ pub struct TextBox {
 
 impl TextBox {
     pub fn new(prompt: &str, prefilled: Option<String>) -> TextBox {
+        let line = prefilled.unwrap_or_else(String::new);
         TextBox {
             prompt: prompt.to_string(),
-            line: prefilled.unwrap_or_else(String::new),
-            cursor_x: 0,
+            cursor_x: line.len(),
+            line,
             shift_pressed: false,
         }
     }
