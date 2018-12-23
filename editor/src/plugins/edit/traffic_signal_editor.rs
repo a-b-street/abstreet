@@ -334,13 +334,13 @@ fn choose_preset(
     // closure. Grr.
     let mut choices: Vec<(String, ControlTrafficSignal)> = Vec::new();
     if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
-        choices.push(("4-phase".to_string(), ts));
+        choices.push(("four-phase".to_string(), ts));
     }
     if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
-        choices.push(("2-phase".to_string(), ts));
+        choices.push(("two-phase".to_string(), ts));
     }
     if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
-        choices.push(("2-phase".to_string(), ts));
+        choices.push(("three-phase".to_string(), ts));
     }
     if let Some(ts) = ControlTrafficSignal::greedy_assignment(map, id) {
         choices.push(("arbitrary assignment".to_string(), ts));

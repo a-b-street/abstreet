@@ -60,7 +60,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     ],
                 ),
                 Folder::new(
-                    "Sim",
+                    "Simulation",
                     vec![
                         (Key::LeftBracket, "slow down sim"),
                         (Key::RightBracket, "speed up sim"),
