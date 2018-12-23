@@ -41,7 +41,13 @@ impl UI {
 impl GUI<Text> for UI {
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, Text) {
         self.canvas.handle_event(input);
-        let cursor = self.canvas.get_cursor_in_map_space();
+        let cursor = {
+            if let Some(c) = self.canvas.get_cursor_in_map_space() {
+                c
+            } else {
+                return (EventLoopMode::InputOnly, Text::new());
+            }
+        };
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -185,14 +191,13 @@ impl GUI<Text> for UI {
 
         match self.state {
             State::CreatingRoad(i1) => {
-                g.draw_line(
-                    Color::GREEN,
-                    5.0,
-                    &Line::new(
-                        self.model.get_i_center(i1),
-                        self.canvas.get_cursor_in_map_space(),
-                    ),
-                );
+                if let Some(cursor) = self.canvas.get_cursor_in_map_space() {
+                    g.draw_line(
+                        Color::GREEN,
+                        5.0,
+                        &Line::new(self.model.get_i_center(i1), cursor),
+                    );
+                }
             }
             State::LabelingBuilding(_, ref wizard)
             | State::LabelingRoad(_, ref wizard)

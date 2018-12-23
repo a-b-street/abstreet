@@ -164,12 +164,12 @@ impl Canvas {
         self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
     }
 
-    pub fn get_cursor_in_screen_space(&self) -> ScreenPt {
+    pub(crate) fn get_cursor_in_screen_space(&self) -> ScreenPt {
         ScreenPt::new(self.cursor_x, self.cursor_y)
     }
 
-    pub fn get_cursor_in_map_space(&self) -> Pt2D {
-        self.screen_to_map(self.get_cursor_in_screen_space())
+    pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
+        Some(self.screen_to_map(self.get_cursor_in_screen_space()))
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

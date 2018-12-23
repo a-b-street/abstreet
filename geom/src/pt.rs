@@ -51,16 +51,19 @@ impl Pt2D {
         Some(Pt2D::new(x, y))
     }
 
-    pub fn to_gps(&self, b: &GPSBounds) -> LonLat {
+    pub fn to_gps(&self, b: &GPSBounds) -> Option<LonLat> {
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x, pt.y)
         };
+        if self.x < 0.0 || self.y < 0.0 || self.x > width || self.y > height {
+            return None;
+        }
 
         let lon = (self.x / width * (b.max_lon - b.min_lon)) + b.min_lon;
         let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y) / height);
 
-        LonLat::new(lon, lat)
+        Some(LonLat::new(lon, lat))
     }
 
     pub fn x(&self) -> f64 {

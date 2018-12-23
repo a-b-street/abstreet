@@ -27,8 +27,6 @@ impl DrawNeighborhoodState {
 impl Plugin for DrawNeighborhoodState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let gps_bounds = ctx.primary.map.get_gps_bounds();
-        let cursor = ctx.canvas.get_cursor_in_map_space();
-
         match self {
             DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
                 if let Some(n) =
@@ -56,14 +54,24 @@ impl Plugin for DrawNeighborhoodState {
                         .modal_action("export as an Osmosis polygon filter")
                 {
                     n.save_as_osmosis().unwrap();
-                } else if ctx.input.modal_action("add a new point") {
-                    n.points.push(cursor.to_gps(gps_bounds));
+                } else if let Some(pt) = ctx
+                    .canvas
+                    .get_cursor_in_map_space()
+                    .and_then(|c| c.to_gps(gps_bounds))
+                {
+                    if ctx.input.modal_action("add a new point") {
+                        n.points.push(pt);
+                    }
                 }
 
-                *current_idx = n.points.iter().position(|pt| {
-                    Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
-                        .contains_pt(cursor)
-                });
+                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    *current_idx = n.points.iter().position(|pt| {
+                        Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
+                            .contains_pt(cursor)
+                    });
+                } else {
+                    *current_idx = None;
+                }
                 if let Some(idx) = current_idx {
                     // TODO mouse dragging might be more intuitive, but it's unclear how to
                     // override part of canvas.handle_event
@@ -82,7 +90,13 @@ impl Plugin for DrawNeighborhoodState {
                     &ctx.canvas,
                 );
 
-                n.points[*idx] = cursor.to_gps(gps_bounds);
+                if let Some(pt) = ctx
+                    .canvas
+                    .get_cursor_in_map_space()
+                    .and_then(|c| c.to_gps(gps_bounds))
+                {
+                    n.points[*idx] = pt;
+                }
                 if ctx.input.key_released(Key::LeftControl) {
                     *self = DrawNeighborhoodState::EditNeighborhood(n.clone(), Some(*idx));
                 }

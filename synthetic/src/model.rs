@@ -180,9 +180,9 @@ impl Model {
         g.clear(Color::WHITE);
 
         let cursor = canvas.get_cursor_in_map_space();
-        let current_i = self.mouseover_intersection(cursor);
-        let current_b = self.mouseover_building(cursor);
-        let current_r = self.mouseover_road(cursor);
+        let current_i = cursor.and_then(|c| self.mouseover_intersection(c));
+        let current_b = cursor.and_then(|c| self.mouseover_building(c));
+        let current_r = cursor.and_then(|c| self.mouseover_road(c));
 
         for (id, r) in &self.roads {
             r.draw(

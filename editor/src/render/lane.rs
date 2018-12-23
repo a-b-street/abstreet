@@ -304,8 +304,7 @@ fn turn_markings(turn: &Turn, map: &Map) -> Option<Marking> {
     );
 
     Some(Box::new(move |g, cs| {
-        let color = cs
-            .get_def("turn restrictions on lane", Color::WHITE);
+        let color = cs.get_def("turn restrictions on lane", Color::WHITE);
         g.draw_polygon(color, &base_polygon);
         g.draw_arrow(color, 0.05, 0.5, &turn_line);
     }))

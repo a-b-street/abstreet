@@ -302,7 +302,7 @@ impl<S: UIState> UI<S> {
     }
 
     fn mouseover_something(&self) -> Option<ID> {
-        let pt = self.canvas.get_cursor_in_map_space();
+        let pt = self.canvas.get_cursor_in_map_space()?;
 
         let (statics, dynamics) = self.state.get_objects_onscreen(&self.canvas);
         // Check front-to-back
