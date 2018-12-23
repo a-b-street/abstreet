@@ -127,10 +127,16 @@ impl TopMenu {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+        canvas.mark_covered_area(ScreenRectangle {
+            x1: 0.0,
+            y1: 0.0,
+            x2: canvas.window_width,
+            y2: text::LINE_HEIGHT,
+        });
+
         let old_ctx = g.fork_screenspace();
         g.draw_polygon(
-            // TODO don't do alpha after mouseover beneath top menu is fixed
-            text::BG_COLOR.alpha(0.5),
+            text::BG_COLOR,
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
                 canvas.window_width,

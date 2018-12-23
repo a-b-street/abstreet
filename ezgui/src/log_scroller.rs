@@ -90,6 +90,6 @@ impl LogScroller {
             }
         }
 
-        canvas.draw_text(g, txt, CENTERED);
+        canvas.draw_blocking_text(g, txt, CENTERED);
     }
 }

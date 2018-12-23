@@ -37,7 +37,7 @@ impl TextBox {
             txt.append(" ".to_string(), None, Some(text::SELECTED_COLOR));
         }
 
-        canvas.draw_text(g, txt, CENTERED);
+        canvas.draw_blocking_text(g, txt, CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

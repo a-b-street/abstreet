@@ -34,7 +34,7 @@ impl Plugin for ShowScoreState {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let ShowScoreState::Active(_, ref text) = self {
-            ctx.canvas.draw_text(g, text.clone(), TOP_RIGHT);
+            ctx.canvas.draw_blocking_text(g, text.clone(), TOP_RIGHT);
         }
     }
 }

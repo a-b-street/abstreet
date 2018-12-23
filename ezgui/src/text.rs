@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::screen_geom::ScreenRectangle;
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
 use graphics;
 use graphics::character::CharacterCache;
@@ -147,7 +148,12 @@ impl Text {
     }
 }
 
-pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: ScreenPt, txt: Text) {
+pub fn draw_text_bubble(
+    g: &mut GfxCtx,
+    glyphs: &mut GlyphCache,
+    top_left: ScreenPt,
+    txt: Text,
+) -> ScreenRectangle {
     let (total_width, total_height) = txt.dims(glyphs);
     if let Some(c) = txt.bg_color {
         Rectangle::new(c.0).draw(
@@ -198,5 +204,12 @@ pub fn draw_text_bubble(g: &mut GfxCtx, glyphs: &mut GlyphCache, top_left: Scree
             x += span_width;
         }
         y += LINE_HEIGHT;
+    }
+
+    ScreenRectangle {
+        x1: top_left.x,
+        y1: top_left.y,
+        x2: top_left.x + total_width,
+        y2: top_left.y + total_height,
     }
 }

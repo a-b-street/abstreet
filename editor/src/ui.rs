@@ -250,7 +250,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
         // soon, so meh
-        self.canvas.draw_text(g, hints.osd.clone(), BOTTOM_LEFT);
+        self.canvas
+            .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
     }
 
     fn dump_before_abort(&self) {

@@ -1,5 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
+use crate::screen_geom::ScreenRectangle;
 use crate::{text, GfxCtx, ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use graphics::Transformed;
@@ -26,6 +27,9 @@ pub struct Canvas {
     pub window_height: f64,
 
     glyphs: RefCell<GlyphCache<'static>>,
+
+    // TODO Bit weird and hacky to mutate inside of draw() calls.
+    covered_areas: RefCell<Vec<ScreenRectangle>>,
 }
 
 impl Canvas {
@@ -56,6 +60,8 @@ impl Canvas {
             window_height: f64::from(initial_height),
 
             glyphs,
+
+            covered_areas: RefCell::new(Vec::new()),
         }
     }
 
@@ -97,7 +103,12 @@ impl Canvas {
         g.ctx = g
             .orig_ctx
             .trans(-self.cam_x, -self.cam_y)
-            .zoom(self.cam_zoom)
+            .zoom(self.cam_zoom);
+        self.covered_areas.borrow_mut().clear();
+    }
+
+    pub(crate) fn mark_covered_area(&self, rect: ScreenRectangle) {
+        self.covered_areas.borrow_mut().push(rect);
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
@@ -105,9 +116,11 @@ impl Canvas {
         let (width, height) = txt.dims(glyphs);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
+        // No need to cover the tooltip; this tooltip follows the mouse anyway.
         text::draw_text_bubble(g, glyphs, ScreenPt::new(x1, y1), txt);
     }
 
+    // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, map_pt: Pt2D) {
         let glyphs = &mut self.glyphs.borrow_mut();
         let (width, height) = txt.dims(glyphs);
@@ -133,7 +146,8 @@ impl Canvas {
         text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), pt, txt);
     }
 
-    pub fn draw_text(
+    // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
+    pub fn draw_blocking_text(
         &self,
         g: &mut GfxCtx,
         txt: Text,
@@ -154,7 +168,12 @@ impl Canvas {
             VerticalAlignment::Center => (self.window_height - height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - height,
         };
-        text::draw_text_bubble(g, glyphs, ScreenPt::new(x1, y1), txt);
+        self.covered_areas.borrow_mut().push(text::draw_text_bubble(
+            g,
+            glyphs,
+            ScreenPt::new(x1, y1),
+            txt,
+        ));
     }
 
     pub(crate) fn text_dims(&self, txt: &Text) -> (f64, f64) {
@@ -179,7 +198,15 @@ impl Canvas {
 
     pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
         if self.window_has_cursor {
-            Some(self.screen_to_map(self.get_cursor_in_screen_space()))
+            let pt = self.get_cursor_in_screen_space();
+
+            for rect in self.covered_areas.borrow().iter() {
+                if rect.contains(pt) {
+                    return None;
+                }
+            }
+
+            Some(self.screen_to_map(pt))
         } else {
             None
         }

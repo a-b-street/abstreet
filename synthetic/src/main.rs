@@ -209,7 +209,8 @@ impl GUI<Text> for UI {
             _ => {}
         };
 
-        self.canvas.draw_text(g, osd.clone(), ezgui::BOTTOM_LEFT);
+        self.canvas
+            .draw_blocking_text(g, osd.clone(), ezgui::BOTTOM_LEFT);
     }
 }
 

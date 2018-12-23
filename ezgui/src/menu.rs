@@ -212,6 +212,12 @@ impl<T: Clone> Menu<T> {
                 }
             }
         }
+        canvas.mark_covered_area(ScreenRectangle {
+            x1: self.top_left.x,
+            y1: self.top_left.y,
+            x2: self.first_choice_row.x2,
+            y2: self.top_left.y + (self.row_height * (txt.num_lines() as f64)),
+        });
         canvas.draw_text_at_screenspace_topleft(g, txt, self.top_left);
     }
 
