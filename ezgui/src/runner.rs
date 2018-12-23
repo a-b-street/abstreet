@@ -88,10 +88,9 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
         } else {
             // Skip some events.
             use piston::input::{
-                AfterRenderEvent, CursorEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
+                AfterRenderEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
             };
             if ev.after_render_args().is_some()
-                || ev.cursor_args().is_some()
                 || ev.focus_args().is_some()
                 || ev.idle_args().is_some()
                 || ev.mouse_relative_args().is_some()

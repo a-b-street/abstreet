@@ -16,6 +16,8 @@ pub enum Event {
     // Time has passed; EventLoopMode::Animation is active
     Update,
     MouseMovedTo(ScreenPt),
+    WindowLostCursor,
+    WindowGainedCursor,
     // Vertical only
     MouseWheelScroll(f64),
     WindowResized(f64, f64),
@@ -24,8 +26,8 @@ pub enum Event {
 impl Event {
     pub fn from_piston_event(ev: pi::Event) -> Event {
         use piston::input::{
-            ButtonEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent, ResizeEvent,
-            TouchEvent, UpdateEvent,
+            ButtonEvent, CursorEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
+            ResizeEvent, TouchEvent, UpdateEvent,
         };
 
         if let Some(pi::Button::Mouse(button)) = ev.press_args() {
@@ -73,6 +75,14 @@ impl Event {
         }
         if let Some(pair) = ev.resize_args() {
             return Event::WindowResized(f64::from(pair[0]), f64::from(pair[1]));
+        }
+        if let Some(has) = ev.cursor_args() {
+            if has {
+                return Event::WindowGainedCursor;
+            } else {
+                // TODO Sometimes this doesn't happen! :(
+                return Event::WindowLostCursor;
+            }
         }
 
         panic!("Unknown piston event {:?}", ev);

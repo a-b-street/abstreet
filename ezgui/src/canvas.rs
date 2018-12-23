@@ -15,8 +15,10 @@ pub struct Canvas {
     pub cam_y: f64,
     pub cam_zoom: f64,
 
+    // TODO We probably shouldn't even track screen-space cursor when we don't have the cursor.
     cursor_x: f64,
     cursor_y: f64,
+    window_has_cursor: bool,
 
     left_mouse_drag_from: Option<ScreenPt>,
 
@@ -47,6 +49,7 @@ impl Canvas {
 
             cursor_x: 0.0,
             cursor_y: 0.0,
+            window_has_cursor: true,
 
             left_mouse_drag_from: None,
             window_width: f64::from(initial_width),
@@ -81,6 +84,12 @@ impl Canvas {
             // Zoom slower at low zooms, faster at high.
             let delta = scroll * ZOOM_SPEED * self.cam_zoom;
             self.zoom_towards_mouse(delta);
+        }
+        if input.window_gained_cursor() {
+            self.window_has_cursor = true;
+        }
+        if input.window_lost_cursor() {
+            self.window_has_cursor = false;
         }
     }
 
@@ -169,7 +178,11 @@ impl Canvas {
     }
 
     pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
-        Some(self.screen_to_map(self.get_cursor_in_screen_space()))
+        if self.window_has_cursor {
+            Some(self.screen_to_map(self.get_cursor_in_screen_space()))
+        } else {
+            None
+        }
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

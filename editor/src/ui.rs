@@ -189,6 +189,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         {
             self.state.set_current_selection(self.mouseover_something());
         }
+        if input.window_lost_cursor() {
+            self.state.set_current_selection(None);
+        }
 
         let mut recalculate_current_selection = false;
         self.state.event(
