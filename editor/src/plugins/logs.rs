@@ -13,42 +13,34 @@ lazy_static! {
 static START_LOGGER: Once = Once::new();
 static LOG_ADAPTER: LogAdapter = LogAdapter;
 
-pub struct DisplayLogs {
-    active: bool,
-}
+pub struct DisplayLogs;
 
 impl DisplayLogs {
-    pub fn new() -> DisplayLogs {
-        // Even when the rest of the UI is ripped out, retain this static state.
+    pub fn initialize() {
         START_LOGGER.call_once(|| {
             set_max_level(LevelFilter::Debug);
             set_logger(&LOG_ADAPTER).unwrap();
         });
-        DisplayLogs { active: false }
+    }
+
+    pub fn new(ctx: &mut PluginCtx) -> Option<DisplayLogs> {
+        if ctx.input.action_chosen("show log console") {
+            return Some(DisplayLogs);
+        }
+        None
     }
 }
 
 impl Plugin for DisplayLogs {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if !self.active {
-            if ctx.input.action_chosen("show log console") {
-                self.active = true;
-                return true;
-            } else {
-                return false;
-            }
+        if ctx.input.action_chosen("show log console") || LOGGER.lock().unwrap().event(ctx.input) {
+            return false;
         }
-
-        if LOGGER.lock().unwrap().event(ctx.input) {
-            self.active = false;
-        }
-        self.active
+        true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        if self.active {
-            LOGGER.lock().unwrap().draw(g, ctx.canvas);
-        }
+        LOGGER.lock().unwrap().draw(g, ctx.canvas);
     }
 }
 

@@ -54,8 +54,6 @@ pub struct DefaultUIState {
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
 
-    logs: DisplayLogs,
-
     active_plugin: Option<usize>,
 }
 
@@ -63,7 +61,7 @@ impl DefaultUIState {
     pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
-        let logs = DisplayLogs::new();
+        DisplayLogs::initialize();
         let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
         DefaultUIState {
             primary,
@@ -73,7 +71,6 @@ impl DefaultUIState {
             exclusive_nonblocking_plugin: None,
             show_score: None,
             sim_controls: plugins::sim::controls::SimControls::new(),
-            logs,
             active_plugin: None,
         }
     }
@@ -81,10 +78,9 @@ impl DefaultUIState {
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.logs),
-            x if x == 1 => Some(&self.primary_plugins.debug_mode),
-            x if x == 2 => Some(&self.primary_plugins.view_mode),
-            x if x == 3 => Some(&self.primary_plugins.time_travel),
+            x if x == 0 => Some(&self.primary_plugins.debug_mode),
+            x if x == 1 => Some(&self.primary_plugins.view_mode),
+            x if x == 2 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -111,10 +107,9 @@ impl DefaultUIState {
             recalculate_current_selection,
         };
         match idx {
-            x if x == 0 => self.logs.blocking_event(&mut ctx),
-            x if x == 1 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
-            x if x == 2 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 3 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 0 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
+            x if x == 1 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 2 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -171,6 +166,9 @@ impl UIState for DefaultUIState {
                 return;
             }
 
+            if let Some(p) = DisplayLogs::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            }
             if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
@@ -269,7 +267,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=3 {
+            for idx in 0..=2 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
