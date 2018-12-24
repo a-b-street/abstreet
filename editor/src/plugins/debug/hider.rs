@@ -1,5 +1,6 @@
 use crate::objects::ID;
-use ezgui::{Key, UserInput};
+use crate::plugins::PluginCtx;
+use ezgui::Key;
 use std::collections::HashSet;
 
 pub struct Hider {
@@ -17,21 +18,31 @@ impl Hider {
         !self.items.contains(&id)
     }
 
-    pub fn event(&mut self, input: &mut UserInput, selected: Option<ID>) -> bool {
-        if input.action_chosen("unhide everything") {
-            info!("Unhiding {} things", self.items.len());
-            self.items.clear();
-            return true;
+    // Weird, true here means selection state changed.
+    pub fn event(&mut self, ctx: &mut PluginCtx) -> bool {
+        if !self.items.is_empty() {
+            // TODO Add non-prompt lines listing how much stuff is hidden. And if the numbers
+            // align, "and a partridge in a pear tree..."
+            ctx.input.set_mode("Object Hider", &ctx.canvas);
+
+            if ctx.input.modal_action("unhide everything") {
+                info!("Unhiding {} things", self.items.len());
+                self.items.clear();
+                return true;
+            }
         }
 
-        let item = match selected {
+        let item = match ctx.primary.current_selection {
             // No real use case for hiding moving stuff
             Some(ID::Car(_)) | Some(ID::Pedestrian(_)) | None => {
                 return false;
             }
             Some(id) => id,
         };
-        if input.contextual_action(Key::H, &format!("hide {:?}", item)) {
+        if ctx
+            .input
+            .contextual_action(Key::H, &format!("hide {:?}", item))
+        {
             self.items.insert(item);
             info!("Hiding {:?}", item);
             return true;

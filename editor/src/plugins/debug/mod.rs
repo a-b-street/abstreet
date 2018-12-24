@@ -41,9 +41,7 @@ impl Plugin for DebugMode {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         // Always run ambient plugins. If either returns true, the selection state could have
         // changed.
-        if self.hider.event(ctx.input, ctx.primary.current_selection)
-            || self.layers.event(ctx.input)
-        {
+        if self.hider.event(ctx) || self.layers.event(ctx.input) {
             *ctx.recalculate_current_selection = true;
             ctx.primary.current_selection = None;
         }

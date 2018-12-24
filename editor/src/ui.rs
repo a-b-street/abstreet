@@ -36,7 +36,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     vec![
                         (Key::C, "find chokepoints"),
                         (Key::I, "validate map geometry"),
-                        (Key::K, "unhide everything"),
                         (Key::Num1, "show/hide buildings"),
                         (Key::Num2, "show/hide intersections"),
                         (Key::Num3, "show/hide lanes"),
@@ -162,6 +161,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 vec![(Key::R, "quit"), (Key::L, "show route for all agents")],
             ),
             ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
+            ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
         ]
     }
 
