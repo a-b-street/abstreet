@@ -215,7 +215,7 @@ impl Plugin for TrafficSignalEditor {
 
         draw_signal_cycle(&cycles[self.current_cycle], g, ctx);
 
-        draw_signal_diagram(self.i, self.current_cycle, g, ctx);
+        draw_signal_diagram(self.i, self.current_cycle, None, g, ctx);
 
         if let Some(id) = self.icon_selected {
             // TODO What should we do for currently banned turns?

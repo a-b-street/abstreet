@@ -1,6 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_diagram, DrawTurn};
+use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key};
 use map_model::{IntersectionID, LaneID, TurnType};
 
@@ -67,12 +68,15 @@ impl Plugin for TurnCyclerState {
                 }
             }
             TurnCyclerState::ShowIntersection(i) => {
-                // TODO depict overtime, time left, etc
-                let (cycle, _) = ctx
+                let (cycle, mut time_left) = ctx
                     .map
                     .get_traffic_signal(*i)
                     .current_cycle_and_remaining_time(ctx.sim.time.as_time());
-                draw_signal_diagram(*i, cycle.idx, g, ctx);
+                if ctx.sim.is_in_overtime(*i) {
+                    // TODO Hacky way of indicating overtime. Should make a 3-case enum.
+                    time_left = -1.0 * si::S;
+                }
+                draw_signal_diagram(*i, cycle.idx, Some(time_left), g, ctx);
             }
         }
     }

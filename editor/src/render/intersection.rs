@@ -1,5 +1,6 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
+use dimensioned::si;
 use ezgui::{Color, GfxCtx, ScreenPt, Text, TOP_MENU_HEIGHT};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{
@@ -36,37 +37,9 @@ impl DrawIntersection {
 
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let signal = ctx.map.get_traffic_signal(self.id);
-        // TODO The size and placement of the timer isn't great in all cases yet.
-        let center = ctx.map.get_i(self.id).point;
-        let timer_width = 2.0;
-        let timer_height = 4.0;
-
-        if ctx.sim.is_in_overtime(self.id) {
-            g.draw_polygon(
-                ctx.cs.get_def("signal overtime timer", Color::PINK),
-                &Polygon::rectangle(center, timer_width, timer_height),
-            );
-            ctx.canvas
-                .draw_text_at(g, Text::from_line("Overtime!".to_string()), center);
-        } else {
-            let (cycle, time_left) =
-                signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
-
+        if !ctx.sim.is_in_overtime(self.id) {
+            let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
             draw_signal_cycle(cycle, g, ctx);
-
-            // Draw a little timer box in the middle of the intersection.
-            g.draw_polygon(
-                ctx.cs.get_def("timer foreground", Color::RED),
-                &Polygon::rectangle(center, timer_width, timer_height),
-            );
-            g.draw_polygon(
-                ctx.cs.get_def("timer background", Color::BLACK),
-                &Polygon::rectangle_topleft(
-                    center.offset(-timer_width / 2.0, -timer_height / 2.0),
-                    timer_width,
-                    (time_left / cycle.duration).value_unsafe * timer_height,
-                ),
-            );
         }
     }
 }
@@ -180,7 +153,13 @@ pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
     }
 }
 
-pub fn draw_signal_diagram(i: IntersectionID, current_cycle: usize, g: &mut GfxCtx, ctx: &Ctx) {
+pub fn draw_signal_diagram(
+    i: IntersectionID,
+    current_cycle: usize,
+    time_left: Option<si::Second<f64>>,
+    g: &mut GfxCtx,
+    ctx: &Ctx,
+) {
     // Draw all of the cycles off to the side
     let padding = 5.0;
     let zoom = 10.0;
@@ -236,9 +215,30 @@ pub fn draw_signal_diagram(i: IntersectionID, current_cycle: usize, g: &mut GfxC
         );
         draw_signal_cycle(&cycle, g, ctx);
 
+        let txt = if idx == current_cycle && time_left.is_some() {
+            // TODO Hacky way of indicating overtime
+            if time_left.unwrap() < 0.0 * si::S {
+                let mut txt = Text::from_line(format!("Cycle {}: ", idx + 1,));
+                txt.append(
+                    "OVERTIME".to_string(),
+                    Some(ctx.cs.get_def("signal overtime", Color::RED)),
+                    None,
+                );
+                txt
+            } else {
+                Text::from_line(format!(
+                    "Cycle {}: {:.01}s / {}",
+                    idx + 1,
+                    (cycle.duration - time_left.unwrap()).value_unsafe,
+                    cycle.duration
+                ))
+            }
+        } else {
+            Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration))
+        };
         ctx.canvas.draw_text_at_screenspace_topleft(
             g,
-            Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration)),
+            txt,
             ScreenPt::new(
                 10.0 + (width * zoom),
                 10.0 + TOP_MENU_HEIGHT + (padding + height) * (idx as f64) * zoom,
