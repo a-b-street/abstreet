@@ -4,18 +4,13 @@ mod floodfill;
 mod geom_validation;
 mod hider;
 mod layers;
-mod steep;
 
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
-use map_model::Map;
 
 pub struct DebugMode {
-    // steepness acts like one of the active plugins, except that it needs to cache state while
-    // inactive.
     active_plugin: Option<Box<Plugin>>,
-    steepness: steep::SteepnessVisualizer,
 
     // Ambient; they don't conflict with any of the main plugins.
     hider: hider::Hider,
@@ -23,10 +18,9 @@ pub struct DebugMode {
 }
 
 impl DebugMode {
-    pub fn new(map: &Map) -> DebugMode {
+    pub fn new() -> DebugMode {
         DebugMode {
             active_plugin: None,
-            steepness: steep::SteepnessVisualizer::new(map),
             hider: hider::Hider::new(),
             layers: layers::ToggleableLayers::new(),
         }
@@ -53,8 +47,6 @@ impl Plugin for DebugMode {
                 self.active_plugin = None;
                 return false;
             }
-        } else if self.steepness.active {
-            return self.steepness.blocking_event(ctx);
         }
 
         if let Some(p) = chokepoints::ChokepointsFinder::new(ctx) {
@@ -65,8 +57,6 @@ impl Plugin for DebugMode {
             self.active_plugin = Some(Box::new(p));
         } else if let Some(p) = geom_validation::Validator::new(ctx) {
             self.active_plugin = Some(Box::new(p));
-        } else if self.steepness.blocking_event(ctx) {
-            return true;
         }
 
         self.active_plugin.is_some()
@@ -75,16 +65,12 @@ impl Plugin for DebugMode {
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let Some(ref plugin) = self.active_plugin {
             plugin.draw(g, ctx);
-        } else if self.steepness.active {
-            self.steepness.draw(g, ctx);
         }
     }
 
     fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
         if let Some(ref plugin) = self.active_plugin {
             return plugin.color_for(obj, ctx);
-        } else if self.steepness.active {
-            return self.steepness.color_for(obj, ctx);
         }
         None
     }

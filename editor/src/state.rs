@@ -463,7 +463,7 @@ pub struct PluginsPerMap {
 impl PluginsPerMap {
     pub fn new(state: &PerMapUI, canvas: &Canvas, timer: &mut Timer) -> PluginsPerMap {
         let mut plugins = PluginsPerMap {
-            debug_mode: DebugMode::new(&state.map),
+            debug_mode: DebugMode::new(),
             view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
             time_travel: TimeTravel::new(),
         };

@@ -572,6 +572,7 @@ Plugin styles are blocking or ambient. And some can conflict...
 	- show score plugin is modal and nonblocking; lets not instantiate it till we need it. list of stackable modal things, just make sure not to create one again.
 	- sim controls is a little weird; for now, it's always nonblocking and ambient and ever-present.
 - display logs is easy, just an exclusive blocking plugin.
+- debug mode stuff...
 
 
 
