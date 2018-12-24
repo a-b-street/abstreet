@@ -553,3 +553,17 @@ I think we should wind up with 3 types of controls:
 	- Things in the OSD now should also be written there (current sim time, what intersection am I editing, etc)
 
 And all of these displayed menus can display a hotkey to the side.
+
+## Organizing plugins -- yet again
+
+This'll never be done till it is, y'know? The grouping and layers of
+indirection are not so nice, and now there are menus, context-sensitive
+actions, (soon to be) stackable modal plugins... So I just want one big flat
+struct (State to start with) and to be able to reference plugins directly
+without all this downcasting. The per-map vs not is still annoying, but... not
+so bad. So, flatten the modes one-by-one into state.
+
+Plugin styles are blocking or ambient. And some can conflict...
+
+- first collapse edit mode; these're simple and all mutex and if present,
+  immediately dominate all the everything

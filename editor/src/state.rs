@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins::debug::DebugMode;
-use crate::plugins::edit::EditMode;
+use crate::plugins::edit;
 use crate::plugins::logs::DisplayLogs;
 use crate::plugins::sim::SimMode;
 use crate::plugins::time_travel::TimeTravel;
@@ -42,7 +42,9 @@ pub struct DefaultUIState {
     // When running an A/B test, this is populated too.
     secondary: Option<(PerMapUI, PluginsPerMap)>,
 
-    edit_mode: EditMode,
+    // State for editing plugins, which are all mutex
+    active_edit_plugin: Option<Box<Plugin>>,
+
     pub sim_mode: SimMode,
     logs: DisplayLogs,
 
@@ -59,7 +61,7 @@ impl DefaultUIState {
             primary,
             primary_plugins,
             secondary: None,
-            edit_mode: EditMode::new(),
+            active_edit_plugin: None,
             sim_mode: SimMode::new(),
             logs,
             active_plugin: None,
@@ -69,12 +71,11 @@ impl DefaultUIState {
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.edit_mode),
-            x if x == 1 => Some(&self.sim_mode),
-            x if x == 2 => Some(&self.logs),
-            x if x == 3 => Some(&self.primary_plugins.debug_mode),
-            x if x == 4 => Some(&self.primary_plugins.view_mode),
-            x if x == 5 => Some(&self.primary_plugins.time_travel),
+            x if x == 0 => Some(&self.sim_mode),
+            x if x == 1 => Some(&self.logs),
+            x if x == 2 => Some(&self.primary_plugins.debug_mode),
+            x if x == 3 => Some(&self.primary_plugins.view_mode),
+            x if x == 4 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -103,16 +104,12 @@ impl DefaultUIState {
         match idx {
             x if x == 0 => {
                 ctx.primary_plugins = Some(&mut self.primary_plugins);
-                self.edit_mode.blocking_event(&mut ctx)
-            }
-            x if x == 1 => {
-                ctx.primary_plugins = Some(&mut self.primary_plugins);
                 self.sim_mode.blocking_event(&mut ctx)
             }
-            x if x == 2 => self.logs.blocking_event(&mut ctx),
-            x if x == 3 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
-            x if x == 4 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 5 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 1 => self.logs.blocking_event(&mut ctx),
+            x if x == 2 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
+            x if x == 3 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 4 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -144,6 +141,59 @@ impl UIState for DefaultUIState {
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
     ) {
+        // Editing plugins first
+        {
+            let mut ctx = PluginCtx {
+                primary: &mut self.primary,
+                primary_plugins: Some(&mut self.primary_plugins),
+                secondary: &mut self.secondary,
+                canvas,
+                cs,
+                input,
+                hints,
+                recalculate_current_selection,
+            };
+
+            if self.active_edit_plugin.is_some() {
+                if !self
+                    .active_edit_plugin
+                    .as_mut()
+                    .unwrap()
+                    .blocking_event(&mut ctx)
+                {
+                    self.active_edit_plugin = None;
+                }
+                return;
+            }
+
+            if ctx.secondary.is_none() {
+                if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) = edit::color_picker::ColorPicker::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) =
+                    edit::draw_neighborhoods::DrawNeighborhoodState::new(&mut ctx)
+                {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) = edit::map_edits::EditsManager::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) = edit::road_editor::RoadEditor::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) = edit::stop_sign_editor::StopSignEditor::new(&mut ctx) {
+                    self.active_edit_plugin = Some(Box::new(p));
+                } else if let Some(p) =
+                    edit::traffic_signal_editor::TrafficSignalEditor::new(&mut ctx)
+                {
+                    self.active_edit_plugin = Some(Box::new(p));
+                }
+            }
+            if self.active_edit_plugin.is_some() {
+                return;
+            }
+        }
+
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
@@ -151,7 +201,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=5 {
+            for idx in 0..=4 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -191,6 +241,10 @@ impl UIState for DefaultUIState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+        if let Some(ref plugin) = self.active_edit_plugin {
+            plugin.draw(g, ctx);
+        }
+
         if let Some(p) = self.get_active_plugin() {
             p.draw(g, ctx);
         } else {
@@ -221,6 +275,10 @@ impl UIState for DefaultUIState {
             }
         };
 
+        if let Some(ref plugin) = self.active_edit_plugin {
+            return plugin.color_for(id, ctx);
+        }
+
         if let Some(p) = self.get_active_plugin() {
             p.color_for(id, ctx)
         } else {
@@ -240,13 +298,23 @@ pub trait ShowTurnIcons {
 
 impl ShowTurnIcons for DefaultUIState {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
+        if let Some(ref plugin) = self.active_edit_plugin {
+            if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
+                return p.show_turn_icons(id);
+            }
+            if let Ok(p) = plugin.downcast_ref::<edit::traffic_signal_editor::TrafficSignalEditor>()
+            {
+                return p.show_turn_icons(id);
+            }
+        }
+
         self.primary_plugins
             .debug_mode
             .layers
             .show_all_turn_icons
             .is_enabled()
-            || self.edit_mode.show_turn_icons(id)
             || {
+                // TODO This sounds like some old hack, probably remove this?
                 if let Some(ID::Turn(t)) = self.primary.current_selection {
                     t.parent == id
                 } else {
