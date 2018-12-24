@@ -573,6 +573,8 @@ Plugin styles are blocking or ambient. And some can conflict...
 	- sim controls is a little weird; for now, it's always nonblocking and ambient and ever-present.
 - display logs is easy, just an exclusive blocking plugin.
 - debug mode stuff...
+	- a bunch of exclusive blocking stuff... meaning it doesn't actually need to be per map!
+	- make Layers and Hider mutate the current_selection state stuff themselves, and switch to ambient_event
 
 
 

@@ -1,6 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins;
+use crate::plugins::debug;
 use crate::plugins::debug::DebugMode;
 use crate::plugins::edit;
 use crate::plugins::logs::DisplayLogs;
@@ -168,8 +169,15 @@ impl UIState for DefaultUIState {
 
             if let Some(p) = DisplayLogs::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
-            }
-            if ctx.secondary.is_none() {
+            } else if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = debug::classification::OsmClassifier::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = debug::floodfill::Floodfiller::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = debug::geom_validation::Validator::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::color_picker::ColorPicker::new(&mut ctx) {

@@ -1,17 +1,14 @@
-mod chokepoints;
-mod classification;
-mod floodfill;
-mod geom_validation;
-mod hider;
-mod layers;
+pub mod chokepoints;
+pub mod classification;
+pub mod floodfill;
+pub mod geom_validation;
+pub mod hider;
+pub mod layers;
 
-use crate::objects::{Ctx, ID};
+use crate::objects::ID;
 use crate::plugins::{Plugin, PluginCtx};
-use ezgui::{Color, GfxCtx};
 
 pub struct DebugMode {
-    active_plugin: Option<Box<Plugin>>,
-
     // Ambient; they don't conflict with any of the main plugins.
     hider: hider::Hider,
     pub layers: layers::ToggleableLayers,
@@ -20,7 +17,6 @@ pub struct DebugMode {
 impl DebugMode {
     pub fn new() -> DebugMode {
         DebugMode {
-            active_plugin: None,
             hider: hider::Hider::new(),
             layers: layers::ToggleableLayers::new(),
         }
@@ -39,39 +35,6 @@ impl Plugin for DebugMode {
             *ctx.recalculate_current_selection = true;
             ctx.primary.current_selection = None;
         }
-
-        if self.active_plugin.is_some() {
-            if self.active_plugin.as_mut().unwrap().blocking_event(ctx) {
-                return true;
-            } else {
-                self.active_plugin = None;
-                return false;
-            }
-        }
-
-        if let Some(p) = chokepoints::ChokepointsFinder::new(ctx) {
-            self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = classification::OsmClassifier::new(ctx) {
-            self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = floodfill::Floodfiller::new(ctx) {
-            self.active_plugin = Some(Box::new(p));
-        } else if let Some(p) = geom_validation::Validator::new(ctx) {
-            self.active_plugin = Some(Box::new(p));
-        }
-
-        self.active_plugin.is_some()
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        if let Some(ref plugin) = self.active_plugin {
-            plugin.draw(g, ctx);
-        }
-    }
-
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
-        if let Some(ref plugin) = self.active_plugin {
-            return plugin.color_for(obj, ctx);
-        }
-        None
+        false
     }
 }
