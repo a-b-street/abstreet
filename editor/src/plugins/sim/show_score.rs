@@ -3,39 +3,34 @@ use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Text, TOP_RIGHT};
 use sim::{ScoreSummary, Tick};
 
-pub enum ShowScoreState {
-    Inactive,
-    Active(Tick, Text),
+pub struct ShowScoreState {
+    last_tick: Tick,
+    txt: Text,
 }
 
 impl ShowScoreState {
-    pub fn new() -> ShowScoreState {
-        ShowScoreState::Inactive
+    pub fn new(ctx: &mut PluginCtx) -> Option<ShowScoreState> {
+        if ctx.input.action_chosen("show/hide sim info sidepanel") {
+            return Some(panel(ctx));
+        }
+        None
     }
 }
 
 impl Plugin for ShowScoreState {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        match self {
-            ShowScoreState::Inactive => {
-                if ctx.input.action_chosen("show/hide sim info sidepanel") {
-                    *self = panel(ctx);
-                }
-            }
-            ShowScoreState::Active(last_tick, _) => {
-                if ctx.input.action_chosen("show/hide sim info sidepanel") {
-                    *self = ShowScoreState::Inactive;
-                } else if *last_tick != ctx.primary.sim.time {
-                    *self = panel(ctx);
-                }
-            }
+    fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        if ctx.input.action_chosen("show/hide sim info sidepanel") {
+            return false;
         }
+        if self.last_tick != ctx.primary.sim.time {
+            *self = panel(ctx);
+        }
+        true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        if let ShowScoreState::Active(_, ref text) = self {
-            ctx.canvas.draw_blocking_text(g, text.clone(), TOP_RIGHT);
-        }
+        ctx.canvas
+            .draw_blocking_text(g, self.txt.clone(), TOP_RIGHT);
     }
 }
 
@@ -51,7 +46,10 @@ fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
     } else {
         summarize(&mut txt, ctx.primary.sim.get_score());
     }
-    ShowScoreState::Active(ctx.primary.sim.time, txt)
+    ShowScoreState {
+        last_tick: ctx.primary.sim.time,
+        txt,
+    }
 }
 
 fn summarize(txt: &mut Text, summary: ScoreSummary) {

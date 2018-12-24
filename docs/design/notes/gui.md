@@ -567,3 +567,12 @@ Plugin styles are blocking or ambient. And some can conflict...
 
 - first collapse edit mode; these're simple and all mutex and if present,
   immediately dominate all the everything
+- sim mode next!
+	- right now diff plugin blocks everything and its mutex, so just make it part of the active_edit_plugin world.
+	- show score plugin is modal and nonblocking; lets not instantiate it till we need it. list of stackable modal things, just make sure not to create one again.
+	- sim controls is a little weird; for now, it's always nonblocking and ambient and ever-present.
+
+
+
+
+- probably change Plugin APIs... ambient_event and one event() indicating done or not. dont express blockingness in that API.

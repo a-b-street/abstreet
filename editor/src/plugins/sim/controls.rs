@@ -11,7 +11,7 @@ pub struct SimControls {
     desired_speed: f64, // sim seconds per real second
     state: State,
     // Optional because the 0th tick actually happens, and callers comparing wouldn't see that.
-    pub primary_events: Option<(Tick, Vec<Event>)>,
+    primary_events: Option<(Tick, Vec<Event>)>,
 }
 
 enum State {
@@ -39,6 +39,18 @@ impl SimControls {
             speed: "running".to_string(),
         };
     }
+
+    pub fn get_new_primary_events(
+        &self,
+        last_seen_tick: Option<Tick>,
+    ) -> Option<(Tick, &Vec<Event>)> {
+        let (tick, events) = self.primary_events.as_ref()?;
+        if last_seen_tick.is_none() || last_seen_tick != Some(*tick) {
+            Some((*tick, events))
+        } else {
+            None
+        }
+    }
 }
 
 impl Plugin for SimControls {
@@ -61,6 +73,9 @@ impl Plugin for SimControls {
             ctx.primary_plugins = Some(primary_plugins);
             *ctx.secondary = Some((secondary, secondary_plugins));
             *ctx.recalculate_current_selection = true;
+            // TODO Only one consumer of primary_events right now and they don't care, but this
+            // seems fragile.
+            self.primary_events = None;
         }
 
         match self.state {

@@ -63,7 +63,7 @@ impl UIState for TutorialState {
                     setup_scenario(&mut self.main.primary);
                     // TODO Levels of indirection now feel bad. I almost want dependency injection
                     // -- just give me the SimControls.
-                    self.main.sim_mode.run_sim(&mut self.main.primary.sim);
+                    self.main.sim_controls.run_sim(&mut self.main.primary.sim);
                     self.state = State::Play {
                         last_tick_observed: None,
                         spawned_from_north: 0,
@@ -81,7 +81,7 @@ impl UIState for TutorialState {
 
                 if let Some((tick, events)) = self
                     .main
-                    .sim_mode
+                    .sim_controls
                     .get_new_primary_events(*last_tick_observed)
                 {
                     *last_tick_observed = Some(tick);

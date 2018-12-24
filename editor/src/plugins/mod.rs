@@ -29,7 +29,11 @@ pub trait Plugin: Any {
         false
     }
 
-    // TODO Maybe keys should be passed in here.
+    // True means active; false means done, please destroy.
+    fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
+        true
+    }
+
     fn ambient_event(&mut self, _ctx: &mut PluginCtx) {}
 }
 

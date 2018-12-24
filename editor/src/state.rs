@@ -1,9 +1,9 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
+use crate::plugins;
 use crate::plugins::debug::DebugMode;
 use crate::plugins::edit;
 use crate::plugins::logs::DisplayLogs;
-use crate::plugins::sim::SimMode;
 use crate::plugins::time_travel::TimeTravel;
 use crate::plugins::view::ViewMode;
 use crate::plugins::{Plugin, PluginCtx};
@@ -42,10 +42,18 @@ pub struct DefaultUIState {
     // When running an A/B test, this is populated too.
     secondary: Option<(PerMapUI, PluginsPerMap)>,
 
-    // State for editing plugins, which are all mutex
-    active_edit_plugin: Option<Box<Plugin>>,
+    // These are all mutually exclusive and, if present, override everything else.
+    exclusive_blocking_plugin: Option<Box<Plugin>>,
+    // These are all mutually exclusive, but don't override other stuff.
+    exclusive_nonblocking_plugin: Option<Box<Plugin>>,
 
-    pub sim_mode: SimMode,
+    // These are stackable modal plugins. They can all coexist, and they don't block other modal
+    // plugins or ambient plugins.
+    show_score: Option<Box<Plugin>>,
+
+    // Ambient plugins always exist, and they never block anything.
+    pub sim_controls: plugins::sim::controls::SimControls,
+
     logs: DisplayLogs,
 
     active_plugin: Option<usize>,
@@ -61,8 +69,10 @@ impl DefaultUIState {
             primary,
             primary_plugins,
             secondary: None,
-            active_edit_plugin: None,
-            sim_mode: SimMode::new(),
+            exclusive_blocking_plugin: None,
+            exclusive_nonblocking_plugin: None,
+            show_score: None,
+            sim_controls: plugins::sim::controls::SimControls::new(),
             logs,
             active_plugin: None,
         }
@@ -71,11 +81,10 @@ impl DefaultUIState {
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.sim_mode),
-            x if x == 1 => Some(&self.logs),
-            x if x == 2 => Some(&self.primary_plugins.debug_mode),
-            x if x == 3 => Some(&self.primary_plugins.view_mode),
-            x if x == 4 => Some(&self.primary_plugins.time_travel),
+            x if x == 0 => Some(&self.logs),
+            x if x == 1 => Some(&self.primary_plugins.debug_mode),
+            x if x == 2 => Some(&self.primary_plugins.view_mode),
+            x if x == 3 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -102,14 +111,10 @@ impl DefaultUIState {
             recalculate_current_selection,
         };
         match idx {
-            x if x == 0 => {
-                ctx.primary_plugins = Some(&mut self.primary_plugins);
-                self.sim_mode.blocking_event(&mut ctx)
-            }
-            x if x == 1 => self.logs.blocking_event(&mut ctx),
-            x if x == 2 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
-            x if x == 3 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 4 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 0 => self.logs.blocking_event(&mut ctx),
+            x if x == 1 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
+            x if x == 2 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 3 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -141,7 +146,7 @@ impl UIState for DefaultUIState {
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
     ) {
-        // Editing plugins first
+        // Exclusive blocking plugins first
         {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
@@ -154,46 +159,109 @@ impl UIState for DefaultUIState {
                 recalculate_current_selection,
             };
 
-            if self.active_edit_plugin.is_some() {
+            if self.exclusive_blocking_plugin.is_some() {
                 if !self
-                    .active_edit_plugin
+                    .exclusive_blocking_plugin
                     .as_mut()
                     .unwrap()
                     .blocking_event(&mut ctx)
                 {
-                    self.active_edit_plugin = None;
+                    self.exclusive_blocking_plugin = None;
                 }
                 return;
             }
 
             if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::color_picker::ColorPicker::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) =
                     edit::draw_neighborhoods::DrawNeighborhoodState::new(&mut ctx)
                 {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::map_edits::EditsManager::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::road_editor::RoadEditor::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::stop_sign_editor::StopSignEditor::new(&mut ctx) {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) =
                     edit::traffic_signal_editor::TrafficSignalEditor::new(&mut ctx)
                 {
-                    self.active_edit_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 }
             }
-            if self.active_edit_plugin.is_some() {
+            if self.exclusive_blocking_plugin.is_some() {
                 return;
             }
         }
 
+        // Exclusive nonblocking plugins
+        {
+            let mut ctx = PluginCtx {
+                primary: &mut self.primary,
+                primary_plugins: None,
+                secondary: &mut self.secondary,
+                canvas,
+                cs,
+                input,
+                hints,
+                recalculate_current_selection,
+            };
+
+            if self.exclusive_nonblocking_plugin.is_some() {
+                if !self
+                    .exclusive_nonblocking_plugin
+                    .as_mut()
+                    .unwrap()
+                    .blocking_event(&mut ctx)
+                {
+                    self.exclusive_nonblocking_plugin = None;
+                }
+            } else if ctx.secondary.is_some() {
+                // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even
+                // when the initial time is 0? But we probably have no state then, so...
+                if let Some(p) = plugins::sim::diff_all::DiffAllState::new(&mut ctx) {
+                    self.exclusive_nonblocking_plugin = Some(Box::new(p));
+                } else if let Some(p) = plugins::sim::diff_trip::DiffTripState::new(&mut ctx) {
+                    self.exclusive_nonblocking_plugin = Some(Box::new(p));
+                }
+            }
+        }
+
+        // Stackable modal plugins
+        let mut ctx = PluginCtx {
+            primary: &mut self.primary,
+            primary_plugins: None,
+            secondary: &mut self.secondary,
+            canvas,
+            cs,
+            input,
+            hints,
+            recalculate_current_selection,
+        };
+
+        if self.show_score.is_some() {
+            if !self
+                .show_score
+                .as_mut()
+                .unwrap()
+                .nonblocking_event(&mut ctx)
+            {
+                self.show_score = None;
+            }
+        } else if let Some(p) = plugins::sim::show_score::ShowScoreState::new(&mut ctx) {
+            self.show_score = Some(Box::new(p));
+        }
+
+        // Ambient plugins
+        ctx.primary_plugins = Some(&mut self.primary_plugins);
+        self.sim_controls.ambient_event(&mut ctx);
+
+        // TODO legacy stuff
         // If there's an active plugin, just run it.
         if let Some(idx) = self.active_plugin {
             if !self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
@@ -201,7 +269,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=4 {
+            for idx in 0..=3 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -241,17 +309,29 @@ impl UIState for DefaultUIState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        if let Some(ref plugin) = self.active_edit_plugin {
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
+            plugin.draw(g, ctx);
+            return;
+        }
+
+        if let Some(ref plugin) = self.exclusive_nonblocking_plugin {
             plugin.draw(g, ctx);
         }
 
+        // Stackable modals
+        if let Some(ref p) = self.show_score {
+            p.draw(g, ctx);
+        }
+
+        // Ambient
+        self.sim_controls.draw(g, ctx);
+
+        // TODO legacy
         if let Some(p) = self.get_active_plugin() {
             p.draw(g, ctx);
         } else {
-            // If no other mode was active, give the ambient plugins in ViewMode and SimMode a
-            // chance.
+            // If no other mode was active, give the ambient plugins in ViewMode a chance.
             self.primary_plugins.view_mode.draw(g, ctx);
-            self.sim_mode.draw(g, ctx);
         }
     }
 
@@ -275,10 +355,15 @@ impl UIState for DefaultUIState {
             }
         };
 
-        if let Some(ref plugin) = self.active_edit_plugin {
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
             return plugin.color_for(id, ctx);
         }
 
+        // The exclusive_nonblocking_plugins don't color_obj.
+
+        // show_score and sim_controls don't color_obj.
+
+        // TODO legacy
         if let Some(p) = self.get_active_plugin() {
             p.color_for(id, ctx)
         } else {
@@ -298,7 +383,7 @@ pub trait ShowTurnIcons {
 
 impl ShowTurnIcons for DefaultUIState {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
-        if let Some(ref plugin) = self.active_edit_plugin {
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
             if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
                 return p.show_turn_icons(id);
             }
