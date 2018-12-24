@@ -8,45 +8,54 @@ pub struct Hider {
 }
 
 impl Hider {
-    pub fn new() -> Hider {
-        Hider {
-            items: HashSet::new(),
+    pub fn new(ctx: &mut PluginCtx) -> Option<Hider> {
+        if let Some(id) = hide_something(ctx) {
+            let mut items = HashSet::new();
+            items.insert(id);
+            return Some(Hider { items });
         }
+        None
     }
 
     pub fn show(&self, id: ID) -> bool {
         !self.items.contains(&id)
     }
 
-    // Weird, true here means selection state changed.
-    pub fn event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if !self.items.is_empty() {
-            // TODO Add non-prompt lines listing how much stuff is hidden. And if the numbers
-            // align, "and a partridge in a pear tree..."
-            ctx.input.set_mode("Object Hider", &ctx.canvas);
+    pub fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+        // TODO Add non-prompt lines listing how much stuff is hidden. And if the numbers
+        // align, "and a partridge in a pear tree..."
+        ctx.input.set_mode("Object Hider", &ctx.canvas);
 
-            if ctx.input.modal_action("unhide everything") {
-                info!("Unhiding {} things", self.items.len());
-                self.items.clear();
-                return true;
-            }
+        if ctx.input.modal_action("unhide everything") {
+            info!("Unhiding {} things", self.items.len());
+            *ctx.recalculate_current_selection = true;
+            ctx.primary.current_selection = None;
+            return false;
         }
 
-        let item = match ctx.primary.current_selection {
-            // No real use case for hiding moving stuff
-            Some(ID::Car(_)) | Some(ID::Pedestrian(_)) | None => {
-                return false;
-            }
-            Some(id) => id,
-        };
-        if ctx
-            .input
-            .contextual_action(Key::H, &format!("hide {:?}", item))
-        {
-            self.items.insert(item);
-            info!("Hiding {:?}", item);
-            return true;
+        if let Some(id) = hide_something(ctx) {
+            self.items.insert(id);
         }
-        false
+        true
+    }
+}
+
+fn hide_something(ctx: &mut PluginCtx) -> Option<ID> {
+    match ctx.primary.current_selection {
+        // No real use case for hiding moving stuff
+        Some(ID::Car(_)) | Some(ID::Pedestrian(_)) | None => None,
+        Some(id) => {
+            if ctx
+                .input
+                .contextual_action(Key::H, &format!("hide {:?}", id))
+            {
+                info!("Hiding {:?}", id);
+                *ctx.recalculate_current_selection = true;
+                ctx.primary.current_selection = None;
+                Some(id)
+            } else {
+                None
+            }
+        }
     }
 }

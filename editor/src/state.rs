@@ -263,6 +263,20 @@ impl UIState for DefaultUIState {
             self.show_score = Some(Box::new(p));
         }
 
+        if self.primary_plugins.hider.is_some() {
+            if !self
+                .primary_plugins
+                .hider
+                .as_mut()
+                .unwrap()
+                .nonblocking_event(&mut ctx)
+            {
+                self.primary_plugins.hider = None;
+            }
+        } else if let Some(p) = debug::hider::Hider::new(&mut ctx) {
+            self.primary_plugins.hider = Some(p);
+        }
+
         // Ambient plugins
         ctx.primary_plugins = Some(&mut self.primary_plugins);
         self.sim_controls.ambient_event(&mut ctx);
@@ -328,6 +342,7 @@ impl UIState for DefaultUIState {
         if let Some(ref p) = self.show_score {
             p.draw(g, ctx);
         }
+        // Hider doesn't draw
 
         // Ambient
         self.sim_controls.draw(g, ctx);
@@ -367,7 +382,7 @@ impl UIState for DefaultUIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // show_score and sim_controls don't color_obj.
+        // show_score, hider, and sim_controls don't color_obj.
 
         // TODO legacy
         if let Some(p) = self.get_active_plugin() {
@@ -383,11 +398,12 @@ impl UIState for DefaultUIState {
     }
 }
 
-pub trait ShowTurnIcons {
+pub trait ShowObjects {
     fn show_icons_for(&self, id: IntersectionID) -> bool;
+    fn show(&self, obj: ID) -> bool;
 }
 
-impl ShowTurnIcons for DefaultUIState {
+impl ShowObjects for DefaultUIState {
     fn show_icons_for(&self, id: IntersectionID) -> bool {
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
@@ -412,6 +428,13 @@ impl ShowTurnIcons for DefaultUIState {
                     false
                 }
             }
+    }
+
+    fn show(&self, obj: ID) -> bool {
+        if let Some(ref p) = self.primary_plugins.hider {
+            return p.show(obj);
+        }
+        true
     }
 }
 
@@ -461,8 +484,12 @@ impl PerMapUI {
     }
 }
 
+// Anything that holds onto any kind of ID has to live here!
 pub struct PluginsPerMap {
-    // Anything that holds onto any kind of ID has to live here!
+    // These are stackable modal plugins. They can all coexist, and they don't block other modal
+    // plugins or ambient plugins.
+    hider: Option<debug::hider::Hider>,
+
     debug_mode: DebugMode,
     view_mode: ViewMode,
     time_travel: TimeTravel,
@@ -471,6 +498,7 @@ pub struct PluginsPerMap {
 impl PluginsPerMap {
     pub fn new(state: &PerMapUI, canvas: &Canvas, timer: &mut Timer) -> PluginsPerMap {
         let mut plugins = PluginsPerMap {
+            hider: None,
             debug_mode: DebugMode::new(),
             view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
             time_travel: TimeTravel::new(),

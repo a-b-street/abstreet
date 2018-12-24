@@ -12,7 +12,7 @@ use crate::render::parcel::DrawParcel;
 use crate::render::pedestrian::DrawPedestrian;
 use crate::render::turn::DrawTurn;
 use crate::render::{draw_vehicle, Renderable};
-use crate::state::ShowTurnIcons;
+use crate::state::ShowObjects;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use geom::Bounds;
@@ -235,13 +235,13 @@ impl DrawMap {
     // a getter... except they still have to deal with DrawCar and DrawPedestrian not being
     // borrowable. Could move contains_pt and draw calls here directly, but that might be weird?
     // But maybe not.
-    pub fn get_objects_onscreen<T: ShowTurnIcons>(
+    pub fn get_objects_onscreen<T: ShowObjects>(
         &self,
         screen_bounds: Bounds,
         debug_mode: &DebugMode,
         map: &Map,
         sim: &GetDrawAgents,
-        show_turn_icons: &T,
+        show_objs: &T,
     ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
         // From background to foreground Z-order
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
@@ -257,13 +257,13 @@ impl DrawMap {
         let mut peds: Vec<Box<Renderable>> = Vec::new();
 
         for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
-            if debug_mode.show(*id) {
+            if debug_mode.show(*id) && show_objs.show(*id) {
                 match id {
                     ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
-                        if !show_turn_icons.show_icons_for(map.get_l(*id).dst_i) {
+                        if !show_objs.show_icons_for(map.get_l(*id).dst_i) {
                             for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
                                 cars.push(draw_vehicle(c, map));
                             }
@@ -275,7 +275,7 @@ impl DrawMap {
                     ID::Intersection(id) => {
                         intersections.push(Box::new(self.get_i(*id)));
                         for t in &map.get_i(*id).turns {
-                            if show_turn_icons.show_icons_for(*id) {
+                            if show_objs.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
                             } else {
                                 for c in sim.get_draw_cars(Traversable::Turn(*t), map).into_iter() {

@@ -574,9 +574,14 @@ Plugin styles are blocking or ambient. And some can conflict...
 - display logs is easy, just an exclusive blocking plugin.
 - debug mode stuff...
 	- a bunch of exclusive blocking stuff... meaning it doesn't actually need to be per map!
-	- make Layers and Hider mutate the current_selection state stuff themselves, and switch to ambient_event
+	- hider... per-map state, shouldnt exist till it does, stackable modal, should modify ctx itself.
+	- layers... shouldnt be per-map state. should modify stuff itself.
+
 
 
 
 
 - probably change Plugin APIs... ambient_event and one event() indicating done or not. dont express blockingness in that API.
+- actually, take away Plugin trait entirely? Except for the stuff that gets all boxed up?
+- can we somehow fold PluginsPerMap into PerMapUI? :D different API that doesnt blindly pass in all of primary field
+- Layers could be stackable modal too, but do that later. low-pri.
