@@ -49,7 +49,7 @@ pub struct DefaultUIState {
 
     // These are stackable modal plugins. They can all coexist, and they don't block other modal
     // plugins or ambient plugins.
-    show_score: Option<Box<Plugin>>,
+    show_score: Option<plugins::sim::show_score::ShowScoreState>,
 
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
@@ -144,7 +144,7 @@ impl UIState for DefaultUIState {
         {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
-                primary_plugins: Some(&mut self.primary_plugins),
+                primary_plugins: None,
                 secondary: &mut self.secondary,
                 canvas,
                 cs,
@@ -153,6 +153,27 @@ impl UIState for DefaultUIState {
                 recalculate_current_selection,
             };
 
+            // Special case!
+            if self
+                .primary_plugins
+                .search
+                .as_ref()
+                .map(|p| p.is_blocking())
+                .unwrap_or(false)
+            {
+                if !self
+                    .primary_plugins
+                    .search
+                    .as_mut()
+                    .unwrap()
+                    .blocking_event(&mut ctx)
+                {
+                    self.primary_plugins.search = None;
+                }
+                return;
+            }
+
+            ctx.primary_plugins = Some(&mut self.primary_plugins);
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
                     .exclusive_blocking_plugin
@@ -167,6 +188,8 @@ impl UIState for DefaultUIState {
 
             if let Some(p) = view::logs::DisplayLogs::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = view::search::SearchState::new(&mut ctx) {
+                self.primary_plugins.search = Some(p);
             } else if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = debug::classification::OsmClassifier::new(&mut ctx) {
@@ -200,7 +223,14 @@ impl UIState for DefaultUIState {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                 }
             }
-            if self.exclusive_blocking_plugin.is_some() {
+            if self
+                .primary_plugins
+                .search
+                .as_ref()
+                .map(|p| p.is_blocking())
+                .unwrap_or(false)
+                || self.exclusive_blocking_plugin.is_some()
+            {
                 return;
             }
         }
@@ -260,7 +290,25 @@ impl UIState for DefaultUIState {
                 self.show_score = None;
             }
         } else if let Some(p) = plugins::sim::show_score::ShowScoreState::new(&mut ctx) {
-            self.show_score = Some(Box::new(p));
+            self.show_score = Some(p);
+        }
+        if self
+            .primary_plugins
+            .search
+            .as_ref()
+            .map(|p| !p.is_blocking())
+            .unwrap_or(false)
+        {
+            if !self
+                .primary_plugins
+                .search
+                .as_mut()
+                .unwrap()
+                .blocking_event(&mut ctx)
+            {
+                self.primary_plugins.search = None;
+            }
+            return;
         }
 
         if self.primary_plugins.hider.is_some() {
@@ -325,6 +373,12 @@ impl UIState for DefaultUIState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+        if let Some(ref plugin) = self.primary_plugins.search {
+            plugin.draw(g, ctx);
+            if plugin.is_blocking() {
+                return;
+            }
+        }
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             plugin.draw(g, ctx);
             return;
@@ -373,6 +427,11 @@ impl UIState for DefaultUIState {
             }
         };
 
+        if let Some(ref plugin) = self.primary_plugins.search {
+            if let Some(c) = plugin.color_for(id, ctx) {
+                return Some(c);
+            }
+        }
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             return plugin.color_for(id, ctx);
         }
@@ -484,6 +543,9 @@ pub struct PluginsPerMap {
     // plugins or ambient plugins.
     hider: Option<debug::hider::Hider>,
 
+    // When present, this either acts like exclusive blocking or like stackable modal. :\
+    search: Option<view::search::SearchState>,
+
     // TODO legacy
     view_mode: ViewMode,
     time_travel: TimeTravel,
@@ -493,6 +555,7 @@ impl PluginsPerMap {
     pub fn new(state: &PerMapUI, timer: &mut Timer) -> PluginsPerMap {
         PluginsPerMap {
             hider: None,
+            search: None,
             view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
             time_travel: TimeTravel::new(),
         }

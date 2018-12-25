@@ -17,14 +17,12 @@ use ezgui::{Color, GfxCtx};
 use map_model::Map;
 
 pub struct ViewMode {
-    search: Option<search::SearchState>,
     ambient_plugins: Vec<Box<Plugin>>,
 }
 
 impl ViewMode {
     pub fn new(map: &Map, draw_map: &DrawMap, timer: &mut Timer) -> ViewMode {
         ViewMode {
-            search: None,
             ambient_plugins: vec![
                 Box::new(debug_objects::DebugObjectsState::new()),
                 Box::new(follow::FollowState::new()),
@@ -44,20 +42,6 @@ impl ViewMode {
 
 impl Plugin for ViewMode {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if self.search.is_some() {
-            if self.search.as_mut().unwrap().blocking_event(ctx) {
-                if self.search.as_ref().unwrap().is_blocking() {
-                    return true;
-                }
-            } else {
-                self.search = None;
-                return false;
-            }
-        } else if let Some(p) = search::SearchState::new(ctx) {
-            self.search = Some(p);
-            return true;
-        }
-
         for p in self.ambient_plugins.iter_mut() {
             p.ambient_event(ctx);
         }
@@ -69,19 +53,9 @@ impl Plugin for ViewMode {
         for p in &self.ambient_plugins {
             p.draw(g, ctx);
         }
-
-        if let Some(ref p) = self.search {
-            p.draw(g, ctx);
-        }
     }
 
     fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
-        if let Some(ref p) = self.search {
-            if let Some(c) = p.color_for(obj, ctx) {
-                return Some(c);
-            }
-        }
-
         // First one arbitrarily wins.
         for p in &self.ambient_plugins {
             if let Some(c) = p.color_for(obj, ctx) {

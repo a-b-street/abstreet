@@ -578,6 +578,7 @@ Plugin styles are blocking or ambient. And some can conflict...
 	- layers... shouldnt be per-map state. should modify stuff itself.
 - view mode... whew, one thing at a time.
 	- warp... exclusive blocking. apparently we used to still let ambient plugins draw and color stuff while it's active, but meh, doesnt seem important.
+	- search... argh, this is the one that's SOMETIMES exclusive blocking and sometimes stackable modal.
 
 
 
@@ -588,3 +589,4 @@ Plugin styles are blocking or ambient. And some can conflict...
 - can we somehow fold PluginsPerMap into PerMapUI? :D different API that doesnt blindly pass in all of primary field
 - Layers could be stackable modal too, but do that later. low-pri.
 - probably dont need all those methods in UIState. just a way to get the main state.
+- bulk-disable debug mode stuff in tutorial land. should be easy now!

@@ -18,6 +18,7 @@ impl SearchState {
         None
     }
 
+    // If not, act like stackable modal.
     pub fn is_blocking(&self) -> bool {
         match self {
             SearchState::EnteringSearch(_) => true,
