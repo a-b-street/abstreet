@@ -14,9 +14,7 @@ mod text_box;
 mod top_menu;
 mod wizard;
 
-pub use crate::canvas::{
-    Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED, TOP_RIGHT,
-};
+pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
 pub use crate::event::{Event, Key};
 pub use crate::input::{ModalMenu, UserInput};

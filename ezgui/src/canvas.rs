@@ -166,6 +166,7 @@ impl Canvas {
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
+            VerticalAlignment::BelowTopMenu => text::LINE_HEIGHT,
             VerticalAlignment::Center => (self.window_height - height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - height,
         };
@@ -256,13 +257,12 @@ pub enum HorizontalAlignment {
 
 pub enum VerticalAlignment {
     Top,
+    BelowTopMenu,
     Center,
     Bottom,
 }
 
 pub const BOTTOM_LEFT: (HorizontalAlignment, VerticalAlignment) =
     (HorizontalAlignment::Left, VerticalAlignment::Bottom);
-pub const TOP_RIGHT: (HorizontalAlignment, VerticalAlignment) =
-    (HorizontalAlignment::Right, VerticalAlignment::Top);
 pub const CENTERED: (HorizontalAlignment, VerticalAlignment) =
     (HorizontalAlignment::Center, VerticalAlignment::Center);

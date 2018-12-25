@@ -24,7 +24,8 @@ pub struct UserInput {
     // This could be from context_menu or modal_state.
     // TODO Is that potentially confusing?
     pub(crate) chosen_action: Option<String>,
-    pub(crate) set_mode_called: bool,
+    pub(crate) set_mode_called: HashSet<String>,
+    current_mode: Option<String>,
 }
 
 pub enum ContextMenu {
@@ -76,7 +77,8 @@ impl UserInput {
             modal_state,
             reserved_keys: HashMap::new(),
             chosen_action: None,
-            set_mode_called: false,
+            set_mode_called: HashSet::new(),
+            current_mode: None,
         };
 
         // First things first...
@@ -100,7 +102,7 @@ impl UserInput {
                     } else {
                         match input.context_menu {
                             ContextMenu::Inactive => {
-                                if let Some((_, ref mut menu)) = input.modal_state.active {
+                                for (_, menu) in input.modal_state.active.iter_mut() {
                                     // context_menu is borrowed, so can't call methods on input.
                                     match menu.event(input.event, canvas) {
                                         // TODO Only consume the input if it was a mouse on top of
@@ -111,6 +113,7 @@ impl UserInput {
                                             assert!(!input.event_consumed);
                                             input.event_consumed = true;
                                             input.chosen_action = Some(action);
+                                            break;
                                         }
                                     }
                                 }
@@ -227,11 +230,9 @@ impl UserInput {
     }
 
     pub fn set_mode_with_prompt(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
-        self.set_mode_called = true;
-        if let Some((ref existing_mode, ref mut menu)) = self.modal_state.active {
-            if existing_mode != mode {
-                panic!("set_mode called on both {} and {}", existing_mode, mode);
-            }
+        self.set_mode_called.insert(mode.to_string());
+        self.current_mode = Some(mode.to_string());
+        if let Some(ref mut menu) = self.modal_state.mut_active_mode(mode) {
             menu.mark_all_inactive();
             menu.change_prompt(prompt);
         } else {
@@ -247,7 +248,7 @@ impl UserInput {
                     canvas,
                 );
                 menu.mark_all_inactive();
-                self.modal_state.active = Some((mode.to_string(), menu));
+                self.modal_state.active.push((mode.to_string(), menu));
             } else {
                 panic!("set_mode called on unknown {}", mode);
             }
@@ -259,14 +260,17 @@ impl UserInput {
     }
 
     pub fn modal_action(&mut self, action: &str) -> bool {
-        if let Some((ref mode, ref mut menu)) = self.modal_state.active {
+        if let Some(ref mode) = self.current_mode {
             if self.chosen_action == Some(action.to_string()) {
                 self.chosen_action = None;
                 return true;
             }
 
             if let Some(key) = self.modal_state.modes[mode].get_key(action) {
-                menu.mark_active(key);
+                self.modal_state
+                    .mut_active_mode(mode)
+                    .unwrap()
+                    .mark_active(key);
                 // Don't check for the keypress here; Menu's event() will have already processed it
                 // and set chosen_action.
                 false
@@ -461,7 +465,8 @@ impl ModalMenu {
 
 pub struct ModalMenuState {
     modes: HashMap<String, ModalMenu>,
-    pub(crate) active: Option<(String, Menu<Key>)>,
+
+    pub(crate) active: Vec<(String, Menu<Key>)>,
 }
 
 impl ModalMenuState {
@@ -469,7 +474,16 @@ impl ModalMenuState {
         // TODO Make sure mode names aren't repeated
         ModalMenuState {
             modes: modes.into_iter().map(|m| (m.name.clone(), m)).collect(),
-            active: None,
+            active: Vec::new(),
         }
+    }
+
+    fn mut_active_mode(&mut self, mode: &str) -> Option<&mut Menu<Key>> {
+        for (name, menu) in self.active.iter_mut() {
+            if mode == name {
+                return Some(menu);
+            }
+        }
+        None
     }
 }

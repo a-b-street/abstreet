@@ -174,6 +174,7 @@ impl UIState for DefaultUIState {
 
             if let Some(p) = view::logs::DisplayLogs::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
+            // TODO Don't reinstantiate if search is present but nonblocking!
             } else if let Some(p) = view::search::SearchState::new(&mut ctx) {
                 self.primary_plugins.search = Some(p);
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
@@ -280,7 +281,6 @@ impl UIState for DefaultUIState {
             {
                 self.primary_plugins.search = None;
             }
-            return;
         }
 
         if self.primary_plugins.hider.is_some() {

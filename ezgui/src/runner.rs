@@ -74,7 +74,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                     if let Some(ref menu) = top_menu {
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }
-                    if let Some((_, ref menu)) = modal_state.active {
+                    for (_, ref menu) in &modal_state.active {
                         menu.draw(&mut g, gui.get_mut_canvas());
                     }
                     if let ContextMenu::Displaying(ref menu) = context_menu {
@@ -126,9 +126,13 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                     action
                 );
             }
-            if !input.set_mode_called {
-                modal_state.active = None;
+            let mut still_active = Vec::new();
+            for (mode, menu) in modal_state.active.into_iter() {
+                if input.set_mode_called.contains(&mode) {
+                    still_active.push((mode, menu));
+                }
             }
+            modal_state.active = still_active;
 
             // Don't constantly reset the events struct -- only when laziness changes.
             if new_event_mode != last_event_mode {
