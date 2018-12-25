@@ -20,7 +20,11 @@ impl ABTestManager {
 }
 
 impl Plugin for ABTestManager {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event_with_plugins(
+        &mut self,
+        ctx: &mut PluginCtx,
+        primary_plugins: &mut PluginsPerMap,
+    ) -> bool {
         match self {
             ABTestManager::PickABTest(ref mut wizard) => {
                 if let Some(ab_test) =
@@ -42,9 +46,7 @@ impl Plugin for ABTestManager {
                     let ((new_primary, new_primary_plugins), new_secondary) =
                         launch_test(test, &ctx.primary.current_flags);
                     *ctx.primary = new_primary;
-                    if let Some(p_plugins) = ctx.primary_plugins.as_mut() {
-                        **p_plugins = new_primary_plugins;
-                    }
+                    *primary_plugins = new_primary_plugins;
                     *ctx.secondary = Some(new_secondary);
                     return false;
                 }

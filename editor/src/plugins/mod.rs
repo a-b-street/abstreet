@@ -26,6 +26,14 @@ pub trait Plugin: Any {
     fn blocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
         false
     }
+    fn blocking_event_with_plugins(
+        &mut self,
+        ctx: &mut PluginCtx,
+        _plugins: &mut PluginsPerMap,
+    ) -> bool {
+        // By default, redirect to the other one.
+        self.blocking_event(ctx)
+    }
 
     // True means active; false means done, please destroy.
     fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
@@ -33,6 +41,7 @@ pub trait Plugin: Any {
     }
 
     fn ambient_event(&mut self, _ctx: &mut PluginCtx) {}
+    fn ambient_event_with_plugins(&mut self, _ctx: &mut PluginCtx, _plugins: &mut PluginsPerMap) {}
 }
 
 downcast!(Plugin);
@@ -40,8 +49,6 @@ downcast!(Plugin);
 // This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {
     pub primary: &'a mut PerMapUI,
-    // Only filled out in a few cases.
-    pub primary_plugins: Option<&'a mut PluginsPerMap>,
     pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
     pub canvas: &'a mut Canvas,
     pub cs: &'a mut ColorScheme,

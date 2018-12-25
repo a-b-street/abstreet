@@ -108,7 +108,6 @@ impl UIState for DefaultUIState {
         {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
-                primary_plugins: None,
                 secondary: &mut self.secondary,
                 canvas,
                 cs,
@@ -142,13 +141,12 @@ impl UIState for DefaultUIState {
                 return;
             }
 
-            ctx.primary_plugins = Some(&mut self.primary_plugins);
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
                     .exclusive_blocking_plugin
                     .as_mut()
                     .unwrap()
-                    .blocking_event(&mut ctx)
+                    .blocking_event_with_plugins(&mut ctx, &mut self.primary_plugins)
                 {
                     self.exclusive_blocking_plugin = None;
                 }
@@ -216,7 +214,6 @@ impl UIState for DefaultUIState {
         {
             let mut ctx = PluginCtx {
                 primary: &mut self.primary,
-                primary_plugins: None,
                 secondary: &mut self.secondary,
                 canvas,
                 cs,
@@ -248,7 +245,6 @@ impl UIState for DefaultUIState {
         // Stackable modal plugins
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
-            primary_plugins: None,
             secondary: &mut self.secondary,
             canvas,
             cs,
@@ -304,14 +300,11 @@ impl UIState for DefaultUIState {
             }
         }
 
-        // Ambient plugins. Do the primary_plugins group first, since we later borrow the plugins
-        // for sim_controls.
+        // Ambient plugins
+        self.sim_controls
+            .ambient_event_with_plugins(&mut ctx, &mut self.primary_plugins);
         for p in self.primary_plugins.ambient_plugins.iter_mut() {
             p.ambient_event(&mut ctx);
-        }
-        {
-            ctx.primary_plugins = Some(&mut self.primary_plugins);
-            self.sim_controls.ambient_event(&mut ctx);
         }
         if self.enable_debug_controls {
             self.layers.ambient_event(&mut ctx);

@@ -584,15 +584,15 @@ Plugin styles are blocking or ambient. And some can conflict...
 
 
 
+- probably dont need all those methods in UIState. just a way to get the main state.
+- dont recreate PluginCtx so many times? changing plugin API or something should help.
 
 - probably change Plugin APIs... ambient_event and one event() indicating done or not. dont express blockingness in that API.
 - actually, take away Plugin trait entirely? Except for the stuff that gets all boxed up?
 - can we somehow fold PluginsPerMap into PerMapUI? :D different API that doesnt blindly pass in all of primary field
 - Layers could be stackable modal too, but do that later. low-pri.
-- probably dont need all those methods in UIState. just a way to get the main state.
-- dont recreate PluginCtx so many times? changing plugin API or something should help.
 - bulk-disable debug mode stuff in tutorial land. should be easy now!
 	- layers
 	- some exclusive stuff
 	- hider
-	- top and modal menus
+	= top and modal menus

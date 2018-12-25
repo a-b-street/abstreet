@@ -21,7 +21,11 @@ impl EditsManager {
 }
 
 impl Plugin for EditsManager {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    fn blocking_event_with_plugins(
+        &mut self,
+        ctx: &mut PluginCtx,
+        primary_plugins: &mut PluginsPerMap,
+    ) -> bool {
         let mut new_primary: Option<(PerMapUI, PluginsPerMap)> = None;
 
         if manage_edits(
@@ -34,9 +38,7 @@ impl Plugin for EditsManager {
         {
             if let Some((p, plugins)) = new_primary {
                 *ctx.primary = p;
-                if let Some(p_plugins) = ctx.primary_plugins.as_mut() {
-                    **p_plugins = plugins;
-                }
+                *primary_plugins = plugins;
             }
             false
         } else {

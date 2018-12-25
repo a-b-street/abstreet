@@ -1,4 +1,5 @@
 use crate::plugins::{Plugin, PluginCtx};
+use crate::state::PluginsPerMap;
 use abstutil::elapsed_seconds;
 use ezgui::EventLoopMode;
 use sim::{Benchmark, Event, Sim, Tick, TIMESTEP};
@@ -54,7 +55,11 @@ impl SimControls {
 }
 
 impl Plugin for SimControls {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+    fn ambient_event_with_plugins(
+        &mut self,
+        ctx: &mut PluginCtx,
+        primary_plugins: &mut PluginsPerMap,
+    ) {
         if ctx.input.action_chosen("slow down sim") {
             self.desired_speed -= ADJUST_SPEED;
             self.desired_speed = self.desired_speed.max(0.0);
@@ -66,11 +71,9 @@ impl Plugin for SimControls {
         if ctx.secondary.is_some() && ctx.input.action_chosen("swap the primary/secondary sim") {
             info!("Swapping primary/secondary sim");
             // Check out this cool little trick. :D
-            let primary_plugins = ctx.primary_plugins.take().unwrap();
             let (mut secondary, mut secondary_plugins) = ctx.secondary.take().unwrap();
             mem::swap(ctx.primary, &mut secondary);
             mem::swap(primary_plugins, &mut secondary_plugins);
-            ctx.primary_plugins = Some(primary_plugins);
             *ctx.secondary = Some((secondary, secondary_plugins));
             *ctx.recalculate_current_selection = true;
             // TODO Only one consumer of primary_events right now and they don't care, but this
