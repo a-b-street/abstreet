@@ -104,18 +104,18 @@ impl UIState for DefaultUIState {
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
     ) {
+        let mut ctx = PluginCtx {
+            primary: &mut self.primary,
+            secondary: &mut self.secondary,
+            canvas,
+            cs,
+            input,
+            hints,
+            recalculate_current_selection,
+        };
+
         // Exclusive blocking plugins first
         {
-            let mut ctx = PluginCtx {
-                primary: &mut self.primary,
-                secondary: &mut self.secondary,
-                canvas,
-                cs,
-                input,
-                hints,
-                recalculate_current_selection,
-            };
-
             // Special cases of weird blocking exclusive plugins!
             if self
                 .primary_plugins
@@ -212,16 +212,6 @@ impl UIState for DefaultUIState {
 
         // Exclusive nonblocking plugins
         {
-            let mut ctx = PluginCtx {
-                primary: &mut self.primary,
-                secondary: &mut self.secondary,
-                canvas,
-                cs,
-                input,
-                hints,
-                recalculate_current_selection,
-            };
-
             if self.exclusive_nonblocking_plugin.is_some() {
                 if !self
                     .exclusive_nonblocking_plugin
@@ -243,16 +233,6 @@ impl UIState for DefaultUIState {
         }
 
         // Stackable modal plugins
-        let mut ctx = PluginCtx {
-            primary: &mut self.primary,
-            secondary: &mut self.secondary,
-            canvas,
-            cs,
-            input,
-            hints,
-            recalculate_current_selection,
-        };
-
         if self.show_score.is_some() {
             if !self
                 .show_score
