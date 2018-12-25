@@ -5,7 +5,6 @@ use crate::plugins::debug;
 use crate::plugins::edit;
 use crate::plugins::time_travel::TimeTravel;
 use crate::plugins::view;
-use crate::plugins::view::ViewMode;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, Renderable};
 use abstutil::Timer;
@@ -82,8 +81,7 @@ impl DefaultUIState {
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.primary_plugins.view_mode),
-            x if x == 1 => Some(&self.primary_plugins.time_travel),
+            x if x == 0 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -110,8 +108,7 @@ impl DefaultUIState {
             recalculate_current_selection,
         };
         match idx {
-            x if x == 0 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 1 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 0 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -325,9 +322,15 @@ impl UIState for DefaultUIState {
             self.primary_plugins.hider = Some(p);
         }
 
-        // Ambient plugins
-        ctx.primary_plugins = Some(&mut self.primary_plugins);
-        self.sim_controls.ambient_event(&mut ctx);
+        // Ambient plugins. Do the primary_plugins group first, since we later borrow the plugins
+        // for sim_controls.
+        for p in self.primary_plugins.ambient_plugins.iter_mut() {
+            p.ambient_event(&mut ctx);
+        }
+        {
+            ctx.primary_plugins = Some(&mut self.primary_plugins);
+            self.sim_controls.ambient_event(&mut ctx);
+        }
         self.layers.ambient_event(&mut ctx);
 
         // TODO legacy stuff
@@ -338,7 +341,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=1 {
+            for idx in 0..=0 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -397,13 +400,13 @@ impl UIState for DefaultUIState {
         // Ambient
         self.sim_controls.draw(g, ctx);
         // Layers doesn't draw
+        for p in &self.primary_plugins.ambient_plugins {
+            p.draw(g, ctx);
+        }
 
         // TODO legacy
         if let Some(p) = self.get_active_plugin() {
             p.draw(g, ctx);
-        } else {
-            // If no other mode was active, give the ambient plugins in ViewMode a chance.
-            self.primary_plugins.view_mode.draw(g, ctx);
         }
     }
 
@@ -439,14 +442,17 @@ impl UIState for DefaultUIState {
         // The exclusive_nonblocking_plugins don't color_obj.
 
         // show_score, hider, sim_controls, and layers don't color_obj.
+        for p in &self.primary_plugins.ambient_plugins {
+            if let Some(c) = p.color_for(id, ctx) {
+                return Some(c);
+            }
+        }
 
         // TODO legacy
         if let Some(p) = self.get_active_plugin() {
-            p.color_for(id, ctx)
-        } else {
-            // If no other mode was active, give the ambient plugins in ViewMode a chance.
-            self.primary_plugins.view_mode.color_for(id, ctx)
+            return p.color_for(id, ctx);
         }
+        None
     }
 
     fn primary(&self) -> &PerMapUI {
@@ -546,8 +552,9 @@ pub struct PluginsPerMap {
     // When present, this either acts like exclusive blocking or like stackable modal. :\
     search: Option<view::search::SearchState>,
 
+    ambient_plugins: Vec<Box<Plugin>>,
+
     // TODO legacy
-    view_mode: ViewMode,
     time_travel: TimeTravel,
 }
 
@@ -556,7 +563,21 @@ impl PluginsPerMap {
         PluginsPerMap {
             hider: None,
             search: None,
-            view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
+            ambient_plugins: vec![
+                Box::new(view::debug_objects::DebugObjectsState::new()),
+                Box::new(view::follow::FollowState::new()),
+                Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
+                    &state.map,
+                    &state.draw_map,
+                    timer,
+                )),
+                // TODO Could be a little simpler to instantiate this lazily, stop representing
+                // inactive state.
+                Box::new(view::show_activity::ShowActivityState::new()),
+                Box::new(view::show_associated::ShowAssociatedState::new()),
+                Box::new(view::show_route::ShowRouteState::new()),
+                Box::new(view::turn_cycler::TurnCyclerState::new()),
+            ],
             time_travel: TimeTravel::new(),
         }
     }
