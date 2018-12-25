@@ -1,8 +1,7 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::Renderable;
+use crate::objects::{Ctx, RenderingHints};
 use crate::state::{DefaultUIState, PerMapUI, UIState};
-use ezgui::{Canvas, Color, GfxCtx, LogScroller, Text, UserInput};
+use ezgui::{Canvas, GfxCtx, LogScroller, Text, UserInput};
 use map_model::Traversable;
 use sim::{Event, SimFlags, Tick};
 
@@ -40,15 +39,13 @@ impl TutorialState {
 }
 
 impl UIState for TutorialState {
-    fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
-        self.main.handle_zoom(old_zoom, new_zoom);
+    fn get_state(&self) -> &DefaultUIState {
+        &self.main
     }
-    fn set_current_selection(&mut self, obj: Option<ID>) {
-        self.main.set_current_selection(obj);
+    fn mut_state(&mut self) -> &mut DefaultUIState {
+        &mut self.main
     }
-    fn is_current_selection(&self, obj: ID) -> bool {
-        self.main.is_current_selection(obj)
-    }
+
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -99,15 +96,7 @@ impl UIState for TutorialState {
             }
         }
     }
-    fn get_objects_onscreen(
-        &self,
-        canvas: &Canvas,
-    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
-        self.main.get_objects_onscreen(canvas)
-    }
-    fn is_debug_mode_enabled(&self) -> bool {
-        self.main.is_debug_mode_enabled()
-    }
+
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self.state {
             State::GiveInstructions(ref scroller) => {
@@ -138,15 +127,6 @@ impl UIState for TutorialState {
                 );
             }
         }
-    }
-    fn dump_before_abort(&self) {
-        self.main.dump_before_abort();
-    }
-    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
-        self.main.color_obj(id, ctx)
-    }
-    fn primary(&self) -> &PerMapUI {
-        self.main.primary()
     }
 }
 

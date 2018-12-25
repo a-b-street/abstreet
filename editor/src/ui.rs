@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::RenderOptions;
+use crate::render::{RenderOptions, Renderable};
 use crate::state::UIState;
 use ezgui::{
     Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu, UserInput,
@@ -11,6 +11,7 @@ use ezgui::{
 use kml;
 use map_model::{BuildingID, LaneID};
 use serde_derive::{Deserialize, Serialize};
+use sim::GetDrawAgents;
 use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::process;
@@ -176,20 +177,23 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let old_zoom = self.canvas.cam_zoom;
         self.canvas.handle_event(input);
         let new_zoom = self.canvas.cam_zoom;
-        self.state.handle_zoom(old_zoom, new_zoom);
+        self.state
+            .mut_state()
+            .layers
+            .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
-            self.state.set_current_selection(None);
+            self.state.mut_state().primary.current_selection = None;
         }
         if !self.canvas.is_dragging()
             && input.get_moved_mouse().is_some()
             && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
         {
-            self.state.set_current_selection(self.mouseover_something());
+            self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
         if input.window_lost_cursor() {
-            self.state.set_current_selection(None);
+            self.state.mut_state().primary.current_selection = None;
         }
 
         let mut recalculate_current_selection = false;
@@ -201,7 +205,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             &mut self.canvas,
         );
         if recalculate_current_selection {
-            self.state.set_current_selection(self.mouseover_something());
+            self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
 
         // Can do this at any time.
@@ -224,22 +228,22 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         let ctx = Ctx {
             cs: &self.cs,
-            map: &self.state.primary().map,
-            draw_map: &self.state.primary().draw_map,
+            map: &self.state.get_state().primary.map,
+            draw_map: &self.state.get_state().primary.draw_map,
             canvas: &self.canvas,
-            sim: &self.state.primary().sim,
+            sim: &self.state.get_state().primary.sim,
             hints: &hints,
         };
 
-        let (statics, dynamics) = self.state.get_objects_onscreen(&self.canvas);
+        let (statics, dynamics) = self.get_objects_onscreen();
         for obj in statics
             .into_iter()
             .chain(dynamics.iter().map(|obj| Box::new(obj.borrow())))
         {
             let opts = RenderOptions {
-                color: self.color_obj(obj.get_id(), &ctx),
-                debug_mode: self.state.is_debug_mode_enabled(),
-                is_selected: self.state.is_current_selection(obj.get_id()),
+                color: self.state.get_state().color_obj(obj.get_id(), &ctx),
+                debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
+                is_selected: self.state.get_state().primary.current_selection == Some(obj.get_id()),
             };
             obj.draw(g, opts, &ctx);
         }
@@ -253,7 +257,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     }
 
     fn dump_before_abort(&self) {
-        self.state.dump_before_abort();
+        error!("********************************************************************************");
+        error!("UI broke! Primary sim:");
+        self.state.get_state().primary.sim.dump_before_abort();
+        if let Some((s, _)) = &self.state.get_state().secondary {
+            error!("Secondary sim:");
+            s.sim.dump_before_abort();
+        }
+
         self.save_editor_state();
     }
 
@@ -274,7 +285,7 @@ impl<S: UIState> UI<S> {
         };
 
         match abstutil::read_json::<EditorState>("editor_state") {
-            Ok(ref state) if ui.state.primary().map.get_name() == &state.map_name => {
+            Ok(ref state) if ui.state.get_state().primary.map.get_name() == &state.map_name => {
                 info!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
                 ui.canvas.cam_y = state.cam_y;
@@ -284,15 +295,15 @@ impl<S: UIState> UI<S> {
                 warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 let focus_pt = ID::Building(BuildingID(0))
                     .canonical_point(
-                        &ui.state.primary().map,
-                        &ui.state.primary().sim,
-                        &ui.state.primary().draw_map,
+                        &ui.state.get_state().primary.map,
+                        &ui.state.get_state().primary.sim,
+                        &ui.state.get_state().primary.draw_map,
                     )
                     .or_else(|| {
                         ID::Lane(LaneID(0)).canonical_point(
-                            &ui.state.primary().map,
-                            &ui.state.primary().sim,
-                            &ui.state.primary().draw_map,
+                            &ui.state.get_state().primary.map,
+                            &ui.state.get_state().primary.sim,
+                            &ui.state.get_state().primary.draw_map,
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
@@ -303,10 +314,30 @@ impl<S: UIState> UI<S> {
         ui
     }
 
+    fn get_objects_onscreen(&self) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
+        let state = self.state.get_state();
+
+        let draw_agent_source: &GetDrawAgents = {
+            let tt = &state.primary_plugins.time_travel;
+            if tt.is_active() {
+                tt
+            } else {
+                &state.primary.sim
+            }
+        };
+
+        state.primary.draw_map.get_objects_onscreen(
+            self.canvas.get_screen_bounds(),
+            &state.primary.map,
+            draw_agent_source,
+            state,
+        )
+    }
+
     fn mouseover_something(&self) -> Option<ID> {
         let pt = self.canvas.get_cursor_in_map_space()?;
 
-        let (statics, dynamics) = self.state.get_objects_onscreen(&self.canvas);
+        let (statics, dynamics) = self.get_objects_onscreen();
         // Check front-to-back
         for obj in dynamics
             .iter()
@@ -321,13 +352,9 @@ impl<S: UIState> UI<S> {
         None
     }
 
-    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
-        self.state.color_obj(id, ctx)
-    }
-
     fn save_editor_state(&self) {
         let state = EditorState {
-            map_name: self.state.primary().map.get_name().clone(),
+            map_name: self.state.get_state().primary.map.get_name().clone(),
             cam_x: self.canvas.cam_x,
             cam_y: self.canvas.cam_y,
             cam_zoom: self.canvas.cam_zoom,

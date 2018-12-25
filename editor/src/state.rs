@@ -5,16 +5,16 @@ use crate::plugins::debug;
 use crate::plugins::edit;
 use crate::plugins::view;
 use crate::plugins::{Plugin, PluginCtx};
-use crate::render::{DrawMap, Renderable};
+use crate::render::DrawMap;
 use abstutil::Timer;
 use ezgui::{Canvas, Color, GfxCtx, UserInput};
 use map_model::{IntersectionID, Map};
-use sim::{GetDrawAgents, Sim, SimFlags, Tick};
+use sim::{Sim, SimFlags, Tick};
 
 pub trait UIState {
-    fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64);
-    fn set_current_selection(&mut self, obj: Option<ID>);
-    fn is_current_selection(&self, obj: ID) -> bool;
+    fn get_state(&self) -> &DefaultUIState;
+    fn mut_state(&mut self) -> &mut DefaultUIState;
+
     fn event(
         &mut self,
         input: &mut UserInput,
@@ -23,22 +23,14 @@ pub trait UIState {
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
     );
-    fn get_objects_onscreen(
-        &self,
-        canvas: &Canvas,
-    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>);
-    fn is_debug_mode_enabled(&self) -> bool;
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx);
-    fn dump_before_abort(&self);
-    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color>;
-    fn primary(&self) -> &PerMapUI;
 }
 
 pub struct DefaultUIState {
     pub primary: PerMapUI,
-    primary_plugins: PluginsPerMap,
+    pub primary_plugins: PluginsPerMap,
     // When running an A/B test, this is populated too.
-    secondary: Option<(PerMapUI, PluginsPerMap)>,
+    pub secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     // These are all mutually exclusive and, if present, override everything else.
     exclusive_blocking_plugin: Option<Box<Plugin>>,
@@ -51,7 +43,7 @@ pub struct DefaultUIState {
 
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
-    layers: debug::layers::ToggleableLayers,
+    pub layers: debug::layers::ToggleableLayers,
 
     enable_debug_controls: bool,
 }
@@ -81,19 +73,46 @@ impl DefaultUIState {
         state.layers.handle_zoom(-1.0, canvas.cam_zoom);
         state
     }
+
+    pub fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
+        match id {
+            ID::Turn(_) => {}
+            _ => {
+                if Some(id) == self.primary.current_selection {
+                    return Some(ctx.cs.get_def("selected", Color::BLUE));
+                }
+            }
+        };
+
+        if let Some(ref plugin) = self.primary_plugins.search {
+            if let Some(c) = plugin.color_for(id, ctx) {
+                return Some(c);
+            }
+        }
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
+            return plugin.color_for(id, ctx);
+        }
+
+        // The exclusive_nonblocking_plugins don't color_obj.
+
+        // show_score, hider, sim_controls, and layers don't color_obj.
+        for p in &self.primary_plugins.ambient_plugins {
+            if let Some(c) = p.color_for(id, ctx) {
+                return Some(c);
+            }
+        }
+
+        None
+    }
 }
 
 impl UIState for DefaultUIState {
-    fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
-        self.layers.handle_zoom(old_zoom, new_zoom);
+    // Kind of odd, but convenient.
+    fn get_state(&self) -> &DefaultUIState {
+        self
     }
-
-    fn set_current_selection(&mut self, obj: Option<ID>) {
-        self.primary.current_selection = obj;
-    }
-
-    fn is_current_selection(&self, obj: ID) -> bool {
-        self.primary.current_selection == Some(obj)
+    fn mut_state(&mut self) -> &mut DefaultUIState {
+        self
     }
 
     fn event(
@@ -291,31 +310,6 @@ impl UIState for DefaultUIState {
         }
     }
 
-    fn get_objects_onscreen(
-        &self,
-        canvas: &Canvas,
-    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
-        let draw_agent_source: &GetDrawAgents = {
-            let tt = &self.primary_plugins.time_travel;
-            if tt.is_active() {
-                tt
-            } else {
-                &self.primary.sim
-            }
-        };
-
-        self.primary.draw_map.get_objects_onscreen(
-            canvas.get_screen_bounds(),
-            &self.primary.map,
-            draw_agent_source,
-            self,
-        )
-    }
-
-    fn is_debug_mode_enabled(&self) -> bool {
-        self.layers.debug_mode.is_enabled()
-    }
-
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if let Some(ref plugin) = self.primary_plugins.search {
             plugin.draw(g, ctx);
@@ -344,51 +338,6 @@ impl UIState for DefaultUIState {
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
         }
-    }
-
-    fn dump_before_abort(&self) {
-        error!("********************************************************************************");
-        error!("UI broke! Primary sim:");
-        self.primary.sim.dump_before_abort();
-        if let Some((s, _)) = &self.secondary {
-            error!("Secondary sim:");
-            s.sim.dump_before_abort();
-        }
-    }
-
-    fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
-        match id {
-            ID::Turn(_) => {}
-            _ => {
-                if Some(id) == self.primary.current_selection {
-                    return Some(ctx.cs.get_def("selected", Color::BLUE));
-                }
-            }
-        };
-
-        if let Some(ref plugin) = self.primary_plugins.search {
-            if let Some(c) = plugin.color_for(id, ctx) {
-                return Some(c);
-            }
-        }
-        if let Some(ref plugin) = self.exclusive_blocking_plugin {
-            return plugin.color_for(id, ctx);
-        }
-
-        // The exclusive_nonblocking_plugins don't color_obj.
-
-        // show_score, hider, sim_controls, and layers don't color_obj.
-        for p in &self.primary_plugins.ambient_plugins {
-            if let Some(c) = p.color_for(id, ctx) {
-                return Some(c);
-            }
-        }
-
-        None
-    }
-
-    fn primary(&self) -> &PerMapUI {
-        &self.primary
     }
 }
 
@@ -485,7 +434,7 @@ pub struct PluginsPerMap {
     search: Option<view::search::SearchState>,
 
     // This acts like exclusive blocking when active.
-    time_travel: plugins::sim::time_travel::TimeTravel,
+    pub time_travel: plugins::sim::time_travel::TimeTravel,
 
     ambient_plugins: Vec<Box<Plugin>>,
 }
