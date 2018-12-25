@@ -58,7 +58,7 @@ impl DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
-        let (primary, primary_plugins) = PerMapUI::new(flags, kml);
+        let (primary, primary_plugins) = PerMapUI::new(flags, kml, enable_debug_controls);
         let mut state = DefaultUIState {
             primary,
             primary_plugins,
@@ -389,7 +389,11 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: Option<String>) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(
+        flags: SimFlags,
+        kml: Option<String>,
+        enable_debug_controls: bool,
+    ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
@@ -418,7 +422,7 @@ impl PerMapUI {
             current_selection: None,
             current_flags: flags,
         };
-        let plugins = PluginsPerMap::new(&state, &mut timer);
+        let plugins = PluginsPerMap::new(&state, &mut timer, enable_debug_controls);
         timer.done();
         (state, plugins)
     }
@@ -440,12 +444,11 @@ pub struct PluginsPerMap {
 }
 
 impl PluginsPerMap {
-    pub fn new(state: &PerMapUI, timer: &mut Timer) -> PluginsPerMap {
-        PluginsPerMap {
+    pub fn new(state: &PerMapUI, timer: &mut Timer, enable_debug_controls: bool) -> PluginsPerMap {
+        let mut p = PluginsPerMap {
             hider: None,
             search: None,
             ambient_plugins: vec![
-                Box::new(view::debug_objects::DebugObjectsState::new()),
                 Box::new(view::follow::FollowState::new()),
                 Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
                     &state.map,
@@ -460,6 +463,11 @@ impl PluginsPerMap {
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
             time_travel: plugins::sim::time_travel::TimeTravel::new(),
+        };
+        if enable_debug_controls {
+            p.ambient_plugins
+                .push(Box::new(debug::debug_objects::DebugObjectsState::new()));
         }
+        p
     }
 }

@@ -94,7 +94,8 @@ fn manage_edits(
             flags.edits_name = load_name;
 
             info!("Reloading everything...");
-            *new_primary = Some(PerMapUI::new(flags, None));
+            // TODO Properly retain enable_debug_plugins
+            *new_primary = Some(PerMapUI::new(flags, None, true));
             Some(())
         }
         _ => unreachable!(),

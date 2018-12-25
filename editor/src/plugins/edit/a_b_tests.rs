@@ -106,6 +106,7 @@ fn launch_test(
         Some(42)
     };
 
+    // TODO Properly retain enable_debug_plugins
     let primary = PerMapUI::new(
         SimFlags {
             load: load.clone(),
@@ -114,6 +115,7 @@ fn launch_test(
             edits_name: test.edits1_name.clone(),
         },
         None,
+        true,
     );
     let secondary = PerMapUI::new(
         SimFlags {
@@ -123,6 +125,7 @@ fn launch_test(
             edits_name: test.edits2_name.clone(),
         },
         None,
+        true,
     );
     // That's all! The scenario will be instantiated.
     (primary, secondary)
