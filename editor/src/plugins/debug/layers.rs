@@ -1,5 +1,6 @@
 use crate::objects::ID;
-use ezgui::{ToggleableLayer, UserInput};
+use crate::plugins::PluginCtx;
+use ezgui::ToggleableLayer;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
 const MIN_ZOOM_FOR_LANES: f64 = 0.15;
@@ -45,13 +46,14 @@ impl ToggleableLayers {
         }
     }
 
-    pub fn event(&mut self, input: &mut UserInput) -> bool {
+    pub fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         for layer in self.toggleable_layers().into_iter() {
-            if layer.event(input) {
-                return true;
+            if layer.event(ctx.input) {
+                *ctx.recalculate_current_selection = true;
+                ctx.primary.current_selection = None;
+                return;
             }
         }
-        false
     }
 
     fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {

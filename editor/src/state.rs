@@ -2,7 +2,6 @@ use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins;
 use crate::plugins::debug;
-use crate::plugins::debug::DebugMode;
 use crate::plugins::edit;
 use crate::plugins::logs::DisplayLogs;
 use crate::plugins::time_travel::TimeTravel;
@@ -54,6 +53,7 @@ pub struct DefaultUIState {
 
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
+    layers: debug::layers::ToggleableLayers,
 
     active_plugin: Option<usize>,
 }
@@ -63,8 +63,8 @@ impl DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         DisplayLogs::initialize();
-        let (primary, primary_plugins) = PerMapUI::new(flags, kml, &canvas);
-        DefaultUIState {
+        let (primary, primary_plugins) = PerMapUI::new(flags, kml);
+        let mut state = DefaultUIState {
             primary,
             primary_plugins,
             secondary: None,
@@ -72,16 +72,18 @@ impl DefaultUIState {
             exclusive_nonblocking_plugin: None,
             show_score: None,
             sim_controls: plugins::sim::controls::SimControls::new(),
+            layers: debug::layers::ToggleableLayers::new(),
             active_plugin: None,
-        }
+        };
+        state.layers.handle_zoom(-1.0, canvas.cam_zoom);
+        state
     }
 
     fn get_active_plugin(&self) -> Option<&Plugin> {
         let idx = self.active_plugin?;
         match idx {
-            x if x == 0 => Some(&self.primary_plugins.debug_mode),
-            x if x == 1 => Some(&self.primary_plugins.view_mode),
-            x if x == 2 => Some(&self.primary_plugins.time_travel),
+            x if x == 0 => Some(&self.primary_plugins.view_mode),
+            x if x == 1 => Some(&self.primary_plugins.time_travel),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -108,9 +110,8 @@ impl DefaultUIState {
             recalculate_current_selection,
         };
         match idx {
-            x if x == 0 => self.primary_plugins.debug_mode.blocking_event(&mut ctx),
-            x if x == 1 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
-            x if x == 2 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
+            x if x == 0 => self.primary_plugins.view_mode.blocking_event(&mut ctx),
+            x if x == 1 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
             _ => {
                 panic!("Illegal active_plugin {}", idx);
             }
@@ -120,10 +121,7 @@ impl DefaultUIState {
 
 impl UIState for DefaultUIState {
     fn handle_zoom(&mut self, old_zoom: f64, new_zoom: f64) {
-        self.primary_plugins
-            .debug_mode
-            .layers
-            .handle_zoom(old_zoom, new_zoom);
+        self.layers.handle_zoom(old_zoom, new_zoom);
     }
 
     fn set_current_selection(&mut self, obj: Option<ID>) {
@@ -280,6 +278,7 @@ impl UIState for DefaultUIState {
         // Ambient plugins
         ctx.primary_plugins = Some(&mut self.primary_plugins);
         self.sim_controls.ambient_event(&mut ctx);
+        self.layers.ambient_event(&mut ctx);
 
         // TODO legacy stuff
         // If there's an active plugin, just run it.
@@ -289,7 +288,7 @@ impl UIState for DefaultUIState {
             }
         } else {
             // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=2 {
+            for idx in 0..=1 {
                 if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
                     self.active_plugin = Some(idx);
                     break;
@@ -313,7 +312,6 @@ impl UIState for DefaultUIState {
 
         self.primary.draw_map.get_objects_onscreen(
             canvas.get_screen_bounds(),
-            &self.primary_plugins.debug_mode,
             &self.primary.map,
             draw_agent_source,
             self,
@@ -321,11 +319,7 @@ impl UIState for DefaultUIState {
     }
 
     fn is_debug_mode_enabled(&self) -> bool {
-        self.primary_plugins
-            .debug_mode
-            .layers
-            .debug_mode
-            .is_enabled()
+        self.layers.debug_mode.is_enabled()
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
@@ -346,6 +340,7 @@ impl UIState for DefaultUIState {
 
         // Ambient
         self.sim_controls.draw(g, ctx);
+        // Layers doesn't draw
 
         // TODO legacy
         if let Some(p) = self.get_active_plugin() {
@@ -382,7 +377,7 @@ impl UIState for DefaultUIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // show_score, hider, and sim_controls don't color_obj.
+        // show_score, hider, sim_controls, and layers don't color_obj.
 
         // TODO legacy
         if let Some(p) = self.get_active_plugin() {
@@ -415,26 +410,23 @@ impl ShowObjects for DefaultUIState {
             }
         }
 
-        self.primary_plugins
-            .debug_mode
-            .layers
-            .show_all_turn_icons
-            .is_enabled()
-            || {
-                // TODO This sounds like some old hack, probably remove this?
-                if let Some(ID::Turn(t)) = self.primary.current_selection {
-                    t.parent == id
-                } else {
-                    false
-                }
+        self.layers.show_all_turn_icons.is_enabled() || {
+            // TODO This sounds like some old hack, probably remove this?
+            if let Some(ID::Turn(t)) = self.primary.current_selection {
+                t.parent == id
+            } else {
+                false
             }
+        }
     }
 
     fn show(&self, obj: ID) -> bool {
         if let Some(ref p) = self.primary_plugins.hider {
-            return p.show(obj);
+            if !p.show(obj) {
+                return false;
+            }
         }
-        true
+        self.layers.show(obj)
     }
 }
 
@@ -449,7 +441,7 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(flags: SimFlags, kml: Option<String>) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
 
         let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
@@ -478,7 +470,7 @@ impl PerMapUI {
             current_selection: None,
             current_flags: flags,
         };
-        let plugins = PluginsPerMap::new(&state, canvas, &mut timer);
+        let plugins = PluginsPerMap::new(&state, &mut timer);
         timer.done();
         (state, plugins)
     }
@@ -490,20 +482,17 @@ pub struct PluginsPerMap {
     // plugins or ambient plugins.
     hider: Option<debug::hider::Hider>,
 
-    debug_mode: DebugMode,
+    // TODO legacy
     view_mode: ViewMode,
     time_travel: TimeTravel,
 }
 
 impl PluginsPerMap {
-    pub fn new(state: &PerMapUI, canvas: &Canvas, timer: &mut Timer) -> PluginsPerMap {
-        let mut plugins = PluginsPerMap {
+    pub fn new(state: &PerMapUI, timer: &mut Timer) -> PluginsPerMap {
+        PluginsPerMap {
             hider: None,
-            debug_mode: DebugMode::new(),
             view_mode: ViewMode::new(&state.map, &state.draw_map, timer),
             time_travel: TimeTravel::new(),
-        };
-        plugins.debug_mode.layers.handle_zoom(-1.0, canvas.cam_zoom);
-        plugins
+        }
     }
 }

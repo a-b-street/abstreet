@@ -1,7 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
 use crate::objects::ID;
-use crate::plugins::debug::DebugMode;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -238,7 +237,6 @@ impl DrawMap {
     pub fn get_objects_onscreen<T: ShowObjects>(
         &self,
         screen_bounds: Bounds,
-        debug_mode: &DebugMode,
         map: &Map,
         sim: &GetDrawAgents,
         show_objs: &T,
@@ -257,7 +255,7 @@ impl DrawMap {
         let mut peds: Vec<Box<Renderable>> = Vec::new();
 
         for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
-            if debug_mode.show(*id) && show_objs.show(*id) {
+            if show_objs.show(*id) {
                 match id {
                     ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),

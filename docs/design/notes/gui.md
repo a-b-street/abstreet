@@ -585,3 +585,4 @@ Plugin styles are blocking or ambient. And some can conflict...
 - actually, take away Plugin trait entirely? Except for the stuff that gets all boxed up?
 - can we somehow fold PluginsPerMap into PerMapUI? :D different API that doesnt blindly pass in all of primary field
 - Layers could be stackable modal too, but do that later. low-pri.
+- probably dont need all those methods in UIState. just a way to get the main state.
