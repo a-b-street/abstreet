@@ -178,7 +178,7 @@ impl Canvas {
         ));
     }
 
-    pub(crate) fn text_dims(&self, txt: &Text) -> (f64, f64) {
+    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
         txt.dims(&mut self.glyphs.borrow_mut())
     }
 

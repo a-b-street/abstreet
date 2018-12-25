@@ -7,6 +7,7 @@ use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
     LANE_THICKNESS,
 };
+use ordered_float::NotNaN;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -160,10 +161,9 @@ pub fn draw_signal_diagram(
     g: &mut GfxCtx,
     ctx: &Ctx,
 ) {
-    // Draw all of the cycles off to the side
     let padding = 5.0;
     let zoom = 10.0;
-    let (top_left, width, height) = {
+    let (top_left, intersection_width, intersection_height) = {
         let mut b = Bounds::new();
         for pt in &ctx.map.get_i(i).polygon {
             b.update(*pt);
@@ -175,16 +175,51 @@ pub fn draw_signal_diagram(
             b.max_y - b.min_y,
         )
     };
-
     let cycles = &ctx.map.get_traffic_signal(i).cycles;
+
+    // Precalculate maximum text width.
+    let mut labels = Vec::new();
+    for (idx, cycle) in cycles.iter().enumerate() {
+        if idx == current_cycle && time_left.is_some() {
+            // TODO Hacky way of indicating overtime
+            if time_left.unwrap() < 0.0 * si::S {
+                let mut txt = Text::from_line(format!("Cycle {}: ", idx + 1));
+                txt.append(
+                    "OVERTIME".to_string(),
+                    Some(ctx.cs.get_def("signal overtime", Color::RED)),
+                    None,
+                );
+                labels.push(txt);
+            } else {
+                labels.push(Text::from_line(format!(
+                    "Cycle {}: {:.01}s / {}",
+                    idx + 1,
+                    (cycle.duration - time_left.unwrap()).value_unsafe,
+                    cycle.duration
+                )));
+            }
+        } else {
+            labels.push(Text::from_line(format!(
+                "Cycle {}: {}",
+                idx + 1,
+                cycle.duration
+            )));
+        }
+    }
+    let label_length = labels
+        .iter()
+        .map(|l| ctx.canvas.text_dims(l).0)
+        .max_by_key(|w| NotNaN::new(*w).unwrap())
+        .unwrap();
+
     let old_ctx = g.fork_screenspace();
     g.draw_polygon(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
         &Polygon::rectangle_topleft(
             Pt2D::new(10.0, TOP_MENU_HEIGHT + 10.0),
-            1.0 * width * zoom,
-            (padding + height) * (cycles.len() as f64) * zoom,
+            (intersection_width * zoom) + label_length,
+            (padding + intersection_height) * (cycles.len() as f64) * zoom,
         ),
     );
     // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
@@ -197,51 +232,30 @@ pub fn draw_signal_diagram(
         &Polygon::rectangle_topleft(
             Pt2D::new(
                 10.0,
-                10.0 + TOP_MENU_HEIGHT + (padding + height) * (current_cycle as f64) * zoom,
+                10.0 + TOP_MENU_HEIGHT
+                    + (padding + intersection_height) * (current_cycle as f64) * zoom,
             ),
-            width * zoom,
-            (padding + height) * zoom,
+            (intersection_width * zoom) + label_length,
+            (padding + intersection_height) * zoom,
         ),
     );
 
-    for (idx, cycle) in cycles.iter().enumerate() {
+    for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
         g.fork(
-            // TODO Apply the offset here too?
             Pt2D::new(
                 top_left.x(),
-                top_left.y() - height * (idx as f64) - padding * ((idx as f64) + 1.0),
+                top_left.y() - intersection_height * (idx as f64) - padding * ((idx as f64) + 1.0),
             ),
             zoom,
         );
         draw_signal_cycle(&cycle, g, ctx);
 
-        let txt = if idx == current_cycle && time_left.is_some() {
-            // TODO Hacky way of indicating overtime
-            if time_left.unwrap() < 0.0 * si::S {
-                let mut txt = Text::from_line(format!("Cycle {}: ", idx + 1,));
-                txt.append(
-                    "OVERTIME".to_string(),
-                    Some(ctx.cs.get_def("signal overtime", Color::RED)),
-                    None,
-                );
-                txt
-            } else {
-                Text::from_line(format!(
-                    "Cycle {}: {:.01}s / {}",
-                    idx + 1,
-                    (cycle.duration - time_left.unwrap()).value_unsafe,
-                    cycle.duration
-                ))
-            }
-        } else {
-            Text::from_line(format!("Cycle {}: {}", idx + 1, cycle.duration))
-        };
         ctx.canvas.draw_text_at_screenspace_topleft(
             g,
             txt,
             ScreenPt::new(
-                10.0 + (width * zoom),
-                10.0 + TOP_MENU_HEIGHT + (padding + height) * (idx as f64) * zoom,
+                10.0 + (intersection_width * zoom),
+                10.0 + TOP_MENU_HEIGHT + (padding + intersection_height) * (idx as f64) * zoom,
             ),
         );
     }
