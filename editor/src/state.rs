@@ -3,8 +3,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins;
 use crate::plugins::debug;
 use crate::plugins::edit;
-use crate::plugins::logs::DisplayLogs;
 use crate::plugins::time_travel::TimeTravel;
+use crate::plugins::view;
 use crate::plugins::view::ViewMode;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, Renderable};
@@ -62,7 +62,7 @@ impl DefaultUIState {
     pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
-        DisplayLogs::initialize();
+        view::logs::DisplayLogs::initialize();
         let (primary, primary_plugins) = PerMapUI::new(flags, kml);
         let mut state = DefaultUIState {
             primary,
@@ -165,7 +165,7 @@ impl UIState for DefaultUIState {
                 return;
             }
 
-            if let Some(p) = DisplayLogs::new(&mut ctx) {
+            if let Some(p) = view::logs::DisplayLogs::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
@@ -174,6 +174,8 @@ impl UIState for DefaultUIState {
             } else if let Some(p) = debug::floodfill::Floodfiller::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = debug::geom_validation::Validator::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {

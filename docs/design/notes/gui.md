@@ -576,6 +576,8 @@ Plugin styles are blocking or ambient. And some can conflict...
 	- a bunch of exclusive blocking stuff... meaning it doesn't actually need to be per map!
 	- hider... per-map state, shouldnt exist till it does, stackable modal, should modify ctx itself.
 	- layers... shouldnt be per-map state. should modify stuff itself.
+- view mode... whew, one thing at a time.
+	- warp... exclusive blocking. apparently we used to still let ambient plugins draw and color stuff while it's active, but meh, doesnt seem important.
 
 
 
