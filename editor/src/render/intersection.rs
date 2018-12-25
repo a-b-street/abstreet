@@ -63,7 +63,7 @@ impl Renderable for DrawIntersection {
         });
         g.draw_polygon(color, &self.polygon);
 
-        if opts.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
+        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for corner in &self.sidewalk_corners {
                 g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
             }

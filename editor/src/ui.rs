@@ -238,7 +238,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         {
             let opts = RenderOptions {
                 color: self.color_obj(obj.get_id(), &ctx),
-                cam_zoom: self.canvas.cam_zoom,
                 debug_mode: self.state.is_debug_mode_enabled(),
                 is_selected: self.state.is_current_selection(obj.get_id()),
             };

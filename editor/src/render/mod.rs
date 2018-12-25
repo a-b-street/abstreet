@@ -54,7 +54,6 @@ pub struct RenderOptions {
     // The "main" color for the object, if available.
     pub color: Option<Color>,
     // TODO This should be accessible through ctx...
-    pub cam_zoom: f64,
     pub debug_mode: bool,
     pub is_selected: bool,
 }

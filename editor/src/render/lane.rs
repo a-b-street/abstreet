@@ -117,7 +117,7 @@ impl Renderable for DrawLane {
         });
         g.draw_polygon(color, &self.polygon);
 
-        if opts.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
+        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for m in &self.markings {
                 m(g, ctx.cs);
             }
