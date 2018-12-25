@@ -1,7 +1,6 @@
 pub mod debug;
 pub mod edit;
 pub mod sim;
-pub mod time_travel;
 pub mod view;
 
 use crate::colors::ColorScheme;

@@ -3,7 +3,6 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins;
 use crate::plugins::debug;
 use crate::plugins::edit;
-use crate::plugins::time_travel::TimeTravel;
 use crate::plugins::view;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{DrawMap, Renderable};
@@ -53,8 +52,6 @@ pub struct DefaultUIState {
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
     layers: debug::layers::ToggleableLayers,
-
-    active_plugin: Option<usize>,
 }
 
 impl DefaultUIState {
@@ -72,47 +69,9 @@ impl DefaultUIState {
             show_score: None,
             sim_controls: plugins::sim::controls::SimControls::new(),
             layers: debug::layers::ToggleableLayers::new(),
-            active_plugin: None,
         };
         state.layers.handle_zoom(-1.0, canvas.cam_zoom);
         state
-    }
-
-    fn get_active_plugin(&self) -> Option<&Plugin> {
-        let idx = self.active_plugin?;
-        match idx {
-            x if x == 0 => Some(&self.primary_plugins.time_travel),
-            _ => {
-                panic!("Illegal active_plugin {}", idx);
-            }
-        }
-    }
-
-    fn run_plugin(
-        &mut self,
-        idx: usize,
-        input: &mut UserInput,
-        hints: &mut RenderingHints,
-        recalculate_current_selection: &mut bool,
-        cs: &mut ColorScheme,
-        canvas: &mut Canvas,
-    ) -> bool {
-        let mut ctx = PluginCtx {
-            primary: &mut self.primary,
-            primary_plugins: None,
-            secondary: &mut self.secondary,
-            canvas,
-            cs,
-            input,
-            hints,
-            recalculate_current_selection,
-        };
-        match idx {
-            x if x == 0 => self.primary_plugins.time_travel.blocking_event(&mut ctx),
-            _ => {
-                panic!("Illegal active_plugin {}", idx);
-            }
-        }
     }
 }
 
@@ -150,7 +109,7 @@ impl UIState for DefaultUIState {
                 recalculate_current_selection,
             };
 
-            // Special case!
+            // Special cases of weird blocking exclusive plugins!
             if self
                 .primary_plugins
                 .search
@@ -167,6 +126,11 @@ impl UIState for DefaultUIState {
                 {
                     self.primary_plugins.search = None;
                 }
+                return;
+            }
+            // Always run this here, to let it scrape sim state.
+            self.primary_plugins.time_travel.event(&mut ctx);
+            if self.primary_plugins.time_travel.is_active() {
                 return;
             }
 
@@ -332,22 +296,6 @@ impl UIState for DefaultUIState {
             self.sim_controls.ambient_event(&mut ctx);
         }
         self.layers.ambient_event(&mut ctx);
-
-        // TODO legacy stuff
-        // If there's an active plugin, just run it.
-        if let Some(idx) = self.active_plugin {
-            if !self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
-                self.active_plugin = None;
-            }
-        } else {
-            // Run each plugin, short-circuiting if the plugin claimed it was active.
-            for idx in 0..=0 {
-                if self.run_plugin(idx, input, hints, recalculate_current_selection, cs, canvas) {
-                    self.active_plugin = Some(idx);
-                    break;
-                }
-            }
-        }
     }
 
     fn get_objects_onscreen(
@@ -403,11 +351,6 @@ impl UIState for DefaultUIState {
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
         }
-
-        // TODO legacy
-        if let Some(p) = self.get_active_plugin() {
-            p.draw(g, ctx);
-        }
     }
 
     fn dump_before_abort(&self) {
@@ -448,10 +391,6 @@ impl UIState for DefaultUIState {
             }
         }
 
-        // TODO legacy
-        if let Some(p) = self.get_active_plugin() {
-            return p.color_for(id, ctx);
-        }
         None
     }
 
@@ -552,10 +491,10 @@ pub struct PluginsPerMap {
     // When present, this either acts like exclusive blocking or like stackable modal. :\
     search: Option<view::search::SearchState>,
 
-    ambient_plugins: Vec<Box<Plugin>>,
+    // This acts like exclusive blocking when active.
+    time_travel: plugins::sim::time_travel::TimeTravel,
 
-    // TODO legacy
-    time_travel: TimeTravel,
+    ambient_plugins: Vec<Box<Plugin>>,
 }
 
 impl PluginsPerMap {
@@ -578,7 +517,7 @@ impl PluginsPerMap {
                 Box::new(view::show_route::ShowRouteState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
-            time_travel: TimeTravel::new(),
+            time_travel: plugins::sim::time_travel::TimeTravel::new(),
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::PluginCtx;
 use abstutil::MultiMap;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick};
@@ -63,10 +63,9 @@ impl TimeTravel {
     fn get_current_state(&self) -> &StateAtTime {
         &self.state_per_tick[self.current_tick.unwrap().as_usize() - self.first_tick.as_usize()]
     }
-}
 
-impl Plugin for TimeTravel {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    // Don't really need to indicate activeness here.
+    pub fn event(&mut self, ctx: &mut PluginCtx) {
         self.record_state(&ctx.primary.sim, &ctx.primary.map);
 
         if let Some(tick) = self.current_tick {
@@ -87,8 +86,6 @@ impl Plugin for TimeTravel {
         } else if ctx.input.action_chosen("start time traveling") {
             self.current_tick = Some(ctx.primary.sim.time);
         }
-
-        self.is_active()
     }
 }
 

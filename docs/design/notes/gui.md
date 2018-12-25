@@ -579,6 +579,7 @@ Plugin styles are blocking or ambient. And some can conflict...
 - view mode... whew, one thing at a time.
 	- warp... exclusive blocking. apparently we used to still let ambient plugins draw and color stuff while it's active, but meh, doesnt seem important.
 	- search... argh, this is the one that's SOMETIMES exclusive blocking and sometimes stackable modal.
+- finally, make time travel exclusive blocking, since lots of other stuff doesnt actually work with it.
 
 
 
