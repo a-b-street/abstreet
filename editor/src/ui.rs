@@ -25,68 +25,69 @@ pub struct UI<S: UIState> {
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
-    fn top_menu(canvas: &Canvas) -> Option<TopMenu> {
-        Some(TopMenu::new(
-            vec![
-                Folder::new(
-                    "File",
-                    vec![(Key::Comma, "show log console"), (Key::Escape, "quit")],
-                ),
-                Folder::new(
-                    "Debug",
-                    vec![
-                        (Key::C, "find chokepoints"),
-                        (Key::I, "validate map geometry"),
-                        (Key::Num1, "show/hide buildings"),
-                        (Key::Num2, "show/hide intersections"),
-                        (Key::Num3, "show/hide lanes"),
-                        (Key::Num4, "show/hide parcels"),
-                        (Key::Num6, "show OSM colors"),
-                        (Key::Num7, "show/hide extra shapes"),
-                        (Key::Num9, "show/hide all turn icons"),
-                        (Key::G, "show/hide geometry debug mode"),
-                    ],
-                ),
-                Folder::new(
-                    "Edit",
-                    vec![
-                        (Key::B, "manage A/B tests"),
-                        (Key::Num8, "configure colors"),
-                        (Key::N, "manage neighborhoods"),
-                        (Key::Q, "manage map edits"),
-                        (Key::E, "edit roads"),
-                        (Key::W, "manage scenarios"),
-                    ],
-                ),
-                Folder::new(
-                    "Simulation",
-                    vec![
-                        (Key::LeftBracket, "slow down sim"),
-                        (Key::RightBracket, "speed up sim"),
-                        (Key::O, "save sim state"),
-                        (Key::Y, "load previous sim state"),
-                        (Key::U, "load next sim state"),
-                        (Key::Space, "run/pause sim"),
-                        (Key::M, "run one step of sim"),
-                        (Key::Dot, "show/hide sim info sidepanel"),
-                        (Key::T, "start time traveling"),
-                        (Key::D, "diff all A/B trips"),
-                        (Key::S, "seed the sim with agents"),
-                        (Key::LeftAlt, "swap the primary/secondary sim"),
-                    ],
-                ),
-                Folder::new(
-                    "View",
-                    vec![
-                        (Key::Z, "show neighborhood summaries"),
-                        (Key::Slash, "search for something"),
-                        (Key::A, "show lanes with active traffic"),
-                        (Key::J, "warp to an object"),
-                    ],
-                ),
-            ],
-            canvas,
-        ))
+    fn top_menu(&self) -> Option<TopMenu> {
+        let mut folders = Vec::new();
+        folders.push(Folder::new(
+            "File",
+            vec![(Key::Comma, "show log console"), (Key::Escape, "quit")],
+        ));
+        if self.state.get_state().enable_debug_controls {
+            folders.push(Folder::new(
+                "Debug",
+                vec![
+                    (Key::C, "find chokepoints"),
+                    (Key::I, "validate map geometry"),
+                    (Key::Num1, "show/hide buildings"),
+                    (Key::Num2, "show/hide intersections"),
+                    (Key::Num3, "show/hide lanes"),
+                    (Key::Num4, "show/hide parcels"),
+                    (Key::Num6, "show OSM colors"),
+                    (Key::Num7, "show/hide extra shapes"),
+                    (Key::Num9, "show/hide all turn icons"),
+                    (Key::G, "show/hide geometry debug mode"),
+                ],
+            ));
+        }
+        folders.extend(vec![
+            Folder::new(
+                "Edit",
+                vec![
+                    (Key::B, "manage A/B tests"),
+                    (Key::Num8, "configure colors"),
+                    (Key::N, "manage neighborhoods"),
+                    (Key::Q, "manage map edits"),
+                    (Key::E, "edit roads"),
+                    (Key::W, "manage scenarios"),
+                ],
+            ),
+            Folder::new(
+                "Simulation",
+                vec![
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::O, "save sim state"),
+                    (Key::Y, "load previous sim state"),
+                    (Key::U, "load next sim state"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                    (Key::Dot, "show/hide sim info sidepanel"),
+                    (Key::T, "start time traveling"),
+                    (Key::D, "diff all A/B trips"),
+                    (Key::S, "seed the sim with agents"),
+                    (Key::LeftAlt, "swap the primary/secondary sim"),
+                ],
+            ),
+            Folder::new(
+                "View",
+                vec![
+                    (Key::Z, "show neighborhood summaries"),
+                    (Key::Slash, "search for something"),
+                    (Key::A, "show lanes with active traffic"),
+                    (Key::J, "warp to an object"),
+                ],
+            ),
+        ]);
+        Some(TopMenu::new(folders, &self.canvas))
     }
 
     fn modal_menus() -> Vec<ModalMenu> {

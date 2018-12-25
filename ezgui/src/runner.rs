@@ -8,7 +8,7 @@ use std::{panic, process};
 
 pub trait GUI<T> {
     // Called once
-    fn top_menu(_canvas: &Canvas) -> Option<TopMenu> {
+    fn top_menu(&self) -> Option<TopMenu> {
         None
     }
     fn modal_menus() -> Vec<ModalMenu> {
@@ -50,7 +50,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     // TODO Probably time to bundle this state up. :)
     let mut last_event_mode = EventLoopMode::InputOnly;
     let mut context_menu = ContextMenu::Inactive;
-    let mut top_menu = G::top_menu(gui.get_mut_canvas());
+    let mut top_menu = gui.top_menu();
     let mut modal_state = ModalMenuState::new(G::modal_menus());
     let mut last_data: Option<T> = None;
 

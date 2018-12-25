@@ -45,7 +45,7 @@ pub struct DefaultUIState {
     pub sim_controls: plugins::sim::controls::SimControls,
     pub layers: debug::layers::ToggleableLayers,
 
-    enable_debug_controls: bool,
+    pub enable_debug_controls: bool,
 }
 
 impl DefaultUIState {
