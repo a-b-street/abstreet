@@ -592,3 +592,7 @@ Plugin styles are blocking or ambient. And some can conflict...
 - probably dont need all those methods in UIState. just a way to get the main state.
 - dont recreate PluginCtx so many times? changing plugin API or something should help.
 - bulk-disable debug mode stuff in tutorial land. should be easy now!
+	- layers
+	- some exclusive stuff
+	- hider
+	- top and modal menus

@@ -52,10 +52,17 @@ pub struct DefaultUIState {
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
     layers: debug::layers::ToggleableLayers,
+
+    enable_debug_controls: bool,
 }
 
 impl DefaultUIState {
-    pub fn new(flags: SimFlags, kml: Option<String>, canvas: &Canvas) -> DefaultUIState {
+    pub fn new(
+        flags: SimFlags,
+        kml: Option<String>,
+        canvas: &Canvas,
+        enable_debug_controls: bool,
+    ) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
@@ -69,6 +76,7 @@ impl DefaultUIState {
             show_score: None,
             sim_controls: plugins::sim::controls::SimControls::new(),
             layers: debug::layers::ToggleableLayers::new(),
+            enable_debug_controls,
         };
         state.layers.handle_zoom(-1.0, canvas.cam_zoom);
         state
@@ -151,14 +159,6 @@ impl UIState for DefaultUIState {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = view::search::SearchState::new(&mut ctx) {
                 self.primary_plugins.search = Some(p);
-            } else if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
-            } else if let Some(p) = debug::classification::OsmClassifier::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
-            } else if let Some(p) = debug::floodfill::Floodfiller::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
-            } else if let Some(p) = debug::geom_validation::Validator::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
@@ -193,6 +193,22 @@ impl UIState for DefaultUIState {
                 || self.exclusive_blocking_plugin.is_some()
             {
                 return;
+            }
+
+            if self.enable_debug_controls {
+                if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    return;
+                } else if let Some(p) = debug::classification::OsmClassifier::new(&mut ctx) {
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    return;
+                } else if let Some(p) = debug::floodfill::Floodfiller::new(&mut ctx) {
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    return;
+                } else if let Some(p) = debug::geom_validation::Validator::new(&mut ctx) {
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    return;
+                }
             }
         }
 
@@ -282,8 +298,10 @@ impl UIState for DefaultUIState {
             {
                 self.primary_plugins.hider = None;
             }
-        } else if let Some(p) = debug::hider::Hider::new(&mut ctx) {
-            self.primary_plugins.hider = Some(p);
+        } else if self.enable_debug_controls {
+            if let Some(p) = debug::hider::Hider::new(&mut ctx) {
+                self.primary_plugins.hider = Some(p);
+            }
         }
 
         // Ambient plugins. Do the primary_plugins group first, since we later borrow the plugins
@@ -295,7 +313,9 @@ impl UIState for DefaultUIState {
             ctx.primary_plugins = Some(&mut self.primary_plugins);
             self.sim_controls.ambient_event(&mut ctx);
         }
-        self.layers.ambient_event(&mut ctx);
+        if self.enable_debug_controls {
+            self.layers.ambient_event(&mut ctx);
+        }
     }
 
     fn get_objects_onscreen(

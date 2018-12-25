@@ -44,7 +44,7 @@ fn main() {
     } else {
         ezgui::run(
             ui::UI::new(
-                state::DefaultUIState::new(flags.sim_flags, flags.kml, &canvas),
+                state::DefaultUIState::new(flags.sim_flags, flags.kml, &canvas, true),
                 canvas,
             ),
             "A/B Street",
