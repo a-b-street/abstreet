@@ -284,7 +284,7 @@ impl<S: UIState> UI<S> {
             cs: ColorScheme::load().unwrap(),
         };
 
-        match abstutil::read_json::<EditorState>("editor_state") {
+        match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref state) if ui.state.get_state().primary.map.get_name() == &state.map_name => {
                 info!("Loaded previous editor_state");
                 ui.canvas.cam_x = state.cam_x;
@@ -360,7 +360,7 @@ impl<S: UIState> UI<S> {
             cam_zoom: self.canvas.cam_zoom,
         };
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
-        abstutil::write_json("editor_state", &state).expect("Saving editor_state failed");
+        abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
         info!("Saved editor_state");
     }
 }

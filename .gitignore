@@ -2,7 +2,7 @@
 /target/
 *.swp
 
-editor/editor_state
+editor_state
 
 data/ab_tests/*
 data/edits/*
