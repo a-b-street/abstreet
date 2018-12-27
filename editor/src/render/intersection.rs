@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, ScreenPt, Text, TOP_MENU_HEIGHT};
+use ezgui::{Color, GfxCtx, ScreenPt, Text};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
@@ -158,6 +158,7 @@ pub fn draw_signal_diagram(
     i: IntersectionID,
     current_cycle: usize,
     time_left: Option<si::Second<f64>>,
+    y1_screen: f64,
     g: &mut GfxCtx,
     ctx: &Ctx,
 ) {
@@ -219,7 +220,7 @@ pub fn draw_signal_diagram(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
         &Polygon::rectangle_topleft(
-            Pt2D::new(x1_screen, TOP_MENU_HEIGHT + 10.0),
+            Pt2D::new(x1_screen, y1_screen),
             total_screen_width,
             (padding + intersection_height) * (cycles.len() as f64) * zoom,
         ),
@@ -232,8 +233,7 @@ pub fn draw_signal_diagram(
         &Polygon::rectangle_topleft(
             Pt2D::new(
                 x1_screen,
-                10.0 + TOP_MENU_HEIGHT
-                    + (padding + intersection_height) * (current_cycle as f64) * zoom,
+                y1_screen + (padding + intersection_height) * (current_cycle as f64) * zoom,
             ),
             total_screen_width,
             (padding + intersection_height) * zoom,
@@ -245,7 +245,10 @@ pub fn draw_signal_diagram(
         g.fork(
             Pt2D::new(
                 top_left.x() - (x1_screen / zoom),
-                top_left.y() - intersection_height * (idx as f64) - padding * ((idx as f64) + 1.0),
+                top_left.y()
+                    - (y1_screen / zoom)
+                    - intersection_height * (idx as f64)
+                    - padding * ((idx as f64) + 1.0),
             ),
             zoom,
         );
@@ -256,7 +259,7 @@ pub fn draw_signal_diagram(
             txt,
             ScreenPt::new(
                 x1_screen + 10.0 + (intersection_width * zoom),
-                10.0 + TOP_MENU_HEIGHT + (padding + intersection_height) * (idx as f64) * zoom,
+                y1_screen + (padding + intersection_height) * (idx as f64) * zoom,
             ),
         );
     }

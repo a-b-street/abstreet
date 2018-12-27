@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
+use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard, TOP_MENU_HEIGHT};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
@@ -215,7 +215,14 @@ impl Plugin for TrafficSignalEditor {
 
         draw_signal_cycle(&cycles[self.current_cycle], g, ctx);
 
-        draw_signal_diagram(self.i, self.current_cycle, None, g, ctx);
+        draw_signal_diagram(
+            self.i,
+            self.current_cycle,
+            None,
+            TOP_MENU_HEIGHT + 400.0,
+            g,
+            ctx,
+        );
 
         if let Some(id) = self.icon_selected {
             // TODO What should we do for currently banned turns?
