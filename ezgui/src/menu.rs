@@ -14,6 +14,7 @@ pub struct Menu<T: Clone> {
     row_height: f64,
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
+    total_height: f64,
 }
 
 #[derive(Clone)]
@@ -91,6 +92,7 @@ impl<T: Clone> Menu<T> {
                     y2: top_left.y + row_height,
                 }
             },
+            total_height,
         }
     }
 
@@ -249,5 +251,9 @@ impl<T: Clone> Menu<T> {
     pub fn change_prompt(&mut self, prompt: String) {
         assert!(self.prompt.is_some());
         self.prompt = Some(prompt);
+    }
+
+    pub fn get_bottom_left(&self) -> ScreenPt {
+        ScreenPt::new(self.top_left.x, self.top_left.y + self.total_height)
     }
 }

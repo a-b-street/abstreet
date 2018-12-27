@@ -229,12 +229,19 @@ impl UserInput {
         }
     }
 
-    pub fn set_mode_with_prompt(&mut self, mode: &str, prompt: String, canvas: &Canvas) {
+    // Returns the bottom left of the modal menu.
+    pub fn set_mode_with_prompt(
+        &mut self,
+        mode: &str,
+        prompt: String,
+        canvas: &Canvas,
+    ) -> ScreenPt {
         self.set_mode_called.insert(mode.to_string());
         self.current_mode = Some(mode.to_string());
         if let Some(ref mut menu) = self.modal_state.mut_active_mode(mode) {
             menu.mark_all_inactive();
             menu.change_prompt(prompt);
+            menu.get_bottom_left()
         } else {
             if let Some(ref m) = self.modal_state.modes.get(mode) {
                 let mut menu = Menu::new(
@@ -248,15 +255,17 @@ impl UserInput {
                     canvas,
                 );
                 menu.mark_all_inactive();
+                let corner = menu.get_bottom_left();
                 self.modal_state.active.push((mode.to_string(), menu));
+                corner
             } else {
                 panic!("set_mode called on unknown {}", mode);
             }
         }
     }
 
-    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) {
-        self.set_mode_with_prompt(mode, mode.to_string(), canvas);
+    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) -> ScreenPt {
+        self.set_mode_with_prompt(mode, mode.to_string(), canvas)
     }
 
     pub fn modal_action(&mut self, action: &str) -> bool {

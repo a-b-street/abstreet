@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard, TOP_MENU_HEIGHT};
+use ezgui::{Color, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
@@ -14,6 +14,8 @@ pub struct TrafficSignalEditor {
     cycle_duration_wizard: Option<Wizard>,
     preset_wizard: Option<Wizard>,
     icon_selected: Option<TurnID>,
+
+    diagram_top_left: ScreenPt,
 }
 
 impl TrafficSignalEditor {
@@ -24,12 +26,15 @@ impl TrafficSignalEditor {
                     .input
                     .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
             {
+                let diagram_top_left = ctx.input.set_mode("Traffic Signal Editor", &ctx.canvas);
+
                 return Some(TrafficSignalEditor {
                     i: id,
                     current_cycle: 0,
                     cycle_duration_wizard: None,
                     preset_wizard: None,
                     icon_selected: None,
+                    diagram_top_left,
                 });
             }
         }
@@ -219,7 +224,7 @@ impl Plugin for TrafficSignalEditor {
             self.i,
             self.current_cycle,
             None,
-            TOP_MENU_HEIGHT + 400.0,
+            self.diagram_top_left.y,
             g,
             ctx,
         );
