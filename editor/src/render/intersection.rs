@@ -211,19 +211,19 @@ pub fn draw_signal_diagram(
         .map(|l| ctx.canvas.text_dims(l).0)
         .max_by_key(|w| NotNaN::new(*w).unwrap())
         .unwrap();
+    let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
+    let x1_screen = ctx.canvas.window_width - total_screen_width;
 
     let old_ctx = g.fork_screenspace();
     g.draw_polygon(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
         &Polygon::rectangle_topleft(
-            Pt2D::new(10.0, TOP_MENU_HEIGHT + 10.0),
-            (intersection_width * zoom) + label_length,
+            Pt2D::new(x1_screen, TOP_MENU_HEIGHT + 10.0),
+            total_screen_width,
             (padding + intersection_height) * (cycles.len() as f64) * zoom,
         ),
     );
-    // TODO Padding and offsets all a bit off. Abstractions are a bit awkward. Want to
-    // center a map-space thing inside a screen-space box.
     g.draw_polygon(
         ctx.cs.get_def(
             "current cycle in signal editor panel",
@@ -231,19 +231,20 @@ pub fn draw_signal_diagram(
         ),
         &Polygon::rectangle_topleft(
             Pt2D::new(
-                10.0,
+                x1_screen,
                 10.0 + TOP_MENU_HEIGHT
                     + (padding + intersection_height) * (current_cycle as f64) * zoom,
             ),
-            (intersection_width * zoom) + label_length,
+            total_screen_width,
             (padding + intersection_height) * zoom,
         ),
     );
 
     for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
+        // TODO API for "make this map pt be this screen pt"
         g.fork(
             Pt2D::new(
-                top_left.x(),
+                top_left.x() - (x1_screen / zoom),
                 top_left.y() - intersection_height * (idx as f64) - padding * ((idx as f64) + 1.0),
             ),
             zoom,
@@ -254,7 +255,7 @@ pub fn draw_signal_diagram(
             g,
             txt,
             ScreenPt::new(
-                10.0 + (intersection_width * zoom),
+                x1_screen + 10.0 + (intersection_width * zoom),
                 10.0 + TOP_MENU_HEIGHT + (padding + intersection_height) * (idx as f64) * zoom,
             ),
         );
