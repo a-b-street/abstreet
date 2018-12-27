@@ -40,6 +40,7 @@ pub struct DefaultUIState {
     // These are stackable modal plugins. They can all coexist, and they don't block other modal
     // plugins or ambient plugins.
     show_score: Option<plugins::sim::show_score::ShowScoreState>,
+    legend: Option<plugins::view::legend::Legend>,
 
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
@@ -66,6 +67,7 @@ impl DefaultUIState {
             exclusive_blocking_plugin: None,
             exclusive_nonblocking_plugin: None,
             show_score: None,
+            legend: None,
             sim_controls: plugins::sim::controls::SimControls::new(),
             layers: debug::layers::ToggleableLayers::new(),
             enable_debug_controls,
@@ -95,7 +97,7 @@ impl DefaultUIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // show_score, hider, sim_controls, and layers don't color_obj.
+        // show_score, legend, hider, sim_controls, and layers don't color_obj.
         for p in &self.primary_plugins.ambient_plugins {
             if let Some(c) = p.color_for(id, ctx) {
                 return Some(c);
@@ -265,6 +267,13 @@ impl UIState for DefaultUIState {
         } else if let Some(p) = plugins::sim::show_score::ShowScoreState::new(&mut ctx) {
             self.show_score = Some(p);
         }
+        if self.legend.is_some() {
+            if !self.legend.as_mut().unwrap().nonblocking_event(&mut ctx) {
+                self.legend = None;
+            }
+        } else if let Some(p) = plugins::view::legend::Legend::new(&mut ctx) {
+            self.legend = Some(p);
+        }
         if self
             .primary_plugins
             .search
@@ -328,6 +337,9 @@ impl UIState for DefaultUIState {
 
         // Stackable modals
         if let Some(ref p) = self.show_score {
+            p.draw(g, ctx);
+        }
+        if let Some(ref p) = self.legend {
             p.draw(g, ctx);
         }
         // Hider doesn't draw

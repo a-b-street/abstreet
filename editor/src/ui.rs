@@ -29,7 +29,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
             "File",
-            vec![(Key::Comma, "show log console"), (Key::Escape, "quit")],
+            vec![
+                (Key::Comma, "show log console"),
+                (Key::L, "show legend"),
+                (Key::Escape, "quit"),
+            ],
         ));
         if self.state.get_state().enable_debug_controls {
             folders.push(Folder::new(
@@ -163,6 +167,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ),
             ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
             ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
+            // TODO F1?
+            ModalMenu::new("Legend", vec![(Key::L, "quit")]),
         ]
     }
 

@@ -230,6 +230,7 @@ impl UserInput {
     }
 
     // Returns the bottom left of the modal menu.
+    // TODO It'd be nice to scope the return value to the next draw()s only.
     pub fn set_mode_with_prompt(
         &mut self,
         mode: &str,
