@@ -231,11 +231,13 @@ impl UserInput {
 
     // Returns the bottom left of the modal menu.
     // TODO It'd be nice to scope the return value to the next draw()s only.
-    pub fn set_mode_with_prompt(
+    pub fn set_mode_with_extra(
         &mut self,
         mode: &str,
         prompt: String,
         canvas: &Canvas,
+        extra_width: f64,
+        _extra_height: f64,
     ) -> ScreenPt {
         self.set_mode_called.insert(mode.to_string());
         self.current_mode = Some(mode.to_string());
@@ -252,7 +254,7 @@ impl UserInput {
                         .map(|(key, action)| (Some(*key), action.to_string(), *key))
                         .collect(),
                     false,
-                    Position::TopRightOfScreen,
+                    Position::TopRightOfScreen(extra_width),
                     canvas,
                 );
                 menu.mark_all_inactive();
@@ -263,6 +265,15 @@ impl UserInput {
                 panic!("set_mode called on unknown {}", mode);
             }
         }
+    }
+
+    pub fn set_mode_with_prompt(
+        &mut self,
+        mode: &str,
+        prompt: String,
+        canvas: &Canvas,
+    ) -> ScreenPt {
+        self.set_mode_with_extra(mode, prompt, canvas, 0.0, 0.0)
     }
 
     pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) -> ScreenPt {

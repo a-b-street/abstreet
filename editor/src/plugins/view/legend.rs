@@ -19,17 +19,22 @@ impl Legend {
 
     pub fn start(input: &mut UserInput, canvas: &Canvas) -> Legend {
         Legend {
-            top_left: input.set_mode("Legend", canvas),
+            // Size needed for the legend was manually tuned. :\
+            top_left: input.set_mode_with_extra(
+                "Legend",
+                "Legend".to_string(),
+                canvas,
+                220.0,
+                300.0,
+            ),
         }
     }
 }
 
 impl Plugin for Legend {
     fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        self.top_left = ctx.input.set_mode("Legend", &ctx.canvas);
+        *self = Legend::start(ctx.input, ctx.canvas);
 
-        // TODO Hack
-        self.top_left.x -= 150.0;
         if ctx.input.modal_action("quit") {
             return false;
         }

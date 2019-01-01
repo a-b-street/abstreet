@@ -21,7 +21,8 @@ pub struct Menu<T: Clone> {
 pub enum Position {
     ScreenCenter,
     TopLeftAt(ScreenPt),
-    TopRightOfScreen,
+    // Extra width needed -- if more than the natural menu length, this'll pad the menu.
+    TopRightOfScreen(f64),
 }
 
 impl<T: Clone> Menu<T> {
@@ -59,8 +60,13 @@ impl<T: Clone> Menu<T> {
                 pt.y -= total_height / 2.0;
                 pt
             }
-            Position::TopRightOfScreen => {
-                ScreenPt::new(canvas.window_width - total_width, LINE_HEIGHT)
+            Position::TopRightOfScreen(extra_width) => {
+                let w = if extra_width > total_width {
+                    extra_width
+                } else {
+                    total_width
+                };
+                ScreenPt::new(canvas.window_width - w, LINE_HEIGHT)
             }
         };
 
