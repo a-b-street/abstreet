@@ -1,7 +1,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawTurn;
-use ezgui::{GfxCtx, ScreenPt, Text};
+use ezgui::{Canvas, GfxCtx, ScreenPt, Text, UserInput};
 use geom::{PolyLine, Pt2D};
 use map_model::{IntersectionID, LaneID, Turn, TurnID, TurnType};
 
@@ -12,11 +12,15 @@ pub struct Legend {
 impl Legend {
     pub fn new(ctx: &mut PluginCtx) -> Option<Legend> {
         if ctx.input.action_chosen("show legend") {
-            return Some(Legend {
-                top_left: ctx.input.set_mode("Legend", &ctx.canvas),
-            });
+            return Some(Legend::start(ctx.input, ctx.canvas));
         }
         None
+    }
+
+    pub fn start(input: &mut UserInput, canvas: &Canvas) -> Legend {
+        Legend {
+            top_left: input.set_mode("Legend", canvas),
+        }
     }
 }
 

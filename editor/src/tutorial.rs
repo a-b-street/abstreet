@@ -1,5 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints};
+use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, PerMapUI, UIState};
 use ezgui::{Canvas, GfxCtx, LogScroller, Text, UserInput};
 use map_model::Traversable;
@@ -58,9 +59,8 @@ impl UIState for TutorialState {
             State::GiveInstructions(ref mut scroller) => {
                 if scroller.event(input) {
                     setup_scenario(&mut self.main.primary);
-                    // TODO Levels of indirection now feel bad. I almost want dependency injection
-                    // -- just give me the SimControls.
                     self.main.sim_controls.run_sim(&mut self.main.primary.sim);
+                    self.main.legend = Some(Legend::start(input, canvas));
                     self.state = State::Play {
                         last_tick_observed: None,
                         spawned_from_north: 0,

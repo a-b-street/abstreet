@@ -40,7 +40,7 @@ pub struct DefaultUIState {
     // These are stackable modal plugins. They can all coexist, and they don't block other modal
     // plugins or ambient plugins.
     show_score: Option<plugins::sim::show_score::ShowScoreState>,
-    legend: Option<plugins::view::legend::Legend>,
+    pub legend: Option<plugins::view::legend::Legend>,
 
     // Ambient plugins always exist, and they never block anything.
     pub sim_controls: plugins::sim::controls::SimControls,
