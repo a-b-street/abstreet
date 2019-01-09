@@ -13,6 +13,7 @@ pub struct ToggleableLayers {
     pub show_parcels: ToggleableLayer,
     pub show_extra_shapes: ToggleableLayer,
     pub show_all_turn_icons: ToggleableLayer,
+    pub show_areas: ToggleableLayer,
     pub debug_mode: ToggleableLayer,
 }
 
@@ -25,6 +26,7 @@ impl ToggleableLayers {
             show_parcels: ToggleableLayer::new("parcels", Some(MIN_ZOOM_FOR_PARCE)),
             show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_LANES)),
             show_all_turn_icons: ToggleableLayer::new("all turn icons", None),
+            show_areas: ToggleableLayer::new("areas", None),
             debug_mode: ToggleableLayer::new("geometry debug mode", None),
         }
     }
@@ -36,6 +38,7 @@ impl ToggleableLayers {
             ID::Intersection(_) => self.show_intersections.is_enabled(),
             ID::Parcel(_) => self.show_parcels.is_enabled(),
             ID::ExtraShape(_) => self.show_extra_shapes.is_enabled(),
+            ID::Area(_) => self.show_areas.is_enabled(),
             _ => true,
         }
     }

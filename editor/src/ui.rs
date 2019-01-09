@@ -45,6 +45,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::Num2, "show/hide intersections"),
                     (Key::Num3, "show/hide lanes"),
                     (Key::Num4, "show/hide parcels"),
+                    (Key::Num5, "show/hide areas"),
                     (Key::Num6, "show OSM colors"),
                     (Key::Num7, "show/hide extra shapes"),
                     (Key::Num9, "show/hide all turn icons"),
