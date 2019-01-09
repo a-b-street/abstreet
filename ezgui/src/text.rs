@@ -14,7 +14,7 @@ pub const BG_COLOR: Color = Color::grey(0.2);
 pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
-pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.8);
+pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
 const FONT_SIZE: u32 = 24;
 // TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and

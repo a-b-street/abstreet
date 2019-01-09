@@ -68,22 +68,22 @@ impl Plugin for TurnCyclerState {
                 }
             }
             TurnCyclerState::ShowIntersection(i) => {
-                let (cycle, mut time_left) = ctx
-                    .map
-                    .get_traffic_signal(*i)
-                    .current_cycle_and_remaining_time(ctx.sim.time.as_time());
-                if ctx.sim.is_in_overtime(*i) {
-                    // TODO Hacky way of indicating overtime. Should make a 3-case enum.
-                    time_left = -1.0 * si::S;
+                if let Some(signal) = ctx.map.maybe_get_traffic_signal(*i) {
+                    let (cycle, mut time_left) =
+                        signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                    if ctx.sim.is_in_overtime(*i) {
+                        // TODO Hacky way of indicating overtime. Should make a 3-case enum.
+                        time_left = -1.0 * si::S;
+                    }
+                    draw_signal_diagram(
+                        *i,
+                        cycle.idx,
+                        Some(time_left),
+                        TOP_MENU_HEIGHT + 10.0,
+                        g,
+                        ctx,
+                    );
                 }
-                draw_signal_diagram(
-                    *i,
-                    cycle.idx,
-                    Some(time_left),
-                    TOP_MENU_HEIGHT + 10.0,
-                    g,
-                    ctx,
-                );
             }
         }
     }
