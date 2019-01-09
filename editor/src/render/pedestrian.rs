@@ -58,7 +58,6 @@ impl Renderable for DrawPedestrian {
             g.draw_arrow(
                 ctx.cs.get_def("pedestrian turn arrow", Color::CYAN),
                 0.25,
-                0.3,
                 a,
             );
         }

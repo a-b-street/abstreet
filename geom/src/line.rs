@@ -49,7 +49,7 @@ impl Line {
     }
 
     pub fn shift(&self, width: f64) -> Line {
-        let angle = self.pt1().angle_to(self.pt2()).rotate_degs(90.0);
+        let angle = self.angle().rotate_degs(90.0);
         Line(
             self.pt1().project_away(width, angle),
             self.pt2().project_away(width, angle),

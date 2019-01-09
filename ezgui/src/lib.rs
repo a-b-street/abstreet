@@ -86,14 +86,52 @@ impl<'a> GfxCtx<'a> {
         self.draw_circle(color, &geom::Circle::new(line.pt2(), thickness / 2.0));
     }
 
-    pub fn draw_arrow(&mut self, color: Color, thickness: f64, head_size: f64, line: &geom::Line) {
+    pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+        // TODO Raw method doesn't work yet in all cases...
         graphics::Line::new_round(color.0, thickness).draw_arrow(
-            line_to_array(line),
-            head_size,
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
+            2.0 * thickness,
             &self.ctx.draw_state,
             self.ctx.transform,
             self.gfx,
         );
+
+        /*use dimensioned::si;
+        let head_size = 2.0 * thickness;
+        let angle = line.angle();
+        let triangle_height = (head_size / 2.0).sqrt() * si::M;
+        self.draw_polygon(
+            color,
+            &geom::Polygon::new(&vec![
+                //line.pt2(),
+                //line.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
+                line.reverse()
+                    .dist_along(triangle_height)
+                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                line.pt1()
+                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                line.pt1()
+                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                line.reverse()
+                    .dist_along(triangle_height)
+                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                //line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+            ]),
+        );
+        self.draw_polygon(
+            color,
+            &geom::Polygon::new(&vec![
+                line.pt2(),
+                line.pt2()
+                    .project_away(head_size, angle.rotate_degs(-135.0)),
+                line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+            ]),
+        );*/
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
@@ -169,10 +207,6 @@ impl ToggleableLayer {
     pub fn disable(&mut self) {
         self.enabled = false;
     }
-}
-
-fn line_to_array(l: &geom::Line) -> [f64; 4] {
-    [l.pt1().x(), l.pt1().y(), l.pt2().x(), l.pt2().y()]
 }
 
 pub enum InputResult<T: Clone> {

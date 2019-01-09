@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{
-    RenderOptions, Renderable, BIG_ARROW_THICKNESS, BIG_ARROW_TIP_LENGTH, CROSSWALK_LINE_THICKNESS,
-    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS, TURN_ICON_ARROW_TIP_LENGTH,
+    RenderOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
+    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
 };
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
@@ -43,17 +43,11 @@ impl DrawTurn {
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
         // TODO This is hiding a real problem... some composite turns probably need to have their
         // geometry simplified a bit.
-        g.draw_polygon(
-            color,
-            &t.geom.make_polygons_blindly(2.0 * BIG_ARROW_THICKNESS),
-        );
+        if let Some(pl) = t.geom.without_last_line() {
+            g.draw_polygon(color, &pl.make_polygons_blindly(2.0 * BIG_ARROW_THICKNESS));
+        }
         // And a cap on the arrow
-        g.draw_arrow(
-            color,
-            BIG_ARROW_THICKNESS,
-            BIG_ARROW_TIP_LENGTH,
-            &t.geom.last_line(),
-        );
+        g.draw_arrow(color, BIG_ARROW_THICKNESS, &t.geom.last_line());
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
@@ -74,12 +68,7 @@ impl DrawTurn {
         } else {
             Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
-        g.draw_arrow(
-            color,
-            BIG_ARROW_THICKNESS / 2.0,
-            BIG_ARROW_TIP_LENGTH,
-            &arrow_line,
-        );
+        g.draw_arrow(color, BIG_ARROW_THICKNESS, &arrow_line);
     }
 }
 
@@ -108,7 +97,6 @@ impl Renderable for DrawTurn {
             opts.color
                 .unwrap_or_else(|| ctx.cs.get_def("inactive turn icon", Color::grey(0.7))),
             TURN_ICON_ARROW_THICKNESS,
-            TURN_ICON_ARROW_TIP_LENGTH,
             &self.icon_arrow,
         );
     }

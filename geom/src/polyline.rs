@@ -142,6 +142,12 @@ impl PolyLine {
     pub fn last_line(&self) -> Line {
         Line::new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
+    pub fn without_last_line(&self) -> Option<PolyLine> {
+        if self.pts.len() == 2 {
+            return None;
+        }
+        Some(PolyLine::new(self.pts[0..self.pts.len() - 2].to_vec()))
+    }
 
     // Doesn't check if the result is valid
     pub fn shift_blindly(&self, width: f64) -> PolyLine {
