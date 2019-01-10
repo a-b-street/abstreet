@@ -97,7 +97,7 @@ impl Lane {
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
-        self.lane_center_pts.dist_along_of_point(pt)
+        self.lane_center_pts.dist_along_of_point(pt).map(|(dist, _)| dist)
     }
 
     pub fn length(&self) -> si::Meter<f64> {

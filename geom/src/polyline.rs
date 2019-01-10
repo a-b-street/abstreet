@@ -209,6 +209,8 @@ impl PolyLine {
 
     // Shifting might fail if the requested width doesn't fit in tight angles between points in the
     // polyline.
+    // Things to remember about shifting polylines: the length before and after probably don't
+    // match up.
     pub fn shift(&self, width: f64) -> Option<PolyLine> {
         let result = self.shift_blindly(width);
         // TODO check if any non-adjacent line segments intersect
@@ -389,11 +391,11 @@ impl PolyLine {
         }
     }
 
-    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
+    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<(si::Meter<f64>, Angle)> {
         let mut dist_along = 0.0 * si::M;
         for l in self.lines() {
             if let Some(dist) = l.dist_along_of_point(pt) {
-                return Some(dist_along + dist);
+                return Some((dist_along + dist, l.angle()));
             } else {
                 dist_along += l.length();
             }

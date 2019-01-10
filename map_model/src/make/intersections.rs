@@ -1,7 +1,7 @@
-use crate::{Intersection, Lane, Road, RoadID, LANE_THICKNESS};
+use crate::{Intersection, IntersectionID, Lane, Road, RoadID, LANE_THICKNESS};
 use abstutil::wraparound_get;
 use dimensioned::si;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, Line, PolyLine, Pt2D};
 use std::marker;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
@@ -92,37 +92,9 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
             ]);
         }
     } else {
-        // Find the two corners of each road
-        let mut ok = true;
-        for idx in 0..lines.len() as isize {
-            let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
-            let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-            let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
-
-            // Which hit is farther back along the original line?
-            // TODO Why are intersections not working with dist_along? :(
-            let dist1 = if let Some(dist) = fwd_pl.intersection(adj_fwd_pl).and_then(|hit| fwd_pl.dist_along_of_point(hit)) {
-                dist
-            } else {
-                ok = false;
-                break;
-            };
-            let dist2 = if let Some(dist) = back_pl.intersection(adj_back_pl).and_then(|hit| back_pl.dist_along_of_point(hit)) {
-                dist
-            } else {
-                ok = false;
-                break;
-            };
-            let dist = if dist1 <= dist2 { dist1 } else { dist2 };
-            // Trim back the road center points based on the smaller distance, and use that as the
-            // endpoints.
-            endpoints.push(fwd_pl.dist_along(dist).0);
-            endpoints.push(back_pl.dist_along(dist).0);
-        }
-
-        if !ok {
-            endpoints.clear();
-
+        if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
+            endpoints.extend(pts);
+        } else {
         // Look at adjacent pairs of these polylines...
         for idx1 in 0..lines.len() as isize {
             let idx2 = idx1 + 1;
@@ -180,6 +152,64 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
     // Close off the polygon
     endpoints.push(endpoints[0]);
     endpoints
+}
+
+fn make_new_polygon(roads: &Vec<Road>, i: IntersectionID, lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>) -> Option<Vec<Pt2D>> {
+    let mut endpoints: Vec<Pt2D> = Vec::new();
+    // Find the two corners of each road
+    for idx in 0..lines.len() as isize {
+        let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+
+        // road_center ends at the intersection.
+        // TODO This is redoing some work. :\
+        let road_center = if roads[id.0].dst_i == i { roads[id.0].center_pts.clone() } else { roads[id.0].center_pts.reversed() };
+
+        let new_center1 = {
+            let hit = fwd_pl.intersection(adj_fwd_pl)?;
+            let (dist, angle) = fwd_pl.dist_along_of_point(hit)?;
+            // Find where the perpendicular to this corner hits the original line
+            let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+            let trim_to = road_center.intersection_infinite_line(perp)?;
+            let mut c = road_center.reversed();
+            c.trim_to_pt(trim_to);
+            c
+        };
+        let new_center2 = {
+            let hit = back_pl.intersection(adj_back_pl)?;
+            let (dist, angle) = back_pl.dist_along_of_point(hit)?;
+            // Find where the perpendicular to this corner hits the original line
+            let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+            let trim_to = road_center.intersection_infinite_line(perp)?;
+            let mut c = road_center.reversed();
+            c.trim_to_pt(trim_to);
+            c
+        };
+
+        let shorter_center = if new_center1.length() <= new_center2.length() {
+            new_center1
+        } else {
+            new_center2
+        };
+
+        // TODO This is redoing LOTS of work
+        let r = &roads[id.0];
+        let fwd_width = LANE_THICKNESS * (r.children_forwards.len() as f64);
+        let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
+
+        let (width_normal, width_reverse) = if r.src_i == i {
+            (back_width, fwd_width)
+        } else {
+            (fwd_width, back_width)
+        };
+        let pl_normal = shorter_center.shift(width_normal).unwrap();
+        let pl_reverse = shorter_center.reversed().shift(width_reverse).unwrap().reversed();
+
+        endpoints.push(pl_normal.last_pt());
+        endpoints.push(pl_reverse.last_pt());
+    }
+    Some(endpoints)
 }
 
 // Make a polygon based on the end of each lane polygon. The lanes are trimmed based on
