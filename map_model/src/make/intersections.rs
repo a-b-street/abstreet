@@ -232,8 +232,12 @@ fn make_new_polygon(
             "{} adjacent to {} fwd, {} back",
             id, fwd_id, back_id
         ));
+        // Toss in the original corners, so the intersection polygon doesn't cover area not
+        // originally covered by the thick road bands.
+        endpoints.push(fwd_pl.intersection(adj_fwd_pl).unwrap());
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
+        endpoints.push(back_pl.intersection(adj_back_pl).unwrap());
     }
 
     // TODO See if this even helps or not
