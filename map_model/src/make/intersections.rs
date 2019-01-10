@@ -1,4 +1,5 @@
 use crate::{Intersection, IntersectionID, Lane, Road, RoadID, LANE_THICKNESS};
+use abstutil::note;
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
@@ -159,16 +160,12 @@ fn make_new_polygon(
     i: IntersectionID,
     lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
 ) -> Option<Vec<Pt2D>> {
-    if i != IntersectionID(252) {
-        return None;
-    }
-
     let mut endpoints: Vec<Pt2D> = Vec::new();
     // Find the two corners of each road
     for idx in 0..lines.len() as isize {
         let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
-        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+        let (back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
         // road_center ends at the intersection.
         // TODO This is redoing some work. :\
@@ -184,7 +181,7 @@ fn make_new_polygon(
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
-            let mut c = road_center.reversed();
+            let mut c = road_center.clone();
             c.trim_to_pt(trim_to);
             c
         };
@@ -194,11 +191,18 @@ fn make_new_polygon(
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
-            let mut c = road_center.reversed();
+            let mut c = road_center.clone();
             c.trim_to_pt(trim_to);
             c
         };
 
+        note(format!(
+            "for {}: orig {}, center1 {}, center2 {}",
+            id,
+            roads[id.0].center_pts.length(),
+            new_center1.length(),
+            new_center2.length()
+        ));
         let shorter_center = if new_center1.length() <= new_center2.length() {
             new_center1
         } else {
@@ -211,10 +215,10 @@ fn make_new_polygon(
         let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
 
         let (width_normal, width_reverse) = if r.src_i == i {
-            //r.center_pts = shorter_center.reversed();
+            r.center_pts = shorter_center.reversed();
             (back_width, fwd_width)
         } else {
-            //r.center_pts = shorter_center.clone();
+            r.center_pts = shorter_center.clone();
             (fwd_width, back_width)
         };
         let pl_normal = shorter_center.shift(width_normal).unwrap();
@@ -224,6 +228,10 @@ fn make_new_polygon(
             .unwrap()
             .reversed();
 
+        note(format!(
+            "{} adjacent to {} fwd, {} back",
+            id, fwd_id, back_id
+        ));
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
     }
