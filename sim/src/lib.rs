@@ -27,7 +27,7 @@ mod walking;
 
 pub use crate::events::Event;
 pub use crate::instrument::save_backtraces;
-pub use crate::kinematics::VehicleType;
+pub use crate::kinematics::{VehicleType, MIN_CAR_LENGTH};
 pub use crate::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, Neighborhood, NeighborhoodBuilder,
     OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,

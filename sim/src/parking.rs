@@ -67,13 +67,13 @@ impl ParkingSimState {
         self.cars.insert(p.car, p);
     }
 
-    pub fn get_draw_cars(&self, id: LaneID) -> Vec<DrawCarInput> {
+    pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         self.lanes[id.0]
             .occupants
             .iter()
             .filter_map(|maybe_occupant| {
                 if let Some(car) = maybe_occupant {
-                    Some(self.get_draw_car(*car).unwrap())
+                    Some(self.get_draw_car(*car, map).unwrap())
                 } else {
                     None
                 }
@@ -81,28 +81,31 @@ impl ParkingSimState {
             .collect()
     }
 
-    pub fn get_draw_car(&self, id: CarID) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         let p = self.cars.get(&id)?;
         let lane = p.spot.lane;
 
-        let (front, angle) = self.lanes[lane.0].spots[p.spot.idx].front_of_car(&p.vehicle);
+        let front_dist = self.lanes[lane.0].spots[p.spot.idx].dist_along_for_car(&p.vehicle);
         Some(DrawCarInput {
             id: p.car,
-            vehicle_length: p.vehicle.length,
             waiting_for_turn: None,
-            front,
-            angle,
             stopping_trace: None,
             state: CarState::Parked,
             vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane),
+
+            body: map
+                .get_l(lane)
+                .lane_center_pts
+                .slice(front_dist - p.vehicle.length, front_dist)
+                .0,
         })
     }
 
-    pub fn get_all_draw_cars(&self) -> Vec<DrawCarInput> {
+    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
         self.cars
             .keys()
-            .map(|id| self.get_draw_car(*id).unwrap())
+            .map(|id| self.get_draw_car(*id, map).unwrap())
             .collect()
     }
 
@@ -244,17 +247,6 @@ impl ParkingSpotGeometry {
 
     fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot
-        let offset = (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0;
-        self.dist_along - offset
-    }
-
-    fn front_of_car(&self, vehicle: &Vehicle) -> (Pt2D, Angle) {
-        // Find the offset to center this particular car in the parking spot
-        let offset = (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0;
-        (
-            self.pos
-                .project_away(offset.value_unsafe, self.angle.opposite()),
-            self.angle,
-        )
+        self.dist_along - (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0
     }
 }

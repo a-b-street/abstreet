@@ -22,7 +22,7 @@ const MAX_BIKE_LENGTH: Distance = si::Meter {
     _marker: std::marker::PhantomData,
 };
 // These two must be < PARKING_SPOT_LENGTH
-const MIN_CAR_LENGTH: Distance = si::Meter {
+pub const MIN_CAR_LENGTH: Distance = si::Meter {
     value_unsafe: 4.5,
     _marker: std::marker::PhantomData,
 };

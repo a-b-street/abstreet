@@ -119,7 +119,8 @@ pub struct Path {
 }
 
 impl Path {
-    fn new(map: &Map, steps: Vec<PathStep>, end_dist: si::Meter<f64>) -> Path {
+    // TODO pub for DrawCarInput... bleh.
+    pub fn new(map: &Map, steps: Vec<PathStep>, end_dist: si::Meter<f64>) -> Path {
         // Can disable this after trusting it.
         validate(map, &steps);
         Path {

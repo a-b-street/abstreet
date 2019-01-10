@@ -430,7 +430,7 @@ impl Sim {
                 Some(AgentID::Car(id)) => self
                     .driving_state
                     .get_draw_car(id, self.time, map)
-                    .map(|c| c.front),
+                    .map(|c| c.body.last_pt()),
                 Some(AgentID::Pedestrian(id)) => self
                     .walking_state
                     .get_draw_ped(id, map, self.time)

@@ -86,7 +86,7 @@ impl ID {
             ID::Intersection(id) => map.maybe_get_i(id).map(|i| i.point),
             ID::Turn(id) => map.maybe_get_i(id.parent).map(|i| i.point),
             ID::Building(id) => map.maybe_get_b(id).map(|b| Pt2D::center(&b.points)),
-            ID::Car(id) => sim.get_draw_car(id, map).map(|c| c.front),
+            ID::Car(id) => sim.get_draw_car(id, map).map(|c| c.body.last_pt()),
             ID::Pedestrian(id) => sim.get_draw_ped(id, map).map(|p| p.pos),
             // TODO maybe_get_es
             ID::ExtraShape(id) => Some(draw_map.get_es(id).center()),

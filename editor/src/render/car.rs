@@ -1,9 +1,10 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
+use dimensioned::si;
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarState, DrawCarInput};
+use sim::{CarID, CarState, DrawCarInput, MIN_CAR_LENGTH};
 use std;
 
 const CAR_WIDTH: f64 = 2.0;
@@ -11,9 +12,10 @@ const CAR_WIDTH: f64 = 2.0;
 pub struct DrawCar {
     pub id: CarID,
     body_polygon: Polygon,
+    // Optional and could be empty for super short cars near borders.
     window_polygons: Vec<Polygon>,
-    left_blinkers: (Circle, Circle),
-    right_blinkers: (Circle, Circle),
+    left_blinkers: Option<(Circle, Circle)>,
+    right_blinkers: Option<(Circle, Circle)>,
     left_blinker_on: bool,
     right_blinker_on: bool,
     // TODO maybe also draw lookahead buffer to know what the car is considering
@@ -38,79 +40,82 @@ impl DrawCar {
             .stopping_trace
             .map(|t| t.make_polygons_blindly(CAR_WIDTH));
 
-        let front_window_length_gap = 0.2;
-        let front_window_thickness = 0.3;
+        if input.body.length() < MIN_CAR_LENGTH {
+            return DrawCar {
+                id: input.id,
+                body_polygon: input.body.make_polygons_blindly(CAR_WIDTH),
+                window_polygons: Vec::new(),
+                left_blinkers: None,
+                right_blinkers: None,
+                left_blinker_on,
+                right_blinker_on,
+                stopping_buffer,
+                state: input.state,
+            };
+        }
 
-        let front_blinker = input.front.project_away(0.5, input.angle.opposite());
-        let back_blinker = input.front.project_away(
-            input.vehicle_length.value_unsafe - 0.5,
-            input.angle.opposite(),
-        );
+        let (front_blinker_pos, front_blinker_angle) =
+            input.body.dist_along(input.body.length() - 0.5 * si::M);
+        let (back_blinker_pos, back_blinker_angle) = input.body.dist_along(0.5 * si::M);
         let blinker_radius = 0.3;
+
+        let window_length_gap = 0.2;
+        let window_thickness = 0.3;
+        let front_window = {
+            let (pos, angle) = input.body.dist_along(input.body.length() - 1.0 * si::M);
+            thick_line_from_angle(
+                window_thickness,
+                CAR_WIDTH - 2.0 * window_length_gap,
+                pos.project_away(
+                    CAR_WIDTH / 2.0 - window_length_gap,
+                    angle.rotate_degs(-90.0),
+                ),
+                angle.rotate_degs(90.0),
+            )
+        };
+        let back_window = {
+            let (pos, angle) = input.body.dist_along(1.0 * si::M);
+            thick_line_from_angle(
+                window_thickness * 0.8,
+                CAR_WIDTH - 2.0 * window_length_gap,
+                pos.project_away(
+                    CAR_WIDTH / 2.0 - window_length_gap,
+                    angle.rotate_degs(-90.0),
+                ),
+                angle.rotate_degs(90.0),
+            )
+        };
 
         DrawCar {
             id: input.id,
-            body_polygon: thick_line_from_angle(
-                CAR_WIDTH,
-                input.vehicle_length.value_unsafe,
-                input.front,
-                // find the back of the car relative to the front
-                input.angle.opposite(),
-            ),
-            // TODO it's way too hard to understand and tune this. just wait and stick in sprites
-            // or something.
-            window_polygons: vec![
-                thick_line_from_angle(
-                    front_window_thickness,
-                    CAR_WIDTH - 2.0 * front_window_length_gap,
-                    input
-                        .front
-                        .project_away(1.0, input.angle.opposite())
-                        .project_away(
-                            CAR_WIDTH / 2.0 - front_window_length_gap,
-                            input.angle.rotate_degs(-90.0),
-                        ),
-                    input.angle.rotate_degs(90.0),
-                ),
-                thick_line_from_angle(
-                    front_window_thickness * 0.8,
-                    CAR_WIDTH - 2.0 * front_window_length_gap,
-                    input
-                        .front
-                        .project_away(
-                            input.vehicle_length.value_unsafe - 1.0,
-                            input.angle.opposite(),
-                        )
-                        .project_away(
-                            CAR_WIDTH / 2.0 - front_window_length_gap,
-                            input.angle.rotate_degs(-90.0),
-                        ),
-                    input.angle.rotate_degs(90.0),
-                ),
-            ],
-            left_blinkers: (
+            body_polygon: input.body.make_polygons_blindly(CAR_WIDTH),
+            window_polygons: vec![front_window, back_window],
+            left_blinkers: Some((
                 Circle::new(
-                    front_blinker
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
+                    front_blinker_pos.project_away(
+                        CAR_WIDTH / 2.0 - 0.5,
+                        front_blinker_angle.rotate_degs(-90.0),
+                    ),
                     blinker_radius,
                 ),
                 Circle::new(
-                    back_blinker
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(-90.0)),
+                    back_blinker_pos
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, back_blinker_angle.rotate_degs(-90.0)),
                     blinker_radius,
                 ),
-            ),
-            right_blinkers: (
+            )),
+            right_blinkers: Some((
                 Circle::new(
-                    front_blinker
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
+                    front_blinker_pos
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, front_blinker_angle.rotate_degs(90.0)),
                     blinker_radius,
                 ),
                 Circle::new(
-                    back_blinker.project_away(CAR_WIDTH / 2.0 - 0.5, input.angle.rotate_degs(90.0)),
+                    back_blinker_pos
+                        .project_away(CAR_WIDTH / 2.0 - 0.5, back_blinker_angle.rotate_degs(90.0)),
                     blinker_radius,
                 ),
-            ),
+            )),
             left_blinker_on,
             right_blinker_on,
             stopping_buffer,
@@ -164,17 +169,21 @@ impl Renderable for DrawCar {
         };
         if any_blinkers_on {
             // If both are on, don't show the front ones -- just the back brake lights
-            if self.left_blinker_on {
-                if !self.right_blinker_on {
-                    g.draw_circle(blinker_on, &self.left_blinkers.0);
+            if let (Some(left_blinkers), Some(right_blinkers)) =
+                (&self.left_blinkers, &self.right_blinkers)
+            {
+                if self.left_blinker_on {
+                    if !self.right_blinker_on {
+                        g.draw_circle(blinker_on, &left_blinkers.0);
+                    }
+                    g.draw_circle(blinker_on, &left_blinkers.1);
                 }
-                g.draw_circle(blinker_on, &self.left_blinkers.1);
-            }
-            if self.right_blinker_on {
-                if !self.left_blinker_on {
-                    g.draw_circle(blinker_on, &self.right_blinkers.0);
+                if self.right_blinker_on {
+                    if !self.left_blinker_on {
+                        g.draw_circle(blinker_on, &right_blinkers.0);
+                    }
+                    g.draw_circle(blinker_on, &right_blinkers.1);
                 }
-                g.draw_circle(blinker_on, &self.right_blinkers.1);
             }
         }
 

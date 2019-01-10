@@ -55,6 +55,9 @@ struct Car {
 
     parking: Option<ParkingState>,
 
+    // For rendering purposes. TODO Maybe need to remember more than one step back.
+    last_step: Option<Traversable>,
+
     debug: bool,
 }
 
@@ -326,6 +329,7 @@ impl Car {
                 AgentID::Car(self.id),
                 self.on,
             ));
+            self.last_step = Some(self.on);
 
             if router.should_vanish_at_border() {
                 return Ok(true);
@@ -784,6 +788,7 @@ impl DrivingSimState {
                         tuple: parked_car,
                     })
                 }),
+                last_step: None,
             },
         );
         self.routers.insert(params.car, params.router);
@@ -811,10 +816,45 @@ impl DrivingSimState {
 
     pub fn get_draw_car(&self, id: CarID, time: Tick, map: &Map) -> Option<DrawCarInput> {
         let c = self.cars.get(&id)?;
-        let (base_pos, angle) = c.on.dist_along(c.dist_along, map);
 
-        // TODO arguably, this math might belong in DrawCar.
-        let pos = if let Some(ref parking) = c.parking {
+        let base_body = if c.dist_along >= c.vehicle.length {
+            c.on.slice(c.dist_along - c.vehicle.length, c.dist_along, map)
+                .0
+        } else if let Some(prev) = c.last_step {
+            // TODO Maintaining the entire path the whole time, with some kind of PathCursor thing,
+            // might make more sense, especially for A/B route diffing.
+            let path = Path::new(
+                map,
+                vec![
+                    match prev {
+                        Traversable::Lane(l) => PathStep::Lane(l),
+                        Traversable::Turn(t) => PathStep::Turn(t),
+                    },
+                    match c.on {
+                        Traversable::Lane(l) => PathStep::Lane(l),
+                        Traversable::Turn(t) => PathStep::Turn(t),
+                    },
+                ],
+                c.dist_along,
+            );
+            let prev_dist = c.vehicle.length - c.dist_along;
+            let prev_len = prev.length(map);
+            path.trace(
+                map,
+                if prev_dist <= prev_len {
+                    prev_len - prev_dist
+                } else {
+                    // TODO we need two steps back, urgh
+                    0.0 * si::M
+                },
+                c.vehicle.length,
+            )
+            .unwrap()
+        } else {
+            c.on.slice(0.0 * si::M, c.dist_along, map).0
+        };
+
+        let body = if let Some(ref parking) = c.parking {
             let progress: f64 =
                 ((time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART).value_unsafe;
             assert!(progress >= 0.0 && progress <= 1.0);
@@ -824,17 +864,14 @@ impl DrivingSimState {
                 1.0 - progress
             };
             // TODO we're assuming the parking lane is to the right of us!
-            base_pos.project_away(project_away_ratio * LANE_THICKNESS, angle.rotate_degs(90.0))
+            base_body.shift_blindly(project_away_ratio * LANE_THICKNESS)
         } else {
-            base_pos
+            base_body
         };
 
         Some(DrawCarInput {
             id: c.id,
-            vehicle_length: c.vehicle.length,
             waiting_for_turn: self.routers[&c.id].next_step_as_turn(),
-            front: pos,
-            angle,
             stopping_trace: self.trace_route(
                 id,
                 map,
@@ -849,6 +886,7 @@ impl DrivingSimState {
             },
             vehicle_type: c.vehicle.vehicle_type,
             on: c.on,
+            body,
         })
     }
 

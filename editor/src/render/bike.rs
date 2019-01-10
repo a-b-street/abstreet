@@ -1,7 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use sim::{CarID, CarState, DrawCarInput};
 
 const BIKE_WIDTH: f64 = 0.8;
@@ -23,13 +23,7 @@ impl DrawBike {
 
         DrawBike {
             id: input.id,
-            polygon: thick_line_from_angle(
-                BIKE_WIDTH,
-                input.vehicle_length.value_unsafe,
-                input.front,
-                // find the back of the bike relative to the front
-                input.angle.opposite(),
-            ),
+            polygon: input.body.make_polygons_blindly(BIKE_WIDTH),
             stopping_buffer,
             state: input.state,
         }
@@ -72,10 +66,4 @@ impl Renderable for DrawBike {
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
     }
-}
-
-fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: Angle) -> Polygon {
-    let pt2 = pt.project_away(line_length, angle);
-    // Shouldn't ever fail for a single line
-    PolyLine::new(vec![pt, pt2]).make_polygons_blindly(thickness)
 }

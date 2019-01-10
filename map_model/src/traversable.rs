@@ -1,6 +1,6 @@
 use crate::{LaneID, Map, TurnID};
 use dimensioned::si;
-use geom::{Angle, Pt2D};
+use geom::{Angle, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -94,6 +94,18 @@ impl Traversable {
         match *self {
             Traversable::Lane(id) => map.get_l(id).dist_along(dist),
             Traversable::Turn(id) => map.get_t(id).dist_along(dist),
+        }
+    }
+
+    pub fn slice(
+        &self,
+        start: si::Meter<f64>,
+        end: si::Meter<f64>,
+        map: &Map,
+    ) -> (PolyLine, si::Meter<f64>) {
+        match *self {
+            Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
+            Traversable::Turn(id) => map.get_t(id).geom.slice(start, end),
         }
     }
 

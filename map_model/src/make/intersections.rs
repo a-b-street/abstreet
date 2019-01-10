@@ -222,8 +222,8 @@ fn make_new_polygon(
     // Find the two corners of each road
     for idx in 0..lines.len() as isize {
         let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
-        let (back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-        let (fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+        let (_back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (_fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
         // road_center ends at the intersection.
         // TODO This is redoing some work. :\
