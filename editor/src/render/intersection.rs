@@ -67,7 +67,8 @@ impl Renderable for DrawIntersection {
         if opts.debug_mode {
             // First and last point are repeated
             for (idx, pt) in ctx.map.get_i(self.id).polygon.iter().skip(1).enumerate() {
-                ctx.canvas.draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
+                ctx.canvas
+                    .draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
             }
         } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for corner in &self.sidewalk_corners {

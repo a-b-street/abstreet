@@ -146,7 +146,7 @@ pub fn make_half_map(
             panic!("{:?} is orphaned!", i);
         }
 
-        i.polygon = make::intersections::initial_intersection_polygon(i, &m.roads);
+        i.polygon = make::intersections::initial_intersection_polygon(i, &mut m.roads);
     }
 
     /*timer.start_iter("trim lanes at each intersection", m.intersections.len());

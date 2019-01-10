@@ -11,7 +11,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
-pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
+pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
     // at the intersection (which may be different points for merged intersections!), and the angle
@@ -95,57 +95,57 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
         if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
             endpoints.extend(pts);
         } else {
-        // Look at adjacent pairs of these polylines...
-        for idx1 in 0..lines.len() as isize {
-            let idx2 = idx1 + 1;
+            // Look at adjacent pairs of these polylines...
+            for idx1 in 0..lines.len() as isize {
+                let idx2 = idx1 + 1;
 
-            let (id1, _, _, pl1) = wraparound_get(&lines, idx1);
-            let (id2, _, pl2, _) = wraparound_get(&lines, idx2);
+                let (id1, _, _, pl1) = wraparound_get(&lines, idx1);
+                let (id2, _, pl2, _) = wraparound_get(&lines, idx2);
 
-            // If the two lines are too close in angle, they'll either not hit or even if they do, it
-            // won't be right.
-            let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
-                - pl2.last_line().angle().normalized_degrees())
-            .abs();
+                // If the two lines are too close in angle, they'll either not hit or even if they do, it
+                // won't be right.
+                let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
+                    - pl2.last_line().angle().normalized_degrees())
+                .abs();
 
-            // TODO A tuning challenge. :)
-            if angle_diff > 15.0 {
-                // The easy case!
-                if let Some(hit) = pl1.intersection(&pl2) {
+                // TODO A tuning challenge. :)
+                if angle_diff > 15.0 {
+                    // The easy case!
+                    if let Some(hit) = pl1.intersection(&pl2) {
+                        endpoints.push(hit);
+                        continue;
+                    }
+                }
+
+                let mut ok = true;
+
+                // Use the next adjacent road, doing line to line segment intersection instead.
+                let inf_line1 = wraparound_get(&lines, idx1 - 1).3.last_line();
+                if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
                     endpoints.push(hit);
-                    continue;
+                } else {
+                    endpoints.push(pl1.last_pt());
+                    ok = false;
+                }
+
+                let inf_line2 = wraparound_get(&lines, idx2 + 1).2.last_line();
+                if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
+                    endpoints.push(hit);
+                } else {
+                    endpoints.push(pl2.last_pt());
+                    ok = false;
+                }
+
+                if !ok {
+                    warn!(
+                        "No hit btwn {} and {}, for {} with {} incident roads",
+                        id1,
+                        id2,
+                        i.id,
+                        lines.len()
+                    );
                 }
             }
-
-            let mut ok = true;
-
-            // Use the next adjacent road, doing line to line segment intersection instead.
-            let inf_line1 = wraparound_get(&lines, idx1 - 1).3.last_line();
-            if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
-                endpoints.push(hit);
-            } else {
-                endpoints.push(pl1.last_pt());
-                ok = false;
-            }
-
-            let inf_line2 = wraparound_get(&lines, idx2 + 1).2.last_line();
-            if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
-                endpoints.push(hit);
-            } else {
-                endpoints.push(pl2.last_pt());
-                ok = false;
-            }
-
-            if !ok {
-                warn!(
-                    "No hit btwn {} and {}, for {} with {} incident roads",
-                    id1,
-                    id2,
-                    i.id,
-                    lines.len()
-                );
-            }
-        }
         }
     }
 
@@ -154,7 +154,15 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
     endpoints
 }
 
-fn make_new_polygon(roads: &Vec<Road>, i: IntersectionID, lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>) -> Option<Vec<Pt2D>> {
+fn make_new_polygon(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Option<Vec<Pt2D>> {
+    if i != IntersectionID(252) {
+        return None;
+    }
+
     let mut endpoints: Vec<Pt2D> = Vec::new();
     // Find the two corners of each road
     for idx in 0..lines.len() as isize {
@@ -164,7 +172,11 @@ fn make_new_polygon(roads: &Vec<Road>, i: IntersectionID, lines: &Vec<(RoadID, A
 
         // road_center ends at the intersection.
         // TODO This is redoing some work. :\
-        let road_center = if roads[id.0].dst_i == i { roads[id.0].center_pts.clone() } else { roads[id.0].center_pts.reversed() };
+        let road_center = if roads[id.0].dst_i == i {
+            roads[id.0].center_pts.clone()
+        } else {
+            roads[id.0].center_pts.reversed()
+        };
 
         let new_center1 = {
             let hit = fwd_pl.intersection(adj_fwd_pl)?;
@@ -194,17 +206,23 @@ fn make_new_polygon(roads: &Vec<Road>, i: IntersectionID, lines: &Vec<(RoadID, A
         };
 
         // TODO This is redoing LOTS of work
-        let r = &roads[id.0];
+        let r = &mut roads[id.0];
         let fwd_width = LANE_THICKNESS * (r.children_forwards.len() as f64);
         let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
 
         let (width_normal, width_reverse) = if r.src_i == i {
+            //r.center_pts = shorter_center.reversed();
             (back_width, fwd_width)
         } else {
+            //r.center_pts = shorter_center.clone();
             (fwd_width, back_width)
         };
         let pl_normal = shorter_center.shift(width_normal).unwrap();
-        let pl_reverse = shorter_center.reversed().shift(width_reverse).unwrap().reversed();
+        let pl_reverse = shorter_center
+            .reversed()
+            .shift(width_reverse)
+            .unwrap()
+            .reversed();
 
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
