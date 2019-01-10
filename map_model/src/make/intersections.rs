@@ -1,4 +1,4 @@
-use crate::{Intersection, IntersectionID, Lane, Road, RoadID, LANE_THICKNESS};
+use crate::{Intersection, IntersectionID, Road, RoadID, LANE_THICKNESS};
 use abstutil::note;
 use abstutil::wraparound_get;
 use dimensioned::si;
@@ -177,7 +177,7 @@ fn make_new_polygon(
 
         let new_center1 = {
             let hit = fwd_pl.intersection(adj_fwd_pl)?;
-            let (dist, angle) = fwd_pl.dist_along_of_point(hit)?;
+            let (_, angle) = fwd_pl.dist_along_of_point(hit)?;
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
@@ -187,7 +187,7 @@ fn make_new_polygon(
         };
         let new_center2 = {
             let hit = back_pl.intersection(adj_back_pl)?;
-            let (dist, angle) = back_pl.dist_along_of_point(hit)?;
+            let (_, angle) = back_pl.dist_along_of_point(hit)?;
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
@@ -244,28 +244,4 @@ fn make_new_polygon(
     endpoints.dedup();
 
     Some(endpoints)
-}
-
-// Make a polygon based on the end of each lane polygon. The lanes are trimmed based on
-// initial_intersection_polygon; this is a second pass. It's necessary for merged intersections,
-// but makes all intersections look really nice.
-pub fn toothy_intersection_polygon(i: &Intersection, lanes: &Vec<Lane>) -> Vec<Pt2D> {
-    let mut pts: Vec<Pt2D> = Vec::new();
-    // Use the endpoints of each lane's polygon, which look like teeth next to each other.
-    for l in &i.incoming_lanes {
-        let line = lanes[l.0].last_line();
-        pts.push(line.shift(LANE_THICKNESS / 2.0).pt2());
-        pts.push(line.reverse().shift(LANE_THICKNESS / 2.0).pt1());
-    }
-    for l in &i.outgoing_lanes {
-        let line = lanes[l.0].first_line().reverse();
-        pts.push(line.shift(LANE_THICKNESS / 2.0).pt2());
-        pts.push(line.reverse().shift(LANE_THICKNESS / 2.0).pt1());
-    }
-
-    let center = Pt2D::center(&pts);
-    pts.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
-    // Close off the polygon
-    pts.push(pts[0]);
-    pts
 }

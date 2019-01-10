@@ -103,18 +103,7 @@ fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
 #[derive(Debug, PartialEq)]
 pub struct LaneSpec {
     pub lane_type: LaneType,
-    pub offset: u8,
     pub reverse_pts: bool,
-}
-
-impl LaneSpec {
-    fn new(lane_type: LaneType, offset: u8, reverse_pts: bool) -> LaneSpec {
-        LaneSpec {
-            lane_type,
-            offset,
-            reverse_pts,
-        }
-    }
 }
 
 pub fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &MapEdits) -> Vec<LaneSpec> {
@@ -126,11 +115,17 @@ pub fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &MapEdits) -> Vec<L
     };
 
     let mut specs: Vec<LaneSpec> = Vec::new();
-    for (idx, lane_type) in side1_types.iter().enumerate() {
-        specs.push(LaneSpec::new(*lane_type, idx as u8, false));
+    for lane_type in side1_types {
+        specs.push(LaneSpec {
+            lane_type,
+            reverse_pts: false,
+        });
     }
-    for (idx, lane_type) in side2_types.iter().enumerate() {
-        specs.push(LaneSpec::new(*lane_type, idx as u8, true));
+    for lane_type in side2_types {
+        specs.push(LaneSpec {
+            lane_type,
+            reverse_pts: true,
+        });
     }
     if specs.is_empty() {
         panic!("{} wound up with no lanes! {:?}", id, r);

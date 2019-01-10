@@ -175,15 +175,6 @@ pub fn make_half_map(
         m = make::merge_intersections::merge_intersections(m, timer);
     }
 
-    // Recalculate all intersection polygons again, using the lanes' "teeth" this time.
-    /*for i in m.intersections.iter_mut() {
-        if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
-            panic!("{:?} is orphaned!", i);
-        }
-
-        i.polygon = make::intersections::toothy_intersection_polygon(i, &m.lanes);
-    }*/
-
     m
 }
 

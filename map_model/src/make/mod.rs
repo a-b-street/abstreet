@@ -6,7 +6,6 @@ mod lanes;
 mod merge_intersections;
 mod parcels;
 mod sidewalk_finder;
-mod trim_lines;
 mod turns;
 
 pub use self::buildings::make_all_buildings;
