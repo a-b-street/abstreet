@@ -273,7 +273,39 @@ fn make_new_polygon(
             (Some(c1), None) => c1,
             (None, Some(c2)) => c2,
             (None, None) => {
-                // TODO whoa, how's this happen?
+                // TODO This doesn't work yet, and it's getting VERY complicated.
+                /*
+                // Different strategy. Take the perpendicular infinite line and intersect with the
+                // adjacent line that does NOT share an endpoint.
+                let fwd_same_endpt = fwd_pl.last_pt() == adj_fwd_pl.last_pt();
+                let back_same_endpt = back_pl.last_pt() == adj_back_pl.last_pt();
+
+                let debug = i.0 == 357;
+                if debug {
+                    note(format!(
+                        "{} adjacent to {} fwd, {} back. same endpts: {} and {}",
+                        id, fwd_id, back_id, fwd_same_endpt, back_same_endpt
+                    ));
+                }
+
+                if (fwd_same_endpt || back_same_endpt) && !(fwd_same_endpt && back_same_endpt) {
+                    if fwd_same_endpt {
+                        let perp = Line::new(back_pl.last_pt(), back_pl.last_pt().project_away(1.0, back_pl.last_line().angle().rotate_degs(90.0)));
+                        let adj_hit = adj_back_pl.intersection_infinite_line(perp)?;
+                        endpoints.push(fwd_pl.last_pt());
+                        endpoints.push(adj_hit);
+                    } else {
+                        let perp = Line::new(fwd_pl.last_pt(), fwd_pl.last_pt().project_away(1.0, fwd_pl.last_line().angle().rotate_degs(90.0)));
+                        let adj_hit = adj_fwd_pl.intersection_infinite_line(perp)?;
+                        endpoints.push(adj_hit);
+                        endpoints.push(back_pl.last_pt());
+                    }
+                    continue;
+                } else {
+                    // TODO whoa, how's this happen?
+                    return None;
+                }
+                */
                 return None;
             }
         };
@@ -297,10 +329,6 @@ fn make_new_polygon(
             .unwrap()
             .reversed();
 
-        /*note(format!(
-            "{} adjacent to {} fwd, {} back",
-            id, fwd_id, back_id
-        ));*/
         // Toss in the original corners, so the intersection polygon doesn't cover area not
         // originally covered by the thick road bands.
         if let Some(hit) = fwd_hit {
