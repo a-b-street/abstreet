@@ -87,31 +87,17 @@ pub fn make_half_map(
             let id = LaneID(counter);
             counter += 1;
 
-            let mut unshifted_pts = road_center_pts.clone();
-            if lane.reverse_pts {
-                unshifted_pts = unshifted_pts.reversed();
-            }
             let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
             m.intersections[src_i.0].outgoing_lanes.push(id);
             m.intersections[src_i.0].roads.insert(road_id);
             m.intersections[dst_i.0].incoming_lanes.push(id);
             m.intersections[dst_i.0].roads.insert(road_id);
 
-            // TODO probably different behavior for oneways
-            // TODO need to factor in yellow center lines (but what's the right thing to even do?
-            // Reverse points for British-style driving on the left
-            let width = LANE_THICKNESS * (0.5 + f64::from(lane.offset));
-            let (lane_center_pts, probably_broken) = match unshifted_pts.shift(width) {
-                Some(pts) => (pts, false),
-                // TODO wasteful to calculate again, but eh
-                None => (unshifted_pts.shift_blindly(width), true),
-            };
-
-            // lane_center_pts will get updated in the next pass
             m.lanes.push(Lane {
                 id,
-                lane_center_pts,
-                probably_broken,
+                // Temporary dummy value; this'll be calculated a bit later.
+                lane_center_pts: road_center_pts.clone(),
+                probably_broken: false,
                 src_i,
                 dst_i,
                 lane_type: lane.lane_type,
@@ -149,11 +135,30 @@ pub fn make_half_map(
         i.polygon = make::intersections::initial_intersection_polygon(i, &mut m.roads);
     }
 
-    /*timer.start_iter("trim lanes at each intersection", m.intersections.len());
-    for i in &m.intersections {
+    timer.start_iter("make lane geometry", m.lanes.len());
+    for l in m.lanes.iter_mut() {
         timer.next();
-        make::trim_lines::trim_lines(&mut m.lanes, i);
-    }*/
+
+        let parent = &m.roads[l.parent.0];
+        let (dir, offset) = parent.dir_and_offset(l.id);
+        let unshifted_pts = if dir {
+            parent.center_pts.clone()
+        } else {
+            parent.center_pts.reversed()
+        };
+
+        // TODO probably different behavior for oneways
+        // TODO need to factor in yellow center lines (but what's the right thing to even do?
+        // Reverse points for British-style driving on the left
+        let width = LANE_THICKNESS * (0.5 + (offset as f64));
+        let (lane_center_pts, probably_broken) = match unshifted_pts.shift(width) {
+            Some(pts) => (pts, false),
+            // TODO wasteful to calculate again, but eh
+            None => (unshifted_pts.shift_blindly(width), true),
+        };
+        l.lane_center_pts = lane_center_pts;
+        l.probably_broken = probably_broken;
+    }
 
     for i in m.intersections.iter_mut() {
         for t in
