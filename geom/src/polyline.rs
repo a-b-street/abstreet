@@ -344,19 +344,20 @@ impl PolyLine {
         polygons
     }
 
-    pub fn intersection(&self, other: &PolyLine) -> Option<Pt2D> {
+    // Also return the angle of the line where the hit was found
+    pub fn intersection(&self, other: &PolyLine) -> Option<(Pt2D, Angle)> {
         assert_ne!(self, other);
 
         // There could be several collisions. Pick the "first" from self's perspective.
         for l1 in self.lines() {
-            let mut hits: Vec<Pt2D> = Vec::new();
+            let mut hits: Vec<(Pt2D, Angle)> = Vec::new();
             for l2 in other.lines() {
                 if let Some(pt) = l1.intersection(&l2) {
-                    hits.push(pt);
+                    hits.push((pt, l1.angle()));
                 }
             }
 
-            hits.sort_by_key(|pt| {
+            hits.sort_by_key(|(pt, _)| {
                 let mut copy = self.clone();
                 copy.trim_to_pt(*pt);
                 NotNaN::new(copy.length().value_unsafe).unwrap()

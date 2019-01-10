@@ -96,6 +96,8 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
         if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
             endpoints.extend(pts);
         } else {
+            note(format!("couldnt make new for {}", i.id));
+
             // Look at adjacent pairs of these polylines...
             for idx1 in 0..lines.len() as isize {
                 let idx2 = idx1 + 1;
@@ -112,7 +114,7 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
                 // TODO A tuning challenge. :)
                 if angle_diff > 15.0 {
                     // The easy case!
-                    if let Some(hit) = pl1.intersection(&pl2) {
+                    if let Some((hit, _)) = pl1.intersection(&pl2) {
                         endpoints.push(hit);
                         continue;
                     }
@@ -176,8 +178,7 @@ fn make_new_polygon(
         };
 
         let new_center1 = {
-            let hit = fwd_pl.intersection(adj_fwd_pl)?;
-            let (_, angle) = fwd_pl.dist_along_of_point(hit)?;
+            let (hit, angle) = fwd_pl.intersection(adj_fwd_pl)?;
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
@@ -186,8 +187,7 @@ fn make_new_polygon(
             c
         };
         let new_center2 = {
-            let hit = back_pl.intersection(adj_back_pl)?;
-            let (_, angle) = back_pl.dist_along_of_point(hit)?;
+            let (hit, angle) = back_pl.intersection(adj_back_pl)?;
             // Find where the perpendicular to this corner hits the original line
             let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
             let trim_to = road_center.intersection_infinite_line(perp)?;
@@ -196,13 +196,6 @@ fn make_new_polygon(
             c
         };
 
-        note(format!(
-            "for {}: orig {}, center1 {}, center2 {}",
-            id,
-            roads[id.0].center_pts.length(),
-            new_center1.length(),
-            new_center2.length()
-        ));
         let shorter_center = if new_center1.length() <= new_center2.length() {
             new_center1
         } else {
@@ -228,16 +221,16 @@ fn make_new_polygon(
             .unwrap()
             .reversed();
 
-        note(format!(
+        /*note(format!(
             "{} adjacent to {} fwd, {} back",
             id, fwd_id, back_id
-        ));
+        ));*/
         // Toss in the original corners, so the intersection polygon doesn't cover area not
         // originally covered by the thick road bands.
-        endpoints.push(fwd_pl.intersection(adj_fwd_pl).unwrap());
+        endpoints.push(fwd_pl.intersection(adj_fwd_pl).unwrap().0);
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
-        endpoints.push(back_pl.intersection(adj_back_pl).unwrap());
+        endpoints.push(back_pl.intersection(adj_back_pl).unwrap().0);
     }
 
     // TODO See if this even helps or not

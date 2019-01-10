@@ -72,7 +72,7 @@ pub fn make_all_buildings(
 // Adjust the path to start on the building's border, not center
 fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
     let poly = PolyLine::new(bldg_points.clone());
-    if let Some(hit) = poly.intersection(&PolyLine::new(path.points())) {
+    if let Some((hit, _)) = poly.intersection(&PolyLine::new(path.points())) {
         Line::new(hit, path.pt2())
     } else {
         // Just give up
