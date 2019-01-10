@@ -77,7 +77,7 @@ impl ControlTrafficSignal {
                         assert!(!cycle.yield_turns.contains(&t.id));
                     }
                     TurnType::SharedSidewalkCorner => {
-                        assert!(cycle.priority_turns.contains(&t.id));
+                        //assert!(cycle.priority_turns.contains(&t.id));
                     }
                     _ => {}
                 }

@@ -13,8 +13,9 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 // carves up part of that space, doesn't reach past it.
 pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
-    // the road), both ending at the intersection (which may be different points for merged
-    // intersections!), and the angle of the last segment of the center line.
+    // the road, if the roads were oriented to both be incoming to the intersection), both ending
+    // at the intersection (which may be different points for merged intersections!), and the angle
+    // of the last segment of the center line.
     let mut lines: Vec<(RoadID, Angle, PolyLine, PolyLine)> = i
         .roads
         .iter()
@@ -91,6 +92,37 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
             ]);
         }
     } else {
+        // Find the two corners of each road
+        let mut ok = true;
+        for idx in 0..lines.len() as isize {
+            let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+            let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+            let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+
+            // Which hit is farther back along the original line?
+            // TODO Why are intersections not working with dist_along? :(
+            let dist1 = if let Some(dist) = fwd_pl.intersection(adj_fwd_pl).and_then(|hit| fwd_pl.dist_along_of_point(hit)) {
+                dist
+            } else {
+                ok = false;
+                break;
+            };
+            let dist2 = if let Some(dist) = back_pl.intersection(adj_back_pl).and_then(|hit| back_pl.dist_along_of_point(hit)) {
+                dist
+            } else {
+                ok = false;
+                break;
+            };
+            let dist = if dist1 <= dist2 { dist1 } else { dist2 };
+            // Trim back the road center points based on the smaller distance, and use that as the
+            // endpoints.
+            endpoints.push(fwd_pl.dist_along(dist).0);
+            endpoints.push(back_pl.dist_along(dist).0);
+        }
+
+        if !ok {
+            endpoints.clear();
+
         // Look at adjacent pairs of these polylines...
         for idx1 in 0..lines.len() as isize {
             let idx2 = idx1 + 1;
@@ -141,6 +173,7 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &Vec<Road>) -> Vec<
                     lines.len()
                 );
             }
+        }
         }
     }
 
