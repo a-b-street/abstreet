@@ -177,29 +177,49 @@ fn make_new_polygon(
             roads[id.0].center_pts.reversed()
         };
 
-        let new_center1 = {
-            let (hit, angle) = fwd_pl.intersection(adj_fwd_pl)?;
-            // Find where the perpendicular to this corner hits the original line
-            let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
-            let trim_to = road_center.intersection_infinite_line(perp)?;
-            let mut c = road_center.clone();
-            c.trim_to_pt(trim_to);
-            c
+        // If the adjacent polylines don't intersect at all, then we have something like a
+        // three-way intersection (or maybe just a case where the angles of the two adjacent roads
+        // are super close). In that case, we only have one corner to choose as a candidate for
+        // trimming back the road center.
+        let (fwd_hit, new_center1) = {
+            if let Some((hit, angle)) = fwd_pl.intersection(adj_fwd_pl) {
+                // Find where the perpendicular to this corner hits the original line
+                let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+                let trim_to = road_center.intersection_infinite_line(perp).unwrap();
+                let mut c = road_center.clone();
+                c.trim_to_pt(trim_to);
+                (Some(hit), Some(c))
+            } else {
+                (None, None)
+            }
         };
-        let new_center2 = {
-            let (hit, angle) = back_pl.intersection(adj_back_pl)?;
-            // Find where the perpendicular to this corner hits the original line
-            let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
-            let trim_to = road_center.intersection_infinite_line(perp)?;
-            let mut c = road_center.clone();
-            c.trim_to_pt(trim_to);
-            c
+        let (back_hit, new_center2) = {
+            if let Some((hit, angle)) = back_pl.intersection(adj_back_pl) {
+                // Find where the perpendicular to this corner hits the original line
+                let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+                let trim_to = road_center.intersection_infinite_line(perp).unwrap();
+                let mut c = road_center.clone();
+                c.trim_to_pt(trim_to);
+                (Some(hit), Some(c))
+            } else {
+                (None, None)
+            }
         };
 
-        let shorter_center = if new_center1.length() <= new_center2.length() {
-            new_center1
-        } else {
-            new_center2
+        let shorter_center = match (new_center1, new_center2) {
+            (Some(c1), Some(c2)) => {
+                if c1.length() <= c2.length() {
+                    c1
+                } else {
+                    c2
+                }
+            }
+            (Some(c1), None) => c1,
+            (None, Some(c2)) => c2,
+            (None, None) => {
+                // TODO whoa, how's this happen?
+                return None;
+            }
         };
 
         // TODO This is redoing LOTS of work
@@ -227,10 +247,14 @@ fn make_new_polygon(
         ));*/
         // Toss in the original corners, so the intersection polygon doesn't cover area not
         // originally covered by the thick road bands.
-        endpoints.push(fwd_pl.intersection(adj_fwd_pl).unwrap().0);
+        if let Some(hit) = fwd_hit {
+            endpoints.push(hit);
+        }
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
-        endpoints.push(back_pl.intersection(adj_back_pl).unwrap().0);
+        if let Some(hit) = back_hit {
+            endpoints.push(hit);
+        }
     }
 
     // TODO See if this even helps or not
