@@ -65,6 +65,25 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
                 pl_b.last_pt(),
                 pl_a.last_pt(),
             ]);
+
+            let mut r = &mut roads[id.0];
+            if r.src_i == i.id {
+                r.center_pts = r
+                    .center_pts
+                    .slice(
+                        DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                        r.center_pts.length(),
+                    )
+                    .0;
+            } else {
+                r.center_pts = r
+                    .center_pts
+                    .slice(
+                        0.0 * si::M,
+                        r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                    )
+                    .0;
+            }
         } else {
             error!("{} is a dead-end for {}, which is too short to make degenerate intersection geometry", i.id, id);
             endpoints.extend(vec![pl_a.last_pt(), pl_b.last_pt()]);
@@ -72,19 +91,52 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
     } else if lines.len() == 2 {
         let (id1, _, pl1_a, pl1_b) = &lines[0];
         let (id2, _, pl2_a, pl2_b) = &lines[1];
-        endpoints.extend(
-            vec![pl1_a, pl1_b, pl2_a, pl2_b]
-                .into_iter()
-                .filter_map(|l| {
-                    l.reversed()
-                        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
-                        .map(|(pt, _)| pt)
-                })
-                .collect::<Vec<Pt2D>>(),
-        );
-        if endpoints.len() != 4 {
+        if pl1_a.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+            && pl1_b.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+            && pl2_a.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+            && pl2_b.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+        {
+            // We could also add in the last points of each line, but this doesn't actually look
+            // great when widths of the two oads are different.
+            endpoints.extend(vec![
+                pl1_a
+                    .reversed()
+                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
+                    .0,
+                pl2_b
+                    .reversed()
+                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
+                    .0,
+                pl2_a
+                    .reversed()
+                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
+                    .0,
+                pl1_b
+                    .reversed()
+                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
+                    .0,
+            ]);
+            endpoints.dedup();
+
+            for road_id in vec![id1, id2] {
+                let mut r = &mut roads[road_id.0];
+                if r.src_i == i.id {
+                    r.center_pts = r
+                        .center_pts
+                        .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
+                        .0;
+                } else {
+                    r.center_pts = r
+                        .center_pts
+                        .slice(
+                            0.0 * si::M,
+                            r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+                        )
+                        .0;
+                }
+            }
+        } else {
             error!("{} has only {} and {}, some of which are too short to make degenerate intersection geometry", i.id, id1, id2);
-            endpoints.clear();
             endpoints.extend(vec![
                 pl1_a.last_pt(),
                 pl1_b.last_pt(),
@@ -96,7 +148,11 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
         if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
             endpoints.extend(pts);
         } else {
-            note(format!("couldnt make new for {}", i.id));
+            note(format!(
+                "couldnt make new for {} with {} roads",
+                i.id,
+                lines.len()
+            ));
 
             // Look at adjacent pairs of these polylines...
             for idx1 in 0..lines.len() as isize {
