@@ -209,6 +209,10 @@ fn make_new_polygon(roads: &Vec<Road>, i: IntersectionID, lines: &Vec<(RoadID, A
         endpoints.push(pl_normal.last_pt());
         endpoints.push(pl_reverse.last_pt());
     }
+
+    // TODO See if this even helps or not
+    endpoints.dedup();
+
     Some(endpoints)
 }
 

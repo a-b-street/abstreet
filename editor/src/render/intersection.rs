@@ -64,7 +64,12 @@ impl Renderable for DrawIntersection {
         });
         g.draw_polygon(color, &self.polygon);
 
-        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
+        if opts.debug_mode {
+            // First and last point are repeated
+            for (idx, pt) in ctx.map.get_i(self.id).polygon.iter().skip(1).enumerate() {
+                ctx.canvas.draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
+            }
+        } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for corner in &self.sidewalk_corners {
                 g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
             }
