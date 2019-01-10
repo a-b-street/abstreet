@@ -146,7 +146,7 @@ impl PolyLine {
         if self.pts.len() == 2 {
             return None;
         }
-        Some(PolyLine::new(self.pts[0..self.pts.len() - 2].to_vec()))
+        Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
     }
 
     // Doesn't check if the result is valid
