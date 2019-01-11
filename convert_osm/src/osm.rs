@@ -18,36 +18,21 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
     );
     done(timer);
 
-    // resolve_reference does linear search. Let's, uh, speed that up for nodes.
-    let mut id_to_node: HashMap<i64, &osm_xml::Node> = HashMap::new();
-    for node in &doc.nodes {
-        id_to_node.insert(node.id, node);
-    }
-
     let mut id_to_way: HashMap<i64, Vec<LonLat>> = HashMap::new();
     let mut map = raw_data::Map::blank();
     timer.start_iter("processing OSM ways", doc.ways.len());
-    for way in &doc.ways {
+    for way in doc.ways.values() {
         timer.next();
 
         let mut valid = true;
         let mut pts = Vec::new();
         for node_ref in &way.nodes {
-            match *node_ref {
-                osm_xml::UnresolvedReference::Node(id) => match id_to_node.get(&id) {
-                    Some(node) => {
-                        pts.push(LonLat::new(node.lon, node.lat));
-                    }
-                    None => {
-                        valid = false;
-                    }
-                },
-                osm_xml::UnresolvedReference::Way(id) => {
-                    println!("{:?} is a nested way {:?}", node_ref, id);
-                    valid = false;
+            match doc.resolve_reference(node_ref) {
+                osm_xml::Reference::Node(node) => {
+                    pts.push(LonLat::new(node.lon, node.lat));
                 }
-                osm_xml::UnresolvedReference::Relation(id) => {
-                    println!("{:?} is a nested relation {:?}", node_ref, id);
+                // Don't handle nested ways/relations yet
+                _ => {
                     valid = false;
                 }
             }
@@ -85,7 +70,7 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
     }
 
     timer.start_iter("processing OSM relations", doc.relations.len());
-    for rel in &doc.relations {
+    for rel in doc.relations.values() {
         timer.next();
         let tags = tags_to_map(&rel.tags);
         if let Some(at) = get_area_type(&tags) {
