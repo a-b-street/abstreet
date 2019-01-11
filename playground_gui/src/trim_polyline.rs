@@ -18,7 +18,7 @@ pub fn run(g: &mut GfxCtx) {
         Pt2D::new(1327.388582742321, 410.78740100896965),
     ]);
 
-    let hit = vertical_pl.intersection(&horiz_pl).unwrap();
+    let (hit, _) = vertical_pl.intersection(&horiz_pl).unwrap();
     if false {
         g.draw_circle(BLUE, &Circle::new(hit, 1.0));
     } else {

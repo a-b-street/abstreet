@@ -140,7 +140,7 @@ impl Renderable for DrawCar {
                 CarState::Moving => ctx.cs.get_def("moving car", Color::CYAN).shift(self.id.0),
                 CarState::Stuck => ctx
                     .cs
-                    .get_def("stuck car", Color::rgb_f(0.5, 0.0, 0.0))
+                    .get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0))
                     .shift(self.id.0),
                 CarState::Parked => ctx
                     .cs

@@ -118,7 +118,7 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
             ]);
             endpoints.dedup();
 
-            for road_id in vec![id1, id2] {
+            for road_id in &[id1, id2] {
                 let mut r = &mut roads[road_id.0];
                 if r.src_i == i.id {
                     r.center_pts = r
