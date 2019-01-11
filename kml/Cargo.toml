@@ -8,7 +8,7 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 log = "0.4.5"
-quick-xml = "0.10.0"
+quick-xml = "0.13.1"
 serde = "1.0"
 serde_derive = "1.0"
 structopt = "0.2"
