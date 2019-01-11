@@ -33,9 +33,10 @@ impl Plugin for TurnCyclerState {
                     }
                 } else {
                     *self = TurnCyclerState::ShowLane(id);
-                    if ctx
-                        .input
-                        .key_pressed(Key::Tab, "cycle through this lane's turns")
+                    if !ctx.primary.map.get_turns_from_lane(id).is_empty()
+                        && ctx
+                            .input
+                            .key_pressed(Key::Tab, "cycle through this lane's turns")
                     {
                         *self = TurnCyclerState::CycleTurns(id, 0);
                     }
@@ -63,9 +64,7 @@ impl Plugin for TurnCyclerState {
             TurnCyclerState::CycleTurns(l, idx) => {
                 let turns = ctx.map.get_turns_from_lane(*l);
                 let t = turns[*idx % turns.len()];
-                if !turns.is_empty() {
-                    DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ctx));
-                }
+                DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ctx));
             }
             TurnCyclerState::ShowIntersection(i) => {
                 if let Some(signal) = ctx.map.maybe_get_traffic_signal(*i) {
