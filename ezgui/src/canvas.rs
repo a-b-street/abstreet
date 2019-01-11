@@ -37,13 +37,8 @@ impl Canvas {
         let texture_settings = TextureSettings::new().filter(Filter::Nearest);
         // TODO We could also preload everything and not need the RefCell.
         let glyphs = RefCell::new(
-            GlyphCache::new(
-                // TODO don't assume this exists!
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                (),
-                texture_settings,
-            )
-            .expect("Could not load font"),
+            GlyphCache::new("../data/assets/DejaVuSans.ttf", (), texture_settings)
+                .expect("Could not load font"),
         );
 
         Canvas {
