@@ -161,6 +161,7 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
         // more discovered manually
         "abandoned",
         "elevator",
+        "planned",
     ] {
         if tags.get("highway") == Some(&String::from(value)) {
             return false;

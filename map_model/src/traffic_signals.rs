@@ -147,8 +147,7 @@ impl ControlTrafficSignal {
         let straight_turn = map
             .get_turns_in_intersection(i)
             .into_iter()
-            .find(|t| t.turn_type == TurnType::Straight)
-            .unwrap();
+            .find(|t| t.turn_type == TurnType::Straight)?;
         let (north, south) = (
             map.get_l(straight_turn.id.src).parent,
             map.get_l(straight_turn.id.dst).parent,

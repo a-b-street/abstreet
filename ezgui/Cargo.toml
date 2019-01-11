@@ -11,10 +11,14 @@ geom = { path = "../geom" }
 log = "0.4.5"
 ordered-float = "0.5.0"
 palette = "0.4"
-piston = "*"
-piston2d-graphics = "*"
-piston2d-opengl_graphics = "*"
-pistoncore-glutin_window = "*"
+piston = "0.37.0"
+piston2d-graphics = "0.26.0"
+piston2d-opengl_graphics = "0.53.0"
+# Newer versions start reading DPI, which is very broken on my system.
+# WINIT_HIDPI_FACTOR=1.0 as an environment variable fixes, but just pin to an
+# older version for now... before
+# https://github.com/tomaka/winit/commit/1b74822cfc0cb7fba4ed4940a3faae9499fcda95.
+pistoncore-glutin_window = "0.47.0"
 serde = "1.0"
 serde_derive = "1.0"
 textwrap = "0.11"

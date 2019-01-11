@@ -62,8 +62,7 @@ done
 
 if [ ! -f data/shapes/parcels ]; then
 	# From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
-	# TODO This isn't a direct link
-	#get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
+	get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
 
 	cd kml
 	time cargo run --release -- \
