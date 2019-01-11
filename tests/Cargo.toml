@@ -12,7 +12,7 @@ gag = "0.1.10"
 geom = { path = "../geom" }
 log = "0.4.5"
 map_model = { path = "../map_model" }
-rand = "0.5.1"
+rand = "0.6.4"
 sim = { path = "../sim" }
 structopt = "0.2"
 termion = "1.5.1"

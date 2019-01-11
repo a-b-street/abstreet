@@ -6,7 +6,7 @@ use graphics;
 use graphics::character::CharacterCache;
 use graphics::{Rectangle, Transformed};
 use opengl_graphics::GlyphCache;
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -141,7 +141,7 @@ impl Text {
                     )
                     .unwrap()
             })
-            .max_by_key(|w| NotNaN::new(*w).unwrap())
+            .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
         let height = (self.lines.len() as f64) * LINE_HEIGHT;
         (width, height)

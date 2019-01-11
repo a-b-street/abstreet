@@ -7,7 +7,7 @@ use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
     LANE_THICKNESS,
 };
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 
 #[derive(Debug)]
 pub struct DrawIntersection {
@@ -216,7 +216,7 @@ pub fn draw_signal_diagram(
     let label_length = labels
         .iter()
         .map(|l| ctx.canvas.text_dims(l).0)
-        .max_by_key(|w| NotNaN::new(*w).unwrap())
+        .max_by_key(|w| NotNan::new(*w).unwrap())
         .unwrap();
     let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
     let x1_screen = ctx.canvas.window_width - total_screen_width;

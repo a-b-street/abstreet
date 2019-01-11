@@ -15,7 +15,8 @@ use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
     Pathfinder, Position, RoadID,
 };
-use rand::{Rng, XorShiftRng};
+use rand::seq::SliceRandom;
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 
@@ -394,7 +395,7 @@ impl Spawner {
                 }
             }
             total_spots += spots.len();
-            fork_rng(base_rng).shuffle(&mut spots);
+            spots.shuffle(&mut fork_rng(base_rng));
             open_spots_per_road.insert(r.id, spots);
         }
 

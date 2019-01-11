@@ -18,8 +18,8 @@ use map_model::{
     LANE_THICKNESS,
 };
 use multimap::MultiMap;
-use ordered_float::NotNaN;
-use rand::XorShiftRng;
+use ordered_float::NotNan;
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 use std;
 use std::collections::{BTreeMap, HashSet};
@@ -258,7 +258,7 @@ impl Car {
         let safe_accel = vehicle.clamp_accel(
             constraints
                 .into_iter()
-                .min_by_key(|a| NotNaN::new(a.value_unsafe).unwrap())
+                .min_by_key(|a| NotNan::new(a.value_unsafe).unwrap())
                 .unwrap(),
         );
         if self.debug {
@@ -384,7 +384,7 @@ impl SimQueue {
         let mut cars_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
         // Sort descending.
-        cars_queue.sort_by_key(|(dist, _)| -NotNaN::new(dist.value_unsafe).unwrap());
+        cars_queue.sort_by_key(|(dist, _)| -NotNan::new(dist.value_unsafe).unwrap());
 
         let capacity =
             ((id.length(map) / Vehicle::best_case_following_dist()).ceil() as usize).max(1);

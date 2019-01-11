@@ -1,7 +1,7 @@
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use dimensioned::si;
 use geom::{Line, PolyLine, Pt2D};
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 
@@ -389,7 +389,7 @@ impl Pathfinder {
         }
 
         // This should be deterministic, since cost ties would be broken by PathStep.
-        let mut queue: BinaryHeap<(NotNaN<f64>, InternalPathStep)> = BinaryHeap::new();
+        let mut queue: BinaryHeap<(NotNan<f64>, InternalPathStep)> = BinaryHeap::new();
         let start_len = map.get_l(start.lane()).length();
         if map.get_l(start.lane()).is_sidewalk() {
             if start.dist_along() != start_len {
@@ -492,6 +492,6 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
 }
 
 // Negate since BinaryHeap is a max-heap.
-fn dist_to_pri_queue(dist: si::Meter<f64>) -> NotNaN<f64> {
-    NotNaN::new(-1.0 * dist.value_unsafe).unwrap()
+fn dist_to_pri_queue(dist: si::Meter<f64>) -> NotNan<f64> {
+    NotNan::new(-1.0 * dist.value_unsafe).unwrap()
 }

@@ -10,7 +10,7 @@ use dimensioned::si;
 use geom::{GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use std::path::Path;
 use structopt::StructOpt;
 
@@ -104,7 +104,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
             let closest_intersection = map
                 .intersections
                 .iter_mut()
-                .min_by_key(|i| NotNaN::new(distance(i)).unwrap())
+                .min_by_key(|i| NotNan::new(distance(i)).unwrap())
                 .unwrap();
             let dist = distance(closest_intersection);
             if dist <= MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL {

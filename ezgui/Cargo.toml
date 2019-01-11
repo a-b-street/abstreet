@@ -9,7 +9,7 @@ abstutil = { path = "../abstutil" }
 dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 geom = { path = "../geom" }
 log = "0.4.5"
-ordered-float = "0.5.0"
+ordered-float = "1.0.1"
 palette = "0.4"
 piston = "0.37.0"
 piston2d-graphics = "0.26.0"

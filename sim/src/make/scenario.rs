@@ -4,7 +4,9 @@ use crate::{CarID, Neighborhood, Sim, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use map_model::{BuildingID, IntersectionID, LaneType, Map, Pathfinder, RoadID};
-use rand::{Rng, XorShiftRng};
+use rand::seq::SliceRandom;
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -110,9 +112,8 @@ impl Scenario {
                 let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                 // Note that it's fine for agents to start/end at the same building. Later we might
                 // want a better assignment of people per household, or workers per office building.
-                let from_bldg = *sim
-                    .rng
-                    .choose(&bldgs_per_neighborhood[&s.start_from_neighborhood])
+                let from_bldg = *bldgs_per_neighborhood[&s.start_from_neighborhood]
+                    .choose(&mut sim.rng)
                     .unwrap();
 
                 // What mode?
@@ -314,7 +315,7 @@ impl OriginDestination {
         match self {
             OriginDestination::Neighborhood(ref n) => {
                 if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
-                    Some(DrivingGoal::ParkNear(*rng.choose(bldgs).unwrap()))
+                    Some(DrivingGoal::ParkNear(*bldgs.choose(rng).unwrap()))
                 } else {
                     panic!("Neighborhood {} isn't defined", n);
                 }
@@ -345,7 +346,7 @@ impl OriginDestination {
         match self {
             OriginDestination::Neighborhood(ref n) => {
                 if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
-                    Some(DrivingGoal::ParkNear(*rng.choose(bldgs).unwrap()))
+                    Some(DrivingGoal::ParkNear(*bldgs.choose(rng).unwrap()))
                 } else {
                     panic!("Neighborhood {} isn't defined", n);
                 }
@@ -375,7 +376,7 @@ impl OriginDestination {
         match self {
             OriginDestination::Neighborhood(ref n) => {
                 if let Some(bldgs) = bldgs_per_neighborhood.get(n) {
-                    Some(SidewalkSpot::building(*rng.choose(bldgs).unwrap(), map))
+                    Some(SidewalkSpot::building(*bldgs.choose(rng).unwrap(), map))
                 } else {
                     panic!("Neighborhood {} isn't defined", n);
                 }

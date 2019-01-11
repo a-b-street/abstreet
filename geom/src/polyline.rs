@@ -1,6 +1,6 @@
 use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
 use dimensioned::si;
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
@@ -360,7 +360,7 @@ impl PolyLine {
             hits.sort_by_key(|(pt, _)| {
                 let mut copy = self.clone();
                 copy.trim_to_pt(*pt);
-                NotNaN::new(copy.length().value_unsafe).unwrap()
+                NotNan::new(copy.length().value_unsafe).unwrap()
             });
             if !hits.is_empty() {
                 return Some(hits[0]);

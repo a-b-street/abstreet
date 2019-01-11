@@ -15,9 +15,10 @@ log = "0.4.5"
 map_model = { path = "../map_model" }
 more-asserts = "0.2.1"
 multimap = "0.4.0"
-ordered-float = "0.5.0"
+ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
-rand = { version = "0.5.1", features = ["serde1"] }
+rand = { version = "0.6.4", features = ["serde1"] }
+rand_xorshift = "0.1.1"
 rayon = "1.0"
 regex = "1.0.6"
 serde = "1.0"

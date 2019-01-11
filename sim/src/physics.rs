@@ -1,6 +1,7 @@
 use dimensioned::si;
 use lazy_static::lazy_static;
-use rand::{Rng, XorShiftRng};
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
 use regex::Regex;
 use serde_derive::{Deserialize, Serialize};
 

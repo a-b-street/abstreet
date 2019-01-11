@@ -3,7 +3,8 @@ use abstutil::Error;
 use dimensioned::si;
 use geom::EPSILON_DIST;
 use more_asserts::assert_ge;
-use rand::{Rng, XorShiftRng};
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 use std;
 

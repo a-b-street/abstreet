@@ -4,7 +4,7 @@ use dimensioned::si;
 use geo;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
 use geom::{Bounds, PolyLine, Pt2D};
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use std::collections::HashMap;
 
 // TODO Refactor and generalize all of this...
@@ -55,7 +55,7 @@ where
                 {
                     let dist = pt.euclidean_distance(&query_geom);
                     if dist * si::M <= max_dist_away {
-                        Some((key, pt, NotNaN::new(dist).unwrap()))
+                        Some((key, pt, NotNan::new(dist).unwrap()))
                     } else {
                         None
                     }
@@ -80,7 +80,7 @@ where
             .query(query_bbox)
             .into_iter()
             .min_by_key(|(key, _, _)| {
-                NotNaN::new(query_geom.euclidean_distance(&self.geometries[key])).unwrap()
+                NotNan::new(query_geom.euclidean_distance(&self.geometries[key])).unwrap()
             }).map(|(key, _, _)| key.clone())
     }*/
 }

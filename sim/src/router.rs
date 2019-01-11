@@ -10,7 +10,8 @@ use geom::EPSILON_DIST;
 use map_model::{
     BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
 };
-use rand::{Rng, XorShiftRng};
+use rand::seq::SliceRandom;
+use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -204,7 +205,7 @@ impl Router {
             error!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", view.id, last_lane);
             return Some(Action::TmpVanish);
         }
-        let (turn, new_lane) = rng.choose(&choices).unwrap();
+        let (turn, new_lane) = choices.choose(rng).unwrap();
         if view.debug {
             debug!(
                 "{} can't find parking on {}, so wandering over to {}",

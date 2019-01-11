@@ -8,7 +8,7 @@ use dimensioned::si;
 use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
 use multimap::MultiMap;
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
 
@@ -46,7 +46,7 @@ pub fn make_bus_stops(
         if let Ok(driving_lane) =
             road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
         {
-            dists.sort_by_key(|(dist, _)| NotNaN::new(dist.value_unsafe).unwrap());
+            dists.sort_by_key(|(dist, _)| NotNan::new(dist.value_unsafe).unwrap());
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
                 let stop_id = BusStopID { sidewalk: *id, idx };
                 point_to_stop_id.insert(*orig_pt, stop_id);

@@ -1,6 +1,6 @@
 use crate::{Angle, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
-use ordered_float::NotNaN;
+use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
@@ -130,15 +130,15 @@ impl From<HashablePt2D> for Pt2D {
 // TODO So rename it HashablePair or something
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
-    x_nan: NotNaN<f64>,
-    y_nan: NotNaN<f64>,
+    x_nan: NotNan<f64>,
+    y_nan: NotNan<f64>,
 }
 
 impl HashablePt2D {
     pub fn new(x: f64, y: f64) -> HashablePt2D {
         HashablePt2D {
-            x_nan: NotNaN::new(x).unwrap(),
-            y_nan: NotNaN::new(y).unwrap(),
+            x_nan: NotNan::new(x).unwrap(),
+            y_nan: NotNan::new(y).unwrap(),
         }
     }
 
