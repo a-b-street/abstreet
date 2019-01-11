@@ -13,7 +13,7 @@ pub fn run(t: &mut TestRunner) {
             );
             sim.small_spawn(&map);
             h.setup_done(&sim);
-            sim.run_until_done(&map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}), Some(sim::Tick::from_minutes(60)));
         }),
     );
 }

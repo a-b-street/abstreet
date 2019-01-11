@@ -62,6 +62,7 @@ fn main() {
                 cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             }
         }),
+        None,
     );
     sim::save_backtraces("call_graph.json");
     println!("{:?}", sim.get_score());

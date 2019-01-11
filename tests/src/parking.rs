@@ -34,7 +34,7 @@ pub fn run(t: &mut TestRunner) {
                 )],
                 sim::Tick::from_minutes(2),
             );
-            sim.run_until_done(&map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}), Some(sim::Tick::from_minutes(4)));
         }),
     );
 
@@ -67,7 +67,7 @@ pub fn run(t: &mut TestRunner) {
                 )],
                 sim::Tick::from_minutes(2),
             );
-            sim.run_until_done(&map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}), Some(sim::Tick::from_minutes(4)));
         }),
     );
 }

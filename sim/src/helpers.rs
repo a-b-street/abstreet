@@ -13,7 +13,7 @@ use std::panic;
 impl Sim {
     // TODO share the helpers for spawning specific parking spots and stuff?
 
-    pub fn run_until_done(&mut self, map: &Map, callback: Box<Fn(&Sim)>) {
+    pub fn run_until_done(&mut self, map: &Map, callback: Box<Fn(&Sim)>, time_limit: Option<Tick>) {
         let mut benchmark = self.start_benchmark();
         loop {
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
@@ -33,6 +33,9 @@ impl Sim {
                 info!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             callback(self);
+            if Some(self.time) == time_limit {
+                panic!("Time limit {} hit", self.time);
+            }
             if self.is_done() {
                 break;
             }

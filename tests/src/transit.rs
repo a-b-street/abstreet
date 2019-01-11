@@ -25,7 +25,7 @@ pub fn run(t: &mut TestRunner) {
             }
 
             sim.run_until_expectations_met(&map, expectations, Tick::from_minutes(10));
-            sim.run_until_done(&map, Box::new(|_sim| {}));
+            sim.run_until_done(&map, Box::new(|_sim| {}), Some(sim::Tick::from_minutes(20)));
         }),
     );
 
