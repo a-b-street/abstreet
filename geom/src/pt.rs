@@ -30,6 +30,12 @@ impl Pt2D {
         Pt2D { x, y }
     }
 
+    // TODO This is a small first step...
+    pub fn approx_eq(&self, other: Pt2D) -> bool {
+        let eps = 0.0000001;
+        (self.x - other.x).abs() < eps && (self.y - other.y) < eps
+    }
+
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {
         // TODO hack to construct test maps more easily
         if b.represents_world_space {

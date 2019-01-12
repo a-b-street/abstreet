@@ -287,6 +287,10 @@ impl UserInput {
                 self.chosen_action = None;
                 return true;
             }
+            // TODO When an action is chosen, the plugin short-circuits and we don't mark other
+            // items active. And here, we don't even mark the chosen action as active again. This
+            // is semantically correct (think about holding down the key for deleting the current
+            // cycle), but causes annoying flickering.
 
             if let Some(key) = self.modal_state.modes[mode].get_key(action) {
                 self.modal_state

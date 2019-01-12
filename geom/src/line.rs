@@ -48,8 +48,31 @@ impl Line {
         }
     }
 
+    // TODO separate LineSegment and InfiniteLine types
+    pub fn intersection_two_infinite_lines(&self, other: &Line) -> Option<Pt2D> {
+        line_intersection(self, other)
+    }
+
     pub fn shift(&self, width: f64) -> Line {
         let angle = self.angle().rotate_degs(90.0);
+        Line(
+            self.pt1().project_away(width, angle),
+            self.pt2().project_away(width, angle),
+        )
+    }
+
+    pub fn shift_right(&self, width: f64) -> Line {
+        assert!(width >= 0.0);
+        let angle = self.angle().rotate_degs(90.0);
+        Line(
+            self.pt1().project_away(width, angle),
+            self.pt2().project_away(width, angle),
+        )
+    }
+
+    pub fn shift_left(&self, width: f64) -> Line {
+        assert!(width >= 0.0);
+        let angle = self.angle().rotate_degs(-90.0);
         Line(
             self.pt1().project_away(width, angle),
             self.pt2().project_away(width, angle),

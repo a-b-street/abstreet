@@ -120,12 +120,29 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            let shared_pt1 = l1.last_line().shift(LANE_THICKNESS / 2.0).pt2();
-            let pt1 = l1.last_line().reverse().shift(LANE_THICKNESS / 2.0).pt1();
-            let pt2 = l2.first_line().reverse().shift(LANE_THICKNESS / 2.0).pt2();
-            let shared_pt2 = l2.first_line().shift(LANE_THICKNESS / 2.0).pt1();
+            let src_line = l1.last_line().shift_left(LANE_THICKNESS / 2.0);
+            let dst_line = l2.first_line().shift_left(LANE_THICKNESS / 2.0);
 
-            corners.push(Polygon::new(&vec![shared_pt1, pt1, pt2, shared_pt2]));
+            // TODO Could assert this is in the intersection.
+            // TODO How do we handle parallel lines?
+            let pt_in_intersection = src_line
+                .intersection_two_infinite_lines(&dst_line)
+                .expect("SharedSidewalkCorner between parallel sidewalks");
+
+            // Now find all of the points on the intersection polygon between the two sidewalks.
+            let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
+            let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
+            // TODO This should be counter-clockwise order, which matches how the intersection polygon is
+            // constructed...
+            if let Some(mut pts_between) = find_pts_between(&map.get_i(i).polygon, corner2, corner1)
+            {
+                //.expect("SharedSidewalkCorner couldn't find intersection points");
+                pts_between.push(dst_line.pt1());
+                pts_between.push(pt_in_intersection);
+                pts_between.push(src_line.pt2());
+                corners.push(Polygon::new(&pts_between));
+            }
+            // TODO Do something else when this fails? Hmm
         }
     }
 
@@ -271,4 +288,33 @@ pub fn draw_signal_diagram(
     }
 
     g.unfork(old_ctx);
+}
+
+fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {
+    let mut result = Vec::new();
+    for pt in pts {
+        if result.is_empty() && pt.approx_eq(start) {
+            result.push(*pt);
+        } else if !result.is_empty() {
+            result.push(*pt);
+            if pt.approx_eq(end) {
+                return Some(result);
+            }
+        }
+    }
+
+    // start wasn't in the list!
+    if result.is_empty() {
+        return None;
+    }
+
+    // Go through again, looking for end
+    for pt in pts {
+        result.push(*pt);
+        if pt.approx_eq(end) {
+            return Some(result);
+        }
+    }
+    // Didn't find end
+    None
 }
