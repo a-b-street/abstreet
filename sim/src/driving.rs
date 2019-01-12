@@ -864,7 +864,7 @@ impl DrivingSimState {
                 1.0 - progress
             };
             // TODO we're assuming the parking lane is to the right of us!
-            base_body.shift_blindly(project_away_ratio * LANE_THICKNESS)
+            base_body.shift_blindly_right(project_away_ratio * LANE_THICKNESS)
         } else {
             base_body
         };

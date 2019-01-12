@@ -33,7 +33,7 @@ pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
     }
 
     // TODO colored labels!
-    if let Some(side1) = center_pts.shift(width / 2.0) {
+    if let Some(side1) = center_pts.shift_right(width / 2.0) {
         //draw_polyline(g, &side1, thin, BLUE);
         for (idx, pt) in side1.points().iter().enumerate() {
             labels.push((*pt, format!("L{}", idx + 1)));
@@ -42,11 +42,7 @@ pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
         println!("side1 borked");
     }
 
-    if let Some(side2) = center_pts
-        .reversed()
-        .shift(width / 2.0)
-        .map(|pl| pl.reversed())
-    {
+    if let Some(side2) = center_pts.shift_left(width / 2.0) {
         //draw_polyline(g, &side2, thin, GREEN);
         for (idx, pt) in side2.points().iter().enumerate() {
             labels.push((*pt, format!("R{}", idx + 1)));

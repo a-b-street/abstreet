@@ -71,6 +71,14 @@ impl Line {
         )
     }
 
+    pub(crate) fn shift_either_direction(&self, width: f64) -> Line {
+        if width >= 0.0 {
+            self.shift_right(width)
+        } else {
+            self.shift_left(-width)
+        }
+    }
+
     pub fn reverse(&self) -> Line {
         Line(self.pt2(), self.pt1())
     }

@@ -150,13 +150,11 @@ impl PolyLine {
     }
 
     // Doesn't check if the result is valid
-    pub fn shift_blindly(&self, width: f64) -> PolyLine {
+    pub fn shift_blindly_right(&self, width: f64) -> PolyLine {
         // TODO Grrr, the new algorithm actually breaks pretty badly on medium. Disable it for now.
-        if true {
-            return self.shift_blindly_with_sharp_angles(width);
-        }
+        self.shift_blindly_with_sharp_angles(width)
 
-        if self.pts.len() == 2 {
+        /*if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_right(width);
             return l.to_polyline();
         }
@@ -204,23 +202,32 @@ impl PolyLine {
 
         // Might have extra points to handle sharp bends
         assert!(result.len() >= self.pts.len());
-        PolyLine::new(result)
+        PolyLine::new(result)*/
+    }
+
+    pub fn shift_blindly_left(&self, width: f64) -> PolyLine {
+        self.shift_blindly_with_sharp_angles(-width)
     }
 
     // Shifting might fail if the requested width doesn't fit in tight angles between points in the
     // polyline.
     // Things to remember about shifting polylines: the length before and after probably don't
     // match up.
-    pub fn shift(&self, width: f64) -> Option<PolyLine> {
-        let result = self.shift_blindly(width);
+    pub fn shift_right(&self, width: f64) -> Option<PolyLine> {
+        let result = self.shift_blindly_right(width);
         // TODO check if any non-adjacent line segments intersect
+        Some(result)
+    }
+
+    pub fn shift_left(&self, width: f64) -> Option<PolyLine> {
+        let result = self.shift_blindly_left(width);
         Some(result)
     }
 
     // Doesn't massage sharp twists into more points. For polygon rendering.
     fn shift_blindly_with_sharp_angles(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
-            let l = Line::new(self.pts[0], self.pts[1]).shift_right(width);
+            let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return l.to_polyline();
         }
 
@@ -233,8 +240,8 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line::new(pt1_raw, pt2_raw).shift_right(width);
-            let l2 = Line::new(pt2_raw, pt3_raw).shift_right(width);
+            let l1 = Line::new(pt1_raw, pt2_raw).shift_either_direction(width);
+            let l2 = Line::new(pt2_raw, pt3_raw).shift_either_direction(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
             let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
@@ -260,7 +267,11 @@ impl PolyLine {
     // Doesn't massage sharp twists into more points. For polygon rendering. Shifting might fail if
     // the requested width doesn't fit in tight angles between points in the polyline.
     fn shift_with_sharp_angles(&self, width: f64) -> Option<PolyLine> {
-        let result = self.shift_blindly(width);
+        let result = if width >= 0.0 {
+            self.shift_blindly_right(width)
+        } else {
+            self.shift_blindly_left(width)
+        };
 
         // Check that the angles roughly match up between the original and shifted line
         for (orig_l, shifted_l) in self.lines().iter().zip(result.lines().iter()) {
@@ -281,19 +292,13 @@ impl PolyLine {
     // This could fail by needing too much width for sharp angles
     pub fn make_polygons(&self, width: f64) -> Option<Polygon> {
         let side1 = self.shift_with_sharp_angles(width / 2.0)?;
-        let side2 = self
-            .reversed()
-            .shift_with_sharp_angles(width / 2.0)?
-            .reversed();
+        let side2 = self.shift_with_sharp_angles(-width / 2.0)?;
         Some(self.polygons_from_sides(&side1, &side2))
     }
 
     pub fn make_polygons_blindly(&self, width: f64) -> Polygon {
         let side1 = self.shift_blindly_with_sharp_angles(width / 2.0);
-        let side2 = self
-            .reversed()
-            .shift_blindly_with_sharp_angles(width / 2.0)
-            .reversed();
+        let side2 = self.shift_blindly_with_sharp_angles(-width / 2.0);
         self.polygons_from_sides(&side1, &side2)
     }
 

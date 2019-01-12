@@ -34,14 +34,14 @@ pub fn run(g: &mut GfxCtx) {
         (north_yellow, RelatedColors::new(0.0, 1.0, 0.0)),
         (south_yellow, RelatedColors::new(0.0, 0.0, 1.0)),
     ] {
-        let lane1_in = yellow_line.shift(shift1_width).unwrap();
+        let lane1_in = yellow_line.shift_right(shift1_width).unwrap();
         draw_lane(g, &lane1_in, colors.next().unwrap());
-        let lane2_in = yellow_line.shift(shift2_width).unwrap();
+        let lane2_in = yellow_line.shift_right(shift2_width).unwrap();
         draw_lane(g, &lane2_in, colors.next().unwrap());
 
-        let lane1_out = yellow_line.reversed().shift(shift1_width).unwrap();
+        let lane1_out = yellow_line.reversed().shift_right(shift1_width).unwrap();
         draw_lane(g, &lane1_out, colors.next().unwrap());
-        let lane2_out = yellow_line.reversed().shift(shift2_width).unwrap();
+        let lane2_out = yellow_line.reversed().shift_right(shift2_width).unwrap();
         draw_lane(g, &lane2_out, colors.next().unwrap());
 
         draw_polyline(g, &yellow_line, thin, YELLOW);

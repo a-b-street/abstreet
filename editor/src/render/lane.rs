@@ -209,11 +209,9 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
     let dash_separation = 1.5 * si::M;
     let dash_len = 1.0 * si::M;
 
-    // Project left, so reverse the points.
     let lane_edge_pts = lane
         .lane_center_pts
-        .reversed()
-        .shift_blindly(LANE_THICKNESS / 2.0);
+        .shift_blindly_left(LANE_THICKNESS / 2.0);
     if lane_edge_pts.length() < 2.0 * dash_separation {
         return None;
     }

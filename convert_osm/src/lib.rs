@@ -140,8 +140,8 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
                 .collect(),
         );
 
-        closest.add((idx, true), &pts.shift_blindly(LANE_THICKNESS));
-        closest.add((idx, false), &pts.reversed().shift_blindly(LANE_THICKNESS));
+        closest.add((idx, true), &pts.shift_blindly_right(LANE_THICKNESS));
+        closest.add((idx, false), &pts.shift_blindly_left(LANE_THICKNESS));
     }
 
     'SHAPE: for s in shapes.shapes.into_iter() {
