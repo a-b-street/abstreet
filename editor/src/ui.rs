@@ -212,7 +212,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             &mut self.cs,
             &mut self.canvas,
         );
-        if recalculate_current_selection {
+        if recalculate_current_selection && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER {
             self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
 
