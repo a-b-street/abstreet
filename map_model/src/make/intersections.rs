@@ -1,5 +1,5 @@
 use crate::{Intersection, IntersectionID, Road, RoadID, LANE_THICKNESS};
-use abstutil::note;
+//use abstutil::note;
 use abstutil::wraparound_get;
 use dimensioned::si;
 use geom::{Angle, Line, PolyLine, Pt2D};
@@ -148,11 +148,11 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
         if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
             endpoints.extend(pts);
         } else {
-            note(format!(
+            /*note(format!(
                 "couldnt make new for {} with {} roads",
                 i.id,
                 lines.len()
-            ));
+            ));*/
 
             // Look at adjacent pairs of these polylines...
             for idx1 in 0..lines.len() as isize {

@@ -352,9 +352,17 @@ impl<S: UIState> UI<S> {
             .map(|obj| Box::new(obj.borrow()))
             .chain(statics.into_iter().rev())
         {
-            if obj.contains_pt(pt) {
-                return Some(obj.get_id());
-            }
+            // Don't mouseover parcels.
+            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
+            // in intersection editor mode, for example.
+            match obj.get_id() {
+                ID::Parcel(_) => {}
+                _ => {
+                    if obj.contains_pt(pt) {
+                        return Some(obj.get_id());
+                    }
+                }
+            };
         }
 
         None
