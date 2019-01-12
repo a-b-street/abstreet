@@ -1,6 +1,6 @@
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use dimensioned::si;
-use geom::{Line, PolyLine, Pt2D};
+use geom::{PolyLine, Pt2D};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
@@ -46,7 +46,7 @@ impl InternalPathStep {
             InternalPathStep::Turn(t) => map.get_t(t).last_pt(),
             InternalPathStep::RideBus(_, stop2, _) => map.get_bs(stop2).sidewalk_pos.pt(map),
         };
-        Line::new(pt, goal_pt).length()
+        pt.dist_to(goal_pt)
     }
 }
 
@@ -222,8 +222,9 @@ impl Path {
             if let Some((new_pts, dist)) =
                 self.steps[i].slice(map, start_dist_this_step, dist_remaining)
             {
-                if let Some(ref mut pts) = pts_so_far {
-                    pts.extend(new_pts);
+                if pts_so_far.is_some() {
+                    let pts = pts_so_far.unwrap().extend(&new_pts);
+                    pts_so_far = Some(pts);
                 } else {
                     pts_so_far = Some(new_pts);
                 }
@@ -463,7 +464,7 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
             PathStep::ContraflowLane(id) => map.get_l(id).last_pt(),
             PathStep::Turn(id) => map.get_t(id).first_pt(),
         };
-        let len = Line::new(from, to).length();
+        let len = from.dist_to(to);
         if len > 0.0 * si::M {
             error!("All steps in invalid path:");
             for s in steps {

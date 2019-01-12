@@ -136,9 +136,9 @@ impl Line {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        let dist = Line(self.0, pt).length() + Line(pt, self.1).length() - self.length();
+        let dist = self.0.dist_to(pt) + pt.dist_to(self.1) - self.length();
         if dist < 0.0 * si::M {
-            -1.0 * dist < EPSILON_DIST
+            -dist < EPSILON_DIST
         } else {
             dist < EPSILON_DIST
         }

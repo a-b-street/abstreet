@@ -16,7 +16,9 @@ pub struct PolyLine {
 impl PolyLine {
     pub fn new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
-        let length = recalculate_length(&pts);
+        let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+            so_far + Line::new(pair[0], pair[1]).length()
+        });
         PolyLine { pts, length }
     }
 
@@ -28,10 +30,11 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
-    pub fn extend(&mut self, other: PolyLine) {
+    pub fn extend(self, other: &PolyLine) -> PolyLine {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
-        self.pts.extend(other.pts.iter().skip(1));
-        self.length = recalculate_length(&self.pts);
+        let mut pts = self.pts;
+        pts.extend(other.pts.iter().skip(1));
+        PolyLine::new(pts)
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {
@@ -363,9 +366,7 @@ impl PolyLine {
             }
 
             hits.sort_by_key(|(pt, _)| {
-                let mut copy = self.clone();
-                copy.trim_to_pt(*pt);
-                NotNan::new(copy.length().value_unsafe).unwrap()
+                NotNan::new(self.trim_to_pt(*pt).length().value_unsafe).unwrap()
             });
             if !hits.is_empty() {
                 return Some(hits[0]);
@@ -387,11 +388,12 @@ impl PolyLine {
     }
 
     // Starts trimming from the head. Panics if the pt is not on the polyline.
-    pub fn trim_to_pt(&mut self, pt: Pt2D) {
+    pub fn trim_to_pt(&self, pt: Pt2D) -> PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
-            self.pts.truncate(idx + 1);
-            self.pts.push(pt);
-            self.length = recalculate_length(&self.pts);
+            let mut pts = self.pts.clone();
+            pts.truncate(idx + 1);
+            pts.push(pt);
+            PolyLine::new(pts)
         } else {
             panic!("Can't trim_to_pt: {} doesn't contain {}", self, pt);
         }
@@ -448,9 +450,3 @@ impl fmt::Display for PolyLine {
     result.push(first_pt);
     result.iter().map(|pair| [pair.0, pair.1]).collect()
 }*/
-
-fn recalculate_length(pts: &Vec<Pt2D>) -> si::Meter<f64> {
-    pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-        so_far + Line::new(pair[0], pair[1]).length()
-    })
-}

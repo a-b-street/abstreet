@@ -1,5 +1,6 @@
-use crate::{Angle, GPSBounds, LonLat};
+use crate::{Angle, GPSBounds, Line, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
+use dimensioned::si;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -97,6 +98,14 @@ impl Pt2D {
 
         let (sin, cos) = theta.normalized_radians().sin_cos();
         Pt2D::new(self.x() + dist * cos, self.y() + dist * sin)
+    }
+
+    pub fn dist_to(self, to: Pt2D) -> si::Meter<f64> {
+        if self == to {
+            0.0 * si::M
+        } else {
+            Line::new(self, to).length()
+        }
     }
 
     pub fn angle_to(&self, to: Pt2D) -> Angle {

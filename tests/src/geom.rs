@@ -83,7 +83,7 @@ pub fn run(t: &mut TestRunner) {
             ]);
             let pt = Pt2D::new(1225.8319721124885, 2124.1205943360505);*/
 
-            let mut pl = PolyLine::new(vec![
+            let pl = PolyLine::new(vec![
                 Pt2D::new(1725.295220788561, 1414.2752785686052),
                 Pt2D::new(1724.6291929910137, 1414.8246144364846),
                 Pt2D::new(1723.888820814687, 1415.6240169312443),

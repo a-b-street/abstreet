@@ -243,9 +243,7 @@ fn make_new_polygon(
                 let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
                 // TODO This fails for something in the 23rd Ave map.
                 let trim_to = road_center.intersection_infinite_line(perp)?;
-                let mut c = road_center.clone();
-                c.trim_to_pt(trim_to);
-                (Some(hit), Some(c))
+                (Some(hit), Some(road_center.trim_to_pt(trim_to)))
             } else {
                 (None, None)
             }
@@ -255,9 +253,7 @@ fn make_new_polygon(
                 // Find where the perpendicular to this corner hits the original line
                 let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
                 let trim_to = road_center.intersection_infinite_line(perp)?;
-                let mut c = road_center.clone();
-                c.trim_to_pt(trim_to);
-                (Some(hit), Some(c))
+                (Some(hit), Some(road_center.trim_to_pt(trim_to)))
             } else {
                 (None, None)
             }

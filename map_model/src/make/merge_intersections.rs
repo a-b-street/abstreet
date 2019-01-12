@@ -143,9 +143,9 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
             }
 
             // Make new composite turns! All of them will include the deleted lane's geometry.
-            new_turn
+            new_turn.geom = new_turn
                 .geom
-                .extend(m.lanes[new_turn.id.dst.0].lane_center_pts.clone());
+                .extend(&m.lanes[new_turn.id.dst.0].lane_center_pts);
 
             let other_old_i = if *old_i == old_i1 { old_i2 } else { old_i1 };
             for t in m.intersections[other_old_i.0].turns.clone() {
@@ -158,7 +158,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
                 }
                 let mut composite_turn = new_turn.clone();
                 composite_turn.id.dst = t.dst;
-                composite_turn.geom.extend(m.turns[&t].geom.clone());
+                composite_turn.geom = composite_turn.geom.extend(&m.turns[&t].geom);
                 // TODO Deal with inner loops!
                 // TODO Fiddle with turn_type
                 m.intersections[new_i.0].turns.push(composite_turn.id);
