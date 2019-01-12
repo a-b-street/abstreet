@@ -170,6 +170,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
             // TODO F1?
             ModalMenu::new("Legend", vec![(Key::L, "quit")]),
+            ModalMenu::new(
+                "Polygon Debugger",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::Dot, "next point"),
+                    (Key::Comma, "prev point"),
+                ],
+            ),
         ]
     }
 
