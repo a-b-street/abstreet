@@ -158,6 +158,9 @@ impl UserInput {
 
         self.reserve_key(key, action);
 
+        self.important_actions
+            .push(format!("Press {} to {}", key.describe(), action));
+
         if self.event_consumed {
             return false;
         }
@@ -166,8 +169,6 @@ impl UserInput {
             self.consume_event();
             return true;
         }
-        self.important_actions
-            .push(format!("Press {} to {}", key.describe(), action));
         false
     }
 
