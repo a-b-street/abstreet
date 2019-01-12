@@ -222,7 +222,7 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
             // Make the crosswalk to the other side
             if let Some(l2) = get_outgoing_sidewalk(wraparound_get(&roads, idx1).0, lanes, i.id) {
                 // Jut out a bit into the intersection, cross over, then jut back in.
-                let line = Line::new(l1.last_pt(), l2.first_pt()).shift(LANE_THICKNESS / 2.0);
+                let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
                 let geom_fwds =
                     PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
 

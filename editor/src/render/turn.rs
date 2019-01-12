@@ -161,7 +161,7 @@ impl DrawCrosswalk {
 
 // TODO copied from DrawLane
 fn perp_line(l: Line, length: f64) -> Line {
-    let pt1 = l.shift(length / 2.0).pt1();
-    let pt2 = l.reverse().shift(length / 2.0).pt2();
+    let pt1 = l.shift_right(length / 2.0).pt1();
+    let pt2 = l.shift_left(length / 2.0).pt1();
     Line::new(pt1, pt2)
 }

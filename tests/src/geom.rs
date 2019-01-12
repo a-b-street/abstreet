@@ -29,23 +29,23 @@ pub fn run(t: &mut TestRunner) {
             let pt5 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
             let width = 50.0;
-            let pt1_s = Line::new(pt1, pt2).shift(width).pt1();
+            let pt1_s = Line::new(pt1, pt2).shift_right(width).pt1();
             let pt2_s = line_intersection(
-                &Line::new(pt1, pt2).shift(width),
-                &Line::new(pt2, pt3).shift(width),
+                &Line::new(pt1, pt2).shift_right(width),
+                &Line::new(pt2, pt3).shift_right(width),
             )
             .unwrap();
             let pt3_s = line_intersection(
-                &Line::new(pt2, pt3).shift(width),
-                &Line::new(pt3, pt4).shift(width),
+                &Line::new(pt2, pt3).shift_right(width),
+                &Line::new(pt3, pt4).shift_right(width),
             )
             .unwrap();
             let pt4_s = line_intersection(
-                &Line::new(pt3, pt4).shift(width),
-                &Line::new(pt4, pt5).shift(width),
+                &Line::new(pt3, pt4).shift_right(width),
+                &Line::new(pt4, pt5).shift_right(width),
             )
             .unwrap();
-            let pt5_s = Line::new(pt4, pt5).shift(width).pt2();
+            let pt5_s = Line::new(pt4, pt5).shift_right(width).pt2();
 
             assert_eq!(
                 PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift(width),
@@ -62,7 +62,7 @@ pub fn run(t: &mut TestRunner) {
             let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
 
             let width = 50.0;
-            let l = Line::new(pt1, pt2).shift(width);
+            let l = Line::new(pt1, pt2).shift_right(width);
 
             assert_eq!(
                 PolyLine::new(vec![pt1, pt2]).shift(width),

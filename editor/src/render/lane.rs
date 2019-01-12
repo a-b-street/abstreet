@@ -139,8 +139,8 @@ impl Renderable for DrawLane {
 
 // TODO this always does it at pt1
 fn perp_line(l: Line, length: f64) -> Line {
-    let pt1 = l.shift(length / 2.0).pt1();
-    let pt2 = l.reverse().shift(length / 2.0).pt2();
+    let pt1 = l.shift_right(length / 2.0).pt1();
+    let pt2 = l.shift_left(length / 2.0).pt1();
     Line::new(pt1, pt2)
 }
 
@@ -243,7 +243,7 @@ fn calculate_stop_sign_line(road: &Road, lane: &Lane, map: &Map) -> Option<Marki
     // Don't clobber the yellow line.
     let line = if road.is_canonical_lane(lane.id) {
         perp_line(
-            Line::new(pt1, pt2).shift(BIG_ARROW_THICKNESS / 2.0),
+            Line::new(pt1, pt2).shift_right(BIG_ARROW_THICKNESS / 2.0),
             LANE_THICKNESS - BIG_ARROW_THICKNESS,
         )
     } else {

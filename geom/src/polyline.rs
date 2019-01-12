@@ -157,7 +157,7 @@ impl PolyLine {
         }
 
         if self.pts.len() == 2 {
-            let l = Line::new(self.pts[0], self.pts[1]).shift(width);
+            let l = Line::new(self.pts[0], self.pts[1]).shift_right(width);
             return l.to_polyline();
         }
 
@@ -170,8 +170,8 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line::new(pt1_raw, pt2_raw).shift(width);
-            let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
+            let l1 = Line::new(pt1_raw, pt2_raw).shift_right(width);
+            let l2 = Line::new(pt2_raw, pt3_raw).shift_right(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
             let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
@@ -220,7 +220,7 @@ impl PolyLine {
     // Doesn't massage sharp twists into more points. For polygon rendering.
     fn shift_blindly_with_sharp_angles(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
-            let l = Line::new(self.pts[0], self.pts[1]).shift(width);
+            let l = Line::new(self.pts[0], self.pts[1]).shift_right(width);
             return l.to_polyline();
         }
 
@@ -233,8 +233,8 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line::new(pt1_raw, pt2_raw).shift(width);
-            let l2 = Line::new(pt2_raw, pt3_raw).shift(width);
+            let l1 = Line::new(pt1_raw, pt2_raw).shift_right(width);
+            let l2 = Line::new(pt2_raw, pt3_raw).shift_right(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
             let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
