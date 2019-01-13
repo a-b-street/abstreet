@@ -4,7 +4,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::WindowSettings;
-use std::{panic, process};
+use std::{env, panic, process};
 
 pub trait GUI<T> {
     // Called once
@@ -30,6 +30,9 @@ pub enum EventLoopMode {
 }
 
 pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
+    // DPI is broken on my system; force the old behavior.
+    env::set_var("WINIT_HIDPI_FACTOR", "1.0");
+
     let opengl = OpenGL::V3_2;
     let settings = WindowSettings::new(
         window_title,

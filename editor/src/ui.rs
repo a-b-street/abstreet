@@ -22,6 +22,8 @@ pub struct UI<S: UIState> {
     state: S,
     canvas: Canvas,
     cs: ColorScheme,
+    // TODO Shouldn't this be a proper plugin?
+    take_screenshot: bool,
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
@@ -232,6 +234,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         input.populate_osd(&mut hints.osd);
 
+        self.take_screenshot = false;
+        if input.unimportant_key_pressed(Key::F1, "take screenshot") {
+            self.take_screenshot = true;
+        }
+
         (hints.mode, hints)
     }
 
@@ -240,6 +247,10 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     }
 
     fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints) {
+        if self.take_screenshot {
+            g.render_to_buffer(&self.canvas);
+        }
+
         g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
         let ctx = Ctx {
@@ -270,6 +281,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         // soon, so meh
         self.canvas
             .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
+
+        if self.take_screenshot {
+            g.save_buffer("screenshot.png");
+            info!("Captured screenshot.png");
+        }
     }
 
     fn dump_before_abort(&self) {
@@ -298,6 +314,7 @@ impl<S: UIState> UI<S> {
             state,
             canvas,
             cs: ColorScheme::load().unwrap(),
+            take_screenshot: false,
         };
 
         match abstutil::read_json::<EditorState>("../editor_state") {

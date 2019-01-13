@@ -152,6 +152,7 @@ pub enum Key {
     RightArrow,
     UpArrow,
     DownArrow,
+    F1,
 }
 
 impl Key {
@@ -210,7 +211,8 @@ impl Key {
             | Key::LeftArrow
             | Key::RightArrow
             | Key::UpArrow
-            | Key::DownArrow => None,
+            | Key::DownArrow
+            | Key::F1 => None,
         }
     }
 
@@ -227,6 +229,7 @@ impl Key {
             Key::RightArrow => "→ arrow".to_string(),
             Key::UpArrow => "↑".to_string(),
             Key::DownArrow => "↓".to_string(),
+            Key::F1 => "F1".to_string(),
             // These have to_char, but override here
             Key::Space => "Space".to_string(),
             _ => self.to_char(false).unwrap().to_string(),
@@ -294,6 +297,7 @@ impl Key {
             pi::Key::Right => Key::RightArrow,
             pi::Key::Up => Key::UpArrow,
             pi::Key::Down => Key::DownArrow,
+            pi::Key::F1 => Key::F1,
             _ => {
                 println!("Unknown piston key {:?}", key);
                 return None;

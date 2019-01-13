@@ -8,17 +8,14 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 geom = { path = "../geom" }
+graphics_buffer = "0.5.0"
 log = "0.4.5"
 ordered-float = "1.0.1"
 palette = "0.4"
-piston = "0.37.0"
-piston2d-graphics = "0.26.0"
-piston2d-opengl_graphics = "0.53.0"
-# Newer versions start reading DPI, which is very broken on my system.
-# WINIT_HIDPI_FACTOR=1.0 as an environment variable fixes, but just pin to an
-# older version for now... before
-# https://github.com/tomaka/winit/commit/1b74822cfc0cb7fba4ed4940a3faae9499fcda95.
-pistoncore-glutin_window = "0.47.0"
+piston = "0.39.0"
+piston2d-graphics = "0.28.0"
+piston2d-opengl_graphics = "0.57.0"
+pistoncore-glutin_window = "0.51.1"
 serde = "1.0"
 serde_derive = "1.0"
 textwrap = "0.11"
