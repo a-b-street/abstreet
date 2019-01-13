@@ -13,7 +13,7 @@ impl DebugPolygon {
         if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
             if ctx
                 .input
-                .contextual_action(Key::G, "debug intersection geometry")
+                .contextual_action(Key::X, "debug intersection geometry")
             {
                 return Some(DebugPolygon {
                     pts: ctx.primary.map.get_i(id).polygon.clone(),

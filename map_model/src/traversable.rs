@@ -86,14 +86,14 @@ impl Traversable {
     pub fn length(&self, map: &Map) -> si::Meter<f64> {
         match *self {
             Traversable::Lane(id) => map.get_l(id).length(),
-            Traversable::Turn(id) => map.get_t(id).length(),
+            Traversable::Turn(id) => map.get_t(id).geom.length(),
         }
     }
 
     pub fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
         match *self {
             Traversable::Lane(id) => map.get_l(id).dist_along(dist),
-            Traversable::Turn(id) => map.get_t(id).dist_along(dist),
+            Traversable::Turn(id) => map.get_t(id).geom.dist_along(dist),
         }
     }
 

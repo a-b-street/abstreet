@@ -7,6 +7,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
+use dimensioned::si;
 use geom::{Bounds, GPSBounds, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -94,6 +95,9 @@ impl Map {
         for t in m.turns.values_mut() {
             t.lookup_idx = m.turn_lookup.len();
             m.turn_lookup.push(t.id);
+            if t.geom.length() < 0.01 * si::M {
+                warn!("u{} is a very short turn", t.lookup_idx);
+            }
         }
 
         let (stops, routes) =

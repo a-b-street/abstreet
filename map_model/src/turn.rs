@@ -1,9 +1,7 @@
 use crate::{IntersectionID, LaneID};
 use abstutil;
-use dimensioned::si;
-use geom::{Angle, Line, PolyLine, Pt2D};
+use geom::{Angle, PolyLine};
 use serde_derive::{Deserialize, Serialize};
-use std::f64;
 use std::fmt;
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
@@ -92,24 +90,10 @@ impl Turn {
         self.geom.intersection(&other.geom).is_some()
     }
 
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
-        self.geom.dist_along(dist_along)
-    }
-
-    pub fn length(&self) -> si::Meter<f64> {
-        self.geom.length()
-    }
-
-    pub fn first_pt(&self) -> Pt2D {
-        self.geom.first_pt()
-    }
-
-    pub fn last_pt(&self) -> Pt2D {
-        self.geom.last_pt()
-    }
-
+    // TODO What should this be for zero-length turns? Probably src's pt1 to dst's pt2 or
+    // something.
     pub fn angle(&self) -> Angle {
-        Line::new(self.first_pt(), self.last_pt()).angle()
+        self.geom.first_pt().angle_to(self.geom.last_pt())
     }
 
     pub fn between_sidewalks(&self) -> bool {

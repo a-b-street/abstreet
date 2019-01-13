@@ -33,7 +33,7 @@ impl InternalPathStep {
             InternalPathStep::Lane(l) | InternalPathStep::ContraflowLane(l) => {
                 map.get_l(l).length()
             }
-            InternalPathStep::Turn(t) => map.get_t(t).length(),
+            InternalPathStep::Turn(t) => map.get_t(t).geom.length(),
             // Free! For now.
             InternalPathStep::RideBus(_, _, _) => 0.0 * si::M,
         }
@@ -43,7 +43,7 @@ impl InternalPathStep {
         let pt = match *self {
             InternalPathStep::Lane(l) => map.get_l(l).last_pt(),
             InternalPathStep::ContraflowLane(l) => map.get_l(l).first_pt(),
-            InternalPathStep::Turn(t) => map.get_t(t).last_pt(),
+            InternalPathStep::Turn(t) => map.get_t(t).geom.last_pt(),
             InternalPathStep::RideBus(_, stop2, _) => map.get_bs(stop2).sidewalk_pos.pt(map),
         };
         pt.dist_to(goal_pt)
@@ -457,12 +457,12 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
         let from = match pair[0] {
             PathStep::Lane(id) => map.get_l(id).last_pt(),
             PathStep::ContraflowLane(id) => map.get_l(id).first_pt(),
-            PathStep::Turn(id) => map.get_t(id).last_pt(),
+            PathStep::Turn(id) => map.get_t(id).geom.last_pt(),
         };
         let to = match pair[1] {
             PathStep::Lane(id) => map.get_l(id).first_pt(),
             PathStep::ContraflowLane(id) => map.get_l(id).last_pt(),
-            PathStep::Turn(id) => map.get_t(id).first_pt(),
+            PathStep::Turn(id) => map.get_t(id).geom.first_pt(),
         };
         let len = from.dist_to(to);
         if len > 0.0 * si::M {
