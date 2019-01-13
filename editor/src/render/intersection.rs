@@ -72,7 +72,7 @@ impl Renderable for DrawIntersection {
             }
         } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
             for corner in &self.sidewalk_corners {
-                g.draw_polygon(ctx.cs.get_def("sidewalk corner", Color::grey(0.7)), corner);
+                g.draw_polygon(opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk")), corner);
             }
 
             if self.intersection_type == IntersectionType::TrafficSignal {
