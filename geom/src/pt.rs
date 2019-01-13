@@ -33,7 +33,7 @@ impl Pt2D {
 
     // TODO This is a small first step...
     pub fn approx_eq(&self, other: Pt2D) -> bool {
-        let eps = 0.000_000_1;
+        let eps = 0.01;
         (self.x - other.x).abs() < eps && (self.y - other.y) < eps
     }
 

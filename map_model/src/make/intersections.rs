@@ -334,8 +334,16 @@ fn make_new_polygon(
         }
     }
 
-    // TODO See if this even helps or not
-    endpoints.dedup();
+    Some(approx_dedupe(endpoints))
+}
 
-    Some(endpoints)
+// Temporary until Pt2D has proper resolution.
+fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
+    let mut result: Vec<Pt2D> = Vec::new();
+    for pt in pts {
+        if result.is_empty() || !result.last().unwrap().approx_eq(pt) {
+            result.push(pt);
+        }
+    }
+    result
 }

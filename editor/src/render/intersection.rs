@@ -132,14 +132,14 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
             // Now find all of the points on the intersection polygon between the two sidewalks.
             let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
             let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
-            // TODO This should be counter-clockwise order, which matches how the intersection polygon is
+            // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
             // constructed...
             if let Some(mut pts_between) = find_pts_between(&map.get_i(i).polygon, corner2, corner1)
             {
                 //.expect("SharedSidewalkCorner couldn't find intersection points");
-                pts_between.push(dst_line.pt1());
-                pts_between.push(pt_in_intersection);
                 pts_between.push(src_line.pt2());
+                pts_between.push(pt_in_intersection);
+                pts_between.push(dst_line.pt1());
                 corners.push(Polygon::new(&pts_between));
             }
             // TODO Do something else when this fails? Hmm
@@ -297,9 +297,10 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
             result.push(*pt);
         } else if !result.is_empty() {
             result.push(*pt);
-            if pt.approx_eq(end) {
-                return Some(result);
-            }
+        }
+        // start and end might be the same.
+        if pt.approx_eq(end) {
+            return Some(result);
         }
     }
 
