@@ -108,7 +108,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 // Do this after we draw and flush to the screen.
                 if let Some(ref mut cap) = screen_cap {
                     let filename = format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y);
-                    println!("Grabbing {}", filename);
+                    println!(
+                        "Grabbing {} (of {}, {} total)",
+                        filename, cap.num_tiles_x, cap.num_tiles_y
+                    );
                     if !process::Command::new("gnome-screenshot")
                         .args(&["--window", "--remove-border", "-f", &filename])
                         .status()
@@ -122,12 +125,12 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 
                     let canvas = gui.get_mut_canvas();
                     cap.tile_x += 1;
-                    canvas.cam_x += canvas.window_width; // / canvas.cam_zoom;
+                    canvas.cam_x += canvas.window_width;
                     if (canvas.cam_x + canvas.window_width) / canvas.cam_zoom >= cap.max_x {
-                        cap.tile_x = 0;
+                        cap.tile_x = 1;
                         canvas.cam_x = 0.0;
                         cap.tile_y += 1;
-                        canvas.cam_y += canvas.window_height; // / canvas.cam_zoom;
+                        canvas.cam_y += canvas.window_height;
                         if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
                             println!("Done capturing screenshots");
                             let canvas = gui.get_mut_canvas();
@@ -202,8 +205,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                     println!("Starting to capturing screenshots");
                     let canvas = gui.get_mut_canvas();
                     screen_cap = Some(ScreenCaptureState {
-                        tile_x: 0,
-                        tile_y: 0,
+                        tile_x: 1,
+                        tile_y: 1,
+                        num_tiles_x: (max_x * zoom / canvas.window_width).floor() as usize,
+                        num_tiles_y: (max_y * zoom / canvas.window_height).floor() as usize,
                         max_x,
                         max_y,
                         orig_zoom: canvas.cam_zoom,
@@ -224,6 +229,8 @@ struct ScreenCaptureState {
     tile_x: usize,
     tile_y: usize,
 
+    num_tiles_x: usize,
+    num_tiles_y: usize,
     max_x: f64,
     max_y: f64,
     orig_zoom: f64,
