@@ -56,46 +56,24 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    // TODO Probably time to bundle this state up. :)
-    let mut last_event_mode = EventLoopMode::InputOnly;
-    let mut context_menu = ContextMenu::Inactive;
-    let mut top_menu = gui.top_menu();
-    let mut modal_state = ModalMenuState::new(G::modal_menus());
-    let mut last_data: Option<T> = None;
-    let mut screen_cap: Option<ScreenCaptureState> = None;
+    let mut state = State {
+        last_event_mode: EventLoopMode::InputOnly,
+        context_menu: ContextMenu::Inactive,
+        top_menu: gui.top_menu(),
+        modal_state: ModalMenuState::new(G::modal_menus()),
+        last_data: None,
+        screen_cap: None,
+        gui,
+    };
 
     while let Some(ev) = events.next(&mut window) {
         use piston::input::{CloseEvent, RenderEvent};
         if let Some(args) = ev.render_args() {
-            // If the very first event is render, then just wait.
-            if let Some(ref data) = last_data {
-                gl.draw(args.viewport(), |c, g| {
-                    let mut g = GfxCtx::new(g, c);
-                    gui.get_mut_canvas().start_drawing(&mut g);
-
-                    if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                        gui.new_draw(&mut g, data, screen_cap.is_some());
-                    })) {
-                        gui.dump_before_abort();
-                        panic::resume_unwind(err);
-                    }
-
-                    if screen_cap.is_none() {
-                        // Always draw the menus last.
-                        if let Some(ref menu) = top_menu {
-                            menu.draw(&mut g, gui.get_mut_canvas());
-                        }
-                        for (_, ref menu) in &modal_state.active {
-                            menu.draw(&mut g, gui.get_mut_canvas());
-                        }
-                        if let ContextMenu::Displaying(ref menu) = context_menu {
-                            menu.draw(&mut g, gui.get_mut_canvas());
-                        }
-                    }
-                });
-            }
+            gl.draw(args.viewport(), |c, g| {
+                state.draw(&mut GfxCtx::new(g, c));
+            });
         } else if ev.close_args().is_some() {
-            gui.before_quit();
+            state.gui.before_quit();
             process::exit(0);
         } else {
             // Skip some events.
@@ -103,48 +81,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 AfterRenderEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
             };
             if ev.after_render_args().is_some() {
-                // Do this after we draw and flush to the screen.
-                // TODO The very first time we grab is wrong. But waiting for one round of draw
-                // also didn't seem to work...
-                if let Some(ref mut cap) = screen_cap {
-                    cap.timer.next();
-                    if !process::Command::new("scrot")
-                        .args(&[
-                            "--quality",
-                            "100",
-                            "--focused",
-                            "--silent",
-                            &format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y),
-                        ])
-                        .status()
-                        .unwrap()
-                        .success()
-                    {
-                        println!("scrot failed; aborting");
-                        screen_cap = None;
-                        continue;
-                    }
-
-                    let canvas = gui.get_mut_canvas();
-                    cap.tile_x += 1;
-                    canvas.cam_x += canvas.window_width;
-                    if (canvas.cam_x + canvas.window_width) / canvas.cam_zoom >= cap.max_x {
-                        cap.tile_x = 1;
-                        canvas.cam_x = 0.0;
-                        cap.tile_y += 1;
-                        canvas.cam_y += canvas.window_height;
-                        if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
-                            let canvas = gui.get_mut_canvas();
-                            canvas.cam_zoom = cap.orig_zoom;
-                            canvas.cam_x = cap.orig_x;
-                            canvas.cam_y = cap.orig_y;
-                            screen_cap.take().unwrap().combine();
-                        }
-                    }
-                }
+                state.after_render();
                 continue;
             }
-            if screen_cap.is_some() {
+            if state.screen_cap.is_some() {
                 continue;
             }
             if ev.after_render_args().is_some()
@@ -156,70 +96,143 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 continue;
             }
 
-            // It's impossible / very unlikey we'll grab the cursor in map space before the very first
-            // start_drawing call.
-            let mut input = UserInput::new(
-                Event::from_piston_event(ev),
-                context_menu,
-                top_menu,
-                modal_state,
-                gui.get_mut_canvas(),
+            state = state.event(ev, &mut events);
+        }
+    }
+}
+
+struct State<T, G: GUI<T>> {
+    gui: G,
+    last_event_mode: EventLoopMode,
+    context_menu: ContextMenu,
+    top_menu: Option<TopMenu>,
+    modal_state: ModalMenuState,
+    last_data: Option<T>,
+    screen_cap: Option<ScreenCaptureState>,
+}
+
+impl<T, G: GUI<T>> State<T, G> {
+    fn event(mut self, ev: piston::input::Event, events: &mut Events) -> State<T, G> {
+        // It's impossible / very unlikey we'll grab the cursor in map space before the very first
+        // start_drawing call.
+        let mut input = UserInput::new(
+            Event::from_piston_event(ev),
+            self.context_menu,
+            self.top_menu,
+            self.modal_state,
+            self.gui.get_mut_canvas(),
+        );
+        let mut gui = self.gui;
+        let (new_event_mode, data) =
+            match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
+                Ok(pair) => pair,
+                Err(err) => {
+                    gui.dump_before_abort();
+                    panic::resume_unwind(err);
+                }
+            };
+        self.gui = gui;
+        self.last_data = Some(data);
+        self.context_menu = input.context_menu.maybe_build(self.gui.get_mut_canvas());
+        self.top_menu = input.top_menu;
+        self.modal_state = input.modal_state;
+        if let Some(action) = input.chosen_action {
+            panic!(
+                "\"{}\" chosen from the top or modal menu, but nothing consumed it",
+                action
             );
-            let (new_event_mode, data) =
-                match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
-                    Ok(pair) => pair,
-                    Err(err) => {
-                        gui.dump_before_abort();
-                        panic::resume_unwind(err);
-                    }
-                };
-            last_data = Some(data);
-            context_menu = input.context_menu.maybe_build(gui.get_mut_canvas());
-            top_menu = input.top_menu;
-            modal_state = input.modal_state;
-            if let Some(action) = input.chosen_action {
-                panic!(
-                    "\"{}\" chosen from the top or modal menu, but nothing consumed it",
-                    action
-                );
+        }
+        let mut still_active = Vec::new();
+        for (mode, menu) in self.modal_state.active.into_iter() {
+            if input.set_mode_called.contains(&mode) {
+                still_active.push((mode, menu));
             }
-            let mut still_active = Vec::new();
-            for (mode, menu) in modal_state.active.into_iter() {
-                if input.set_mode_called.contains(&mode) {
-                    still_active.push((mode, menu));
+        }
+        self.modal_state.active = still_active;
+
+        // Don't constantly reset the events struct -- only when laziness changes.
+        if new_event_mode != self.last_event_mode {
+            events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
+            self.last_event_mode = new_event_mode;
+
+            if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = new_event_mode {
+                self.screen_cap = Some(ScreenCaptureState::new(
+                    self.gui.get_mut_canvas(),
+                    zoom,
+                    max_x,
+                    max_y,
+                ));
+                events.set_lazy(false);
+            }
+        }
+
+        self
+    }
+
+    fn draw(&mut self, g: &mut GfxCtx) {
+        // If the very first event is render, then just wait.
+        if let Some(ref data) = self.last_data {
+            self.gui.get_mut_canvas().start_drawing(g);
+
+            if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                self.gui.new_draw(g, data, self.screen_cap.is_some());
+            })) {
+                self.gui.dump_before_abort();
+                panic::resume_unwind(err);
+            }
+
+            if self.screen_cap.is_none() {
+                // Always draw the menus last.
+                if let Some(ref menu) = self.top_menu {
+                    menu.draw(g, self.gui.get_mut_canvas());
+                }
+                for (_, ref menu) in &self.modal_state.active {
+                    menu.draw(g, self.gui.get_mut_canvas());
+                }
+                if let ContextMenu::Displaying(ref menu) = self.context_menu {
+                    menu.draw(g, self.gui.get_mut_canvas());
                 }
             }
-            modal_state.active = still_active;
+        }
+    }
 
-            // Don't constantly reset the events struct -- only when laziness changes.
-            if new_event_mode != last_event_mode {
-                events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
-                last_event_mode = new_event_mode;
+    fn after_render(&mut self) {
+        // Do this after we draw and flush to the screen.
+        // TODO The very first time we grab is wrong. But waiting for one round of draw also didn't
+        // seem to work...
+        if let Some(ref mut cap) = self.screen_cap {
+            cap.timer.next();
+            if !process::Command::new("scrot")
+                .args(&[
+                    "--quality",
+                    "100",
+                    "--focused",
+                    "--silent",
+                    &format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y),
+                ])
+                .status()
+                .unwrap()
+                .success()
+            {
+                println!("scrot failed; aborting");
+                self.screen_cap = None;
+                return;
+            }
 
-                if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } =
-                    new_event_mode
-                {
-                    let canvas = gui.get_mut_canvas();
-                    let num_tiles_x = (max_x * zoom / canvas.window_width).floor() as usize;
-                    let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
-                    let mut timer = Timer::new("capturing screen");
-                    timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
-                    screen_cap = Some(ScreenCaptureState {
-                        tile_x: 1,
-                        tile_y: 1,
-                        timer,
-                        num_tiles_x,
-                        num_tiles_y,
-                        max_x,
-                        max_y,
-                        orig_zoom: canvas.cam_zoom,
-                        orig_x: canvas.cam_x,
-                        orig_y: canvas.cam_y,
-                    });
-                    canvas.cam_x = 0.0;
-                    canvas.cam_y = 0.0;
-                    canvas.cam_zoom = zoom;
-                    events.set_lazy(false);
+            let canvas = self.gui.get_mut_canvas();
+            cap.tile_x += 1;
+            canvas.cam_x += canvas.window_width;
+            if (canvas.cam_x + canvas.window_width) / canvas.cam_zoom >= cap.max_x {
+                cap.tile_x = 1;
+                canvas.cam_x = 0.0;
+                cap.tile_y += 1;
+                canvas.cam_y += canvas.window_height;
+                if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
+                    let canvas = self.gui.get_mut_canvas();
+                    canvas.cam_zoom = cap.orig_zoom;
+                    canvas.cam_x = cap.orig_x;
+                    canvas.cam_y = cap.orig_y;
+                    self.screen_cap.take().unwrap().combine();
                 }
             }
         }
@@ -241,6 +254,29 @@ struct ScreenCaptureState {
 }
 
 impl ScreenCaptureState {
+    fn new(canvas: &mut Canvas, zoom: f64, max_x: f64, max_y: f64) -> ScreenCaptureState {
+        let num_tiles_x = (max_x * zoom / canvas.window_width).floor() as usize;
+        let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
+        let mut timer = Timer::new("capturing screen");
+        timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
+        let state = ScreenCaptureState {
+            tile_x: 1,
+            tile_y: 1,
+            timer,
+            num_tiles_x,
+            num_tiles_y,
+            max_x,
+            max_y,
+            orig_zoom: canvas.cam_zoom,
+            orig_x: canvas.cam_x,
+            orig_y: canvas.cam_y,
+        };
+        canvas.cam_x = 0.0;
+        canvas.cam_y = 0.0;
+        canvas.cam_zoom = zoom;
+        state
+    }
+
     fn combine(mut self) {
         self.timer.start("combining tiles");
         let mut args = Vec::new();
