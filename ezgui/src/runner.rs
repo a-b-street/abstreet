@@ -4,6 +4,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::WindowSettings;
+use screenshot_rs::screenshot_window;
 use std::{env, panic, process};
 
 pub trait GUI<T> {
@@ -17,6 +18,9 @@ pub trait GUI<T> {
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     fn draw(&self, g: &mut GfxCtx, data: &T);
+    fn draw_screengrab(&self, g: &mut GfxCtx, data: &T) {
+        self.draw(g, data);
+    }
     // Will be called if event or draw panics.
     fn dump_before_abort(&self) {}
     // Only before a normal exit, like window close
@@ -27,6 +31,7 @@ pub trait GUI<T> {
 pub enum EventLoopMode {
     Animation,
     InputOnly,
+    ScreenCaptureEverything { zoom: f64, max_x: f64, max_y: f64 },
 }
 
 pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
@@ -56,6 +61,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let mut top_menu = gui.top_menu();
     let mut modal_state = ModalMenuState::new(G::modal_menus());
     let mut last_data: Option<T> = None;
+    let mut screen_cap: Option<ScreenCaptureState> = None;
 
     while let Some(ev) = events.next(&mut window) {
         use piston::input::{CloseEvent, RenderEvent};
@@ -66,22 +72,28 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                     let mut g = GfxCtx::new(g, c);
                     gui.get_mut_canvas().start_drawing(&mut g);
 
-                    if let Err(err) =
-                        panic::catch_unwind(panic::AssertUnwindSafe(|| gui.draw(&mut g, data)))
-                    {
+                    if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                        if screen_cap.is_some() {
+                            gui.draw_screengrab(&mut g, data);
+                        } else {
+                            gui.draw(&mut g, data);
+                        }
+                    })) {
                         gui.dump_before_abort();
                         panic::resume_unwind(err);
                     }
 
-                    // Always draw the menus last.
-                    if let Some(ref menu) = top_menu {
-                        menu.draw(&mut g, gui.get_mut_canvas());
-                    }
-                    for (_, ref menu) in &modal_state.active {
-                        menu.draw(&mut g, gui.get_mut_canvas());
-                    }
-                    if let ContextMenu::Displaying(ref menu) = context_menu {
-                        menu.draw(&mut g, gui.get_mut_canvas());
+                    if screen_cap.is_none() {
+                        // Always draw the menus last.
+                        if let Some(ref menu) = top_menu {
+                            menu.draw(&mut g, gui.get_mut_canvas());
+                        }
+                        for (_, ref menu) in &modal_state.active {
+                            menu.draw(&mut g, gui.get_mut_canvas());
+                        }
+                        if let ContextMenu::Displaying(ref menu) = context_menu {
+                            menu.draw(&mut g, gui.get_mut_canvas());
+                        }
                     }
                 });
             }
@@ -93,6 +105,38 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             use piston::input::{
                 AfterRenderEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
             };
+            if ev.after_render_args().is_some() {
+                // Do this after we draw and flush to the screen.
+                if let Some(ref mut cap) = screen_cap {
+                    println!("Grabbing {:02}x{:02}", cap.tile_x, cap.tile_y);
+                    screenshot_window(format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y));
+                    let canvas = gui.get_mut_canvas();
+                    cap.tile_x += 1;
+                    canvas.cam_x += canvas.window_width; // / canvas.cam_zoom;
+                    if (canvas.cam_x + canvas.window_width) / canvas.cam_zoom >= cap.max_x {
+                        cap.tile_x = 0;
+                        canvas.cam_x = 0.0;
+                        cap.tile_y += 1;
+                        canvas.cam_y += canvas.window_height; // / canvas.cam_zoom;
+                        if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
+                            println!("Done capturing screenshots");
+                            let canvas = gui.get_mut_canvas();
+                            canvas.cam_zoom = cap.orig_zoom;
+                            canvas.cam_x = cap.orig_x;
+                            canvas.cam_y = cap.orig_y;
+                            screen_cap = None;
+                        }
+                    }
+
+                    // TODO post-processing...
+                    // for col in {0..6}; do convert -append screen0${col}x* col${col}.png; done
+                    // convert +append col* final.png
+                }
+                continue;
+            }
+            if screen_cap.is_some() {
+                continue;
+            }
             if ev.after_render_args().is_some()
                 || ev.focus_args().is_some()
                 || ev.idle_args().is_some()
@@ -141,7 +185,38 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             if new_event_mode != last_event_mode {
                 events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
                 last_event_mode = new_event_mode;
+
+                if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } =
+                    new_event_mode
+                {
+                    println!("Starting to capturing screenshots");
+                    let canvas = gui.get_mut_canvas();
+                    screen_cap = Some(ScreenCaptureState {
+                        tile_x: 0,
+                        tile_y: 0,
+                        max_x,
+                        max_y,
+                        orig_zoom: canvas.cam_zoom,
+                        orig_x: canvas.cam_x,
+                        orig_y: canvas.cam_y,
+                    });
+                    canvas.cam_x = 0.0;
+                    canvas.cam_y = 0.0;
+                    canvas.cam_zoom = zoom;
+                    events.set_lazy(false);
+                }
             }
         }
     }
+}
+
+struct ScreenCaptureState {
+    tile_x: usize,
+    tile_y: usize,
+
+    max_x: f64,
+    max_y: f64,
+    orig_zoom: f64,
+    orig_x: f64,
+    orig_y: f64,
 }

@@ -10,7 +10,6 @@ use ezgui::{
 };
 use kml;
 use map_model::{BuildingID, LaneID};
-use screenshot_rs::screenshot_window;
 use serde_derive::{Deserialize, Serialize};
 use sim::GetDrawAgents;
 use std::borrow::Borrow;
@@ -233,8 +232,16 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         input.populate_osd(&mut hints.osd);
 
+        // TODO a plugin should do this, even though it's such a tiny thing
         if input.unimportant_key_pressed(Key::F1, "take screenshot") {
-            screenshot_window("screenshot.png".to_string());
+            let bounds = self.state.get_state().primary.map.get_bounds();
+            assert_eq!(bounds.min_x, 0.0);
+            assert_eq!(bounds.min_y, 0.0);
+            hints.mode = EventLoopMode::ScreenCaptureEverything {
+                zoom: 2.0,
+                max_x: bounds.max_x,
+                max_y: bounds.max_y,
+            };
         }
 
         (hints.mode, hints)
@@ -245,6 +252,25 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     }
 
     fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints) {
+        self.draw_screengrab(g, hints);
+
+        let ctx = Ctx {
+            cs: &self.cs,
+            map: &self.state.get_state().primary.map,
+            draw_map: &self.state.get_state().primary.draw_map,
+            canvas: &self.canvas,
+            sim: &self.state.get_state().primary.sim,
+            hints: &hints,
+        };
+        self.state.draw(g, &ctx);
+
+        // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
+        // soon, so meh
+        self.canvas
+            .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
+    }
+
+    fn draw_screengrab(&self, g: &mut GfxCtx, hints: &RenderingHints) {
         g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
         let ctx = Ctx {
@@ -268,13 +294,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             };
             obj.draw(g, opts, &ctx);
         }
-
-        self.state.draw(g, &ctx);
-
-        // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
-        // soon, so meh
-        self.canvas
-            .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
     }
 
     fn dump_before_abort(&self) {
