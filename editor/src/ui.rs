@@ -238,6 +238,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             assert_eq!(bounds.min_x, 0.0);
             assert_eq!(bounds.min_y, 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
+                // TODO 6.0... or low zoom, but force detail
                 zoom: 2.0,
                 max_x: bounds.max_x,
                 max_y: bounds.max_y,

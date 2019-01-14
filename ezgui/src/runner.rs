@@ -4,7 +4,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::WindowSettings;
-use std::{env, panic, process};
+use std::{env, fs, panic, process};
 
 pub trait GUI<T> {
     // Called once
@@ -106,6 +106,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             };
             if ev.after_render_args().is_some() {
                 // Do this after we draw and flush to the screen.
+                // TODO The very first time we grab is wrong. But waiting for one round of draw
+                // also didn't seem to work...
                 if let Some(ref mut cap) = screen_cap {
                     let filename = format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y);
                     println!(
@@ -132,7 +134,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                         cap.tile_y += 1;
                         canvas.cam_y += canvas.window_height;
                         if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
-                            println!("Done capturing screenshots");
+                            cap.combine();
                             let canvas = gui.get_mut_canvas();
                             canvas.cam_zoom = cap.orig_zoom;
                             canvas.cam_x = cap.orig_x;
@@ -140,10 +142,6 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                             screen_cap = None;
                         }
                     }
-
-                    // TODO post-processing...
-                    // for col in {0..6}; do convert -append screen0${col}x* col${col}.png; done
-                    // convert +append col* final.png
                 }
                 continue;
             }
@@ -236,4 +234,34 @@ struct ScreenCaptureState {
     orig_zoom: f64,
     orig_x: f64,
     orig_y: f64,
+}
+
+impl ScreenCaptureState {
+    fn combine(&self) {
+        println!("Combining {} tiles...", self.num_tiles_x * self.num_tiles_y);
+        let mut args = Vec::new();
+        for y in 1..=self.num_tiles_y {
+            for x in 1..=self.num_tiles_x {
+                args.push(format!("screen{:02}x{:02}.png", x, y));
+            }
+        }
+        args.push("-mode".to_string());
+        args.push("Concatenate".to_string());
+        args.push("-tile".to_string());
+        args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
+        args.push("screencap.png".to_string());
+        assert!(process::Command::new("montage")
+            .args(&args)
+            .status()
+            .unwrap()
+            .success());
+
+        for x in 1..=self.num_tiles_x {
+            for y in 1..=self.num_tiles_y {
+                fs::remove_file(format!("screen{:02}x{:02}.png", x, y)).unwrap();
+            }
+        }
+
+        println!("Produced screencap.png!");
+    }
 }
