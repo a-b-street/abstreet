@@ -112,13 +112,13 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                         "Grabbing {} (of {}, {} total)",
                         filename, cap.num_tiles_x, cap.num_tiles_y
                     );
-                    if !process::Command::new("gnome-screenshot")
-                        .args(&["--window", "--remove-border", "-f", &filename])
+                    if !process::Command::new("scrot")
+                        .args(&["--quality", "100", "--focused", "--silent", &filename])
                         .status()
                         .unwrap()
                         .success()
                     {
-                        println!("gnome-screenshot failed; aborting");
+                        println!("scrot failed; aborting");
                         screen_cap = None;
                         continue;
                     }
