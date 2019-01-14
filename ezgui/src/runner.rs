@@ -1,5 +1,6 @@
 use crate::input::{ContextMenu, ModalMenuState};
 use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
+use abstutil::Timer;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
@@ -106,13 +107,15 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 // TODO The very first time we grab is wrong. But waiting for one round of draw
                 // also didn't seem to work...
                 if let Some(ref mut cap) = screen_cap {
-                    let filename = format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y);
-                    println!(
-                        "Grabbing {} (of {}, {} total)",
-                        filename, cap.num_tiles_x, cap.num_tiles_y
-                    );
+                    cap.timer.next();
                     if !process::Command::new("scrot")
-                        .args(&["--quality", "100", "--focused", "--silent", &filename])
+                        .args(&[
+                            "--quality",
+                            "100",
+                            "--focused",
+                            "--silent",
+                            &format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y),
+                        ])
                         .status()
                         .unwrap()
                         .success()
@@ -131,12 +134,11 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                         cap.tile_y += 1;
                         canvas.cam_y += canvas.window_height;
                         if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
-                            cap.combine();
                             let canvas = gui.get_mut_canvas();
                             canvas.cam_zoom = cap.orig_zoom;
                             canvas.cam_x = cap.orig_x;
                             canvas.cam_y = cap.orig_y;
-                            screen_cap = None;
+                            screen_cap.take().unwrap().combine();
                         }
                     }
                 }
@@ -197,13 +199,17 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } =
                     new_event_mode
                 {
-                    println!("Starting to capturing screenshots");
                     let canvas = gui.get_mut_canvas();
+                    let num_tiles_x = (max_x * zoom / canvas.window_width).floor() as usize;
+                    let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
+                    let mut timer = Timer::new("capturing screen");
+                    timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
                     screen_cap = Some(ScreenCaptureState {
                         tile_x: 1,
                         tile_y: 1,
-                        num_tiles_x: (max_x * zoom / canvas.window_width).floor() as usize,
-                        num_tiles_y: (max_y * zoom / canvas.window_height).floor() as usize,
+                        timer,
+                        num_tiles_x,
+                        num_tiles_y,
                         max_x,
                         max_y,
                         orig_zoom: canvas.cam_zoom,
@@ -223,6 +229,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 struct ScreenCaptureState {
     tile_x: usize,
     tile_y: usize,
+    timer: Timer,
 
     num_tiles_x: usize,
     num_tiles_y: usize,
@@ -234,8 +241,8 @@ struct ScreenCaptureState {
 }
 
 impl ScreenCaptureState {
-    fn combine(&self) {
-        println!("Combining {} tiles...", self.num_tiles_x * self.num_tiles_y);
+    fn combine(mut self) {
+        self.timer.start("combining tiles");
         let mut args = Vec::new();
         for y in 1..=self.num_tiles_y {
             for x in 1..=self.num_tiles_x {
@@ -247,11 +254,17 @@ impl ScreenCaptureState {
         args.push("-tile".to_string());
         args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
         args.push("screencap.png".to_string());
-        assert!(process::Command::new("montage")
+        if !process::Command::new("montage")
             .args(&args)
             .status()
             .unwrap()
-            .success());
+            .success()
+        {
+            // Amp up limits in /etc/ImageMagick-6/policy.xml
+            println!("Combining tiles failed!");
+            println!("> montage {}", args.join(" "));
+            return;
+        }
 
         for x in 1..=self.num_tiles_x {
             for y in 1..=self.num_tiles_y {
@@ -259,6 +272,8 @@ impl ScreenCaptureState {
             }
         }
 
-        println!("Produced screencap.png!");
+        self.timer.stop("combining tiles");
+        self.timer.done();
+        println!("Produced screencap.png");
     }
 }
