@@ -26,7 +26,11 @@ enum State {
 impl UI {
     fn new(load: Option<&String>) -> UI {
         let model: Model = if let Some(path) = load {
-            abstutil::read_json(path).expect(&format!("Couldn't load {}", path))
+            if path.contains("raw_maps/") {
+                Model::import(path)
+            } else {
+                abstutil::read_json(path).expect(&format!("Couldn't load {}", path))
+            }
         } else {
             Model::new()
         };

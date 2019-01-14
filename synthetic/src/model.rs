@@ -1,10 +1,10 @@
-use abstutil::{deserialize_btreemap, serialize_btreemap, write_json};
+use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
 use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
-use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Circle, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::mem;
 
 const INTERSECTION_RADIUS: f64 = 10.0;
@@ -290,6 +290,67 @@ impl Model {
         );
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
         println!("Exported {}", path);
+    }
+
+    // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
+    pub fn import(path: &str) -> Model {
+        let data: raw_data::Map = read_binary(path, &mut Timer::new("load raw map")).unwrap();
+        let gps_bounds = data.get_gps_bounds();
+
+        let mut m = Model::new();
+        let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
+
+        for (idx, i) in data.intersections.iter().enumerate() {
+            let center = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
+            m.intersections.insert(
+                idx,
+                Intersection {
+                    center,
+                    intersection_type: i.intersection_type,
+                    label: i.label.clone(),
+                },
+            );
+            pt_to_intersection.insert(center.into(), idx);
+        }
+
+        for r in &data.roads {
+            let i1 = pt_to_intersection[&Pt2D::from_gps(r.points[0], &gps_bounds).unwrap().into()];
+            let i2 = pt_to_intersection[&Pt2D::from_gps(*r.points.last().unwrap(), &gps_bounds)
+                .unwrap()
+                .into()];
+            m.roads.insert(
+                (i1, i2),
+                Road {
+                    i1,
+                    i2,
+                    // TODO Do better
+                    lanes: RoadSpec {
+                        fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+                        back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+                    },
+                    // TODO nope
+                    fwd_label: None,
+                    back_label: None,
+                },
+            );
+        }
+
+        for (idx, b) in data.buildings.iter().enumerate() {
+            m.buildings.insert(
+                idx,
+                Building {
+                    label: None,
+                    center: Pt2D::center(
+                        &b.points
+                            .iter()
+                            .map(|pt| Pt2D::from_gps(*pt, &gps_bounds).unwrap())
+                            .collect(),
+                    ),
+                },
+            );
+        }
+
+        m
     }
 }
 

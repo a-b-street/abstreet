@@ -74,7 +74,7 @@ impl Event {
             return Event::MouseWheelScroll(pair[1]);
         }
         if let Some(pair) = ev.resize_args() {
-            return Event::WindowResized(f64::from(pair[0]), f64::from(pair[1]));
+            return Event::WindowResized(pair[0], pair[1]);
         }
         if let Some(has) = ev.cursor_args() {
             if has {

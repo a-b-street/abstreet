@@ -235,8 +235,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         // TODO a plugin should do this, even though it's such a tiny thing
         if input.unimportant_key_pressed(Key::F1, "take screenshot") {
             let bounds = self.state.get_state().primary.map.get_bounds();
-            assert_eq!(bounds.min_x, 0.0);
-            assert_eq!(bounds.min_y, 0.0);
+            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
                 zoom: 3.0,
                 max_x: bounds.max_x,
