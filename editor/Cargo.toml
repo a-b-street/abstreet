@@ -23,6 +23,7 @@ ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
 quick-xml = "0.13.1"
 rand = "0.6.4"
+screenshot-rs = "0.1.2"
 serde = "1.0"
 serde_derive = "1.0"
 sim = { path = "../sim" }

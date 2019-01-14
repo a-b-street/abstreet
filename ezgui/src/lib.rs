@@ -28,7 +28,6 @@ pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
 use geom::Pt2D;
 use graphics::Transformed;
-use graphics_buffer::{RenderBuffer, IDENTITY};
 use opengl_graphics::GlGraphics;
 use std::mem;
 
@@ -39,10 +38,7 @@ pub const TOP_MENU_HEIGHT: f64 = text::LINE_HEIGHT;
 pub struct GfxCtx<'a> {
     orig_ctx: graphics::Context,
     ctx: graphics::Context,
-    // TODO Either gfx or save_to_buffer, not both.
     gfx: &'a mut GlGraphics,
-    // TODO The code duplication below sucks. Make the generics work.
-    save_to_buffer: Option<RenderBuffer>,
 }
 
 impl<'a> GfxCtx<'a> {
@@ -51,23 +47,7 @@ impl<'a> GfxCtx<'a> {
             gfx: g,
             orig_ctx: c,
             ctx: c,
-            save_to_buffer: None,
         }
-    }
-
-    pub fn render_to_buffer(&mut self, canvas: &Canvas) {
-        assert!(self.save_to_buffer.is_none());
-        self.save_to_buffer = Some(RenderBuffer::new(
-            canvas.window_height as u32,
-            canvas.window_height as u32,
-        ));
-        self.orig_ctx.view = IDENTITY;
-        self.orig_ctx.transform = IDENTITY;
-        canvas.start_drawing(self);
-    }
-
-    pub fn save_buffer(&mut self, filename: &str) {
-        self.save_to_buffer.take().unwrap().save(filename).unwrap();
     }
 
     // Up to the caller to call unfork()!
@@ -91,11 +71,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn clear(&mut self, color: Color) {
-        if let Some(ref mut buf) = self.save_to_buffer {
-            graphics::clear(color.0, buf);
-        } else {
-            graphics::clear(color.0, self.gfx);
-        }
+        graphics::clear(color.0, self.gfx);
     }
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by
@@ -112,33 +88,18 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &geom::Line) {
         // TODO Raw method doesn't work yet in all cases...
-        if let Some(ref mut buf) = self.save_to_buffer {
-            graphics::Line::new_round(color.0, thickness).draw_arrow(
-                [
-                    line.pt1().x(),
-                    line.pt1().y(),
-                    line.pt2().x(),
-                    line.pt2().y(),
-                ],
-                2.0 * thickness,
-                &self.ctx.draw_state,
-                self.ctx.transform,
-                buf,
-            );
-        } else {
-            graphics::Line::new_round(color.0, thickness).draw_arrow(
-                [
-                    line.pt1().x(),
-                    line.pt1().y(),
-                    line.pt2().x(),
-                    line.pt2().y(),
-                ],
-                2.0 * thickness,
-                &self.ctx.draw_state,
-                self.ctx.transform,
-                self.gfx,
-            );
-        }
+        graphics::Line::new_round(color.0, thickness).draw_arrow(
+            [
+                line.pt1().x(),
+                line.pt1().y(),
+                line.pt2().x(),
+                line.pt2().y(),
+            ],
+            2.0 * thickness,
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
 
         /*use dimensioned::si;
         let head_size = 2.0 * thickness;
@@ -174,61 +135,32 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
-        if let Some(ref mut buf) = self.save_to_buffer {
-            for tri in &poly.triangles {
-                graphics::Polygon::new(color.0).draw(
-                    &[
-                        [tri.pt1.x(), tri.pt1.y()],
-                        [tri.pt2.x(), tri.pt2.y()],
-                        [tri.pt3.x(), tri.pt3.y()],
-                    ],
-                    &self.ctx.draw_state,
-                    self.ctx.transform,
-                    buf,
-                );
-            }
-        } else {
-            for tri in &poly.triangles {
-                graphics::Polygon::new(color.0).draw(
-                    &[
-                        [tri.pt1.x(), tri.pt1.y()],
-                        [tri.pt2.x(), tri.pt2.y()],
-                        [tri.pt3.x(), tri.pt3.y()],
-                    ],
-                    &self.ctx.draw_state,
-                    self.ctx.transform,
-                    self.gfx,
-                );
-            }
-        }
-    }
-
-    pub fn draw_circle(&mut self, color: Color, circle: &geom::Circle) {
-        if let Some(ref mut buf) = self.save_to_buffer {
-            graphics::Ellipse::new(color.0).draw(
-                [
-                    circle.center.x() - circle.radius,
-                    circle.center.y() - circle.radius,
-                    2.0 * circle.radius,
-                    2.0 * circle.radius,
-                ],
-                &self.ctx.draw_state,
-                self.ctx.transform,
-                buf,
-            );
-        } else {
-            graphics::Ellipse::new(color.0).draw(
-                [
-                    circle.center.x() - circle.radius,
-                    circle.center.y() - circle.radius,
-                    2.0 * circle.radius,
-                    2.0 * circle.radius,
+        for tri in &poly.triangles {
+            graphics::Polygon::new(color.0).draw(
+                &[
+                    [tri.pt1.x(), tri.pt1.y()],
+                    [tri.pt2.x(), tri.pt2.y()],
+                    [tri.pt3.x(), tri.pt3.y()],
                 ],
                 &self.ctx.draw_state,
                 self.ctx.transform,
                 self.gfx,
             );
         }
+    }
+
+    pub fn draw_circle(&mut self, color: Color, circle: &geom::Circle) {
+        graphics::Ellipse::new(color.0).draw(
+            [
+                circle.center.x() - circle.radius,
+                circle.center.y() - circle.radius,
+                2.0 * circle.radius,
+                2.0 * circle.radius,
+            ],
+            &self.ctx.draw_state,
+            self.ctx.transform,
+            self.gfx,
+        );
     }
 }
 
