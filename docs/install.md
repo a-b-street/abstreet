@@ -1,9 +1,16 @@
 # Installation
 
-I'm assuming a Linux-like environment with `bash`, `wget`, `unzip`, etc. The
-import script also requires `osmosis` (on Ubuntu, `sudo apt-get install
-osmosis` does the trick). In the future, I'll set up Github binary releases for
-multiple platforms.
+## Dependencies
+
+To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
+You also need `python` for the editor crate to build, and `osmosis` for the
+import script.
+
+At runtime if you want to use the screen-capture plugin, you need `scrot`.
+
+## One-time setup
+
+In the future, I'll set up Github binary releases for multiple platforms.
 
 1.   Install Rust, at least 1.31. https://www.rust-lang.org/tools/install
 

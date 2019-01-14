@@ -208,7 +208,7 @@ impl<T, G: GUI<T>> State<T, G> {
                     "100",
                     "--focused",
                     "--silent",
-                    &format!("screen{:02}x{:02}.png", cap.tile_x, cap.tile_y),
+                    &format!("screencap/{:02}x{:02}.png", cap.tile_x, cap.tile_y),
                 ])
                 .status()
                 .unwrap()
@@ -259,6 +259,7 @@ impl ScreenCaptureState {
         let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
         let mut timer = Timer::new("capturing screen");
         timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
+        fs::create_dir("screencap").unwrap();
         let state = ScreenCaptureState {
             tile_x: 1,
             tile_y: 1,
@@ -282,14 +283,14 @@ impl ScreenCaptureState {
         let mut args = Vec::new();
         for y in 1..=self.num_tiles_y {
             for x in 1..=self.num_tiles_x {
-                args.push(format!("screen{:02}x{:02}.png", x, y));
+                args.push(format!("screencap/{:02}x{:02}.png", x, y));
             }
         }
         args.push("-mode".to_string());
         args.push("Concatenate".to_string());
         args.push("-tile".to_string());
         args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
-        args.push("screencap.png".to_string());
+        args.push("screencap/full.png".to_string());
         if !process::Command::new("montage")
             .args(&args)
             .status()
@@ -302,14 +303,8 @@ impl ScreenCaptureState {
             return;
         }
 
-        for x in 1..=self.num_tiles_x {
-            for y in 1..=self.num_tiles_y {
-                fs::remove_file(format!("screen{:02}x{:02}.png", x, y)).unwrap();
-            }
-        }
-
         self.timer.stop("combining tiles");
         self.timer.done();
-        println!("Produced screencap.png");
+        println!("Produced screencap/");
     }
 }
