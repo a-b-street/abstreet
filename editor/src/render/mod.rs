@@ -55,6 +55,7 @@ pub struct RenderOptions {
     // TODO This should be accessible through ctx...
     pub debug_mode: bool,
     pub is_selected: bool,
+    pub show_all_detail: bool,
 }
 
 pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {

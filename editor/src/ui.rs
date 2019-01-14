@@ -238,8 +238,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             assert_eq!(bounds.min_x, 0.0);
             assert_eq!(bounds.min_y, 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
-                // TODO 6.0... or low zoom, but force detail
-                zoom: 2.0,
+                zoom: 4.0,
                 max_x: bounds.max_x,
                 max_y: bounds.max_y,
             };
@@ -252,26 +251,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         &mut self.canvas
     }
 
-    fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints) {
-        self.draw_screengrab(g, hints);
+    fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
 
-        let ctx = Ctx {
-            cs: &self.cs,
-            map: &self.state.get_state().primary.map,
-            draw_map: &self.state.get_state().primary.draw_map,
-            canvas: &self.canvas,
-            sim: &self.state.get_state().primary.sim,
-            hints: &hints,
-        };
-        self.state.draw(g, &ctx);
-
-        // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
-        // soon, so meh
-        self.canvas
-            .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
-    }
-
-    fn draw_screengrab(&self, g: &mut GfxCtx, hints: &RenderingHints) {
+    fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) {
         g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
         let ctx = Ctx {
@@ -292,8 +274,19 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 color: self.state.get_state().color_obj(obj.get_id(), &ctx),
                 debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
                 is_selected: self.state.get_state().primary.current_selection == Some(obj.get_id()),
+                // TODO If a ToggleableLayer is currently off, this won't affect it!
+                show_all_detail: screencap,
             };
             obj.draw(g, opts, &ctx);
+        }
+
+        if !screencap {
+            self.state.draw(g, &ctx);
+
+            // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
+            // soon, so meh
+            self.canvas
+                .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
         }
     }
 

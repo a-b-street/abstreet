@@ -16,8 +16,9 @@ pub trait GUI<T> {
     }
     fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
+    // TODO Migrate all callers
     fn draw(&self, g: &mut GfxCtx, data: &T);
-    fn draw_screengrab(&self, g: &mut GfxCtx, data: &T) {
+    fn new_draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) {
         self.draw(g, data);
     }
     // Will be called if event or draw panics.
@@ -72,11 +73,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                     gui.get_mut_canvas().start_drawing(&mut g);
 
                     if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                        if screen_cap.is_some() {
-                            gui.draw_screengrab(&mut g, data);
-                        } else {
-                            gui.draw(&mut g, data);
-                        }
+                        gui.new_draw(&mut g, data, screen_cap.is_some());
                     })) {
                         gui.dump_before_abort();
                         panic::resume_unwind(err);

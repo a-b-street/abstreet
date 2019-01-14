@@ -70,7 +70,7 @@ impl Renderable for DrawIntersection {
                 ctx.canvas
                     .draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
             }
-        } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS {
+        } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             for corner in &self.sidewalk_corners {
                 g.draw_polygon(opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk")), corner);
             }
