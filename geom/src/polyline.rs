@@ -217,19 +217,17 @@ impl PolyLine {
     // Things to remember about shifting polylines: the length before and after probably don't
     // match up.
     pub fn shift_right(&self, width: f64) -> Option<PolyLine> {
-        /*let mut result = self.shift_blindly_right(width);
+        let mut result = self.shift_blindly_right(width);
         fix_angles(self, &mut result);
         check_angles(self, &result);
-        Some(result)*/
-        Some(self.shift_blindly_right(width))
+        Some(result)
     }
 
     pub fn shift_left(&self, width: f64) -> Option<PolyLine> {
-        /*let mut result = self.shift_blindly_left(width);
+        let mut result = self.shift_blindly_left(width);
         fix_angles(self, &mut result);
         check_angles(self, &result);
-        Some(result)*/
-        Some(self.shift_blindly_left(width))
+        Some(result)
     }
 
     // Doesn't massage sharp twists into more points. For polygon rendering.
@@ -472,7 +470,7 @@ fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
             );*/
             result.pts.swap(idx, idx + 1);
             // TODO recalculate length, to be safe
-            // Start the fixing over. Make sure we won't infinite loop...
+            // TODO Start the fixing over. but make sure we won't infinite loop...
             //return fix_angles(orig, result);
         }
     }
