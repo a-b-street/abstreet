@@ -1,25 +1,69 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{GfxCtx, Key, Text};
-use geom::Pt2D;
+use geom::{Pt2D, Triangle};
+
+enum Item {
+    Point(Pt2D),
+    Triangle(Triangle),
+}
 
 pub struct DebugPolygon {
-    pts: Vec<Pt2D>,
-    current_pt: usize,
+    items: Vec<Item>,
+    current: usize,
 }
 
 impl DebugPolygon {
     pub fn new(ctx: &mut PluginCtx) -> Option<DebugPolygon> {
-        if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
-            if ctx
-                .input
-                .contextual_action(Key::X, "debug intersection geometry")
-            {
-                return Some(DebugPolygon {
-                    pts: ctx.primary.map.get_i(id).polygon.clone(),
-                    current_pt: 0,
-                });
+        match ctx.primary.current_selection {
+            Some(ID::Intersection(id)) => {
+                if ctx
+                    .input
+                    .contextual_action(Key::X, "debug intersection geometry")
+                {
+                    return Some(DebugPolygon {
+                        items: ctx
+                            .primary
+                            .map
+                            .get_i(id)
+                            .polygon
+                            .iter()
+                            .map(|pt| Item::Point(*pt))
+                            .collect(),
+                        current: 0,
+                    });
+                }
             }
+            Some(ID::Lane(id)) => {
+                if ctx.input.contextual_action(Key::X, "debug lane geometry") {
+                    return Some(DebugPolygon {
+                        items: ctx
+                            .primary
+                            .map
+                            .get_l(id)
+                            .lane_center_pts
+                            .points()
+                            .iter()
+                            .map(|pt| Item::Point(*pt))
+                            .collect(),
+                        current: 0,
+                    });
+                } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
+                    return Some(DebugPolygon {
+                        items: ctx
+                            .primary
+                            .draw_map
+                            .get_l(id)
+                            .polygon
+                            .triangles
+                            .iter()
+                            .map(|tri| Item::Triangle(tri.clone()))
+                            .collect(),
+                        current: 0,
+                    });
+                }
+            }
+            _ => {}
         }
         None
     }
@@ -30,19 +74,26 @@ impl Plugin for DebugPolygon {
         ctx.input.set_mode("Polygon Debugger", &ctx.canvas);
         if ctx.input.modal_action("quit") {
             return false;
-        } else if self.current_pt != self.pts.len() - 1 && ctx.input.modal_action("next point") {
-            self.current_pt += 1;
-        } else if self.current_pt != 0 && ctx.input.modal_action("prev point") {
-            self.current_pt -= 1;
+        } else if self.current != self.items.len() - 1 && ctx.input.modal_action("next item") {
+            self.current += 1;
+        } else if self.current != 0 && ctx.input.modal_action("prev item") {
+            self.current -= 1;
         }
         true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        ctx.canvas.draw_text_at(
-            g,
-            Text::from_line(format!("{}", self.current_pt)),
-            self.pts[self.current_pt],
-        );
+        match self.items[self.current] {
+            Item::Point(pt) => {
+                ctx.canvas
+                    .draw_text_at(g, Text::from_line(format!("{}", self.current)), pt);
+            }
+            Item::Triangle(ref tri) => {
+                for pt in &[tri.pt1, tri.pt2, tri.pt3] {
+                    ctx.canvas
+                        .draw_text_at(g, Text::from_line(format!("{}", self.current)), *pt);
+                }
+            }
+        }
     }
 }

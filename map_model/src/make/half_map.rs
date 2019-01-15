@@ -132,7 +132,7 @@ pub fn make_half_map(
             panic!("{:?} is orphaned!", i);
         }
 
-        i.polygon = make::intersections::initial_intersection_polygon(i, &mut m.roads);
+        i.polygon = make::intersections::intersection_polygon(i, &mut m.roads);
     }
 
     timer.start_iter("make lane geometry", m.lanes.len());

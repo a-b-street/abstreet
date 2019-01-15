@@ -36,6 +36,8 @@ impl Angle {
         self.normalized_radians().to_degrees()
     }
 
+    // Logically this returns [-180, 180], but keep in mind when we print this angle, it'll
+    // normalize to be [0, 360].
     pub fn shortest_rotation_towards(self, other: Angle) -> Angle {
         // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         Angle::new_degs(

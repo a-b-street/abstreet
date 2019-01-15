@@ -153,6 +153,17 @@ pub enum Key {
     UpArrow,
     DownArrow,
     F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
 }
 
 impl Key {
@@ -212,7 +223,18 @@ impl Key {
             | Key::RightArrow
             | Key::UpArrow
             | Key::DownArrow
-            | Key::F1 => None,
+            | Key::F1
+            | Key::F2
+            | Key::F3
+            | Key::F4
+            | Key::F5
+            | Key::F6
+            | Key::F7
+            | Key::F8
+            | Key::F9
+            | Key::F10
+            | Key::F11
+            | Key::F12 => None,
         }
     }
 
@@ -230,6 +252,17 @@ impl Key {
             Key::UpArrow => "↑".to_string(),
             Key::DownArrow => "↓".to_string(),
             Key::F1 => "F1".to_string(),
+            Key::F2 => "F2".to_string(),
+            Key::F3 => "F3".to_string(),
+            Key::F4 => "F4".to_string(),
+            Key::F5 => "F5".to_string(),
+            Key::F6 => "F6".to_string(),
+            Key::F7 => "F7".to_string(),
+            Key::F8 => "F8".to_string(),
+            Key::F9 => "F9".to_string(),
+            Key::F10 => "F10".to_string(),
+            Key::F11 => "F11".to_string(),
+            Key::F12 => "F12".to_string(),
             // These have to_char, but override here
             Key::Space => "Space".to_string(),
             _ => self.to_char(false).unwrap().to_string(),
@@ -298,6 +331,17 @@ impl Key {
             pi::Key::Up => Key::UpArrow,
             pi::Key::Down => Key::DownArrow,
             pi::Key::F1 => Key::F1,
+            pi::Key::F2 => Key::F2,
+            pi::Key::F3 => Key::F3,
+            pi::Key::F4 => Key::F4,
+            pi::Key::F5 => Key::F5,
+            pi::Key::F6 => Key::F6,
+            pi::Key::F7 => Key::F7,
+            pi::Key::F8 => Key::F8,
+            pi::Key::F9 => Key::F9,
+            pi::Key::F10 => Key::F10,
+            pi::Key::F11 => Key::F11,
+            pi::Key::F12 => Key::F12,
             _ => {
                 println!("Unknown piston key {:?}", key);
                 return None;

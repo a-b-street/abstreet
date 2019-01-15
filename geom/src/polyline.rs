@@ -217,14 +217,19 @@ impl PolyLine {
     // Things to remember about shifting polylines: the length before and after probably don't
     // match up.
     pub fn shift_right(&self, width: f64) -> Option<PolyLine> {
-        let result = self.shift_blindly_right(width);
-        // TODO check if any non-adjacent line segments intersect
-        Some(result)
+        /*let mut result = self.shift_blindly_right(width);
+        fix_angles(self, &mut result);
+        check_angles(self, &result);
+        Some(result)*/
+        Some(self.shift_blindly_right(width))
     }
 
     pub fn shift_left(&self, width: f64) -> Option<PolyLine> {
-        let result = self.shift_blindly_left(width);
-        Some(result)
+        /*let mut result = self.shift_blindly_left(width);
+        fix_angles(self, &mut result);
+        check_angles(self, &result);
+        Some(result)*/
+        Some(self.shift_blindly_left(width))
     }
 
     // Doesn't massage sharp twists into more points. For polygon rendering.
@@ -450,3 +455,40 @@ impl fmt::Display for PolyLine {
     result.push(first_pt);
     result.iter().map(|pair| [pair.0, pair.1]).collect()
 }*/
+
+fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
+    // Check that the angles roughly match up between the original and shifted line
+    for (idx, (orig_l, shifted_l)) in orig.lines().iter().zip(result.lines().iter()).enumerate() {
+        let orig_angle = orig_l.angle();
+        let shifted_angle = shifted_l.angle();
+
+        let rot = orig_angle.shortest_rotation_towards(shifted_angle);
+        if rot.normalized_degrees() > 10.0 && rot.normalized_degrees() < 359.0 {
+            // When this happens, the rotation is usually right around 180 -- so try swapping
+            // the points!
+            /*println!(
+                "Points changed angles from {} to {} (rot {})",
+                orig_angle, shifted_angle, rot
+            );*/
+            result.pts.swap(idx, idx + 1);
+            // TODO recalculate length, to be safe
+            // Start the fixing over. Make sure we won't infinite loop...
+            //return fix_angles(orig, result);
+        }
+    }
+}
+
+fn check_angles(a: &PolyLine, b: &PolyLine) {
+    for (orig_l, shifted_l) in a.lines().iter().zip(b.lines().iter()) {
+        let orig_angle = orig_l.angle();
+        let shifted_angle = shifted_l.angle();
+
+        let rot = orig_angle.shortest_rotation_towards(shifted_angle);
+        if rot.normalized_degrees() > 10.0 && rot.normalized_degrees() < 359.0 {
+            println!(
+                "BAD! Points changed angles from {} to {} (rot {})",
+                orig_angle, shifted_angle, rot
+            );
+        }
+    }
+}

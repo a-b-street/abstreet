@@ -174,8 +174,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 "Polygon Debugger",
                 vec![
                     (Key::Enter, "quit"),
-                    (Key::Dot, "next point"),
-                    (Key::Comma, "prev point"),
+                    (Key::Dot, "next item"),
+                    (Key::Comma, "prev item"),
                 ],
             ),
         ]

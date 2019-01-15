@@ -12,7 +12,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
-pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D> {
+pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D> {
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
     // at the intersection (which may be different points for merged intersections!), and the angle
@@ -45,172 +45,136 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
     // we have to look at all the endpoints and sort by angle from the center of the points?
     lines.sort_by_key(|(_, angle, _, _)| angle.normalized_degrees() as i64);
 
-    // Special cases for degenerate intersections.
-    let mut endpoints: Vec<Pt2D> = Vec::new();
-    if lines.len() == 1 {
-        // Dead-ends!
-        let (id, _, pl_a, pl_b) = &lines[0];
-        let pt1 = pl_a
-            .reversed()
-            .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-            .map(|(pt, _)| pt);
-        let pt2 = pl_b
-            .reversed()
-            .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-            .map(|(pt, _)| pt);
-        if pt1.is_some() && pt2.is_some() {
-            endpoints.extend(vec![
-                pt1.unwrap(),
-                pt2.unwrap(),
-                pl_b.last_pt(),
-                pl_a.last_pt(),
-            ]);
+    let mut endpoints = if lines.len() == 1 {
+        deadend(roads, i.id, &lines)
+    } else if lines.len() == 2 {
+        degenerate_twoway(roads, i.id, &lines)
+    } else if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
+        pts
+    } else {
+        /*note(format!(
+            "couldnt make new for {} with {} roads",
+            i.id,
+            lines.len()
+        ));*/
+        make_old_polygon(i.id, &lines)
+    };
 
-            let mut r = &mut roads[id.0];
-            if r.src_i == i.id {
+    // Close off the polygon
+    endpoints.push(endpoints[0]);
+    endpoints
+}
+
+fn deadend(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Vec<Pt2D> {
+    let (id, _, pl_a, pl_b) = &lines[0];
+    let pt1 = pl_a
+        .reversed()
+        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
+        .map(|(pt, _)| pt);
+    let pt2 = pl_b
+        .reversed()
+        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
+        .map(|(pt, _)| pt);
+    if pt1.is_some() && pt2.is_some() {
+        let mut r = &mut roads[id.0];
+        if r.src_i == i {
+            r.center_pts = r
+                .center_pts
+                .slice(
+                    DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                    r.center_pts.length(),
+                )
+                .0;
+        } else {
+            r.center_pts = r
+                .center_pts
+                .slice(
+                    0.0 * si::M,
+                    r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                )
+                .0;
+        }
+
+        vec![pt1.unwrap(), pt2.unwrap(), pl_b.last_pt(), pl_a.last_pt()]
+    } else {
+        error!(
+            "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
+            i, id
+        );
+        vec![pl_a.last_pt(), pl_b.last_pt()]
+    }
+}
+
+fn degenerate_twoway(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Vec<Pt2D> {
+    let (id1, _, pl1_a, pl1_b) = &lines[0];
+    let (id2, _, pl2_a, pl2_b) = &lines[1];
+
+    if roads[id1.0].center_pts.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+        && roads[id2.0].center_pts.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
+    {
+        // Why fix center pts and then re-shift out, instead of use the pl1_a and friends? because
+        // dist_along on shifted polylines is NOT equivalent.
+        let mut endpoints = Vec::new();
+        for road_id in &[id1, id2] {
+            let mut r = &mut roads[road_id.0];
+            if r.src_i == i {
                 r.center_pts = r
                     .center_pts
-                    .slice(
-                        DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                        r.center_pts.length(),
-                    )
+                    .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
                     .0;
+
+                endpoints.push(
+                    r.center_pts
+                        .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
+                        .unwrap()
+                        .first_pt(),
+                );
+                endpoints.push(
+                    r.center_pts
+                        .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
+                        .unwrap()
+                        .first_pt(),
+                );
             } else {
                 r.center_pts = r
                     .center_pts
                     .slice(
                         0.0 * si::M,
-                        r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                        r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
                     )
                     .0;
+                endpoints.push(
+                    r.center_pts
+                        .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
+                        .unwrap()
+                        .last_pt(),
+                );
+                endpoints.push(
+                    r.center_pts
+                        .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
+                        .unwrap()
+                        .last_pt(),
+                );
             }
-        } else {
-            error!("{} is a dead-end for {}, which is too short to make degenerate intersection geometry", i.id, id);
-            endpoints.extend(vec![pl_a.last_pt(), pl_b.last_pt()]);
         }
-    } else if lines.len() == 2 {
-        let (id1, _, pl1_a, pl1_b) = &lines[0];
-        let (id2, _, pl2_a, pl2_b) = &lines[1];
-        if pl1_a.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-            && pl1_b.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-            && pl2_a.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-            && pl2_b.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-        {
-            // We could also add in the last points of each line, but this doesn't actually look
-            // great when widths of the two oads are different.
-            endpoints.extend(vec![
-                pl1_a
-                    .reversed()
-                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
-                    .0,
-                pl1_b
-                    .reversed()
-                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
-                    .0,
-                pl2_a
-                    .reversed()
-                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
-                    .0,
-                pl2_b
-                    .reversed()
-                    .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
-                    .0,
-            ]);
-            endpoints.dedup();
-
-            for road_id in &[id1, id2] {
-                let mut r = &mut roads[road_id.0];
-                if r.src_i == i.id {
-                    r.center_pts = r
-                        .center_pts
-                        .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
-                        .0;
-                } else {
-                    r.center_pts = r
-                        .center_pts
-                        .slice(
-                            0.0 * si::M,
-                            r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-                        )
-                        .0;
-                }
-            }
-        } else {
-            error!("{} has only {} and {}, some of which are too short to make degenerate intersection geometry", i.id, id1, id2);
-            endpoints.extend(vec![
-                pl1_a.last_pt(),
-                pl1_b.last_pt(),
-                pl2_a.last_pt(),
-                pl2_b.last_pt(),
-            ]);
-        }
+        endpoints
     } else {
-        if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
-            endpoints.extend(pts);
-        } else {
-            /*note(format!(
-                "couldnt make new for {} with {} roads",
-                i.id,
-                lines.len()
-            ));*/
-
-            // Look at adjacent pairs of these polylines...
-            for idx1 in 0..lines.len() as isize {
-                let idx2 = idx1 + 1;
-
-                let (id1, _, _, pl1) = wraparound_get(&lines, idx1);
-                let (id2, _, pl2, _) = wraparound_get(&lines, idx2);
-
-                // If the two lines are too close in angle, they'll either not hit or even if they do, it
-                // won't be right.
-                let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
-                    - pl2.last_line().angle().normalized_degrees())
-                .abs();
-
-                // TODO A tuning challenge. :)
-                if angle_diff > 15.0 {
-                    // The easy case!
-                    if let Some((hit, _)) = pl1.intersection(&pl2) {
-                        endpoints.push(hit);
-                        continue;
-                    }
-                }
-
-                let mut ok = true;
-
-                // Use the next adjacent road, doing line to line segment intersection instead.
-                let inf_line1 = wraparound_get(&lines, idx1 - 1).3.last_line();
-                if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
-                    endpoints.push(hit);
-                } else {
-                    endpoints.push(pl1.last_pt());
-                    ok = false;
-                }
-
-                let inf_line2 = wraparound_get(&lines, idx2 + 1).2.last_line();
-                if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
-                    endpoints.push(hit);
-                } else {
-                    endpoints.push(pl2.last_pt());
-                    ok = false;
-                }
-
-                if !ok {
-                    warn!(
-                        "No hit btwn {} and {}, for {} with {} incident roads",
-                        id1,
-                        id2,
-                        i.id,
-                        lines.len()
-                    );
-                }
-            }
-        }
+        error!("{} has only {} and {}, some of which are too short to make degenerate intersection geometry", i, id1, id2);
+        vec![
+            pl1_a.last_pt(),
+            pl1_b.last_pt(),
+            pl2_a.last_pt(),
+            pl2_b.last_pt(),
+        ]
     }
-
-    // Close off the polygon
-    endpoints.push(endpoints[0]);
-    endpoints
 }
 
 fn make_new_polygon(
@@ -335,6 +299,65 @@ fn make_new_polygon(
     }
 
     Some(approx_dedupe(endpoints))
+}
+
+fn make_old_polygon(
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Vec<Pt2D> {
+    let mut endpoints = Vec::new();
+    // Look at adjacent pairs of these polylines...
+    for idx1 in 0..lines.len() as isize {
+        let idx2 = idx1 + 1;
+
+        let (id1, _, _, pl1) = wraparound_get(&lines, idx1);
+        let (id2, _, pl2, _) = wraparound_get(&lines, idx2);
+
+        // If the two lines are too close in angle, they'll either not hit or even if they do, it
+        // won't be right.
+        let angle_diff = (pl1.last_line().angle().opposite().normalized_degrees()
+            - pl2.last_line().angle().normalized_degrees())
+        .abs();
+
+        // TODO A tuning challenge. :)
+        if angle_diff > 15.0 {
+            // The easy case!
+            if let Some((hit, _)) = pl1.intersection(&pl2) {
+                endpoints.push(hit);
+                continue;
+            }
+        }
+
+        let mut ok = true;
+
+        // Use the next adjacent road, doing line to line segment intersection instead.
+        let inf_line1 = wraparound_get(&lines, idx1 - 1).3.last_line();
+        if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
+            endpoints.push(hit);
+        } else {
+            endpoints.push(pl1.last_pt());
+            ok = false;
+        }
+
+        let inf_line2 = wraparound_get(&lines, idx2 + 1).2.last_line();
+        if let Some(hit) = pl2.intersection_infinite_line(inf_line2) {
+            endpoints.push(hit);
+        } else {
+            endpoints.push(pl2.last_pt());
+            ok = false;
+        }
+
+        if !ok {
+            warn!(
+                "No hit btwn {} and {}, for {} with {} incident roads",
+                id1,
+                id2,
+                i,
+                lines.len()
+            );
+        }
+    }
+    endpoints
 }
 
 // Temporary until Pt2D has proper resolution.
