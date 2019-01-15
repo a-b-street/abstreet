@@ -252,7 +252,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
     fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
 
-    fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) {
+    fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
         g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
 
         let ctx = Ctx {
@@ -264,6 +264,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             hints: &hints,
         };
 
+        let mut sample_intersection: Option<String> = None;
         let (statics, dynamics) = self.get_objects_onscreen();
         for obj in statics
             .into_iter()
@@ -277,6 +278,12 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 show_all_detail: screencap,
             };
             obj.draw(g, opts, &ctx);
+
+            if screencap && sample_intersection.is_none() {
+                if let ID::Intersection(id) = obj.get_id() {
+                    sample_intersection = Some(format!("_i{}", id.0));
+                }
+            }
         }
 
         if !screencap {
@@ -287,6 +294,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             self.canvas
                 .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
         }
+
+        sample_intersection
     }
 
     fn dump_before_abort(&self) {

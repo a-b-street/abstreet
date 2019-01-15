@@ -11,7 +11,11 @@ for file in `ls $before | grep -v full.png`; do
 	if [ $? -eq 1 ]; then
 		compare $before/$file $after/$file diff/$file;
 		if [ "$3" == "-i" ]; then
-			ristretto diff/$file $before/$file $after/$file;
+			feh diff/$file $before/$file $after/$file;
+			# Handle interrupts by killing the script entirely
+			if [ $? -ne 0 ]; then
+				exit;
+			fi
 		fi
 	fi
 done

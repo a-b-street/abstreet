@@ -19,8 +19,10 @@ pub trait GUI<T> {
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     // TODO Migrate all callers
     fn draw(&self, g: &mut GfxCtx, data: &T);
-    fn new_draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) {
+    // Return optional naming hint for screencap. TODO This API is getting gross.
+    fn new_draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) -> Option<String> {
         self.draw(g, data);
+        None
     }
     // Will be called if event or draw panics.
     fn dump_before_abort(&self) {}
@@ -174,11 +176,18 @@ impl<T, G: GUI<T>> State<T, G> {
         if let Some(ref data) = self.last_data {
             self.gui.get_mut_canvas().start_drawing(g);
 
-            if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.gui.new_draw(g, data, self.screen_cap.is_some());
+            match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                self.gui.new_draw(g, data, self.screen_cap.is_some())
             })) {
-                self.gui.dump_before_abort();
-                panic::resume_unwind(err);
+                Ok(naming_hint) => {
+                    if let Some(ref mut cap) = self.screen_cap {
+                        cap.naming_hint = naming_hint;
+                    }
+                }
+                Err(err) => {
+                    self.gui.dump_before_abort();
+                    panic::resume_unwind(err);
+                }
             }
 
             if self.screen_cap.is_none() {
@@ -202,14 +211,13 @@ impl<T, G: GUI<T>> State<T, G> {
         // seem to work...
         if let Some(ref mut cap) = self.screen_cap {
             cap.timer.next();
+            let suffix = cap.naming_hint.take().unwrap_or_else(String::new);
+            let filename = format!(
+                "screencap/{:02}x{:02}{}.png",
+                cap.tile_x, cap.tile_y, suffix
+            );
             if !process::Command::new("scrot")
-                .args(&[
-                    "--quality",
-                    "100",
-                    "--focused",
-                    "--silent",
-                    &format!("screencap/{:02}x{:02}.png", cap.tile_x, cap.tile_y),
-                ])
+                .args(&["--quality", "100", "--focused", "--silent", &filename])
                 .status()
                 .unwrap()
                 .success()
@@ -218,6 +226,7 @@ impl<T, G: GUI<T>> State<T, G> {
                 self.screen_cap = None;
                 return;
             }
+            cap.filenames.push(filename);
 
             let canvas = self.gui.get_mut_canvas();
             cap.tile_x += 1;
@@ -243,6 +252,8 @@ struct ScreenCaptureState {
     tile_x: usize,
     tile_y: usize,
     timer: Timer,
+    naming_hint: Option<String>,
+    filenames: Vec<String>,
 
     num_tiles_x: usize,
     num_tiles_y: usize,
@@ -264,6 +275,8 @@ impl ScreenCaptureState {
             tile_x: 1,
             tile_y: 1,
             timer,
+            naming_hint: None,
+            filenames: Vec::new(),
             num_tiles_x,
             num_tiles_y,
             max_x,
@@ -280,12 +293,7 @@ impl ScreenCaptureState {
 
     fn combine(mut self) {
         self.timer.start("combining tiles");
-        let mut args = Vec::new();
-        for y in 1..=self.num_tiles_y {
-            for x in 1..=self.num_tiles_x {
-                args.push(format!("screencap/{:02}x{:02}.png", x, y));
-            }
-        }
+        let mut args = self.filenames;
         args.push("-mode".to_string());
         args.push("Concatenate".to_string());
         args.push("-tile".to_string());
