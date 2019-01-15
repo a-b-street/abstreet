@@ -103,7 +103,7 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
                     .reversed()
                     .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
                     .0,
-                pl2_b
+                pl1_b
                     .reversed()
                     .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
                     .0,
@@ -111,7 +111,7 @@ pub fn initial_intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> 
                     .reversed()
                     .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
                     .0,
-                pl1_b
+                pl2_b
                     .reversed()
                     .dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH)
                     .0,
