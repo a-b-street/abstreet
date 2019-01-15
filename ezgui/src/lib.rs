@@ -77,7 +77,7 @@ impl<'a> GfxCtx<'a> {
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
     pub fn draw_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
-        self.draw_polygon(color, &line.to_polyline().make_polygons_blindly(thickness));
+        self.draw_polygon(color, &line.to_polyline().make_polygons(thickness));
     }
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {

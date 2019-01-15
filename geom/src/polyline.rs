@@ -22,8 +22,6 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    // TODO copy or mut?
-    // TODO this is likely not needed if we just have a way to shift in the other direction
     pub fn reversed(&self) -> PolyLine {
         let mut pts = self.pts.clone();
         pts.reverse();
@@ -152,86 +150,24 @@ impl PolyLine {
         Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
     }
 
-    // Doesn't check if the result is valid
-    pub fn shift_blindly_right(&self, width: f64) -> PolyLine {
-        // TODO Grrr, the new algorithm actually breaks pretty badly on medium. Disable it for now.
-        self.shift_blindly_with_sharp_angles(width)
-
-        /*if self.pts.len() == 2 {
-            let l = Line::new(self.pts[0], self.pts[1]).shift_right(width);
-            return l.to_polyline();
-        }
-
-        let mut result: Vec<Pt2D> = Vec::new();
-
-        let mut pt3_idx = 2;
-        let mut pt1_raw = self.pts[0];
-        let mut pt2_raw = self.pts[1];
-
-        loop {
-            let pt3_raw = self.pts[pt3_idx];
-
-            let l1 = Line::new(pt1_raw, pt2_raw).shift_right(width);
-            let l2 = Line::new(pt2_raw, pt3_raw).shift_right(width);
-            // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
-            // original geometry is redundant.
-            let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
-
-            if pt3_idx == 2 {
-                result.push(l1.pt1());
-            }
-
-            // If the two line SEGMENTS intersected, then just use that one point.
-            if l1.intersects(&l2) {
-                result.push(pt2_shift);
-            } else {
-                // Otherwise, the line intersection will occur farther than width away from the
-                // original pt2_raw. At various angles, this explodes out way too much. So insert a
-                // few points to make the corner nicer.
-                result.push(l1.pt2());
-                result.push(Line::new(pt2_raw, pt2_shift).dist_along(width * si::M));
-                result.push(l2.pt1());
-            }
-
-            if pt3_idx == self.pts.len() - 1 {
-                result.push(l2.pt2());
-                break;
-            }
-
-            pt1_raw = pt2_raw;
-            pt2_raw = pt3_raw;
-            pt3_idx += 1;
-        }
-
-        // Might have extra points to handle sharp bends
-        assert!(result.len() >= self.pts.len());
-        PolyLine::new(result)*/
-    }
-
-    pub fn shift_blindly_left(&self, width: f64) -> PolyLine {
-        self.shift_blindly_with_sharp_angles(-width)
-    }
-
-    // Shifting might fail if the requested width doesn't fit in tight angles between points in the
-    // polyline.
-    // Things to remember about shifting polylines: the length before and after probably don't
-    // match up.
-    pub fn shift_right(&self, width: f64) -> Option<PolyLine> {
-        let mut result = self.shift_blindly_right(width);
+    // Things to remember about shifting polylines:
+    // - the length before and after probably don't match up
+    // - the number of points does match
+    pub fn shift_right(&self, width: f64) -> PolyLine {
+        let mut result = self.shift_with_sharp_angles(width);
         fix_angles(self, &mut result);
         check_angles(self, &result);
-        Some(result)
+        result
     }
 
-    pub fn shift_left(&self, width: f64) -> Option<PolyLine> {
-        let mut result = self.shift_blindly_left(width);
+    pub fn shift_left(&self, width: f64) -> PolyLine {
+        let mut result = self.shift_with_sharp_angles(-width);
         fix_angles(self, &mut result);
         check_angles(self, &result);
-        Some(result)
+        result
     }
 
-    // Doesn't massage sharp twists into more points. For polygon rendering.
-    fn shift_blindly_with_sharp_angles(&self, width: f64) -> PolyLine {
+    fn shift_with_sharp_angles(&self, width: f64) -> PolyLine {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return l.to_polyline();
@@ -270,45 +206,11 @@ impl PolyLine {
         PolyLine::new(result)
     }
 
-    // Doesn't massage sharp twists into more points. For polygon rendering. Shifting might fail if
-    // the requested width doesn't fit in tight angles between points in the polyline.
-    fn shift_with_sharp_angles(&self, width: f64) -> Option<PolyLine> {
-        let result = if width >= 0.0 {
-            self.shift_blindly_right(width)
-        } else {
-            self.shift_blindly_left(width)
-        };
+    pub fn make_polygons(&self, width: f64) -> Polygon {
+        // TODO Don't use the angle corrections yet -- they seem to do weird things.
+        let side1 = self.shift_with_sharp_angles(width / 2.0);
+        let side2 = self.shift_with_sharp_angles(-width / 2.0);
 
-        // Check that the angles roughly match up between the original and shifted line
-        for (orig_l, shifted_l) in self.lines().iter().zip(result.lines().iter()) {
-            let orig_angle = orig_l.angle().normalized_degrees();
-            let shifted_angle = shifted_l.angle().normalized_degrees();
-            let delta = (shifted_angle - orig_angle).abs();
-            if delta > 0.00001 {
-                /*println!(
-                    "Points changed angles from {} to {}",
-                    orig_angle, shifted_angle
-                );*/
-                return None;
-            }
-        }
-        Some(result)
-    }
-
-    // This could fail by needing too much width for sharp angles
-    pub fn make_polygons(&self, width: f64) -> Option<Polygon> {
-        let side1 = self.shift_with_sharp_angles(width / 2.0)?;
-        let side2 = self.shift_with_sharp_angles(-width / 2.0)?;
-        Some(self.polygons_from_sides(&side1, &side2))
-    }
-
-    pub fn make_polygons_blindly(&self, width: f64) -> Polygon {
-        let side1 = self.shift_blindly_with_sharp_angles(width / 2.0);
-        let side2 = self.shift_blindly_with_sharp_angles(-width / 2.0);
-        self.polygons_from_sides(&side1, &side2)
-    }
-
-    fn polygons_from_sides(&self, side1: &PolyLine, side2: &PolyLine) -> Polygon {
         let mut poly = Polygon {
             triangles: Vec::new(),
         };
@@ -344,11 +246,7 @@ impl PolyLine {
                 break;
             }
 
-            polygons.push(
-                self.slice(start, start + dash_len)
-                    .0
-                    .make_polygons_blindly(width),
-            );
+            polygons.push(self.slice(start, start + dash_len).0.make_polygons(width));
             start += dash_len + dash_separation;
         }
 
@@ -441,18 +339,6 @@ impl fmt::Display for PolyLine {
         write!(f, "])")
     }
 }
-
-// TODO unsure why this doesn't work. maybe see if mouse is inside polygon to check it out?
-/*fn polygon_for_polyline(center_pts: &Vec<(f64, f64)>, width: f64) -> Vec<[f64; 2]> {
-    let mut result = shift_polyline(width / 2.0, center_pts);
-    let mut reversed_center_pts = center_pts.clone();
-    reversed_center_pts.reverse();
-    result.extend(shift_polyline(width / 2.0, &reversed_center_pts));
-    // TODO unclear if piston needs last point to match the first or not
-    let first_pt = result[0];
-    result.push(first_pt);
-    result.iter().map(|pair| [pair.0, pair.1]).collect()
-}*/
 
 fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
     // Check that the angles roughly match up between the original and shifted line

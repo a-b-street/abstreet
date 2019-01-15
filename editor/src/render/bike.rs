@@ -17,13 +17,11 @@ pub struct DrawBike {
 
 impl DrawBike {
     pub fn new(input: DrawCarInput) -> DrawBike {
-        let stopping_buffer = input
-            .stopping_trace
-            .map(|t| t.make_polygons_blindly(BIKE_WIDTH));
+        let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(BIKE_WIDTH));
 
         DrawBike {
             id: input.id,
-            polygon: input.body.make_polygons_blindly(BIKE_WIDTH),
+            polygon: input.body.make_polygons(BIKE_WIDTH),
             stopping_buffer,
             state: input.state,
         }

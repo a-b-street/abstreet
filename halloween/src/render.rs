@@ -77,7 +77,7 @@ impl DrawRoad {
             id: r.id,
             polygon: r
                 .center_pts
-                .make_polygons_blindly(LANE_THICKNESS * (num_lanes as f64)),
+                .make_polygons(LANE_THICKNESS * (num_lanes as f64)),
         }
     }
 

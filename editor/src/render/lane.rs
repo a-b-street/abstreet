@@ -26,7 +26,7 @@ pub struct DrawLane {
 impl DrawLane {
     pub fn new(lane: &Lane, map: &Map) -> DrawLane {
         let road = map.get_r(lane.parent);
-        let polygon = lane.lane_center_pts.make_polygons_blindly(LANE_THICKNESS);
+        let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
@@ -105,9 +105,6 @@ impl Renderable for DrawLane {
         let color = opts.color.unwrap_or_else(|| {
             let l = ctx.map.get_l(self.id);
             match l.lane_type {
-                _ if l.probably_broken => {
-                    ctx.cs.get_def("broken lane", Color::rgb_f(1.0, 0.0, 0.565))
-                }
                 LaneType::Driving => ctx.cs.get_def("driving lane", Color::BLACK),
                 LaneType::Bus => ctx.cs.get_def("bus lane", Color::rgb(190, 74, 76)),
                 LaneType::Parking => ctx.cs.get_def("parking lane", Color::grey(0.2)),
@@ -209,9 +206,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
     let dash_separation = 1.5 * si::M;
     let dash_len = 1.0 * si::M;
 
-    let lane_edge_pts = lane
-        .lane_center_pts
-        .shift_blindly_left(LANE_THICKNESS / 2.0);
+    let lane_edge_pts = lane.lane_center_pts.shift_left(LANE_THICKNESS / 2.0);
     if lane_edge_pts.length() < 2.0 * dash_separation {
         return None;
     }
@@ -293,7 +288,7 @@ fn turn_markings(turn: &Turn, map: &Map) -> Option<Marking> {
         .lane_center_pts
         .slice(len - 7.0 * si::M, len - 5.0 * si::M)
         .0;
-    let base_polygon = common_base.make_polygons_blindly(0.1);
+    let base_polygon = common_base.make_polygons(0.1);
     let turn_line = Line::new(
         common_base.last_pt(),
         common_base

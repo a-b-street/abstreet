@@ -36,14 +36,12 @@ impl DrawCar {
             (false, false)
         };
 
-        let stopping_buffer = input
-            .stopping_trace
-            .map(|t| t.make_polygons_blindly(CAR_WIDTH));
+        let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(CAR_WIDTH));
 
         if input.body.length() < MIN_CAR_LENGTH {
             return DrawCar {
                 id: input.id,
-                body_polygon: input.body.make_polygons_blindly(CAR_WIDTH),
+                body_polygon: input.body.make_polygons(CAR_WIDTH),
                 window_polygons: Vec::new(),
                 left_blinkers: None,
                 right_blinkers: None,
@@ -88,7 +86,7 @@ impl DrawCar {
 
         DrawCar {
             id: input.id,
-            body_polygon: input.body.make_polygons_blindly(CAR_WIDTH),
+            body_polygon: input.body.make_polygons(CAR_WIDTH),
             window_polygons: vec![front_window, back_window],
             left_blinkers: Some((
                 Circle::new(
@@ -209,5 +207,5 @@ impl Renderable for DrawCar {
 fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: Angle) -> Polygon {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
-    PolyLine::new(vec![pt, pt2]).make_polygons_blindly(thickness)
+    PolyLine::new(vec![pt, pt2]).make_polygons(thickness)
 }

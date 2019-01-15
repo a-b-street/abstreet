@@ -97,7 +97,6 @@ pub fn make_half_map(
                 id,
                 // Temporary dummy value; this'll be calculated a bit later.
                 lane_center_pts: road_center_pts.clone(),
-                probably_broken: false,
                 src_i,
                 dst_i,
                 lane_type: lane.lane_type,
@@ -151,13 +150,7 @@ pub fn make_half_map(
         // TODO need to factor in yellow center lines (but what's the right thing to even do?
         // Reverse points for British-style driving on the left
         let width = LANE_THICKNESS * (0.5 + (offset as f64));
-        let (lane_center_pts, probably_broken) = match unshifted_pts.shift_right(width) {
-            Some(pts) => (pts, false),
-            // TODO wasteful to calculate again, but eh
-            None => (unshifted_pts.shift_blindly_right(width), true),
-        };
-        l.lane_center_pts = lane_center_pts;
-        l.probably_broken = probably_broken;
+        l.lane_center_pts = unshifted_pts.shift_right(width);
     }
 
     for i in m.intersections.iter_mut() {

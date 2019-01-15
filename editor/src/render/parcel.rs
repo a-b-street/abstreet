@@ -37,7 +37,7 @@ impl DrawParcel {
         DrawParcel {
             id: p.id,
             boundary_polygon: PolyLine::new(p.points.clone())
-                .make_polygons_blindly(PARCEL_BOUNDARY_THICKNESS),
+                .make_polygons(PARCEL_BOUNDARY_THICKNESS),
             fill_polygon: Polygon::new(&p.points),
         }
     }

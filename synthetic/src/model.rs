@@ -71,12 +71,10 @@ impl Road {
         ]);
         if direction {
             let width = LANE_THICKNESS * (self.lanes.fwd.len() as f64);
-            pl.shift_blindly_right(width / 2.0)
-                .make_polygons_blindly(width)
+            pl.shift_right(width / 2.0).make_polygons(width)
         } else {
             let width = LANE_THICKNESS * (self.lanes.back.len() as f64);
-            pl.shift_blindly_left(width / 2.0)
-                .make_polygons_blindly(width)
+            pl.shift_left(width / 2.0).make_polygons(width)
         }
     }
 
@@ -95,8 +93,8 @@ impl Road {
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             let polygon = base
-                .shift_blindly_right(((idx as f64) + 0.5) * LANE_THICKNESS)
-                .make_polygons_blindly(LANE_THICKNESS);
+                .shift_right(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_fwd {
                     HIGHLIGHT_COLOR
@@ -108,8 +106,8 @@ impl Road {
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let polygon = base
-                .shift_blindly_left(((idx as f64) + 0.5) * LANE_THICKNESS)
-                .make_polygons_blindly(LANE_THICKNESS);
+                .shift_left(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_back {
                     HIGHLIGHT_COLOR
@@ -120,10 +118,7 @@ impl Road {
             );
         }
 
-        g.draw_polygon(
-            Color::YELLOW,
-            &base.make_polygons_blindly(CENTER_LINE_THICKNESS),
-        );
+        g.draw_polygon(Color::YELLOW, &base.make_polygons(CENTER_LINE_THICKNESS));
 
         if let Some(ref label) = self.fwd_label {
             canvas.draw_text_at(

@@ -41,10 +41,6 @@ pub struct Lane {
     pub lane_type: LaneType,
     pub lane_center_pts: PolyLine,
 
-    // Remember that lane_center_pts and derived geometry is probably broken. Might be better to
-    // use this breakage to infer that a road doesn't have so many lanes.
-    pub probably_broken: bool,
-
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 

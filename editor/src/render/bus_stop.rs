@@ -27,7 +27,7 @@ impl DrawBusStop {
                 .map(|(pt, _)| pt)
                 .unwrap_or_else(|| lane.last_pt()),
         ])
-        .make_polygons_blindly(0.8 * LANE_THICKNESS);
+        .make_polygons(0.8 * LANE_THICKNESS);
         DrawBusStop {
             id: stop.id,
             polygon,

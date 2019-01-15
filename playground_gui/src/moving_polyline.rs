@@ -34,36 +34,25 @@ pub fn run(p3_offset: (f64, f64), g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String
 
     draw_polyline(g, &pts, thick, RED);
 
-    if let Some(poly) = pts.make_polygons(shift_away) {
-        g.draw_polygon(BLACK, &poly);
-    }
+    g.draw_polygon(BLACK, &pts.make_polygons(shift_away));
 
     // Two lanes on one side of the road
-    if let Some(l1_pts) = pts.shift_right(shift_away) {
-        for (idx, pt) in l1_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l1_p{}", idx + 1)));
-        }
-        draw_polyline(g, &l1_pts, thin, GREEN);
-    } else {
-        println!("l1_pts borked");
+    let l1_pts = pts.shift_right(shift_away);
+    for (idx, pt) in l1_pts.points().iter().enumerate() {
+        labels.push((*pt, format!("l1_p{}", idx + 1)));
     }
+    draw_polyline(g, &l1_pts, thin, GREEN);
 
-    if let Some(l2_pts) = pts.shift_right(shift_away * 2.0) {
-        for (idx, pt) in l2_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l2_p{}", idx + 1)));
-        }
-        draw_polyline(g, &l2_pts, thin, GREEN);
-    } else {
-        println!("l2_pts borked");
+    let l2_pts = pts.shift_right(shift_away * 2.0);
+    for (idx, pt) in l2_pts.points().iter().enumerate() {
+        labels.push((*pt, format!("l2_p{}", idx + 1)));
     }
+    draw_polyline(g, &l2_pts, thin, GREEN);
 
     // Other side
-    if let Some(l3_pts) = pts.reversed().shift_right(shift_away) {
-        for (idx, pt) in l3_pts.points().iter().enumerate() {
-            labels.push((*pt, format!("l3_p{}", idx + 1)));
-        }
-        draw_polyline(g, &l3_pts, thin, BLUE);
-    } else {
-        println!("l3_pts borked");
+    let l3_pts = pts.reversed().shift_right(shift_away);
+    for (idx, pt) in l3_pts.points().iter().enumerate() {
+        labels.push((*pt, format!("l3_p{}", idx + 1)));
     }
+    draw_polyline(g, &l3_pts, thin, BLUE);
 }

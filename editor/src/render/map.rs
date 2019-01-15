@@ -81,14 +81,8 @@ impl DrawMap {
             let mut closest: FindClosest<(RoadID, bool)> =
                 map_model::FindClosest::new(&map.get_bounds());
             for r in map.all_roads().iter() {
-                closest.add(
-                    (r.id, true),
-                    &r.center_pts.shift_blindly_right(LANE_THICKNESS),
-                );
-                closest.add(
-                    (r.id, false),
-                    &r.center_pts.shift_blindly_left(LANE_THICKNESS),
-                );
+                closest.add((r.id, true), &r.center_pts.shift_right(LANE_THICKNESS));
+                closest.add((r.id, false), &r.center_pts.shift_left(LANE_THICKNESS));
             }
 
             let gps_bounds = map.get_gps_bounds();

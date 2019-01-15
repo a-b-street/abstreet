@@ -33,8 +33,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
 
-            let pl_normal = line.shift_right(width_normal).unwrap();
-            let pl_reverse = line.shift_left(width_reverse).unwrap();
+            let pl_normal = line.shift_right(width_normal);
+            let pl_reverse = line.shift_left(width_reverse);
             (*id, line.last_line().angle(), pl_normal, pl_reverse)
         })
         .collect();
@@ -134,13 +134,11 @@ fn degenerate_twoway(
                 endpoints.push(
                     r.center_pts
                         .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                        .unwrap()
                         .first_pt(),
                 );
                 endpoints.push(
                     r.center_pts
                         .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                        .unwrap()
                         .first_pt(),
                 );
             } else {
@@ -154,13 +152,11 @@ fn degenerate_twoway(
                 endpoints.push(
                     r.center_pts
                         .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                        .unwrap()
                         .last_pt(),
                 );
                 endpoints.push(
                     r.center_pts
                         .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                        .unwrap()
                         .last_pt(),
                 );
             }
@@ -283,8 +279,8 @@ fn make_new_polygon(
             r.center_pts = shorter_center.clone();
             (fwd_width, back_width)
         };
-        let pl_normal = shorter_center.shift_right(width_normal).unwrap();
-        let pl_reverse = shorter_center.shift_left(width_reverse).unwrap();
+        let pl_normal = shorter_center.shift_right(width_normal);
+        let pl_reverse = shorter_center.shift_left(width_reverse);
 
         // Toss in the original corners, so the intersection polygon doesn't cover area not
         // originally covered by the thick road bands.

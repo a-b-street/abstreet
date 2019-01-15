@@ -62,20 +62,12 @@ impl DrawExtraShape {
             let road = closest
                 .closest_pt(pl.middle(), 5.0 * LANE_THICKNESS * si::M)
                 .map(|(r, _)| r);
-            if let Some(p) = pl.make_polygons(width) {
-                Some(DrawExtraShape {
-                    id,
-                    shape: Shape::Polygon(p),
-                    attributes: s.attributes,
-                    road,
-                })
-            } else {
-                warn!(
-                    "Discarding ExtraShape because its geometry was broken: {:?}",
-                    s.attributes
-                );
-                None
-            }
+            Some(DrawExtraShape {
+                id,
+                shape: Shape::Polygon(pl.make_polygons(width)),
+                attributes: s.attributes,
+                road,
+            })
         }
     }
 

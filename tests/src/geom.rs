@@ -49,7 +49,7 @@ pub fn run(t: &mut TestRunner) {
 
             assert_eq!(
                 PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift_right(width),
-                Some(PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s]))
+                PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s])
             );
         }),
     );
@@ -66,7 +66,7 @@ pub fn run(t: &mut TestRunner) {
 
             assert_eq!(
                 PolyLine::new(vec![pt1, pt2]).shift_right(width),
-                Some(l.to_polyline())
+                l.to_polyline()
             );
         }),
     );

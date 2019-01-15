@@ -42,6 +42,6 @@ impl Area {
         if self.points[0] == *self.points.last().unwrap() {
             return Polygon::new(&self.points);
         }
-        PolyLine::new(self.points.clone()).make_polygons_blindly(LANE_THICKNESS)
+        PolyLine::new(self.points.clone()).make_polygons(LANE_THICKNESS)
     }
 }

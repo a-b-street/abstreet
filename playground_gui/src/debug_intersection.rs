@@ -34,14 +34,14 @@ pub fn run(g: &mut GfxCtx) {
         (north_yellow, RelatedColors::new(0.0, 1.0, 0.0)),
         (south_yellow, RelatedColors::new(0.0, 0.0, 1.0)),
     ] {
-        let lane1_in = yellow_line.shift_right(shift1_width).unwrap();
+        let lane1_in = yellow_line.shift_right(shift1_width);
         draw_lane(g, &lane1_in, colors.next().unwrap());
-        let lane2_in = yellow_line.shift_right(shift2_width).unwrap();
+        let lane2_in = yellow_line.shift_right(shift2_width);
         draw_lane(g, &lane2_in, colors.next().unwrap());
 
-        let lane1_out = yellow_line.reversed().shift_right(shift1_width).unwrap();
+        let lane1_out = yellow_line.reversed().shift_right(shift1_width);
         draw_lane(g, &lane1_out, colors.next().unwrap());
-        let lane2_out = yellow_line.reversed().shift_right(shift2_width).unwrap();
+        let lane2_out = yellow_line.reversed().shift_right(shift2_width);
         draw_lane(g, &lane2_out, colors.next().unwrap());
 
         draw_polyline(g, &yellow_line, thin, YELLOW);
@@ -77,7 +77,7 @@ impl Iterator for RelatedColors {
 }
 
 pub fn draw_lane(g: &mut GfxCtx, pl: &PolyLine, color: Color) {
-    g.draw_polygon(color, &pl.make_polygons(LANE_THICKNESS).unwrap());
+    g.draw_polygon(color, &pl.make_polygons(LANE_THICKNESS));
 
     // Debug the center points
     draw_polyline(g, pl, 0.25, SOLID_BLACK);

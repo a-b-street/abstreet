@@ -44,7 +44,7 @@ impl DrawTurn {
         // TODO This is hiding a real problem... some composite turns probably need to have their
         // geometry simplified a bit.
         if let Some(pl) = t.geom.without_last_line() {
-            g.draw_polygon(color, &pl.make_polygons_blindly(2.0 * BIG_ARROW_THICKNESS));
+            g.draw_polygon(color, &pl.make_polygons(2.0 * BIG_ARROW_THICKNESS));
         }
         // And a cap on the arrow
         g.draw_arrow(color, BIG_ARROW_THICKNESS, &t.geom.last_line());
