@@ -6,6 +6,8 @@ use generator::done;
 use geo;
 use geo::prelude::Intersects;
 use geom::Polygon;
+use map_model::{LaneType, Map, RoadID};
+use std::collections::BTreeSet;
 
 // Eventually this should be part of an interactive map fixing pipeline. Find problems, jump to
 // them, ask for the resolution, record it.
@@ -17,6 +19,8 @@ pub struct Validator {
 impl Validator {
     pub fn new(ctx: &mut PluginCtx) -> Option<Validator> {
         if ctx.input.action_chosen("validate map geometry") {
+            // TODO Kinda temporarily stuck here for convenience
+            list_problems(&ctx.primary.map);
             return Some(Validator::start(&ctx.primary.draw_map));
         }
         None
@@ -119,4 +123,71 @@ fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
         result.push(geo::Polygon::new(exterior.into(), Vec::new()));
     }
     result
+}
+
+fn list_problems(map: &Map) {
+    for i in map.all_intersections() {
+        if !i.is_degenerate() {
+            continue;
+        }
+        let road_ids: Vec<RoadID> = i.roads.iter().cloned().collect();
+        let r1 = map.get_r(road_ids[0]);
+        let r2 = map.get_r(road_ids[1]);
+
+        if r1
+            .incoming_lanes(i.id)
+            .iter()
+            .map(|(_, lt)| *lt)
+            .collect::<Vec<LaneType>>()
+            != r2
+                .outgoing_lanes(i.id)
+                .iter()
+                .map(|(_, lt)| *lt)
+                .collect::<Vec<LaneType>>()
+        {
+            continue;
+        }
+        if r1
+            .outgoing_lanes(i.id)
+            .iter()
+            .map(|(_, lt)| *lt)
+            .collect::<Vec<LaneType>>()
+            != r2
+                .incoming_lanes(i.id)
+                .iter()
+                .map(|(_, lt)| *lt)
+                .collect::<Vec<LaneType>>()
+        {
+            continue;
+        }
+
+        error!(
+            "{} may be collapsible. OSM ways {} vs {}",
+            i.id, r1.osm_way_id, r2.osm_way_id
+        );
+
+        let tags1: BTreeSet<(&String, &String)> = r1.osm_tags.iter().collect();
+        let tags2: BTreeSet<(&String, &String)> = r2.osm_tags.iter().collect();
+        let common = tags1.intersection(&tags2).cloned().collect();
+        for (k, v) in tags1.difference(&common) {
+            if k.starts_with("tiger:")
+                || k.starts_with("old_name:")
+                || k.starts_with("destination")
+                || k == &"source"
+            {
+                continue;
+            }
+            error!("  only {} has: {} = {}", r1.id, k, v);
+        }
+        for (k, v) in tags2.difference(&common) {
+            if k.starts_with("tiger:")
+                || k.starts_with("old_name:")
+                || k.starts_with("destination")
+                || k == &"source"
+            {
+                continue;
+            }
+            error!("  only {} has: {} = {}", r2.id, k, v);
+        }
+    }
 }
