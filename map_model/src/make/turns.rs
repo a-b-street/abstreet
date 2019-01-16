@@ -4,7 +4,7 @@ use crate::{
 };
 use abstutil::wraparound_get;
 use dimensioned::si;
-use geom::{Angle, Line, PolyLine, Pt2D};
+use geom::{Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
@@ -195,32 +195,31 @@ fn make_vehicle_turns_for_dead_end(
 fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lane>) -> Vec<Turn> {
     // Sort roads by the angle into the intersection, so we can reason about sidewalks of adjacent
     // roads.
-    let mut roads: Vec<(&Road, Angle)> = i
-        .roads
-        .iter()
-        .map(|id| {
-            let r = all_roads[id.0];
-
-            if r.src_i == i.id {
-                (r, r.center_pts.reversed().last_line().angle())
-            } else if r.dst_i == i.id {
-                (r, r.center_pts.last_line().angle())
-            } else {
-                panic!(
-                    "Incident road {} doesn't have an endpoint at {}",
-                    r.id, i.id
-                );
-            }
-        })
-        .collect();
-    roads.sort_by_key(|(_, angle)| angle.normalized_degrees() as i64);
+    let mut roads: Vec<&Road> = i.roads.iter().map(|id| all_roads[id.0]).collect();
+    roads.sort_by_key(|r| {
+        if r.src_i == i.id {
+            r.center_pts
+                .reversed()
+                .last_line()
+                .angle()
+                .normalized_degrees() as i64
+        } else if r.dst_i == i.id {
+            r.center_pts.last_line().angle().normalized_degrees() as i64
+        } else {
+            panic!(
+                "Incident road {} doesn't have an endpoint at {}",
+                r.id, i.id
+            );
+        }
+    });
 
     let mut result: Vec<Turn> = Vec::new();
 
     for idx1 in 0..roads.len() as isize {
-        if let Some(l1) = get_incoming_sidewalk(wraparound_get(&roads, idx1).0, lanes, i.id) {
+        if let Some(l1) = get_sidewalk(lanes, wraparound_get(&roads, idx1).incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
-            if let Some(l2) = get_outgoing_sidewalk(wraparound_get(&roads, idx1).0, lanes, i.id) {
+            if let Some(l2) = get_sidewalk(lanes, wraparound_get(&roads, idx1).outgoing_lanes(i.id))
+            {
                 // Jut out a bit into the intersection, cross over, then jut back in.
                 let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
                 let geom_fwds =
@@ -244,7 +243,7 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
             if roads.len() > 1 {
                 // TODO -1 and not +1 is brittle... must be the angle sorting
                 if let Some(l3) =
-                    get_outgoing_sidewalk(wraparound_get(&roads, idx1 - 1).0, lanes, i.id)
+                    get_sidewalk(lanes, wraparound_get(&roads, idx1 - 1).outgoing_lanes(i.id))
                 {
                     result.push(Turn {
                         id: turn_id(i.id, l1.id, l3.id),
@@ -268,22 +267,6 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
-}
-
-fn get_incoming_sidewalk<'a>(
-    road: &Road,
-    lanes: &'a Vec<&Lane>,
-    i: IntersectionID,
-) -> Option<&'a Lane> {
-    get_sidewalk(lanes, road.incoming_lanes(i))
-}
-
-fn get_outgoing_sidewalk<'a>(
-    road: &Road,
-    lanes: &'a Vec<&Lane>,
-    i: IntersectionID,
-) -> Option<&'a Lane> {
-    get_sidewalk(lanes, road.outgoing_lanes(i))
 }
 
 fn get_sidewalk<'a>(lanes: &'a Vec<&Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
