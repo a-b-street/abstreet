@@ -95,3 +95,5 @@ for poly in `ls ../data/polygons/`; do
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--output=../data/raw_maps/$name.abst
 done
+
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --parcels=../data/shapes/parcels --parking_shapes=../data/shapes/blockface --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --output=../data/raw_maps/montlake.abst --fast_dev

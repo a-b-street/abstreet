@@ -17,6 +17,7 @@
 - https://www.reddit.com/r/openstreetmap/comments/a39uv0/ok_so/
 - https://mic.comotion.uw.edu/
 - https://www.seattleinprogress.com/
+- http://www.seattle.gov/seattle-pedestrian-advisory-board
 
 ## Similar projects
 

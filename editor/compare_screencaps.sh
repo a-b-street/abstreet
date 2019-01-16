@@ -6,7 +6,7 @@ after=$2;
 rm -rf diff
 mkdir diff
 
-for file in `ls $before | grep -v full.png`; do
+for file in `ls $before | grep -v full.png | grep -v combine.sh`; do
 	diff $before/$file $after/$file;
 	if [ $? -eq 1 ]; then
 		compare $before/$file $after/$file diff/$file;

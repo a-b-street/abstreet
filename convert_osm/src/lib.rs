@@ -50,14 +50,22 @@ pub struct Flags {
     /// Output .abst path
     #[structopt(long = "output")]
     pub output: String,
+
+    /// Disable parcels and blockface
+    #[structopt(long = "fast_dev")]
+    pub fast_dev: bool,
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
     let raw_map = osm::osm_to_raw_roads(&flags.osm, timer);
-    let mut map = split_ways::split_up_roads(&raw_map, &elevation);
+    let mut map = split_ways::split_up_roads(raw_map, &elevation);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
     let gps_bounds = map.get_gps_bounds();
+
+    if flags.fast_dev {
+        return map;
+    }
 
     println!("Loading blockface shapes from {}", flags.parking_shapes);
     let parking_shapes: ExtraShapes =

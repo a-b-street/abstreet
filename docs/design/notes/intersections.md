@@ -162,3 +162,22 @@ Shelby and 23rd...
 
 Traffic signal changes can happen live, because weird changes will just look
 like brief blips of overtime. Same for stop signs, I think...
+
+## Roundabouts
+
+Make em look nice.
+
+- 26th and Boyer (i333)
+	- there's a single highway=residential, junction=roundabout way
+	- find all the other ways incident to it
+	- the road splitting we do in convert_osm isn't appropriate at all
+	- geometrically, this could just be a single intersection
+	- could hint that it's a roundabout and make new turns later, or cheat and treat it as an all-way stop sign for now
+- Lynn and Boyer (i135)
+	- way more complicated. there's a junction=roundabout way, but also a bunch of... other stuff
+
+Lynn and Boyer needs more work, but now it seems like it's just merging short
+roads. If we just cherry-pick some roads to destroy and make enveloped by the
+intersection, will it work? Will reasonable turns result? Or do we have to
+retain hints in the raw Intersection about things that should be connected and
+the original path inside the intersection that should do it?
