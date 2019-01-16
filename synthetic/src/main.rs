@@ -1,6 +1,7 @@
 mod model;
 
-use crate::model::{BuildingID, Direction, IntersectionID, Model, RoadID};
+use crate::model::{BuildingID, Direction, IntersectionID, Model, RoadID, ID};
+use aabb_quadtree::QuadTree;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, Wizard, GUI};
 use geom::Line;
 use std::{env, process};
@@ -8,6 +9,7 @@ use std::{env, process};
 struct UI {
     canvas: Canvas,
     model: Model,
+    quadtree: Option<QuadTree<ID>>,
     state: State,
 }
 
@@ -25,18 +27,23 @@ enum State {
 
 impl UI {
     fn new(load: Option<&String>) -> UI {
-        let model: Model = if let Some(path) = load {
+        let (model, quadtree): (Model, Option<QuadTree<ID>>) = if let Some(path) = load {
             if path.contains("raw_maps/") {
-                Model::import(path)
+                let (m, q) = Model::import(path);
+                (m, Some(q))
             } else {
-                abstutil::read_json(path).expect(&format!("Couldn't load {}", path))
+                (
+                    abstutil::read_json(path).expect(&format!("Couldn't load {}", path)),
+                    None,
+                )
             }
         } else {
-            Model::new()
+            (Model::new(), None)
         };
         UI {
             canvas: Canvas::new(1024, 768),
             model,
+            quadtree,
             state: State::Viewing,
         }
     }
@@ -52,6 +59,9 @@ impl GUI<Text> for UI {
                 return (EventLoopMode::InputOnly, Text::new());
             }
         };
+        let selected = self
+            .model
+            .mouseover_something(&self.canvas, self.quadtree.as_ref());
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -102,7 +112,7 @@ impl GUI<Text> for UI {
             State::CreatingRoad(i1) => {
                 if input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
-                } else if let Some(i2) = self.model.mouseover_intersection(cursor) {
+                } else if let Some(ID::Intersection(i2)) = selected {
                     if i1 != i2 && input.key_pressed(Key::R, "finalize road") {
                         self.model.create_road(i1, i2);
                         self.state = State::Viewing;
@@ -134,7 +144,7 @@ impl GUI<Text> for UI {
                 }
             }
             State::Viewing => {
-                if let Some(i) = self.model.mouseover_intersection(cursor) {
+                if let Some(ID::Intersection(i)) = selected {
                     if input.key_pressed(Key::LeftControl, "move intersection") {
                         self.state = State::MovingIntersection(i);
                     } else if input.key_pressed(Key::R, "create road") {
@@ -146,7 +156,7 @@ impl GUI<Text> for UI {
                     } else if input.key_pressed(Key::L, "label intersection") {
                         self.state = State::LabelingIntersection(i, Wizard::new());
                     }
-                } else if let Some(b) = self.model.mouseover_building(cursor) {
+                } else if let Some(ID::Building(b)) = selected {
                     if input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
                     } else if input.key_pressed(Key::Backspace, "delete building") {
@@ -154,7 +164,8 @@ impl GUI<Text> for UI {
                     } else if input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
-                } else if let Some((r, dir)) = self.model.mouseover_road(cursor) {
+                } else if let Some(ID::Road(r)) = selected {
+                    let (_, dir) = self.model.mouseover_road(r, cursor).unwrap();
                     if input.key_pressed(Key::Backspace, "delete road") {
                         self.model.remove_road(r);
                     } else if input.key_pressed(Key::E, "edit lanes") {
@@ -191,7 +202,7 @@ impl GUI<Text> for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx, osd: &Text) {
-        self.model.draw(g, &self.canvas);
+        self.model.draw(g, &self.canvas, self.quadtree.as_ref());
 
         match self.state {
             State::CreatingRoad(i1) => {
