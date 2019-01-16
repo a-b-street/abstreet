@@ -215,54 +215,69 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
 
     let mut result: Vec<Turn> = Vec::new();
 
-    for idx1 in 0..roads.len() as isize {
-        if let Some(l1) = get_sidewalk(lanes, wraparound_get(&roads, idx1).incoming_lanes(i.id)) {
+    for idx1 in 0..roads.len() {
+        if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
-            if let Some(l2) = get_sidewalk(lanes, wraparound_get(&roads, idx1).outgoing_lanes(i.id))
-            {
-                // Jut out a bit into the intersection, cross over, then jut back in.
-                let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
-                let geom_fwds =
-                    PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
-
-                result.push(Turn {
-                    id: turn_id(i.id, l1.id, l2.id),
-                    turn_type: TurnType::Crosswalk,
-                    geom: geom_fwds.clone(),
-                    lookup_idx: 0,
-                });
-                result.push(Turn {
-                    id: turn_id(i.id, l2.id, l1.id),
-                    turn_type: TurnType::Crosswalk,
-                    geom: geom_fwds.reversed(),
-                    lookup_idx: 0,
-                });
+            if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
+                result.extend(make_crosswalks(i.id, l1, l2));
             }
 
             // Find the shared corner
             if roads.len() > 1 {
                 // TODO -1 and not +1 is brittle... must be the angle sorting
-                if let Some(l3) =
-                    get_sidewalk(lanes, wraparound_get(&roads, idx1 - 1).outgoing_lanes(i.id))
-                {
+                if let Some(l2) = get_sidewalk(
+                    lanes,
+                    wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
+                ) {
                     result.push(Turn {
-                        id: turn_id(i.id, l1.id, l3.id),
+                        id: turn_id(i.id, l1.id, l2.id),
                         turn_type: TurnType::SharedSidewalkCorner,
-                        geom: PolyLine::new(vec![l1.last_pt(), l3.first_pt()]),
+                        geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
                         lookup_idx: 0,
                     });
                     result.push(Turn {
-                        id: turn_id(i.id, l3.id, l1.id),
+                        id: turn_id(i.id, l2.id, l1.id),
                         turn_type: TurnType::SharedSidewalkCorner,
-                        geom: PolyLine::new(vec![l3.first_pt(), l1.last_pt()]),
+                        geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
                         lookup_idx: 0,
                     });
+                } else if roads.len() > 2 {
+                    // See if we need to add a crosswalk over this adjacent road.
+                    // TODO This is brittle; I could imagine having to cross two adjacent highway
+                    // ramps to get to the next sidewalk.
+                    if let Some(l2) = get_sidewalk(
+                        lanes,
+                        wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
+                    ) {
+                        result.extend(make_crosswalks(i.id, l1, l2));
+                    }
                 }
             }
         }
     }
 
     result
+}
+
+fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
+    // Jut out a bit into the intersection, cross over, then jut back in.
+    let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
+    let geom_fwds = PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
+
+    vec![
+        Turn {
+            id: turn_id(i, l1.id, l2.id),
+            turn_type: TurnType::Crosswalk,
+            geom: geom_fwds.clone(),
+            lookup_idx: 0,
+        },
+        Turn {
+            id: turn_id(i, l2.id, l1.id),
+            turn_type: TurnType::Crosswalk,
+            geom: geom_fwds.reversed(),
+            lookup_idx: 0,
+        },
+    ]
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
