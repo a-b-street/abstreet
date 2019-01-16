@@ -5,6 +5,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::WindowSettings;
+use std::io::Write;
 use std::{env, fs, panic, process};
 
 pub trait GUI<T> {
@@ -212,12 +213,15 @@ impl<T, G: GUI<T>> State<T, G> {
         if let Some(ref mut cap) = self.screen_cap {
             cap.timer.next();
             let suffix = cap.naming_hint.take().unwrap_or_else(String::new);
-            let filename = format!(
-                "screencap/{:02}x{:02}{}.png",
-                cap.tile_x, cap.tile_y, suffix
-            );
+            let filename = format!("{:02}x{:02}{}.png", cap.tile_x, cap.tile_y, suffix);
             if !process::Command::new("scrot")
-                .args(&["--quality", "100", "--focused", "--silent", &filename])
+                .args(&[
+                    "--quality",
+                    "100",
+                    "--focused",
+                    "--silent",
+                    &format!("screencap/{}", filename),
+                ])
                 .status()
                 .unwrap()
                 .success()
@@ -291,28 +295,17 @@ impl ScreenCaptureState {
         state
     }
 
-    fn combine(mut self) {
-        self.timer.start("combining tiles");
+    fn combine(self) {
         let mut args = self.filenames;
         args.push("-mode".to_string());
         args.push("Concatenate".to_string());
         args.push("-tile".to_string());
         args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
-        args.push("screencap/full.png".to_string());
-        if !process::Command::new("montage")
-            .args(&args)
-            .status()
-            .unwrap()
-            .success()
-        {
-            // Amp up limits in /etc/ImageMagick-6/policy.xml
-            println!("Combining tiles failed!");
-            println!("> montage {}", args.join(" "));
-            return;
-        }
+        args.push("full.png".to_string());
 
-        self.timer.stop("combining tiles");
-        self.timer.done();
-        println!("Produced screencap/");
+        let mut file = fs::File::create("screencap/combine.sh").unwrap();
+        write!(file, "#!/bin/bash\n\n").unwrap();
+        write!(file, "montage {}\n", args.join(" ")).unwrap();
+        write!(file, "rm -f combine.sh\n").unwrap();
     }
 }
