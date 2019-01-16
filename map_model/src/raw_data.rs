@@ -1,4 +1,5 @@
-use crate::{AreaType, IntersectionType};
+use crate::make::get_lane_types;
+use crate::{AreaType, IntersectionType, RoadSpec};
 use dimensioned::si;
 use geom::{GPSBounds, LonLat};
 use gtfs::Route;
@@ -79,6 +80,11 @@ impl Road {
 
     pub fn last_pt(&self) -> LonLat {
         *self.points.last().unwrap()
+    }
+
+    pub fn get_spec(&self) -> RoadSpec {
+        let (fwd, back) = get_lane_types(self);
+        RoadSpec { fwd, back }
     }
 }
 

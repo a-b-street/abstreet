@@ -8,7 +8,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::mem;
 
-const INTERSECTION_RADIUS: f64 = 10.0;
+const INTERSECTION_RADIUS: f64 = 5.0;
 const BUILDING_LENGTH: f64 = 30.0;
 const CENTER_LINE_THICKNESS: f64 = 0.5;
 
@@ -409,14 +409,9 @@ impl Model {
                 Road {
                     i1,
                     i2,
-                    // TODO Do better
-                    lanes: RoadSpec {
-                        fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-                        back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-                    },
-                    // TODO nope
-                    fwd_label: None,
-                    back_label: None,
+                    lanes: r.get_spec(),
+                    fwd_label: r.osm_tags.get("fwd_label").cloned(),
+                    back_label: r.osm_tags.get("back_label").cloned(),
                 },
             );
             let pl = PolyLine::new(vec![

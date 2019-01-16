@@ -3,7 +3,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::iter;
 
 // (original direction, reversed direction)
-fn get_lanes(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
+pub fn get_lane_types(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     // The raw_data might come from the synthetic map editor.
     if let Some(s) = r.osm_tags.get("synthetic_lanes") {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
@@ -111,7 +111,7 @@ pub fn get_lane_specs(r: &raw_data::Road, id: RoadID, edits: &MapEdits) -> Vec<L
         info!("Using edits for {}", id);
         (e.forwards_lanes.clone(), e.backwards_lanes.clone())
     } else {
-        get_lanes(r)
+        get_lane_types(r)
     };
 
     let mut specs: Vec<LaneSpec> = Vec::new();

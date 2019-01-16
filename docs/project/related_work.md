@@ -21,3 +21,8 @@ Sidewalk Labs Model
 ## Maps for people
 
 https://arxiv.org/pdf/1811.01147.pdf
+
+## gamma.cs.unc.edu/RoadNetwork/wilkie_TVCG.pdf
+
+section 6.3 talks about offset polylines
+http://gamma.cs.unc.edu/RoadNetwork
