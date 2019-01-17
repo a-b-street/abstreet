@@ -4,7 +4,7 @@ use crate::srtm;
 use dimensioned::si;
 use geom::{HashablePt2D, LonLat};
 use map_model::{raw_data, IntersectionType};
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 
 pub fn split_up_roads(
     (mut roads, buildings, areas): (
@@ -16,66 +16,46 @@ pub fn split_up_roads(
 ) -> raw_data::Map {
     println!("splitting up {} roads", roads.len());
 
-    // Look for roundabout ways. Map all points on the roundabout to a new point in the center.
-    // When we process ways that touch any point on the roundabout, make them instead point to the
-    // roundabout's center, so that the roundabout winds up looking like a single intersection.
-    let mut remap_roundabouts: HashMap<HashablePt2D, LonLat> = HashMap::new();
+    let mut next_intersection_id = 0;
+
+    // Normally one point to one intersection, but all points on a roundabout map to a single
+    // point.
+    let mut roundabout_centers: HashMap<raw_data::StableIntersectionID, LonLat> = HashMap::new();
+    let mut pt_to_intersection: HashMap<HashablePt2D, raw_data::StableIntersectionID> =
+        HashMap::new();
+
     roads.retain(|r| {
         if r.osm_tags.get("junction") == Some(&"roundabout".to_string()) {
-            let center = LonLat::center(&r.points);
+            let id = raw_data::StableIntersectionID(next_intersection_id);
+            next_intersection_id += 1;
+
+            roundabout_centers.insert(id, LonLat::center(&r.points));
             for pt in &r.points {
-                remap_roundabouts.insert(pt.to_hashable(), center);
+                pt_to_intersection.insert(pt.to_hashable(), id);
             }
+
             false
         } else {
             true
         }
     });
 
+    // Find normal intersections
     let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
-    let mut intersections: BTreeSet<HashablePt2D> = BTreeSet::new();
-    for r in roads.iter_mut() {
-        let added_to_start = if let Some(center) = remap_roundabouts.get(&r.points[0].to_hashable())
-        {
-            r.points.insert(0, *center);
-            true
-        } else {
-            false
-        };
-        let added_to_end =
-            if let Some(center) = remap_roundabouts.get(&r.points.last().unwrap().to_hashable()) {
-                r.points.push(*center);
-                true
-            } else {
-                false
-            };
-
+    for r in &roads {
         for (idx, raw_pt) in r.points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
             counts_per_pt.entry(pt).or_insert(0);
             let count = counts_per_pt[&pt] + 1;
             counts_per_pt.insert(pt, count);
 
-            if count == 2 {
-                intersections.insert(pt);
-            }
-
             // All start and endpoints of ways are also intersections.
-            if idx == 0 || idx == r.points.len() - 1 {
-                intersections.insert(pt);
-            } else if remap_roundabouts.contains_key(&pt) {
-                if idx == 1 && added_to_start {
-                    continue;
+            if count == 2 || idx == 0 || idx == r.points.len() - 1 {
+                if !pt_to_intersection.contains_key(&pt) {
+                    let id = raw_data::StableIntersectionID(next_intersection_id);
+                    next_intersection_id += 1;
+                    pt_to_intersection.insert(pt, id);
                 }
-                if idx == r.points.len() - 2 && added_to_end {
-                    continue;
-                }
-                panic!(
-                    "OSM way {} hits a roundabout not at an endpoint. idx {} of length {}",
-                    r.osm_way_id,
-                    idx,
-                    r.points.len()
-                );
             }
         }
     }
@@ -83,13 +63,10 @@ pub fn split_up_roads(
     let mut map = raw_data::Map::blank();
     map.buildings = buildings;
     map.areas = areas;
-
-    let mut pt_to_intersection: HashMap<HashablePt2D, raw_data::StableIntersectionID> =
-        HashMap::new();
-    for (idx, pt) in intersections.into_iter().enumerate() {
-        let id = raw_data::StableIntersectionID(idx);
+    // All of the roundabout points will just keep moving the intersection
+    for (pt, id) in &pt_to_intersection {
         map.intersections.insert(
-            id,
+            *id,
             raw_data::Intersection {
                 point: LonLat::new(pt.x(), pt.y()),
                 elevation: elevation.get(pt.x(), pt.y()) * si::M,
@@ -97,7 +74,18 @@ pub fn split_up_roads(
                 label: None,
             },
         );
-        pt_to_intersection.insert(pt, id);
+    }
+    // Set roundabouts to their center
+    for (id, pt) in &roundabout_centers {
+        map.intersections.insert(
+            *id,
+            raw_data::Intersection {
+                point: *pt,
+                elevation: elevation.get(pt.longitude, pt.latitude) * si::M,
+                intersection_type: IntersectionType::StopSign,
+                label: None,
+            },
+        );
     }
 
     // Now actually split up the roads based on the intersections
@@ -106,10 +94,19 @@ pub fn split_up_roads(
         r.points.clear();
         r.i1 = pt_to_intersection[&orig_road.points[0].to_hashable()];
 
-        for pt in &orig_road.points {
+        for (idx, pt) in orig_road.points.iter().enumerate() {
             r.points.push(pt.clone());
             if r.points.len() > 1 {
                 if let Some(i2) = pt_to_intersection.get(&pt.to_hashable()) {
+                    if roundabout_centers.contains_key(i2) && idx != orig_road.points.len() - 1 {
+                        panic!(
+                            "OSM way {} hits a roundabout in the middle of a way. idx {} of length {}",
+                            r.osm_way_id,
+                            idx,
+                            r.points.len()
+                        );
+                    }
+
                     r.i2 = *i2;
                     // Start a new road
                     map.roads
