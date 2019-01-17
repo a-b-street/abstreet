@@ -1,5 +1,5 @@
 use std;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub struct MultiMap<K, V> {
     map: HashMap<K, HashSet<V>>,
@@ -45,4 +45,19 @@ pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
     let idx = idx % len;
     let idx = if idx >= 0 { idx } else { idx + len };
     &vec[idx as usize]
+}
+
+pub fn retain_btreemap<K: Ord + Clone, V, F: Fn(&K, &V) -> bool>(
+    map: &mut BTreeMap<K, V>,
+    keep: F,
+) {
+    let mut remove_keys: Vec<K> = Vec::new();
+    for (k, v) in map.iter() {
+        if !keep(k, v) {
+            remove_keys.push(k.clone());
+        }
+    }
+    for k in remove_keys {
+        map.remove(&k);
+    }
 }

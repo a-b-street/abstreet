@@ -1,4 +1,4 @@
-use abstutil::{MultiMap, Timer};
+use abstutil::{retain_btreemap, MultiMap, Timer};
 use map_model::raw_data;
 use std::collections::HashSet;
 
@@ -53,15 +53,9 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
     }
 
     // Remove intersections without any roads
-    // TODO retain for BTreeMap, please!
-    let remove_intersections: Vec<raw_data::StableIntersectionID> = map
-        .intersections
-        .keys()
-        .filter(|id| next_roads.get(**id).is_empty())
-        .cloned()
-        .collect();
-    for id in remove_intersections {
-        map.intersections.remove(&id);
-    }
+    retain_btreemap(
+        &mut map.intersections,
+        |id, _| !next_roads.get(*id).is_empty(),
+    );
     timer.stop("removing disconnected roads");
 }

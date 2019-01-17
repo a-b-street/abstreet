@@ -1,5 +1,5 @@
 use crate::raw_data;
-use abstutil::Timer;
+use abstutil::{retain_btreemap, Timer};
 
 pub fn old_merge_intersections(data: &mut raw_data::Map, _timer: &mut Timer) {
     /*if true {
@@ -34,18 +34,9 @@ fn merge(data: &mut raw_data::Map, merge_road: raw_data::StableRoadID) {
         }
     }
 
-    // TODO retain for btreemap, please!
-    let mut remove_roads: Vec<raw_data::StableRoadID> = Vec::new();
-    for (id, r) in &data.roads {
-        if r.i1 == r.i2 {
-            remove_roads.push(*id);
-        }
-    }
-    for id in remove_roads {
-        data.roads.remove(&id);
-    }
-    // TODO Not exactly sure WHEN this happens, but we can wind up creating some loop roads...
-    // filter them out.
+    // We might've created some loop roads on the retained intersection; remove them also.
+    retain_btreemap(&mut data.roads, |_, r| r.i1 != keep_i || r.i2 != keep_i);
+
     // TODO Ah, we can also wind up with multiple roads between the same intersections here. Should
     // probably auto-remove those too.
 }

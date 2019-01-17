@@ -8,7 +8,7 @@ mod random;
 mod time;
 
 pub use crate::clone::Cloneable;
-pub use crate::collections::{wraparound_get, MultiMap};
+pub use crate::collections::{retain_btreemap, wraparound_get, MultiMap};
 pub use crate::error::Error;
 pub use crate::io::{
     deserialize_btreemap, deserialize_multimap, list_all_objects, load_all_objects, read_binary,
