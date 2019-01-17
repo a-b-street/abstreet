@@ -6,10 +6,17 @@ use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
+// Stable IDs don't get compacted as we merge and delete things.
+//#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
+pub struct StableRoadID(pub usize);
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
+pub struct StableIntersectionID(pub usize);
+
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Map {
-    pub roads: Vec<Road>,
-    pub intersections: Vec<Intersection>,
+    pub roads: BTreeMap<StableRoadID, Road>,
+    pub intersections: BTreeMap<StableIntersectionID, Intersection>,
     pub buildings: Vec<Building>,
     pub parcels: Vec<Parcel>,
     pub bus_routes: Vec<Route>,
@@ -21,8 +28,8 @@ pub struct Map {
 impl Map {
     pub fn blank() -> Map {
         Map {
-            roads: Vec::new(),
-            intersections: Vec::new(),
+            roads: BTreeMap::new(),
+            intersections: BTreeMap::new(),
             buildings: Vec::new(),
             parcels: Vec::new(),
             bus_routes: Vec::new(),
@@ -34,12 +41,12 @@ impl Map {
     pub fn get_gps_bounds(&self) -> GPSBounds {
         let mut bounds = GPSBounds::new();
 
-        for r in &self.roads {
+        for r in self.roads.values() {
             for pt in &r.points {
                 bounds.update(*pt);
             }
         }
-        for i in &self.intersections {
+        for i in self.intersections.values() {
             bounds.update(i.point);
         }
         for b in &self.buildings {

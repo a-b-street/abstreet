@@ -70,7 +70,10 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
                 None,
             );
             txt.add_line(format!("From OSM way {}", r.osm_way_id));
-            txt.add_line(format!("Parent {} points to {}", r.id, r.dst_i));
+            txt.add_line(format!(
+                "Parent {} (stable ID {}) points to {}",
+                r.id, r.stable_id.0, r.dst_i
+            ));
             txt.add_line(format!(
                 "Lane goes from {} to {}",
                 i1.elevation, i2.elevation
@@ -88,7 +91,9 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
         }
         ID::Intersection(id) => {
             txt.add_line(id.to_string());
-            txt.add_line(format!("Roads: {:?}", map.get_i(id).roads));
+            let i = map.get_i(id);
+            txt.add_line(format!("Roads: {:?}", i.roads));
+            txt.add_line(format!("Stable ID {}", i.stable_id.0));
         }
         ID::Turn(id) => {
             let t = map.get_t(id);

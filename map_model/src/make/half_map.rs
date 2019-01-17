@@ -29,7 +29,7 @@ pub fn make_half_map(
 
     let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
 
-    for (idx, i) in data.intersections.iter().enumerate() {
+    for (idx, (stable_id, i)) in data.intersections.iter().enumerate() {
         let id = IntersectionID(idx);
         let pt = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
         m.intersections.push(Intersection {
@@ -41,6 +41,7 @@ pub fn make_half_map(
             // Might change later
             intersection_type: i.intersection_type,
             label: i.label.clone(),
+            stable_id: *stable_id,
             incoming_lanes: Vec::new(),
             outgoing_lanes: Vec::new(),
             roads: BTreeSet::new(),
@@ -50,7 +51,7 @@ pub fn make_half_map(
 
     let mut counter = 0;
     timer.start_iter("expand roads to lanes", data.roads.len());
-    for (_, r) in data.roads.iter().enumerate() {
+    for (stable_id, r) in &data.roads {
         timer.next();
         let road_id = RoadID(m.roads.len());
         let road_center_pts = PolyLine::new(
@@ -75,6 +76,7 @@ pub fn make_half_map(
             id: road_id,
             osm_tags: r.osm_tags.clone(),
             osm_way_id: r.osm_way_id,
+            stable_id: *stable_id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
             center_pts: road_center_pts.clone(),

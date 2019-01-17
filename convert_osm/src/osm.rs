@@ -6,8 +6,14 @@ use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap};
 
-// TODO Result, but is there an easy way to say io error or osm xml error?
-pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
+pub fn osm_to_raw_roads(
+    osm_path: &str,
+    timer: &mut Timer,
+) -> (
+    Vec<raw_data::Road>,
+    Vec<raw_data::Building>,
+    Vec<raw_data::Area>,
+) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
     println!(
@@ -19,7 +25,9 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
     done(timer);
 
     let mut id_to_way: HashMap<i64, Vec<LonLat>> = HashMap::new();
-    let mut map = raw_data::Map::blank();
+    let mut roads: Vec<raw_data::Road> = Vec::new();
+    let mut buildings: Vec<raw_data::Building> = Vec::new();
+    let mut areas: Vec<raw_data::Area> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -42,7 +50,7 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
         }
         let tags = tags_to_map(&way.tags);
         if is_road(&tags) {
-            map.roads.push(raw_data::Road {
+            roads.push(raw_data::Road {
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: tags,
@@ -51,13 +59,13 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
                 parking_lane_back: false,
             });
         } else if is_bldg(&tags) {
-            map.buildings.push(raw_data::Building {
+            buildings.push(raw_data::Building {
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: tags,
             });
         } else if let Some(at) = get_area_type(&tags) {
-            map.areas.push(raw_data::Area {
+            areas.push(raw_data::Area {
                 area_type: at,
                 osm_way_id: way.id,
                 points: pts,
@@ -81,7 +89,7 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
                             match id_to_way.get(&id) {
                                 Some(pts) => {
                                     if role == "outer" {
-                                        map.areas.push(raw_data::Area {
+                                        areas.push(raw_data::Area {
                                             area_type: at,
                                             osm_way_id: id,
                                             points: pts.to_vec(),
@@ -108,7 +116,7 @@ pub fn osm_to_raw_roads(osm_path: &str, timer: &mut Timer) -> raw_data::Map {
         }
     }
 
-    map
+    (roads, buildings, areas)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

@@ -1,6 +1,6 @@
 // Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-use crate::{LaneID, LaneType, Map, RoadID, TurnID};
+use crate::{raw_data, LaneID, LaneType, Map, RoadID, TurnID};
 use abstutil;
 use dimensioned::si;
 use geom::Pt2D;
@@ -38,6 +38,7 @@ pub struct Intersection {
 
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
+    pub stable_id: raw_data::StableIntersectionID,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?

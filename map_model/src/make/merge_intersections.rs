@@ -72,6 +72,7 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
         elevation: m.intersections[old_i1.0].elevation,
         intersection_type: m.intersections[old_i1.0].intersection_type,
         label: m.intersections[old_i1.0].label.clone(),
+        stable_id: m.intersections[old_i1.0].stable_id,
         incoming_lanes: Vec::new(),
         outgoing_lanes: Vec::new(),
         roads: BTreeSet::new(),

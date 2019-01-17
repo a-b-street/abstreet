@@ -1,4 +1,4 @@
-use crate::{IntersectionID, LaneID, LaneType};
+use crate::{raw_data, IntersectionID, LaneID, LaneType};
 use abstutil::Error;
 use dimensioned::si;
 use geom::PolyLine;
@@ -22,6 +22,7 @@ pub struct Road {
     pub id: RoadID,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+    pub stable_id: raw_data::StableRoadID,
 
     // Invariant: A road must contain at least one child
     pub children_forwards: Vec<(LaneID, LaneType)>,

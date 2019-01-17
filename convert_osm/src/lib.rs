@@ -58,8 +58,7 @@ pub struct Flags {
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-    let raw_map = osm::osm_to_raw_roads(&flags.osm, timer);
-    let mut map = split_ways::split_up_roads(raw_map, &elevation);
+    let mut map = split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
     let gps_bounds = map.get_gps_bounds();
 
@@ -111,7 +110,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
             // intersection
             let closest_intersection = map
                 .intersections
-                .iter_mut()
+                .values_mut()
                 .min_by_key(|i| NotNan::new(distance(i)).unwrap())
                 .unwrap();
             let dist = distance(closest_intersection);
@@ -139,8 +138,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
 fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &GPSBounds) {
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(usize, bool)> = FindClosest::new(&gps_bounds.to_bounds());
-    for (idx, r) in map.roads.iter().enumerate() {
+    let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
+        FindClosest::new(&gps_bounds.to_bounds());
+    for (id, r) in &map.roads {
         let pts = PolyLine::new(
             r.points
                 .iter()
@@ -148,8 +148,8 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
                 .collect(),
         );
 
-        closest.add((idx, true), &pts.shift_right(LANE_THICKNESS));
-        closest.add((idx, false), &pts.shift_left(LANE_THICKNESS));
+        closest.add((*id, true), &pts.shift_right(LANE_THICKNESS));
+        closest.add((*id, false), &pts.shift_left(LANE_THICKNESS));
     }
 
     'SHAPE: for s in shapes.shapes.into_iter() {
@@ -173,9 +173,9 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
                     && category != Some(&"No Parking Allowed".to_string());
                 // Blindly override prior values.
                 if fwds {
-                    map.roads[r].parking_lane_fwd = has_parking;
+                    map.roads.get_mut(&r).unwrap().parking_lane_fwd = has_parking;
                 } else {
-                    map.roads[r].parking_lane_back = has_parking;
+                    map.roads.get_mut(&r).unwrap().parking_lane_back = has_parking;
                 }
             }
         }

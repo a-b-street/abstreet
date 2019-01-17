@@ -336,25 +336,31 @@ impl Model {
             if let Some(ref label) = r.back_label {
                 osm_tags.insert("back_label".to_string(), label.to_string());
             }
-            map.roads.push(raw_data::Road {
-                points: vec![
-                    pt(self.intersections[&r.i1].center),
-                    pt(self.intersections[&r.i2].center),
-                ],
-                osm_tags,
-                osm_way_id: idx as i64,
-                parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
-                parking_lane_back: r.lanes.back.contains(&LaneType::Parking),
-            });
+            map.roads.insert(
+                raw_data::StableRoadID(idx),
+                raw_data::Road {
+                    points: vec![
+                        pt(self.intersections[&r.i1].center),
+                        pt(self.intersections[&r.i2].center),
+                    ],
+                    osm_tags,
+                    osm_way_id: idx as i64,
+                    parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
+                    parking_lane_back: r.lanes.back.contains(&LaneType::Parking),
+                },
+            );
         }
 
-        for i in self.intersections.values() {
-            map.intersections.push(raw_data::Intersection {
-                point: pt(i.center),
-                elevation: 0.0 * si::M,
-                intersection_type: i.intersection_type,
-                label: i.label.clone(),
-            });
+        for (idx, i) in self.intersections.values().enumerate() {
+            map.intersections.insert(
+                raw_data::StableIntersectionID(idx),
+                raw_data::Intersection {
+                    point: pt(i.center),
+                    elevation: 0.0 * si::M,
+                    intersection_type: i.intersection_type,
+                    label: i.label.clone(),
+                },
+            );
         }
 
         for (idx, b) in self.buildings.values().enumerate() {
@@ -387,7 +393,7 @@ impl Model {
         let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
         let mut quadtree = QuadTree::default(gps_bounds.to_bounds().as_bbox());
 
-        for (idx, i) in data.intersections.iter().enumerate() {
+        for (idx, i) in data.intersections.values().enumerate() {
             let center = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
             let i = Intersection {
                 center,
@@ -399,7 +405,7 @@ impl Model {
             pt_to_intersection.insert(center.into(), idx);
         }
 
-        for r in &data.roads {
+        for r in data.roads.values() {
             let i1 = pt_to_intersection[&Pt2D::from_gps(r.points[0], &gps_bounds).unwrap().into()];
             let i2 = pt_to_intersection[&Pt2D::from_gps(*r.points.last().unwrap(), &gps_bounds)
                 .unwrap()

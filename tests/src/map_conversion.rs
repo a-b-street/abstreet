@@ -16,6 +16,7 @@ pub fn run(t: &mut TestRunner) {
                 gtfs: "../data/input/google_transit_2018_18_08".to_string(),
                 neighborhoods: "../data/input/neighborhoods.geojson".to_string(),
                 output: "convert_osm_twice".to_string(),
+                fast_dev: false,
             };
 
             let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::new("convert map"));

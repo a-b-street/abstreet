@@ -304,8 +304,8 @@ impl ScreenCaptureState {
         args.push("full.png".to_string());
 
         let mut file = fs::File::create("screencap/combine.sh").unwrap();
-        write!(file, "#!/bin/bash\n\n").unwrap();
-        write!(file, "montage {}\n", args.join(" ")).unwrap();
-        write!(file, "rm -f combine.sh\n").unwrap();
+        writeln!(file, "#!/bin/bash\n").unwrap();
+        writeln!(file, "montage {}", args.join(" ")).unwrap();
+        writeln!(file, "rm -f combine.sh").unwrap();
     }
 }
