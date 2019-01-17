@@ -2,8 +2,7 @@ use crate::objects::Ctx;
 use crate::plugins::{load_neighborhood_builder, Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Line, Polygon, Pt2D};
-use map_model::Map;
-use sim::NeighborhoodBuilder;
+use map_model::{Map, NeighborhoodBuilder};
 
 const POINT_RADIUS: f64 = 2.0;
 

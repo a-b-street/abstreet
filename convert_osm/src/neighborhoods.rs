@@ -1,7 +1,7 @@
 use abstutil;
 use geojson::{GeoJson, PolygonType, Value};
 use geom::{GPSBounds, LonLat};
-use sim::NeighborhoodBuilder;
+use map_model::NeighborhoodBuilder;
 
 pub fn convert(geojson_path: &str, map_name: String, gps_bounds: &GPSBounds) {
     println!("Extracting neighborhoods from {}...", geojson_path);

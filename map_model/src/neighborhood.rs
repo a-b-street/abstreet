@@ -1,6 +1,6 @@
+use crate::{BuildingID, Map, RoadID};
 use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, Map, RoadID};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fs::File;

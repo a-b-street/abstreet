@@ -10,6 +10,7 @@ mod intersection;
 mod lane;
 mod make;
 mod map;
+mod neighborhood;
 mod parcel;
 mod pathfind;
 pub mod raw_data;
@@ -28,6 +29,7 @@ pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;
 pub use crate::map::Map;
+pub use crate::neighborhood::{Neighborhood, NeighborhoodBuilder};
 pub use crate::parcel::{Parcel, ParcelID};
 pub use crate::pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
 pub use crate::road::{Road, RoadID};
@@ -42,3 +44,5 @@ pub const LANE_THICKNESS: f64 = 2.5;
 impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
 impl Cloneable for MapEdits {}
+impl Cloneable for Neighborhood {}
+impl Cloneable for NeighborhoodBuilder {}

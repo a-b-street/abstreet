@@ -6,14 +6,14 @@ pub mod view;
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ::sim::{ABTest, Neighborhood, NeighborhoodBuilder, OriginDestination, Scenario, Tick};
+use ::sim::{ABTest, OriginDestination, Scenario, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use downcast::{
     downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
 };
 use ezgui::{Canvas, Color, GfxCtx, UserInput, WrappedWizard};
-use map_model::{IntersectionID, Map};
+use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
 
 pub trait Plugin: Any {
     fn color_for(&self, _obj: ID, _ctx: &Ctx) -> Option<Color> {

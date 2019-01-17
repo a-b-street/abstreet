@@ -4,8 +4,8 @@ use crate::plugins::{
     input_weighted_usize, load_scenario, Plugin, PluginCtx,
 };
 use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
-use map_model::Map;
-use sim::{BorderSpawnOverTime, Neighborhood, Scenario, SeedParkedCars, SpawnOverTime};
+use map_model::{Map, Neighborhood};
+use sim::{BorderSpawnOverTime, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioManager {
     PickScenario(Wizard),

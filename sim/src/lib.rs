@@ -29,8 +29,8 @@ pub use crate::events::Event;
 pub use crate::instrument::save_backtraces;
 pub use crate::kinematics::{VehicleType, MIN_CAR_LENGTH};
 pub use crate::make::{
-    load, ABTest, ABTestResults, BorderSpawnOverTime, Neighborhood, NeighborhoodBuilder,
-    OriginDestination, Scenario, SeedParkedCars, SimFlags, SpawnOverTime,
+    load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
+    SimFlags, SpawnOverTime,
 };
 pub use crate::physics::{Acceleration, Distance, Speed, Tick, Time, TIMESTEP};
 pub use crate::query::{Benchmark, ScoreSummary, SimStats, Summary};
@@ -131,8 +131,6 @@ impl ParkedCar {
 
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really
 // kind of an ezgui concept.
-impl Cloneable for Neighborhood {}
-impl Cloneable for NeighborhoodBuilder {}
 impl Cloneable for Scenario {}
 impl Cloneable for Tick {}
 impl Cloneable for ABTest {}

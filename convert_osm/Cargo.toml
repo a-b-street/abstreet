@@ -18,5 +18,4 @@ ordered-float = "1.0.1"
 osm-xml = "0.6.2"
 map_model = { path = "../map_model" }
 pretty_assertions = "0.5.1"
-sim = { path = "../sim" }
 structopt = "0.2"

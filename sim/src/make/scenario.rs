@@ -1,9 +1,9 @@
 use crate::driving::DrivingGoal;
 use crate::walking::SidewalkSpot;
-use crate::{CarID, Neighborhood, Sim, Tick};
+use crate::{CarID, Sim, Tick};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
-use map_model::{BuildingID, IntersectionID, LaneType, Map, Pathfinder, RoadID};
+use map_model::{BuildingID, IntersectionID, LaneType, Map, Neighborhood, Pathfinder, RoadID};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;

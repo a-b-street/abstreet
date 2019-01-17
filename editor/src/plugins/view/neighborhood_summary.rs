@@ -4,8 +4,8 @@ use crate::render::DrawMap;
 use abstutil;
 use ezgui::{Color, GfxCtx, Text};
 use geom::{Polygon, Pt2D};
-use map_model::{LaneID, Map};
-use sim::{Neighborhood, Sim, Tick};
+use map_model::{LaneID, Map, Neighborhood};
+use sim::{Sim, Tick};
 use std::collections::HashSet;
 
 pub struct NeighborhoodSummary {
