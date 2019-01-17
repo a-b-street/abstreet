@@ -64,7 +64,7 @@ impl Map {
 
     pub fn create_from_raw(
         name: String,
-        data: raw_data::Map,
+        mut data: raw_data::Map,
         edits: MapEdits,
         timer: &mut Timer,
     ) -> Map {
@@ -72,6 +72,8 @@ impl Map {
 
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
+
+        make::old_merge_intersections(&mut data, timer);
 
         let half_map = make::make_half_map(&data, &gps_bounds, &edits, timer);
         let mut m = Map {
