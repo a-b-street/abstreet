@@ -5,13 +5,25 @@ use geom::{GPSBounds, LonLat};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::fmt;
 
 // Stable IDs don't get compacted as we merge and delete things.
 //#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct StableRoadID(pub usize);
+impl fmt::Display for StableRoadID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "StableRoadID({0})", self.0)
+    }
+}
+
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct StableIntersectionID(pub usize);
+impl fmt::Display for StableIntersectionID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "StableIntersectionID({0})", self.0)
+    }
+}
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Map {
@@ -73,6 +85,9 @@ impl Map {
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Road {
+    // The first and last point may not match up with i1 and i2.
+    pub i1: StableIntersectionID,
+    pub i2: StableIntersectionID,
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
@@ -81,14 +96,6 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn first_pt(&self) -> LonLat {
-        self.points[0]
-    }
-
-    pub fn last_pt(&self) -> LonLat {
-        *self.points.last().unwrap()
-    }
-
     pub fn get_spec(&self) -> RoadSpec {
         let (fwd, back) = get_lane_types(self);
         RoadSpec { fwd, back }

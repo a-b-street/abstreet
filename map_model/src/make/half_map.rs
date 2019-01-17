@@ -4,8 +4,8 @@ use crate::{
     Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{GPSBounds, HashablePt2D, PolyLine, Pt2D};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use geom::{GPSBounds, PolyLine, Pt2D};
+use std::collections::{BTreeMap, BTreeSet};
 
 pub struct HalfMap {
     pub roads: Vec<Road>,
@@ -27,8 +27,8 @@ pub fn make_half_map(
         turns: BTreeMap::new(),
     };
 
-    let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
-
+    let mut intersection_id_mapping: BTreeMap<raw_data::StableIntersectionID, IntersectionID> =
+        BTreeMap::new();
     for (idx, (stable_id, i)) in data.intersections.iter().enumerate() {
         let id = IntersectionID(idx);
         let pt = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
@@ -46,7 +46,7 @@ pub fn make_half_map(
             outgoing_lanes: Vec::new(),
             roads: BTreeSet::new(),
         });
-        pt_to_intersection.insert(HashablePt2D::from(pt), id);
+        intersection_id_mapping.insert(*stable_id, id);
     }
 
     let mut counter = 0;
@@ -60,8 +60,8 @@ pub fn make_half_map(
                 .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
                 .collect(),
         );
-        let i1 = pt_to_intersection[&HashablePt2D::from(road_center_pts.first_pt())];
-        let i2 = pt_to_intersection[&HashablePt2D::from(road_center_pts.last_pt())];
+        let i1 = intersection_id_mapping[&r.i1];
+        let i2 = intersection_id_mapping[&r.i2];
 
         if i1 == i2 {
             // TODO Cul-de-sacs should be valid, but it really makes pathfinding screwy

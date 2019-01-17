@@ -84,9 +84,12 @@ pub fn split_up_roads(
     map.buildings = buildings;
     map.areas = areas;
 
-    for (idx, pt) in intersections.iter().enumerate() {
+    let mut pt_to_intersection: HashMap<HashablePt2D, raw_data::StableIntersectionID> =
+        HashMap::new();
+    for (idx, pt) in intersections.into_iter().enumerate() {
+        let id = raw_data::StableIntersectionID(idx);
         map.intersections.insert(
-            raw_data::StableIntersectionID(idx),
+            id,
             raw_data::Intersection {
                 point: LonLat::new(pt.x(), pt.y()),
                 elevation: elevation.get(pt.x(), pt.y()) * si::M,
@@ -94,21 +97,27 @@ pub fn split_up_roads(
                 label: None,
             },
         );
+        pt_to_intersection.insert(pt, id);
     }
 
     // Now actually split up the roads based on the intersections
     for orig_road in &roads {
         let mut r = orig_road.clone();
         r.points.clear();
+        r.i1 = pt_to_intersection[&orig_road.points[0].to_hashable()];
 
         for pt in &orig_road.points {
             r.points.push(pt.clone());
-            if r.points.len() > 1 && intersections.contains(&pt.to_hashable()) {
-                // Start a new road
-                map.roads
-                    .insert(raw_data::StableRoadID(map.roads.len()), r.clone());
-                r.points.clear();
-                r.points.push(pt.clone());
+            if r.points.len() > 1 {
+                if let Some(i2) = pt_to_intersection.get(&pt.to_hashable()) {
+                    r.i2 = *i2;
+                    // Start a new road
+                    map.roads
+                        .insert(raw_data::StableRoadID(map.roads.len()), r.clone());
+                    r.points.clear();
+                    r.i1 = *i2;
+                    r.points.push(pt.clone());
+                }
             }
         }
         assert!(r.points.len() == 1);

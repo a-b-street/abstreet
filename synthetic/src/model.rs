@@ -2,10 +2,10 @@ use aabb_quadtree::QuadTree;
 use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
 use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
-use geom::{Circle, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::mem;
 
 const INTERSECTION_RADIUS: f64 = 5.0;
@@ -15,7 +15,7 @@ const CENTER_LINE_THICKNESS: f64 = 0.5;
 const HIGHLIGHT_COLOR: Color = Color::CYAN;
 
 pub type BuildingID = usize;
-pub type IntersectionID = usize;
+pub type IntersectionID = raw_data::StableIntersectionID;
 pub type RoadID = (IntersectionID, IntersectionID);
 pub type Direction = bool;
 
@@ -339,6 +339,8 @@ impl Model {
             map.roads.insert(
                 raw_data::StableRoadID(idx),
                 raw_data::Road {
+                    i1: r.i1,
+                    i2: r.i2,
                     points: vec![
                         pt(self.intersections[&r.i1].center),
                         pt(self.intersections[&r.i2].center),
@@ -351,9 +353,9 @@ impl Model {
             );
         }
 
-        for (idx, i) in self.intersections.values().enumerate() {
+        for (id, i) in &self.intersections {
             map.intersections.insert(
-                raw_data::StableIntersectionID(idx),
+                *id,
                 raw_data::Intersection {
                     point: pt(i.center),
                     elevation: 0.0 * si::M,
@@ -390,26 +392,21 @@ impl Model {
         let gps_bounds = data.get_gps_bounds();
 
         let mut m = Model::new();
-        let mut pt_to_intersection: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
         let mut quadtree = QuadTree::default(gps_bounds.to_bounds().as_bbox());
 
-        for (idx, i) in data.intersections.values().enumerate() {
-            let center = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
+        for (id, raw_i) in &data.intersections {
+            let center = Pt2D::from_gps(raw_i.point, &gps_bounds).unwrap();
             let i = Intersection {
                 center,
-                intersection_type: i.intersection_type,
-                label: i.label.clone(),
+                intersection_type: raw_i.intersection_type,
+                label: raw_i.label.clone(),
             };
-            quadtree.insert_with_box(ID::Intersection(idx), i.circle().get_bounds().as_bbox());
-            m.intersections.insert(idx, i);
-            pt_to_intersection.insert(center.into(), idx);
+            quadtree.insert_with_box(ID::Intersection(*id), i.circle().get_bounds().as_bbox());
+            m.intersections.insert(*id, i);
         }
 
         for r in data.roads.values() {
-            let i1 = pt_to_intersection[&Pt2D::from_gps(r.points[0], &gps_bounds).unwrap().into()];
-            let i2 = pt_to_intersection[&Pt2D::from_gps(*r.points.last().unwrap(), &gps_bounds)
-                .unwrap()
-                .into()];
+            let (i1, i2) = (r.i1, r.i2);
             m.roads.insert(
                 (i1, i2),
                 Road {
@@ -453,7 +450,7 @@ impl Model {
 
 impl Model {
     pub fn create_i(&mut self, center: Pt2D) {
-        let id = self.intersections.len();
+        let id = raw_data::StableIntersectionID(self.intersections.len());
         self.intersections.insert(
             id,
             Intersection {

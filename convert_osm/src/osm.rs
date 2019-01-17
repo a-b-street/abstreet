@@ -55,6 +55,8 @@ pub fn osm_to_raw_roads(
                 points: pts,
                 osm_tags: tags,
                 // We'll fill this out later
+                i1: raw_data::StableIntersectionID(0),
+                i2: raw_data::StableIntersectionID(0),
                 parking_lane_fwd: false,
                 parking_lane_back: false,
             });

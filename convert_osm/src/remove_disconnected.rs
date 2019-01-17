@@ -1,5 +1,4 @@
 use abstutil::{MultiMap, Timer};
-use geom::HashablePt2D;
 use map_model::raw_data;
 use std::collections::HashSet;
 
@@ -8,10 +7,11 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads
 
-    let mut next_roads: MultiMap<HashablePt2D, raw_data::StableRoadID> = MultiMap::new();
+    let mut next_roads: MultiMap<raw_data::StableIntersectionID, raw_data::StableRoadID> =
+        MultiMap::new();
     for (id, r) in &map.roads {
-        next_roads.insert(r.first_pt().to_hashable(), *id);
-        next_roads.insert(r.last_pt().to_hashable(), *id);
+        next_roads.insert(r.i1, *id);
+        next_roads.insert(r.i2, *id);
     }
 
     let mut partitions: Vec<Vec<raw_data::StableRoadID>> = Vec::new();
@@ -30,10 +30,10 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
             current_partition.push(current);
 
             let current_r = &map.roads[&current];
-            for other_r in next_roads.get(current_r.first_pt().to_hashable()).iter() {
+            for other_r in next_roads.get(current_r.i1).iter() {
                 queue_roads.push(*other_r);
             }
-            for other_r in next_roads.get(current_r.last_pt().to_hashable()).iter() {
+            for other_r in next_roads.get(current_r.i2).iter() {
                 queue_roads.push(*other_r);
             }
         }
@@ -47,8 +47,8 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
         println!("Removing disconnected partition with {} roads", p.len());
         for id in p {
             let r = map.roads.remove(id).unwrap();
-            next_roads.remove(r.first_pt().to_hashable(), *id);
-            next_roads.remove(r.last_pt().to_hashable(), *id);
+            next_roads.remove(r.i1, *id);
+            next_roads.remove(r.i2, *id);
         }
     }
 
@@ -56,14 +56,9 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
     // TODO retain for BTreeMap, please!
     let remove_intersections: Vec<raw_data::StableIntersectionID> = map
         .intersections
-        .iter()
-        .filter_map(|(id, i)| {
-            if next_roads.get(i.point.to_hashable()).is_empty() {
-                Some(*id)
-            } else {
-                None
-            }
-        })
+        .keys()
+        .filter(|id| next_roads.get(**id).is_empty())
+        .cloned()
         .collect();
     for id in remove_intersections {
         map.intersections.remove(&id);
