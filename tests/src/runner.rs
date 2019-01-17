@@ -122,15 +122,15 @@ impl TestRunner {
         self
     }
 
-    pub fn run_fast(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+    pub fn run_fast<F: Fn(&mut TestHelper)>(&mut self, specific_test_name: &str, test: F) {
         self.run(specific_test_name, true, test);
     }
 
-    pub fn run_slow(&mut self, specific_test_name: &str, test: Box<Fn(&mut TestHelper)>) {
+    pub fn run_slow<F: Fn(&mut TestHelper)>(&mut self, specific_test_name: &str, test: F) {
         self.run(specific_test_name, false, test);
     }
 
-    fn run(&mut self, specific_test_name: &str, fast: bool, test: Box<Fn(&mut TestHelper)>) {
+    fn run<F: Fn(&mut TestHelper)>(&mut self, specific_test_name: &str, fast: bool, test: F) {
         let reset_color = color::Fg(color::Reset);
 
         let test_name = format!(

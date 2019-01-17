@@ -53,9 +53,8 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
     }
 
     // Remove intersections without any roads
-    retain_btreemap(
-        &mut map.intersections,
-        |id, _| !next_roads.get(*id).is_empty(),
-    );
+    retain_btreemap(&mut map.intersections, |id, _| {
+        !next_roads.get(*id).is_empty()
+    });
     timer.stop("removing disconnected roads");
 }

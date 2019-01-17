@@ -13,7 +13,12 @@ use std::panic;
 impl Sim {
     // TODO share the helpers for spawning specific parking spots and stuff?
 
-    pub fn run_until_done(&mut self, map: &Map, callback: Box<Fn(&Sim)>, time_limit: Option<Tick>) {
+    pub fn run_until_done<F: Fn(&Sim)>(
+        &mut self,
+        map: &Map,
+        callback: F,
+        time_limit: Option<Tick>,
+    ) {
         let mut benchmark = self.start_benchmark();
         loop {
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
