@@ -15,6 +15,8 @@
 - revamp stop sign editor
 - toggle rewind mode
 	- sim stuff feels like a modal menu that's kinda omniprescent, but gets hidden sometimes
+- yellow or flashing red/yellow for yields
+- text box entry: highlight char looks like replace mode; draw it btwn chars
 
 ## General ezgui stuff
 
@@ -24,6 +26,7 @@
 - cant use G for geom debug mode and contextual polygon debug
 - on a menu with preselected thing, clicking ANYWHERE does stuff...
 - X on all menus
+- when dragging, dont give mouse movement to UI elements
 
 ## New features
 
@@ -45,3 +48,9 @@
 	- neutral (white or offwhite) color and make noncritical info close to
 	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,
           chroma < 50
+- use new arrows for drawing...
+	- triangle and base have a gap; why?!
+		- only for turn icons?
+		- draw as one polygon when fixed
+	- dashed thickness is way off
+	- last dash shouldnt appear?

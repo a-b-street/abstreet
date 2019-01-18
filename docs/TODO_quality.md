@@ -2,9 +2,29 @@
 
 ## Geometry
 
+- first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
+
+
+
+- handle small roads again somehow?
+	- what's correct for 14th and e boston? if we had less lanes there, would it help?
+
+	- make the polygons for the merged intersections look better
+	- same for the sidewalk corners
+	- make sure the turns are reasonable
+	- apply the merge automatically somehow
+
+	- or retry the later-phase intersection merging
+		- kind of need the ability to step through and see each stage...
+		- composite turns have inner loops!
+		- deal with all TODOs (like sidewalks)
+
+	- model U-turns
+
 - ped paths through sidewalk corners are totally broken
 
 - figure out what to do about yellow center lines
+	- intersections on one-ways look weird
 	- yellow and white lines intersect cars and turn icons and such
 	- who should own drawing them?
 
@@ -25,3 +45,13 @@
 - render trees
 - look for current stop sign priorities
 	- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
+
+## Low-priority geometry issues
+
+- if building front path intersects another building, then scrap that building.
+	- or wait, just require bldgs to be even closer to sidewalk first.
+	- need to do polygon vs polygon check!
+	- will need to speed it up with quadtree containing entire buildings. make sure these are easy to use.
+
+- can we make OSM buildings with holes?
+	- experiment with https://docs.rs/clipping/0.1.1/clipping/gh/struct.CPolygon.html and https://github.com/21re/rust-geo-booleanop

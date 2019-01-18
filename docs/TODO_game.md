@@ -21,3 +21,19 @@
   accel_to_stop_in_dist don't have a careful notion of how much time will pass,
   they recommend big rates sometimes.
 - no way for an agent to request a turn and ASAP have it granted. are there cases where they might slow down unnecessarily?
+
+- lane changing: seattle polite. planned things work. limit to space needed.
+
+## A much simpler model
+
+- render maps as super simple transit network.
+
+- event based + FSM + radically simpler model. essence of scarcity -- intersections, parking, lane capacity.
+- simpler kinematics: if we recognize we're stopping for an
+  intersection or following a vehicle closely, just set the
+  final state to be perfectly what we desire, rather than
+  solving for the acceleration to achieve that.
+  intent (and capabilities), not mechanics!
+- check out https://github.com/movsim/traffic-simulation-de
+
+- collapse smaller roads/neighborhoods and just simulate aggregate stats about them

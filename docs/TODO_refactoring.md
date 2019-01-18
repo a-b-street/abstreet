@@ -6,13 +6,25 @@
 ## Map layer
 
 - pt2d resolution
-	- then my own physics types
+	- handle turns with 0 geometry first.
+		- maybe Traversable having helpers is also bad. if it can fail for zero-geom turns.
+		- these seem to exist in the first place due to intersections that ought to be merged! argh.
+
+	- savestating test should work now!
+	- make sure display is always just 2 decimal places... should be though.
+	- FP math still sucky... debug a polyline, look at the deltas.
+	- get rid of HashablePt2D?
+- then my own physics types
+
 
 - maybe also the time to split into different lane types? what's similar/not between them?
 	- graph querying?
 	- rendering (and other UI/editor interactions)?
 	- sim state?
 	- Sidewalk, Parking, Street
+
+- make synthetic use raw stuff directly?
+	- lonlat vs pt is annoying; have to use bounds to balloon to world at least once
 
 ## Sim layer
 

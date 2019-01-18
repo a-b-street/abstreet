@@ -47,3 +47,37 @@ Seattlites with opinions and ideas:
 
 *   https://github.com/uwescience/TrafficCruising-DSSG2017
 *   http://sharedstreets.io/
+
+
+## Notes from related work
+
+### SMARTS (https://people.eng.unimelb.edu.au/etanin/tist17.pdf)
+
+- Split map into sections, simulate in parallel, load-balance
+- has an IDM equation
+- tests against real TomTom data of average speed per link
+
+### Games
+
+SimCity, Cities: Skylines
+
+### Open source urban planning
+
+UrbanSim
+
+### Proprietary
+
+Sidewalk Labs Model
+
+### Maps for people
+
+https://arxiv.org/pdf/1811.01147.pdf
+
+### gamma.cs.unc.edu/RoadNetwork/wilkie_TVCG.pdf
+
+section 6.3 talks about offset polylines
+http://gamma.cs.unc.edu/RoadNetwork
+
+### CityBound
+
+https://github.com/aeickhoff/descartes
