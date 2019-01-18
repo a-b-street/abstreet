@@ -4,10 +4,16 @@
 
 - first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
 	- look at i15 and i98 next
+		- watch out, road centers look partly trimmed on i98
+		- almost just treat them as degenerates
 
 	- automatically find problems
 		- for every road band, find the two endpoints. make sure they
 		  exactly match one edge of the intersection polygon.
+
+		- more general solver... for merged intersections, just take
+		  perp endpoints of stuff if they dont touch anything else.
+		  combination of trimming back road centers and taking perpendiculars.
 	- maybe oneway shifting is wrong? do those OSM pts represent the center of the one-way?
 
 - degenerate-2's should only have one crosswalk

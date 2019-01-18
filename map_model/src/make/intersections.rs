@@ -181,6 +181,10 @@ fn make_new_polygon(
     i: IntersectionID,
     lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
 ) -> Option<Vec<Pt2D>> {
+    // Since we might fail halfway through this function, don't actually trim center lines until we
+    // know we'll succeed.
+    let mut new_road_centers: Vec<(RoadID, PolyLine)> = Vec::new();
+
     let mut endpoints: Vec<Pt2D> = Vec::new();
     // Find the two corners of each road
     for idx in 0..lines.len() as isize {
@@ -204,7 +208,6 @@ fn make_new_polygon(
             if let Some((hit, angle)) = fwd_pl.intersection(adj_fwd_pl) {
                 // Find where the perpendicular to this corner hits the original line
                 let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
-                // TODO This fails for something in the 23rd Ave map.
                 let trim_to = road_center.intersection_infinite_line(perp)?;
                 (Some(hit), Some(road_center.trim_to_pt(trim_to)))
             } else {
@@ -244,10 +247,10 @@ fn make_new_polygon(
         let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
 
         let (width_normal, width_reverse) = if r.src_i == i {
-            r.center_pts = shorter_center.reversed();
+            new_road_centers.push((*id, shorter_center.reversed()));
             (back_width, fwd_width)
         } else {
-            r.center_pts = shorter_center.clone();
+            new_road_centers.push((*id, shorter_center.clone()));
             (fwd_width, back_width)
         };
         let pl_normal = shorter_center.shift_right(width_normal);
@@ -263,6 +266,10 @@ fn make_new_polygon(
         if let Some(hit) = back_hit {
             endpoints.push(hit);
         }
+    }
+
+    for (id, pl) in new_road_centers {
+        roads[id.0].center_pts = pl;
     }
 
     Some(approx_dedupe(endpoints))
