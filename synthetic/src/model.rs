@@ -3,6 +3,7 @@ use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json
 use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
 use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
+use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -15,15 +16,13 @@ const CENTER_LINE_THICKNESS: f64 = 0.5;
 const HIGHLIGHT_COLOR: Color = Color::CYAN;
 
 pub type BuildingID = usize;
-pub type IntersectionID = raw_data::StableIntersectionID;
-pub type RoadID = (IntersectionID, IntersectionID);
 pub type Direction = bool;
 
 #[derive(Debug, PartialEq)]
 pub enum ID {
     Building(BuildingID),
-    Intersection(IntersectionID),
-    Road(RoadID),
+    Intersection(StableIntersectionID),
+    Road(StableRoadID),
 }
 
 const FORWARDS: Direction = true;
@@ -36,12 +35,12 @@ pub struct Model {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    intersections: BTreeMap<IntersectionID, Intersection>,
+    intersections: BTreeMap<StableIntersectionID, Intersection>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    roads: BTreeMap<RoadID, Road>,
+    roads: BTreeMap<StableRoadID, Road>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -50,7 +49,7 @@ pub struct Model {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Intersection {
+struct Intersection {
     center: Pt2D,
     intersection_type: IntersectionType,
     label: Option<String>,
@@ -63,9 +62,9 @@ impl Intersection {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Road {
-    i1: IntersectionID,
-    i2: IntersectionID,
+struct Road {
+    i1: StableIntersectionID,
+    i2: StableIntersectionID,
     lanes: RoadSpec,
     fwd_label: Option<String>,
     back_label: Option<String>,
@@ -157,7 +156,7 @@ impl Road {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Building {
+struct Building {
     label: Option<String>,
     center: Pt2D,
 }
@@ -181,9 +180,9 @@ impl Model {
     pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas, quadtree: Option<&QuadTree<ID>>) {
         g.clear(Color::WHITE);
 
-        let mut roads: Vec<RoadID> = Vec::new();
+        let mut roads: Vec<StableRoadID> = Vec::new();
         let mut buildings: Vec<BuildingID> = Vec::new();
-        let mut intersections: Vec<IntersectionID> = Vec::new();
+        let mut intersections: Vec<StableIntersectionID> = Vec::new();
         if let Some(ref qt) = quadtree {
             let bbox = canvas.get_screen_bounds().as_bbox();
             for &(id, _, _) in &qt.query(bbox) {
@@ -263,9 +262,9 @@ impl Model {
         let cursor = canvas.get_cursor_in_map_space()?;
 
         // TODO Duplicated with draw
-        let mut roads: Vec<RoadID> = Vec::new();
+        let mut roads: Vec<StableRoadID> = Vec::new();
         let mut buildings: Vec<BuildingID> = Vec::new();
-        let mut intersections: Vec<IntersectionID> = Vec::new();
+        let mut intersections: Vec<StableIntersectionID> = Vec::new();
         if let Some(ref qt) = quadtree {
             let bbox = canvas.get_screen_bounds().as_bbox();
             for &(id, _, _) in &qt.query(bbox) {
@@ -327,7 +326,7 @@ impl Model {
             LonLat::new(p.x(), p.y())
         }
 
-        for (idx, r) in self.roads.values().enumerate() {
+        for (id, r) in &self.roads {
             let mut osm_tags = BTreeMap::new();
             osm_tags.insert("synthetic_lanes".to_string(), r.lanes.to_string());
             if let Some(ref label) = r.fwd_label {
@@ -337,7 +336,7 @@ impl Model {
                 osm_tags.insert("back_label".to_string(), label.to_string());
             }
             map.roads.insert(
-                raw_data::StableRoadID(idx),
+                *id,
                 raw_data::Road {
                     i1: r.i1,
                     i2: r.i2,
@@ -346,7 +345,7 @@ impl Model {
                         pt(self.intersections[&r.i2].center),
                     ],
                     osm_tags,
-                    osm_way_id: idx as i64,
+                    osm_way_id: id.0 as i64,
                     parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
                     parking_lane_back: r.lanes.back.contains(&LaneType::Parking),
                 },
@@ -405,10 +404,10 @@ impl Model {
             m.intersections.insert(*id, i);
         }
 
-        for r in data.roads.values() {
+        for (id, r) in &data.roads {
             let (i1, i2) = (r.i1, r.i2);
             m.roads.insert(
-                (i1, i2),
+                *id,
                 Road {
                     i1,
                     i2,
@@ -422,7 +421,7 @@ impl Model {
                 m.intersections[&i2].center,
             ]);
             quadtree.insert_with_box(
-                ID::Road((i1, i2)),
+                ID::Road(*id),
                 pl.make_polygons(LANE_THICKNESS * 6.0)
                     .get_bounds()
                     .as_bbox(),
@@ -450,7 +449,7 @@ impl Model {
 
 impl Model {
     pub fn create_i(&mut self, center: Pt2D) {
-        let id = raw_data::StableIntersectionID(self.intersections.len());
+        let id = StableIntersectionID(self.intersections.len());
         self.intersections.insert(
             id,
             Intersection {
@@ -461,19 +460,19 @@ impl Model {
         );
     }
 
-    pub fn move_i(&mut self, id: IntersectionID, center: Pt2D) {
+    pub fn move_i(&mut self, id: StableIntersectionID, center: Pt2D) {
         self.intersections.get_mut(&id).unwrap().center = center;
     }
 
-    pub fn set_i_label(&mut self, id: IntersectionID, label: String) {
+    pub fn set_i_label(&mut self, id: StableIntersectionID, label: String) {
         self.intersections.get_mut(&id).unwrap().label = Some(label);
     }
 
-    pub fn get_i_label(&self, id: IntersectionID) -> Option<String> {
+    pub fn get_i_label(&self, id: StableIntersectionID) -> Option<String> {
         self.intersections[&id].label.clone()
     }
 
-    pub fn toggle_i_type(&mut self, id: IntersectionID) {
+    pub fn toggle_i_type(&mut self, id: StableIntersectionID) {
         let i = self.intersections.get_mut(&id).unwrap();
         i.intersection_type = match i.intersection_type {
             IntersectionType::StopSign => IntersectionType::TrafficSignal,
@@ -493,9 +492,9 @@ impl Model {
         };
     }
 
-    pub fn remove_i(&mut self, id: IntersectionID) {
-        for (i1, i2) in self.roads.keys() {
-            if *i1 == id || *i2 == id {
+    pub fn remove_i(&mut self, id: StableIntersectionID) {
+        for r in self.roads.values() {
+            if r.i1 == id || r.i2 == id {
                 println!("Can't delete intersection used by roads");
                 return;
             }
@@ -503,20 +502,23 @@ impl Model {
         self.intersections.remove(&id);
     }
 
-    pub fn get_i_center(&self, id: IntersectionID) -> Pt2D {
+    pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
         self.intersections[&id].center
     }
 }
 
 impl Model {
-    pub fn create_road(&mut self, i1: IntersectionID, i2: IntersectionID) {
-        let id = if i1 < i2 { (i1, i2) } else { (i2, i1) };
-        if self.roads.contains_key(&id) {
+    pub fn create_road(&mut self, i1: StableIntersectionID, i2: StableIntersectionID) {
+        if self
+            .roads
+            .values()
+            .any(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
+        {
             println!("Road already exists");
             return;
         }
         self.roads.insert(
-            id,
+            StableRoadID(self.roads.len()),
             Road {
                 i1,
                 i2,
@@ -530,7 +532,7 @@ impl Model {
         );
     }
 
-    pub fn edit_lanes(&mut self, id: RoadID, spec: String) {
+    pub fn edit_lanes(&mut self, id: StableRoadID, spec: String) {
         if let Some(s) = RoadSpec::parse(spec.clone()) {
             self.roads.get_mut(&id).unwrap().lanes = s;
         } else {
@@ -538,12 +540,12 @@ impl Model {
         }
     }
 
-    pub fn swap_lanes(&mut self, id: RoadID) {
+    pub fn swap_lanes(&mut self, id: StableRoadID) {
         let lanes = &mut self.roads.get_mut(&id).unwrap().lanes;
         mem::swap(&mut lanes.fwd, &mut lanes.back);
     }
 
-    pub fn set_r_label(&mut self, pair: (RoadID, Direction), label: String) {
+    pub fn set_r_label(&mut self, pair: (StableRoadID, Direction), label: String) {
         let r = self.roads.get_mut(&pair.0).unwrap();
         if pair.1 {
             r.fwd_label = Some(label);
@@ -552,7 +554,7 @@ impl Model {
         }
     }
 
-    pub fn get_r_label(&self, pair: (RoadID, Direction)) -> Option<String> {
+    pub fn get_r_label(&self, pair: (StableRoadID, Direction)) -> Option<String> {
         let r = &self.roads[&pair.0];
         if pair.1 {
             r.fwd_label.clone()
@@ -561,12 +563,12 @@ impl Model {
         }
     }
 
-    pub fn remove_road(&mut self, id: RoadID) {
+    pub fn remove_road(&mut self, id: StableRoadID) {
         self.roads.remove(&id);
     }
 
-    // TODO Make (RoadID, Direction) be the primitive, I guess.
-    pub fn mouseover_road(&self, id: RoadID, pt: Pt2D) -> Option<(RoadID, Direction)> {
+    // TODO Make (StableRoadID, Direction) be the primitive, I guess.
+    pub fn mouseover_road(&self, id: StableRoadID, pt: Pt2D) -> Option<(StableRoadID, Direction)> {
         let r = &self.roads[&id];
         if r.polygon(FORWARDS, self).contains_pt(pt) {
             return Some((id, FORWARDS));
@@ -577,7 +579,7 @@ impl Model {
         None
     }
 
-    pub fn get_lanes(&self, id: RoadID) -> String {
+    pub fn get_lanes(&self, id: StableRoadID) -> String {
         self.roads[&id].lanes.to_string()
     }
 }

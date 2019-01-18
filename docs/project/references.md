@@ -18,6 +18,7 @@
 - https://mic.comotion.uw.edu/
 - https://www.seattleinprogress.com/
 - http://www.seattle.gov/seattle-pedestrian-advisory-board
+- Socrata
 
 ## Similar projects
 

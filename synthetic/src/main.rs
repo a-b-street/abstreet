@@ -1,9 +1,10 @@
 mod model;
 
-use crate::model::{BuildingID, Direction, IntersectionID, Model, RoadID, ID};
+use crate::model::{BuildingID, Direction, Model, ID};
 use aabb_quadtree::QuadTree;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, Wizard, GUI};
 use geom::Line;
+use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
 
 struct UI {
@@ -15,13 +16,13 @@ struct UI {
 
 enum State {
     Viewing,
-    MovingIntersection(IntersectionID),
+    MovingIntersection(StableIntersectionID),
     MovingBuilding(BuildingID),
     LabelingBuilding(BuildingID, Wizard),
-    LabelingRoad((RoadID, Direction), Wizard),
-    LabelingIntersection(IntersectionID, Wizard),
-    CreatingRoad(IntersectionID),
-    EditingRoad(RoadID, Wizard),
+    LabelingRoad((StableRoadID, Direction), Wizard),
+    LabelingIntersection(StableIntersectionID, Wizard),
+    CreatingRoad(StableIntersectionID),
+    EditingRoad(StableRoadID, Wizard),
     SavingModel(Wizard),
 }
 
@@ -166,7 +167,7 @@ impl GUI<Text> for UI {
                     }
                 } else if let Some(ID::Road(r)) = selected {
                     let (_, dir) = self.model.mouseover_road(r, cursor).unwrap();
-                    if input.key_pressed(Key::Backspace, "delete road") {
+                    if input.key_pressed(Key::Backspace, &format!("delete road {}", r)) {
                         self.model.remove_road(r);
                     } else if input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
