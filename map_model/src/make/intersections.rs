@@ -51,6 +51,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
         degenerate_twoway(roads, i.id, &lines)
     } else if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
         pts
+    } else if let Some(pts) = make_weird_threeway(roads, i.id, &lines) {
+        pts
     } else {
         note(format!(
             "couldnt make new for {} with {} roads",
@@ -230,39 +232,7 @@ fn make_new_polygon(
             (Some(c1), None) => c1,
             (None, Some(c2)) => c2,
             (None, None) => {
-                // TODO This doesn't work yet, and it's getting VERY complicated.
-                /*
-                // Different strategy. Take the perpendicular infinite line and intersect with the
-                // adjacent line that does NOT share an endpoint.
-                let fwd_same_endpt = fwd_pl.last_pt() == adj_fwd_pl.last_pt();
-                let back_same_endpt = back_pl.last_pt() == adj_back_pl.last_pt();
-
-                let debug = i.0 == 357;
-                if debug {
-                    note(format!(
-                        "{} adjacent to {} fwd, {} back. same endpts: {} and {}",
-                        id, fwd_id, back_id, fwd_same_endpt, back_same_endpt
-                    ));
-                }
-
-                if (fwd_same_endpt || back_same_endpt) && !(fwd_same_endpt && back_same_endpt) {
-                    if fwd_same_endpt {
-                        let perp = Line::new(back_pl.last_pt(), back_pl.last_pt().project_away(1.0, back_pl.last_line().angle().rotate_degs(90.0)));
-                        let adj_hit = adj_back_pl.intersection_infinite_line(perp)?;
-                        endpoints.push(fwd_pl.last_pt());
-                        endpoints.push(adj_hit);
-                    } else {
-                        let perp = Line::new(fwd_pl.last_pt(), fwd_pl.last_pt().project_away(1.0, fwd_pl.last_line().angle().rotate_degs(90.0)));
-                        let adj_hit = adj_fwd_pl.intersection_infinite_line(perp)?;
-                        endpoints.push(adj_hit);
-                        endpoints.push(back_pl.last_pt());
-                    }
-                    continue;
-                } else {
-                    // TODO whoa, how's this happen?
-                    return None;
-                }
-                */
+                // TODO We might need to revert some shortened road centers!
                 return None;
             }
         };
@@ -365,4 +335,101 @@ fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
         }
     }
     result
+}
+
+fn make_weird_threeway(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Option<Vec<Pt2D>> {
+    if lines.len() != 3 {
+        return None;
+    }
+
+    // Does the _b line of any of the roads completely cross another road?
+    // TODO What about the _a line?
+    for thick_idx in 0..3 {
+        let (thick_id, _, _, thick_b) = &lines[thick_idx];
+
+        for thin_idx in 0..3 {
+            if thin_idx == thick_idx {
+                continue;
+            }
+            let (thin_id, _, thin_a, thin_b) = &lines[thin_idx];
+            if thick_b.intersection(&thin_a).is_none() || thick_b.intersection(&thin_b).is_none() {
+                continue;
+            }
+
+            let (thick_pt1, thick_pt2) = trim_to_hit(&mut roads[thick_id.0], i, thick_b, thin_a);
+            let (thin_pt1, thin_pt2) = trim_to_hit(&mut roads[thin_id.0], i, thin_a, thick_b);
+
+            // Leave the other line alone.
+            let (_, _, other_a, other_b) = &lines[other_idx(thick_idx, thin_idx)];
+
+            return Some(vec![
+                thick_pt1,
+                thick_pt2,
+                thin_pt1,
+                thin_pt2,
+                other_a.last_pt(),
+                other_b.last_pt(),
+            ]);
+        }
+    }
+
+    None
+}
+
+// These are helpers for make_weird_threeway.
+
+// Returns the two endpoints for the intersection polygon after trimming, in the (forwards,
+// backwards) order.
+fn trim_to_hit(
+    r: &mut Road,
+    i: IntersectionID,
+    our_pl: &PolyLine,
+    other_pl: &PolyLine,
+) -> (Pt2D, Pt2D) {
+    // Find the spot along the road's original center that's perpendicular to the hit. Keep in
+    // mind our_pl might not be the road's center.
+    let orig_center = if r.dst_i == i {
+        r.center_pts.clone()
+    } else {
+        r.center_pts.reversed()
+    };
+
+    let (hit, angle) = our_pl.intersection(other_pl).unwrap();
+    let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+    let trim_to = orig_center.intersection_infinite_line(perp).unwrap();
+    let new_center = orig_center.trim_to_pt(trim_to);
+
+    // TODO Really redoing work. :\
+    let fwd_width = LANE_THICKNESS * (r.children_forwards.len() as f64);
+    let back_width = LANE_THICKNESS * (r.children_backwards.len() as f64);
+
+    if r.dst_i == i {
+        r.center_pts = new_center;
+
+        (
+            r.center_pts.shift_right(fwd_width).last_pt(),
+            r.center_pts.shift_left(back_width).last_pt(),
+        )
+    } else {
+        r.center_pts = new_center.reversed();
+
+        (
+            r.center_pts.shift_left(back_width).first_pt(),
+            r.center_pts.shift_right(fwd_width).first_pt(),
+        )
+    }
+}
+
+fn other_idx(idx1: usize, idx2: usize) -> usize {
+    if idx1 != 0 && idx2 != 0 {
+        return 0;
+    }
+    if idx1 != 1 && idx2 != 1 {
+        return 1;
+    }
+    2
 }

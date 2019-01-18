@@ -3,9 +3,13 @@
 ## Geometry
 
 - first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
-	- i2 is a perfect example...
+	- i2 is a perfect example... i152 has the same problem
+		- maybe oneway shifting is wrong? do those OSM pts represent the center of the one-way?
 
 
+	- automatically find problems
+		- for every road band, find the two endpoints. make sure they
+		  exactly match one edge of the intersection polygon.
 
 - handle small roads again somehow?
 	- what's correct for 14th and e boston? if we had less lanes there, would it help?
