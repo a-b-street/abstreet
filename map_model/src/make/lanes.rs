@@ -24,24 +24,24 @@ pub fn get_lane_types(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     // TODO Reversible roads should be handled differently?
     let oneway = r.osm_tags.get("oneway") == Some(&"yes".to_string())
         || r.osm_tags.get("oneway") == Some(&"reversible".to_string());
-    let num_driving_lanes_per_road = if let Some(n) = r
+    let num_driving_lanes_per_side = if let Some(n) = r
         .osm_tags
         .get("lanes")
         .and_then(|num| num.parse::<usize>().ok())
     {
-        n
+        if oneway {
+            // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
+            n
+        } else {
+            // TODO How to distribute odd number of lanes?
+            (n / 2).max(1)
+        }
     } else {
-        // TODO https://wiki.openstreetmap.org/wiki/Key:lanes#Assumptions service, track, and path
-        // should have less, but I don't see examples of these
-        2
+        // TODO Does https://wiki.openstreetmap.org/wiki/Key:lanes#Assumptions help?
+        1
     };
     let mut driving_lanes_per_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(if oneway {
-            num_driving_lanes_per_road
-        } else {
-            // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
-            (num_driving_lanes_per_road / 2).max(1)
-        })
+        .take(num_driving_lanes_per_side)
         .collect();
     // TODO Don't even bother trying to parse this yet.
     let has_bus_lane = r.osm_tags.contains_key("bus:lanes");
@@ -64,7 +64,12 @@ pub fn get_lane_types(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     if has_bike_lane {
         fwd_side.push(LaneType::Biking);
     }
-    if r.parking_lane_fwd {
+    // TODO Should we warn when a link road has parking assigned to it from the blockface?
+    let is_link = match r.osm_tags.get("highway") {
+        Some(hwy) => hwy.ends_with("_link"),
+        None => false,
+    };
+    if r.parking_lane_fwd && !is_link {
         fwd_side.push(LaneType::Parking);
     }
     if has_sidewalk {
@@ -90,7 +95,7 @@ pub fn get_lane_types(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
         if has_bike_lane {
             back_side.push(LaneType::Biking);
         }
-        if r.parking_lane_back {
+        if r.parking_lane_back && !is_link {
             back_side.push(LaneType::Parking);
         }
         if has_sidewalk {

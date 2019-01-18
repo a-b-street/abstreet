@@ -3,6 +3,7 @@
 ## Geometry
 
 - first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
+	- i2 is a perfect example...
 
 
 
