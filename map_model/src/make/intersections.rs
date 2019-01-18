@@ -17,6 +17,7 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
     // at the intersection (which may be different points for merged intersections!), and the angle
     // of the last segment of the center line.
+    // TODO Maybe express the two incoming PolyLines as the "right" and "left"
     let mut lines: Vec<(RoadID, Angle, PolyLine, PolyLine)> = i
         .roads
         .iter()
@@ -51,7 +52,7 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
         degenerate_twoway(roads, i.id, &lines)
     } else if let Some(pts) = make_new_polygon(roads, i.id, &lines) {
         pts
-    } else if let Some(pts) = make_weird_threeway(roads, i.id, &lines) {
+    } else if let Some(pts) = make_thick_thin_threeway(roads, i.id, &lines) {
         pts
     } else {
         note(format!(
@@ -59,7 +60,7 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
             i.id,
             lines.len()
         ));
-        make_old_polygon(i.id, &lines)
+        make_old_polygon(&lines)
     };
 
     // Close off the polygon
@@ -267,17 +268,14 @@ fn make_new_polygon(
     Some(approx_dedupe(endpoints))
 }
 
-fn make_old_polygon(
-    i: IntersectionID,
-    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
-) -> Vec<Pt2D> {
+fn make_old_polygon(lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>) -> Vec<Pt2D> {
     let mut endpoints = Vec::new();
     // Look at adjacent pairs of these polylines...
     for idx1 in 0..lines.len() as isize {
         let idx2 = idx1 + 1;
 
-        let (id1, _, _, pl1) = wraparound_get(&lines, idx1);
-        let (id2, _, pl2, _) = wraparound_get(&lines, idx2);
+        let (_, _, _, pl1) = wraparound_get(&lines, idx1);
+        let (_, _, pl2, _) = wraparound_get(&lines, idx2);
 
         // If the two lines are too close in angle, they'll either not hit or even if they do, it
         // won't be right.
@@ -294,15 +292,12 @@ fn make_old_polygon(
             }
         }
 
-        let mut ok = true;
-
         // Use the next adjacent road, doing line to line segment intersection instead.
         let inf_line1 = wraparound_get(&lines, idx1 - 1).3.last_line();
         if let Some(hit) = pl1.intersection_infinite_line(inf_line1) {
             endpoints.push(hit);
         } else {
             endpoints.push(pl1.last_pt());
-            ok = false;
         }
 
         let inf_line2 = wraparound_get(&lines, idx2 + 1).2.last_line();
@@ -310,17 +305,6 @@ fn make_old_polygon(
             endpoints.push(hit);
         } else {
             endpoints.push(pl2.last_pt());
-            ok = false;
-        }
-
-        if !ok {
-            warn!(
-                "No hit btwn {} and {}, for {} with {} incident roads",
-                id1,
-                id2,
-                i,
-                lines.len()
-            );
         }
     }
     endpoints
@@ -337,7 +321,10 @@ fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
     result
 }
 
-fn make_weird_threeway(
+// Does the _a or _b line of any of the roads completely cross another road? This happens often
+// when normal roads intersect a highway on/off ramp, or more generally, when the width of one road
+// is very different than the others.
+fn make_thick_thin_threeway(
     roads: &mut Vec<Road>,
     i: IntersectionID,
     lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
@@ -346,41 +333,63 @@ fn make_weird_threeway(
         return None;
     }
 
-    // Does the _b line of any of the roads completely cross another road?
-    // TODO What about the _a line?
     for thick_idx in 0..3 {
-        let (thick_id, _, _, thick_b) = &lines[thick_idx];
+        for thick_side in &[true, false] {
+            let (thick_id, thick_pl) = if *thick_side {
+                let (id, _, _, pl) = &lines[thick_idx];
+                (id, pl)
+            } else {
+                let (id, _, pl, _) = &lines[thick_idx];
+                (id, pl)
+            };
 
-        for thin_idx in 0..3 {
-            if thin_idx == thick_idx {
-                continue;
+            for thin_idx in 0..3 {
+                if thin_idx == thick_idx {
+                    continue;
+                }
+                let (thin_id, _, thin_a, thin_b) = &lines[thin_idx];
+                if thick_pl.intersection(&thin_a).is_none()
+                    || thick_pl.intersection(&thin_b).is_none()
+                {
+                    continue;
+                }
+
+                let thin_pl = if *thick_side { thin_a } else { thin_b };
+
+                let (thick_pt1, thick_pt2) =
+                    trim_to_hit(&mut roads[thick_id.0], i, thick_pl, thin_pl);
+                let (thin_pt1, thin_pt2) = trim_to_hit(&mut roads[thin_id.0], i, thin_pl, thick_pl);
+
+                // Leave the other line alone.
+                let (_, _, other_a, other_b) = &lines[other_idx(thick_idx, thin_idx)];
+
+                if *thick_side {
+                    return Some(vec![
+                        thick_pt1,
+                        thick_pt2,
+                        thin_pt1,
+                        thin_pt2,
+                        other_a.last_pt(),
+                        other_b.last_pt(),
+                    ]);
+                } else {
+                    return Some(vec![
+                        thick_pt1,
+                        thick_pt2,
+                        other_a.last_pt(),
+                        other_b.last_pt(),
+                        thin_pt1,
+                        thin_pt2,
+                    ]);
+                }
             }
-            let (thin_id, _, thin_a, thin_b) = &lines[thin_idx];
-            if thick_b.intersection(&thin_a).is_none() || thick_b.intersection(&thin_b).is_none() {
-                continue;
-            }
-
-            let (thick_pt1, thick_pt2) = trim_to_hit(&mut roads[thick_id.0], i, thick_b, thin_a);
-            let (thin_pt1, thin_pt2) = trim_to_hit(&mut roads[thin_id.0], i, thin_a, thick_b);
-
-            // Leave the other line alone.
-            let (_, _, other_a, other_b) = &lines[other_idx(thick_idx, thin_idx)];
-
-            return Some(vec![
-                thick_pt1,
-                thick_pt2,
-                thin_pt1,
-                thin_pt2,
-                other_a.last_pt(),
-                other_b.last_pt(),
-            ]);
         }
     }
 
     None
 }
 
-// These are helpers for make_weird_threeway.
+// These are helpers for make_thick_thin_threeway.
 
 // Returns the two endpoints for the intersection polygon after trimming, in the (forwards,
 // backwards) order.
