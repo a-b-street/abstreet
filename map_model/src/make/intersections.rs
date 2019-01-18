@@ -54,6 +54,8 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
         pts
     } else if let Some(pts) = make_thick_thin_threeway(roads, i.id, &lines) {
         pts
+    } else if let Some(pts) = make_degenerate_threeway(roads, i.id, &lines) {
+        pts
     } else {
         note(format!(
             "couldnt make new for {} with {} roads",
@@ -117,56 +119,12 @@ fn degenerate_twoway(
     i: IntersectionID,
     lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
 ) -> Vec<Pt2D> {
-    let (id1, _, pl1_a, pl1_b) = &lines[0];
-    let (id2, _, pl2_a, pl2_b) = &lines[1];
-
-    if roads[id1.0].center_pts.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-        && roads[id2.0].center_pts.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH
-    {
-        // Why fix center pts and then re-shift out, instead of use the pl1_a and friends? because
-        // dist_along on shifted polylines is NOT equivalent.
-        let mut endpoints = Vec::new();
-        for road_id in &[id1, id2] {
-            let mut r = &mut roads[road_id.0];
-            if r.src_i == i {
-                r.center_pts = r
-                    .center_pts
-                    .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
-                    .0;
-
-                endpoints.push(
-                    r.center_pts
-                        .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                        .first_pt(),
-                );
-                endpoints.push(
-                    r.center_pts
-                        .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                        .first_pt(),
-                );
-            } else {
-                r.center_pts = r
-                    .center_pts
-                    .slice(
-                        0.0 * si::M,
-                        r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-                    )
-                    .0;
-                endpoints.push(
-                    r.center_pts
-                        .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                        .last_pt(),
-                );
-                endpoints.push(
-                    r.center_pts
-                        .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                        .last_pt(),
-                );
-            }
-        }
-        endpoints
+    if let Some(pts) = make_simple_degenerate(roads, i, lines) {
+        pts
     } else {
-        error!("{} has only {} and {}, some of which are too short to make degenerate intersection geometry", i, id1, id2);
+        let (_, _, pl1_a, pl1_b) = &lines[0];
+        let (_, _, pl2_a, pl2_b) = &lines[1];
+        error!("{} is a degenerate 2-way, but some roads are too short", i);
         vec![
             pl1_a.last_pt(),
             pl1_b.last_pt(),
@@ -448,4 +406,73 @@ fn other_idx(idx1: usize, idx2: usize) -> usize {
         return 1;
     }
     2
+}
+
+fn make_degenerate_threeway(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Option<Vec<Pt2D>> {
+    if lines.len() != 3 {
+        return None;
+    }
+
+    // TODO What if there's a collision farther than the arbitrary length we pick?
+    make_simple_degenerate(roads, i, lines)
+}
+
+fn make_simple_degenerate(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Option<Vec<Pt2D>> {
+    for (id, _, _, _) in lines {
+        if roads[id.0].center_pts.length() < DEGENERATE_INTERSECTION_HALF_LENGTH {
+            return None;
+        }
+    }
+
+    // Why fix center pts and then re-shift out, instead of use the pl1_a and friends? because
+    // dist_along on shifted polylines is NOT equivalent.
+    let mut endpoints: Vec<Pt2D> = Vec::new();
+
+    for (road_id, _, _, _) in lines {
+        let mut r = &mut roads[road_id.0];
+        if r.src_i == i {
+            r.center_pts = r
+                .center_pts
+                .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
+                .0;
+
+            endpoints.push(
+                r.center_pts
+                    .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
+                    .first_pt(),
+            );
+            endpoints.push(
+                r.center_pts
+                    .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
+                    .first_pt(),
+            );
+        } else {
+            r.center_pts = r
+                .center_pts
+                .slice(
+                    0.0 * si::M,
+                    r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+                )
+                .0;
+            endpoints.push(
+                r.center_pts
+                    .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
+                    .last_pt(),
+            );
+            endpoints.push(
+                r.center_pts
+                    .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
+                    .last_pt(),
+            );
+        }
+    }
+    Some(endpoints)
 }

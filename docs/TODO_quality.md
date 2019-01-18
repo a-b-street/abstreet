@@ -3,10 +3,6 @@
 ## Geometry
 
 - first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
-	- look at i15 and i98 next
-		- watch out, road centers look partly trimmed on i98
-		- almost just treat them as degenerates
-
 	- automatically find problems
 		- for every road band, find the two endpoints. make sure they
 		  exactly match one edge of the intersection polygon.
