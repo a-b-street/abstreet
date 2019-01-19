@@ -66,7 +66,7 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
                     .get("name")
                     .unwrap_or(&"???".to_string())
                     .to_string(),
-                Some(Color::BLUE),
+                Some(Color::CYAN),
                 None,
             );
             txt.add_line(format!("From OSM way {}", r.osm_way_id));
@@ -146,6 +146,6 @@ fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
         txt.add_styled_line(k.to_string(), Some(Color::RED), None);
         txt.append(" = ".to_string(), None, None);
-        txt.append(v.to_string(), Some(Color::BLUE), None);
+        txt.append(v.to_string(), Some(Color::CYAN), None);
     }
 }

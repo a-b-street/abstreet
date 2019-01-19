@@ -2,18 +2,12 @@
 
 ## Geometry
 
-- first, stop doing make_old_polygon entirely. figure out the cases where make_new_polygon fails.
-	- automatically find problems
-		- for every road band, find the two endpoints. make sure they
-		  exactly match one edge of the intersection polygon.
-
-		- more general solver... for merged intersections, just take
-		  perp endpoints of stuff if they dont touch anything else.
-		  combination of trimming back road centers and taking perpendiculars.
-	- maybe oneway shifting is wrong? do those OSM pts represent the center of the one-way?
-
-- degenerate-2's should only have one crosswalk
-	- then make them thinner
+- generalized_trim_back
+	- breaks down when we have jagged lane endings due to polyline shift angle correction
+	- definitely wind up with some extra stuff in the polygon... including the final hit probably helps
+	- sometimes a lane polyline hits the perpendicular of a trimmed road! trim a bit further to handle that?
+	- some sidewalk corners are too eager now
+	- if some centers dont change enough, trim them back a little extra. ex: montlake bridge
 
 - handle small roads again somehow?
 	- what's correct for 14th and e boston? if we had less lanes there, would it help?
@@ -29,6 +23,9 @@
 		- deal with all TODOs (like sidewalks)
 
 	- model U-turns
+
+- degenerate-2's should only have one crosswalk
+	- then make them thinner
 
 - ped paths through sidewalk corners are totally broken
 

@@ -1,5 +1,5 @@
 use crate::raw_data;
-use abstutil::{retain_btreemap, Timer};
+use abstutil::{note, retain_btreemap, Timer};
 use dimensioned::si;
 use geom::{PolyLine, Pt2D};
 
@@ -8,12 +8,21 @@ pub fn old_merge_intersections(data: &mut raw_data::Map, _timer: &mut Timer) {
         return;
     }
 
+    // 13th and Lynn
+    merge(data, raw_data::StableRoadID(311));
+
+    // 15th and Howe
+    merge(data, raw_data::StableRoadID(240));
+
+    // 2nd and Interlaken Place
+    merge(data, raw_data::StableRoadID(91));
+
     // 15th and McGraw
-    merge(data, raw_data::StableRoadID(59));
+    //merge(data, raw_data::StableRoadID(59));
 
     // 14th and Boston
-    merge(data, raw_data::StableRoadID(389));
-    merge(data, raw_data::StableRoadID(22));
+    //merge(data, raw_data::StableRoadID(389));
+    //merge(data, raw_data::StableRoadID(22));
 
     if true {
         return;
@@ -42,6 +51,20 @@ fn merge(data: &mut raw_data::Map, merge_road: raw_data::StableRoadID) {
     // Arbitrarily kill off the first intersection and keep the second one.
     let (delete_i, keep_i) = {
         let r = data.roads.remove(&merge_road).unwrap();
+
+        let gps_bounds = data.get_gps_bounds();
+        let center_pts = PolyLine::new(
+            r.points
+                .iter()
+                .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
+                .collect(),
+        );
+        note(format!(
+            "Deleting {}, which has original length {}",
+            merge_road,
+            center_pts.length()
+        ));
+
         (r.i1, r.i2)
     };
     data.intersections.remove(&delete_i);
