@@ -1,6 +1,7 @@
 use crate::{Intersection, IntersectionID, Road, RoadID, LANE_THICKNESS};
+use abstutil::wraparound_get;
 use dimensioned::si;
-use geom::{Angle, Line, PolyLine, Pt2D};
+use geom::{Angle, HashablePt2D, Line, PolyLine, Pt2D};
 use std::collections::HashMap;
 use std::marker;
 
@@ -120,17 +121,6 @@ fn degenerate_twoway(
             pl2_b.last_pt(),
         ]
     }
-}
-
-// Temporary until Pt2D has proper resolution.
-fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
-    let mut result: Vec<Pt2D> = Vec::new();
-    for pt in pts {
-        if result.is_empty() || !result.last().unwrap().approx_eq(pt) {
-            result.push(pt);
-        }
-    }
-    result
 }
 
 fn make_simple_degenerate(
@@ -265,9 +255,35 @@ fn generalized_trim_back(
             endpoints.push(r.center_pts.shift_left(back_width).first_pt());
         }
     }
+    // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
+    // not originally covered by the thick road bands.
+    for idx in 0..lines.len() as isize {
+        let (_, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+
+        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
+            endpoints.push(hit);
+        }
+        if let Some((hit, _)) = back_pl.intersection(adj_back_pl) {
+            endpoints.push(hit);
+        }
+    }
+    endpoints.sort_by_key(|pt| HashablePt2D::from(*pt));
     endpoints = approx_dedupe(endpoints);
 
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| Line::new(center, *pt).angle().normalized_degrees() as i64);
     endpoints
+}
+
+// Temporary until Pt2D has proper resolution.
+fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
+    let mut result: Vec<Pt2D> = Vec::new();
+    for pt in pts {
+        if result.is_empty() || !result.last().unwrap().approx_eq(pt, 1.0 * si::M) {
+            result.push(pt);
+        }
+    }
+    result
 }

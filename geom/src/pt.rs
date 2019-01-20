@@ -32,9 +32,8 @@ impl Pt2D {
     }
 
     // TODO This is a small first step...
-    pub fn approx_eq(&self, other: Pt2D) -> bool {
-        let eps = 0.01;
-        (self.x - other.x).abs() < eps && (self.y - other.y) < eps
+    pub fn approx_eq(&self, other: Pt2D, threshold: si::Meter<f64>) -> bool {
+        self.dist_to(other) <= threshold
     }
 
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {

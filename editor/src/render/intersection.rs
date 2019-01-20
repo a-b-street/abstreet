@@ -298,13 +298,13 @@ pub fn draw_signal_diagram(
 fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {
     let mut result = Vec::new();
     for pt in pts {
-        if result.is_empty() && pt.approx_eq(start) {
+        if result.is_empty() && pt.approx_eq(start, 1.0 * si::M) {
             result.push(*pt);
         } else if !result.is_empty() {
             result.push(*pt);
         }
         // start and end might be the same.
-        if !result.is_empty() && pt.approx_eq(end) {
+        if !result.is_empty() && pt.approx_eq(end, 1.0 * si::M) {
             return Some(result);
         }
     }
@@ -317,7 +317,7 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
     // Go through again, looking for end
     for pt in pts {
         result.push(*pt);
-        if pt.approx_eq(end) {
+        if pt.approx_eq(end, 1.0 * si::M) {
             return Some(result);
         }
     }

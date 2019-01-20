@@ -2,6 +2,7 @@
 
 ## Quick n easy
 
+- color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)
 - audit all panics
 - tune text color, size, padding
 - sort the top menus

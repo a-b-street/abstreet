@@ -4,9 +4,7 @@
 
 - generalized_trim_back
 	- breaks down when we have jagged lane endings due to polyline shift angle correction
-	- definitely wind up with some extra stuff in the polygon... including the final hit probably helps
 	- sometimes a lane polyline hits the perpendicular of a trimmed road! trim a bit further to handle that?
-	- some sidewalk corners are too eager now
 	- if some centers dont change enough, trim them back a little extra. ex: montlake bridge
 
 - handle small roads again somehow?
