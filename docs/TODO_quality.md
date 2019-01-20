@@ -13,6 +13,7 @@
 	- what's correct for 14th and e boston? if we had less lanes there, would it help?
 
 	- make the polygons for the merged intersections look better
+		- the thick road bands for tiny roads totally vanish... is that good?
 	- same for the sidewalk corners
 	- make sure the turns are reasonable
 	- apply the merge automatically somehow

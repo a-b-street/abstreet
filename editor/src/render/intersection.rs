@@ -70,18 +70,21 @@ impl Renderable for DrawIntersection {
                 ctx.canvas
                     .draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
             }
-        } else if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+        } else {
+            // Always draw these; otherwise zooming in is very disconcerting.
             for corner in &self.sidewalk_corners {
                 g.draw_polygon(opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk")), corner);
             }
 
-            if self.intersection_type == IntersectionType::TrafficSignal {
-                if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
-                    self.draw_traffic_signal(g, ctx);
-                }
-            } else {
-                for crosswalk in &self.crosswalks {
-                    crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
+            if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+                if self.intersection_type == IntersectionType::TrafficSignal {
+                    if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
+                        self.draw_traffic_signal(g, ctx);
+                    }
+                } else {
+                    for crosswalk in &self.crosswalks {
+                        crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
+                    }
                 }
             }
         }
