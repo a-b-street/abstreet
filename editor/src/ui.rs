@@ -178,6 +178,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::Comma, "prev item"),
                 ],
             ),
+            ModalMenu::new("Agent Spawner", vec![(Key::Enter, "quit")]),
         ]
     }
 

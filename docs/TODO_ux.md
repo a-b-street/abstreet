@@ -2,6 +2,16 @@
 
 ## Quick n easy
 
+- interactively spawn a car/ped somewhere to test this easily
+	- start to end of driving lanes
+	- pathfinding or trace or something is wrong for walking; the last line sometimes has the wrong distance
+	- actually spawn stuff
+	- stop disabling mouseover at low zoom when in this mode
+	- then back to zorder for cars/peds
+
+- try showing traffic signals by little boxes at the end of lanes
+	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
+
 - color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)
 - audit all panics
 - tune text color, size, padding

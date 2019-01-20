@@ -24,12 +24,13 @@
 
 - zorder for bridges/tunnels
 	- apply to cars/peds too; figure out statics/dynamics plumbing
-		- first need to interactively spawn a car/ped somewhere to test this easily
 
 - degenerate-2's should only have one crosswalk
 	- then make them thinner
 
 - ped paths through sidewalk corners are totally broken
+	- calculate the better paths first, then make the corner geometry from that?
+- car turns often clip sidewalk corners now
 
 - figure out what to do about yellow center lines
 	- intersections on one-ways look weird
