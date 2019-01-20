@@ -8,21 +8,21 @@ pub fn old_merge_intersections(data: &mut raw_data::Map, _timer: &mut Timer) {
         return;
     }
 
-    // 13th and Lynn
+    // o228
     merge(data, raw_data::StableRoadID(311));
 
-    // 15th and Howe
+    // o201
     merge(data, raw_data::StableRoadID(240));
 
-    // 2nd and Interlaken Place
+    // o37
     merge(data, raw_data::StableRoadID(91));
 
-    // 15th and McGraw
-    //merge(data, raw_data::StableRoadID(59));
+    // o40
+    merge(data, raw_data::StableRoadID(59));
 
-    // 14th and Boston
-    //merge(data, raw_data::StableRoadID(389));
-    //merge(data, raw_data::StableRoadID(22));
+    // o25
+    merge(data, raw_data::StableRoadID(389));
+    merge(data, raw_data::StableRoadID(22));
 
     if true {
         return;

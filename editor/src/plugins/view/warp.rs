@@ -4,7 +4,7 @@ use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
-use map_model::{AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
+use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
 use sim::{CarID, PedestrianID, Sim, TripID};
 use std::time::Instant;
 use std::usize;
@@ -108,6 +108,20 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                     ID::Turn(id)
                 } else {
                     warn!("{} isn't a known TurnID", line);
+                    return None;
+                }
+            }
+            // TODO "si"
+            'o' => {
+                let stable_id = raw_data::StableIntersectionID(idx);
+                if let Some(i) = map
+                    .all_intersections()
+                    .iter()
+                    .find(|i| i.stable_id == stable_id)
+                {
+                    ID::Intersection(i.id)
+                } else {
+                    warn!("{} isn't known", stable_id);
                     return None;
                 }
             }
