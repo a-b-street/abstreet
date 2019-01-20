@@ -71,6 +71,16 @@ impl Intersection {
             .collect()
     }
 
+    pub fn get_zorder(&self, map: &Map) -> isize {
+        // TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there's
+        // a -1 and a 1... need to see it to know what to do.
+        self.roads
+            .iter()
+            .map(|r| map.get_r(*r).get_zorder())
+            .min()
+            .unwrap()
+    }
+
     pub fn get_roads_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadID> {
         let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
         roads.sort_by_key(|id| {

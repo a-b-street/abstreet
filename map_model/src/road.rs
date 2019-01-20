@@ -110,6 +110,15 @@ impl Road {
         8.9408 * si::MPS
     }
 
+    pub fn get_zorder(&self) -> isize {
+        // TODO Should probably cache this
+        if let Some(layer) = self.osm_tags.get("layer") {
+            layer.parse::<isize>().unwrap()
+        } else {
+            0
+        }
+    }
+
     pub fn incoming_lanes(&self, i: IntersectionID) -> &Vec<(LaneID, LaneType)> {
         if self.src_i == i {
             &self.children_backwards

@@ -22,8 +22,9 @@
 
 	- model U-turns
 
-- bridges and tunnels still confusing; z-order for lanes and intersections in DrawMap, based on road metadata probably
+- zorder for bridges/tunnels
 	- apply to cars/peds too; figure out statics/dynamics plumbing
+		- first need to interactively spawn a car/ped somewhere to test this easily
 
 - degenerate-2's should only have one crosswalk
 	- then make them thinner

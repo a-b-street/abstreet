@@ -17,6 +17,7 @@ pub struct DrawIntersection {
     sidewalk_corners: Vec<Polygon>,
     center: Pt2D,
     intersection_type: IntersectionType,
+    zorder: isize,
 }
 
 impl DrawIntersection {
@@ -33,6 +34,7 @@ impl DrawIntersection {
             crosswalks: calculate_crosswalks(inter.id, map),
             sidewalk_corners: calculate_corners(inter.id, map),
             intersection_type: inter.intersection_type,
+            zorder: inter.get_zorder(map),
         }
     }
 
@@ -96,6 +98,10 @@ impl Renderable for DrawIntersection {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }
 

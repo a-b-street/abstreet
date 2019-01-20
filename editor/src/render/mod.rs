@@ -47,6 +47,10 @@ pub trait Renderable {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx);
     fn get_bounds(&self) -> Bounds;
     fn contains_pt(&self, pt: Pt2D) -> bool;
+    // Higher z-ordered objects are drawn later
+    fn get_zorder(&self) -> isize {
+        0
+    }
 }
 
 pub struct RenderOptions {

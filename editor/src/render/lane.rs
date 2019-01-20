@@ -5,7 +5,7 @@ use crate::render::{
     PARCEL_BOUNDARY_THICKNESS,
 };
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Text};
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
@@ -18,9 +18,7 @@ pub struct DrawLane {
     pub id: LaneID,
     pub polygon: Polygon,
     markings: Vec<Marking>,
-
-    // TODO pretty temporary
-    draw_id_at: Vec<Pt2D>,
+    zorder: isize,
 }
 
 impl DrawLane {
@@ -70,7 +68,7 @@ impl DrawLane {
             id: lane.id,
             polygon,
             markings,
-            draw_id_at: calculate_id_positions(lane).unwrap_or_default(),
+            zorder: road.get_zorder(),
         }
     }
 
@@ -87,11 +85,6 @@ impl DrawLane {
             );
             g.draw_circle(circle_color, &Circle::new(l.pt1(), 0.4));
             g.draw_circle(circle_color, &Circle::new(l.pt2(), 0.8));
-        }
-
-        for pt in &self.draw_id_at {
-            ctx.canvas
-                .draw_text_at(g, Text::from_line(format!("{}", self.id.0)), *pt);
         }
     }
 }
@@ -131,6 +124,10 @@ impl Renderable for DrawLane {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }
 
@@ -246,16 +243,6 @@ fn calculate_stop_sign_line(road: &Road, lane: &Lane, map: &Map) -> Option<Marki
     Some(Box::new(move |g, cs| {
         g.draw_line(cs.get_def("stop line for lane", Color::RED), 0.45, &line);
     }))
-}
-
-fn calculate_id_positions(lane: &Lane) -> Option<Vec<Pt2D>> {
-    if !lane.is_driving() {
-        return None;
-    }
-
-    let (pt1, _) = lane.safe_dist_along(lane.length() - (2.0 * LANE_THICKNESS * si::M))?;
-    let (pt2, _) = lane.safe_dist_along(2.0 * LANE_THICKNESS * si::M)?;
-    Some(vec![pt1, pt2])
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Marking> {
