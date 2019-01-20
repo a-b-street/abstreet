@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::kinematics;
 use crate::view::WorldView;
 use crate::{AgentID, CarID, Event, PedestrianID, Tick, Time};

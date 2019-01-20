@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,

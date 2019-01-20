@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use abstutil::{FileWithProgress, Timer};
 use geom::LonLat;
 use map_model::{raw_data, AreaType};

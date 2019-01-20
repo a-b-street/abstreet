@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::screen_geom::ScreenRectangle;
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
 use graphics;

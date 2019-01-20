@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::srtm;
 use dimensioned::si;
 use geom::{HashablePt2D, LonLat};

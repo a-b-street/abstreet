@@ -1,5 +1,3 @@
-// Copyright 2018 Google LLC, licensed under http://www.apache.org/licenses/LICENSE-2.0
-
 use crate::objects::ID;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
