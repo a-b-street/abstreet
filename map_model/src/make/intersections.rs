@@ -48,8 +48,6 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
 
     let mut endpoints = if lines.len() == 1 {
         deadend(roads, i.id, &lines)
-    } else if lines.len() == 2 {
-        degenerate_twoway(roads, i.id, &lines)
     } else {
         generalized_trim_back(roads, i.id, &lines)
     };
@@ -57,126 +55,6 @@ pub fn intersection_polygon(i: &Intersection, roads: &mut Vec<Road>) -> Vec<Pt2D
     // Close off the polygon
     endpoints.push(endpoints[0]);
     endpoints
-}
-
-fn deadend(
-    roads: &mut Vec<Road>,
-    i: IntersectionID,
-    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
-) -> Vec<Pt2D> {
-    let (id, _, pl_a, pl_b) = &lines[0];
-    let pt1 = pl_a
-        .reversed()
-        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-        .map(|(pt, _)| pt);
-    let pt2 = pl_b
-        .reversed()
-        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-        .map(|(pt, _)| pt);
-    if pt1.is_some() && pt2.is_some() {
-        let mut r = &mut roads[id.0];
-        if r.src_i == i {
-            r.center_pts = r
-                .center_pts
-                .slice(
-                    DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                    r.center_pts.length(),
-                )
-                .0;
-        } else {
-            r.center_pts = r
-                .center_pts
-                .slice(
-                    0.0 * si::M,
-                    r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                )
-                .0;
-        }
-
-        vec![pt1.unwrap(), pt2.unwrap(), pl_b.last_pt(), pl_a.last_pt()]
-    } else {
-        error!(
-            "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
-            i, id
-        );
-        vec![pl_a.last_pt(), pl_b.last_pt()]
-    }
-}
-
-fn degenerate_twoway(
-    roads: &mut Vec<Road>,
-    i: IntersectionID,
-    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
-) -> Vec<Pt2D> {
-    if let Some(pts) = make_simple_degenerate(roads, i, lines) {
-        pts
-    } else {
-        let (_, _, pl1_a, pl1_b) = &lines[0];
-        let (_, _, pl2_a, pl2_b) = &lines[1];
-        error!("{} is a degenerate 2-way, but some roads are too short", i);
-        vec![
-            pl1_a.last_pt(),
-            pl1_b.last_pt(),
-            pl2_a.last_pt(),
-            pl2_b.last_pt(),
-        ]
-    }
-}
-
-fn make_simple_degenerate(
-    roads: &mut Vec<Road>,
-    i: IntersectionID,
-    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
-) -> Option<Vec<Pt2D>> {
-    for (id, _, _, _) in lines {
-        if roads[id.0].center_pts.length() < DEGENERATE_INTERSECTION_HALF_LENGTH {
-            return None;
-        }
-    }
-
-    // Why fix center pts and then re-shift out, instead of use the pl1_a and friends? because
-    // dist_along on shifted polylines is NOT equivalent.
-    let mut endpoints: Vec<Pt2D> = Vec::new();
-
-    for (road_id, _, _, _) in lines {
-        let mut r = &mut roads[road_id.0];
-        if r.src_i == i {
-            r.center_pts = r
-                .center_pts
-                .slice(DEGENERATE_INTERSECTION_HALF_LENGTH, r.center_pts.length())
-                .0;
-
-            endpoints.push(
-                r.center_pts
-                    .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                    .first_pt(),
-            );
-            endpoints.push(
-                r.center_pts
-                    .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                    .first_pt(),
-            );
-        } else {
-            r.center_pts = r
-                .center_pts
-                .slice(
-                    0.0 * si::M,
-                    r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-                )
-                .0;
-            endpoints.push(
-                r.center_pts
-                    .shift_right(LANE_THICKNESS * (r.children_forwards.len() as f64))
-                    .last_pt(),
-            );
-            endpoints.push(
-                r.center_pts
-                    .shift_left(LANE_THICKNESS * (r.children_backwards.len() as f64))
-                    .last_pt(),
-            );
-        }
-    }
-    Some(endpoints)
 }
 
 fn generalized_trim_back(
@@ -201,7 +79,17 @@ fn generalized_trim_back(
             roads[r1.0].center_pts.reversed()
         };
 
-        let mut shortest_center = road_center.clone();
+        // Always trim back a minimum amount, if possible.
+        let mut shortest_center = if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH {
+            road_center
+                .slice(
+                    0.0 * si::M,
+                    road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+                )
+                .0
+        } else {
+            road_center.clone()
+        };
 
         for (r2, pl2) in &road_lines {
             if r1 == r2 {
@@ -275,6 +163,50 @@ fn generalized_trim_back(
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| Line::new(center, *pt).angle().normalized_degrees() as i64);
     endpoints
+}
+
+fn deadend(
+    roads: &mut Vec<Road>,
+    i: IntersectionID,
+    lines: &Vec<(RoadID, Angle, PolyLine, PolyLine)>,
+) -> Vec<Pt2D> {
+    let (id, _, pl_a, pl_b) = &lines[0];
+    let pt1 = pl_a
+        .reversed()
+        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
+        .map(|(pt, _)| pt);
+    let pt2 = pl_b
+        .reversed()
+        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
+        .map(|(pt, _)| pt);
+    if pt1.is_some() && pt2.is_some() {
+        let mut r = &mut roads[id.0];
+        if r.src_i == i {
+            r.center_pts = r
+                .center_pts
+                .slice(
+                    DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                    r.center_pts.length(),
+                )
+                .0;
+        } else {
+            r.center_pts = r
+                .center_pts
+                .slice(
+                    0.0 * si::M,
+                    r.center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                )
+                .0;
+        }
+
+        vec![pt1.unwrap(), pt2.unwrap(), pl_b.last_pt(), pl_a.last_pt()]
+    } else {
+        error!(
+            "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
+            i, id
+        );
+        vec![pl_a.last_pt(), pl_b.last_pt()]
+    }
 }
 
 // Temporary until Pt2D has proper resolution.

@@ -3,11 +3,8 @@
 ## Geometry
 
 - generalized_trim_back
-	- still apply to degenerate-2's, like si327, and then do extra trim back.
-	- if some centers dont change enough, trim them back a little extra. ex: montlake bridge
-
 	- breaks down when we have jagged lane endings due to polyline shift angle correction
-	- sometimes a lane polyline hits the perpendicular of a trimmed road! trim a bit further to handle that?
+	- sometimes a lane polyline hits the perpendicular of a trimmed road! where was this happening?
 
 - handle small roads again somehow?
 	- what's correct for 14th and e boston? if we had less lanes there, would it help?
