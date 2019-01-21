@@ -16,8 +16,6 @@ use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::process;
 
-const MIN_ZOOM_FOR_MOUSEOVER: f64 = 4.0;
-
 pub struct UI<S: UIState> {
     state: S,
     canvas: Canvas,
@@ -200,12 +198,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
-        if old_zoom >= MIN_ZOOM_FOR_MOUSEOVER && new_zoom < MIN_ZOOM_FOR_MOUSEOVER {
+        let min_zoom_for_mouseover = self.state.get_state().get_min_zoom_for_mouseover();
+        if old_zoom >= min_zoom_for_mouseover && new_zoom < min_zoom_for_mouseover {
             self.state.mut_state().primary.current_selection = None;
         }
         if !self.canvas.is_dragging()
             && input.get_moved_mouse().is_some()
-            && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER
+            && new_zoom >= min_zoom_for_mouseover
         {
             self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
@@ -221,7 +220,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             &mut self.cs,
             &mut self.canvas,
         );
-        if recalculate_current_selection && new_zoom >= MIN_ZOOM_FOR_MOUSEOVER {
+        if recalculate_current_selection && new_zoom >= min_zoom_for_mouseover {
             self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
 

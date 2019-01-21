@@ -3,7 +3,6 @@
 ## Quick n easy
 
 - interactively spawn a car/ped somewhere to test this easily
-	- stop disabling mouseover at low zoom when in this mode
 	- pathfinding or trace or something is wrong for walking; the last line sometimes has the wrong distance
 	- actually spawn stuff
 	- then back to zorder for cars/peds

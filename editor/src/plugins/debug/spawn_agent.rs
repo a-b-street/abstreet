@@ -47,7 +47,6 @@ impl Plugin for SpawnAgent {
         match self {
             SpawnAgent::Walking(ref raw_from, ref maybe_to) => {
                 let from = raw_from.clone();
-                // TODO disabling mouseover at low zoom is actually annoying now
                 if let Some(ID::Building(id)) = ctx.primary.current_selection {
                     if maybe_to.as_ref().map(|(b, _)| *b != id).unwrap_or(true) {
                         *self = SpawnAgent::Walking(from, Some((id, None)));
@@ -80,7 +79,6 @@ impl Plugin for SpawnAgent {
             }
             SpawnAgent::Driving(ref raw_from, ref maybe_to) => {
                 let from = raw_from.clone();
-                // TODO disabling mouseover at low zoom is actually annoying now
                 if let Some(ID::Lane(id)) = ctx.primary.current_selection {
                     // TODO Ideally we'd also check id is a driving lane and short-circuit here,
                     // but just let pathfinding take care of it
