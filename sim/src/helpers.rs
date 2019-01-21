@@ -5,7 +5,9 @@ use crate::{
     Sim, SpawnOverTime, Tick,
 };
 use abstutil::WeightedUsizeChoice;
-use map_model::{BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, Map, RoadID};
+use map_model::{
+    BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, LaneType, Map, RoadID,
+};
 use std::collections::{BTreeSet, VecDeque};
 use std::panic;
 
@@ -214,7 +216,7 @@ impl Sim {
     }
 
     // TODO This is for tests and interactive UI; rename or move it?
-    pub fn seed_trip_just_walking(
+    pub fn seed_trip_just_walking_to_bldg(
         &mut self,
         from_bldg: BuildingID,
         to_bldg: BuildingID,
@@ -228,7 +230,22 @@ impl Sim {
         )
     }
 
-    pub fn seed_trip_with_car_appearing(
+    // TODO argh, duplication all over the everywhere
+    pub fn seed_trip_just_walking_to_border(
+        &mut self,
+        from_bldg: BuildingID,
+        to: IntersectionID,
+        map: &Map,
+    ) -> PedestrianID {
+        self.spawner.start_trip_just_walking(
+            self.time.next(),
+            SidewalkSpot::building(from_bldg, map),
+            SidewalkSpot::end_at_border(to, map).unwrap(),
+            &mut self.trips_state,
+        )
+    }
+
+    pub fn seed_trip_with_car_appearing_to_bldg(
         &mut self,
         from_lane: LaneID,
         to_bldg: BuildingID,
@@ -239,6 +256,25 @@ impl Sim {
             map,
             from_lane,
             DrivingGoal::ParkNear(to_bldg),
+            &mut self.trips_state,
+            &mut self.rng,
+        )
+    }
+
+    pub fn seed_trip_with_car_appearing_to_border(
+        &mut self,
+        from_lane: LaneID,
+        to: IntersectionID,
+        map: &Map,
+    ) -> CarID {
+        self.spawner.start_trip_with_car_appearing(
+            self.time.next(),
+            map,
+            from_lane,
+            DrivingGoal::Border(
+                to,
+                map.get_i(to).get_incoming_lanes(map, LaneType::Driving)[0],
+            ),
             &mut self.trips_state,
             &mut self.rng,
         )

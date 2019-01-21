@@ -2,16 +2,22 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key};
-use map_model::{BuildingID, LaneID, PathRequest, Pathfinder, Position, Trace, LANE_THICKNESS};
+use map_model::{
+    BuildingID, IntersectionID, IntersectionType, LaneID, LaneType, PathRequest, Pathfinder,
+    Position, Trace, LANE_THICKNESS,
+};
 use std::f64;
 
+#[derive(Clone)]
 enum Source {
     Walking(BuildingID),
     Driving(LaneID),
 }
 
+#[derive(PartialEq)]
 enum Goal {
     Building(BuildingID),
+    Border(IntersectionID),
 }
 
 pub struct SpawnAgent {
@@ -59,68 +65,108 @@ impl Plugin for SpawnAgent {
         }
         let map = &ctx.primary.map;
 
-        if let Some(ID::Building(to)) = ctx.primary.current_selection {
-            let recalculate = match self.maybe_goal {
-                Some((Goal::Building(b), _)) => to != b,
-                None => true,
-            };
-            if recalculate {
-                self.maybe_goal = Some((Goal::Building(to), None));
-
-                let (start, end) = match self.from {
-                    Source::Walking(from) => (
-                        map.get_b(from).front_path.sidewalk,
-                        map.get_b(to).front_path.sidewalk,
-                    ),
-                    Source::Driving(from) => {
-                        let end = map.find_driving_lane_near_building(to);
-                        (
-                            Position::new(from, 0.0 * si::M),
-                            Position::new(end, map.get_l(end).length()),
-                        )
-                    }
-                };
-                if let Some(path) = Pathfinder::shortest_distance(
-                    map,
-                    PathRequest {
-                        start,
-                        end,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: false,
-                    },
-                ) {
-                    self.maybe_goal = Some((
-                        Goal::Building(to),
-                        path.trace(map, start.dist_along(), f64::MAX * si::M),
-                    ));
-                }
+        let new_goal = match ctx.primary.current_selection {
+            Some(ID::Building(b)) => Goal::Building(b),
+            Some(ID::Intersection(i))
+                if map.get_i(i).intersection_type == IntersectionType::Border =>
+            {
+                Goal::Border(i)
             }
-        } else {
-            self.maybe_goal = None;
+            _ => {
+                self.maybe_goal = None;
+                return true;
+            }
+        };
+
+        let recalculate = match self.maybe_goal {
+            Some((ref g, _)) => *g == new_goal,
+            None => true,
+        };
+
+        if recalculate {
+            let start = match self.from {
+                Source::Walking(from) => map.get_b(from).front_path.sidewalk,
+                Source::Driving(from) => Position::new(from, 0.0 * si::M),
+            };
+            let end = match new_goal {
+                Goal::Building(to) => match self.from {
+                    Source::Walking(_) => map.get_b(to).front_path.sidewalk,
+                    Source::Driving(_) => {
+                        let end = map.find_driving_lane_near_building(to);
+                        Position::new(end, map.get_l(end).length())
+                    }
+                },
+                Goal::Border(to) => {
+                    let lanes = map.get_i(to).get_incoming_lanes(
+                        map,
+                        match self.from {
+                            Source::Walking(_) => LaneType::Sidewalk,
+                            Source::Driving(_) => LaneType::Driving,
+                        },
+                    );
+                    if lanes.is_empty() {
+                        self.maybe_goal = None;
+                        return true;
+                    }
+                    Position::new(lanes[0], map.get_l(lanes[0]).length())
+                }
+            };
+
+            if let Some(path) = Pathfinder::shortest_distance(
+                map,
+                PathRequest {
+                    start,
+                    end,
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: false,
+                },
+            ) {
+                self.maybe_goal = Some((
+                    new_goal,
+                    path.trace(map, start.dist_along(), f64::MAX * si::M),
+                ));
+            } else {
+                self.maybe_goal = None;
+            }
         }
 
-        match self.maybe_goal {
-            Some((Goal::Building(to), _)) => {
-                if ctx.input.contextual_action(Key::F3, "end the agent here") {
-                    match self.from {
-                        Source::Walking(from) => {
-                            info!(
-                                "Spawning {}",
-                                ctx.primary.sim.seed_trip_just_walking(from, to, map)
-                            );
-                        }
-                        Source::Driving(from) => {
-                            info!(
-                                "Spawning {}",
-                                ctx.primary.sim.seed_trip_with_car_appearing(from, to, map)
-                            );
-                        }
-                    };
-                    return false;
+        if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
+            match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
+                (Source::Walking(from), Goal::Building(to)) => {
+                    info!(
+                        "Spawning {}",
+                        ctx.primary
+                            .sim
+                            .seed_trip_just_walking_to_bldg(from, to, map)
+                    );
                 }
-            }
-            _ => {}
-        };
+                (Source::Walking(from), Goal::Border(to)) => {
+                    info!(
+                        "Spawning {}",
+                        ctx.primary
+                            .sim
+                            .seed_trip_just_walking_to_border(from, to, map)
+                    );
+                }
+                (Source::Driving(from), Goal::Building(to)) => {
+                    info!(
+                        "Spawning {}",
+                        ctx.primary
+                            .sim
+                            .seed_trip_with_car_appearing_to_bldg(from, to, map)
+                    );
+                }
+                (Source::Driving(from), Goal::Border(to)) => {
+                    info!(
+                        "Spawning {}",
+                        ctx.primary
+                            .sim
+                            .seed_trip_with_car_appearing_to_border(from, to, map)
+                    );
+                }
+            };
+            return false;
+        }
 
         true
     }
