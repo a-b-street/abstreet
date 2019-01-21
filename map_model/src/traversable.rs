@@ -115,4 +115,11 @@ impl Traversable {
             Traversable::Turn(id) => map.get_parent(id.dst).get_speed_limit(),
         }
     }
+
+    pub fn get_zorder(&self, map: &Map) -> isize {
+        match *self {
+            Traversable::Lane(id) => map.get_parent(id).get_zorder(),
+            Traversable::Turn(id) => map.get_i(id.parent).get_zorder(map),
+        }
+    }
 }

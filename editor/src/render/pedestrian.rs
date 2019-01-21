@@ -12,6 +12,7 @@ pub struct DrawPedestrian {
     circle: Circle,
     turn_arrow: Option<Line>,
     preparing_bike: bool,
+    zorder: isize,
 }
 
 impl DrawPedestrian {
@@ -30,6 +31,7 @@ impl DrawPedestrian {
             circle: Circle::new(input.pos, RADIUS),
             turn_arrow,
             preparing_bike: input.preparing_bike,
+            zorder: input.on.get_zorder(map),
         }
     }
 }
@@ -69,5 +71,9 @@ impl Renderable for DrawPedestrian {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.circle.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }

@@ -21,6 +21,7 @@ pub struct DrawCar {
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
     state: CarState,
+    zorder: isize,
 }
 
 impl DrawCar {
@@ -49,6 +50,7 @@ impl DrawCar {
                 right_blinker_on,
                 stopping_buffer,
                 state: input.state,
+                zorder: input.on.get_zorder(map),
             };
         }
 
@@ -118,6 +120,7 @@ impl DrawCar {
             right_blinker_on,
             stopping_buffer,
             state: input.state,
+            zorder: input.on.get_zorder(map),
         }
     }
 }
@@ -201,6 +204,10 @@ impl Renderable for DrawCar {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.body_polygon.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }
 

@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{RenderOptions, RenderOrder, Renderable};
 use crate::state::UIState;
 use ezgui::{
     Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu, UserInput,
@@ -12,7 +12,6 @@ use kml;
 use map_model::{BuildingID, LaneID};
 use serde_derive::{Deserialize, Serialize};
 use sim::GetDrawAgents;
-use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::process;
 
@@ -265,11 +264,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         };
 
         let mut sample_intersection: Option<String> = None;
-        let (statics, dynamics) = self.get_objects_onscreen();
-        for obj in statics
-            .into_iter()
-            .chain(dynamics.iter().map(|obj| Box::new(obj.borrow())))
-        {
+        self.handle_objects_onscreen(RenderOrder::BackToFront, |obj| {
             let opts = RenderOptions {
                 color: self.state.get_state().color_obj(obj.get_id(), &ctx),
                 debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
@@ -284,7 +279,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     sample_intersection = Some(format!("_i{}", id.0));
                 }
             }
-        }
+
+            true
+        });
 
         if !screencap {
             self.state.draw(g, &ctx);
@@ -356,7 +353,35 @@ impl<S: UIState> UI<S> {
         ui
     }
 
-    fn get_objects_onscreen(&self) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
+    fn mouseover_something(&self) -> Option<ID> {
+        let pt = self.canvas.get_cursor_in_map_space()?;
+
+        let mut id: Option<ID> = None;
+
+        self.handle_objects_onscreen(RenderOrder::FrontToBack, |obj| {
+            // Don't mouseover parcels.
+            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
+            // in intersection editor mode, for example.
+            match obj.get_id() {
+                ID::Parcel(_) => {}
+                _ => {
+                    if obj.contains_pt(pt) {
+                        id = Some(obj.get_id());
+                        return false;
+                    }
+                }
+            };
+            true
+        });
+
+        id
+    }
+
+    fn handle_objects_onscreen<F: FnMut(Box<&Renderable>) -> bool>(
+        &self,
+        order: RenderOrder,
+        callback: F,
+    ) {
         let state = self.state.get_state();
 
         let draw_agent_source: &GetDrawAgents = {
@@ -368,38 +393,14 @@ impl<S: UIState> UI<S> {
             }
         };
 
-        state.primary.draw_map.get_objects_onscreen(
+        state.primary.draw_map.handle_objects_onscreen(
             self.canvas.get_screen_bounds(),
             &state.primary.map,
             draw_agent_source,
             state,
+            order,
+            callback,
         )
-    }
-
-    fn mouseover_something(&self) -> Option<ID> {
-        let pt = self.canvas.get_cursor_in_map_space()?;
-
-        let (statics, dynamics) = self.get_objects_onscreen();
-        // Check front-to-back
-        for obj in dynamics
-            .iter()
-            .map(|obj| Box::new(obj.borrow()))
-            .chain(statics.into_iter().rev())
-        {
-            // Don't mouseover parcels.
-            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
-            // in intersection editor mode, for example.
-            match obj.get_id() {
-                ID::Parcel(_) => {}
-                _ => {
-                    if obj.contains_pt(pt) {
-                        return Some(obj.get_id());
-                    }
-                }
-            };
-        }
-
-        None
     }
 
     fn save_editor_state(&self) {

@@ -19,7 +19,14 @@ use map_model::{
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use sim::GetDrawAgents;
+use std::borrow::Borrow;
 use std::collections::HashMap;
+
+#[derive(PartialEq)]
+pub enum RenderOrder {
+    BackToFront,
+    FrontToBack,
+}
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
@@ -210,7 +217,6 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
-    // A greatly simplified form of get_objects_onscreen
     pub fn get_matching_lanes(&self, bounds: Bounds) -> Vec<LaneID> {
         let mut results: Vec<LaneID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
@@ -221,25 +227,21 @@ impl DrawMap {
         results
     }
 
-    // Returns in back-to-front order
-    // The second pair is ephemeral objects (cars, pedestrians) that we can't borrow --
-    // conveniently they're the front-most layer, so the caller doesn't have to do anything strange
-    // to merge. TODO no longer true with zorder
-    // TODO alternatively, we could return IDs in order, then the caller could turn around and call
-    // a getter... except they still have to deal with DrawCar and DrawPedestrian not being
-    // borrowable. Could move contains_pt and draw calls here directly, but that might be weird?
-    // But maybe not.
-    pub fn get_objects_onscreen<T: ShowObjects>(
+    // False from the callback means abort
+    pub fn handle_objects_onscreen<T: ShowObjects, F: FnMut(Box<&Renderable>) -> bool>(
         &self,
         screen_bounds: Bounds,
         map: &Map,
         sim: &GetDrawAgents,
         show_objs: &T,
-    ) -> (Vec<Box<&Renderable>>, Vec<Box<Renderable>>) {
+        order: RenderOrder,
+        mut callback: F,
+    ) {
         // From background to foreground Z-order
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
-        let mut lanes_and_intersections: Vec<Box<&Renderable>> = Vec::new();
+        let mut lanes: Vec<Box<&Renderable>> = Vec::new();
+        let mut intersections: Vec<Box<&Renderable>> = Vec::new();
         let mut buildings: Vec<Box<&Renderable>> = Vec::new();
         let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
         let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
@@ -254,7 +256,7 @@ impl DrawMap {
                     ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
                     ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
                     ID::Lane(id) => {
-                        lanes_and_intersections.push(Box::new(self.get_l(*id)));
+                        lanes.push(Box::new(self.get_l(*id)));
                         if !show_objs.show_icons_for(map.get_l(*id).dst_i) {
                             for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
                                 cars.push(draw_vehicle(c, map));
@@ -265,7 +267,7 @@ impl DrawMap {
                         }
                     }
                     ID::Intersection(id) => {
-                        lanes_and_intersections.push(Box::new(self.get_i(*id)));
+                        intersections.push(Box::new(self.get_i(*id)));
                         for t in &map.get_i(*id).turns {
                             if show_objs.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
@@ -296,18 +298,30 @@ impl DrawMap {
         let mut borrows: Vec<Box<&Renderable>> = Vec::new();
         borrows.extend(areas);
         borrows.extend(parcels);
-        // This is a stable sort.
-        lanes_and_intersections.sort_by_key(|r| r.get_zorder());
-        borrows.extend(lanes_and_intersections);
+        borrows.extend(lanes);
+        borrows.extend(intersections);
         borrows.extend(buildings);
         borrows.extend(extra_shapes);
         borrows.extend(bus_stops);
         borrows.extend(turn_icons);
+        for c in &cars {
+            borrows.push(Box::new(c.borrow()));
+        }
+        for p in &peds {
+            borrows.push(Box::new(p.borrow()));
+        }
 
-        let mut returns: Vec<Box<Renderable>> = Vec::new();
-        returns.extend(cars);
-        returns.extend(peds);
+        // This is a stable sort.
+        borrows.sort_by_key(|r| r.get_zorder());
 
-        (borrows, returns)
+        if order == RenderOrder::FrontToBack {
+            borrows.reverse();
+        }
+
+        for r in borrows {
+            if !callback(r) {
+                break;
+            }
+        }
     }
 }

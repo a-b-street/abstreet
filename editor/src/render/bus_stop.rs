@@ -8,6 +8,7 @@ use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 pub struct DrawBusStop {
     pub id: BusStopID,
     polygon: Polygon,
+    zorder: isize,
 }
 
 impl DrawBusStop {
@@ -31,6 +32,7 @@ impl DrawBusStop {
         DrawBusStop {
             id: stop.id,
             polygon,
+            zorder: map.get_parent(lane.id).get_zorder(),
         }
     }
 }
@@ -56,5 +58,9 @@ impl Renderable for DrawBusStop {
 
     fn contains_pt(&self, pt: Pt2D) -> bool {
         self.polygon.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }

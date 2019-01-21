@@ -22,9 +22,6 @@
 
 	- model U-turns
 
-- zorder for bridges/tunnels
-	- apply to cars/peds too; figure out statics/dynamics plumbing
-
 - degenerate-2's should only have one crosswalk
 	- then make them thinner
 
