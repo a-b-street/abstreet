@@ -5,10 +5,18 @@ use ezgui::{Color, GfxCtx, Key};
 use map_model::{BuildingID, LaneID, PathRequest, Pathfinder, Position, Trace, LANE_THICKNESS};
 use std::f64;
 
-// TODO Don't like the duplicated logic here.
-pub enum SpawnAgent {
-    Walking(BuildingID, Option<(BuildingID, Option<Trace>)>),
-    Driving(LaneID, Option<(BuildingID, Option<Trace>)>),
+enum Source {
+    Walking(BuildingID),
+    Driving(LaneID),
+}
+
+enum Goal {
+    Building(BuildingID),
+}
+
+pub struct SpawnAgent {
+    from: Source,
+    maybe_goal: Option<(Goal, Option<Trace>)>,
 }
 
 impl SpawnAgent {
@@ -19,7 +27,10 @@ impl SpawnAgent {
                     .input
                     .contextual_action(Key::F3, "spawn an agent starting here")
                 {
-                    return Some(SpawnAgent::Walking(id, None));
+                    return Some(SpawnAgent {
+                        from: Source::Walking(id),
+                        maybe_goal: None,
+                    });
                 }
             }
             Some(ID::Lane(id)) => {
@@ -28,7 +39,10 @@ impl SpawnAgent {
                         .input
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
-                    return Some(SpawnAgent::Driving(id, None));
+                    return Some(SpawnAgent {
+                        from: Source::Driving(id),
+                        maybe_goal: None,
+                    });
                 }
             }
             _ => {}
@@ -43,99 +57,86 @@ impl Plugin for SpawnAgent {
         if ctx.input.modal_action("quit") {
             return false;
         }
+        let map = &ctx.primary.map;
 
-        match self {
-            SpawnAgent::Walking(ref raw_from, ref maybe_to) => {
-                let from = raw_from.clone();
-                if let Some(ID::Building(id)) = ctx.primary.current_selection {
-                    let map = &ctx.primary.map;
-                    if maybe_to.as_ref().map(|(b, _)| *b != id).unwrap_or(true) {
-                        *self = SpawnAgent::Walking(from, Some((id, None)));
+        if let Some(ID::Building(to)) = ctx.primary.current_selection {
+            let recalculate = match self.maybe_goal {
+                Some((Goal::Building(b), _)) => to != b,
+                None => true,
+            };
+            if recalculate {
+                self.maybe_goal = Some((Goal::Building(to), None));
 
-                        let start = map.get_b(from).front_path.sidewalk;
-                        if let Some(path) = Pathfinder::shortest_distance(
-                            map,
-                            PathRequest {
-                                start,
-                                end: map.get_b(id).front_path.sidewalk,
-                                can_use_bike_lanes: false,
-                                can_use_bus_lanes: false,
-                            },
-                        ) {
-                            *self = SpawnAgent::Walking(
-                                from,
-                                Some((id, path.trace(map, start.dist_along(), f64::MAX * si::M))),
-                            );
-                        }
+                let (start, end) = match self.from {
+                    Source::Walking(from) => (
+                        map.get_b(from).front_path.sidewalk,
+                        map.get_b(to).front_path.sidewalk,
+                    ),
+                    Source::Driving(from) => {
+                        let end = map.find_driving_lane_near_building(to);
+                        (
+                            Position::new(from, 0.0 * si::M),
+                            Position::new(end, map.get_l(end).length()),
+                        )
                     }
-
-                    if ctx.input.contextual_action(Key::F3, "end the agent here") {
-                        info!(
-                            "Spawning {}",
-                            ctx.primary.sim.seed_trip_just_walking(from, id, map)
-                        );
-                        return false;
-                    }
-                } else {
-                    *self = SpawnAgent::Walking(from, None);
+                };
+                if let Some(path) = Pathfinder::shortest_distance(
+                    map,
+                    PathRequest {
+                        start,
+                        end,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: false,
+                    },
+                ) {
+                    self.maybe_goal = Some((
+                        Goal::Building(to),
+                        path.trace(map, start.dist_along(), f64::MAX * si::M),
+                    ));
                 }
             }
-            SpawnAgent::Driving(ref raw_from, ref maybe_to) => {
-                let from = raw_from.clone();
-                if let Some(ID::Building(id)) = ctx.primary.current_selection {
-                    let map = &ctx.primary.map;
-                    if maybe_to.as_ref().map(|(b, _)| *b != id).unwrap_or(true) {
-                        *self = SpawnAgent::Driving(from, Some((id, None)));
+        } else {
+            self.maybe_goal = None;
+        }
 
-                        let end = map.find_driving_lane_near_building(id);
-                        if let Some(path) = Pathfinder::shortest_distance(
-                            map,
-                            PathRequest {
-                                start: Position::new(from, 0.0 * si::M),
-                                end: Position::new(end, map.get_l(end).length()),
-                                can_use_bike_lanes: false,
-                                can_use_bus_lanes: false,
-                            },
-                        ) {
-                            *self = SpawnAgent::Driving(
-                                from,
-                                Some((id, path.trace(map, 0.0 * si::M, f64::MAX * si::M))),
+        match self.maybe_goal {
+            Some((Goal::Building(to), _)) => {
+                if ctx.input.contextual_action(Key::F3, "end the agent here") {
+                    match self.from {
+                        Source::Walking(from) => {
+                            info!(
+                                "Spawning {}",
+                                ctx.primary.sim.seed_trip_just_walking(from, to, map)
                             );
                         }
-                    }
-
-                    if ctx.input.contextual_action(Key::F3, "end the agent here") {
-                        info!(
-                            "Spawning {}",
-                            ctx.primary.sim.seed_trip_with_car_appearing(from, id, map)
-                        );
-                        return false;
-                    }
-                } else {
-                    *self = SpawnAgent::Driving(from, None);
+                        Source::Driving(from) => {
+                            info!(
+                                "Spawning {}",
+                                ctx.primary.sim.seed_trip_with_car_appearing(from, to, map)
+                            );
+                        }
+                    };
+                    return false;
                 }
             }
+            _ => {}
         };
 
         true
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        match self {
-            SpawnAgent::Walking(_, Some((_, Some(ref trace))))
-            | SpawnAgent::Driving(_, Some((_, Some(ref trace)))) => {
-                g.draw_polygon(ctx.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
-            }
-            _ => {}
+        if let Some((_, Some(ref trace))) = self.maybe_goal {
+            g.draw_polygon(ctx.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
         }
     }
 
     fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
-        match (self, obj) {
-            (SpawnAgent::Walking(b1, _), ID::Building(b2)) if *b1 == b2 => {
+        match (&self.from, obj) {
+            (Source::Walking(ref b1), ID::Building(b2)) if *b1 == b2 => {
                 Some(ctx.cs.get("selected"))
             }
-            (SpawnAgent::Driving(l1, _), ID::Lane(l2)) if *l1 == l2 => Some(ctx.cs.get("selected")),
+            (Source::Driving(ref l1), ID::Lane(l2)) if *l1 == l2 => Some(ctx.cs.get("selected")),
             _ => None,
         }
     }
