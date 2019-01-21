@@ -8,7 +8,7 @@ use std::f64;
 // TODO Don't like the duplicated logic here.
 pub enum SpawnAgent {
     Walking(BuildingID, Option<(BuildingID, Option<Trace>)>),
-    Driving(LaneID, Option<(LaneID, Option<Trace>)>),
+    Driving(LaneID, Option<(BuildingID, Option<Trace>)>),
 }
 
 impl SpawnAgent {
@@ -82,18 +82,17 @@ impl Plugin for SpawnAgent {
             }
             SpawnAgent::Driving(ref raw_from, ref maybe_to) => {
                 let from = raw_from.clone();
-                if let Some(ID::Lane(id)) = ctx.primary.current_selection {
-                    // TODO Ideally we'd also check id is a driving lane and short-circuit here,
-                    // but just let pathfinding take care of it
-                    if maybe_to.as_ref().map(|(l, _)| *l != id).unwrap_or(true) {
+                if let Some(ID::Building(id)) = ctx.primary.current_selection {
+                    let map = &ctx.primary.map;
+                    if maybe_to.as_ref().map(|(b, _)| *b != id).unwrap_or(true) {
                         *self = SpawnAgent::Driving(from, Some((id, None)));
 
-                        let map = &ctx.primary.map;
+                        let end = map.find_driving_lane_near_building(id);
                         if let Some(path) = Pathfinder::shortest_distance(
                             map,
                             PathRequest {
                                 start: Position::new(from, 0.0 * si::M),
-                                end: Position::new(id, map.get_l(id).length()),
+                                end: Position::new(end, map.get_l(end).length()),
                                 can_use_bike_lanes: false,
                                 can_use_bus_lanes: false,
                             },
@@ -106,7 +105,10 @@ impl Plugin for SpawnAgent {
                     }
 
                     if ctx.input.contextual_action(Key::F3, "end the agent here") {
-                        // TODO spawn em
+                        info!(
+                            "Spawning {}",
+                            ctx.primary.sim.seed_trip_with_car_appearing(from, id, map)
+                        );
                         return false;
                     }
                 } else {

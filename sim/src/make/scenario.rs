@@ -247,7 +247,7 @@ impl Scenario {
                         s.goal
                             .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
                     {
-                        sim.spawner.start_trip_with_car_at_border(
+                        sim.spawner.start_trip_with_car_appearing(
                             spawn_time,
                             map,
                             // TODO could pretty easily pick any lane here

@@ -4,7 +4,8 @@
 
 - interactively spawn a car/ped somewhere to test this easily
 	- pathfinding or trace or something is wrong for walking; the last line sometimes has the wrong distance
-	- actually spawn stuff
+	- driving OR walking goal could also be border. actually need this to spawn cars on tunnels reasonably
+	- refactor plugin code, now that goal is same
 	- then back to zorder for cars/peds
 
 - try showing traffic signals by little boxes at the end of lanes

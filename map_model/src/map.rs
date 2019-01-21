@@ -8,7 +8,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
 use dimensioned::si;
 use geom::{Bounds, GPSBounds, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
 use std::path;
 
@@ -547,6 +547,51 @@ impl Map {
         } else {
             // Border nodes have no turns...
             panic!("{}'s intersection isn't a stop sign or traffic signal", t);
+        }
+    }
+
+    // When driving towards some goal building, there may not be a driving lane directly outside the
+    // building. So BFS out in a deterministic way and find one.
+    pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
+        if let Ok(l) = self.find_closest_lane_to_bldg(b, vec![LaneType::Driving]) {
+            return l;
+        }
+
+        let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
+        let mut visited: HashSet<RoadID> = HashSet::new();
+        {
+            let start = self.building_to_road(b).id;
+            roads_queue.push_back(start);
+            visited.insert(start);
+        }
+
+        loop {
+            if roads_queue.is_empty() {
+                panic!(
+                    "Giving up looking for a driving lane near {}, searched {} roads: {:?}",
+                    b,
+                    visited.len(),
+                    visited
+                );
+            }
+            let r = self.get_r(roads_queue.pop_front().unwrap());
+
+            for (lane, lane_type) in r
+                .children_forwards
+                .iter()
+                .chain(r.children_backwards.iter())
+            {
+                if *lane_type == LaneType::Driving {
+                    return *lane;
+                }
+            }
+
+            for next_r in self.get_next_roads(r.id).into_iter() {
+                if !visited.contains(&next_r) {
+                    roads_queue.push_back(next_r);
+                    visited.insert(next_r);
+                }
+            }
         }
     }
 }

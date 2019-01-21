@@ -228,6 +228,22 @@ impl Sim {
         )
     }
 
+    pub fn seed_trip_with_car_appearing(
+        &mut self,
+        from_lane: LaneID,
+        to_bldg: BuildingID,
+        map: &Map,
+    ) -> CarID {
+        self.spawner.start_trip_with_car_appearing(
+            self.time.next(),
+            map,
+            from_lane,
+            DrivingGoal::ParkNear(to_bldg),
+            &mut self.trips_state,
+            &mut self.rng,
+        )
+    }
+
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();

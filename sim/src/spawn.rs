@@ -64,7 +64,7 @@ impl Command {
                     .find_closest_lane(parked_car.spot.lane, vec![LaneType::Driving])
                     .unwrap();
                 let goal_lane = match goal {
-                    DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
+                    DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
                     DrivingGoal::Border(_, l) => *l,
                 };
 
@@ -110,7 +110,7 @@ impl Command {
                 ..
             } => {
                 let goal_lane = match goal {
-                    DrivingGoal::ParkNear(b) => find_driving_lane_near_building(*b, map),
+                    DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
                     DrivingGoal::Border(_, l) => *l,
                 };
                 PathRequest {
@@ -440,7 +440,8 @@ impl Spawner {
         );
     }
 
-    pub fn start_trip_with_car_at_border(
+    // Usually first_lane is a border, but could also be anywhere else for interactive debugging.
+    pub fn start_trip_with_car_appearing(
         &mut self,
         at: Tick,
         map: &Map,
@@ -448,12 +449,14 @@ impl Spawner {
         goal: DrivingGoal,
         trips: &mut TripManager,
         base_rng: &mut XorShiftRng,
-    ) {
+    ) -> CarID {
         let car_id = CarID(self.car_id_counter);
         self.car_id_counter += 1;
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
+        // TODO Should rephrase TripLeg and Command to not assume borders, but... things seem
+        // to work fine.
         let mut legs = vec![TripLeg::DriveFromBorder(car_id, goal.clone())];
         if let DrivingGoal::ParkNear(b) = goal {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
@@ -466,6 +469,7 @@ impl Spawner {
             start: first_lane,
             goal,
         });
+        car_id
     }
 
     pub fn start_trip_using_parked_car(
@@ -787,51 +791,6 @@ fn find_spot_near_building(
         for next_r in map.get_next_roads(r).into_iter() {
             // Don't floodfill out of the neighborhood
             if !visited.contains(&next_r) && neighborhoods_roads.contains(&next_r) {
-                roads_queue.push_back(next_r);
-                visited.insert(next_r);
-            }
-        }
-    }
-}
-
-// When driving towards some goal building, there may not be a driving lane directly outside the
-// building. So BFS out in a deterministic way and find one.
-fn find_driving_lane_near_building(b: BuildingID, map: &Map) -> LaneID {
-    if let Ok(l) = map.find_closest_lane_to_bldg(b, vec![LaneType::Driving]) {
-        return l;
-    }
-
-    let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
-    let mut visited: HashSet<RoadID> = HashSet::new();
-    {
-        let start = map.building_to_road(b).id;
-        roads_queue.push_back(start);
-        visited.insert(start);
-    }
-
-    loop {
-        if roads_queue.is_empty() {
-            panic!(
-                "Giving up looking for a driving lane near {}, searched {} roads: {:?}",
-                b,
-                visited.len(),
-                visited
-            );
-        }
-        let r = map.get_r(roads_queue.pop_front().unwrap());
-
-        for (lane, lane_type) in r
-            .children_forwards
-            .iter()
-            .chain(r.children_backwards.iter())
-        {
-            if *lane_type == LaneType::Driving {
-                return *lane;
-            }
-        }
-
-        for next_r in map.get_next_roads(r.id).into_iter() {
-            if !visited.contains(&next_r) {
                 roads_queue.push_back(next_r);
                 visited.insert(next_r);
             }

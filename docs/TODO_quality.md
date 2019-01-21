@@ -64,3 +64,8 @@
 
 - can we make OSM buildings with holes?
 	- experiment with https://docs.rs/clipping/0.1.1/clipping/gh/struct.CPolygon.html and https://github.com/21re/rust-geo-booleanop
+
+## Release
+
+- publish the map data
+- stabilize the code except for sim
