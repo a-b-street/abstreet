@@ -611,7 +611,7 @@ impl Spawner {
         start: SidewalkSpot,
         goal: SidewalkSpot,
         trips: &mut TripManager,
-    ) {
+    ) -> PedestrianID {
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
 
@@ -622,6 +622,7 @@ impl Spawner {
             start,
             goal,
         ));
+        ped_id
     }
 
     // Trip transitions

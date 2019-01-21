@@ -213,6 +213,21 @@ impl Sim {
         )
     }
 
+    // TODO This is for tests and interactive UI; rename or move it?
+    pub fn seed_trip_just_walking(
+        &mut self,
+        from_bldg: BuildingID,
+        to_bldg: BuildingID,
+        map: &Map,
+    ) -> PedestrianID {
+        self.spawner.start_trip_just_walking(
+            self.time.next(),
+            SidewalkSpot::building(from_bldg, map),
+            SidewalkSpot::building(to_bldg, map),
+            &mut self.trips_state,
+        )
+    }
+
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();

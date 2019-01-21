@@ -48,10 +48,10 @@ impl Plugin for SpawnAgent {
             SpawnAgent::Walking(ref raw_from, ref maybe_to) => {
                 let from = raw_from.clone();
                 if let Some(ID::Building(id)) = ctx.primary.current_selection {
+                    let map = &ctx.primary.map;
                     if maybe_to.as_ref().map(|(b, _)| *b != id).unwrap_or(true) {
                         *self = SpawnAgent::Walking(from, Some((id, None)));
 
-                        let map = &ctx.primary.map;
                         let start = map.get_b(from).front_path.sidewalk;
                         if let Some(path) = Pathfinder::shortest_distance(
                             map,
@@ -70,7 +70,10 @@ impl Plugin for SpawnAgent {
                     }
 
                     if ctx.input.contextual_action(Key::F3, "end the agent here") {
-                        // TODO spawn em
+                        info!(
+                            "Spawning {}",
+                            ctx.primary.sim.seed_trip_just_walking(from, id, map)
+                        );
                         return false;
                     }
                 } else {
