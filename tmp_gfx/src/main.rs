@@ -1,187 +1,136 @@
-// Can't figure out what macros to import using the 2018 use style.
-#[macro_use]
-extern crate gfx;
+use glium::vertex::VertexBufferAny;
+use glium::{glutin, program, uniform, Surface};
+use std::thread;
+use std::time::{Duration, Instant};
+use std::{env, process};
 
-use gfx::traits::{Device, FactoryExt};
-use glutin::dpi::LogicalSize;
-use glutin::GlContext;
-
-type ColorFormat = gfx::format::Rgba8;
-type DepthFormat = gfx::format::DepthStencil;
-
-const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-
-gfx_defines! {
-    vertex GpuFillVertex {
-        position: [f32; 2] = "a_position",
-    }
-
-    pipeline fill_pipeline {
-        vbo: gfx::VertexBuffer<GpuFillVertex> = (),
-        out_color: gfx::RenderTarget<ColorFormat> = "out_color",
-    }
-}
+mod camera;
+mod support;
 
 fn main() {
+    // DPI is broken on my system; force the old behavior.
+    env::set_var("WINIT_HIDPI_FACTOR", "1.0");
+
     let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
+        .with_title("testing glium")
+        .with_dimensions(glutin::dpi::LogicalSize::new(1024.0, 768.0));
+    let context = glutin::ContextBuilder::new().with_depth_buffer(24);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
-    let (initial_width, initial_height) = (700.0, 700.0);
+    // TODO The geometry...
+    let vertex_buffer = support::load_wavefront(&display, include_bytes!("teapot.obj"));
 
-    let glutin_builder = glutin::WindowBuilder::new()
-        .with_dimensions(LogicalSize::new(initial_width, initial_height))
-        .with_decorations(true)
-        .with_title("gfx playground".to_string());
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-    let context = glutin::ContextBuilder::new().with_vsync(true);
+                uniform mat4 persp_matrix;
+                uniform mat4 view_matrix;
 
-    let (window, mut device, mut factory, mut main_fbo, mut main_depth) =
-        gfx_window_glutin::init::<ColorFormat, DepthFormat>(glutin_builder, context, &events_loop);
+                in vec3 position;
+                in vec3 normal;
+                out vec3 v_position;
+                out vec3 v_normal;
 
-    let shader = factory
-        .link_program(VERTEX_SHADER.as_bytes(), FRAGMENT_SHADER.as_bytes())
-        .unwrap();
+                void main() {
+                    v_position = position;
+                    v_normal = normal;
+                    gl_Position = persp_matrix * view_matrix * vec4(v_position * 0.005, 1.0);
+                }
+            ",
 
-    let pso = factory
-        .create_pipeline_from_program(
-            &shader,
-            gfx::Primitive::TriangleList,
-            gfx::state::Rasterizer::new_fill(),
-            fill_pipeline::new(),
-        )
-        .unwrap();
+            fragment: "
+                #version 140
 
-    // The geometry!
-    let vertices = vec![
-        // 0 = Top-left
-        GpuFillVertex {
-            position: [-1.0, 0.7],
+                in vec3 v_normal;
+                out vec4 f_color;
+
+                const vec3 LIGHT = vec3(-0.2, 0.8, 0.1);
+
+                void main() {
+                    float lum = max(dot(normalize(v_normal), normalize(LIGHT)), 0.0);
+                    vec3 color = (0.3 + 0.7 * lum) * vec3(1.0, 1.0, 1.0);
+                    f_color = vec4(color, 1.0);
+                }
+            ",
         },
-        // 1 = Top-right
-        GpuFillVertex {
-            position: [1.0, 1.0],
-        },
-        // 2 = Bottom-left
-        GpuFillVertex {
-            position: [-1.0, -1.0],
-        },
-        // 3 = Bottom-right
-        GpuFillVertex {
-            position: [1.0, -1.0],
-        },
-    ];
-    let indices: Vec<u16> = vec![0, 1, 2, 1, 2, 3];
-    let (vbo, ibo) = factory.create_vertex_buffer_with_slice(&vertices, &indices[..]);
+    )
+    .unwrap();
 
-    let mut cmd_queue: gfx::Encoder<_, _> = factory.create_command_buffer().into();
+    let mut camera = camera::CameraState::new();
 
-    let mut cam = Camera {
-        center_x: initial_width / 2.0,
-        center_y: initial_height / 2.0,
-        //zoom: 1.0,
-    };
+    let mut accumulator = Duration::new(0, 0);
+    let mut previous_clock = Instant::now();
+
     loop {
-        if !handle_input(&mut events_loop, &mut cam) {
-            break;
+        draw(&camera, &display, &program, &vertex_buffer);
+        handle_events(&mut camera, &mut events_loop);
+
+        let now = Instant::now();
+        accumulator += now - previous_clock;
+        previous_clock = now;
+
+        let fixed_time_stamp = Duration::new(0, 16666667);
+        while accumulator >= fixed_time_stamp {
+            accumulator -= fixed_time_stamp;
+            // TODO send off an update event
         }
 
-        gfx_window_glutin::update_views(&window, &mut main_fbo, &mut main_depth);
-
-        cmd_queue.clear(&main_fbo.clone(), BLACK);
-        cmd_queue.draw(
-            &ibo,
-            &pso,
-            &fill_pipeline::Data {
-                vbo: vbo.clone(),
-                out_color: main_fbo.clone(),
-            },
-        );
-        cmd_queue.flush(&mut device);
-
-        window.swap_buffers().unwrap();
-
-        device.cleanup();
+        thread::sleep(fixed_time_stamp - accumulator);
     }
 }
 
-struct Camera {
-    // Center on some point
-    center_x: f64,
-    center_y: f64,
-    //zoom: f64,
+fn draw(
+    camera: &camera::CameraState,
+    display: &glium::Display,
+    program: &glium::Program,
+    vertex_buffer: &VertexBufferAny,
+) {
+    let uniforms = uniform! {
+        persp_matrix: camera.get_perspective(),
+        view_matrix: camera.get_view(),
+    };
+
+    let params = glium::DrawParameters {
+        depth: glium::Depth {
+            test: glium::DepthTest::IfLess,
+            write: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let mut target = display.draw();
+    target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
+    target
+        .draw(
+            vertex_buffer,
+            &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+            &program,
+            &uniforms,
+            &params,
+        )
+        .unwrap();
+    target.finish().unwrap();
 }
 
-fn handle_input(event_loop: &mut glutin::EventsLoop, cam: &mut Camera) -> bool {
-    use glutin::ElementState::Pressed;
-    use glutin::Event;
-    use glutin::VirtualKeyCode;
+fn handle_events(camera: &mut camera::CameraState, events_loop: &mut glutin::EventsLoop) {
+    events_loop.poll_events(|event| match event {
+        glutin::Event::WindowEvent { event, .. } => match event {
+            glutin::WindowEvent::CloseRequested => {
+                process::exit(0);
+            }
+            glutin::WindowEvent::KeyboardInput { input, .. } => {
+                if input.virtual_keycode == Some(glutin::VirtualKeyCode::Escape) {
+                    process::exit(0);
+                }
 
-    let mut keep_running = true;
-
-    event_loop.poll_events(|event| match event {
-        Event::WindowEvent {
-            event: glutin::WindowEvent::CloseRequested,
-            ..
-        } => {
-            println!("Window Closed!");
-            keep_running = false;
-        }
-        Event::WindowEvent {
-            event:
-                glutin::WindowEvent::KeyboardInput {
-                    input:
-                        glutin::KeyboardInput {
-                            state: Pressed,
-                            virtual_keycode: Some(key),
-                            ..
-                        },
-                    ..
-                },
-            ..
-        } => match key {
-            VirtualKeyCode::Escape => {
-                keep_running = false;
-            }
-            VirtualKeyCode::Left => {
-                cam.center_x -= 1.0;
-            }
-            VirtualKeyCode::Right => {
-                cam.center_x += 1.0;
-            }
-            VirtualKeyCode::Up => {
-                cam.center_y += 1.0;
-            }
-            VirtualKeyCode::Down => {
-                cam.center_y -= 1.0;
+                camera.process_input(input);
             }
             _ => {}
         },
         _ => {}
     });
-
-    keep_running
 }
-
-// Coordinate system is math-like -- Y increases up.
-
-static VERTEX_SHADER: &'static str = "
-    #version 140
-
-    in vec2 a_position;
-    out vec4 v_color;
-
-    void main() {
-        gl_Position = vec4(a_position, 0.0, 1.0);
-        // gl_Position.y *= -1.0;
-        v_color = vec4(1.0, 0.0, 0.0, 0.5);
-    }
-";
-
-static FRAGMENT_SHADER: &'static str = "
-    #version 140
-    in vec4 v_color;
-    out vec4 out_color;
-
-    void main() {
-        out_color = v_color;
-    }
-";

@@ -62,3 +62,9 @@
 		- draw as one polygon when fixed
 	- dashed thickness is way off
 	- last dash shouldnt appear?
+
+## Switch to OpenGL (for speed)
+
+- simpler geometry, with color per object
+- render text
+- switch ezgui (could make it generic and have piston or glium support, but maybe not worth it)
