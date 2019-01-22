@@ -7,6 +7,12 @@
 	- sometimes a lane polyline hits the perpendicular of a trimmed road! where was this happening?
 
 - handle small roads again somehow?
+	- try manually merging stuff after running the automatic. i think we need to repeat based on short roads. maybe we need kind of a hybrid approach, using the fancy deleter but re-running intersection polygon and halfmap and turn creation from a lower level?
+		- make halfmap also be indexed by stable IDs
+		- deal with loop roads still
+		- restore original road points, then redo the intersection polygon and lane center pt expansion
+	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
+
 	- what's correct for 14th and e boston? if we had less lanes there, would it help?
 
 	- make the polygons for the merged intersections look better

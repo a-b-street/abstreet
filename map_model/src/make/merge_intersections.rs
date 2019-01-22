@@ -1,8 +1,8 @@
 use crate::make::half_map::HalfMap;
-use crate::{Intersection, IntersectionID, Lane, LaneID, Road, RoadID, Turn, TurnID};
+use crate::{Intersection, IntersectionID, Lane, LaneID, Road, RoadID};
 use abstutil::Timer;
 use dimensioned::si;
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::marker;
 
 const MIN_ROAD_LENGTH: si::Meter<f64> = si::Meter {
@@ -34,7 +34,6 @@ pub fn merge_intersections(mut m: HalfMap, timer: &mut Timer) -> HalfMap {
     }
 
     info!("Merged {} short roads", merged);
-
     m
 }
 
@@ -57,9 +56,6 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
     // Delete the two connected intersections
     delete.intersections.insert(old_i1);
     delete.intersections.insert(old_i2);
-    // Delete all of the turns from the two intersections
-    delete.turns.extend(m.intersections[old_i1.0].turns.clone());
-    delete.turns.extend(m.intersections[old_i2.0].turns.clone());
 
     // Make a new intersection to replace the two old ones
     // TODO Arbitrarily take point, elevation, type, label from one of the old intersections.
@@ -116,58 +112,6 @@ fn merge(delete_r: RoadID, mut m: HalfMap) -> HalfMap {
         }
     }
 
-    // Populate the intersection with turns constructed from the old turns
-    for old_i in &[old_i1, old_i2] {
-        for id in m.intersections[old_i.0].turns.clone() {
-            let orig_turn = &m.turns[&id];
-
-            // Skip turns starting in the middle of the intersection.
-            if delete.lanes.contains(&orig_turn.id.src) {
-                continue;
-            }
-
-            let mut new_turn = orig_turn.clone();
-            new_turn.id.parent = new_i;
-
-            if !delete.lanes.contains(&new_turn.id.dst) {
-                // The original turn never crossed the deleted road. Preserve its geometry.
-                // TODO But what if the intersection polygon changed and made lane trimmed lines
-                // change and so the turn geometry should change?
-                m.intersections[new_i.0].turns.push(new_turn.id);
-                m.turns.insert(new_turn.id, new_turn);
-                continue;
-            }
-
-            if new_turn.between_sidewalks() {
-                // TODO Handle this. Gets weird because of bidirectionality.
-                continue;
-            }
-
-            // Make new composite turns! All of them will include the deleted lane's geometry.
-            new_turn.geom = new_turn
-                .geom
-                .extend(&m.lanes[new_turn.id.dst.0].lane_center_pts);
-
-            let other_old_i = if *old_i == old_i1 { old_i2 } else { old_i1 };
-            for t in m.intersections[other_old_i.0].turns.clone() {
-                if t.src != new_turn.id.dst {
-                    continue;
-                }
-                // Don't make a composite turn that just loops around.
-                if t.dst == new_turn.id.src {
-                    continue;
-                }
-                let mut composite_turn = new_turn.clone();
-                composite_turn.id.dst = t.dst;
-                composite_turn.geom = composite_turn.geom.extend(&m.turns[&t].geom);
-                // TODO Deal with inner loops!
-                // TODO Fiddle with turn_type
-                m.intersections[new_i.0].turns.push(composite_turn.id);
-                m.turns.insert(composite_turn.id, composite_turn);
-            }
-        }
-    }
-
     delete.apply(m)
 }
 
@@ -175,7 +119,6 @@ struct Deleter {
     roads: HashSet<RoadID>,
     lanes: HashSet<LaneID>,
     intersections: HashSet<IntersectionID>,
-    turns: HashSet<TurnID>,
 }
 
 impl Deleter {
@@ -184,14 +127,11 @@ impl Deleter {
             roads: HashSet::new(),
             lanes: HashSet::new(),
             intersections: HashSet::new(),
-            turns: HashSet::new(),
         }
     }
 
     fn apply(self, mut m: HalfMap) -> HalfMap {
-        for t in self.turns {
-            m.turns.remove(&t);
-        }
+        assert!(m.turns.is_empty());
 
         let mut rename_roads: HashMap<RoadID, RoadID> = HashMap::new();
         let mut keep_roads: Vec<Road> = Vec::new();
@@ -246,11 +186,7 @@ impl Deleter {
         }
         for i in m.intersections.iter_mut() {
             i.id = rename_intersections[&i.id];
-            for t in i.turns.iter_mut() {
-                t.parent = rename_intersections[&t.parent];
-                t.src = rename_lanes[&t.src];
-                t.dst = rename_lanes[&t.dst];
-            }
+            assert!(i.turns.is_empty());
             for l in i.incoming_lanes.iter_mut() {
                 *l = rename_lanes[l];
             }
@@ -259,17 +195,6 @@ impl Deleter {
             }
             i.roads = i.roads.iter().map(|r| rename_roads[r]).collect();
         }
-        let mut new_turns: BTreeMap<TurnID, Turn> = BTreeMap::new();
-        for (_, mut t) in m.turns.into_iter() {
-            let id = TurnID {
-                parent: rename_intersections[&t.id.parent],
-                src: rename_lanes[&t.id.src],
-                dst: rename_lanes[&t.id.dst],
-            };
-            t.id = id;
-            new_turns.insert(t.id, t);
-        }
-        m.turns = new_turns;
 
         m
     }

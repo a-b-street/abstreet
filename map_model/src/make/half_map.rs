@@ -155,6 +155,11 @@ pub fn make_half_map(
         l.lane_center_pts = unshifted_pts.shift_right(width);
     }
 
+    // TODO Enable when stable.
+    if false {
+        m = make::merge_intersections::merge_intersections(m, timer);
+    }
+
     for i in m.intersections.iter_mut() {
         for t in
             make::turns::make_all_turns(i, &m.roads.iter().collect(), &m.lanes.iter().collect())
@@ -163,11 +168,6 @@ pub fn make_half_map(
             i.turns.push(t.id);
             m.turns.insert(t.id, t);
         }
-    }
-
-    // TODO Enable when stable.
-    if false {
-        m = make::merge_intersections::merge_intersections(m, timer);
     }
 
     m
