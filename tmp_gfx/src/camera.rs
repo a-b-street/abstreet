@@ -1,4 +1,5 @@
 use glutin;
+use std::f32;
 
 pub struct CameraState {
     aspect_ratio: f32,
@@ -29,7 +30,7 @@ impl CameraState {
     }
 
     pub fn get_perspective(&self) -> [[f32; 4]; 4] {
-        let fov: f32 = 3.141592 / 2.0;
+        let fov = f32::consts::PI / 2.0;
         let zfar = 1024.0;
         let znear = 0.1;
 
