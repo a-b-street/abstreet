@@ -336,7 +336,7 @@ impl Map {
             .collect()
     }
 
-    // TODO Get rid of this, or rewrite it in in terms of get_turns_from_lane_at_end
+    // TODO Get rid of this, or rewrite it in in terms of get_next_turns_and_lanes
     // The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);

@@ -4,7 +4,9 @@
 
 - try showing traffic signals by little boxes at the end of lanes
 	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
+	- Circle::new radius and pt project_away should take meters type
 
+- if a lane could feasibly have multiple turn options but doesnt, print "ONLY"
 - color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)
 - audit all panics
 - tune text color, size, padding
@@ -47,7 +49,9 @@
 - rooftops
 	- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg
 	- https://thumbs.dreamstime.com/z/top-view-city-seamless-pattern-streets-roads-houses-cars-68652655.jpg
-- https://gifer.com/en/2svr
+- general inspiration
+	- https://gifer.com/en/2svr
+	- https://www.fhwa.dot.gov/publications/research/safety/05078/images/fig6.gif
 - color tuning
 	- neutral (white or offwhite) color and make noncritical info close to
 	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,

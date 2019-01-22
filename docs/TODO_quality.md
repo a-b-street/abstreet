@@ -68,6 +68,12 @@
 - can we make OSM buildings with holes?
 	- experiment with https://docs.rs/clipping/0.1.1/clipping/gh/struct.CPolygon.html and https://github.com/21re/rust-geo-booleanop
 
+## More problems to fix
+
+- Disconnected map
+	- Some lane-changing model needed to determine this
+- Impossible turns (from a far bus lane to a crazy left)
+
 ## Release
 
 - publish the map data

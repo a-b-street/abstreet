@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
 use dimensioned::si;
 use ezgui::{Color, GfxCtx, ScreenPt, Text};
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -164,6 +164,11 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
 }
 
 pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
+    if false {
+        draw_signal_cycle_with_icons(cycle, g, ctx);
+        return;
+    }
+
     let priority_color = ctx
         .cs
         .get_def("turns protected by traffic signal right now", Color::GREEN);
@@ -187,6 +192,77 @@ pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
             DrawTurn::draw_dashed(turn, g, yield_color);
+        }
+    }
+}
+
+fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
+    for l in &ctx.map.get_i(cycle.parent).incoming_lanes {
+        let lane = ctx.map.get_l(*l);
+        // TODO Show a hand or a walking sign for crosswalks
+        if lane.is_parking() || lane.is_sidewalk() {
+            continue;
+        }
+        let lane_line = lane.last_line();
+
+        let mut _right_ok = true; // if not, no right turn on red
+        let mut straight_green = true; // if not, the main light is red
+                                       // TODO Multiple lefts?
+        let mut left_priority: Option<TurnPriority> = None;
+        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, cycle.parent) {
+            match turn.turn_type {
+                TurnType::SharedSidewalkCorner | TurnType::Crosswalk => unreachable!(),
+                TurnType::Right => {
+                    if cycle.get_priority(turn.id) == TurnPriority::Banned {
+                        _right_ok = false;
+                    }
+                }
+                TurnType::Straight => {
+                    // TODO Can we ever have Straight as Yield?
+                    if cycle.get_priority(turn.id) == TurnPriority::Banned {
+                        straight_green = false;
+                    }
+                }
+                TurnType::Left => {
+                    left_priority = Some(cycle.get_priority(turn.id));
+                }
+            };
+        }
+
+        let radius = LANE_THICKNESS / 2.0 * si::M;
+
+        // TODO Ignore right_ok...
+        {
+            let center1 = lane_line.unbounded_dist_along(lane_line.length() + radius);
+            let color = if straight_green {
+                ctx.cs.get_def("traffic light go", Color::GREEN)
+            } else {
+                ctx.cs.get_def("traffic light stop", Color::RED)
+            };
+            g.draw_circle(color, &Circle::new(center1, radius.value_unsafe));
+        }
+
+        if let Some(pri) = left_priority {
+            let center2 = lane_line.unbounded_dist_along(lane_line.length() + (radius * 3.0));
+            let color = match pri {
+                TurnPriority::Priority => ctx.cs.get("traffic light go"),
+                // TODO flashing green
+                TurnPriority::Yield => ctx.cs.get_def("traffic light permitted", Color::YELLOW),
+                TurnPriority::Banned => ctx.cs.get("traffic light stop"),
+                TurnPriority::Stop => unreachable!(),
+            };
+            g.draw_circle(
+                ctx.cs.get_def("traffic light box", Color::BLACK),
+                &Circle::new(center2, radius.value_unsafe),
+            );
+            g.draw_arrow(
+                color,
+                0.1,
+                &Line::new(
+                    center2.project_away(radius.value_unsafe, lane_line.angle().rotate_degs(90.0)),
+                    center2.project_away(radius.value_unsafe, lane_line.angle().rotate_degs(-90.0)),
+                ),
+            );
         }
     }
 }

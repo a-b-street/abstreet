@@ -57,6 +57,7 @@ pub enum TurnPriority {
     Yield,
     // These must be non-conflicting, and cars don't have to stop before doing this turn (unless a
     // conflicting Yield has been accepted).
+    // TODO Rename Protected?
     Priority,
 }
 
