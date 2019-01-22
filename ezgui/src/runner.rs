@@ -1,12 +1,14 @@
 use crate::input::{ContextMenu, ModalMenuState};
-use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
+use crate::{Canvas, Event, GfxCtx, ModalMenu, NewGfxCtx, TopMenu, UserInput};
 use abstutil::Timer;
+use glium::glutin;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::window::WindowSettings;
 use std::io::Write;
-use std::{env, fs, panic, process};
+use std::time::{Duration, Instant};
+use std::{env, fs, panic, process, thread};
 
 pub trait GUI<T> {
     // Called once
@@ -172,6 +174,13 @@ impl<T, G: GUI<T>> State<T, G> {
         self
     }
 
+    fn new_draw(&mut self, display: &glium::Display, program: &glium::Program) {
+        let mut target = display.draw();
+        // TODO call draw
+        NewGfxCtx::new(&display, &mut target, program);
+        target.finish().unwrap();
+    }
+
     fn draw(&mut self, g: &mut GfxCtx) {
         // If the very first event is render, then just wait.
         if let Some(ref data) = self.last_data {
@@ -307,5 +316,69 @@ impl ScreenCaptureState {
         writeln!(file, "#!/bin/bash\n").unwrap();
         writeln!(file, "montage {}", args.join(" ")).unwrap();
         writeln!(file, "rm -f combine.sh").unwrap();
+    }
+}
+
+pub fn new_run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
+    // DPI is broken on my system; force the old behavior.
+    env::set_var("WINIT_HIDPI_FACTOR", "1.0");
+
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
+        .with_title(window_title)
+        .with_dimensions(glutin::dpi::LogicalSize::new(
+            gui.get_mut_canvas().window_width,
+            gui.get_mut_canvas().window_height,
+        ));
+    let context = glutin::ContextBuilder::new().with_depth_buffer(24);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let program = glium::Program::from_source(
+        &display,
+        include_str!("vertex.glsl"),
+        include_str!("fragment.glsl"),
+        None,
+    )
+    .unwrap();
+
+    let mut state = State {
+        last_event_mode: EventLoopMode::InputOnly,
+        context_menu: ContextMenu::Inactive,
+        top_menu: gui.top_menu(),
+        modal_state: ModalMenuState::new(G::modal_menus()),
+        last_data: None,
+        screen_cap: None,
+        gui,
+    };
+
+    let mut accumulator = Duration::new(0, 0);
+    let mut previous_clock = Instant::now();
+    loop {
+        state.new_draw(&display, &program);
+        state.after_render();
+
+        events_loop.poll_events(|event| {
+            if let glutin::Event::WindowEvent { event, .. } = event {
+                if event == glutin::WindowEvent::CloseRequested {
+                    state.gui.before_quit();
+                    process::exit(0);
+                }
+                if state.screen_cap.is_none() {
+                    // TODO manage laziness differently
+                    //state = state.event(event, &mut events);
+                }
+            }
+        });
+
+        let now = Instant::now();
+        accumulator += now - previous_clock;
+        previous_clock = now;
+
+        let fixed_time_stamp = Duration::new(0, 16_666_667);
+        while accumulator >= fixed_time_stamp {
+            accumulator -= fixed_time_stamp;
+            // TODO send off an update event
+        }
+
+        thread::sleep(fixed_time_stamp - accumulator);
     }
 }

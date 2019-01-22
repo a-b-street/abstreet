@@ -67,3 +67,5 @@
 
 - switch ezgui (could make it generic and have piston or glium support, but maybe not worth it)
 - render text
+- change ezgui API to allow uploading geometry once
+- undo the y inversion hacks at last!

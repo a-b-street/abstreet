@@ -1,4 +1,5 @@
 use crate::ScreenPt;
+use glium::glutin;
 use piston::input as pi;
 
 #[derive(Clone, Copy, PartialEq)]
@@ -24,6 +25,50 @@ pub enum Event {
 }
 
 impl Event {
+    pub fn from_glutin_event(ev: glutin::WindowEvent) -> Option<Event> {
+        match ev {
+            glutin::WindowEvent::MouseInput { state, button, .. } => match (button, state) {
+                (glutin::MouseButton::Left, glutin::ElementState::Pressed) => {
+                    Some(Event::LeftMouseButtonDown)
+                }
+                (glutin::MouseButton::Left, glutin::ElementState::Released) => {
+                    Some(Event::LeftMouseButtonUp)
+                }
+                (glutin::MouseButton::Right, glutin::ElementState::Pressed) => {
+                    Some(Event::RightMouseButtonDown)
+                }
+                (glutin::MouseButton::Right, glutin::ElementState::Released) => {
+                    Some(Event::RightMouseButtonUp)
+                }
+                _ => None,
+            },
+            glutin::WindowEvent::KeyboardInput { input, .. } => {
+                if let Some(key) = Key::from_glutin_key(input) {
+                    if input.state == glutin::ElementState::Pressed {
+                        Some(Event::KeyPress(key))
+                    } else {
+                        Some(Event::KeyRelease(key))
+                    }
+                } else {
+                    None
+                }
+            }
+            glutin::WindowEvent::CursorMoved { position, .. } => {
+                Some(Event::MouseMovedTo(ScreenPt::new(position.x, position.y)))
+            }
+            //glutin::WindowEvent::MouseWheel { delta, .. } => Event::MouseWheelScroll(),
+            glutin::WindowEvent::Resized(size) => {
+                Some(Event::WindowResized(size.width, size.height))
+            }
+            glutin::WindowEvent::Focused(gained) => Some(if gained {
+                Event::WindowGainedCursor
+            } else {
+                Event::WindowLostCursor
+            }),
+            _ => None,
+        }
+    }
+
     pub fn from_piston_event(ev: pi::Event) -> Event {
         use piston::input::{
             ButtonEvent, CursorEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
@@ -344,6 +389,81 @@ impl Key {
             pi::Key::F12 => Key::F12,
             _ => {
                 println!("Unknown piston key {:?}", key);
+                return None;
+            }
+        })
+    }
+
+    fn from_glutin_key(input: glutin::KeyboardInput) -> Option<Key> {
+        let key = input.virtual_keycode?;
+        Some(match key {
+            glutin::VirtualKeyCode::A => Key::A,
+            glutin::VirtualKeyCode::B => Key::B,
+            glutin::VirtualKeyCode::C => Key::C,
+            glutin::VirtualKeyCode::D => Key::D,
+            glutin::VirtualKeyCode::E => Key::E,
+            glutin::VirtualKeyCode::F => Key::F,
+            glutin::VirtualKeyCode::G => Key::G,
+            glutin::VirtualKeyCode::H => Key::H,
+            glutin::VirtualKeyCode::I => Key::I,
+            glutin::VirtualKeyCode::J => Key::J,
+            glutin::VirtualKeyCode::K => Key::K,
+            glutin::VirtualKeyCode::L => Key::L,
+            glutin::VirtualKeyCode::M => Key::M,
+            glutin::VirtualKeyCode::N => Key::N,
+            glutin::VirtualKeyCode::O => Key::O,
+            glutin::VirtualKeyCode::P => Key::P,
+            glutin::VirtualKeyCode::Q => Key::Q,
+            glutin::VirtualKeyCode::R => Key::R,
+            glutin::VirtualKeyCode::S => Key::S,
+            glutin::VirtualKeyCode::T => Key::T,
+            glutin::VirtualKeyCode::U => Key::U,
+            glutin::VirtualKeyCode::V => Key::V,
+            glutin::VirtualKeyCode::W => Key::W,
+            glutin::VirtualKeyCode::X => Key::X,
+            glutin::VirtualKeyCode::Y => Key::Y,
+            glutin::VirtualKeyCode::Z => Key::Z,
+            glutin::VirtualKeyCode::Key1 => Key::Num1,
+            glutin::VirtualKeyCode::Key2 => Key::Num2,
+            glutin::VirtualKeyCode::Key3 => Key::Num3,
+            glutin::VirtualKeyCode::Key4 => Key::Num4,
+            glutin::VirtualKeyCode::Key5 => Key::Num5,
+            glutin::VirtualKeyCode::Key6 => Key::Num6,
+            glutin::VirtualKeyCode::Key7 => Key::Num7,
+            glutin::VirtualKeyCode::Key8 => Key::Num8,
+            glutin::VirtualKeyCode::Key9 => Key::Num9,
+            glutin::VirtualKeyCode::Key0 => Key::Num0,
+            glutin::VirtualKeyCode::LBracket => Key::LeftBracket,
+            glutin::VirtualKeyCode::RBracket => Key::RightBracket,
+            glutin::VirtualKeyCode::Space => Key::Space,
+            glutin::VirtualKeyCode::Slash => Key::Slash,
+            glutin::VirtualKeyCode::Period => Key::Dot,
+            glutin::VirtualKeyCode::Comma => Key::Comma,
+            glutin::VirtualKeyCode::Escape => Key::Escape,
+            glutin::VirtualKeyCode::Return => Key::Enter,
+            glutin::VirtualKeyCode::Tab => Key::Tab,
+            glutin::VirtualKeyCode::Back => Key::Backspace,
+            glutin::VirtualKeyCode::LShift => Key::LeftShift,
+            glutin::VirtualKeyCode::LControl => Key::LeftControl,
+            glutin::VirtualKeyCode::LAlt => Key::LeftAlt,
+            glutin::VirtualKeyCode::Left => Key::LeftArrow,
+            glutin::VirtualKeyCode::Right => Key::RightArrow,
+            glutin::VirtualKeyCode::Up => Key::UpArrow,
+            glutin::VirtualKeyCode::Down => Key::DownArrow,
+            glutin::VirtualKeyCode::F1 => Key::F1,
+            glutin::VirtualKeyCode::F2 => Key::F2,
+            glutin::VirtualKeyCode::F3 => Key::F3,
+            glutin::VirtualKeyCode::F4 => Key::F4,
+            glutin::VirtualKeyCode::F5 => Key::F5,
+            glutin::VirtualKeyCode::F6 => Key::F6,
+            glutin::VirtualKeyCode::F7 => Key::F7,
+            glutin::VirtualKeyCode::F8 => Key::F8,
+            glutin::VirtualKeyCode::F9 => Key::F9,
+            glutin::VirtualKeyCode::F10 => Key::F10,
+            glutin::VirtualKeyCode::F11 => Key::F11,
+            glutin::VirtualKeyCode::F12 => Key::F12,
+            _ => {
+                println!("Unknown glutin key {:?}", key);
                 return None;
             }
         })
