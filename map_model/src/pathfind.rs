@@ -209,8 +209,16 @@ impl Path {
                 return Some(pts_so_far.unwrap());
             }
             // If we made it to the last step, maybe use the end_dist.
-            if i == self.steps.len() - 1 && self.end_dist < dist_remaining {
-                dist_remaining = self.end_dist;
+            if i == self.steps.len() - 1 {
+                let end_dist = match self.steps[i] {
+                    PathStep::ContraflowLane(l) => {
+                        map.get_l(l).lane_center_pts.reversed().length() - self.end_dist
+                    }
+                    _ => self.end_dist,
+                };
+                if end_dist < dist_remaining {
+                    dist_remaining = end_dist;
+                }
             }
 
             let start_dist_this_step = match self.steps[i] {

@@ -2,9 +2,6 @@
 
 ## Quick n easy
 
-- interactively spawn a car/ped somewhere to test this easily
-	- pathfinding or trace or something is wrong for walking; the last line sometimes has the wrong distance
-
 - try showing traffic signals by little boxes at the end of lanes
 	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
 
