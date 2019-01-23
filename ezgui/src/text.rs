@@ -1,9 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
-use graphics;
-use graphics::character::CharacterCache;
-use graphics::{Rectangle, Transformed};
-use opengl_graphics::GlyphCache;
 use ordered_float::NotNan;
 use textwrap;
 
@@ -124,7 +120,7 @@ impl Text {
         self.lines.is_empty()
     }
 
-    pub(crate) fn dims(&self, glyphs: &mut GlyphCache) -> (f64, f64) {
+    /*pub(crate) fn dims(&self, glyphs: &mut GlyphCache) -> (f64, f64) {
         let width = self
             .lines
             .iter()
@@ -143,10 +139,10 @@ impl Text {
             .unwrap();
         let height = (self.lines.len() as f64) * LINE_HEIGHT;
         (width, height)
-    }
+    }*/
 }
 
-pub fn draw_text_bubble(
+/*pub fn draw_text_bubble(
     g: &mut GfxCtx,
     glyphs: &mut GlyphCache,
     top_left: ScreenPt,
@@ -210,4 +206,4 @@ pub fn draw_text_bubble(
         x2: top_left.x + total_width,
         y2: top_left.y + total_height,
     }
-}
+}*/

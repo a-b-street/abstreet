@@ -1,11 +1,7 @@
 use crate::input::{ContextMenu, ModalMenuState};
-use crate::{Canvas, Event, GfxCtx, ModalMenu, NewGfxCtx, TopMenu, UserInput};
+use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use abstutil::Timer;
 use glium::glutin;
-use glutin_window::GlutinWindow;
-use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::{EventLoop, EventSettings, Events};
-use piston::window::WindowSettings;
 use std::io::Write;
 use std::time::{Duration, Instant};
 use std::{env, fs, panic, process, thread};
@@ -40,75 +36,8 @@ pub enum EventLoopMode {
     ScreenCaptureEverything { zoom: f64, max_x: f64, max_y: f64 },
 }
 
-pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
-    // DPI is broken on my system; force the old behavior.
-    env::set_var("WINIT_HIDPI_FACTOR", "1.0");
-
-    let opengl = OpenGL::V3_2;
-    let settings = WindowSettings::new(
-        window_title,
-        [
-            gui.get_mut_canvas().window_width as u32,
-            gui.get_mut_canvas().window_height as u32,
-        ],
-    )
-    .opengl(opengl)
-    .exit_on_esc(false)
-    // TODO it'd be cool to dynamically tweak antialiasing settings as we zoom in
-    .samples(2)
-    .srgb(false);
-    let mut window: GlutinWindow = settings.build().expect("Could not create window");
-    let mut events = Events::new(EventSettings::new().lazy(true));
-    let mut gl = GlGraphics::new(opengl);
-
-    let mut state = State {
-        last_event_mode: EventLoopMode::InputOnly,
-        context_menu: ContextMenu::Inactive,
-        top_menu: gui.top_menu(),
-        modal_state: ModalMenuState::new(G::modal_menus()),
-        last_data: None,
-        screen_cap: None,
-        gui,
-    };
-
-    while let Some(ev) = events.next(&mut window) {
-        use piston::input::{CloseEvent, RenderEvent};
-        if let Some(args) = ev.render_args() {
-            gl.draw(args.viewport(), |c, g| {
-                state.draw(&mut GfxCtx::new(g, c));
-            });
-        } else if ev.close_args().is_some() {
-            state.gui.before_quit();
-            process::exit(0);
-        } else {
-            // Skip some events.
-            use piston::input::{
-                AfterRenderEvent, FocusEvent, IdleEvent, MouseRelativeEvent, TextEvent,
-            };
-            if ev.after_render_args().is_some() {
-                state.after_render();
-                continue;
-            }
-            if state.screen_cap.is_some() {
-                continue;
-            }
-            if ev.after_render_args().is_some()
-                || ev.focus_args().is_some()
-                || ev.idle_args().is_some()
-                || ev.mouse_relative_args().is_some()
-                || ev.text_args().is_some()
-            {
-                continue;
-            }
-
-            state = state.event(ev, &mut events);
-        }
-    }
-}
-
 struct State<T, G: GUI<T>> {
     gui: G,
-    last_event_mode: EventLoopMode,
     context_menu: ContextMenu,
     top_menu: Option<TopMenu>,
     modal_state: ModalMenuState,
@@ -117,18 +46,18 @@ struct State<T, G: GUI<T>> {
 }
 
 impl<T, G: GUI<T>> State<T, G> {
-    fn event(mut self, ev: piston::input::Event, events: &mut Events) -> State<T, G> {
+    fn event(mut self, ev: Event) -> (State<T, G>, EventLoopMode) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(
-            Event::from_piston_event(ev),
+            ev,
             self.context_menu,
             self.top_menu,
             self.modal_state,
             self.gui.get_mut_canvas(),
         );
         let mut gui = self.gui;
-        let (new_event_mode, data) =
+        let (event_mode, data) =
             match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
                 Ok(pair) => pair,
                 Err(err) => {
@@ -156,38 +85,28 @@ impl<T, G: GUI<T>> State<T, G> {
         self.modal_state.active = still_active;
 
         // Don't constantly reset the events struct -- only when laziness changes.
-        if new_event_mode != self.last_event_mode {
-            events.set_lazy(new_event_mode == EventLoopMode::InputOnly);
-            self.last_event_mode = new_event_mode;
-
-            if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = new_event_mode {
-                self.screen_cap = Some(ScreenCaptureState::new(
-                    self.gui.get_mut_canvas(),
-                    zoom,
-                    max_x,
-                    max_y,
-                ));
-                events.set_lazy(false);
-            }
+        if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = event_mode {
+            self.screen_cap = Some(ScreenCaptureState::new(
+                self.gui.get_mut_canvas(),
+                zoom,
+                max_x,
+                max_y,
+            ));
         }
 
-        self
+        (self, event_mode)
     }
 
-    fn new_draw(&mut self, display: &glium::Display, program: &glium::Program) {
+    fn draw(&mut self, display: &glium::Display, program: &glium::Program) {
         let mut target = display.draw();
-        // TODO call draw
-        NewGfxCtx::new(&display, &mut target, program);
-        target.finish().unwrap();
-    }
+        let mut g = GfxCtx::new(self.gui.get_mut_canvas(), &display, &mut target, program);
 
-    fn draw(&mut self, g: &mut GfxCtx) {
         // If the very first event is render, then just wait.
         if let Some(ref data) = self.last_data {
-            self.gui.get_mut_canvas().start_drawing(g);
+            self.gui.get_mut_canvas().start_drawing();
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.gui.new_draw(g, data, self.screen_cap.is_some())
+                self.gui.new_draw(&mut g, data, self.screen_cap.is_some())
             })) {
                 Ok(naming_hint) => {
                     if let Some(ref mut cap) = self.screen_cap {
@@ -203,16 +122,18 @@ impl<T, G: GUI<T>> State<T, G> {
             if self.screen_cap.is_none() {
                 // Always draw the menus last.
                 if let Some(ref menu) = self.top_menu {
-                    menu.draw(g, self.gui.get_mut_canvas());
+                    menu.draw(&mut g, self.gui.get_mut_canvas());
                 }
                 for (_, ref menu) in &self.modal_state.active {
-                    menu.draw(g, self.gui.get_mut_canvas());
+                    menu.draw(&mut g, self.gui.get_mut_canvas());
                 }
                 if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                    menu.draw(g, self.gui.get_mut_canvas());
+                    menu.draw(&mut g, self.gui.get_mut_canvas());
                 }
             }
         }
+
+        target.finish().unwrap();
     }
 
     fn after_render(&mut self) {
@@ -319,7 +240,7 @@ impl ScreenCaptureState {
     }
 }
 
-pub fn new_run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
+pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     // DPI is broken on my system; force the old behavior.
     env::set_var("WINIT_HIDPI_FACTOR", "1.0");
 
@@ -341,7 +262,6 @@ pub fn new_run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     .unwrap();
 
     let mut state = State {
-        last_event_mode: EventLoopMode::InputOnly,
         context_menu: ContextMenu::Inactive,
         top_menu: gui.top_menu(),
         modal_state: ModalMenuState::new(G::modal_menus()),
@@ -352,22 +272,30 @@ pub fn new_run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 
     let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
+    let mut send_update_events = false;
     loop {
-        state.new_draw(&display, &program);
+        state.draw(&display, &program);
         state.after_render();
 
+        let mut new_events: Vec<glutin::WindowEvent> = Vec::new();
         events_loop.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
-                if event == glutin::WindowEvent::CloseRequested {
-                    state.gui.before_quit();
-                    process::exit(0);
-                }
-                if state.screen_cap.is_none() {
-                    // TODO manage laziness differently
-                    //state = state.event(event, &mut events);
-                }
+                new_events.push(event);
             }
         });
+        for event in new_events {
+            if event == glutin::WindowEvent::CloseRequested {
+                state.gui.before_quit();
+                process::exit(0);
+            }
+            if state.screen_cap.is_none() {
+                if let Some(ev) = Event::from_glutin_event(event) {
+                    let (new_state, mode) = state.event(ev);
+                    state = new_state;
+                    send_update_events = mode == EventLoopMode::Animation;
+                }
+            }
+        }
 
         let now = Instant::now();
         accumulator += now - previous_clock;

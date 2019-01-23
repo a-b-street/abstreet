@@ -65,7 +65,10 @@
 
 ## Switch to OpenGL (for speed)
 
-- switch ezgui (could make it generic and have piston or glium support, but maybe not worth it)
-- render text
+- get playground_gui running
+	- cant see anything
+	- render text
+	- calling draw way too frequently
+
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!

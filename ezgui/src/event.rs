@@ -1,6 +1,5 @@
 use crate::ScreenPt;
 use glium::glutin;
-use piston::input as pi;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Event {
@@ -67,70 +66,6 @@ impl Event {
             }),
             _ => None,
         }
-    }
-
-    pub fn from_piston_event(ev: pi::Event) -> Event {
-        use piston::input::{
-            ButtonEvent, CursorEvent, MouseCursorEvent, MouseScrollEvent, PressEvent, ReleaseEvent,
-            ResizeEvent, TouchEvent, UpdateEvent,
-        };
-
-        if let Some(pi::Button::Mouse(button)) = ev.press_args() {
-            if button == pi::MouseButton::Left {
-                return Event::LeftMouseButtonDown;
-            }
-            if button == pi::MouseButton::Right {
-                return Event::RightMouseButtonDown;
-            }
-        }
-        if let Some(pi::Button::Mouse(button)) = ev.release_args() {
-            if button == pi::MouseButton::Left {
-                return Event::LeftMouseButtonUp;
-            }
-            if button == pi::MouseButton::Right {
-                return Event::RightMouseButtonUp;
-            }
-        }
-
-        if let Some(pi::Button::Keyboard(key)) = ev.press_args() {
-            if let Some(key) = Key::from_piston_key(key, ev.button_args()) {
-                return Event::KeyPress(key);
-            }
-            return Event::Unknown;
-        }
-        if let Some(pi::Button::Keyboard(key)) = ev.release_args() {
-            if let Some(key) = Key::from_piston_key(key, ev.button_args()) {
-                return Event::KeyRelease(key);
-            }
-            return Event::Unknown;
-        }
-
-        if ev.update_args().is_some() {
-            return Event::Update;
-        }
-        if let Some(pair) = ev.mouse_cursor_args() {
-            return Event::MouseMovedTo(ScreenPt::new(pair[0], pair[1]));
-        }
-        if let Some(args) = ev.touch_args() {
-            // The docs say these are normalized [0, 1] coordinates, but... they're not. :D
-            return Event::MouseMovedTo(ScreenPt::new(args.x, args.y));
-        }
-        if let Some(pair) = ev.mouse_scroll_args() {
-            return Event::MouseWheelScroll(pair[1]);
-        }
-        if let Some(pair) = ev.resize_args() {
-            return Event::WindowResized(pair[0], pair[1]);
-        }
-        if let Some(has) = ev.cursor_args() {
-            if has {
-                return Event::WindowGainedCursor;
-            } else {
-                // TODO Sometimes this doesn't happen! :(
-                return Event::WindowLostCursor;
-            }
-        }
-
-        panic!("Unknown piston event {:?}", ev);
     }
 }
 
@@ -312,86 +247,6 @@ impl Key {
             Key::Space => "Space".to_string(),
             _ => self.to_char(false).unwrap().to_string(),
         }
-    }
-
-    fn from_piston_key(key: pi::Key, args: Option<pi::ButtonArgs>) -> Option<Key> {
-        if let Some(a) = args {
-            if a.scancode == Some(39) {
-                return Some(Key::Semicolon);
-            }
-        }
-
-        Some(match key {
-            pi::Key::A => Key::A,
-            pi::Key::B => Key::B,
-            pi::Key::C => Key::C,
-            pi::Key::D => Key::D,
-            pi::Key::E => Key::E,
-            pi::Key::F => Key::F,
-            pi::Key::G => Key::G,
-            pi::Key::H => Key::H,
-            pi::Key::I => Key::I,
-            pi::Key::J => Key::J,
-            pi::Key::K => Key::K,
-            pi::Key::L => Key::L,
-            pi::Key::M => Key::M,
-            pi::Key::N => Key::N,
-            pi::Key::O => Key::O,
-            pi::Key::P => Key::P,
-            pi::Key::Q => Key::Q,
-            pi::Key::R => Key::R,
-            pi::Key::S => Key::S,
-            pi::Key::T => Key::T,
-            pi::Key::U => Key::U,
-            pi::Key::V => Key::V,
-            pi::Key::W => Key::W,
-            pi::Key::X => Key::X,
-            pi::Key::Y => Key::Y,
-            pi::Key::Z => Key::Z,
-            pi::Key::D1 => Key::Num1,
-            pi::Key::D2 => Key::Num2,
-            pi::Key::D3 => Key::Num3,
-            pi::Key::D4 => Key::Num4,
-            pi::Key::D5 => Key::Num5,
-            pi::Key::D6 => Key::Num6,
-            pi::Key::D7 => Key::Num7,
-            pi::Key::D8 => Key::Num8,
-            pi::Key::D9 => Key::Num9,
-            pi::Key::D0 => Key::Num0,
-            pi::Key::LeftBracket => Key::LeftBracket,
-            pi::Key::RightBracket => Key::RightBracket,
-            pi::Key::Space => Key::Space,
-            pi::Key::Slash => Key::Slash,
-            pi::Key::Period => Key::Dot,
-            pi::Key::Comma => Key::Comma,
-            pi::Key::Escape => Key::Escape,
-            pi::Key::Return => Key::Enter,
-            pi::Key::Tab => Key::Tab,
-            pi::Key::Backspace => Key::Backspace,
-            pi::Key::LShift => Key::LeftShift,
-            pi::Key::LCtrl => Key::LeftControl,
-            pi::Key::LAlt => Key::LeftAlt,
-            pi::Key::Left => Key::LeftArrow,
-            pi::Key::Right => Key::RightArrow,
-            pi::Key::Up => Key::UpArrow,
-            pi::Key::Down => Key::DownArrow,
-            pi::Key::F1 => Key::F1,
-            pi::Key::F2 => Key::F2,
-            pi::Key::F3 => Key::F3,
-            pi::Key::F4 => Key::F4,
-            pi::Key::F5 => Key::F5,
-            pi::Key::F6 => Key::F6,
-            pi::Key::F7 => Key::F7,
-            pi::Key::F8 => Key::F8,
-            pi::Key::F9 => Key::F9,
-            pi::Key::F10 => Key::F10,
-            pi::Key::F11 => Key::F11,
-            pi::Key::F12 => Key::F12,
-            _ => {
-                println!("Unknown piston key {:?}", key);
-                return None;
-            }
-        })
     }
 
     fn from_glutin_key(input: glutin::KeyboardInput) -> Option<Key> {
