@@ -176,12 +176,13 @@ pub fn draw_text_bubble(
         );
     }
 
-    let mut y = top_left.y + LINE_HEIGHT;
+    let mut y = top_left.y;
     for line in &txt.lines {
         let mut x = top_left.x;
 
         let first_bg_color = line[0].highlight_color;
         let mut same_bg_color = true;
+        let mut max_span_height: f64 = 0.0;
         for (idx, span) in line.into_iter().enumerate() {
             if span.highlight_color != first_bg_color {
                 same_bg_color = false;
@@ -191,11 +192,12 @@ pub fn draw_text_bubble(
                 text: &span.text,
                 color: span.fg_color.0,
                 scale: Scale::uniform(FONT_SIZE),
-                bounds: (1024.0, 768.0),
-                screen_position: (x as f32, (y - LINE_HEIGHT) as f32),
+                screen_position: (x as f32, y as f32),
                 ..Section::default()
             };
-            let span_width = glyphs.pixel_bounds(section).unwrap().width() as f64;
+            let span_dims = glyphs.pixel_bounds(section).unwrap();
+            let span_width = span_dims.width() as f64;
+            let span_height = span_dims.height() as f64;
             if let Some(color) = span.highlight_color {
                 // If this is the last span and all spans use the same background color, then
                 // extend the background over the entire width of the text box.
@@ -206,14 +208,17 @@ pub fn draw_text_bubble(
                 };
                 g.draw_polygon(
                     color,
-                    &Polygon::rectangle_topleft(Pt2D::new(x, y - LINE_HEIGHT), width, LINE_HEIGHT),
+                    &Polygon::rectangle_topleft(Pt2D::new(x, y), width, span_height),
                 );
             }
 
             glyphs.queue(section);
             x += span_width;
+            if span_height > max_span_height {
+                max_span_height = span_height;
+            }
         }
-        y += LINE_HEIGHT;
+        y += max_span_height;
     }
 
     g.unfork(canvas);
