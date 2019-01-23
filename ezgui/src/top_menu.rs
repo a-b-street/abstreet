@@ -1,7 +1,6 @@
 use crate::menu::{Menu, Position};
 use crate::screen_geom::ScreenRectangle;
 use crate::text;
-use crate::TOP_MENU_HEIGHT;
 use crate::{Canvas, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::{HashMap, HashSet};
@@ -132,13 +131,17 @@ impl TopMenu {
             x1: 0.0,
             y1: 0.0,
             x2: canvas.window_width,
-            y2: TOP_MENU_HEIGHT,
+            y2: canvas.line_height,
         });
 
         g.fork_screenspace(canvas);
         g.draw_polygon(
             text::BG_COLOR,
-            &Polygon::rectangle_topleft(Pt2D::new(0.0, 0.0), canvas.window_width, TOP_MENU_HEIGHT),
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                canvas.window_width,
+                canvas.line_height,
+            ),
         );
 
         if let Some(idx) = self.highlighted {

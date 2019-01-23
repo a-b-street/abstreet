@@ -2,7 +2,7 @@ use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_diagram, DrawTurn};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, Key, TOP_MENU_HEIGHT};
+use ezgui::{Color, GfxCtx, Key};
 use map_model::{IntersectionID, LaneID, TurnType};
 
 pub struct TurnCyclerState {
@@ -101,7 +101,7 @@ impl Plugin for TurnCyclerState {
                             i,
                             cycle.idx,
                             Some(time_left),
-                            TOP_MENU_HEIGHT + 10.0,
+                            ctx.canvas.top_menu_height() + 10.0,
                             g,
                             ctx,
                         );

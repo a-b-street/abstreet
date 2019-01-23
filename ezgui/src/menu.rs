@@ -1,5 +1,4 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::text::LINE_HEIGHT;
 use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 // Stores some associated data with each choice
@@ -66,7 +65,7 @@ impl<T: Clone> Menu<T> {
                 } else {
                     total_width
                 };
-                ScreenPt::new(canvas.window_width - w, LINE_HEIGHT)
+                ScreenPt::new(canvas.window_width - w, canvas.line_height)
             }
         };
 

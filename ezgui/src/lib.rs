@@ -27,10 +27,6 @@ pub use crate::wizard::{Wizard, WrappedWizard};
 use geom::{Angle, Circle, Line, Polygon, Pt2D, Triangle};
 use glium::{implement_vertex, uniform, Surface};
 
-// TODO Not super happy about exposing this; fork_screenspace for external callers should be
-// smarter.
-pub const TOP_MENU_HEIGHT: f64 = text::LINE_HEIGHT;
-
 pub struct ToggleableLayer {
     layer_name: String,
     // If None, never automatically enable at a certain zoom level.

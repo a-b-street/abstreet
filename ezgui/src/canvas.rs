@@ -25,6 +25,7 @@ pub struct Canvas {
 
     // TODO Super gross, but we can't create this immediately.
     pub(crate) glyphs: RefCell<Option<GlyphBrush<'static, 'static>>>,
+    pub(crate) line_height: f64,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -46,6 +47,7 @@ impl Canvas {
             window_height: f64::from(initial_height),
 
             glyphs: RefCell::new(None),
+            line_height: 0.0,
             covered_areas: RefCell::new(Vec::new()),
         }
     }
@@ -95,7 +97,7 @@ impl Canvas {
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
         let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(glyphs.as_mut().unwrap());
+        let (width, height) = txt.dims(glyphs.as_mut().unwrap(), self);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
@@ -111,7 +113,7 @@ impl Canvas {
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, map_pt: Pt2D) {
         let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(glyphs.as_mut().unwrap());
+        let (width, height) = txt.dims(glyphs.as_mut().unwrap(), self);
         let pt = self.map_to_screen(map_pt);
         text::draw_text_bubble(
             g,
@@ -147,7 +149,7 @@ impl Canvas {
             return;
         }
         let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(glyphs.as_mut().unwrap());
+        let (width, height) = txt.dims(glyphs.as_mut().unwrap(), self);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (self.window_width - width) / 2.0,
@@ -155,7 +157,7 @@ impl Canvas {
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
-            VerticalAlignment::BelowTopMenu => text::LINE_HEIGHT,
+            VerticalAlignment::BelowTopMenu => self.line_height,
             VerticalAlignment::Center => (self.window_height - height) / 2.0,
             VerticalAlignment::Bottom => self.window_height - height,
         };
@@ -169,7 +171,7 @@ impl Canvas {
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
-        txt.dims(self.glyphs.borrow_mut().as_mut().unwrap())
+        txt.dims(self.glyphs.borrow_mut().as_mut().unwrap(), self)
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {
@@ -236,6 +238,12 @@ impl Canvas {
         b.update(self.screen_to_map(ScreenPt::new(0.0, 0.0)));
         b.update(self.screen_to_map(ScreenPt::new(self.window_width, self.window_height)));
         b
+    }
+
+    // TODO Not super happy about exposing this; fork_screenspace for external callers should be
+    // smarter.
+    pub fn top_menu_height(&self) -> f64 {
+        self.line_height
     }
 }
 

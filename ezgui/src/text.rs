@@ -14,10 +14,8 @@ pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
-const FONT_SIZE: f32 = 24.0;
-// TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and
-// they need adjustments to their positioning.
-pub const LINE_HEIGHT: f64 = 32.0;
+pub const FONT_SIZE: f32 = 24.0;
+// TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone)]
@@ -117,34 +115,36 @@ impl Text {
         self.lines.is_empty()
     }
 
-    pub(crate) fn dims(&self, glyphs: &mut GlyphBrush<'static, 'static>) -> (f64, f64) {
-        let mut widths: Vec<i32> = Vec::new();
-        let mut total_height: i32 = 0;
+    pub(crate) fn dims(
+        &self,
+        glyphs: &mut GlyphBrush<'static, 'static>,
+        canvas: &Canvas,
+    ) -> (f64, f64) {
+        let width = self
+            .lines
+            .iter()
+            .map(|(_, l)| {
+                let full_line = l.iter().fold(String::new(), |mut so_far, span| {
+                    so_far.push_str(&span.text);
+                    so_far
+                });
+                if let Some(rect) = glyphs.pixel_bounds(Section {
+                    text: &full_line,
+                    scale: Scale::uniform(FONT_SIZE),
+                    ..Section::default()
+                }) {
+                    rect.width()
+                } else {
+                    // TODO Sometimes we want to space something like "    ", but no drawn glyphs
+                    // means pixel_bounds fails. Hack?
+                    (MAX_CHAR_WIDTH * (full_line.len() as f64)) as i32
+                }
+            })
+            .max()
+            .unwrap() as f64;
 
-        for (_, l) in &self.lines {
-            let full_line = l.iter().fold(String::new(), |mut so_far, span| {
-                so_far.push_str(&span.text);
-                so_far
-            });
-            if let Some(rect) = glyphs.pixel_bounds(Section {
-                text: &full_line,
-                scale: Scale::uniform(FONT_SIZE),
-                ..Section::default()
-            }) {
-                widths.push(rect.width());
-                total_height += rect.height();
-            } else {
-                // TODO Sometimes we want to space something like "    ", but no drawn glyphs
-                // means pixel_bounds fails. Hack?
-                widths.push((MAX_CHAR_WIDTH * (full_line.len() as f64)) as i32);
-                total_height += LINE_HEIGHT as i32;
-            }
-        }
-
-        (
-            widths.into_iter().max().unwrap() as f64,
-            total_height as f64,
-        )
+        // Always use the max height, since other stuff like menus assume a fixed height.
+        (width, (self.lines.len() as f64) * canvas.line_height)
     }
 }
 
@@ -158,7 +158,7 @@ pub fn draw_text_bubble(
     // TODO Is it expensive to constantly change uniforms and the shader program?
     g.fork_screenspace(canvas);
 
-    let (total_width, total_height) = txt.dims(glyphs);
+    let (total_width, total_height) = txt.dims(glyphs, canvas);
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
@@ -185,16 +185,19 @@ pub fn draw_text_bubble(
                 .collect(),
             ..VariedSection::default()
         };
-        let height = glyphs.pixel_bounds(section.clone()).unwrap().height() as f64;
 
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
-                &Polygon::rectangle_topleft(Pt2D::new(top_left.x, y), total_width, height),
+                &Polygon::rectangle_topleft(
+                    Pt2D::new(top_left.x, y),
+                    total_width,
+                    canvas.line_height,
+                ),
             );
         }
 
-        y += height;
+        y += canvas.line_height;
         glyphs.queue(section);
     }
 

@@ -1,8 +1,9 @@
 use crate::input::{ContextMenu, ModalMenuState};
-use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
+use crate::{text, Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use abstutil::Timer;
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
+use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
 use std::cell::RefCell;
 use std::io::Write;
@@ -275,6 +276,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 
     let dejavu: &[u8] = include_bytes!("DejaVuSans.ttf");
     let fonts = vec![Font::from_bytes(dejavu).unwrap()];
+    let vmetrics = fonts[0].v_metrics(Scale::uniform(text::FONT_SIZE));
+    // TODO This works for this font, but could be more paranoid with abs()
+    gui.get_mut_canvas().line_height =
+        (vmetrics.ascent - vmetrics.descent + vmetrics.line_gap) as f64;
     gui.get_mut_canvas().glyphs = RefCell::new(Some(GlyphBrush::new(&display, fonts)));
 
     let mut state = State {

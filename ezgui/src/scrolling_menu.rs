@@ -59,7 +59,7 @@ impl<T: Clone> ScrollingMenu<T> {
         let can_fit = {
             // Subtract 1 for the prompt, and an additional TODO hacky
             // few to avoid the bottom OSD and stuff.
-            let n = (canvas.window_height / text::LINE_HEIGHT).floor() as isize - 1 - 6;
+            let n = (canvas.window_height / canvas.line_height).floor() as isize - 1 - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
                 canvas.draw_blocking_text(g, txt, CENTERED);

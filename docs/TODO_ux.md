@@ -66,9 +66,9 @@
 ## Switch to OpenGL (for speed)
 
 - no bugs
-	- text entry needs to draw the cursor differently anyway.
-	- top menu is very buggy
-	- need padding around text; and selecting stuff from menus is weird. LINE_HEIGHT.
+	- text entry needs to draw the cursor differently
+	- top menu is very buggy. MAX_CHAR_WIDTH is weird
+	- need padding around text; and selecting stuff from menus is weird
 	- forking is buggy (traffic signal diagram)
 	- arrows
 	- some colors are wrong
@@ -76,4 +76,7 @@
 - make polygon store points and indices efficiently
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
-- probably use f32, not f64 everywhere
+- refactoring
+	- pass canvas to text module, make it do the glyph borrowing?
+	- pass dims to draw_text_bubble; all callers have it anyway, right?
+	- probably use f32, not f64 everywhere
