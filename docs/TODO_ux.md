@@ -66,9 +66,11 @@
 ## Switch to OpenGL (for speed)
 
 - get things running again
-	- simplify camera math drastically
-	- render text
 	- calling draw way too frequently
+	- circles, arrows, other disabled things
+	- forking
+	- render text
 
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
+- probably use f32, not f64 everywhere

@@ -18,5 +18,6 @@ void main() {
     // Translate that to clip-space or whatever it's called
     float x = (screen_x / window[0] * 2.0) - 1;
     float y = (screen_y / window[1] * 2.0) - 1;
-    gl_Position = vec4(x, y, 0.0, 1.0);
+    // Note the y inversion
+    gl_Position = vec4(x, -y, 0.0, 1.0);
 }
