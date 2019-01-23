@@ -66,7 +66,6 @@
 ## Switch to OpenGL (for speed)
 
 - get things running again
-	- calling draw way too frequently
 	- circles, arrows, other disabled things
 	- forking
 	- render text

@@ -272,10 +272,14 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 
     let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
-    let mut send_update_events = false;
+    let mut lazy_events = true;
+    let mut redraw = false;
     loop {
-        state.draw(&display, &program);
-        state.after_render();
+        if redraw {
+            state.draw(&display, &program);
+            state.after_render();
+            redraw = false;
+        }
 
         let mut new_events: Vec<glutin::WindowEvent> = Vec::new();
         events_loop.poll_events(|event| {
@@ -292,7 +296,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 if let Some(ev) = Event::from_glutin_event(event) {
                     let (new_state, mode) = state.event(ev);
                     state = new_state;
-                    send_update_events = mode == EventLoopMode::Animation;
+                    lazy_events = mode == EventLoopMode::InputOnly;
+                    redraw = true;
                 }
             }
         }
@@ -308,5 +313,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
         }
 
         thread::sleep(fixed_time_stamp - accumulator);
+        if !redraw && !lazy_events {
+            redraw = true;
+        }
     }
 }
