@@ -3,7 +3,7 @@ use crate::{Canvas, Color, GfxCtx, ScreenPt};
 use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
-use glium_glyph::glyph_brush::Section;
+use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
 use glium_glyph::GlyphBrush;
 use textwrap;
 
@@ -178,47 +178,30 @@ pub fn draw_text_bubble(
 
     let mut y = top_left.y;
     for line in &txt.lines {
-        let mut x = top_left.x;
+        let section = VariedSection {
+            screen_position: (top_left.x as f32, y as f32),
+            text: line
+                .into_iter()
+                .map(|span| SectionText {
+                    text: &span.text,
+                    color: span.fg_color.0,
+                    scale: Scale::uniform(FONT_SIZE),
+                    ..SectionText::default()
+                })
+                .collect(),
+            ..VariedSection::default()
+        };
+        let height = glyphs.pixel_bounds(section.clone()).unwrap().height() as f64;
 
-        let first_bg_color = line[0].highlight_color;
-        let mut same_bg_color = true;
-        let mut max_span_height: f64 = 0.0;
-        for (idx, span) in line.into_iter().enumerate() {
-            if span.highlight_color != first_bg_color {
-                same_bg_color = false;
-            }
-
-            let section = Section {
-                text: &span.text,
-                color: span.fg_color.0,
-                scale: Scale::uniform(FONT_SIZE),
-                screen_position: (x as f32, y as f32),
-                ..Section::default()
-            };
-            let span_dims = glyphs.pixel_bounds(section).unwrap();
-            let span_width = span_dims.width() as f64;
-            let span_height = span_dims.height() as f64;
-            if let Some(color) = span.highlight_color {
-                // If this is the last span and all spans use the same background color, then
-                // extend the background over the entire width of the text box.
-                let width = if idx == line.len() - 1 && same_bg_color {
-                    total_width - (x - top_left.x)
-                } else {
-                    span_width
-                };
-                g.draw_polygon(
-                    color,
-                    &Polygon::rectangle_topleft(Pt2D::new(x, y), width, span_height),
-                );
-            }
-
-            glyphs.queue(section);
-            x += span_width;
-            if span_height > max_span_height {
-                max_span_height = span_height;
-            }
+        if let Some(c) = line[0].highlight_color {
+            g.draw_polygon(
+                c,
+                &Polygon::rectangle_topleft(Pt2D::new(top_left.x, y), total_width, height),
+            );
         }
-        y += max_span_height;
+
+        y += height;
+        glyphs.queue(section);
     }
 
     g.unfork(canvas);

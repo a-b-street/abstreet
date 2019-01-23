@@ -66,6 +66,8 @@
 ## Switch to OpenGL (for speed)
 
 - no bugs
+	- bg color for a line covers the entire text box, not the span. fix the API.
+
 	- text is very buggy
 	- forking is buggy (traffic signal diagram)
 	- arrows
@@ -75,4 +77,3 @@
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
 - probably use f32, not f64 everywhere
-- maybe use fancy glyph_brush layout and color changing
