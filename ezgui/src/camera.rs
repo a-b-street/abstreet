@@ -3,7 +3,7 @@ use std::f32;
 
 pub struct CameraState {
     aspect_ratio: f32,
-    position: (f32, f32, f32),
+    pub position: (f32, f32, f32),
     direction: (f32, f32, f32),
 
     moving_up: bool,

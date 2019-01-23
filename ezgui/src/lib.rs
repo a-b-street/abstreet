@@ -124,7 +124,13 @@ impl<'a> GfxCtx<'a> {
         };
 
         let mut camera = CameraState::new();
-        // TODO setup camera based on canvas
+        // TODO that y inversion!
+        // TODO that arbitraryish Z position!
+        camera.position = (
+            canvas.cam_x as f32,
+            -canvas.cam_y as f32,
+            (500.0 / canvas.cam_zoom) as f32,
+        );
         let uniforms = uniform! {
             persp_matrix: camera.get_perspective(),
             view_matrix: camera.get_view(),
@@ -143,12 +149,7 @@ impl<'a> GfxCtx<'a> {
     // TODO Canvas doesn't understand this change, so things like text drawing that use
     // map_to_screen will just be confusing.
     pub fn fork(&mut self, top_left: Pt2D, zoom: f64) {
-        let mut camera = CameraState::new();
-        // TODO setup camera based on values above
-        self.uniforms = uniform! {
-            persp_matrix: camera.get_perspective(),
-            view_matrix: camera.get_view(),
-        };
+        // TODO set uniforms based on values above
     }
 
     pub fn fork_screenspace(&mut self) {

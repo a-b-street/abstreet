@@ -45,7 +45,7 @@ impl Plugin for Legend {
         // TODO The negation and reasoning about the zoom is annoying. I want to say something like
         // "Make top_left the origin, zoom 10."
         let zoom = 10.0;
-        let old_ctx = g.fork(
+        g.fork(
             Pt2D::new(-self.top_left.x / zoom, -self.top_left.y / zoom),
             zoom,
         );
@@ -92,6 +92,6 @@ impl Plugin for Legend {
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 110.0),
         );
 
-        g.unfork(old_ctx);
+        g.unfork();
     }
 }

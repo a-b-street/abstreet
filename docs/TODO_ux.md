@@ -65,8 +65,8 @@
 
 ## Switch to OpenGL (for speed)
 
-- get playground_gui running
-	- cant see anything
+- get things running again
+	- simplify camera math drastically
 	- render text
 	- calling draw way too frequently
 

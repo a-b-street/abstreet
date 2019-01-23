@@ -55,7 +55,12 @@ impl Event {
             glutin::WindowEvent::CursorMoved { position, .. } => {
                 Some(Event::MouseMovedTo(ScreenPt::new(position.x, position.y)))
             }
-            //glutin::WindowEvent::MouseWheel { delta, .. } => Event::MouseWheelScroll(),
+            glutin::WindowEvent::MouseWheel { delta, .. } => match delta {
+                glutin::MouseScrollDelta::LineDelta(_, dy) => {
+                    Some(Event::MouseWheelScroll(dy as f64))
+                }
+                _ => None,
+            },
             glutin::WindowEvent::Resized(size) => {
                 Some(Event::WindowResized(size.width, size.height))
             }
