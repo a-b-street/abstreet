@@ -38,7 +38,7 @@ impl TopMenu {
 
         let mut txt = Text::with_bg_color(None);
         for f in &folders {
-            txt.append(format!("{}     ", f.name), None, None);
+            txt.append(format!("{}     ", f.name), None);
         }
 
         // Calculate rectangles for the folders

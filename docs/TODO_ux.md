@@ -66,9 +66,9 @@
 ## Switch to OpenGL (for speed)
 
 - no bugs
-	- bg color for a line covers the entire text box, not the span. fix the API.
-
-	- text is very buggy
+	- text entry needs to draw the cursor differently anyway.
+	- top menu is very buggy
+	- need padding around text; and selecting stuff from menus is weird. LINE_HEIGHT.
 	- forking is buggy (traffic signal diagram)
 	- arrows
 	- some colors are wrong

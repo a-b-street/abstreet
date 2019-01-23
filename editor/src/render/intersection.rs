@@ -301,7 +301,6 @@ pub fn draw_signal_diagram(
                 txt.append(
                     "OVERTIME".to_string(),
                     Some(ctx.cs.get_def("signal overtime", Color::RED)),
-                    None,
                 );
                 labels.push(txt);
             } else {

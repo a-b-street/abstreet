@@ -28,14 +28,12 @@ impl TextBox {
 
         txt.add_line(self.line[0..self.cursor_x].to_string());
         if self.cursor_x < self.line.len() {
-            txt.append(
-                self.line[self.cursor_x..=self.cursor_x].to_string(),
-                None,
-                Some(text::SELECTED_COLOR),
-            );
-            txt.append(self.line[self.cursor_x + 1..].to_string(), None, None);
+            // TODO This bit was highlighted
+            txt.append(self.line[self.cursor_x..=self.cursor_x].to_string(), None);
+            txt.append(self.line[self.cursor_x + 1..].to_string(), None);
         } else {
-            txt.append(" ".to_string(), None, Some(text::SELECTED_COLOR));
+            // TODO This bit was highlighted
+            txt.append(" ".to_string(), None);
         }
 
         canvas.draw_blocking_text(g, txt, CENTERED);

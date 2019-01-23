@@ -24,8 +24,6 @@ const MAX_CHAR_WIDTH: f64 = 25.0;
 struct TextSpan {
     text: String,
     fg_color: Color,
-    // The Text's bg_color will cover the entire block, but some parts can have extra highlighting.
-    highlight_color: Option<Color>,
     // TODO bold, italic, font size, font style
 }
 
@@ -34,7 +32,6 @@ impl TextSpan {
         TextSpan {
             text,
             fg_color: FG_COLOR,
-            highlight_color: None,
         }
     }
 }
@@ -42,7 +39,8 @@ impl TextSpan {
 // TODO parse style from markup tags
 #[derive(Debug, Clone)]
 pub struct Text {
-    lines: Vec<Vec<TextSpan>>,
+    // The bg_color will cover the entire block, but some lines can have extra highlighting.
+    lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
 }
 
@@ -69,12 +67,12 @@ impl Text {
 
     pub fn pad_if_nonempty(&mut self) {
         if !self.lines.is_empty() {
-            self.lines.push(Vec::new());
+            self.lines.push((None, Vec::new()));
         }
     }
 
     pub fn add_line(&mut self, line: String) {
-        self.lines.push(vec![TextSpan::default_style(line)]);
+        self.lines.push((None, vec![TextSpan::default_style(line)]));
     }
 
     // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
@@ -91,27 +89,23 @@ impl Text {
         fg_color: Option<Color>,
         highlight_color: Option<Color>,
     ) {
-        self.lines.push(vec![TextSpan {
-            text: line,
-            fg_color: fg_color.unwrap_or(FG_COLOR),
+        self.lines.push((
             highlight_color,
-        }]);
+            vec![TextSpan {
+                text: line,
+                fg_color: fg_color.unwrap_or(FG_COLOR),
+            }],
+        ));
     }
 
-    pub fn append(
-        &mut self,
-        text: String,
-        fg_color: Option<Color>,
-        highlight_color: Option<Color>,
-    ) {
+    pub fn append(&mut self, text: String, fg_color: Option<Color>) {
         if self.lines.is_empty() {
-            self.lines.push(Vec::new());
+            self.lines.push((None, Vec::new()));
         }
 
-        self.lines.last_mut().unwrap().push(TextSpan {
+        self.lines.last_mut().unwrap().1.push(TextSpan {
             text,
             fg_color: fg_color.unwrap_or(FG_COLOR),
-            highlight_color,
         });
     }
 
@@ -127,7 +121,7 @@ impl Text {
         let mut widths: Vec<i32> = Vec::new();
         let mut total_height: i32 = 0;
 
-        for l in &self.lines {
+        for (_, l) in &self.lines {
             let full_line = l.iter().fold(String::new(), |mut so_far, span| {
                 so_far.push_str(&span.text);
                 so_far
@@ -177,7 +171,7 @@ pub fn draw_text_bubble(
     }
 
     let mut y = top_left.y;
-    for line in &txt.lines {
+    for (line_color, line) in &txt.lines {
         let section = VariedSection {
             screen_position: (top_left.x as f32, y as f32),
             text: line
@@ -193,9 +187,9 @@ pub fn draw_text_bubble(
         };
         let height = glyphs.pixel_bounds(section.clone()).unwrap().height() as f64;
 
-        if let Some(c) = line[0].highlight_color {
+        if let Some(c) = line_color {
             g.draw_polygon(
-                c,
+                *c,
                 &Polygon::rectangle_topleft(Pt2D::new(top_left.x, y), total_width, height),
             );
         }

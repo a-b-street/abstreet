@@ -204,7 +204,7 @@ impl<T: Clone> Menu<T> {
             if *active {
                 if let Some(key) = hotkey {
                     txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg);
-                    txt.append(format!(" - {}", choice), None, bg);
+                    txt.append(format!(" - {}", choice), None);
                 } else {
                     txt.add_styled_line(choice.to_string(), None, bg);
                 }
