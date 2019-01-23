@@ -212,31 +212,28 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
+        let mut vertices: Vec<Vertex> = Vec::new();
         for tri in &poly.triangles {
-            let vb = glium::VertexBuffer::new(
-                self.display,
-                &[
-                    Vertex {
-                        position: [tri.pt1.x() as f32, tri.pt1.y() as f32],
-                        color: color.0,
-                    },
-                    Vertex {
-                        position: [tri.pt2.x() as f32, tri.pt2.y() as f32],
-                        color: color.0,
-                    },
-                    Vertex {
-                        position: [tri.pt3.x() as f32, tri.pt3.y() as f32],
-                        color: color.0,
-                    },
-                ],
-            )
-            .unwrap();
-            let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-            self.target
-                .draw(&vb, &indices, &self.program, &self.uniforms, &self.params)
-                .unwrap();
+            vertices.push(Vertex {
+                position: [tri.pt1.x() as f32, tri.pt1.y() as f32],
+                color: color.0,
+            });
+            vertices.push(Vertex {
+                position: [tri.pt2.x() as f32, tri.pt2.y() as f32],
+                color: color.0,
+            });
+            vertices.push(Vertex {
+                position: [tri.pt3.x() as f32, tri.pt3.y() as f32],
+                color: color.0,
+            });
         }
+
+        let vb = glium::VertexBuffer::new(self.display, &vertices).unwrap();
+        let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+
+        self.target
+            .draw(&vb, &indices, &self.program, &self.uniforms, &self.params)
+            .unwrap();
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &geom::Circle) {

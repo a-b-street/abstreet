@@ -66,11 +66,11 @@
 ## Switch to OpenGL (for speed)
 
 - get things running again
-	- editor is very slow... why?
-	- colors still seem off
 	- circles, arrows, other disabled things
 	- forking
 	- render text
+	- colors still seem off
+	- make polygon store points and indices efficiently
 
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
