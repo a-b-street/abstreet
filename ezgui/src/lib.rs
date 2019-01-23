@@ -170,6 +170,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
+        self.draw_line(color, thickness, line);
+
         // TODO Raw method doesn't work yet in all cases...
         /*graphics::Line::new_round(color.0, thickness).draw_arrow(
             [

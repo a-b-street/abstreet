@@ -18,7 +18,6 @@ const FONT_SIZE: f32 = 24.0;
 // TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and
 // they need adjustments to their positioning.
 pub const LINE_HEIGHT: f64 = 32.0;
-const SHIFT_TEXT_UP: f64 = 7.0;
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
 #[derive(Debug, Clone)]
@@ -126,7 +125,7 @@ impl Text {
 
     pub(crate) fn dims(&self, glyphs: &mut GlyphBrush<'static, 'static>) -> (f64, f64) {
         let mut widths: Vec<i32> = Vec::new();
-        let mut heights: Vec<i32> = Vec::new();
+        let mut total_height: i32 = 0;
 
         for l in &self.lines {
             let full_line = l.iter().fold(String::new(), |mut so_far, span| {
@@ -139,18 +138,18 @@ impl Text {
                 ..Section::default()
             }) {
                 widths.push(rect.width());
-                heights.push(rect.height());
+                total_height += rect.height();
             } else {
                 // TODO Sometimes we want to space something like "    ", but no drawn glyphs
                 // means pixel_bounds fails. Hack?
                 widths.push((MAX_CHAR_WIDTH * (full_line.len() as f64)) as i32);
-                heights.push(LINE_HEIGHT as i32);
+                total_height += LINE_HEIGHT as i32;
             }
         }
 
         (
             widths.into_iter().max().unwrap() as f64,
-            heights.into_iter().max().unwrap() as f64,
+            total_height as f64,
         )
     }
 }
@@ -193,7 +192,7 @@ pub fn draw_text_bubble(
                 color: span.fg_color.0,
                 scale: Scale::uniform(FONT_SIZE),
                 bounds: (1024.0, 768.0),
-                screen_position: (x as f32, (y - SHIFT_TEXT_UP) as f32),
+                screen_position: (x as f32, (y - LINE_HEIGHT) as f32),
                 ..Section::default()
             };
             let span_width = glyphs.pixel_bounds(section).unwrap().width() as f64;
