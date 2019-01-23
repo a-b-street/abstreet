@@ -251,7 +251,8 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             gui.get_mut_canvas().window_width,
             gui.get_mut_canvas().window_height,
         ));
-    let context = glutin::ContextBuilder::new().with_depth_buffer(24);
+    // 2 looks bad, 4 looks fine
+    let context = glutin::ContextBuilder::new().with_multisampling(4);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
     let program = glium::Program::from_source(
         &display,

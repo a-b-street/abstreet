@@ -113,11 +113,7 @@ impl<'a> GfxCtx<'a> {
         program: &'a glium::Program,
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
-            depth: glium::Depth {
-                test: glium::DepthTest::IfLess,
-                write: true,
-                ..Default::default()
-            },
+            blend: glium::Blend::alpha_blending(),
             ..Default::default()
         };
 
@@ -152,7 +148,7 @@ impl<'a> GfxCtx<'a> {
 
     pub fn clear(&mut self, color: Color) {
         self.target
-            .clear_color_and_depth((color.0[0], color.0[1], color.0[2], color.0[3]), 1.0);
+            .clear_color(color.0[0], color.0[1], color.0[2], color.0[3]);
     }
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by
