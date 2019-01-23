@@ -66,12 +66,13 @@
 ## Switch to OpenGL (for speed)
 
 - get things running again
-	- arrows
 	- forking
-	- render text
+	- clean up text rendering... remove LINE_HEIGHT and MAX_CHAR_WIDTH constants
+	- arrows
 	- colors still seem off
 	- make polygon store points and indices efficiently
 
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
 - probably use f32, not f64 everywhere
+- maybe use fancy glyph_brush layout and color changing

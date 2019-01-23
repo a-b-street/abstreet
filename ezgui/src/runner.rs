@@ -2,6 +2,9 @@ use crate::input::{ContextMenu, ModalMenuState};
 use crate::{Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
 use abstutil::Timer;
 use glium::glutin;
+use glium_glyph::glyph_brush::rusttype::Font;
+use glium_glyph::GlyphBrush;
+use std::cell::RefCell;
 use std::io::Write;
 use std::time::{Duration, Instant};
 use std::{env, fs, panic, process, thread};
@@ -133,6 +136,14 @@ impl<T, G: GUI<T>> State<T, G> {
             }
         }
 
+        // Always draw text last?
+        self.gui
+            .get_mut_canvas()
+            .glyphs
+            .borrow_mut()
+            .as_mut()
+            .unwrap()
+            .draw_queued(display, &mut target);
         target.finish().unwrap();
     }
 
@@ -261,6 +272,10 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
         None,
     )
     .unwrap();
+
+    let dejavu: &[u8] = include_bytes!("DejaVuSans.ttf");
+    let fonts = vec![Font::from_bytes(dejavu).unwrap()];
+    gui.get_mut_canvas().glyphs = RefCell::new(Some(GlyphBrush::new(&display, fonts)));
 
     let mut state = State {
         context_menu: ContextMenu::Inactive,

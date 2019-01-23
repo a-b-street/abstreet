@@ -1,6 +1,10 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
-use ordered_float::NotNan;
+use geom::{Polygon, Pt2D};
+use glium_glyph::glyph_brush::rusttype::Scale;
+use glium_glyph::glyph_brush::GlyphCruncher;
+use glium_glyph::glyph_brush::Section;
+use glium_glyph::GlyphBrush;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -10,7 +14,7 @@ pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
-const FONT_SIZE: u32 = 24;
+const FONT_SIZE: f32 = 24.0;
 // TODO These are dependent on FONT_SIZE, but hand-tuned. Glyphs all have 0 as their height, and
 // they need adjustments to their positioning.
 pub const LINE_HEIGHT: f64 = 32.0;
@@ -120,41 +124,51 @@ impl Text {
         self.lines.is_empty()
     }
 
-    /*pub(crate) fn dims(&self, glyphs: &mut GlyphCache) -> (f64, f64) {
-        let width = self
-            .lines
-            .iter()
-            .map(|l| {
-                glyphs
-                    .width(
-                        FONT_SIZE,
-                        &l.iter().fold(String::new(), |mut so_far, span| {
-                            so_far.push_str(&span.text);
-                            so_far
-                        }),
-                    )
-                    .unwrap()
-            })
-            .max_by_key(|w| NotNan::new(*w).unwrap())
-            .unwrap();
-        let height = (self.lines.len() as f64) * LINE_HEIGHT;
-        (width, height)
-    }*/
+    pub(crate) fn dims(&self, glyphs: &mut GlyphBrush<'static, 'static>) -> (f64, f64) {
+        let mut widths: Vec<i32> = Vec::new();
+        let mut heights: Vec<i32> = Vec::new();
+
+        for l in &self.lines {
+            let full_line = l.iter().fold(String::new(), |mut so_far, span| {
+                so_far.push_str(&span.text);
+                so_far
+            });
+            let rect = glyphs
+                .pixel_bounds(Section {
+                    text: &full_line,
+                    scale: Scale::uniform(FONT_SIZE),
+                    ..Section::default()
+                })
+                .unwrap();
+            widths.push(rect.width());
+            heights.push(rect.height());
+        }
+
+        (
+            widths.into_iter().max().unwrap() as f64,
+            heights.into_iter().max().unwrap() as f64,
+        )
+    }
 }
 
-/*pub fn draw_text_bubble(
+pub fn draw_text_bubble(
     g: &mut GfxCtx,
-    glyphs: &mut GlyphCache,
+    glyphs: &mut GlyphBrush<'static, 'static>,
     top_left: ScreenPt,
     txt: Text,
 ) -> ScreenRectangle {
+    // TODO Is it expensive to constantly change uniforms and the shader program?
+    g.fork_screenspace();
+
     let (total_width, total_height) = txt.dims(glyphs);
     if let Some(c) = txt.bg_color {
-        Rectangle::new(c.0).draw(
-            [top_left.x, top_left.y, total_width, total_height],
-            &g.orig_ctx.draw_state,
-            g.orig_ctx.transform,
-            g.gfx,
+        g.draw_polygon(
+            c,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(top_left.x, top_left.y),
+                total_width,
+                total_height,
+            ),
         );
     }
 
@@ -169,7 +183,15 @@ impl Text {
                 same_bg_color = false;
             }
 
-            let span_width = glyphs.width(FONT_SIZE, &span.text).unwrap();
+            let section = Section {
+                text: &span.text,
+                color: span.fg_color.0,
+                scale: Scale::uniform(FONT_SIZE),
+                bounds: (1024.0, 768.0),
+                screen_position: (x as f32, (y - SHIFT_TEXT_UP) as f32),
+                ..Section::default()
+            };
+            let span_width = glyphs.pixel_bounds(section).unwrap().width() as f64;
             if let Some(color) = span.highlight_color {
                 // If this is the last span and all spans use the same background color, then
                 // extend the background over the entire width of the text box.
@@ -178,27 +200,19 @@ impl Text {
                 } else {
                     span_width
                 };
-                Rectangle::new(color.0).draw(
-                    [x, y - LINE_HEIGHT, width, LINE_HEIGHT],
-                    &g.orig_ctx.draw_state,
-                    g.orig_ctx.transform,
-                    g.gfx,
+                g.draw_polygon(
+                    color,
+                    &Polygon::rectangle_topleft(Pt2D::new(x, y - LINE_HEIGHT), width, LINE_HEIGHT),
                 );
             }
 
-            graphics::Text::new_color(span.fg_color.0, FONT_SIZE)
-                .draw(
-                    &span.text,
-                    glyphs,
-                    &g.orig_ctx.draw_state,
-                    g.orig_ctx.transform.trans(x, y - SHIFT_TEXT_UP),
-                    g.gfx,
-                )
-                .unwrap();
+            glyphs.queue(section);
             x += span_width;
         }
         y += LINE_HEIGHT;
     }
+
+    g.unfork();
 
     ScreenRectangle {
         x1: top_left.x,
@@ -206,4 +220,4 @@ impl Text {
         x2: top_left.x + total_width,
         y2: top_left.y + total_height,
     }
-}*/
+}
