@@ -1,4 +1,3 @@
-mod camera;
 mod canvas;
 mod color;
 mod event;
@@ -13,7 +12,6 @@ mod text_box;
 mod top_menu;
 mod wizard;
 
-use crate::camera::CameraState;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
 pub use crate::event::{Event, Key};
@@ -95,8 +93,8 @@ implement_vertex!(Vertex, position, color);
 
 type Uniforms<'a> = glium::uniforms::UniformsStorage<
     'a,
-    [[f32; 4]; 4],
-    glium::uniforms::UniformsStorage<'a, [[f32; 4]; 4], glium::uniforms::EmptyUniforms>,
+    [f32; 2],
+    glium::uniforms::UniformsStorage<'a, [f32; 3], glium::uniforms::EmptyUniforms>,
 >;
 
 pub struct GfxCtx<'a> {
@@ -123,17 +121,9 @@ impl<'a> GfxCtx<'a> {
             ..Default::default()
         };
 
-        let mut camera = CameraState::new();
-        // TODO that y inversion!
-        // TODO that arbitraryish Z position!
-        camera.position = (
-            canvas.cam_x as f32,
-            -canvas.cam_y as f32,
-            (500.0 / canvas.cam_zoom) as f32,
-        );
         let uniforms = uniform! {
-            persp_matrix: camera.get_perspective(),
-            view_matrix: camera.get_view(),
+            transform: [canvas.cam_x as f32, canvas.cam_y as f32, canvas.cam_zoom as f32],
+            window: [canvas.window_width as f32, canvas.window_height as f32],
         };
 
         GfxCtx {
