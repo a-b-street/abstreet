@@ -66,7 +66,7 @@
 ## Switch to OpenGL (for speed)
 
 - get things running again
-	- circles, arrows, other disabled things
+	- arrows
 	- forking
 	- render text
 	- colors still seem off

@@ -24,7 +24,7 @@ pub use crate::text::Text;
 pub use crate::text_box::TextBox;
 pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
-use geom::Pt2D;
+use geom::{Angle, Circle, Line, Polygon, Pt2D, Triangle};
 use glium::{implement_vertex, uniform, Surface};
 
 // TODO Not super happy about exposing this; fork_screenspace for external callers should be
@@ -153,17 +153,17 @@ impl<'a> GfxCtx<'a> {
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
-    pub fn draw_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+    pub fn draw_line(&mut self, color: Color, thickness: f64, line: &Line) {
         self.draw_polygon(color, &line.to_polyline().make_polygons(thickness));
     }
 
-    pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+    pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &Line) {
         self.draw_line(color, thickness, line);
-        self.draw_circle(color, &geom::Circle::new(line.pt1(), thickness / 2.0));
-        self.draw_circle(color, &geom::Circle::new(line.pt2(), thickness / 2.0));
+        self.draw_circle(color, &Circle::new(line.pt1(), thickness / 2.0));
+        self.draw_circle(color, &Circle::new(line.pt2(), thickness / 2.0));
     }
 
-    pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &geom::Line) {
+    pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
         // TODO Raw method doesn't work yet in all cases...
         /*graphics::Line::new_round(color.0, thickness).draw_arrow(
             [
@@ -184,7 +184,7 @@ impl<'a> GfxCtx<'a> {
         let triangle_height = (head_size / 2.0).sqrt() * si::M;
         self.draw_polygon(
             color,
-            &geom::Polygon::new(&vec![
+            &Polygon::new(&vec![
                 //line.pt2(),
                 //line.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
                 line.reverse()
@@ -202,7 +202,7 @@ impl<'a> GfxCtx<'a> {
         );
         self.draw_polygon(
             color,
-            &geom::Polygon::new(&vec![
+            &Polygon::new(&vec![
                 line.pt2(),
                 line.pt2()
                     .project_away(head_size, angle.rotate_degs(-135.0)),
@@ -211,7 +211,7 @@ impl<'a> GfxCtx<'a> {
         );*/
     }
 
-    pub fn draw_polygon(&mut self, color: Color, poly: &geom::Polygon) {
+    pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
         let mut vertices: Vec<Vertex> = Vec::new();
         for tri in &poly.triangles {
             vertices.push(Vertex {
@@ -236,17 +236,23 @@ impl<'a> GfxCtx<'a> {
             .unwrap();
     }
 
-    pub fn draw_circle(&mut self, color: Color, circle: &geom::Circle) {
-        /*graphics::Ellipse::new(color.0).draw(
-            [
-                circle.center.x() - circle.radius,
-                circle.center.y() - circle.radius,
-                2.0 * circle.radius,
-                2.0 * circle.radius,
-            ],
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );*/
+    pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
+        let num_triangles = 60;
+
+        let mut triangles: Vec<Triangle> = Vec::new();
+        for i in 0..num_triangles {
+            triangles.push(Triangle {
+                pt1: circle.center,
+                pt2: circle.center.project_away(
+                    circle.radius,
+                    Angle::new_degs((i as f64) / (num_triangles as f64) * 360.0),
+                ),
+                pt3: circle.center.project_away(
+                    circle.radius,
+                    Angle::new_degs(((i + 1) as f64) / (num_triangles as f64) * 360.0),
+                ),
+            });
+        }
+        self.draw_polygon(color, &Polygon { triangles });
     }
 }
