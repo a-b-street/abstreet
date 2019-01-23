@@ -135,7 +135,7 @@ impl TopMenu {
             y2: TOP_MENU_HEIGHT,
         });
 
-        g.fork_screenspace();
+        g.fork_screenspace(canvas);
         g.draw_polygon(
             text::BG_COLOR,
             &Polygon::rectangle_topleft(Pt2D::new(0.0, 0.0), canvas.window_width, TOP_MENU_HEIGHT),
@@ -148,7 +148,7 @@ impl TopMenu {
                 &Polygon::rectangle_topleft(Pt2D::new(r.x1, r.y1), r.x2 - r.x1, r.y2 - r.y1),
             );
         }
-        g.unfork();
+        g.unfork(canvas);
 
         canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), ScreenPt::new(0.0, 0.0));
 

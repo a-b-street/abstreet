@@ -48,6 +48,7 @@ impl Plugin for Legend {
         g.fork(
             Pt2D::new(-self.top_left.x / zoom, -self.top_left.y / zoom),
             zoom,
+            &ctx.canvas,
         );
 
         // Create a fake turn.
@@ -92,6 +93,6 @@ impl Plugin for Legend {
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 110.0),
         );
 
-        g.unfork();
+        g.unfork(&ctx.canvas);
     }
 }

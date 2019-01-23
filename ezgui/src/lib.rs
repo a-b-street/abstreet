@@ -134,16 +134,22 @@ impl<'a> GfxCtx<'a> {
     // Up to the caller to call unfork()!
     // TODO Canvas doesn't understand this change, so things like text drawing that use
     // map_to_screen will just be confusing.
-    pub fn fork(&mut self, top_left: Pt2D, zoom: f64) {
-        // TODO set uniforms based on values above
+    pub fn fork(&mut self, top_left: Pt2D, zoom: f64, canvas: &Canvas) {
+        self.uniforms = uniform! {
+            transform: [top_left.x() as f32, top_left.y() as f32, zoom as f32],
+            window: [canvas.window_width as f32, canvas.window_height as f32],
+        };
     }
 
-    pub fn fork_screenspace(&mut self) {
-        self.fork(Pt2D::new(0.0, 0.0), 1.0)
+    pub fn fork_screenspace(&mut self, canvas: &Canvas) {
+        self.fork(Pt2D::new(0.0, 0.0), 1.0, canvas)
     }
 
-    pub fn unfork(&mut self) {
-        // TODO Reset to canvas?
+    pub fn unfork(&mut self, canvas: &Canvas) {
+        self.uniforms = uniform! {
+            transform: [canvas.cam_x as f32, canvas.cam_y as f32, canvas.cam_zoom as f32],
+            window: [canvas.window_width as f32, canvas.window_height as f32],
+        };
     }
 
     pub fn clear(&mut self, color: Color) {

@@ -133,15 +133,19 @@ impl Text {
                 so_far.push_str(&span.text);
                 so_far
             });
-            let rect = glyphs
-                .pixel_bounds(Section {
-                    text: &full_line,
-                    scale: Scale::uniform(FONT_SIZE),
-                    ..Section::default()
-                })
-                .unwrap();
-            widths.push(rect.width());
-            heights.push(rect.height());
+            if let Some(rect) = glyphs.pixel_bounds(Section {
+                text: &full_line,
+                scale: Scale::uniform(FONT_SIZE),
+                ..Section::default()
+            }) {
+                widths.push(rect.width());
+                heights.push(rect.height());
+            } else {
+                // TODO Sometimes we want to space something like "    ", but no drawn glyphs
+                // means pixel_bounds fails. Hack?
+                widths.push((MAX_CHAR_WIDTH * (full_line.len() as f64)) as i32);
+                heights.push(LINE_HEIGHT as i32);
+            }
         }
 
         (
@@ -156,9 +160,10 @@ pub fn draw_text_bubble(
     glyphs: &mut GlyphBrush<'static, 'static>,
     top_left: ScreenPt,
     txt: Text,
+    canvas: &Canvas,
 ) -> ScreenRectangle {
     // TODO Is it expensive to constantly change uniforms and the shader program?
-    g.fork_screenspace();
+    g.fork_screenspace(canvas);
 
     let (total_width, total_height) = txt.dims(glyphs);
     if let Some(c) = txt.bg_color {
@@ -212,7 +217,7 @@ pub fn draw_text_bubble(
         y += LINE_HEIGHT;
     }
 
-    g.unfork();
+    g.unfork(canvas);
 
     ScreenRectangle {
         x1: top_left.x,

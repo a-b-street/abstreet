@@ -328,7 +328,7 @@ pub fn draw_signal_diagram(
     let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
     let x1_screen = ctx.canvas.window_width - total_screen_width;
 
-    g.fork_screenspace();
+    g.fork_screenspace(&ctx.canvas);
     g.draw_polygon(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
@@ -364,6 +364,7 @@ pub fn draw_signal_diagram(
                     - padding * ((idx as f64) + 1.0),
             ),
             zoom,
+            &ctx.canvas,
         );
         draw_signal_cycle(&cycle, g, ctx);
 
@@ -377,7 +378,7 @@ pub fn draw_signal_diagram(
         );
     }
 
-    g.unfork();
+    g.unfork(&ctx.canvas);
 }
 
 fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {

@@ -99,7 +99,13 @@ impl Canvas {
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(g, glyphs.as_mut().unwrap(), ScreenPt::new(x1, y1), txt);
+        text::draw_text_bubble(
+            g,
+            glyphs.as_mut().unwrap(),
+            ScreenPt::new(x1, y1),
+            txt,
+            self,
+        );
     }
 
     // TODO Rename these draw_nonblocking_text_*
@@ -112,6 +118,7 @@ impl Canvas {
             glyphs.as_mut().unwrap(),
             ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
             txt,
+            self,
         );
     }
 
@@ -121,11 +128,12 @@ impl Canvas {
             self.glyphs.borrow_mut().as_mut().unwrap(),
             self.map_to_screen(pt),
             txt,
+            self,
         );
     }
 
     pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, pt: ScreenPt) {
-        text::draw_text_bubble(g, self.glyphs.borrow_mut().as_mut().unwrap(), pt, txt);
+        text::draw_text_bubble(g, self.glyphs.borrow_mut().as_mut().unwrap(), pt, txt, self);
     }
 
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
@@ -156,6 +164,7 @@ impl Canvas {
             glyphs.as_mut().unwrap(),
             ScreenPt::new(x1, y1),
             txt,
+            self,
         ));
     }
 
