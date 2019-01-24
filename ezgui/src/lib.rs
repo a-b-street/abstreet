@@ -25,7 +25,7 @@ pub use crate::text_box::TextBox;
 pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
 use dimensioned::si;
-use geom::{Angle, Circle, Line, Polygon, Pt2D, Triangle};
+use geom::{Circle, Line, Polygon, Pt2D};
 use glium::{implement_vertex, uniform, Surface};
 
 pub struct ToggleableLayer {
@@ -216,7 +216,7 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
-        for (idx, tri) in poly.triangles.iter().enumerate() {
+        for (idx, tri) in poly.triangles().into_iter().enumerate() {
             vertices.push(Vertex {
                 position: [tri.pt1.x() as f32, tri.pt1.y() as f32],
                 color: color.0,
@@ -256,22 +256,6 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
-        let num_triangles = 60;
-
-        let mut triangles: Vec<Triangle> = Vec::new();
-        for i in 0..num_triangles {
-            triangles.push(Triangle {
-                pt1: circle.center,
-                pt2: circle.center.project_away(
-                    circle.radius,
-                    Angle::new_degs((i as f64) / (num_triangles as f64) * 360.0),
-                ),
-                pt3: circle.center.project_away(
-                    circle.radius,
-                    Angle::new_degs(((i + 1) as f64) / (num_triangles as f64) * 360.0),
-                ),
-            });
-        }
-        self.draw_polygon(color, &Polygon { triangles });
+        self.draw_polygon(color, &circle.to_polygon(60));
     }
 }

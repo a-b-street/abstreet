@@ -3,8 +3,10 @@ use std::f64;
 
 #[derive(Clone, Debug)]
 pub struct Polygon {
-    // This could be stored more efficiently, but worry about it later when switching to gfx-rs.
-    pub triangles: Vec<Triangle>,
+    points: Vec<Pt2D>,
+    // Groups of three indices make up the triangles
+    // TODO u32 better for later, but then we can't index stuff!
+    indices: Vec<usize>,
 }
 
 // TODO The triangulation is a bit of a mess. Everything except for Polygon::new comes from
@@ -25,7 +27,7 @@ impl Polygon {
             orig_pts.clone()
         };
 
-        let mut tgs = Vec::new();
+        let mut indices: Vec<usize> = Vec::new();
         let mut avl = Vec::with_capacity(pts.len());
         for i in 0..pts.len() {
             avl.push(i);
@@ -38,11 +40,7 @@ impl Polygon {
             let i1 = avl[(i + 1) % al];
             let i2 = avl[(i + 2) % al];
 
-            let a = pts[i0];
-            let b = pts[i1];
-            let c = pts[i2];
-            let tri = Triangle::new(a, b, c);
-
+            let tri = Triangle::new(pts[i0], pts[i1], pts[i2]);
             let mut ear_found = false;
             if tri.is_convex() {
                 ear_found = true;
@@ -56,9 +54,9 @@ impl Polygon {
             }
 
             if ear_found {
-                tgs.push(i0);
-                tgs.push(i1);
-                tgs.push(i2);
+                indices.push(i0);
+                indices.push(i1);
+                indices.push(i2);
                 avl.remove((i + 1) % al);
                 al -= 1;
                 i = 0;
@@ -69,92 +67,78 @@ impl Polygon {
             }
         }
 
-        tgs.push(avl[0]);
-        tgs.push(avl[1]);
-        tgs.push(avl[2]);
+        indices.push(avl[0]);
+        indices.push(avl[1]);
+        indices.push(avl[2]);
 
-        let mut triangles = Vec::new();
-        assert!(tgs.len() % 3 == 0);
-        for tri in tgs.chunks(3) {
-            triangles.push(Triangle::new(pts[tri[0]], pts[tri[1]], pts[tri[2]]));
+        Polygon {
+            points: pts,
+            indices,
         }
-        Polygon { triangles }
+    }
+
+    pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
+        assert!(indices.len() % 3 == 0);
+        Polygon { points, indices }
+    }
+
+    pub fn triangles(&self) -> Vec<Triangle> {
+        let mut triangles: Vec<Triangle> = Vec::new();
+        for slice in self.indices.chunks_exact(3) {
+            triangles.push(Triangle::new(
+                self.points[slice[0]],
+                self.points[slice[1]],
+                self.points[slice[2]],
+            ));
+        }
+        triangles
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.triangles.iter().any(|tri| tri.contains_pt(pt))
+        self.triangles().into_iter().any(|tri| tri.contains_pt(pt))
     }
 
     pub fn get_bounds(&self) -> Bounds {
         let mut b = Bounds::new();
-        for tri in &self.triangles {
-            b.update(tri.pt1);
-            b.update(tri.pt2);
-            b.update(tri.pt3);
+        for pt in &self.points {
+            b.update(*pt);
         }
         b
     }
 
     pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
         Polygon {
-            triangles: self
-                .triangles
-                .iter()
-                .map(|t| {
-                    Triangle::new(
-                        t.pt1.offset(dx, dy),
-                        t.pt2.offset(dx, dy),
-                        t.pt3.offset(dx, dy),
-                    )
-                })
-                .collect(),
+            points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
+            indices: self.indices.clone(),
         }
     }
 
-    // Lots of repeats...
-    pub fn points(&self) -> Vec<Pt2D> {
-        let mut points = Vec::new();
-        for t in &self.triangles {
-            points.push(t.pt1);
-            points.push(t.pt2);
-            points.push(t.pt3);
-        }
-        points
+    pub fn points(&self) -> &Vec<Pt2D> {
+        &self.points
     }
 
     pub fn center(&self) -> Pt2D {
-        // TODO urgh, have to dedupe!
-        let mut pts: Vec<HashablePt2D> = Vec::new();
-        for t in &self.triangles {
-            pts.push(t.pt1.into());
-            pts.push(t.pt2.into());
-            pts.push(t.pt3.into());
-        }
+        // TODO dedupe just out of fear of the first/last point being repeated
+        let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| (*pt).into()).collect();
         pts.sort();
         pts.dedup();
         Pt2D::center(&pts.iter().map(|pt| Pt2D::from(*pt)).collect())
     }
 
     pub fn rectangle(center: Pt2D, width: f64, height: f64) -> Polygon {
-        let (x, y) = (center.x(), center.y());
-        let half_width = width / 2.0;
-        let half_height = height / 2.0;
-        Polygon::new(&vec![
-            Pt2D::new(x - half_width, y - half_height),
-            Pt2D::new(x + half_width, y - half_height),
-            Pt2D::new(x + half_width, y + half_height),
-            Pt2D::new(x - half_width, y + half_height),
-        ])
+        Polygon::rectangle_topleft(center.offset(-width / 2.0, -height / 2.0), width, height)
     }
 
     pub fn rectangle_topleft(top_left: Pt2D, width: f64, height: f64) -> Polygon {
-        let (x, y) = (top_left.x(), top_left.y());
-        Polygon::new(&vec![
-            Pt2D::new(x, y),
-            Pt2D::new(x + width, y),
-            Pt2D::new(x + width, y + height),
-            Pt2D::new(x, y + height),
-        ])
+        Polygon {
+            points: vec![
+                top_left,
+                top_left.offset(width, 0.0),
+                top_left.offset(width, height),
+                top_left.offset(0.0, height),
+            ],
+            indices: vec![0, 1, 2, 2, 3, 0],
+        }
     }
 }
 

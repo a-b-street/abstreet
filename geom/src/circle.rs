@@ -1,4 +1,4 @@
-use crate::{Bounds, Pt2D};
+use crate::{Angle, Bounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -26,6 +26,25 @@ impl Circle {
             min_y: self.center.y() - self.radius,
             max_y: self.center.y() + self.radius,
         }
+    }
+
+    pub fn to_polygon(&self, num_triangles: usize) -> Polygon {
+        let mut pts = vec![self.center];
+        let mut indices = Vec::new();
+        for i in 0..num_triangles {
+            pts.push(self.center.project_away(
+                self.radius,
+                Angle::new_degs((i as f64) / (num_triangles as f64) * 360.0),
+            ));
+            indices.push(0);
+            indices.push(i + 1);
+            if i != num_triangles - 1 {
+                indices.push(i + 2);
+            } else {
+                indices.push(1);
+            }
+        }
+        Polygon::precomputed(pts, indices)
     }
 }
 

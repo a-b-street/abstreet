@@ -1,4 +1,4 @@
-use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, Triangle, EPSILON_DIST};
+use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
@@ -211,23 +211,21 @@ impl PolyLine {
         let side1 = self.shift_with_sharp_angles(width / 2.0);
         let side2 = self.shift_with_sharp_angles(-width / 2.0);
 
-        let mut poly = Polygon {
-            triangles: Vec::new(),
-        };
+        let side2_offset = side1.pts.len();
+        let mut points = side1.pts;
+        points.extend(side2.pts);
+        let mut indices = Vec::new();
+
         for high_idx in 1..self.pts.len() {
             // Duplicate first point, since that's what graphics layer expects
-            poly.triangles.push(Triangle::new(
-                side1.pts[high_idx],
-                side1.pts[high_idx - 1],
-                side2.pts[high_idx - 1],
-            ));
-            poly.triangles.push(Triangle::new(
-                side2.pts[high_idx],
-                side2.pts[high_idx - 1],
-                side1.pts[high_idx],
-            ));
+            indices.extend(vec![high_idx, high_idx - 1, side2_offset + high_idx - 1]);
+            indices.extend(vec![
+                side2_offset + high_idx,
+                side2_offset + high_idx - 1,
+                high_idx,
+            ]);
         }
-        poly
+        Polygon::precomputed(points, indices)
     }
 
     pub fn dashed_polygons(

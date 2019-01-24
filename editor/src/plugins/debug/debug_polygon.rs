@@ -55,9 +55,9 @@ impl DebugPolygon {
                             .draw_map
                             .get_l(id)
                             .polygon
-                            .triangles
-                            .iter()
-                            .map(|tri| Item::Triangle(tri.clone()))
+                            .triangles()
+                            .into_iter()
+                            .map(|tri| Item::Triangle(tri))
                             .collect(),
                         current: 0,
                     });

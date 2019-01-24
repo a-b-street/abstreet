@@ -114,7 +114,7 @@ impl Plugin for Validator {
 
 fn make_polys(p: &Polygon) -> Vec<geo::Polygon<f64>> {
     let mut result = Vec::new();
-    for tri in &p.triangles {
+    for tri in p.triangles() {
         let exterior = vec![
             geo::Point::new(tri.pt1.x(), tri.pt1.y()),
             geo::Point::new(tri.pt2.x(), tri.pt2.y()),
