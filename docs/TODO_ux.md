@@ -67,10 +67,11 @@
 
 - no bugs
 	- arrows... then debug legend
-	- top menu rectangles are slightly off; grab the " " glyph's width?
+	- do basic benchmarking
 
 - make polygon store points and indices efficiently
 - change ezgui API to allow uploading geometry once
+	- see if performance of huge maps is noticably affected
 - undo the y inversion hacks at last!
 - need padding around text
 - text entry needs to draw the cursor differently

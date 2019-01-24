@@ -5,11 +5,11 @@ use crate::{Canvas, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::{HashMap, HashSet};
 
+const HORIZONTAL_PADDING_BETWEEN_ITEMS: f64 = 50.0;
+
 pub struct TopMenu {
     folders: Vec<Folder>,
     pub(crate) actions: HashMap<String, Key>,
-
-    txt: Text,
 
     highlighted: Option<usize>,
     submenu: Option<(usize, Menu<Key>)>,
@@ -35,17 +35,8 @@ impl TopMenu {
             }
         }
 
-        let mut txt = Text::with_bg_color(None);
-        for f in &folders {
-            txt.append(format!("{}     ", f.name), None);
-        }
-
         // Calculate rectangles for the folders
         {
-            // TODO pixel_bounds can't measure "     "'s width, so hack around it. This doesn't
-            // quite work, sadly.
-            let dummy_width = canvas.text_dims(&Text::from_line("|".to_string())).0;
-
             let mut x1 = 0.0;
             for f in folders.iter_mut() {
                 let (w, h) = canvas.text_dims(&Text::from_line(f.name.to_string()));
@@ -53,17 +44,13 @@ impl TopMenu {
                 f.rectangle.x2 = x1 + w;
                 f.rectangle.y2 = h;
 
-                x1 += canvas
-                    .text_dims(&Text::from_line(format!("{}     |", f.name)))
-                    .0
-                    - dummy_width;
+                x1 += w + HORIZONTAL_PADDING_BETWEEN_ITEMS;
             }
         }
 
         TopMenu {
             folders,
             actions,
-            txt,
             highlighted: None,
             submenu: None,
             valid_actions: HashSet::new(),
@@ -149,17 +136,21 @@ impl TopMenu {
                 canvas.line_height,
             ),
         );
-
-        if let Some(idx) = self.highlighted {
-            let r = &self.folders[idx].rectangle;
-            g.draw_polygon(
-                text::SELECTED_COLOR,
-                &Polygon::rectangle_topleft(Pt2D::new(r.x1, r.y1), r.x2 - r.x1, r.y2 - r.y1),
-            );
-        }
         g.unfork(canvas);
 
-        canvas.draw_text_at_screenspace_topleft(g, self.txt.clone(), ScreenPt::new(0.0, 0.0));
+        for (idx, f) in self.folders.iter().enumerate() {
+            let mut txt = Text::with_bg_color(if Some(idx) == self.highlighted {
+                Some(text::SELECTED_COLOR)
+            } else {
+                None
+            });
+            txt.add_line(f.name.to_string());
+            canvas.draw_text_at_screenspace_topleft(
+                g,
+                txt,
+                ScreenPt::new(f.rectangle.x1, f.rectangle.y1),
+            );
+        }
 
         if let Some((_, ref menu)) = self.submenu {
             menu.draw(g, canvas);
