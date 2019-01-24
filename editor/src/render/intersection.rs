@@ -353,27 +353,15 @@ pub fn draw_signal_diagram(
     );
 
     for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
-        // TODO API for "make this map pt be this screen pt"
-        g.fork(
-            Pt2D::new(
-                top_left.x() - (x1_screen / zoom),
-                top_left.y()
-                    - (y1_screen / zoom)
-                    - intersection_height * (idx as f64)
-                    - padding * ((idx as f64) + 1.0),
-            ),
-            zoom,
-            &ctx.canvas,
-        );
+        let y1 = y1_screen + (padding + intersection_height) * (idx as f64) * zoom;
+
+        g.fork(top_left, ScreenPt::new(x1_screen, y1), zoom, &ctx.canvas);
         draw_signal_cycle(&cycle, g, ctx);
 
         ctx.canvas.draw_text_at_screenspace_topleft(
             g,
             txt,
-            ScreenPt::new(
-                x1_screen + 10.0 + (intersection_width * zoom),
-                y1_screen + (padding + intersection_height) * (idx as f64) * zoom,
-            ),
+            ScreenPt::new(x1_screen + 10.0 + (intersection_width * zoom), y1),
         );
     }
 

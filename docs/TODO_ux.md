@@ -66,8 +66,7 @@
 ## Switch to OpenGL (for speed)
 
 - no bugs
-	- forking is buggy (traffic signal diagram)
-	- arrows
+	- arrows... then debug legend
 	- top menu rectangles are slightly off; grab the " " glyph's width?
 	- some colors are wrong
 		- ContextBuilder has with_pixel_format and with_srgb

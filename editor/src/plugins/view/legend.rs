@@ -42,14 +42,8 @@ impl Plugin for Legend {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        // TODO The negation and reasoning about the zoom is annoying. I want to say something like
-        // "Make top_left the origin, zoom 10."
         let zoom = 10.0;
-        g.fork(
-            Pt2D::new(-self.top_left.x / zoom, -self.top_left.y / zoom),
-            zoom,
-            &ctx.canvas,
-        );
+        g.fork(Pt2D::new(0.0, 0.0), self.top_left, zoom, &ctx.canvas);
 
         // Create a fake turn.
         let mut turn = Turn {
@@ -60,6 +54,8 @@ impl Plugin for Legend {
             },
             turn_type: TurnType::Straight,
             lookup_idx: 0,
+            // TODO Do we need to zoom here at all? For the arrows, sadly. Annoying to express the
+            // fake geometry in terms of zoom, but oh well.
             geom: PolyLine::new(vec![
                 Pt2D::new(10.0 / zoom, 10.0 / zoom),
                 Pt2D::new(10.0 / zoom, 100.0 / zoom),
