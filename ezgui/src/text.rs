@@ -128,14 +128,15 @@ impl Text {
                     so_far.push_str(&span.text);
                     so_far
                 });
+                // Empty lines or whitespace-only lines effectively have 0 width.
                 glyphs
                     .pixel_bounds(Section {
                         text: &full_line,
                         scale: Scale::uniform(FONT_SIZE),
                         ..Section::default()
                     })
-                    .expect("can't get text dims of a whitespace-only span")
-                    .width()
+                    .map(|rect| rect.width())
+                    .unwrap_or(0)
             })
             .max()
             .unwrap() as f64;

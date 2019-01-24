@@ -68,6 +68,7 @@
 - speed
 	- make polygon store points and indices efficiently
 	- change ezgui API to allow uploading geometry once
+	- experiment with batching and not passing colors
 	- measure performance of huge maps
 - quality
 	- need padding around text
