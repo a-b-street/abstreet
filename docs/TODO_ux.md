@@ -68,6 +68,8 @@
 - speed
 	- make polygon store points and indices efficiently
 	- change ezgui API to allow uploading geometry once
+	- event loop feels sticky
+		- first make UserInput borrow state and not need to consume
 	- experiment with batching and not passing colors
 	- measure performance of huge maps
 - quality

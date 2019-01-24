@@ -302,21 +302,15 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
 
     let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
-    let mut lazy_events = true;
-    let mut redraw = false;
+    let mut wait_for_events = false;
     loop {
-        if redraw {
-            state.draw(&display, &program);
-            state.after_render();
-            redraw = false;
-        }
-
         let mut new_events: Vec<glutin::WindowEvent> = Vec::new();
         events_loop.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
                 new_events.push(event);
             }
         });
+        let any_new_events = !new_events.is_empty();
         for event in new_events {
             if event == glutin::WindowEvent::CloseRequested {
                 state.gui.before_quit();
@@ -326,25 +320,32 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
                 if let Some(ev) = Event::from_glutin_event(event) {
                     let (new_state, mode) = state.event(ev);
                     state = new_state;
-                    lazy_events = mode == EventLoopMode::InputOnly;
-                    redraw = true;
+                    wait_for_events = mode == EventLoopMode::InputOnly;
                 }
             }
         }
 
-        let now = Instant::now();
-        accumulator += now - previous_clock;
-        previous_clock = now;
-
-        let fixed_time_stamp = Duration::new(0, 16_666_667);
-        while accumulator >= fixed_time_stamp {
-            accumulator -= fixed_time_stamp;
-            // TODO send off an update event
+        if any_new_events || !wait_for_events {
+            state.draw(&display, &program);
+            state.after_render();
         }
 
-        thread::sleep(fixed_time_stamp - accumulator);
-        if !redraw && !lazy_events {
-            redraw = true;
+        if !wait_for_events {
+            let (new_state, mode) = state.event(Event::Update);
+            state = new_state;
+            wait_for_events = mode == EventLoopMode::InputOnly;
+        }
+
+        // TODO This isn't right at all... sleep only if nothing happened.
+        if !any_new_events && wait_for_events {
+            let now = Instant::now();
+            accumulator += now - previous_clock;
+            previous_clock = now;
+            let fixed_time_stamp = Duration::new(0, 16_666_667);
+            while accumulator >= fixed_time_stamp {
+                accumulator -= fixed_time_stamp;
+            }
+            thread::sleep(fixed_time_stamp - accumulator);
         }
     }
 }
