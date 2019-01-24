@@ -215,7 +215,8 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
         let mut vertices: Vec<Vertex> = Vec::new();
-        for tri in &poly.triangles {
+        let mut indices: Vec<u32> = Vec::new();
+        for (idx, tri) in poly.triangles.iter().enumerate() {
             vertices.push(Vertex {
                 position: [tri.pt1.x() as f32, tri.pt1.y() as f32],
                 color: color.0,
@@ -228,13 +229,29 @@ impl<'a> GfxCtx<'a> {
                 position: [tri.pt3.x() as f32, tri.pt3.y() as f32],
                 color: color.0,
             });
+
+            let i = (3 * idx) as u32;
+            indices.push(i);
+            indices.push(i + 1);
+            indices.push(i + 2);
         }
 
-        let vb = glium::VertexBuffer::new(self.display, &vertices).unwrap();
-        let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+        let vertex_buffer = glium::VertexBuffer::new(self.display, &vertices).unwrap();
+        let index_buffer = glium::IndexBuffer::new(
+            self.display,
+            glium::index::PrimitiveType::TrianglesList,
+            &indices,
+        )
+        .unwrap();
 
         self.target
-            .draw(&vb, &indices, &self.program, &self.uniforms, &self.params)
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &self.program,
+                &self.uniforms,
+                &self.params,
+            )
             .unwrap();
     }
 
