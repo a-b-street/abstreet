@@ -66,12 +66,13 @@
 ## Switch to OpenGL (for speed)
 
 - speed
-	- make polygon store points and indices efficiently
 	- change ezgui API to allow uploading geometry once
-	- event loop feels sticky
+		- what about color then? get fancy and plumb an override color uniform?
+	- sleep better in the event loop
 		- first make UserInput borrow state and not need to consume
 	- experiment with batching and not passing colors
 	- measure performance of huge maps
+	- specialized things for common shapes like circles?
 - quality
 	- need padding around text
 	- text entry needs to draw the cursor differently

@@ -94,6 +94,10 @@ impl Polygon {
         triangles
     }
 
+    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<usize>) {
+        (&self.points, &self.indices)
+    }
+
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         self.triangles().into_iter().any(|tri| tri.contains_pt(pt))
     }
