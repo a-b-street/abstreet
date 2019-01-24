@@ -68,15 +68,12 @@
 - no bugs
 	- arrows... then debug legend
 	- top menu rectangles are slightly off; grab the " " glyph's width?
-	- some colors are wrong
-		- ContextBuilder has with_pixel_format and with_srgb
-		- gamma_srgb_to_linear doesn't work
-	- need padding around text
-	- text entry needs to draw the cursor differently
 
 - make polygon store points and indices efficiently
 - change ezgui API to allow uploading geometry once
 - undo the y inversion hacks at last!
+- need padding around text
+- text entry needs to draw the cursor differently
 - refactoring
 	- pass canvas to text module, make it do the glyph borrowing?
 	- pass dims to draw_text_bubble; all callers have it anyway, right?

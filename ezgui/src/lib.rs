@@ -162,8 +162,9 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn clear(&mut self, color: Color) {
+        // Without this, SRGB gets enabled and post-processes the color from the fragment shader.
         self.target
-            .clear_color(color.0[0], color.0[1], color.0[2], color.0[3]);
+            .clear_color_srgb(color.0[0], color.0[1], color.0[2], color.0[3]);
     }
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by

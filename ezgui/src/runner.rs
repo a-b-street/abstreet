@@ -266,11 +266,20 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     // 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new().with_multisampling(4);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
-    let program = glium::Program::from_source(
+    let program = glium::Program::new(
         &display,
-        include_str!("vertex.glsl"),
-        include_str!("fragment.glsl"),
-        None,
+        glium::program::ProgramCreationInput::SourceCode {
+            vertex_shader: include_str!("vertex.glsl"),
+            tessellation_control_shader: None,
+            tessellation_evaluation_shader: None,
+            geometry_shader: None,
+            fragment_shader: include_str!("fragment.glsl"),
+            transform_feedback_varyings: None,
+            // Without this, SRGB gets enabled and post-processes the color from the fragment
+            // shader.
+            outputs_srgb: true,
+            uses_point_size: false,
+        },
     )
     .unwrap();
 
