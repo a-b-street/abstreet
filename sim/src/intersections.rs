@@ -175,6 +175,7 @@ impl IntersectionSimState {
 }
 
 // Use an enum instead of traits so that serialization works. I couldn't figure out erased_serde.
+// TODO check out https://github.com/dtolnay/typetag
 #[derive(Serialize, Deserialize, PartialEq)]
 enum IntersectionPolicy {
     StopSign(StopSign),

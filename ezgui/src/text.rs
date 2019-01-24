@@ -14,7 +14,7 @@ pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
-pub const FONT_SIZE: f32 = 24.0;
+pub const FONT_SIZE: f32 = 30.0;
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
@@ -128,17 +128,14 @@ impl Text {
                     so_far.push_str(&span.text);
                     so_far
                 });
-                if let Some(rect) = glyphs.pixel_bounds(Section {
-                    text: &full_line,
-                    scale: Scale::uniform(FONT_SIZE),
-                    ..Section::default()
-                }) {
-                    rect.width()
-                } else {
-                    // TODO Sometimes we want to space something like "    ", but no drawn glyphs
-                    // means pixel_bounds fails. Hack?
-                    (MAX_CHAR_WIDTH * (full_line.len() as f64)) as i32
-                }
+                glyphs
+                    .pixel_bounds(Section {
+                        text: &full_line,
+                        scale: Scale::uniform(FONT_SIZE),
+                        ..Section::default()
+                    })
+                    .expect("can't get text dims of a whitespace-only span")
+                    .width()
             })
             .max()
             .unwrap() as f64;

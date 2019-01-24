@@ -66,12 +66,14 @@
 ## Switch to OpenGL (for speed)
 
 - no bugs
-	- text entry needs to draw the cursor differently
-	- top menu is very buggy. MAX_CHAR_WIDTH is weird
-	- need padding around text; and selecting stuff from menus is weird
 	- forking is buggy (traffic signal diagram)
 	- arrows
+	- top menu rectangles are slightly off; grab the " " glyph's width?
 	- some colors are wrong
+		- ContextBuilder has with_pixel_format and with_srgb
+		- gamma_srgb_to_linear doesn't work
+	- need padding around text
+	- text entry needs to draw the cursor differently
 
 - make polygon store points and indices efficiently
 - change ezgui API to allow uploading geometry once

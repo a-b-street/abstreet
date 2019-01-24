@@ -42,15 +42,21 @@ impl TopMenu {
 
         // Calculate rectangles for the folders
         {
+            // TODO pixel_bounds can't measure "     "'s width, so hack around it. This doesn't
+            // quite work, sadly.
+            let dummy_width = canvas.text_dims(&Text::from_line("|".to_string())).0;
+
             let mut x1 = 0.0;
             for f in folders.iter_mut() {
                 let (w, h) = canvas.text_dims(&Text::from_line(f.name.to_string()));
                 f.rectangle.x1 = x1;
                 f.rectangle.x2 = x1 + w;
                 f.rectangle.y2 = h;
-                x1 += w;
 
-                x1 += canvas.text_dims(&Text::from_line("     ".to_string())).0;
+                x1 += canvas
+                    .text_dims(&Text::from_line(format!("{}     |", f.name)))
+                    .0
+                    - dummy_width;
             }
         }
 
