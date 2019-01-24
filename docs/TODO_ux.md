@@ -65,17 +65,16 @@
 
 ## Switch to OpenGL (for speed)
 
-- no bugs
-	- arrows... then debug legend
-	- do basic benchmarking
-
-- make polygon store points and indices efficiently
-- change ezgui API to allow uploading geometry once
-	- see if performance of huge maps is noticably affected
-- undo the y inversion hacks at last!
-- need padding around text
-- text entry needs to draw the cursor differently
+- speed
+	- make polygon store points and indices efficiently
+	- change ezgui API to allow uploading geometry once
+	- measure performance of huge maps
+- quality
+	- need padding around text
+	- text entry needs to draw the cursor differently
+	- better arrows (then debug the legend plugin)
 - refactoring
 	- pass canvas to text module, make it do the glyph borrowing?
 	- pass dims to draw_text_bubble; all callers have it anyway, right?
 	- probably use f32, not f64 everywhere
+	- undo the y inversion hacks at last!

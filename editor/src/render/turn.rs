@@ -47,7 +47,7 @@ impl DrawTurn {
             g.draw_polygon(color, &pl.make_polygons(2.0 * BIG_ARROW_THICKNESS));
         }
         // And a cap on the arrow
-        g.draw_arrow(color, BIG_ARROW_THICKNESS, &t.geom.last_line());
+        g.draw_arrow(color, 2.0 * BIG_ARROW_THICKNESS, &t.geom.last_line());
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {

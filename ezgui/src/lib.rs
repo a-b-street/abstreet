@@ -24,6 +24,7 @@ pub use crate::text::Text;
 pub use crate::text_box::TextBox;
 pub use crate::top_menu::{Folder, TopMenu};
 pub use crate::wizard::{Wizard, WrappedWizard};
+use dimensioned::si;
 use geom::{Angle, Circle, Line, Polygon, Pt2D, Triangle};
 use glium::{implement_vertex, uniform, Surface};
 
@@ -180,23 +181,6 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
-        self.draw_line(color, thickness, line);
-
-        // TODO Raw method doesn't work yet in all cases...
-        /*graphics::Line::new_round(color.0, thickness).draw_arrow(
-            [
-                line.pt1().x(),
-                line.pt1().y(),
-                line.pt2().x(),
-                line.pt2().y(),
-            ],
-            2.0 * thickness,
-            &self.ctx.draw_state,
-            self.ctx.transform,
-            self.gfx,
-        );*/
-
-        /*use dimensioned::si;
         let head_size = 2.0 * thickness;
         let angle = line.angle();
         let triangle_height = (head_size / 2.0).sqrt() * si::M;
@@ -226,7 +210,7 @@ impl<'a> GfxCtx<'a> {
                     .project_away(head_size, angle.rotate_degs(-135.0)),
                 line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
             ]),
-        );*/
+        );
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
