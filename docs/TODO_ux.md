@@ -67,6 +67,7 @@
 
 - speed
 	- for things like lanes with markings, build up a single thing that can be drawn...
+	- draw_rounded_line is useless for center lines now
 	- change ezgui API to allow uploading geometry once
 		- what about color then? get fancy and plumb an override color uniform?
 	- sleep better in the event loop

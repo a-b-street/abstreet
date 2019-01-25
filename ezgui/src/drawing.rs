@@ -3,6 +3,8 @@ use dimensioned::si;
 use geom::{Circle, Line, Polygon, Pt2D};
 use glium::{implement_vertex, uniform, Surface};
 
+const TRIANGLES_PER_CIRCLE: usize = 60;
+
 #[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
@@ -107,6 +109,17 @@ impl<'a> GfxCtx<'a> {
         self.draw_line(color, thickness, line);
         self.draw_circle(color, &Circle::new(line.pt1(), thickness / 2.0));
         self.draw_circle(color, &Circle::new(line.pt2(), thickness / 2.0));
+        /*self.draw_polygon_batch(vec![
+            (color, &line.to_polyline().make_polygons(thickness)),
+            (
+                color,
+                &Circle::new(line.pt1(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
+            ),
+            (
+                color,
+                &Circle::new(line.pt2(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
+            ),
+        ]);*/
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
@@ -142,16 +155,31 @@ impl<'a> GfxCtx<'a> {
         );
     }
 
+    pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
+        self.draw_polygon(color, &circle.to_polygon(TRIANGLES_PER_CIRCLE));
+    }
+
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let (pts, raw_indices) = poly.raw_for_rendering();
-        let vertices: Vec<Vertex> = pts
-            .iter()
-            .map(|pt| Vertex {
-                position: [pt.x() as f32, pt.y() as f32],
-                color: color.0,
-            })
-            .collect();
-        let indices: Vec<u32> = raw_indices.iter().map(|i| *i as u32).collect();
+        self.draw_polygon_batch(vec![(color, poly)]);
+    }
+
+    pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
+        let mut vertices: Vec<Vertex> = Vec::new();
+        let mut indices: Vec<u32> = Vec::new();
+
+        for (color, poly) in list {
+            let (pts, raw_indices) = poly.raw_for_rendering();
+            for pt in pts {
+                vertices.push(Vertex {
+                    position: [pt.x() as f32, pt.y() as f32],
+                    color: color.0,
+                });
+            }
+            let offset = indices.len();
+            for idx in raw_indices {
+                indices.push((offset + *idx) as u32);
+            }
+        }
 
         let vertex_buffer = glium::VertexBuffer::new(self.display, &vertices).unwrap();
         let index_buffer = glium::IndexBuffer::new(
@@ -172,9 +200,5 @@ impl<'a> GfxCtx<'a> {
             )
             .unwrap();
         self.num_draw_calls += 1;
-    }
-
-    pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
-        self.draw_polygon(color, &circle.to_polygon(60));
     }
 }
