@@ -67,8 +67,6 @@
 
 - speed
 	- change ezgui API to allow uploading geometry once
-		- prerender lane polygons for GREAT win
-
 		- what about color then? get fancy and plumb an override color uniform?
 		- stop storing raw geometry when appropriate
 		- should the API for batching be easier? make a bunch of mutable calls to GfxCtx-like thing, then flush it?

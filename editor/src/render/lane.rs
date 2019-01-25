@@ -16,6 +16,7 @@ pub struct DrawLane {
     pub polygon: Polygon,
     zorder: isize,
 
+    draw_default: Drawable,
     draw_markings: Drawable,
 }
 
@@ -50,10 +51,22 @@ impl DrawLane {
             markings.extend(calculate_stop_sign_line(road, lane, map, cs));
         }
 
+        let draw_default = prerender.upload_borrowed(vec![(
+            match lane.lane_type {
+                LaneType::Driving => cs.get_def("driving lane", Color::BLACK),
+                LaneType::Bus => cs.get_def("bus lane", Color::rgb(190, 74, 76)),
+                LaneType::Parking => cs.get_def("parking lane", Color::grey(0.2)),
+                LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
+                LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
+            },
+            &polygon,
+        )]);
+
         DrawLane {
             id: lane.id,
             polygon,
             zorder: road.get_zorder(),
+            draw_default,
             draw_markings: prerender.upload(markings),
         }
     }
@@ -81,17 +94,11 @@ impl Renderable for DrawLane {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            let l = ctx.map.get_l(self.id);
-            match l.lane_type {
-                LaneType::Driving => ctx.cs.get_def("driving lane", Color::BLACK),
-                LaneType::Bus => ctx.cs.get_def("bus lane", Color::rgb(190, 74, 76)),
-                LaneType::Parking => ctx.cs.get_def("parking lane", Color::grey(0.2)),
-                LaneType::Sidewalk => ctx.cs.get_def("sidewalk", Color::grey(0.8)),
-                LaneType::Biking => ctx.cs.get_def("bike lane", Color::rgb(15, 125, 75)),
-            }
-        });
-        g.draw_polygon(color, &self.polygon);
+        if let Some(color) = opts.color {
+            g.draw_polygon(color, &self.polygon);
+        } else {
+            g.redraw(&self.draw_default);
+        }
 
         if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             g.redraw(&self.draw_markings);
