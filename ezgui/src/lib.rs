@@ -15,7 +15,7 @@ mod wizard;
 
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
-pub use crate::drawing::{Drawable, GfxCtx};
+pub use crate::drawing::{Drawable, GfxCtx, Prerender};
 pub use crate::event::{Event, Key};
 pub use crate::input::{ModalMenu, UserInput};
 pub use crate::log_scroller::LogScroller;

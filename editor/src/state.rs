@@ -54,12 +54,13 @@ impl DefaultUIState {
         flags: SimFlags,
         kml: Option<String>,
         canvas: &Canvas,
+        cs: &ColorScheme,
         enable_debug_controls: bool,
     ) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
-        let (primary, primary_plugins) = PerMapUI::new(flags, kml, enable_debug_controls);
+        let (primary, primary_plugins) = PerMapUI::new(flags, kml, cs, enable_debug_controls);
         let mut state = DefaultUIState {
             primary,
             primary_plugins,
@@ -425,6 +426,7 @@ impl PerMapUI {
     pub fn new(
         flags: SimFlags,
         kml: Option<String>,
+        cs: &ColorScheme,
         enable_debug_controls: bool,
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
@@ -445,7 +447,7 @@ impl PerMapUI {
         };
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, extra_shapes, &mut timer);
+        let draw_map = DrawMap::new(&map, extra_shapes, cs, &mut timer);
         timer.stop("draw_map");
 
         let state = PerMapUI {

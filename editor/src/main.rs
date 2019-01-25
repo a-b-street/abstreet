@@ -30,20 +30,25 @@ fn main() {
     .unwrap()
     .start("./profile")
     .unwrap();*/
+
     let mut canvas = ezgui::Canvas::new(1024, 768);
+    let cs = colors::ColorScheme::load().unwrap();
+
     if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst" {
         ezgui::run(
             ui::UI::new(
-                tutorial::TutorialState::new(flags.sim_flags, &mut canvas),
+                tutorial::TutorialState::new(flags.sim_flags, &mut canvas, &cs),
                 canvas,
+                cs,
             ),
             "A/B Street",
         );
     } else {
         ezgui::run(
             ui::UI::new(
-                state::DefaultUIState::new(flags.sim_flags, flags.kml, &canvas, true),
+                state::DefaultUIState::new(flags.sim_flags, flags.kml, &canvas, &cs, true),
                 canvas,
+                cs,
             ),
             "A/B Street",
         );

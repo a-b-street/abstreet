@@ -163,11 +163,40 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
-        let obj = self.prerender(list);
+        let obj = Prerender {
+            display: self.display,
+        }
+        .upload(list);
+        self.num_new_uploads += 1;
         self.draw(&obj);
     }
 
-    pub fn prerender(&mut self, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub fn draw(&mut self, obj: &Drawable) {
+        self.target
+            .draw(
+                &obj.vertex_buffer,
+                &obj.index_buffer,
+                &self.program,
+                &self.uniforms,
+                &self.params,
+            )
+            .unwrap();
+        self.num_draw_calls += 1;
+    }
+}
+
+pub struct Prerender<'a> {
+    display: &'a glium::Display,
+}
+
+// Something that's been sent to the GPU already.
+pub struct Drawable {
+    vertex_buffer: glium::VertexBuffer<Vertex>,
+    index_buffer: glium::IndexBuffer<u32>,
+}
+
+impl<'a> Prerender<'a> {
+    pub fn upload(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
@@ -192,28 +221,10 @@ impl<'a> GfxCtx<'a> {
             &indices,
         )
         .unwrap();
-        self.num_new_uploads += 1;
 
         Drawable {
-            vertex_buffer, index_buffer, }
+            vertex_buffer,
+            index_buffer,
+        }
     }
-
-    pub fn draw(&mut self, obj: &Drawable) {
-        self.target
-            .draw(
-                &obj.vertex_buffer,
-                &obj.index_buffer,
-                &self.program,
-                &self.uniforms,
-                &self.params,
-            )
-            .unwrap();
-        self.num_draw_calls += 1;
-    }
-}
-
-// Something that's been sent to the GPU already.
-pub struct Drawable {
-    vertex_buffer: glium::VertexBuffer<Vertex>,
-    index_buffer: glium::IndexBuffer<u32>,
 }

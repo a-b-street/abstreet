@@ -1,3 +1,4 @@
+use crate::colors::ColorScheme;
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
@@ -44,7 +45,7 @@ impl Plugin for ABTestManager {
                 );
                 if ctx.input.modal_action("run A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
-                        launch_test(test, &ctx.primary.current_flags);
+                        launch_test(test, &ctx.primary.current_flags, &ctx.cs);
                     *ctx.primary = new_primary;
                     *primary_plugins = new_primary_plugins;
                     *ctx.secondary = Some(new_secondary);
@@ -94,6 +95,7 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 fn launch_test(
     test: &ABTest,
     current_flags: &SimFlags,
+    cs: &ColorScheme,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
@@ -115,6 +117,7 @@ fn launch_test(
             edits_name: test.edits1_name.clone(),
         },
         None,
+        cs,
         true,
     );
     let secondary = PerMapUI::new(
@@ -125,6 +128,7 @@ fn launch_test(
             edits_name: test.edits2_name.clone(),
         },
         None,
+        cs,
         true,
     );
     // That's all! The scenario will be instantiated.

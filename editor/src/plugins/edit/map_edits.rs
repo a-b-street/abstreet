@@ -1,3 +1,4 @@
+use crate::colors::ColorScheme;
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
@@ -30,6 +31,7 @@ impl Plugin for EditsManager {
 
         if manage_edits(
             &mut ctx.primary.current_flags,
+            &ctx.cs,
             &ctx.primary.map,
             &mut new_primary,
             self.wizard.wrap(ctx.input, ctx.canvas),
@@ -53,6 +55,7 @@ impl Plugin for EditsManager {
 
 fn manage_edits(
     current_flags: &mut SimFlags,
+    cs: &ColorScheme,
     map: &Map,
     new_primary: &mut Option<(PerMapUI, PluginsPerMap)>,
     mut wizard: WrappedWizard,
@@ -95,7 +98,7 @@ fn manage_edits(
 
             info!("Reloading everything...");
             // TODO Properly retain enable_debug_plugins
-            *new_primary = Some(PerMapUI::new(flags, None, true));
+            *new_primary = Some(PerMapUI::new(flags, None, cs, true));
             Some(())
         }
         _ => unreachable!(),

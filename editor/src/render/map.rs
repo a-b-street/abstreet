@@ -1,3 +1,4 @@
+use crate::colors::ColorScheme;
 use crate::objects::ID;
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
@@ -42,7 +43,12 @@ pub struct DrawMap {
 }
 
 impl DrawMap {
-    pub fn new(map: &Map, raw_extra_shapes: Vec<ExtraShape>, timer: &mut Timer) -> DrawMap {
+    pub fn new(
+        map: &Map,
+        raw_extra_shapes: Vec<ExtraShape>,
+        cs: &ColorScheme,
+        timer: &mut Timer,
+    ) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         for l in map.all_lanes() {

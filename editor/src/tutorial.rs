@@ -23,9 +23,9 @@ enum State {
 const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
-    pub fn new(flags: SimFlags, canvas: &mut Canvas) -> TutorialState {
+    pub fn new(flags: SimFlags, canvas: &mut Canvas, cs: &ColorScheme) -> TutorialState {
         TutorialState {
-            main: DefaultUIState::new(flags, None, canvas, false),
+            main: DefaultUIState::new(flags, None, canvas, cs, false),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
                 "".to_string(),

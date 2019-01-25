@@ -18,6 +18,7 @@ use std::process;
 pub struct UI<S: UIState> {
     state: S,
     canvas: Canvas,
+    // TODO Not sure why this needs to live here and not in state
     cs: ColorScheme,
 }
 
@@ -321,12 +322,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 }
 
 impl<S: UIState> UI<S> {
-    pub fn new(state: S, canvas: Canvas) -> UI<S> {
-        let mut ui = UI {
-            state,
-            canvas,
-            cs: ColorScheme::load().unwrap(),
-        };
+    pub fn new(state: S, canvas: Canvas, cs: ColorScheme) -> UI<S> {
+        let mut ui = UI { state, canvas, cs };
 
         match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref state) if ui.state.get_state().primary.map.get_name() == &state.map_name => {
