@@ -149,9 +149,12 @@ impl Renderable for DrawCar {
                     .shift(self.id.0),
             }
         });
-        g.draw_polygon(color, &self.body_polygon);
-        for p in &self.window_polygons {
-            g.draw_polygon(ctx.cs.get_def("car window", Color::BLACK), p);
+        {
+            let mut draw = vec![(color, &self.body_polygon)];
+            for p in &self.window_polygons {
+                draw.push((ctx.cs.get_def("car window", Color::BLACK), p));
+            }
+            g.draw_polygon_batch(draw);
         }
 
         let blinker_on = ctx.cs.get_def("blinker on", Color::RED);

@@ -67,23 +67,24 @@
 
 - speed
 	- show FPS or some kind of measure of lag
-	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
-
 	- drawing cars is expensive
+		- at least cache them until tick changes
 	- sleep better in the event loop
 		- i think screencap is broken. WAIT, it can force redraw itself, stop being convoluted!
 		- first make UserInput borrow state and not need to consume
 	- optimize zoomed-out experience... one polygon per road
 		- make sure the quadtree isn't the limiting factor though
-	- measure performance of huge maps
-	- experiment with batching and not passing colors
-	- specialized shaders for common shapes like circles?
 - quality
 	- need padding around text
 	- text entry needs to draw the cursor differently
 	- better arrows (then debug the legend plugin)
+	- time for a car texture?
 - refactoring
 	- pass canvas to text module, make it do the glyph borrowing?
 	- pass dims to draw_text_bubble; all callers have it anyway, right?
 	- probably use f32, not f64 everywhere
 	- undo the y inversion hacks at last!
+- more speculative performance ideas
+	- experiment with batching and not passing colors
+	- specialized shaders for common shapes like circles?
+	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
