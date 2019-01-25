@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{GfxCtx, LogScroller, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
 
@@ -45,7 +45,7 @@ impl Plugin for ABTestManager {
                 );
                 if ctx.input.modal_action("run A/B test") {
                     let ((new_primary, new_primary_plugins), new_secondary) =
-                        launch_test(test, &ctx.primary.current_flags, &ctx.cs);
+                        launch_test(test, &ctx.primary.current_flags, &ctx.cs, &ctx.prerender);
                     *ctx.primary = new_primary;
                     *primary_plugins = new_primary_plugins;
                     *ctx.secondary = Some(new_secondary);
@@ -96,6 +96,7 @@ fn launch_test(
     test: &ABTest,
     current_flags: &SimFlags,
     cs: &ColorScheme,
+    prerender: &Prerender,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     info!("Launching A/B test {}...", test.test_name);
     let load = format!(
@@ -118,6 +119,7 @@ fn launch_test(
         },
         None,
         cs,
+        prerender,
         true,
     );
     let secondary = PerMapUI::new(
@@ -129,6 +131,7 @@ fn launch_test(
         },
         None,
         cs,
+        prerender,
         true,
     );
     // That's all! The scenario will be instantiated.

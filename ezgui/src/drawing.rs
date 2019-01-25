@@ -186,7 +186,7 @@ impl<'a> GfxCtx<'a> {
 }
 
 pub struct Prerender<'a> {
-    display: &'a glium::Display,
+    pub(crate) display: &'a glium::Display,
 }
 
 // Something that's been sent to the GPU already.

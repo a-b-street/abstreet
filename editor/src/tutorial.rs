@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, PerMapUI, UIState};
-use ezgui::{Canvas, GfxCtx, LogScroller, Text, UserInput};
+use ezgui::{Canvas, GfxCtx, LogScroller, Prerender, Text, UserInput};
 use map_model::Traversable;
 use sim::{Event, SimFlags, Tick};
 
@@ -23,9 +23,14 @@ enum State {
 const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
-    pub fn new(flags: SimFlags, canvas: &mut Canvas, cs: &ColorScheme) -> TutorialState {
+    pub fn new(
+        flags: SimFlags,
+        canvas: &mut Canvas,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+    ) -> TutorialState {
         TutorialState {
-            main: DefaultUIState::new(flags, None, canvas, cs, false),
+            main: DefaultUIState::new(flags, None, canvas, cs, prerender, false),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
                 "".to_string(),
@@ -54,6 +59,7 @@ impl UIState for TutorialState {
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
+        prerender: &Prerender,
     ) {
         match self.state {
             State::GiveInstructions(ref mut scroller) => {
@@ -73,8 +79,14 @@ impl UIState for TutorialState {
                 ref mut spawned_from_north,
                 ref mut spawned_from_south,
             } => {
-                self.main
-                    .event(input, hints, recalculate_current_selection, cs, canvas);
+                self.main.event(
+                    input,
+                    hints,
+                    recalculate_current_selection,
+                    cs,
+                    canvas,
+                    prerender,
+                );
 
                 if let Some((tick, events)) = self
                     .main

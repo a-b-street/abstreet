@@ -13,6 +13,7 @@ use crate::render::{draw_vehicle, Renderable};
 use crate::state::ShowObjects;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
+use ezgui::Prerender;
 use geom::Bounds;
 use kml::ExtraShape;
 use map_model::{
@@ -47,6 +48,7 @@ impl DrawMap {
         map: &Map,
         raw_extra_shapes: Vec<ExtraShape>,
         cs: &ColorScheme,
+        prerender: &Prerender,
         timer: &mut Timer,
     ) -> DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();

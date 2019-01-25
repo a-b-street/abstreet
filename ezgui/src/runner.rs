@@ -1,11 +1,10 @@
 use crate::input::{ContextMenu, ModalMenuState};
-use crate::{text, Canvas, Event, GfxCtx, ModalMenu, TopMenu, UserInput};
+use crate::{text, Canvas, Event, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput};
 use abstutil::Timer;
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
-use std::cell::RefCell;
 use std::io::Write;
 use std::time::{Duration, Instant};
 use std::{env, fs, panic, process, thread};
@@ -18,7 +17,7 @@ pub trait GUI<T> {
     fn modal_menus() -> Vec<ModalMenu> {
         Vec::new()
     }
-    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, T);
+    fn event(&mut self, input: &mut UserInput, prerender: &Prerender) -> (EventLoopMode, T);
     fn get_mut_canvas(&mut self) -> &mut Canvas;
     // TODO Migrate all callers
     fn draw(&self, g: &mut GfxCtx, data: &T);
@@ -50,7 +49,7 @@ struct State<T, G: GUI<T>> {
 }
 
 impl<T, G: GUI<T>> State<T, G> {
-    fn event(mut self, ev: Event) -> (State<T, G>, EventLoopMode) {
+    fn event(mut self, ev: Event, display: &glium::Display) -> (State<T, G>, EventLoopMode) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(
@@ -61,14 +60,15 @@ impl<T, G: GUI<T>> State<T, G> {
             self.gui.get_mut_canvas(),
         );
         let mut gui = self.gui;
-        let (event_mode, data) =
-            match panic::catch_unwind(panic::AssertUnwindSafe(|| gui.event(&mut input))) {
-                Ok(pair) => pair,
-                Err(err) => {
-                    gui.dump_before_abort();
-                    panic::resume_unwind(err);
-                }
-            };
+        let (event_mode, data) = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            gui.event(&mut input, &Prerender { display })
+        })) {
+            Ok(pair) => pair,
+            Err(err) => {
+                gui.dump_before_abort();
+                panic::resume_unwind(err);
+            }
+        };
         self.gui = gui;
         self.last_data = Some(data);
         self.context_menu = input.context_menu.maybe_build(self.gui.get_mut_canvas());
@@ -142,8 +142,6 @@ impl<T, G: GUI<T>> State<T, G> {
             .get_mut_canvas()
             .glyphs
             .borrow_mut()
-            .as_mut()
-            .unwrap()
             .draw_queued(display, &mut target);
         target.finish().unwrap();
     }
@@ -252,17 +250,19 @@ impl ScreenCaptureState {
     }
 }
 
-pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
+pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
+    window_title: &str,
+    initial_width: f64,
+    initial_height: f64,
+    make_gui: F,
+) {
     // DPI is broken on my system; force the old behavior.
     env::set_var("WINIT_HIDPI_FACTOR", "1.0");
 
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
         .with_title(window_title)
-        .with_dimensions(glutin::dpi::LogicalSize::new(
-            gui.get_mut_canvas().window_width,
-            gui.get_mut_canvas().window_height,
-        ));
+        .with_dimensions(glutin::dpi::LogicalSize::new(initial_width, initial_height));
     // 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new().with_multisampling(4);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
@@ -287,9 +287,13 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let fonts = vec![Font::from_bytes(dejavu).unwrap()];
     let vmetrics = fonts[0].v_metrics(Scale::uniform(text::FONT_SIZE));
     // TODO This works for this font, but could be more paranoid with abs()
-    gui.get_mut_canvas().line_height =
-        f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-    gui.get_mut_canvas().glyphs = RefCell::new(Some(GlyphBrush::new(&display, fonts)));
+    let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
+    let glyphs = GlyphBrush::new(&display, fonts);
+
+    // TODO Maybe we should own the Canvas too. Why make them store it? Or even know about it? Let
+    // them borrow stuff during event() and during draw().
+    let canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
+    let gui = make_gui(canvas, &Prerender { display: &display });
 
     let mut state = State {
         context_menu: ContextMenu::Inactive,
@@ -318,7 +322,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
             }
             if state.screen_cap.is_none() {
                 if let Some(ev) = Event::from_glutin_event(event) {
-                    let (new_state, mode) = state.event(ev);
+                    let (new_state, mode) = state.event(ev, &display);
                     state = new_state;
                     wait_for_events = mode == EventLoopMode::InputOnly;
                 }
@@ -331,7 +335,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
         }
 
         if !wait_for_events {
-            let (new_state, mode) = state.event(Event::Update);
+            let (new_state, mode) = state.event(Event::Update, &display);
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
         }

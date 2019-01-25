@@ -5,7 +5,7 @@ mod debug_polyline;
 mod moving_polyline;
 mod trim_polyline;
 
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, Text, UserInput, GUI};
+use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, GUI};
 use geom::Pt2D;
 use std::f64;
 use std::process;
@@ -18,8 +18,7 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new() -> UI {
-        let mut canvas = Canvas::new(1024, 768);
+    pub fn new(mut canvas: Canvas) -> UI {
         canvas.center_on_map_pt(Pt2D::new(305.0, 324.0));
 
         UI {
@@ -32,7 +31,7 @@ impl UI {
 }
 
 impl GUI<()> for UI {
-    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, ()) {
+    fn event(&mut self, input: &mut UserInput, _: &Prerender) -> (EventLoopMode, ()) {
         if input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
@@ -117,5 +116,5 @@ impl GUI<()> for UI {
 }
 
 fn main() {
-    ezgui::run(UI::new(), "GUI Playground");
+    ezgui::run("GUI Playground", 1024.0, 768.0, |canvas, _| UI::new(canvas));
 }

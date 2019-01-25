@@ -1,13 +1,10 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::plugins;
-use crate::plugins::debug;
-use crate::plugins::edit;
-use crate::plugins::view;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{debug, edit, view, Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::Timer;
-use ezgui::{Canvas, Color, GfxCtx, UserInput};
+use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput};
 use map_model::{IntersectionID, Map};
 use sim::{Sim, SimFlags, Tick};
 
@@ -22,6 +19,7 @@ pub trait UIState {
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
+        prerender: &Prerender,
     );
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx);
 }
@@ -55,12 +53,14 @@ impl DefaultUIState {
         kml: Option<String>,
         canvas: &Canvas,
         cs: &ColorScheme,
+        prerender: &Prerender,
         enable_debug_controls: bool,
     ) -> DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
-        let (primary, primary_plugins) = PerMapUI::new(flags, kml, cs, enable_debug_controls);
+        let (primary, primary_plugins) =
+            PerMapUI::new(flags, kml, cs, prerender, enable_debug_controls);
         let mut state = DefaultUIState {
             primary,
             primary_plugins,
@@ -140,12 +140,14 @@ impl UIState for DefaultUIState {
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
         canvas: &mut Canvas,
+        prerender: &Prerender,
     ) {
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
             secondary: &mut self.secondary,
             canvas,
             cs,
+            prerender,
             input,
             hints,
             recalculate_current_selection,
@@ -427,6 +429,7 @@ impl PerMapUI {
         flags: SimFlags,
         kml: Option<String>,
         cs: &ColorScheme,
+        prerender: &Prerender,
         enable_debug_controls: bool,
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
@@ -447,7 +450,7 @@ impl PerMapUI {
         };
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, extra_shapes, cs, &mut timer);
+        let draw_map = DrawMap::new(&map, extra_shapes, cs, prerender, &mut timer);
         timer.stop("draw_map");
 
         let state = PerMapUI {

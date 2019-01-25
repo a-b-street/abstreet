@@ -67,9 +67,6 @@
 
 - speed
 	- change ezgui API to allow uploading geometry once
-		- the DrawMap stuff needs colorscheme and gfxctx then to setup easily...
-			- need display and colorscheme earlier
-			- short-term... mutable drawing?
 		- what about color then? get fancy and plumb an override color uniform?
 		- stop storing raw geometry when appropriate
 		- should the API for batching be easier? make a bunch of mutable calls to GfxCtx-like thing, then flush it?

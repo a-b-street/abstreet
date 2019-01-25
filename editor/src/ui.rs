@@ -5,8 +5,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::{RenderOptions, RenderOrder, Renderable};
 use crate::state::UIState;
 use ezgui::{
-    Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu, UserInput,
-    BOTTOM_LEFT, GUI,
+    Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text, TopMenu,
+    UserInput, BOTTOM_LEFT, GUI,
 };
 use kml;
 use map_model::{BuildingID, LaneID};
@@ -180,7 +180,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ]
     }
 
-    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, RenderingHints) {
+    fn event(
+        &mut self,
+        input: &mut UserInput,
+        prerender: &Prerender,
+    ) -> (EventLoopMode, RenderingHints) {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
@@ -219,6 +223,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             &mut recalculate_current_selection,
             &mut self.cs,
             &mut self.canvas,
+            prerender,
         );
         if recalculate_current_selection && new_zoom >= min_zoom_for_mouseover {
             self.state.mut_state().primary.current_selection = self.mouseover_something();

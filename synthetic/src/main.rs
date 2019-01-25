@@ -2,7 +2,7 @@ mod model;
 
 use crate::model::{BuildingID, Direction, Model, ID};
 use aabb_quadtree::QuadTree;
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Text, UserInput, Wizard, GUI};
+use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, Wizard, GUI};
 use geom::Line;
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
@@ -27,7 +27,7 @@ enum State {
 }
 
 impl UI {
-    fn new(load: Option<&String>) -> UI {
+    fn new(load: Option<&String>, canvas: Canvas) -> UI {
         let (model, quadtree): (Model, Option<QuadTree<ID>>) = if let Some(path) = load {
             if path.contains("raw_maps/") {
                 let (m, q) = Model::import(path);
@@ -42,7 +42,7 @@ impl UI {
             (Model::new(), None)
         };
         UI {
-            canvas: Canvas::new(1024, 768),
+            canvas,
             model,
             quadtree,
             state: State::Viewing,
@@ -51,7 +51,7 @@ impl UI {
 }
 
 impl GUI<Text> for UI {
-    fn event(&mut self, input: &mut UserInput) -> (EventLoopMode, Text) {
+    fn event(&mut self, input: &mut UserInput, _: &Prerender) -> (EventLoopMode, Text) {
         self.canvas.handle_event(input);
         let cursor = {
             if let Some(c) = self.canvas.get_cursor_in_map_space() {
@@ -232,5 +232,7 @@ impl GUI<Text> for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run(UI::new(args.get(1)), "Synthetic map editor");
+    ezgui::run("Synthetic map editor", 1024.0, 768.0, |canvas, _| {
+        UI::new(args.get(1), canvas)
+    });
 }

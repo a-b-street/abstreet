@@ -12,7 +12,7 @@ use abstutil::WeightedUsizeChoice;
 use downcast::{
     downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
 };
-use ezgui::{Canvas, Color, GfxCtx, UserInput, WrappedWizard};
+use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
 
 pub trait Plugin: Any {
@@ -55,6 +55,8 @@ pub struct PluginCtx<'a> {
     pub input: &'a mut UserInput,
     pub hints: &'a mut RenderingHints,
     pub recalculate_current_selection: &'a mut bool,
+    // And also a thing from ezgui
+    pub prerender: &'a Prerender<'a>,
 }
 
 // TODO Further refactoring should be done, but at least group these here to start.
