@@ -67,14 +67,13 @@
 
 - speed
 	- change ezgui API to allow uploading geometry once
-		- polyline -> arrow polygon. then collapse all lane markings into one Drawable.
 		- prerender lane polygons for GREAT win
 
 		- what about color then? get fancy and plumb an override color uniform?
 		- stop storing raw geometry when appropriate
 		- should the API for batching be easier? make a bunch of mutable calls to GfxCtx-like thing, then flush it?
 	- sleep better in the event loop
-		- i think screencap is broken
+		- i think screencap is broken. WAIT, it can force redraw itself, stop being convoluted!
 		- first make UserInput borrow state and not need to consume
 	- experiment with batching and not passing colors
 	- measure performance of huge maps

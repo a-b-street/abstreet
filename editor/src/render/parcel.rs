@@ -37,7 +37,7 @@ impl DrawParcel {
         let boundary_polygon =
             PolyLine::new(p.points.clone()).make_polygons(PARCEL_BOUNDARY_THICKNESS);
         let fill_polygon = Polygon::new(&p.points);
-        let default_draw = prerender.upload(vec![
+        let default_draw = prerender.upload_borrowed(vec![
             (COLORS[p.block % COLORS.len()], &fill_polygon),
             (
                 cs.get_def("parcel boundary", Color::grey(0.3)),

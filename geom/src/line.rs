@@ -34,6 +34,36 @@ impl Line {
         self.to_polyline().make_polygons(thickness)
     }
 
+    // TODO One polygon, please :)
+    pub fn make_arrow(&self, thickness: f64) -> Vec<Polygon> {
+        let head_size = 2.0 * thickness;
+        let angle = self.angle();
+        let triangle_height = (head_size / 2.0).sqrt() * si::M;
+        vec![
+            Polygon::new(&vec![
+                //self.pt2(),
+                //self.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
+                self.reverse()
+                    .dist_along(triangle_height)
+                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                self.pt1()
+                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                self.pt1()
+                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                self.reverse()
+                    .dist_along(triangle_height)
+                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                //self.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+            ]),
+            Polygon::new(&vec![
+                self.pt2(),
+                self.pt2()
+                    .project_away(head_size, angle.rotate_degs(-135.0)),
+                self.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+            ]),
+        ]
+    }
+
     // TODO valid to do euclidean distance on world-space points that're formed from
     // Haversine?
     pub fn length(&self) -> si::Meter<f64> {

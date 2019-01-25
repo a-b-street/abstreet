@@ -1,5 +1,4 @@
 use crate::{Canvas, Color, ScreenPt};
-use dimensioned::si;
 use geom::{Circle, Line, Polygon, Pt2D};
 use glium::{implement_vertex, uniform, Surface};
 
@@ -120,38 +119,8 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
-        let head_size = 2.0 * thickness;
-        let angle = line.angle();
-        let triangle_height = (head_size / 2.0).sqrt() * si::M;
-        self.draw_polygon_batch(vec![
-            (
-                color,
-                &Polygon::new(&vec![
-                    //line.pt2(),
-                    //line.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
-                    line.reverse()
-                        .dist_along(triangle_height)
-                        .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                    line.pt1()
-                        .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                    line.pt1()
-                        .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                    line.reverse()
-                        .dist_along(triangle_height)
-                        .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                    //line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-                ]),
-            ),
-            (
-                color,
-                &Polygon::new(&vec![
-                    line.pt2(),
-                    line.pt2()
-                        .project_away(head_size, angle.rotate_degs(-135.0)),
-                    line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-                ]),
-            ),
-        ]);
+        let polygons = line.make_arrow(thickness);
+        self.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
@@ -159,14 +128,19 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        self.draw_polygon_batch(vec![(color, poly)]);
+        let obj = Prerender {
+            display: self.display,
+        }
+        .upload_borrowed(vec![(color, poly)]);
+        self.num_new_uploads += 1;
+        self.redraw(&obj);
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
         let obj = Prerender {
             display: self.display,
         }
-        .upload(list);
+        .upload_borrowed(list);
         self.num_new_uploads += 1;
         self.redraw(&obj);
     }
@@ -196,9 +170,7 @@ pub struct Drawable {
 }
 
 impl<'a> Prerender<'a> {
-    // TODO Taking &Polygon is annoying for the callers
-    // TODO One color, many polygons could also be helpful
-    pub fn upload(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+    pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 
@@ -228,5 +200,10 @@ impl<'a> Prerender<'a> {
             vertex_buffer,
             index_buffer,
         }
+    }
+
+    pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
+        let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
+        self.upload_borrowed(borrows)
     }
 }

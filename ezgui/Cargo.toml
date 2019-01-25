@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 geom = { path = "../geom" }
 glium = "0.23.0"
 glium-glyph = "0.3.0"

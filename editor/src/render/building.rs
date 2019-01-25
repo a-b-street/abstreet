@@ -30,7 +30,7 @@ impl DrawBuilding {
         let fill_polygon = Polygon::new(&bldg.points);
         let front_path = front_path_line.make_polygons(1.0);
 
-        let default_draw = prerender.upload(vec![
+        let default_draw = prerender.upload_borrowed(vec![
             (
                 cs.get_def("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8)),
                 &fill_polygon,
