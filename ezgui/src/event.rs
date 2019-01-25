@@ -57,7 +57,7 @@ impl Event {
             }
             glutin::WindowEvent::MouseWheel { delta, .. } => match delta {
                 glutin::MouseScrollDelta::LineDelta(_, dy) => {
-                    Some(Event::MouseWheelScroll(dy as f64))
+                    Some(Event::MouseWheelScroll(f64::from(dy)))
                 }
                 _ => None,
             },

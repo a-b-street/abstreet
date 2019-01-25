@@ -57,7 +57,7 @@ impl DebugPolygon {
                             .polygon
                             .triangles()
                             .into_iter()
-                            .map(|tri| Item::Triangle(tri))
+                            .map(Item::Triangle)
                             .collect(),
                         current: 0,
                     });

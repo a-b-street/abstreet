@@ -288,7 +288,7 @@ pub fn run<T, G: GUI<T>>(mut gui: G, window_title: &str) {
     let vmetrics = fonts[0].v_metrics(Scale::uniform(text::FONT_SIZE));
     // TODO This works for this font, but could be more paranoid with abs()
     gui.get_mut_canvas().line_height =
-        (vmetrics.ascent - vmetrics.descent + vmetrics.line_gap) as f64;
+        f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
     gui.get_mut_canvas().glyphs = RefCell::new(Some(GlyphBrush::new(&display, fonts)));
 
     let mut state = State {

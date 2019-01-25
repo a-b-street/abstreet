@@ -120,26 +120,27 @@ impl Text {
         glyphs: &mut GlyphBrush<'static, 'static>,
         canvas: &Canvas,
     ) -> (f64, f64) {
-        let width = self
-            .lines
-            .iter()
-            .map(|(_, l)| {
-                let full_line = l.iter().fold(String::new(), |mut so_far, span| {
-                    so_far.push_str(&span.text);
-                    so_far
-                });
-                // Empty lines or whitespace-only lines effectively have 0 width.
-                glyphs
-                    .pixel_bounds(Section {
-                        text: &full_line,
-                        scale: Scale::uniform(FONT_SIZE),
-                        ..Section::default()
-                    })
-                    .map(|rect| rect.width())
-                    .unwrap_or(0)
-            })
-            .max()
-            .unwrap() as f64;
+        let width = f64::from(
+            self.lines
+                .iter()
+                .map(|(_, l)| {
+                    let full_line = l.iter().fold(String::new(), |mut so_far, span| {
+                        so_far.push_str(&span.text);
+                        so_far
+                    });
+                    // Empty lines or whitespace-only lines effectively have 0 width.
+                    glyphs
+                        .pixel_bounds(Section {
+                            text: &full_line,
+                            scale: Scale::uniform(FONT_SIZE),
+                            ..Section::default()
+                        })
+                        .map(|rect| rect.width())
+                        .unwrap_or(0)
+                })
+                .max()
+                .unwrap(),
+        );
 
         // Always use the max height, since other stuff like menus assume a fixed height.
         (width, (self.lines.len() as f64) * canvas.line_height)
