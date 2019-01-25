@@ -102,7 +102,7 @@ impl<'a> GfxCtx<'a> {
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
     pub fn draw_line(&mut self, color: Color, thickness: f64, line: &Line) {
-        self.draw_polygon(color, &line.to_polyline().make_polygons(thickness));
+        self.draw_polygon(color, &line.make_polygons(thickness));
     }
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &Line) {
@@ -110,7 +110,7 @@ impl<'a> GfxCtx<'a> {
         self.draw_circle(color, &Circle::new(line.pt1(), thickness / 2.0));
         self.draw_circle(color, &Circle::new(line.pt2(), thickness / 2.0));
         /*self.draw_polygon_batch(vec![
-            (color, &line.to_polyline().make_polygons(thickness)),
+            (color, &line.make_polygons(thickness)),
             (
                 color,
                 &Circle::new(line.pt1(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
@@ -168,6 +168,7 @@ impl<'a> GfxCtx<'a> {
         let mut indices: Vec<u32> = Vec::new();
 
         for (color, poly) in list {
+            let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
             for pt in pts {
                 vertices.push(Vertex {
@@ -175,9 +176,8 @@ impl<'a> GfxCtx<'a> {
                     color: color.0,
                 });
             }
-            let offset = indices.len();
             for idx in raw_indices {
-                indices.push((offset + *idx) as u32);
+                indices.push((idx_offset + *idx) as u32);
             }
         }
 

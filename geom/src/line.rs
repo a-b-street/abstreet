@@ -1,4 +1,4 @@
-use crate::{line_intersection, Angle, PolyLine, Pt2D, EPSILON_DIST};
+use crate::{line_intersection, Angle, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
@@ -28,6 +28,10 @@ impl Line {
 
     pub fn to_polyline(&self) -> PolyLine {
         PolyLine::new(self.points())
+    }
+
+    pub fn make_polygons(&self, thickness: f64) -> Polygon {
+        self.to_polyline().make_polygons(thickness)
     }
 
     // TODO valid to do euclidean distance on world-space points that're formed from

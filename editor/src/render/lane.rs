@@ -143,21 +143,20 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
 
     let length = lane.length();
 
-    let mut lines = Vec::new();
+    let mut draw = Vec::new();
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(1.0, angle);
-        lines.push(perp_line(Line::new(pt, pt2), LANE_THICKNESS));
+        draw.push(perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(0.25));
         dist_along += tile_every;
     }
 
     Box::new(move |g, cs| {
-        for line in &lines {
-            g.draw_line(cs.get_def("sidewalk lines", Color::grey(0.7)), 0.25, line);
-        }
+        let color = cs.get_def("sidewalk lines", Color::grey(0.7));
+        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect())
     })
 }
 
