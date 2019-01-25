@@ -1,6 +1,7 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{Parcel, ParcelID};
 
@@ -22,21 +23,33 @@ const COLORS: [Color; 14] = [
     Color::rgba_f(0.8, 0.2, 0.5, 0.5),
 ];
 
-#[derive(Debug)]
 pub struct DrawParcel {
     pub id: ParcelID,
     // TODO bit wasteful to keep both
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
+
+    default_draw: Drawable,
 }
 
 impl DrawParcel {
-    pub fn new(p: &Parcel) -> DrawParcel {
+    pub fn new(p: &Parcel, cs: &ColorScheme, prerender: &Prerender) -> DrawParcel {
+        let boundary_polygon =
+            PolyLine::new(p.points.clone()).make_polygons(PARCEL_BOUNDARY_THICKNESS);
+        let fill_polygon = Polygon::new(&p.points);
+        let default_draw = prerender.upload(vec![
+            (COLORS[p.block % COLORS.len()], &fill_polygon),
+            (
+                cs.get_def("parcel boundary", Color::grey(0.3)),
+                &boundary_polygon,
+            ),
+        ]);
+
         DrawParcel {
             id: p.id,
-            boundary_polygon: PolyLine::new(p.points.clone())
-                .make_polygons(PARCEL_BOUNDARY_THICKNESS),
-            fill_polygon: Polygon::new(&p.points),
+            boundary_polygon,
+            fill_polygon,
+            default_draw,
         }
     }
 }
@@ -47,17 +60,14 @@ impl Renderable for DrawParcel {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            let p = ctx.map.get_p(self.id);
-            COLORS[p.block % COLORS.len()]
-        });
-        g.draw_polygon_batch(vec![
-            (color, &self.fill_polygon),
-            (
-                ctx.cs.get_def("parcel boundary", Color::grey(0.3)),
-                &self.boundary_polygon,
-            ),
-        ]);
+        if let Some(color) = opts.color {
+            g.draw_polygon_batch(vec![
+                (color, &self.fill_polygon),
+                (ctx.cs.get("parcel boundary"), &self.boundary_polygon),
+            ]);
+        } else {
+            g.redraw(&self.default_draw);
+        }
     }
 
     fn get_bounds(&self) -> Bounds {

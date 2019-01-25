@@ -79,13 +79,13 @@ impl DrawMap {
             .iter()
             .map(|b| {
                 timer.next();
-                DrawBuilding::new(b)
+                DrawBuilding::new(b, cs, prerender)
             })
             .collect();
         let parcels: Vec<DrawParcel> = map
             .all_parcels()
             .iter()
-            .map(|p| DrawParcel::new(p))
+            .map(|p| DrawParcel::new(p, cs, prerender))
             .collect();
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();

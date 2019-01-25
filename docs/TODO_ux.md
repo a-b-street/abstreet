@@ -68,6 +68,7 @@
 - speed
 	- change ezgui API to allow uploading geometry once
 		- polyline -> arrow polygon. then collapse all lane markings into one Drawable.
+		- prerender lane polygons for GREAT win
 
 		- what about color then? get fancy and plumb an override color uniform?
 		- stop storing raw geometry when appropriate
