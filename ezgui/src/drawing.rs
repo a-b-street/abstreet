@@ -106,10 +106,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &Line) {
-        self.draw_line(color, thickness, line);
-        self.draw_circle(color, &Circle::new(line.pt1(), thickness / 2.0));
-        self.draw_circle(color, &Circle::new(line.pt2(), thickness / 2.0));
-        /*self.draw_polygon_batch(vec![
+        self.draw_polygon_batch(vec![
             (color, &line.make_polygons(thickness)),
             (
                 color,
@@ -119,40 +116,42 @@ impl<'a> GfxCtx<'a> {
                 color,
                 &Circle::new(line.pt2(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
             ),
-        ]);*/
+        ]);
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
         let head_size = 2.0 * thickness;
         let angle = line.angle();
         let triangle_height = (head_size / 2.0).sqrt() * si::M;
-        self.draw_polygon(
-            color,
-            &Polygon::new(&vec![
-                //line.pt2(),
-                //line.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
-                line.reverse()
-                    .dist_along(triangle_height)
-                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                line.pt1()
-                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                line.pt1()
-                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                line.reverse()
-                    .dist_along(triangle_height)
-                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                //line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-            ]),
-        );
-        self.draw_polygon(
-            color,
-            &Polygon::new(&vec![
-                line.pt2(),
-                line.pt2()
-                    .project_away(head_size, angle.rotate_degs(-135.0)),
-                line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-            ]),
-        );
+        self.draw_polygon_batch(vec![
+            (
+                color,
+                &Polygon::new(&vec![
+                    //line.pt2(),
+                    //line.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
+                    line.reverse()
+                        .dist_along(triangle_height)
+                        .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                    line.pt1()
+                        .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
+                    line.pt1()
+                        .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                    line.reverse()
+                        .dist_along(triangle_height)
+                        .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
+                    //line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+                ]),
+            ),
+            (
+                color,
+                &Polygon::new(&vec![
+                    line.pt2(),
+                    line.pt2()
+                        .project_away(head_size, angle.rotate_degs(-135.0)),
+                    line.pt2().project_away(head_size, angle.rotate_degs(135.0)),
+                ]),
+            ),
+        ]);
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {

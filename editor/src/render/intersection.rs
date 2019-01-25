@@ -74,8 +74,14 @@ impl Renderable for DrawIntersection {
             }
         } else {
             // Always draw these; otherwise zooming in is very disconcerting.
-            for corner in &self.sidewalk_corners {
-                g.draw_polygon(opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk")), corner);
+            {
+                let color = opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk"));
+                g.draw_polygon_batch(
+                    self.sidewalk_corners
+                        .iter()
+                        .map(|poly| (color, poly))
+                        .collect(),
+                );
             }
 
             if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {

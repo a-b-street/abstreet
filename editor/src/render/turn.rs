@@ -5,7 +5,7 @@ use crate::render::{
 };
 use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Line, Pt2D};
+use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 use std::f64;
 
@@ -52,13 +52,10 @@ impl DrawTurn {
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
         let dash_len = 1.0 * si::M;
-        for poly in turn
+        let dashed = turn
             .geom
-            .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M)
-            .into_iter()
-        {
-            g.draw_polygon(color, &poly);
-        }
+            .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M);
+        g.draw_polygon_batch(dashed.iter().map(|poly| (color, poly)).collect());
         // And a cap on the arrow. In case the last line is long, trim it to be the dash
         // length.
         let last_line = turn.geom.last_line();
@@ -114,12 +111,11 @@ impl Renderable for DrawTurn {
 pub struct DrawCrosswalk {
     // This is arbitrarily one of the two IDs
     pub id1: TurnID,
-    lines: Vec<Line>,
+    draw: Vec<Polygon>,
 }
 
 impl DrawCrosswalk {
     pub fn new(turn: &Turn) -> DrawCrosswalk {
-        let mut lines = Vec::new();
         // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
         // the thickness of the crosswalk line itself. Center the lines inside these two
         // boundaries.
@@ -131,6 +127,7 @@ impl DrawCrosswalk {
             Line::new(pts[1], pts[2])
         };
 
+        let mut draw = Vec::new();
         let available_length = line.length() - (2.0 * boundary);
         if available_length > 0.0 * si::M {
             let num_markings = (available_length / tile_every).floor() as usize;
@@ -141,21 +138,19 @@ impl DrawCrosswalk {
                 let pt1 = line.dist_along(dist_along);
                 // Reuse perp_line. Project away an arbitrary amount
                 let pt2 = pt1.project_away(1.0, turn.angle());
-                lines.push(perp_line(Line::new(pt1, pt2), LANE_THICKNESS));
+                draw.push(
+                    perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
+                        .make_polygons(CROSSWALK_LINE_THICKNESS),
+                );
                 dist_along += tile_every;
             }
         }
 
-        DrawCrosswalk {
-            id1: turn.id,
-            lines,
-        }
+        DrawCrosswalk { id1: turn.id, draw }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        for line in &self.lines {
-            g.draw_line(color, CROSSWALK_LINE_THICKNESS, line);
-        }
+        g.draw_polygon_batch(self.draw.iter().map(|poly| (color, poly)).collect());
     }
 }
 

@@ -156,7 +156,7 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
 
     Box::new(move |g, cs| {
         let color = cs.get_def("sidewalk lines", Color::grey(0.7));
-        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect())
+        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect());
     })
 }
 
@@ -165,7 +165,7 @@ fn calculate_parking_lines(lane: &Lane) -> Marking {
     // TODO make Pt2D natively understand meters, projecting away by an angle
     let leg_length = 1.0;
 
-    let mut lines = Vec::new();
+    let mut draw = Vec::new();
     let num_spots = lane.number_parking_spots();
     if num_spots > 0 {
         for idx in 0..=num_spots {
@@ -176,20 +176,19 @@ fn calculate_parking_lines(lane: &Lane) -> Marking {
             let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-            lines.push(Line::new(t_pt, p1));
+            draw.push(Line::new(t_pt, p1).make_polygons(0.25));
             // Upper leg
             let p2 = t_pt.project_away(leg_length, lane_angle);
-            lines.push(Line::new(t_pt, p2));
+            draw.push(Line::new(t_pt, p2).make_polygons(0.25));
             // Lower leg
             let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-            lines.push(Line::new(t_pt, p3));
+            draw.push(Line::new(t_pt, p3).make_polygons(0.25));
         }
     }
 
     Box::new(move |g, cs| {
-        for line in &lines {
-            g.draw_line(cs.get_def("parking line", Color::WHITE), 0.25, line);
-        }
+        let color = cs.get_def("parking lines", Color::WHITE);
+        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect());
     })
 }
 
@@ -213,9 +212,8 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
         .dashed_polygons(0.25, dash_len, dash_separation);
 
     Some(Box::new(move |g, cs| {
-        for p in &polygons {
-            g.draw_polygon(cs.get_def("dashed lane line", Color::WHITE), p);
-        }
+        let color = cs.get_def("dashed lane line", Color::WHITE);
+        g.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
     }))
 }
 

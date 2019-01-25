@@ -51,12 +51,13 @@ impl Renderable for DrawParcel {
             let p = ctx.map.get_p(self.id);
             COLORS[p.block % COLORS.len()]
         });
-        g.draw_polygon(color, &self.fill_polygon);
-
-        g.draw_polygon(
-            ctx.cs.get_def("parcel boundary", Color::grey(0.3)),
-            &self.boundary_polygon,
-        );
+        g.draw_polygon_batch(vec![
+            (color, &self.fill_polygon),
+            (
+                ctx.cs.get_def("parcel boundary", Color::grey(0.3)),
+                &self.boundary_polygon,
+            ),
+        ]);
     }
 
     fn get_bounds(&self) -> Bounds {

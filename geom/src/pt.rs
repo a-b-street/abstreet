@@ -196,6 +196,11 @@ impl Bounds {
         self.max_y = self.max_y.max(pt.y);
     }
 
+    pub fn union(&mut self, other: Bounds) {
+        self.update(Pt2D::new(other.min_x, other.min_y));
+        self.update(Pt2D::new(other.max_x, other.max_y));
+    }
+
     pub fn contains(&self, pt: Pt2D) -> bool {
         pt.x >= self.min_x && pt.x <= self.max_x && pt.y >= self.min_y && pt.y <= self.max_y
     }

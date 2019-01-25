@@ -66,16 +66,17 @@
 ## Switch to OpenGL (for speed)
 
 - speed
-	- for things like lanes with markings, build up a single thing that can be drawn...
-		- but with an easier API... imperative draw single thing or prerender many things should be same
 	- change ezgui API to allow uploading geometry once
+		- the DrawMap stuff needs colorscheme and gfxctx then to setup easily...
 		- what about color then? get fancy and plumb an override color uniform?
 		- stop storing raw geometry when appropriate
+		- should the API for batching be easier? make a bunch of mutable calls to GfxCtx-like thing, then flush it?
 	- sleep better in the event loop
+		- i think screencap is broken
 		- first make UserInput borrow state and not need to consume
 	- experiment with batching and not passing colors
 	- measure performance of huge maps
-	- specialized things for common shapes like circles?
+	- specialized shaders for common shapes like circles?
 - quality
 	- need padding around text
 	- text entry needs to draw the cursor differently
