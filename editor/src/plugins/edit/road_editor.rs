@@ -93,7 +93,9 @@ fn change_lane_type(id: LaneID, new_type: LaneType, ctx: &mut PluginCtx) {
     // TODO Pretty sure control layer needs to recalculate based on the new turns
     let old_type = ctx.primary.map.get_l(id).lane_type;
     ctx.primary.map.edit_lane_type(id, new_type);
-    ctx.primary.draw_map.edit_lane_type(id, &ctx.primary.map);
+    ctx.primary
+        .draw_map
+        .edit_lane_type(id, &ctx.primary.map, &ctx.cs, &ctx.prerender);
     ctx.primary
         .sim
         .edit_lane_type(id, old_type, &ctx.primary.map);

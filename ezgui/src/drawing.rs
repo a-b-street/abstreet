@@ -168,10 +168,10 @@ impl<'a> GfxCtx<'a> {
         }
         .upload(list);
         self.num_new_uploads += 1;
-        self.draw(&obj);
+        self.redraw(&obj);
     }
 
-    pub fn draw(&mut self, obj: &Drawable) {
+    pub fn redraw(&mut self, obj: &Drawable) {
         self.target
             .draw(
                 &obj.vertex_buffer,
@@ -196,6 +196,8 @@ pub struct Drawable {
 }
 
 impl<'a> Prerender<'a> {
+    // TODO Taking &Polygon is annoying for the callers
+    // TODO One color, many polygons could also be helpful
     pub fn upload(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();

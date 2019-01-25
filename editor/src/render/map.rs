@@ -55,7 +55,7 @@ impl DrawMap {
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         for l in map.all_lanes() {
             timer.next();
-            lanes.push(DrawLane::new(l, map));
+            lanes.push(DrawLane::new(l, map, cs, prerender));
         }
 
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -175,9 +175,15 @@ impl DrawMap {
         }
     }
 
-    pub fn edit_lane_type(&mut self, id: LaneID, map: &Map) {
+    pub fn edit_lane_type(
+        &mut self,
+        id: LaneID,
+        map: &Map,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+    ) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
-        self.lanes[id.0] = DrawLane::new(map.get_l(id), map);
+        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, cs, prerender);
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {

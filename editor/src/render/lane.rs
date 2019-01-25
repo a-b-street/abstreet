@@ -5,13 +5,16 @@ use crate::render::{
     PARCEL_BOUNDARY_THICKNESS,
 };
 use dimensioned::si;
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
 
 // Just a function to draw something later.
+// TODO Do we need to pass ColorScheme?
+// TODO This can maybe just be Drawables
+// TODO Or even just accumulate a bunch of (Color, Poly) and then make one Drawable.
 type Marking = Box<Fn(&mut GfxCtx, &ColorScheme)>;
 
 pub struct DrawLane {
@@ -22,32 +25,30 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &Lane, map: &Map) -> DrawLane {
+    pub fn new(lane: &Lane, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
         let mut markings: Vec<Marking> = Vec::new();
         if road.is_canonical_lane(lane.id) {
-            let lines = road.center_pts.lines();
-            markings.push(Box::new(move |g, cs| {
-                for line in &lines {
-                    g.draw_line(
-                        cs.get_def("road center line", Color::YELLOW),
-                        BIG_ARROW_THICKNESS,
-                        line,
-                    );
-                }
+            let center_poly = road.center_pts.make_polygons(BIG_ARROW_THICKNESS);
+            let draw_center = prerender.upload(vec![(
+                cs.get_def("road center line", Color::YELLOW),
+                &center_poly,
+            )]);
+            markings.push(Box::new(move |g, _| {
+                g.redraw(&draw_center);
             }));
         }
         match lane.lane_type {
             LaneType::Sidewalk => {
-                markings.push(calculate_sidewalk_lines(lane));
+                markings.push(calculate_sidewalk_lines(lane, cs, prerender));
             }
             LaneType::Parking => {
-                markings.push(calculate_parking_lines(lane));
+                markings.push(calculate_parking_lines(lane, cs, prerender));
             }
             LaneType::Driving | LaneType::Bus => {
-                if let Some(m) = calculate_driving_lines(lane, road) {
+                if let Some(m) = calculate_driving_lines(lane, road, cs, prerender) {
                     markings.push(m);
                 }
                 for m in calculate_turn_markings(map, lane) {
@@ -138,29 +139,34 @@ fn perp_line(l: Line, length: f64) -> Line {
     Line::new(pt1, pt2)
 }
 
-fn calculate_sidewalk_lines(lane: &Lane) -> Marking {
+fn calculate_sidewalk_lines(lane: &Lane, cs: &ColorScheme, prerender: &Prerender) -> Marking {
     let tile_every = LANE_THICKNESS * si::M;
 
     let length = lane.length();
 
-    let mut draw = Vec::new();
+    let mut polygons = Vec::new();
     // Start away from the intersections
     let mut dist_along = tile_every;
     while dist_along < length - tile_every {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
         let pt2 = pt.project_away(1.0, angle);
-        draw.push(perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(0.25));
+        polygons.push(perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(0.25));
         dist_along += tile_every;
     }
 
-    Box::new(move |g, cs| {
-        let color = cs.get_def("sidewalk lines", Color::grey(0.7));
-        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect());
+    let draw_lines = prerender.upload(
+        polygons
+            .iter()
+            .map(|poly| (cs.get_def("sidewalk lines", Color::grey(0.7)), poly))
+            .collect(),
+    );
+    Box::new(move |g, _| {
+        g.redraw(&draw_lines);
     })
 }
 
-fn calculate_parking_lines(lane: &Lane) -> Marking {
+fn calculate_parking_lines(lane: &Lane, cs: &ColorScheme, prerender: &Prerender) -> Marking {
     // meters, but the dims get annoying below to remove
     // TODO make Pt2D natively understand meters, projecting away by an angle
     let leg_length = 1.0;
@@ -186,13 +192,22 @@ fn calculate_parking_lines(lane: &Lane) -> Marking {
         }
     }
 
-    Box::new(move |g, cs| {
-        let color = cs.get_def("parking lines", Color::WHITE);
-        g.draw_polygon_batch(draw.iter().map(|poly| (color, poly)).collect());
+    let draw_spots = prerender.upload(
+        draw.iter()
+            .map(|poly| (cs.get_def("parking lines", Color::WHITE), poly))
+            .collect(),
+    );
+    Box::new(move |g, _| {
+        g.redraw(&draw_spots);
     })
 }
 
-fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
+fn calculate_driving_lines(
+    lane: &Lane,
+    parent: &Road,
+    cs: &ColorScheme,
+    prerender: &Prerender,
+) -> Option<Marking> {
     // The leftmost lanes don't have dashed white lines.
     if parent.dir_and_offset(lane.id).1 == 0 {
         return None;
@@ -211,9 +226,14 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Option<Marking> {
         .0
         .dashed_polygons(0.25, dash_len, dash_separation);
 
-    Some(Box::new(move |g, cs| {
-        let color = cs.get_def("dashed lane line", Color::WHITE);
-        g.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
+    let draw_dashes = prerender.upload(
+        polygons
+            .iter()
+            .map(|poly| (cs.get_def("dashed lane line", Color::WHITE), poly))
+            .collect(),
+    );
+    Some(Box::new(move |g, _| {
+        g.redraw(&draw_dashes);
     }))
 }
 
