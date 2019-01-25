@@ -67,7 +67,6 @@
 
 - speed
 	- for things like lanes with markings, build up a single thing that can be drawn...
-		- can we easily benchmark number of things drawn?
 	- change ezgui API to allow uploading geometry once
 		- what about color then? get fancy and plumb an override color uniform?
 	- sleep better in the event loop

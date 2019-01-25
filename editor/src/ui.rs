@@ -288,8 +288,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
             // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
             // soon, so meh
-            self.canvas
-                .draw_blocking_text(g, hints.osd.clone(), BOTTOM_LEFT);
+            let mut osd = hints.osd.clone();
+            // TODO Only in some kind of debug mode
+            osd.add_line(format!(
+                "{} things uploaded, {} things drawn",
+                g.num_new_uploads, g.num_draw_calls,
+            ));
+            self.canvas.draw_blocking_text(g, osd, BOTTOM_LEFT);
         }
 
         sample_intersection

@@ -24,6 +24,9 @@ pub struct GfxCtx<'a> {
     program: &'a glium::Program,
     uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
+
+    pub num_new_uploads: usize,
+    pub num_draw_calls: usize,
 }
 
 impl<'a> GfxCtx<'a> {
@@ -49,6 +52,8 @@ impl<'a> GfxCtx<'a> {
             program,
             uniforms,
             params,
+            num_new_uploads: 0,
+            num_draw_calls: 0,
         }
     }
 
@@ -155,6 +160,7 @@ impl<'a> GfxCtx<'a> {
             &indices,
         )
         .unwrap();
+        self.num_new_uploads += 1;
 
         self.target
             .draw(
@@ -165,6 +171,7 @@ impl<'a> GfxCtx<'a> {
                 &self.params,
             )
             .unwrap();
+        self.num_draw_calls += 1;
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
