@@ -31,7 +31,7 @@ impl DrawLane {
             let lines = road.center_pts.lines();
             markings.push(Box::new(move |g, cs| {
                 for line in &lines {
-                    g.draw_rounded_line(
+                    g.draw_line(
                         cs.get_def("road center line", Color::YELLOW),
                         BIG_ARROW_THICKNESS,
                         line,

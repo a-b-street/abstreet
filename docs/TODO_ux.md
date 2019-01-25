@@ -67,9 +67,10 @@
 
 - speed
 	- for things like lanes with markings, build up a single thing that can be drawn...
-	- draw_rounded_line is useless for center lines now
+		- but with an easier API... imperative draw single thing or prerender many things should be same
 	- change ezgui API to allow uploading geometry once
 		- what about color then? get fancy and plumb an override color uniform?
+		- stop storing raw geometry when appropriate
 	- sleep better in the event loop
 		- first make UserInput borrow state and not need to consume
 	- experiment with batching and not passing colors
