@@ -66,15 +66,17 @@
 ## Switch to OpenGL (for speed)
 
 - speed
-	- change ezgui API to allow uploading geometry once
-		- what about color then? get fancy and plumb an override color uniform?
-		- stop storing raw geometry when appropriate
-		- should the API for batching be easier? make a bunch of mutable calls to GfxCtx-like thing, then flush it?
+	- show FPS or some kind of measure of lag
+	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
+
+	- drawing cars is expensive
 	- sleep better in the event loop
 		- i think screencap is broken. WAIT, it can force redraw itself, stop being convoluted!
 		- first make UserInput borrow state and not need to consume
-	- experiment with batching and not passing colors
+	- optimize zoomed-out experience... one polygon per road
+		- make sure the quadtree isn't the limiting factor though
 	- measure performance of huge maps
+	- experiment with batching and not passing colors
 	- specialized shaders for common shapes like circles?
 - quality
 	- need padding around text

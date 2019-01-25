@@ -1,7 +1,8 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
 use dimensioned::si;
-use ezgui::{Color, GfxCtx, ScreenPt, Text};
+use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Bounds, Circle, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
@@ -9,32 +10,53 @@ use map_model::{
 };
 use ordered_float::NotNan;
 
-#[derive(Debug)]
 pub struct DrawIntersection {
     pub id: IntersectionID,
     pub polygon: Polygon,
     pub crosswalks: Vec<DrawCrosswalk>,
-    sidewalk_corners: Vec<Polygon>,
-    center: Pt2D,
     intersection_type: IntersectionType,
     zorder: isize,
+
+    draw_default: Drawable,
 }
 
 impl DrawIntersection {
-    pub fn new(inter: &Intersection, map: &Map) -> DrawIntersection {
-        // Don't skew the center towards the repeated point
-        let mut pts = inter.polygon.clone();
-        pts.pop();
-        let center = Pt2D::center(&pts);
+    pub fn new(
+        i: &Intersection,
+        map: &Map,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+    ) -> DrawIntersection {
+        let polygon = Polygon::new(&i.polygon);
+
+        // Order matters... main polygon first, then sidewalk corners.
+        let mut default_geom = vec![(
+            match i.intersection_type {
+                IntersectionType::Border => {
+                    cs.get_def("border intersection", Color::rgb(50, 205, 50))
+                }
+                IntersectionType::StopSign => {
+                    cs.get_def("stop sign intersection", Color::grey(0.6))
+                }
+                IntersectionType::TrafficSignal => {
+                    cs.get_def("traffic signal intersection", Color::grey(0.4))
+                }
+            },
+            polygon.clone(),
+        )];
+        default_geom.extend(
+            calculate_corners(i.id, map)
+                .into_iter()
+                .map(|p| (cs.get("sidewalk"), p)),
+        );
 
         DrawIntersection {
-            center,
-            id: inter.id,
-            polygon: Polygon::new(&inter.polygon),
-            crosswalks: calculate_crosswalks(inter.id, map),
-            sidewalk_corners: calculate_corners(inter.id, map),
-            intersection_type: inter.intersection_type,
-            zorder: inter.get_zorder(map),
+            id: i.id,
+            polygon,
+            crosswalks: calculate_crosswalks(i.id, map),
+            intersection_type: i.intersection_type,
+            zorder: i.get_zorder(map),
+            draw_default: prerender.upload(default_geom),
         }
     }
 
@@ -53,46 +75,21 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| match self.intersection_type {
-            IntersectionType::Border => ctx
-                .cs
-                .get_def("border intersection", Color::rgb(50, 205, 50)),
-            IntersectionType::StopSign => {
-                ctx.cs.get_def("stop sign intersection", Color::grey(0.6))
-            }
-            IntersectionType::TrafficSignal => ctx
-                .cs
-                .get_def("traffic signal intersection", Color::grey(0.4)),
-        });
-        g.draw_polygon(color, &self.polygon);
-
-        if opts.debug_mode {
-            // First and last point are repeated
-            for (idx, pt) in ctx.map.get_i(self.id).polygon.iter().skip(1).enumerate() {
-                ctx.canvas
-                    .draw_text_at(g, Text::from_line(format!("{}", idx + 1)), *pt);
-            }
+        if let Some(color) = opts.color {
+            // Don't draw the sidewalk corners
+            g.draw_polygon(color, &self.polygon);
         } else {
-            // Always draw these; otherwise zooming in is very disconcerting.
-            {
-                let color = opts.color.unwrap_or_else(|| ctx.cs.get("sidewalk"));
-                g.draw_polygon_batch(
-                    self.sidewalk_corners
-                        .iter()
-                        .map(|poly| (color, poly))
-                        .collect(),
-                );
-            }
+            g.redraw(&self.draw_default);
+        }
 
-            if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
-                if self.intersection_type == IntersectionType::TrafficSignal {
-                    if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
-                        self.draw_traffic_signal(g, ctx);
-                    }
-                } else {
-                    for crosswalk in &self.crosswalks {
-                        crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
-                    }
+        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+            if self.intersection_type == IntersectionType::TrafficSignal {
+                if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
+                    self.draw_traffic_signal(g, ctx);
+                }
+            } else {
+                for crosswalk in &self.crosswalks {
+                    crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
                 }
             }
         }
