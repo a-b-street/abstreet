@@ -51,8 +51,8 @@ impl DrawMap {
         prerender: &Prerender,
         timer: &mut Timer,
     ) -> DrawMap {
-        let mut lanes: Vec<DrawLane> = Vec::new();
         timer.start_iter("make DrawLanes", map.all_lanes().len());
+        let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
             timer.next();
             lanes.push(DrawLane::new(l, map, cs, prerender));
@@ -64,15 +64,23 @@ impl DrawMap {
         }
         assert_eq!(turn_to_lane_offset.len(), map.all_turns().len());
 
+        timer.start_iter("make DrawTurns", map.all_turns().len());
         let mut turns: HashMap<TurnID, DrawTurn> = HashMap::new();
         for t in map.all_turns().values() {
+            timer.next();
             turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
         }
+
+        timer.start_iter("make DrawIntersections", map.all_intersections().len());
         let intersections: Vec<DrawIntersection> = map
             .all_intersections()
             .iter()
-            .map(|i| DrawIntersection::new(i, map, cs, prerender))
+            .map(|i| {
+                timer.next();
+                DrawIntersection::new(i, map, cs, prerender)
+            })
             .collect();
+
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         let buildings: Vec<DrawBuilding> = map
             .all_buildings()
@@ -82,10 +90,15 @@ impl DrawMap {
                 DrawBuilding::new(b, cs, prerender)
             })
             .collect();
+
+        timer.start_iter("make DrawParcels", map.all_parcels().len());
         let parcels: Vec<DrawParcel> = map
             .all_parcels()
             .iter()
-            .map(|p| DrawParcel::new(p, cs, prerender))
+            .map(|p| {
+                timer.next();
+                DrawParcel::new(p, cs, prerender)
+            })
             .collect();
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
@@ -231,6 +244,7 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
+    #[allow(dead_code)]
     pub fn get_matching_lanes(&self, bounds: Bounds) -> Vec<LaneID> {
         let mut results: Vec<LaneID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {

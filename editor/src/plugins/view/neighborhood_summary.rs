@@ -80,22 +80,23 @@ struct Region {
 }
 
 impl Region {
-    fn new(idx: usize, n: Neighborhood, map: &Map, draw_map: &DrawMap) -> Region {
+    fn new(idx: usize, n: Neighborhood, _map: &Map, _draw_map: &DrawMap) -> Region {
         let center = n.polygon.center();
         // TODO polygon overlap or complete containment would be more ideal
-        let lanes = draw_map
-            .get_matching_lanes(n.polygon.get_bounds())
-            .into_iter()
-            .filter(|id| {
-                let l = map.get_l(*id);
-                n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt())
-            })
-            .collect();
+        // TODO Re-enable when this is useful; just causes slow start all the time
+        /*let lanes = draw_map
+        .get_matching_lanes(n.polygon.get_bounds())
+        .into_iter()
+        .filter(|id| {
+            let l = map.get_l(*id);
+            n.polygon.contains_pt(l.first_pt()) && n.polygon.contains_pt(l.last_pt())
+        })
+        .collect();*/
         Region {
             name: n.name.clone(),
             polygon: n.polygon.clone(),
             center,
-            lanes,
+            lanes: HashSet::new(),
             color: COLORS[idx % COLORS.len()],
             summary: Text::from_line(format!("{} - no summary yet", n.name)),
         }
