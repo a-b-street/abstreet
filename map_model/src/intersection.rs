@@ -1,7 +1,7 @@
 use crate::{raw_data, LaneID, LaneType, Map, RoadID, TurnID};
 use abstutil;
 use dimensioned::si;
-use geom::Pt2D;
+use geom::{Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -27,10 +27,8 @@ pub enum IntersectionType {
 pub struct Intersection {
     pub id: IntersectionID,
     pub point: Pt2D,
-    // TODO This should really be a Polygon, but it's hard to construct in the right order and
-    // weird to represent an Option<Polygon> during construction.
-    // Also, this needs to be in clockwise orientation, or later rendering breaks.
-    pub polygon: Vec<Pt2D>,
+    // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
+    pub polygon: Polygon,
     pub turns: Vec<TurnID>,
     pub elevation: si::Meter<f64>,
 

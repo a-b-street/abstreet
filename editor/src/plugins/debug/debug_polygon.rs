@@ -27,6 +27,7 @@ impl DebugPolygon {
                             .map
                             .get_i(id)
                             .polygon
+                            .points()
                             .iter()
                             .map(|pt| Item::Point(*pt))
                             .collect(),

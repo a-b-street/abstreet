@@ -1,7 +1,8 @@
 use crate::{Bounds, HashablePt2D, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::f64;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
     points: Vec<Pt2D>,
     // Groups of three indices make up the triangles

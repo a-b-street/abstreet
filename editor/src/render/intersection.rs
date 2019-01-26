@@ -27,8 +27,6 @@ impl DrawIntersection {
         cs: &ColorScheme,
         prerender: &Prerender,
     ) -> DrawIntersection {
-        let polygon = Polygon::new(&i.polygon);
-
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = vec![(
             match i.intersection_type {
@@ -42,17 +40,17 @@ impl DrawIntersection {
                     cs.get_def("traffic signal intersection", Color::grey(0.4))
                 }
             },
-            polygon.clone(),
+            i.polygon.clone(),
         )];
         default_geom.extend(
-            calculate_corners(i.id, map)
+            calculate_corners(i, map)
                 .into_iter()
                 .map(|p| (cs.get("sidewalk"), p)),
         );
 
         DrawIntersection {
             id: i.id,
-            polygon,
+            polygon: i.polygon.clone(),
             crosswalks: calculate_crosswalks(i.id, map),
             intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
@@ -119,13 +117,13 @@ fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<DrawCrosswalk> {
     crosswalks
 }
 
-fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
+fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
-    for turn in &map.get_turns_in_intersection(i) {
+    for turn in &map.get_turns_in_intersection(i.id) {
         if turn.turn_type == TurnType::SharedSidewalkCorner {
             // Avoid double-rendering
-            if map.get_l(turn.id.src).dst_i != i {
+            if map.get_l(turn.id.src).dst_i != i.id {
                 continue;
             }
 
@@ -144,16 +142,13 @@ fn calculate_corners(i: IntersectionID, map: &Map) -> Vec<Polygon> {
             let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
             // constructed...
-            if let Some(mut pts_between) = find_pts_between(&map.get_i(i).polygon, corner2, corner1)
-            {
+            if let Some(mut pts_between) = find_pts_between(&i.polygon.points(), corner2, corner1) {
                 //.expect("SharedSidewalkCorner couldn't find intersection points");
                 pts_between.push(src_line.pt2());
                 // If the intersection of the two lines isn't actually inside, then just exclude
                 // this point.
                 // TODO Argh, this is inefficient.
-                if map.get_i(i).polygon.len() >= 3
-                    && Polygon::new(&map.get_i(i).polygon).contains_pt(pt_maybe_in_intersection)
-                {
+                if i.polygon.contains_pt(pt_maybe_in_intersection) {
                     pts_between.push(pt_maybe_in_intersection);
                 }
                 pts_between.push(dst_line.pt1());
@@ -281,10 +276,7 @@ pub fn draw_signal_diagram(
     let padding = 5.0;
     let zoom = 10.0;
     let (top_left, intersection_width, intersection_height) = {
-        let mut b = Bounds::new();
-        for pt in &ctx.map.get_i(i).polygon {
-            b.update(*pt);
-        }
+        let b = ctx.map.get_i(i).polygon.get_bounds();
         (
             Pt2D::new(b.min_x, b.min_y),
             b.max_x - b.min_x,

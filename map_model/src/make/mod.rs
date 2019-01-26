@@ -2,7 +2,6 @@ mod buildings;
 mod bus_stops;
 mod half_map;
 mod initial;
-mod merge_intersections;
 mod old_merge_intersections;
 mod parcels;
 mod sidewalk_finder;
