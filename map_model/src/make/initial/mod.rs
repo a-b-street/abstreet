@@ -1,5 +1,6 @@
 mod geometry;
 pub mod lane_specs;
+mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, MapEdits, LANE_THICKNESS};
@@ -110,6 +111,8 @@ pub fn make_initial_map(
 
         i.polygon = geometry::intersection_polygon(i, &mut m.roads);
     }
+
+    merge::short_roads(&mut m);
 
     m
 }

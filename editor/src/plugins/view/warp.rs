@@ -125,6 +125,16 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                     return None;
                 }
             }
+            // TODO "sr"
+            'O' => {
+                let stable_id = raw_data::StableRoadID(idx);
+                if let Some(r) = map.all_roads().iter().find(|r| r.stable_id == stable_id) {
+                    ID::Lane(r.children_forwards[0].0)
+                } else {
+                    warn!("{} isn't known", stable_id);
+                    return None;
+                }
+            }
             _ => {
                 warn!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
                 return None;
