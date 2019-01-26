@@ -1,7 +1,8 @@
-use crate::{line_intersection, Angle, Bounds, Line, Polygon, Pt2D, EPSILON_DIST};
+use crate::{line_intersection, Angle, Bounds, HashablePt2D, Line, Polygon, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::f64;
 use std::fmt;
 
@@ -19,7 +20,25 @@ impl PolyLine {
         let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
             so_far + Line::new(pair[0], pair[1]).length()
         });
+
+        // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
+        // are broken.
+        let seen_pts: HashSet<HashablePt2D> =
+            pts.iter().map(|pt| HashablePt2D::from(*pt)).collect();
+        if seen_pts.len() != pts.len() {
+            panic!("PolyLine has repeat points: {:?}", pts);
+        }
+
         PolyLine { pts, length }
+    }
+
+    pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: f64) -> Polygon {
+        // Points WILL repeat -- fast-path some stuff.
+        let pl = PolyLine {
+            pts,
+            length: 0.0 * si::M,
+        };
+        pl.make_polygons(thickness)
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -28,6 +47,7 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
+    // TODO Rename append, make a prepend that just flips the arguments
     pub fn extend(self, other: &PolyLine) -> PolyLine {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
         let mut pts = self.pts;
@@ -96,7 +116,7 @@ impl PolyLine {
 
     // TODO return result with an error message
     pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
-        if dist_along < 0.0 * si::M {
+        if dist_along < 0.0 * si::M || dist_along > self.length() {
             return None;
         }
 
@@ -113,7 +133,11 @@ impl PolyLine {
             }
             dist_left -= length;
         }
-        None
+        panic!(
+            "PolyLine dist_along of {} broke on length {}",
+            dist_along,
+            self.length()
+        );
     }
 
     pub fn middle(&self) -> Pt2D {
@@ -286,7 +310,8 @@ impl PolyLine {
         None
     }
 
-    // Panics if the pt is not on the polyline.
+    // Panics if the pt is not on the polyline. Returns None if the point is the first point
+    // (meaning the slice is empty).
     pub fn get_slice_ending_at(&self, pt: Pt2D) -> PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
@@ -298,6 +323,7 @@ impl PolyLine {
         }
     }
 
+    // Returns None if the point is the last point.
     pub fn get_slice_starting_at(&self, pt: Pt2D) -> PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();

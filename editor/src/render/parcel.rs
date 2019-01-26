@@ -35,7 +35,7 @@ pub struct DrawParcel {
 impl DrawParcel {
     pub fn new(p: &Parcel, cs: &ColorScheme, prerender: &Prerender) -> DrawParcel {
         let boundary_polygon =
-            PolyLine::new(p.points.clone()).make_polygons(PARCEL_BOUNDARY_THICKNESS);
+            PolyLine::make_polygons_for_boundary(p.points.clone(), PARCEL_BOUNDARY_THICKNESS);
         let fill_polygon = Polygon::new(&p.points);
         let default_draw = prerender.upload_borrowed(vec![
             (COLORS[p.block % COLORS.len()], &fill_polygon),
