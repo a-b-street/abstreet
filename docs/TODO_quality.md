@@ -10,8 +10,6 @@
 	- try merging with roads and intersections, but with new trimmed road lengths
 		- deal with loop roads still
 		- restore original road points, then redo the intersection polygon and lane center pt expansion
-		- organize map creation code better...
-			- remove halfmap now
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
 

@@ -1,10 +1,10 @@
-use crate::make;
 use crate::{
-    raw_data, Intersection, IntersectionID, IntersectionType, Lane, LaneID, MapEdits, Road, RoadID,
-    Turn, TurnID, LANE_THICKNESS,
+    make, raw_data, Area, AreaID, Building, Intersection, IntersectionID, IntersectionType, Lane,
+    LaneID, MapEdits, Parcel, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{GPSBounds, Polygon, Pt2D};
+use dimensioned::si;
+use geom::{Bounds, GPSBounds, Polygon, Pt2D};
 use std::collections::BTreeMap;
 
 pub struct HalfMap {
@@ -12,11 +12,17 @@ pub struct HalfMap {
     pub lanes: Vec<Lane>,
     pub intersections: Vec<Intersection>,
     pub turns: BTreeMap<TurnID, Turn>,
+    pub buildings: Vec<Building>,
+    pub parcels: Vec<Parcel>,
+    pub areas: Vec<Area>,
+
+    pub turn_lookup: Vec<TurnID>,
 }
 
 pub fn make_half_map(
     data: &raw_data::Map,
     gps_bounds: &GPSBounds,
+    bounds: &Bounds,
     edits: &MapEdits,
     timer: &mut Timer,
 ) -> HalfMap {
@@ -25,6 +31,10 @@ pub fn make_half_map(
         lanes: Vec::new(),
         intersections: Vec::new(),
         turns: BTreeMap::new(),
+        buildings: Vec::new(),
+        parcels: Vec::new(),
+        areas: Vec::new(),
+        turn_lookup: Vec::new(),
     };
 
     let initial_map = make::initial::make_initial_map(data, gps_bounds, edits, timer);
@@ -138,6 +148,51 @@ pub fn make_half_map(
             i.turns.push(t.id);
             half_map.turns.insert(t.id, t);
         }
+    }
+
+    for t in half_map.turns.values_mut() {
+        t.lookup_idx = half_map.turn_lookup.len();
+        half_map.turn_lookup.push(t.id);
+        if t.geom.length() < 0.01 * si::M {
+            warn!("u{} is a very short turn", t.lookup_idx);
+        }
+    }
+
+    make::make_all_buildings(
+        &mut half_map.buildings,
+        &data.buildings,
+        &gps_bounds,
+        &bounds,
+        &half_map.lanes,
+        timer,
+    );
+    for b in &half_map.buildings {
+        half_map.lanes[b.front_path.sidewalk.lane().0]
+            .building_paths
+            .push(b.id);
+    }
+
+    make::make_all_parcels(
+        &mut half_map.parcels,
+        &data.parcels,
+        &gps_bounds,
+        &bounds,
+        &half_map.lanes,
+        timer,
+    );
+
+    for (idx, a) in data.areas.iter().enumerate() {
+        half_map.areas.push(Area {
+            id: AreaID(idx),
+            area_type: a.area_type,
+            points: a
+                .points
+                .iter()
+                .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
+                .collect(),
+            osm_tags: a.osm_tags.clone(),
+            osm_way_id: a.osm_way_id,
+        });
     }
 
     half_map

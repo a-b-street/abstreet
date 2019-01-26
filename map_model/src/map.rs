@@ -5,8 +5,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use dimensioned::si;
-use geom::{Bounds, GPSBounds, Pt2D};
+use geom::{Bounds, GPSBounds};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -62,115 +61,73 @@ impl Map {
 
     pub fn create_from_raw(
         name: String,
-        mut data: raw_data::Map,
+        data: raw_data::Map,
         edits: MapEdits,
         timer: &mut Timer,
     ) -> Map {
         timer.start("raw_map to Map");
-
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
+        let half_map = make::make_half_map(&data, &gps_bounds, &bounds, &edits, timer);
+        timer.stop("raw_map to Map");
 
-        make::old_merge_intersections(&mut data, timer);
-
-        let half_map = make::make_half_map(&data, &gps_bounds, &edits, timer);
         let mut m = Map {
-            name,
-            edits,
-            gps_bounds: gps_bounds.clone(),
-            bounds: bounds.clone(),
             roads: half_map.roads,
             lanes: half_map.lanes,
             intersections: half_map.intersections,
             turns: half_map.turns,
-            buildings: Vec::new(),
-            parcels: Vec::new(),
+            buildings: half_map.buildings,
+            parcels: half_map.parcels,
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
-            areas: Vec::new(),
+            areas: half_map.areas,
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
-            turn_lookup: Vec::new(),
+            gps_bounds,
+            bounds,
+            turn_lookup: half_map.turn_lookup,
+            name,
+            edits,
         };
-        for t in m.turns.values_mut() {
-            t.lookup_idx = m.turn_lookup.len();
-            m.turn_lookup.push(t.id);
-            if t.geom.length() < 0.01 * si::M {
-                warn!("u{} is a very short turn", t.lookup_idx);
+
+        // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
+        {
+            let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
+            let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> =
+                BTreeMap::new();
+            for i in &m.intersections {
+                match i.intersection_type {
+                    IntersectionType::StopSign => {
+                        stop_signs.insert(i.id, ControlStopSign::new(&m, i.id));
+                    }
+                    IntersectionType::TrafficSignal => {
+                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id));
+                    }
+                    IntersectionType::Border => {}
+                };
             }
+            // Override with edits
+            for (i, ss) in &m.edits.stop_signs {
+                stop_signs.insert(*i, ss.clone());
+            }
+            for (i, ts) in &m.edits.traffic_signals {
+                traffic_signals.insert(*i, ts.clone());
+            }
+            m.stop_signs = stop_signs;
+            m.traffic_signals = traffic_signals;
+        }
+        {
+            let (stops, routes) =
+                make::make_bus_stops(&m, &data.bus_routes, &m.gps_bounds, &m.bounds, timer);
+            m.bus_stops = stops;
+            // The IDs are sorted in the BTreeMap, so this order winds up correct.
+            for id in m.bus_stops.keys() {
+                m.lanes[id.sidewalk.0].bus_stops.push(*id);
+            }
+
+            m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
 
-        let (stops, routes) =
-            make::make_bus_stops(&m, &data.bus_routes, &gps_bounds, &bounds, timer);
-        m.bus_stops = stops;
-        // The IDs are sorted in the BTreeMap, so this order winds up correct.
-        for id in m.bus_stops.keys() {
-            m.lanes[id.sidewalk.0].bus_stops.push(*id);
-        }
-
-        let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
-        let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> = BTreeMap::new();
-        for i in &m.intersections {
-            match i.intersection_type {
-                IntersectionType::StopSign => {
-                    stop_signs.insert(i.id, ControlStopSign::new(&m, i.id));
-                }
-                IntersectionType::TrafficSignal => {
-                    traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id));
-                }
-                IntersectionType::Border => {}
-            };
-        }
-        // Override with edits
-        for (i, ss) in &m.edits.stop_signs {
-            stop_signs.insert(*i, ss.clone());
-        }
-        for (i, ts) in &m.edits.traffic_signals {
-            traffic_signals.insert(*i, ts.clone());
-        }
-        m.stop_signs = stop_signs;
-        m.traffic_signals = traffic_signals;
-
-        make::make_all_buildings(
-            &mut m.buildings,
-            &data.buildings,
-            &gps_bounds,
-            &bounds,
-            &m.lanes,
-            timer,
-        );
-        for b in &m.buildings {
-            m.lanes[b.front_path.sidewalk.lane().0]
-                .building_paths
-                .push(b.id);
-        }
-
-        make::make_all_parcels(
-            &mut m.parcels,
-            &data.parcels,
-            &gps_bounds,
-            &bounds,
-            &m.lanes,
-            timer,
-        );
-
-        for (idx, a) in data.areas.iter().enumerate() {
-            m.areas.push(Area {
-                id: AreaID(idx),
-                area_type: a.area_type,
-                points: a
-                    .points
-                    .iter()
-                    .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
-                    .collect(),
-                osm_tags: a.osm_tags.clone(),
-                osm_way_id: a.osm_way_id,
-            });
-        }
-
-        m.bus_routes = make::verify_bus_routes(&m, routes, timer);
-
-        timer.stop("raw_map to Map");
         m
     }
 
