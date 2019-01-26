@@ -70,7 +70,6 @@
 	- drawing cars is expensive
 		- at least cache them until tick changes
 	- sleep better in the event loop
-		- i think screencap is broken. WAIT, it can force redraw itself, stop being convoluted!
 		- first make UserInput borrow state and not need to consume
 	- optimize zoomed-out experience... one polygon per road
 		- make sure the quadtree isn't the limiting factor though

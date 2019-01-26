@@ -45,7 +45,6 @@ struct State<T, G: GUI<T>> {
     top_menu: Option<TopMenu>,
     modal_state: ModalMenuState,
     last_data: Option<T>,
-    screen_cap: Option<ScreenCaptureState>,
 }
 
 impl<T, G: GUI<T>> State<T, G> {
@@ -88,16 +87,6 @@ impl<T, G: GUI<T>> State<T, G> {
         }
         self.modal_state.active = still_active;
 
-        // Don't constantly reset the events struct -- only when laziness changes.
-        if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = event_mode {
-            self.screen_cap = Some(ScreenCaptureState::new(
-                self.gui.get_mut_canvas(),
-                zoom,
-                max_x,
-                max_y,
-            ));
-        }
-
         (self, event_mode)
     }
 
@@ -109,144 +98,33 @@ impl<T, G: GUI<T>> State<T, G> {
         if let Some(ref data) = self.last_data {
             self.gui.get_mut_canvas().start_drawing();
 
-            match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.gui.new_draw(&mut g, data, self.screen_cap.is_some())
+            if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                self.gui.new_draw(&mut g, data, false)
             })) {
-                Ok(naming_hint) => {
-                    if let Some(ref mut cap) = self.screen_cap {
-                        cap.naming_hint = naming_hint;
-                    }
-                }
-                Err(err) => {
-                    self.gui.dump_before_abort();
-                    panic::resume_unwind(err);
-                }
+                self.gui.dump_before_abort();
+                panic::resume_unwind(err);
             }
 
-            if self.screen_cap.is_none() {
-                // Always draw the menus last.
-                if let Some(ref menu) = self.top_menu {
-                    menu.draw(&mut g, self.gui.get_mut_canvas());
-                }
-                for (_, ref menu) in &self.modal_state.active {
-                    menu.draw(&mut g, self.gui.get_mut_canvas());
-                }
-                if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                    menu.draw(&mut g, self.gui.get_mut_canvas());
-                }
+            // Always draw the menus last.
+            if let Some(ref menu) = self.top_menu {
+                menu.draw(&mut g, self.gui.get_mut_canvas());
             }
+            for (_, ref menu) in &self.modal_state.active {
+                menu.draw(&mut g, self.gui.get_mut_canvas());
+            }
+            if let ContextMenu::Displaying(ref menu) = self.context_menu {
+                menu.draw(&mut g, self.gui.get_mut_canvas());
+            }
+
+            // Always draw text last
+            self.gui
+                .get_mut_canvas()
+                .glyphs
+                .borrow_mut()
+                .draw_queued(display, &mut target);
         }
 
-        // Always draw text last?
-        self.gui
-            .get_mut_canvas()
-            .glyphs
-            .borrow_mut()
-            .draw_queued(display, &mut target);
         target.finish().unwrap();
-    }
-
-    fn after_render(&mut self) {
-        // Do this after we draw and flush to the screen.
-        // TODO The very first time we grab is wrong. But waiting for one round of draw also didn't
-        // seem to work...
-        if let Some(ref mut cap) = self.screen_cap {
-            cap.timer.next();
-            let suffix = cap.naming_hint.take().unwrap_or_else(String::new);
-            let filename = format!("{:02}x{:02}{}.png", cap.tile_x, cap.tile_y, suffix);
-            if !process::Command::new("scrot")
-                .args(&[
-                    "--quality",
-                    "100",
-                    "--focused",
-                    "--silent",
-                    &format!("screencap/{}", filename),
-                ])
-                .status()
-                .unwrap()
-                .success()
-            {
-                println!("scrot failed; aborting");
-                self.screen_cap = None;
-                return;
-            }
-            cap.filenames.push(filename);
-
-            let canvas = self.gui.get_mut_canvas();
-            cap.tile_x += 1;
-            canvas.cam_x += canvas.window_width;
-            if (canvas.cam_x + canvas.window_width) / canvas.cam_zoom >= cap.max_x {
-                cap.tile_x = 1;
-                canvas.cam_x = 0.0;
-                cap.tile_y += 1;
-                canvas.cam_y += canvas.window_height;
-                if (canvas.cam_y + canvas.window_height) / canvas.cam_zoom >= cap.max_y {
-                    let canvas = self.gui.get_mut_canvas();
-                    canvas.cam_zoom = cap.orig_zoom;
-                    canvas.cam_x = cap.orig_x;
-                    canvas.cam_y = cap.orig_y;
-                    self.screen_cap.take().unwrap().combine();
-                }
-            }
-        }
-    }
-}
-
-struct ScreenCaptureState {
-    tile_x: usize,
-    tile_y: usize,
-    timer: Timer,
-    naming_hint: Option<String>,
-    filenames: Vec<String>,
-
-    num_tiles_x: usize,
-    num_tiles_y: usize,
-    max_x: f64,
-    max_y: f64,
-    orig_zoom: f64,
-    orig_x: f64,
-    orig_y: f64,
-}
-
-impl ScreenCaptureState {
-    fn new(canvas: &mut Canvas, zoom: f64, max_x: f64, max_y: f64) -> ScreenCaptureState {
-        let num_tiles_x = (max_x * zoom / canvas.window_width).floor() as usize;
-        let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
-        let mut timer = Timer::new("capturing screen");
-        timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
-        fs::create_dir("screencap").unwrap();
-        let state = ScreenCaptureState {
-            tile_x: 1,
-            tile_y: 1,
-            timer,
-            naming_hint: None,
-            filenames: Vec::new(),
-            num_tiles_x,
-            num_tiles_y,
-            max_x,
-            max_y,
-            orig_zoom: canvas.cam_zoom,
-            orig_x: canvas.cam_x,
-            orig_y: canvas.cam_y,
-        };
-        canvas.cam_x = 0.0;
-        canvas.cam_y = 0.0;
-        canvas.cam_zoom = zoom;
-        state
-    }
-
-    fn combine(self) {
-        let mut args = self.filenames;
-        args.push("-mode".to_string());
-        args.push("Concatenate".to_string());
-        args.push("-tile".to_string());
-        args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
-        args.push("full.png".to_string());
-
-        let mut file = fs::File::create("screencap/combine.sh").unwrap();
-        writeln!(file, "#!/bin/bash\n").unwrap();
-        writeln!(file, "montage {}", args.join(" ")).unwrap();
-        writeln!(file, "rm -f combine.sh").unwrap();
     }
 }
 
@@ -300,7 +178,6 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
         top_menu: gui.top_menu(),
         modal_state: ModalMenuState::new(G::modal_menus()),
         last_data: None,
-        screen_cap: None,
         gui,
     };
 
@@ -320,18 +197,19 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
                 state.gui.before_quit();
                 process::exit(0);
             }
-            if state.screen_cap.is_none() {
-                if let Some(ev) = Event::from_glutin_event(event) {
-                    let (new_state, mode) = state.event(ev, &display);
-                    state = new_state;
-                    wait_for_events = mode == EventLoopMode::InputOnly;
+            if let Some(ev) = Event::from_glutin_event(event) {
+                let (new_state, mode) = state.event(ev, &display);
+                state = new_state;
+                wait_for_events = mode == EventLoopMode::InputOnly;
+                if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
+                    ScreenCaptureState::new(state.gui.get_mut_canvas(), zoom, max_x, max_y)
+                        .run(&mut state, &display, &program);
                 }
             }
         }
 
         if any_new_events || !wait_for_events {
             state.draw(&display, &program);
-            state.after_render();
         }
 
         if !wait_for_events {
@@ -351,5 +229,115 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
             }
             thread::sleep(fixed_time_stamp - accumulator);
         }
+    }
+}
+
+struct ScreenCaptureState {
+    timer: Timer,
+    filenames: Vec<String>,
+
+    num_tiles_x: usize,
+    num_tiles_y: usize,
+    orig_zoom: f64,
+    orig_x: f64,
+    orig_y: f64,
+}
+
+impl ScreenCaptureState {
+    fn new(canvas: &mut Canvas, zoom: f64, max_x: f64, max_y: f64) -> ScreenCaptureState {
+        let num_tiles_x = (max_x * zoom / canvas.window_width).floor() as usize;
+        let num_tiles_y = (max_y * zoom / canvas.window_height).floor() as usize;
+        let mut timer = Timer::new("capturing screen");
+        timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
+        fs::create_dir("screencap").unwrap();
+        let state = ScreenCaptureState {
+            timer,
+            filenames: Vec::new(),
+            num_tiles_x,
+            num_tiles_y,
+            orig_zoom: canvas.cam_zoom,
+            orig_x: canvas.cam_x,
+            orig_y: canvas.cam_y,
+        };
+        canvas.cam_zoom = zoom;
+        state
+    }
+
+    fn run<T, G: GUI<T>>(
+        mut self,
+        state: &mut State<T, G>,
+        display: &glium::Display,
+        program: &glium::Program,
+    ) {
+        let last_data = state.last_data.as_ref().unwrap();
+
+        for tile_y in 0..self.num_tiles_y {
+            for tile_x in 0..self.num_tiles_x {
+                self.timer.next();
+                let canvas = state.gui.get_mut_canvas();
+                canvas.cam_x = (tile_x as f64) * canvas.window_width;
+                canvas.cam_y = (tile_y as f64) * canvas.window_height;
+
+                let mut target = display.draw();
+                let mut g = GfxCtx::new(canvas, &display, &mut target, program);
+
+                let naming_hint = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                    state.gui.new_draw(&mut g, last_data, true)
+                })) {
+                    Ok(naming_hint) => naming_hint,
+                    Err(err) => {
+                        state.gui.dump_before_abort();
+                        panic::resume_unwind(err);
+                    }
+                };
+                target.finish().unwrap();
+
+                if !self.screencap(tile_x, tile_y, naming_hint) {
+                    return;
+                }
+            }
+        }
+
+        let canvas = state.gui.get_mut_canvas();
+        canvas.cam_zoom = self.orig_zoom;
+        canvas.cam_x = self.orig_x;
+        canvas.cam_y = self.orig_y;
+        self.finish();
+    }
+
+    fn screencap(&mut self, tile_x: usize, tile_y: usize, mut naming_hint: Option<String>) -> bool {
+        let suffix = naming_hint.take().unwrap_or_else(String::new);
+        let filename = format!("{:02}x{:02}{}.png", tile_x + 1, tile_y + 1, suffix);
+        if !process::Command::new("scrot")
+            .args(&[
+                "--quality",
+                "100",
+                "--focused",
+                "--silent",
+                &format!("screencap/{}", filename),
+            ])
+            .status()
+            .unwrap()
+            .success()
+        {
+            println!("scrot failed; aborting");
+            return false;
+        }
+        self.filenames.push(filename);
+        true
+    }
+
+    fn finish(self) {
+        let mut args = self.filenames;
+        args.push("-mode".to_string());
+        args.push("Concatenate".to_string());
+        args.push("-tile".to_string());
+        args.push(format!("{}x{}", self.num_tiles_x, self.num_tiles_y));
+        args.push("full.png".to_string());
+
+        let mut file = fs::File::create("screencap/combine.sh").unwrap();
+        writeln!(file, "#!/bin/bash\n").unwrap();
+        writeln!(file, "montage {}", args.join(" ")).unwrap();
+        writeln!(file, "rm -f combine.sh").unwrap();
     }
 }
