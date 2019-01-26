@@ -1,10 +1,9 @@
 use crate::colors::ColorScheme;
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
-use crate::state::{PerMapUI, PluginsPerMap};
+use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
-use sim::SimFlags;
 
 pub struct EditsManager {
     wizard: Wizard,
@@ -55,7 +54,7 @@ impl Plugin for EditsManager {
 }
 
 fn manage_edits(
-    current_flags: &mut SimFlags,
+    current_flags: &mut Flags,
     cs: &ColorScheme,
     prerender: &Prerender,
     map: &Map,
@@ -65,8 +64,8 @@ fn manage_edits(
     // TODO Indicate how many edits are there / if there are any unsaved edits
     let load = "Load other map edits";
     let save_new = "Save these new map edits";
-    let save_existing = &format!("Save {}", current_flags.edits_name);
-    let choices: Vec<&str> = if current_flags.edits_name == "no_edits" {
+    let save_existing = &format!("Save {}", current_flags.sim_flags.edits_name);
+    let choices: Vec<&str> = if current_flags.sim_flags.edits_name == "no_edits" {
         vec![save_new, load]
     } else {
         vec![save_existing, load]
@@ -86,7 +85,7 @@ fn manage_edits(
             edits.edits_name = name.clone();
             edits.save();
             // No need to reload everything
-            current_flags.edits_name = name;
+            current_flags.sim_flags.edits_name = name;
             Some(())
         }
         x if x == save_existing => {
@@ -96,11 +95,11 @@ fn manage_edits(
         x if x == load => {
             let load_name = choose_edits(map, &mut wizard, "Load which map edits?")?;
             let mut flags = current_flags.clone();
-            flags.edits_name = load_name;
+            flags.sim_flags.edits_name = load_name;
 
             info!("Reloading everything...");
             // TODO Properly retain enable_debug_plugins
-            *new_primary = Some(PerMapUI::new(flags, None, cs, prerender, true));
+            *new_primary = Some(PerMapUI::new(flags, cs, prerender, true));
             Some(())
         }
         _ => unreachable!(),

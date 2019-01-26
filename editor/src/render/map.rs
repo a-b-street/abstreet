@@ -10,12 +10,11 @@ use crate::render::parcel::DrawParcel;
 use crate::render::pedestrian::DrawPedestrian;
 use crate::render::turn::DrawTurn;
 use crate::render::{draw_vehicle, Renderable};
-use crate::state::ShowObjects;
+use crate::state::{Flags, ShowObjects};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::Prerender;
 use geom::Bounds;
-use kml::ExtraShape;
 use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
@@ -46,7 +45,7 @@ pub struct DrawMap {
 impl DrawMap {
     pub fn new(
         map: &Map,
-        raw_extra_shapes: Vec<ExtraShape>,
+        flags: &Flags,
         cs: &ColorScheme,
         prerender: &Prerender,
         timer: &mut Timer,
@@ -91,18 +90,27 @@ impl DrawMap {
             })
             .collect();
 
-        timer.start_iter("make DrawParcels", map.all_parcels().len());
-        let parcels: Vec<DrawParcel> = map
-            .all_parcels()
-            .iter()
-            .map(|p| {
+        let mut parcels: Vec<DrawParcel> = Vec::new();
+        if flags.draw_parcels {
+            timer.start_iter("make DrawParcels", map.all_parcels().len());
+            for p in map.all_parcels() {
                 timer.next();
-                DrawParcel::new(p, cs, prerender)
-            })
-            .collect();
+                parcels.push(DrawParcel::new(p, cs, prerender));
+            }
+        }
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
-        if !raw_extra_shapes.is_empty() {
+        if let Some(ref path) = flags.kml {
+            let raw_shapes = if path.ends_with(".kml") {
+                kml::load(&path, &map.get_gps_bounds(), timer)
+                    .expect("Couldn't load extra KML shapes")
+                    .shapes
+            } else {
+                let shapes: kml::ExtraShapes =
+                    abstutil::read_binary(&path, timer).expect("Couldn't load ExtraShapes");
+                shapes.shapes
+            };
+
             // Match shapes with the nearest road + direction (true for forwards)
             let mut closest: FindClosest<(RoadID, bool)> =
                 map_model::FindClosest::new(&map.get_bounds());
@@ -112,7 +120,7 @@ impl DrawMap {
             }
 
             let gps_bounds = map.get_gps_bounds();
-            for s in raw_extra_shapes.into_iter() {
+            for s in raw_shapes.into_iter() {
                 if let Some(es) =
                     DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, gps_bounds, &closest)
                 {

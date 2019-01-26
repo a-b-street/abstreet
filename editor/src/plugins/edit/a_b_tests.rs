@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::Ctx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
-use crate::state::{PerMapUI, PluginsPerMap};
+use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, LogScroller, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
@@ -94,7 +94,7 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 
 fn launch_test(
     test: &ABTest,
-    current_flags: &SimFlags,
+    current_flags: &Flags,
     cs: &ColorScheme,
     prerender: &Prerender,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
@@ -103,33 +103,39 @@ fn launch_test(
         "../data/scenarios/{}/{}.json",
         test.map_name, test.scenario_name
     );
-    let rng_seed = if current_flags.rng_seed.is_some() {
-        current_flags.rng_seed
+    let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
+        current_flags.sim_flags.rng_seed
     } else {
         Some(42)
     };
 
     // TODO Properly retain enable_debug_plugins
     let primary = PerMapUI::new(
-        SimFlags {
-            load: load.clone(),
-            rng_seed,
-            run_name: format!("{} with {}", test.test_name, test.edits1_name),
-            edits_name: test.edits1_name.clone(),
+        Flags {
+            sim_flags: SimFlags {
+                load: load.clone(),
+                rng_seed,
+                run_name: format!("{} with {}", test.test_name, test.edits1_name),
+                edits_name: test.edits1_name.clone(),
+            },
+            kml: current_flags.kml.clone(),
+            draw_parcels: current_flags.draw_parcels,
         },
-        None,
         cs,
         prerender,
         true,
     );
     let secondary = PerMapUI::new(
-        SimFlags {
-            load,
-            rng_seed,
-            run_name: format!("{} with {}", test.test_name, test.edits2_name),
-            edits_name: test.edits2_name.clone(),
+        Flags {
+            sim_flags: SimFlags {
+                load,
+                rng_seed,
+                run_name: format!("{} with {}", test.test_name, test.edits2_name),
+                edits_name: test.edits2_name.clone(),
+            },
+            kml: current_flags.kml.clone(),
+            draw_parcels: current_flags.draw_parcels,
         },
-        None,
         cs,
         prerender,
         true,

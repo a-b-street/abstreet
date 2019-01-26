@@ -7,6 +7,22 @@ use abstutil::Timer;
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput};
 use map_model::{IntersectionID, Map};
 use sim::{Sim, SimFlags, Tick};
+use structopt::StructOpt;
+
+#[derive(StructOpt, Debug, Clone)]
+#[structopt(name = "editor")]
+pub struct Flags {
+    #[structopt(flatten)]
+    pub sim_flags: SimFlags,
+
+    /// Extra KML or ExtraShapes to display
+    #[structopt(long = "kml")]
+    pub kml: Option<String>,
+
+    /// Should parcels be drawn? They're slow and not so useful.
+    #[structopt(long = "draw_parcels")]
+    pub draw_parcels: bool,
+}
 
 pub trait UIState {
     fn get_state(&self) -> &DefaultUIState;
@@ -49,8 +65,7 @@ pub struct DefaultUIState {
 
 impl DefaultUIState {
     pub fn new(
-        flags: SimFlags,
-        kml: Option<String>,
+        flags: Flags,
         canvas: &Canvas,
         cs: &ColorScheme,
         prerender: &Prerender,
@@ -59,8 +74,7 @@ impl DefaultUIState {
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
-        let (primary, primary_plugins) =
-            PerMapUI::new(flags, kml, cs, prerender, enable_debug_controls);
+        let (primary, primary_plugins) = PerMapUI::new(flags, cs, prerender, enable_debug_controls);
         let mut state = DefaultUIState {
             primary,
             primary_plugins,
@@ -421,36 +435,25 @@ pub struct PerMapUI {
     pub sim: Sim,
 
     pub current_selection: Option<ID>,
-    pub current_flags: SimFlags,
+    pub current_flags: Flags,
 }
 
 impl PerMapUI {
     pub fn new(
-        flags: SimFlags,
-        kml: Option<String>,
+        flags: Flags,
         cs: &ColorScheme,
         prerender: &Prerender,
         enable_debug_controls: bool,
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
-
-        let (map, sim) = sim::load(flags.clone(), Some(Tick::from_seconds(30)), &mut timer);
-        let extra_shapes: Vec<kml::ExtraShape> = if let Some(path) = kml {
-            if path.ends_with(".kml") {
-                kml::load(&path, &map.get_gps_bounds(), &mut timer)
-                    .expect("Couldn't load extra KML shapes")
-                    .shapes
-            } else {
-                let shapes: kml::ExtraShapes =
-                    abstutil::read_binary(&path, &mut timer).expect("Couldn't load ExtraShapes");
-                shapes.shapes
-            }
-        } else {
-            Vec::new()
-        };
+        let (map, sim) = sim::load(
+            flags.sim_flags.clone(),
+            Some(Tick::from_seconds(30)),
+            &mut timer,
+        );
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, extra_shapes, cs, prerender, &mut timer);
+        let draw_map = DrawMap::new(&map, &flags, cs, prerender, &mut timer);
         timer.stop("draw_map");
 
         let state = PerMapUI {
@@ -458,7 +461,7 @@ impl PerMapUI {
             draw_map,
             sim,
             current_selection: None,
-            current_flags: flags,
+            current_flags: flags.clone(),
         };
         let plugins = PluginsPerMap::new(&state, &mut timer, enable_debug_controls);
         timer.done();
