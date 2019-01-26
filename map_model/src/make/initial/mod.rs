@@ -1,7 +1,8 @@
 mod geometry;
+pub mod lane_specs;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{make, raw_data, MapEdits, LANE_THICKNESS};
+use crate::{raw_data, MapEdits, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{GPSBounds, PolyLine, Pt2D};
 use std::collections::{BTreeMap, BTreeSet};
@@ -19,7 +20,7 @@ pub struct Road {
     pub trimmed_center_pts: PolyLine,
     pub fwd_width: f64,
     pub back_width: f64,
-    pub lane_specs: Vec<make::lanes::LaneSpec>,
+    pub lane_specs: Vec<lane_specs::LaneSpec>,
 }
 
 pub struct Intersection {
@@ -77,7 +78,7 @@ pub fn make_initial_map(
                 .collect(),
         );
 
-        let lane_specs = make::lanes::get_lane_specs(r, *stable_id, edits);
+        let lane_specs = lane_specs::get_lane_specs(r, *stable_id, edits);
         let mut fwd_width = 0.0;
         let mut back_width = 0.0;
         for l in &lane_specs {

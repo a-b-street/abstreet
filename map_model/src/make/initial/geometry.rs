@@ -29,9 +29,9 @@ pub fn intersection_polygon(
             let r = &roads[id];
 
             let (line, width_normal, width_reverse) = if r.src_i == i.id {
-                (r.original_center_pts.reversed(), r.back_width, r.fwd_width)
+                (r.trimmed_center_pts.reversed(), r.back_width, r.fwd_width)
             } else if r.dst_i == i.id {
-                (r.original_center_pts.clone(), r.fwd_width, r.back_width)
+                (r.trimmed_center_pts.clone(), r.fwd_width, r.back_width)
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
@@ -77,9 +77,9 @@ fn generalized_trim_back(
     for (r1, pl1) in &road_lines {
         // road_center ends at the intersection.
         let road_center = if roads[r1].dst_i == i {
-            roads[r1].original_center_pts.clone()
+            roads[r1].trimmed_center_pts.clone()
         } else {
-            roads[r1].original_center_pts.reversed()
+            roads[r1].trimmed_center_pts.reversed()
         };
 
         // Always trim back a minimum amount, if possible.
@@ -183,18 +183,18 @@ fn deadend(
         let r = roads.get_mut(&id).unwrap();
         if r.src_i == i {
             r.trimmed_center_pts = r
-                .original_center_pts
+                .trimmed_center_pts
                 .slice(
                     DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                    r.original_center_pts.length(),
+                    r.trimmed_center_pts.length(),
                 )
                 .0;
         } else {
             r.trimmed_center_pts = r
-                .original_center_pts
+                .trimmed_center_pts
                 .slice(
                     0.0 * si::M,
-                    r.original_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                    r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
                 )
                 .0;
         }

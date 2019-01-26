@@ -4,8 +4,8 @@ use crate::{
     Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{GPSBounds, PolyLine, Pt2D};
-use std::collections::{BTreeMap, BTreeSet};
+use geom::{GPSBounds, Pt2D};
+use std::collections::BTreeMap;
 
 pub struct HalfMap {
     pub roads: Vec<Road>,
@@ -20,85 +20,93 @@ pub fn make_half_map(
     edits: &MapEdits,
     timer: &mut Timer,
 ) -> HalfMap {
-    let mut m = HalfMap {
+    let mut half_map = HalfMap {
         roads: Vec::new(),
         lanes: Vec::new(),
         intersections: Vec::new(),
         turns: BTreeMap::new(),
     };
 
+    let initial_map = make::initial::make_initial_map(data, gps_bounds, edits, timer);
+
+    let road_id_mapping: BTreeMap<raw_data::StableRoadID, RoadID> = initial_map
+        .roads
+        .keys()
+        .enumerate()
+        .map(|(idx, id)| (*id, RoadID(idx)))
+        .collect();
     let mut intersection_id_mapping: BTreeMap<raw_data::StableIntersectionID, IntersectionID> =
         BTreeMap::new();
-    for (idx, (stable_id, i)) in data.intersections.iter().enumerate() {
+    for (idx, i) in initial_map.intersections.values().enumerate() {
+        let raw_i = &data.intersections[&i.id];
+
         let id = IntersectionID(idx);
-        let pt = Pt2D::from_gps(i.point, &gps_bounds).unwrap();
-        m.intersections.push(Intersection {
+        let pt = Pt2D::from_gps(raw_i.point, &gps_bounds).unwrap();
+        half_map.intersections.push(Intersection {
             id,
             point: pt,
-            polygon: Vec::new(),
+            // TODO Could actually make it a polygon here!
+            polygon: i.polygon.clone(),
             turns: Vec::new(),
-            elevation: i.elevation,
+            elevation: raw_i.elevation,
             // Might change later
-            intersection_type: i.intersection_type,
-            label: i.label.clone(),
-            stable_id: *stable_id,
+            intersection_type: raw_i.intersection_type,
+            label: raw_i.label.clone(),
+            stable_id: i.id,
             incoming_lanes: Vec::new(),
             outgoing_lanes: Vec::new(),
-            roads: BTreeSet::new(),
+            roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
         });
-        intersection_id_mapping.insert(*stable_id, id);
+        intersection_id_mapping.insert(i.id, id);
     }
 
-    let mut counter = 0;
-    timer.start_iter("expand roads to lanes", data.roads.len());
-    for (stable_id, r) in &data.roads {
+    timer.start_iter("expand roads to lanes", initial_map.roads.len());
+    for r in initial_map.roads.values() {
         timer.next();
-        let road_id = RoadID(m.roads.len());
-        let road_center_pts = PolyLine::new(
-            r.points
-                .iter()
-                .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
-                .collect(),
-        );
-        let i1 = intersection_id_mapping[&r.i1];
-        let i2 = intersection_id_mapping[&r.i2];
 
-        if i1 == i2 {
-            // TODO Cul-de-sacs should be valid, but it really makes pathfinding screwy
-            error!(
-                "OSM way {} is a loop on {}, skipping what would've been {}",
-                r.osm_way_id, i1, road_id
-            );
-            continue;
-        }
+        let raw_r = &data.roads[&r.id];
+        let road_id = road_id_mapping[&r.id];
+        let i1 = intersection_id_mapping[&r.src_i];
+        let i2 = intersection_id_mapping[&r.dst_i];
 
-        m.roads.push(Road {
+        let mut road = Road {
             id: road_id,
-            osm_tags: r.osm_tags.clone(),
-            osm_way_id: r.osm_way_id,
-            stable_id: *stable_id,
+            osm_tags: raw_r.osm_tags.clone(),
+            osm_way_id: raw_r.osm_way_id,
+            stable_id: r.id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
-            center_pts: road_center_pts.clone(),
+            center_pts: r.trimmed_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
-        });
+        };
 
-        // TODO move this to make/lanes.rs too
-        for lane in make::lanes::get_lane_specs(r, *stable_id, edits) {
-            let id = LaneID(counter);
-            counter += 1;
+        for lane in &r.lane_specs {
+            let id = LaneID(half_map.lanes.len());
 
             let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
-            m.intersections[src_i.0].outgoing_lanes.push(id);
-            m.intersections[src_i.0].roads.insert(road_id);
-            m.intersections[dst_i.0].incoming_lanes.push(id);
-            m.intersections[dst_i.0].roads.insert(road_id);
+            half_map.intersections[src_i.0].outgoing_lanes.push(id);
+            half_map.intersections[dst_i.0].incoming_lanes.push(id);
 
-            m.lanes.push(Lane {
+            let (unshifted_pts, offset) = if lane.reverse_pts {
+                road.children_backwards.push((id, lane.lane_type));
+                (
+                    road.center_pts.reversed(),
+                    road.children_backwards.len() - 1,
+                )
+            } else {
+                road.children_forwards.push((id, lane.lane_type));
+                (road.center_pts.clone(), road.children_forwards.len() - 1)
+            };
+            // TODO probably different behavior for oneways
+            // TODO need to factor in yellow center lines (but what's the right thing to even do?
+            // Reverse points for British-style driving on the left
+            let width = LANE_THICKNESS * (0.5 + (offset as f64));
+            let lane_center_pts = unshifted_pts.shift_right(width);
+
+            half_map.lanes.push(Lane {
                 id,
-                // Temporary dummy value; this'll be calculated a bit later.
-                lane_center_pts: road_center_pts.clone(),
+                lane_center_pts,
                 src_i,
                 dst_i,
                 lane_type: lane.lane_type,
@@ -106,71 +114,32 @@ pub fn make_half_map(
                 building_paths: Vec::new(),
                 bus_stops: Vec::new(),
             });
-            if lane.reverse_pts {
-                m.roads[road_id.0]
-                    .children_backwards
-                    .push((id, lane.lane_type));
-            } else {
-                m.roads[road_id.0]
-                    .children_forwards
-                    .push((id, lane.lane_type));
-            }
         }
+        half_map.roads.push(road);
     }
 
-    for i in m.intersections.iter_mut() {
-        // Is the intersection a border?
-        if is_border(i, &m.lanes) {
-            i.intersection_type = IntersectionType::Border;
-        }
-    }
-
-    timer.start_iter("find each intersection polygon", m.intersections.len());
-    for i in m.intersections.iter_mut() {
-        timer.next();
-
+    for i in half_map.intersections.iter_mut() {
         if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
             panic!("{:?} is orphaned!", i);
         }
 
-        i.polygon = make::intersections::intersection_polygon(i, &mut m.roads);
-    }
+        // Is the intersection a border?
+        if is_border(i, &half_map.lanes) {
+            i.intersection_type = IntersectionType::Border;
+        }
 
-    timer.start_iter("make lane geometry", m.lanes.len());
-    for l in m.lanes.iter_mut() {
-        timer.next();
-
-        let parent = &m.roads[l.parent.0];
-        let (dir, offset) = parent.dir_and_offset(l.id);
-        let unshifted_pts = if dir {
-            parent.center_pts.clone()
-        } else {
-            parent.center_pts.reversed()
-        };
-
-        // TODO probably different behavior for oneways
-        // TODO need to factor in yellow center lines (but what's the right thing to even do?
-        // Reverse points for British-style driving on the left
-        let width = LANE_THICKNESS * (0.5 + (offset as f64));
-        l.lane_center_pts = unshifted_pts.shift_right(width);
-    }
-
-    // TODO Enable when stable.
-    if false {
-        m = make::merge_intersections::merge_intersections(m, timer);
-    }
-
-    for i in m.intersections.iter_mut() {
-        for t in
-            make::turns::make_all_turns(i, &m.roads.iter().collect(), &m.lanes.iter().collect())
-        {
-            assert!(!m.turns.contains_key(&t.id));
+        for t in make::turns::make_all_turns(
+            i,
+            &half_map.roads.iter().collect(),
+            &half_map.lanes.iter().collect(),
+        ) {
+            assert!(!half_map.turns.contains_key(&t.id));
             i.turns.push(t.id);
-            m.turns.insert(t.id, t);
+            half_map.turns.insert(t.id, t);
         }
     }
 
-    m
+    half_map
 }
 
 fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
