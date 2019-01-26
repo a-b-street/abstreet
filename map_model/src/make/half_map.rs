@@ -85,7 +85,7 @@ pub fn make_half_map(
         });
 
         // TODO move this to make/lanes.rs too
-        for lane in make::lanes::get_lane_specs(r, road_id, edits) {
+        for lane in make::lanes::get_lane_specs(r, *stable_id, edits) {
             let id = LaneID(counter);
             counter += 1;
 

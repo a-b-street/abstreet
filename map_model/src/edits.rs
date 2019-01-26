@@ -1,4 +1,5 @@
-use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road, RoadID};
+use crate::raw_data::StableRoadID;
+use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road};
 use abstutil;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -9,7 +10,7 @@ pub struct MapEdits {
     pub map_name: String,
 
     // TODO detect when we wind up editing back to the original thing
-    pub(crate) roads: BTreeMap<RoadID, RoadEdit>,
+    pub(crate) roads: BTreeMap<StableRoadID, RoadEdit>,
     pub(crate) stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
     pub(crate) traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
 }
@@ -52,11 +53,12 @@ impl MapEdits {
         new_type: LaneType,
     ) {
         let edit = RoadEdit::change_lane_type(reason, r, lane, new_type).unwrap();
-        self.roads.insert(r.id, edit);
+        self.roads.insert(r.stable_id, edit);
     }
 
     pub fn delete_lane(&mut self, r: &Road, lane: &Lane) {
-        self.roads.insert(r.id, RoadEdit::delete_lane(r, lane));
+        self.roads
+            .insert(r.stable_id, RoadEdit::delete_lane(r, lane));
     }
 }
 
@@ -68,7 +70,7 @@ pub enum EditReason {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RoadEdit {
-    road: RoadID,
+    road: StableRoadID,
     pub(crate) forwards_lanes: Vec<LaneType>,
     pub(crate) backwards_lanes: Vec<LaneType>,
     reason: EditReason,
@@ -106,7 +108,7 @@ impl RoadEdit {
         }
 
         Some(RoadEdit {
-            road: r.id,
+            road: r.stable_id,
             forwards_lanes: forwards,
             backwards_lanes: backwards,
             reason,
@@ -127,7 +129,7 @@ impl RoadEdit {
         }
 
         RoadEdit {
-            road: r.id,
+            road: r.stable_id,
             forwards_lanes: forwards,
             backwards_lanes: backwards,
             reason: EditReason::BasemapWrong,
