@@ -98,7 +98,7 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
         let r = map.get_mut(id).unwrap();
         // Safe to do 'else' here, because we removed the loop roads.
         if r.src_i == keep_i {
-            let append = r.original_center_pts.trim_to_pt(r.trimmed_center_pts.last_pt());
+            let append = r.original_center_pts.get_slice_ending_at(r.trimmed_center_pts.last_pt());
             r.trimmed_center_pts = r.trimmed_center_pts.append(&append);
         } else {
         }

@@ -22,8 +22,8 @@ pub fn run(g: &mut GfxCtx) {
     if false {
         g.draw_circle(BLUE, &Circle::new(hit, 1.0));
     } else {
-        vertical_pl = vertical_pl.trim_to_pt(hit);
-        horiz_pl = horiz_pl.trim_to_pt(hit);
+        vertical_pl = vertical_pl.get_slice_ending_at(hit);
+        horiz_pl = horiz_pl.get_slice_ending_at(hit);
     }
 
     draw_polyline(g, &vertical_pl, 0.25, RED);

@@ -85,7 +85,7 @@ pub fn run(t: &mut TestRunner) {
         ]);
         let pt = Pt2D::new(1721.9540106813197, 1420.2372293808348);
 
-        pl.trim_to_pt(pt);
+        pl.get_slice_ending_at(pt);
     });
 }
 

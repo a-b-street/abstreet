@@ -265,7 +265,7 @@ impl PolyLine {
             }
 
             hits.sort_by_key(|(pt, _)| {
-                NotNan::new(self.trim_to_pt(*pt).length().value_unsafe).unwrap()
+                NotNan::new(self.get_slice_ending_at(*pt).length().value_unsafe).unwrap()
             });
             if !hits.is_empty() {
                 return Some(hits[0]);
@@ -286,15 +286,29 @@ impl PolyLine {
         None
     }
 
-    // Starts trimming from the head. Panics if the pt is not on the polyline.
-    pub fn trim_to_pt(&self, pt: Pt2D) -> PolyLine {
+    // Panics if the pt is not on the polyline.
+    pub fn get_slice_ending_at(&self, pt: Pt2D) -> PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
-            pts.truncate(idx + 1);
+            pts.split_off(idx + 1);
             pts.push(pt);
             PolyLine::new(pts)
         } else {
-            panic!("Can't trim_to_pt: {} doesn't contain {}", self, pt);
+            panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);
+        }
+    }
+
+    pub fn get_slice_starting_at(&self, pt: Pt2D) -> PolyLine {
+        if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
+            let mut pts = self.pts.clone();
+            pts = pts.split_off(idx + 1);
+            pts.insert(0, pt);
+            PolyLine::new(pts)
+        } else {
+            panic!(
+                "Can't get_slice_starting_at: {} doesn't contain {}",
+                self, pt
+            );
         }
     }
 
