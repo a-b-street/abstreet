@@ -100,40 +100,34 @@ impl Canvas {
     }
 
     pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
-        let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(&mut glyphs, self);
+        let (width, height) = self.text_dims(&txt);
         let x1 = self.cursor_x - (width / 2.0);
         let y1 = self.cursor_y - (height / 2.0);
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(g, &mut glyphs, ScreenPt::new(x1, y1), txt, self);
+        text::draw_text_bubble(g, self, ScreenPt::new(x1, y1), txt, (width, height));
     }
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, map_pt: Pt2D) {
-        let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(&mut glyphs, self);
+        let (width, height) = self.text_dims(&txt);
         let pt = self.map_to_screen(map_pt);
         text::draw_text_bubble(
             g,
-            &mut glyphs,
+            self,
             ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
             txt,
-            self,
+            (width, height),
         );
     }
 
     pub fn draw_text_at_topleft(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
-        text::draw_text_bubble(
-            g,
-            &mut self.glyphs.borrow_mut(),
-            self.map_to_screen(pt),
-            txt,
-            self,
-        );
+        let dims = self.text_dims(&txt);
+        text::draw_text_bubble(g, self, self.map_to_screen(pt), txt, dims);
     }
 
     pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, pt: ScreenPt) {
-        text::draw_text_bubble(g, &mut self.glyphs.borrow_mut(), pt, txt, self);
+        let dims = self.text_dims(&txt);
+        text::draw_text_bubble(g, self, pt, txt, dims);
     }
 
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
@@ -146,8 +140,7 @@ impl Canvas {
         if txt.is_empty() {
             return;
         }
-        let mut glyphs = self.glyphs.borrow_mut();
-        let (width, height) = txt.dims(&mut glyphs, self);
+        let (width, height) = self.text_dims(&txt);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (self.window_width - width) / 2.0,
@@ -161,15 +154,15 @@ impl Canvas {
         };
         self.covered_areas.borrow_mut().push(text::draw_text_bubble(
             g,
-            &mut glyphs,
+            self,
             ScreenPt::new(x1, y1),
             txt,
-            self,
+            (width, height),
         ));
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
-        txt.dims(&mut self.glyphs.borrow_mut(), self)
+        txt.dims(self)
     }
 
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {

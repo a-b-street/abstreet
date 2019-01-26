@@ -4,7 +4,6 @@ use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
-use glium_glyph::GlyphBrush;
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -115,11 +114,8 @@ impl Text {
         self.lines.is_empty()
     }
 
-    pub(crate) fn dims(
-        &self,
-        glyphs: &mut GlyphBrush<'static, 'static>,
-        canvas: &Canvas,
-    ) -> (f64, f64) {
+    pub(crate) fn dims(&self, canvas: &Canvas) -> (f64, f64) {
+        let mut glyphs = canvas.glyphs.borrow_mut();
         let width = f64::from(
             self.lines
                 .iter()
@@ -149,15 +145,15 @@ impl Text {
 
 pub fn draw_text_bubble(
     g: &mut GfxCtx,
-    glyphs: &mut GlyphBrush<'static, 'static>,
+    canvas: &Canvas,
     top_left: ScreenPt,
     txt: Text,
-    canvas: &Canvas,
+    // Callers almost always calculate this anyway
+    (total_width, total_height): (f64, f64),
 ) -> ScreenRectangle {
     // TODO Is it expensive to constantly change uniforms and the shader program?
     g.fork_screenspace(canvas);
 
-    let (total_width, total_height) = txt.dims(glyphs, canvas);
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
@@ -169,6 +165,7 @@ pub fn draw_text_bubble(
         );
     }
 
+    let mut glyphs = canvas.glyphs.borrow_mut();
     let mut y = top_left.y;
     for (line_color, line) in &txt.lines {
         let section = VariedSection {

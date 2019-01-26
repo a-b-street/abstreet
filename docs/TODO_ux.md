@@ -79,10 +79,10 @@
 	- better arrows (then debug the legend plugin)
 	- time for a car texture?
 - refactoring
-	- pass canvas to text module, make it do the glyph borrowing?
-	- pass dims to draw_text_bubble; all callers have it anyway, right?
-	- probably use f32, not f64 everywhere
+	- probably use f32, not f64 everywhere... but after Pt2D becomes fixed size
 	- undo the y inversion hacks at last!
+	- ezgui should own canvas too. ezgui passes EventCtx and DrawCtx with appropriate things exposed.
+		- canvas owning text-drawing is maybe a bit weird
 - more speculative performance ideas
 	- experiment with batching and not passing colors
 	- specialized shaders for common shapes like circles?
