@@ -8,9 +8,11 @@
 
 - handle small roads again somehow?
 	- try merging with roads and intersections, but with new trimmed road lengths
-		- lane 1149 having the same problem... sigh
-		- deal with loop roads still
-		- restore original road points, then redo the intersection polygon and lane center pt expansion
+		- can we capture snapshots of it now somehow? I can think of one expensive way...
+		- VERY overeager... ate half of the map
+		- resulting polygons are sometimes bad... o40
+		- when trying to restore original road pts, lane 1149 having the same problem... sigh
+		- deal with loop roads
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
 

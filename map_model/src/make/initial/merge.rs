@@ -1,46 +1,42 @@
 use crate::make::initial::{geometry, InitialMap};
 use crate::raw_data::StableRoadID;
-use abstutil::{note, retain_btreemap};
-//use dimensioned::si;
+use abstutil::note;
+use dimensioned::si;
 
 pub fn short_roads(map: &mut InitialMap) {
-    // o228
-    merge(map, StableRoadID(311));
+    if false {
+        // o228
+        merge(map, StableRoadID(311));
 
-    /*
-    // o201
-    merge(map, StableRoadID(240));
+        // o201
+        merge(map, StableRoadID(240));
 
-    // o37
-    merge(map, StableRoadID(91));
+        // o37
+        merge(map, StableRoadID(91));
 
-    // o40
-    merge(map, StableRoadID(59));
+        // o40 -- this one includes a bad point!
+        merge(map, StableRoadID(59));
 
-    // o25
-    merge(map, StableRoadID(389));
-    merge(map, StableRoadID(22));
-    */
+        // o25
+        merge(map, StableRoadID(389));
+        merge(map, StableRoadID(22));
+    }
 
-    /*
-    // Road length effectively changes as we merge things, but not till later, so just use original
-    // length.
-    let gps_bounds = data.get_gps_bounds();
-    let all_ids: Vec<StableRoadID> = data.roads.keys().cloned().collect();
-    for id in all_ids {
-        if let Some(r) = data.roads.get(&id) {
-            let center_pts = PolyLine::new(
-                r.points
-                    .iter()
-                    .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
-                    .collect(),
-            );
-            if center_pts.length() <= 15.0 * si::M {
-                merge(data, id);
+    if false {
+        // Every time we change a road, other roads we might've already processed could shorten, so
+        // we have to redo everything.
+        loop {
+            if let Some(r) = map
+                .roads
+                .values()
+                .find(|r| r.trimmed_center_pts.length() < 3.0 * si::M)
+            {
+                merge(map, r.id);
+            } else {
+                break;
             }
         }
     }
-    */
 }
 
 fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
@@ -63,6 +59,7 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
         .roads
         .remove(&merge_road);
 
+    let mut new_loops: Vec<StableRoadID> = Vec::new();
     for r in map.roads.values_mut() {
         if r.src_i == delete_i {
             r.src_i = keep_i;
@@ -80,13 +77,19 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
                 .roads
                 .insert(r.id);
         }
-    }
 
-    // We might've created some loop roads on the retained intersection; remove them also.
-    // TODO Need to delete the references to these loops when we do this.
-    /*retain_btreemap(&mut map.roads, |_, r| {
-        r.src_i != keep_i || r.dst_i != keep_i
-    });*/
+        if r.src_i == keep_i && r.dst_i == keep_i {
+            new_loops.push(r.id);
+            map.intersections
+                .get_mut(&keep_i)
+                .unwrap()
+                .roads
+                .remove(&r.id);
+        }
+    }
+    for r in new_loops {
+        map.roads.remove(&r);
+    }
 
     // TODO Ah, we can also wind up with multiple roads between the same intersections here. Should
     // probably auto-remove those too.
@@ -115,6 +118,6 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
         }
     }*/
 
-    /*let mut i = map.intersections.get_mut(&keep_i).unwrap();
-    i.polygon = geometry::intersection_polygon(i, &mut map.roads);*/
+    let mut i = map.intersections.get_mut(&keep_i).unwrap();
+    i.polygon = geometry::intersection_polygon(i, &mut map.roads);
 }
