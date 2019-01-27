@@ -2,18 +2,16 @@
 
 ## Geometry
 
+- bad polyline shifting remains... sr176
+
 - generalized_trim_back
 	- breaks down when we have jagged lane endings due to polyline shift angle correction
 	- sometimes a lane polyline hits the perpendicular of a trimmed road! where was this happening?
 
 - handle small roads again somehow?
-	- try merging with roads and intersections, but with new trimmed road lengths
-		- restoring pts happens at the WRONG END. :D
-
+	- VERY overeager... ate half of the map
 		- can we capture snapshots of it now somehow? I can think of one expensive way...
-		- VERY overeager... ate half of the map
-		- resulting polygons are sometimes bad... o40
-		- deal with loop roads
+	- deal with loop roads
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
 

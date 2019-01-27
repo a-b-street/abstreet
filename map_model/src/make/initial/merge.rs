@@ -8,20 +8,18 @@ pub fn short_roads(map: &mut InitialMap) {
         // o228
         merge(map, StableRoadID(311));
 
-        /*
         // o201
         merge(map, StableRoadID(240));
 
         // o37
         merge(map, StableRoadID(91));
 
-        // o40 -- this one includes a bad point!
+        // o40
         merge(map, StableRoadID(59));
 
         // o25
         merge(map, StableRoadID(389));
         merge(map, StableRoadID(22));
-        */
     }
 
     if false {
@@ -31,7 +29,7 @@ pub fn short_roads(map: &mut InitialMap) {
             if let Some(r) = map
                 .roads
                 .values()
-                .find(|r| r.trimmed_center_pts.length() < 3.0 * si::M)
+                .find(|r| r.trimmed_center_pts.length() < 15.0 * si::M)
             {
                 merge(map, r.id);
             } else {
@@ -96,48 +94,29 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
     // TODO Ah, we can also wind up with multiple roads between the same intersections here. Should
     // probably auto-remove those too.
 
-    // TODO Crazy polyline bugs happening from doing this. Sigh.
     // Restore the road geometry on the relevant side to its original length, since that can affect
     // the polygon. Note we can't just copy over the original points -- that'd clobber the other
     // side, requiring us to recalculate that polygon too.
     for id in &map.intersections[&keep_i].roads {
         let r = map.roads.get_mut(id).unwrap();
         // Safe to do 'else' here, because we removed the loop roads.
-        if r.src_i == keep_i {
+        if r.dst_i == keep_i {
             if let Some(append) = r
                 .original_center_pts
                 .get_slice_starting_at(r.trimmed_center_pts.last_pt())
             {
-                let len1 = r.trimmed_center_pts.length();
-                //println!("case1: for {}, {} EXTEND {}", r.id, r.trimmed_center_pts, append);
                 r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(&append);
-                //println!("... yields {}\n\n", r.trimmed_center_pts);
-                note(format!(
-                    "Restored pts for {}. {} -> {}",
-                    r.id,
-                    len1,
-                    r.trimmed_center_pts.length()
-                ));
             }
         } else {
             if let Some(prepend) = r
                 .original_center_pts
                 .get_slice_ending_at(r.trimmed_center_pts.first_pt())
             {
-                let len1 = r.trimmed_center_pts.length();
-                //println!("case2: for {}, {} EXTEND {}", r.id, prepend, r.trimmed_center_pts);
                 r.trimmed_center_pts = prepend.extend(&r.trimmed_center_pts);
-                //println!("... yields {}\n\n", r.trimmed_center_pts);
-                note(format!(
-                    "Restored pts for {}. {} -> {}",
-                    r.id,
-                    len1,
-                    r.trimmed_center_pts.length()
-                ));
             }
         }
     }
 
-    //let mut i = map.intersections.get_mut(&keep_i).unwrap();
-    //i.polygon = geometry::intersection_polygon(i, &mut map.roads);
+    let mut i = map.intersections.get_mut(&keep_i).unwrap();
+    i.polygon = geometry::intersection_polygon(i, &mut map.roads);
 }
