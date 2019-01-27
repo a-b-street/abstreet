@@ -50,9 +50,23 @@ impl PolyLine {
     // TODO Rename append, make a prepend that just flips the arguments
     pub fn extend(self, other: &PolyLine) -> PolyLine {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
-        let mut pts = self.pts;
-        pts.extend(other.pts.iter().skip(1));
-        PolyLine::new(pts)
+
+        // There's an exciting edge case: the next point to add is on self's last line.
+        if self
+            .last_line()
+            .angle()
+            .shortest_rotation_towards(Line::new(self.last_pt(), other.pts[1]).angle())
+            .normalized_degrees()
+            < 0.1
+        {
+            let mut pts = self.pts;
+            pts.extend(other.pts.iter().skip(2));
+            PolyLine::new(pts)
+        } else {
+            let mut pts = self.pts;
+            pts.extend(other.pts.iter().skip(1));
+            PolyLine::new(pts)
+        }
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {
@@ -134,9 +148,10 @@ impl PolyLine {
             dist_left -= length;
         }
         panic!(
-            "PolyLine dist_along of {} broke on length {}",
+            "PolyLine dist_along of {} broke on length {}: {}",
             dist_along,
-            self.length()
+            self.length(),
+            self
         );
     }
 
@@ -289,7 +304,13 @@ impl PolyLine {
             }
 
             hits.sort_by_key(|(pt, _)| {
-                NotNan::new(self.get_slice_ending_at(*pt).length().value_unsafe).unwrap()
+                NotNan::new(
+                    self.get_slice_ending_at(*pt)
+                        .map(|pl| pl.length())
+                        .unwrap_or(0.0 * si::M)
+                        .value_unsafe,
+                )
+                .unwrap()
             });
             if !hits.is_empty() {
                 return Some(hits[0]);
@@ -312,24 +333,32 @@ impl PolyLine {
 
     // Panics if the pt is not on the polyline. Returns None if the point is the first point
     // (meaning the slice is empty).
-    pub fn get_slice_ending_at(&self, pt: Pt2D) -> PolyLine {
+    pub fn get_slice_ending_at(&self, pt: Pt2D) -> Option<PolyLine> {
+        if self.first_pt() == pt {
+            return None;
+        }
+
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts.split_off(idx + 1);
             pts.push(pt);
-            PolyLine::new(pts)
+            return Some(PolyLine::new(pts));
         } else {
             panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);
         }
     }
 
     // Returns None if the point is the last point.
-    pub fn get_slice_starting_at(&self, pt: Pt2D) -> PolyLine {
+    pub fn get_slice_starting_at(&self, pt: Pt2D) -> Option<PolyLine> {
+        if self.last_pt() == pt {
+            return None;
+        }
+
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts = pts.split_off(idx + 1);
             pts.insert(0, pt);
-            PolyLine::new(pts)
+            return Some(PolyLine::new(pts));
         } else {
             panic!(
                 "Can't get_slice_starting_at: {} doesn't contain {}",
@@ -367,9 +396,10 @@ impl fmt::Display for PolyLine {
             if idx > 0 {
                 write!(
                     f,
-                    "    // {}, {}",
+                    "    // {}, {} (+ {})",
                     pt.x() - self.pts[idx - 1].x(),
-                    pt.y() - self.pts[idx - 1].y()
+                    pt.y() - self.pts[idx - 1].y(),
+                    Line::new(self.pts[idx - 1], *pt).length()
                 )?;
             }
             writeln!(f)?;

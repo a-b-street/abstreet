@@ -5,7 +5,7 @@ use abstutil::{note, retain_btreemap};
 
 pub fn short_roads(map: &mut InitialMap) {
     // o228
-    //merge(map, StableRoadID(311));
+    merge(map, StableRoadID(311));
 
     /*
     // o201
@@ -91,44 +91,29 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
     // TODO Ah, we can also wind up with multiple roads between the same intersections here. Should
     // probably auto-remove those too.
 
+    // TODO Crazy polyline bugs happening from doing this. Sigh.
     // Restore the road geometry on the relevant side to its original length, since that can affect
     // the polygon. Note we can't just copy over the original points -- that'd clobber the other
     // side, requiring us to recalculate that polygon too.
-    for id in &map.intersections[&keep_i].roads {
+    /*for id in &map.intersections[&keep_i].roads {
         let r = map.roads.get_mut(id).unwrap();
         // Safe to do 'else' here, because we removed the loop roads.
         if r.src_i == keep_i {
-            let append = r
+            if let Some(append) = r
                 .original_center_pts
-                .get_slice_starting_at(r.trimmed_center_pts.last_pt());
-            println!(
-                "k1 {}: old trim len {}",
-                r.id,
-                r.trimmed_center_pts.length()
-            );
-            r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(&append);
-            println!(
-                "k1 {}: new trim len {}",
-                r.id,
-                r.trimmed_center_pts.length()
-            );
+                .get_slice_starting_at(r.trimmed_center_pts.last_pt())
+            {
+                r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(&append);
+            }
         } else {
-            let prepend = r
+            if let Some(prepend) = r
                 .original_center_pts
-                .get_slice_ending_at(r.trimmed_center_pts.first_pt());
-            println!(
-                "k2 {}: old trim len {}",
-                r.id,
-                r.trimmed_center_pts.length()
-            );
-            r.trimmed_center_pts = prepend.extend(&r.trimmed_center_pts);
-            println!(
-                "k2 {}: new trim len {}",
-                r.id,
-                r.trimmed_center_pts.length()
-            );
+                .get_slice_ending_at(r.trimmed_center_pts.first_pt())
+            {
+                r.trimmed_center_pts = prepend.extend(&r.trimmed_center_pts);
+            }
         }
-    }
+    }*/
 
     /*let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads);*/

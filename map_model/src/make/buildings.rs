@@ -2,7 +2,7 @@ use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Building, BuildingID, FrontPath, Lane};
 use abstutil::Timer;
 use dimensioned::si;
-use geom::{Bounds, GPSBounds, HashablePt2D, Line, PolyLine, Pt2D};
+use geom::{Bounds, GPSBounds, HashablePt2D, Line, Pt2D};
 use std::collections::HashSet;
 
 pub fn make_all_buildings(

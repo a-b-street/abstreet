@@ -8,6 +8,7 @@
 
 - handle small roads again somehow?
 	- try merging with roads and intersections, but with new trimmed road lengths
+		- lane 1149 having the same problem... sigh
 		- deal with loop roads still
 		- restore original road points, then redo the intersection polygon and lane center pt expansion
 

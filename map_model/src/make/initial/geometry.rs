@@ -105,7 +105,7 @@ fn generalized_trim_back(
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline?
                 let trim_to = road_center.intersection_infinite_line(perp).unwrap();
-                let trimmed = road_center.get_slice_ending_at(trim_to);
+                let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
                 if trimmed.length() < shortest_center.length() {
                     shortest_center = trimmed;
                 }
