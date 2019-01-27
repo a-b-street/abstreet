@@ -45,6 +45,24 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, edits: MapEdits, timer: &mut Timer) -> Result<Map, io::Error> {
+        if path.starts_with("../in_progress/") {
+            let initial_map: make::InitialMap = abstutil::read_binary(path, timer)?;
+            let data: raw_data::Map = abstutil::read_binary(
+                &format!("../data/raw_maps/{}.abst", initial_map.name),
+                timer,
+            )?;
+            let gps_bounds = data.get_gps_bounds();
+            let bounds = gps_bounds.to_bounds();
+            return Ok(Map::create_from_raw_and_initial(
+                data,
+                initial_map,
+                gps_bounds,
+                bounds,
+                edits,
+                timer,
+            ));
+        }
+
         let data: raw_data::Map = abstutil::read_binary(path, timer)?;
         Ok(Map::create_from_raw(
             path::Path::new(path)
@@ -65,12 +83,28 @@ impl Map {
         edits: MapEdits,
         timer: &mut Timer,
     ) -> Map {
-        timer.start("raw_map to Map");
+        timer.start("raw_map to InitialMap");
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
-        let half_map = make::make_half_map(&data, &gps_bounds, &bounds, &edits, timer);
-        timer.stop("raw_map to Map");
+        let initial_map = make::InitialMap::new(name, &data, &gps_bounds, &edits, timer);
+        timer.stop("raw_map to InitialMap");
+        Map::create_from_raw_and_initial(data, initial_map, gps_bounds, bounds, edits, timer)
+    }
 
+    pub fn create_from_raw_and_initial(
+        data: raw_data::Map,
+        initial_map: make::InitialMap,
+        gps_bounds: GPSBounds,
+        bounds: Bounds,
+        edits: MapEdits,
+        timer: &mut Timer,
+    ) -> Map {
+        let name = initial_map.name.clone();
+        timer.start("InitialMap to HalfMap");
+        let half_map = make::make_half_map(&data, initial_map, &gps_bounds, &bounds, timer);
+        timer.stop("InitialMap to HalfMap");
+
+        timer.start("finalize Map");
         let mut m = Map {
             roads: half_map.roads,
             lanes: half_map.lanes,
@@ -128,6 +162,7 @@ impl Map {
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
 
+        timer.stop("finalize Map");
         m
     }
 

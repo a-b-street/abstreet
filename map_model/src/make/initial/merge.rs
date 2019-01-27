@@ -116,7 +116,9 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
             }
         }
     }
+    map.save(format!("o{}_reset_roads", keep_i.0));
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads);
+    map.save(format!("o{}_new_polygon", keep_i.0));
 }

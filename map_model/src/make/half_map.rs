@@ -1,6 +1,6 @@
 use crate::{
     make, raw_data, Area, AreaID, Building, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, MapEdits, Parcel, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    LaneID, Parcel, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
 use dimensioned::si;
@@ -21,9 +21,9 @@ pub struct HalfMap {
 
 pub fn make_half_map(
     data: &raw_data::Map,
+    initial_map: make::InitialMap,
     gps_bounds: &GPSBounds,
     bounds: &Bounds,
-    edits: &MapEdits,
     timer: &mut Timer,
 ) -> HalfMap {
     let mut half_map = HalfMap {
@@ -36,8 +36,6 @@ pub fn make_half_map(
         areas: Vec::new(),
         turn_lookup: Vec::new(),
     };
-
-    let initial_map = make::initial::make_initial_map(data, gps_bounds, edits, timer);
 
     let road_id_mapping: BTreeMap<raw_data::StableRoadID, RoadID> = initial_map
         .roads

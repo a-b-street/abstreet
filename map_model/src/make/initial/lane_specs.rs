@@ -105,7 +105,7 @@ pub fn get_lane_types(r: &raw_data::Road) -> (Vec<LaneType>, Vec<LaneType>) {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct LaneSpec {
     pub lane_type: LaneType,
     pub reverse_pts: bool,
