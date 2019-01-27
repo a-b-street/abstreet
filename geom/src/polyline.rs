@@ -52,21 +52,16 @@ impl PolyLine {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
         // There's an exciting edge case: the next point to add is on self's last line.
-        if self
+        let same_line = self
             .last_line()
             .angle()
-            .shortest_rotation_towards(Line::new(self.last_pt(), other.pts[1]).angle())
-            .normalized_degrees()
-            < 0.1
-        {
-            let mut pts = self.pts;
-            pts.extend(other.pts.iter().skip(2));
-            PolyLine::new(pts)
-        } else {
-            let mut pts = self.pts;
-            pts.extend(other.pts.iter().skip(1));
-            PolyLine::new(pts)
+            .approx_eq(other.first_line().angle(), 0.1);
+        let mut pts = self.pts;
+        if same_line {
+            pts.pop();
         }
+        pts.extend(other.pts.iter().skip(1));
+        PolyLine::new(pts)
     }
 
     pub fn points(&self) -> &Vec<Pt2D> {
@@ -394,12 +389,14 @@ impl fmt::Display for PolyLine {
         for (idx, pt) in self.pts.iter().enumerate() {
             write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
             if idx > 0 {
+                let line = Line::new(self.pts[idx - 1], *pt);
                 write!(
                     f,
-                    "    // {}, {} (+ {})",
+                    "    // {}, {} (+ {} @ {})",
                     pt.x() - self.pts[idx - 1].x(),
                     pt.y() - self.pts[idx - 1].y(),
-                    Line::new(self.pts[idx - 1], *pt).length()
+                    line.length(),
+                    line.angle(),
                 )?;
             }
             writeln!(f)?;
@@ -414,8 +411,7 @@ fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
         let orig_angle = orig_l.angle();
         let shifted_angle = shifted_l.angle();
 
-        let rot = orig_angle.shortest_rotation_towards(shifted_angle);
-        if rot.normalized_degrees() > 10.0 && rot.normalized_degrees() < 359.0 {
+        if !orig_angle.approx_eq(shifted_angle, 1.0) {
             // When this happens, the rotation is usually right around 180 -- so try swapping
             // the points!
             /*println!(
@@ -435,11 +431,10 @@ fn check_angles(a: &PolyLine, b: &PolyLine) {
         let orig_angle = orig_l.angle();
         let shifted_angle = shifted_l.angle();
 
-        let rot = orig_angle.shortest_rotation_towards(shifted_angle);
-        if rot.normalized_degrees() > 10.0 && rot.normalized_degrees() < 359.0 {
+        if !orig_angle.approx_eq(shifted_angle, 1.0) {
             println!(
-                "BAD! Points changed angles from {} to {} (rot {})",
-                orig_angle, shifted_angle, rot
+                "BAD! Points changed angles from {} to {}",
+                orig_angle, shifted_angle
             );
         }
     }

@@ -44,6 +44,14 @@ impl Angle {
             ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0,
         )
     }
+
+    pub fn approx_eq(self, other: Angle, within_degrees: f64) -> bool {
+        // https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
+        // This yields [-180, 180]
+        let rotation =
+            ((self.normalized_degrees() - other.normalized_degrees() + 540.0) % 360.0) - 180.0;
+        rotation.abs() < within_degrees
+    }
 }
 
 impl fmt::Display for Angle {

@@ -5,8 +5,11 @@
 
 
 - Example use cases
+	- maybe dont need simulation at all to play with these
+		- just a smooth editing and diffing UI
 	- montlake/520 turn restrictions with pedestrian scramble
 	- close interior neighborhoods to most cars (except for src/dst), see how traffic restricted to arterials would work
+		- puzzle: with only X miles of retained road, where would you leave them? what roads would go away?
 	- create a bike network with minimal hills, dedicated roads, minimal crossings
 
 - easter eggs
