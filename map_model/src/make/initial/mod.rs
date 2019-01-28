@@ -65,7 +65,6 @@ impl InitialMap {
 
         for (stable_id, r) in &data.roads {
             if r.i1 == r.i2 {
-                // TODO Cul-de-sacs should be valid, but it really makes pathfinding screwy
                 error!(
                     "OSM way {} is a loop on {}, skipping what would've been {}",
                     r.osm_way_id, r.i1, stable_id

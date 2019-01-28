@@ -14,3 +14,17 @@
 - trailer
 	- show common parts of routes in A/B, point of divergence
 	- "Two parallel universes sit at your fingertips, and with the flick of a key, you can glide between the two. Buses jumping past traffic in one world, snarly traffic jam in the other. An A/B test revealing what currently is, and what could be, compared meticulously and deterministically. A/B Street -- which world do you prefer?"
+
+## Stability
+
+- test results per git commit
+	- way to view later
+	- also could be benchmarks; just arbitrary data over time
+
+- big maps can't be imported
+
+- improve test code and explore problems
+	- big timestep, does follow error blow up?
+	- alternative to scenario is a sequence of commands for tests
+		- spawning code is becoming a BIG mess
+	- more tests: bikes, cars, peds starting/ending at borders, make sure big maps can convert too

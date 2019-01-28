@@ -1,7 +1,5 @@
 # TODO - Map quality
 
-- big maps can't be imported
-
 ## Geometry
 
 - bad polyline shifting remains... sr176
