@@ -78,7 +78,20 @@ impl Line {
         if !self.intersects(other) {
             None
         } else {
-            line_intersection(self, other)
+            if let Some(hit) = line_intersection(self, other) {
+                if self.contains_pt(hit) {
+                    Some(hit)
+                } else {
+                    // TODO This shouldn't be possible! :D
+                    println!(
+                        "{} and {} intersect, but first line doesn't contain_pt({})",
+                        self, other, hit
+                    );
+                    None
+                }
+            } else {
+                None
+            }
         }
     }
 

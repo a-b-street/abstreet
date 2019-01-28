@@ -130,8 +130,10 @@ impl PolyLine {
         }
 
         let mut dist_left = dist_along;
+        let mut length_remeasured = 0.0 * si::M;
         for (idx, l) in self.lines().iter().enumerate() {
             let length = l.length();
+            length_remeasured += length;
             let epsilon = if idx == self.pts.len() - 2 {
                 EPSILON_DIST
             } else {
@@ -143,9 +145,10 @@ impl PolyLine {
             dist_left -= length;
         }
         panic!(
-            "PolyLine dist_along of {} broke on length {}: {}",
+            "PolyLine dist_along of {} broke on length {} (recalculated length {}): {}",
             dist_along,
             self.length(),
+            length_remeasured,
             self
         );
     }
@@ -188,17 +191,17 @@ impl PolyLine {
     // - the length before and after probably don't match up
     // - the number of points does match
     pub fn shift_right(&self, width: f64) -> PolyLine {
-        let mut result = self.shift_with_sharp_angles(width);
-        fix_angles(self, &mut result);
-        check_angles(self, &result);
-        result
+        let result = self.shift_with_sharp_angles(width);
+        let fixed = fix_angles(self, result);
+        check_angles(self, &fixed);
+        fixed
     }
 
     pub fn shift_left(&self, width: f64) -> PolyLine {
-        let mut result = self.shift_with_sharp_angles(-width);
-        fix_angles(self, &mut result);
-        check_angles(self, &result);
-        result
+        let result = self.shift_with_sharp_angles(-width);
+        let fixed = fix_angles(self, result);
+        check_angles(self, &fixed);
+        fixed
     }
 
     fn shift_with_sharp_angles(&self, width: f64) -> PolyLine {
@@ -286,6 +289,7 @@ impl PolyLine {
     }
 
     // Also return the angle of the line where the hit was found
+    // TODO Also return distance along self of the hit
     pub fn intersection(&self, other: &PolyLine) -> Option<(Pt2D, Angle)> {
         assert_ne!(self, other);
 
@@ -405,7 +409,9 @@ impl fmt::Display for PolyLine {
     }
 }
 
-fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
+fn fix_angles(orig: &PolyLine, result: PolyLine) -> PolyLine {
+    let mut pts = result.pts.clone();
+
     // Check that the angles roughly match up between the original and shifted line
     for (idx, (orig_l, shifted_l)) in orig.lines().iter().zip(result.lines().iter()).enumerate() {
         let orig_angle = orig_l.angle();
@@ -418,12 +424,14 @@ fn fix_angles(orig: &PolyLine, result: &mut PolyLine) {
                 "Points changed angles from {} to {} (rot {})",
                 orig_angle, shifted_angle, rot
             );*/
-            result.pts.swap(idx, idx + 1);
-            // TODO recalculate length, to be safe
+            pts.swap(idx, idx + 1);
             // TODO Start the fixing over. but make sure we won't infinite loop...
             //return fix_angles(orig, result);
         }
     }
+
+    // When we swap points, length of the entire PolyLine may change! Recalculating is vital.
+    PolyLine::new(pts)
 }
 
 fn check_angles(a: &PolyLine, b: &PolyLine) {
