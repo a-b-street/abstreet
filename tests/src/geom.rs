@@ -1,5 +1,5 @@
 use crate::runner::TestRunner;
-use geom::{line_intersection, Line, PolyLine, Pt2D};
+use geom::{Line, PolyLine, Pt2D};
 use rand;
 
 #[allow(clippy::unreadable_literal)]
@@ -25,21 +25,21 @@ pub fn run(t: &mut TestRunner) {
 
         let width = 50.0;
         let pt1_s = Line::new(pt1, pt2).shift_right(width).pt1();
-        let pt2_s = line_intersection(
-            &Line::new(pt1, pt2).shift_right(width),
-            &Line::new(pt2, pt3).shift_right(width),
-        )
-        .unwrap();
-        let pt3_s = line_intersection(
-            &Line::new(pt2, pt3).shift_right(width),
-            &Line::new(pt3, pt4).shift_right(width),
-        )
-        .unwrap();
-        let pt4_s = line_intersection(
-            &Line::new(pt3, pt4).shift_right(width),
-            &Line::new(pt4, pt5).shift_right(width),
-        )
-        .unwrap();
+        let pt2_s = Line::new(pt1, pt2)
+            .shift_right(width)
+            .infinite()
+            .intersection(&Line::new(pt2, pt3).shift_right(width).infinite())
+            .unwrap();
+        let pt3_s = Line::new(pt2, pt3)
+            .shift_right(width)
+            .infinite()
+            .intersection(&Line::new(pt3, pt4).shift_right(width).infinite())
+            .unwrap();
+        let pt4_s = Line::new(pt3, pt4)
+            .shift_right(width)
+            .infinite()
+            .intersection(&Line::new(pt4, pt5).shift_right(width).infinite())
+            .unwrap();
         let pt5_s = Line::new(pt4, pt5).shift_right(width).pt2();
 
         assert_eq!(

@@ -1,9 +1,9 @@
-use crate::{line_intersection, Angle, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use crate::{Angle, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
-// Segment, technically
+// Segment, technically. Should rename.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Line(Pt2D, Pt2D);
 
@@ -11,6 +11,10 @@ impl Line {
     // TODO only one place outside this crate calls this, try to fix maybe?
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Line {
         Line(pt1, pt2)
+    }
+
+    pub fn infinite(&self) -> InfiniteLine {
+        InfiniteLine(self.0, self.1)
     }
 
     // TODO we call these frequently here; unnecessary copies?
@@ -72,32 +76,38 @@ impl Line {
             * si::M
     }
 
+    // TODO Also return the distance along self
     pub fn intersection(&self, other: &Line) -> Option<Pt2D> {
-        // TODO shoddy way of implementing this
-        // TODO doesn't handle nearly parallel lines
-        if !self.intersects(other) {
-            None
+        // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
+        if is_counter_clockwise(self.pt1(), other.pt1(), other.pt2())
+            == is_counter_clockwise(self.pt2(), other.pt1(), other.pt2())
+            || is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
+                == is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
+        {
+            return None;
+        }
+
+        let hit = self.infinite().intersection(&other.infinite())?;
+        if self.contains_pt(hit) {
+            Some(hit)
         } else {
-            if let Some(hit) = line_intersection(self, other) {
-                if self.contains_pt(hit) {
-                    Some(hit)
-                } else {
-                    // TODO This shouldn't be possible! :D
-                    println!(
-                        "{} and {} intersect, but first line doesn't contain_pt({})",
-                        self, other, hit
-                    );
-                    None
-                }
-            } else {
-                None
-            }
+            // TODO This shouldn't be possible! :D
+            println!(
+                "{} and {} intersect, but first line doesn't contain_pt({})",
+                self, other, hit
+            );
+            None
         }
     }
 
-    // TODO separate LineSegment and InfiniteLine types
-    pub fn intersection_two_infinite_lines(&self, other: &Line) -> Option<Pt2D> {
-        line_intersection(self, other)
+    // TODO Also return the distance along self
+    pub fn intersection_infinite(&self, other: &InfiniteLine) -> Option<Pt2D> {
+        let hit = self.infinite().intersection(other)?;
+        if self.contains_pt(hit) {
+            Some(hit)
+        } else {
+            None
+        }
     }
 
     pub fn shift_right(&self, width: f64) -> Line {
@@ -128,14 +138,6 @@ impl Line {
 
     pub fn reverse(&self) -> Line {
         Line(self.pt2(), self.pt1())
-    }
-
-    pub fn intersects(&self, other: &Line) -> bool {
-        // From http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
-        is_counter_clockwise(self.pt1(), other.pt1(), other.pt2())
-            != is_counter_clockwise(self.pt2(), other.pt1(), other.pt2())
-            && is_counter_clockwise(self.pt1(), self.pt2(), other.pt1())
-                != is_counter_clockwise(self.pt1(), self.pt2(), other.pt2())
     }
 
     pub fn angle(&self) -> Angle {
@@ -237,4 +239,32 @@ impl fmt::Display for Line {
 
 fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
     (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct InfiniteLine(Pt2D, Pt2D);
+
+impl InfiniteLine {
+    // Fails for parallel lines.
+    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+    pub fn intersection(&self, other: &InfiniteLine) -> Option<Pt2D> {
+        let x1 = self.0.x();
+        let y1 = self.0.y();
+        let x2 = self.1.x();
+        let y2 = self.1.y();
+
+        let x3 = other.0.x();
+        let y3 = other.0.y();
+        let x4 = other.1.x();
+        let y4 = other.1.y();
+
+        let numer_x = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
+        let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
+        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        if denom == 0.0 {
+            None
+        } else {
+            Some(Pt2D::new(numer_x / denom, numer_y / denom))
+        }
+    }
 }

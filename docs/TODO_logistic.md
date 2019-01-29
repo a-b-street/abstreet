@@ -18,6 +18,7 @@
 ## Stability
 
 - test results per git commit
+	- https://github.com/spotify/git-test
 	- way to view later
 	- also could be benchmarks; just arbitrary data over time
 	- also screenshots
@@ -38,6 +39,8 @@
 
 ### Current major geometry problems
 
+- return more info with intersection stuff.
+
 - line intersection code is giving completely silly results for 23rd
 	- Line::new(
   Pt2D::new(2220.510790392476, 17.372151672558502),
@@ -46,5 +49,7 @@
   Pt2D::new(2220.5127307848657, 16.63215421656464),
   Pt2D::new(2220.514671177255, 15.892156760571009),
 ) intersect, but first line doesn't contain_pt(Pt2D(2220.495346552271, 22.98459165963943))
+	- use https://crates.io/crates/line_intersection or ncollide for some of this math
+	- actually, copy in code from line_intersection and use new geo... or maybe dont use geo at all
 
 - bad shifted polylines on 45th st in 23rd map

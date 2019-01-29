@@ -134,7 +134,8 @@ fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let dst_line = l2.first_line().shift_left(LANE_THICKNESS / 2.0);
 
             let pt_maybe_in_intersection = src_line
-                .intersection_two_infinite_lines(&dst_line)
+                .infinite()
+                .intersection(&dst_line.infinite())
                 .expect("SharedSidewalkCorner between parallel sidewalks");
 
             // Now find all of the points on the intersection polygon between the two sidewalks.

@@ -1,4 +1,4 @@
-use crate::{line_intersection, Angle, Bounds, HashablePt2D, Line, Polygon, Pt2D, EPSILON_DIST};
+use crate::{Angle, Bounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST};
 use dimensioned::si;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
@@ -223,7 +223,10 @@ impl PolyLine {
             let l2 = Line::new(pt2_raw, pt3_raw).shift_either_direction(width);
             // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
             // original geometry is redundant.
-            let pt2_shift = line_intersection(&l1, &l2).unwrap_or_else(|| l1.pt2());
+            let pt2_shift = l1
+                .infinite()
+                .intersection(&l2.infinite())
+                .unwrap_or_else(|| l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -318,13 +321,11 @@ impl PolyLine {
         None
     }
 
-    pub fn intersection_infinite_line(&self, other: Line) -> Option<Pt2D> {
-        // TODO There must be better ways to do this. :)
+    // TODO Also distance along
+    pub fn intersection_infinite(&self, other: &InfiniteLine) -> Option<Pt2D> {
         for l in self.lines() {
-            if let Some(hit) = line_intersection(&l, &other) {
-                if l.contains_pt(hit) {
-                    return Some(hit);
-                }
+            if let Some(hit) = l.intersection_infinite(other) {
+                return Some(hit);
             }
         }
         None

@@ -101,10 +101,11 @@ fn generalized_trim_back(
 
             if let Some((hit, angle)) = pl1.intersection(pl2) {
                 // Find where the perpendicular hits the original road line
-                let perp = Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0)));
+                let perp =
+                    Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0))).infinite();
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline?
-                let trim_to = road_center.intersection_infinite_line(perp).unwrap();
+                let trim_to = road_center.intersection_infinite(&perp).unwrap();
                 let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
                 if trimmed.length() < shortest_center.length() {
                     shortest_center = trimmed;
