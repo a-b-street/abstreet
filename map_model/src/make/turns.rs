@@ -329,7 +329,7 @@ fn make_vehicle_turn(lanes: &Vec<&Lane>, i: IntersectionID, l1: LaneID, l2: Lane
             to_pt(dst.first_pt()),
         );
         let pieces = 5;
-        PolyLine::new(
+        PolyLine::new(Pt2D::approx_dedupe(
             (0..=pieces)
                 .map(|i| {
                     from_pt(
@@ -339,7 +339,8 @@ fn make_vehicle_turn(lanes: &Vec<&Lane>, i: IntersectionID, l1: LaneID, l2: Lane
                     )
                 })
                 .collect(),
-        )
+            geom::EPSILON_DIST,
+        ))
     };
 
     Turn {

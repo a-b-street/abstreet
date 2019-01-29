@@ -18,11 +18,13 @@ pub fn make_all_parcels(
     let mut center_per_parcel: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     for p in input {
-        let pts = p
-            .points
-            .iter()
-            .map(|coord| Pt2D::from_gps(*coord, gps_bounds).unwrap())
-            .collect();
+        let pts = Pt2D::approx_dedupe(
+            p.points
+                .iter()
+                .map(|coord| Pt2D::from_gps(*coord, gps_bounds).unwrap())
+                .collect(),
+            geom::EPSILON_DIST,
+        );
         let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_parcel.push(pts);
         center_per_parcel.push(center);

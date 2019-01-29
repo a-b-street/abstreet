@@ -21,7 +21,7 @@ impl DrawBuilding {
         let mut front_path_line = bldg.front_path.line.clone();
         let len = front_path_line.length();
         let trim_back = LANE_THICKNESS / 2.0 * si::M;
-        if len > trim_back {
+        if len > trim_back && len - trim_back > geom::EPSILON_DIST {
             front_path_line = Line::new(
                 front_path_line.pt1(),
                 front_path_line.dist_along(len - trim_back),

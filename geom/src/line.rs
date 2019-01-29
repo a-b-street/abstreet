@@ -8,8 +8,11 @@ use std::fmt;
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
-    // TODO only one place outside this crate calls this, try to fix maybe?
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Line {
+        let len = pt1.dist_to(pt2);
+        if len < EPSILON_DIST {
+            panic!("Tiny line with length {}", len);
+        }
         Line(pt1, pt2)
     }
 
@@ -68,12 +71,8 @@ impl Line {
         ]
     }
 
-    // TODO valid to do euclidean distance on world-space points that're formed from
-    // Haversine?
     pub fn length(&self) -> si::Meter<f64> {
-        ((self.pt1().x() - self.pt2().x()).powi(2) + (self.pt1().y() - self.pt2().y()).powi(2))
-            .sqrt()
-            * si::M
+        self.pt1().dist_to(self.pt2())
     }
 
     // TODO Also return the distance along self

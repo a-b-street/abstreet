@@ -1,4 +1,4 @@
-use crate::{Angle, GPSBounds, Line, LonLat};
+use crate::{Angle, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
 use dimensioned::si;
 use ordered_float::NotNan;
@@ -99,12 +99,10 @@ impl Pt2D {
         Pt2D::new(self.x() + dist * cos, self.y() + dist * sin)
     }
 
+    // TODO valid to do euclidean distance on world-space points that're formed from
+    // Haversine?
     pub fn dist_to(self, to: Pt2D) -> si::Meter<f64> {
-        if self == to {
-            0.0 * si::M
-        } else {
-            Line::new(self, to).length()
-        }
+        ((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt() * si::M
     }
 
     pub fn angle_to(&self, to: Pt2D) -> Angle {
@@ -125,6 +123,17 @@ impl Pt2D {
         }
         let len = pts.len() as f64;
         Pt2D::new(x / len, y / len)
+    }
+
+    // Temporary until Pt2D has proper resolution.
+    pub fn approx_dedupe(pts: Vec<Pt2D>, threshold: si::Meter<f64>) -> Vec<Pt2D> {
+        let mut result: Vec<Pt2D> = Vec::new();
+        for pt in pts {
+            if result.is_empty() || !result.last().unwrap().approx_eq(pt, threshold) {
+                result.push(pt);
+            }
+        }
+        result
     }
 }
 

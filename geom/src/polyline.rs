@@ -17,8 +17,46 @@ pub struct PolyLine {
 impl PolyLine {
     pub fn new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
+        // This checks no lines are too small. Could take the other approach and automatically
+        // squish down points here and make sure the final result is at least EPSILON_DIST.
+        // But probably better for the callers to do this -- they have better understanding of what
+        // needs to be squished down, why, and how.
+        if pts
+            .windows(2)
+            .any(|pair| pair[0].approx_eq(pair[1], EPSILON_DIST))
+        {
+            let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+                so_far + pair[0].dist_to(pair[1])
+            });
+            panic!(
+                "PL with total length {} and {} pts has ~dupe pts: {:?}",
+                length,
+                pts.len(),
+                pts
+            );
+        }
+
         let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
             so_far + Line::new(pair[0], pair[1]).length()
+        });
+
+        // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
+        // are broken.
+        let seen_pts: HashSet<HashablePt2D> =
+            pts.iter().map(|pt| HashablePt2D::from(*pt)).collect();
+        if seen_pts.len() != pts.len() {
+            panic!("PolyLine has repeat points: {:?}", pts);
+        }
+
+        PolyLine { pts, length }
+    }
+
+    // TODO Get rid of this when possible. Probably have to fix underlying problems in
+    // shift_with_sharp_angles.
+    fn new_without_checks(pts: Vec<Pt2D>) -> PolyLine {
+        assert!(pts.len() >= 2);
+        let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+            so_far + pair[0].dist_to(pair[1])
         });
 
         // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
@@ -82,7 +120,7 @@ impl PolyLine {
 
     // Returns the excess distance left over from the end.
     pub fn slice(&self, start: si::Meter<f64>, end: si::Meter<f64>) -> (PolyLine, si::Meter<f64>) {
-        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M {
+        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M || end - start < EPSILON_DIST {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
         }
 
@@ -99,12 +137,17 @@ impl PolyLine {
 
             // Does this line contain the last point of the slice?
             if dist_so_far + length >= end {
-                result.push(line.dist_along(end - dist_so_far));
+                let last_pt = line.dist_along(end - dist_so_far);
+                if result.last().unwrap().approx_eq(last_pt, EPSILON_DIST) {
+                    result.pop();
+                }
+                result.push(last_pt);
                 return (PolyLine::new(result), 0.0 * si::M);
             }
 
-            // If we're in the middle, just collect the endpoint.
-            if !result.is_empty() {
+            // If we're in the middle, just collect the endpoint. But not if it's too close to the
+            // previous point (namely, the start, which could be somewhere far along a line)
+            if !result.is_empty() && !result.last().unwrap().approx_eq(line.pt2(), EPSILON_DIST) {
                 result.push(line.pt2());
             }
 
@@ -187,19 +230,26 @@ impl PolyLine {
         Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
     }
 
-    // Things to remember about shifting polylines:
-    // - the length before and after probably don't match up
-    // - the number of points does match
     pub fn shift_right(&self, width: f64) -> PolyLine {
-        let result = self.shift_with_sharp_angles(width);
-        let fixed = fix_angles(self, result);
-        check_angles(self, &fixed);
-        fixed
+        self.shift_with_corrections(width)
     }
 
     pub fn shift_left(&self, width: f64) -> PolyLine {
-        let result = self.shift_with_sharp_angles(-width);
-        let fixed = fix_angles(self, result);
+        self.shift_with_corrections(-width)
+    }
+
+    // Things to remember about shifting polylines:
+    // - the length before and after probably don't match up
+    // - the number of points will match
+    fn shift_with_corrections(&self, width: f64) -> PolyLine {
+        let result = self.shift_with_sharp_angles(width);
+        // Do this deduping here, so make_polygons can keep using the non-deduped version.
+        let deduped = PolyLine::new_without_checks(Pt2D::approx_dedupe(result.pts, EPSILON_DIST));
+        let fixed = if deduped.pts.len() == self.pts.len() {
+            fix_angles(self, deduped)
+        } else {
+            deduped
+        };
         check_angles(self, &fixed);
         fixed
     }
@@ -221,17 +271,18 @@ impl PolyLine {
 
             let l1 = Line::new(pt1_raw, pt2_raw).shift_either_direction(width);
             let l2 = Line::new(pt2_raw, pt3_raw).shift_either_direction(width);
-            // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd and the
-            // original geometry is redundant.
-            let pt2_shift = l1
-                .infinite()
-                .intersection(&l2.infinite())
-                .unwrap_or_else(|| l1.pt2());
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
             }
-            result.push(pt2_shift);
+
+            if let Some(pt2_shift) = l1.infinite().intersection(&l2.infinite()) {
+                result.push(pt2_shift);
+            } else {
+                // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd
+                // and the original geometry is redundant.
+                result.push(l1.pt2());
+            }
             if pt3_idx == self.pts.len() - 1 {
                 result.push(l2.pt2());
                 break;
@@ -243,13 +294,14 @@ impl PolyLine {
         }
 
         assert!(result.len() == self.pts.len());
-        PolyLine::new(result)
+        PolyLine::new_without_checks(result)
     }
 
     pub fn make_polygons(&self, width: f64) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = self.shift_with_sharp_angles(width / 2.0);
         let side2 = self.shift_with_sharp_angles(-width / 2.0);
+        assert_eq!(side1.pts.len(), side2.pts.len());
 
         let side2_offset = side1.pts.len();
         let mut points = side1.pts;
@@ -341,6 +393,10 @@ impl PolyLine {
         if let Some(idx) = self.lines().iter().position(|l| l.contains_pt(pt)) {
             let mut pts = self.pts.clone();
             pts.split_off(idx + 1);
+            // Make sure the last line isn't too tiny
+            if pts.last().unwrap().approx_eq(pt, EPSILON_DIST) {
+                pts.pop();
+            }
             pts.push(pt);
             return Some(PolyLine::new(pts));
         } else {

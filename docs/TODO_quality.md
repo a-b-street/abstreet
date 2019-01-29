@@ -2,11 +2,16 @@
 
 ## Geometry
 
-- bad polyline shifting remains
-	- investigate the remaining cases
-	- try fixing all problems again?
-	- read the TODOs carefully
-	- make polygons use the corrections too?
+- why is E Olin Pl getting totally annihilated? O82
+
+- try fixed pt again, for determinism purposes mostly
+	- successful: Lines of ~0 length gone
+	- but due to bad polyline shifting, some things would loudly break if we squished pts down always
+
+- underlying problems
+	- bad polyline shifting remains
+		- from the remaining cases, looks like we need to totally remove some tight points and retry
+		- make polygons use the corrections too?
 
 - generalized_trim_back
 	- breaks down when we have jagged lane endings due to polyline shift angle correction

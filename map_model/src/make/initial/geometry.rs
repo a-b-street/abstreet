@@ -106,12 +106,28 @@ fn generalized_trim_back(
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline?
                 let trim_to = road_center.intersection_infinite(&perp).unwrap();
-                let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
-                if trimmed.length() < shortest_center.length() {
-                    shortest_center = trimmed;
-                }
 
-                // We could also do the update for r2, but we'll just get to it later.
+                if road_center
+                    .first_pt()
+                    .approx_eq(trim_to, geom::EPSILON_DIST)
+                {
+                    // This is happening near a small road.
+                    error!(
+                        "for {} and {}, cant trim {} (len {}) to {}",
+                        r1,
+                        r2,
+                        road_center,
+                        road_center.length(),
+                        trim_to
+                    );
+                } else {
+                    let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
+                    if trimmed.length() < shortest_center.length() {
+                        shortest_center = trimmed;
+                    }
+
+                    // We could also do the update for r2, but we'll just get to it later.
+                }
             }
         }
 
@@ -159,7 +175,7 @@ fn generalized_trim_back(
         }
     }
     endpoints.sort_by_key(|pt| HashablePt2D::from(*pt));
-    endpoints = approx_dedupe(endpoints);
+    endpoints = Pt2D::approx_dedupe(endpoints, 1.0 * si::M);
 
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| Line::new(center, *pt).angle().normalized_degrees() as i64);
@@ -208,15 +224,4 @@ fn deadend(
         );
         vec![pl_a.last_pt(), pl_b.last_pt()]
     }
-}
-
-// Temporary until Pt2D has proper resolution.
-fn approx_dedupe(pts: Vec<Pt2D>) -> Vec<Pt2D> {
-    let mut result: Vec<Pt2D> = Vec::new();
-    for pt in pts {
-        if result.is_empty() || !result.last().unwrap().approx_eq(pt, 1.0 * si::M) {
-            result.push(pt);
-        }
-    }
-    result
 }

@@ -37,9 +37,3 @@
 	- first: all the maps fully convert and display in some form; all tests pass or are disabled
 	- slowly hone away at problems currently with errors printed (like bad pl shift angles)
 	- eventually: every intersection has at least a turn, minimum lengths enforced, etc
-
-### Current major geometry problems
-
-- sketchy geometry code that's probably wrong... although actually seems fine in montlake and 23rd currently
-	- dist along of pt in line. can we just use the t value directly?
-	- do we ever directly need dist_along_of_point?

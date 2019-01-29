@@ -3,7 +3,6 @@ use crate::{
     LaneID, Parcel, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use dimensioned::si;
 use geom::{Bounds, GPSBounds, Polygon, Pt2D};
 use std::collections::BTreeMap;
 
@@ -151,7 +150,7 @@ pub fn make_half_map(
     for t in half_map.turns.values_mut() {
         t.lookup_idx = half_map.turn_lookup.len();
         half_map.turn_lookup.push(t.id);
-        if t.geom.length() < 0.01 * si::M {
+        if t.geom.length() < geom::EPSILON_DIST {
             warn!("u{} is a very short turn", t.lookup_idx);
         }
     }
