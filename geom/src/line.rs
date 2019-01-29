@@ -91,12 +91,10 @@ impl Line {
         if self.contains_pt(hit) {
             Some(hit)
         } else {
-            // TODO This shouldn't be possible! :D
-            println!(
+            panic!(
                 "{} and {} intersect, but first line doesn't contain_pt({})",
                 self, other, hit
             );
-            None
         }
     }
 

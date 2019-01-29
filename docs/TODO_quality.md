@@ -2,7 +2,11 @@
 
 ## Geometry
 
-- bad polyline shifting remains... sr176
+- bad polyline shifting remains
+	- investigate the remaining cases
+	- try fixing all problems again?
+	- read the TODOs carefully
+	- make polygons use the corrections too?
 
 - generalized_trim_back
 	- breaks down when we have jagged lane endings due to polyline shift angle correction
@@ -12,6 +16,7 @@
 	- VERY overeager... ate half of the map
 		- can we capture snapshots of incremental changes?
 			- save initial map at every step, be able to load raw + initial with a focus point
+		- try merging the shortest roads first
 	- deal with loop roads
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.

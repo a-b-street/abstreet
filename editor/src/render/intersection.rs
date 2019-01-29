@@ -133,24 +133,21 @@ fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let src_line = l1.last_line().shift_left(LANE_THICKNESS / 2.0);
             let dst_line = l2.first_line().shift_left(LANE_THICKNESS / 2.0);
 
-            let pt_maybe_in_intersection = src_line
-                .infinite()
-                .intersection(&dst_line.infinite())
-                .expect("SharedSidewalkCorner between parallel sidewalks");
-
+            let pt_maybe_in_intersection = src_line.infinite().intersection(&dst_line.infinite());
             // Now find all of the points on the intersection polygon between the two sidewalks.
             let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
             let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
             // constructed...
             if let Some(mut pts_between) = find_pts_between(&i.polygon.points(), corner2, corner1) {
-                //.expect("SharedSidewalkCorner couldn't find intersection points");
                 pts_between.push(src_line.pt2());
                 // If the intersection of the two lines isn't actually inside, then just exclude
-                // this point.
-                // TODO Argh, this is inefficient.
-                if i.polygon.contains_pt(pt_maybe_in_intersection) {
-                    pts_between.push(pt_maybe_in_intersection);
+                // this point. Or if src_line and dst_line were parallel (actually, colinear), then
+                // skip it.
+                if let Some(pt) = pt_maybe_in_intersection {
+                    if i.polygon.contains_pt(pt) {
+                        pts_between.push(pt);
+                    }
                 }
                 pts_between.push(dst_line.pt1());
                 corners.push(Polygon::new(&pts_between));
