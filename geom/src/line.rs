@@ -246,25 +246,38 @@ pub struct InfiniteLine(Pt2D, Pt2D);
 
 impl InfiniteLine {
     // Fails for parallel lines.
-    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+    // https://stackoverflow.com/a/565282 by way of
+    // https://github.com/ucarion/line_intersection/blob/master/src/lib.rs
     pub fn intersection(&self, other: &InfiniteLine) -> Option<Pt2D> {
-        let x1 = self.0.x();
-        let y1 = self.0.y();
-        let x2 = self.1.x();
-        let y2 = self.1.y();
+        fn cross(a: Pt2D, b: Pt2D) -> f64 {
+            a.x() * b.y() - a.y() * b.x()
+        }
 
-        let x3 = other.0.x();
-        let y3 = other.0.y();
-        let x4 = other.1.x();
-        let y4 = other.1.y();
+        let p = self.0;
+        let q = other.0;
+        let r = Pt2D::new(self.1.x() - self.0.x(), self.1.y() - self.0.y());
+        let s = Pt2D::new(other.1.x() - other.0.x(), other.1.y() - other.0.y());
 
-        let numer_x = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
-        let numer_y = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
-        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if denom == 0.0 {
+        let r_cross_s = cross(r, s);
+        let q_minus_p = Pt2D::new(q.x() - p.x(), q.y() - p.y());
+        //let q_minus_p_cross_r = cross(q_minus_p, r);
+
+        if r_cross_s == 0.0 {
+            // Parallel
             None
         } else {
-            Some(Pt2D::new(numer_x / denom, numer_y / denom))
+            let t = cross(q_minus_p, Pt2D::new(s.x() / r_cross_s, s.y() / r_cross_s));
+            //let u = cross(q_minus_p, Pt2D::new(r.x() / r_cross_s, r.y() / r_cross_s));
+            Some(Pt2D::new(p.x() + t * r.x(), p.y() + t * r.y()))
         }
+    }
+}
+
+impl fmt::Display for InfiniteLine {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "InfiniteLine::new(")?;
+        writeln!(f, "  Pt2D::new({}, {}),", self.0.x(), self.0.y())?;
+        writeln!(f, "  Pt2D::new({}, {}),", self.1.x(), self.1.y())?;
+        write!(f, ")")
     }
 }
