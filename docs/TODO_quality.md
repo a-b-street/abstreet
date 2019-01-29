@@ -2,8 +2,6 @@
 
 ## Geometry
 
-- why is E Olin Pl getting totally annihilated? O82
-
 - try fixed pt again, for determinism purposes mostly
 	- successful: Lines of ~0 length gone
 	- but due to bad polyline shifting, some things would loudly break if we squished pts down always

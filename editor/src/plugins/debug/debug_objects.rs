@@ -1,6 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text};
+use map_model::raw_data::StableRoadID;
 use std::collections::BTreeMap;
 
 pub struct DebugObjectsState {
@@ -92,6 +93,13 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
             txt.add_line(id.to_string());
             let i = map.get_i(id);
             txt.add_line(format!("Roads: {:?}", i.roads));
+            txt.add_line(format!(
+                "Orig roads: {:?}",
+                i.roads
+                    .iter()
+                    .map(|r| map.get_r(*r).stable_id)
+                    .collect::<Vec<StableRoadID>>()
+            ));
             txt.add_line(format!("Originally {}", i.stable_id));
         }
         ID::Turn(id) => {

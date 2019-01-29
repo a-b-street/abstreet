@@ -166,6 +166,10 @@ impl PolyLine {
         (PolyLine::new(result), end - dist_so_far)
     }
 
+    pub fn second_half(&self) -> PolyLine {
+        self.slice(self.length() / 2.0, self.length()).0
+    }
+
     // TODO return result with an error message
     pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
         if dist_along < 0.0 * si::M || dist_along > self.length() {

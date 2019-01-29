@@ -64,10 +64,10 @@ fn generalized_trim_back(
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Angle, PolyLine, PolyLine)>,
 ) -> Vec<Pt2D> {
-    let mut road_lines: Vec<(StableRoadID, &PolyLine)> = Vec::new();
+    let mut road_lines: Vec<(StableRoadID, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
-        road_lines.push((*r, pl1));
-        road_lines.push((*r, pl2));
+        road_lines.push((*r, pl1.clone()));
+        road_lines.push((*r, pl2.clone()));
     }
 
     // TODO We can overwrite trimmed now
@@ -99,7 +99,24 @@ fn generalized_trim_back(
                 continue;
             }
 
-            if let Some((hit, angle)) = pl1.intersection(pl2) {
+            // If two roads go between the same intersections, they'll likely hit at the wrong
+            // side. Just use the second half of the polyline to circumvent this. But sadly, doing
+            // this in general breaks other cases -- sometimes we want to find the collision
+            // farther away from the intersection in question.
+            let same_endpoints = {
+                let ii1 = roads[r1].src_i;
+                let ii2 = roads[r1].dst_i;
+                let ii3 = roads[r2].src_i;
+                let ii4 = roads[r2].dst_i;
+                (ii1 == ii3 && ii2 == ii4) || (ii1 == ii4 && ii2 == ii3)
+            };
+            let (use_pl1, use_pl2): (PolyLine, PolyLine) = if same_endpoints {
+                (pl1.second_half(), pl2.second_half())
+            } else {
+                (pl1.clone(), pl2.clone())
+            };
+
+            if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
                 // Find where the perpendicular hits the original road line
                 let perp =
                     Line::new(hit, hit.project_away(1.0, angle.rotate_degs(90.0))).infinite();
@@ -167,10 +184,14 @@ fn generalized_trim_back(
         let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
         let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
-        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
+        // Hmm, seems to be safe to always take the second half here, but not earlier in general.
+        if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
             endpoints.push(hit);
         }
-        if let Some((hit, _)) = back_pl.intersection(adj_back_pl) {
+        if let Some((hit, _)) = back_pl
+            .second_half()
+            .intersection(&adj_back_pl.second_half())
+        {
             endpoints.push(hit);
         }
     }
