@@ -1,5 +1,4 @@
-use crate::{Angle, PolyLine, Polygon, Pt2D, EPSILON_DIST};
-use dimensioned::si;
+use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -45,7 +44,7 @@ impl Line {
     pub fn make_arrow(&self, thickness: f64) -> Vec<Polygon> {
         let head_size = 2.0 * thickness;
         let angle = self.angle();
-        let triangle_height = (head_size / 2.0).sqrt() * si::M;
+        let triangle_height = Distance::meters((head_size / 2.0).sqrt());
         vec![
             Polygon::new(&vec![
                 //self.pt2(),
@@ -71,7 +70,7 @@ impl Line {
         ]
     }
 
-    pub fn length(&self) -> si::Meter<f64> {
+    pub fn length(&self) -> Distance {
         self.pt1().dist_to(self.pt2())
     }
 
@@ -142,7 +141,7 @@ impl Line {
         self.pt1().angle_to(self.pt2())
     }
 
-    pub fn dist_along(&self, dist: si::Meter<f64>) -> Pt2D {
+    pub fn dist_along(&self, dist: Distance) -> Pt2D {
         let len = self.length();
         if dist > len + EPSILON_DIST {
             panic!("cant do {} along a line of length {}", dist, len);
@@ -152,7 +151,7 @@ impl Line {
             return self.pt1();
         }
 
-        let percent = (dist / len).value_unsafe;
+        let percent = dist / len;
         Pt2D::new(
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
@@ -166,9 +165,9 @@ impl Line {
         */
     }
 
-    pub fn unbounded_dist_along(&self, dist: si::Meter<f64>) -> Pt2D {
+    pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
         let len = self.length();
-        let percent = (dist / len).value_unsafe;
+        let percent = dist / len;
         Pt2D::new(
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
@@ -186,10 +185,10 @@ impl Line {
         self.dist_along_of_point(pt).is_some()
     }
 
-    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
+    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {
         let dist1 = self.pt1().dist_to(pt);
         let dist2 = pt.dist_to(self.pt2());
-        if (dist1 + dist2 - self.length()).value_unsafe.abs() * si::M < EPSILON_DIST {
+        if (dist1 + dist2 - self.length()).abs() < EPSILON_DIST {
             Some(dist1)
         } else {
             None

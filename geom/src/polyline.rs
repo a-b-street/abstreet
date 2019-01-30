@@ -1,5 +1,6 @@
-use crate::{Angle, Bounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST};
-use dimensioned::si;
+use crate::{
+    Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST,
+};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -11,7 +12,7 @@ pub struct PolyLine {
     pts: Vec<Pt2D>,
     // TODO Note that caching length doesn't improve profiling results (by running
     // small_spawn_completes test in release mode). May not be worth doing this.
-    length: si::Meter<f64>,
+    length: Distance,
 }
 
 impl PolyLine {
@@ -25,7 +26,7 @@ impl PolyLine {
             .windows(2)
             .any(|pair| pair[0].approx_eq(pair[1], EPSILON_DIST))
         {
-            let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+            let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
                 so_far + pair[0].dist_to(pair[1])
             });
             panic!(
@@ -36,7 +37,7 @@ impl PolyLine {
             );
         }
 
-        let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
+        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
             so_far + Line::new(pair[0], pair[1]).length()
         });
 
@@ -55,7 +56,7 @@ impl PolyLine {
         // Points WILL repeat -- fast-path some stuff.
         let pl = PolyLine {
             pts,
-            length: 0.0 * si::M,
+            length: Distance::ZERO,
         };
         pl.make_polygons(thickness)
     }
@@ -95,18 +96,14 @@ impl PolyLine {
             .collect()
     }
 
-    pub fn length(&self) -> si::Meter<f64> {
+    pub fn length(&self) -> Distance {
         self.length
     }
 
     // Returns the excess distance left over from the end. None if the result would be too squished
     // together.
-    pub fn slice(
-        &self,
-        start: si::Meter<f64>,
-        end: si::Meter<f64>,
-    ) -> Option<(PolyLine, si::Meter<f64>)> {
-        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M {
+    pub fn slice(&self, start: Distance, end: Distance) -> Option<(PolyLine, Distance)> {
+        if start >= end || start < Distance::ZERO || end < Distance::ZERO {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
         }
         if end - start < EPSILON_DIST {
@@ -114,7 +111,7 @@ impl PolyLine {
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
-        let mut dist_so_far = 0.0 * si::M;
+        let mut dist_so_far = Distance::ZERO;
 
         for line in self.lines().iter() {
             let length = line.length();
@@ -131,7 +128,7 @@ impl PolyLine {
                     result.pop();
                 }
                 result.push(last_pt);
-                return Some((PolyLine::new(result), 0.0 * si::M));
+                return Some((PolyLine::new(result), Distance::ZERO));
             }
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
@@ -163,20 +160,20 @@ impl PolyLine {
     }
 
     // TODO return result with an error message
-    pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
-        if dist_along < 0.0 * si::M || dist_along > self.length() {
+    pub fn safe_dist_along(&self, dist_along: Distance) -> Option<(Pt2D, Angle)> {
+        if dist_along < Distance::ZERO || dist_along > self.length() {
             return None;
         }
 
         let mut dist_left = dist_along;
-        let mut length_remeasured = 0.0 * si::M;
+        let mut length_remeasured = Distance::ZERO;
         for (idx, l) in self.lines().iter().enumerate() {
             let length = l.length();
             length_remeasured += length;
             let epsilon = if idx == self.pts.len() - 2 {
                 EPSILON_DIST
             } else {
-                0.0 * si::M
+                Distance::ZERO
             };
             if dist_left <= length + epsilon {
                 return Some((l.dist_along(dist_left), l.angle()));
@@ -197,11 +194,11 @@ impl PolyLine {
     }
 
     // TODO rm this one
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
+    pub fn dist_along(&self, dist_along: Distance) -> (Pt2D, Angle) {
         if let Some(pair) = self.safe_dist_along(dist_along) {
             return pair;
         }
-        if dist_along < 0.0 * si::M {
+        if dist_along < Distance::ZERO {
             panic!("dist_along {} is negative", dist_along);
         }
         panic!("dist_along {} is longer than {}", dist_along, self.length());
@@ -320,14 +317,14 @@ impl PolyLine {
     pub fn dashed_polygons(
         &self,
         width: f64,
-        dash_len: si::Meter<f64>,
-        dash_separation: si::Meter<f64>,
+        dash_len: Distance,
+        dash_separation: Distance,
     ) -> Vec<Polygon> {
         let mut polygons: Vec<Polygon> = Vec::new();
 
         let total_length = self.length();
 
-        let mut start = 0.0 * si::M;
+        let mut start = Distance::ZERO;
         loop {
             if start + dash_len >= total_length {
                 break;
@@ -363,8 +360,8 @@ impl PolyLine {
                 NotNan::new(
                     self.get_slice_ending_at(*pt)
                         .map(|pl| pl.length())
-                        .unwrap_or(0.0 * si::M)
-                        .value_unsafe,
+                        .unwrap_or(Distance::ZERO)
+                        .inner(),
                 )
                 .unwrap()
             });
@@ -425,8 +422,8 @@ impl PolyLine {
         }
     }
 
-    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<(si::Meter<f64>, Angle)> {
-        let mut dist_along = 0.0 * si::M;
+    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<(Distance, Angle)> {
+        let mut dist_along = Distance::ZERO;
         for l in self.lines() {
             if let Some(dist) = l.dist_along_of_point(pt) {
                 return Some((dist_along + dist, l.angle()));

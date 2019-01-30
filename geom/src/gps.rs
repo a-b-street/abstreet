@@ -1,4 +1,4 @@
-use crate::{Bounds, HashablePt2D, Pt2D};
+use crate::{Bounds, Distance, HashablePt2D, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -19,8 +19,7 @@ impl LonLat {
         }
     }
 
-    // TODO use dimensioned?
-    pub fn gps_dist_meters(&self, other: LonLat) -> f64 {
+    pub fn gps_dist_meters(&self, other: LonLat) -> Distance {
         // Haversine distance
         let earth_radius_m = 6_371_000.0;
         let lon1 = self.longitude.to_radians();
@@ -34,7 +33,7 @@ impl LonLat {
         let a = (delta_lat / 2.0).sin().powi(2)
             + (delta_lon / 2.0).sin().powi(2) * lat1.cos() * lat2.cos();
         let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
-        earth_radius_m * c
+        Distance::meters(earth_radius_m * c)
     }
 
     pub fn center(pts: &Vec<LonLat>) -> LonLat {
@@ -117,7 +116,7 @@ impl GPSBounds {
             .gps_dist_meters(LonLat::new(self.max_lon, self.min_lat));
         let height = LonLat::new(self.min_lon, self.min_lat)
             .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
-        Pt2D::new(width, height)
+        Pt2D::new(width.inner(), height.inner())
     }
 
     pub fn to_bounds(&self) -> Bounds {

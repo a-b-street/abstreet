@@ -1,6 +1,5 @@
-use crate::{Angle, GPSBounds, LonLat};
+use crate::{Angle, Distance, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
-use dimensioned::si;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -28,7 +27,7 @@ impl Pt2D {
     }
 
     // TODO This is a small first step...
-    pub fn approx_eq(self, other: Pt2D, threshold: si::Meter<f64>) -> bool {
+    pub fn approx_eq(self, other: Pt2D, threshold: Distance) -> bool {
         self.dist_to(other) <= threshold
     }
 
@@ -97,8 +96,8 @@ impl Pt2D {
 
     // TODO valid to do euclidean distance on world-space points that're formed from
     // Haversine?
-    pub fn dist_to(self, to: Pt2D) -> si::Meter<f64> {
-        ((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt() * si::M
+    pub fn dist_to(self, to: Pt2D) -> Distance {
+        Distance::meters(((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt())
     }
 
     pub fn angle_to(self, to: Pt2D) -> Angle {
@@ -122,7 +121,7 @@ impl Pt2D {
     }
 
     // Temporary until Pt2D has proper resolution.
-    pub fn approx_dedupe(pts: Vec<Pt2D>, threshold: si::Meter<f64>) -> Vec<Pt2D> {
+    pub fn approx_dedupe(pts: Vec<Pt2D>, threshold: Distance) -> Vec<Pt2D> {
         let mut result: Vec<Pt2D> = Vec::new();
         for pt in pts {
             if result.is_empty() || !result.last().unwrap().approx_eq(pt, threshold) {
