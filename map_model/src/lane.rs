@@ -1,17 +1,11 @@
 use crate::{BuildingID, BusStopID, IntersectionID, RoadID};
 use abstutil;
-use dimensioned::si;
-use geom::{Angle, Line, PolyLine, Pt2D};
+use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std;
-use std::f64;
 use std::fmt;
 
-pub const PARKING_SPOT_LENGTH: si::Meter<f64> = si::Meter {
-    // Bit longer than the longest car.
-    value_unsafe: 8.0,
-    _marker: std::marker::PhantomData,
-};
+// Bit longer than the longest car.
+pub const PARKING_SPOT_LENGTH: Distance = Distance::const_meters(8.0);
 
 // TODO reconsider pub usize. maybe outside world shouldnt know.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -83,21 +77,21 @@ impl Lane {
         }
     }
 
-    pub fn dist_along(&self, dist_along: si::Meter<f64>) -> (Pt2D, Angle) {
+    pub fn dist_along(&self, dist_along: Distance) -> (Pt2D, Angle) {
         self.lane_center_pts.dist_along(dist_along)
     }
 
-    pub fn safe_dist_along(&self, dist_along: si::Meter<f64>) -> Option<(Pt2D, Angle)> {
+    pub fn safe_dist_along(&self, dist_along: Distance) -> Option<(Pt2D, Angle)> {
         self.lane_center_pts.safe_dist_along(dist_along)
     }
 
-    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
+    pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {
         self.lane_center_pts
             .dist_along_of_point(pt)
             .map(|(dist, _)| dist)
     }
 
-    pub fn length(&self) -> si::Meter<f64> {
+    pub fn length(&self) -> Distance {
         self.lane_center_pts.length()
     }
 

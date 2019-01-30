@@ -1,7 +1,6 @@
 use crate::{
     Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST,
 };
-use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::f64;
@@ -357,13 +356,10 @@ impl PolyLine {
             }
 
             hits.sort_by_key(|(pt, _)| {
-                NotNan::new(
-                    self.get_slice_ending_at(*pt)
-                        .map(|pl| pl.length())
-                        .unwrap_or(Distance::ZERO)
-                        .inner(),
-                )
-                .unwrap()
+                self.get_slice_ending_at(*pt)
+                    .map(|pl| pl.length())
+                    .unwrap_or(Distance::ZERO)
+                    .as_ordered()
             });
             if !hits.is_empty() {
                 return Some(hits[0]);

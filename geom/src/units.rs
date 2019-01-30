@@ -1,3 +1,4 @@
+use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::{fmt, ops};
 
@@ -29,8 +30,13 @@ impl Distance {
         }
     }
 
-    // TODO Only used within this crate for NotNan construction and GPS->Pt2D.
-    pub(crate) fn inner(self) -> f64 {
+    // TODO Remove by making Distance itself Ord.
+    pub fn as_ordered(self) -> NotNan<f64> {
+        NotNan::new(self.0).unwrap()
+    }
+
+    // TODO Remove if possible.
+    pub fn inner_meters(self) -> f64 {
         self.0
     }
 }
@@ -70,6 +76,14 @@ impl ops::SubAssign for Distance {
     }
 }
 
+impl ops::Mul<f64> for Distance {
+    type Output = Distance;
+
+    fn mul(self, scalar: f64) -> Distance {
+        Distance::meters(self.0 * scalar)
+    }
+}
+
 impl ops::Div<Distance> for Distance {
     type Output = f64;
 
@@ -84,11 +98,11 @@ impl ops::Div<Distance> for Distance {
 impl ops::Div<f64> for Distance {
     type Output = Distance;
 
-    fn div(self, other: f64) -> Distance {
-        if other == 0.0 {
-            panic!("Can't divide {} / {}", self, other);
+    fn div(self, scalar: f64) -> Distance {
+        if scalar == 0.0 {
+            panic!("Can't divide {} / {}", self, scalar);
         }
-        Distance::meters(self.0 / other)
+        Distance::meters(self.0 / scalar)
     }
 }
 
@@ -104,11 +118,42 @@ impl Duration {
 
         Duration(value)
     }
+
+    pub const fn const_seconds(value: f64) -> Duration {
+        Duration(value)
+    }
 }
 
 impl fmt::Display for Duration {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}s", self.0)
+    }
+}
+
+impl ops::Sub for Duration {
+    type Output = Duration;
+
+    fn sub(self, other: Duration) -> Duration {
+        Duration::seconds(self.0 - other.0)
+    }
+}
+
+impl ops::Mul<f64> for Duration {
+    type Output = Duration;
+
+    fn mul(self, other: f64) -> Duration {
+        Duration::seconds(self.0 * other)
+    }
+}
+
+impl ops::Div<Duration> for Duration {
+    type Output = f64;
+
+    fn div(self, other: Duration) -> f64 {
+        if other.0 == 0.0 {
+            panic!("Can't divide {} / {}", self, other);
+        }
+        self.0 / other.0
     }
 }
 
@@ -123,6 +168,10 @@ impl Speed {
         }
 
         Speed(value)
+    }
+
+    pub fn miles_per_hour(value: f64) -> Speed {
+        Speed::meters_per_second(0.44704 * value)
     }
 }
 

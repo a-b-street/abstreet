@@ -1,15 +1,10 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use abstutil::wraparound_get;
-use dimensioned::si;
-use geom::{Angle, HashablePt2D, Line, PolyLine, Pt2D};
+use geom::{Angle, Distance, HashablePt2D, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
-use std::marker;
 
-const DEGENERATE_INTERSECTION_HALF_LENGTH: si::Meter<f64> = si::Meter {
-    value_unsafe: 5.0,
-    _marker: marker::PhantomData,
-};
+const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(5.0);
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
@@ -86,7 +81,7 @@ fn generalized_trim_back(
         let mut shortest_center = if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH {
             road_center
                 .slice(
-                    0.0 * si::M,
+                    Distance::ZERO,
                     road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
                 )
                 .unwrap()
@@ -181,7 +176,7 @@ fn generalized_trim_back(
         }
     }
     endpoints.sort_by_key(|pt| HashablePt2D::from(*pt));
-    endpoints = Pt2D::approx_dedupe(endpoints, 1.0 * si::M);
+    endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(1.0));
 
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| Line::new(center, *pt).angle().normalized_degrees() as i64);
@@ -217,7 +212,7 @@ fn deadend(
             r.trimmed_center_pts = r
                 .trimmed_center_pts
                 .slice(
-                    0.0 * si::M,
+                    Distance::ZERO,
                     r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
                 )
                 .unwrap()

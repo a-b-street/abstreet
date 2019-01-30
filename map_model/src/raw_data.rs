@@ -1,7 +1,6 @@
 use crate::make::get_lane_types;
 use crate::{AreaType, IntersectionType, RoadSpec};
-use dimensioned::si;
-use geom::{GPSBounds, LonLat};
+use geom::{Distance, GPSBounds, LonLat};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -105,7 +104,7 @@ impl Road {
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Intersection {
     pub point: LonLat,
-    pub elevation: si::Meter<f64>,
+    pub elevation: Distance,
     // A raw Intersection can be forced into being a Border.
     pub intersection_type: IntersectionType,
     pub label: Option<String>,

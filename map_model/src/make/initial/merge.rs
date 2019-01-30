@@ -1,7 +1,7 @@
 use crate::make::initial::{geometry, InitialMap};
 use crate::raw_data::StableRoadID;
 use abstutil::note;
-use dimensioned::si;
+use geom::Distance;
 
 pub fn short_roads(map: &mut InitialMap) {
     if false {
@@ -29,7 +29,7 @@ pub fn short_roads(map: &mut InitialMap) {
             if let Some(r) = map
                 .roads
                 .values()
-                .find(|r| r.trimmed_center_pts.length() < 15.0 * si::M)
+                .find(|r| r.trimmed_center_pts.length() < Distance::meters(15.0))
             {
                 merge(map, r.id);
             } else {

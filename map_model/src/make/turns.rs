@@ -3,8 +3,7 @@ use crate::{
     TurnType, LANE_THICKNESS,
 };
 use abstutil::wraparound_get;
-use dimensioned::si;
-use geom::{Line, PolyLine, Pt2D};
+use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
@@ -324,8 +323,8 @@ fn make_vehicle_turn(lanes: &Vec<&Lane>, i: IntersectionID, l1: LaneID, l2: Lane
         // TODO Tune the 5.0 and pieces
         let curve = Bez3o::new(
             to_pt(src.last_pt()),
-            to_pt(src_line.unbounded_dist_along(src_line.length() + 5.0 * si::M)),
-            to_pt(dst_line.unbounded_dist_along(dst_line.length() + 5.0 * si::M)),
+            to_pt(src_line.unbounded_dist_along(src_line.length() + Distance::meters(5.0))),
+            to_pt(dst_line.unbounded_dist_along(dst_line.length() + Distance::meters(5.0))),
             to_pt(dst.first_pt()),
         );
         let pieces = 5;

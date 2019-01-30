@@ -4,11 +4,9 @@ use crate::{
     Position,
 };
 use abstutil::Timer;
-use dimensioned::si;
-use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
 use multimap::MultiMap;
-use ordered_float::NotNan;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
 
@@ -32,9 +30,15 @@ pub fn make_bus_stops(
         }
     }
 
-    let mut stops_per_sidewalk: MultiMap<LaneID, (si::Meter<f64>, HashablePt2D)> = MultiMap::new();
-    for (pt, pos) in
-        find_sidewalk_points(bounds, bus_stop_pts, map.all_lanes(), 10.0 * si::M, timer).into_iter()
+    let mut stops_per_sidewalk: MultiMap<LaneID, (Distance, HashablePt2D)> = MultiMap::new();
+    for (pt, pos) in find_sidewalk_points(
+        bounds,
+        bus_stop_pts,
+        map.all_lanes(),
+        Distance::meters(10.0),
+        timer,
+    )
+    .into_iter()
     {
         stops_per_sidewalk.insert(pos.lane(), (pos.dist_along(), pt));
     }
@@ -46,7 +50,7 @@ pub fn make_bus_stops(
         if let Ok(driving_lane) =
             road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
         {
-            dists.sort_by_key(|(dist, _)| NotNan::new(dist.value_unsafe).unwrap());
+            dists.sort_by_key(|(dist, _)| dist.as_ordered());
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
                 let stop_id = BusStopID { sidewalk: *id, idx };
                 point_to_stop_id.insert(*orig_pt, stop_id);

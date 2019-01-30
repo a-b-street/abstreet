@@ -1,8 +1,7 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Building, BuildingID, FrontPath, Lane};
 use abstutil::Timer;
-use dimensioned::si;
-use geom::{Bounds, GPSBounds, HashablePt2D, Line, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Line, Pt2D};
 use std::collections::HashSet;
 
 pub fn make_all_buildings(
@@ -34,7 +33,7 @@ pub fn make_all_buildings(
     }
 
     // Skip buildings that're too far away from their sidewalk
-    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M, timer);
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
 
     timer.start_iter("create building front paths", pts_per_bldg.len());
     for (idx, points) in pts_per_bldg.into_iter().enumerate() {

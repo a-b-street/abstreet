@@ -1,7 +1,6 @@
 use crate::{FindClosest, Lane, LaneID, Position};
 use abstutil::Timer;
-use dimensioned::si;
-use geom::{Bounds, HashablePt2D};
+use geom::{Bounds, Distance, HashablePt2D};
 use std::collections::{HashMap, HashSet};
 
 // If the result doesn't contain a requested point, then there was no matching sidewalk close
@@ -10,7 +9,7 @@ pub fn find_sidewalk_points(
     bounds: &Bounds,
     pts: HashSet<HashablePt2D>,
     lanes: &Vec<Lane>,
-    max_dist_away: si::Meter<f64>,
+    max_dist_away: Distance,
     timer: &mut Timer,
 ) -> HashMap<HashablePt2D, Position> {
     if pts.is_empty() {

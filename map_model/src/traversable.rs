@@ -1,6 +1,5 @@
 use crate::{LaneID, Map, TurnID};
-use dimensioned::si;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -8,7 +7,7 @@ use std::fmt;
 pub struct Position {
     // Don't let callers construct a Position directly, so it's easy to find callers of new().
     lane: LaneID,
-    dist_along: si::Meter<f64>,
+    dist_along: Distance,
 }
 
 impl fmt::Display for Position {
@@ -18,7 +17,7 @@ impl fmt::Display for Position {
 }
 
 impl Position {
-    pub fn new(lane: LaneID, dist_along: si::Meter<f64>) -> Position {
+    pub fn new(lane: LaneID, dist_along: Distance) -> Position {
         Position { lane, dist_along }
     }
 
@@ -26,7 +25,7 @@ impl Position {
         self.lane
     }
 
-    pub fn dist_along(&self) -> si::Meter<f64> {
+    pub fn dist_along(&self) -> Distance {
         self.dist_along
     }
 
@@ -83,33 +82,28 @@ impl Traversable {
     }
 
     // TODO Just expose the PolyLine instead of all these layers of helpers
-    pub fn length(&self, map: &Map) -> si::Meter<f64> {
+    pub fn length(&self, map: &Map) -> Distance {
         match *self {
             Traversable::Lane(id) => map.get_l(id).length(),
             Traversable::Turn(id) => map.get_t(id).geom.length(),
         }
     }
 
-    pub fn dist_along(&self, dist: si::Meter<f64>, map: &Map) -> (Pt2D, Angle) {
+    pub fn dist_along(&self, dist: Distance, map: &Map) -> (Pt2D, Angle) {
         match *self {
             Traversable::Lane(id) => map.get_l(id).dist_along(dist),
             Traversable::Turn(id) => map.get_t(id).geom.dist_along(dist),
         }
     }
 
-    pub fn slice(
-        &self,
-        start: si::Meter<f64>,
-        end: si::Meter<f64>,
-        map: &Map,
-    ) -> Option<(PolyLine, si::Meter<f64>)> {
+    pub fn slice(&self, start: Distance, end: Distance, map: &Map) -> Option<(PolyLine, Distance)> {
         match *self {
             Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
             Traversable::Turn(id) => map.get_t(id).geom.slice(start, end),
         }
     }
 
-    pub fn speed_limit(&self, map: &Map) -> si::MeterPerSecond<f64> {
+    pub fn speed_limit(&self, map: &Map) -> Speed {
         match *self {
             Traversable::Lane(id) => map.get_parent(id).get_speed_limit(),
             Traversable::Turn(id) => map.get_parent(id.dst).get_speed_limit(),

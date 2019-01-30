@@ -1,6 +1,5 @@
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
-use dimensioned::si;
-use geom::{PolyLine, Pt2D, EPSILON_DIST};
+use geom::{Distance, PolyLine, Pt2D, EPSILON_DIST};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
@@ -28,18 +27,18 @@ enum InternalPathStep {
 impl InternalPathStep {
     // TODO Should consider the last step too... RideBus then Lane probably won't cross the full
     // lane.
-    fn cost(&self, map: &Map) -> si::Meter<f64> {
+    fn cost(&self, map: &Map) -> Distance {
         match *self {
             InternalPathStep::Lane(l) | InternalPathStep::ContraflowLane(l) => {
                 map.get_l(l).length()
             }
             InternalPathStep::Turn(t) => map.get_t(t).geom.length(),
             // Free! For now.
-            InternalPathStep::RideBus(_, _, _) => 0.0 * si::M,
+            InternalPathStep::RideBus(_, _, _) => Distance::ZERO,
         }
     }
 
-    fn heuristic(&self, goal_pt: Pt2D, map: &Map) -> si::Meter<f64> {
+    fn heuristic(&self, goal_pt: Pt2D, map: &Map) -> Distance {
         let pt = match *self {
             InternalPathStep::Lane(l) => map.get_l(l).last_pt(),
             InternalPathStep::ContraflowLane(l) => map.get_l(l).first_pt(),
@@ -71,13 +70,13 @@ impl PathStep {
     fn slice(
         &self,
         map: &Map,
-        start: si::Meter<f64>,
-        dist_ahead: si::Meter<f64>,
-    ) -> Option<(PolyLine, si::Meter<f64>)> {
-        if dist_ahead < 0.0 * si::M {
+        start: Distance,
+        dist_ahead: Distance,
+    ) -> Option<(PolyLine, Distance)> {
+        if dist_ahead < Distance::ZERO {
             panic!("Negative dist_ahead?! {}", dist_ahead);
         }
-        if dist_ahead == 0.0 * si::M {
+        if dist_ahead == Distance::ZERO {
             return None;
         }
 
@@ -99,12 +98,12 @@ impl PathStep {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Path {
     steps: VecDeque<PathStep>,
-    end_dist: si::Meter<f64>,
+    end_dist: Distance,
 }
 
 impl Path {
     // TODO pub for DrawCarInput... bleh.
-    pub fn new(map: &Map, steps: Vec<PathStep>, end_dist: si::Meter<f64>) -> Path {
+    pub fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
         // Can disable this after trusting it.
         validate(map, &steps);
         Path {
@@ -152,12 +151,7 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    pub fn trace(
-        &self,
-        map: &Map,
-        start_dist: si::Meter<f64>,
-        dist_ahead: si::Meter<f64>,
-    ) -> Option<Trace> {
+    pub fn trace(&self, map: &Map, start_dist: Distance, dist_ahead: Distance) -> Option<Trace> {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
@@ -187,7 +181,7 @@ impl Path {
 
         // Crunch through the intermediate steps, as long as we can.
         for i in 1..self.steps.len() {
-            if dist_remaining <= 0.0 * si::M {
+            if dist_remaining <= Distance::ZERO {
                 // We know there's at least some geometry if we made it here, so unwrap to verify
                 // that understanding.
                 return Some(pts_so_far.unwrap());
@@ -209,7 +203,7 @@ impl Path {
                 // TODO Length of a PolyLine can slightly change when points are reversed! That
                 // seems bad.
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
-                _ => 0.0 * si::M,
+                _ => Distance::ZERO,
             };
             if dist_remaining - start_dist_this_step > EPSILON_DIST {
                 if let Some((new_pts, dist)) =
@@ -364,7 +358,7 @@ impl Pathfinder {
                 if pos.dist_along() != sidewalk.length() {
                     results.push(InternalPathStep::Lane(sidewalk.id));
                 }
-                if pos.dist_along() != 0.0 * si::M {
+                if pos.dist_along() != Distance::ZERO {
                     results.push(InternalPathStep::ContraflowLane(sidewalk.id));
                 }
             }
@@ -393,7 +387,7 @@ impl Pathfinder {
                 let heuristic = step.heuristic(self.goal_pt, map);
                 queue.push((dist_to_pri_queue(cost + heuristic), step));
             }
-            if start.dist_along() != 0.0 * si::M {
+            if start.dist_along() != Distance::ZERO {
                 let step = InternalPathStep::ContraflowLane(start.lane());
                 let cost = start.dist_along();
                 let heuristic = step.heuristic(self.goal_pt, map);
@@ -459,7 +453,7 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
             PathStep::Turn(id) => map.get_t(id).geom.first_pt(),
         };
         let len = from.dist_to(to);
-        if len > 0.0 * si::M {
+        if len > Distance::ZERO {
             error!("All steps in invalid path:");
             for s in steps {
                 match s {
@@ -487,6 +481,6 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
 }
 
 // Negate since BinaryHeap is a max-heap.
-fn dist_to_pri_queue(dist: si::Meter<f64>) -> NotNan<f64> {
-    NotNan::new(-1.0 * dist.value_unsafe).unwrap()
+fn dist_to_pri_queue(dist: Distance) -> NotNan<f64> {
+    (dist * -1.0).as_ordered()
 }

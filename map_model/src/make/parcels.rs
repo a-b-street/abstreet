@@ -1,8 +1,7 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Lane, Parcel, ParcelID};
 use abstutil::Timer;
-use dimensioned::si;
-use geom::{Bounds, GPSBounds, HashablePt2D, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
 use std::collections::HashSet;
 
 pub fn make_all_parcels(
@@ -32,7 +31,7 @@ pub fn make_all_parcels(
     }
 
     // Trim parcels that are too far away from the nearest sidewalk
-    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, 100.0 * si::M, timer);
+    let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
 
     for (idx, center) in center_per_parcel.into_iter().enumerate() {
         if sidewalk_pts.contains_key(&center) {

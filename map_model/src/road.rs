@@ -1,7 +1,6 @@
 use crate::{raw_data, IntersectionID, LaneID, LaneType};
 use abstutil::Error;
-use dimensioned::si;
-use geom::PolyLine;
+use geom::{PolyLine, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
@@ -89,13 +88,13 @@ impl Road {
         lane == self.children_backwards[0].0
     }
 
-    pub fn get_speed_limit(&self) -> si::MeterPerSecond<f64> {
+    pub fn get_speed_limit(&self) -> Speed {
         // TODO Should probably cache this
         if let Some(limit) = self.osm_tags.get("maxspeed") {
             // TODO handle other units
             if limit.ends_with(" mph") {
                 if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {
-                    return mph * 0.44704 * si::MPS;
+                    return Speed::miles_per_hour(mph);
                 }
             }
         }
@@ -103,11 +102,9 @@ impl Road {
         if self.osm_tags.get("highway") == Some(&"primary".to_string())
             || self.osm_tags.get("highway") == Some(&"secondary".to_string())
         {
-            // 40mph
-            return 17.8816 * si::MPS;
+            return Speed::miles_per_hour(40.0);
         }
-        // 20mph
-        8.9408 * si::MPS
+        Speed::miles_per_hour(20.0)
     }
 
     pub fn get_zorder(&self) -> isize {

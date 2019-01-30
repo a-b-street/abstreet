@@ -1,10 +1,8 @@
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
-use dimensioned::si;
 use geo;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
-use geom::{Bounds, PolyLine, Pt2D};
-use ordered_float::NotNan;
+use geom::{Bounds, Distance, PolyLine, Pt2D};
 use std::collections::HashMap;
 
 // TODO Refactor and generalize all of this...
@@ -33,16 +31,16 @@ where
     }
 
     // Finds the closest point on the existing geometry to the query pt.
-    pub fn closest_pt(&self, query_pt: Pt2D, max_dist_away: si::Meter<f64>) -> Option<(K, Pt2D)> {
+    pub fn closest_pt(&self, query_pt: Pt2D, max_dist_away: Distance) -> Option<(K, Pt2D)> {
         let query_geom = geo::Point::new(query_pt.x(), query_pt.y());
         let query_bbox = Rect {
             top_left: Point {
-                x: (query_pt.x() - max_dist_away.value_unsafe) as f32,
-                y: (query_pt.y() - max_dist_away.value_unsafe) as f32,
+                x: (query_pt.x() - max_dist_away.inner_meters()) as f32,
+                y: (query_pt.y() - max_dist_away.inner_meters()) as f32,
             },
             bottom_right: Point {
-                x: (query_pt.x() + max_dist_away.value_unsafe) as f32,
-                y: (query_pt.y() + max_dist_away.value_unsafe) as f32,
+                x: (query_pt.x() + max_dist_away.inner_meters()) as f32,
+                y: (query_pt.y() + max_dist_away.inner_meters()) as f32,
             },
         };
 
@@ -53,9 +51,9 @@ where
                 if let geo::Closest::SinglePoint(pt) =
                     self.geometries[&key].closest_point(&query_geom)
                 {
-                    let dist = pt.euclidean_distance(&query_geom);
-                    if dist * si::M <= max_dist_away {
-                        Some((key, pt, NotNan::new(dist).unwrap()))
+                    let dist = Distance::meters(pt.euclidean_distance(&query_geom));
+                    if dist <= max_dist_away {
+                        Some((key, pt, dist.as_ordered()))
                     } else {
                         None
                     }

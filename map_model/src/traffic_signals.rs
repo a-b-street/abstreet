@@ -1,14 +1,10 @@
 use crate::{IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
 use abstutil::Error;
-use dimensioned::si;
+use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
-use std;
 use std::collections::BTreeSet;
 
-const CYCLE_DURATION: si::Second<f64> = si::Second {
-    value_unsafe: 30.0,
-    _marker: std::marker::PhantomData,
-};
+const CYCLE_DURATION: Duration = Duration::const_seconds(30.0);
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ControlTrafficSignal {
@@ -32,13 +28,10 @@ impl ControlTrafficSignal {
         self.changed
     }
 
-    pub fn current_cycle_and_remaining_time(
-        &self,
-        time: si::Second<f64>,
-    ) -> (&Cycle, si::Second<f64>) {
+    pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (&Cycle, Duration) {
         let cycle_idx = (time / CYCLE_DURATION).floor() as usize;
         let cycle = &self.cycles[cycle_idx % self.cycles.len()];
-        let next_cycle_time = (cycle_idx + 1) as f64 * CYCLE_DURATION;
+        let next_cycle_time = CYCLE_DURATION * (cycle_idx + 1) as f64;
         let remaining_cycle_time = next_cycle_time - time;
         (cycle, remaining_cycle_time)
     }
@@ -307,7 +300,7 @@ pub struct Cycle {
     pub idx: usize,
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
-    pub duration: si::Second<f64>,
+    pub duration: Duration,
 }
 
 impl Cycle {
@@ -379,7 +372,7 @@ impl Cycle {
         }
     }
 
-    pub fn edit_duration(&mut self, new_duration: si::Second<f64>) {
+    pub fn edit_duration(&mut self, new_duration: Duration) {
         self.duration = new_duration;
     }
 }

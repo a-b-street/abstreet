@@ -116,7 +116,7 @@ impl GPSBounds {
             .gps_dist_meters(LonLat::new(self.max_lon, self.min_lat));
         let height = LonLat::new(self.min_lon, self.min_lat)
             .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
-        Pt2D::new(width.inner(), height.inner())
+        Pt2D::new(width.inner_meters(), height.inner_meters())
     }
 
     pub fn to_bounds(&self) -> Bounds {
