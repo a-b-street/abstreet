@@ -12,6 +12,7 @@ cargo clippy -- \
 	-A clippy::expect_fun_call \
 	-A clippy::if_same_then_else \
 	-A clippy::large_enum_variant \
+	-A clippy::many_single_char_names \
 	-A clippy::map_entry \
 	-A clippy::needless_pass_by_value \
 	-A clippy::new_ret_no_self \
@@ -21,4 +22,5 @@ cargo clippy -- \
 	-A clippy::suspicious_arithmetic_impl \
 	-A clippy::too_many_arguments \
 	-A clippy::type_complexity \
+	-A clippy::while_let_loop \
 	-A clippy::wrong_self_convention

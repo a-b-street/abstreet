@@ -1,8 +1,7 @@
 use aabb_quadtree::QuadTree;
 use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
-use dimensioned::si;
 use ezgui::{Canvas, Color, GfxCtx, Text};
-use geom::{Circle, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
@@ -357,7 +356,7 @@ impl Model {
                 *id,
                 raw_data::Intersection {
                     point: pt(i.center),
-                    elevation: 0.0 * si::M,
+                    elevation: Distance::ZERO,
                     intersection_type: i.intersection_type,
                     label: i.label.clone(),
                 },

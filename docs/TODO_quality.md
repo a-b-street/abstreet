@@ -3,10 +3,9 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
-	- get rid of dimensioned. just wrap f64's at first and get to the new API.
 	- go through and use less f64's... like LANE_THICKNESS, make_polygons, Circle::new, project_away
 	- audit inner_foo()'s
-	- rerun import
+	- rerun import, all tests, screenshots
 
 	- change internal pt2d representation to int. JUST get that working first.
 		- clamp distances first, not points?

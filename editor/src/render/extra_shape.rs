@@ -51,7 +51,7 @@ impl DrawExtraShape {
             })
         } else {
             let width = get_sidewalk_width(&s.attributes)
-                .unwrap_or(Distance::meters(EXTRA_SHAPE_THICKNESS));
+                .unwrap_or_else(|| Distance::meters(EXTRA_SHAPE_THICKNESS));
             let pl = PolyLine::new(pts);
             // The blockface line endpoints will be close to other roads, so match based on the
             // middle of the blockface.
@@ -112,10 +112,10 @@ fn get_sidewalk_width(attribs: &BTreeMap<String, String>) -> Option<Distance> {
     let base_width = attribs
         .get("SW_WIDTH")
         .and_then(|s| s.parse::<f64>().ok())
-        .map(|i| Distance::inches(i))?;
+        .map(Distance::inches)?;
     let filler_width = attribs
         .get("FILLERWID")
         .and_then(|s| s.parse::<f64>().ok())
-        .map(|i| Distance::inches(i))?;
+        .map(Distance::inches)?;
     Some(base_width + filler_width)
 }

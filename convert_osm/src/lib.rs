@@ -6,15 +6,13 @@ mod split_ways;
 mod srtm;
 
 use crate::srtm::Elevation;
-use dimensioned::si;
-use geom::{GPSBounds, PolyLine, Pt2D};
+use geom::{Distance, GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
-use ordered_float::NotNan;
 use std::path::Path;
 use structopt::StructOpt;
 
-const MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL: f64 = 50.0;
+const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "convert_osm")]
@@ -111,10 +109,10 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
             let closest_intersection = map
                 .intersections
                 .values_mut()
-                .min_by_key(|i| NotNan::new(distance(i)).unwrap())
+                .min_by_key(|i| distance(i).as_ordered())
                 .unwrap();
             let dist = distance(closest_intersection);
-            if dist <= MAX_METERS_BTWN_INTERSECTION_AND_SIGNAL {
+            if dist <= MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL {
                 if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
                     println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
                 }
@@ -167,7 +165,9 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
             // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
             // the threshold distance?
             let middle = PolyLine::new(pts).middle();
-            if let Some(((r, fwds), _)) = closest.closest_pt(middle, 5.0 * LANE_THICKNESS * si::M) {
+            if let Some(((r, fwds), _)) =
+                closest.closest_pt(middle, Distance::meters(5.0 * LANE_THICKNESS))
+            {
                 let category = s.attributes.get("PARKING_CATEGORY");
                 let has_parking = category != Some(&"None".to_string())
                     && category != Some(&"No Parking Allowed".to_string());
