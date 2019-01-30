@@ -51,25 +51,6 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    // TODO Get rid of this when possible. Probably have to fix underlying problems in
-    // shift_with_sharp_angles.
-    fn new_without_checks(pts: Vec<Pt2D>) -> PolyLine {
-        assert!(pts.len() >= 2);
-        let length = pts.windows(2).fold(0.0 * si::M, |so_far, pair| {
-            so_far + pair[0].dist_to(pair[1])
-        });
-
-        // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
-        // are broken.
-        let seen_pts: HashSet<HashablePt2D> =
-            pts.iter().map(|pt| HashablePt2D::from(*pt)).collect();
-        if seen_pts.len() != pts.len() {
-            panic!("PolyLine has repeat points: {:?}", pts);
-        }
-
-        PolyLine { pts, length }
-    }
-
     pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: f64) -> Polygon {
         // Points WILL repeat -- fast-path some stuff.
         let pl = PolyLine {
@@ -257,22 +238,23 @@ impl PolyLine {
     // - the length before and after probably don't match up
     // - the number of points will match
     fn shift_with_corrections(&self, width: f64) -> PolyLine {
-        let result = self.shift_with_sharp_angles(width);
-        // Do this deduping here, so make_polygons can keep using the non-deduped version.
-        let deduped = PolyLine::new_without_checks(Pt2D::approx_dedupe(result.pts, EPSILON_DIST));
-        let fixed = if deduped.pts.len() == self.pts.len() {
-            fix_angles(self, deduped)
+        let result = PolyLine::new(Pt2D::approx_dedupe(
+            self.shift_with_sharp_angles(width),
+            EPSILON_DIST,
+        ));
+        let fixed = if result.pts.len() == self.pts.len() {
+            fix_angles(self, result)
         } else {
-            deduped
+            result
         };
         check_angles(self, &fixed);
         fixed
     }
 
-    fn shift_with_sharp_angles(&self, width: f64) -> PolyLine {
+    fn shift_with_sharp_angles(&self, width: f64) -> Vec<Pt2D> {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
-            return l.to_polyline();
+            return vec![l.pt1(), l.pt2()];
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -309,18 +291,18 @@ impl PolyLine {
         }
 
         assert!(result.len() == self.pts.len());
-        PolyLine::new_without_checks(result)
+        result
     }
 
     pub fn make_polygons(&self, width: f64) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = self.shift_with_sharp_angles(width / 2.0);
         let side2 = self.shift_with_sharp_angles(-width / 2.0);
-        assert_eq!(side1.pts.len(), side2.pts.len());
+        assert_eq!(side1.len(), side2.len());
 
-        let side2_offset = side1.pts.len();
-        let mut points = side1.pts;
-        points.extend(side2.pts);
+        let side2_offset = side1.len();
+        let mut points = side1;
+        points.extend(side2);
         let mut indices = Vec::new();
 
         for high_idx in 1..self.pts.len() {

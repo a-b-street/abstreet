@@ -7,9 +7,7 @@
 		- then get rid of approx_eq, approx_dedupe
 		- make Pt2D natively orderable, hashable
 		- can Pt2D::new() and x() and y() return something besides f64?
-
-	- successful: Lines of ~0 length gone
-	- but due to bad polyline shifting, some things would loudly break if we squished pts down always
+	- then work on proper SI types, with negative/positive cases handled carefully
 
 - underlying problems
 	- bad polyline shifting remains
