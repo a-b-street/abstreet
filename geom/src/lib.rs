@@ -5,6 +5,7 @@ mod line;
 mod polygon;
 mod polyline;
 mod pt;
+mod units;
 
 pub use crate::angle::Angle;
 pub use crate::circle::Circle;
@@ -13,6 +14,7 @@ pub use crate::line::{InfiniteLine, Line};
 pub use crate::polygon::{Polygon, Triangle};
 pub use crate::polyline::PolyLine;
 pub use crate::pt::{Bounds, HashablePt2D, Pt2D};
+pub use crate::units::{Acceleration, Distance, Duration, Speed};
 use dimensioned::si;
 use std::marker;
 

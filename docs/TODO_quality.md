@@ -3,12 +3,19 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
+	- get rid of dimensioned. just wrap f64's at first and get to the new API.
+
 	- change internal pt2d representation to int. JUST get that working first.
+		- clamp distances first, not points?
+			- note contains_pt needs to use 2 or 3 * epsilon, because of the error that may accumulate...
+
 		- then get rid of approx_eq, approx_dedupe
+		- make sure dist_to at the tiniest case rounds up, too. maybe that needs to happen now.
 		- make Pt2D natively orderable, hashable
 		- can Pt2D::new() and x() and y() return something besides f64?
 	- then work on proper SI types, with negative/positive cases handled carefully
 	- also bounds?
+	- cant get rid of the ccw intersection check... different answer in some cases that looks bad
 
 - underlying problems
 	- bad polyline shifting remains
