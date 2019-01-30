@@ -124,28 +124,12 @@ fn generalized_trim_back(
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline?
                 let trim_to = road_center.intersection_infinite(&perp).unwrap();
-
-                if road_center
-                    .first_pt()
-                    .approx_eq(trim_to, geom::EPSILON_DIST)
-                {
-                    // This is happening near a small road.
-                    error!(
-                        "for {} and {}, cant trim {} (len {}) to {}",
-                        r1,
-                        r2,
-                        road_center,
-                        road_center.length(),
-                        trim_to
-                    );
-                } else {
-                    let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
-                    if trimmed.length() < shortest_center.length() {
-                        shortest_center = trimmed;
-                    }
-
-                    // We could also do the update for r2, but we'll just get to it later.
+                let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
+                if trimmed.length() < shortest_center.length() {
+                    shortest_center = trimmed;
                 }
+
+                // We could also do the update for r2, but we'll just get to it later.
             }
         }
 

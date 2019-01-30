@@ -8,6 +8,7 @@
 		- make Pt2D natively orderable, hashable
 		- can Pt2D::new() and x() and y() return something besides f64?
 	- then work on proper SI types, with negative/positive cases handled carefully
+	- also bounds?
 
 - underlying problems
 	- bad polyline shifting remains

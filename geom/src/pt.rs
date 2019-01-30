@@ -9,8 +9,8 @@ use std::fmt;
 // This represents world-space in meters.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pt2D {
-    x: f64,
-    y: f64,
+    inner_x: f64,
+    inner_y: f64,
 }
 
 impl Pt2D {
@@ -19,16 +19,12 @@ impl Pt2D {
             panic!("Bad Pt2D {}, {}", x, y);
         }
 
-        // TODO enforce after fixing:
-        // - shift_polyline goes OOB sometimes
-        // - convert_map uses this for GPS I think?
-        if x < 0.0 || y < 0.0 {
-            //println!("Bad pt: {}, {}", x, y);
-        }
-        //assert!(x >= 0.0);
-        //assert!(y >= 0.0);
+        // TODO enforce >=0
 
-        Pt2D { x, y }
+        Pt2D {
+            inner_x: x,
+            inner_y: y,
+        }
     }
 
     // TODO This is a small first step...
@@ -48,7 +44,7 @@ impl Pt2D {
 
         let (width, height) = {
             let pt = b.get_max_world_pt();
-            (pt.x, pt.y)
+            (pt.x(), pt.y())
         };
 
         let x = (gps.longitude - b.min_lon) / (b.max_lon - b.min_lon) * width;
@@ -59,7 +55,7 @@ impl Pt2D {
 
     pub fn to_gps(&self, b: &GPSBounds) -> Option<LonLat> {
         if b.represents_world_space {
-            let pt = LonLat::new(self.x, self.y);
+            let pt = LonLat::new(self.x(), self.y());
             if b.contains(pt) {
                 return Some(pt);
             } else {
@@ -69,24 +65,24 @@ impl Pt2D {
 
         let (width, height) = {
             let pt = b.get_max_world_pt();
-            (pt.x, pt.y)
+            (pt.x(), pt.y())
         };
-        if self.x < 0.0 || self.y < 0.0 || self.x > width || self.y > height {
+        if self.x() < 0.0 || self.y() < 0.0 || self.x() > width || self.y() > height {
             return None;
         }
 
-        let lon = (self.x / width * (b.max_lon - b.min_lon)) + b.min_lon;
-        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y) / height);
+        let lon = (self.x() / width * (b.max_lon - b.min_lon)) + b.min_lon;
+        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y()) / height);
 
         Some(LonLat::new(lon, lat))
     }
 
     pub fn x(&self) -> f64 {
-        self.x
+        self.inner_x
     }
 
     pub fn y(&self) -> f64 {
-        self.y
+        self.inner_y
     }
 
     // TODO better name
@@ -199,10 +195,10 @@ impl Bounds {
     }
 
     pub fn update(&mut self, pt: Pt2D) {
-        self.min_x = self.min_x.min(pt.x);
-        self.max_x = self.max_x.max(pt.x);
-        self.min_y = self.min_y.min(pt.y);
-        self.max_y = self.max_y.max(pt.y);
+        self.min_x = self.min_x.min(pt.x());
+        self.max_x = self.max_x.max(pt.x());
+        self.min_y = self.min_y.min(pt.y());
+        self.max_y = self.max_y.max(pt.y());
     }
 
     pub fn union(&mut self, other: Bounds) {
@@ -211,7 +207,7 @@ impl Bounds {
     }
 
     pub fn contains(&self, pt: Pt2D) -> bool {
-        pt.x >= self.min_x && pt.x <= self.max_x && pt.y >= self.min_y && pt.y <= self.max_y
+        pt.x() >= self.min_x && pt.x() <= self.max_x && pt.y() >= self.min_y && pt.y() <= self.max_y
     }
 
     pub fn as_bbox(&self) -> Rect {
