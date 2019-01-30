@@ -36,15 +36,15 @@ impl Line {
         PolyLine::new(self.points())
     }
 
-    pub fn make_polygons(&self, thickness: f64) -> Polygon {
+    pub fn make_polygons(&self, thickness: Distance) -> Polygon {
         self.to_polyline().make_polygons(thickness)
     }
 
     // TODO One polygon, please :)
-    pub fn make_arrow(&self, thickness: f64) -> Vec<Polygon> {
-        let head_size = 2.0 * thickness;
+    pub fn make_arrow(&self, thickness: Distance) -> Vec<Polygon> {
+        let head_size = thickness * 2.0;
         let angle = self.angle();
-        let triangle_height = Distance::meters((head_size / 2.0).sqrt());
+        let triangle_height = (head_size / 2.0).sqrt();
         vec![
             Polygon::new(&vec![
                 //self.pt2(),
@@ -107,8 +107,8 @@ impl Line {
         }
     }
 
-    pub fn shift_right(&self, width: f64) -> Line {
-        assert!(width >= 0.0);
+    pub fn shift_right(&self, width: Distance) -> Line {
+        assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(90.0);
         Line(
             self.pt1().project_away(width, angle),
@@ -116,8 +116,8 @@ impl Line {
         )
     }
 
-    pub fn shift_left(&self, width: f64) -> Line {
-        assert!(width >= 0.0);
+    pub fn shift_left(&self, width: Distance) -> Line {
+        assert!(width >= Distance::ZERO);
         let angle = self.angle().rotate_degs(-90.0);
         Line(
             self.pt1().project_away(width, angle),
@@ -125,8 +125,8 @@ impl Line {
         )
     }
 
-    pub(crate) fn shift_either_direction(&self, width: f64) -> Line {
-        if width >= 0.0 {
+    pub(crate) fn shift_either_direction(&self, width: Distance) -> Line {
+        if width >= Distance::ZERO {
             self.shift_right(width)
         } else {
             self.shift_left(-width)

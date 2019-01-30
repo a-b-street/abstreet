@@ -1,6 +1,6 @@
 use crate::common::{draw_polyline, BLUE, GREEN, RED};
 use ezgui::GfxCtx;
-use geom::{Circle, PolyLine, Pt2D};
+use geom::{Circle, Distance, PolyLine, Pt2D};
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx) {
@@ -20,12 +20,12 @@ pub fn run(g: &mut GfxCtx) {
 
     let (hit, _) = vertical_pl.intersection(&horiz_pl).unwrap();
     if false {
-        g.draw_circle(BLUE, &Circle::new(hit, 1.0));
+        g.draw_circle(BLUE, &Circle::new(hit, Distance::meters(1.0)));
     } else {
         vertical_pl = vertical_pl.get_slice_ending_at(hit).unwrap();
         horiz_pl = horiz_pl.get_slice_ending_at(hit).unwrap();
     }
 
-    draw_polyline(g, &vertical_pl, 0.25, RED);
-    draw_polyline(g, &horiz_pl, 0.25, GREEN);
+    draw_polyline(g, &vertical_pl, Distance::meters(0.25), RED);
+    draw_polyline(g, &horiz_pl, Distance::meters(0.25), GREEN);
 }

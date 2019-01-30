@@ -3,7 +3,6 @@ use crate::{
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::f64;
 use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -51,7 +50,7 @@ impl PolyLine {
         PolyLine { pts, length }
     }
 
-    pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: f64) -> Polygon {
+    pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
         // Points WILL repeat -- fast-path some stuff.
         let pl = PolyLine {
             pts,
@@ -222,18 +221,18 @@ impl PolyLine {
         Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
     }
 
-    pub fn shift_right(&self, width: f64) -> PolyLine {
+    pub fn shift_right(&self, width: Distance) -> PolyLine {
         self.shift_with_corrections(width)
     }
 
-    pub fn shift_left(&self, width: f64) -> PolyLine {
+    pub fn shift_left(&self, width: Distance) -> PolyLine {
         self.shift_with_corrections(-width)
     }
 
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points will match
-    fn shift_with_corrections(&self, width: f64) -> PolyLine {
+    fn shift_with_corrections(&self, width: Distance) -> PolyLine {
         let result = PolyLine::new(Pt2D::approx_dedupe(
             self.shift_with_sharp_angles(width),
             EPSILON_DIST,
@@ -247,7 +246,7 @@ impl PolyLine {
         fixed
     }
 
-    fn shift_with_sharp_angles(&self, width: f64) -> Vec<Pt2D> {
+    fn shift_with_sharp_angles(&self, width: Distance) -> Vec<Pt2D> {
         if self.pts.len() == 2 {
             let l = Line::new(self.pts[0], self.pts[1]).shift_either_direction(width);
             return vec![l.pt1(), l.pt2()];
@@ -290,7 +289,7 @@ impl PolyLine {
         result
     }
 
-    pub fn make_polygons(&self, width: f64) -> Polygon {
+    pub fn make_polygons(&self, width: Distance) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = self.shift_with_sharp_angles(width / 2.0);
         let side2 = self.shift_with_sharp_angles(-width / 2.0);
@@ -315,7 +314,7 @@ impl PolyLine {
 
     pub fn dashed_polygons(
         &self,
-        width: f64,
+        width: Distance,
         dash_len: Distance,
         dash_separation: Distance,
     ) -> Vec<Polygon> {

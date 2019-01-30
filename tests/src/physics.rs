@@ -80,7 +80,7 @@ fn test_accel_to_stop_in_dist(vehicle: Vehicle, orig_dist_left: Distance, orig_s
         speed = new_speed;
         dist_left -= dist_covered;
 
-        if dist_left < EPSILON_DIST * -1.0 {
+        if dist_left < -EPSILON_DIST {
             println!("  Result: speed {}, dist_left {}", speed, dist_left);
             panic!("We overshot too much!");
         }

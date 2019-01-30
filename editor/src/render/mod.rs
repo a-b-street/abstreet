@@ -22,21 +22,20 @@ pub use crate::render::map::{DrawMap, RenderOrder};
 pub use crate::render::pedestrian::DrawPedestrian;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Pt2D};
+use geom::{Bounds, Distance, Pt2D};
 use map_model::Map;
 use sim::{DrawCarInput, VehicleType};
 use std::f64;
 
-// These are all in meters
-const PARCEL_BOUNDARY_THICKNESS: f64 = 0.5;
-const EXTRA_SHAPE_THICKNESS: f64 = 1.0;
-const EXTRA_SHAPE_POINT_RADIUS: f64 = 1.0;
+const PARCEL_BOUNDARY_THICKNESS: Distance = Distance::const_meters(0.5);
+const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
+const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(1.0);
 
-const BIG_ARROW_THICKNESS: f64 = 0.5;
+const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 
-const TURN_ICON_ARROW_THICKNESS: f64 = 0.15;
-const TURN_ICON_ARROW_LENGTH: f64 = 2.0;
-pub const CROSSWALK_LINE_THICKNESS: f64 = 0.25;
+const TURN_ICON_ARROW_THICKNESS: Distance = Distance::const_meters(0.15);
+const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
+pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 
 pub const MIN_ZOOM_FOR_MARKINGS: f64 = 5.0;
 

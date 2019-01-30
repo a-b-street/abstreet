@@ -3,9 +3,6 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
-	- go through and use less f64's... like LANE_THICKNESS, make_polygons, Circle::new, project_away
-	- audit inner_foo()'s
-
 	- change internal pt2d representation to int. JUST get that working first.
 		- clamp distances first, not points?
 			- note contains_pt needs to use 2 or 3 * epsilon, because of the error that may accumulate...

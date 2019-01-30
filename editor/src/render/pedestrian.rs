@@ -1,11 +1,11 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Line, Pt2D};
+use geom::{Bounds, Circle, Distance, Line, Pt2D};
 use map_model::Map;
 use sim::{DrawPedestrianInput, PedestrianID};
 
-const RADIUS: f64 = 1.0;
+const RADIUS: Distance = Distance::const_meters(1.0);
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
@@ -59,7 +59,7 @@ impl Renderable for DrawPedestrian {
         if let Some(ref a) = self.turn_arrow {
             g.draw_arrow(
                 ctx.cs.get_def("pedestrian turn arrow", Color::CYAN),
-                0.25,
+                Distance::meters(0.25),
                 a,
             );
         }

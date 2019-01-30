@@ -50,19 +50,18 @@ impl DrawExtraShape {
                 road: None,
             })
         } else {
-            let width = get_sidewalk_width(&s.attributes)
-                .unwrap_or_else(|| Distance::meters(EXTRA_SHAPE_THICKNESS));
+            let width = get_sidewalk_width(&s.attributes).unwrap_or(EXTRA_SHAPE_THICKNESS);
             let pl = PolyLine::new(pts);
             // The blockface line endpoints will be close to other roads, so match based on the
             // middle of the blockface.
             // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
             // the threshold distance?
             let road = closest
-                .closest_pt(pl.middle(), Distance::meters(5.0 * LANE_THICKNESS))
+                .closest_pt(pl.middle(), LANE_THICKNESS * 5.0)
                 .map(|(r, _)| r);
             Some(DrawExtraShape {
                 id,
-                shape: Shape::Polygon(pl.make_polygons(width.inner_meters())),
+                shape: Shape::Polygon(pl.make_polygons(width)),
                 attributes: s.attributes,
                 road,
             })

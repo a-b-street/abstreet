@@ -1,6 +1,6 @@
 use crate::common::{draw_polyline, BLACK, BLUE, GREEN, RED};
 use ezgui::GfxCtx;
-use geom::{PolyLine, Pt2D};
+use geom::{Distance, PolyLine, Pt2D};
 
 pub fn run(p3_offset: (f64, f64), g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
     macro_rules! point {
@@ -17,9 +17,9 @@ pub fn run(p3_offset: (f64, f64), g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String
         };
     }*/
 
-    let thin = 1.0;
-    let thick = 5.0;
-    let shift_away = 50.0;
+    let thin = Distance::meters(1.0);
+    let thick = Distance::meters(5.0);
+    let shift_away = Distance::meters(50.0);
 
     point!(p1, Pt2D::new(100.0, 100.0));
     point!(p2, Pt2D::new(110.0, 200.0));

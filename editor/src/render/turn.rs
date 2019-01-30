@@ -6,7 +6,6 @@ use crate::render::{
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
-use std::f64;
 
 #[derive(Debug)]
 pub struct DrawTurn {
@@ -22,9 +21,9 @@ impl DrawTurn {
 
         let end_line = map.get_l(turn.id.src).end_line(turn.id.parent);
         // Start the distance from the intersection
-        let icon_center = end_line.reverse().unbounded_dist_along(Distance::meters(
-            (offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH,
-        ));
+        let icon_center = end_line
+            .reverse()
+            .unbounded_dist_along(TURN_ICON_ARROW_LENGTH * (offset_along_lane + 0.5));
 
         let icon_circle = Circle::new(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
 
@@ -43,10 +42,10 @@ impl DrawTurn {
         // TODO This is hiding a real problem... some composite turns probably need to have their
         // geometry simplified a bit.
         if let Some(pl) = t.geom.without_last_line() {
-            g.draw_polygon(color, &pl.make_polygons(2.0 * BIG_ARROW_THICKNESS));
+            g.draw_polygon(color, &pl.make_polygons(BIG_ARROW_THICKNESS * 2.0));
         }
         // And a cap on the arrow
-        g.draw_arrow(color, 2.0 * BIG_ARROW_THICKNESS, &t.geom.last_line());
+        g.draw_arrow(color, BIG_ARROW_THICKNESS * 2.0, &t.geom.last_line());
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
@@ -118,8 +117,8 @@ impl DrawCrosswalk {
         // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
         // the thickness of the crosswalk line itself. Center the lines inside these two
         // boundaries.
-        let boundary = Distance::meters(LANE_THICKNESS + CROSSWALK_LINE_THICKNESS);
-        let tile_every = Distance::meters(0.6 * LANE_THICKNESS);
+        let boundary = LANE_THICKNESS + CROSSWALK_LINE_THICKNESS;
+        let tile_every = LANE_THICKNESS * 0.6;
         let line = {
             // The middle line in the crosswalk geometry is the main crossing line.
             let pts = turn.geom.points();
@@ -136,7 +135,7 @@ impl DrawCrosswalk {
             for _ in 0..=num_markings {
                 let pt1 = line.dist_along(dist_along);
                 // Reuse perp_line. Project away an arbitrary amount
-                let pt2 = pt1.project_away(1.0, turn.angle());
+                let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
                 draw.push(
                     perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
                         .make_polygons(CROSSWALK_LINE_THICKNESS),
@@ -154,7 +153,7 @@ impl DrawCrosswalk {
 }
 
 // TODO copied from DrawLane
-fn perp_line(l: Line, length: f64) -> Line {
+fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
     Line::new(pt1, pt2)

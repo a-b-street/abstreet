@@ -1,5 +1,5 @@
 use ezgui::{Color, GfxCtx};
-use geom::{Circle, PolyLine};
+use geom::{Circle, Distance, PolyLine};
 
 // TODO Don't just use ezgui constants in this crate, since we want the slight transparency by
 // default.
@@ -11,11 +11,11 @@ pub const BLACK: Color = Color::BLACK.alpha(0.3);
 pub const SOLID_BLACK: Color = Color::BLACK.alpha(0.9);
 pub const YELLOW: Color = Color::YELLOW.alpha(0.8);
 
-pub fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: f64, color: Color) {
+pub fn draw_polyline(g: &mut GfxCtx, pl: &PolyLine, thickness: Distance, color: Color) {
     for l in pl.lines() {
         g.draw_line(color, thickness, &l);
     }
-    let radius = 0.5;
+    let radius = Distance::meters(0.5);
     let pts = pl.points();
     assert!(pts.len() >= 2);
     for pt in pts {

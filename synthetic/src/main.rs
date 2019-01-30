@@ -3,7 +3,7 @@ mod model;
 use crate::model::{BuildingID, Direction, Model, ID};
 use aabb_quadtree::QuadTree;
 use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, Wizard, GUI};
-use geom::Line;
+use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
 
@@ -210,7 +210,7 @@ impl GUI<Text> for UI {
                 if let Some(cursor) = self.canvas.get_cursor_in_map_space() {
                     g.draw_line(
                         Color::GREEN,
-                        5.0,
+                        Distance::meters(5.0),
                         &Line::new(self.model.get_i_center(i1), cursor),
                     );
                 }

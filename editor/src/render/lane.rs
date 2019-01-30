@@ -81,8 +81,8 @@ impl DrawLane {
                 PARCEL_BOUNDARY_THICKNESS / 2.0,
                 &l,
             );
-            g.draw_circle(circle_color, &Circle::new(l.pt1(), 0.4));
-            g.draw_circle(circle_color, &Circle::new(l.pt2(), 0.8));
+            g.draw_circle(circle_color, &Circle::new(l.pt1(), Distance::meters(0.4)));
+            g.draw_circle(circle_color, &Circle::new(l.pt2(), Distance::meters(0.8)));
         }
     }
 }
@@ -122,14 +122,14 @@ impl Renderable for DrawLane {
 }
 
 // TODO this always does it at pt1
-fn perp_line(l: Line, length: f64) -> Line {
+fn perp_line(l: Line, length: Distance) -> Line {
     let pt1 = l.shift_right(length / 2.0).pt1();
     let pt2 = l.shift_left(length / 2.0).pt1();
     Line::new(pt1, pt2)
 }
 
 fn calculate_sidewalk_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
-    let tile_every = Distance::meters(LANE_THICKNESS);
+    let tile_every = LANE_THICKNESS;
     let color = cs.get_def("sidewalk lines", Color::grey(0.7));
 
     let length = lane.length();
@@ -140,10 +140,10 @@ fn calculate_sidewalk_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygo
     while dist_along < length - tile_every {
         let (pt, angle) = lane.dist_along(dist_along);
         // Reuse perp_line. Project away an arbitrary amount
-        let pt2 = pt.project_away(1.0, angle);
+        let pt2 = pt.project_away(Distance::meters(1.0), angle);
         result.push((
             color,
-            perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(0.25),
+            perp_line(Line::new(pt, pt2), LANE_THICKNESS).make_polygons(Distance::meters(0.25)),
         ));
         dist_along += tile_every;
     }
@@ -153,8 +153,7 @@ fn calculate_sidewalk_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygo
 
 fn calculate_parking_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
     // meters, but the dims get annoying below to remove
-    // TODO make Pt2D natively understand meters, projecting away by an angle
-    let leg_length = 1.0;
+    let leg_length = Distance::meters(1.0);
     let color = cs.get_def("parking lines", Color::WHITE);
 
     let mut result = Vec::new();
@@ -168,13 +167,22 @@ fn calculate_parking_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon
             let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
-            result.push((color, Line::new(t_pt, p1).make_polygons(0.25)));
+            result.push((
+                color,
+                Line::new(t_pt, p1).make_polygons(Distance::meters(0.25)),
+            ));
             // Upper leg
             let p2 = t_pt.project_away(leg_length, lane_angle);
-            result.push((color, Line::new(t_pt, p2).make_polygons(0.25)));
+            result.push((
+                color,
+                Line::new(t_pt, p2).make_polygons(Distance::meters(0.25)),
+            ));
             // Lower leg
             let p3 = t_pt.project_away(leg_length, lane_angle.opposite());
-            result.push((color, Line::new(t_pt, p3).make_polygons(0.25)));
+            result.push((
+                color,
+                Line::new(t_pt, p3).make_polygons(Distance::meters(0.25)),
+            ));
         }
     }
 
@@ -199,7 +207,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, cs: &ColorScheme) -> Vec<
         .slice(dash_separation, lane_edge_pts.length() - dash_separation)
         .unwrap()
         .0
-        .dashed_polygons(0.25, dash_len, dash_separation);
+        .dashed_polygons(Distance::meters(0.25), dash_len, dash_separation);
     polygons
         .into_iter()
         .map(|p| (cs.get_def("dashed lane line", Color::WHITE), p))
@@ -220,7 +228,7 @@ fn calculate_stop_sign_line(
 
     let (pt1, angle) = lane.safe_dist_along(lane.length() - Distance::meters(1.0))?;
     // Reuse perp_line. Project away an arbitrary amount
-    let pt2 = pt1.project_away(1.0, angle);
+    let pt2 = pt1.project_away(Distance::meters(1.0), angle);
     // Don't clobber the yellow line.
     let line = if road.is_canonical_lane(lane.id) {
         perp_line(
@@ -233,7 +241,7 @@ fn calculate_stop_sign_line(
 
     Some((
         cs.get_def("stop line for lane", Color::RED),
-        line.make_polygons(0.45),
+        line.make_polygons(Distance::meters(0.45)),
     ))
 }
 
@@ -266,7 +274,7 @@ fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygo
         .slice(len - Distance::meters(7.0), len - Distance::meters(5.0))
         .unwrap()
         .0;
-    let base_polygon = common_base.make_polygons(0.1);
+    let base_polygon = common_base.make_polygons(Distance::meters(0.1));
     let turn_line = Line::new(
         common_base.last_pt(),
         common_base
@@ -276,6 +284,11 @@ fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygo
 
     let color = cs.get_def("turn restrictions on lane", Color::WHITE);
     let mut result = vec![(color, base_polygon)];
-    result.extend(turn_line.make_arrow(0.05).into_iter().map(|p| (color, p)));
+    result.extend(
+        turn_line
+            .make_arrow(Distance::meters(0.05))
+            .into_iter()
+            .map(|p| (color, p)),
+    );
     result
 }

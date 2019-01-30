@@ -86,12 +86,15 @@ impl Pt2D {
 
     // TODO better name
     // TODO Meters for dist?
-    pub fn project_away(self, dist: f64, theta: Angle) -> Pt2D {
+    pub fn project_away(self, dist: Distance, theta: Angle) -> Pt2D {
         // If negative, caller should use theta.opposite()
-        assert!(dist >= 0.0);
+        assert!(dist >= Distance::ZERO);
 
         let (sin, cos) = theta.normalized_radians().sin_cos();
-        Pt2D::new(self.x() + dist * cos, self.y() + dist * sin)
+        Pt2D::new(
+            self.x() + dist.inner_meters() * cos,
+            self.y() + dist.inner_meters() * sin,
+        )
     }
 
     // TODO valid to do euclidean distance on world-space points that're formed from

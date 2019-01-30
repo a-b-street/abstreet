@@ -224,7 +224,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             };
         }
 
-        let radius = Distance::meters(LANE_THICKNESS / 2.0);
+        let radius = LANE_THICKNESS / 2.0;
 
         // TODO Ignore right_ok...
         {
@@ -234,7 +234,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             } else {
                 ctx.cs.get_def("traffic light stop", Color::RED)
             };
-            g.draw_circle(color, &Circle::new(center1, radius.inner_meters()));
+            g.draw_circle(color, &Circle::new(center1, radius));
         }
 
         if let Some(pri) = left_priority {
@@ -248,16 +248,14 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             };
             g.draw_circle(
                 ctx.cs.get_def("traffic light box", Color::BLACK),
-                &Circle::new(center2, radius.inner_meters()),
+                &Circle::new(center2, radius),
             );
             g.draw_arrow(
                 color,
-                0.1,
+                Distance::meters(0.1),
                 &Line::new(
-                    center2
-                        .project_away(radius.inner_meters(), lane_line.angle().rotate_degs(90.0)),
-                    center2
-                        .project_away(radius.inner_meters(), lane_line.angle().rotate_degs(-90.0)),
+                    center2.project_away(radius, lane_line.angle().rotate_degs(90.0)),
+                    center2.project_away(radius, lane_line.angle().rotate_degs(-90.0)),
                 ),
             );
         }

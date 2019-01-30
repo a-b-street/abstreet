@@ -1,11 +1,11 @@
 use crate::common::{draw_polyline, BLACK, RED};
 use ezgui::GfxCtx;
-use geom::{PolyLine, Pt2D};
+use geom::{Distance, PolyLine, Pt2D};
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx, labels: &mut Vec<(Pt2D, String)>) {
-    let thin = 1.0;
-    let width = 50.0;
+    let thin = Distance::meters(1.0);
+    let width = Distance::meters(50.0);
 
     // TODO retain this as a regression test
     let center_pts = PolyLine::new(

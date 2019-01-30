@@ -38,8 +38,9 @@ pub use crate::traffic_signals::{ControlTrafficSignal, Cycle};
 pub use crate::traversable::{Position, Traversable};
 pub use crate::turn::{Turn, TurnID, TurnPriority, TurnType};
 use abstutil::Cloneable;
+use geom::Distance;
 
-pub const LANE_THICKNESS: f64 = 2.5;
+pub const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 
 impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}

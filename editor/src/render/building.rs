@@ -19,7 +19,7 @@ impl DrawBuilding {
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
         let len = front_path_line.length();
-        let trim_back = Distance::meters(LANE_THICKNESS / 2.0);
+        let trim_back = LANE_THICKNESS / 2.0;
         if len > trim_back && len - trim_back > geom::EPSILON_DIST {
             front_path_line = Line::new(
                 front_path_line.pt1(),
@@ -27,7 +27,7 @@ impl DrawBuilding {
             );
         }
         let fill_polygon = Polygon::new(&bldg.points);
-        let front_path = front_path_line.make_polygons(1.0);
+        let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
         let default_draw = prerender.upload_borrowed(vec![
             (

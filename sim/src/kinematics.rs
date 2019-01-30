@@ -142,7 +142,7 @@ impl Vehicle {
         speed: Speed,
         dist: Distance,
     ) -> Result<Acceleration, Error> {
-        if dist < EPSILON_DIST * -1.0 {
+        if dist < -EPSILON_DIST {
             return Err(Error::new(format!(
                 "{} called accel_to_stop_in_dist({}, {}) with negative distance",
                 self.id, speed, dist

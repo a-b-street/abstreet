@@ -7,7 +7,6 @@ mod trim_polyline;
 
 use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, GUI};
 use geom::Pt2D;
-use std::f64;
 use std::process;
 
 pub struct UI {

@@ -165,9 +165,7 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
             // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
             // the threshold distance?
             let middle = PolyLine::new(pts).middle();
-            if let Some(((r, fwds), _)) =
-                closest.closest_pt(middle, Distance::meters(5.0 * LANE_THICKNESS))
-            {
+            if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
                 let category = s.attributes.get("PARKING_CATEGORY");
                 let has_parking = category != Some(&"None".to_string())
                     && category != Some(&"No Parking Allowed".to_string());

@@ -8,9 +8,9 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::mem;
 
-const INTERSECTION_RADIUS: f64 = 5.0;
+const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: f64 = 30.0;
-const CENTER_LINE_THICKNESS: f64 = 0.5;
+const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
 const HIGHLIGHT_COLOR: Color = Color::CYAN;
 
@@ -99,7 +99,7 @@ impl Road {
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             let polygon = base
-                .shift_right(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_fwd {
@@ -112,7 +112,7 @@ impl Road {
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let polygon = base
-                .shift_left(((idx as f64) + 0.5) * LANE_THICKNESS)
+                .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_back {

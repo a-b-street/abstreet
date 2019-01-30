@@ -1,13 +1,13 @@
 use crate::common::{draw_polyline, SOLID_BLACK, YELLOW};
 use ezgui::{Color, GfxCtx};
-use geom::{PolyLine, Pt2D};
+use geom::{Distance, PolyLine, Pt2D};
 
 // Copied from map_model; no need to have to rebuild that crate
-const LANE_THICKNESS: f64 = 2.5;
+const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(g: &mut GfxCtx) {
-    let thin = 0.25;
+    let thin = Distance::meters(0.25);
     let shift1_width = LANE_THICKNESS * 0.5;
     let shift2_width = LANE_THICKNESS * 1.5;
 
@@ -80,5 +80,5 @@ pub fn draw_lane(g: &mut GfxCtx, pl: &PolyLine, color: Color) {
     g.draw_polygon(color, &pl.make_polygons(LANE_THICKNESS));
 
     // Debug the center points
-    draw_polyline(g, pl, 0.25, SOLID_BLACK);
+    draw_polyline(g, pl, Distance::meters(0.25), SOLID_BLACK);
 }

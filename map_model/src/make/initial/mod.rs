@@ -5,7 +5,7 @@ mod merge;
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, MapEdits, LANE_THICKNESS};
 use abstutil::Timer;
-use geom::{GPSBounds, PolyLine, Pt2D};
+use geom::{Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -25,8 +25,8 @@ pub struct Road {
     pub dst_i: StableIntersectionID,
     pub original_center_pts: PolyLine,
     pub trimmed_center_pts: PolyLine,
-    pub fwd_width: f64,
-    pub back_width: f64,
+    pub fwd_width: Distance,
+    pub back_width: Distance,
     pub lane_specs: Vec<lane_specs::LaneSpec>,
 }
 
@@ -90,8 +90,8 @@ impl InitialMap {
             );
 
             let lane_specs = lane_specs::get_lane_specs(r, *stable_id, edits);
-            let mut fwd_width = 0.0;
-            let mut back_width = 0.0;
+            let mut fwd_width = Distance::ZERO;
+            let mut back_width = Distance::ZERO;
             for l in &lane_specs {
                 if l.reverse_pts {
                     back_width += LANE_THICKNESS;

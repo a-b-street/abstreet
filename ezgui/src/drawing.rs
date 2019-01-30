@@ -1,5 +1,5 @@
 use crate::{Canvas, Color, ScreenPt};
-use geom::{Circle, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use glium::{implement_vertex, uniform, Surface};
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
@@ -100,11 +100,11 @@ impl<'a> GfxCtx<'a> {
 
     // Use graphics::Line internally for now, but make it easy to switch to something else by
     // picking this API now.
-    pub fn draw_line(&mut self, color: Color, thickness: f64, line: &Line) {
+    pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {
         self.draw_polygon(color, &line.make_polygons(thickness));
     }
 
-    pub fn draw_rounded_line(&mut self, color: Color, thickness: f64, line: &Line) {
+    pub fn draw_rounded_line(&mut self, color: Color, thickness: Distance, line: &Line) {
         self.draw_polygon_batch(vec![
             (color, &line.make_polygons(thickness)),
             (
@@ -118,7 +118,7 @@ impl<'a> GfxCtx<'a> {
         ]);
     }
 
-    pub fn draw_arrow(&mut self, color: Color, thickness: f64, line: &Line) {
+    pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
         let polygons = line.make_arrow(thickness);
         self.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
     }

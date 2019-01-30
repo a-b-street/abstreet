@@ -1,10 +1,10 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Distance, Polygon, Pt2D};
 use sim::{CarID, CarState, DrawCarInput};
 
-const BIKE_WIDTH: f64 = 0.8;
+const BIKE_WIDTH: Distance = Distance::const_meters(0.8);
 
 pub struct DrawBike {
     pub id: CarID,

@@ -6,7 +6,7 @@ use map_model::{Map, TurnType};
 use sim::{CarID, CarState, DrawCarInput, MIN_CAR_LENGTH};
 use std;
 
-const CAR_WIDTH: f64 = 2.0;
+const CAR_WIDTH: Distance = Distance::const_meters(2.0);
 
 pub struct DrawCar {
     pub id: CarID,
@@ -57,17 +57,17 @@ impl DrawCar {
             .body
             .dist_along(input.body.length() - Distance::meters(0.5));
         let (back_blinker_pos, back_blinker_angle) = input.body.dist_along(Distance::meters(0.5));
-        let blinker_radius = 0.3;
+        let blinker_radius = Distance::meters(0.3);
 
-        let window_length_gap = 0.2;
-        let window_thickness = 0.3;
+        let window_length_gap = Distance::meters(0.2);
+        let window_thickness = Distance::meters(0.3);
         let front_window = {
             let (pos, angle) = input
                 .body
                 .dist_along(input.body.length() - Distance::meters(1.0));
             thick_line_from_angle(
                 window_thickness,
-                CAR_WIDTH - 2.0 * window_length_gap,
+                CAR_WIDTH - window_length_gap * 2.0,
                 pos.project_away(
                     CAR_WIDTH / 2.0 - window_length_gap,
                     angle.rotate_degs(-90.0),
@@ -79,7 +79,7 @@ impl DrawCar {
             let (pos, angle) = input.body.dist_along(Distance::meters(1.0));
             thick_line_from_angle(
                 window_thickness * 0.8,
-                CAR_WIDTH - 2.0 * window_length_gap,
+                CAR_WIDTH - window_length_gap * 2.0,
                 pos.project_away(
                     CAR_WIDTH / 2.0 - window_length_gap,
                     angle.rotate_degs(-90.0),
@@ -95,26 +95,32 @@ impl DrawCar {
             left_blinkers: Some((
                 Circle::new(
                     front_blinker_pos.project_away(
-                        CAR_WIDTH / 2.0 - 0.5,
+                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
                         front_blinker_angle.rotate_degs(-90.0),
                     ),
                     blinker_radius,
                 ),
                 Circle::new(
-                    back_blinker_pos
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, back_blinker_angle.rotate_degs(-90.0)),
+                    back_blinker_pos.project_away(
+                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
+                        back_blinker_angle.rotate_degs(-90.0),
+                    ),
                     blinker_radius,
                 ),
             )),
             right_blinkers: Some((
                 Circle::new(
-                    front_blinker_pos
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, front_blinker_angle.rotate_degs(90.0)),
+                    front_blinker_pos.project_away(
+                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
+                        front_blinker_angle.rotate_degs(90.0),
+                    ),
                     blinker_radius,
                 ),
                 Circle::new(
-                    back_blinker_pos
-                        .project_away(CAR_WIDTH / 2.0 - 0.5, back_blinker_angle.rotate_degs(90.0)),
+                    back_blinker_pos.project_away(
+                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
+                        back_blinker_angle.rotate_degs(90.0),
+                    ),
                     blinker_radius,
                 ),
             )),
@@ -216,7 +222,12 @@ impl Renderable for DrawCar {
     }
 }
 
-fn thick_line_from_angle(thickness: f64, line_length: f64, pt: Pt2D, angle: Angle) -> Polygon {
+fn thick_line_from_angle(
+    thickness: Distance,
+    line_length: Distance,
+    pt: Pt2D,
+    angle: Angle,
+) -> Polygon {
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
     PolyLine::new(vec![pt, pt2]).make_polygons(thickness)

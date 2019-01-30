@@ -35,6 +35,10 @@ impl Distance {
         }
     }
 
+    pub fn sqrt(self) -> Distance {
+        Distance::meters(self.0.sqrt())
+    }
+
     // TODO Remove by making Distance itself Ord.
     pub fn as_ordered(self) -> NotNan<f64> {
         NotNan::new(self.0).unwrap()
@@ -72,6 +76,14 @@ impl ops::Sub for Distance {
 
     fn sub(self, other: Distance) -> Distance {
         Distance::meters(self.0 - other.0)
+    }
+}
+
+impl ops::Neg for Distance {
+    type Output = Distance;
+
+    fn neg(self) -> Distance {
+        Distance::meters(-self.0)
     }
 }
 
