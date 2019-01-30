@@ -89,6 +89,7 @@ fn generalized_trim_back(
                     0.0 * si::M,
                     road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
                 )
+                .unwrap()
                 .0
         } else {
             road_center.clone()
@@ -226,6 +227,7 @@ fn deadend(
                     DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
                     r.trimmed_center_pts.length(),
                 )
+                .unwrap()
                 .0;
         } else {
             r.trimmed_center_pts = r
@@ -234,6 +236,7 @@ fn deadend(
                     0.0 * si::M,
                     r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
                 )
+                .unwrap()
                 .0;
         }
 

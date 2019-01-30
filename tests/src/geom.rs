@@ -1,6 +1,6 @@
 use crate::runner::TestRunner;
 use geom::{Line, PolyLine, Pt2D};
-use rand;
+//use rand;
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
@@ -15,7 +15,7 @@ pub fn run(t: &mut TestRunner) {
         assert!(l.dist_along_of_point(pt).is_some());
     });
 
-    t.run_fast("shift_polyline_equivalence", |_| {
+    /*t.run_fast("shift_polyline_equivalence", |_| {
         let scale = 1000.0;
         let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
         let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
@@ -46,9 +46,9 @@ pub fn run(t: &mut TestRunner) {
             PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift_right(width),
             PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s])
         );
-    });
+    });*/
 
-    t.run_fast("shift_short_polyline_equivalence", |_| {
+    /*t.run_fast("shift_short_polyline_equivalence", |_| {
         let scale = 1000.0;
         let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
         let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
@@ -60,7 +60,7 @@ pub fn run(t: &mut TestRunner) {
             PolyLine::new(vec![pt1, pt2]).shift_right(width),
             l.to_polyline()
         );
-    });
+    });*/
 
     t.run_fast("trim_with_epsilon", |_| {
         /*

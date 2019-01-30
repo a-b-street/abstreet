@@ -198,6 +198,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, cs: &ColorScheme) -> Vec<
     // Don't draw the dashes too close to the ends.
     let polygons = lane_edge_pts
         .slice(dash_separation, lane_edge_pts.length() - dash_separation)
+        .unwrap()
         .0
         .dashed_polygons(0.25, dash_len, dash_separation);
     polygons
@@ -264,6 +265,7 @@ fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygo
     let common_base = lane
         .lane_center_pts
         .slice(len - 7.0 * si::M, len - 5.0 * si::M)
+        .unwrap()
         .0;
     let base_polygon = common_base.make_polygons(0.1);
     let turn_line = Line::new(

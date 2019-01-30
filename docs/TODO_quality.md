@@ -3,9 +3,13 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
+	- change internal pt2d representation to int. JUST get that working first.
+		- then get rid of approx_eq, approx_dedupe
+		- make Pt2D natively orderable, hashable
+		- can Pt2D::new() and x() and y() return something besides f64?
+
 	- successful: Lines of ~0 length gone
 	- but due to bad polyline shifting, some things would loudly break if we squished pts down always
-	- might be cleaner to make polyline slice return Optional
 
 - underlying problems
 	- bad polyline shifting remains

@@ -82,32 +82,16 @@ impl PathStep {
         }
 
         match self {
-            PathStep::Lane(id) => {
-                let l = map.get_l(*id);
-                // Might have a pedestrian at a front_path lined up with the end of a lane
-                if start >= l.length() - EPSILON_DIST {
-                    None
-                } else {
-                    Some(l.lane_center_pts.slice(start, start + dist_ahead))
-                }
-            }
+            PathStep::Lane(id) => map
+                .get_l(*id)
+                .lane_center_pts
+                .slice(start, start + dist_ahead),
             PathStep::ContraflowLane(id) => {
-                if start < EPSILON_DIST {
-                    None
-                } else {
-                    let pts = map.get_l(*id).lane_center_pts.reversed();
-                    let reversed_start = pts.length() - start;
-                    Some(pts.slice(reversed_start, reversed_start + dist_ahead))
-                }
+                let pts = map.get_l(*id).lane_center_pts.reversed();
+                let reversed_start = pts.length() - start;
+                pts.slice(reversed_start, reversed_start + dist_ahead)
             }
-            PathStep::Turn(id) => {
-                let geom = &map.get_t(*id).geom;
-                if start >= geom.length() - EPSILON_DIST {
-                    None
-                } else {
-                    Some(geom.slice(start, start + dist_ahead))
-                }
-            }
+            PathStep::Turn(id) => map.get_t(*id).geom.slice(start, start + dist_ahead),
         }
     }
 }

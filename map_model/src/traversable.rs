@@ -102,7 +102,7 @@ impl Traversable {
         start: si::Meter<f64>,
         end: si::Meter<f64>,
         map: &Map,
-    ) -> (PolyLine, si::Meter<f64>) {
+    ) -> Option<(PolyLine, si::Meter<f64>)> {
         match *self {
             Traversable::Lane(id) => map.get_l(id).lane_center_pts.slice(start, end),
             Traversable::Turn(id) => map.get_t(id).geom.slice(start, end),

@@ -118,10 +118,18 @@ impl PolyLine {
         self.length
     }
 
-    // Returns the excess distance left over from the end.
-    pub fn slice(&self, start: si::Meter<f64>, end: si::Meter<f64>) -> (PolyLine, si::Meter<f64>) {
-        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M || end - start < EPSILON_DIST {
+    // Returns the excess distance left over from the end. None if the result would be too squished
+    // together.
+    pub fn slice(
+        &self,
+        start: si::Meter<f64>,
+        end: si::Meter<f64>,
+    ) -> Option<(PolyLine, si::Meter<f64>)> {
+        if start >= end || start < 0.0 * si::M || end < 0.0 * si::M {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
+        }
+        if end - start < EPSILON_DIST {
+            return None;
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -142,7 +150,7 @@ impl PolyLine {
                     result.pop();
                 }
                 result.push(last_pt);
-                return (PolyLine::new(result), 0.0 * si::M);
+                return Some((PolyLine::new(result), 0.0 * si::M));
             }
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
@@ -163,20 +171,14 @@ impl PolyLine {
             );
         }
         if result.len() == 1 {
-            panic!(
-                "Slice [{}, {}] didn't work on a polyline of length {} with points {}",
-                start,
-                end,
-                self.length(),
-                self
-            );
+            return None;
         }
 
-        (PolyLine::new(result), end - dist_so_far)
+        Some((PolyLine::new(result), end - dist_so_far))
     }
 
     pub fn second_half(&self) -> PolyLine {
-        self.slice(self.length() / 2.0, self.length()).0
+        self.slice(self.length() / 2.0, self.length()).unwrap().0
     }
 
     // TODO return result with an error message
@@ -349,7 +351,12 @@ impl PolyLine {
                 break;
             }
 
-            polygons.push(self.slice(start, start + dash_len).0.make_polygons(width));
+            polygons.push(
+                self.slice(start, start + dash_len)
+                    .unwrap()
+                    .0
+                    .make_polygons(width),
+            );
             start += dash_len + dash_separation;
         }
 

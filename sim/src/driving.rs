@@ -819,6 +819,7 @@ impl DrivingSimState {
 
         let base_body = if c.dist_along >= c.vehicle.length {
             c.on.slice(c.dist_along - c.vehicle.length, c.dist_along, map)
+                .unwrap()
                 .0
         } else if let Some(prev) = c.last_step {
             // TODO Maintaining the entire path the whole time, with some kind of PathCursor thing,
@@ -851,13 +852,9 @@ impl DrivingSimState {
             )
             .unwrap()
         } else {
-            if c.dist_along > EPSILON_DIST {
-                c.on.slice(0.0 * si::M, c.dist_along, map).0
-            } else {
-                // TODO Kinda weird to consider the car not present, but eventually cars spawning
-                // at borders should appear fully anyway.
-                return None;
-            }
+            // TODO Kinda weird to consider the car not present, but eventually cars spawning
+            // at borders should appear fully anyway.
+            c.on.slice(0.0 * si::M, c.dist_along, map)?.0
         };
 
         let body = if let Some(ref parking) = c.parking {
