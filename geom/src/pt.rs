@@ -28,7 +28,7 @@ impl Pt2D {
     }
 
     // TODO This is a small first step...
-    pub fn approx_eq(&self, other: Pt2D, threshold: si::Meter<f64>) -> bool {
+    pub fn approx_eq(self, other: Pt2D, threshold: si::Meter<f64>) -> bool {
         self.dist_to(other) <= threshold
     }
 
@@ -53,7 +53,7 @@ impl Pt2D {
         Some(Pt2D::new(x, y))
     }
 
-    pub fn to_gps(&self, b: &GPSBounds) -> Option<LonLat> {
+    pub fn to_gps(self, b: &GPSBounds) -> Option<LonLat> {
         if b.represents_world_space {
             let pt = LonLat::new(self.x(), self.y());
             if b.contains(pt) {
@@ -77,17 +77,17 @@ impl Pt2D {
         Some(LonLat::new(lon, lat))
     }
 
-    pub fn x(&self) -> f64 {
+    pub fn x(self) -> f64 {
         self.inner_x
     }
 
-    pub fn y(&self) -> f64 {
+    pub fn y(self) -> f64 {
         self.inner_y
     }
 
     // TODO better name
     // TODO Meters for dist?
-    pub fn project_away(&self, dist: f64, theta: Angle) -> Pt2D {
+    pub fn project_away(self, dist: f64, theta: Angle) -> Pt2D {
         // If negative, caller should use theta.opposite()
         assert!(dist >= 0.0);
 
@@ -101,12 +101,12 @@ impl Pt2D {
         ((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt() * si::M
     }
 
-    pub fn angle_to(&self, to: Pt2D) -> Angle {
+    pub fn angle_to(self, to: Pt2D) -> Angle {
         // DON'T invert y here
         Angle::new((to.y() - self.y()).atan2(to.x() - self.x()))
     }
 
-    pub fn offset(&self, dx: f64, dy: f64) -> Pt2D {
+    pub fn offset(self, dx: f64, dy: f64) -> Pt2D {
         Pt2D::new(self.x() + dx, self.y() + dy)
     }
 

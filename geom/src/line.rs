@@ -88,6 +88,7 @@ impl Line {
 
         let hit = self.infinite().intersection(&other.infinite())?;
         if self.contains_pt(hit) {
+            // TODO and other contains pt, then we dont need ccw check thing
             Some(hit)
         } else {
             panic!(
@@ -182,43 +183,14 @@ impl Line {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        let dist = self.0.dist_to(pt) + pt.dist_to(self.1) - self.length();
-        if dist < 0.0 * si::M {
-            -dist < EPSILON_DIST
-        } else {
-            dist < EPSILON_DIST
-        }
-    }
-
-    fn is_horizontal(&self) -> bool {
-        (self.0.y() - self.1.y()).abs() < EPSILON_DIST.value_unsafe
-    }
-
-    fn is_vertical(&self) -> bool {
-        (self.0.x() - self.1.x()).abs() < EPSILON_DIST.value_unsafe
+        self.dist_along_of_point(pt).is_some()
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<si::Meter<f64>> {
-        const PERCENT_EPSILON: f64 = 0.000_000_000_1;
-
-        if !self.contains_pt(pt) {
-            return None;
-        }
-
-        let percent1 = (pt.x() - self.pt1().x()) / (self.pt2().x() - self.pt1().x());
-        let percent2 = (pt.y() - self.pt1().y()) / (self.pt2().y() - self.pt1().y());
-
-        // TODO Urgh, special cases. Probably projecting a point onto the line could help?
-        if self.is_horizontal() {
-            Some(self.length() * percent1)
-        } else if self.is_vertical() {
-            Some(self.length() * percent2)
-        } else if (percent1 - percent2).abs() < PERCENT_EPSILON {
-            Some(self.length() * percent1)
-        } else if percent1.is_nan() {
-            Some(self.length() * percent2)
-        } else if percent2.is_nan() {
-            Some(self.length() * percent1)
+        let dist1 = self.pt1().dist_to(pt);
+        let dist2 = pt.dist_to(self.pt2());
+        if (dist1 + dist2 - self.length()).value_unsafe.abs() * si::M < EPSILON_DIST {
+            Some(dist1)
         } else {
             None
         }
