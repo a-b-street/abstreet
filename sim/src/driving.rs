@@ -851,7 +851,7 @@ impl DrivingSimState {
         };
 
         let body = if let Some(ref parking) = c.parking {
-            let progress: f64 = (time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART;
+            let progress = (time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART;
             assert!(progress >= 0.0 && progress <= 1.0);
             let project_away_ratio = if parking.is_parking {
                 progress

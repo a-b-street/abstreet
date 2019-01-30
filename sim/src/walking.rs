@@ -312,7 +312,7 @@ impl Pedestrian {
             );
             let line = Line::new(sidewalk_pos.pt(map), street_pos.pt(map));
 
-            let progress: f64 = (now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE;
+            let progress = (now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE;
             assert!(progress >= 0.0 && progress <= 1.0);
             let ratio = if bp.is_parking {
                 1.0 - progress

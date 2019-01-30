@@ -5,7 +5,6 @@
 - try fixed pt again, for determinism purposes mostly
 	- go through and use less f64's... like LANE_THICKNESS, make_polygons, Circle::new, project_away
 	- audit inner_foo()'s
-	- rerun import, all tests, screenshots
 
 	- change internal pt2d representation to int. JUST get that working first.
 		- clamp distances first, not points?

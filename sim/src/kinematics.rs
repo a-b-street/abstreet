@@ -166,7 +166,8 @@ impl Vehicle {
                 / (2.0 * dist.inner_meters()),
         );
         // TODO might validlyish be NaN, so just f64 here
-        let required_time: f64 = (speed / normal_case * -1.0).inner_seconds();
+        let required_time =
+            -1.0 * speed.inner_meters_per_second() / normal_case.inner_meters_per_second_squared();
 
         if self.debug {
             debug!(
