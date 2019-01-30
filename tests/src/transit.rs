@@ -38,8 +38,16 @@ pub fn run(t: &mut TestRunner) {
         let ped_stop1 = route.stops[1];
         let ped_stop2 = route.stops[2];
         // TODO These should be buildings near the two stops. Programmatically find these?
-        let start_bldg = map_model::BuildingID(1451);
-        let goal_bldg = map_model::BuildingID(454);
+        let start_bldg = *map
+            .get_l(map.get_bs(ped_stop1).sidewalk_pos.lane())
+            .building_paths
+            .last()
+            .unwrap();
+        // TODO Goal should be on the opposite side of the road from the stop, but that's hard to
+        // express right now. :\
+        let goal_bldg = map
+            .get_l(map.get_bs(ped_stop2).sidewalk_pos.lane())
+            .building_paths[0];
         let ped =
             sim.seed_trip_using_bus(start_bldg, goal_bldg, route.id, ped_stop1, ped_stop2, &map);
         h.setup_done(&sim);

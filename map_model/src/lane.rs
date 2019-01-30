@@ -42,6 +42,7 @@ pub struct Lane {
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 
+    // Sorted by distance of the front path
     pub building_paths: Vec<BuildingID>,
     pub bus_stops: Vec<BusStopID>,
 }

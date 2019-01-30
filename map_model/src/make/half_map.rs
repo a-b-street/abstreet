@@ -4,6 +4,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Bounds, GPSBounds, Polygon, Pt2D};
+use ordered_float::NotNan;
 use std::collections::BTreeMap;
 
 pub struct HalfMap {
@@ -164,9 +165,22 @@ pub fn make_half_map(
         timer,
     );
     for b in &half_map.buildings {
-        half_map.lanes[b.front_path.sidewalk.lane().0]
-            .building_paths
-            .push(b.id);
+        let lane = b.front_path.sidewalk.lane();
+
+        // TODO Could be more performant and cleanly written
+        let mut bldgs = half_map.lanes[lane.0].building_paths.clone();
+        bldgs.push(b.id);
+        bldgs.sort_by_key(|b| {
+            NotNan::new(
+                half_map.buildings[b.0]
+                    .front_path
+                    .sidewalk
+                    .dist_along()
+                    .value_unsafe,
+            )
+            .unwrap()
+        });
+        half_map.lanes[lane.0].building_paths = bldgs;
     }
 
     make::make_all_parcels(
