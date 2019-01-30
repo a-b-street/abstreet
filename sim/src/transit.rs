@@ -4,9 +4,9 @@ use crate::spawn::Spawner;
 use crate::trips::TripManager;
 use crate::view::AgentView;
 use crate::walking::WalkingSimState;
-use crate::{CarID, Distance, PedestrianID, Tick};
+use crate::{CarID, PedestrianID, Tick};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use dimensioned::si;
+use geom::{Distance, Duration};
 use map_model::{BusRoute, BusRouteID, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -143,7 +143,7 @@ impl TransitSimState {
                 if stop.driving_pos.dist_along() == view.dist_along {
                     // TODO constant for stop time
                     self.buses.get_mut(&car).unwrap().state =
-                        BusState::AtStop(stop_idx, time + 10.0 * si::S);
+                        BusState::AtStop(stop_idx, time + Duration::seconds(10.0));
                     events.push(Event::BusArrivedAtStop(car, stop.id));
                     capture_backtrace("BusArrivedAtStop");
                     if view.debug {

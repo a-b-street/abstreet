@@ -1,12 +1,11 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key};
+use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneID, LaneType, PathRequest, Pathfinder,
     Position, Trace, LANE_THICKNESS,
 };
-use std::f64;
 
 #[derive(Clone)]
 enum Source {
@@ -86,7 +85,7 @@ impl Plugin for SpawnAgent {
         if recalculate {
             let start = match self.from {
                 Source::Walking(from) => map.get_b(from).front_path.sidewalk,
-                Source::Driving(from) => Position::new(from, 0.0 * si::M),
+                Source::Driving(from) => Position::new(from, Distance::ZERO),
             };
             let end = match new_goal {
                 Goal::Building(to) => match self.from {
@@ -121,10 +120,8 @@ impl Plugin for SpawnAgent {
                     can_use_bus_lanes: false,
                 },
             ) {
-                self.maybe_goal = Some((
-                    new_goal,
-                    path.trace(map, start.dist_along(), f64::MAX * si::M),
-                ));
+                self.maybe_goal =
+                    Some((new_goal, path.trace(map, start.dist_along(), Distance::MAX)));
             } else {
                 self.maybe_goal = None;
             }

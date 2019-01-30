@@ -4,14 +4,12 @@ use crate::parking::ParkingSimState;
 use crate::trips::TripManager;
 use crate::view::{AgentView, WorldView};
 use crate::{
-    AgentID, Distance, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Speed, Tick, Time,
-    TripID, TIMESTEP,
+    AgentID, DrawPedestrianInput, Event, ParkingSpot, PedestrianID, Tick, TripID, TIMESTEP,
 };
 use abstutil;
 use abstutil::{deserialize_multimap, serialize_multimap, Error};
 use derivative::Derivative;
-use dimensioned::si;
-use geom::{Line, Pt2D};
+use geom::{Distance, Duration, Line, Pt2D, Speed};
 use map_model::{
     BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Position, Trace,
     Traversable, TurnID,
@@ -24,15 +22,9 @@ use std::collections::{BTreeMap, HashSet};
 // TODO tune these!
 // TODO make it vary, after we can easily serialize these
 // TODO temporarily very high to debug peds faster
-const SPEED: Speed = si::MeterPerSecond {
-    value_unsafe: 3.9,
-    _marker: std::marker::PhantomData,
-};
+const SPEED: Speed = Speed::const_meters_per_second(3.9);
 
-const TIME_TO_PREPARE_BIKE: Time = si::Second {
-    value_unsafe: 15.0,
-    _marker: std::marker::PhantomData,
-};
+const TIME_TO_PREPARE_BIKE: Duration = Duration::const_seconds(15.0);
 
 // A pedestrian can start from a parking spot (after driving and parking) or at a building.
 // A pedestrian can end at a parking spot (to start driving) or at a building.
@@ -86,7 +78,7 @@ impl SidewalkSpot {
             None
         } else {
             Some(SidewalkSpot {
-                sidewalk_pos: Position::new(lanes[0], 0.0 * si::M),
+                sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
                 connection: SidewalkPOI::Border(i),
             })
         }
@@ -186,7 +178,7 @@ impl Pedestrian {
             } else {
                 goal_dist - self.dist_along
             };
-            if dist_away <= 2.0 * SPEED * TIMESTEP {
+            if dist_away <= SPEED * TIMESTEP * 2.0 {
                 return match self.goal.connection {
                     SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
                     SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
@@ -201,7 +193,7 @@ impl Pedestrian {
         {
             let contraflow = self.path.current_step().is_contraflow();
             if (!contraflow && self.dist_along < self.on.length(map))
-                || (contraflow && self.dist_along > 0.0 * si::M)
+                || (contraflow && self.dist_along > Distance::ZERO)
             {
                 return Action::Continue;
             }
@@ -217,7 +209,12 @@ impl Pedestrian {
     }
 
     // If true, then we're completely done!
-    fn step_cross_path(&mut self, events: &mut Vec<Event>, delta_time: Time, map: &Map) -> bool {
+    fn step_cross_path(
+        &mut self,
+        events: &mut Vec<Event>,
+        delta_time: Duration,
+        map: &Map,
+    ) -> bool {
         let new_dist = delta_time * SPEED;
 
         // TODO arguably a different direction would make this easier
@@ -227,7 +224,7 @@ impl Pedestrian {
                 fp.dist_along >= map.get_b(fp.bldg).front_path.line.length()
             } else {
                 fp.dist_along -= new_dist;
-                if fp.dist_along < 0.0 * si::M {
+                if fp.dist_along < Distance::ZERO {
                     events.push(Event::PedReachedBuilding(self.id, fp.bldg));
                     capture_backtrace("PedReachedBuilding");
                     return true;
@@ -243,13 +240,13 @@ impl Pedestrian {
         false
     }
 
-    fn step_continue(&mut self, delta_time: Time, map: &Map) {
+    fn step_continue(&mut self, delta_time: Duration, map: &Map) {
         let new_dist = delta_time * SPEED;
 
         if self.path.current_step().is_contraflow() {
             self.dist_along -= new_dist;
-            if self.dist_along < 0.0 * si::M {
-                self.dist_along = 0.0 * si::M;
+            if self.dist_along < Distance::ZERO {
+                self.dist_along = Distance::ZERO;
             }
         } else {
             self.dist_along += new_dist;
@@ -280,7 +277,7 @@ impl Pedestrian {
         match self.path.current_step() {
             PathStep::Lane(id) => {
                 self.on = Traversable::Lane(id);
-                self.dist_along = 0.0 * si::M;
+                self.dist_along = Distance::ZERO;
             }
             PathStep::ContraflowLane(id) => {
                 self.on = Traversable::Lane(id);
@@ -288,7 +285,7 @@ impl Pedestrian {
             }
             PathStep::Turn(t) => {
                 self.on = Traversable::Turn(t);
-                self.dist_along = 0.0 * si::M;
+                self.dist_along = Distance::ZERO;
                 intersections.on_enter(Request::for_ped(self.id, t))?;
             }
         }
@@ -315,8 +312,7 @@ impl Pedestrian {
             );
             let line = Line::new(sidewalk_pos.pt(map), street_pos.pt(map));
 
-            let progress: f64 =
-                ((now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE).value_unsafe;
+            let progress: f64 = (now - bp.started_at).as_time() / TIME_TO_PREPARE_BIKE;
             assert!(progress >= 0.0 && progress <= 1.0);
             let ratio = if bp.is_parking {
                 1.0 - progress
@@ -324,7 +320,7 @@ impl Pedestrian {
                 progress
             };
 
-            line.dist_along(ratio * line.length())
+            line.dist_along(line.length() * ratio)
         } else {
             self.on.dist_along(self.dist_along, map).0
         }
@@ -393,7 +389,7 @@ impl WalkingSimState {
     pub fn step(
         &mut self,
         events: &mut Vec<Event>,
-        delta_time: Time,
+        delta_time: Duration,
         now: Tick,
         map: &Map,
         intersections: &mut IntersectionSimState,
@@ -581,7 +577,7 @@ impl WalkingSimState {
         let front_path = match params.start.connection {
             SidewalkPOI::Building(id) => Some(CrossingFrontPath {
                 bldg: id,
-                dist_along: 0.0 * si::M,
+                dist_along: Distance::ZERO,
                 going_to_sidewalk: true,
             }),
             _ => None,
@@ -627,7 +623,7 @@ impl WalkingSimState {
                     debug: false,
                     on: p.on,
                     dist_along: p.dist_along,
-                    speed: if p.moving { SPEED } else { 0.0 * si::MPS },
+                    speed: if p.moving { SPEED } else { Speed::ZERO },
                     vehicle: None,
                 },
             );

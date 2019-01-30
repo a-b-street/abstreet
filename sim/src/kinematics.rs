@@ -1,48 +1,25 @@
-use crate::{Acceleration, CarID, Distance, Speed, Time, TIMESTEP};
+use crate::{CarID, TIMESTEP};
 use abstutil::Error;
-use dimensioned::si;
-use geom::EPSILON_DIST;
+use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use more_asserts::assert_ge;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std;
 
-pub const EPSILON_SPEED: Speed = si::MeterPerSecond {
-    value_unsafe: 0.000_000_01,
-    _marker: std::marker::PhantomData,
-};
+pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.000_000_01);
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
-const MIN_BIKE_LENGTH: Distance = si::Meter {
-    value_unsafe: 1.7,
-    _marker: std::marker::PhantomData,
-};
-const MAX_BIKE_LENGTH: Distance = si::Meter {
-    value_unsafe: 2.0,
-    _marker: std::marker::PhantomData,
-};
+const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
+const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
 // These two must be < PARKING_SPOT_LENGTH
-pub const MIN_CAR_LENGTH: Distance = si::Meter {
-    value_unsafe: 4.5,
-    _marker: std::marker::PhantomData,
-};
-const MAX_CAR_LENGTH: Distance = si::Meter {
-    value_unsafe: 6.5,
-    _marker: std::marker::PhantomData,
-};
+pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
+const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 // Note this is more than MAX_CAR_LENGTH
-const BUS_LENGTH: Distance = si::Meter {
-    value_unsafe: 12.5,
-    _marker: std::marker::PhantomData,
-};
+const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 
 // At all speeds (including at rest), cars must be at least this far apart, measured from front of
 // one car to the back of the other.
-pub const FOLLOWING_DISTANCE: Distance = si::Meter {
-    value_unsafe: 1.0,
-    _marker: std::marker::PhantomData,
-};
+pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 // TODO unit test all of this
 // TODO handle floating point issues uniformly here
@@ -75,10 +52,12 @@ impl Vehicle {
             id,
             vehicle_type: VehicleType::Car,
             debug: false,
-            max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
-            max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
+            max_accel: Acceleration::meters_per_second_squared(rng.gen_range(2.4, 2.8)),
+            max_deaccel: Acceleration::meters_per_second_squared(rng.gen_range(-2.8, -2.4)),
             // TODO more realistic to have a few preset lengths and choose between them
-            length: rng.gen_range(MIN_CAR_LENGTH.value_unsafe, MAX_CAR_LENGTH.value_unsafe) * si::M,
+            length: Distance::meters(
+                rng.gen_range(MIN_CAR_LENGTH.inner_meters(), MAX_CAR_LENGTH.inner_meters()),
+            ),
             max_speed: None,
         }
     }
@@ -88,8 +67,8 @@ impl Vehicle {
             id,
             vehicle_type: VehicleType::Bus,
             debug: false,
-            max_accel: rng.gen_range(2.4, 2.8) * si::MPS2,
-            max_deaccel: rng.gen_range(-2.8, -2.4) * si::MPS2,
+            max_accel: Acceleration::meters_per_second_squared(rng.gen_range(2.4, 2.8)),
+            max_deaccel: Acceleration::meters_per_second_squared(rng.gen_range(-2.8, -2.4)),
             length: BUS_LENGTH,
             max_speed: None,
         }
@@ -101,14 +80,16 @@ impl Vehicle {
             vehicle_type: VehicleType::Bike,
             debug: false,
             // http://eprints.uwe.ac.uk/20767/ says mean 0.231
-            max_accel: rng.gen_range(0.2, 0.3) * si::MPS2,
+            max_accel: Acceleration::meters_per_second_squared(rng.gen_range(0.2, 0.3)),
             // Much easier deaccel. Partly to avoid accel_to_stop_in_dist bugs with bikes running
             // stop signs.
-            max_deaccel: rng.gen_range(-1.3, -1.2) * si::MPS2,
-            length: rng.gen_range(MIN_BIKE_LENGTH.value_unsafe, MAX_BIKE_LENGTH.value_unsafe)
-                * si::M,
+            max_deaccel: Acceleration::meters_per_second_squared(rng.gen_range(-1.3, -1.2)),
+            length: Distance::meters(rng.gen_range(
+                MIN_BIKE_LENGTH.inner_meters(),
+                MAX_BIKE_LENGTH.inner_meters(),
+            )),
             // 7 to 10 mph
-            max_speed: Some(rng.gen_range(3.13, 4.47) * si::MPS),
+            max_speed: Some(Speed::meters_per_second(rng.gen_range(3.13, 4.47))),
         }
     }
 
@@ -142,7 +123,7 @@ impl Vehicle {
 
     pub fn stopping_distance(&self, speed: Speed) -> Result<Distance, Error> {
         // 0 = v_0 + a*t
-        let stopping_time = -1.0 * speed / self.max_deaccel;
+        let stopping_time = speed / self.max_deaccel * -1.0;
         dist_at_constant_accel(self.max_deaccel, stopping_time, speed)
     }
 
@@ -161,7 +142,7 @@ impl Vehicle {
         speed: Speed,
         dist: Distance,
     ) -> Result<Acceleration, Error> {
-        if dist < -EPSILON_DIST {
+        if dist < EPSILON_DIST * -1.0 {
             return Err(Error::new(format!(
                 "{} called accel_to_stop_in_dist({}, {}) with negative distance",
                 self.id, speed, dist
@@ -170,9 +151,9 @@ impl Vehicle {
 
         // Don't NaN out. Don't check for <= EPSILON_DIST here -- it makes cars slightly overshoot
         // sometimes.
-        if dist <= 0.0 * si::M {
+        if dist <= Distance::ZERO {
             // TODO assert speed is 0ish?
-            return Ok(0.0 * si::MPS2);
+            return Ok(Acceleration::ZERO);
         }
 
         // d = (v_1)(t) + (1/2)(a)(t^2)
@@ -180,12 +161,16 @@ impl Vehicle {
         // Eliminating time yields the formula for accel below. This same accel should be applied
         // for t = -v_1 / a, which is possible even if that's not a multiple of TIMESTEP since
         // we're decelerating to rest.
-        let normal_case: Acceleration = (-1.0 * speed * speed) / (2.0 * dist);
-        let required_time: Time = -1.0 * speed / normal_case;
+        let normal_case = Acceleration::meters_per_second_squared(
+            (-1.0 * speed.inner_meters_per_second() * speed.inner_meters_per_second())
+                / (2.0 * dist.inner_meters()),
+        );
+        // TODO might validlyish be NaN, so just f64 here
+        let required_time: f64 = (speed / normal_case * -1.0).inner_seconds();
 
         if self.debug {
             debug!(
-                "   accel_to_stop_in_dist({}, {}) would normally recommend {} and take {} to finish",
+                "   accel_to_stop_in_dist({}, {}) would normally recommend {} and take {}s to finish",
                 speed, dist, normal_case, required_time
             );
         }
@@ -194,7 +179,7 @@ impl Vehicle {
         // absurd amount of time to finish, with tiny little steps. But need to tune and understand
         // this value better. Higher initial speeds or slower max_deaccel's mean this is naturally
         // going to take longer. We don't want to start stopping now if we can't undo it next tick.
-        if !required_time.value_unsafe.is_nan() && required_time < 15.0 * si::S {
+        if !required_time.is_nan() && Duration::seconds(required_time) < Duration::seconds(15.0) {
             return Ok(normal_case);
         }
 
@@ -203,7 +188,9 @@ impl Vehicle {
         // acceleration is then too high, we'll cap off and trigger a normal case next tick.
         // Want (1/2)(a)(dt^2) + (a dt)dt - (1/2)(a)(dt^2) = dist
         // TODO I don't understand the above.
-        Ok(dist / (TIMESTEP * TIMESTEP))
+        Ok(Acceleration::meters_per_second_squared(
+            dist.inner_meters() / (TIMESTEP.inner_seconds() * TIMESTEP.inner_seconds()),
+        ))
     }
 
     // Assume we accelerate as much as possible this tick (restricted only by the speed limit),
@@ -231,10 +218,9 @@ impl Vehicle {
             )));
         }
 
-        Ok(min_accel(
-            self.max_accel,
-            self.accel_to_achieve_speed_in_one_tick(current_speed, speed_limit),
-        ))
+        Ok(self
+            .max_accel
+            .min(self.accel_to_achieve_speed_in_one_tick(current_speed, speed_limit)))
     }
 
     fn max_next_dist(&self, current_speed: Speed, speed_limit: Speed) -> Result<Distance, Error> {
@@ -274,10 +260,10 @@ impl Vehicle {
 
 fn dist_at_constant_accel(
     accel: Acceleration,
-    time: Time,
+    time: Duration,
     initial_speed: Speed,
 ) -> Result<Distance, Error> {
-    if time < 0.0 * si::S {
+    if time < Duration::ZERO {
         return Err(Error::new(format!(
             "dist_at_constant_accel called with time = {}",
             time
@@ -285,14 +271,18 @@ fn dist_at_constant_accel(
     }
 
     // Don't deaccelerate into going backwards, just cap things off.
-    let actual_time = if accel >= 0.0 * si::MPS2 {
+    let actual_time = if accel >= Acceleration::ZERO {
         time
     } else {
         // 0 = v_0 + a*t
-        min_time(time, -1.0 * initial_speed / accel)
+        time.min(initial_speed / accel * -1.0)
     };
-    let dist = (initial_speed * actual_time) + (0.5 * accel * (actual_time * actual_time));
-    if dist < 0.0 * si::M {
+    let dist = (initial_speed * actual_time)
+        + Distance::meters(
+            0.5 * accel.inner_meters_per_second_squared()
+                * (actual_time.inner_seconds() * actual_time.inner_seconds()),
+        );
+    if dist < Distance::ZERO {
         return Err(Error::new(format!(
             "dist_at_constant_accel yielded result = {}",
             dist
@@ -301,42 +291,35 @@ fn dist_at_constant_accel(
     Ok(dist)
 }
 
-fn min_time(t1: Time, t2: Time) -> Time {
-    if t1 < t2 {
-        return t1;
-    }
-    t2
-}
-
-fn min_accel(a1: Acceleration, a2: Acceleration) -> Acceleration {
-    if a1 < a2 {
-        return a1;
-    }
-    a2
-}
-
 pub fn results_of_accel_for_one_tick(
     initial_speed: Speed,
     accel: Acceleration,
 ) -> (Distance, Speed) {
     // Don't deaccelerate into going backwards, just cap things off.
-    let actual_time = if accel >= 0.0 * si::MPS2 {
+    let actual_time = if accel >= Acceleration::ZERO {
         TIMESTEP
     } else {
-        min_time(TIMESTEP, -1.0 * initial_speed / accel)
+        TIMESTEP.min(initial_speed / accel * -1.0)
     };
-    let dist = (initial_speed * actual_time) + (0.5 * accel * (actual_time * actual_time));
-    assert_ge!(dist, 0.0 * si::M);
+    let dist = (initial_speed * actual_time)
+        + Distance::meters(
+            0.5 * accel.inner_meters_per_second_squared()
+                * (actual_time.inner_seconds() * actual_time.inner_seconds()),
+        );
+    assert_ge!(dist, Distance::ZERO);
     let mut new_speed = initial_speed + (accel * actual_time);
     // Handle some floating point imprecision
-    if new_speed < 0.0 * si::MPS && new_speed >= -1.0 * EPSILON_SPEED {
-        new_speed = 0.0 * si::MPS;
+    if new_speed < Speed::ZERO && new_speed >= EPSILON_SPEED * -1.0 {
+        new_speed = Speed::ZERO;
     }
-    assert_ge!(new_speed, 0.0 * si::MPS);
+    assert_ge!(new_speed, Speed::ZERO);
     (dist, new_speed)
 }
 
 fn accel_to_cover_dist_in_one_tick(dist: Distance, speed: Speed) -> Acceleration {
     // d = (v_i)(t) + (1/2)(a)(t^2), solved for a
-    2.0 * (dist - (speed * TIMESTEP)) / (TIMESTEP * TIMESTEP)
+    Acceleration::meters_per_second_squared(
+        2.0 * (dist - (speed * TIMESTEP)).inner_meters()
+            / (TIMESTEP.inner_seconds() * TIMESTEP.inner_seconds()),
+    )
 }

@@ -8,12 +8,11 @@ use crate::transit::TransitSimState;
 use crate::trips::TripManager;
 use crate::view::WorldView;
 use crate::walking::WalkingSimState;
-use crate::{
-    AgentID, CarID, Distance, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP,
-};
+use crate::{AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP};
 use abstutil;
 use abstutil::Error;
 use derivative::Derivative;
+use geom::Distance;
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;

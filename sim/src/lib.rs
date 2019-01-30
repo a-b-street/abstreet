@@ -30,7 +30,7 @@ pub use crate::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
     SimFlags, SpawnOverTime,
 };
-pub use crate::physics::{Acceleration, Distance, Speed, Tick, Time, TIMESTEP};
+pub use crate::physics::{Tick, TIMESTEP};
 pub use crate::query::{Benchmark, ScoreSummary, SimStats, Summary};
 pub use crate::render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 pub use crate::sim::Sim;

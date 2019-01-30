@@ -1,7 +1,6 @@
 // Code to inspect the simulation state.
 
 use crate::{Sim, Tick, TripID};
-use dimensioned::si;
 use geom::Pt2D;
 use map_model::LaneID;
 use serde_derive::{Deserialize, Serialize};
@@ -44,11 +43,11 @@ impl Sim {
     }
 
     pub fn measure_speed(&self, b: &mut Benchmark) -> f64 {
-        let dt = abstutil::elapsed_seconds(b.last_real_time) * si::S;
+        let dt = geom::Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
         let speed = (self.time - b.last_sim_time).as_time() / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
-        speed.value_unsafe
+        speed
     }
 }
 

@@ -1,10 +1,9 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key};
+use geom::Distance;
 use map_model::{Trace, LANE_THICKNESS};
 use sim::{Tick, TripID};
-use std::f64;
 
 pub enum ShowRouteState {
     Inactive,
@@ -87,7 +86,7 @@ fn show_route(trip: TripID, ctx: &mut PluginCtx) -> ShowRouteState {
         if let Some(trace) = ctx
             .primary
             .sim
-            .trace_route(agent, &ctx.primary.map, f64::MAX * si::M)
+            .trace_route(agent, &ctx.primary.map, Distance::MAX)
         {
             ShowRouteState::Active(time, trip, Some(trace))
         } else {
@@ -108,7 +107,7 @@ fn debug_all_routes(ctx: &mut PluginCtx) -> ShowRouteState {
     let mut traces: Vec<Trace> = Vec::new();
     for trip in sim.get_stats().canonical_pt_per_trip.keys() {
         if let Some(agent) = sim.trip_to_agent(*trip) {
-            if let Some(trace) = sim.trace_route(agent, &ctx.primary.map, f64::MAX * si::M) {
+            if let Some(trace) = sim.trace_route(agent, &ctx.primary.map, Distance::MAX) {
                 traces.push(trace);
             }
         }

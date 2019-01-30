@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 
 pub struct DrawBusStop {
@@ -13,7 +12,7 @@ pub struct DrawBusStop {
 
 impl DrawBusStop {
     pub fn new(stop: &BusStop, map: &Map) -> DrawBusStop {
-        let radius = 2.0 * si::M;
+        let radius = Distance::meters(2.0);
         // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the
         // lookahead arrows and center points / dashed white, we really want to render an Interval
         // or something.

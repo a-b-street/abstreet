@@ -10,7 +10,7 @@ use crate::{
     AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType,
 };
 use abstutil::{fork_rng, WeightedUsizeChoice};
-use dimensioned::si;
+use geom::Distance;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
     Pathfinder, Position, RoadID,
@@ -114,7 +114,7 @@ impl Command {
                     DrivingGoal::Border(_, l) => *l,
                 };
                 PathRequest {
-                    start: Position::new(*start, 0.0 * si::M),
+                    start: Position::new(*start, Distance::ZERO),
                     end: Position::new(goal_lane, map.get_l(goal_lane).length()),
                     can_use_bus_lanes: vehicle.vehicle_type == VehicleType::Bus,
                     can_use_bike_lanes: vehicle.vehicle_type == VehicleType::Bike,
@@ -222,7 +222,7 @@ impl Spawner {
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
-                                start: Position::new(start, 0.0 * si::M),
+                                start: Position::new(start, Distance::ZERO),
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
                                         if vehicle.vehicle_type == VehicleType::Bike {

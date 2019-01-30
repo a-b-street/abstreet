@@ -1,9 +1,8 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use dimensioned::si;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Line, Polygon, Pt2D};
+use geom::{Bounds, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, LANE_THICKNESS};
 
 pub struct DrawBuilding {
@@ -20,7 +19,7 @@ impl DrawBuilding {
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
         let len = front_path_line.length();
-        let trim_back = LANE_THICKNESS / 2.0 * si::M;
+        let trim_back = Distance::meters(LANE_THICKNESS / 2.0);
         if len > trim_back && len - trim_back > geom::EPSILON_DIST {
             front_path_line = Line::new(
                 front_path_line.pt1(),

@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Angle, Bounds, Circle, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarState, DrawCarInput, MIN_CAR_LENGTH};
 use std;
@@ -54,15 +53,18 @@ impl DrawCar {
             };
         }
 
-        let (front_blinker_pos, front_blinker_angle) =
-            input.body.dist_along(input.body.length() - 0.5 * si::M);
-        let (back_blinker_pos, back_blinker_angle) = input.body.dist_along(0.5 * si::M);
+        let (front_blinker_pos, front_blinker_angle) = input
+            .body
+            .dist_along(input.body.length() - Distance::meters(0.5));
+        let (back_blinker_pos, back_blinker_angle) = input.body.dist_along(Distance::meters(0.5));
         let blinker_radius = 0.3;
 
         let window_length_gap = 0.2;
         let window_thickness = 0.3;
         let front_window = {
-            let (pos, angle) = input.body.dist_along(input.body.length() - 1.0 * si::M);
+            let (pos, angle) = input
+                .body
+                .dist_along(input.body.length() - Distance::meters(1.0));
             thick_line_from_angle(
                 window_thickness,
                 CAR_WIDTH - 2.0 * window_length_gap,
@@ -74,7 +76,7 @@ impl DrawCar {
             )
         };
         let back_window = {
-            let (pos, angle) = input.body.dist_along(1.0 * si::M);
+            let (pos, angle) = input.body.dist_along(Distance::meters(1.0));
             thick_line_from_angle(
                 window_thickness * 0.8,
                 CAR_WIDTH - 2.0 * window_length_gap,

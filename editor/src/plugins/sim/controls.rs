@@ -169,7 +169,7 @@ impl Plugin for SimControls {
                     if ctx.input.is_update_event() {
                         // TODO https://gafferongames.com/post/fix_your_timestep/
                         let dt_s = elapsed_seconds(*last_step);
-                        if dt_s >= TIMESTEP.value_unsafe / self.desired_speed {
+                        if dt_s >= TIMESTEP.inner_seconds() / self.desired_speed {
                             let tick = ctx.primary.sim.time;
                             let events = ctx.primary.sim.step(&ctx.primary.map);
                             self.primary_events = Some((tick, events));

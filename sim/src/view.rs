@@ -1,6 +1,7 @@
 use crate::driving::SimQueue;
 use crate::kinematics::Vehicle;
-use crate::{AgentID, CarID, Distance, Speed};
+use crate::{AgentID, CarID};
+use geom::{Distance, Speed};
 use map_model::Traversable;
 use std::collections::{BTreeMap, HashMap};
 

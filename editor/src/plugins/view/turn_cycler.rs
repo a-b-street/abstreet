@@ -1,8 +1,8 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_diagram, DrawTurn};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key};
+use geom::Duration;
 use map_model::{IntersectionID, LaneID, TurnType};
 
 pub struct TurnCyclerState {
@@ -95,7 +95,7 @@ impl Plugin for TurnCyclerState {
                             signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
                         if ctx.sim.is_in_overtime(i) {
                             // TODO Hacky way of indicating overtime. Should make a 3-case enum.
-                            time_left = -1.0 * si::S;
+                            time_left = Duration::seconds(-1.0);
                         }
                         draw_signal_diagram(
                             i,

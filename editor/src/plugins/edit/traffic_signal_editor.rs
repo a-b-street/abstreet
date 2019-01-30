@@ -1,8 +1,8 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
+use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
@@ -78,12 +78,13 @@ impl Plugin for TrafficSignalEditor {
                         "{}",
                         ctx.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle]
                             .duration
-                            .value_unsafe as usize
+                            .inner_seconds() as usize
                     ),
                 )
             {
                 let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
-                signal.cycles[self.current_cycle].edit_duration((new_duration as f64) * si::S);
+                signal.cycles[self.current_cycle]
+                    .edit_duration(Duration::seconds(new_duration as f64));
                 ctx.primary.map.edit_traffic_signal(signal);
                 self.cycle_duration_wizard = None;
             } else if self.cycle_duration_wizard.as_ref().unwrap().aborted() {

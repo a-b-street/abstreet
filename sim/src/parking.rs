@@ -1,6 +1,6 @@
 use crate::kinematics::Vehicle;
-use crate::{CarID, CarState, Distance, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
-use geom::{Angle, Pt2D};
+use crate::{CarID, CarState, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
+use geom::{Angle, Distance, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};

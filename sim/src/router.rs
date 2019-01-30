@@ -4,9 +4,8 @@ use crate::kinematics::Vehicle;
 use crate::parking::ParkingSimState;
 use crate::transit::TransitSimState;
 use crate::view::AgentView;
-use crate::{Distance, Event, ParkingSpot, Tick};
-use dimensioned::si;
-use geom::EPSILON_DIST;
+use crate::{Event, ParkingSpot, Tick};
+use geom::{Acceleration, Distance, EPSILON_DIST};
 use map_model::{
     BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
 };
@@ -115,7 +114,7 @@ impl Router {
                     self.path = p;
                 }
                 if should_idle {
-                    return Some(Action::Continue(0.0 * si::MPS2, Vec::new()));
+                    return Some(Action::Continue(Acceleration::ZERO, Vec::new()));
                 }
             }
             // Don't stop at the border node; plow through

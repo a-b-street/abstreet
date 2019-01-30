@@ -1,8 +1,7 @@
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{FindClosest, RoadID, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -52,19 +51,18 @@ impl DrawExtraShape {
             })
         } else {
             let width = get_sidewalk_width(&s.attributes)
-                .unwrap_or(EXTRA_SHAPE_THICKNESS * si::M)
-                .value_unsafe;
+                .unwrap_or(Distance::meters(EXTRA_SHAPE_THICKNESS));
             let pl = PolyLine::new(pts);
             // The blockface line endpoints will be close to other roads, so match based on the
             // middle of the blockface.
             // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
             // the threshold distance?
             let road = closest
-                .closest_pt(pl.middle(), 5.0 * LANE_THICKNESS * si::M)
+                .closest_pt(pl.middle(), Distance::meters(5.0 * LANE_THICKNESS))
                 .map(|(r, _)| r);
             Some(DrawExtraShape {
                 id,
-                shape: Shape::Polygon(pl.make_polygons(width)),
+                shape: Shape::Polygon(pl.make_polygons(width.inner_meters())),
                 attributes: s.attributes,
                 road,
             })
@@ -110,15 +108,14 @@ impl Renderable for DrawExtraShape {
 }
 
 // See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Sidewalks_OD.pdf
-fn get_sidewalk_width(attribs: &BTreeMap<String, String>) -> Option<si::Meter<f64>> {
-    let meters_per_inch = 0.0254;
+fn get_sidewalk_width(attribs: &BTreeMap<String, String>) -> Option<Distance> {
     let base_width = attribs
         .get("SW_WIDTH")
         .and_then(|s| s.parse::<f64>().ok())
-        .map(|inches| inches * meters_per_inch * si::M)?;
+        .map(|i| Distance::inches(i))?;
     let filler_width = attribs
         .get("FILLERWID")
         .and_then(|s| s.parse::<f64>().ok())
-        .map(|inches| inches * meters_per_inch * si::M)?;
+        .map(|i| Distance::inches(i))?;
     Some(base_width + filler_width)
 }

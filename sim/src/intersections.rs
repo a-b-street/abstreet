@@ -1,18 +1,14 @@
 use crate::kinematics;
 use crate::view::WorldView;
-use crate::{AgentID, CarID, Event, PedestrianID, Tick, Time};
+use crate::{AgentID, CarID, Event, PedestrianID, Tick};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
-use dimensioned::si;
+use geom::Duration;
 use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
 use serde_derive::{Deserialize, Serialize};
-use std;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
-const WAIT_AT_STOP_SIGN: Time = si::Second {
-    value_unsafe: 1.5,
-    _marker: std::marker::PhantomData,
-};
+const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(1.5);
 
 // One agent may make several requests at one intersection at a time. This is normal for
 // pedestrians and crosswalks. IntersectionPolicies should expect this.

@@ -63,7 +63,7 @@ impl Plugin for WarpState {
                     return false;
                 } else {
                     ctx.canvas
-                        .center_on_map_pt(line.dist_along(percent * line.length()));
+                        .center_on_map_pt(line.dist_along(line.length() * percent));
                 }
             }
         };

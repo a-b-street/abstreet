@@ -4,9 +4,8 @@ use crate::render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS,
     PARCEL_BOUNDARY_THICKNESS,
 };
-use dimensioned::si;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
@@ -130,7 +129,7 @@ fn perp_line(l: Line, length: f64) -> Line {
 }
 
 fn calculate_sidewalk_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
-    let tile_every = LANE_THICKNESS * si::M;
+    let tile_every = Distance::meters(LANE_THICKNESS);
     let color = cs.get_def("sidewalk lines", Color::grey(0.7));
 
     let length = lane.length();
@@ -188,11 +187,11 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, cs: &ColorScheme) -> Vec<
         return Vec::new();
     }
 
-    let dash_separation = 1.5 * si::M;
-    let dash_len = 1.0 * si::M;
+    let dash_separation = Distance::meters(1.5);
+    let dash_len = Distance::meters(1.0);
 
     let lane_edge_pts = lane.lane_center_pts.shift_left(LANE_THICKNESS / 2.0);
-    if lane_edge_pts.length() < 2.0 * dash_separation {
+    if lane_edge_pts.length() < dash_separation * 2.0 {
         return Vec::new();
     }
     // Don't draw the dashes too close to the ends.
@@ -219,7 +218,7 @@ fn calculate_stop_sign_line(
 
     // TODO maybe draw the stop sign octagon on each lane?
 
-    let (pt1, angle) = lane.safe_dist_along(lane.length() - (1.0 * si::M))?;
+    let (pt1, angle) = lane.safe_dist_along(lane.length() - Distance::meters(1.0))?;
     // Reuse perp_line. Project away an arbitrary amount
     let pt2 = pt1.project_away(1.0, angle);
     // Don't clobber the yellow line.
@@ -258,13 +257,13 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, cs: &ColorScheme) -> Vec<(Col
 fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
     let lane = map.get_l(turn.id.src);
     let len = lane.length();
-    if len < 7.0 * si::M {
+    if len < Distance::meters(7.0) {
         return Vec::new();
     }
 
     let common_base = lane
         .lane_center_pts
-        .slice(len - 7.0 * si::M, len - 5.0 * si::M)
+        .slice(len - Distance::meters(7.0), len - Distance::meters(5.0))
         .unwrap()
         .0;
     let base_polygon = common_base.make_polygons(0.1);

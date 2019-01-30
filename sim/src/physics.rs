@@ -1,20 +1,11 @@
-use dimensioned::si;
+use geom::Duration;
 use lazy_static::lazy_static;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use regex::Regex;
 use serde_derive::{Deserialize, Serialize};
 
-pub const TIMESTEP: Time = si::Second {
-    value_unsafe: 0.1,
-    _marker: std::marker::PhantomData,
-};
-
-// TODO Don't just alias types; assert that time, dist, and speed are always positive
-pub type Time = si::Second<f64>;
-pub type Distance = si::Meter<f64>;
-pub type Speed = si::MeterPerSecond<f64>;
-pub type Acceleration = si::MeterPerSecond2<f64>;
+pub const TIMESTEP: Duration = Duration::const_seconds(0.1);
 
 // Represents a moment in time, not a duration/delta
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -29,8 +20,8 @@ impl Tick {
         Tick(0)
     }
 
-    pub fn from_minutes(secs: u32) -> Tick {
-        Tick(60 * 10 * secs)
+    pub fn from_minutes(mins: u32) -> Tick {
+        Tick(60 * 10 * mins)
     }
 
     pub fn from_seconds(secs: u32) -> Tick {
@@ -88,8 +79,9 @@ impl Tick {
         Some(Tick(hours + minutes + seconds + ms))
     }
 
-    pub fn as_time(self) -> Time {
-        f64::from(self.0) * TIMESTEP
+    // TODO as_duration?
+    pub fn as_time(self) -> Duration {
+        TIMESTEP * f64::from(self.0)
     }
 
     pub fn next(self) -> Tick {
@@ -135,11 +127,11 @@ impl Tick {
     }
 }
 
-impl std::ops::Add<Time> for Tick {
+impl std::ops::Add<Duration> for Tick {
     type Output = Tick;
 
-    fn add(self, other: Time) -> Tick {
-        let ticks = other.value_unsafe / TIMESTEP.value_unsafe;
+    fn add(self, other: Duration) -> Tick {
+        let ticks = other / TIMESTEP;
         // TODO check that there's no remainder!
         Tick(self.0 + (ticks as u32))
     }

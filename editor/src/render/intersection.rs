@@ -1,9 +1,8 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
-use dimensioned::si;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -225,7 +224,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             };
         }
 
-        let radius = LANE_THICKNESS / 2.0 * si::M;
+        let radius = Distance::meters(LANE_THICKNESS / 2.0);
 
         // TODO Ignore right_ok...
         {
@@ -235,7 +234,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             } else {
                 ctx.cs.get_def("traffic light stop", Color::RED)
             };
-            g.draw_circle(color, &Circle::new(center1, radius.value_unsafe));
+            g.draw_circle(color, &Circle::new(center1, radius.inner_meters()));
         }
 
         if let Some(pri) = left_priority {
@@ -249,14 +248,16 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
             };
             g.draw_circle(
                 ctx.cs.get_def("traffic light box", Color::BLACK),
-                &Circle::new(center2, radius.value_unsafe),
+                &Circle::new(center2, radius.inner_meters()),
             );
             g.draw_arrow(
                 color,
                 0.1,
                 &Line::new(
-                    center2.project_away(radius.value_unsafe, lane_line.angle().rotate_degs(90.0)),
-                    center2.project_away(radius.value_unsafe, lane_line.angle().rotate_degs(-90.0)),
+                    center2
+                        .project_away(radius.inner_meters(), lane_line.angle().rotate_degs(90.0)),
+                    center2
+                        .project_away(radius.inner_meters(), lane_line.angle().rotate_degs(-90.0)),
                 ),
             );
         }
@@ -266,7 +267,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
 pub fn draw_signal_diagram(
     i: IntersectionID,
     current_cycle: usize,
-    time_left: Option<si::Second<f64>>,
+    time_left: Option<Duration>,
     y1_screen: f64,
     g: &mut GfxCtx,
     ctx: &Ctx,
@@ -289,7 +290,7 @@ pub fn draw_signal_diagram(
     for (idx, cycle) in cycles.iter().enumerate() {
         if idx == current_cycle && time_left.is_some() {
             // TODO Hacky way of indicating overtime
-            if time_left.unwrap() < 0.0 * si::S {
+            if time_left.unwrap() < Duration::ZERO {
                 let mut txt = Text::from_line(format!("Cycle {}: ", idx + 1));
                 txt.append(
                     "OVERTIME".to_string(),
@@ -300,7 +301,7 @@ pub fn draw_signal_diagram(
                 labels.push(Text::from_line(format!(
                     "Cycle {}: {:.01}s / {}",
                     idx + 1,
-                    (cycle.duration - time_left.unwrap()).value_unsafe,
+                    (cycle.duration - time_left.unwrap()).inner_seconds(),
                     cycle.duration
                 )));
             }
@@ -364,13 +365,13 @@ pub fn draw_signal_diagram(
 fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {
     let mut result = Vec::new();
     for pt in pts {
-        if result.is_empty() && pt.approx_eq(start, 1.0 * si::M) {
+        if result.is_empty() && pt.approx_eq(start, Distance::meters(1.0)) {
             result.push(*pt);
         } else if !result.is_empty() {
             result.push(*pt);
         }
         // start and end might be the same.
-        if !result.is_empty() && pt.approx_eq(end, 1.0 * si::M) {
+        if !result.is_empty() && pt.approx_eq(end, Distance::meters(1.0)) {
             return Some(result);
         }
     }
@@ -383,7 +384,7 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
     // Go through again, looking for end
     for pt in pts {
         result.push(*pt);
-        if pt.approx_eq(end, 1.0 * si::M) {
+        if pt.approx_eq(end, Distance::meters(1.0)) {
             return Some(result);
         }
     }

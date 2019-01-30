@@ -1,7 +1,6 @@
-use dimensioned::si;
-use geom::Pt2D;
+use geom::{Duration, Speed, Distance, Pt2D};
 use map_model::{BuildingID, BusRouteID, BusStopID, LaneID, Map, TurnID};
-use crate::{CarID, Distance, ParkingSpot, Time};
+use crate::{CarID, ParkingSpot};
 
 // This is experimental for now, but it might subsume the entire design of the sim crate.
 
@@ -39,10 +38,10 @@ enum Action {
 
 impl Action {
     // These are always lower bounds, aka, the best case.
-    fn cost(&self, map: &Map) -> Time {
+    fn cost(&self, map: &Map) -> Duration {
         // TODO driving speed limits and these could depend on preferences of the individual
         // ped/vehicle
-        let ped_speed = 3.9 * si::MPS;
+        let ped_speed = Speed::meters_per_second(3.9);
 
         match *self {
             // TODO wait, we need to know if a ped or car is crossing something
@@ -50,17 +49,17 @@ impl Action {
             Action::CrossTurn(id) => {
                 map.get_t(id).length() / map.get_parent(id.dst).get_speed_limit()
             }
-            Action::ParkingCar(_, _) => 20.0 * si::S,
-            Action::UnparkingCar(_, _) => 10.0 * si::S,
+            Action::ParkingCar(_, _) => Duration::seconds(20.0),
+            Action::UnparkingCar(_, _) => Duration::seconds(10.0),
             Action::CrossLaneContraflow(id) => map.get_l(id).length() / ped_speed,
             Action::CrossPathFromBuildingToSidewalk(id)
             | Action::CrossPathFromSidewalkToBuilding(id) => {
                 map.get_b(id).front_path.line.length() / ped_speed
             }
             // TODO Could try lots of things here...
-            Action::WaitForBus(_, _) => 60.0 * si::S,
+            Action::WaitForBus(_, _) => Duration::seconds(60.0),
             // TODO Cache the expected time to travel between stops
-            Action::RideBus(_stop1, _stop2) => 300.0 * si::S,
+            Action::RideBus(_stop1, _stop2) => Duration::seconds(300.0),
 
             _ => panic!("TODO"),
         }
@@ -71,7 +70,7 @@ impl Action {
     // TODO hard to convert distance and time
     fn heuristic(&self, goal: Pt2D) -> Distance {
         // TODO
-        0.0 * si::M
+        Distance::ZERO
     }
 
     fn next_steps(&self) -> Vec<Action> {

@@ -3,9 +3,8 @@ use crate::render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
     TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
 };
-use dimensioned::si;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Line, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 use std::f64;
 
@@ -23,9 +22,9 @@ impl DrawTurn {
 
         let end_line = map.get_l(turn.id.src).end_line(turn.id.parent);
         // Start the distance from the intersection
-        let icon_center = end_line
-            .reverse()
-            .unbounded_dist_along((offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH * si::M);
+        let icon_center = end_line.reverse().unbounded_dist_along(Distance::meters(
+            (offset_along_lane + 0.5) * TURN_ICON_ARROW_LENGTH,
+        ));
 
         let icon_circle = Circle::new(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
 
@@ -51,10 +50,10 @@ impl DrawTurn {
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
-        let dash_len = 1.0 * si::M;
-        let dashed = turn
-            .geom
-            .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, 0.5 * si::M);
+        let dash_len = Distance::meters(1.0);
+        let dashed =
+            turn.geom
+                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, Distance::meters(0.5));
         g.draw_polygon_batch(dashed.iter().map(|poly| (color, poly)).collect());
         // And a cap on the arrow. In case the last line is long, trim it to be the dash
         // length.
@@ -119,8 +118,8 @@ impl DrawCrosswalk {
         // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
         // the thickness of the crosswalk line itself. Center the lines inside these two
         // boundaries.
-        let boundary = (LANE_THICKNESS + CROSSWALK_LINE_THICKNESS) * si::M;
-        let tile_every = 0.6 * LANE_THICKNESS * si::M;
+        let boundary = Distance::meters(LANE_THICKNESS + CROSSWALK_LINE_THICKNESS);
+        let tile_every = Distance::meters(0.6 * LANE_THICKNESS);
         let line = {
             // The middle line in the crosswalk geometry is the main crossing line.
             let pts = turn.geom.points();
@@ -128,8 +127,8 @@ impl DrawCrosswalk {
         };
 
         let mut draw = Vec::new();
-        let available_length = line.length() - (2.0 * boundary);
-        if available_length > 0.0 * si::M {
+        let available_length = line.length() - (boundary * 2.0);
+        if available_length > Distance::ZERO {
             let num_markings = (available_length / tile_every).floor() as usize;
             let mut dist_along =
                 boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;

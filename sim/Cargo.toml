@@ -8,14 +8,12 @@ edition = "2018"
 abstutil = { path = "../abstutil" }
 backtrace = "0.3.9"
 derivative = "1.0.0"
-dimensioned = { git = "https://github.com/paholg/dimensioned", rev = "0e1076ebfa5128d1ee544bdc9754c948987b6fe3", features = ["serde"] }
 geom = { path = "../geom" }
 lazy_static = "1.1.0"
 log = "0.4.5"
 map_model = { path = "../map_model" }
 more-asserts = "0.2.1"
 multimap = "0.4.0"
-ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
 rand = { version = "0.6.4", features = ["serde1"] }
 rand_xorshift = "0.1.1"

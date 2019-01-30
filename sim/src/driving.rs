@@ -6,28 +6,22 @@ use crate::router::Router;
 use crate::transit::TransitSimState;
 use crate::view::{AgentView, WorldView};
 use crate::{
-    Acceleration, AgentID, CarID, CarState, Distance, DrawCarInput, Event, ParkedCar, ParkingSpot,
-    Speed, Tick, Time, TripID, VehicleType,
+    AgentID, CarID, CarState, DrawCarInput, Event, ParkedCar, ParkingSpot, Tick, TripID,
+    VehicleType,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
-use dimensioned::si;
-use geom::EPSILON_DIST;
+use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
     LANE_THICKNESS,
 };
 use multimap::MultiMap;
-use ordered_float::NotNan;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std;
 use std::collections::{BTreeMap, HashSet};
 
-const TIME_TO_PARK_OR_DEPART: Time = si::Second {
-    value_unsafe: 10.0,
-    _marker: std::marker::PhantomData,
-};
+const TIME_TO_PARK_OR_DEPART: Duration = Duration::const_seconds(10.0);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrivingGoal {
@@ -121,7 +115,7 @@ impl Car {
         let mut current_on = self.on;
         let mut current_dist_along = self.dist_along;
         let mut current_router = orig_router.clone();
-        let mut dist_scanned_ahead = 0.0 * si::M;
+        let mut dist_scanned_ahead = Distance::ZERO;
 
         if self.debug {
             debug!(
@@ -198,7 +192,7 @@ impl Car {
                 let dist_to_maybe_stop_at =
                     maybe_stop_early.unwrap_or_else(|| current_on.length(map));
                 let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
-                if dist_from_stop < 0.0 * si::M {
+                if dist_from_stop < Distance::ZERO {
                     return Err(Error::new(format!("Router for {} looking ahead to {:?} said to stop at {:?}, but lookahead already at {}", self.id, current_on, maybe_stop_early, current_dist_along)));
                 }
 
@@ -245,20 +239,19 @@ impl Car {
             // Advance to the next step.
             let dist_this_step = current_on.length(map) - current_dist_along;
             dist_to_lookahead -= dist_this_step;
-            if dist_to_lookahead <= 0.0 * si::M {
+            if dist_to_lookahead <= Distance::ZERO {
                 break;
             }
             current_on = current_router.finished_step(current_on).as_traversable();
-            current_dist_along = 0.0 * si::M;
+            current_dist_along = Distance::ZERO;
             dist_scanned_ahead += dist_this_step;
         }
 
         // Clamp based on what we can actually do
-        // TODO this type mangling is awful
         let safe_accel = vehicle.clamp_accel(
             constraints
                 .into_iter()
-                .min_by_key(|a| NotNan::new(a.value_unsafe).unwrap())
+                .min_by_key(|a| a.as_ordered())
                 .unwrap(),
         );
         if self.debug {
@@ -306,7 +299,7 @@ impl Car {
             }
 
             let leftover_dist = self.dist_along - self.on.length(map);
-            if leftover_dist < 0.0 * si::M {
+            if leftover_dist < Distance::ZERO {
                 break;
             }
 
@@ -384,7 +377,7 @@ impl SimQueue {
         let mut cars_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
         // Sort descending.
-        cars_queue.sort_by_key(|(dist, _)| -NotNan::new(dist.value_unsafe).unwrap());
+        cars_queue.sort_by_key(|(dist, _)| -dist.as_ordered());
 
         let capacity =
             ((id.length(map) / Vehicle::best_case_following_dist()).ceil() as usize).max(1);
@@ -425,7 +418,7 @@ impl SimQueue {
             adjusted_cars += 1;
 
             let fixed_dist = dist2 - (kinematics::FOLLOWING_DISTANCE - dist_apart);
-            if fixed_dist < 0.0 * si::M {
+            if fixed_dist < Distance::ZERO {
                 return Err(Error::new(format!("can't hack around bug where cars are too close on {:?}, because last car doesn't have room to be shifted back", id)));
             }
             cars.get_mut(&c2).unwrap().dist_along = fixed_dist;
@@ -691,7 +684,7 @@ impl DrivingSimState {
         let mut cars_per_traversable = MultiMap::new();
         for c in self.cars.values() {
             // Also do some sanity checks.
-            if c.dist_along < 0.0 * si::M {
+            if c.dist_along < Distance::ZERO {
                 return Err(Error::new(format!(
                     "{} is {} along {:?}",
                     c.id, c.dist_along, c.on
@@ -757,7 +750,7 @@ impl DrivingSimState {
                     other_vehicle.clamp_speed(map.get_parent(start_lane).get_speed_limit()),
                     &params.vehicle,
                     start_dist - other_dist - params.vehicle.length,
-                    0.0 * si::MPS,
+                    Speed::ZERO,
                 )
                 .unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
@@ -778,7 +771,7 @@ impl DrivingSimState {
                 owner: params.owner,
                 on: start_on,
                 dist_along: start_dist,
-                speed: 0.0 * si::MPS,
+                speed: Speed::ZERO,
                 vehicle: params.vehicle,
                 debug: false,
                 parking: params.maybe_parked_car.and_then(|parked_car| {
@@ -846,7 +839,7 @@ impl DrivingSimState {
                     prev_len - prev_dist
                 } else {
                     // TODO we need two steps back, urgh
-                    0.0 * si::M
+                    Distance::ZERO
                 },
                 c.vehicle.length,
             )
@@ -854,12 +847,11 @@ impl DrivingSimState {
         } else {
             // TODO Kinda weird to consider the car not present, but eventually cars spawning
             // at borders should appear fully anyway.
-            c.on.slice(0.0 * si::M, c.dist_along, map)?.0
+            c.on.slice(Distance::ZERO, c.dist_along, map)?.0
         };
 
         let body = if let Some(ref parking) = c.parking {
-            let progress: f64 =
-                ((time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART).value_unsafe;
+            let progress: f64 = (time - parking.started_at).as_time() / TIME_TO_PARK_OR_DEPART;
             assert!(progress >= 0.0 && progress <= 1.0);
             let project_away_ratio = if parking.is_parking {
                 progress
