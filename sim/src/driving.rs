@@ -851,7 +851,13 @@ impl DrivingSimState {
             )
             .unwrap()
         } else {
-            c.on.slice(0.0 * si::M, c.dist_along, map).0
+            if c.dist_along > EPSILON_DIST {
+                c.on.slice(0.0 * si::M, c.dist_along, map).0
+            } else {
+                // TODO Kinda weird to consider the car not present, but eventually cars spawning
+                // at borders should appear fully anyway.
+                return None;
+            }
         };
 
         let body = if let Some(ref parking) = c.parking {

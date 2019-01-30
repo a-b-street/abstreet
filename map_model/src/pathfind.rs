@@ -1,6 +1,6 @@
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use dimensioned::si;
-use geom::{PolyLine, Pt2D};
+use geom::{PolyLine, Pt2D, EPSILON_DIST};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
@@ -85,14 +85,14 @@ impl PathStep {
             PathStep::Lane(id) => {
                 let l = map.get_l(*id);
                 // Might have a pedestrian at a front_path lined up with the end of a lane
-                if start == l.length() {
+                if start >= l.length() - EPSILON_DIST {
                     None
                 } else {
                     Some(l.lane_center_pts.slice(start, start + dist_ahead))
                 }
             }
             PathStep::ContraflowLane(id) => {
-                if start == 0.0 * si::M {
+                if start < EPSILON_DIST {
                     None
                 } else {
                     let pts = map.get_l(*id).lane_center_pts.reversed();
@@ -102,7 +102,7 @@ impl PathStep {
             }
             PathStep::Turn(id) => {
                 let geom = &map.get_t(*id).geom;
-                if geom.length() == 0.0 * si::M {
+                if start >= geom.length() - EPSILON_DIST {
                     None
                 } else {
                     Some(geom.slice(start, start + dist_ahead))
@@ -227,16 +227,18 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => 0.0 * si::M,
             };
-            if let Some((new_pts, dist)) =
-                self.steps[i].slice(map, start_dist_this_step, dist_remaining)
-            {
-                if pts_so_far.is_some() {
-                    let pts = pts_so_far.unwrap().extend(&new_pts);
-                    pts_so_far = Some(pts);
-                } else {
-                    pts_so_far = Some(new_pts);
+            if dist_remaining - start_dist_this_step > EPSILON_DIST {
+                if let Some((new_pts, dist)) =
+                    self.steps[i].slice(map, start_dist_this_step, dist_remaining)
+                {
+                    if pts_so_far.is_some() {
+                        let pts = pts_so_far.unwrap().extend(&new_pts);
+                        pts_so_far = Some(pts);
+                    } else {
+                        pts_so_far = Some(new_pts);
+                    }
+                    dist_remaining = dist;
                 }
-                dist_remaining = dist;
             }
         }
 

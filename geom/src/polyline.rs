@@ -162,6 +162,15 @@ impl PolyLine {
                 self.length()
             );
         }
+        if result.len() == 1 {
+            panic!(
+                "Slice [{}, {}] didn't work on a polyline of length {} with points {}",
+                start,
+                end,
+                self.length(),
+                self
+            );
+        }
 
         (PolyLine::new(result), end - dist_so_far)
     }
