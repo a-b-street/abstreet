@@ -1,7 +1,8 @@
 use crate::make::initial::{geometry, InitialMap};
-use crate::raw_data::StableRoadID;
+use crate::raw_data::{StableIntersectionID, StableRoadID};
 use abstutil::note;
 use geom::Distance;
+use std::collections::HashSet;
 
 pub fn short_roads(map: &mut InitialMap) {
     if false {
@@ -22,24 +23,38 @@ pub fn short_roads(map: &mut InitialMap) {
         merge(map, StableRoadID(22));
     }
 
-    if false {
+    if true {
+        let mut look_at: HashSet<StableIntersectionID> = HashSet::new();
+        let orig_count = map.roads.len();
+
         // Every time we change a road, other roads we might've already processed could shorten, so
         // we have to redo everything.
         loop {
             if let Some(r) = map
                 .roads
                 .values()
-                .find(|r| r.trimmed_center_pts.length() < Distance::meters(15.0))
+                .find(|r| r.trimmed_center_pts.length() < Distance::meters(5.0))
             {
-                merge(map, r.id);
+                look_at.insert(merge(map, r.id));
             } else {
                 break;
+            }
+        }
+
+        note(format!(
+            "Deleted {} tiny roads",
+            orig_count - map.roads.len()
+        ));
+        for id in look_at {
+            if map.intersections.contains_key(&id) {
+                note(format!("Check for merged roads near {}", id));
             }
         }
     }
 }
 
-fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
+// Returns the retained intersection.
+fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID {
     // Arbitrarily kill off the first intersection and keep the second one.
     let (delete_i, keep_i) = {
         let r = map.roads.remove(&merge_road).unwrap();
@@ -121,4 +136,6 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) {
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads);
     map.save(format!("o{}_new_polygon", keep_i.0));
+
+    keep_i
 }

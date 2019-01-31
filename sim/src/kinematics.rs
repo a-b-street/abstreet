@@ -6,7 +6,7 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 
-pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.0_001);
+pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.000_1);
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
 const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
