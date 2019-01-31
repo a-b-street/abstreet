@@ -3,10 +3,16 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
-	- change internal pt2d representation to int. JUST get that working first.
-		- clamp distances first, not points?
-			- note contains_pt needs to use 2 or 3 * epsilon, because of the error that may accumulate...
+	- very different approaches
+		- v1: keep f64 internally, but constantly drop small bits
+		- v2: try some rational number thing internally
 
+	- clamp distances first, not points?
+		- note contains_pt needs to use 2 or 3 * epsilon, because of the error that may accumulate...
+		- audit all EPSILON_DIST usages
+		- make natively orderable
+
+	- change internal pt2d representation to int. JUST get that working first.
 		- then get rid of approx_eq, approx_dedupe
 		- make sure dist_to at the tiniest case rounds up, too. maybe that needs to happen now.
 		- make Pt2D natively orderable, hashable
