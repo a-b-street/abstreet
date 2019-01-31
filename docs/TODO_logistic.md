@@ -23,10 +23,6 @@
 	- also could be benchmarks; just arbitrary data over time
 	- also screenshots
 
-- things fixed-pt should solve
-	- determinism tests failing
-	- polyline intersection() finding a line hit, but then failing on get_slice_ending_at
-
 - improve test code and explore problems
 	- big timestep, does follow error blow up?
 	- alternative to scenario is a sequence of commands for tests

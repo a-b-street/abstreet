@@ -2,12 +2,7 @@
 
 ## Geometry
 
-- try fixed pt again, for determinism purposes mostly
-	- can natively order
-
-	- then work on proper SI types, with negative/positive cases handled carefully
-	- also bounds?
-	- cant get rid of the ccw intersection check... different answer in some cases that looks bad
+- can natively order geom stuff now!
 
 - underlying problems
 	- bad polyline shifting remains

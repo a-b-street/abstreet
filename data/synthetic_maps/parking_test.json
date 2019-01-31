@@ -5,8 +5,8 @@
       0,
       {
         "center": {
-          "inner_x": 288.5454406738281,
-          "inner_y": 486.2385864257813
+          "inner_x": 288.0221,
+          "inner_y": 487.1246
         },
         "intersection_type": "StopSign",
         "label": null
@@ -16,8 +16,8 @@
       1,
       {
         "center": {
-          "inner_x": 512.0357055664062,
-          "inner_y": 486.63079833984375
+          "inner_x": 511.1362,
+          "inner_y": 486.7896
         },
         "intersection_type": "StopSign",
         "label": null
@@ -53,8 +53,8 @@
       {
         "label": "north",
         "center": {
-          "inner_x": 351.30378272601706,
-          "inner_y": 450.3966017603446
+          "inner_x": 353.4848,
+          "inner_y": 451.9377
         }
       }
     ],
@@ -63,8 +63,8 @@
       {
         "label": "south",
         "center": {
-          "inner_x": 439.6870726625188,
-          "inner_y": 515.314383299414
+          "inner_x": 440.4084,
+          "inner_y": 517.7681
         }
       }
     ]

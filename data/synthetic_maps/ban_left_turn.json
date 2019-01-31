@@ -5,8 +5,8 @@
       0,
       {
         "center": {
-          "inner_x": 375.2584876887879,
-          "inner_y": 394.4733648122756
+          "inner_x": 375.8089,
+          "inner_y": 394.3162
         },
         "intersection_type": "Border",
         "label": "west"
@@ -16,8 +16,8 @@
       2,
       {
         "center": {
-          "inner_x": 426.5473937988281,
-          "inner_y": 394.67230224609375
+          "inner_x": 426.7998,
+          "inner_y": 394.2691
         },
         "intersection_type": "TrafficSignal",
         "label": null
@@ -27,8 +27,8 @@
       3,
       {
         "center": {
-          "inner_x": 426.9548681897562,
-          "inner_y": 338.6898394428313
+          "inner_x": 427.4046,
+          "inner_y": 340.1785
         },
         "intersection_type": "Border",
         "label": "north"
@@ -38,8 +38,8 @@
       5,
       {
         "center": {
-          "inner_x": 426.9279815253348,
-          "inner_y": 456.09920803179926
+          "inner_x": 426.4618,
+          "inner_y": 457.0412
         },
         "intersection_type": "Border",
         "label": "south"
