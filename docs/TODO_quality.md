@@ -3,9 +3,6 @@
 ## Geometry
 
 - try fixed pt again, for determinism purposes mostly
-	- just get it working
-		- buses are getting stuck on this weird tiny thing
-		- border spawn is making briefly invisible cars; start them farther out?
 	- can natively order
 
 	- then work on proper SI types, with negative/positive cases handled carefully

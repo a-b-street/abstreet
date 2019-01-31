@@ -125,7 +125,13 @@ fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
                         ));
                     }
                     TurnType::Left => {
-                        result.push(make_vehicle_turn(lanes, i.id, incoming[0], outgoing[0]));
+                        if incoming.len() == 1 {
+                            for out in outgoing {
+                                result.push(make_vehicle_turn(lanes, i.id, incoming[0], out));
+                            }
+                        } else {
+                            result.push(make_vehicle_turn(lanes, i.id, incoming[0], outgoing[0]));
+                        }
                     }
                     _ => unreachable!(),
                 };
