@@ -43,11 +43,12 @@ impl Plugin for WarpState {
                         &ctx.primary.sim,
                         &ctx.primary.draw_map,
                     ) {
-                        *self = WarpState::Warping(
-                            Instant::now(),
-                            Line::new(ctx.canvas.center_to_map_pt(), pt),
-                            id,
-                        );
+                        let at = ctx.canvas.center_to_map_pt();
+                        if at.approx_eq(pt, geom::EPSILON_DIST) {
+                            ctx.primary.current_selection = Some(id);
+                            return false;
+                        }
+                        *self = WarpState::Warping(Instant::now(), Line::new(at, pt), id);
                     } else {
                         return false;
                     }
