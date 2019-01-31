@@ -45,7 +45,7 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, edits: MapEdits, timer: &mut Timer) -> Result<Map, io::Error> {
-        if path.starts_with("../in_progress/") {
+        if path.starts_with("../initial_maps/") {
             let initial_map: make::InitialMap = abstutil::read_binary(path, timer)?;
             let data: raw_data::Map = abstutil::read_binary(
                 &format!("../data/raw_maps/{}.abst", initial_map.name),
@@ -86,7 +86,7 @@ impl Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = make::InitialMap::new(name, &data, &gps_bounds, &edits, timer);
+        let initial_map = make::InitialMap::new(name, &data, &gps_bounds, &bounds, &edits, timer);
         timer.stop("raw_map to InitialMap");
         Map::create_from_raw_and_initial(data, initial_map, gps_bounds, bounds, edits, timer)
     }

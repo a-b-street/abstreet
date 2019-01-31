@@ -102,7 +102,7 @@ pub fn load(
         );
         scenario.instantiate(&mut sim, &map);
         (map, sim)
-    } else if flags.load.contains("data/raw_maps/") || flags.load.contains("in_progress/") {
+    } else if flags.load.contains("data/raw_maps/") || flags.load.contains("initial_maps/") {
         // TODO relative dir is brittle; match more cautiously
         let map_name = flags
             .load

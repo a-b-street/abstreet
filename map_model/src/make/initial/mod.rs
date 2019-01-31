@@ -5,7 +5,7 @@ mod merge;
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, MapEdits, LANE_THICKNESS};
 use abstutil::Timer;
-use geom::{Distance, GPSBounds, PolyLine, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -15,6 +15,7 @@ pub struct InitialMap {
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
 
     pub name: String,
+    pub bounds: Bounds,
     versions_saved: usize,
 }
 
@@ -42,6 +43,7 @@ impl InitialMap {
         name: String,
         data: &raw_data::Map,
         gps_bounds: &GPSBounds,
+        bounds: &Bounds,
         edits: &MapEdits,
         timer: &mut Timer,
     ) -> InitialMap {
@@ -49,6 +51,7 @@ impl InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
             name,
+            bounds: bounds.clone(),
             versions_saved: 0,
         };
 
@@ -126,11 +129,12 @@ impl InitialMap {
 
         m
     }
+
     pub fn save(&mut self, filename: String) {
         if true {
             return;
         }
-        let path = format!("../in_progress/{:03}_{}", self.versions_saved, filename);
+        let path = format!("../initial_maps/{:03}_{}", self.versions_saved, filename);
         self.versions_saved += 1;
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);

@@ -1,4 +1,5 @@
 use crate::make::get_lane_types;
+pub use crate::make::InitialMap;
 use crate::{AreaType, IntersectionType, RoadSpec};
 use geom::{Distance, GPSBounds, LonLat};
 use gtfs::Route;

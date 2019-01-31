@@ -1,5 +1,11 @@
 # TODO - GUI and UX
 
+## Performance
+
+- cache draw stuff
+- lazy SimStats
+- objects onscreen is overkill for mouseover. can maybe get rid of the min zoom for mouseover thing!
+
 ## Quick n easy
 
 - try showing traffic signals by little boxes at the end of lanes

@@ -18,4 +18,5 @@ members = [
   "synthetic",
   "tests",
   "tmp_gfx",
+  "viewer",
 ]

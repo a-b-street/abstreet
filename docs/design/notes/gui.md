@@ -580,3 +580,18 @@ Plugin styles are blocking or ambient. And some can conflict...
 	- warp... exclusive blocking. apparently we used to still let ambient plugins draw and color stuff while it's active, but meh, doesnt seem important.
 	- search... argh, this is the one that's SOMETIMES exclusive blocking and sometimes stackable modal.
 - finally, make time travel exclusive blocking, since lots of other stuff doesnt actually work with it.
+
+## Quick viewers
+
+I need a way to render and debug InitialMaps. Don't want to squeeze it into
+editor, but also don't want to go overboard making a new crate with lots of
+copy-pasta code. It's like the synthetic editor. Can we extract out a pattern
+for this kind of thing?
+
+- debug functionality
+	- automatically center on something interesting
+	- go forwards/backwards
+- cleanup
+	- take away ability to load a map from a saved InitialMap
+	- make synthetic use stuff
+	- make halloween use stuff
