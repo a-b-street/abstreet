@@ -186,10 +186,11 @@ impl Line {
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {
-        let dist1 = self.pt1().dist_to(pt);
-        let dist2 = pt.dist_to(self.pt2());
-        if (dist1 + dist2 - self.length()).abs() < EPSILON_DIST * 3.0 {
-            Some(dist1)
+        let dist1 = self.pt1().raw_dist_to(pt);
+        let dist2 = pt.raw_dist_to(self.pt2());
+        let length = self.pt1().raw_dist_to(self.pt2());
+        if (dist1 + dist2 - length).abs() < EPSILON_DIST.inner_meters() {
+            Some(Distance::meters(dist1))
         } else {
             None
         }

@@ -19,7 +19,7 @@ for map_path in `ls data/raw_maps/`; do
 	map=`basename $map_path .abst`;
 	echo "Precomputing $map with no_edits";
 	cd precompute;
-	cargo run $release_mode ../data/raw_maps/$map.abst --edits_name=no_edits;
+	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.abst --edits_name=no_edits;
 	cd ..;
 
 	if [ -e data/edits/$map ]; then
@@ -29,7 +29,7 @@ for map_path in `ls data/raw_maps/`; do
 			edits=`basename "$edit_path" .json`;
 			echo "Precomputing $map with $edits";
 			cd precompute;
-			cargo run $release_mode ../data/raw_maps/$map.abst --edits_name="$edits";
+			RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.abst --edits_name="$edits";
 			cd ..;
 		done
 	fi
