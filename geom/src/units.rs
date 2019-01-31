@@ -1,3 +1,4 @@
+use crate::trim_f64;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::{f64, fmt, ops};
@@ -15,7 +16,7 @@ impl Distance {
             panic!("Bad Distance {}", value);
         }
 
-        Distance(value)
+        Distance(trim_f64(value))
     }
 
     // TODO Can't panic inside a const fn, seemingly. Don't pass in anything bad!
@@ -136,7 +137,7 @@ impl Duration {
             panic!("Bad Duration {}", value);
         }
 
-        Duration(value)
+        Duration(trim_f64(value))
     }
 
     pub const fn const_seconds(value: f64) -> Duration {
@@ -210,7 +211,7 @@ impl Speed {
             panic!("Bad Speed {}", value);
         }
 
-        Speed(value)
+        Speed(trim_f64(value))
     }
 
     pub const fn const_meters_per_second(value: f64) -> Speed {
@@ -299,7 +300,7 @@ impl Acceleration {
             panic!("Bad Acceleration {}", value);
         }
 
-        Acceleration(value)
+        Acceleration(trim_f64(value))
     }
 
     pub const fn const_meters_per_second_squared(value: f64) -> Acceleration {

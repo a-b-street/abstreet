@@ -126,6 +126,10 @@ impl PolyLine {
                     result.pop();
                 }
                 result.push(last_pt);
+                if result.len() == 1 {
+                    // TODO Understand what happened here.
+                    return None;
+                }
                 return Some((PolyLine::new(result), Distance::ZERO));
             }
 

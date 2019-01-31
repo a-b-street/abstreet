@@ -188,7 +188,7 @@ impl Line {
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {
         let dist1 = self.pt1().dist_to(pt);
         let dist2 = pt.dist_to(self.pt2());
-        if (dist1 + dist2 - self.length()).abs() < EPSILON_DIST {
+        if (dist1 + dist2 - self.length()).abs() < EPSILON_DIST * 3.0 {
             Some(dist1)
         } else {
             None
@@ -217,26 +217,26 @@ impl InfiniteLine {
     // https://stackoverflow.com/a/565282 by way of
     // https://github.com/ucarion/line_intersection/blob/master/src/lib.rs
     pub fn intersection(&self, other: &InfiniteLine) -> Option<Pt2D> {
-        fn cross(a: Pt2D, b: Pt2D) -> f64 {
-            a.x() * b.y() - a.y() * b.x()
+        fn cross(a: (f64, f64), b: (f64, f64)) -> f64 {
+            a.0 * b.1 - a.1 * b.0
         }
 
         let p = self.0;
         let q = other.0;
-        let r = Pt2D::new(self.1.x() - self.0.x(), self.1.y() - self.0.y());
-        let s = Pt2D::new(other.1.x() - other.0.x(), other.1.y() - other.0.y());
+        let r = (self.1.x() - self.0.x(), self.1.y() - self.0.y());
+        let s = (other.1.x() - other.0.x(), other.1.y() - other.0.y());
 
         let r_cross_s = cross(r, s);
-        let q_minus_p = Pt2D::new(q.x() - p.x(), q.y() - p.y());
+        let q_minus_p = (q.x() - p.x(), q.y() - p.y());
         //let q_minus_p_cross_r = cross(q_minus_p, r);
 
         if r_cross_s == 0.0 {
             // Parallel
             None
         } else {
-            let t = cross(q_minus_p, Pt2D::new(s.x() / r_cross_s, s.y() / r_cross_s));
+            let t = cross(q_minus_p, (s.0 / r_cross_s, s.1 / r_cross_s));
             //let u = cross(q_minus_p, Pt2D::new(r.x() / r_cross_s, r.y() / r_cross_s));
-            Some(Pt2D::new(p.x() + t * r.x(), p.y() + t * r.y()))
+            Some(Pt2D::new(p.x() + t * r.0, p.y() + t * r.1))
         }
     }
 }

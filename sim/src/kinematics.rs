@@ -6,7 +6,7 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 
-pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.000_000_01);
+pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.0_001);
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
 const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
@@ -180,7 +180,7 @@ impl Vehicle {
         // absurd amount of time to finish, with tiny little steps. But need to tune and understand
         // this value better. Higher initial speeds or slower max_deaccel's mean this is naturally
         // going to take longer. We don't want to start stopping now if we can't undo it next tick.
-        if !required_time.is_nan() && Duration::seconds(required_time) < Duration::seconds(15.0) {
+        if required_time.is_finite() && Duration::seconds(required_time) < Duration::seconds(15.0) {
             return Ok(normal_case);
         }
 

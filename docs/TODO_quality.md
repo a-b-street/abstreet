@@ -5,9 +5,14 @@
 - try fixed pt again, for determinism purposes mostly
 	- very different approaches
 		- v1: keep f64 internally, but constantly drop small bits
+			- we just want deterministic serialization really, so...
 		- v2: try some rational number thing internally
 
-	- clamp distances first, not points?
+	- retry integers for everything (probably all at once)
+		- dont round too early... line intersection, dist to pt, kinematics
+		- adjust epsilon values to match actual smallest difference, or start doing direct comparisons now
+
+	- clamp distances first, not points?			This one is working well!
 		- note contains_pt needs to use 2 or 3 * epsilon, because of the error that may accumulate...
 		- audit all EPSILON_DIST usages
 		- make natively orderable
@@ -34,6 +39,7 @@
 	- VERY overeager... ate half of the map
 		- can we capture snapshots of incremental changes?
 			- save initial map at every step, be able to load raw + initial with a focus point
+			- generic viewer should be easy... something that stores polygon and ID, wraps the quadtree, etc
 		- try merging the shortest roads first
 	- deal with loop roads
 

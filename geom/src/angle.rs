@@ -9,19 +9,20 @@ pub struct Angle(f64);
 
 impl Angle {
     pub(crate) fn new(rads: f64) -> Angle {
-        Angle(rads)
+        // Retain more precision for angles...
+        Angle((rads * 10_000_000.0).round() / 10_000_000.0)
     }
 
     pub fn new_degs(degs: f64) -> Angle {
-        Angle(degs.to_radians())
+        Angle::new(degs.to_radians())
     }
 
     pub fn opposite(self) -> Angle {
-        Angle(self.0 + f64::consts::PI)
+        Angle::new(self.0 + f64::consts::PI)
     }
 
     pub fn rotate_degs(self, degrees: f64) -> Angle {
-        Angle(self.0 + degrees.to_radians())
+        Angle::new(self.0 + degrees.to_radians())
     }
 
     pub fn normalized_radians(self) -> f64 {
@@ -64,6 +65,6 @@ impl std::ops::Sub for Angle {
     type Output = Angle;
 
     fn sub(self, other: Angle) -> Angle {
-        Angle(self.0 - other.0)
+        Angle::new(self.0 - other.0)
     }
 }

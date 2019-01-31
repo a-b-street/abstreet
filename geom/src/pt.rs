@@ -1,4 +1,4 @@
-use crate::{Angle, Distance, GPSBounds, LonLat};
+use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat};
 use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
@@ -21,8 +21,8 @@ impl Pt2D {
         // TODO enforce >=0
 
         Pt2D {
-            inner_x: x,
-            inner_y: y,
+            inner_x: trim_f64(x),
+            inner_y: trim_f64(y),
         }
     }
 
