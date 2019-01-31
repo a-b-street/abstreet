@@ -50,7 +50,7 @@ pub fn make_bus_stops(
         if let Ok(driving_lane) =
             road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
         {
-            dists.sort_by_key(|(dist, _)| dist.as_ordered());
+            dists.sort_by_key(|(dist, _)| *dist);
             for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
                 let stop_id = BusStopID { sidewalk: *id, idx };
                 point_to_stop_id.insert(*orig_pt, stop_id);

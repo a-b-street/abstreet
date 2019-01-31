@@ -53,7 +53,7 @@ where
                 {
                     let dist = Distance::meters(pt.euclidean_distance(&query_geom));
                     if dist <= max_dist_away {
-                        Some((key, pt, dist.as_ordered()))
+                        Some((key, pt, dist))
                     } else {
                         None
                     }

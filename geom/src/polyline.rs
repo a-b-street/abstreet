@@ -358,14 +358,12 @@ impl PolyLine {
                 }
             }
 
-            hits.sort_by_key(|(pt, _)| {
+            if let Some(hit) = hits.into_iter().min_by_key(|(pt, _)| {
                 self.get_slice_ending_at(*pt)
                     .map(|pl| pl.length())
                     .unwrap_or(Distance::ZERO)
-                    .as_ordered()
-            });
-            if !hits.is_empty() {
-                return Some(hits[0]);
+            }) {
+                return Some(hit);
             }
         }
         None
@@ -396,6 +394,9 @@ impl PolyLine {
                 pts.pop();
             }
             pts.push(pt);
+            if pts.len() == 1 {
+                return None;
+            }
             return Some(PolyLine::new(pts));
         } else {
             panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);

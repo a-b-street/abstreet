@@ -248,12 +248,7 @@ impl Car {
         }
 
         // Clamp based on what we can actually do
-        let safe_accel = vehicle.clamp_accel(
-            constraints
-                .into_iter()
-                .min_by_key(|a| a.as_ordered())
-                .unwrap(),
-        );
+        let safe_accel = vehicle.clamp_accel(constraints.into_iter().min().unwrap());
         if self.debug {
             let describe_accel = if safe_accel == vehicle.max_accel {
                 format!("max_accel ({})", safe_accel)
@@ -377,7 +372,7 @@ impl SimQueue {
         let mut cars_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
         // Sort descending.
-        cars_queue.sort_by_key(|(dist, _)| -dist.as_ordered());
+        cars_queue.sort_by_key(|(dist, _)| -*dist);
 
         let capacity =
             ((id.length(map) / Vehicle::best_case_following_dist()).ceil() as usize).max(1);

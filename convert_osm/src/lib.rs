@@ -102,16 +102,14 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         }
         let pt = shape.points[0];
         if gps_bounds.contains(pt) {
-            let distance = |i: &raw_data::Intersection| pt.gps_dist_meters(i.point);
-
             // TODO use a quadtree or some better way to match signals to the closest
             // intersection
             let closest_intersection = map
                 .intersections
                 .values_mut()
-                .min_by_key(|i| distance(i).as_ordered())
+                .min_by_key(|i| pt.gps_dist_meters(i.point))
                 .unwrap();
-            let dist = distance(closest_intersection);
+            let dist = pt.gps_dist_meters(closest_intersection.point);
             if dist <= MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL {
                 if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
                     println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);

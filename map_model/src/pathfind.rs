@@ -520,5 +520,5 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
 
 // Negate since BinaryHeap is a max-heap.
 fn dist_to_pri_queue(dist: Distance) -> NotNan<f64> {
-    -dist.as_ordered()
+    NotNan::new(-dist.inner_meters()).unwrap()
 }

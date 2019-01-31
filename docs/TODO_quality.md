@@ -2,16 +2,10 @@
 
 ## Geometry
 
-- can natively order geom stuff now!
-
-- underlying problems
-	- bad polyline shifting remains
-		- from the remaining cases, looks like we need to totally remove some tight points and retry
-		- make polygons use the corrections too?
-
-- generalized_trim_back
-	- breaks down when we have jagged lane endings due to polyline shift angle correction
-	- sometimes a lane polyline hits the perpendicular of a trimmed road! where was this happening?
+- bad polyline shifting remains
+	- from the remaining cases, looks like we need to totally remove some tight points and retry
+	- make polygons use the corrections too?
+	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
 	- VERY overeager... ate half of the map

@@ -1,11 +1,18 @@
 use crate::trim_f64;
-use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
-use std::{f64, fmt, ops};
+use std::{cmp, f64, fmt, ops};
 
 // In meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Distance(f64);
+
+// By construction, Distance is a finite f64 with trimmed precision.
+impl Eq for Distance {}
+impl Ord for Distance {
+    fn cmp(&self, other: &Distance) -> cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
 
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
@@ -37,11 +44,6 @@ impl Distance {
 
     pub fn sqrt(self) -> Distance {
         Distance::meters(self.0.sqrt())
-    }
-
-    // TODO Remove by making Distance itself Ord.
-    pub fn as_ordered(self) -> NotNan<f64> {
-        NotNan::new(self.0).unwrap()
     }
 
     // TODO Remove if possible.
@@ -291,6 +293,14 @@ impl fmt::Display for Speed {
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Acceleration(f64);
 
+// By construction, Acceleration is a finite f64 with trimmed precision.
+impl Eq for Acceleration {}
+impl Ord for Acceleration {
+    fn cmp(&self, other: &Acceleration) -> cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
 impl Acceleration {
     pub const ZERO: Acceleration = Acceleration::const_meters_per_second_squared(0.0);
 
@@ -304,11 +314,6 @@ impl Acceleration {
 
     pub const fn const_meters_per_second_squared(value: f64) -> Acceleration {
         Acceleration(value)
-    }
-
-    // TODO Remove by making Acceleration itself Ord.
-    pub fn as_ordered(self) -> NotNan<f64> {
-        NotNan::new(self.0).unwrap()
     }
 
     pub fn min(self, other: Acceleration) -> Acceleration {

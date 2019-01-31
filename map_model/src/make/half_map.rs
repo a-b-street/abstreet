@@ -169,13 +169,7 @@ pub fn make_half_map(
         // TODO Could be more performant and cleanly written
         let mut bldgs = half_map.lanes[lane.0].building_paths.clone();
         bldgs.push(b.id);
-        bldgs.sort_by_key(|b| {
-            half_map.buildings[b.0]
-                .front_path
-                .sidewalk
-                .dist_along()
-                .as_ordered()
-        });
+        bldgs.sort_by_key(|b| half_map.buildings[b.0].front_path.sidewalk.dist_along());
         half_map.lanes[lane.0].building_paths = bldgs;
     }
 
