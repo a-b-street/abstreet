@@ -366,7 +366,12 @@ impl Sim {
         self.trips_state.active_agents()
     }
 
-    pub fn trace_route(&self, id: AgentID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
+    pub fn trace_route(
+        &self,
+        id: AgentID,
+        map: &Map,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
         match id {
             AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
             AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),

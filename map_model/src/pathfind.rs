@@ -71,26 +71,43 @@ impl PathStep {
         &self,
         map: &Map,
         start: Distance,
-        dist_ahead: Distance,
+        dist_ahead: Option<Distance>,
     ) -> Option<(PolyLine, Distance)> {
-        if dist_ahead < Distance::ZERO {
-            panic!("Negative dist_ahead?! {}", dist_ahead);
-        }
-        if dist_ahead == Distance::ZERO {
-            return None;
+        if let Some(d) = dist_ahead {
+            if d < Distance::ZERO {
+                panic!("Negative dist_ahead?! {}", d);
+            }
+            if d == Distance::ZERO {
+                return None;
+            }
         }
 
         match self {
-            PathStep::Lane(id) => map
-                .get_l(*id)
-                .lane_center_pts
-                .slice(start, start + dist_ahead),
+            PathStep::Lane(id) => {
+                let pts = &map.get_l(*id).lane_center_pts;
+                if let Some(d) = dist_ahead {
+                    pts.slice(start, start + d)
+                } else {
+                    pts.slice(start, pts.length())
+                }
+            }
             PathStep::ContraflowLane(id) => {
                 let pts = map.get_l(*id).lane_center_pts.reversed();
                 let reversed_start = pts.length() - start;
-                pts.slice(reversed_start, reversed_start + dist_ahead)
+                if let Some(d) = dist_ahead {
+                    pts.slice(reversed_start, reversed_start + d)
+                } else {
+                    pts.slice(reversed_start, pts.length())
+                }
             }
-            PathStep::Turn(id) => map.get_t(*id).geom.slice(start, start + dist_ahead),
+            PathStep::Turn(id) => {
+                let pts = &map.get_t(*id).geom;
+                if let Some(d) = dist_ahead {
+                    pts.slice(start, start + d)
+                } else {
+                    pts.slice(start, pts.length())
+                }
+            }
         }
     }
 }
@@ -151,7 +168,13 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    pub fn trace(&self, map: &Map, start_dist: Distance, dist_ahead: Distance) -> Option<Trace> {
+    // dist_ahead might be unlimited.
+    pub fn trace(
+        &self,
+        map: &Map,
+        start_dist: Distance,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 
@@ -161,15 +184,19 @@ impl Path {
             } else {
                 start_dist - self.end_dist
             };
-            if dist < dist_remaining {
-                dist_remaining = dist;
+            if let Some(d) = dist_remaining {
+                if dist < d {
+                    dist_remaining = Some(dist);
+                }
             }
         }
 
         // Special case the first step.
         if let Some((pts, dist)) = self.steps[0].slice(map, start_dist, dist_remaining) {
             pts_so_far = Some(pts);
-            dist_remaining = dist;
+            if dist_remaining.is_some() {
+                dist_remaining = Some(dist);
+            }
         }
 
         if self.steps.len() == 1 {
@@ -181,10 +208,12 @@ impl Path {
 
         // Crunch through the intermediate steps, as long as we can.
         for i in 1..self.steps.len() {
-            if dist_remaining <= Distance::ZERO {
-                // We know there's at least some geometry if we made it here, so unwrap to verify
-                // that understanding.
-                return Some(pts_so_far.unwrap());
+            if let Some(d) = dist_remaining {
+                if d <= Distance::ZERO {
+                    // We know there's at least some geometry if we made it here, so unwrap to verify
+                    // that understanding.
+                    return Some(pts_so_far.unwrap());
+                }
             }
             // If we made it to the last step, maybe use the end_dist.
             if i == self.steps.len() - 1 {
@@ -194,8 +223,10 @@ impl Path {
                     }
                     _ => self.end_dist,
                 };
-                if end_dist < dist_remaining {
-                    dist_remaining = end_dist;
+                if let Some(d) = dist_remaining {
+                    if end_dist < d {
+                        dist_remaining = Some(end_dist);
+                    }
                 }
             }
 
@@ -205,7 +236,12 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => Distance::ZERO,
             };
-            if dist_remaining - start_dist_this_step > EPSILON_DIST {
+            let use_this_step = if let Some(d) = dist_remaining {
+                d - start_dist_this_step > EPSILON_DIST
+            } else {
+                true
+            };
+            if use_this_step {
                 if let Some((new_pts, dist)) =
                     self.steps[i].slice(map, start_dist_this_step, dist_remaining)
                 {
@@ -215,7 +251,9 @@ impl Path {
                     } else {
                         pts_so_far = Some(new_pts);
                     }
-                    dist_remaining = dist;
+                    if dist_remaining.is_some() {
+                        dist_remaining = Some(dist);
+                    }
                 }
             }
         }

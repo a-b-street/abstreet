@@ -9,7 +9,6 @@ pub struct Distance(f64);
 
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
-    pub const MAX: Distance = Distance::const_meters(f64::MAX);
 
     pub fn meters(value: f64) -> Distance {
         if !value.is_finite() {

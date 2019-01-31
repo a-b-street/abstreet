@@ -220,7 +220,7 @@ impl Router {
         &self,
         start_dist: Distance,
         map: &Map,
-        dist_ahead: Distance,
+        dist_ahead: Option<Distance>,
     ) -> Option<Trace> {
         self.path.trace(map, start_dist, dist_ahead)
     }

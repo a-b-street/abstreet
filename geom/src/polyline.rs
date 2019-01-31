@@ -101,7 +101,7 @@ impl PolyLine {
     // Returns the excess distance left over from the end. None if the result would be too squished
     // together.
     pub fn slice(&self, start: Distance, end: Distance) -> Option<(PolyLine, Distance)> {
-        if start >= end || start < Distance::ZERO || end < Distance::ZERO {
+        if start > end || start < Distance::ZERO || end < Distance::ZERO {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
         }
         if end - start < EPSILON_DIST {

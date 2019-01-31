@@ -120,8 +120,7 @@ impl Plugin for SpawnAgent {
                     can_use_bus_lanes: false,
                 },
             ) {
-                self.maybe_goal =
-                    Some((new_goal, path.trace(map, start.dist_along(), Distance::MAX)));
+                self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
             } else {
                 self.maybe_goal = None;
             }

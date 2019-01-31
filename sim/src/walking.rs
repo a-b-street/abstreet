@@ -639,7 +639,12 @@ impl WalkingSimState {
         self.peds.is_empty()
     }
 
-    pub fn trace_route(&self, id: PedestrianID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
+    pub fn trace_route(
+        &self,
+        id: PedestrianID,
+        map: &Map,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
         let p = self.peds.get(&id)?;
         p.path.trace(map, p.dist_along, dist_ahead)
     }

@@ -1,7 +1,7 @@
 use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
-use geom::{Distance, Line};
+use geom::Line;
 use map_model::{Trace, LANE_THICKNESS};
 use sim::{Tick, TripID};
 
@@ -88,10 +88,10 @@ fn diff_trip(trip: TripID, ctx: &mut PluginCtx) -> DiffTripState {
     };
     let primary_route = primary_sim
         .trip_to_agent(trip)
-        .and_then(|agent| primary_sim.trace_route(agent, primary_map, Distance::MAX));
+        .and_then(|agent| primary_sim.trace_route(agent, primary_map, None));
     let secondary_route = secondary_sim
         .trip_to_agent(trip)
-        .and_then(|agent| secondary_sim.trace_route(agent, secondary_map, Distance::MAX));
+        .and_then(|agent| secondary_sim.trace_route(agent, secondary_map, None));
 
     if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
         warn!("{} isn't present in both sims", trip);

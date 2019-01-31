@@ -841,7 +841,7 @@ impl DrivingSimState {
                     // TODO we need two steps back, urgh
                     Distance::ZERO
                 },
-                c.vehicle.length,
+                Some(c.vehicle.length),
             )
             .unwrap()
         } else {
@@ -870,7 +870,7 @@ impl DrivingSimState {
             stopping_trace: self.trace_route(
                 id,
                 map,
-                c.vehicle.stopping_distance(c.speed).unwrap(),
+                Some(c.vehicle.stopping_distance(c.speed).unwrap()),
             ),
             state: if c.debug {
                 CarState::Debug
@@ -915,9 +915,11 @@ impl DrivingSimState {
         }
     }
 
-    pub fn trace_route(&self, id: CarID, map: &Map, dist_ahead: Distance) -> Option<Trace> {
-        if dist_ahead <= EPSILON_DIST {
-            return None;
+    pub fn trace_route(&self, id: CarID, map: &Map, dist_ahead: Option<Distance>) -> Option<Trace> {
+        if let Some(d) = dist_ahead {
+            if d <= EPSILON_DIST {
+                return None;
+            }
         }
         let r = self.routers.get(&id)?;
         let c = &self.cars[&id];
