@@ -28,7 +28,8 @@ pub fn short_roads(map: &mut InitialMap) {
         let orig_count = map.roads.len();
 
         // Every time we change a road, other roads we might've already processed could shorten, so
-        // we have to redo everything.
+        // we have to redo everything. Note that order of merging doesn't SEEM to matter much...
+        // tried tackling the shortest roads first, no effect.
         loop {
             if let Some(r) = map
                 .roads

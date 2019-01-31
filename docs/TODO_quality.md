@@ -12,7 +12,6 @@
 		- can we capture snapshots of incremental changes?
 			- save initial map at every step, be able to load raw + initial with a focus point
 			- generic viewer should be easy... something that stores polygon and ID, wraps the quadtree, etc
-		- try merging the shortest roads first
 	- deal with loop roads
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.

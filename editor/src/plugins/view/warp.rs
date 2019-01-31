@@ -44,7 +44,7 @@ impl Plugin for WarpState {
                         &ctx.primary.draw_map,
                     ) {
                         let at = ctx.canvas.center_to_map_pt();
-                        if at.approx_eq(pt, geom::EPSILON_DIST) {
+                        if at.epsilon_eq(pt) {
                             ctx.primary.current_selection = Some(id);
                             return false;
                         }

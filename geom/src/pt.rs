@@ -1,4 +1,4 @@
-use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat};
+use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
@@ -29,6 +29,11 @@ impl Pt2D {
     // TODO This is a small first step...
     pub fn approx_eq(self, other: Pt2D, threshold: Distance) -> bool {
         self.dist_to(other) <= threshold
+    }
+
+    // Useful shortcut that's easy to refactor in the future.
+    pub fn epsilon_eq(self, other: Pt2D) -> bool {
+        self.approx_eq(other, EPSILON_DIST)
     }
 
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {

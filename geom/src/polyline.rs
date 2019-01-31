@@ -20,10 +20,7 @@ impl PolyLine {
         // squish down points here and make sure the final result is at least EPSILON_DIST.
         // But probably better for the callers to do this -- they have better understanding of what
         // needs to be squished down, why, and how.
-        if pts
-            .windows(2)
-            .any(|pair| pair[0].approx_eq(pair[1], EPSILON_DIST))
-        {
+        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
             let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
                 so_far + pair[0].dist_to(pair[1])
             });
@@ -122,7 +119,7 @@ impl PolyLine {
             // Does this line contain the last point of the slice?
             if dist_so_far + length >= end {
                 let last_pt = line.dist_along(end - dist_so_far);
-                if result.last().unwrap().approx_eq(last_pt, EPSILON_DIST) {
+                if result.last().unwrap().epsilon_eq(last_pt) {
                     result.pop();
                 }
                 result.push(last_pt);
@@ -135,7 +132,7 @@ impl PolyLine {
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
             // previous point (namely, the start, which could be somewhere far along a line)
-            if !result.is_empty() && !result.last().unwrap().approx_eq(line.pt2(), EPSILON_DIST) {
+            if !result.is_empty() && !result.last().unwrap().epsilon_eq(line.pt2()) {
                 result.push(line.pt2());
             }
 
@@ -390,7 +387,7 @@ impl PolyLine {
             let mut pts = self.pts.clone();
             pts.split_off(idx + 1);
             // Make sure the last line isn't too tiny
-            if pts.last().unwrap().approx_eq(pt, EPSILON_DIST) {
+            if pts.last().unwrap().epsilon_eq(pt) {
                 pts.pop();
             }
             pts.push(pt);
