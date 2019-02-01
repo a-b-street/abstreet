@@ -11,3 +11,4 @@ ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 structopt = "0.2"
+viewer = { path = "../viewer" }
