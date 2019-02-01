@@ -591,6 +591,5 @@ for this kind of thing?
 - debug functionality
 	- automatically center on something interesting
 - cleanup
-	- take away ability to load a map from a saved InitialMap
 	- make synthetic use stuff
 	- make halloween use stuff
