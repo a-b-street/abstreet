@@ -16,14 +16,15 @@ pub struct PolyLine {
 impl PolyLine {
     pub fn new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
+        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
+            so_far + pair[0].dist_to(pair[1])
+        });
+
         // This checks no lines are too small. Could take the other approach and automatically
         // squish down points here and make sure the final result is at least EPSILON_DIST.
         // But probably better for the callers to do this -- they have better understanding of what
         // needs to be squished down, why, and how.
         if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
-            let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
-                so_far + pair[0].dist_to(pair[1])
-            });
             panic!(
                 "PL with total length {} and {} pts has ~dupe pts: {:?}",
                 length,
@@ -31,10 +32,6 @@ impl PolyLine {
                 pts
             );
         }
-
-        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
-            so_far + Line::new(pair[0], pair[1]).length()
-        });
 
         // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
         // are broken.

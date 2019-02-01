@@ -182,7 +182,7 @@ fn generalized_trim_back(
     endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(1.0));
 
     let center = Pt2D::center(&endpoints);
-    endpoints.sort_by_key(|pt| Line::new(center, *pt).angle().normalized_degrees() as i64);
+    endpoints.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
     endpoints
 }
 

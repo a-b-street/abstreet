@@ -120,14 +120,15 @@ impl DrawBuilding {
                 .translate(-1.0 * (1.0 - percent) * dx, -1.0 * (1.0 - percent) * dy),
         );
 
-        let new_line = Line::new(
+        if let Some(new_line) = Line::maybe_new(
             self.line.pt1(),
             Pt2D::new(
                 self.line.pt1().x() + percent * dx,
                 self.line.pt1().y() + percent * dy,
             ),
-        );
-        g.draw_rounded_line(PATH, LINE_WIDTH, &new_line);
+        ) {
+            g.draw_rounded_line(PATH, LINE_WIDTH, &new_line);
+        }
     }
 
     fn get_bounds(&self) -> Bounds {

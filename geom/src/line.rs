@@ -15,6 +15,13 @@ impl Line {
         Line(pt1, pt2)
     }
 
+    pub fn maybe_new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
+        if pt1.epsilon_eq(pt2) {
+            return None;
+        }
+        Some(Line::new(pt1, pt2))
+    }
+
     pub fn infinite(&self) -> InfiniteLine {
         InfiniteLine(self.0, self.1)
     }

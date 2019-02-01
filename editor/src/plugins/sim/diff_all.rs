@@ -63,10 +63,10 @@ fn diff_all(primary_sim: &Sim, secondary_sim: &Sim) -> DiffAllState {
     let mut lines: Vec<Line> = Vec::new();
     for (trip, pt1) in &stats1.canonical_pt_per_trip {
         if let Some(pt2) = stats2.canonical_pt_per_trip.get(trip) {
-            if pt1 == pt2 {
-                same_trips += 1;
+            if let Some(l) = Line::maybe_new(*pt1, *pt2) {
+                lines.push(l);
             } else {
-                lines.push(Line::new(*pt1, *pt2));
+                same_trips += 1;
             }
         }
     }

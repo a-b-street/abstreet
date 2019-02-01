@@ -26,12 +26,18 @@ struct UI {
 
 impl UI {
     fn new(flags: Flags) -> UI {
-        let map = Map::new(
-            &flags.load_map,
-            MapEdits::new("map name"),
-            &mut Timer::new("load map for Halloween"),
-        )
-        .unwrap();
+        // TODO Consolidate with sim::load
+        let map: Map = if flags.load_map.contains("data/raw_maps/") {
+            Map::new(
+                &flags.load_map,
+                MapEdits::new("map name"),
+                &mut Timer::new("load map"),
+            )
+            .unwrap()
+        } else {
+            abstutil::read_binary(&flags.load_map, &mut Timer::new("load map")).unwrap()
+        };
+
         UI {
             draw_map: DrawMap::new(map),
             cycler: Cycler::new(ANIMATION_PERIOD_S),

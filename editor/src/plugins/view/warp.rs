@@ -44,11 +44,12 @@ impl Plugin for WarpState {
                         &ctx.primary.draw_map,
                     ) {
                         let at = ctx.canvas.center_to_map_pt();
-                        if at.epsilon_eq(pt) {
+                        if let Some(l) = Line::maybe_new(at, pt) {
+                            *self = WarpState::Warping(Instant::now(), l, id);
+                        } else {
                             ctx.primary.current_selection = Some(id);
                             return false;
                         }
-                        *self = WarpState::Warping(Instant::now(), Line::new(at, pt), id);
                     } else {
                         return false;
                     }
