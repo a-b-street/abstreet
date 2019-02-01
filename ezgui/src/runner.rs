@@ -1,6 +1,6 @@
 use crate::input::{ContextMenu, ModalMenuState};
 use crate::{
-    screenshot, text, Canvas, Event, EventCtx, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput,
+    text, widgets, Canvas, Event, EventCtx, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput,
 };
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -162,11 +162,11 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let program = glium::Program::new(
         &display,
         glium::program::ProgramCreationInput::SourceCode {
-            vertex_shader: include_str!("vertex.glsl"),
+            vertex_shader: include_str!("assets/vertex.glsl"),
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             geometry_shader: None,
-            fragment_shader: include_str!("fragment.glsl"),
+            fragment_shader: include_str!("assets/fragment.glsl"),
             transform_feedback_varyings: None,
             // Without this, SRGB gets enabled and post-processes the color from the fragment
             // shader.
@@ -176,7 +176,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     )
     .unwrap();
 
-    let dejavu: &[u8] = include_bytes!("DejaVuSans.ttf");
+    let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
     let fonts = vec![Font::from_bytes(dejavu).unwrap()];
     let vmetrics = fonts[0].v_metrics(Scale::uniform(text::FONT_SIZE));
     // TODO This works for this font, but could be more paranoid with abs()
@@ -225,7 +225,7 @@ fn loop_forever<T, G: GUI<T>>(
                 state = new_state;
                 wait_for_events = mode == EventLoopMode::InputOnly;
                 if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
-                    state = screenshot::screenshot_everything(
+                    state = widgets::screenshot_everything(
                         state, &display, &program, zoom, max_x, max_y,
                     );
                 }

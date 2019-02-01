@@ -1,4 +1,4 @@
-use crate::menu::{Menu, Position};
+use crate::widgets::{Menu, Position};
 use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, TextBox, UserInput};
 use abstutil::Cloneable;
 use log::warn;

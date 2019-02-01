@@ -4,16 +4,10 @@ mod drawing;
 mod event;
 mod event_ctx;
 mod input;
-mod log_scroller;
-mod menu;
 mod runner;
 mod screen_geom;
-mod screenshot;
-mod scrolling_menu;
 mod text;
-mod text_box;
-mod top_menu;
-mod wizard;
+mod widgets;
 
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
@@ -21,14 +15,12 @@ pub use crate::drawing::GfxCtx;
 pub use crate::event::{Event, Key};
 pub use crate::event_ctx::{Drawable, EventCtx, Prerender};
 pub use crate::input::{ModalMenu, UserInput};
-pub use crate::log_scroller::LogScroller;
 pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::screen_geom::ScreenPt;
-pub use crate::scrolling_menu::ScrollingMenu;
 pub use crate::text::Text;
-pub use crate::text_box::TextBox;
-pub use crate::top_menu::{Folder, TopMenu};
-pub use crate::wizard::{Wizard, WrappedWizard};
+pub use crate::widgets::{
+    Folder, LogScroller, ScrollingMenu, TextBox, TopMenu, Wizard, WrappedWizard,
+};
 
 pub struct ToggleableLayer {
     layer_name: String,

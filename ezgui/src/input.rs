@@ -1,6 +1,5 @@
-use crate::menu::{Menu, Position};
-use crate::top_menu::TopMenu;
-use crate::{Canvas, Event, InputResult, Key, ScreenPt, Text};
+use crate::widgets::{Menu, Position};
+use crate::{Canvas, Event, InputResult, Key, ScreenPt, Text, TopMenu};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 // As we check for user input, record the input and the thing that would happen. This will let us

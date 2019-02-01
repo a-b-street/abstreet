@@ -1,6 +1,6 @@
-use crate::menu::{Menu, Position};
 use crate::screen_geom::ScreenRectangle;
 use crate::text;
+use crate::widgets::{Menu, Position};
 use crate::{Canvas, GfxCtx, InputResult, Key, ScreenPt, Text, UserInput};
 use geom::{Polygon, Pt2D};
 use std::collections::{HashMap, HashSet};
