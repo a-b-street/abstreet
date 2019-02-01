@@ -98,6 +98,10 @@ impl TimeTravel {
 }
 
 impl GetDrawAgents for TimeTravel {
+    fn tick(&self) -> Tick {
+        self.current_tick.unwrap()
+    }
+
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
         self.get_current_state().cars.get(&id).cloned()
     }

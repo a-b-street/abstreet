@@ -1,4 +1,4 @@
-use crate::{CarID, PedestrianID, Sim, VehicleType};
+use crate::{CarID, PedestrianID, Sim, Tick, VehicleType};
 use geom::{PolyLine, Pt2D};
 use map_model::{LaneType, Map, Trace, Traversable, TurnID};
 
@@ -37,6 +37,7 @@ pub enum CarState {
 // actually good for main sim too; we're constantly calculating stuff while sim is paused
 // otherwise? except we don't know what to calculate. maybe cache it?
 pub trait GetDrawAgents {
+    fn tick(&self) -> Tick;
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput>;
@@ -46,6 +47,10 @@ pub trait GetDrawAgents {
 }
 
 impl GetDrawAgents for Sim {
+    fn tick(&self) -> Tick {
+        self.time
+    }
+
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         self.driving_state
             .get_draw_car(id, self.time, map)

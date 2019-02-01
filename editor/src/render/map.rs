@@ -19,8 +19,9 @@ use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
-use sim::GetDrawAgents;
+use sim::{GetDrawAgents, Tick};
 use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
@@ -38,6 +39,8 @@ pub struct DrawMap {
     pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
+
+    agents: RefCell<AgentCache>,
 
     quadtree: QuadTree<ID>,
 }
@@ -171,6 +174,11 @@ impl DrawMap {
             bus_stops,
             areas,
 
+            agents: RefCell::new(AgentCache {
+                tick: None,
+                agents_per_on: HashMap::new(),
+            }),
+
             quadtree,
         }
     }
@@ -282,9 +290,8 @@ impl DrawMap {
         let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
         let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
         let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
-
-        let mut cars: Vec<Box<Renderable>> = Vec::new();
-        let mut peds: Vec<Box<Renderable>> = Vec::new();
+        // We can't immediately grab the Renderables; we need to do it all at once at the end.
+        let mut agents_on: Vec<Traversable> = Vec::new();
 
         for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
             if show_objs.show(*id) {
@@ -294,12 +301,18 @@ impl DrawMap {
                     ID::Lane(id) => {
                         lanes.push(Box::new(self.get_l(*id)));
                         if !show_objs.show_icons_for(map.get_l(*id).dst_i) {
-                            for c in sim.get_draw_cars(Traversable::Lane(*id), map).into_iter() {
-                                cars.push(draw_vehicle(c, map));
+                            let on = Traversable::Lane(*id);
+                            if !self.agents.borrow().has(sim.tick(), on) {
+                                let mut list: Vec<Box<Renderable>> = Vec::new();
+                                for c in sim.get_draw_cars(on, map).into_iter() {
+                                    list.push(draw_vehicle(c, map));
+                                }
+                                for p in sim.get_draw_peds(on, map).into_iter() {
+                                    list.push(Box::new(DrawPedestrian::new(p, map)));
+                                }
+                                self.agents.borrow_mut().put(sim.tick(), on, list);
                             }
-                            for p in sim.get_draw_peds(Traversable::Lane(*id), map).into_iter() {
-                                peds.push(Box::new(DrawPedestrian::new(p, map)));
-                            }
+                            agents_on.push(on);
                         }
                     }
                     ID::Intersection(id) => {
@@ -308,12 +321,18 @@ impl DrawMap {
                             if show_objs.show_icons_for(*id) {
                                 turn_icons.push(Box::new(self.get_t(*t)));
                             } else {
-                                for c in sim.get_draw_cars(Traversable::Turn(*t), map).into_iter() {
-                                    cars.push(draw_vehicle(c, map));
+                                let on = Traversable::Turn(*t);
+                                if !self.agents.borrow().has(sim.tick(), on) {
+                                    let mut list: Vec<Box<Renderable>> = Vec::new();
+                                    for c in sim.get_draw_cars(on, map).into_iter() {
+                                        list.push(draw_vehicle(c, map));
+                                    }
+                                    for p in sim.get_draw_peds(on, map).into_iter() {
+                                        list.push(Box::new(DrawPedestrian::new(p, map)));
+                                    }
+                                    self.agents.borrow_mut().put(sim.tick(), on, list);
                                 }
-                                for p in sim.get_draw_peds(Traversable::Turn(*t), map).into_iter() {
-                                    peds.push(Box::new(DrawPedestrian::new(p, map)));
-                                }
+                                agents_on.push(on);
                             }
                         }
                     }
@@ -340,11 +359,11 @@ impl DrawMap {
         borrows.extend(extra_shapes);
         borrows.extend(bus_stops);
         borrows.extend(turn_icons);
-        for c in &cars {
-            borrows.push(Box::new(c.borrow()));
-        }
-        for p in &peds {
-            borrows.push(Box::new(p.borrow()));
+        let cache = self.agents.borrow();
+        for on in agents_on {
+            for obj in cache.get(on) {
+                borrows.push(obj);
+            }
         }
 
         // This is a stable sort.
@@ -359,5 +378,37 @@ impl DrawMap {
                 break;
             }
         }
+    }
+}
+
+struct AgentCache {
+    tick: Option<Tick>,
+    agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
+}
+
+impl AgentCache {
+    fn has(&self, tick: Tick, on: Traversable) -> bool {
+        if Some(tick) != self.tick {
+            return false;
+        }
+        self.agents_per_on.contains_key(&on)
+    }
+
+    // Must call has() first.
+    fn get(&self, on: Traversable) -> Vec<Box<&Renderable>> {
+        self.agents_per_on[&on]
+            .iter()
+            .map(|obj| Box::new(obj.borrow()))
+            .collect()
+    }
+
+    fn put(&mut self, tick: Tick, on: Traversable, agents: Vec<Box<Renderable>>) {
+        if Some(tick) != self.tick {
+            self.agents_per_on.clear();
+            self.tick = Some(tick);
+        }
+
+        assert!(!self.agents_per_on.contains_key(&on));
+        self.agents_per_on.insert(on, agents);
     }
 }

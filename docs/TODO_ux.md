@@ -3,7 +3,8 @@
 ## Performance
 
 - cache draw stuff
-	- carefully. dont upload unbounded stuff to GPU in time travel.
+	- use a Drawable in DrawPed/DrawCar/DrawBike.
+	- fix the process_objects callback nonsense
 
 ## Quick n easy
 
