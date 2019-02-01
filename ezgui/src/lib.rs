@@ -8,6 +8,7 @@ mod log_scroller;
 mod menu;
 mod runner;
 mod screen_geom;
+mod screenshot;
 mod scrolling_menu;
 mod text;
 mod text_box;
