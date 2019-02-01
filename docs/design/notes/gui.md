@@ -588,8 +588,6 @@ editor, but also don't want to go overboard making a new crate with lots of
 copy-pasta code. It's like the synthetic editor. Can we extract out a pattern
 for this kind of thing?
 
-- debug functionality
-	- automatically center on something interesting
 - cleanup
 	- make synthetic use stuff
 	- make halloween use stuff

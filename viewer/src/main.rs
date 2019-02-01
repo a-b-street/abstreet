@@ -37,13 +37,13 @@ impl GUI<Text> for UI {
 
         if let Some(prev) = find_prev_file(&self.world.name) {
             if ctx.input.key_pressed(Key::Comma, "load previous map") {
-                self.world = World::load_initial_map(&prev, ctx.prerender);
+                self.world = World::load_initial_map(&prev, ctx.canvas, ctx.prerender);
                 self.state.selected = None;
             }
         }
         if let Some(next) = find_next_file(&self.world.name) {
             if ctx.input.key_pressed(Key::Dot, "load next map") {
-                self.world = World::load_initial_map(&next, ctx.prerender);
+                self.world = World::load_initial_map(&next, ctx.canvas, ctx.prerender);
                 self.state.selected = None;
             }
         }
@@ -68,7 +68,13 @@ impl GUI<Text> for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("Generic viewer of things", 1024.0, 768.0, |_, prerender| {
-        UI::new(World::load_initial_map(&args[1], prerender))
-    });
+    ezgui::run(
+        "Generic viewer of things",
+        1024.0,
+        768.0,
+        |canvas, prerender| {
+            canvas.cam_zoom = 4.0;
+            UI::new(World::load_initial_map(&args[1], canvas, prerender))
+        },
+    );
 }

@@ -58,7 +58,7 @@ pub fn short_roads(map: &mut InitialMap) {
 fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID {
     // Arbitrarily kill off the first intersection and keep the second one.
     let (delete_i, keep_i) = {
-        let r = map.roads.remove(&merge_road).unwrap();
+        let r = &map.roads[&merge_road];
         note(format!(
             "Deleting {}, which has original length {} and trimmed length {}",
             merge_road,
@@ -68,6 +68,9 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID
 
         (r.src_i, r.dst_i)
     };
+    // Show what we're about to delete
+    map.save(delete_i);
+    map.roads.remove(&merge_road);
     map.intersections.remove(&delete_i);
     map.intersections
         .get_mut(&keep_i)
@@ -132,11 +135,13 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID
             }
         }
     }
-    map.save(format!("o{}_reset_roads", keep_i.0));
+    // Show the reset road geometry
+    map.save(keep_i);
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads);
-    map.save(format!("o{}_new_polygon", keep_i.0));
+    // Show the final results of fixing this area
+    map.save(keep_i);
 
     keep_i
 }

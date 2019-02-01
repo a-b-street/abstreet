@@ -1,6 +1,6 @@
 use aabb_quadtree::QuadTree;
 use abstutil::{read_binary, Timer};
-use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
+use ezgui::{Canvas, Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Circle, Distance, Polygon};
 use map_model::raw_data;
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
@@ -36,7 +36,7 @@ pub struct World {
 }
 
 impl World {
-    pub fn load_initial_map(filename: &str, prerender: &Prerender) -> World {
+    pub fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) -> World {
         let data: raw_data::InitialMap =
             read_binary(filename, &mut Timer::new("load data")).unwrap();
 
@@ -55,7 +55,11 @@ impl World {
                         .shift_right(r.fwd_width / 2.0)
                         .make_polygons(r.fwd_width),
                     Color::grey(0.8),
-                    Text::from_line(format!("{} forwards", r.id)),
+                    Text::from_line(format!(
+                        "{} forwards, {} long",
+                        r.id,
+                        r.trimmed_center_pts.length()
+                    )),
                 );
             }
             if r.back_width > Distance::ZERO {
@@ -66,7 +70,11 @@ impl World {
                         .shift_left(r.back_width / 2.0)
                         .make_polygons(r.back_width),
                     Color::grey(0.6),
-                    Text::from_line(format!("{} backwards", r.id)),
+                    Text::from_line(format!(
+                        "{} backwards, {} long",
+                        r.id,
+                        r.trimmed_center_pts.length()
+                    )),
                 );
             }
         }
@@ -80,6 +88,12 @@ impl World {
                 Text::from_line(format!("{}", i.id)),
             );
         }
+
+        canvas.center_on_map_pt(
+            w.objects[&ID::Intersection(data.last_merged)]
+                .polygon
+                .center(),
+        );
 
         w
     }
@@ -99,7 +113,7 @@ impl World {
     pub fn draw_selected(&self, g: &mut GfxCtx, id: ID) {
         let obj = &self.objects[&id];
         g.draw_polygon(Color::BLUE, &obj.polygon);
-        g.draw_text_at(obj.info.clone(), obj.polygon.center());
+        g.draw_mouse_tooltip(obj.info.clone());
     }
 
     pub fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
