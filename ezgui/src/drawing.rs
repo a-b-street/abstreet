@@ -1,17 +1,10 @@
-use crate::{Canvas, Color, ScreenPt};
-use geom::{Circle, Distance, Line, Polygon, Pt2D};
-use glium::{implement_vertex, uniform, Surface};
+use crate::{
+    Canvas, Color, Drawable, HorizontalAlignment, Prerender, ScreenPt, Text, VerticalAlignment,
+};
+use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use glium::{uniform, Surface};
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
-
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-    // TODO Maybe pass color as a uniform instead
-    color: [f32; 4],
-}
-
-implement_vertex!(Vertex, position, color);
 
 type Uniforms<'a> = glium::uniforms::UniformsStorage<
     'a,
@@ -26,13 +19,16 @@ pub struct GfxCtx<'a> {
     uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
 
+    // TODO Don't be pub. Delegate everything.
+    pub canvas: &'a Canvas,
+
     pub num_new_uploads: usize,
     pub num_draw_calls: usize,
 }
 
 impl<'a> GfxCtx<'a> {
     pub fn new(
-        canvas: &Canvas,
+        canvas: &'a Canvas,
         display: &'a glium::Display,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
@@ -48,6 +44,7 @@ impl<'a> GfxCtx<'a> {
         };
 
         GfxCtx {
+            canvas,
             display,
             target,
             program,
@@ -61,34 +58,28 @@ impl<'a> GfxCtx<'a> {
     // Up to the caller to call unfork()!
     // TODO Canvas doesn't understand this change, so things like text drawing that use
     // map_to_screen will just be confusing.
-    pub fn fork(
-        &mut self,
-        top_left_map: Pt2D,
-        top_left_screen: ScreenPt,
-        zoom: f64,
-        canvas: &Canvas,
-    ) {
+    pub fn fork(&mut self, top_left_map: Pt2D, top_left_screen: ScreenPt, zoom: f64) {
         // map_to_screen of top_left_map should be top_left_screen
         let cam_x = (top_left_map.x() * zoom) - top_left_screen.x;
         let cam_y = (top_left_map.y() * zoom) - top_left_screen.y;
 
         self.uniforms = uniform! {
             transform: [cam_x as f32, cam_y as f32, zoom as f32],
-            window: [canvas.window_width as f32, canvas.window_height as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
         };
     }
 
-    pub fn fork_screenspace(&mut self, canvas: &Canvas) {
+    pub fn fork_screenspace(&mut self) {
         self.uniforms = uniform! {
             transform: [0.0, 0.0, 1.0],
-            window: [canvas.window_width as f32, canvas.window_height as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
         };
     }
 
-    pub fn unfork(&mut self, canvas: &Canvas) {
+    pub fn unfork(&mut self) {
         self.uniforms = uniform! {
-            transform: [canvas.cam_x as f32, canvas.cam_y as f32, canvas.cam_zoom as f32],
-            window: [canvas.window_width as f32, canvas.window_height as f32],
+            transform: [self.canvas.cam_x as f32, self.canvas.cam_y as f32, self.canvas.cam_zoom as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
         };
     }
 
@@ -157,53 +148,34 @@ impl<'a> GfxCtx<'a> {
             .unwrap();
         self.num_draw_calls += 1;
     }
-}
 
-pub struct Prerender<'a> {
-    pub(crate) display: &'a glium::Display,
-}
-
-// Something that's been sent to the GPU already.
-pub struct Drawable {
-    vertex_buffer: glium::VertexBuffer<Vertex>,
-    index_buffer: glium::IndexBuffer<u32>,
-}
-
-impl<'a> Prerender<'a> {
-    pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
-        let mut vertices: Vec<Vertex> = Vec::new();
-        let mut indices: Vec<u32> = Vec::new();
-
-        for (color, poly) in list {
-            let idx_offset = vertices.len();
-            let (pts, raw_indices) = poly.raw_for_rendering();
-            for pt in pts {
-                vertices.push(Vertex {
-                    position: [pt.x() as f32, pt.y() as f32],
-                    color: color.0,
-                });
-            }
-            for idx in raw_indices {
-                indices.push((idx_offset + *idx) as u32);
-            }
-        }
-
-        let vertex_buffer = glium::VertexBuffer::new(self.display, &vertices).unwrap();
-        let index_buffer = glium::IndexBuffer::new(
-            self.display,
-            glium::index::PrimitiveType::TrianglesList,
-            &indices,
-        )
-        .unwrap();
-
-        Drawable {
-            vertex_buffer,
-            index_buffer,
-        }
+    // Forwarded canvas stuff.
+    pub fn draw_blocking_text(
+        &mut self,
+        txt: Text,
+        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
+    ) {
+        self.canvas.draw_blocking_text(self, txt, (horiz, vert));
     }
-
-    pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
-        let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
-        self.upload_borrowed(borrows)
+    pub fn get_screen_bounds(&self) -> Bounds {
+        self.canvas.get_screen_bounds()
+    }
+    pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
+        self.canvas.draw_text_at(self, txt, map_pt);
+    }
+    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
+        self.canvas.text_dims(txt)
+    }
+    pub fn draw_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
+        self.canvas.draw_text_at_screenspace_topleft(self, txt, pt);
+    }
+    pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+        self.canvas.draw_mouse_tooltip(self, txt);
+    }
+    pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {
+        self.canvas.screen_to_map(pt)
+    }
+    pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
+        self.canvas.get_cursor_in_map_space()
     }
 }

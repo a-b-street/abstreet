@@ -59,13 +59,13 @@ impl Plugin for ABTestManager {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         match self {
             ABTestManager::PickABTest(wizard) => {
-                wizard.draw(g, ctx.canvas);
+                wizard.draw(g);
             }
             ABTestManager::ManageABTest(_, scroller) => {
-                scroller.draw(g, ctx.canvas);
+                scroller.draw(g);
             }
         }
     }

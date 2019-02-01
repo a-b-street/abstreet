@@ -99,7 +99,7 @@ impl Renderable for DrawLane {
             g.redraw(&self.draw_default);
         }
 
-        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             g.redraw(&self.draw_markings);
         }
 

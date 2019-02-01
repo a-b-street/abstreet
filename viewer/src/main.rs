@@ -1,11 +1,10 @@
 mod model;
 
 use crate::model::{World, ID};
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, GUI};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
 use std::{env, process};
 
 struct UI {
-    canvas: Canvas,
     world: World,
     state: State,
 }
@@ -15,9 +14,8 @@ struct State {
 }
 
 impl UI {
-    fn new(world: World, canvas: Canvas) -> UI {
+    fn new(world: World) -> UI {
         UI {
-            canvas,
             world,
             state: State { selected: None },
         }
@@ -25,46 +23,39 @@ impl UI {
 }
 
 impl GUI<Text> for UI {
-    fn event(&mut self, input: &mut UserInput, _: &Prerender) -> (EventLoopMode, Text) {
-        self.canvas.handle_event(input);
+    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, Text) {
+        ctx.canvas.handle_event(ctx.input);
 
-        if !self.canvas.is_dragging() && input.get_moved_mouse().is_some() {
-            self.state.selected = self.world.mouseover_something(&self.canvas);
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            self.state.selected = self.world.mouseover_something(&ctx);
         }
 
-        if input.unimportant_key_pressed(Key::Escape, "quit") {
+        if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
 
         let mut osd = Text::new();
-        input.populate_osd(&mut osd);
+        ctx.input.populate_osd(&mut osd);
         (EventLoopMode::InputOnly, osd)
     }
 
-    fn get_mut_canvas(&mut self) -> &mut Canvas {
-        &mut self.canvas
-    }
-
+    // TODO draw ctx should include the OSD!
     fn draw(&self, g: &mut GfxCtx, osd: &Text) {
         g.clear(Color::WHITE);
 
-        self.world.draw(g, &self.canvas);
+        self.world.draw(g);
 
         if let Some(id) = self.state.selected {
-            self.world.draw_selected(g, &self.canvas, id);
+            self.world.draw_selected(g, id);
         }
 
-        self.canvas
-            .draw_blocking_text(g, osd.clone(), ezgui::BOTTOM_LEFT);
+        g.draw_blocking_text(osd.clone(), ezgui::BOTTOM_LEFT);
     }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run(
-        "Generic viewer of things",
-        1024.0,
-        768.0,
-        |canvas, prerender| UI::new(World::load_initial_map(&args[1], prerender), canvas),
-    );
+    ezgui::run("Generic viewer of things", 1024.0, 768.0, |_, prerender| {
+        UI::new(World::load_initial_map(&args[1], prerender))
+    });
 }

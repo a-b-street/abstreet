@@ -53,9 +53,9 @@ impl Plugin for SearchState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         if let SearchState::EnteringSearch(tb) = self {
-            tb.draw(g, ctx.canvas);
+            tb.draw(g);
         }
     }
 

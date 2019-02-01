@@ -39,8 +39,8 @@ impl Plugin for DisplayLogs {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        LOGGER.lock().unwrap().draw(g, ctx.canvas);
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+        LOGGER.lock().unwrap().draw(g);
     }
 }
 

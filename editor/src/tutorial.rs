@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
-use ezgui::{Canvas, GfxCtx, LogScroller, Prerender, Text, UserInput};
+use ezgui::{Canvas, EventCtx, GfxCtx, LogScroller, Prerender, Text};
 use map_model::Traversable;
 use sim::{Event, Tick};
 
@@ -54,19 +54,17 @@ impl UIState for TutorialState {
 
     fn event(
         &mut self,
-        input: &mut UserInput,
+        ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
-        canvas: &mut Canvas,
-        prerender: &Prerender,
     ) {
         match self.state {
             State::GiveInstructions(ref mut scroller) => {
-                if scroller.event(input) {
+                if scroller.event(ctx.input) {
                     setup_scenario(&mut self.main.primary);
                     self.main.sim_controls.run_sim(&mut self.main.primary.sim);
-                    self.main.legend = Some(Legend::start(input, canvas));
+                    self.main.legend = Some(Legend::start(ctx.input, ctx.canvas));
                     self.state = State::Play {
                         last_tick_observed: None,
                         spawned_from_north: 0,
@@ -79,14 +77,8 @@ impl UIState for TutorialState {
                 ref mut spawned_from_north,
                 ref mut spawned_from_south,
             } => {
-                self.main.event(
-                    input,
-                    hints,
-                    recalculate_current_selection,
-                    cs,
-                    canvas,
-                    prerender,
-                );
+                self.main
+                    .event(ctx, hints, recalculate_current_selection, cs);
 
                 if let Some((tick, events)) = self
                     .main
@@ -112,7 +104,7 @@ impl UIState for TutorialState {
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self.state {
             State::GiveInstructions(ref scroller) => {
-                scroller.draw(g, ctx.canvas);
+                scroller.draw(g);
             }
             State::Play {
                 spawned_from_north,
@@ -121,16 +113,14 @@ impl UIState for TutorialState {
             } => {
                 self.main.draw(g, ctx);
 
-                ctx.canvas.draw_text_at(
-                    g,
+                g.draw_text_at(
                     Text::from_line(format!(
                         "{} / {}",
                         spawned_from_north, SPAWN_CARS_PER_BORDER
                     )),
                     ctx.map.intersection("north").point,
                 );
-                ctx.canvas.draw_text_at(
-                    g,
+                g.draw_text_at(
                     Text::from_line(format!(
                         "{} / {}",
                         spawned_from_south, SPAWN_CARS_PER_BORDER

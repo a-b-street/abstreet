@@ -43,7 +43,7 @@ impl Plugin for Legend {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         let zoom = 10.0;
-        g.fork(Pt2D::new(0.0, 0.0), self.top_left, zoom, &ctx.canvas);
+        g.fork(Pt2D::new(0.0, 0.0), self.top_left, zoom);
 
         // Create a fake turn.
         let mut turn = Turn {
@@ -67,8 +67,7 @@ impl Plugin for Legend {
             g,
             ctx.cs.get("turns protected by traffic signal right now"),
         );
-        ctx.canvas.draw_text_at_screenspace_topleft(
-            g,
+        g.draw_text_at_screenspace_topleft(
             Text::from_line("Protected turn".to_string()),
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 10.0),
         );
@@ -83,12 +82,11 @@ impl Plugin for Legend {
             ctx.cs
                 .get("turns allowed with yielding by traffic signal right now"),
         );
-        ctx.canvas.draw_text_at_screenspace_topleft(
-            g,
+        g.draw_text_at_screenspace_topleft(
             Text::from_line("Yield turn".to_string()),
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 110.0),
         );
 
-        g.unfork(&ctx.canvas);
+        g.unfork();
     }
 }

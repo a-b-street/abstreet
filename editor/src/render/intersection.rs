@@ -79,7 +79,7 @@ impl Renderable for DrawIntersection {
             g.redraw(&self.draw_default);
         }
 
-        if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             if self.intersection_type == IntersectionType::TrafficSignal {
                 if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
                     self.draw_traffic_signal(g, ctx);
@@ -313,13 +313,13 @@ pub fn draw_signal_diagram(
     }
     let label_length = labels
         .iter()
-        .map(|l| ctx.canvas.text_dims(l).0)
+        .map(|l| g.canvas.text_dims(l).0)
         .max_by_key(|w| NotNan::new(*w).unwrap())
         .unwrap();
     let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
-    let x1_screen = ctx.canvas.window_width - total_screen_width;
+    let x1_screen = g.canvas.window_width - total_screen_width;
 
-    g.fork_screenspace(&ctx.canvas);
+    g.fork_screenspace();
     g.draw_polygon(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
@@ -347,17 +347,16 @@ pub fn draw_signal_diagram(
     for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
         let y1 = y1_screen + (padding + intersection_height) * (idx as f64) * zoom;
 
-        g.fork(top_left, ScreenPt::new(x1_screen, y1), zoom, &ctx.canvas);
+        g.fork(top_left, ScreenPt::new(x1_screen, y1), zoom);
         draw_signal_cycle(&cycle, g, ctx);
 
-        ctx.canvas.draw_text_at_screenspace_topleft(
-            g,
+        g.draw_text_at_screenspace_topleft(
             txt,
             ScreenPt::new(x1_screen + 10.0 + (intersection_width * zoom), y1),
         );
     }
 
-    g.unfork(&ctx.canvas);
+    g.unfork();
 }
 
 fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {

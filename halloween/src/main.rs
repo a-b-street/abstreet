@@ -4,7 +4,7 @@ mod timer;
 use crate::render::DrawMap;
 use crate::timer::Cycler;
 use abstutil::Timer;
-use ezgui::{Canvas, EventLoopMode, GfxCtx, Key, Prerender, UserInput, GUI};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, GUI};
 use map_model::{Map, MapEdits};
 use std::process;
 use structopt::StructOpt;
@@ -20,13 +20,12 @@ struct Flags {
 const ANIMATION_PERIOD_S: f64 = 2.0;
 
 struct UI {
-    canvas: Canvas,
     draw_map: DrawMap,
     cycler: Cycler,
 }
 
 impl UI {
-    fn new(flags: Flags, canvas: Canvas) -> UI {
+    fn new(flags: Flags) -> UI {
         let map = Map::new(
             &flags.load_map,
             MapEdits::new("map name"),
@@ -34,7 +33,6 @@ impl UI {
         )
         .unwrap();
         UI {
-            canvas,
             draw_map: DrawMap::new(map),
             cycler: Cycler::new(ANIMATION_PERIOD_S),
         }
@@ -42,27 +40,20 @@ impl UI {
 }
 
 impl GUI<()> for UI {
-    fn event(&mut self, input: &mut UserInput, _: &Prerender) -> (EventLoopMode, ()) {
-        if input.unimportant_key_pressed(Key::Escape, "quit") {
+    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, ()) {
+        if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
-        self.canvas.handle_event(input);
+        ctx.canvas.handle_event(ctx.input);
         (EventLoopMode::Animation, ())
     }
 
-    fn get_mut_canvas(&mut self) -> &mut Canvas {
-        &mut self.canvas
-    }
-
     fn draw(&self, g: &mut GfxCtx, _: &()) {
-        self.draw_map
-            .draw(g, self.cycler.value(), self.canvas.get_screen_bounds());
+        self.draw_map.draw(g, self.cycler.value());
     }
 }
 
 fn main() {
     let flags = Flags::from_args();
-    ezgui::run("Halloween tech demo", 1024.0, 768.0, |canvas, _| {
-        UI::new(flags, canvas)
-    });
+    ezgui::run("Halloween tech demo", 1024.0, 768.0, |_, _| UI::new(flags));
 }

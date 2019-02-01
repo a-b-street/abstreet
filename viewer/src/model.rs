@@ -1,6 +1,6 @@
 use aabb_quadtree::QuadTree;
 use abstutil::{read_binary, Timer};
-use ezgui::{Canvas, Color, Drawable, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Circle, Distance, Polygon};
 use map_model::raw_data;
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
@@ -82,9 +82,9 @@ impl World {
         w
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut objects: Vec<ID> = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(canvas.get_screen_bounds().as_bbox()) {
+        for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
             objects.push(*id);
         }
         objects.sort_by_key(|id| id.zorder());
@@ -94,14 +94,14 @@ impl World {
         }
     }
 
-    pub fn draw_selected(&self, g: &mut GfxCtx, canvas: &Canvas, id: ID) {
+    pub fn draw_selected(&self, g: &mut GfxCtx, id: ID) {
         let obj = &self.objects[&id];
         g.draw_polygon(Color::BLUE, &obj.polygon);
-        canvas.draw_text_at(g, obj.info.clone(), obj.polygon.center());
+        g.draw_text_at(obj.info.clone(), obj.polygon.center());
     }
 
-    pub fn mouseover_something(&self, canvas: &Canvas) -> Option<ID> {
-        let cursor = canvas.get_cursor_in_map_space()?;
+    pub fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+        let cursor = ctx.canvas.get_cursor_in_map_space()?;
 
         let mut objects: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(

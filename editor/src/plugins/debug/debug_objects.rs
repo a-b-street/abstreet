@@ -45,13 +45,14 @@ impl Plugin for DebugObjectsState {
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         if self.tooltip_key_held {
             if let Some(id) = self.selected {
-                ctx.canvas.draw_mouse_tooltip(g, tooltip_lines(id, ctx));
+                let txt = tooltip_lines(id, g, ctx);
+                g.draw_mouse_tooltip(txt);
             }
         }
     }
 }
 
-fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
+fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &Ctx) -> Text {
     let (map, sim, draw_map) = (&ctx.map, &ctx.sim, &ctx.draw_map);
     let mut txt = Text::new();
     match obj {
@@ -117,12 +118,12 @@ fn tooltip_lines(obj: ID, ctx: &Ctx) -> Text {
         }
         ID::Car(id) => {
             for line in sim.car_tooltip(id) {
-                txt.add_wrapped_line(&ctx.canvas, line);
+                txt.add_wrapped_line(&g.canvas, line);
             }
         }
         ID::Pedestrian(id) => {
             for line in sim.ped_tooltip(id) {
-                txt.add_wrapped_line(&ctx.canvas, line);
+                txt.add_wrapped_line(&g.canvas, line);
             }
         }
         ID::ExtraShape(id) => {

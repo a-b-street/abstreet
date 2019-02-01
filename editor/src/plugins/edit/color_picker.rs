@@ -71,18 +71,18 @@ impl Plugin for ColorPicker {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         match self {
             ColorPicker::Choosing(menu) => {
-                menu.draw(g, ctx.canvas);
+                menu.draw(g);
             }
             ColorPicker::ChangingColor(_, _) => {
-                let (start_x, start_y) = get_screen_offset(ctx.canvas);
+                let (start_x, start_y) = get_screen_offset(g.canvas);
 
                 for x in 0..WIDTH {
                     for y in 0..HEIGHT {
                         let color = get_color((x as f32) / 255.0, (y as f32) / 255.0);
-                        let corner = ctx.canvas.screen_to_map(ScreenPt::new(
+                        let corner = g.screen_to_map(ScreenPt::new(
                             f64::from(x) * TILE_DIMS + start_x,
                             f64::from(y) * TILE_DIMS + start_y,
                         ));

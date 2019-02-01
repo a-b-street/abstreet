@@ -1,4 +1,4 @@
-use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 
 // TODO right now, only a single line
 
@@ -22,7 +22,7 @@ impl TextBox {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
         txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
 
@@ -36,7 +36,7 @@ impl TextBox {
             txt.append("|".to_string(), Some(text::SELECTED_COLOR));
         }
 
-        canvas.draw_blocking_text(g, txt, CENTERED);
+        g.draw_blocking_text(txt, CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

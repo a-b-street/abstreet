@@ -5,8 +5,8 @@ use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::{RenderOptions, RenderOrder, Renderable};
 use crate::state::UIState;
 use ezgui::{
-    Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text, TopMenu,
-    UserInput, BOTTOM_LEFT, GUI,
+    Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu,
+    BOTTOM_LEFT, GUI,
 };
 use geom::{Bounds, Circle, Distance};
 use kml;
@@ -18,13 +18,12 @@ use std::process;
 
 pub struct UI<S: UIState> {
     state: S,
-    canvas: Canvas,
     // TODO Not sure why this needs to live here and not in state
     cs: ColorScheme,
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
-    fn top_menu(&self) -> Option<TopMenu> {
+    fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
             "File",
@@ -91,7 +90,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 ],
             ),
         ]);
-        Some(TopMenu::new(folders, &self.canvas))
+        Some(TopMenu::new(folders, canvas))
     }
 
     fn modal_menus() -> Vec<ModalMenu> {
@@ -181,11 +180,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ]
     }
 
-    fn event(
-        &mut self,
-        input: &mut UserInput,
-        prerender: &Prerender,
-    ) -> (EventLoopMode, RenderingHints) {
+    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, RenderingHints) {
         let mut hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
@@ -194,45 +189,46 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         };
 
         // First update the camera and handle zoom
-        let old_zoom = self.canvas.cam_zoom;
-        self.canvas.handle_event(input);
-        let new_zoom = self.canvas.cam_zoom;
+        let old_zoom = ctx.canvas.cam_zoom;
+        ctx.canvas.handle_event(ctx.input);
+        let new_zoom = ctx.canvas.cam_zoom;
         self.state
             .mut_state()
             .layers
             .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
-        if !self.canvas.is_dragging() && input.get_moved_mouse().is_some() {
-            self.state.mut_state().primary.current_selection = self.mouseover_something();
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
         }
-        if input.window_lost_cursor() {
+        if ctx.input.window_lost_cursor() {
             self.state.mut_state().primary.current_selection = None;
         }
 
         let mut recalculate_current_selection = false;
         self.state.event(
-            input,
+            &mut ctx,
             &mut hints,
             &mut recalculate_current_selection,
             &mut self.cs,
-            &mut self.canvas,
-            prerender,
         );
         if recalculate_current_selection {
-            self.state.mut_state().primary.current_selection = self.mouseover_something();
+            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
         }
 
         // Can do this at any time.
-        if input.action_chosen("quit") {
-            self.before_quit();
+        if ctx.input.action_chosen("quit") {
+            self.before_quit(ctx.canvas);
             process::exit(0);
         }
 
-        input.populate_osd(&mut hints.osd);
+        ctx.input.populate_osd(&mut hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
-        if input.unimportant_key_pressed(Key::F1, "take screenshot") {
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::F1, "take screenshot")
+        {
             let bounds = self.state.get_state().primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
@@ -245,10 +241,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         (hints.mode, hints)
     }
 
-    fn get_mut_canvas(&mut self) -> &mut Canvas {
-        &mut self.canvas
-    }
-
     fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
 
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
@@ -258,35 +250,29 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             cs: &self.cs,
             map: &self.state.get_state().primary.map,
             draw_map: &self.state.get_state().primary.draw_map,
-            canvas: &self.canvas,
             sim: &self.state.get_state().primary.sim,
             hints: &hints,
         };
 
         let mut sample_intersection: Option<String> = None;
-        self.handle_objects(
-            self.canvas.get_screen_bounds(),
-            RenderOrder::BackToFront,
-            |obj| {
-                let opts = RenderOptions {
-                    color: self.state.get_state().color_obj(obj.get_id(), &ctx),
-                    debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
-                    is_selected: self.state.get_state().primary.current_selection
-                        == Some(obj.get_id()),
-                    // TODO If a ToggleableLayer is currently off, this won't affect it!
-                    show_all_detail: screencap,
-                };
-                obj.draw(g, opts, &ctx);
+        self.handle_objects(g.get_screen_bounds(), RenderOrder::BackToFront, |obj| {
+            let opts = RenderOptions {
+                color: self.state.get_state().color_obj(obj.get_id(), &ctx),
+                debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
+                is_selected: self.state.get_state().primary.current_selection == Some(obj.get_id()),
+                // TODO If a ToggleableLayer is currently off, this won't affect it!
+                show_all_detail: screencap,
+            };
+            obj.draw(g, opts, &ctx);
 
-                if screencap && sample_intersection.is_none() {
-                    if let ID::Intersection(id) = obj.get_id() {
-                        sample_intersection = Some(format!("_i{}", id.0));
-                    }
+            if screencap && sample_intersection.is_none() {
+                if let ID::Intersection(id) = obj.get_id() {
+                    sample_intersection = Some(format!("_i{}", id.0));
                 }
+            }
 
-                true
-            },
-        );
+            true
+        });
 
         if !screencap {
             self.state.draw(g, &ctx);
@@ -299,13 +285,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 "{} things uploaded, {} things drawn",
                 g.num_new_uploads, g.num_draw_calls,
             ));
-            self.canvas.draw_blocking_text(g, osd, BOTTOM_LEFT);
+            g.draw_blocking_text(osd, BOTTOM_LEFT);
         }
 
         sample_intersection
     }
 
-    fn dump_before_abort(&self) {
+    fn dump_before_abort(&self, canvas: &Canvas) {
         error!("********************************************************************************");
         error!("UI broke! Primary sim:");
         self.state.get_state().primary.sim.dump_before_abort();
@@ -314,11 +300,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             s.sim.dump_before_abort();
         }
 
-        self.save_editor_state();
+        self.save_editor_state(canvas);
     }
 
-    fn before_quit(&self) {
-        self.save_editor_state();
+    fn before_quit(&self, canvas: &Canvas) {
+        self.save_editor_state(canvas);
         self.cs.save();
         info!("Saved color_scheme");
         //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
@@ -326,41 +312,39 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 }
 
 impl<S: UIState> UI<S> {
-    pub fn new(state: S, canvas: Canvas, cs: ColorScheme) -> UI<S> {
-        let mut ui = UI { state, canvas, cs };
-
+    pub fn new(state: S, canvas: &mut Canvas, cs: ColorScheme) -> UI<S> {
         match abstutil::read_json::<EditorState>("../editor_state") {
-            Ok(ref state) if ui.state.get_state().primary.map.get_name() == &state.map_name => {
+            Ok(ref loaded) if state.get_state().primary.map.get_name() == &loaded.map_name => {
                 info!("Loaded previous editor_state");
-                ui.canvas.cam_x = state.cam_x;
-                ui.canvas.cam_y = state.cam_y;
-                ui.canvas.cam_zoom = state.cam_zoom;
+                canvas.cam_x = loaded.cam_x;
+                canvas.cam_y = loaded.cam_y;
+                canvas.cam_zoom = loaded.cam_zoom;
             }
             _ => {
                 warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 let focus_pt = ID::Building(BuildingID(0))
                     .canonical_point(
-                        &ui.state.get_state().primary.map,
-                        &ui.state.get_state().primary.sim,
-                        &ui.state.get_state().primary.draw_map,
+                        &state.get_state().primary.map,
+                        &state.get_state().primary.sim,
+                        &state.get_state().primary.draw_map,
                     )
                     .or_else(|| {
                         ID::Lane(LaneID(0)).canonical_point(
-                            &ui.state.get_state().primary.map,
-                            &ui.state.get_state().primary.sim,
-                            &ui.state.get_state().primary.draw_map,
+                            &state.get_state().primary.map,
+                            &state.get_state().primary.sim,
+                            &state.get_state().primary.draw_map,
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
-                ui.canvas.center_on_map_pt(focus_pt);
+                canvas.center_on_map_pt(focus_pt);
             }
         }
 
-        ui
+        UI { state, cs }
     }
 
-    fn mouseover_something(&self) -> Option<ID> {
-        let pt = self.canvas.get_cursor_in_map_space()?;
+    fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+        let pt = ctx.canvas.get_cursor_in_map_space()?;
 
         let mut id: Option<ID> = None;
 
@@ -414,12 +398,12 @@ impl<S: UIState> UI<S> {
         )
     }
 
-    fn save_editor_state(&self) {
+    fn save_editor_state(&self, canvas: &Canvas) {
         let state = EditorState {
             map_name: self.state.get_state().primary.map.get_name().clone(),
-            cam_x: self.canvas.cam_x,
-            cam_y: self.canvas.cam_y,
-            cam_zoom: self.canvas.cam_zoom,
+            cam_x: canvas.cam_x,
+            cam_y: canvas.cam_y,
+            cam_zoom: canvas.cam_zoom,
         };
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
         abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");

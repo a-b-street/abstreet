@@ -48,8 +48,8 @@ impl Plugin for EditsManager {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        self.wizard.draw(g, ctx.canvas);
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+        self.wizard.draw(g);
     }
 }
 

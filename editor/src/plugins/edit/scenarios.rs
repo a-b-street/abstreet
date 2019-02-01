@@ -73,16 +73,16 @@ impl Plugin for ScenarioManager {
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self {
             ScenarioManager::PickScenario(wizard) => {
-                wizard.draw(g, ctx.canvas);
+                wizard.draw(g);
             }
             ScenarioManager::ManageScenario(_, scroller) => {
-                scroller.draw(g, ctx.canvas);
+                scroller.draw(g);
             }
             ScenarioManager::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
                     g.draw_polygon(ctx.cs.get("neighborhood polygon"), &neighborhood.polygon);
                 }
-                wizard.draw(g, ctx.canvas);
+                wizard.draw(g);
             }
         }
     }

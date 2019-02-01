@@ -1,4 +1,4 @@
-use crate::{text, Canvas, Event, GfxCtx, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, Key, Text, UserInput, CENTERED};
 use std::collections::VecDeque;
 
 pub struct LogScroller {
@@ -57,7 +57,7 @@ impl LogScroller {
     }
 
     // TODO overlapping logic with Menu
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
         // TODO Force padding of everything to a fixed 80% of the screen or so
         txt.add_styled_line("Logs".to_string(), None, Some(text::PROMPT_COLOR));
@@ -66,7 +66,7 @@ impl LogScroller {
         let can_fit = {
             // Subtract 1 for the title, and an additional TODO hacky
             // few to avoid the bottom OSD and stuff.
-            let n = (canvas.window_height / canvas.line_height).floor() as isize - 1 - 6;
+            let n = (g.canvas.window_height / g.canvas.line_height).floor() as isize - 1 - 6;
             if n <= 0 {
                 0
             } else {
@@ -90,6 +90,6 @@ impl LogScroller {
             }
         }
 
-        canvas.draw_blocking_text(g, txt, CENTERED);
+        g.draw_blocking_text(txt, CENTERED);
     }
 }

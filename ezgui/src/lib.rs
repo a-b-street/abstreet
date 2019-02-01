@@ -2,6 +2,7 @@ mod canvas;
 mod color;
 mod drawing;
 mod event;
+mod event_ctx;
 mod input;
 mod log_scroller;
 mod menu;
@@ -15,8 +16,9 @@ mod wizard;
 
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
-pub use crate::drawing::{Drawable, GfxCtx, Prerender};
+pub use crate::drawing::GfxCtx;
 pub use crate::event::{Event, Key};
+pub use crate::event_ctx::{Drawable, EventCtx, Prerender};
 pub use crate::input::{ModalMenu, UserInput};
 pub use crate::log_scroller::LogScroller;
 pub use crate::runner::{run, EventLoopMode, GUI};

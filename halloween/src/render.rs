@@ -51,10 +51,10 @@ impl DrawMap {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, timer: f64, screen_bounds: Bounds) {
+    pub fn draw(&self, g: &mut GfxCtx, timer: f64) {
         g.clear(BACKGROUND);
 
-        let bbox = screen_bounds.as_bbox();
+        let bbox = g.get_screen_bounds().as_bbox();
         for &(id, _, _) in &self.road_quadtree.query(bbox) {
             self.roads[id.0].draw(g);
         }

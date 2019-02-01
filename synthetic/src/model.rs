@@ -84,14 +84,7 @@ impl Road {
         }
     }
 
-    fn draw(
-        &self,
-        model: &Model,
-        g: &mut GfxCtx,
-        canvas: &Canvas,
-        highlight_fwd: bool,
-        highlight_back: bool,
-    ) {
+    fn draw(&self, model: &Model, g: &mut GfxCtx, highlight_fwd: bool, highlight_back: bool) {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
@@ -127,15 +120,13 @@ impl Road {
         g.draw_polygon(Color::YELLOW, &base.make_polygons(CENTER_LINE_THICKNESS));
 
         if let Some(ref label) = self.fwd_label {
-            canvas.draw_text_at(
-                g,
+            g.draw_text_at(
                 Text::from_line(label.to_string()),
                 self.polygon(FORWARDS, model).center(),
             );
         }
         if let Some(ref label) = self.back_label {
-            canvas.draw_text_at(
-                g,
+            g.draw_text_at(
                 Text::from_line(label.to_string()),
                 self.polygon(BACKWARDS, model).center(),
             );
@@ -176,14 +167,14 @@ impl Model {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas, quadtree: Option<&QuadTree<ID>>) {
+    pub fn draw(&self, g: &mut GfxCtx, quadtree: Option<&QuadTree<ID>>) {
         g.clear(Color::WHITE);
 
         let mut roads: Vec<StableRoadID> = Vec::new();
         let mut buildings: Vec<BuildingID> = Vec::new();
         let mut intersections: Vec<StableIntersectionID> = Vec::new();
         if let Some(ref qt) = quadtree {
-            let bbox = canvas.get_screen_bounds().as_bbox();
+            let bbox = g.get_screen_bounds().as_bbox();
             for &(id, _, _) in &qt.query(bbox) {
                 match *id {
                     ID::Road(id) => {
@@ -203,9 +194,9 @@ impl Model {
             intersections.extend(self.intersections.keys());
         }
 
-        let selected = self.mouseover_something(canvas, quadtree);
+        let selected = self.mouseover_something(g.canvas, quadtree);
         let current_r = match selected {
-            Some(ID::Road(r)) => self.mouseover_road(r, canvas.get_cursor_in_map_space().unwrap()),
+            Some(ID::Road(r)) => self.mouseover_road(r, g.get_cursor_in_map_space().unwrap()),
             _ => None,
         };
 
@@ -214,7 +205,6 @@ impl Model {
             r.draw(
                 self,
                 g,
-                canvas,
                 Some((id, FORWARDS)) == current_r,
                 Some((id, BACKWARDS)) == current_r,
             );
@@ -234,7 +224,7 @@ impl Model {
             g.draw_circle(color, &i.circle());
 
             if let Some(ref label) = i.label {
-                canvas.draw_text_at(g, Text::from_line(label.to_string()), i.center);
+                g.draw_text_at(Text::from_line(label.to_string()), i.center);
             }
         }
 
@@ -248,7 +238,7 @@ impl Model {
             g.draw_polygon(color, &b.polygon());
 
             if let Some(ref label) = b.label {
-                canvas.draw_text_at(g, Text::from_line(label.to_string()), b.center);
+                g.draw_text_at(Text::from_line(label.to_string()), b.center);
             }
         }
     }

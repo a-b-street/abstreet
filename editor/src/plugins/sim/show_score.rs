@@ -28,9 +28,8 @@ impl Plugin for ShowScoreState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
-        ctx.canvas.draw_blocking_text(
-            g,
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+        g.draw_blocking_text(
             self.txt.clone(),
             (HorizontalAlignment::Right, VerticalAlignment::BelowTopMenu),
         );

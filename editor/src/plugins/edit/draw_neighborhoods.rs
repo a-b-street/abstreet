@@ -108,7 +108,7 @@ impl Plugin for DrawNeighborhoodState {
         let (raw_pts, current_idx) = match self {
             DrawNeighborhoodState::PickNeighborhood(wizard) => {
                 // TODO is this order wrong?
-                wizard.draw(g, ctx.canvas);
+                wizard.draw(g);
                 if let Some(neighborhood) = wizard.current_menu_choice::<NeighborhoodBuilder>() {
                     (&neighborhood.points, None)
                 } else {

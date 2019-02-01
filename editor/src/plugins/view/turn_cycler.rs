@@ -101,7 +101,7 @@ impl Plugin for TurnCyclerState {
                             i,
                             cycle.idx,
                             Some(time_left),
-                            ctx.canvas.top_menu_height() + 10.0,
+                            g.canvas.top_menu_height() + 10.0,
                             g,
                             ctx,
                         );

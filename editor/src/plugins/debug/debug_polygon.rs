@@ -83,16 +83,14 @@ impl Plugin for DebugPolygon {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         match self.items[self.current] {
             Item::Point(pt) => {
-                ctx.canvas
-                    .draw_text_at(g, Text::from_line(format!("{}", self.current)), pt);
+                g.draw_text_at(Text::from_line(format!("{}", self.current)), pt);
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    ctx.canvas
-                        .draw_text_at(g, Text::from_line(format!("{}", self.current)), *pt);
+                    g.draw_text_at(Text::from_line(format!("{}", self.current)), *pt);
                 }
             }
         }

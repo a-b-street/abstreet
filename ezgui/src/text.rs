@@ -152,7 +152,7 @@ pub fn draw_text_bubble(
     (total_width, total_height): (f64, f64),
 ) -> ScreenRectangle {
     // TODO Is it expensive to constantly change uniforms and the shader program?
-    g.fork_screenspace(canvas);
+    g.fork_screenspace();
 
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
@@ -197,7 +197,7 @@ pub fn draw_text_bubble(
         glyphs.queue(section);
     }
 
-    g.unfork(canvas);
+    g.unfork();
 
     ScreenRectangle {
         x1: top_left.x,

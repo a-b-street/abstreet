@@ -25,15 +25,15 @@ impl Wizard {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         if let Some(ref menu) = self.menu {
-            menu.draw(g, canvas);
+            menu.draw(g);
         }
         if let Some(ref tb) = self.tb {
-            tb.draw(g, canvas);
+            tb.draw(g);
         }
         if let Some(ref s) = self.log_scroller {
-            s.draw(g, canvas);
+            s.draw(g);
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 
 // Stores some associated data with each choice
 // TODO Dedupe with the other menu, which doesn't need to scroll.
@@ -47,7 +47,7 @@ impl<T: Clone> ScrollingMenu<T> {
         InputResult::StillActive
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
         txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
 
@@ -59,10 +59,10 @@ impl<T: Clone> ScrollingMenu<T> {
         let can_fit = {
             // Subtract 1 for the prompt, and an additional TODO hacky
             // few to avoid the bottom OSD and stuff.
-            let n = (canvas.window_height / canvas.line_height).floor() as isize - 1 - 6;
+            let n = (g.canvas.window_height / g.canvas.line_height).floor() as isize - 1 - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
-                canvas.draw_blocking_text(g, txt, CENTERED);
+                g.draw_blocking_text(txt, CENTERED);
                 return;
             }
             n as usize
@@ -90,7 +90,7 @@ impl<T: Clone> ScrollingMenu<T> {
             }
         }
 
-        canvas.draw_blocking_text(g, txt, CENTERED);
+        g.draw_blocking_text(txt, CENTERED);
     }
 
     pub fn current_choice(&self) -> &T {

@@ -1,5 +1,5 @@
 use crate::input::{ContextMenu, ModalMenuState};
-use crate::{text, Canvas, Event, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput};
+use crate::{text, Canvas, Event, EventCtx, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput};
 use abstutil::Timer;
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -11,14 +11,13 @@ use std::{env, fs, panic, process, thread};
 
 pub trait GUI<T> {
     // Called once
-    fn top_menu(&self) -> Option<TopMenu> {
+    fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
         None
     }
     fn modal_menus() -> Vec<ModalMenu> {
         Vec::new()
     }
-    fn event(&mut self, input: &mut UserInput, prerender: &Prerender) -> (EventLoopMode, T);
-    fn get_mut_canvas(&mut self) -> &mut Canvas;
+    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, T);
     // TODO Migrate all callers
     fn draw(&self, g: &mut GfxCtx, data: &T);
     // Return optional naming hint for screencap. TODO This API is getting gross.
@@ -27,9 +26,9 @@ pub trait GUI<T> {
         None
     }
     // Will be called if event or draw panics.
-    fn dump_before_abort(&self) {}
+    fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
-    fn before_quit(&self) {}
+    fn before_quit(&self, _canvas: &Canvas) {}
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -41,6 +40,7 @@ pub enum EventLoopMode {
 
 struct State<T, G: GUI<T>> {
     gui: G,
+    canvas: Canvas,
     context_menu: ContextMenu,
     top_menu: Option<TopMenu>,
     modal_state: ModalMenuState,
@@ -56,21 +56,27 @@ impl<T, G: GUI<T>> State<T, G> {
             self.context_menu,
             self.top_menu,
             self.modal_state,
-            self.gui.get_mut_canvas(),
+            &mut self.canvas,
         );
         let mut gui = self.gui;
+        let mut canvas = self.canvas;
         let (event_mode, data) = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            gui.event(&mut input, &Prerender { display })
+            gui.event(EventCtx {
+                input: &mut input,
+                canvas: &mut canvas,
+                prerender: &Prerender { display },
+            })
         })) {
             Ok(pair) => pair,
             Err(err) => {
-                gui.dump_before_abort();
+                gui.dump_before_abort(&canvas);
                 panic::resume_unwind(err);
             }
         };
         self.gui = gui;
+        self.canvas = canvas;
         self.last_data = Some(data);
-        self.context_menu = input.context_menu.maybe_build(self.gui.get_mut_canvas());
+        self.context_menu = input.context_menu.maybe_build(&self.canvas);
         self.top_menu = input.top_menu;
         self.modal_state = input.modal_state;
         if let Some(action) = input.chosen_action {
@@ -92,33 +98,32 @@ impl<T, G: GUI<T>> State<T, G> {
 
     fn draw(&mut self, display: &glium::Display, program: &glium::Program) {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(self.gui.get_mut_canvas(), &display, &mut target, program);
+        let mut g = GfxCtx::new(&self.canvas, &display, &mut target, program);
 
         // If the very first event is render, then just wait.
         if let Some(ref data) = self.last_data {
-            self.gui.get_mut_canvas().start_drawing();
+            self.canvas.start_drawing();
 
             if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 self.gui.new_draw(&mut g, data, false)
             })) {
-                self.gui.dump_before_abort();
+                self.gui.dump_before_abort(&self.canvas);
                 panic::resume_unwind(err);
             }
 
             // Always draw the menus last.
             if let Some(ref menu) = self.top_menu {
-                menu.draw(&mut g, self.gui.get_mut_canvas());
+                menu.draw(&mut g);
             }
             for (_, ref menu) in &self.modal_state.active {
-                menu.draw(&mut g, self.gui.get_mut_canvas());
+                menu.draw(&mut g);
             }
             if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                menu.draw(&mut g, self.gui.get_mut_canvas());
+                menu.draw(&mut g);
             }
 
             // Always draw text last
-            self.gui
-                .get_mut_canvas()
+            self.canvas
                 .glyphs
                 .borrow_mut()
                 .draw_queued(display, &mut target);
@@ -128,7 +133,7 @@ impl<T, G: GUI<T>> State<T, G> {
     }
 }
 
-pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
+pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     window_title: &str,
     initial_width: f64,
     initial_height: f64,
@@ -168,14 +173,13 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
     let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
     let glyphs = GlyphBrush::new(&display, fonts);
 
-    // TODO Maybe we should own the Canvas too. Why make them store it? Or even know about it? Let
-    // them borrow stuff during event() and during draw().
-    let canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
-    let gui = make_gui(canvas, &Prerender { display: &display });
+    let mut canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
+    let gui = make_gui(&mut canvas, &Prerender { display: &display });
 
     let mut state = State {
+        top_menu: gui.top_menu(&canvas),
+        canvas,
         context_menu: ContextMenu::Inactive,
-        top_menu: gui.top_menu(),
         modal_state: ModalMenuState::new(G::modal_menus()),
         last_data: None,
         gui,
@@ -194,7 +198,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
         let any_new_events = !new_events.is_empty();
         for event in new_events {
             if event == glutin::WindowEvent::CloseRequested {
-                state.gui.before_quit();
+                state.gui.before_quit(&state.canvas);
                 process::exit(0);
             }
             if let Some(ev) = Event::from_glutin_event(event) {
@@ -202,8 +206,8 @@ pub fn run<T, G: GUI<T>, F: FnOnce(Canvas, &Prerender) -> G>(
                 state = new_state;
                 wait_for_events = mode == EventLoopMode::InputOnly;
                 if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
-                    ScreenCaptureState::new(state.gui.get_mut_canvas(), zoom, max_x, max_y)
-                        .run(&mut state, &display, &program);
+                    state = ScreenCaptureState::new(&mut state.canvas, zoom, max_x, max_y)
+                        .run(state, &display, &program);
                 }
             }
         }
@@ -265,44 +269,46 @@ impl ScreenCaptureState {
 
     fn run<T, G: GUI<T>>(
         mut self,
-        state: &mut State<T, G>,
+        mut state: State<T, G>,
         display: &glium::Display,
         program: &glium::Program,
-    ) {
+    ) -> State<T, G> {
         let last_data = state.last_data.as_ref().unwrap();
 
         for tile_y in 0..self.num_tiles_y {
             for tile_x in 0..self.num_tiles_x {
                 self.timer.next();
-                let canvas = state.gui.get_mut_canvas();
-                canvas.cam_x = (tile_x as f64) * canvas.window_width;
-                canvas.cam_y = (tile_y as f64) * canvas.window_height;
+                state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
+                state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
 
                 let mut target = display.draw();
-                let mut g = GfxCtx::new(canvas, &display, &mut target, program);
+                let mut g = GfxCtx::new(&state.canvas, &display, &mut target, program);
 
+                let gui = state.gui;
                 let naming_hint = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                    state.gui.new_draw(&mut g, last_data, true)
+                    gui.new_draw(&mut g, last_data, true)
                 })) {
                     Ok(naming_hint) => naming_hint,
                     Err(err) => {
-                        state.gui.dump_before_abort();
+                        gui.dump_before_abort(&state.canvas);
                         panic::resume_unwind(err);
                     }
                 };
+                state.gui = gui;
                 target.finish().unwrap();
 
                 if !self.screencap(tile_x, tile_y, naming_hint) {
-                    return;
+                    return state;
                 }
             }
         }
 
-        let canvas = state.gui.get_mut_canvas();
-        canvas.cam_zoom = self.orig_zoom;
-        canvas.cam_x = self.orig_x;
-        canvas.cam_y = self.orig_y;
+        state.canvas.cam_zoom = self.orig_zoom;
+        state.canvas.cam_x = self.orig_x;
+        state.canvas.cam_y = self.orig_y;
         self.finish();
+
+        state
     }
 
     fn screencap(&mut self, tile_x: usize, tile_y: usize, mut naming_hint: Option<String>) -> bool {

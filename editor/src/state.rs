@@ -4,7 +4,8 @@ use crate::plugins;
 use crate::plugins::{debug, edit, view, Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::Timer;
-use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput};
+use ezgui::EventCtx;
+use ezgui::{Canvas, Color, GfxCtx, Prerender};
 use map_model::{IntersectionID, Map};
 use sim::{Sim, SimFlags, Tick};
 use structopt::StructOpt;
@@ -30,12 +31,10 @@ pub trait UIState {
 
     fn event(
         &mut self,
-        input: &mut UserInput,
+        ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
-        canvas: &mut Canvas,
-        prerender: &Prerender,
     );
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx);
 }
@@ -134,20 +133,18 @@ impl UIState for DefaultUIState {
 
     fn event(
         &mut self,
-        input: &mut UserInput,
+        event_ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
         cs: &mut ColorScheme,
-        canvas: &mut Canvas,
-        prerender: &Prerender,
     ) {
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
             secondary: &mut self.secondary,
-            canvas,
+            canvas: event_ctx.canvas,
             cs,
-            prerender,
-            input,
+            prerender: event_ctx.prerender,
+            input: event_ctx.input,
             hints,
             recalculate_current_selection,
         };

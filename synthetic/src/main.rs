@@ -2,13 +2,12 @@ mod model;
 
 use crate::model::{BuildingID, Direction, Model, ID};
 use aabb_quadtree::QuadTree;
-use ezgui::{Canvas, Color, EventLoopMode, GfxCtx, Key, Prerender, Text, UserInput, Wizard, GUI};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, GUI};
 use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
 
 struct UI {
-    canvas: Canvas,
     model: Model,
     quadtree: Option<QuadTree<ID>>,
     state: State,
@@ -27,7 +26,7 @@ enum State {
 }
 
 impl UI {
-    fn new(load: Option<&String>, canvas: Canvas) -> UI {
+    fn new(load: Option<&String>) -> UI {
         let (model, quadtree): (Model, Option<QuadTree<ID>>) = if let Some(path) = load {
             if path.contains("raw_maps/") {
                 let (m, q) = Model::import(path);
@@ -42,7 +41,6 @@ impl UI {
             (Model::new(), None)
         };
         UI {
-            canvas,
             model,
             quadtree,
             state: State::Viewing,
@@ -51,10 +49,10 @@ impl UI {
 }
 
 impl GUI<Text> for UI {
-    fn event(&mut self, input: &mut UserInput, _: &Prerender) -> (EventLoopMode, Text) {
-        self.canvas.handle_event(input);
+    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, Text) {
+        ctx.canvas.handle_event(ctx.input);
         let cursor = {
-            if let Some(c) = self.canvas.get_cursor_in_map_space() {
+            if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
                 c
             } else {
                 return (EventLoopMode::InputOnly, Text::new());
@@ -62,26 +60,29 @@ impl GUI<Text> for UI {
         };
         let selected = self
             .model
-            .mouseover_something(&self.canvas, self.quadtree.as_ref());
+            .mouseover_something(&ctx.canvas, self.quadtree.as_ref());
 
         match self.state {
             State::MovingIntersection(id) => {
                 self.model.move_i(id, cursor);
-                if input.key_released(Key::LeftControl) {
+                if ctx.input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
             }
             State::MovingBuilding(id) => {
                 self.model.move_b(id, cursor);
-                if input.key_released(Key::LeftControl) {
+                if ctx.input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
             }
             State::LabelingBuilding(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(input, &self.canvas).input_string_prefilled(
-                    "Label the building",
-                    self.model.get_b_label(id).unwrap_or_else(String::new),
-                ) {
+                if let Some(label) = wizard
+                    .wrap(&mut ctx.input, &ctx.canvas)
+                    .input_string_prefilled(
+                        "Label the building",
+                        self.model.get_b_label(id).unwrap_or_else(String::new),
+                    )
+                {
                     self.model.set_b_label(id, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -89,10 +90,13 @@ impl GUI<Text> for UI {
                 }
             }
             State::LabelingRoad(pair, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(input, &self.canvas).input_string_prefilled(
-                    "Label this side of the road",
-                    self.model.get_r_label(pair).unwrap_or_else(String::new),
-                ) {
+                if let Some(label) = wizard
+                    .wrap(&mut ctx.input, &ctx.canvas)
+                    .input_string_prefilled(
+                        "Label this side of the road",
+                        self.model.get_r_label(pair).unwrap_or_else(String::new),
+                    )
+                {
                     self.model.set_r_label(pair, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -100,10 +104,13 @@ impl GUI<Text> for UI {
                 }
             }
             State::LabelingIntersection(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(input, &self.canvas).input_string_prefilled(
-                    "Label the intersection",
-                    self.model.get_i_label(id).unwrap_or_else(String::new),
-                ) {
+                if let Some(label) = wizard
+                    .wrap(&mut ctx.input, &ctx.canvas)
+                    .input_string_prefilled(
+                        "Label the intersection",
+                        self.model.get_i_label(id).unwrap_or_else(String::new),
+                    )
+                {
                     self.model.set_i_label(id, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -111,10 +118,10 @@ impl GUI<Text> for UI {
                 }
             }
             State::CreatingRoad(i1) => {
-                if input.key_pressed(Key::Escape, "stop defining road") {
+                if ctx.input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
                 } else if let Some(ID::Intersection(i2)) = selected {
-                    if i1 != i2 && input.key_pressed(Key::R, "finalize road") {
+                    if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
                         self.model.create_road(i1, i2);
                         self.state = State::Viewing;
                     }
@@ -122,7 +129,7 @@ impl GUI<Text> for UI {
             }
             State::EditingRoad(id, ref mut wizard) => {
                 if let Some(s) = wizard
-                    .wrap(input, &self.canvas)
+                    .wrap(&mut ctx.input, &ctx.canvas)
                     .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
                     self.model.edit_lanes(id, s);
@@ -133,7 +140,7 @@ impl GUI<Text> for UI {
             }
             State::SavingModel(ref mut wizard) => {
                 if let Some(name) = wizard
-                    .wrap(input, &self.canvas)
+                    .wrap(&mut ctx.input, &ctx.canvas)
                     .input_string("Name the synthetic map")
                 {
                     self.model.name = Some(name);
@@ -146,68 +153,67 @@ impl GUI<Text> for UI {
             }
             State::Viewing => {
                 if let Some(ID::Intersection(i)) = selected {
-                    if input.key_pressed(Key::LeftControl, "move intersection") {
+                    if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
                         self.state = State::MovingIntersection(i);
-                    } else if input.key_pressed(Key::R, "create road") {
+                    } else if ctx.input.key_pressed(Key::R, "create road") {
                         self.state = State::CreatingRoad(i);
-                    } else if input.key_pressed(Key::Backspace, "delete intersection") {
+                    } else if ctx.input.key_pressed(Key::Backspace, "delete intersection") {
                         self.model.remove_i(i);
-                    } else if input.key_pressed(Key::T, "toggle intersection type") {
+                    } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
                         self.model.toggle_i_type(i);
-                    } else if input.key_pressed(Key::L, "label intersection") {
+                    } else if ctx.input.key_pressed(Key::L, "label intersection") {
                         self.state = State::LabelingIntersection(i, Wizard::new());
                     }
                 } else if let Some(ID::Building(b)) = selected {
-                    if input.key_pressed(Key::LeftControl, "move building") {
+                    if ctx.input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
-                    } else if input.key_pressed(Key::Backspace, "delete building") {
+                    } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
                         self.model.remove_b(b);
-                    } else if input.key_pressed(Key::L, "label building") {
+                    } else if ctx.input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
                 } else if let Some(ID::Road(r)) = selected {
                     let (_, dir) = self.model.mouseover_road(r, cursor).unwrap();
-                    if input.key_pressed(Key::Backspace, &format!("delete road {}", r)) {
+                    if ctx
+                        .input
+                        .key_pressed(Key::Backspace, &format!("delete road {}", r))
+                    {
                         self.model.remove_road(r);
-                    } else if input.key_pressed(Key::E, "edit lanes") {
+                    } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
-                    } else if input.key_pressed(Key::S, "swap lanes") {
+                    } else if ctx.input.key_pressed(Key::S, "swap lanes") {
                         self.model.swap_lanes(r);
-                    } else if input.key_pressed(Key::L, "label side of the road") {
+                    } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                         self.state = State::LabelingRoad((r, dir), Wizard::new());
                     }
-                } else if input.unimportant_key_pressed(Key::Escape, "quit") {
+                } else if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
                     process::exit(0);
-                } else if input.key_pressed(Key::S, "save") {
+                } else if ctx.input.key_pressed(Key::S, "save") {
                     if self.model.name.is_some() {
                         self.model.save();
                         self.model.export();
                     } else {
                         self.state = State::SavingModel(Wizard::new());
                     }
-                } else if input.key_pressed(Key::I, "create intersection") {
+                } else if ctx.input.key_pressed(Key::I, "create intersection") {
                     self.model.create_i(cursor);
-                } else if input.key_pressed(Key::B, "create building") {
+                } else if ctx.input.key_pressed(Key::B, "create building") {
                     self.model.create_b(cursor);
                 }
             }
         }
 
         let mut osd = Text::new();
-        input.populate_osd(&mut osd);
+        ctx.input.populate_osd(&mut osd);
         (EventLoopMode::InputOnly, osd)
     }
 
-    fn get_mut_canvas(&mut self) -> &mut Canvas {
-        &mut self.canvas
-    }
-
     fn draw(&self, g: &mut GfxCtx, osd: &Text) {
-        self.model.draw(g, &self.canvas, self.quadtree.as_ref());
+        self.model.draw(g, self.quadtree.as_ref());
 
         match self.state {
             State::CreatingRoad(i1) => {
-                if let Some(cursor) = self.canvas.get_cursor_in_map_space() {
+                if let Some(cursor) = g.get_cursor_in_map_space() {
                     g.draw_line(
                         Color::GREEN,
                         Distance::meters(5.0),
@@ -220,19 +226,18 @@ impl GUI<Text> for UI {
             | State::LabelingIntersection(_, ref wizard)
             | State::EditingRoad(_, ref wizard)
             | State::SavingModel(ref wizard) => {
-                wizard.draw(g, &self.canvas);
+                wizard.draw(g);
             }
             _ => {}
         };
 
-        self.canvas
-            .draw_blocking_text(g, osd.clone(), ezgui::BOTTOM_LEFT);
+        g.draw_blocking_text(osd.clone(), ezgui::BOTTOM_LEFT);
     }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("Synthetic map editor", 1024.0, 768.0, |canvas, _| {
-        UI::new(args.get(1), canvas)
+    ezgui::run("Synthetic map editor", 1024.0, 768.0, |_, _| {
+        UI::new(args.get(1))
     });
 }

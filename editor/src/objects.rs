@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
-use ezgui::{Canvas, EventLoopMode, Text};
+use ezgui::{EventLoopMode, Text};
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
@@ -112,7 +112,6 @@ pub struct Ctx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,
     pub draw_map: &'a DrawMap,
-    pub canvas: &'a Canvas,
     pub sim: &'a Sim,
     pub hints: &'a RenderingHints,
 }

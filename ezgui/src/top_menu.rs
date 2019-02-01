@@ -119,24 +119,24 @@ impl TopMenu {
         InputResult::Canceled
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
-        canvas.mark_covered_area(ScreenRectangle {
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.canvas.mark_covered_area(ScreenRectangle {
             x1: 0.0,
             y1: 0.0,
-            x2: canvas.window_width,
-            y2: canvas.line_height,
+            x2: g.canvas.window_width,
+            y2: g.canvas.line_height,
         });
 
-        g.fork_screenspace(canvas);
+        g.fork_screenspace();
         g.draw_polygon(
             text::BG_COLOR,
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
-                canvas.window_width,
-                canvas.line_height,
+                g.canvas.window_width,
+                g.canvas.line_height,
             ),
         );
-        g.unfork(canvas);
+        g.unfork();
 
         for (idx, f) in self.folders.iter().enumerate() {
             let mut txt = Text::with_bg_color(if Some(idx) == self.highlighted {
@@ -145,15 +145,11 @@ impl TopMenu {
                 None
             });
             txt.add_line(f.name.to_string());
-            canvas.draw_text_at_screenspace_topleft(
-                g,
-                txt,
-                ScreenPt::new(f.rectangle.x1, f.rectangle.y1),
-            );
+            g.draw_text_at_screenspace_topleft(txt, ScreenPt::new(f.rectangle.x1, f.rectangle.y1));
         }
 
         if let Some((_, ref menu)) = self.submenu {
-            menu.draw(g, canvas);
+            menu.draw(g);
         }
     }
 }

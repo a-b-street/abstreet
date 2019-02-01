@@ -56,7 +56,7 @@ impl Plugin for NeighborhoodSummary {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
         if !self.active {
             return;
         }
@@ -64,7 +64,7 @@ impl Plugin for NeighborhoodSummary {
         for r in &self.regions {
             g.draw_polygon(r.color, &r.polygon);
             // TODO ezgui should take borrows
-            ctx.canvas.draw_text_at(g, r.summary.clone(), r.center);
+            g.draw_text_at(r.summary.clone(), r.center);
         }
     }
 }

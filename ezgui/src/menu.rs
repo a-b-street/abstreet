@@ -189,7 +189,7 @@ impl<T: Clone> Menu<T> {
         InputResult::StillActive
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, canvas: &Canvas) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
         if let Some(ref line) = self.prompt {
             txt.add_styled_line(line.to_string(), None, Some(text::PROMPT_COLOR));
@@ -219,13 +219,13 @@ impl<T: Clone> Menu<T> {
                 }
             }
         }
-        canvas.mark_covered_area(ScreenRectangle {
+        g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
             x2: self.first_choice_row.x2,
             y2: self.top_left.y + (self.row_height * (txt.num_lines() as f64)),
         });
-        canvas.draw_text_at_screenspace_topleft(g, txt, self.top_left);
+        g.draw_text_at_screenspace_topleft(txt, self.top_left);
     }
 
     pub fn current_choice(&self) -> Option<&T> {

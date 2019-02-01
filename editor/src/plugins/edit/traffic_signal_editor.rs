@@ -240,9 +240,9 @@ impl Plugin for TrafficSignalEditor {
         }
 
         if let Some(ref wizard) = self.cycle_duration_wizard {
-            wizard.draw(g, ctx.canvas);
+            wizard.draw(g);
         } else if let Some(ref wizard) = self.preset_wizard {
-            wizard.draw(g, ctx.canvas);
+            wizard.draw(g);
         }
     }
 
