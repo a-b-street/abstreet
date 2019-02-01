@@ -152,7 +152,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     // DPI is broken on my system; force the old behavior.
     env::set_var("WINIT_HIDPI_FACTOR", "1.0");
 
-    let mut events_loop = glutin::EventsLoop::new();
+    let events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
         .with_title(window_title)
         .with_dimensions(glutin::dpi::LogicalSize::new(initial_width, initial_height));
@@ -186,7 +186,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let mut canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
     let gui = make_gui(&mut canvas, &Prerender { display: &display });
 
-    let mut state = State {
+    let state = State {
         top_menu: gui.top_menu(&canvas),
         canvas,
         context_menu: ContextMenu::Inactive,
@@ -195,6 +195,15 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         gui,
     };
 
+    loop_forever(state, events_loop, display, program);
+}
+
+fn loop_forever<T, G: GUI<T>>(
+    mut state: State<T, G>,
+    mut events_loop: glutin::EventsLoop,
+    display: glium::Display,
+    program: glium::Program,
+) {
     let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
     let mut wait_for_events = false;

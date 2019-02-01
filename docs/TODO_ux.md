@@ -89,6 +89,7 @@
 	- ezgui passes EventCtx and DrawCtx with appropriate things exposed.
 		- maybe move glyph ownership out of canvas entirely. dont need RefCell.
 		- canvas owning text-drawing is maybe a bit weird, at least API-wise
+		- organize into directories
 		- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
 		- generic World with quadtree should have actions on objects
 - more speculative performance ideas
