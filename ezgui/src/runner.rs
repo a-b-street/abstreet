@@ -96,40 +96,50 @@ impl<T, G: GUI<T>> State<T, G> {
         (self, event_mode)
     }
 
-    fn draw(&mut self, display: &glium::Display, program: &glium::Program) {
+    // Returns naming hint.
+    pub(crate) fn draw(
+        &mut self,
+        display: &glium::Display,
+        program: &glium::Program,
+        screenshot: bool,
+    ) -> Option<String> {
         let mut target = display.draw();
         let mut g = GfxCtx::new(&self.canvas, &display, &mut target, program);
+        let mut naming_hint: Option<String> = None;
 
         // If the very first event is render, then just wait.
         if let Some(ref data) = self.last_data {
             self.canvas.start_drawing();
 
             if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.gui.new_draw(&mut g, data, false)
+                naming_hint = self.gui.new_draw(&mut g, data, screenshot);
             })) {
                 self.gui.dump_before_abort(&self.canvas);
                 panic::resume_unwind(err);
             }
 
-            // Always draw the menus last.
-            if let Some(ref menu) = self.top_menu {
-                menu.draw(&mut g);
-            }
-            for (_, ref menu) in &self.modal_state.active {
-                menu.draw(&mut g);
-            }
-            if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                menu.draw(&mut g);
-            }
+            if !screenshot {
+                // Always draw the menus last.
+                if let Some(ref menu) = self.top_menu {
+                    menu.draw(&mut g);
+                }
+                for (_, ref menu) in &self.modal_state.active {
+                    menu.draw(&mut g);
+                }
+                if let ContextMenu::Displaying(ref menu) = self.context_menu {
+                    menu.draw(&mut g);
+                }
 
-            // Always draw text last
-            self.canvas
-                .glyphs
-                .borrow_mut()
-                .draw_queued(display, &mut target);
+                // Always draw text last
+                self.canvas
+                    .glyphs
+                    .borrow_mut()
+                    .draw_queued(display, &mut target);
+            }
         }
 
         target.finish().unwrap();
+        naming_hint
     }
 }
 
@@ -214,7 +224,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         }
 
         if any_new_events || !wait_for_events {
-            state.draw(&display, &program);
+            state.draw(&display, &program, false);
         }
 
         if !wait_for_events {
