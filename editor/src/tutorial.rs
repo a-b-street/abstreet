@@ -1,4 +1,3 @@
-use crate::colors::ColorScheme;
 use crate::objects::{Ctx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
@@ -23,14 +22,9 @@ enum State {
 const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
-    pub fn new(
-        flags: Flags,
-        canvas: &mut Canvas,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-    ) -> TutorialState {
+    pub fn new(flags: Flags, canvas: &mut Canvas, prerender: &Prerender) -> TutorialState {
         TutorialState {
-            main: DefaultUIState::new(flags, canvas, cs, prerender, false),
+            main: DefaultUIState::new(flags, canvas, prerender, false),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
                 "".to_string(),
@@ -57,7 +51,6 @@ impl UIState for TutorialState {
         ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
-        cs: &mut ColorScheme,
     ) {
         match self.state {
             State::GiveInstructions(ref mut scroller) => {
@@ -77,8 +70,7 @@ impl UIState for TutorialState {
                 ref mut spawned_from_north,
                 ref mut spawned_from_south,
             } => {
-                self.main
-                    .event(ctx, hints, recalculate_current_selection, cs);
+                self.main.event(ctx, hints, recalculate_current_selection);
 
                 if let Some((tick, events)) = self
                     .main

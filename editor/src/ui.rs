@@ -1,4 +1,3 @@
-use crate::colors::ColorScheme;
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
@@ -18,8 +17,6 @@ use std::process;
 
 pub struct UI<S: UIState> {
     state: S,
-    // TODO Not sure why this needs to live here and not in state
-    cs: ColorScheme,
 }
 
 impl<S: UIState> GUI<RenderingHints> for UI<S> {
@@ -206,12 +203,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         }
 
         let mut recalculate_current_selection = false;
-        self.state.event(
-            &mut ctx,
-            &mut hints,
-            &mut recalculate_current_selection,
-            &mut self.cs,
-        );
+        self.state
+            .event(&mut ctx, &mut hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
             self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
         }
@@ -244,10 +237,15 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
 
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
-        g.clear(self.cs.get_def("map background", Color::rgb(242, 239, 233)));
+        g.clear(
+            self.state
+                .get_state()
+                .cs
+                .get_def("map background", Color::rgb(242, 239, 233)),
+        );
 
         let ctx = Ctx {
-            cs: &self.cs,
+            cs: &self.state.get_state().cs,
             map: &self.state.get_state().primary.map,
             draw_map: &self.state.get_state().primary.draw_map,
             sim: &self.state.get_state().primary.sim,
@@ -305,14 +303,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
     fn before_quit(&self, canvas: &Canvas) {
         self.save_editor_state(canvas);
-        self.cs.save();
+        self.state.get_state().cs.save();
         info!("Saved color_scheme");
         //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
     }
 }
 
 impl<S: UIState> UI<S> {
-    pub fn new(state: S, canvas: &mut Canvas, cs: ColorScheme) -> UI<S> {
+    pub fn new(state: S, canvas: &mut Canvas) -> UI<S> {
         match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref loaded) if state.get_state().primary.map.get_name() == &loaded.map_name => {
                 info!("Loaded previous editor_state");
@@ -340,7 +338,7 @@ impl<S: UIState> UI<S> {
             }
         }
 
-        UI { state, cs }
+        UI { state }
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {

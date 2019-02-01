@@ -87,13 +87,9 @@
 	- probably use f32, not f64 everywhere... but after Pt2D becomes fixed size
 	- undo the y inversion hacks at last!
 	- ezgui passes EventCtx and DrawCtx with appropriate things exposed.
-		- canvas owning text-drawing is maybe a bit weird, at least API-wise
-		- draw ctx should include OSD
-		- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
 		- maybe move glyph ownership out of canvas entirely
-		- move colorscheme ownership into parameterized state too
-		- stop passing Canvas inside of ezgui when it's in GfxCtx just fine
-		- wizard wrap
+		- canvas owning text-drawing is maybe a bit weird, at least API-wise
+		- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
 		- generic World with quadtree should have actions on objects
 - more speculative performance ideas
 	- experiment with batching and not passing colors

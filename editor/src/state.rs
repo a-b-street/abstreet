@@ -34,7 +34,6 @@ pub trait UIState {
         ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
-        cs: &mut ColorScheme,
     );
     fn draw(&self, g: &mut GfxCtx, ctx: &Ctx);
 }
@@ -60,20 +59,24 @@ pub struct DefaultUIState {
     pub layers: debug::layers::ToggleableLayers,
 
     pub enable_debug_controls: bool,
+
+    pub cs: ColorScheme,
 }
 
 impl DefaultUIState {
     pub fn new(
         flags: Flags,
         canvas: &Canvas,
-        cs: &ColorScheme,
         prerender: &Prerender,
         enable_debug_controls: bool,
     ) -> DefaultUIState {
+        let cs = ColorScheme::load().unwrap();
+
         // Do this first to trigger the log console initialization, so anything logged by sim::load
         // isn't lost.
         view::logs::DisplayLogs::initialize();
-        let (primary, primary_plugins) = PerMapUI::new(flags, cs, prerender, enable_debug_controls);
+        let (primary, primary_plugins) =
+            PerMapUI::new(flags, &cs, prerender, enable_debug_controls);
         let mut state = DefaultUIState {
             primary,
             primary_plugins,
@@ -85,6 +88,7 @@ impl DefaultUIState {
             sim_controls: plugins::sim::controls::SimControls::new(),
             layers: debug::layers::ToggleableLayers::new(),
             enable_debug_controls,
+            cs,
         };
         state.layers.handle_zoom(-1.0, canvas.cam_zoom);
         state
@@ -136,13 +140,12 @@ impl UIState for DefaultUIState {
         event_ctx: &mut EventCtx,
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
-        cs: &mut ColorScheme,
     ) {
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
             secondary: &mut self.secondary,
             canvas: event_ctx.canvas,
-            cs,
+            cs: &mut self.cs,
             prerender: event_ctx.prerender,
             input: event_ctx.input,
             hints,
