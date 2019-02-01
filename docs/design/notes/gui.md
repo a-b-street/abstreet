@@ -590,4 +590,8 @@ for this kind of thing?
 
 - cleanup
 	- make synthetic use stuff
+		- organize context menu things based on the ID
+		- not updating road geometry when an intersection changes is nice... hmm
 	- make halloween use stuff
+		- buildings have no default geometry, since they constantly
+		  move. call draw on the ID and pass them their own state.
