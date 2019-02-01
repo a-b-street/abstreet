@@ -140,7 +140,7 @@ impl Sim {
             "At {} while processing {:?}",
             self.time, self.current_agent_for_debugging
         );
-        if let Ok(path) = self.find_previous_savestate(self.time) {
+        if let Some(path) = self.find_previous_savestate(self.time) {
             error!("Debug from {}", path);
         }
     }
@@ -311,55 +311,24 @@ impl Sim {
         path
     }
 
-    // Earliest one is first
-    fn find_all_savestates(&self) -> Result<Vec<(Tick, String)>, std::io::Error> {
-        let mut results: Vec<(Tick, String)> = Vec::new();
-        for entry in std::fs::read_dir(format!(
-            "../data/save/{}_{}/{}/",
-            self.map_name, self.edits_name, self.run_name
-        ))? {
-            let path = entry?.path();
-            let filename = path
-                .file_name()
-                .expect("path isn't a filename")
-                .to_os_string()
-                .into_string()
-                .expect("can't convert path to string");
-            let tick =
-                Tick::parse_filename(&filename).expect(&format!("invalid Tick: {}", filename));
-            results.push((
-                tick,
-                path.as_path()
-                    .as_os_str()
-                    .to_os_string()
-                    .into_string()
-                    .expect("can't convert path to string"),
-            ));
-        }
-        results.sort();
-        Ok(results)
+    pub fn find_previous_savestate(&self, base_time: Tick) -> Option<String> {
+        abstutil::find_prev_file(&format!(
+            "../data/save/{}_{}/{}/{}",
+            self.map_name,
+            self.edits_name,
+            self.run_name,
+            base_time.as_filename()
+        ))
     }
 
-    pub fn find_previous_savestate(&self, base_time: Tick) -> Result<String, std::io::Error> {
-        let mut list = self.find_all_savestates()?;
-        // Find the most recent one BEFORE the current time
-        list.reverse();
-        for (tick, path) in list {
-            if tick < base_time {
-                return Ok(path);
-            }
-        }
-        Err(io_error(&format!("no savestate before {}", base_time)))
-    }
-
-    pub fn find_next_savestate(&self, base_time: Tick) -> Result<String, std::io::Error> {
-        let list = self.find_all_savestates()?;
-        for (tick, path) in list {
-            if tick > base_time {
-                return Ok(path);
-            }
-        }
-        Err(io_error(&format!("no savestate after {}", base_time)))
+    pub fn find_next_savestate(&self, base_time: Tick) -> Option<String> {
+        abstutil::find_next_file(&format!(
+            "../data/save/{}_{}/{}/{}",
+            self.map_name,
+            self.edits_name,
+            self.run_name,
+            base_time.as_filename()
+        ))
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -447,8 +416,4 @@ impl Sim {
             }
         }
     }
-}
-
-fn io_error(msg: &str) -> std::io::Error {
-    std::io::Error::new(std::io::ErrorKind::Other, msg)
 }

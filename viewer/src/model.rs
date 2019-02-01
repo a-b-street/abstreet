@@ -30,6 +30,7 @@ struct Object {
 }
 
 pub struct World {
+    pub name: String,
     objects: HashMap<ID, Object>,
     quadtree: QuadTree<ID>,
 }
@@ -40,6 +41,7 @@ impl World {
             read_binary(filename, &mut Timer::new("load data")).unwrap();
 
         let mut w = World {
+            name: filename.to_string(),
             objects: HashMap::new(),
             quadtree: QuadTree::default(data.bounds.as_bbox()),
         };

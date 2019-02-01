@@ -66,6 +66,7 @@ impl Tick {
         }
     }
 
+    // TODO Unused right now.
     pub fn parse_filename(string: &str) -> Option<Tick> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();

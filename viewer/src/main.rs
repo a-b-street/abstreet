@@ -1,6 +1,7 @@
 mod model;
 
 use crate::model::{World, ID};
+use abstutil::{find_next_file, find_prev_file};
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
 use std::{env, process};
 
@@ -34,12 +35,24 @@ impl GUI<Text> for UI {
             process::exit(0);
         }
 
+        if let Some(prev) = find_prev_file(&self.world.name) {
+            if ctx.input.key_pressed(Key::Comma, "load previous map") {
+                self.world = World::load_initial_map(&prev, ctx.prerender);
+                self.state.selected = None;
+            }
+        }
+        if let Some(next) = find_next_file(&self.world.name) {
+            if ctx.input.key_pressed(Key::Dot, "load next map") {
+                self.world = World::load_initial_map(&next, ctx.prerender);
+                self.state.selected = None;
+            }
+        }
+
         let mut osd = Text::new();
         ctx.input.populate_osd(&mut osd);
         (EventLoopMode::InputOnly, osd)
     }
 
-    // TODO draw ctx should include the OSD!
     fn draw(&self, g: &mut GfxCtx, osd: &Text) {
         g.clear(Color::WHITE);
 

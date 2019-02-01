@@ -94,9 +94,9 @@ impl Plugin for SimControls {
                         .primary
                         .sim
                         .find_previous_savestate(ctx.primary.sim.time)
-                        .and_then(|path| Sim::load_savestate(path, None))
+                        .and_then(|path| Sim::load_savestate(path, None).ok())
                     {
-                        Ok(new_sim) => {
+                        Some(new_sim) => {
                             // TODO From the perspective of other SimMode plugins, does this just
                             // look like the simulation stepping forwards?
                             ctx.primary.sim = new_sim;
@@ -110,7 +110,7 @@ impl Plugin for SimControls {
                                 .unwrap();
                             }
                         }
-                        Err(e) => error!("Couldn't load savestate: {}", e),
+                        None => error!("Couldn't load previous savestate"),
                     };
                 }
                 if ctx.input.action_chosen("load next sim state") {
@@ -118,9 +118,9 @@ impl Plugin for SimControls {
                         .primary
                         .sim
                         .find_next_savestate(ctx.primary.sim.time)
-                        .and_then(|path| Sim::load_savestate(path, None))
+                        .and_then(|path| Sim::load_savestate(path, None).ok())
                     {
-                        Ok(new_sim) => {
+                        Some(new_sim) => {
                             ctx.primary.sim = new_sim;
                             *ctx.recalculate_current_selection = true;
 
@@ -132,7 +132,7 @@ impl Plugin for SimControls {
                                 .unwrap();
                             }
                         }
-                        Err(e) => error!("Couldn't load savestate: {}", e),
+                        None => error!("Couldn't load next savestate"),
                     };
                 }
 

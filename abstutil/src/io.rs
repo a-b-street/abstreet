@@ -241,3 +241,36 @@ impl Read for FileWithProgress {
         Ok(bytes)
     }
 }
+
+pub fn find_prev_file(orig: &str) -> Option<String> {
+    let files = list_dir(std::path::Path::new(orig).parent().unwrap());
+    let idx = files.iter().position(|f| f == orig)?;
+    if idx != 0 {
+        return Some(files[idx - 1].clone());
+    }
+    None
+}
+
+pub fn find_next_file(orig: &str) -> Option<String> {
+    let files = list_dir(std::path::Path::new(orig).parent().unwrap());
+    let idx = files.iter().position(|f| f == orig)?;
+    if idx != files.len() - 1 {
+        return Some(files[idx + 1].clone());
+    }
+    None
+}
+
+fn list_dir(dir: &std::path::Path) -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    match std::fs::read_dir(dir) {
+        Ok(iter) => {
+            for entry in iter {
+                files.push(entry.unwrap().path().to_str().unwrap().to_string());
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!("Couldn't read_dir {:?}: {}", dir, e),
+    };
+    files.sort();
+    files
+}
