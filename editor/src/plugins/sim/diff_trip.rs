@@ -79,10 +79,10 @@ fn diff_trip(trip: TripID, ctx: &mut PluginCtx) -> DiffTripState {
         .map(|(s, _)| (&s.sim, &s.map))
         .unwrap();
 
-    let pt1 = primary_sim.get_stats().canonical_pt_per_trip.get(&trip);
-    let pt2 = secondary_sim.get_stats().canonical_pt_per_trip.get(&trip);
+    let pt1 = primary_sim.get_canonical_pt_per_trip(trip, primary_map);
+    let pt2 = secondary_sim.get_canonical_pt_per_trip(trip, secondary_map);
     let line = if pt1.is_some() && pt2.is_some() {
-        Line::maybe_new(*pt1.unwrap(), *pt2.unwrap())
+        Line::maybe_new(pt1.unwrap(), pt2.unwrap())
     } else {
         None
     };

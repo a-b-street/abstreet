@@ -12,7 +12,7 @@ use crate::{AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, Trip
 use abstutil;
 use abstutil::Error;
 use derivative::Derivative;
-use geom::Distance;
+use geom::{Distance, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -397,23 +397,33 @@ impl Sim {
         &self.stats
     }
 
+    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
+        self.trips_state
+            .trip_to_agent(trip)
+            .and_then(|id| self.canonical_pt_for_agent(id, map))
+    }
+
     fn collect_stats(&mut self, map: &Map) {
         self.stats = SimStats::new(self.time);
         for trip in self.trips_state.get_active_trips().into_iter() {
-            let pt = match self.trips_state.trip_to_agent(trip) {
-                Some(AgentID::Car(id)) => self
-                    .driving_state
-                    .get_draw_car(id, self.time, map)
-                    .map(|c| c.body.last_pt()),
-                Some(AgentID::Pedestrian(id)) => self
-                    .walking_state
-                    .get_draw_ped(id, map, self.time)
-                    .map(|p| p.pos),
-                None => None,
-            };
-            if let Some(pt) = pt {
-                self.stats.canonical_pt_per_trip.insert(trip, pt);
+            if let Some(agent) = self.trips_state.trip_to_agent(trip) {
+                if let Some(pt) = self.canonical_pt_for_agent(agent, map) {
+                    self.stats.canonical_pt_per_trip.insert(trip, pt);
+                }
             }
+        }
+    }
+
+    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
+        match id {
+            AgentID::Car(id) => self
+                .driving_state
+                .get_draw_car(id, self.time, map)
+                .map(|c| c.body.last_pt()),
+            AgentID::Pedestrian(id) => self
+                .walking_state
+                .get_draw_ped(id, map, self.time)
+                .map(|p| p.pos),
         }
     }
 }

@@ -4,6 +4,7 @@
 
 - cache draw stuff
 - lazy SimStats
+	- dont consider it when comparing or serializing
 
 ## Quick n easy
 
