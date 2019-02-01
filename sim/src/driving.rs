@@ -890,7 +890,8 @@ impl DrivingSimState {
     pub fn get_all_draw_cars(&self, time: Tick, map: &Map) -> Vec<DrawCarInput> {
         self.cars
             .keys()
-            .map(|id| self.get_draw_car(*id, time, map).unwrap())
+            // Might not succeed, since we can have "invisible" cars at borders
+            .filter_map(|id| self.get_draw_car(*id, time, map))
             .collect()
     }
 

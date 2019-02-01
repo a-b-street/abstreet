@@ -2,7 +2,7 @@ use crate::objects::Ctx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
-use sim::{Sim, Tick};
+use sim::Tick;
 
 pub enum ShowActivityState {
     Inactive,
@@ -20,10 +20,8 @@ impl Plugin for ShowActivityState {
         match self {
             ShowActivityState::Inactive => {
                 if ctx.input.action_chosen("show lanes with active traffic") {
-                    *self = ShowActivityState::Active(
-                        ctx.primary.sim.time,
-                        active_agent_heatmap(ctx.canvas.get_screen_bounds(), &ctx.primary.sim),
-                    );
+                    *self =
+                        ShowActivityState::Active(ctx.primary.sim.time, active_agent_heatmap(ctx));
                 }
             }
             ShowActivityState::Active(time, ref old_heatmap) => {
@@ -34,10 +32,8 @@ impl Plugin for ShowActivityState {
                 }
                 let bounds = ctx.canvas.get_screen_bounds();
                 if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
-                    *self = ShowActivityState::Active(
-                        ctx.primary.sim.time,
-                        active_agent_heatmap(bounds, &ctx.primary.sim),
-                    );
+                    *self =
+                        ShowActivityState::Active(ctx.primary.sim.time, active_agent_heatmap(ctx));
                 }
             }
         }
@@ -114,9 +110,9 @@ impl Heatmap {
     }
 }
 
-fn active_agent_heatmap(bounds: Bounds, sim: &Sim) -> Heatmap {
-    let mut h = Heatmap::new(bounds);
-    let stats = sim.get_stats();
+fn active_agent_heatmap(ctx: &mut PluginCtx) -> Heatmap {
+    let mut h = Heatmap::new(ctx.canvas.get_screen_bounds());
+    let stats = ctx.primary.sim.get_stats(&ctx.primary.map);
     for pt in stats.canonical_pt_per_trip.values() {
         h.add(*pt);
     }

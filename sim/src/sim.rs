@@ -38,7 +38,10 @@ pub struct Sim {
     // TODO not quite the right type to represent durations
     savestate_every: Option<Tick>,
 
-    stats: SimStats,
+    // Lazily computed.
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    stats: Option<SimStats>,
 
     pub(crate) spawner: Spawner,
     scheduler: Scheduler,
@@ -83,7 +86,7 @@ impl Sim {
             run_name,
             savestate_every,
             current_agent_for_debugging: None,
-            stats: SimStats::new(Tick::zero()),
+            stats: None,
         }
     }
 
@@ -244,8 +247,7 @@ impl Sim {
         // then.
         self.time = self.time.next();
 
-        // Collect stats for consumers to quickly... well, consume
-        self.collect_stats(map);
+        self.stats = None;
 
         // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
         // savestate, run a step, and invalidly save over it.
@@ -393,25 +395,28 @@ impl Sim {
         self.intersection_state.is_in_overtime(id)
     }
 
-    pub fn get_stats(&self) -> &SimStats {
-        &self.stats
+    pub fn get_stats(&mut self, map: &Map) -> &SimStats {
+        if self.stats.is_some() {
+            return self.stats.as_ref().unwrap();
+        }
+
+        let mut stats = SimStats::new(self.time);
+        for trip in self.trips_state.get_active_trips().into_iter() {
+            if let Some(agent) = self.trips_state.trip_to_agent(trip) {
+                if let Some(pt) = self.canonical_pt_for_agent(agent, map) {
+                    stats.canonical_pt_per_trip.insert(trip, pt);
+                }
+            }
+        }
+
+        self.stats = Some(stats);
+        self.stats.as_ref().unwrap()
     }
 
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
         self.trips_state
             .trip_to_agent(trip)
             .and_then(|id| self.canonical_pt_for_agent(id, map))
-    }
-
-    fn collect_stats(&mut self, map: &Map) {
-        self.stats = SimStats::new(self.time);
-        for trip in self.trips_state.get_active_trips().into_iter() {
-            if let Some(agent) = self.trips_state.trip_to_agent(trip) {
-                if let Some(pt) = self.canonical_pt_for_agent(agent, map) {
-                    self.stats.canonical_pt_per_trip.insert(trip, pt);
-                }
-            }
-        }
     }
 
     fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {

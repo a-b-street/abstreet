@@ -3,7 +3,7 @@ use crate::plugins::{Plugin, PluginCtx};
 use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
-use sim::{Sim, Tick};
+use sim::Tick;
 
 pub struct DiffAllState {
     time: Tick,
@@ -16,10 +16,7 @@ impl DiffAllState {
     pub fn new(ctx: &mut PluginCtx) -> Option<DiffAllState> {
         if ctx.primary.current_selection.is_none() && ctx.input.action_chosen("diff all A/B trips")
         {
-            return Some(diff_all(
-                &ctx.primary.sim,
-                ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap(),
-            ));
+            return Some(diff_all(ctx));
         }
         None
     }
@@ -28,10 +25,7 @@ impl DiffAllState {
 impl Plugin for DiffAllState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if self.time != ctx.primary.sim.time {
-            *self = diff_all(
-                &ctx.primary.sim,
-                ctx.secondary.as_ref().map(|(s, _)| &s.sim).unwrap(),
-            );
+            *self = diff_all(ctx);
         }
 
         ctx.input.set_mode_with_prompt(
@@ -56,9 +50,13 @@ impl Plugin for DiffAllState {
     }
 }
 
-fn diff_all(primary_sim: &Sim, secondary_sim: &Sim) -> DiffAllState {
-    let stats1 = primary_sim.get_stats();
-    let stats2 = secondary_sim.get_stats();
+fn diff_all(ctx: &mut PluginCtx) -> DiffAllState {
+    let stats1 = ctx.primary.sim.get_stats(&ctx.primary.map);
+    let stats2 = ctx
+        .secondary
+        .as_mut()
+        .map(|(s, _)| s.sim.get_stats(&s.map))
+        .unwrap();
     let mut same_trips = 0;
     let mut lines: Vec<Line> = Vec::new();
     for (trip, pt1) in &stats1.canonical_pt_per_trip {
@@ -71,7 +69,7 @@ fn diff_all(primary_sim: &Sim, secondary_sim: &Sim) -> DiffAllState {
         }
     }
     DiffAllState {
-        time: primary_sim.time,
+        time: ctx.primary.sim.time,
         same_trips,
         lines,
     }
