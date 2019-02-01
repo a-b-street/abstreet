@@ -9,6 +9,7 @@ pub struct TimeTravel {
     current_tick: Option<Tick>,
     // Determines the tick of state_per_tick[0]
     first_tick: Tick,
+    should_record: bool,
 }
 
 struct StateAtTime {
@@ -24,6 +25,7 @@ impl TimeTravel {
             state_per_tick: Vec::new(),
             current_tick: None,
             first_tick: Tick::zero(),
+            should_record: false,
         }
     }
 
@@ -66,7 +68,9 @@ impl TimeTravel {
 
     // Don't really need to indicate activeness here.
     pub fn event(&mut self, ctx: &mut PluginCtx) {
-        self.record_state(&ctx.primary.sim, &ctx.primary.map);
+        if self.should_record {
+            self.record_state(&ctx.primary.sim, &ctx.primary.map);
+        }
 
         if let Some(tick) = self.current_tick {
             ctx.input.set_mode_with_prompt(
@@ -84,6 +88,10 @@ impl TimeTravel {
                 self.current_tick = None;
             }
         } else if ctx.input.action_chosen("start time traveling") {
+            if !self.should_record {
+                self.should_record = true;
+                self.record_state(&ctx.primary.sim, &ctx.primary.map);
+            }
             self.current_tick = Some(ctx.primary.sim.time);
         }
     }

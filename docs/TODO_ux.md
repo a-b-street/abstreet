@@ -2,8 +2,8 @@
 
 ## Performance
 
-- disable time travel recording by default
 - cache draw stuff
+	- carefully. dont upload unbounded stuff to GPU in time travel.
 
 ## Quick n easy
 
