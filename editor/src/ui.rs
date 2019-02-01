@@ -8,6 +8,7 @@ use ezgui::{
     Canvas, Color, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text, TopMenu,
     UserInput, BOTTOM_LEFT, GUI,
 };
+use geom::{Bounds, Circle, Distance};
 use kml;
 use map_model::{BuildingID, LaneID};
 use serde_derive::{Deserialize, Serialize};
@@ -202,14 +203,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
-        let min_zoom_for_mouseover = self.state.get_state().get_min_zoom_for_mouseover();
-        if old_zoom >= min_zoom_for_mouseover && new_zoom < min_zoom_for_mouseover {
-            self.state.mut_state().primary.current_selection = None;
-        }
-        if !self.canvas.is_dragging()
-            && input.get_moved_mouse().is_some()
-            && new_zoom >= min_zoom_for_mouseover
-        {
+        if !self.canvas.is_dragging() && input.get_moved_mouse().is_some() {
             self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
         if input.window_lost_cursor() {
@@ -225,7 +219,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             &mut self.canvas,
             prerender,
         );
-        if recalculate_current_selection && new_zoom >= min_zoom_for_mouseover {
+        if recalculate_current_selection {
             self.state.mut_state().primary.current_selection = self.mouseover_something();
         }
 
@@ -270,24 +264,29 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         };
 
         let mut sample_intersection: Option<String> = None;
-        self.handle_objects_onscreen(RenderOrder::BackToFront, |obj| {
-            let opts = RenderOptions {
-                color: self.state.get_state().color_obj(obj.get_id(), &ctx),
-                debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
-                is_selected: self.state.get_state().primary.current_selection == Some(obj.get_id()),
-                // TODO If a ToggleableLayer is currently off, this won't affect it!
-                show_all_detail: screencap,
-            };
-            obj.draw(g, opts, &ctx);
+        self.handle_objects(
+            self.canvas.get_screen_bounds(),
+            RenderOrder::BackToFront,
+            |obj| {
+                let opts = RenderOptions {
+                    color: self.state.get_state().color_obj(obj.get_id(), &ctx),
+                    debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
+                    is_selected: self.state.get_state().primary.current_selection
+                        == Some(obj.get_id()),
+                    // TODO If a ToggleableLayer is currently off, this won't affect it!
+                    show_all_detail: screencap,
+                };
+                obj.draw(g, opts, &ctx);
 
-            if screencap && sample_intersection.is_none() {
-                if let ID::Intersection(id) = obj.get_id() {
-                    sample_intersection = Some(format!("_i{}", id.0));
+                if screencap && sample_intersection.is_none() {
+                    if let ID::Intersection(id) = obj.get_id() {
+                        sample_intersection = Some(format!("_i{}", id.0));
+                    }
                 }
-            }
 
-            true
-        });
+                true
+            },
+        );
 
         if !screencap {
             self.state.draw(g, &ctx);
@@ -365,27 +364,32 @@ impl<S: UIState> UI<S> {
 
         let mut id: Option<ID> = None;
 
-        self.handle_objects_onscreen(RenderOrder::FrontToBack, |obj| {
-            // Don't mouseover parcels.
-            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
-            // in intersection editor mode, for example.
-            match obj.get_id() {
-                ID::Parcel(_) => {}
-                _ => {
-                    if obj.contains_pt(pt) {
-                        id = Some(obj.get_id());
-                        return false;
+        self.handle_objects(
+            Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            RenderOrder::FrontToBack,
+            |obj| {
+                // Don't mouseover parcels.
+                // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
+                // in intersection editor mode, for example.
+                match obj.get_id() {
+                    ID::Parcel(_) => {}
+                    _ => {
+                        if obj.contains_pt(pt) {
+                            id = Some(obj.get_id());
+                            return false;
+                        }
                     }
-                }
-            };
-            true
-        });
+                };
+                true
+            },
+        );
 
         id
     }
 
-    fn handle_objects_onscreen<F: FnMut(Box<&Renderable>) -> bool>(
+    fn handle_objects<F: FnMut(Box<&Renderable>) -> bool>(
         &self,
+        bounds: Bounds,
         order: RenderOrder,
         callback: F,
     ) {
@@ -400,8 +404,8 @@ impl<S: UIState> UI<S> {
             }
         };
 
-        state.primary.draw_map.handle_objects_onscreen(
-            self.canvas.get_screen_bounds(),
+        state.primary.draw_map.handle_objects(
+            bounds,
             &state.primary.map,
             draw_agent_source,
             state,

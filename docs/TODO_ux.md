@@ -4,7 +4,6 @@
 
 - cache draw stuff
 - lazy SimStats
-- objects onscreen is overkill for mouseover. can maybe get rid of the min zoom for mouseover thing!
 
 ## Quick n easy
 

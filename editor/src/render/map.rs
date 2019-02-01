@@ -264,7 +264,7 @@ impl DrawMap {
     }
 
     // False from the callback means abort
-    pub fn handle_objects_onscreen<T: ShowObjects, F: FnMut(Box<&Renderable>) -> bool>(
+    pub fn handle_objects<T: ShowObjects, F: FnMut(Box<&Renderable>) -> bool>(
         &self,
         screen_bounds: Bounds,
         map: &Map,

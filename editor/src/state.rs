@@ -121,21 +121,6 @@ impl DefaultUIState {
 
         None
     }
-
-    // TODO Not sure how I feel about introducing a random helper method again. Maybe what can even
-    // be selected is way more modal anyway -- can't select random stuff when editing an
-    // intersection, for example.
-    pub fn get_min_zoom_for_mouseover(&self) -> f64 {
-        if let Some(ref plugin) = self.exclusive_blocking_plugin {
-            if plugin
-                .downcast_ref::<debug::spawn_agent::SpawnAgent>()
-                .is_ok()
-            {
-                return 0.0;
-            }
-        }
-        4.0
-    }
 }
 
 impl UIState for DefaultUIState {
