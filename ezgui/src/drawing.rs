@@ -1,5 +1,6 @@
 use crate::{
-    Canvas, Color, Drawable, HorizontalAlignment, Prerender, ScreenPt, Text, VerticalAlignment,
+    text, Canvas, Color, Drawable, HorizontalAlignment, Prerender, ScreenPt, Text,
+    VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::{uniform, Surface};
@@ -149,32 +150,77 @@ impl<'a> GfxCtx<'a> {
         self.num_draw_calls += 1;
     }
 
-    // Forwarded canvas stuff.
+    // Canvas stuff.
+
+    // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
     pub fn draw_blocking_text(
         &mut self,
         txt: Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        self.canvas.draw_blocking_text(self, txt, (horiz, vert));
+        if txt.is_empty() {
+            return;
+        }
+        let (width, height) = self.text_dims(&txt);
+        let x1 = match horiz {
+            HorizontalAlignment::Left => 0.0,
+            HorizontalAlignment::Center => (self.canvas.window_width - width) / 2.0,
+            HorizontalAlignment::Right => self.canvas.window_width - width,
+        };
+        let y1 = match vert {
+            VerticalAlignment::Top => 0.0,
+            VerticalAlignment::BelowTopMenu => self.canvas.line_height,
+            VerticalAlignment::Center => (self.canvas.window_height - height) / 2.0,
+            VerticalAlignment::Bottom => self.canvas.window_height - height,
+        };
+        self.canvas
+            .covered_areas
+            .borrow_mut()
+            .push(text::draw_text_bubble(
+                self,
+                ScreenPt::new(x1, y1),
+                txt,
+                (width, height),
+            ));
     }
+
     pub fn get_screen_bounds(&self) -> Bounds {
         self.canvas.get_screen_bounds()
     }
+
+    // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
-        self.canvas.draw_text_at(self, txt, map_pt);
+        let (width, height) = self.text_dims(&txt);
+        let pt = self.canvas.map_to_screen(map_pt);
+        text::draw_text_bubble(
+            self,
+            ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
+            txt,
+            (width, height),
+        );
     }
+
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
         self.canvas.text_dims(txt)
     }
+
     pub fn draw_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
-        self.canvas.draw_text_at_screenspace_topleft(self, txt, pt);
+        let dims = self.text_dims(&txt);
+        text::draw_text_bubble(self, pt, txt, dims);
     }
+
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
-        self.canvas.draw_mouse_tooltip(self, txt);
+        let (width, height) = self.text_dims(&txt);
+        let x1 = self.canvas.cursor_x - (width / 2.0);
+        let y1 = self.canvas.cursor_y - (height / 2.0);
+        // No need to cover the tooltip; this tooltip follows the mouse anyway.
+        text::draw_text_bubble(self, ScreenPt::new(x1, y1), txt, (width, height));
     }
+
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {
         self.canvas.screen_to_map(pt)
     }
+
     pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
         self.canvas.get_cursor_in_map_space()
     }

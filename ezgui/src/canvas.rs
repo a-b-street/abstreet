@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{text, GfxCtx, ScreenPt, Text, UserInput};
+use crate::{ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use glium_glyph::GlyphBrush;
 use std::cell::RefCell;
@@ -14,8 +14,8 @@ pub struct Canvas {
     pub cam_zoom: f64,
 
     // TODO We probably shouldn't even track screen-space cursor when we don't have the cursor.
-    cursor_x: f64,
-    cursor_y: f64,
+    pub(crate) cursor_x: f64,
+    pub(crate) cursor_y: f64,
     window_has_cursor: bool,
 
     left_mouse_drag_from: Option<ScreenPt>,
@@ -27,7 +27,7 @@ pub struct Canvas {
     pub(crate) line_height: f64,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
-    covered_areas: RefCell<Vec<ScreenRectangle>>,
+    pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
 }
 
 impl Canvas {
@@ -99,72 +99,6 @@ impl Canvas {
         self.covered_areas.borrow_mut().push(rect);
     }
 
-    pub fn draw_mouse_tooltip(&self, g: &mut GfxCtx, txt: Text) {
-        let (width, height) = self.text_dims(&txt);
-        let x1 = self.cursor_x - (width / 2.0);
-        let y1 = self.cursor_y - (height / 2.0);
-        // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(g, self, ScreenPt::new(x1, y1), txt, (width, height));
-    }
-
-    // TODO Rename these draw_nonblocking_text_*
-    pub fn draw_text_at(&self, g: &mut GfxCtx, txt: Text, map_pt: Pt2D) {
-        let (width, height) = self.text_dims(&txt);
-        let pt = self.map_to_screen(map_pt);
-        text::draw_text_bubble(
-            g,
-            self,
-            ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
-            txt,
-            (width, height),
-        );
-    }
-
-    pub fn draw_text_at_topleft(&self, g: &mut GfxCtx, txt: Text, pt: Pt2D) {
-        let dims = self.text_dims(&txt);
-        text::draw_text_bubble(g, self, self.map_to_screen(pt), txt, dims);
-    }
-
-    pub fn draw_text_at_screenspace_topleft(&self, g: &mut GfxCtx, txt: Text, pt: ScreenPt) {
-        let dims = self.text_dims(&txt);
-        text::draw_text_bubble(g, self, pt, txt, dims);
-    }
-
-    // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
-    pub fn draw_blocking_text(
-        &self,
-        g: &mut GfxCtx,
-        txt: Text,
-        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
-    ) {
-        if txt.is_empty() {
-            return;
-        }
-        let (width, height) = self.text_dims(&txt);
-        let x1 = match horiz {
-            HorizontalAlignment::Left => 0.0,
-            HorizontalAlignment::Center => (self.window_width - width) / 2.0,
-            HorizontalAlignment::Right => self.window_width - width,
-        };
-        let y1 = match vert {
-            VerticalAlignment::Top => 0.0,
-            VerticalAlignment::BelowTopMenu => self.line_height,
-            VerticalAlignment::Center => (self.window_height - height) / 2.0,
-            VerticalAlignment::Bottom => self.window_height - height,
-        };
-        self.covered_areas.borrow_mut().push(text::draw_text_bubble(
-            g,
-            self,
-            ScreenPt::new(x1, y1),
-            txt,
-            (width, height),
-        ));
-    }
-
-    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
-        txt.dims(self)
-    }
-
     fn zoom_towards_mouse(&mut self, delta_zoom: f64) {
         let old_zoom = self.cam_zoom;
         self.cam_zoom += delta_zoom;
@@ -217,7 +151,7 @@ impl Canvas {
         self.cam_y = (pt.y() * self.cam_zoom) - (self.window_height / 2.0);
     }
 
-    fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
+    pub(crate) fn map_to_screen(&self, pt: Pt2D) -> ScreenPt {
         ScreenPt::new(
             (pt.x() * self.cam_zoom) - self.cam_x,
             (pt.y() * self.cam_zoom) - self.cam_y,
@@ -235,6 +169,10 @@ impl Canvas {
     // smarter.
     pub fn top_menu_height(&self) -> f64 {
         self.line_height
+    }
+
+    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
+        txt.dims(self)
     }
 }
 

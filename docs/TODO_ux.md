@@ -87,7 +87,7 @@
 	- probably use f32, not f64 everywhere... but after Pt2D becomes fixed size
 	- undo the y inversion hacks at last!
 	- ezgui passes EventCtx and DrawCtx with appropriate things exposed.
-		- maybe move glyph ownership out of canvas entirely
+		- maybe move glyph ownership out of canvas entirely. dont need RefCell.
 		- canvas owning text-drawing is maybe a bit weird, at least API-wise
 		- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
 		- generic World with quadtree should have actions on objects

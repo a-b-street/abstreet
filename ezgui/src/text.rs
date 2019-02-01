@@ -145,7 +145,6 @@ impl Text {
 
 pub fn draw_text_bubble(
     g: &mut GfxCtx,
-    canvas: &Canvas,
     top_left: ScreenPt,
     txt: Text,
     // Callers almost always calculate this anyway
@@ -165,7 +164,7 @@ pub fn draw_text_bubble(
         );
     }
 
-    let mut glyphs = canvas.glyphs.borrow_mut();
+    let mut glyphs = g.canvas.glyphs.borrow_mut();
     let mut y = top_left.y;
     for (line_color, line) in &txt.lines {
         let section = VariedSection {
@@ -188,12 +187,12 @@ pub fn draw_text_bubble(
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x, y),
                     total_width,
-                    canvas.line_height,
+                    g.canvas.line_height,
                 ),
             );
         }
 
-        y += canvas.line_height;
+        y += g.canvas.line_height;
         glyphs.queue(section);
     }
 
