@@ -434,7 +434,7 @@ impl SimQueue {
     // tooltip
 
     // TODO this starts cars with their front aligned with the end of the lane, sticking their back
-    // into the intersection. :(
+    // into the intersection. :(   <-- is this still true?
     fn get_draw_cars(&self, sim: &DrivingSimState, map: &Map, time: Tick) -> Vec<DrawCarInput> {
         let mut results = Vec::new();
         for (_, id) in &self.cars_queue {
@@ -840,9 +840,7 @@ impl DrivingSimState {
             )
             .unwrap()
         } else {
-            // TODO Kinda weird to consider the car not present, but eventually cars spawning
-            // at borders should appear fully anyway.
-            c.on.slice(Distance::ZERO, c.dist_along, map)?.0
+            panic!("{} is only {} along its first step of {:?}, but it's {} long, so it spawned in a weird way.", id, c.dist_along, c.on, c.vehicle.length);
         };
 
         let body = if let Some(ref parking) = c.parking {
@@ -890,8 +888,7 @@ impl DrivingSimState {
     pub fn get_all_draw_cars(&self, time: Tick, map: &Map) -> Vec<DrawCarInput> {
         self.cars
             .keys()
-            // Might not succeed, since we can have "invisible" cars at borders
-            .filter_map(|id| self.get_draw_car(*id, time, map))
+            .map(|id| self.get_draw_car(*id, time, map).unwrap())
             .collect()
     }
 

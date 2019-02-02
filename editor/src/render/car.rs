@@ -3,7 +3,7 @@ use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Angle, Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarState, DrawCarInput, MIN_CAR_LENGTH};
+use sim::{CarID, CarState, DrawCarInput};
 use std;
 
 const CAR_WIDTH: Distance = Distance::const_meters(2.0);
@@ -37,21 +37,6 @@ impl DrawCar {
         };
 
         let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(CAR_WIDTH));
-
-        if input.body.length() < MIN_CAR_LENGTH {
-            return DrawCar {
-                id: input.id,
-                body_polygon: input.body.make_polygons(CAR_WIDTH),
-                window_polygons: Vec::new(),
-                left_blinkers: None,
-                right_blinkers: None,
-                left_blinker_on,
-                right_blinker_on,
-                stopping_buffer,
-                state: input.state,
-                zorder: input.on.get_zorder(map),
-            };
-        }
 
         let (front_blinker_pos, front_blinker_angle) = input
             .body

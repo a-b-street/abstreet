@@ -12,7 +12,7 @@ pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.000_1);
 const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
 const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
 // These two must be < PARKING_SPOT_LENGTH
-pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
+const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
 const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 // Note this is more than MAX_CAR_LENGTH
 const BUS_LENGTH: Distance = Distance::const_meters(12.5);

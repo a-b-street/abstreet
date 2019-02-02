@@ -2,6 +2,7 @@ use crate::driving::DrivingSimState;
 use crate::instrument::capture_backtrace;
 use crate::intersections::IntersectionSimState;
 use crate::parking::ParkingSimState;
+use crate::render::GetDrawAgents;
 use crate::scheduler::Scheduler;
 use crate::spawn::Spawner;
 use crate::transit::TransitSimState;
@@ -403,9 +404,9 @@ impl Sim {
         let mut stats = SimStats::new(self.time);
         for trip in self.trips_state.get_active_trips().into_iter() {
             if let Some(agent) = self.trips_state.trip_to_agent(trip) {
-                if let Some(pt) = self.canonical_pt_for_agent(agent, map) {
-                    stats.canonical_pt_per_trip.insert(trip, pt);
-                }
+                stats
+                    .canonical_pt_per_trip
+                    .insert(trip, self.canonical_pt_for_agent(agent, map));
             }
         }
 
@@ -416,19 +417,19 @@ impl Sim {
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
         self.trips_state
             .trip_to_agent(trip)
-            .and_then(|id| self.canonical_pt_for_agent(id, map))
+            .map(|id| self.canonical_pt_for_agent(id, map))
     }
 
-    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
+    // Assumes agent does exist.
+    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Pt2D {
         match id {
-            AgentID::Car(id) => self
-                .driving_state
-                .get_draw_car(id, self.time, map)
-                .map(|c| c.body.last_pt()),
-            AgentID::Pedestrian(id) => self
-                .walking_state
-                .get_draw_ped(id, map, self.time)
-                .map(|p| p.pos),
+            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().body.last_pt(),
+            AgentID::Pedestrian(id) => {
+                self.walking_state
+                    .get_draw_ped(id, map, self.time)
+                    .unwrap()
+                    .pos
+            }
         }
     }
 }
