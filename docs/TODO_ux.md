@@ -4,13 +4,11 @@
 
 - cache draw agents
 	- actually use Drawables in the places
-		- have to undo the hacks for cars appearing out of a border
 
 ## Quick n easy
 
 - try showing traffic signals by little boxes at the end of lanes
 	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
-	- Circle::new radius and pt project_away should take meters type
 
 - if a lane could feasibly have multiple turn options but doesnt, print "ONLY"
 - color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)

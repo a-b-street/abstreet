@@ -90,7 +90,6 @@ impl Pt2D {
     }
 
     // TODO better name
-    // TODO Meters for dist?
     pub fn project_away(self, dist: Distance, theta: Angle) -> Pt2D {
         // If negative, caller should use theta.opposite()
         assert!(dist >= Distance::ZERO);

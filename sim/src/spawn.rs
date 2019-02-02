@@ -10,7 +10,6 @@ use crate::{
     AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType,
 };
 use abstutil::{fork_rng, WeightedUsizeChoice};
-use geom::Distance;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
     Pathfinder, Position, RoadID,
@@ -114,7 +113,7 @@ impl Command {
                     DrivingGoal::Border(_, l) => *l,
                 };
                 PathRequest {
-                    start: Position::new(*start, Distance::ZERO),
+                    start: Position::new(*start, vehicle.length),
                     end: Position::new(goal_lane, map.get_l(goal_lane).length()),
                     can_use_bus_lanes: vehicle.vehicle_type == VehicleType::Bus,
                     can_use_bike_lanes: vehicle.vehicle_type == VehicleType::Bike,
@@ -222,7 +221,7 @@ impl Spawner {
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
-                                start: Position::new(start, Distance::ZERO),
+                                start: Position::new(start, vehicle.length),
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
                                         if vehicle.vehicle_type == VehicleType::Bike {
@@ -461,11 +460,13 @@ impl Spawner {
         if let DrivingGoal::ParkNear(b) = goal {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
+        let vehicle = Vehicle::generate_car(car_id, base_rng);
+        assert!(map.get_l(first_lane).length() > vehicle.length);
         self.enqueue_command(Command::DriveFromBorder {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
             car: car_id,
-            vehicle: Vehicle::generate_car(car_id, base_rng),
+            vehicle,
             start: first_lane,
             goal,
         });
@@ -599,6 +600,7 @@ impl Spawner {
         if let DrivingGoal::ParkNear(b) = goal {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
+        assert!(map.get_l(first_lane).length() > vehicle.length);
         self.enqueue_command(Command::DriveFromBorder {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
