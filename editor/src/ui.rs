@@ -1,7 +1,7 @@
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::{new_draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
+use crate::render::{draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
 use crate::state::UIState;
 use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
@@ -467,7 +467,7 @@ impl<S: UIState> UI<S> {
                 if !agents.has(tick, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
                     for c in sim.get_draw_cars(*on, map).into_iter() {
-                        list.push(new_draw_vehicle(c, map, prerender, &state.cs));
+                        list.push(draw_vehicle(c, map, prerender, &state.cs));
                     }
                     for p in sim.get_draw_peds(*on, map).into_iter() {
                         list.push(Box::new(DrawPedestrian::new(p, map, prerender, &state.cs)));

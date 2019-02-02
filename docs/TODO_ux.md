@@ -4,6 +4,7 @@
 
 - cache draw agents
 	- actually use Drawables in the places
+		- have to undo the hacks for cars appearing out of a border
 
 ## Quick n easy
 

@@ -1,6 +1,7 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Polygon, Pt2D};
 use sim::{CarID, CarState, DrawCarInput};
 
@@ -12,18 +13,33 @@ pub struct DrawBike {
     // TODO the turn arrows for bikes look way wrong
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
-    state: CarState,
+
+    draw_default: Drawable,
 }
 
 impl DrawBike {
-    pub fn new(input: DrawCarInput) -> DrawBike {
+    pub fn new(input: DrawCarInput, prerender: &Prerender, cs: &ColorScheme) -> DrawBike {
         let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(BIKE_WIDTH));
+        let polygon = input.body.make_polygons(BIKE_WIDTH);
+
+        let draw_default = prerender.upload_borrowed(vec![(
+            match input.state {
+                CarState::Debug => cs
+                    .get_def("debug bike", Color::BLUE.alpha(0.8))
+                    .shift(input.id.0),
+                // TODO Hard to see on the greenish bike lanes? :P
+                CarState::Moving => cs.get_def("moving bike", Color::GREEN).shift(input.id.0),
+                CarState::Stuck => cs.get_def("stuck bike", Color::RED).shift(input.id.0),
+                CarState::Parked => panic!("Can't have a parked bike"),
+            },
+            &polygon,
+        )]);
 
         DrawBike {
             id: input.id,
-            polygon: input.body.make_polygons(BIKE_WIDTH),
+            polygon,
             stopping_buffer,
-            state: input.state,
+            draw_default,
         }
     }
 }
@@ -34,19 +50,11 @@ impl Renderable for DrawBike {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            match self.state {
-                CarState::Debug => ctx
-                    .cs
-                    .get_def("debug bike", Color::BLUE.alpha(0.8))
-                    .shift(self.id.0),
-                // TODO Hard to see on the greenish bike lanes? :P
-                CarState::Moving => ctx.cs.get_def("moving bike", Color::GREEN).shift(self.id.0),
-                CarState::Stuck => ctx.cs.get_def("stuck bike", Color::RED).shift(self.id.0),
-                CarState::Parked => panic!("Can't have a parked bike"),
-            }
-        });
-        g.draw_polygon(color, &self.polygon);
+        if let Some(color) = opts.color {
+            g.draw_polygon(color, &self.polygon);
+        } else {
+            g.redraw(&self.draw_default);
+        }
 
         if let Some(ref t) = self.stopping_buffer {
             g.draw_polygon(

@@ -62,18 +62,14 @@ pub struct RenderOptions {
     pub show_all_detail: bool,
 }
 
-pub fn new_draw_vehicle(
+pub fn draw_vehicle(
     input: DrawCarInput,
     map: &Map,
-    _prerender: &Prerender,
-    _cs: &ColorScheme,
+    prerender: &Prerender,
+    cs: &ColorScheme,
 ) -> Box<Renderable> {
-    draw_vehicle(input, map)
-}
-
-pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {
     if input.vehicle_type == VehicleType::Bike {
-        Box::new(DrawBike::new(input))
+        Box::new(DrawBike::new(input, prerender, cs))
     } else {
         Box::new(DrawCar::new(input, map))
     }
