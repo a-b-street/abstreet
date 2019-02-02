@@ -3,7 +3,6 @@
 ## Performance
 
 - cache draw agents
-	- dont use traits for things... or move code back to DrawMap after all.
 	- actually use Drawables in the places
 
 ## Quick n easy

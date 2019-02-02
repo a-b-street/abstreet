@@ -124,6 +124,36 @@ impl DefaultUIState {
 
         None
     }
+
+    pub fn show_icons_for(&self, id: IntersectionID) -> bool {
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
+            if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
+                return p.show_turn_icons(id);
+            }
+            if let Ok(p) = plugin.downcast_ref::<edit::traffic_signal_editor::TrafficSignalEditor>()
+            {
+                return p.show_turn_icons(id);
+            }
+        }
+
+        self.layers.show_all_turn_icons.is_enabled() || {
+            // TODO This sounds like some old hack, probably remove this?
+            if let Some(ID::Turn(t)) = self.primary.current_selection {
+                t.parent == id
+            } else {
+                false
+            }
+        }
+    }
+
+    pub fn show(&self, obj: ID) -> bool {
+        if let Some(ref p) = self.primary_plugins.hider {
+            if !p.show(obj) {
+                return false;
+            }
+        }
+        self.layers.show(obj)
+    }
 }
 
 impl UIState for DefaultUIState {
@@ -373,44 +403,6 @@ impl UIState for DefaultUIState {
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
         }
-    }
-}
-
-// TODO Doesn't need to be a trait anymore
-pub trait ShowObjects {
-    fn show_icons_for(&self, id: IntersectionID) -> bool;
-    fn show(&self, obj: ID) -> bool;
-}
-
-impl ShowObjects for DefaultUIState {
-    fn show_icons_for(&self, id: IntersectionID) -> bool {
-        if let Some(ref plugin) = self.exclusive_blocking_plugin {
-            if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
-                return p.show_turn_icons(id);
-            }
-            if let Ok(p) = plugin.downcast_ref::<edit::traffic_signal_editor::TrafficSignalEditor>()
-            {
-                return p.show_turn_icons(id);
-            }
-        }
-
-        self.layers.show_all_turn_icons.is_enabled() || {
-            // TODO This sounds like some old hack, probably remove this?
-            if let Some(ID::Turn(t)) = self.primary.current_selection {
-                t.parent == id
-            } else {
-                false
-            }
-        }
-    }
-
-    fn show(&self, obj: ID) -> bool {
-        if let Some(ref p) = self.primary_plugins.hider {
-            if !p.show(obj) {
-                return false;
-            }
-        }
-        self.layers.show(obj)
     }
 }
 

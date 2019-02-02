@@ -2,7 +2,7 @@ use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
 use crate::render::{new_draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
-use crate::state::{ShowObjects, UIState};
+use crate::state::UIState;
 use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
     TopMenu, BOTTOM_LEFT, GUI,
@@ -382,7 +382,8 @@ impl<S: UIState> UI<S> {
         info!("Saved editor_state");
     }
 
-    // TODO I guess this technically could go in DrawMap, but we have to pass lots of stuff again.
+    // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that
+    // State does, like show_icons_for() and show().
     fn get_renderables_back_to_front<'a>(
         &'a self,
         bounds: Bounds,
