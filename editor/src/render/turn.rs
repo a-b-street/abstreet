@@ -1,10 +1,11 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
     TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
 };
-use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use geom::{Bounds, Circle, Distance, Line, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
 #[derive(Debug)]
@@ -105,15 +106,14 @@ impl Renderable for DrawTurn {
     }
 }
 
-#[derive(Debug)]
 pub struct DrawCrosswalk {
     // This is arbitrarily one of the two IDs
     pub id1: TurnID,
-    draw: Vec<Polygon>,
+    draw_default: Drawable,
 }
 
 impl DrawCrosswalk {
-    pub fn new(turn: &Turn) -> DrawCrosswalk {
+    pub fn new(turn: &Turn, prerender: &Prerender, cs: &ColorScheme) -> DrawCrosswalk {
         // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
         // the thickness of the crosswalk line itself. Center the lines inside these two
         // boundaries.
@@ -136,19 +136,23 @@ impl DrawCrosswalk {
                 let pt1 = line.dist_along(dist_along);
                 // Reuse perp_line. Project away an arbitrary amount
                 let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
-                draw.push(
+                draw.push((
+                    cs.get_def("crosswalk", Color::WHITE),
                     perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
                         .make_polygons(CROSSWALK_LINE_THICKNESS),
-                );
+                ));
                 dist_along += tile_every;
             }
         }
 
-        DrawCrosswalk { id1: turn.id, draw }
+        DrawCrosswalk {
+            id1: turn.id,
+            draw_default: prerender.upload(draw),
+        }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, color: Color) {
-        g.draw_polygon_batch(self.draw.iter().map(|poly| (color, poly)).collect());
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.redraw(&self.draw_default);
     }
 }
 

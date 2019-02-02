@@ -50,7 +50,7 @@ impl DrawIntersection {
         DrawIntersection {
             id: i.id,
             polygon: i.polygon.clone(),
-            crosswalks: calculate_crosswalks(i.id, map),
+            crosswalks: calculate_crosswalks(i.id, map, prerender, cs),
             intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
             draw_default: prerender.upload(default_geom),
@@ -86,7 +86,7 @@ impl Renderable for DrawIntersection {
                 }
             } else {
                 for crosswalk in &self.crosswalks {
-                    crosswalk.draw(g, ctx.cs.get_def("crosswalk", Color::WHITE));
+                    crosswalk.draw(g);
                 }
             }
         }
@@ -105,12 +105,17 @@ impl Renderable for DrawIntersection {
     }
 }
 
-fn calculate_crosswalks(i: IntersectionID, map: &Map) -> Vec<DrawCrosswalk> {
+fn calculate_crosswalks(
+    i: IntersectionID,
+    map: &Map,
+    prerender: &Prerender,
+    cs: &ColorScheme,
+) -> Vec<DrawCrosswalk> {
     let mut crosswalks = Vec::new();
     for turn in &map.get_turns_in_intersection(i) {
         // Avoid double-rendering
         if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i {
-            crosswalks.push(DrawCrosswalk::new(turn));
+            crosswalks.push(DrawCrosswalk::new(turn, prerender, cs));
         }
     }
     crosswalks
@@ -174,7 +179,7 @@ pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
 
     for crosswalk in &ctx.draw_map.get_i(cycle.parent).crosswalks {
         if cycle.get_priority(crosswalk.id1) == TurnPriority::Priority {
-            crosswalk.draw(g, ctx.cs.get("crosswalk"));
+            crosswalk.draw(g);
         }
     }
     for t in &cycle.priority_turns {
