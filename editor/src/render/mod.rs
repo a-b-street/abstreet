@@ -11,6 +11,7 @@ mod parcel;
 mod pedestrian;
 mod turn;
 
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
@@ -18,10 +19,10 @@ use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
 pub use crate::render::intersection::{draw_signal_cycle, draw_signal_diagram};
 pub use crate::render::lane::DrawLane;
-pub use crate::render::map::{DrawMap, RenderOrder};
+pub use crate::render::map::DrawMap;
 pub use crate::render::pedestrian::DrawPedestrian;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Pt2D};
 use map_model::Map;
 use sim::{DrawCarInput, VehicleType};
@@ -59,6 +60,15 @@ pub struct RenderOptions {
     pub debug_mode: bool,
     pub is_selected: bool,
     pub show_all_detail: bool,
+}
+
+pub fn new_draw_vehicle(
+    input: DrawCarInput,
+    map: &Map,
+    _prerender: &Prerender,
+    _cs: &ColorScheme,
+) -> Box<Renderable> {
+    draw_vehicle(input, map)
 }
 
 pub fn draw_vehicle(input: DrawCarInput, map: &Map) -> Box<Renderable> {

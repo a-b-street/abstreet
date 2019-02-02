@@ -1,6 +1,7 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Line, Pt2D};
 use map_model::Map;
 use sim::{DrawPedestrianInput, PedestrianID};
@@ -16,6 +17,15 @@ pub struct DrawPedestrian {
 }
 
 impl DrawPedestrian {
+    pub fn new_new(
+        input: DrawPedestrianInput,
+        map: &Map,
+        _prerender: &Prerender,
+        _cs: &ColorScheme,
+    ) -> DrawPedestrian {
+        DrawPedestrian::new(input, map)
+    }
+
     pub fn new(input: DrawPedestrianInput, map: &Map) -> DrawPedestrian {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
             // TODO this isn't quite right, but good enough for now

@@ -1,15 +1,15 @@
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::{RenderOptions, RenderOrder, Renderable};
-use crate::state::UIState;
+use crate::render::{new_draw_vehicle, DrawPedestrian, RenderOptions, Renderable};
+use crate::state::{ShowObjects, UIState};
 use ezgui::{
-    Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Text, TopMenu,
-    BOTTOM_LEFT, GUI,
+    Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
+    TopMenu, BOTTOM_LEFT, GUI,
 };
 use geom::{Bounds, Circle, Distance};
 use kml;
-use map_model::{BuildingID, LaneID};
+use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::GetDrawAgents;
 use std::collections::HashSet;
@@ -237,27 +237,38 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
 
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
+        let state = self.state.get_state();
+
         g.clear(
-            self.state
-                .get_state()
+            state
                 .cs
                 .get_def("map background", Color::rgb(242, 239, 233)),
         );
 
+        let (mut borrows, agents_on) =
+            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender());
+        let cache = state.primary.draw_map.agents.borrow();
+        for on in agents_on {
+            for obj in cache.get(on) {
+                borrows.push(obj);
+            }
+        }
+        // This is a stable sort.
+        borrows.sort_by_key(|r| r.get_zorder());
+
         let ctx = Ctx {
-            cs: &self.state.get_state().cs,
-            map: &self.state.get_state().primary.map,
-            draw_map: &self.state.get_state().primary.draw_map,
-            sim: &self.state.get_state().primary.sim,
+            cs: &state.cs,
+            map: &state.primary.map,
+            draw_map: &state.primary.draw_map,
+            sim: &state.primary.sim,
             hints: &hints,
         };
-
         let mut sample_intersection: Option<String> = None;
-        self.handle_objects(g.get_screen_bounds(), RenderOrder::BackToFront, |obj| {
+        for obj in borrows {
             let opts = RenderOptions {
-                color: self.state.get_state().color_obj(obj.get_id(), &ctx),
-                debug_mode: self.state.get_state().layers.debug_mode.is_enabled(),
-                is_selected: self.state.get_state().primary.current_selection == Some(obj.get_id()),
+                color: state.color_obj(obj.get_id(), &ctx),
+                debug_mode: state.layers.debug_mode.is_enabled(),
+                is_selected: state.primary.current_selection == Some(obj.get_id()),
                 // TODO If a ToggleableLayer is currently off, this won't affect it!
                 show_all_detail: screencap,
             };
@@ -268,9 +279,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     sample_intersection = Some(format!("_i{}", id.0));
                 }
             }
-
-            true
-        });
+        }
 
         if !screencap {
             self.state.draw(g, &ctx);
@@ -344,56 +353,34 @@ impl<S: UIState> UI<S> {
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-        let mut id: Option<ID> = None;
-
-        self.handle_objects(
+        let (mut borrows, agents_on) = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
-            RenderOrder::FrontToBack,
-            |obj| {
-                // Don't mouseover parcels.
-                // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
-                // in intersection editor mode, for example.
-                match obj.get_id() {
-                    ID::Parcel(_) => {}
-                    _ => {
-                        if obj.contains_pt(pt) {
-                            id = Some(obj.get_id());
-                            return false;
-                        }
-                    }
-                };
-                true
-            },
+            ctx.prerender,
         );
-
-        id
-    }
-
-    fn handle_objects<F: FnMut(Box<&Renderable>) -> bool>(
-        &self,
-        bounds: Bounds,
-        order: RenderOrder,
-        callback: F,
-    ) {
-        let state = self.state.get_state();
-
-        let draw_agent_source: &GetDrawAgents = {
-            let tt = &state.primary_plugins.time_travel;
-            if tt.is_active() {
-                tt
-            } else {
-                &state.primary.sim
+        let cache = self.state.get_state().primary.draw_map.agents.borrow();
+        for on in agents_on {
+            for obj in cache.get(on) {
+                borrows.push(obj);
             }
-        };
+        }
+        // This is a stable sort.
+        borrows.sort_by_key(|r| r.get_zorder());
+        borrows.reverse();
 
-        state.primary.draw_map.handle_objects(
-            bounds,
-            &state.primary.map,
-            draw_agent_source,
-            state,
-            order,
-            callback,
-        )
+        for obj in borrows {
+            // Don't mouseover parcels.
+            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
+            // in intersection editor mode, for example.
+            match obj.get_id() {
+                ID::Parcel(_) => {}
+                _ => {
+                    if obj.contains_pt(pt) {
+                        return Some(obj.get_id());
+                    }
+                }
+            };
+        }
+        None
     }
 
     fn save_editor_state(&self, canvas: &Canvas) {
@@ -406,6 +393,106 @@ impl<S: UIState> UI<S> {
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
         abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
         info!("Saved editor_state");
+    }
+
+    // TODO I guess this technically could go in DrawMap, but we have to pass lots of stuff again.
+    fn get_renderables_back_to_front(
+        &self,
+        bounds: Bounds,
+        prerender: &Prerender,
+    ) -> (Vec<Box<&Renderable>>, Vec<Traversable>) {
+        let state = self.state.get_state();
+        let map = &state.primary.map;
+        let draw_map = &state.primary.draw_map;
+
+        let mut areas: Vec<Box<&Renderable>> = Vec::new();
+        let mut parcels: Vec<Box<&Renderable>> = Vec::new();
+        let mut lanes: Vec<Box<&Renderable>> = Vec::new();
+        let mut intersections: Vec<Box<&Renderable>> = Vec::new();
+        let mut buildings: Vec<Box<&Renderable>> = Vec::new();
+        let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
+        let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
+        let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
+        let mut agents_on: Vec<Traversable> = Vec::new();
+
+        for id in draw_map.get_matching_objects(bounds) {
+            if !state.show(id) {
+                continue;
+            }
+            match id {
+                ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
+                ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
+                ID::Lane(id) => {
+                    lanes.push(Box::new(draw_map.get_l(id)));
+                    if !state.show_icons_for(map.get_l(id).dst_i) {
+                        agents_on.push(Traversable::Lane(id));
+                    }
+                }
+                ID::Intersection(id) => {
+                    intersections.push(Box::new(draw_map.get_i(id)));
+                    for t in &map.get_i(id).turns {
+                        if state.show_icons_for(id) {
+                            turn_icons.push(Box::new(draw_map.get_t(*t)));
+                        } else {
+                            agents_on.push(Traversable::Turn(*t));
+                        }
+                    }
+                }
+                // TODO front paths will get drawn over buildings, depending on quadtree order.
+                // probably just need to make them go around other buildings instead of having
+                // two passes through buildings.
+                ID::Building(id) => buildings.push(Box::new(draw_map.get_b(id))),
+                ID::ExtraShape(id) => extra_shapes.push(Box::new(draw_map.get_es(id))),
+                ID::BusStop(id) => bus_stops.push(Box::new(draw_map.get_bs(id))),
+
+                ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
+                    panic!("{:?} shouldn't be in the quadtree", id)
+                }
+            }
+        }
+
+        // From background to foreground Z-order
+        let mut borrows: Vec<Box<&Renderable>> = Vec::new();
+        borrows.extend(areas);
+        borrows.extend(parcels);
+        borrows.extend(lanes);
+        borrows.extend(intersections);
+        borrows.extend(buildings);
+        borrows.extend(extra_shapes);
+        borrows.extend(bus_stops);
+        borrows.extend(turn_icons);
+
+        // Make sure agents are cached, but we can't actually return the references to them here,
+        // since the RefCell borrow can't outlive this function.
+        {
+            let sim: &GetDrawAgents = {
+                let tt = &state.primary_plugins.time_travel;
+                if tt.is_active() {
+                    tt
+                } else {
+                    &state.primary.sim
+                }
+            };
+            let tick = sim.tick();
+            let mut agents = draw_map.agents.borrow_mut();
+
+            for on in &agents_on {
+                if !agents.has(tick, *on) {
+                    let mut list: Vec<Box<Renderable>> = Vec::new();
+                    for c in sim.get_draw_cars(*on, map).into_iter() {
+                        list.push(new_draw_vehicle(c, map, prerender, &state.cs));
+                    }
+                    for p in sim.get_draw_peds(*on, map).into_iter() {
+                        list.push(Box::new(DrawPedestrian::new_new(
+                            p, map, prerender, &state.cs,
+                        )));
+                    }
+                    agents.put(tick, *on, list);
+                }
+            }
+        }
+
+        (borrows, agents_on)
     }
 }
 

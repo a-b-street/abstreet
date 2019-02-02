@@ -2,9 +2,9 @@
 
 ## Performance
 
-- cache draw stuff
-	- use a Drawable in DrawPed/DrawCar/DrawBike.
-	- fix the process_objects callback nonsense
+- cache draw agents
+	- dont use traits for things... or move code back to DrawMap after all.
+	- actually use Drawables in the places
 
 ## Quick n easy
 

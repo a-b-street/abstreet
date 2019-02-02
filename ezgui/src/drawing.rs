@@ -56,6 +56,12 @@ impl<'a> GfxCtx<'a> {
         }
     }
 
+    pub fn prerender(&self) -> Prerender {
+        Prerender {
+            display: self.display,
+        }
+    }
+
     // Up to the caller to call unfork()!
     // TODO Canvas doesn't understand this change, so things like text drawing that use
     // map_to_screen will just be confusing.
@@ -120,19 +126,13 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let obj = Prerender {
-            display: self.display,
-        }
-        .upload_borrowed(vec![(color, poly)]);
+        let obj = self.prerender().upload_borrowed(vec![(color, poly)]);
         self.num_new_uploads += 1;
         self.redraw(&obj);
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
-        let obj = Prerender {
-            display: self.display,
-        }
-        .upload_borrowed(list);
+        let obj = self.prerender().upload_borrowed(list);
         self.num_new_uploads += 1;
         self.redraw(&obj);
     }

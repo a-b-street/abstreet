@@ -376,6 +376,7 @@ impl UIState for DefaultUIState {
     }
 }
 
+// TODO Doesn't need to be a trait anymore
 pub trait ShowObjects {
     fn show_icons_for(&self, id: IntersectionID) -> bool;
     fn show(&self, obj: ID) -> bool;

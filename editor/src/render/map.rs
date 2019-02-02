@@ -7,10 +7,9 @@ use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::parcel::DrawParcel;
-use crate::render::pedestrian::DrawPedestrian;
 use crate::render::turn::DrawTurn;
-use crate::render::{draw_vehicle, Renderable};
-use crate::state::{Flags, ShowObjects};
+use crate::render::Renderable;
+use crate::state::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::Prerender;
@@ -19,16 +18,10 @@ use map_model::{
     AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
-use sim::{GetDrawAgents, Tick};
+use sim::Tick;
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
-
-#[derive(PartialEq)]
-pub enum RenderOrder {
-    BackToFront,
-    FrontToBack,
-}
 
 pub struct DrawMap {
     pub lanes: Vec<DrawLane>,
@@ -40,7 +33,8 @@ pub struct DrawMap {
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
 
-    agents: RefCell<AgentCache>,
+    // TODO Move?
+    pub agents: RefCell<AgentCache>,
 
     quadtree: QuadTree<ID>,
 }
@@ -271,123 +265,23 @@ impl DrawMap {
         results
     }
 
-    // False from the callback means abort
-    pub fn handle_objects<T: ShowObjects, F: FnMut(Box<&Renderable>) -> bool>(
-        &self,
-        screen_bounds: Bounds,
-        map: &Map,
-        sim: &GetDrawAgents,
-        show_objs: &T,
-        order: RenderOrder,
-        mut callback: F,
-    ) {
-        // From background to foreground Z-order
-        let mut areas: Vec<Box<&Renderable>> = Vec::new();
-        let mut parcels: Vec<Box<&Renderable>> = Vec::new();
-        let mut lanes: Vec<Box<&Renderable>> = Vec::new();
-        let mut intersections: Vec<Box<&Renderable>> = Vec::new();
-        let mut buildings: Vec<Box<&Renderable>> = Vec::new();
-        let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
-        let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
-        let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
-        // We can't immediately grab the Renderables; we need to do it all at once at the end.
-        let mut agents_on: Vec<Traversable> = Vec::new();
-
-        for &(id, _, _) in &self.quadtree.query(screen_bounds.as_bbox()) {
-            if show_objs.show(*id) {
-                match id {
-                    ID::Area(id) => areas.push(Box::new(self.get_a(*id))),
-                    ID::Parcel(id) => parcels.push(Box::new(self.get_p(*id))),
-                    ID::Lane(id) => {
-                        lanes.push(Box::new(self.get_l(*id)));
-                        if !show_objs.show_icons_for(map.get_l(*id).dst_i) {
-                            let on = Traversable::Lane(*id);
-                            if !self.agents.borrow().has(sim.tick(), on) {
-                                let mut list: Vec<Box<Renderable>> = Vec::new();
-                                for c in sim.get_draw_cars(on, map).into_iter() {
-                                    list.push(draw_vehicle(c, map));
-                                }
-                                for p in sim.get_draw_peds(on, map).into_iter() {
-                                    list.push(Box::new(DrawPedestrian::new(p, map)));
-                                }
-                                self.agents.borrow_mut().put(sim.tick(), on, list);
-                            }
-                            agents_on.push(on);
-                        }
-                    }
-                    ID::Intersection(id) => {
-                        intersections.push(Box::new(self.get_i(*id)));
-                        for t in &map.get_i(*id).turns {
-                            if show_objs.show_icons_for(*id) {
-                                turn_icons.push(Box::new(self.get_t(*t)));
-                            } else {
-                                let on = Traversable::Turn(*t);
-                                if !self.agents.borrow().has(sim.tick(), on) {
-                                    let mut list: Vec<Box<Renderable>> = Vec::new();
-                                    for c in sim.get_draw_cars(on, map).into_iter() {
-                                        list.push(draw_vehicle(c, map));
-                                    }
-                                    for p in sim.get_draw_peds(on, map).into_iter() {
-                                        list.push(Box::new(DrawPedestrian::new(p, map)));
-                                    }
-                                    self.agents.borrow_mut().put(sim.tick(), on, list);
-                                }
-                                agents_on.push(on);
-                            }
-                        }
-                    }
-                    // TODO front paths will get drawn over buildings, depending on quadtree order.
-                    // probably just need to make them go around other buildings instead of having
-                    // two passes through buildings.
-                    ID::Building(id) => buildings.push(Box::new(self.get_b(*id))),
-                    ID::ExtraShape(id) => extra_shapes.push(Box::new(self.get_es(*id))),
-                    ID::BusStop(id) => bus_stops.push(Box::new(self.get_bs(*id))),
-
-                    ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
-                        panic!("{:?} shouldn't be in the quadtree", id)
-                    }
-                }
-            }
+    // Unsorted, unexpanded, raw result.
+    pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
+        let mut results: Vec<ID> = Vec::new();
+        for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
+            results.push(*id);
         }
-
-        let mut borrows: Vec<Box<&Renderable>> = Vec::new();
-        borrows.extend(areas);
-        borrows.extend(parcels);
-        borrows.extend(lanes);
-        borrows.extend(intersections);
-        borrows.extend(buildings);
-        borrows.extend(extra_shapes);
-        borrows.extend(bus_stops);
-        borrows.extend(turn_icons);
-        let cache = self.agents.borrow();
-        for on in agents_on {
-            for obj in cache.get(on) {
-                borrows.push(obj);
-            }
-        }
-
-        // This is a stable sort.
-        borrows.sort_by_key(|r| r.get_zorder());
-
-        if order == RenderOrder::FrontToBack {
-            borrows.reverse();
-        }
-
-        for r in borrows {
-            if !callback(r) {
-                break;
-            }
-        }
+        results
     }
 }
 
-struct AgentCache {
+pub struct AgentCache {
     tick: Option<Tick>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
 }
 
 impl AgentCache {
-    fn has(&self, tick: Tick, on: Traversable) -> bool {
+    pub fn has(&self, tick: Tick, on: Traversable) -> bool {
         if Some(tick) != self.tick {
             return false;
         }
@@ -395,14 +289,14 @@ impl AgentCache {
     }
 
     // Must call has() first.
-    fn get(&self, on: Traversable) -> Vec<Box<&Renderable>> {
+    pub fn get(&self, on: Traversable) -> Vec<Box<&Renderable>> {
         self.agents_per_on[&on]
             .iter()
             .map(|obj| Box::new(obj.borrow()))
             .collect()
     }
 
-    fn put(&mut self, tick: Tick, on: Traversable, agents: Vec<Box<Renderable>>) {
+    pub fn put(&mut self, tick: Tick, on: Traversable, agents: Vec<Box<Renderable>>) {
         if Some(tick) != self.tick {
             self.agents_per_on.clear();
             self.tick = Some(tick);
