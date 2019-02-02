@@ -1,7 +1,7 @@
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{Ctx, RenderingHints, ID};
-use crate::render::{new_draw_vehicle, DrawPedestrian, RenderOptions, Renderable};
+use crate::render::{new_draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
 use crate::state::{ShowObjects, UIState};
 use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
@@ -245,16 +245,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 .get_def("map background", Color::rgb(242, 239, 233)),
         );
 
-        let (mut borrows, agents_on) =
-            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender());
-        let cache = state.primary.draw_map.agents.borrow();
-        for on in agents_on {
-            for obj in cache.get(on) {
-                borrows.push(obj);
-            }
-        }
-        // This is a stable sort.
-        borrows.sort_by_key(|r| r.get_zorder());
+        let mut cache = state.primary.draw_map.agents.borrow_mut();
+        let objects =
+            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender(), &mut cache);
 
         let ctx = Ctx {
             cs: &state.cs,
@@ -264,7 +257,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             hints: &hints,
         };
         let mut sample_intersection: Option<String> = None;
-        for obj in borrows {
+        for obj in objects {
             let opts = RenderOptions {
                 color: state.color_obj(obj.get_id(), &ctx),
                 debug_mode: state.layers.debug_mode.is_enabled(),
@@ -353,21 +346,15 @@ impl<S: UIState> UI<S> {
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-        let (mut borrows, agents_on) = self.get_renderables_back_to_front(
+        let mut cache = self.state.get_state().primary.draw_map.agents.borrow_mut();
+        let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
+            &mut cache,
         );
-        let cache = self.state.get_state().primary.draw_map.agents.borrow();
-        for on in agents_on {
-            for obj in cache.get(on) {
-                borrows.push(obj);
-            }
-        }
-        // This is a stable sort.
-        borrows.sort_by_key(|r| r.get_zorder());
-        borrows.reverse();
+        objects.reverse();
 
-        for obj in borrows {
+        for obj in objects {
             // Don't mouseover parcels.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
             // in intersection editor mode, for example.
@@ -396,11 +383,12 @@ impl<S: UIState> UI<S> {
     }
 
     // TODO I guess this technically could go in DrawMap, but we have to pass lots of stuff again.
-    fn get_renderables_back_to_front(
-        &self,
+    fn get_renderables_back_to_front<'a>(
+        &'a self,
         bounds: Bounds,
         prerender: &Prerender,
-    ) -> (Vec<Box<&Renderable>>, Vec<Traversable>) {
+        agents: &'a mut AgentCache,
+    ) -> Vec<Box<&'a Renderable>> {
         let state = self.state.get_state();
         let map = &state.primary.map;
         let draw_map = &state.primary.draw_map;
@@ -462,8 +450,7 @@ impl<S: UIState> UI<S> {
         borrows.extend(bus_stops);
         borrows.extend(turn_icons);
 
-        // Make sure agents are cached, but we can't actually return the references to them here,
-        // since the RefCell borrow can't outlive this function.
+        // Expand all of the Traversables into agents, populating the cache if needed.
         {
             let sim: &GetDrawAgents = {
                 let tt = &state.primary_plugins.time_travel;
@@ -474,7 +461,6 @@ impl<S: UIState> UI<S> {
                 }
             };
             let tick = sim.tick();
-            let mut agents = draw_map.agents.borrow_mut();
 
             for on in &agents_on {
                 if !agents.has(tick, *on) {
@@ -492,7 +478,16 @@ impl<S: UIState> UI<S> {
             }
         }
 
-        (borrows, agents_on)
+        for on in agents_on {
+            for obj in agents.get(on) {
+                borrows.push(obj);
+            }
+        }
+
+        // This is a stable sort.
+        borrows.sort_by_key(|r| r.get_zorder());
+
+        borrows
     }
 }
 
