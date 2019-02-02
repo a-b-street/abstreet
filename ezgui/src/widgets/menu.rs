@@ -234,11 +234,11 @@ impl<T: Clone> Menu<T> {
     }
 
     // If there's no matching choice, be silent. The two callers don't care.
-    pub fn mark_active(&mut self, action_key: Key) {
-        for (key, _, ref mut active, _) in self.choices.iter_mut() {
-            if Some(action_key) == *key {
+    pub fn mark_active(&mut self, choice: &str) {
+        for (_, action, ref mut active, _) in self.choices.iter_mut() {
+            if choice == action {
                 if *active {
-                    panic!("Menu choice with key {:?} was already active", action_key);
+                    panic!("Menu choice for {} was already active", choice);
                 }
                 *active = true;
                 return;

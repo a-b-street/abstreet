@@ -25,26 +25,27 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         folders.push(Folder::new(
             "File",
             vec![
-                (Key::Comma, "show log console"),
-                (Key::L, "show legend"),
-                (Key::Escape, "quit"),
+                (Some(Key::Comma), "show log console"),
+                (Some(Key::L), "show legend"),
+                (Some(Key::Escape), "quit"),
             ],
         ));
         if self.state.get_state().enable_debug_controls {
             folders.push(Folder::new(
                 "Debug",
                 vec![
-                    (Key::C, "find chokepoints"),
-                    (Key::I, "validate map geometry"),
-                    (Key::Num1, "show/hide buildings"),
-                    (Key::Num2, "show/hide intersections"),
-                    (Key::Num3, "show/hide lanes"),
-                    (Key::Num4, "show/hide parcels"),
-                    (Key::Num5, "show/hide areas"),
-                    (Key::Num6, "show OSM colors"),
-                    (Key::Num7, "show/hide extra shapes"),
-                    (Key::Num9, "show/hide all turn icons"),
-                    (Key::G, "show/hide geometry debug mode"),
+                    (None, "screenshot everything"),
+                    (None, "find chokepoints"),
+                    (None, "validate map geometry"),
+                    (Some(Key::Num1), "show/hide buildings"),
+                    (Some(Key::Num2), "show/hide intersections"),
+                    (Some(Key::Num3), "show/hide lanes"),
+                    (Some(Key::Num4), "show/hide parcels"),
+                    (Some(Key::Num5), "show/hide areas"),
+                    (Some(Key::Num6), "show OSM colors"),
+                    (Some(Key::Num7), "show/hide extra shapes"),
+                    (Some(Key::Num9), "show/hide all turn icons"),
+                    (None, "show/hide geometry debug mode"),
                 ],
             ));
         }
@@ -52,38 +53,38 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             Folder::new(
                 "Edit",
                 vec![
-                    (Key::B, "manage A/B tests"),
-                    (Key::Num8, "configure colors"),
-                    (Key::N, "manage neighborhoods"),
-                    (Key::Q, "manage map edits"),
-                    (Key::E, "edit roads"),
-                    (Key::W, "manage scenarios"),
+                    (Some(Key::B), "manage A/B tests"),
+                    (None, "configure colors"),
+                    (Some(Key::N), "manage neighborhoods"),
+                    (Some(Key::Q), "manage map edits"),
+                    (Some(Key::E), "edit roads"),
+                    (Some(Key::W), "manage scenarios"),
                 ],
             ),
             Folder::new(
                 "Simulation",
                 vec![
-                    (Key::LeftBracket, "slow down sim"),
-                    (Key::RightBracket, "speed up sim"),
-                    (Key::O, "save sim state"),
-                    (Key::Y, "load previous sim state"),
-                    (Key::U, "load next sim state"),
-                    (Key::Space, "run/pause sim"),
-                    (Key::M, "run one step of sim"),
-                    (Key::Dot, "show/hide sim info sidepanel"),
-                    (Key::T, "start time traveling"),
-                    (Key::D, "diff all A/B trips"),
-                    (Key::S, "seed the sim with agents"),
-                    (Key::LeftAlt, "swap the primary/secondary sim"),
+                    (Some(Key::LeftBracket), "slow down sim"),
+                    (Some(Key::RightBracket), "speed up sim"),
+                    (Some(Key::O), "save sim state"),
+                    (Some(Key::Y), "load previous sim state"),
+                    (Some(Key::U), "load next sim state"),
+                    (Some(Key::Space), "run/pause sim"),
+                    (Some(Key::M), "run one step of sim"),
+                    (Some(Key::Dot), "show/hide sim info sidepanel"),
+                    (Some(Key::T), "start time traveling"),
+                    (Some(Key::D), "diff all A/B trips"),
+                    (Some(Key::S), "seed the sim with agents"),
+                    (Some(Key::LeftAlt), "swap the primary/secondary sim"),
                 ],
             ),
             Folder::new(
                 "View",
                 vec![
-                    (Key::Z, "show neighborhood summaries"),
-                    (Key::Slash, "search for something"),
-                    (Key::A, "show lanes with active traffic"),
-                    (Key::J, "warp to an object"),
+                    (Some(Key::Z), "show neighborhood summaries"),
+                    (Some(Key::Slash), "search for something"),
+                    (Some(Key::A), "show lanes with active traffic"),
+                    (Some(Key::J), "warp to an object"),
                 ],
             ),
         ]);
@@ -218,10 +219,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ctx.input.populate_osd(&mut hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::F1, "take screenshot")
-        {
+        if ctx.input.action_chosen("screenshot everything") {
             let bounds = self.state.get_state().primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {

@@ -215,9 +215,13 @@ impl UserInput {
         }
 
         if let Some(ref mut menu) = self.top_menu {
-            if let Some(key) = menu.actions.get(action).cloned() {
-                menu.valid_actions.insert(key);
-                self.unimportant_key_pressed(key, action)
+            if let Some(maybe_key) = menu.actions.get(action).cloned() {
+                menu.valid_actions.insert(action.to_string());
+                if let Some(key) = maybe_key {
+                    self.unimportant_key_pressed(key, action)
+                } else {
+                    false
+                }
             } else {
                 panic!(
                     "action_chosen(\"{}\") doesn't match actions in the TopMenu!",
@@ -291,11 +295,11 @@ impl UserInput {
             // is semantically correct (think about holding down the key for deleting the current
             // cycle), but causes annoying flickering.
 
-            if let Some(key) = self.modal_state.modes[mode].get_key(action) {
+            if self.modal_state.modes[mode].get_key(action).is_some() {
                 self.modal_state
                     .mut_active_mode(mode)
                     .unwrap()
-                    .mark_active(key);
+                    .mark_active(action);
                 // Don't check for the keypress here; Menu's event() will have already processed it
                 // and set chosen_action.
                 false

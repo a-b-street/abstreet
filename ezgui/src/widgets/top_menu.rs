@@ -9,29 +9,31 @@ const HORIZONTAL_PADDING_BETWEEN_ITEMS: f64 = 50.0;
 
 pub struct TopMenu {
     folders: Vec<Folder>,
-    pub(crate) actions: HashMap<String, Key>,
+    pub(crate) actions: HashMap<String, Option<Key>>,
 
     highlighted: Option<usize>,
-    submenu: Option<(usize, Menu<Key>)>,
+    submenu: Option<(usize, Menu<()>)>,
     // Reset every round
-    pub(crate) valid_actions: HashSet<Key>,
+    pub(crate) valid_actions: HashSet<String>,
 }
 
 impl TopMenu {
     pub fn new(mut folders: Vec<Folder>, canvas: &Canvas) -> TopMenu {
         let mut keys: HashSet<Key> = HashSet::new();
-        let mut actions: HashMap<String, Key> = HashMap::new();
+        let mut actions: HashMap<String, Option<Key>> = HashMap::new();
         for f in &folders {
-            for (key, action) in &f.actions {
-                if keys.contains(key) {
-                    panic!("TopMenu uses {:?} twice", key);
+            for (maybe_key, action) in &f.actions {
+                if let Some(key) = maybe_key {
+                    if keys.contains(key) {
+                        panic!("TopMenu uses {:?} twice", key);
+                    }
+                    keys.insert(*key);
                 }
-                keys.insert(*key);
 
                 if actions.contains_key(action) {
                     panic!("TopMenu assigns \"{:?}\" twice", action);
                 }
-                actions.insert(action.to_string(), *key);
+                actions.insert(action.to_string(), *maybe_key);
             }
         }
 
@@ -59,7 +61,7 @@ impl TopMenu {
 
     // Canceled means the top menu isn't blocking input, still active means it is, and done means
     // something was clicked!
-    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> InputResult<Key> {
+    pub fn event(&mut self, input: &mut UserInput, canvas: &Canvas) -> InputResult<()> {
         if let Some(cursor) = input.get_moved_mouse() {
             // TODO Could quickly filter out by checking y
             self.highlighted = self
@@ -81,7 +83,7 @@ impl TopMenu {
                     None,
                     f.actions
                         .iter()
-                        .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                        .map(|(maybe_key, action)| (*maybe_key, action.to_string(), ()))
                         .collect(),
                     false,
                     Position::TopLeftAt(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
@@ -90,8 +92,8 @@ impl TopMenu {
                 menu.mark_all_inactive();
                 // valid_actions can't change once this submenu is created, so determine what
                 // actions are valid right now.
-                for key in &self.valid_actions {
-                    menu.mark_active(*key);
+                for action in &self.valid_actions {
+                    menu.mark_active(action);
                 }
                 self.submenu = Some((idx, menu));
                 return InputResult::StillActive;
@@ -106,10 +108,10 @@ impl TopMenu {
                         self.submenu = None;
                         self.highlighted = None;
                     }
-                    InputResult::Done(action, key) => {
+                    InputResult::Done(action, _) => {
                         self.submenu = None;
                         self.highlighted = None;
-                        return InputResult::Done(action, key);
+                        return InputResult::Done(action, ());
                     }
                 };
             }
@@ -156,13 +158,13 @@ impl TopMenu {
 
 pub struct Folder {
     name: String,
-    actions: Vec<(Key, String)>,
+    actions: Vec<(Option<Key>, String)>,
 
     rectangle: ScreenRectangle,
 }
 
 impl Folder {
-    pub fn new(name: &str, actions: Vec<(Key, &str)>) -> Folder {
+    pub fn new(name: &str, actions: Vec<(Option<Key>, &str)>) -> Folder {
         Folder {
             name: name.to_string(),
             actions: actions

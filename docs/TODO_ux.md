@@ -25,7 +25,6 @@
 
 ## General ezgui stuff
 
-- trigger screencap from a top menu debug thing WITHOUT a hotkey.
 - optionally limit canvas scrolling/zooming to some map bounds
 - T top menu doesnt know when we have a more urgent input thing going!
 - cant use G for geom debug mode and contextual polygon debug
