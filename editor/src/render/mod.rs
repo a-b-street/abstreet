@@ -71,6 +71,6 @@ pub fn draw_vehicle(
     if input.vehicle_type == VehicleType::Bike {
         Box::new(DrawBike::new(input, prerender, cs))
     } else {
-        Box::new(DrawCar::new(input, map))
+        Box::new(DrawCar::new(input, map, prerender, cs))
     }
 }

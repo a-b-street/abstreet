@@ -1,10 +1,5 @@
 # TODO - GUI and UX
 
-## Performance
-
-- cache draw agents
-	- actually use Drawables in the places
-
 ## Quick n easy
 
 - try showing traffic signals by little boxes at the end of lanes
@@ -71,8 +66,6 @@
 
 - speed
 	- show FPS or some kind of measure of lag
-	- drawing cars is expensive
-		- at least cache them until tick changes
 	- sleep better in the event loop
 		- first make UserInput borrow state and not need to consume
 	- optimize zoomed-out experience... one polygon per road
@@ -95,3 +88,8 @@
 	- experiment with batching and not passing colors
 	- specialized shaders for common shapes like circles?
 	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
+
+## Performance
+
+- crosswalks still not batched
+- it's a pity we have to redo DrawCar work for all those parked cars every tick

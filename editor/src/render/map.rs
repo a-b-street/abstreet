@@ -275,6 +275,7 @@ impl DrawMap {
     }
 }
 
+// TODO Invalidate when we interactively spawn stuff elsewhere?
 pub struct AgentCache {
     tick: Option<Tick>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,

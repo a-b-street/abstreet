@@ -1,6 +1,7 @@
+use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarState, DrawCarInput};
@@ -19,12 +20,13 @@ pub struct DrawCar {
     right_blinker_on: bool,
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
-    state: CarState,
     zorder: isize,
+
+    draw_default: Drawable,
 }
 
 impl DrawCar {
-    pub fn new(input: DrawCarInput, map: &Map) -> DrawCar {
+    pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
         let (left_blinker_on, right_blinker_on) = if let Some(t) = input.waiting_for_turn {
             match map.get_t(t).turn_type {
                 TurnType::Left => (true, false),
@@ -73,9 +75,32 @@ impl DrawCar {
             )
         };
 
+        let body_polygon = input.body.make_polygons(CAR_WIDTH);
+
+        let draw_default = prerender.upload_borrowed(vec![
+            (
+                // TODO if it's a bus, color it differently -- but how? :\
+                match input.state {
+                    CarState::Debug => cs
+                        .get_def("debug car", Color::BLUE.alpha(0.8))
+                        .shift(input.id.0),
+                    CarState::Moving => cs.get_def("moving car", Color::CYAN).shift(input.id.0),
+                    CarState::Stuck => cs
+                        .get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0))
+                        .shift(input.id.0),
+                    CarState::Parked => cs
+                        .get_def("parked car", Color::rgb(180, 233, 76))
+                        .shift(input.id.0),
+                },
+                &body_polygon,
+            ),
+            (cs.get_def("car window", Color::BLACK), &front_window),
+            (cs.get("car window"), &back_window),
+        ]);
+
         DrawCar {
             id: input.id,
-            body_polygon: input.body.make_polygons(CAR_WIDTH),
+            body_polygon,
             window_polygons: vec![front_window, back_window],
             left_blinkers: Some((
                 Circle::new(
@@ -112,8 +137,8 @@ impl DrawCar {
             left_blinker_on,
             right_blinker_on,
             stopping_buffer,
-            state: input.state,
             zorder: input.on.get_zorder(map),
+            draw_default,
         }
     }
 }
@@ -124,30 +149,14 @@ impl Renderable for DrawCar {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            // TODO if it's a bus, color it differently -- but how? :\
-            match self.state {
-                CarState::Debug => ctx
-                    .cs
-                    .get_def("debug car", Color::BLUE.alpha(0.8))
-                    .shift(self.id.0),
-                CarState::Moving => ctx.cs.get_def("moving car", Color::CYAN).shift(self.id.0),
-                CarState::Stuck => ctx
-                    .cs
-                    .get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0))
-                    .shift(self.id.0),
-                CarState::Parked => ctx
-                    .cs
-                    .get_def("parked car", Color::rgb(180, 233, 76))
-                    .shift(self.id.0),
-            }
-        });
-        {
+        if let Some(color) = opts.color {
             let mut draw = vec![(color, &self.body_polygon)];
             for p in &self.window_polygons {
-                draw.push((ctx.cs.get_def("car window", Color::BLACK), p));
+                draw.push((ctx.cs.get("car window"), p));
             }
             g.draw_polygon_batch(draw);
+        } else {
+            g.redraw(&self.draw_default);
         }
 
         let blinker_on = ctx.cs.get_def("blinker on", Color::RED);
