@@ -5,8 +5,6 @@ use crate::{
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::{uniform, Surface};
 
-const TRIANGLES_PER_CIRCLE: usize = 60;
-
 type Uniforms<'a> = glium::uniforms::UniformsStorage<
     'a,
     [f32; 2],
@@ -107,11 +105,11 @@ impl<'a> GfxCtx<'a> {
             (color, &line.make_polygons(thickness)),
             (
                 color,
-                &Circle::new(line.pt1(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
+                &Circle::new(line.pt1(), thickness / 2.0).to_polygon(),
             ),
             (
                 color,
-                &Circle::new(line.pt2(), thickness / 2.0).to_polygon(TRIANGLES_PER_CIRCLE),
+                &Circle::new(line.pt2(), thickness / 2.0).to_polygon(),
             ),
         ]);
     }
@@ -122,7 +120,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
-        self.draw_polygon(color, &circle.to_polygon(TRIANGLES_PER_CIRCLE));
+        self.draw_polygon(color, &circle.to_polygon());
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {

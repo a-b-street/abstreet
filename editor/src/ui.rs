@@ -470,9 +470,7 @@ impl<S: UIState> UI<S> {
                         list.push(new_draw_vehicle(c, map, prerender, &state.cs));
                     }
                     for p in sim.get_draw_peds(*on, map).into_iter() {
-                        list.push(Box::new(DrawPedestrian::new_new(
-                            p, map, prerender, &state.cs,
-                        )));
+                        list.push(Box::new(DrawPedestrian::new(p, map, prerender, &state.cs)));
                     }
                     agents.put(tick, *on, list);
                 }

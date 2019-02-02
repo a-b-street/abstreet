@@ -2,6 +2,8 @@ use crate::{Angle, Bounds, Distance, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
+const TRIANGLES_PER_CIRCLE: usize = 60;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Circle {
     pub center: Pt2D,
@@ -28,17 +30,17 @@ impl Circle {
         }
     }
 
-    pub fn to_polygon(&self, num_triangles: usize) -> Polygon {
+    pub fn to_polygon(&self) -> Polygon {
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
-        for i in 0..num_triangles {
+        for i in 0..TRIANGLES_PER_CIRCLE {
             pts.push(self.center.project_away(
                 self.radius,
-                Angle::new_degs((i as f64) / (num_triangles as f64) * 360.0),
+                Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
             ));
             indices.push(0);
             indices.push(i + 1);
-            if i != num_triangles - 1 {
+            if i != TRIANGLES_PER_CIRCLE - 1 {
                 indices.push(i + 2);
             } else {
                 indices.push(1);

@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{Ctx, ID};
 use crate::render::{RenderOptions, Renderable};
-use ezgui::{Color, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Line, Pt2D};
 use map_model::Map;
 use sim::{DrawPedestrianInput, PedestrianID};
@@ -12,21 +12,18 @@ pub struct DrawPedestrian {
     pub id: PedestrianID,
     circle: Circle,
     turn_arrow: Option<Line>,
-    preparing_bike: bool,
     zorder: isize,
+
+    draw_default: Drawable,
 }
 
 impl DrawPedestrian {
-    pub fn new_new(
+    pub fn new(
         input: DrawPedestrianInput,
         map: &Map,
-        _prerender: &Prerender,
-        _cs: &ColorScheme,
+        prerender: &Prerender,
+        cs: &ColorScheme,
     ) -> DrawPedestrian {
-        DrawPedestrian::new(input, map)
-    }
-
-    pub fn new(input: DrawPedestrianInput, map: &Map) -> DrawPedestrian {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
             // TODO this isn't quite right, but good enough for now
             let angle = map.get_t(t).angle();
@@ -36,12 +33,25 @@ impl DrawPedestrian {
             None
         };
 
+        let circle = Circle::new(input.pos, RADIUS);
+
+        let draw_default = prerender.upload(vec![(
+            if input.preparing_bike {
+                cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                    .shift(input.id.0)
+            } else {
+                cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
+                    .shift(input.id.0)
+            },
+            circle.to_polygon(),
+        )]);
+
         DrawPedestrian {
             id: input.id,
-            circle: Circle::new(input.pos, RADIUS),
+            circle,
             turn_arrow,
-            preparing_bike: input.preparing_bike,
             zorder: input.on.get_zorder(map),
+            draw_default,
         }
     }
 }
@@ -52,18 +62,11 @@ impl Renderable for DrawPedestrian {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
-        let color = opts.color.unwrap_or_else(|| {
-            if self.preparing_bike {
-                ctx.cs
-                    .get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-                    .shift(self.id.0)
-            } else {
-                ctx.cs
-                    .get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-                    .shift(self.id.0)
-            }
-        });
-        g.draw_circle(color, &self.circle);
+        if let Some(color) = opts.color {
+            g.draw_circle(color, &self.circle);
+        } else {
+            g.redraw(&self.draw_default);
+        }
 
         // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
