@@ -81,3 +81,12 @@ all the previous states with the exact times.
 		- dont remember what this was
 - at signals, cars doing the same turn wont start it until the last car finishes it
 		- dont remember what this was
+
+## Notes from research
+
+- section 5.1 of Advanced tutorial on microscopic discrete-event traffic simulation refers to some DES systems
+	- Florian, Mahut, and Tremblay 2008
+	- Sumaryo, Halim, and Ramli 2013
+	- Salimifard and Ansari 2013
+	- Burghout, Koutsopoulos, and Andreasson 2006
+	- Thulasidasan, Kasiviswanathan, Eidenbenz, Galli, Mniszewski, and Romero 2009

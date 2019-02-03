@@ -69,7 +69,7 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID
         (r.src_i, r.dst_i)
     };
     // Show what we're about to delete
-    map.save(delete_i);
+    map.save(Some(delete_i));
     map.roads.remove(&merge_road);
     map.intersections.remove(&delete_i);
     map.intersections
@@ -136,12 +136,12 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID
         }
     }
     // Show the reset road geometry
-    map.save(keep_i);
+    map.save(None);
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads);
     // Show the final results of fixing this area
-    map.save(keep_i);
+    map.save(None);
 
     keep_i
 }

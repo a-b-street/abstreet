@@ -38,12 +38,14 @@ impl GUI<Text> for UI {
             if ctx.input.key_pressed(Key::Comma, "load previous map") {
                 self.world = load_initial_map(&prev, ctx.canvas, ctx.prerender);
                 self.selected = None;
+                self.filename = prev;
             }
         }
         if let Some(next) = find_next_file(&self.filename) {
             if ctx.input.key_pressed(Key::Dot, "load next map") {
                 self.world = load_initial_map(&next, ctx.canvas, ctx.prerender);
                 self.selected = None;
+                self.filename = next;
             }
         }
 
@@ -137,7 +139,9 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
         );
     }
 
-    canvas.center_on_map_pt(w.get_center(ID::Intersection(data.last_merged)));
+    if let Some(id) = data.focus_on {
+        canvas.center_on_map_pt(w.get_center(ID::Intersection(id)));
+    }
 
     w
 }

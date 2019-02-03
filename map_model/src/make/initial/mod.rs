@@ -16,7 +16,7 @@ pub struct InitialMap {
 
     pub name: String,
     pub bounds: Bounds,
-    pub last_merged: StableIntersectionID,
+    pub focus_on: Option<StableIntersectionID>,
     versions_saved: usize,
 }
 
@@ -53,7 +53,7 @@ impl InitialMap {
             intersections: BTreeMap::new(),
             name,
             bounds: bounds.clone(),
-            last_merged: StableIntersectionID(0),
+            focus_on: None,
             versions_saved: 0,
         };
 
@@ -132,12 +132,12 @@ impl InitialMap {
         m
     }
 
-    pub fn save(&mut self, last_merged: StableIntersectionID) {
+    pub fn save(&mut self, focus_on: Option<StableIntersectionID>) {
         if false {
             return;
         }
         let path = format!("../initial_maps/{:03}", self.versions_saved);
-        self.last_merged = last_merged;
+        self.focus_on = focus_on;
         self.versions_saved += 1;
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);
