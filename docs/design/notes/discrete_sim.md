@@ -82,5 +82,18 @@ all the previous states with the exact times.
 - at signals, cars doing the same turn wont start it until the last car finishes it
 		- dont remember what this was
 
+## New thoughts on this
 
-- picture each lane as the end of the slow queue and the end of the moving queue. spillback can happen. forget individual agents, just intervals containing cars that expand/contract.
+- picture each lane as the end of the slow queue and the end of the moving
+  queue. spillback can happen. forget individual agents, just intervals
+containing cars that expand/contract.
+
+- dont need to calculate time to change speeds for arbitrary things. just time
+  to go from 0->speed, speed->0. not anything else. in stop-and-start mode, do
+something else -- the bound is on the intersection, not on the car to
+accel/deaccel.
+
+- when we apply the accel, check the intent -- if we overshoot, detect it
+  early, maybe force slight correction. meaure how much correction we need.
+	- interesting... the most constraining intent flips between FollowCar and StopAt.
+	- the car winds up at the right dist, but with tiny speed! just pretend they managed zero?

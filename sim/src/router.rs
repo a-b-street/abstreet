@@ -1,4 +1,4 @@
-use crate::driving::Action;
+use crate::driving::{Action, Intent};
 use crate::kinematics;
 use crate::kinematics::Vehicle;
 use crate::parking::ParkingSimState;
@@ -114,7 +114,11 @@ impl Router {
                     self.path = p;
                 }
                 if should_idle {
-                    return Some(Action::Continue(Acceleration::ZERO, Vec::new()));
+                    return Some(Action::Continue(
+                        Intent::WaitAtBusStop,
+                        Acceleration::ZERO,
+                        Vec::new(),
+                    ));
                 }
             }
             // Don't stop at the border node; plow through
@@ -127,7 +131,7 @@ impl Router {
     pub fn stop_early_at_dist(
         &self,
         // TODO urgh, we cant reuse AgentView here, because lookahead doesn't advance the view :(
-        on: Traversable,
+        on: LaneID,
         dist_along: Distance,
         vehicle: &Vehicle,
         map: &Map,
@@ -137,24 +141,21 @@ impl Router {
         if self.path.is_last_step() {
             match self.goal {
                 Goal::ParkNearBuilding(_) => {
-                    if let Some((_, needed_driving_pos)) = find_parking_spot(
-                        Position::new(on.as_lane(), dist_along),
-                        vehicle,
-                        map,
-                        parking_sim,
-                    ) {
+                    if let Some((_, needed_driving_pos)) =
+                        find_parking_spot(Position::new(on, dist_along), vehicle, map, parking_sim)
+                    {
                         return Some(needed_driving_pos.dist_along());
                     } else {
                         // If lookahead runs out of path, then just stop at the end of that lane,
                         // and then reroute when react_before_lookahead is called later.
-                        return Some(on.length(map));
+                        return Some(map.get_l(on).length());
                     }
                 }
                 Goal::BikeThenStop(dist) => {
                     return Some(dist);
                 }
                 Goal::FollowBusRoute => {
-                    return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on.as_lane()));
+                    return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on));
                 }
                 // The car shouldn't stop early!
                 Goal::EndAtBorder => {}

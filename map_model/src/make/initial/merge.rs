@@ -23,7 +23,7 @@ pub fn short_roads(map: &mut InitialMap) {
         merge(map, StableRoadID(22));
     }
 
-    if true {
+    if false {
         let mut look_at: HashSet<StableIntersectionID> = HashSet::new();
         let orig_count = map.roads.len();
 

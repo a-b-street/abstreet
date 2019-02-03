@@ -49,17 +49,33 @@ struct Car {
 
     parking: Option<ParkingState>,
 
+    // Currently just for debugging.
+    intent: Option<Intent>,
+
     // For rendering purposes. TODO Maybe need to remember more than one step back.
     last_step: Option<Traversable>,
 
     debug: bool,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum Intent {
+    // No constraint really matched, so basically in free-flow.
+    ObeySpeedLimit(Speed),
+    // Somebody's in front of us close enough to care
+    FollowCar(CarID),
+    // Usually the end of a lane to wait for an intersection, but sometimes early for a parking
+    // spot.
+    StopAt(LaneID, Distance),
+    // Kind of niche, but should be stopped and should remain stopped.
+    WaitAtBusStop,
+}
+
 pub enum Action {
     StartParking(ParkingSpot),
     WorkOnParking,
     StartParkingBike,
-    Continue(Acceleration, Vec<Request>),
+    Continue(Intent, Acceleration, Vec<Request>),
     TmpVanish,
 }
 
@@ -109,8 +125,7 @@ impl Car {
         // TODO could wrap this state up
         let mut dist_to_lookahead = vehicle.max_lookahead_dist(self.speed, orig_speed_limit)?
             + Vehicle::worst_case_following_dist();
-        // TODO when we add stuff here, optionally log stuff?
-        let mut constraints: Vec<Acceleration> = Vec::new();
+        let mut constraints: Vec<(Acceleration, Intent)> = Vec::new();
         let mut requests: Vec<Request> = Vec::new();
         let mut current_on = self.on;
         let mut current_dist_along = self.dist_along;
@@ -136,7 +151,7 @@ impl Car {
                 let current_speed_limit = vehicle.clamp_speed(current_on.speed_limit(map));
                 let accel =
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
-                constraints.push(accel);
+                constraints.push((accel, Intent::ObeySpeedLimit(current_speed_limit)));
                 if self.debug {
                     debug!(
                         "  {} needs {} to match speed limit of {}",
@@ -173,7 +188,7 @@ impl Car {
                         );
                     }
 
-                    constraints.push(accel);
+                    constraints.push((accel, Intent::FollowCar(other.id.as_car())));
                 } else if self.debug {
                     debug!("  {} is {} behind {}'s back. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_others_back, other.id, dist_scanned_ahead, dist_to_lookahead, kinematics::FOLLOWING_DISTANCE, total_scanning_dist);
                 }
@@ -181,19 +196,20 @@ impl Car {
 
             // Stop for something?
             if current_on.maybe_lane().is_some() {
+                let current_lane = current_on.as_lane();
                 let maybe_stop_early = current_router.stop_early_at_dist(
-                    current_on,
+                    current_lane,
                     current_dist_along,
                     vehicle,
                     map,
                     parking_sim,
                     transit_sim,
                 );
-                let dist_to_maybe_stop_at =
-                    maybe_stop_early.unwrap_or_else(|| current_on.length(map));
-                let dist_from_stop = dist_to_maybe_stop_at - current_dist_along;
+                let dist_to_stop_at =
+                    maybe_stop_early.unwrap_or_else(|| map.get_l(current_lane).length());
+                let dist_from_stop = dist_to_stop_at - current_dist_along;
                 if dist_from_stop < Distance::ZERO {
-                    return Err(Error::new(format!("Router for {} looking ahead to {:?} said to stop at {:?}, but lookahead already at {}", self.id, current_on, maybe_stop_early, current_dist_along)));
+                    return Err(Error::new(format!("Router for {} looking ahead to {} said to stop at {:?}, but lookahead already at {}", self.id, current_lane, maybe_stop_early, current_dist_along)));
                 }
 
                 // If our lookahead doesn't even hit the intersection / early stopping point, then
@@ -229,7 +245,7 @@ impl Car {
                                 dist_scanned_ahead + dist_from_stop
                             );
                         }
-                        constraints.push(accel);
+                        constraints.push((accel, Intent::StopAt(current_lane, dist_to_stop_at)));
                         // No use in further lookahead.
                         break;
                     }
@@ -248,7 +264,8 @@ impl Car {
         }
 
         // Clamp based on what we can actually do
-        let safe_accel = vehicle.clamp_accel(constraints.into_iter().min().unwrap());
+        let (desired_accel, intent) = constraints.into_iter().min_by_key(|(a, _)| *a).unwrap();
+        let safe_accel = vehicle.clamp_accel(desired_accel);
         if self.debug {
             let describe_accel = if safe_accel == vehicle.max_accel {
                 format!("max_accel ({})", safe_accel)
@@ -263,12 +280,12 @@ impl Car {
                 format!("{}", self.speed)
             };
             debug!(
-                "  ... At {}, {} chose {}, with current speed {}",
-                time, self.id, describe_accel, describe_speed
+                "  ... At {}, {} chose {}, with current speed {}, to achieve {:?}",
+                time, self.id, describe_accel, describe_speed, intent
             );
         }
 
-        Ok(Action::Continue(safe_accel, requests))
+        Ok(Action::Continue(intent, safe_accel, requests))
     }
 
     // If true, vanish at the border
@@ -276,13 +293,16 @@ impl Car {
         &mut self,
         events: &mut Vec<Event>,
         router: &mut Router,
+        intent: Intent,
         accel: Acceleration,
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<bool, Error> {
-        let (dist, new_speed) = kinematics::results_of_accel_for_one_tick(self.speed, accel);
-        self.dist_along += dist;
+        let (dist_traveled, new_speed) =
+            kinematics::results_of_accel_for_one_tick(self.speed, accel);
+        self.dist_along += dist_traveled;
         self.speed = new_speed;
+        self.intent = Some(intent);
 
         loop {
             let current_speed_limit = self.vehicle.clamp_speed(self.on.speed_limit(map));
@@ -350,6 +370,22 @@ impl Car {
                 self.on,
             ));
         }
+
+        match self.intent {
+            Some(Intent::StopAt(lane, dist)) => {
+                if self.on == Traversable::Lane(lane) {
+                    if self.dist_along > dist {
+                        panic!("{} overshot! Wanted to stop at {} along {}, but at {}. Speed is {}. This last step, they chose {}, with their max being {}, and consequently traveled {}", self.id, dist, lane, self.dist_along, self.speed, accel, self.vehicle.max_deaccel, dist_traveled);
+                    }
+                    if self.dist_along == dist && self.speed > Speed::ZERO {
+                        // TODO Don't panic, because some other car did this with no consequence...
+                        error!("{} stopped right where they want to, but with a final speed of {}. This last step, they chose {}, with their max being {}", self.id, self.speed, accel, self.vehicle.max_deaccel);
+                    }
+                }
+            }
+            _ => {}
+        }
+
         Ok(false)
     }
 }
@@ -523,6 +559,7 @@ impl DrivingSimState {
                     "On {:?}, speed {:?}, dist along {:?}",
                     c.on, c.speed, c.dist_along
                 ),
+                format!("Current intent: {:?}", c.intent),
                 self.routers[&id].tooltip_line(),
             ])
         } else {
@@ -615,15 +652,15 @@ impl DrivingSimState {
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
-        for (id, act) in &requested_moves {
-            *current_agent = Some(AgentID::Car(*id));
-            match *act {
-                Action::StartParking(ref spot) => {
+        for (id, act) in requested_moves {
+            *current_agent = Some(AgentID::Car(id));
+            match act {
+                Action::StartParking(spot) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     c.parking = Some(ParkingState {
                         is_parking: true,
                         started_at: time,
-                        tuple: ParkedCar::new(*id, *spot, c.vehicle.clone(), c.owner),
+                        tuple: ParkedCar::new(id, spot, c.vehicle.clone(), c.owner),
                     });
                 }
                 Action::WorkOnParking => {
@@ -641,29 +678,30 @@ impl DrivingSimState {
                 }
                 Action::StartParkingBike => {
                     let c = &self.cars[&id];
-                    done_biking.push((*id, Position::new(c.on.as_lane(), c.dist_along)));
+                    done_biking.push((id, Position::new(c.on.as_lane(), c.dist_along)));
                     self.cars.remove(&id);
                     self.routers.remove(&id);
                 }
-                Action::Continue(accel, ref requests) => {
+                Action::Continue(intent, accel, requests) => {
                     let c = self.cars.get_mut(&id).unwrap();
                     if c.step_continue(
                         events,
                         self.routers.get_mut(&id).unwrap(),
+                        intent,
                         accel,
                         map,
                         intersections,
                     )? {
                         self.cars.remove(&id);
                         self.routers.remove(&id);
-                        vanished_at_border.push(*id);
+                        vanished_at_border.push(id);
                     } else {
                         // TODO maybe just return TurnID
                         for req in requests {
                             // Note this is idempotent and does NOT grant the request.
                             // TODO should we check that the car is currently the lead vehicle?
                             // intersection is assuming that! or relax that assumption.
-                            intersections.submit_request(req.clone());
+                            intersections.submit_request(req);
                         }
                     }
                 }
@@ -777,6 +815,7 @@ impl DrivingSimState {
                     })
                 }),
                 last_step: None,
+                intent: None,
             },
         );
         self.routers.insert(params.car, params.router);
