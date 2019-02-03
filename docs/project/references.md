@@ -82,3 +82,16 @@ http://gamma.cs.unc.edu/RoadNetwork
 ### CityBound
 
 https://github.com/aeickhoff/descartes
+
+### Discrete Event Simulation papers
+
+- section 5.1 of Advanced tutorial on microscopic discrete-event traffic simulation refers to some DES systems
+	- Florian, Mahut, and Tremblay 2008
+	- Sumaryo, Halim, and Ramli 2013
+	- Salimifard and Ansari 2013
+	- Burghout, Koutsopoulos, and Andreasson 2006
+	- Thulasidasan, Kasiviswanathan, Eidenbenz, Galli, Mniszewski, and Romero 2009
+
+- A Dynamic Traffic Assignment Model for Highly Congested Urban Networks
+	- section 2.2 models lanes as a moving and queueing part, references other possibly useful papers
+	- dont worry about multiple lanes for the moving part, just the turn queues at the end

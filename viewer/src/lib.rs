@@ -1,7 +1,7 @@
 use aabb_quadtree::QuadTree;
 use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -29,10 +29,12 @@ impl<ID: ObjectID> World<ID> {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, hide: &HashSet<ID>) {
         let mut objects: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
-            objects.push(*id);
+            if !hide.contains(id) {
+                objects.push(*id);
+            }
         }
         objects.sort_by_key(|id| id.zorder());
 
@@ -47,7 +49,7 @@ impl<ID: ObjectID> World<ID> {
         g.draw_mouse_tooltip(obj.info.clone());
     }
 
-    pub fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+    pub fn mouseover_something(&self, ctx: &EventCtx, hide: &HashSet<ID>) -> Option<ID> {
         let cursor = ctx.canvas.get_cursor_in_map_space()?;
 
         let mut objects: Vec<ID> = Vec::new();
@@ -56,7 +58,9 @@ impl<ID: ObjectID> World<ID> {
                 .get_bounds()
                 .as_bbox(),
         ) {
-            objects.push(*id);
+            if !hide.contains(id) {
+                objects.push(*id);
+            }
         }
         objects.sort_by_key(|id| id.zorder());
         objects.reverse();

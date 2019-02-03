@@ -8,6 +8,10 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
+	- bad polygons
+		- ../initial_maps/024, o101. sorting final endpoints by angle to center isn't foolproof.
+		- adjacent roads based on angle isnt foolproof either. o177
+
 	- VERY overeager... ate half of the map
 	- deal with loop roads
 

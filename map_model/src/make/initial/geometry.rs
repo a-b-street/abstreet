@@ -168,13 +168,10 @@ fn generalized_trim_back(
         let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
         // Hmm, seems to be safe to always take the second half here, but not earlier in general.
-        if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
+        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
             endpoints.push(hit);
         }
-        if let Some((hit, _)) = back_pl
-            .second_half()
-            .intersection(&adj_back_pl.second_half())
-        {
+        if let Some((hit, _)) = back_pl.intersection(adj_back_pl) {
             endpoints.push(hit);
         }
     }

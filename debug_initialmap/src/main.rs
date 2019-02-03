@@ -3,13 +3,16 @@ use ezgui::{Canvas, Color, EventCtx, EventLoopMode, GfxCtx, Key, Prerender, Text
 use geom::{Distance, Polygon};
 use map_model::raw_data;
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
+use std::collections::HashSet;
 use std::{env, process};
 use viewer::World;
 
 struct UI {
     world: World<ID>,
     filename: String,
+    // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
+    hide: HashSet<ID>,
 }
 
 impl UI {
@@ -18,16 +21,24 @@ impl UI {
             world,
             filename: filename.to_string(),
             selected: None,
+            hide: HashSet::new(),
         }
+    }
+
+    fn load_different(&mut self, filename: String, ctx: &mut EventCtx) {
+        self.world = load_initial_map(&filename, ctx.canvas, ctx.prerender);
+        self.selected = None;
+        self.filename = filename;
+        self.hide.clear();
     }
 }
 
 impl GUI<Text> for UI {
-    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, Text) {
+    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, Text) {
         ctx.canvas.handle_event(ctx.input);
 
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.selected = self.world.mouseover_something(&ctx);
+            self.selected = self.world.mouseover_something(&ctx, &self.hide);
         }
 
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
@@ -36,16 +47,24 @@ impl GUI<Text> for UI {
 
         if let Some(prev) = find_prev_file(&self.filename) {
             if ctx.input.key_pressed(Key::Comma, "load previous map") {
-                self.world = load_initial_map(&prev, ctx.canvas, ctx.prerender);
-                self.selected = None;
-                self.filename = prev;
+                self.load_different(prev, &mut ctx);
             }
         }
         if let Some(next) = find_next_file(&self.filename) {
             if ctx.input.key_pressed(Key::Dot, "load next map") {
-                self.world = load_initial_map(&next, ctx.canvas, ctx.prerender);
+                self.load_different(next, &mut ctx);
+            }
+        }
+
+        if let Some(id) = self.selected {
+            if ctx.input.key_pressed(Key::H, "hide this") {
+                self.hide.insert(id);
                 self.selected = None;
-                self.filename = next;
+            }
+        }
+        if !self.hide.is_empty() {
+            if ctx.input.key_pressed(Key::K, "unhide everything") {
+                self.hide.clear();
             }
         }
 
@@ -57,7 +76,7 @@ impl GUI<Text> for UI {
     fn draw(&self, g: &mut GfxCtx, osd: &Text) {
         g.clear(Color::WHITE);
 
-        self.world.draw(g);
+        self.world.draw(g, &self.hide);
 
         if let Some(id) = self.selected {
             self.world.draw_selected(g, id);
