@@ -1,5 +1,5 @@
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
-use geom::{Distance, PolyLine, Pt2D, EPSILON_DIST};
+use geom::{Distance, PolyLine, Pt2D};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
@@ -188,6 +188,8 @@ impl Path {
                 if dist < d {
                     dist_remaining = Some(dist);
                 }
+            } else {
+                dist_remaining = Some(dist);
             }
         }
 
@@ -227,6 +229,8 @@ impl Path {
                     if end_dist < d {
                         dist_remaining = Some(end_dist);
                     }
+                } else {
+                    dist_remaining = Some(end_dist);
                 }
             }
 
@@ -236,24 +240,17 @@ impl Path {
                 PathStep::ContraflowLane(l) => map.get_l(l).lane_center_pts.reversed().length(),
                 _ => Distance::ZERO,
             };
-            let use_this_step = if let Some(d) = dist_remaining {
-                d - start_dist_this_step > EPSILON_DIST
-            } else {
-                true
-            };
-            if use_this_step {
-                if let Some((new_pts, dist)) =
-                    self.steps[i].slice(map, start_dist_this_step, dist_remaining)
-                {
-                    if pts_so_far.is_some() {
-                        let pts = pts_so_far.unwrap().extend(&new_pts);
-                        pts_so_far = Some(pts);
-                    } else {
-                        pts_so_far = Some(new_pts);
-                    }
-                    if dist_remaining.is_some() {
-                        dist_remaining = Some(dist);
-                    }
+            if let Some((new_pts, dist)) =
+                self.steps[i].slice(map, start_dist_this_step, dist_remaining)
+            {
+                if pts_so_far.is_some() {
+                    let pts = pts_so_far.unwrap().extend(&new_pts);
+                    pts_so_far = Some(pts);
+                } else {
+                    pts_so_far = Some(new_pts);
+                }
+                if dist_remaining.is_some() {
+                    dist_remaining = Some(dist);
                 }
             }
         }
