@@ -1,5 +1,5 @@
 use crate::runner::TestRunner;
-use geom::{Distance, Speed, EPSILON_DIST};
+use geom::{Acceleration, Distance, Speed, EPSILON_DIST};
 use sim::kinematics::{results_of_accel_for_one_tick, Vehicle};
 use sim::{Tick, TIMESTEP};
 
@@ -58,6 +58,13 @@ pub fn run(t: &mut TestRunner) {
             Tick::parse("01:02:03.5"),
             Some(Tick::testonly_from_raw(35 + 1200 + 36000))
         );
+    });
+
+    t.run_fast("min_accel_doesnt_round_to_zero", |_| {
+        // Copied from kinematics.rs, for bikes.
+        let min_accel = Acceleration::meters_per_second_squared(1.1);
+        let speed = min_accel * TIMESTEP;
+        assert!(!speed.is_zero(TIMESTEP));
     });
 }
 

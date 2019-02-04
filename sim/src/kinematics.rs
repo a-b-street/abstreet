@@ -78,7 +78,9 @@ impl Vehicle {
             vehicle_type: VehicleType::Bike,
             debug: false,
             // http://eprints.uwe.ac.uk/20767/ says mean 0.231
-            max_accel: Acceleration::meters_per_second_squared(rng.gen_range(0.2, 0.3)),
+            // TODO But it's too slow, bikes can't accelerate past a non-zeroish speed in 0.1s.
+            // Workaround properly... perhaps with a continuous time approach.
+            max_accel: Acceleration::meters_per_second_squared(rng.gen_range(1.1, 1.3)),
             // Much easier deaccel. Partly to avoid accel_to_stop_in_dist bugs with bikes running
             // stop signs.
             max_deaccel: Acceleration::meters_per_second_squared(rng.gen_range(-1.3, -1.2)),
