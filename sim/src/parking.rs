@@ -114,14 +114,14 @@ impl ParkingSimState {
         self.cars.get(&id)
     }
 
-    pub fn get_first_free_spot(&self, parking_pos: Position) -> Option<ParkingSpot> {
+    pub fn get_first_free_spot(
+        &self,
+        parking_pos: Position,
+        vehicle: &Vehicle,
+    ) -> Option<ParkingSpot> {
         let l = &self.lanes[parking_pos.lane().0];
-        // Just require the car to currently be behind the end of the spot length, so we don't have
-        // to worry about where in the spot they need to line up.
         let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
-            x.is_none()
-                && l.spots[idx].dist_along + map_model::PARKING_SPOT_LENGTH
-                    >= parking_pos.dist_along()
+            x.is_none() && parking_pos.dist_along() <= l.spots[idx].dist_along_for_car(vehicle)
         })?;
         Some(ParkingSpot::new(parking_pos.lane(), idx))
     }
@@ -234,7 +234,7 @@ impl ParkingLane {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 struct ParkingSpotGeometry {
-    // These 3 are of the front of the parking spot
+    // These 3 are of the front of the parking spot (farthest along)
     dist_along: Distance,
     pos: Pt2D,
     angle: Angle,

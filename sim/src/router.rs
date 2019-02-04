@@ -241,7 +241,8 @@ fn find_parking_spot(
     let parking_lane = map
         .find_closest_lane(driving_pos.lane(), vec![LaneType::Parking])
         .ok()?;
-    let spot = parking_sim.get_first_free_spot(driving_pos.equiv_pos(parking_lane, map))?;
+    let spot =
+        parking_sim.get_first_free_spot(driving_pos.equiv_pos(parking_lane, map), vehicle)?;
     Some((
         spot,
         parking_sim.spot_to_driving_pos(spot, vehicle, driving_pos.lane(), map),
