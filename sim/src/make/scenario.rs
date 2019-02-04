@@ -2,7 +2,7 @@ use crate::driving::DrivingGoal;
 use crate::walking::SidewalkSpot;
 use crate::{CarID, Sim, Tick};
 use abstutil;
-use abstutil::WeightedUsizeChoice;
+use abstutil::{Timer, WeightedUsizeChoice};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, Neighborhood, Pathfinder, RoadID};
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -65,7 +65,7 @@ impl Scenario {
 
     // TODO may need to fork the RNG a bit more
     pub fn instantiate(&self, sim: &mut Sim, map: &Map) {
-        info!("Instantiating {}", self.scenario_name);
+        let mut timer = Timer::new(&format!("Instantiating {}", self.scenario_name));
         assert!(sim.time == Tick::zero());
 
         let gps_bounds = map.get_gps_bounds();
@@ -108,7 +108,9 @@ impl Scenario {
                 panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
             }
 
+            timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
+                timer.next();
                 let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                 // Note that it's fine for agents to start/end at the same building. Later we might
                 // want a better assignment of people per household, or workers per office building.
@@ -192,7 +194,9 @@ impl Scenario {
             }
         }
 
+        timer.start_iter("BorderSpawnOverTime", self.border_spawn_over_time.len());
         for s in &self.border_spawn_over_time {
+            timer.next();
             if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
                 for _ in 0..s.num_peds {
                     let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
@@ -291,6 +295,8 @@ impl Scenario {
                 warn!("Can't start bike at border for {}", s.start_from_border);
             }
         }
+
+        timer.done();
     }
 
     pub fn save(&self) {

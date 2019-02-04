@@ -1,6 +1,6 @@
 use crate::Position;
 use abstutil;
-use geom::{Line, PolyLine, Pt2D};
+use geom::{Line, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -36,6 +36,5 @@ pub struct Building {
 impl Building {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
-        println!("{}", PolyLine::new(self.points.clone()));
     }
 }

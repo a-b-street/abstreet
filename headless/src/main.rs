@@ -32,7 +32,7 @@ fn main() {
     );
     timer.done();
 
-    if load.contains("data/raw_maps/") {
+    if load.contains("data/raw_maps/") || load.contains("data/maps/") {
         sim.small_spawn(&map);
     }
 

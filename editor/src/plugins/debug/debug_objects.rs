@@ -114,6 +114,10 @@ fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &Ctx) -> Text {
                 "Building #{:?} (from OSM way {})",
                 id, b.osm_way_id
             ));
+            txt.add_line(format!(
+                "Dist along sidewalk: {}",
+                b.front_path.sidewalk.dist_along()
+            ));
             styled_kv(&mut txt, &b.osm_tags);
         }
         ID::Car(id) => {
