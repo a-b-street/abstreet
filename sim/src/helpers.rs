@@ -6,7 +6,8 @@ use crate::{
 };
 use abstutil::WeightedUsizeChoice;
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, LaneType, Map, RoadID,
+    BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position,
+    RoadID,
 };
 use std::collections::{BTreeSet, VecDeque};
 use std::panic;
@@ -247,14 +248,14 @@ impl Sim {
 
     pub fn seed_trip_with_car_appearing_to_bldg(
         &mut self,
-        from_lane: LaneID,
+        from: Position,
         to_bldg: BuildingID,
         map: &Map,
     ) -> CarID {
         self.spawner.start_trip_with_car_appearing(
             self.time.next(),
             map,
-            from_lane,
+            from,
             DrivingGoal::ParkNear(to_bldg),
             &mut self.trips_state,
             &mut self.rng,
@@ -263,14 +264,14 @@ impl Sim {
 
     pub fn seed_trip_with_car_appearing_to_border(
         &mut self,
-        from_lane: LaneID,
+        from: Position,
         to: IntersectionID,
         map: &Map,
     ) -> CarID {
         self.spawner.start_trip_with_car_appearing(
             self.time.next(),
             map,
-            from_lane,
+            from,
             DrivingGoal::Border(
                 to,
                 map.get_i(to).get_incoming_lanes(map, LaneType::Driving)[0],

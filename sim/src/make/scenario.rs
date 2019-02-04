@@ -3,7 +3,10 @@ use crate::walking::SidewalkSpot;
 use crate::{CarID, Sim, Tick};
 use abstutil;
 use abstutil::{Timer, WeightedUsizeChoice};
-use map_model::{BuildingID, IntersectionID, LaneType, Map, Neighborhood, Pathfinder, RoadID};
+use geom::Distance;
+use map_model::{
+    BuildingID, IntersectionID, LaneType, Map, Neighborhood, Pathfinder, Position, RoadID,
+};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
@@ -255,7 +258,7 @@ impl Scenario {
                             spawn_time,
                             map,
                             // TODO could pretty easily pick any lane here
-                            starting_driving_lanes[0],
+                            Position::new(starting_driving_lanes[0], Distance::ZERO),
                             goal,
                             &mut sim.trips_state,
                             &mut sim.rng,

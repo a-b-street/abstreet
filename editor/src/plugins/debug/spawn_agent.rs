@@ -3,14 +3,14 @@ use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneID, LaneType, PathRequest, Pathfinder,
-    Position, Trace, LANE_THICKNESS,
+    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Pathfinder, Position,
+    Trace, LANE_THICKNESS,
 };
 
 #[derive(Clone)]
 enum Source {
     Walking(BuildingID),
-    Driving(LaneID),
+    Driving(Position),
 }
 
 #[derive(PartialEq)]
@@ -26,26 +26,44 @@ pub struct SpawnAgent {
 
 impl SpawnAgent {
     pub fn new(ctx: &mut PluginCtx) -> Option<SpawnAgent> {
+        let map = &ctx.primary.map;
+
         match ctx.primary.current_selection {
             Some(ID::Building(id)) => {
                 if ctx
                     .input
-                    .contextual_action(Key::F3, "spawn an agent starting here")
+                    .contextual_action(Key::F3, "spawn a pedestrian starting here")
                 {
                     return Some(SpawnAgent {
                         from: Source::Walking(id),
                         maybe_goal: None,
                     });
                 }
+                let b = map.get_b(id);
+                if let Ok(driving_lane) =
+                    map.find_closest_lane(b.front_path.sidewalk.lane(), vec![LaneType::Driving])
+                {
+                    if ctx
+                        .input
+                        .contextual_action(Key::F4, "spawn a car starting here")
+                    {
+                        return Some(SpawnAgent {
+                            from: Source::Driving(
+                                b.front_path.sidewalk.equiv_pos(driving_lane, map),
+                            ),
+                            maybe_goal: None,
+                        });
+                    }
+                }
             }
             Some(ID::Lane(id)) => {
-                if ctx.primary.map.get_l(id).is_driving()
+                if map.get_l(id).is_driving()
                     && ctx
                         .input
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
                     return Some(SpawnAgent {
-                        from: Source::Driving(id),
+                        from: Source::Driving(Position::new(id, Distance::ZERO)),
                         maybe_goal: None,
                     });
                 }
@@ -85,7 +103,7 @@ impl Plugin for SpawnAgent {
         if recalculate {
             let start = match self.from {
                 Source::Walking(from) => map.get_b(from).front_path.sidewalk,
-                Source::Driving(from) => Position::new(from, Distance::ZERO),
+                Source::Driving(from) => from,
             };
             let end = match new_goal {
                 Goal::Building(to) => match self.from {
@@ -178,7 +196,9 @@ impl Plugin for SpawnAgent {
             (Source::Walking(ref b1), ID::Building(b2)) if *b1 == b2 => {
                 Some(ctx.cs.get("selected"))
             }
-            (Source::Driving(ref l1), ID::Lane(l2)) if *l1 == l2 => Some(ctx.cs.get("selected")),
+            (Source::Driving(ref pos1), ID::Lane(l2)) if pos1.lane() == l2 => {
+                Some(ctx.cs.get("selected"))
+            }
             _ => None,
         }
     }

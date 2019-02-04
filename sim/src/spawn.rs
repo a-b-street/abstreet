@@ -10,6 +10,7 @@ use crate::{
     AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType,
 };
 use abstutil::{fork_rng, WeightedUsizeChoice};
+use geom::Distance;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
     Pathfinder, Position, RoadID,
@@ -23,12 +24,13 @@ use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
-    DriveFromBorder {
+    // As in, a car appears suddenly
+    DriveSpontanouesly {
         at: Tick,
         trip: TripID,
         car: CarID,
         vehicle: Vehicle,
-        start: LaneID,
+        start: Position,
         goal: DrivingGoal,
     },
     Bike {
@@ -45,7 +47,7 @@ impl Command {
         match self {
             Command::Walk(at, _, _, _, _) => *at,
             Command::Drive(at, _, _, _) => *at,
-            Command::DriveFromBorder { at, .. } => *at,
+            Command::DriveSpontanouesly { at, .. } => *at,
             Command::Bike { at, .. } => *at,
         }
     }
@@ -102,7 +104,7 @@ impl Command {
                     can_use_bike_lanes: true,
                 }
             }
-            Command::DriveFromBorder {
+            Command::DriveSpontanouesly {
                 start,
                 goal,
                 vehicle,
@@ -113,7 +115,7 @@ impl Command {
                     DrivingGoal::Border(_, l) => *l,
                 };
                 PathRequest {
-                    start: Position::new(*start, vehicle.length),
+                    start: *start,
                     end: Position::new(goal_lane, map.get_l(goal_lane).length()),
                     can_use_bus_lanes: vehicle.vehicle_type == VehicleType::Bus,
                     can_use_bike_lanes: vehicle.vehicle_type == VehicleType::Bike,
@@ -204,7 +206,7 @@ impl Spawner {
                             },
                         ));
                     }
-                    Command::DriveFromBorder {
+                    Command::DriveSpontanouesly {
                         trip,
                         car,
                         ref vehicle,
@@ -221,7 +223,7 @@ impl Spawner {
                                 owner: None,
                                 maybe_parked_car: None,
                                 vehicle: vehicle.clone(),
-                                start: Position::new(start, vehicle.length),
+                                start,
                                 router: match goal {
                                     DrivingGoal::ParkNear(b) => {
                                         if vehicle.vehicle_type == VehicleType::Bike {
@@ -444,7 +446,7 @@ impl Spawner {
         &mut self,
         at: Tick,
         map: &Map,
-        first_lane: LaneID,
+        mut from: Position,
         goal: DrivingGoal,
         trips: &mut TripManager,
         base_rng: &mut XorShiftRng,
@@ -461,13 +463,17 @@ impl Spawner {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
         let vehicle = Vehicle::generate_car(car_id, base_rng);
-        assert!(map.get_l(first_lane).length() > vehicle.length);
-        self.enqueue_command(Command::DriveFromBorder {
+        assert!(map.get_l(from.lane()).length() > vehicle.length);
+        // Fix up the position if the start was requested.
+        if from.dist_along() == Distance::ZERO {
+            from = Position::new(from.lane(), vehicle.length);
+        }
+        self.enqueue_command(Command::DriveSpontanouesly {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
             car: car_id,
             vehicle,
-            start: first_lane,
+            start: from,
             goal,
         });
         car_id
@@ -601,12 +607,12 @@ impl Spawner {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
         assert!(map.get_l(first_lane).length() > vehicle.length);
-        self.enqueue_command(Command::DriveFromBorder {
+        self.enqueue_command(Command::DriveSpontanouesly {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
             car: bike_id,
+            start: Position::new(first_lane, vehicle.length),
             vehicle,
-            start: first_lane,
             goal,
         });
     }
