@@ -144,6 +144,8 @@ struct Pedestrian {
     dist_along: Distance,
     // A weird proxy for speed.
     moving: bool,
+    // An unfortunate extra bit of state needed when we use the WaitFor state.
+    already_exited_turn: Option<TurnID>,
 
     // Head is the current step.
     path: Path,
@@ -172,13 +174,7 @@ impl Pedestrian {
             let goal_dist = self.goal.sidewalk_pos.dist_along();
             // Since the walking model doesn't really have granular speed, just see if we're
             // reasonably close to the path.
-            // Later distance will be non-negative, so don't attempt abs() or anything
-            let dist_away = if self.dist_along > goal_dist {
-                self.dist_along - goal_dist
-            } else {
-                goal_dist - self.dist_along
-            };
-            if dist_away <= SPEED * TIMESTEP * 2.0 {
+            if (self.dist_along - goal_dist).abs() <= SPEED * TIMESTEP * 2.0 {
                 return match self.goal.connection {
                     SidewalkPOI::ParkingSpot(spot) => Action::StartParkedCar(spot),
                     SidewalkPOI::Building(id) => Action::StartCrossingPath(id),
@@ -263,8 +259,13 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
     ) -> Result<(), Error> {
-        if let Traversable::Turn(t) = self.on {
-            intersections.on_exit(Request::for_ped(self.id, t));
+        if let Some(t) = self.already_exited_turn {
+            assert_eq!(self.on, Traversable::Turn(t));
+            self.already_exited_turn = None;
+        } else {
+            if let Traversable::Turn(t) = self.on {
+                intersections.on_exit(Request::for_ped(self.id, t));
+            }
         }
         events.push(Event::AgentLeavesTraversable(
             AgentID::Pedestrian(self.id),
@@ -487,6 +488,18 @@ impl WalkingSimState {
                     p.moving = false;
                     // Note this is idempotent and does NOT grant the request.
                     intersections.submit_request(Request::for_ped(*id, turn));
+
+                    match (p.on, p.already_exited_turn) {
+                        (Traversable::Turn(t), None) => {
+                            assert!(t != turn);
+                            intersections.on_exit(Request::for_ped(*id, t));
+                            // TODO Publish the AgentLeavesTraversable event now?
+                            // TODO Could physically change their on to the beginning/end of the
+                            // lane -- that seems less hacky -- but it's confusing.
+                            p.already_exited_turn = Some(t);
+                        }
+                        _ => {}
+                    }
                 }
                 Action::VanishAtBorder => {
                     events.push(Event::AgentLeavesTraversable(
@@ -603,6 +616,7 @@ impl WalkingSimState {
                 goal: params.goal,
                 moving: true,
                 active: true,
+                already_exited_turn: None,
             },
         );
         self.peds_per_traversable
