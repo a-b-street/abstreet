@@ -411,7 +411,7 @@ impl SimQueue {
         id: Traversable,
         map: &Map,
         ids: Vec<CarID>,
-        cars: &mut BTreeMap<CarID, Car>,
+        cars: &BTreeMap<CarID, Car>,
     ) -> Result<SimQueue, Error> {
         let mut cars_queue: Vec<(Distance, CarID)> =
             ids.iter().map(|id| (cars[id].dist_along, *id)).collect();
@@ -428,16 +428,10 @@ impl SimQueue {
         }
 
         // Make sure we're not squished together too much.
-        let mut adjusted_cars = 0;
         for second_idx in 1..cars_queue.len() {
             let ((dist1, c1), (dist2, c2)) = (cars_queue[second_idx - 1], cars_queue[second_idx]);
             let dist_apart = dist1 - dist2 - cars[&c1].vehicle.length;
-            if dist_apart >= kinematics::FOLLOWING_DISTANCE {
-                continue;
-            }
-
-            // For now, hack around this problem by patching it up here.
-            if adjusted_cars == 0 {
+            if dist_apart < kinematics::FOLLOWING_DISTANCE {
                 let mut err = format!(
                     "On {:?} at {}, {} and {} are {} apart -- that's {} too close\n",
                     id,
@@ -452,24 +446,8 @@ impl SimQueue {
                 for (dist, id) in &cars_queue {
                     err.push_str(&format!("- {} at {}\n", id, dist));
                 }
-                error!("HACKING AROUND BUG: {}", err);
+                return Err(Error::new(err));
             }
-            adjusted_cars += 1;
-
-            let fixed_dist = dist2 - (kinematics::FOLLOWING_DISTANCE - dist_apart);
-            if fixed_dist < Distance::ZERO {
-                return Err(Error::new(format!("can't hack around bug where cars are too close on {:?}, because last car doesn't have room to be shifted back", id)));
-            }
-            cars.get_mut(&c2).unwrap().dist_along = fixed_dist;
-            cars_queue[second_idx] = (fixed_dist, c2);
-        }
-        if adjusted_cars > 1 {
-            error!(
-                "HACKING AROUND BUG: also had to correct {} more cars here",
-                adjusted_cars - 1
-            );
-            // Retry from scratch, just to be sure the fix worked.
-            return SimQueue::new(time, id, map, ids, cars);
         }
         Ok(SimQueue { cars_queue })
     }
@@ -737,7 +715,7 @@ impl DrivingSimState {
         // Reset all queues -- only store ones with some agents present.
         for (on, cars) in cars_per_traversable.into_iter() {
             self.queues
-                .insert(on, SimQueue::new(time, on, map, cars, &mut self.cars)?);
+                .insert(on, SimQueue::new(time, on, map, cars, &self.cars)?);
         }
 
         Ok((finished_parking, vanished_at_border, done_biking))
