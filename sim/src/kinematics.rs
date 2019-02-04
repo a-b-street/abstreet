@@ -308,7 +308,7 @@ pub fn results_of_accel_for_one_tick(
     assert_ge!(dist, Distance::ZERO);
     let new_speed = initial_speed + (accel * actual_time);
     // Deal with floating point imprecision.
-    if new_speed < Speed::ZERO && new_speed.is_zero(TIMESTEP) {
+    if new_speed.is_zero(TIMESTEP) {
         (dist, Speed::ZERO)
     } else {
         assert_ge!(new_speed, Speed::ZERO);

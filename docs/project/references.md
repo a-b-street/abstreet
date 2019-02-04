@@ -20,6 +20,7 @@
 - http://www.seattle.gov/seattle-pedestrian-advisory-board
 - Socrata
 - http://transportationcamp.org/
+- https://www.seattle.gov/transportation/projects-and-programs/programs/neighborhood-street-fund / https://www.seattle.gov/neighborhoods/programs-and-services/your-voice-your-choice
 
 ## Similar projects
 

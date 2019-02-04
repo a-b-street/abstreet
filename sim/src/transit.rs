@@ -4,7 +4,7 @@ use crate::spawn::Spawner;
 use crate::trips::TripManager;
 use crate::view::AgentView;
 use crate::walking::WalkingSimState;
-use crate::{CarID, PedestrianID, Tick};
+use crate::{CarID, PedestrianID, Tick, TIMESTEP};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration};
 use map_model::{BusRoute, BusRouteID, BusStop, LaneID, Map, Path, PathRequest, Pathfinder};
@@ -141,6 +141,12 @@ impl TransitSimState {
                 let stop = &route.stops[stop_idx];
                 assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
                 if stop.driving_pos.dist_along() == view.dist_along {
+                    if !view.speed.is_zero(TIMESTEP) {
+                        panic!(
+                            "{} arrived at stop {}, but speed is {}",
+                            car, stop.id, view.speed
+                        );
+                    }
                     // TODO constant for stop time
                     self.buses.get_mut(&car).unwrap().state =
                         BusState::AtStop(stop_idx, time + Duration::seconds(10.0));
@@ -157,6 +163,16 @@ impl TransitSimState {
             BusState::AtStop(stop_idx, wait_until) => {
                 let stop = &route.stops[stop_idx];
                 assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
+                if stop.driving_pos.dist_along() != view.dist_along {
+                    panic!(
+                        "{} stopped at {}, but dist_along is {}, not {}. Speed is {}",
+                        car,
+                        stop.id,
+                        view.dist_along,
+                        stop.driving_pos.dist_along(),
+                        view.speed
+                    );
+                }
                 assert_eq!(stop.driving_pos.dist_along(), view.dist_along);
 
                 if time == wait_until {
