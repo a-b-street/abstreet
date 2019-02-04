@@ -7,7 +7,7 @@ use crate::transit::TransitSimState;
 use crate::view::{AgentView, WorldView};
 use crate::{
     AgentID, CarID, CarState, DrawCarInput, Event, ParkedCar, ParkingSpot, Tick, TripID,
-    VehicleType,
+    VehicleType, TIMESTEP,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
@@ -97,7 +97,7 @@ impl Car {
     ) -> Result<Action, Error> {
         if self.parking.is_some() {
             // TODO right place for this check?
-            assert!(self.speed <= kinematics::EPSILON_SPEED);
+            assert!(self.speed.is_zero(TIMESTEP));
             return Ok(Action::WorkOnParking);
         }
 
@@ -377,9 +377,8 @@ impl Car {
                     if self.dist_along > dist {
                         panic!("{} overshot! Wanted to stop at {} along {}, but at {}. Speed is {}. This last step, they chose {}, with their max being {}, and consequently traveled {}", self.id, dist, lane, self.dist_along, self.speed, accel, self.vehicle.max_deaccel, dist_traveled);
                     }
-                    if self.dist_along == dist && self.speed > Speed::ZERO {
-                        // TODO Don't panic, because some other car did this with no consequence...
-                        error!("{} stopped right where they want to, but with a final speed of {}. This last step, they chose {}, with their max being {}", self.id, self.speed, accel, self.vehicle.max_deaccel);
+                    if self.dist_along == dist && !self.speed.is_zero(TIMESTEP) {
+                        panic!("{} stopped right where they want to, but with a final speed of {}. This last step, they chose {}, with their max being {}", self.id, self.speed, accel, self.vehicle.max_deaccel);
                     }
                 }
             }
@@ -538,7 +537,7 @@ impl DrivingSimState {
         let waiting = self
             .cars
             .values()
-            .filter(|c| c.speed <= kinematics::EPSILON_SPEED)
+            .filter(|c| c.speed.is_zero(TIMESTEP))
             .count();
         (waiting, self.cars.len())
     }
@@ -906,10 +905,10 @@ impl DrivingSimState {
             ),
             state: if c.debug {
                 CarState::Debug
-            } else if c.speed > kinematics::EPSILON_SPEED {
-                CarState::Moving
-            } else {
+            } else if c.speed.is_zero(TIMESTEP) {
                 CarState::Stuck
+            } else {
+                CarState::Moving
             },
             vehicle_type: c.vehicle.vehicle_type,
             on: c.on,
@@ -978,7 +977,7 @@ impl DrivingSimState {
             if let Some(queue) = self.queues.get(&Traversable::Lane(*l)) {
                 for (_, car) in &queue.cars_queue {
                     let c = &self.cars[car];
-                    if c.speed <= kinematics::EPSILON_SPEED {
+                    if c.speed.is_zero(TIMESTEP) {
                         stuck_cars += 1;
                     } else {
                         moving_cars += 1;

@@ -1,6 +1,5 @@
-use crate::kinematics;
 use crate::view::WorldView;
-use crate::{AgentID, CarID, Event, PedestrianID, Tick};
+use crate::{AgentID, CarID, Event, PedestrianID, Tick, TIMESTEP};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use geom::Duration;
@@ -257,7 +256,7 @@ impl StopSign {
             let should_promote = if ss.get_priority(req.turn) == TurnPriority::Stop {
                 // TODO and the agent is at the end? maybe easier than looking at their speed
                 // TODO with lane-changing, somebody could cut in front of them when they're stopped.
-                view.get_speed(req.agent) <= kinematics::EPSILON_SPEED
+                view.get_speed(req.agent).is_zero(TIMESTEP)
             } else {
                 true
             };

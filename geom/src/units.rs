@@ -1,4 +1,4 @@
-use crate::trim_f64;
+use crate::{trim_f64, EPSILON_DIST};
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, fmt, ops};
 
@@ -206,6 +206,12 @@ pub struct Speed(f64);
 
 impl Speed {
     pub const ZERO: Speed = Speed::const_meters_per_second(0.0);
+
+    // Is a speed effectively zero based on the timestep?
+    // TODO Probably better to tweak the rounding so that uselessly tiny speeds round to 0.
+    pub fn is_zero(self, timestep: Duration) -> bool {
+        self * timestep <= EPSILON_DIST
+    }
 
     pub fn meters_per_second(value: f64) -> Speed {
         if !value.is_finite() {

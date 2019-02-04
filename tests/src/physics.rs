@@ -1,7 +1,7 @@
 use crate::runner::TestRunner;
 use geom::{Distance, Speed, EPSILON_DIST};
-use sim::kinematics::{results_of_accel_for_one_tick, Vehicle, EPSILON_SPEED};
-use sim::Tick;
+use sim::kinematics::{results_of_accel_for_one_tick, Vehicle};
+use sim::{Tick, TIMESTEP};
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
@@ -86,7 +86,7 @@ fn test_accel_to_stop_in_dist(vehicle: Vehicle, orig_dist_left: Distance, orig_s
         }
         if dist_left <= EPSILON_DIST {
             println!("  Result: speed {}, dist_left {}", speed, dist_left);
-            if speed > EPSILON_SPEED {
+            if !speed.is_zero(TIMESTEP) {
                 panic!("Finished, but going too fast");
             }
             return;

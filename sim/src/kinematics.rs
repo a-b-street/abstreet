@@ -6,8 +6,6 @@ use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
 
-pub const EPSILON_SPEED: Speed = Speed::const_meters_per_second(0.000_1);
-
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
 const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
 const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
@@ -308,13 +306,14 @@ pub fn results_of_accel_for_one_tick(
                 * (actual_time.inner_seconds() * actual_time.inner_seconds()),
         );
     assert_ge!(dist, Distance::ZERO);
-    let mut new_speed = initial_speed + (accel * actual_time);
-    // Handle some floating point imprecision
-    if new_speed < Speed::ZERO && new_speed >= EPSILON_SPEED * -1.0 {
-        new_speed = Speed::ZERO;
+    let new_speed = initial_speed + (accel * actual_time);
+    // Deal with floating point imprecision.
+    if new_speed < Speed::ZERO && new_speed.is_zero(TIMESTEP) {
+        (dist, Speed::ZERO)
+    } else {
+        assert_ge!(new_speed, Speed::ZERO);
+        (dist, new_speed)
     }
-    assert_ge!(new_speed, Speed::ZERO);
-    (dist, new_speed)
 }
 
 fn accel_to_cover_dist_in_one_tick(dist: Distance, speed: Speed) -> Acceleration {
