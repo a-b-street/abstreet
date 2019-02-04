@@ -148,16 +148,24 @@ impl Scenario {
                         s.goal
                             .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
                     {
-                        sim.spawner.start_trip_using_bike(
-                            spawn_time,
-                            map,
-                            from_bldg,
-                            goal,
-                            &mut sim.trips_state,
-                            // TODO, like the biking goal could exist here or not based on border
-                            // map edits. so fork before this choice is made?
-                            &mut sim.rng,
-                        );
+                        let skip = if let DrivingGoal::ParkNear(to_bldg) = goal {
+                            map.get_b(to_bldg).sidewalk() == map.get_b(from_bldg).sidewalk()
+                        } else {
+                            false
+                        };
+
+                        if !skip {
+                            sim.spawner.start_trip_using_bike(
+                                spawn_time,
+                                map,
+                                from_bldg,
+                                goal,
+                                &mut sim.trips_state,
+                                // TODO, like the biking goal could exist here or not based on border
+                                // map edits. so fork before this choice is made?
+                                &mut sim.rng,
+                            );
+                        }
                     }
                 } else if let Some(goal) =
                     s.goal

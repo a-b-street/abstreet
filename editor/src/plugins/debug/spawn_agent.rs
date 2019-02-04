@@ -41,7 +41,7 @@ impl SpawnAgent {
                 }
                 let b = map.get_b(id);
                 if let Ok(driving_lane) =
-                    map.find_closest_lane(b.front_path.sidewalk.lane(), vec![LaneType::Driving])
+                    map.find_closest_lane(b.sidewalk(), vec![LaneType::Driving])
                 {
                     if ctx
                         .input

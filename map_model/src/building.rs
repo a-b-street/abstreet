@@ -1,4 +1,4 @@
-use crate::Position;
+use crate::{LaneID, Position};
 use abstutil;
 use geom::{Line, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -36,5 +36,9 @@ pub struct Building {
 impl Building {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
+    }
+
+    pub fn sidewalk(&self) -> LaneID {
+        self.front_path.sidewalk.lane()
     }
 }

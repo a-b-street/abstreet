@@ -400,7 +400,7 @@ impl Map {
     }
 
     pub fn building_to_road(&self, id: BuildingID) -> &Road {
-        self.get_parent(self.get_b(id).front_path.sidewalk.lane())
+        self.get_parent(self.get_b(id).sidewalk())
     }
 
     pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
@@ -439,7 +439,7 @@ impl Map {
         bldg: BuildingID,
         types: Vec<LaneType>,
     ) -> Result<LaneID, Error> {
-        let from = self.get_b(bldg).front_path.sidewalk.lane();
+        let from = self.get_b(bldg).sidewalk();
         self.find_closest_lane(from, types)
     }
 

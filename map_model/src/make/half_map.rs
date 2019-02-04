@@ -164,7 +164,7 @@ pub fn make_half_map(
         timer,
     );
     for b in &half_map.buildings {
-        let lane = b.front_path.sidewalk.lane();
+        let lane = b.sidewalk();
 
         // TODO Could be more performant and cleanly written
         let mut bldgs = half_map.lanes[lane.0].building_paths.clone();
