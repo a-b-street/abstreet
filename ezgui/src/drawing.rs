@@ -12,7 +12,6 @@ type Uniforms<'a> = glium::uniforms::UniformsStorage<
 >;
 
 pub struct GfxCtx<'a> {
-    display: &'a glium::Display,
     target: &'a mut glium::Frame,
     program: &'a glium::Program,
     uniforms: Uniforms<'a>,
@@ -20,15 +19,15 @@ pub struct GfxCtx<'a> {
 
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
+    pub prerender: &'a Prerender<'a>,
 
-    pub num_new_uploads: usize,
     pub num_draw_calls: usize,
 }
 
 impl<'a> GfxCtx<'a> {
-    pub fn new(
+    pub(crate) fn new(
         canvas: &'a Canvas,
-        display: &'a glium::Display,
+        prerender: &'a Prerender<'a>,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
     ) -> GfxCtx<'a> {
@@ -44,19 +43,12 @@ impl<'a> GfxCtx<'a> {
 
         GfxCtx {
             canvas,
-            display,
+            prerender,
             target,
             program,
             uniforms,
             params,
-            num_new_uploads: 0,
             num_draw_calls: 0,
-        }
-    }
-
-    pub fn prerender(&self) -> Prerender {
-        Prerender {
-            display: self.display,
         }
     }
 
@@ -124,14 +116,12 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let obj = self.prerender().upload_borrowed(vec![(color, poly)]);
-        self.num_new_uploads += 1;
+        let obj = self.prerender.upload_borrowed(vec![(color, poly)]);
         self.redraw(&obj);
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
-        let obj = self.prerender().upload_borrowed(list);
-        self.num_new_uploads += 1;
+        let obj = self.prerender.upload_borrowed(list);
         self.redraw(&obj);
     }
 
@@ -221,5 +211,9 @@ impl<'a> GfxCtx<'a> {
 
     pub fn get_cursor_in_map_space(&self) -> Option<Pt2D> {
         self.canvas.get_cursor_in_map_space()
+    }
+
+    pub fn get_num_uploads(&self) -> usize {
+        self.prerender.num_uploads.get()
     }
 }

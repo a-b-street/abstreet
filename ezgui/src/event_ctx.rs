@@ -1,6 +1,7 @@
 use crate::{Canvas, Color, UserInput};
 use geom::Polygon;
 use glium::implement_vertex;
+use std::cell::Cell;
 
 // Something that's been sent to the GPU already.
 pub struct Drawable {
@@ -20,10 +21,13 @@ implement_vertex!(Vertex, position, color);
 // TODO Don't expose this directly
 pub struct Prerender<'a> {
     pub(crate) display: &'a glium::Display,
+    pub(crate) num_uploads: Cell<usize>,
 }
 
 impl<'a> Prerender<'a> {
     pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.num_uploads.set(self.num_uploads.get() + 1);
+
         let mut vertices: Vec<Vertex> = Vec::new();
         let mut indices: Vec<u32> = Vec::new();
 

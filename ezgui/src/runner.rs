@@ -6,6 +6,7 @@ use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
+use std::cell::Cell;
 use std::time::{Duration, Instant};
 use std::{env, panic, process, thread};
 
@@ -48,7 +49,7 @@ pub(crate) struct State<T, G: GUI<T>> {
 }
 
 impl<T, G: GUI<T>> State<T, G> {
-    fn event(mut self, ev: Event, display: &glium::Display) -> (State<T, G>, EventLoopMode) {
+    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<T, G>, EventLoopMode) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(
@@ -64,7 +65,7 @@ impl<T, G: GUI<T>> State<T, G> {
             gui.event(EventCtx {
                 input: &mut input,
                 canvas: &mut canvas,
-                prerender: &Prerender { display },
+                prerender,
             })
         })) {
             Ok(pair) => pair,
@@ -96,15 +97,20 @@ impl<T, G: GUI<T>> State<T, G> {
         (self, event_mode)
     }
 
-    // Returns naming hint.
+    // Returns naming hint. Logically consumes the number of uploads.
     pub(crate) fn draw(
         &mut self,
         display: &glium::Display,
         program: &glium::Program,
         screenshot: bool,
+        uploads_so_far: usize,
     ) -> Option<String> {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(&self.canvas, &display, &mut target, program);
+        let prerender = Prerender {
+            display,
+            num_uploads: Cell::new(uploads_so_far),
+        };
+        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program);
         let mut naming_hint: Option<String> = None;
 
         // If the very first event is render, then just wait.
@@ -184,7 +190,11 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let glyphs = GlyphBrush::new(&display, fonts);
 
     let mut canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
-    let gui = make_gui(&mut canvas, &Prerender { display: &display });
+    let prerender = Prerender {
+        display: &display,
+        num_uploads: Cell::new(0),
+    };
+    let gui = make_gui(&mut canvas, &prerender);
 
     let state = State {
         top_menu: gui.top_menu(&canvas),
@@ -195,7 +205,8 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         gui,
     };
 
-    loop_forever(state, events_loop, display, program);
+    let num_uploads = prerender.num_uploads.get();
+    loop_forever(state, events_loop, display, program, num_uploads);
 }
 
 fn loop_forever<T, G: GUI<T>>(
@@ -203,6 +214,7 @@ fn loop_forever<T, G: GUI<T>>(
     mut events_loop: glutin::EventsLoop,
     display: glium::Display,
     program: glium::Program,
+    mut uploads_so_far: usize,
 ) {
     let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
@@ -221,9 +233,14 @@ fn loop_forever<T, G: GUI<T>>(
                 process::exit(0);
             }
             if let Some(ev) = Event::from_glutin_event(event) {
-                let (new_state, mode) = state.event(ev, &display);
+                let prerender = Prerender {
+                    display: &display,
+                    num_uploads: Cell::new(uploads_so_far),
+                };
+                let (new_state, mode) = state.event(ev, &prerender);
                 state = new_state;
                 wait_for_events = mode == EventLoopMode::InputOnly;
+                uploads_so_far = prerender.num_uploads.get();
                 if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
                     state = widgets::screenshot_everything(
                         state, &display, &program, zoom, max_x, max_y,
@@ -233,11 +250,17 @@ fn loop_forever<T, G: GUI<T>>(
         }
 
         if any_new_events || !wait_for_events {
-            state.draw(&display, &program, false);
+            state.draw(&display, &program, false, uploads_so_far);
+            uploads_so_far = 0;
         }
 
         if !wait_for_events {
-            let (new_state, mode) = state.event(Event::Update, &display);
+            let prerender = Prerender {
+                display: &display,
+                num_uploads: Cell::new(uploads_so_far),
+            };
+            let (new_state, mode) = state.event(Event::Update, &prerender);
+            uploads_so_far = prerender.num_uploads.get();
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
         }

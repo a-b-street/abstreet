@@ -29,7 +29,7 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
             state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
             state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
 
-            let naming_hint = state.draw(display, program, true);
+            let naming_hint = state.draw(display, program, true, 0);
             if let Some(filename) = screencap(tile_x, tile_y, naming_hint) {
                 filenames.push(filename);
             } else {

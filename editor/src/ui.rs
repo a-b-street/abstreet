@@ -245,7 +245,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
         let mut cache = state.primary.draw_map.agents.borrow_mut();
         let objects =
-            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender(), &mut cache);
+            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
 
         let ctx = Ctx {
             cs: &state.cs,
@@ -281,7 +281,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             // TODO Only in some kind of debug mode
             osd.add_line(format!(
                 "{} things uploaded, {} things drawn",
-                g.num_new_uploads, g.num_draw_calls,
+                g.get_num_uploads(),
+                g.num_draw_calls,
             ));
             g.draw_blocking_text(osd, BOTTOM_LEFT);
         }
