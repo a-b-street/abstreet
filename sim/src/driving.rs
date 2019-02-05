@@ -10,7 +10,7 @@ use crate::{
     VehicleType, TIMESTEP,
 };
 use abstutil;
-use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Profiler};
 use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
@@ -94,6 +94,7 @@ impl Car {
         // State transitions might be indicated
         transit_sim: &mut TransitSimState,
         intersections: &IntersectionSimState,
+        profiler: &mut Profiler,
     ) -> Result<Action, Error> {
         if self.parking.is_some() {
             // TODO right place for this check?
@@ -148,6 +149,7 @@ impl Car {
 
             // Don't exceed the speed limit
             {
+                profiler.start("    speed limit");
                 let current_speed_limit = vehicle.clamp_speed(current_on.speed_limit(map));
                 let accel =
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
@@ -158,9 +160,11 @@ impl Car {
                         self.id, accel, current_speed_limit
                     );
                 }
+                profiler.stop("    speed limit");
             }
 
             // Don't hit the vehicle in front of us
+            profiler.start("    follow vehicle");
             if let Some(other) = view.next_car_in_front_of(current_on, current_dist_along) {
                 assert!(self.id != other.id.as_car());
                 assert!(current_dist_along < other.dist_along);
@@ -193,8 +197,10 @@ impl Car {
                     debug!("  {} is {} behind {}'s back. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_others_back, other.id, dist_scanned_ahead, dist_to_lookahead, kinematics::FOLLOWING_DISTANCE, total_scanning_dist);
                 }
             }
+            profiler.stop("    follow vehicle");
 
             // Stop for something?
+            profiler.start("    stop early");
             if current_on.maybe_lane().is_some() {
                 let current_lane = current_on.as_lane();
                 let maybe_stop_early = current_router.stop_early_at_dist(
@@ -220,6 +226,7 @@ impl Car {
                     } else if current_router.should_vanish_at_border() {
                         // Don't limit acceleration, but also don't vanish before physically
                         // reaching the border.
+                        profiler.stop("    stop early");
                         break;
                     } else {
                         let req =
@@ -247,10 +254,12 @@ impl Car {
                         }
                         constraints.push((accel, Intent::StopAt(current_lane, dist_to_stop_at)));
                         // No use in further lookahead.
+                        profiler.stop("    stop early");
                         break;
                     }
                 }
             }
+            profiler.stop("    stop early");
 
             // Advance to the next step.
             let dist_this_step = current_on.length(map) - current_dist_along;
@@ -610,13 +619,17 @@ impl DrivingSimState {
         transit_sim: &mut TransitSimState,
         rng: &mut XorShiftRng,
         current_agent: &mut Option<AgentID>,
+        profiler: &mut Profiler,
     ) -> Result<(Vec<ParkedCar>, Vec<CarID>, Vec<(CarID, Position)>), Error> {
         // We don't need the queues at all during this function, so just move them to the view.
+        profiler.start("  populate driving view");
         std::mem::swap(&mut view.queues, &mut self.queues);
         self.populate_view(view);
+        profiler.stop("  populate driving view");
 
         // Could be concurrent, since this is deterministic -- EXCEPT for the rng, used to
         // sometimes pick a next lane to try for parking.
+        profiler.start("  react all cars");
         let mut requested_moves: Vec<(CarID, Action)> = Vec::new();
         for c in self.cars.values() {
             *current_agent = Some(AgentID::Car(c.id));
@@ -632,9 +645,11 @@ impl DrivingSimState {
                     parking_sim,
                     transit_sim,
                     intersections,
+                    profiler,
                 )?,
             ));
         }
+        profiler.stop("  react all cars");
 
         // In AORTA, there was a split here -- react vs step phase. We're still following the same
         // thing, but it might be slightly more clear to express it differently?
@@ -646,6 +661,7 @@ impl DrivingSimState {
 
         // Apply moves. Since lookahead behavior works, there are no conflicts to resolve, meaning
         // this could be applied concurrently!
+        profiler.start("  step all cars");
         for (id, act) in requested_moves {
             *current_agent = Some(AgentID::Car(id));
             match act {
@@ -706,8 +722,10 @@ impl DrivingSimState {
             }
         }
         *current_agent = None;
+        profiler.stop("  step all cars");
 
         // Group cars by lane and turn
+        profiler.start("  group cars into traversables");
         let mut cars_per_traversable = MultiMap::new();
         for c in self.cars.values() {
             // Also do some sanity checks.
@@ -719,12 +737,15 @@ impl DrivingSimState {
             }
             cars_per_traversable.insert(c.on, c.id);
         }
+        profiler.stop("  group cars into traversables");
 
         // Reset all queues -- only store ones with some agents present.
+        profiler.start("  recreate SimQueues");
         for (on, cars) in cars_per_traversable.into_iter() {
             self.queues
                 .insert(on, SimQueue::new(time, on, map, cars, &self.cars)?);
         }
+        profiler.stop("  recreate SimQueues");
 
         Ok((finished_parking, vanished_at_border, done_biking))
     }

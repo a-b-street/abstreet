@@ -1,4 +1,5 @@
 use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
+use std::collections::HashMap;
 use std::io::{stdout, Write};
 use std::time::Instant;
 
@@ -215,6 +216,84 @@ impl Timer {
                 self.results.push(format!("{}- {}", padding, line));
                 // Don't bother tracking excess time that the Timer has existed but had no spans
             }
+        }
+    }
+}
+
+// For repeated things
+// TODO Why does the PartialEq derivation in sim require this?
+#[derive(Default)]
+pub struct Profiler {
+    entries: Vec<ProfilerEntry>,
+    current_entries: HashMap<String, Instant>,
+}
+
+struct ProfilerEntry {
+    name: String,
+    total_seconds: f64,
+    rounds: usize,
+}
+
+impl Profiler {
+    pub fn new() -> Profiler {
+        Profiler {
+            entries: Vec::new(),
+            current_entries: HashMap::new(),
+        }
+    }
+
+    // TODO Nested stuff winds up sorted before the parent
+    pub fn start(&mut self, name: &str) {
+        if self.current_entries.contains_key(name) {
+            panic!(
+                "Can't start profiling {}; it's already being recorded",
+                name
+            );
+        }
+        self.current_entries
+            .insert(name.to_string(), Instant::now());
+    }
+
+    pub fn stop(&mut self, name: &str) {
+        let start = self.current_entries.remove(name).expect(&format!(
+            "Can't stop profiling {}, because it was never started",
+            name
+        ));
+        let duration = elapsed_seconds(start);
+
+        if let Some(ref mut entry) = self.entries.iter_mut().find(|e| e.name == name) {
+            entry.total_seconds += duration;
+            entry.rounds += 1;
+        } else {
+            self.entries.push(ProfilerEntry {
+                name: name.to_string(),
+                total_seconds: duration,
+                rounds: 1,
+            });
+        }
+    }
+
+    pub fn dump(&self) {
+        if !self.current_entries.is_empty() {
+            panic!(
+                "Can't dump Profiler with active entries {:?}",
+                self.current_entries.keys()
+            );
+        }
+
+        println!("Profiler results so far:");
+        for entry in &self.entries {
+            // Suppress things that don't take any time.
+            let time_per_round = entry.total_seconds / (entry.rounds as f64);
+            if time_per_round < 0.0001 {
+                // TODO Actually, the granularity of the rounds might differ. Don't do this.
+                //continue;
+            }
+
+            println!(
+                "  - {}: {}s over {} rounds ({}s / round)",
+                entry.name, entry.total_seconds, entry.rounds, time_per_round,
+            );
         }
     }
 }

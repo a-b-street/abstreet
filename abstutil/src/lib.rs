@@ -18,6 +18,6 @@ pub use crate::io::{
 pub use crate::logs::{format_log_record, LogAdapter};
 pub use crate::notes::note;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
-pub use crate::time::{elapsed_seconds, Timer};
+pub use crate::time::{elapsed_seconds, Profiler, Timer};
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

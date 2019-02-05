@@ -13,7 +13,7 @@ use crate::{
     AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, VehicleType, TIMESTEP,
 };
 use abstutil;
-use abstutil::Error;
+use abstutil::{Error, Profiler};
 use derivative::Derivative;
 use geom::{Distance, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
@@ -45,6 +45,10 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     stats: Option<SimStats>,
+
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    pub profiler: Profiler,
 
     pub(crate) spawner: Spawner,
     scheduler: Scheduler,
@@ -90,6 +94,7 @@ impl Sim {
             savestate_every,
             current_agent_for_debugging: None,
             stats: None,
+            profiler: Profiler::new(),
         }
     }
 
@@ -161,8 +166,11 @@ impl Sim {
         let mut view = WorldView::new();
         let mut events: Vec<Event> = Vec::new();
 
+        self.profiler.start("spawner step");
         self.spawner
             .step(self.time, map, &mut self.scheduler, &mut self.parking_state);
+        self.profiler.stop("spawner step");
+        self.profiler.start("scheduler step");
         self.scheduler.step(
             &mut events,
             self.time,
@@ -173,7 +181,9 @@ impl Sim {
             &self.intersection_state,
             &mut self.trips_state,
         );
+        self.profiler.stop("scheduler step");
 
+        self.profiler.start("driving step");
         let (newly_parked, at_border, done_biking) = self.driving_state.step(
             &mut view,
             &mut events,
@@ -184,7 +194,10 @@ impl Sim {
             &mut self.transit_state,
             &mut self.rng,
             &mut self.current_agent_for_debugging,
+            &mut self.profiler,
         )?;
+        self.profiler.stop("driving step");
+        self.profiler.start("handle driving step results");
         for p in newly_parked {
             events.push(Event::CarReachedParkingSpot(p.car, p.spot));
             capture_backtrace("CarReachedParkingSpot");
@@ -205,8 +218,12 @@ impl Sim {
             self.spawner
                 .bike_reached_end(self.time, bike, last_pos, map, &mut self.trips_state);
         }
+        self.profiler.stop("handle driving step results");
 
+        self.profiler.start("populate walking view");
         self.walking_state.populate_view(&mut view);
+        self.profiler.stop("populate walking view");
+        self.profiler.start("walking step");
         let (reached_parking, ready_to_bike) = self.walking_state.step(
             &mut events,
             TIMESTEP,
@@ -216,6 +233,8 @@ impl Sim {
             &mut self.trips_state,
             &mut self.current_agent_for_debugging,
         )?;
+        self.profiler.stop("walking step");
+        self.profiler.start("handle walking step results");
         for (ped, spot) in reached_parking {
             events.push(Event::PedReachedParkingSpot(ped, spot));
             capture_backtrace("PedReachedParkingSpot");
@@ -232,7 +251,9 @@ impl Sim {
             self.spawner
                 .ped_ready_to_bike(self.time, ped, sidewalk_pos, &mut self.trips_state);
         }
+        self.profiler.stop("handle walking step results");
 
+        self.profiler.start("transit step");
         self.transit_state.step(
             self.time,
             &mut events,
@@ -241,11 +262,14 @@ impl Sim {
             &mut self.spawner,
             map,
         );
+        self.profiler.stop("transit step");
 
         // Note that the intersection sees the WorldView BEFORE the updates that just happened this
         // tick.
+        self.profiler.start("intersection step");
         self.intersection_state
             .step(&mut events, self.time, map, &view);
+        self.profiler.stop("intersection step");
 
         // Do this at the end of the step, so that tick 0 actually occurs and things can happen
         // then.
