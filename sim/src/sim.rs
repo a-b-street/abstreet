@@ -46,7 +46,7 @@ pub struct Sim {
 
     pub(crate) spawner: Spawner,
     scheduler: Scheduler,
-    intersection_state: IntersectionSimState,
+    pub(crate) intersection_state: IntersectionSimState,
     pub(crate) driving_state: DrivingSimState,
     pub(crate) parking_state: ParkingSimState,
     pub(crate) walking_state: WalkingSimState,
@@ -168,6 +168,7 @@ impl Sim {
             &mut self.parking_state,
             &mut self.walking_state,
             &mut self.driving_state,
+            &self.intersection_state,
             &mut self.trips_state,
         );
 

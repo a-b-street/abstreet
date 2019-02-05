@@ -728,6 +728,7 @@ impl DrivingSimState {
         time: Tick,
         map: &Map,
         params: CreateCar,
+        intersections: &IntersectionSimState,
     ) -> bool {
         let start_lane = params.start.lane();
         let start_on = Traversable::Lane(start_lane);
@@ -776,11 +777,22 @@ impl DrivingSimState {
                 //debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
                 return false;
             }
-
-            // TODO check that there's not a car elsewhere that's about to wind up here. can check
-            // the intersection for accepted turns to this lane. or, enforce that no parking spots
-            // can exist before the worst-case entry distance (based on the speed limit).
         }
+
+        // If we want to spawn close to the start of the lane, make sure there are no accepted
+        // turns leading to this lane.
+        // TODO Is this sufficient buffer for lookahead?
+        // TODO Pedestrians becoming bikes will just vanish for a while. :\
+        if start_dist < TIMESTEP * map.get_parent(start_lane).get_speed_limit() {
+            if intersections
+                .anybody_accepted_with_destination(map.get_l(start_lane).src_i, start_lane)
+            {
+                //debug!("{} can't spawn {} on {}, because somebody's doing a turn and headed this way", params.car, start_dist, start_lane);
+                return false;
+            }
+        }
+
+        // TODO Lane-changing will complicate this later.
 
         self.cars.insert(
             params.car,

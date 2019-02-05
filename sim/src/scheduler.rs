@@ -1,5 +1,6 @@
 use crate::driving::{CreateCar, DrivingSimState};
 use crate::events::Event;
+use crate::intersections::IntersectionSimState;
 use crate::parking::ParkingSimState;
 use crate::trips::TripManager;
 use crate::walking::{CreatePedestrian, WalkingSimState};
@@ -43,6 +44,7 @@ impl Scheduler {
         parking_sim: &mut ParkingSimState,
         walking_sim: &mut WalkingSimState,
         driving_sim: &mut DrivingSimState,
+        intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
         let mut this_tick_commands: Vec<Command> = Vec::new();
@@ -65,7 +67,13 @@ impl Scheduler {
         for cmd in this_tick_commands.into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
-                    if driving_sim.start_car_on_lane(events, now, map, create_car.clone()) {
+                    if driving_sim.start_car_on_lane(
+                        events,
+                        now,
+                        map,
+                        create_car.clone(),
+                        intersections,
+                    ) {
                         trips
                             .agent_starting_trip_leg(AgentID::Car(create_car.car), create_car.trip);
                         if let Some(parked_car) = create_car.maybe_parked_car {

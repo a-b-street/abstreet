@@ -291,6 +291,7 @@ impl Sim {
             map,
             &mut self.driving_state,
             &mut self.transit_state,
+            &self.intersection_state,
             &mut self.trips_state,
             self.time,
         )

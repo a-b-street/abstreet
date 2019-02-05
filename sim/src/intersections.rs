@@ -3,7 +3,9 @@ use crate::{AgentID, CarID, Event, PedestrianID, Tick, TIMESTEP};
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
 use geom::Duration;
-use map_model::{ControlStopSign, IntersectionID, IntersectionType, Map, TurnID, TurnPriority};
+use map_model::{
+    ControlStopSign, IntersectionID, IntersectionType, LaneID, Map, TurnID, TurnPriority,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -164,6 +166,16 @@ impl IntersectionSimState {
         match self.intersections[id.0] {
             IntersectionPolicy::StopSign(_) => unreachable!(),
             IntersectionPolicy::TrafficSignal(ref p) => p.overtime,
+            IntersectionPolicy::Border => unreachable!(),
+        }
+    }
+
+    pub fn anybody_accepted_with_destination(&self, i: IntersectionID, id: LaneID) -> bool {
+        match self.intersections[i.0] {
+            IntersectionPolicy::StopSign(ref p) => p.accepted.iter().any(|req| req.turn.dst == id),
+            IntersectionPolicy::TrafficSignal(ref p) => {
+                p.accepted.iter().any(|req| req.turn.dst == id)
+            }
             IntersectionPolicy::Border => unreachable!(),
         }
     }

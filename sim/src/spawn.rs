@@ -1,4 +1,5 @@
 use crate::driving::{CreateCar, DrivingGoal, DrivingSimState};
+use crate::intersections::IntersectionSimState;
 use crate::kinematics::Vehicle;
 use crate::parking::ParkingSimState;
 use crate::router::Router;
@@ -280,8 +281,8 @@ impl Spawner {
                 };
             } else {
                 error!(
-                    "Couldn't find path from {} to {} for {:?}",
-                    req.start, req.end, cmd
+                    "Couldn't find path at {} from {} to {} for {:?}",
+                    now, req.start, req.end, cmd
                 );
             }
         }
@@ -296,6 +297,7 @@ impl Spawner {
         map: &Map,
         driving_sim: &mut DrivingSimState,
         transit_sim: &mut TransitSimState,
+        intersections: &IntersectionSimState,
         trips: &mut TripManager,
         now: Tick,
     ) -> Vec<CarID> {
@@ -328,6 +330,7 @@ impl Spawner {
                     start,
                     router: Router::make_router_for_bus(path),
                 },
+                intersections,
             ) {
                 trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                 transit_sim.bus_created(id, route.id, next_stop_idx);
