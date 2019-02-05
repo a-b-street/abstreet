@@ -1,7 +1,7 @@
 use crate::ScreenPt;
 use glium::glutin;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
     // TODO Get rid of this after handling all cases.
     Unknown,

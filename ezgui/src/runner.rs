@@ -226,13 +226,16 @@ fn loop_forever<T, G: GUI<T>>(
                 new_events.push(event);
             }
         });
-        let any_new_events = !new_events.is_empty();
+        let mut any_new_events = false;
         for event in new_events {
             if event == glutin::WindowEvent::CloseRequested {
                 state.gui.before_quit(&state.canvas);
                 process::exit(0);
             }
             if let Some(ev) = Event::from_glutin_event(event) {
+                // TODO Key press+release causes us to redraw twice in quick succession. Should we
+                // throttle redrawing? Or only redraw if the input was actually interesting?
+                any_new_events = true;
                 let prerender = Prerender {
                     display: &display,
                     num_uploads: Cell::new(uploads_so_far),
