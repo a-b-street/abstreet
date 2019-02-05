@@ -181,6 +181,16 @@ impl ops::Mul<f64> for Duration {
     }
 }
 
+// TODO Both of these work. Use a macro or crate to define both, so we don't have to worry about
+// order for commutative things like multiplication. :P
+impl ops::Mul<Duration> for f64 {
+    type Output = Duration;
+
+    fn mul(self, other: Duration) -> Duration {
+        Duration::seconds(self * other.0)
+    }
+}
+
 impl ops::Mul<Speed> for Duration {
     type Output = Distance;
 

@@ -176,7 +176,7 @@ impl IntersectionSimState {
             IntersectionPolicy::TrafficSignal(ref p) => {
                 p.accepted.iter().any(|req| req.turn.dst == id)
             }
-            IntersectionPolicy::Border => unreachable!(),
+            IntersectionPolicy::Border => false,
         }
     }
 }

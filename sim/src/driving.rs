@@ -796,15 +796,13 @@ impl DrivingSimState {
 
         // If we want to spawn close to the start of the lane, make sure there are no accepted
         // turns leading to this lane.
-        // TODO Is this sufficient buffer for lookahead?
+        // TODO Actually, hard to determine what's sufficient buffer for lookahead. Doesn't matter
+        // how close to the start we are for now.
         // TODO Pedestrians becoming bikes will just vanish for a while. :\
-        if start_dist < TIMESTEP * map.get_parent(start_lane).get_speed_limit() {
-            if intersections
-                .anybody_accepted_with_destination(map.get_l(start_lane).src_i, start_lane)
-            {
-                //debug!("{} can't spawn {} on {}, because somebody's doing a turn and headed this way", params.car, start_dist, start_lane);
-                return false;
-            }
+        if intersections.anybody_accepted_with_destination(map.get_l(start_lane).src_i, start_lane)
+        {
+            //debug!("{} can't spawn {} on {}, because somebody's doing a turn and headed this way", params.car, start_dist, start_lane);
+            return false;
         }
 
         // TODO Lane-changing will complicate this later.

@@ -46,22 +46,22 @@ fn main() {
         None
     };
 
-    cpuprofiler::PROFILER
-        .lock()
-        .unwrap()
-        .start("./profile")
-        .unwrap();
+    /*cpuprofiler::PROFILER
+    .lock()
+    .unwrap()
+    .start("./profile")
+    .unwrap();*/
     sim.run_until_done(
         &map,
         move |sim| {
             if Some(sim.time) == save_at {
                 sim.save();
                 // Some simulatiosn run for a really long time, just do this.
-                cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
             }
         },
         None,
     );
-    sim::save_backtraces("call_graph.json");
+    //sim::save_backtraces("call_graph.json");
     println!("{:?}", sim.get_score());
 }
