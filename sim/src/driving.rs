@@ -734,6 +734,13 @@ impl DrivingSimState {
         let start_on = Traversable::Lane(start_lane);
         let start_dist = params.start.dist_along();
 
+        if start_dist < params.vehicle.length {
+            panic!(
+                "Can't start car at {} along {}; the vehicle is {}. Bad position passed in.",
+                start_dist, start_lane, params.vehicle.length
+            );
+        }
+
         // The caller should have passed in a Position for the driving lane. But sanity check!
         {
             let start_length = map.get_l(start_lane).length();

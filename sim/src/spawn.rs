@@ -1,6 +1,6 @@
 use crate::driving::{CreateCar, DrivingGoal, DrivingSimState};
 use crate::intersections::IntersectionSimState;
-use crate::kinematics::Vehicle;
+use crate::kinematics::{Vehicle, MAX_BIKE_LENGTH};
 use crate::parking::ParkingSimState;
 use crate::router::Router;
 use crate::scheduler;
@@ -26,7 +26,7 @@ enum Command {
     Walk(Tick, TripID, PedestrianID, SidewalkSpot, SidewalkSpot),
     Drive(Tick, TripID, ParkedCar, DrivingGoal),
     // As in, a car appears suddenly
-    DriveSpontanouesly {
+    DriveSpontaneously {
         at: Tick,
         trip: TripID,
         car: CarID,
@@ -48,7 +48,7 @@ impl Command {
         match self {
             Command::Walk(at, _, _, _, _) => *at,
             Command::Drive(at, _, _, _) => *at,
-            Command::DriveSpontanouesly { at, .. } => *at,
+            Command::DriveSpontaneously { at, .. } => *at,
             Command::Bike { at, .. } => *at,
         }
     }
@@ -105,7 +105,7 @@ impl Command {
                     can_use_bike_lanes: true,
                 }
             }
-            Command::DriveSpontanouesly {
+            Command::DriveSpontaneously {
                 start,
                 goal,
                 vehicle,
@@ -207,7 +207,7 @@ impl Spawner {
                             },
                         ));
                     }
-                    Command::DriveSpontanouesly {
+                    Command::DriveSpontaneously {
                         trip,
                         car,
                         ref vehicle,
@@ -471,7 +471,7 @@ impl Spawner {
         if from.dist_along() == Distance::ZERO {
             from = Position::new(from.lane(), vehicle.length);
         }
-        self.enqueue_command(Command::DriveSpontanouesly {
+        self.enqueue_command(Command::DriveSpontaneously {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
             car: car_id,
@@ -540,7 +540,12 @@ impl Spawner {
 
         let first_spot = {
             let b = map.get_b(start_bldg);
-            SidewalkSpot::bike_rack(b.front_path.sidewalk, map)
+            let pos = b.front_path.sidewalk;
+            if pos.dist_along() < MAX_BIKE_LENGTH {
+                SidewalkSpot::bike_rack(Position::new(pos.lane(), MAX_BIKE_LENGTH), map)
+            } else {
+                SidewalkSpot::bike_rack(pos, map)
+            }
         };
 
         let mut legs = vec![
@@ -610,7 +615,7 @@ impl Spawner {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
         assert!(map.get_l(first_lane).length() > vehicle.length);
-        self.enqueue_command(Command::DriveSpontanouesly {
+        self.enqueue_command(Command::DriveSpontaneously {
             at,
             trip: trips.new_trip(at, Some(ped_id), legs),
             car: bike_id,
