@@ -524,6 +524,7 @@ impl Spawner {
         ));
     }
 
+    // This might fail!
     pub fn start_trip_using_bike(
         &mut self,
         at: Tick,
@@ -542,6 +543,11 @@ impl Spawner {
             let b = map.get_b(start_bldg);
             let pos = b.front_path.sidewalk;
             if pos.dist_along() < MAX_BIKE_LENGTH {
+                let lane_len = map.get_l(pos.lane()).length();
+                if lane_len < MAX_BIKE_LENGTH {
+                    // Just give up
+                    return;
+                }
                 SidewalkSpot::bike_rack(Position::new(pos.lane(), MAX_BIKE_LENGTH), map)
             } else {
                 SidewalkSpot::bike_rack(pos, map)

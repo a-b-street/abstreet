@@ -442,6 +442,9 @@ impl WalkingSimState {
                 }
                 Action::StartPreparingBike => {
                     let p = self.peds.get_mut(&id).unwrap();
+                    // Since we enter this state when we're "close enough" to the goal, make sure
+                    // we actually snap to this exact goal.
+                    p.dist_along = p.goal.sidewalk_pos.dist_along();
                     p.moving = false;
                     p.bike_parking = Some(BikeParkingState {
                         is_parking: false,
