@@ -498,8 +498,16 @@ impl SimQueue {
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct DrivingSimState {
     // Using BTreeMap instead of HashMap so iteration is deterministic.
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     cars: BTreeMap<CarID, Car>,
     // Separate from cars so we can have different mutability in react()
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     routers: BTreeMap<CarID, Router>,
     // If there's no SimQueue for a Traversable, then there are currently no agents on it.
     #[serde(
@@ -736,8 +744,8 @@ impl DrivingSimState {
 
         if start_dist < params.vehicle.length {
             panic!(
-                "Can't start car at {} along {}; the vehicle is {}. Bad position passed in.",
-                start_dist, start_lane, params.vehicle.length
+                "Can't start {} at {} along {}; the vehicle is {}. Bad position passed in.",
+                params.car, start_dist, start_lane, params.vehicle.length
             );
         }
 

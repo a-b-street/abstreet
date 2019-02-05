@@ -37,7 +37,7 @@ pub struct Vehicle {
     pub max_speed: Option<Speed>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
 pub enum VehicleType {
     Car,
     Bus,

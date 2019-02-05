@@ -307,7 +307,7 @@ impl Spawner {
         for (next_stop_idx, start_dist_along, path) in
             transit_sim.get_route_starts(route.id, map).into_iter()
         {
-            let id = CarID(self.car_id_counter);
+            let id = CarID(self.car_id_counter, VehicleType::Bus);
             self.car_id_counter += 1;
             let vehicle = Vehicle::generate_bus(id, rng);
             let start = Position::new(
@@ -359,7 +359,7 @@ impl Spawner {
     ) -> Vec<CarID> {
         let mut results: Vec<CarID> = Vec::new();
         for idx in spots.into_iter() {
-            let car = CarID(self.car_id_counter);
+            let car = CarID(self.car_id_counter, VehicleType::Car);
             parking_sim.add_parked_car(ParkedCar::new(
                 car,
                 ParkingSpot::new(lane, idx),
@@ -411,7 +411,7 @@ impl Spawner {
                     find_spot_near_building(*b, &mut open_spots_per_road, neighborhoods_roads, map)
                 {
                     new_cars += 1;
-                    let car = CarID(self.car_id_counter);
+                    let car = CarID(self.car_id_counter, VehicleType::Car);
                     // TODO since spawning applies during the next step, lots of stuff breaks without
                     // this :(
                     parking_sim.add_parked_car(ParkedCar::new(
@@ -454,7 +454,7 @@ impl Spawner {
         trips: &mut TripManager,
         base_rng: &mut XorShiftRng,
     ) -> CarID {
-        let car_id = CarID(self.car_id_counter);
+        let car_id = CarID(self.car_id_counter, VehicleType::Car);
         self.car_id_counter += 1;
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
@@ -535,7 +535,7 @@ impl Spawner {
     ) {
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;
-        let bike_id = CarID(self.car_id_counter);
+        let bike_id = CarID(self.car_id_counter, VehicleType::Bike);
         self.car_id_counter += 1;
 
         let first_spot = {
@@ -603,7 +603,7 @@ impl Spawner {
         trips: &mut TripManager,
         base_rng: &mut XorShiftRng,
     ) {
-        let bike_id = CarID(self.car_id_counter);
+        let bike_id = CarID(self.car_id_counter, VehicleType::Bike);
         self.car_id_counter += 1;
         let ped_id = PedestrianID(self.ped_id_counter);
         self.ped_id_counter += 1;

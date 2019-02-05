@@ -39,12 +39,23 @@ use map_model::{BuildingID, LaneID};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
+// The VehicleType is only used for convenient debugging. The numeric ID itself must be sufficient.
+// TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CarID(pub usize);
+pub struct CarID(pub usize, VehicleType);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "CarID({0})", self.0)
+        write!(
+            f,
+            "CarID({0} -- {1})",
+            self.0,
+            match self.1 {
+                VehicleType::Car => "car",
+                VehicleType::Bus => "bus",
+                VehicleType::Bike => "bike",
+            }
+        )
     }
 }
 

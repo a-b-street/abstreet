@@ -5,7 +5,7 @@ use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
 use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
-use sim::{CarID, PedestrianID, Sim, TripID};
+use sim::{PedestrianID, Sim, TripID};
 use std::time::Instant;
 use std::usize;
 
@@ -102,7 +102,10 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             // TODO ideally "pa" prefix?
             'e' => ID::Parcel(ParcelID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
-            'c' => ID::Car(CarID(idx)),
+            'c' => {
+                // This one gets more complicated. :)
+                ID::Car(sim.lookup_car_id(idx)?)
+            }
             't' => ID::Trip(TripID(idx)),
             // TODO "tu"?
             'u' => {

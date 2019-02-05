@@ -9,7 +9,9 @@ use crate::transit::TransitSimState;
 use crate::trips::TripManager;
 use crate::view::WorldView;
 use crate::walking::WalkingSimState;
-use crate::{AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, TIMESTEP};
+use crate::{
+    AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, VehicleType, TIMESTEP,
+};
 use abstutil;
 use abstutil::Error;
 use derivative::Derivative;
@@ -387,6 +389,23 @@ impl Sim {
         self.driving_state
             .get_owner_of_car(id)
             .or_else(|| self.parking_state.get_owner_of_car(id))
+    }
+
+    pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
+        for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
+            let id = CarID(idx, *vt);
+            if self.driving_state.get_path(id).is_some() {
+                return Some(id);
+            }
+        }
+
+        let id = CarID(idx, VehicleType::Car);
+        // Only cars can be parked.
+        if self.parking_state.lookup_car(id).is_some() {
+            return Some(id);
+        }
+
+        None
     }
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {

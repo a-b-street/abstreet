@@ -1,5 +1,6 @@
 use crate::kinematics::Vehicle;
 use crate::{CarID, CarState, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
@@ -9,6 +10,10 @@ use std::iter;
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct ParkingSimState {
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     cars: BTreeMap<CarID, ParkedCar>,
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     lanes: Vec<ParkingLane>,
