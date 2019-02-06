@@ -178,9 +178,44 @@ fn generalized_trim_back(
     endpoints.sort_by_key(|pt| HashablePt2D::from(*pt));
     endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(1.0));
 
-    let center = Pt2D::center(&endpoints);
-    endpoints.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
-    endpoints
+    // Different ways of making convex polygons from the endpoints. For now, the simpler one looks
+    // better.
+    if true {
+        let center = Pt2D::center(&endpoints);
+        endpoints.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
+        endpoints
+    } else {
+        use geo;
+        use geo::algorithm::convexhull::ConvexHull;
+
+        // To get a convex polygon, often we can just find the center of these endpoints and sort
+        // the points by the angle to the center. But this breaks down for some merged
+        // intersections, so use something more heavy-weight.
+        let polygon = geo::Polygon::new(
+            geo::LineString(
+                endpoints
+                    .into_iter()
+                    .map(|pt| geo::Coordinate {
+                        x: pt.x(),
+                        y: pt.y(),
+                    })
+                    .collect(),
+            ),
+            vec![],
+        );
+        let convex = polygon.convex_hull();
+        let mut final_endpoints = Pt2D::approx_dedupe(
+            convex
+                .exterior
+                .into_points()
+                .into_iter()
+                .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                .collect(),
+            Distance::meters(1.0),
+        );
+        final_endpoints.reverse();
+        final_endpoints
+    }
 }
 
 fn deadend(
