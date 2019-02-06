@@ -9,10 +9,7 @@
 
 - handle small roads again somehow?
 	- bad polygons
-		- ../initial_maps/024, o101. sorting final endpoints by angle to center isn't foolproof.
-			- draw the center
-		- adjacent roads based on angle isnt foolproof either. o177. but it actually looks fine, with the sorting by center.
-			- the "center" should be average of all the original endpoints. then angle from last line's first pt to that center, since the last line's last pt might actually BE that center.
+		- ../initial_maps/024, o101 and o177. sorting final endpoints by angle to center isn't foolproof.
 
 	- VERY overeager... ate half of the map
 	- deal with loop roads

@@ -1,7 +1,7 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use abstutil::wraparound_get;
-use geom::{Angle, Distance, HashablePt2D, Line, PolyLine, Pt2D};
+use geom::{Distance, HashablePt2D, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(5.0);
@@ -12,20 +12,24 @@ pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<StableRoadID, Road>,
 ) -> Vec<Pt2D> {
+    let mut road_endpts: Vec<Pt2D> = Vec::new();
+
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
     // the road, if the roads were oriented to both be incoming to the intersection), both ending
-    // at the intersection (which may be different points for merged intersections!), and the angle
-    // of the last segment of the center line.
+    // at the intersection (which may be different points for merged intersections!), and the last
+    // segment of the center line.
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
-    let mut lines: Vec<(StableRoadID, Angle, PolyLine, PolyLine)> = i
+    let mut lines: Vec<(StableRoadID, Line, PolyLine, PolyLine)> = i
         .roads
         .iter()
         .map(|id| {
             let r = &roads[id];
 
             let (line, width_normal, width_reverse) = if r.src_i == i.id {
+                road_endpts.push(r.trimmed_center_pts.first_pt());
                 (r.trimmed_center_pts.reversed(), r.back_width, r.fwd_width)
             } else if r.dst_i == i.id {
+                road_endpts.push(r.trimmed_center_pts.last_pt());
                 (r.trimmed_center_pts.clone(), r.fwd_width, r.back_width)
             } else {
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
@@ -33,15 +37,21 @@ pub fn intersection_polygon(
 
             let pl_normal = line.shift_right(width_normal);
             let pl_reverse = line.shift_left(width_reverse);
-            (*id, line.last_line().angle(), pl_normal, pl_reverse)
+            (*id, line.last_line(), pl_normal, pl_reverse)
         })
         .collect();
 
-    // Sort the polylines by the angle of their last segment.
-    // TODO This might break weirdly for polylines with very short last lines!
-    // TODO This definitely can break for merged intersections. To get the lines "in order", maybe
-    // we have to look at all the endpoints and sort by angle from the center of the points?
-    lines.sort_by_key(|(_, angle, _, _)| angle.normalized_degrees() as i64);
+    // Find the average of all road endpoints at the intersection. This is usually just a single
+    // point, except for merged intersections.
+    road_endpts.sort_by_key(|pt| HashablePt2D::from(*pt));
+    road_endpts.dedup();
+    let intersection_center = Pt2D::center(&road_endpts);
+
+    // Sort the polylines by the angle their last segment makes to the "center". This is normally
+    // equivalent to the angle of the last line, except when the intersection has been merged.
+    lines.sort_by_key(|(_, l, _, _)| {
+        l.pt1().angle_to(intersection_center).normalized_degrees() as i64
+    });
 
     let mut endpoints = if lines.len() == 1 {
         deadend(roads, i.id, &lines)
@@ -57,7 +67,7 @@ pub fn intersection_polygon(
 fn generalized_trim_back(
     roads: &mut BTreeMap<StableRoadID, Road>,
     i: StableIntersectionID,
-    lines: &Vec<(StableRoadID, Angle, PolyLine, PolyLine)>,
+    lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
 ) -> Vec<Pt2D> {
     let mut road_lines: Vec<(StableRoadID, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
@@ -221,7 +231,7 @@ fn generalized_trim_back(
 fn deadend(
     roads: &mut BTreeMap<StableRoadID, Road>,
     i: StableIntersectionID,
-    lines: &Vec<(StableRoadID, Angle, PolyLine, PolyLine)>,
+    lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
 ) -> Vec<Pt2D> {
     let (id, _, pl_a, pl_b) = &lines[0];
     let pt1 = pl_a

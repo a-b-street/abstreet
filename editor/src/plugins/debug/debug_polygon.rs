@@ -11,6 +11,7 @@ enum Item {
 pub struct DebugPolygon {
     items: Vec<Item>,
     current: usize,
+    center: Option<Pt2D>,
 }
 
 impl DebugPolygon {
@@ -21,17 +22,13 @@ impl DebugPolygon {
                     .input
                     .contextual_action(Key::X, "debug intersection geometry")
                 {
+                    let pts = ctx.primary.map.get_i(id).polygon.points();
+                    let mut pts_without_last = pts.clone();
+                    pts_without_last.pop();
                     return Some(DebugPolygon {
-                        items: ctx
-                            .primary
-                            .map
-                            .get_i(id)
-                            .polygon
-                            .points()
-                            .iter()
-                            .map(|pt| Item::Point(*pt))
-                            .collect(),
+                        items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
+                        center: Some(Pt2D::center(&pts_without_last)),
                     });
                 }
             }
@@ -48,6 +45,7 @@ impl DebugPolygon {
                             .map(|pt| Item::Point(*pt))
                             .collect(),
                         current: 0,
+                        center: None,
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
                     return Some(DebugPolygon {
@@ -61,6 +59,7 @@ impl DebugPolygon {
                             .map(Item::Triangle)
                             .collect(),
                         current: 0,
+                        center: None,
                     });
                 }
             }
@@ -93,6 +92,9 @@ impl Plugin for DebugPolygon {
                     g.draw_text_at(Text::from_line(format!("{}", self.current)), *pt);
                 }
             }
+        }
+        if let Some(pt) = self.center {
+            g.draw_text_at(Text::from_line("c".to_string()), pt);
         }
     }
 }
