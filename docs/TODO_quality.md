@@ -8,9 +8,13 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
+	- o40 has a long cut when merged, why not hit in the middle?
+		- what if we allow intersections between infinite lines for merged cases?
+	- what's going on with O253 generally?
+		- need a way to see the original untrimmed roads... want to draw them at the end, in a plugin
+		- experiment with resolution
 	- try it bigger
-	- VERY overeager... ate half of the map
-	- deal with loop roads
+	- deal with loop roads?
 
 	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
 
