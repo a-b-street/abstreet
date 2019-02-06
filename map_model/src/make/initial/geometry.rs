@@ -173,8 +173,8 @@ fn generalized_trim_back(
 
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.
-        // TODO Do we not need to take the second_half here sometimes?
-        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
+        // It's apparently safe to always take the second_half here.
+        if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
             endpoints.push(hit);
         }
 
@@ -187,7 +187,10 @@ fn generalized_trim_back(
             endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).first_pt());
         }
 
-        if let Some((hit, _)) = back_pl.intersection(adj_back_pl) {
+        if let Some((hit, _)) = back_pl
+            .second_half()
+            .intersection(&adj_back_pl.second_half())
+        {
             endpoints.push(hit);
         }
     }

@@ -142,7 +142,6 @@ fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
             let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-            // constructed...
             if let Some(mut pts_between) = find_pts_between(&i.polygon.points(), corner2, corner1) {
                 pts_between.push(src_line.pt2());
                 // If the intersection of the two lines isn't actually inside, then just exclude
