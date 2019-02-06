@@ -10,6 +10,9 @@ use std::cell::Cell;
 use std::time::{Duration, Instant};
 use std::{env, panic, process, thread};
 
+// 30fps is 1000 / 30
+const SLEEP_BETWEEN_FRAMES: Duration = Duration::from_millis(33);
+
 pub trait GUI<T> {
     // Called once
     fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
@@ -216,68 +219,56 @@ fn loop_forever<T, G: GUI<T>>(
     program: glium::Program,
     mut uploads_so_far: usize,
 ) {
-    let mut accumulator = Duration::new(0, 0);
-    let mut previous_clock = Instant::now();
     let mut wait_for_events = false;
     loop {
-        let mut new_events: Vec<glutin::WindowEvent> = Vec::new();
+        let start_frame = Instant::now();
+
+        let mut new_events: Vec<Event> = Vec::new();
         events_loop.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
-                new_events.push(event);
-            }
-        });
-        let mut any_new_events = false;
-        for event in new_events {
-            if event == glutin::WindowEvent::CloseRequested {
-                state.gui.before_quit(&state.canvas);
-                process::exit(0);
-            }
-            if let Some(ev) = Event::from_glutin_event(event) {
-                // TODO Key press+release causes us to redraw twice in quick succession. Should we
-                // throttle redrawing? Or only redraw if the input was actually interesting?
-                any_new_events = true;
-                let prerender = Prerender {
-                    display: &display,
-                    num_uploads: Cell::new(uploads_so_far),
-                };
-                let (new_state, mode) = state.event(ev, &prerender);
-                state = new_state;
-                wait_for_events = mode == EventLoopMode::InputOnly;
-                uploads_so_far = prerender.num_uploads.get();
-                if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
-                    state = widgets::screenshot_everything(
-                        state, &display, &program, zoom, max_x, max_y,
-                    );
+                if event == glutin::WindowEvent::CloseRequested {
+                    state.gui.before_quit(&state.canvas);
+                    process::exit(0);
+                }
+                if let Some(ev) = Event::from_glutin_event(event) {
+                    new_events.push(ev);
                 }
             }
-        }
-
-        if any_new_events || !wait_for_events {
-            state.draw(&display, &program, false, uploads_so_far);
-            uploads_so_far = 0;
-        }
-
+        });
         if !wait_for_events {
+            new_events.push(Event::Update);
+        }
+
+        let any_new_events = !new_events.is_empty();
+
+        for event in new_events {
             let prerender = Prerender {
                 display: &display,
                 num_uploads: Cell::new(uploads_so_far),
             };
-            let (new_state, mode) = state.event(Event::Update, &prerender);
-            uploads_so_far = prerender.num_uploads.get();
+            let (new_state, mode) = state.event(event, &prerender);
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
+            uploads_so_far = prerender.num_uploads.get();
+            if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
+                state =
+                    widgets::screenshot_everything(state, &display, &program, zoom, max_x, max_y);
+            }
         }
 
-        // TODO This isn't right at all... sleep only if nothing happened.
-        if !any_new_events && wait_for_events {
-            let now = Instant::now();
-            accumulator += now - previous_clock;
-            previous_clock = now;
-            let fixed_time_stamp = Duration::new(0, 16_666_667);
-            while accumulator >= fixed_time_stamp {
-                accumulator -= fixed_time_stamp;
-            }
-            thread::sleep(fixed_time_stamp - accumulator);
+        // TODO Every time we press and release a single key, we draw twice. Ideally we'd batch
+        // those events before drawing or somehow know that the release event was ignored and we
+        // don't need to redraw.
+        if any_new_events {
+            state.draw(&display, &program, false, uploads_so_far);
+            uploads_so_far = 0;
+        }
+
+        // Primitive event loop.
+        // TODO Read http://gameprogrammingpatterns.com/game-loop.html carefully.
+        let this_frame = Instant::now().duration_since(start_frame);
+        if SLEEP_BETWEEN_FRAMES > this_frame {
+            thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);
         }
     }
 }

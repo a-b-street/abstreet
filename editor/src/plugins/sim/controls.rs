@@ -168,6 +168,10 @@ impl Plugin for SimControls {
 
                     if ctx.input.is_update_event() {
                         // TODO https://gafferongames.com/post/fix_your_timestep/
+                        // TODO This doesn't interact correctly with the fixed 30 Update events
+                        // sent per second. Even Benchmark is kind of wrong. I think we want to
+                        // count the number of steps we've done in the last second, then stop if
+                        // the speed says we should.
                         let dt_s = elapsed_seconds(*last_step);
                         if dt_s >= TIMESTEP.inner_seconds() / self.desired_speed {
                             let tick = ctx.primary.sim.time;
