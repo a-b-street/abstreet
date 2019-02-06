@@ -8,7 +8,7 @@ use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
 
-pub fn make_all_turns(i: &Intersection, roads: &Vec<&Road>, lanes: &Vec<&Lane>) -> Vec<Turn> {
+pub fn make_all_turns(i: &Intersection, roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
     if i.intersection_type == IntersectionType::Border {
         return Vec::new();
     }
@@ -61,8 +61,8 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
     keep
 }
 
-fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lane>) -> Vec<Turn> {
-    let roads: Vec<&Road> = i.roads.iter().map(|r| all_roads[r.0]).collect();
+fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
+    let roads: Vec<&Road> = i.roads.iter().map(|r| &all_roads[r.0]).collect();
     let mut lane_types: BTreeSet<LaneType> = BTreeSet::new();
     for r in &roads {
         let (t1, t2) = r.get_lane_types();
@@ -143,7 +143,7 @@ fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
 }
 
 fn match_up_lanes(
-    lanes: &Vec<&Lane>,
+    lanes: &Vec<Lane>,
     i: IntersectionID,
     incoming: &Vec<LaneID>,
     outgoing: &Vec<LaneID>,
@@ -182,11 +182,11 @@ fn match_up_lanes(
 
 fn make_vehicle_turns_for_dead_end(
     i: &Intersection,
-    roads: &Vec<&Road>,
-    lanes: &Vec<&Lane>,
+    roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
     lane_type: LaneType,
 ) -> Vec<Turn> {
-    let road = roads[i.roads.iter().next().unwrap().0];
+    let road = &roads[i.roads.iter().next().unwrap().0];
     let incoming = filter_vehicle_lanes(road.incoming_lanes(i.id), lane_type);
     let outgoing = filter_vehicle_lanes(road.outgoing_lanes(i.id), lane_type);
     if incoming.is_empty() || outgoing.is_empty() {
@@ -197,29 +197,14 @@ fn make_vehicle_turns_for_dead_end(
     match_up_lanes(lanes, i.id, &incoming, &outgoing)
 }
 
-fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lane>) -> Vec<Turn> {
-    // Sort roads by the angle into the intersection, so we can reason about sidewalks of adjacent
-    // roads.
-    let mut roads: Vec<&Road> = i.roads.iter().map(|id| all_roads[id.0]).collect();
-    roads.sort_by_key(|r| {
-        if r.src_i == i.id {
-            r.center_pts
-                .reversed()
-                .last_line()
-                .angle()
-                .normalized_degrees() as i64
-        } else if r.dst_i == i.id {
-            r.center_pts.last_line().angle().normalized_degrees() as i64
-        } else {
-            panic!(
-                "Incident road {} doesn't have an endpoint at {}",
-                r.id, i.id
-            );
-        }
-    });
+fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
+    let roads: Vec<&Road> = i
+        .get_roads_sorted_by_incoming_angle(all_roads)
+        .into_iter()
+        .map(|id| &all_roads[id.0])
+        .collect();
 
     let mut result: Vec<Turn> = Vec::new();
-
     for idx1 in 0..roads.len() {
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
@@ -260,7 +245,6 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<&Road>, lanes: &Vec<&Lan
             }
         }
     }
-
     result
 }
 
@@ -289,10 +273,10 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_sidewalk<'a>(lanes: &'a Vec<&Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
+fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) -> Option<&'a Lane> {
     for (id, lt) in children {
         if *lt == LaneType::Sidewalk {
-            return Some(lanes[id.0]);
+            return Some(&lanes[id.0]);
         }
     }
     None
@@ -313,9 +297,9 @@ fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID
         .collect()
 }
 
-fn make_vehicle_turn(lanes: &Vec<&Lane>, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
-    let src = lanes[l1.0];
-    let dst = lanes[l2.0];
+fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
+    let src = &lanes[l1.0];
+    let dst = &lanes[l2.0];
     let turn_type = TurnType::from_angles(src.last_line().angle(), dst.first_line().angle());
 
     let geom = if turn_type == TurnType::Straight {

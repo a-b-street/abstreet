@@ -17,7 +17,7 @@ pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
-pub use crate::render::intersection::{draw_signal_cycle, draw_signal_diagram};
+pub use crate::render::intersection::{calculate_corners, draw_signal_cycle, draw_signal_diagram};
 pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, DrawMap};
 pub use crate::render::pedestrian::DrawPedestrian;

@@ -8,8 +8,6 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
-	- work on sidewalk corner drawing, like near o85
-
 	- try it bigger
 	- VERY overeager... ate half of the map
 	- deal with loop roads

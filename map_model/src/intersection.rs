@@ -1,4 +1,4 @@
-use crate::{raw_data, LaneID, LaneType, Map, RoadID, TurnID};
+use crate::{raw_data, LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
 use geom::{Distance, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -78,16 +78,19 @@ impl Intersection {
             .unwrap()
     }
 
-    pub fn get_roads_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadID> {
+    pub fn get_roads_sorted_by_incoming_angle(&self, all_roads: &Vec<Road>) -> Vec<RoadID> {
+        let center = self.polygon.center();
         let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
         roads.sort_by_key(|id| {
-            let r = map.get_r(*id);
-            let last_line = if r.dst_i == self.id {
-                r.center_pts.last_line()
+            let r = &all_roads[id.0];
+            let endpt = if r.src_i == self.id {
+                r.center_pts.first_pt()
+            } else if r.dst_i == self.id {
+                r.center_pts.last_pt()
             } else {
-                r.center_pts.first_line().reverse()
+                unreachable!();
             };
-            last_line.angle().normalized_degrees() as i64
+            endpt.angle_to(center).normalized_degrees() as i64
         });
         roads
     }

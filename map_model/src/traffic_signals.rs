@@ -190,7 +190,9 @@ impl ControlTrafficSignal {
         }
 
         // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
-        let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        let roads = map
+            .get_i(i)
+            .get_roads_sorted_by_incoming_angle(map.all_roads());
         let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
         // Two-phase with no protected lefts, right turn on red, peds yielding to cars
@@ -256,7 +258,9 @@ impl ControlTrafficSignal {
         }
 
         // Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
-        let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        let roads = map
+            .get_i(i)
+            .get_roads_sorted_by_incoming_angle(map.all_roads());
         let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
         // Two-phase with no protected lefts, right turn on red, turning cars yielding to peds

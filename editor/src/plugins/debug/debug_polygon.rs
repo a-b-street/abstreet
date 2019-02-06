@@ -1,11 +1,13 @@
 use crate::objects::{Ctx, ID};
 use crate::plugins::{Plugin, PluginCtx};
+use crate::render::calculate_corners;
 use ezgui::{GfxCtx, Key, Text};
-use geom::{Pt2D, Triangle};
+use geom::{Polygon, Pt2D, Triangle};
 
 enum Item {
     Point(Pt2D),
     Triangle(Triangle),
+    Polygon(Polygon),
 }
 
 pub struct DebugPolygon {
@@ -18,17 +20,30 @@ impl DebugPolygon {
     pub fn new(ctx: &mut PluginCtx) -> Option<DebugPolygon> {
         match ctx.primary.current_selection {
             Some(ID::Intersection(id)) => {
+                let i = ctx.primary.map.get_i(id);
                 if ctx
                     .input
                     .contextual_action(Key::X, "debug intersection geometry")
                 {
-                    let pts = ctx.primary.map.get_i(id).polygon.points();
+                    let pts = i.polygon.points();
                     let mut pts_without_last = pts.clone();
                     pts_without_last.pop();
                     return Some(DebugPolygon {
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
                         center: Some(Pt2D::center(&pts_without_last)),
+                    });
+                } else if ctx
+                    .input
+                    .contextual_action(Key::F2, "debug sidewalk corners")
+                {
+                    return Some(DebugPolygon {
+                        items: calculate_corners(i, &ctx.primary.map)
+                            .into_iter()
+                            .map(Item::Polygon)
+                            .collect(),
+                        current: 0,
+                        center: None,
                     });
                 }
             }
@@ -82,7 +97,7 @@ impl Plugin for DebugPolygon {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
         match self.items[self.current] {
             Item::Point(pt) => {
                 g.draw_text_at(Text::from_line(format!("{}", self.current)), pt);
@@ -91,6 +106,10 @@ impl Plugin for DebugPolygon {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     g.draw_text_at(Text::from_line(format!("{}", self.current)), *pt);
                 }
+            }
+            Item::Polygon(ref poly) => {
+                g.draw_polygon(ctx.cs.get("selected"), poly);
+                g.draw_text_at(Text::from_line(format!("{}", self.current)), poly.center());
             }
         }
         if let Some(pt) = self.center {

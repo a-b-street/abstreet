@@ -121,7 +121,8 @@ fn calculate_crosswalks(
     crosswalks
 }
 
-fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
+// TODO Temporarily public for debugging.
+pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
     for turn in &map.get_turns_in_intersection(i.id) {

@@ -136,11 +136,7 @@ pub fn make_half_map(
             i.intersection_type = IntersectionType::Border;
         }
 
-        for t in make::turns::make_all_turns(
-            i,
-            &half_map.roads.iter().collect(),
-            &half_map.lanes.iter().collect(),
-        ) {
+        for t in make::turns::make_all_turns(i, &half_map.roads, &half_map.lanes) {
             assert!(!half_map.turns.contains_key(&t.id));
             i.turns.push(t.id);
             half_map.turns.insert(t.id, t);
