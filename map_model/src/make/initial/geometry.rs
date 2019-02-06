@@ -60,6 +60,13 @@ pub fn intersection_polygon(
     };
 
     // Close off the polygon
+    if endpoints
+        .last()
+        .unwrap()
+        .approx_eq(endpoints[0], Distance::meters(1.0))
+    {
+        endpoints.pop();
+    }
     endpoints.push(endpoints[0]);
     endpoints
 }
@@ -75,7 +82,6 @@ fn generalized_trim_back(
         road_lines.push((*r, pl2.clone()));
     }
 
-    // TODO We can overwrite trimmed now
     let mut new_road_centers: HashMap<StableRoadID, PolyLine> = HashMap::new();
 
     // Intersect every road's boundary lines with all the other lines
@@ -155,77 +161,38 @@ fn generalized_trim_back(
         }
     }
 
-    // After doing all the intersection checks, copy over the new centers. Also shift those centers
-    // out again to find the endpoints that'll make up the polygon.
+    // After doing all the intersection checks, copy over the new centers.
     let mut endpoints: Vec<Pt2D> = Vec::new();
-    for (id, center_pts) in new_road_centers {
-        let r = roads.get_mut(&id).unwrap();
-        r.trimmed_center_pts = center_pts;
+    for idx in 0..lines.len() as isize {
+        let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
+        let r = roads.get_mut(&id).unwrap();
+        r.trimmed_center_pts = new_road_centers[&id].clone();
+
+        // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
+        // not originally covered by the thick road bands.
+        // TODO Do we not need to take the second_half here sometimes?
+        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
+            endpoints.push(hit);
+        }
+
+        // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
             endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).last_pt());
             endpoints.push(r.trimmed_center_pts.shift_left(r.back_width).last_pt());
         } else {
-            endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).first_pt());
             endpoints.push(r.trimmed_center_pts.shift_left(r.back_width).first_pt());
+            endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).first_pt());
         }
-    }
-    // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
-    // not originally covered by the thick road bands.
-    for idx in 0..lines.len() as isize {
-        let (_, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
-        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
-        // Hmm, seems to be safe to always take the second half here, but not earlier in general.
-        if let Some((hit, _)) = fwd_pl.intersection(adj_fwd_pl) {
-            endpoints.push(hit);
-        }
         if let Some((hit, _)) = back_pl.intersection(adj_back_pl) {
             endpoints.push(hit);
         }
     }
-    endpoints.sort_by_key(|pt| HashablePt2D::from(*pt));
-    endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(1.0));
-
-    // Different ways of making convex polygons from the endpoints. For now, the simpler one looks
-    // better.
-    if true {
-        let center = Pt2D::center(&endpoints);
-        endpoints.sort_by_key(|pt| center.angle_to(*pt).normalized_degrees() as i64);
-        endpoints
-    } else {
-        use geo;
-        use geo::algorithm::convexhull::ConvexHull;
-
-        // To get a convex polygon, often we can just find the center of these endpoints and sort
-        // the points by the angle to the center. But this breaks down for some merged
-        // intersections, so use something more heavy-weight.
-        let polygon = geo::Polygon::new(
-            geo::LineString(
-                endpoints
-                    .into_iter()
-                    .map(|pt| geo::Coordinate {
-                        x: pt.x(),
-                        y: pt.y(),
-                    })
-                    .collect(),
-            ),
-            vec![],
-        );
-        let convex = polygon.convex_hull();
-        let mut final_endpoints = Pt2D::approx_dedupe(
-            convex
-                .exterior
-                .into_points()
-                .into_iter()
-                .map(|pt| Pt2D::new(pt.x(), pt.y()))
-                .collect(),
-            Distance::meters(1.0),
-        );
-        final_endpoints.reverse();
-        final_endpoints
-    }
+    // TODO Caller will close off the polygon. Does that affect our dedupe?
+    Pt2D::approx_dedupe(endpoints, Distance::meters(1.0))
 }
 
 fn deadend(

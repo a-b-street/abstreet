@@ -99,3 +99,9 @@ https://github.com/Toblerity/Shapely looks amazing! parallel_offset method calls
 https://gis.stackexchange.com/questions/1197/creating-one-sided-buffers-or-parallel-lines-in-postgis
 https://trac.osgeo.org/geos/ticket/215#no1
 https://geos.osgeo.org/doxygen/classgeos_1_1operation_1_1buffer_1_1BufferOp.html
+
+https://github.com/DougLau/footile
+https://www.reddit.com/r/gamedev/comments/2yfyi5/drawing_lines_is_hard/
+	https://blog.mapbox.com/drawing-antialiased-lines-with-opengl-8766f34192dc
+	http://artgrammer.blogspot.com/2011/07/drawing-polylines-by-tessellation.html
+https://www.reddit.com/r/GraphicsProgramming/

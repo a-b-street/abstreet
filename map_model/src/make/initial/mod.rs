@@ -133,7 +133,7 @@ impl InitialMap {
     }
 
     pub fn save(&mut self, focus_on: Option<StableIntersectionID>) {
-        if false {
+        if true {
             return;
         }
         let path = format!("../initial_maps/{:03}", self.versions_saved);
