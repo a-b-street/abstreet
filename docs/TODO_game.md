@@ -40,3 +40,14 @@
 - check out https://github.com/movsim/traffic-simulation-de
 
 - collapse smaller roads/neighborhoods and just simulate aggregate stats about them
+
+## Discrete-event model
+
+- Smooth out the following to avoid impossible accel/deaccel
+- Handle lead car being faster
+- Make cars cover an entire lane when it's short or long
+
+- Prototype alternate driving model
+	- branch or forked code?
+	- keep timesteps or immediately cut over to events?
+	- figure out how lookahead/interruptions and replanning work

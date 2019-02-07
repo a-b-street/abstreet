@@ -2,6 +2,8 @@ use geom::{Acceleration, Distance, Duration, Speed};
 use map_model::{LaneID, Map, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
+const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
+
 pub struct World {
     leader: Car,
     follower: Car,
@@ -101,7 +103,7 @@ fn draw_car(car: &Car, front: Distance, map: &Map) -> DrawCarInput {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct Interval {
     start_dist: Distance,
     end_dist: Distance,
@@ -201,7 +203,7 @@ impl Interval {
     }
 
     // Returns the before and after interval. Both concatenated are equivalent to the original.
-    fn split_at(&self, t: Duration) -> (Interval, Interval) {
+    /*fn split_at(&self, t: Duration) -> (Interval, Interval) {
         assert!(self.covers(t));
         // Maybe return optional start/end if this happens, or make the caller recognize it first.
         assert!(self.start_time != t && self.end_time != t);
@@ -223,7 +225,7 @@ impl Interval {
             self.end_speed,
         );
         (before, after)
-    }
+    }*/
 }
 
 // TODO use lane length and a car's properties to figure out reasonable intervals for short/long
@@ -326,7 +328,6 @@ impl Car {
         self.next_state(dist_covered, Speed::ZERO, time_needed);
     }
 
-    // TODO Can we add in the following distance to our query?
     // Returns interval indices too.
     fn find_earliest_hit(&self, other: &Car) -> Option<(Duration, Distance, usize, usize)> {
         // TODO Do we ever have to worry about having the same intervals? I think this should
@@ -343,7 +344,7 @@ impl Car {
     }
 
     fn maybe_follow(&mut self, leader: &mut Car) {
-        let (time, dist, idx1, idx2) = match self.find_earliest_hit(leader) {
+        let (hit_time, hit_dist, idx1, idx2) = match self.find_earliest_hit(leader) {
             Some(hit) => hit,
             None => {
                 return;
@@ -351,14 +352,19 @@ impl Car {
         };
         println!(
             "Collision at {}, {}. follower interval {}, leader interval {}",
-            time, dist, idx1, idx2
+            hit_time, hit_dist, idx1, idx2
         );
+
+        let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         self.intervals.split_off(idx1 + 1);
 
         // TODO Might be smoother to skip this one and just go straight to adjustment.
         {
-            let our_adjusted_last = self.intervals.pop().unwrap().split_at(time).0;
+            let mut our_adjusted_last = self.intervals.pop().unwrap();
+            our_adjusted_last.end_speed = our_adjusted_last.speed(hit_time);
+            our_adjusted_last.end_time = hit_time;
+            our_adjusted_last.end_dist = hit_dist - dist_behind;
             self.intervals.push(our_adjusted_last);
         }
 
@@ -368,9 +374,9 @@ impl Car {
         {
             let them = &leader.intervals[idx2];
             self.intervals.push(Interval::new(
-                dist,
-                them.end_dist,
-                time,
+                hit_dist - dist_behind,
+                them.end_dist - dist_behind,
+                hit_time,
                 them.end_time,
                 self.intervals.last().as_ref().unwrap().end_speed,
                 them.end_speed,
@@ -379,8 +385,14 @@ impl Car {
 
         // TODO What if we can't manage the same accel/deaccel/speeds?
         for i in &leader.intervals[idx2 + 1..] {
-            // TODO Offset back to follow
-            self.intervals.push(i.clone());
+            self.intervals.push(Interval::new(
+                i.start_dist - dist_behind,
+                i.end_dist - dist_behind,
+                i.start_time,
+                i.end_time,
+                i.start_speed,
+                i.end_speed,
+            ));
         }
     }
 
