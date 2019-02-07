@@ -1,5 +1,5 @@
 use geom::{Acceleration, Distance, Duration, Speed};
-use map_model::{LaneID, Map, Traversable};
+use map_model::{Lane, LaneID, Map, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
 const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
@@ -24,9 +24,11 @@ impl World {
             start_dist: Distance::meters(5.0),
             start_time: Duration::ZERO,
         };
-        leader.accel_from_rest_to_speed_limit(0.5 * speed_limit);
+        leader.stop_at_end_of_lane(lane, 0.5 * speed_limit);
+        /*leader.accel_from_rest_to_speed_limit(0.5 * speed_limit);
         leader.freeflow(Duration::seconds(10.0));
-        leader.deaccel_to_rest();
+        leader.deaccel_to_rest();*/
+        leader.wait(Duration::seconds(5.0));
 
         let mut follower = Car {
             id: CarID::tmp_new(1, VehicleType::Car),
@@ -125,7 +127,7 @@ impl Interval {
     ) -> Interval {
         assert!(start_dist >= Distance::ZERO);
         assert!(start_time >= Duration::ZERO);
-        assert!(start_dist < end_dist);
+        assert!(start_dist <= end_dist);
         assert!(start_time < end_time);
         assert!(start_speed >= Speed::ZERO);
         assert!(end_speed >= Speed::ZERO);
@@ -311,6 +313,13 @@ impl Car {
         self.next_state(speed * time, speed, time);
     }
 
+    fn freeflow_to_cross(&mut self, dist: Distance) {
+        let speed = self.last_state().1;
+        assert_ne!(dist, Distance::ZERO);
+
+        self.next_state(dist, speed, dist / speed);
+    }
+
     fn deaccel_to_rest(&mut self) {
         let speed = self.last_state().1;
         assert_ne!(speed, Speed::ZERO);
@@ -326,6 +335,16 @@ impl Car {
             );
 
         self.next_state(dist_covered, Speed::ZERO, time_needed);
+    }
+
+    fn stopping_distance(&self, from_speed: Speed) -> Distance {
+        // TODO Copies partly from deaccel_to_rest
+        let time_needed = -from_speed / self.max_deaccel;
+        from_speed * time_needed
+            + Distance::meters(
+                0.5 * self.max_deaccel.inner_meters_per_second_squared()
+                    * time_needed.inner_seconds().powi(2),
+            )
     }
 
     // Returns interval indices too.
@@ -360,7 +379,7 @@ impl Car {
         self.intervals.split_off(idx1 + 1);
 
         // Option 1: Might be too sharp.
-        if false {
+        if true {
             {
                 let mut our_adjusted_last = self.intervals.pop().unwrap();
                 our_adjusted_last.end_speed = our_adjusted_last.speed(hit_time);
@@ -428,6 +447,23 @@ impl Car {
                 );
             }
         }
+    }
+
+    fn stop_at_end_of_lane(&mut self, lane: &Lane, speed_limit: Speed) {
+        // TODO Argh, this code is awkward.
+        // TODO Handle shorter lanes.
+        self.accel_from_rest_to_speed_limit(speed_limit);
+        let stopping_dist = self.stopping_distance(speed_limit);
+        self.freeflow_to_cross(
+            lane.length() - self.intervals.last().as_ref().unwrap().end_dist - stopping_dist,
+        );
+        self.deaccel_to_rest();
+    }
+
+    fn wait(&mut self, time: Duration) {
+        let speed = self.last_state().1;
+        assert_eq!(speed, Speed::ZERO);
+        self.next_state(Distance::ZERO, Speed::ZERO, time);
     }
 }
 

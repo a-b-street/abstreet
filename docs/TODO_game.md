@@ -43,9 +43,11 @@
 
 ## Discrete-event model
 
+- make space toggle play for time travel or sim or simple model
 - Make cars cover an entire lane when it's short or long
 - avoid impossible accel/deaccel
 - Handle lead car being faster
+- The speed stated in the middle of intervals is clearly wrong for the follower car
 
 - Prototype alternate driving model
 	- branch or forked code?

@@ -137,6 +137,17 @@ impl ops::Div<f64> for Distance {
     }
 }
 
+impl ops::Div<Speed> for Distance {
+    type Output = Duration;
+
+    fn div(self, other: Speed) -> Duration {
+        if other == Speed::ZERO {
+            panic!("Can't divide {} / {}", self, other);
+        }
+        Duration::seconds(self.0 / other.0)
+    }
+}
+
 // In seconds. Can be negative.
 // TODO Naming is awkward. Can represent a moment in time or a duration.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
