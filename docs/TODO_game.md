@@ -43,9 +43,9 @@
 
 ## Discrete-event model
 
-- Smooth out the following to avoid impossible accel/deaccel
-- Handle lead car being faster
 - Make cars cover an entire lane when it's short or long
+- avoid impossible accel/deaccel
+- Handle lead car being faster
 
 - Prototype alternate driving model
 	- branch or forked code?

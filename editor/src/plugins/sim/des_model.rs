@@ -359,28 +359,35 @@ impl Car {
 
         self.intervals.split_off(idx1 + 1);
 
-        // TODO Might be smoother to skip this one and just go straight to adjustment.
-        {
-            let mut our_adjusted_last = self.intervals.pop().unwrap();
-            our_adjusted_last.end_speed = our_adjusted_last.speed(hit_time);
-            our_adjusted_last.end_time = hit_time;
-            our_adjusted_last.end_dist = hit_dist - dist_behind;
-            self.intervals.push(our_adjusted_last);
-        }
+        // Option 1: Might be too sharp.
+        if false {
+            {
+                let mut our_adjusted_last = self.intervals.pop().unwrap();
+                our_adjusted_last.end_speed = our_adjusted_last.speed(hit_time);
+                our_adjusted_last.end_time = hit_time;
+                our_adjusted_last.end_dist = hit_dist - dist_behind;
+                self.intervals.push(our_adjusted_last);
+            }
 
-        // Match the end of the leader's interval.
-        // TODO This might be too sharp a speed change. Should possibly combine this and the
-        // previous interval.
-        {
+            {
+                let them = &leader.intervals[idx2];
+                self.intervals.push(Interval::new(
+                    hit_dist - dist_behind,
+                    them.end_dist - dist_behind,
+                    hit_time,
+                    them.end_time,
+                    self.intervals.last().as_ref().unwrap().end_speed,
+                    them.end_speed,
+                ));
+            }
+        } else {
+            // TODO This still causes impossible deaccel
             let them = &leader.intervals[idx2];
-            self.intervals.push(Interval::new(
-                hit_dist - dist_behind,
-                them.end_dist - dist_behind,
-                hit_time,
-                them.end_time,
-                self.intervals.last().as_ref().unwrap().end_speed,
-                them.end_speed,
-            ));
+            let mut our_adjusted_last = self.intervals.pop().unwrap();
+            our_adjusted_last.end_speed = them.end_speed;
+            our_adjusted_last.end_time = them.end_time;
+            our_adjusted_last.end_dist = them.end_dist - dist_behind;
+            self.intervals.push(our_adjusted_last);
         }
 
         // TODO What if we can't manage the same accel/deaccel/speeds?
