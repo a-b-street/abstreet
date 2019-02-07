@@ -5,11 +5,15 @@ use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID,
 
 pub struct SimpleModelController {
     current_tick: Option<Tick>,
+    world: Option<des_model::World>,
 }
 
 impl SimpleModelController {
     pub fn new() -> SimpleModelController {
-        SimpleModelController { current_tick: None }
+        SimpleModelController {
+            current_tick: None,
+            world: None,
+        }
     }
 
     pub fn is_active(&self) -> bool {
@@ -33,11 +37,17 @@ impl SimpleModelController {
             }
         } else if ctx.input.action_chosen("start simple model") {
             self.current_tick = Some(Tick::zero());
+            if self.world.is_none() {
+                self.world = Some(des_model::World::new(&ctx.primary.map));
+            }
         }
     }
 
     fn get_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        des_model::get_state(self.current_tick.unwrap().as_time(), map)
+        self.world
+            .as_ref()
+            .unwrap()
+            .get_draw_cars(self.current_tick.unwrap().as_time(), map)
     }
 }
 

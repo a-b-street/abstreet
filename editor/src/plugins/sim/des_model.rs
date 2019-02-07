@@ -2,69 +2,74 @@ use geom::{Acceleration, Distance, Duration, Speed};
 use map_model::{LaneID, Map, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
-pub fn get_state(time: Duration, map: &Map) -> Vec<DrawCarInput> {
-    let lane = map.get_l(LaneID(1250));
-    let speed_limit = map.get_parent(lane.id).get_speed_limit();
+pub struct World {
+    leader: Car,
+    follower: Car,
+}
 
-    let mut leader = Car {
-        id: CarID::tmp_new(0, VehicleType::Car),
-        state: CarState::Moving,
-        car_length: Distance::meters(5.0),
-        max_accel: Acceleration::meters_per_second_squared(2.5),
-        max_deaccel: Acceleration::meters_per_second_squared(-3.0),
-        intervals: Vec::new(),
-        start_dist: Distance::meters(5.0),
-        start_time: Duration::ZERO,
-    };
-    leader.accel_from_rest_to_speed_limit(0.5 * speed_limit);
-    leader.freeflow(Duration::seconds(10.0));
-    leader.deaccel_to_rest();
+impl World {
+    pub fn new(map: &Map) -> World {
+        let lane = map.get_l(LaneID(1250));
+        let speed_limit = map.get_parent(lane.id).get_speed_limit();
 
-    let mut follower = Car {
-        id: CarID::tmp_new(1, VehicleType::Car),
-        state: CarState::Stuck,
-        car_length: Distance::meters(5.0),
-        max_accel: Acceleration::meters_per_second_squared(4.5),
-        max_deaccel: Acceleration::meters_per_second_squared(-2.0),
-        intervals: Vec::new(),
-        start_dist: Distance::meters(5.0),
-        start_time: Duration::seconds(4.0),
-    };
-    follower.accel_from_rest_to_speed_limit(speed_limit);
-    follower.freeflow(Duration::seconds(10.0));
-    follower.deaccel_to_rest();
+        let mut leader = Car {
+            id: CarID::tmp_new(0, VehicleType::Car),
+            state: CarState::Moving,
+            car_length: Distance::meters(5.0),
+            max_accel: Acceleration::meters_per_second_squared(2.5),
+            max_deaccel: Acceleration::meters_per_second_squared(-3.0),
+            intervals: Vec::new(),
+            start_dist: Distance::meters(5.0),
+            start_time: Duration::ZERO,
+        };
+        leader.accel_from_rest_to_speed_limit(0.5 * speed_limit);
+        leader.freeflow(Duration::seconds(10.0));
+        leader.deaccel_to_rest();
 
-    for i in &leader.intervals {
-        println!(
-            "- Leader: {}->{} during {}->{} ({}->{})",
-            i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
-        );
+        let mut follower = Car {
+            id: CarID::tmp_new(1, VehicleType::Car),
+            state: CarState::Stuck,
+            car_length: Distance::meters(5.0),
+            max_accel: Acceleration::meters_per_second_squared(4.5),
+            max_deaccel: Acceleration::meters_per_second_squared(-2.0),
+            intervals: Vec::new(),
+            start_dist: Distance::meters(5.0),
+            start_time: Duration::seconds(4.0),
+        };
+        follower.accel_from_rest_to_speed_limit(speed_limit);
+        follower.freeflow(Duration::seconds(10.0));
+        follower.deaccel_to_rest();
+
+        for i in &leader.intervals {
+            println!(
+                "- Leader: {}->{} during {}->{} ({}->{})",
+                i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
+            );
+        }
+        println!("");
+        for i in &follower.intervals {
+            println!(
+                "- Follower: {}->{} during {}->{} ({}->{})",
+                i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
+            );
+        }
+        println!("");
+
+        follower.maybe_follow(&mut leader);
+
+        World { leader, follower }
     }
-    for i in &follower.intervals {
-        println!(
-            "- Follower: {}->{} during {}->{} ({}->{})",
-            i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
-        );
-    }
 
-    // TODO Adjust the follower's intervals somehow.
-    println!(
-        "Collision (leader, follower) at {:?}",
-        leader.find_hit(&follower)
-    );
-    println!(
-        "Collision (follower, leader) at {:?}",
-        follower.find_hit(&leader)
-    );
-
-    let mut draw = Vec::new();
-    if let Some(d) = leader.dist_at(time) {
-        draw.push(draw_car(&leader, d, map));
+    pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
+        let mut draw = Vec::new();
+        if let Some(d) = self.leader.dist_at(time) {
+            draw.push(draw_car(&self.leader, d, map));
+        }
+        if let Some(d) = self.follower.dist_at(time) {
+            draw.push(draw_car(&self.follower, d, map));
+        }
+        draw
     }
-    if let Some(d) = follower.dist_at(time) {
-        draw.push(draw_car(&follower, d, map));
-    }
-    draw
 }
 
 fn draw_car(car: &Car, front: Distance, map: &Map) -> DrawCarInput {
@@ -288,17 +293,34 @@ impl Car {
     }
 
     // TODO Can we add in the following distance to our query?
-    // TODO Find "earliest" intersection... we could have intervals that wind up equivalent for a
-    // stretch.
-    fn find_hit(&self, other: &Car) -> Option<(Duration, Distance)> {
-        for i1 in &self.intervals {
-            for i2 in &other.intervals {
-                if let Some(hit) = i1.intersection(i2) {
-                    return Some(hit);
+    // Returns interval indices too.
+    fn find_earliest_hit(&self, other: &Car) -> Option<(Duration, Distance, usize, usize)> {
+        // TODO Do we ever have to worry about having the same intervals? I think this should
+        // always find the earliest hit.
+        // TODO A good unit test... Make sure find_hit is symmetric
+        for (idx1, i1) in self.intervals.iter().enumerate() {
+            for (idx2, i2) in other.intervals.iter().enumerate() {
+                if let Some((time, dist)) = i1.intersection(i2) {
+                    return Some((time, dist, idx1, idx2));
                 }
             }
         }
         None
+    }
+
+    fn maybe_follow(&mut self, leader: &mut Car) {
+        let (time, dist, idx1, idx2) = match self.find_earliest_hit(leader) {
+            Some(hit) => hit,
+            None => {
+                return;
+            }
+        };
+
+        // TODO Adjust the follower's intervals somehow.
+        println!(
+            "Collision at {}, {}. follower interval {}, leader interval {}",
+            time, dist, idx1, idx2
+        );
     }
 }
 
