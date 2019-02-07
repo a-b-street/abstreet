@@ -44,6 +44,12 @@ use std::fmt;
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct CarID(pub usize, VehicleType);
 
+impl CarID {
+    pub fn tmp_new(idx: usize, vt: VehicleType) -> CarID {
+        CarID(idx, vt)
+    }
+}
+
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(

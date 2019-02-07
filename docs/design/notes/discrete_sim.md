@@ -96,4 +96,55 @@ accel/deaccel.
 - when we apply the accel, check the intent -- if we overshoot, detect it
   early, maybe force slight correction. meaure how much correction we need.
 	- interesting... the most constraining intent flips between FollowCar and StopAt.
-	- the car winds up at the right dist, but with tiny speed! just pretend they managed zero?
+	- the car winds up at the right dist, but with tiny speed! just pretend they managed zero
+
+## Time-space intervals
+
+An interval is a car traveling along a lane from dist1 to dist2, time1 to
+time2, speed1 to speed2. Within these intervals, those values (distance and
+speed) are just linearly interpolated. Or it could be more detailed, vf = v0 +
+at, and xf = x0 + v0t + 0.5at^2.
+
+These intervals get created a few different ways...
+- accelerate from rest to min(speed limit, vehicle's max speed)... need to
+  calculate distance traveled during that time and time it takes
+- opposite thing, deaccelerate
+- freeflow travel... speed stays the same. can construct given desired time or desired distance.
+
+Say a single car wants to just cover a lane and stop at the end. First accel as
+much as possible. If distance is too much, then... there are actually a whole
+space of options. Optimization problem. Whatever, pick some bad solution,
+improve it later.
+
+### Following
+
+Do two cars conflict on a lane? If they have timespace intervals that overlap
+(distance and time), then maybe. But they might not -- maybe a slow car barely
+catches up to a faster car. We have two x(t) parametric equations -- set them
+equal, find the time at which the collision occurs, see if that time is
+actually in both time ranges. We actually want to check if x1(t) + length +
+follow dist = x2(t), of course.
+
+If there is a collision, make a new time-space interval for the follower. It
+shouldn't need to reference the leader at all after making the interval!
+Specifically...
+
+leader:  (x1, t1)             (x2, t2)
+follower:      (x3, t3,              x4, t4)
+
+"collision" (with following distance added) at t5 and x5, which are inside the
+appropriate intervals. the follower's intervals should now be...
+
+(x3, t3    x5, t5) and (x5, t5,      ????)
+
+Position should be the same as leader, but + the length and follow dist.
+Correspondingly, the time to reach the same endpoint as the leader should be
+offset by some amount...
+
+- We sort of hand-wave assume that the follower can decelerate to match the
+  speed of the leader.
+
+### Stop-and-go conditions
+
+What if we measured distance over time of this using the current sim? And then
+found a low speed that produced the same distance in the same time?

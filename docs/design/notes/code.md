@@ -77,6 +77,8 @@ https://www.reddit.com/r/rust/comments/9d8gse/higher_level_api_than_syn_for_stat
 	- macro to apply a macro to all fxns in an impl
 	- then i can manually edit a few places when I want to gather data
 
+https://crates.io/crates/aspect has some of the pieces
+
 ## Per-car properties
 
 Need to associate car length between driving and parking sims.

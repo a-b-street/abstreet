@@ -98,6 +98,14 @@ impl PolyLine {
         if start > end || start < Distance::ZERO || end < Distance::ZERO {
             panic!("Can't get a polyline slice [{}, {}]", start, end);
         }
+        if start > self.length() {
+            panic!(
+                "Can't get a polyline slice [{}, {}] on something of length {}",
+                start,
+                end,
+                self.length()
+            );
+        }
         if end - start < EPSILON_DIST {
             return None;
         }

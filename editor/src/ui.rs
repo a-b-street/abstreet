@@ -76,6 +76,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Some(Key::D), "diff all A/B trips"),
                     (Some(Key::S), "seed the sim with agents"),
                     (Some(Key::LeftAlt), "swap the primary/secondary sim"),
+                    (Some(Key::C), "start simple model"),
                 ],
             ),
             Folder::new(
@@ -133,6 +134,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ),
             ModalMenu::new(
                 "Time Traveler",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::Comma, "rewind"),
+                    (Key::Dot, "forwards"),
+                ],
+            ),
+            ModalMenu::new(
+                "Simple Model",
                 vec![
                     (Key::Enter, "quit"),
                     (Key::Comma, "rewind"),
@@ -454,8 +463,11 @@ impl<S: UIState> UI<S> {
         {
             let sim: &GetDrawAgents = {
                 let tt = &state.primary_plugins.time_travel;
+                let sm = &state.primary_plugins.simple_model;
                 if tt.is_active() {
                     tt
+                } else if sm.is_active() {
+                    sm
                 } else {
                     &state.primary.sim
                 }

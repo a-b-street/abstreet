@@ -208,6 +208,11 @@ impl UIState for DefaultUIState {
             if self.primary_plugins.time_travel.is_active() {
                 return;
             }
+            // TODO SimpleModelController should be exclusive_blocking_plugin.
+            self.primary_plugins.simple_model.event(&mut ctx);
+            if self.primary_plugins.simple_model.is_active() {
+                return;
+            }
 
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
@@ -458,6 +463,7 @@ pub struct PluginsPerMap {
 
     // This acts like exclusive blocking when active.
     pub time_travel: plugins::sim::time_travel::TimeTravel,
+    pub simple_model: plugins::sim::simple_model::SimpleModelController,
 
     ambient_plugins: Vec<Box<Plugin>>,
 }
@@ -482,6 +488,7 @@ impl PluginsPerMap {
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
             time_travel: plugins::sim::time_travel::TimeTravel::new(),
+            simple_model: plugins::sim::simple_model::SimpleModelController::new(),
         };
         if enable_debug_controls {
             p.ambient_plugins

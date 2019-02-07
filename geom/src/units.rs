@@ -103,6 +103,14 @@ impl ops::Mul<f64> for Distance {
     }
 }
 
+impl ops::Mul<Distance> for f64 {
+    type Output = Distance;
+
+    fn mul(self, other: Distance) -> Distance {
+        Distance::meters(self * other.0)
+    }
+}
+
 impl ops::Div<Distance> for Distance {
     type Output = f64;
 
@@ -266,6 +274,14 @@ impl ops::Mul<f64> for Speed {
 
     fn mul(self, scalar: f64) -> Speed {
         Speed::meters_per_second(self.0 * scalar)
+    }
+}
+
+impl ops::Mul<Speed> for f64 {
+    type Output = Speed;
+
+    fn mul(self, other: Speed) -> Speed {
+        Speed::meters_per_second(self * other.0)
     }
 }
 
