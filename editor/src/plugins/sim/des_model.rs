@@ -40,23 +40,34 @@ impl World {
         follower.freeflow(Duration::seconds(10.0));
         follower.deaccel_to_rest();
 
+        println!("Leader:\n");
         for i in &leader.intervals {
             println!(
-                "- Leader: {}->{} during {}->{} ({}->{})",
+                "- {}->{} during {}->{} ({}->{})",
                 i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
             );
         }
-        println!("");
+        println!("\nOriginal follower:\n");
         for i in &follower.intervals {
             println!(
-                "- Follower: {}->{} during {}->{} ({}->{})",
+                "- {}->{} during {}->{} ({}->{})",
                 i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
             );
         }
         println!("");
 
         follower.maybe_follow(&mut leader);
+        println!("\nAdjusted follower:\n");
+        for i in &follower.intervals {
+            println!(
+                "- {}->{} during {}->{} ({}->{})",
+                i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
+            );
+        }
+        println!("");
 
+        leader.validate();
+        follower.validate();
         World { leader, follower }
     }
 
@@ -90,7 +101,7 @@ fn draw_car(car: &Car, front: Distance, map: &Map) -> DrawCarInput {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Interval {
     start_dist: Distance,
     end_dist: Distance,
@@ -188,6 +199,31 @@ impl Interval {
         }
         Some((t, dist1))
     }
+
+    // Returns the before and after interval. Both concatenated are equivalent to the original.
+    fn split_at(&self, t: Duration) -> (Interval, Interval) {
+        assert!(self.covers(t));
+        // Maybe return optional start/end if this happens, or make the caller recognize it first.
+        assert!(self.start_time != t && self.end_time != t);
+
+        let before = Interval::new(
+            self.start_dist,
+            self.dist(t),
+            self.start_time,
+            t,
+            self.start_speed,
+            self.speed(t),
+        );
+        let after = Interval::new(
+            self.dist(t),
+            self.end_dist,
+            t,
+            self.end_time,
+            self.speed(t),
+            self.end_speed,
+        );
+        (before, after)
+    }
 }
 
 // TODO use lane length and a car's properties to figure out reasonable intervals for short/long
@@ -210,8 +246,6 @@ struct Car {
 }
 
 impl Car {
-    // TODO If we had a constructor, make sure start_dist >= car_length.
-
     // None if they're not on the lane by then
     fn dist_at(&self, t: Duration) -> Option<Distance> {
         // TODO Binary search
@@ -315,12 +349,66 @@ impl Car {
                 return;
             }
         };
-
-        // TODO Adjust the follower's intervals somehow.
         println!(
             "Collision at {}, {}. follower interval {}, leader interval {}",
             time, dist, idx1, idx2
         );
+
+        self.intervals.split_off(idx1 + 1);
+
+        // TODO Might be smoother to skip this one and just go straight to adjustment.
+        {
+            let our_adjusted_last = self.intervals.pop().unwrap().split_at(time).0;
+            self.intervals.push(our_adjusted_last);
+        }
+
+        // Match the end of the leader's interval.
+        // TODO This might be too sharp a speed change. Should possibly combine this and the
+        // previous interval.
+        {
+            let them = &leader.intervals[idx2];
+            self.intervals.push(Interval::new(
+                dist,
+                them.end_dist,
+                time,
+                them.end_time,
+                self.intervals.last().as_ref().unwrap().end_speed,
+                them.end_speed,
+            ));
+        }
+
+        // TODO What if we can't manage the same accel/deaccel/speeds?
+        for i in &leader.intervals[idx2 + 1..] {
+            // TODO Offset back to follow
+            self.intervals.push(i.clone());
+        }
+    }
+
+    fn validate(&self) {
+        assert!(!self.intervals.is_empty());
+        assert!(self.intervals[0].start_dist >= self.car_length);
+
+        for pair in self.intervals.windows(2) {
+            assert_eq!(pair[0].end_time, pair[1].start_time);
+            assert_eq!(pair[0].end_dist, pair[1].start_dist);
+            assert_eq!(pair[0].end_speed, pair[1].start_speed);
+        }
+
+        for i in &self.intervals {
+            let accel = (i.end_speed - i.start_speed) / (i.end_time - i.start_time);
+            if accel >= Acceleration::ZERO && accel > self.max_accel {
+                println!(
+                    "{} accelerates {}, but can only do {}",
+                    self.id, accel, self.max_accel
+                );
+            }
+            if accel < Acceleration::ZERO && accel < self.max_deaccel {
+                println!(
+                    "{} decelerates {}, but can only do {}",
+                    self.id, accel, self.max_deaccel
+                );
+            }
+        }
     }
 }
 
