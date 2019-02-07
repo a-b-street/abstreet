@@ -50,6 +50,10 @@ impl Distance {
     pub fn inner_meters(self) -> f64 {
         self.0
     }
+
+    pub fn epsilon_eq(self, other: Distance) -> bool {
+        (self - other).abs() <= EPSILON_DIST
+    }
 }
 
 impl fmt::Display for Distance {

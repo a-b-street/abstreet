@@ -34,8 +34,28 @@ pub fn get_state(time: Duration, map: &Map) -> Vec<DrawCarInput> {
     follower.freeflow(Duration::seconds(10.0));
     follower.deaccel_to_rest();
 
-    // TODO Analytically find when and where collision will happen. Adjust the follower's intervals
-    // somehow.
+    for i in &leader.intervals {
+        println!(
+            "- Leader: {}->{} during {}->{} ({}->{})",
+            i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
+        );
+    }
+    for i in &follower.intervals {
+        println!(
+            "- Follower: {}->{} during {}->{} ({}->{})",
+            i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
+        );
+    }
+
+    // TODO Adjust the follower's intervals somehow.
+    println!(
+        "Collision (leader, follower) at {:?}",
+        leader.find_hit(&follower)
+    );
+    println!(
+        "Collision (follower, leader) at {:?}",
+        follower.find_hit(&leader)
+    );
 
     let mut draw = Vec::new();
     if let Some(d) = leader.dist_at(time) {
@@ -65,6 +85,7 @@ fn draw_car(car: &Car, front: Distance, map: &Map) -> DrawCarInput {
     }
 }
 
+#[derive(Debug)]
 struct Interval {
     start_dist: Distance,
     end_dist: Distance,
@@ -119,12 +140,55 @@ impl Interval {
         (t - self.start_time) / (self.end_time - self.start_time)
     }
 
-    // TODO intersection operation figures out dist and speed by interpolating, of course.
+    fn intersection(&self, other: &Interval) -> Option<(Duration, Distance)> {
+        if !overlap(
+            (self.start_time, self.end_time),
+            (other.start_time, other.end_time),
+        ) {
+            return None;
+        }
+        if !overlap(
+            (self.start_dist, self.end_dist),
+            (other.start_dist, other.end_dist),
+        ) {
+            return None;
+        }
+
+        // Set the two distance equations equal and solve for time. Long to type out here...
+        let x1 = self.start_dist.inner_meters();
+        let x2 = self.end_dist.inner_meters();
+        let a1 = self.start_time.inner_seconds();
+        let a2 = self.end_time.inner_seconds();
+
+        let y1 = other.start_dist.inner_meters();
+        let y2 = other.end_dist.inner_meters();
+        let b1 = other.start_time.inner_seconds();
+        let b2 = other.end_time.inner_seconds();
+
+        let numer = a1 * (b2 * (y1 - x2) + b1 * (x2 - y2)) + a2 * (b2 * (x1 - y1) + b1 * (y2 - x1));
+        let denom = (a1 - a2) * (y1 - y2) + b2 * (x1 - x2) + b1 * (x2 - x1);
+        let t = Duration::seconds(numer / denom);
+
+        if !self.covers(t) || !other.covers(t) {
+            return None;
+        }
+
+        let dist1 = self.dist(t);
+        let dist2 = other.dist(t);
+        if !dist1.epsilon_eq(dist2) {
+            panic!(
+                "{:?} and {:?} intersect at {}, but got dist {} and {}",
+                self, other, t, dist1, dist2
+            );
+        }
+        Some((t, dist1))
+    }
 }
 
 // TODO use lane length and a car's properties to figure out reasonable intervals for short/long
 // lanes
 // TODO debug draw an interval
+// TODO debug print a bunch of intervals
 
 struct Car {
     id: CarID,
@@ -222,4 +286,25 @@ impl Car {
 
         self.next_state(dist_covered, Speed::ZERO, time_needed);
     }
+
+    // TODO Can we add in the following distance to our query?
+    // TODO Find "earliest" intersection... we could have intervals that wind up equivalent for a
+    // stretch.
+    fn find_hit(&self, other: &Car) -> Option<(Duration, Distance)> {
+        for i1 in &self.intervals {
+            for i2 in &other.intervals {
+                if let Some(hit) = i1.intersection(i2) {
+                    return Some(hit);
+                }
+            }
+        }
+        None
+    }
+}
+
+fn overlap<A: PartialOrd>((a_start, a_end): (A, A), (b_start, b_end): (A, A)) -> bool {
+    if a_start > b_end || b_start > a_end {
+        return false;
+    }
+    true
 }
