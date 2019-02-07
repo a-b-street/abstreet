@@ -25,7 +25,7 @@ pub struct DrawCarInput {
     pub body: PolyLine,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum CarState {
     Moving,
     Stuck,

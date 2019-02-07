@@ -173,6 +173,14 @@ impl fmt::Display for Duration {
     }
 }
 
+impl ops::Add for Duration {
+    type Output = Duration;
+
+    fn add(self, other: Duration) -> Duration {
+        Duration::seconds(self.0 + other.0)
+    }
+}
+
 impl ops::Sub for Duration {
     type Output = Duration;
 
@@ -266,6 +274,14 @@ impl ops::Sub for Speed {
 
     fn sub(self, other: Speed) -> Speed {
         Speed::meters_per_second(self.0 - other.0)
+    }
+}
+
+impl ops::Neg for Speed {
+    type Output = Speed;
+
+    fn neg(self) -> Speed {
+        Speed::meters_per_second(-self.0)
     }
 }
 
@@ -373,5 +389,13 @@ impl ops::Mul<Duration> for Acceleration {
 
     fn mul(self, other: Duration) -> Speed {
         Speed::meters_per_second(self.0 * other.0)
+    }
+}
+
+impl ops::Mul<Acceleration> for f64 {
+    type Output = Acceleration;
+
+    fn mul(self, other: Acceleration) -> Acceleration {
+        Acceleration::meters_per_second_squared(self * other.0)
     }
 }
