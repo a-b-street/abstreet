@@ -8,10 +8,10 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
+	- rename o and O to R and I... easier. :)
 	- what's going on with O253 generally?
-		- the base geometry in OSM is just wrong... because ways have to be connected at the center lines
-		- one-lane coming off a 4 or 5 lane and going one way... maybe it should be shifted to the other side
-			- that messes up the nice curve later. need to clip, not shift.
+		- automate the manual fix. check it in larger 23rd map.
+
 	- o40 has a long cut when merged, why not hit in the middle?
 		- what if we allow intersections between infinite lines for merged cases?
 	- try it bigger
