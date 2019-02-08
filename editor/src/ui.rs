@@ -146,6 +146,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::Enter, "quit"),
                     (Key::Comma, "rewind"),
                     (Key::Dot, "forwards"),
+                    (Key::Space, "toggle forwards play"),
+                    (Key::M, "toggle backwards play"),
                 ],
             ),
             ModalMenu::new(

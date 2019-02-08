@@ -1,11 +1,19 @@
 use crate::plugins::sim::des_model;
 use crate::plugins::PluginCtx;
+use ezgui::EventLoopMode;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Tick};
+
+enum AutoMode {
+    Off,
+    Forwards,
+    Backwards,
+}
 
 pub struct SimpleModelController {
     current_tick: Option<Tick>,
     world: Option<des_model::World>,
+    mode: AutoMode,
 }
 
 impl SimpleModelController {
@@ -13,6 +21,7 @@ impl SimpleModelController {
         SimpleModelController {
             current_tick: None,
             world: None,
+            mode: AutoMode::Off,
         }
     }
 
@@ -28,12 +37,40 @@ impl SimpleModelController {
                 format!("Simple Model at {}", tick),
                 &ctx.canvas,
             );
-            if tick != Tick::zero() && ctx.input.modal_action("rewind") {
-                self.current_tick = Some(tick.prev());
-            } else if ctx.input.modal_action("forwards") {
-                self.current_tick = Some(tick.next());
-            } else if ctx.input.modal_action("quit") {
+            match self.mode {
+                AutoMode::Off => {
+                    if tick != Tick::zero() && ctx.input.modal_action("rewind") {
+                        self.current_tick = Some(tick.prev());
+                    } else if ctx.input.modal_action("forwards") {
+                        self.current_tick = Some(tick.next());
+                    } else if ctx.input.modal_action("toggle forwards play") {
+                        self.mode = AutoMode::Forwards;
+                        ctx.hints.mode = EventLoopMode::Animation;
+                    } else if ctx.input.modal_action("toggle backwards play") {
+                        self.mode = AutoMode::Backwards;
+                        ctx.hints.mode = EventLoopMode::Animation;
+                    }
+                }
+                AutoMode::Forwards => {
+                    ctx.hints.mode = EventLoopMode::Animation;
+                    if ctx.input.modal_action("toggle forwards play") {
+                        self.mode = AutoMode::Off;
+                    } else if ctx.input.is_update_event() {
+                        self.current_tick = Some(tick.next());
+                    }
+                }
+                AutoMode::Backwards => {
+                    ctx.hints.mode = EventLoopMode::Animation;
+                    if tick == Tick::zero() || ctx.input.modal_action("toggle backwards play") {
+                        self.mode = AutoMode::Off;
+                    } else if ctx.input.is_update_event() {
+                        self.current_tick = Some(tick.prev());
+                    }
+                }
+            }
+            if ctx.input.modal_action("quit") {
                 self.current_tick = None;
+                self.mode = AutoMode::Off;
             }
         } else if ctx.input.action_chosen("start simple model") {
             self.current_tick = Some(Tick::zero());
