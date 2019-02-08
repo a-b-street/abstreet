@@ -76,16 +76,17 @@ fn generalized_trim_back(
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
 ) -> Vec<Pt2D> {
-    let mut road_lines: Vec<(StableRoadID, PolyLine)> = Vec::new();
+    let mut road_lines: Vec<(StableRoadID, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
-        road_lines.push((*r, pl1.clone()));
-        road_lines.push((*r, pl2.clone()));
+        // TODO Argh, just use original lines.
+        road_lines.push((*r, pl1.clone(), pl2.clone()));
+        road_lines.push((*r, pl2.clone(), pl1.clone()));
     }
 
     let mut new_road_centers: HashMap<StableRoadID, PolyLine> = HashMap::new();
 
     // Intersect every road's boundary lines with all the other lines
-    for (r1, pl1) in &road_lines {
+    for (r1, pl1, other_pl1) in &road_lines {
         // road_center ends at the intersection.
         let road_center = if roads[r1].dst_i == i {
             roads[r1].trimmed_center_pts.clone()
@@ -106,7 +107,7 @@ fn generalized_trim_back(
             road_center.clone()
         };
 
-        for (r2, pl2) in &road_lines {
+        for (r2, pl2, _) in &road_lines {
             if r1 == r2 {
                 continue;
             }
@@ -145,6 +146,29 @@ fn generalized_trim_back(
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
+            }
+
+            // Another check... sometimes a boundary line crosss the perpendicular end of another
+            // road.
+            // TODO Reduce DEGENERATE_INTERSECTION_HALF_LENGTH to play with this.
+            if false {
+                let perp = Line::new(pl1.last_pt(), other_pl1.last_pt());
+                if perp.intersection(&pl2.last_line()).is_some() {
+                    let new_perp = Line::new(
+                        pl2.last_pt(),
+                        pl2.last_pt()
+                            .project_away(Distance::meters(1.0), perp.angle()),
+                    )
+                    .infinite();
+                    // Find the hit closest to the intersection -- this matters for very curvy
+                    // roads, like highway ramps.
+                    if let Some(trim_to) = road_center.reversed().intersection_infinite(&new_perp) {
+                        let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
+                        if trimmed.length() < shortest_center.length() {
+                            shortest_center = trimmed;
+                        }
+                    }
+                }
             }
         }
 

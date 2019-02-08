@@ -135,3 +135,14 @@ source of truth.
 - create all buildings, matching them to the nearest sidewalk with a front path
 - copy over parcels and areas (like parks and bodies of water)
 - filter out any bus routes with adjacent stops that fail pathfinding
+
+## Conversion tricks
+
+- early roundabout handling
+- screenshot diff testing
+- stable IDs
+- short road trimming
+- highway ramp special cases
+- intersection polygon calculations
+- polyline shifting
+- sidewalk corner and crosswalk rendering
