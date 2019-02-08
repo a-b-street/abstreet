@@ -43,8 +43,9 @@
 
 ## Discrete-event model
 
-- Make cars cover an entire lane, even when it's short
+- try real distance over time ;) but does it make intersection calculation extremely hard?
 - avoid impossible accel/deaccel
+- Make cars cover an entire lane, even when it's short
 - Handle lead car being faster
 - The speed stated in the middle of intervals is clearly wrong for the follower car
 

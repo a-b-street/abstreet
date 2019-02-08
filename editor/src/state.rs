@@ -402,6 +402,10 @@ impl UIState for DefaultUIState {
         }
         // Hider doesn't draw
 
+        if self.primary_plugins.simple_model.is_active() {
+            self.primary_plugins.simple_model.draw(g, ctx);
+        }
+
         // Ambient
         self.sim_controls.draw(g, ctx);
         // Layers doesn't draw

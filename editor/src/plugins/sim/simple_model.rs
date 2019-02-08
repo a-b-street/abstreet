@@ -1,6 +1,7 @@
+use crate::objects::Ctx;
 use crate::plugins::sim::des_model;
 use crate::plugins::PluginCtx;
-use ezgui::EventLoopMode;
+use ezgui::{EventLoopMode, GfxCtx};
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Tick};
 
@@ -14,6 +15,7 @@ pub struct SimpleModelController {
     current_tick: Option<Tick>,
     world: Option<des_model::World>,
     mode: AutoMode,
+    show_tooltips: bool,
 }
 
 impl SimpleModelController {
@@ -22,6 +24,7 @@ impl SimpleModelController {
             current_tick: None,
             world: None,
             mode: AutoMode::Off,
+            show_tooltips: false,
         }
     }
 
@@ -71,12 +74,26 @@ impl SimpleModelController {
             if ctx.input.modal_action("quit") {
                 self.current_tick = None;
                 self.mode = AutoMode::Off;
+                self.show_tooltips = false;
+            }
+            if ctx.input.modal_action("toggle tooltips") {
+                self.show_tooltips = !self.show_tooltips;
             }
         } else if ctx.input.action_chosen("start simple model") {
             self.current_tick = Some(Tick::zero());
             if self.world.is_none() {
                 self.world = Some(des_model::World::new(&ctx.primary.map));
             }
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+        if self.show_tooltips {
+            self.world.as_ref().unwrap().draw_tooltips(
+                g,
+                ctx,
+                self.current_tick.unwrap().as_time(),
+            );
         }
     }
 

@@ -1,3 +1,5 @@
+use crate::objects::Ctx;
+use ezgui::{GfxCtx, Text};
 use geom::{Acceleration, Distance, Duration, Speed};
 use map_model::{Lane, LaneID, Map, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
@@ -77,13 +79,30 @@ impl World {
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
-        if let Some(d) = self.leader.dist_at(time) {
-            draw.push(draw_car(&self.leader, d, map));
-        }
-        if let Some(d) = self.follower.dist_at(time) {
-            draw.push(draw_car(&self.follower, d, map));
+        for car in vec![&self.leader, &self.follower] {
+            if let Some((d, _)) = car.dist_at(time) {
+                draw.push(draw_car(car, d, map));
+            }
         }
         draw
+    }
+
+    pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &Ctx, time: Duration) {
+        let lane = ctx.map.get_l(LaneID(1250));
+
+        for car in vec![&self.leader, &self.follower] {
+            if let Some((d, idx)) = car.dist_at(time) {
+                g.draw_text_at(
+                    Text::from_line(format!(
+                        "Interval {}/{}, speed {}",
+                        idx + 1,
+                        car.intervals.len(),
+                        car.intervals[idx].speed(time)
+                    )),
+                    lane.lane_center_pts.dist_along(d - 0.5 * car.car_length).0,
+                );
+            }
+        }
     }
 }
 
@@ -230,8 +249,6 @@ impl Interval {
     }*/
 }
 
-// TODO use lane length and a car's properties to figure out reasonable intervals for short/long
-// lanes
 // TODO debug draw an interval
 // TODO debug print a bunch of intervals
 
@@ -250,20 +267,12 @@ struct Car {
 }
 
 impl Car {
-    // None if they're not on the lane by then
-    fn dist_at(&self, t: Duration) -> Option<Distance> {
+    // None if they're not on the lane by then. Also returns the interval index for debugging.
+    fn dist_at(&self, t: Duration) -> Option<(Distance, usize)> {
         // TODO Binary search
         for (idx, i) in self.intervals.iter().enumerate() {
             if i.covers(t) {
-                // TODO Show this in the modal menu.
-                println!(
-                    "{} is doing interval {}/{}. Speed {}",
-                    self.id,
-                    idx + 1,
-                    self.intervals.len(),
-                    i.speed(t)
-                );
-                return Some(i.dist(t));
+                return Some((i.dist(t), idx));
             }
         }
         None
