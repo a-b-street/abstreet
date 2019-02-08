@@ -8,11 +8,10 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
-	- rename o and O to R and I... easier. :)
-	- what's going on with O253 generally?
+	- what's going on with R253 generally?
 		- automate the manual fix. check it in larger 23rd map.
 
-	- o40 has a long cut when merged, why not hit in the middle?
+	- I40 has a long cut when merged, why not hit in the middle?
 		- what if we allow intersections between infinite lines for merged cases?
 	- try it bigger
 	- deal with loop roads?

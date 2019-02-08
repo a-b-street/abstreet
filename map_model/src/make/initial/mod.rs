@@ -171,7 +171,7 @@ impl InitialMap {
         }
 
         if false {
-            // Delete o247 and O370. remove connection of O370 from o309.
+            // Delete I247 and R370. remove connection of R370 from I309.
             m.intersections.remove(&StableIntersectionID(247));
             m.roads.remove(&StableRoadID(370));
             m.intersections
@@ -179,7 +179,7 @@ impl InitialMap {
                 .unwrap()
                 .roads
                 .remove(&StableRoadID(370));
-            // make O253's src be the intersection it hits. recalculate that intersection.
+            // make R253's src be the intersection it hits. recalculate that intersection.
             m.roads.get_mut(&StableRoadID(253)).unwrap().src_i = StableIntersectionID(119);
             m.intersections
                 .get_mut(&StableIntersectionID(119))

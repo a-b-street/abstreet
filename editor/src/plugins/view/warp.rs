@@ -99,16 +99,14 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             'i' => ID::Intersection(IntersectionID(idx)),
             'b' => ID::Building(BuildingID(idx)),
             'a' => ID::Area(AreaID(idx)),
-            // TODO ideally "pa" prefix?
-            'e' => ID::Parcel(ParcelID(idx)),
+            'P' => ID::Parcel(ParcelID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => {
                 // This one gets more complicated. :)
                 ID::Car(sim.lookup_car_id(idx)?)
             }
             't' => ID::Trip(TripID(idx)),
-            // TODO "tu"?
-            'u' => {
+            'T' => {
                 if let Some(id) = map.lookup_turn_by_idx(idx) {
                     ID::Turn(id)
                 } else {
@@ -116,8 +114,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                     return None;
                 }
             }
-            // TODO "si"
-            'o' => {
+            'I' => {
                 let stable_id = raw_data::StableIntersectionID(idx);
                 if let Some(i) = map
                     .all_intersections()
@@ -130,8 +127,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                     return None;
                 }
             }
-            // TODO "sr"
-            'O' => {
+            'R' => {
                 let stable_id = raw_data::StableRoadID(idx);
                 if let Some(r) = map.all_roads().iter().find(|r| r.stable_id == stable_id) {
                     ID::Lane(r.children_forwards[0].0)

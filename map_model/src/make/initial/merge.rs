@@ -6,19 +6,19 @@ use std::collections::HashSet;
 
 pub fn short_roads(map: &mut InitialMap) {
     if false {
-        // o228
+        // I228
         merge(map, StableRoadID(311));
 
-        // o201
+        // I201
         merge(map, StableRoadID(240));
 
-        // o37
+        // I37
         merge(map, StableRoadID(91));
 
-        // o40
+        // I40
         merge(map, StableRoadID(59));
 
-        // o25
+        // I25
         merge(map, StableRoadID(389));
         merge(map, StableRoadID(22));
     }
