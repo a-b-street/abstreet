@@ -12,8 +12,6 @@
 		- the base geometry in OSM is just wrong... because ways have to be connected at the center lines
 		- one-lane coming off a 4 or 5 lane and going one way... maybe it should be shifted to the other side
 			- that messes up the nice curve later. need to clip, not shift.
-	- o123 is a pretty weird shape, it eats the entire curve
-		- did the second_half stuff mess things up?
 	- o40 has a long cut when merged, why not hit in the middle?
 		- what if we allow intersections between infinite lines for merged cases?
 	- try it bigger
