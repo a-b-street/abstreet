@@ -8,16 +8,10 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
-	- what's going on with R253 generally?
-		- automate the manual fix. check it in larger 23rd map.
-
 	- I40 has a long cut when merged, why not hit in the middle?
 		- what if we allow intersections between infinite lines for merged cases?
 	- try it bigger
 	- deal with loop roads?
-
-	- manually draw a picture of the weird intersection to see what would look reasonable. i think we need original road bands from deleted stuff to make decent polygons.
-
 	- model U-turns
 
 - degenerate-2's should only have one crosswalk

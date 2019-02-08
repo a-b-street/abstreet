@@ -1,13 +1,14 @@
+mod fix_ramps;
 mod geometry;
 pub mod lane_specs;
 mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, MapEdits, LANE_THICKNESS};
-use abstutil::{note, Timer};
+use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Serialize, Deserialize)]
 pub struct InitialMap {
@@ -139,64 +140,7 @@ impl InitialMap {
             i.polygon = geometry::intersection_polygon(i, &mut m.roads);
         }
 
-        // TODO Move to a module if this grows.
-        // Look for road center lines that hit an intersection polygon that isn't one of their
-        // endpoints.
-        timer.start_iter(
-            "look for roads crossing intersections in strange ways",
-            m.roads.len(),
-        );
-        for r in m.roads.values() {
-            timer.next();
-            // TODO Prune search.
-            for i in m.intersections.values() {
-                if r.src_i == i.id || r.dst_i == i.id {
-                    continue;
-                }
-                if !r.trimmed_center_pts.crosses_polygon(&i.polygon) {
-                    continue;
-                }
-
-                // TODO Avoid some false positives by seeing if this road is "close" to the
-                // intersection it crosses. This probably needs more tuning. It avoids expected
-                // tunnel/bridge crossings.
-                if !m.floodfill(i.id, 5).contains(&r.id) {
-                    continue;
-                }
-
-                // TODO Still seeing false positives due to lack of short road merging.
-
-                note(format!("{} is suspicious -- it hits {}", r.id, i.id));
-            }
-        }
-
-        if false {
-            // Delete I247 and R370. remove connection of R370 from I309.
-            m.intersections.remove(&StableIntersectionID(247));
-            m.roads.remove(&StableRoadID(370));
-            m.intersections
-                .get_mut(&StableIntersectionID(309))
-                .unwrap()
-                .roads
-                .remove(&StableRoadID(370));
-            // make R253's src be the intersection it hits. recalculate that intersection.
-            m.roads.get_mut(&StableRoadID(253)).unwrap().src_i = StableIntersectionID(119);
-            m.intersections
-                .get_mut(&StableIntersectionID(119))
-                .unwrap()
-                .roads
-                .insert(StableRoadID(253));
-            // TODO reset geometry or not?
-            {
-                let i = m.intersections.get_mut(&StableIntersectionID(119)).unwrap();
-                i.polygon = geometry::intersection_polygon(i, &mut m.roads);
-            }
-            {
-                // Also fix up this one.
-                let i = m.intersections.get_mut(&StableIntersectionID(309)).unwrap();
-                i.polygon = geometry::intersection_polygon(i, &mut m.roads);
-            }
-        }
+        fix_ramps::fix_ramps(&mut m, timer);
 
         merge::short_roads(&mut m);
 
@@ -212,31 +156,5 @@ impl InitialMap {
         self.versions_saved += 1;
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         info!("Saved {}", path);
-    }
-
-    fn floodfill(&self, start: StableIntersectionID, steps: usize) -> HashSet<StableRoadID> {
-        let mut seen: HashSet<StableRoadID> = HashSet::new();
-        let mut queue: Vec<(StableRoadID, usize)> = self.intersections[&start]
-            .roads
-            .iter()
-            .map(|r| (*r, 1))
-            .collect();
-        while !queue.is_empty() {
-            let (r, count) = queue.pop().unwrap();
-            if seen.contains(&r) {
-                continue;
-            }
-            seen.insert(r);
-            if count < steps {
-                for next in self.intersections[&self.roads[&r].src_i]
-                    .roads
-                    .iter()
-                    .chain(self.intersections[&self.roads[&r].dst_i].roads.iter())
-                {
-                    queue.push((*next, count + 1));
-                }
-            }
-        }
-        seen
     }
 }
