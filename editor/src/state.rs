@@ -365,6 +365,21 @@ impl UIState for DefaultUIState {
                 self.primary_plugins.hider = Some(p);
             }
         }
+        if self.primary_plugins.orig_roads.is_some() {
+            if !self
+                .primary_plugins
+                .orig_roads
+                .as_mut()
+                .unwrap()
+                .nonblocking_event(&mut ctx)
+            {
+                self.primary_plugins.orig_roads = None;
+            }
+        } else if self.enable_debug_controls {
+            if let Some(p) = debug::orig_roads::ShowOriginalRoads::new(&mut ctx) {
+                self.primary_plugins.orig_roads = Some(p);
+            }
+        }
 
         // Ambient plugins
         self.sim_controls
@@ -398,6 +413,9 @@ impl UIState for DefaultUIState {
             p.draw(g, ctx);
         }
         if let Some(ref p) = self.legend {
+            p.draw(g, ctx);
+        }
+        if let Some(ref p) = self.primary_plugins.orig_roads {
             p.draw(g, ctx);
         }
         // Hider doesn't draw
@@ -461,6 +479,7 @@ pub struct PluginsPerMap {
     // These are stackable modal plugins. They can all coexist, and they don't block other modal
     // plugins or ambient plugins.
     hider: Option<debug::hider::Hider>,
+    orig_roads: Option<debug::orig_roads::ShowOriginalRoads>,
 
     // When present, this either acts like exclusive blocking or like stackable modal. :\
     search: Option<view::search::SearchState>,
@@ -476,6 +495,7 @@ impl PluginsPerMap {
     pub fn new(state: &PerMapUI, timer: &mut Timer, enable_debug_controls: bool) -> PluginsPerMap {
         let mut p = PluginsPerMap {
             hider: None,
+            orig_roads: None,
             search: None,
             ambient_plugins: vec![
                 Box::new(view::follow::FollowState::new()),

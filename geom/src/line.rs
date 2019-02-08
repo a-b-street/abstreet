@@ -52,6 +52,10 @@ impl Line {
         let head_size = thickness * 2.0;
         let angle = self.angle();
         let triangle_height = (head_size / 2.0).sqrt();
+        if self.length() < triangle_height {
+            println!("Can't make_arrow of thickness {} for {}", thickness, self);
+            return Vec::new();
+        }
         vec![
             Polygon::new(&vec![
                 //self.pt2(),

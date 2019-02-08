@@ -105,6 +105,18 @@ impl InitialMap {
                 }
             }
 
+            // TODO I can't find anything online that describes how to interpret the given OSM
+            // geometry of one-ways. I'm interpreting the way as the edge of the road (and only
+            // shift_right()ing from there). But could also uncomment this and interpret the way as
+            // the actual center of the one-way road. It looks quite bad -- dual carriageways get
+            // smooshed together.
+            /*assert_ne!(fwd_width, Distance::ZERO);
+            if back_width == Distance::ZERO {
+                // Interpret the original OSM geometry of one-ways as the actual center of the
+                // road.
+                original_center_pts = original_center_pts.shift_left(fwd_width / 2.0);
+            }*/
+
             m.roads.insert(
                 *stable_id,
                 Road {

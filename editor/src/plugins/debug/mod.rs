@@ -6,4 +6,5 @@ pub mod floodfill;
 pub mod geom_validation;
 pub mod hider;
 pub mod layers;
+pub mod orig_roads;
 pub mod spawn_agent;

@@ -155,6 +155,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 "Geometry Debugger",
                 vec![(Key::Enter, "quit"), (Key::N, "see next problem")],
             ),
+            ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
             ModalMenu::new("OSM Classifier", vec![(Key::Num6, "quit")]),
             ModalMenu::new(
                 "Floodfiller",

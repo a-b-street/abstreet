@@ -49,7 +49,7 @@ Seattlites with opinions and ideas:
 
 *   https://github.com/uwescience/TrafficCruising-DSSG2017
 *   http://sharedstreets.io/
-
+*   https://github.com/twpol/osm-tiles attempting to infer nice road geometry too
 
 ## Notes from related work
 

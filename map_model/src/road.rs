@@ -32,6 +32,9 @@ pub struct Road {
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
+
+    // For debugging.
+    pub original_center_pts: PolyLine,
 }
 
 impl Road {
