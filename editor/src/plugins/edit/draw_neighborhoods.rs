@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{load_neighborhood_builder, Plugin, PluginCtx};
+use crate::plugins::{load_neighborhood_builder, BlockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
@@ -23,7 +23,7 @@ impl DrawNeighborhoodState {
     }
 }
 
-impl Plugin for DrawNeighborhoodState {
+impl BlockingPlugin for DrawNeighborhoodState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let gps_bounds = ctx.primary.map.get_gps_bounds();
         match self {

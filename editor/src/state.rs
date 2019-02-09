@@ -1,7 +1,10 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::plugins;
-use crate::plugins::{debug, edit, view, Plugin, PluginCtx};
+use crate::plugins::{
+    debug, edit, view, AmbientPlugin, AmbientPluginWithPrimaryPlugins, BlockingPlugin,
+    NonblockingPlugin, PluginCtx,
+};
 use crate::render::DrawMap;
 use abstutil::Timer;
 use ezgui::EventCtx;
@@ -45,9 +48,9 @@ pub struct DefaultUIState {
     pub secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     // These are all mutually exclusive and, if present, override everything else.
-    exclusive_blocking_plugin: Option<Box<Plugin>>,
+    exclusive_blocking_plugin: Option<Box<BlockingPlugin>>,
     // These are all mutually exclusive, but don't override other stuff.
-    exclusive_nonblocking_plugin: Option<Box<Plugin>>,
+    exclusive_nonblocking_plugin: Option<Box<NonblockingPlugin>>,
 
     // These are stackable modal plugins. They can all coexist, and they don't block other modal
     // plugins or ambient plugins.
@@ -203,6 +206,7 @@ impl UIState for DefaultUIState {
                 }
                 return;
             }
+
             // Always run this here, to let it scrape sim state.
             self.primary_plugins.time_travel.event(&mut ctx);
             if self.primary_plugins.time_travel.is_active() {
@@ -297,7 +301,7 @@ impl UIState for DefaultUIState {
                     .exclusive_nonblocking_plugin
                     .as_mut()
                     .unwrap()
-                    .blocking_event(&mut ctx)
+                    .nonblocking_event(&mut ctx)
                 {
                     self.exclusive_nonblocking_plugin = None;
                 }
@@ -424,8 +428,6 @@ impl UIState for DefaultUIState {
             self.primary_plugins.simple_model.draw(g, ctx);
         }
 
-        // Ambient
-        self.sim_controls.draw(g, ctx);
         // Layers doesn't draw
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
@@ -485,10 +487,11 @@ pub struct PluginsPerMap {
     search: Option<view::search::SearchState>,
 
     // This acts like exclusive blocking when active.
+    // TODO Make these two implement one of the traits.
     pub time_travel: plugins::sim::time_travel::TimeTravel,
     pub simple_model: plugins::sim::simple_model::SimpleModelController,
 
-    ambient_plugins: Vec<Box<Plugin>>,
+    ambient_plugins: Vec<Box<AmbientPlugin>>,
 }
 
 impl PluginsPerMap {

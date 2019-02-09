@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::ScreenPt;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
 use geom::Polygon;
@@ -28,7 +28,7 @@ impl ColorPicker {
     }
 }
 
-impl Plugin for ColorPicker {
+impl BlockingPlugin for ColorPicker {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             ColorPicker::Choosing(ref mut menu) => {

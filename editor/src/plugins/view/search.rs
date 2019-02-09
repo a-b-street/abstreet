@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, InputResult, TextBox};
 
 pub enum SearchState {
@@ -27,7 +27,7 @@ impl SearchState {
     }
 }
 
-impl Plugin for SearchState {
+impl BlockingPlugin for SearchState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             SearchState::EnteringSearch(tb) => match tb.event(&mut ctx.input) {

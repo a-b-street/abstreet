@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use counter::Counter;
 use ezgui::Color;
 use map_model::{IntersectionID, LaneID, PathStep};
@@ -22,7 +22,7 @@ impl ChokepointsFinder {
     }
 }
 
-impl Plugin for ChokepointsFinder {
+impl BlockingPlugin for ChokepointsFinder {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Chokepoints Debugger", &ctx.canvas);
 

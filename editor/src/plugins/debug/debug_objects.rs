@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text};
 use map_model::raw_data::StableRoadID;
 use std::collections::BTreeMap;
@@ -18,7 +18,7 @@ impl DebugObjectsState {
     }
 }
 
-impl Plugin for DebugObjectsState {
+impl AmbientPlugin for DebugObjectsState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         self.selected = ctx.primary.current_selection;
         if self.tooltip_key_held {

@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::ExtraShapeID;
 use ezgui::Color;
 use map_model::{BuildingID, IntersectionID, RoadID};
@@ -20,7 +20,7 @@ impl ShowAssociatedState {
     }
 }
 
-impl Plugin for ShowAssociatedState {
+impl AmbientPlugin for ShowAssociatedState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         let (selected, sim) = (ctx.primary.current_selection, &ctx.primary.sim);
 

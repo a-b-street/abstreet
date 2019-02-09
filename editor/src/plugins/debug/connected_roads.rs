@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::LaneID;
 use std::collections::HashSet;
@@ -18,7 +18,7 @@ impl ShowConnectedRoads {
     }
 }
 
-impl Plugin for ShowConnectedRoads {
+impl AmbientPlugin for ShowConnectedRoads {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if self.key_held {
             self.key_held = !ctx.input.key_released(Key::RightAlt);

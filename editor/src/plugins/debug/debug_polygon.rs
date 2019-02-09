@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::calculate_corners;
 use ezgui::{GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
@@ -84,7 +84,7 @@ impl DebugPolygon {
     }
 }
 
-impl Plugin for DebugPolygon {
+impl BlockingPlugin for DebugPolygon {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Polygon Debugger", &ctx.canvas);
         if ctx.input.modal_action("quit") {

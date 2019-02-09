@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use sim::Tick;
@@ -15,7 +15,7 @@ impl ShowActivityState {
     }
 }
 
-impl Plugin for ShowActivityState {
+impl AmbientPlugin for ShowActivityState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match self {
             ShowActivityState::Inactive => {

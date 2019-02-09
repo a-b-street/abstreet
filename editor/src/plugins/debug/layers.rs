@@ -1,5 +1,5 @@
 use crate::objects::ID;
-use crate::plugins::PluginCtx;
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::ToggleableLayer;
 
 // TODO ideally these would be tuned kind of dynamically based on rendering speed
@@ -49,16 +49,6 @@ impl ToggleableLayers {
         }
     }
 
-    pub fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        for layer in self.toggleable_layers().into_iter() {
-            if layer.event(ctx.input) {
-                *ctx.recalculate_current_selection = true;
-                ctx.primary.current_selection = None;
-                return;
-            }
-        }
-    }
-
     fn toggleable_layers(&mut self) -> Vec<&mut ToggleableLayer> {
         vec![
             &mut self.show_lanes,
@@ -69,5 +59,17 @@ impl ToggleableLayers {
             &mut self.show_all_turn_icons,
             &mut self.debug_mode,
         ]
+    }
+}
+
+impl AmbientPlugin for ToggleableLayers {
+    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+        for layer in self.toggleable_layers().into_iter() {
+            if layer.event(ctx.input) {
+                *ctx.recalculate_current_selection = true;
+                ctx.primary.current_selection = None;
+                return;
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPluginWithPrimaryPlugins, PluginCtx};
 use crate::state::PluginsPerMap;
 use abstutil::elapsed_seconds;
 use ezgui::EventLoopMode;
@@ -54,7 +54,7 @@ impl SimControls {
     }
 }
 
-impl Plugin for SimControls {
+impl AmbientPluginWithPrimaryPlugins for SimControls {
     fn ambient_event_with_plugins(
         &mut self,
         ctx: &mut PluginCtx,

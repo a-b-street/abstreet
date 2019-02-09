@@ -15,7 +15,9 @@ use downcast::{
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
 
-pub trait Plugin: Any {
+// TODO Split into two types, but then State needs two possible types in its exclusive blocking
+// field.
+pub trait BlockingPlugin: Any {
     fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
         None
     }
@@ -34,17 +36,29 @@ pub trait Plugin: Any {
         // By default, redirect to the other one.
         self.blocking_event(ctx)
     }
-
-    // True means active; false means done, please destroy.
-    fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
-        true
-    }
-
-    fn ambient_event(&mut self, _ctx: &mut PluginCtx) {}
-    fn ambient_event_with_plugins(&mut self, _ctx: &mut PluginCtx, _plugins: &mut PluginsPerMap) {}
 }
 
-downcast!(Plugin);
+downcast!(BlockingPlugin);
+
+pub trait AmbientPlugin {
+    fn ambient_event(&mut self, _ctx: &mut PluginCtx);
+
+    fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
+        None
+    }
+    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
+}
+
+pub trait AmbientPluginWithPrimaryPlugins {
+    fn ambient_event_with_plugins(&mut self, _ctx: &mut PluginCtx, _plugins: &mut PluginsPerMap);
+}
+
+pub trait NonblockingPlugin {
+    // True means active; false means done, please destroy.
+    fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool;
+
+    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
+}
 
 // This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {

@@ -1,7 +1,7 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
-    input_weighted_usize, load_scenario, Plugin, PluginCtx,
+    input_weighted_usize, load_scenario, BlockingPlugin, PluginCtx,
 };
 use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::{Map, Neighborhood};
@@ -22,7 +22,7 @@ impl ScenarioManager {
     }
 }
 
-impl Plugin for ScenarioManager {
+impl BlockingPlugin for ScenarioManager {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             ScenarioManager::PickScenario(ref mut wizard) => {

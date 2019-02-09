@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
@@ -46,7 +46,7 @@ impl TrafficSignalEditor {
     }
 }
 
-impl Plugin for TrafficSignalEditor {
+impl BlockingPlugin for TrafficSignalEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let input = &mut ctx.input;
         let selected = ctx.primary.current_selection;

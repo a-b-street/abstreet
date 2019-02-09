@@ -1,4 +1,4 @@
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::Key;
 use sim::TripID;
 
@@ -12,7 +12,7 @@ impl FollowState {
     }
 }
 
-impl Plugin for FollowState {
+impl AmbientPlugin for FollowState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if self.trip.is_none() {
             if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {

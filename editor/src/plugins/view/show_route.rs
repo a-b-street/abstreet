@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use map_model::{Trace, LANE_THICKNESS};
 use sim::{Tick, TripID};
@@ -16,7 +16,7 @@ impl ShowRouteState {
     }
 }
 
-impl Plugin for ShowRouteState {
+impl AmbientPlugin for ShowRouteState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match self {
             ShowRouteState::Inactive => {

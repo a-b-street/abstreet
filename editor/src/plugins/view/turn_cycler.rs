@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::{draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Duration;
@@ -26,7 +26,7 @@ impl TurnCyclerState {
     }
 }
 
-impl Plugin for TurnCyclerState {
+impl AmbientPlugin for TurnCyclerState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         match ctx.primary.current_selection {
             Some(ID::Lane(id)) => {

@@ -1,5 +1,5 @@
 use crate::objects::ID;
-use crate::plugins::PluginCtx;
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::Key;
 use std::collections::HashSet;
 
@@ -20,8 +20,10 @@ impl Hider {
     pub fn show(&self, id: ID) -> bool {
         !self.items.contains(&id)
     }
+}
 
-    pub fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+impl NonblockingPlugin for Hider {
+    fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         // TODO Add non-prompt lines listing how much stuff is hidden. And if the numbers
         // align, "and a partridge in a pear tree..."
         ctx.input.set_mode("Object Hider", &ctx.canvas);

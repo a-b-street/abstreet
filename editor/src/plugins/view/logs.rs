@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use abstutil::format_log_record;
 use ezgui::{GfxCtx, LogScroller};
 use lazy_static::lazy_static;
@@ -31,7 +31,7 @@ impl DisplayLogs {
     }
 }
 
-impl Plugin for DisplayLogs {
+impl BlockingPlugin for DisplayLogs {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx.input.action_chosen("show log console") || LOGGER.lock().unwrap().event(ctx.input) {
             return false;

@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::DrawCtx;
-use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
+use crate::plugins::{choose_edits, choose_scenario, load_ab_test, BlockingPlugin, PluginCtx};
 use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, LogScroller, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
@@ -20,7 +20,7 @@ impl ABTestManager {
     }
 }
 
-impl Plugin for ABTestManager {
+impl BlockingPlugin for ABTestManager {
     fn blocking_event_with_plugins(
         &mut self,
         ctx: &mut PluginCtx,

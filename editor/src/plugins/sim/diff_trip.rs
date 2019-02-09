@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Line;
 use map_model::{Trace, LANE_THICKNESS};
@@ -31,8 +31,8 @@ impl DiffTripState {
     }
 }
 
-impl Plugin for DiffTripState {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+impl NonblockingPlugin for DiffTripState {
+    fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode_with_prompt(
             "A/B Trip Explorer",
             format!("A/B Trip Explorer for {}", self.trip),

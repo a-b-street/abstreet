@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, HorizontalAlignment, Text, VerticalAlignment};
 use sim::{ScoreSummary, Tick};
 
@@ -17,7 +17,7 @@ impl ShowScoreState {
     }
 }
 
-impl Plugin for ShowScoreState {
+impl NonblockingPlugin for ShowScoreState {
     fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if ctx.input.action_chosen("show/hide sim info sidepanel") {
             return false;

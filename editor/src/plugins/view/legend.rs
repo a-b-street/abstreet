@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use crate::render::DrawTurn;
 use ezgui::{Canvas, GfxCtx, ScreenPt, Text, UserInput};
 use geom::{PolyLine, Pt2D};
@@ -31,7 +31,7 @@ impl Legend {
     }
 }
 
-impl Plugin for Legend {
+impl NonblockingPlugin for Legend {
     fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         *self = Legend::start(ctx.input, ctx.canvas);
 

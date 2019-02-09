@@ -1,5 +1,5 @@
 use crate::objects::ID;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::Key;
 use map_model::{EditReason, Lane, LaneID, LaneType, MapEdits, Road};
 
@@ -14,7 +14,7 @@ impl RoadEditor {
     }
 }
 
-impl Plugin for RoadEditor {
+impl BlockingPlugin for RoadEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Road Editor", &ctx.canvas);
         if ctx.input.modal_action("quit") {

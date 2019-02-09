@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::{LaneID, Map};
 use std::collections::{HashSet, VecDeque};
@@ -31,7 +31,7 @@ impl Floodfiller {
     }
 }
 
-impl Plugin for Floodfiller {
+impl BlockingPlugin for Floodfiller {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode_with_prompt(
             "Floodfiller",

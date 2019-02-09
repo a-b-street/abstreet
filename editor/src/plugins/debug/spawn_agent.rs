@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
 use map_model::{
@@ -74,7 +74,7 @@ impl SpawnAgent {
     }
 }
 
-impl Plugin for SpawnAgent {
+impl BlockingPlugin for SpawnAgent {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Agent Spawner", &ctx.canvas);
         if ctx.input.modal_action("quit") {

@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::GfxCtx;
 use geom::Line;
 use map_model::LANE_THICKNESS;
@@ -22,8 +22,8 @@ impl DiffAllState {
     }
 }
 
-impl Plugin for DiffAllState {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+impl NonblockingPlugin for DiffAllState {
+    fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         if self.time != ctx.primary.sim.time {
             *self = diff_all(ctx);
         }

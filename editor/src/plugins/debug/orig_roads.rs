@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::PluginCtx;
+use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
 use map_model::{RoadID, LANE_THICKNESS};
@@ -18,8 +18,10 @@ impl ShowOriginalRoads {
         }
         None
     }
+}
 
-    pub fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+impl NonblockingPlugin for ShowOriginalRoads {
+    fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Original Roads", &ctx.canvas);
 
         if ctx.input.modal_action("quit") {
@@ -32,7 +34,7 @@ impl ShowOriginalRoads {
         true
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         for id in &self.roads {
             let r = ctx.map.get_r(*id);
             // TODO Should be a less tedious way to do this

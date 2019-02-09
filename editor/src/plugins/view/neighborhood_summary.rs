@@ -1,5 +1,5 @@
 use crate::objects::DrawCtx;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
 use ezgui::{Color, GfxCtx, Text};
@@ -33,7 +33,7 @@ impl NeighborhoodSummary {
     }
 }
 
-impl Plugin for NeighborhoodSummary {
+impl AmbientPlugin for NeighborhoodSummary {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
         if self.active {
             ctx.input.set_mode("Neighborhood Summaries", &ctx.canvas);

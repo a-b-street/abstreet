@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
@@ -29,7 +29,7 @@ impl WarpState {
     }
 }
 
-impl Plugin for WarpState {
+impl BlockingPlugin for WarpState {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         match self {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {

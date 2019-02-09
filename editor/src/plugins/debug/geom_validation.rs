@@ -1,5 +1,5 @@
 use crate::objects::ID;
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use generator;
 use generator::done;
@@ -84,7 +84,7 @@ impl Validator {
     }
 }
 
-impl Plugin for Validator {
+impl BlockingPlugin for Validator {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode("Geometry Debugger", &ctx.canvas);
 

@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::DrawCtx;
-use crate::plugins::{choose_edits, Plugin, PluginCtx};
+use crate::plugins::{choose_edits, BlockingPlugin, PluginCtx};
 use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
@@ -20,7 +20,7 @@ impl EditsManager {
     }
 }
 
-impl Plugin for EditsManager {
+impl BlockingPlugin for EditsManager {
     fn blocking_event_with_plugins(
         &mut self,
         ctx: &mut PluginCtx,

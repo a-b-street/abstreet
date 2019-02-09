@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{Plugin, PluginCtx};
+use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 
@@ -26,7 +26,7 @@ impl StopSignEditor {
     }
 }
 
-impl Plugin for StopSignEditor {
+impl BlockingPlugin for StopSignEditor {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         let input = &mut ctx.input;
         let map = &mut ctx.primary.map;
