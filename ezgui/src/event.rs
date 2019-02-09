@@ -133,6 +133,7 @@ pub enum Key {
     LeftShift,
     LeftControl,
     LeftAlt,
+    RightAlt,
     LeftArrow,
     RightArrow,
     UpArrow,
@@ -204,6 +205,7 @@ impl Key {
             | Key::LeftShift
             | Key::LeftControl
             | Key::LeftAlt
+            | Key::RightAlt
             | Key::LeftArrow
             | Key::RightArrow
             | Key::UpArrow
@@ -231,7 +233,8 @@ impl Key {
             Key::Backspace => "Backspace".to_string(),
             Key::LeftShift => "Shift".to_string(),
             Key::LeftControl => "Control".to_string(),
-            Key::LeftAlt => "Alt".to_string(),
+            Key::LeftAlt => "left Alt".to_string(),
+            Key::RightAlt => "right Alt".to_string(),
             Key::LeftArrow => "← arrow".to_string(),
             Key::RightArrow => "→ arrow".to_string(),
             Key::UpArrow => "↑".to_string(),
@@ -306,6 +309,7 @@ impl Key {
             glutin::VirtualKeyCode::LShift => Key::LeftShift,
             glutin::VirtualKeyCode::LControl => Key::LeftControl,
             glutin::VirtualKeyCode::LAlt => Key::LeftAlt,
+            glutin::VirtualKeyCode::RAlt => Key::RightAlt,
             glutin::VirtualKeyCode::Left => Key::LeftArrow,
             glutin::VirtualKeyCode::Right => Key::RightArrow,
             glutin::VirtualKeyCode::Up => Key::UpArrow,

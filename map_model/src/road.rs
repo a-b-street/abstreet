@@ -183,4 +183,12 @@ impl Road {
         // TODO Should check LaneType to start
         self.osm_tags.get("bicycle") != Some(&"no".to_string())
     }
+
+    pub fn all_lanes(&self) -> Vec<LaneID> {
+        self.children_forwards
+            .iter()
+            .map(|(id, _)| *id)
+            .chain(self.children_backwards.iter().map(|(id, _)| *id))
+            .collect()
+    }
 }

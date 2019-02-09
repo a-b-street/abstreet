@@ -1,5 +1,6 @@
 pub mod chokepoints;
 pub mod classification;
+pub mod connected_roads;
 pub mod debug_objects;
 pub mod debug_polygon;
 pub mod floodfill;
