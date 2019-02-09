@@ -63,7 +63,7 @@ pub fn intersection_polygon(
     if endpoints
         .last()
         .unwrap()
-        .approx_eq(endpoints[0], Distance::meters(1.0))
+        .approx_eq(endpoints[0], Distance::meters(0.1))
     {
         endpoints.pop();
     }
@@ -220,7 +220,7 @@ fn generalized_trim_back(
         }
     }
     // TODO Caller will close off the polygon. Does that affect our dedupe?
-    Pt2D::approx_dedupe(endpoints, Distance::meters(1.0))
+    Pt2D::approx_dedupe(endpoints, Distance::meters(0.1))
 }
 
 fn deadend(

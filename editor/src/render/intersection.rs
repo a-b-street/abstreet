@@ -155,8 +155,15 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 }
                 pts_between.push(dst_line.pt1());
                 corners.push(Polygon::new(&pts_between));
+            } else {
+                error!(
+                    "Couldn't make geometry for {}. look for {} to {} in {:?}",
+                    turn.id,
+                    corner2,
+                    corner1,
+                    i.polygon.points()
+                );
             }
-            // TODO Do something else when this fails? Hmm
         }
     }
 
@@ -365,15 +372,19 @@ pub fn draw_signal_diagram(
 }
 
 fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {
+    // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe because of
+    // jagged lane teeth from bad polyline shifting. Seemingly.
+    let threshold = Distance::meters(0.5);
+
     let mut result = Vec::new();
     for pt in pts {
-        if result.is_empty() && pt.approx_eq(start, Distance::meters(1.0)) {
+        if result.is_empty() && pt.approx_eq(start, threshold) {
             result.push(*pt);
         } else if !result.is_empty() {
             result.push(*pt);
         }
         // start and end might be the same.
-        if !result.is_empty() && pt.approx_eq(end, Distance::meters(1.0)) {
+        if !result.is_empty() && pt.approx_eq(end, threshold) {
             return Some(result);
         }
     }
@@ -386,7 +397,7 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
     // Go through again, looking for end
     for pt in pts {
         result.push(*pt);
-        if pt.approx_eq(end, Distance::meters(1.0)) {
+        if pt.approx_eq(end, threshold) {
             return Some(result);
         }
     }
