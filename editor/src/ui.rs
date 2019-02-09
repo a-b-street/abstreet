@@ -11,7 +11,6 @@ use geom::{Bounds, Circle, Distance};
 use kml;
 use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use sim::GetDrawAgents;
 use std::collections::HashSet;
 use std::process;
 
@@ -465,26 +464,16 @@ impl<S: UIState> UI<S> {
 
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
-            let sim: &GetDrawAgents = {
-                let tt = &state.primary_plugins.time_travel;
-                let sm = &state.primary_plugins.simple_model;
-                if tt.is_active() {
-                    tt
-                } else if sm.is_active() {
-                    sm
-                } else {
-                    &state.primary.sim
-                }
-            };
-            let tick = sim.tick();
+            let source = state.get_draw_agents();
+            let tick = source.tick();
 
             for on in &agents_on {
                 if !agents.has(tick, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
-                    for c in sim.get_draw_cars(*on, map).into_iter() {
+                    for c in source.get_draw_cars(*on, map).into_iter() {
                         list.push(draw_vehicle(c, map, prerender, &state.cs));
                     }
-                    for p in sim.get_draw_peds(*on, map).into_iter() {
+                    for p in source.get_draw_peds(*on, map).into_iter() {
                         list.push(Box::new(DrawPedestrian::new(p, map, prerender, &state.cs)));
                     }
                     agents.put(tick, *on, list);

@@ -10,7 +10,7 @@ use abstutil::Timer;
 use ezgui::EventCtx;
 use ezgui::{Canvas, Color, GfxCtx, Prerender};
 use map_model::{IntersectionID, Map};
-use sim::{Sim, SimFlags, Tick};
+use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
@@ -48,7 +48,7 @@ pub struct DefaultUIState {
     pub secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     // These are all mutually exclusive and, if present, override everything else.
-    exclusive_blocking_plugin: Option<Box<BlockingPlugin>>,
+    pub exclusive_blocking_plugin: Option<Box<BlockingPlugin>>,
     // These are all mutually exclusive, but don't override other stuff.
     exclusive_nonblocking_plugin: Option<Box<NonblockingPlugin>>,
 
@@ -157,6 +157,20 @@ impl DefaultUIState {
         }
         self.layers.show(obj)
     }
+
+    pub fn get_draw_agents(&self) -> &GetDrawAgents {
+        if self.primary_plugins.time_travel.is_active() {
+            return &self.primary_plugins.time_travel;
+        }
+        if let Some(ref plugin) = self.exclusive_blocking_plugin {
+            if let Ok(p) =
+                plugin.downcast_ref::<plugins::sim::simple_model::SimpleModelController>()
+            {
+                return p;
+            }
+        }
+        &self.primary.sim
+    }
 }
 
 impl UIState for DefaultUIState {
@@ -212,11 +226,6 @@ impl UIState for DefaultUIState {
             if self.primary_plugins.time_travel.is_active() {
                 return;
             }
-            // TODO SimpleModelController should be exclusive_blocking_plugin.
-            self.primary_plugins.simple_model.event(&mut ctx);
-            if self.primary_plugins.simple_model.is_active() {
-                return;
-            }
 
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
@@ -236,6 +245,9 @@ impl UIState for DefaultUIState {
             } else if let Some(p) = view::search::SearchState::new(&mut ctx) {
                 self.primary_plugins.search = Some(p);
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) = plugins::sim::simple_model::SimpleModelController::new(&mut ctx)
+            {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
@@ -424,10 +436,6 @@ impl UIState for DefaultUIState {
         }
         // Hider doesn't draw
 
-        if self.primary_plugins.simple_model.is_active() {
-            self.primary_plugins.simple_model.draw(g, ctx);
-        }
-
         // Layers doesn't draw
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
@@ -487,9 +495,8 @@ pub struct PluginsPerMap {
     search: Option<view::search::SearchState>,
 
     // This acts like exclusive blocking when active.
-    // TODO Make these two implement one of the traits.
+    // TODO Make this implement one of the traits.
     pub time_travel: plugins::sim::time_travel::TimeTravel,
-    pub simple_model: plugins::sim::simple_model::SimpleModelController,
 
     ambient_plugins: Vec<Box<AmbientPlugin>>,
 }
@@ -515,7 +522,6 @@ impl PluginsPerMap {
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
             time_travel: plugins::sim::time_travel::TimeTravel::new(),
-            simple_model: plugins::sim::simple_model::SimpleModelController::new(),
         };
         if enable_debug_controls {
             p.ambient_plugins
