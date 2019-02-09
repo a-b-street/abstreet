@@ -8,9 +8,8 @@
 	- bad polyline shifting causes jagged lane endings in generalized_trim_back
 
 - handle small roads again somehow?
-	- reduce degenerate min trim. stuff breaks -- underlying problem, fix it.
-	- I40 has a long cut when merged, why not hit in the middle?
-		- what if we allow intersections between infinite lines for merged cases?
+	- reduce degenerate min trim. the disabled fix doesn't look great.
+	- I40, I25, I0 cut corners when merged. disabled fix works, but breaks other things.
 	- try it bigger
 	- deal with loop roads?
 	- model U-turns

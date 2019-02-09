@@ -190,17 +190,24 @@ fn generalized_trim_back(
     let mut endpoints: Vec<Pt2D> = Vec::new();
     for idx in 0..lines.len() as isize {
         let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
-        let (_, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-        let (_, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+        let (adj_back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
+        let (adj_fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
-        let r = roads.get_mut(&id).unwrap();
-        r.trimmed_center_pts = new_road_centers[&id].clone();
+        roads.get_mut(&id).unwrap().trimmed_center_pts = new_road_centers[&id].clone();
+        let r = &roads[&id];
 
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.
         // It's apparently safe to always take the second_half here.
         if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
             endpoints.push(hit);
+        } else if false && r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
+            // TODO This cuts some corners nicely, but also causes lots of problems.
+            // If the original roads didn't end at the same intersection (due to intersection
+            // merging), then use infinite lines.
+            if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
+                endpoints.push(hit);
+            }
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -217,6 +224,14 @@ fn generalized_trim_back(
             .intersection(&adj_back_pl.second_half())
         {
             endpoints.push(hit);
+        } else if false && r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
+            if let Some(hit) = back_pl
+                .last_line()
+                .infinite()
+                .intersection(&adj_back_pl.last_line().infinite())
+            {
+                endpoints.push(hit);
+            }
         }
     }
     // TODO Caller will close off the polygon. Does that affect our dedupe?
