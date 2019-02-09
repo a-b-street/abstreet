@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
@@ -56,7 +56,7 @@ impl Plugin for NeighborhoodSummary {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         if !self.active {
             return;
         }

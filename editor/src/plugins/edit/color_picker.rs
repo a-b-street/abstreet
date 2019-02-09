@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::ScreenPt;
 use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
@@ -71,7 +71,7 @@ impl Plugin for ColorPicker {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         match self {
             ColorPicker::Choosing(menu) => {
                 menu.draw(g);

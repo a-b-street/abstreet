@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::PluginCtx;
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
@@ -32,7 +32,7 @@ impl ShowOriginalRoads {
         true
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         for id in &self.roads {
             let r = ctx.map.get_r(*id);
             // TODO Should be a less tedious way to do this

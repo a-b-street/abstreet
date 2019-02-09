@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS,
     PARCEL_BOUNDARY_THICKNESS,
@@ -70,7 +70,7 @@ impl DrawLane {
         }
     }
 
-    fn draw_debug(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw_debug(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let circle_color = ctx
             .cs
             .get_def("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
@@ -92,7 +92,7 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color {
             g.draw_polygon(color, &self.polygon);
         } else {

@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Line;
@@ -46,7 +46,7 @@ impl Plugin for DiffTripState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if let Some(l) = &self.line {
             g.draw_line(
                 ctx.cs.get_def("diff agents line", Color::YELLOW),

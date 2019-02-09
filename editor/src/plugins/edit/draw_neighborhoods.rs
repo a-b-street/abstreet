@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{load_neighborhood_builder, Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
@@ -104,7 +104,7 @@ impl Plugin for DrawNeighborhoodState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let (raw_pts, current_idx) = match self {
             DrawNeighborhoodState::PickNeighborhood(wizard) => {
                 // TODO is this order wrong?

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::Color;
 
@@ -22,7 +22,7 @@ impl Plugin for OsmClassifier {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         match obj {
             ID::Lane(l) => {
                 if ctx.map.get_l(l).is_driving() {

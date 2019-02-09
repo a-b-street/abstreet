@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key};
@@ -75,7 +75,7 @@ impl Plugin for TurnCyclerState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self.state {
             State::Inactive => {}
             State::ShowLane(l) => {
@@ -112,7 +112,7 @@ impl Plugin for TurnCyclerState {
     }
 }
 
-fn color_turn_type(t: TurnType, ctx: &Ctx) -> Color {
+fn color_turn_type(t: TurnType, ctx: &DrawCtx) -> Color {
     match t {
         TurnType::SharedSidewalkCorner => {
             ctx.cs.get_def("shared sidewalk corner turn", Color::BLACK)

@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::GfxCtx;
 use geom::Line;
@@ -43,7 +43,7 @@ impl Plugin for DiffAllState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         for line in &self.lines {
             g.draw_line(ctx.cs.get("diff agents line"), LANE_THICKNESS, line);
         }

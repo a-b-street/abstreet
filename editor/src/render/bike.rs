@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Polygon, Pt2D};
@@ -49,7 +49,7 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color {
             g.draw_polygon(color, &self.polygon);
         } else {

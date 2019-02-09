@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use counter::Counter;
 use ezgui::Color;
@@ -33,7 +33,7 @@ impl Plugin for ChokepointsFinder {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         let color = ctx.cs.get_def("chokepoint", Color::RED);
         match obj {
             ID::Lane(l) if self.lanes.contains(&l) => Some(color),

@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test, Plugin, PluginCtx};
 use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, LogScroller, Prerender, Wizard, WrappedWizard};
@@ -59,7 +59,7 @@ impl Plugin for ABTestManager {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         match self {
             ABTestManager::PickABTest(wizard) => {
                 wizard.draw(g);

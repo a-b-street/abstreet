@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, RenderingHints, ID};
+use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::plugins;
 use crate::plugins::{debug, edit, view, Plugin, PluginCtx};
 use crate::render::DrawMap;
@@ -35,7 +35,7 @@ pub trait UIState {
         hints: &mut RenderingHints,
         recalculate_current_selection: &mut bool,
     );
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx);
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx);
 }
 
 pub struct DefaultUIState {
@@ -94,7 +94,7 @@ impl DefaultUIState {
         state
     }
 
-    pub fn color_obj(&self, id: ID, ctx: &Ctx) -> Option<Color> {
+    pub fn color_obj(&self, id: ID, ctx: &DrawCtx) -> Option<Color> {
         match id {
             ID::Turn(_) => {}
             _ => {
@@ -392,7 +392,7 @@ impl UIState for DefaultUIState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if let Some(ref plugin) = self.primary_plugins.search {
             plugin.draw(g, ctx);
             if plugin.is_blocking() {

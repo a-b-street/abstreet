@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use ezgui::{GfxCtx, Text};
 use geom::{Acceleration, Distance, Duration, Speed};
 use map_model::{Lane, LaneID, Map, Traversable};
@@ -87,7 +87,7 @@ impl World {
         draw
     }
 
-    pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &Ctx, time: Duration) {
+    pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &DrawCtx, time: Duration) {
         let lane = ctx.map.get_l(LaneID(1250));
 
         for car in vec![&self.leader, &self.follower] {

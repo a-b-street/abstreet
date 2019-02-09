@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Distance, PolyLine, Polygon, Pt2D};
@@ -41,7 +41,7 @@ impl Renderable for DrawBusStop {
         ID::BusStop(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         g.draw_polygon(
             opts.color.unwrap_or_else(|| {
                 ctx.cs

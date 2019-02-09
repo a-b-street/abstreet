@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key, Text};
 use map_model::raw_data::StableRoadID;
@@ -42,7 +42,7 @@ impl Plugin for DebugObjectsState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if self.tooltip_key_held {
             if let Some(id) = self.selected {
                 let txt = tooltip_lines(id, g, ctx);
@@ -52,7 +52,7 @@ impl Plugin for DebugObjectsState {
     }
 }
 
-fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &Ctx) -> Text {
+fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &DrawCtx) -> Text {
     let (map, sim, draw_map) = (&ctx.map, &ctx.sim, &ctx.draw_map);
     let mut txt = Text::new();
     match obj {

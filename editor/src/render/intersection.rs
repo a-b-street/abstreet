@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
@@ -57,7 +57,7 @@ impl DrawIntersection {
         }
     }
 
-    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let signal = ctx.map.get_traffic_signal(self.id);
         if !ctx.sim.is_in_overtime(self.id) {
             let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
@@ -71,7 +71,7 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color {
             // Don't draw the sidewalk corners
             g.draw_polygon(color, &self.polygon);
@@ -170,7 +170,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
+pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
     if false {
         draw_signal_cycle_with_icons(cycle, g, ctx);
         return;
@@ -203,7 +203,7 @@ pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
     }
 }
 
-fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &Ctx) {
+fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
     for l in &ctx.map.get_i(cycle.parent).incoming_lanes {
         let lane = ctx.map.get_l(*l);
         // TODO Show a hand or a walking sign for crosswalks
@@ -280,7 +280,7 @@ pub fn draw_signal_diagram(
     time_left: Option<Duration>,
     y1_screen: f64,
     g: &mut GfxCtx,
-    ctx: &Ctx,
+    ctx: &DrawCtx,
 ) {
     let padding = 5.0;
     let zoom = 10.0;

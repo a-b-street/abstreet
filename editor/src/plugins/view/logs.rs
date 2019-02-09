@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use abstutil::format_log_record;
 use ezgui::{GfxCtx, LogScroller};
@@ -39,7 +39,7 @@ impl Plugin for DisplayLogs {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         LOGGER.lock().unwrap().draw(g);
     }
 }

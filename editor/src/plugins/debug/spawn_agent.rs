@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
@@ -185,13 +185,13 @@ impl Plugin for SpawnAgent {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ctx.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         match (&self.from, obj) {
             (Source::Walking(ref b1), ID::Building(b2)) if *b1 == b2 => {
                 Some(ctx.cs.get("selected"))

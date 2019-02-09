@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{choose_edits, Plugin, PluginCtx};
 use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, Prerender, Wizard, WrappedWizard};
@@ -48,7 +48,7 @@ impl Plugin for EditsManager {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         self.wizard.draw(g);
     }
 }

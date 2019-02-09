@@ -12,7 +12,7 @@ mod pedestrian;
 mod turn;
 
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
@@ -44,7 +44,7 @@ pub const MIN_ZOOM_FOR_MARKINGS: f64 = 5.0;
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
     fn get_id(&self) -> ID;
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx);
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx);
     fn get_bounds(&self) -> Bounds;
     fn contains_pt(&self, pt: Pt2D) -> bool;
     // Higher z-ordered objects are drawn later

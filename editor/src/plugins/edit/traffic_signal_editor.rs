@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
@@ -216,7 +216,7 @@ impl Plugin for TrafficSignalEditor {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
 
         draw_signal_cycle(&cycles[self.current_cycle], g, ctx);
@@ -246,7 +246,7 @@ impl Plugin for TrafficSignalEditor {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         if let ID::Turn(t) = obj {
             if t.parent != self.i {
                 return None;

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, InputResult, TextBox};
 
@@ -53,13 +53,13 @@ impl Plugin for SearchState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         if let SearchState::EnteringSearch(tb) = self {
             tb.draw(g);
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             let osm_tags = match obj {
                 ID::Lane(l) => &ctx.map.get_parent(l).osm_tags,

@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
@@ -51,7 +51,7 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         // Buildings look better without boundaries, actually
         //g.draw_polygon(ctx.cs.get_def("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
 

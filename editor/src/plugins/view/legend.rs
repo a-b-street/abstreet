@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawTurn;
 use ezgui::{Canvas, GfxCtx, ScreenPt, Text, UserInput};
@@ -41,7 +41,7 @@ impl Plugin for Legend {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let zoom = 10.0;
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, zoom);
 

@@ -1,6 +1,6 @@
 use abstutil;
 //use cpuprofiler;
-use crate::objects::{Ctx, RenderingHints, ID};
+use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::render::{draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
 use crate::state::UIState;
 use ezgui::{
@@ -260,7 +260,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let objects =
             self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
 
-        let ctx = Ctx {
+        let ctx = DrawCtx {
             cs: &state.cs,
             map: &state.primary.map,
             draw_map: &state.primary.draw_map,

@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, HorizontalAlignment, Text, VerticalAlignment};
 use sim::{ScoreSummary, Tick};
@@ -28,7 +28,7 @@ impl Plugin for ShowScoreState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         g.draw_blocking_text(
             self.txt.clone(),
             (HorizontalAlignment::Right, VerticalAlignment::BelowTopMenu),

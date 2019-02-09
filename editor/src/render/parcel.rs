@@ -1,5 +1,5 @@
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
@@ -59,7 +59,7 @@ impl Renderable for DrawParcel {
         ID::Parcel(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color {
             g.draw_polygon_batch(vec![
                 (color, &self.fill_polygon),

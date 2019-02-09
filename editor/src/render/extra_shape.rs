@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
@@ -81,7 +81,7 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         let color = opts
             .color
             .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN));

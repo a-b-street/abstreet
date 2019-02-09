@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use map_model::{Trace, LANE_THICKNESS};
@@ -60,7 +60,7 @@ impl Plugin for ShowRouteState {
         };
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self {
             ShowRouteState::Active(_, _, Some(ref trace)) => {
                 g.draw_polygon(

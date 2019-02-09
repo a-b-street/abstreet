@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
@@ -39,7 +39,7 @@ impl Plugin for ShowActivityState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         if let ShowActivityState::Active(_, ref heatmap) = self {
             heatmap.draw(g);
         }

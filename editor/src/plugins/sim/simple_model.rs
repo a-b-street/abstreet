@@ -1,4 +1,4 @@
-use crate::objects::Ctx;
+use crate::objects::DrawCtx;
 use crate::plugins::sim::des_model;
 use crate::plugins::PluginCtx;
 use ezgui::{EventLoopMode, GfxCtx};
@@ -87,7 +87,7 @@ impl SimpleModelController {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if self.show_tooltips {
             self.world.as_ref().unwrap().draw_tooltips(
                 g,

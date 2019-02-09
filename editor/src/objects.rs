@@ -108,7 +108,7 @@ pub struct RenderingHints {
 }
 
 // For plugins and rendering. Not sure what module this should live in, here seems fine.
-pub struct Ctx<'a> {
+pub struct DrawCtx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,
     pub draw_map: &'a DrawMap,

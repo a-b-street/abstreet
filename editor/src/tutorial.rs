@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, RenderingHints};
+use crate::objects::{DrawCtx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
 use ezgui::{Canvas, EventCtx, GfxCtx, LogScroller, Prerender, Text};
@@ -93,7 +93,7 @@ impl UIState for TutorialState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self.state {
             State::GiveInstructions(ref scroller) => {
                 scroller.draw(g);

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::{LaneID, Map};
@@ -55,7 +55,7 @@ impl Plugin for Floodfiller {
         true
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         if let ID::Lane(l) = obj {
             if self.visited.contains(&l) {
                 return Some(ctx.cs.get_def("visited in floodfill", Color::BLUE));

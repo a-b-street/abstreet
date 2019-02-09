@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::calculate_corners;
 use ezgui::{GfxCtx, Key, Text};
@@ -97,7 +97,7 @@ impl Plugin for DebugPolygon {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self.items[self.current] {
             Item::Point(pt) => {
                 g.draw_text_at(Text::from_line(format!("{}", self.current)), pt);

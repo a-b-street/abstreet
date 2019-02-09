@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use ezgui::{Color, Key};
 use map_model::LaneID;
@@ -41,7 +41,7 @@ impl Plugin for ShowConnectedRoads {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         if let ID::Lane(id) = obj {
             if self.lanes.contains(&id) {
                 return Some(ctx.cs.get("something associated with something else"));

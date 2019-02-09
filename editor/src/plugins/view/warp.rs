@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
@@ -72,7 +72,7 @@ impl Plugin for WarpState {
         true
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &Ctx) {
+    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         if let WarpState::EnteringSearch(tb) = self {
             tb.draw(g);
         }

@@ -1,4 +1,4 @@
-use crate::objects::{Ctx, ID};
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{Plugin, PluginCtx};
 use crate::render::ExtraShapeID;
 use ezgui::Color;
@@ -76,7 +76,7 @@ impl Plugin for ShowAssociatedState {
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         let color = ctx
             .cs
             .get_def("something associated with something else", Color::PURPLE);

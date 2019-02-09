@@ -4,7 +4,7 @@ pub mod sim;
 pub mod view;
 
 use crate::colors::ColorScheme;
-use crate::objects::{Ctx, RenderingHints, ID};
+use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::state::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, OriginDestination, Scenario, Tick};
 use abstutil;
@@ -16,11 +16,11 @@ use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
 
 pub trait Plugin: Any {
-    fn color_for(&self, _obj: ID, _ctx: &Ctx) -> Option<Color> {
+    fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
         None
     }
 
-    fn draw(&self, _g: &mut GfxCtx, _ctx: &Ctx) {}
+    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
 
     // True if active, false if done
     fn blocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
