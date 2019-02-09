@@ -1,7 +1,7 @@
-use crate::objects::DrawCtx;
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::sim::des_model;
 use crate::plugins::{BlockingPlugin, PluginCtx};
-use ezgui::{EventLoopMode, GfxCtx};
+use ezgui::{EventLoopMode, GfxCtx, Key};
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Tick};
 
@@ -20,13 +20,17 @@ pub struct SimpleModelController {
 
 impl SimpleModelController {
     pub fn new(ctx: &mut PluginCtx) -> Option<SimpleModelController> {
-        if ctx.input.action_chosen("start simple model") {
-            return Some(SimpleModelController {
-                current_tick: Tick::zero(),
-                world: des_model::World::new(&ctx.primary.map),
-                mode: AutoMode::Off,
-                show_tooltips: false,
-            });
+        if let Some(ID::Lane(id)) = ctx.primary.current_selection {
+            if ctx.primary.map.get_l(id).is_driving()
+                && ctx.input.contextual_action(Key::C, "start simple model")
+            {
+                return Some(SimpleModelController {
+                    current_tick: Tick::zero(),
+                    world: des_model::World::new(id, &ctx.primary.map),
+                    mode: AutoMode::Off,
+                    show_tooltips: false,
+                });
+            }
         }
         None
     }

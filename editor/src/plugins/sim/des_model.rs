@@ -7,13 +7,14 @@ use sim::{CarID, CarState, DrawCarInput, VehicleType};
 const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 pub struct World {
+    lane: LaneID,
     leader: Car,
     follower: Car,
 }
 
 impl World {
-    pub fn new(map: &Map) -> World {
-        let lane = map.get_l(LaneID(1250));
+    pub fn new(l: LaneID, map: &Map) -> World {
+        let lane = map.get_l(l);
         let speed_limit = map.get_parent(lane.id).get_speed_limit();
 
         let mut leader = Car {
@@ -74,21 +75,25 @@ impl World {
 
         leader.validate();
         follower.validate();
-        World { leader, follower }
+        World {
+            leader,
+            follower,
+            lane: l,
+        }
     }
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
         for car in vec![&self.leader, &self.follower] {
             if let Some((d, _)) = car.dist_at(time) {
-                draw.push(draw_car(car, d, map));
+                draw.push(car.get_draw_car(d, map.get_l(self.lane)));
             }
         }
         draw
     }
 
     pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &DrawCtx, time: Duration) {
-        let lane = ctx.map.get_l(LaneID(1250));
+        let lane = ctx.map.get_l(self.lane);
 
         for car in vec![&self.leader, &self.follower] {
             if let Some((d, idx)) = car.dist_at(time) {
@@ -103,24 +108,6 @@ impl World {
                 );
             }
         }
-    }
-}
-
-fn draw_car(car: &Car, front: Distance, map: &Map) -> DrawCarInput {
-    let lane = map.get_l(LaneID(1250));
-
-    DrawCarInput {
-        id: car.id,
-        waiting_for_turn: None,
-        stopping_trace: None,
-        state: car.state,
-        vehicle_type: VehicleType::Car,
-        on: Traversable::Lane(lane.id),
-        body: lane
-            .lane_center_pts
-            .slice(front - car.car_length, front)
-            .unwrap()
-            .0,
     }
 }
 
@@ -473,6 +460,22 @@ impl Car {
         let speed = self.last_state().1;
         assert_eq!(speed, Speed::ZERO);
         self.next_state(Distance::ZERO, Speed::ZERO, time);
+    }
+
+    fn get_draw_car(&self, front: Distance, lane: &Lane) -> DrawCarInput {
+        DrawCarInput {
+            id: self.id,
+            waiting_for_turn: None,
+            stopping_trace: None,
+            state: self.state,
+            vehicle_type: VehicleType::Car,
+            on: Traversable::Lane(lane.id),
+            body: lane
+                .lane_center_pts
+                .slice(front - self.car_length, front)
+                .unwrap()
+                .0,
+        }
     }
 }
 
