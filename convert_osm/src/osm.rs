@@ -101,8 +101,7 @@ pub fn osm_to_raw_roads(
                                     }
                                 }
                                 None => {
-                                    println!("Relation {} refers to unknown way {}", rel.id, id);
-                                    ok = false;
+                                    // The way is clipped out, that's fine
                                 }
                             }
                         }
@@ -120,6 +119,8 @@ pub fn osm_to_raw_roads(
                             points: polygon,
                             osm_tags: tags.clone(),
                         });
+                    } else {
+                        println!("Relation {} failed to glue multipolygon", rel.id);
                     }
                 }
             }
@@ -185,14 +186,18 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     if tags.get("natural") == Some(&"wood".to_string()) {
         return Some(AreaType::Park);
     }
-    if tags.contains_key("waterway") || tags.get("natural") == Some(&"water".to_string()) {
+    if tags.get("natural") == Some(&"water".to_string()) {
         return Some(AreaType::Water);
     }
     None
 }
 
 fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
+    if pts_per_way.is_empty() {
+        return None;
+    }
     let mut result = pts_per_way.pop().unwrap();
+    let mut reversed = false;
     while !pts_per_way.is_empty() {
         let glue_pt = *result.last().unwrap();
         if let Some(idx) = pts_per_way
@@ -206,8 +211,19 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
             result.pop();
             result.extend(append);
         } else {
-            return None;
+            if reversed {
+                return None;
+            } else {
+                reversed = true;
+                result.reverse();
+                // Try again!
+            }
         }
+    }
+    // Some ways of the multipolygon are clipped out. Just stitch together the missing data with a
+    // straight line.
+    if result[0] != *result.last().unwrap() {
+        result.push(result[0]);
     }
     Some(result)
 }

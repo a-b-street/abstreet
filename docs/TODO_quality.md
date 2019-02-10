@@ -38,8 +38,6 @@
 - OSM has footways
 	- but theyre not marked everywhere
 	- and theyre hard to associate with roads (sometimes need to infer a planter strip)
-- draw ALL water and greenery areas
-	- how to handle multipolygons referring to clipped ways?
 - draw benches, bike racks
 - render trees
 - look for current stop sign priorities
