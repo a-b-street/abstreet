@@ -201,12 +201,15 @@ fn generalized_trim_back(
         // It's apparently safe to always take the second_half here.
         if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
             endpoints.push(hit);
-        } else if false && r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
-            // TODO This cuts some corners nicely, but also causes lots of problems.
-            // If the original roads didn't end at the same intersection (due to intersection
-            // merging), then use infinite lines.
-            if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
-                endpoints.push(hit);
+        } else if r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
+            if false {
+                // TODO This cuts some corners nicely, but also causes lots of problems.
+                // If the original roads didn't end at the same intersection (due to intersection
+                // merging), then use infinite lines.
+                if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half())
+                {
+                    endpoints.push(hit);
+                }
             }
         }
 
@@ -224,13 +227,15 @@ fn generalized_trim_back(
             .intersection(&adj_back_pl.second_half())
         {
             endpoints.push(hit);
-        } else if false && r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
-            if let Some(hit) = back_pl
-                .last_line()
-                .infinite()
-                .intersection(&adj_back_pl.last_line().infinite())
-            {
-                endpoints.push(hit);
+        } else if r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
+            if false {
+                if let Some(hit) = back_pl
+                    .last_line()
+                    .infinite()
+                    .intersection(&adj_back_pl.last_line().infinite())
+                {
+                    endpoints.push(hit);
+                }
             }
         }
     }

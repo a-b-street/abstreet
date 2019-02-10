@@ -2,6 +2,7 @@ use aabb_quadtree::QuadTree;
 use ezgui::{Color, GfxCtx, Prerender, Text};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, RoadID, LANE_THICKNESS};
+use std::collections::HashSet;
 use viewer::World;
 
 // black
@@ -71,7 +72,7 @@ impl DrawMap {
     pub fn draw(&self, g: &mut GfxCtx, timer: f64) {
         g.clear(BACKGROUND);
 
-        self.world.draw(g);
+        self.world.draw(g, &HashSet::new());
 
         for &(id, _, _) in &self.bldg_quadtree.query(g.get_screen_bounds().as_bbox()) {
             self.buildings[id.0].draw(g, timer);

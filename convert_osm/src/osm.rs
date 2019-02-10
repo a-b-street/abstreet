@@ -88,19 +88,15 @@ pub fn osm_to_raw_roads(
                 for member in &rel.members {
                     match *member {
                         osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
-                            match id_to_way.get(&id) {
-                                Some(pts) => {
-                                    if role == "outer" {
-                                        pts_per_way.push(pts.to_vec());
-                                    } else {
-                                        println!(
-                                            "Relation {} has unhandled member role {}, ignoring it",
-                                            rel.id, role
-                                        );
-                                    }
-                                }
-                                None => {
-                                    // The way is clipped out, that's fine
+                            // If the way is clipped out, that's fine
+                            if let Some(pts) = id_to_way.get(&id) {
+                                if role == "outer" {
+                                    pts_per_way.push(pts.to_vec());
+                                } else {
+                                    println!(
+                                        "Relation {} has unhandled member role {}, ignoring it",
+                                        rel.id, role
+                                    );
                                 }
                             }
                         }

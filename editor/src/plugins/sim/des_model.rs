@@ -61,7 +61,7 @@ impl World {
                 i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
             );
         }
-        println!("");
+        println!();
 
         follower.maybe_follow(&mut leader);
         println!("\nAdjusted follower:\n");
@@ -71,7 +71,7 @@ impl World {
                 i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
             );
         }
-        println!("");
+        println!();
 
         leader.validate();
         follower.validate();
@@ -84,7 +84,7 @@ impl World {
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
-        for car in vec![&self.leader, &self.follower] {
+        for car in &[&self.leader, &self.follower] {
             if let Some((d, _)) = car.dist_at(time) {
                 draw.push(car.get_draw_car(d, map.get_l(self.lane)));
             }
@@ -95,7 +95,7 @@ impl World {
     pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &DrawCtx, time: Duration) {
         let lane = ctx.map.get_l(self.lane);
 
-        for car in vec![&self.leader, &self.follower] {
+        for car in &[&self.leader, &self.follower] {
             if let Some((d, idx)) = car.dist_at(time) {
                 g.draw_text_at(
                     Text::from_line(format!(

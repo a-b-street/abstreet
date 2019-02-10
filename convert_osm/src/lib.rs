@@ -6,6 +6,7 @@ mod split_ways;
 mod srtm;
 
 use crate::srtm::Elevation;
+use abstutil::Timer;
 use geom::{Distance, GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
@@ -64,75 +65,33 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         return map;
     }
 
-    println!("Loading blockface shapes from {}", flags.parking_shapes);
-    let parking_shapes: ExtraShapes =
-        abstutil::read_binary(&flags.parking_shapes, timer).expect("loading blockface failed");
-    use_parking_hints(&mut map, parking_shapes, &gps_bounds);
-
-    println!("Loading parcels from {}", flags.parcels);
-    let parcels: ExtraShapes =
-        abstutil::read_binary(&flags.parcels, timer).expect("loading parcels failed");
-    println!(
-        "Finding matching parcels from {} candidates",
-        parcels.shapes.len()
-    );
-    for p in parcels.shapes.into_iter() {
-        if p.points.len() > 1
-            && p.points
-                .iter()
-                .find(|pt| !gps_bounds.contains(**pt))
-                .is_none()
-        {
-            map.parcels.push(raw_data::Parcel {
-                points: p.points,
-                block: 0,
-            });
-        }
-    }
-    group_parcels::group_parcels(&gps_bounds, &mut map.parcels);
-
-    for shape in kml::load(&flags.traffic_signals, &gps_bounds, timer)
-        .expect("loading traffic signals failed")
-        .shapes
-        .into_iter()
-    {
-        // See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Traffic_Signals_OD.pdf
-        if shape.points.len() > 1 {
-            panic!("Traffic signal has multiple points: {:?}", shape);
-        }
-        let pt = shape.points[0];
-        if gps_bounds.contains(pt) {
-            // TODO use a quadtree or some better way to match signals to the closest
-            // intersection
-            let closest_intersection = map
-                .intersections
-                .values_mut()
-                .min_by_key(|i| pt.gps_dist_meters(i.point))
-                .unwrap();
-            let dist = pt.gps_dist_meters(closest_intersection.point);
-            if dist <= MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL {
-                if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
-                    println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
-                }
-                closest_intersection.intersection_type = IntersectionType::TrafficSignal;
-            }
-        }
-    }
-
+    use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
+    handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
+    handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
     map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
 
-    let map_name = Path::new(&flags.output)
-        .file_stem()
-        .unwrap()
-        .to_os_string()
-        .into_string()
-        .unwrap();
-    neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
+    {
+        let map_name = Path::new(&flags.output)
+            .file_stem()
+            .unwrap()
+            .to_os_string()
+            .into_string()
+            .unwrap();
+        neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
+    }
 
     map
 }
 
-fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &GPSBounds) {
+fn use_parking_hints(
+    map: &mut raw_data::Map,
+    gps_bounds: &GPSBounds,
+    path: &str,
+    timer: &mut Timer,
+) {
+    println!("Loading blockface shapes from {}", path);
+    let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
+
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
         FindClosest::new(&gps_bounds.to_bounds());
@@ -173,6 +132,64 @@ fn use_parking_hints(map: &mut raw_data::Map, shapes: ExtraShapes, gps_bounds: &
                 } else {
                     map.roads.get_mut(&r).unwrap().parking_lane_back = has_parking;
                 }
+            }
+        }
+    }
+}
+
+fn handle_parcels(map: &mut raw_data::Map, gps_bounds: &GPSBounds, path: &str, timer: &mut Timer) {
+    println!("Loading parcels from {}", path);
+    let parcels: ExtraShapes = abstutil::read_binary(path, timer).expect("loading parcels failed");
+    println!(
+        "Finding matching parcels from {} candidates",
+        parcels.shapes.len()
+    );
+    for p in parcels.shapes.into_iter() {
+        if p.points.len() > 1
+            && p.points
+                .iter()
+                .find(|pt| !gps_bounds.contains(**pt))
+                .is_none()
+        {
+            map.parcels.push(raw_data::Parcel {
+                points: p.points,
+                block: 0,
+            });
+        }
+    }
+    group_parcels::group_parcels(gps_bounds, &mut map.parcels);
+}
+
+fn handle_traffic_signals(
+    map: &mut raw_data::Map,
+    gps_bounds: &GPSBounds,
+    path: &str,
+    timer: &mut Timer,
+) {
+    for shape in kml::load(path, gps_bounds, timer)
+        .expect("loading traffic signals failed")
+        .shapes
+        .into_iter()
+    {
+        // See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Traffic_Signals_OD.pdf
+        if shape.points.len() > 1 {
+            panic!("Traffic signal has multiple points: {:?}", shape);
+        }
+        let pt = shape.points[0];
+        if gps_bounds.contains(pt) {
+            // TODO use a quadtree or some better way to match signals to the closest
+            // intersection
+            let closest_intersection = map
+                .intersections
+                .values_mut()
+                .min_by_key(|i| pt.gps_dist_meters(i.point))
+                .unwrap();
+            let dist = pt.gps_dist_meters(closest_intersection.point);
+            if dist <= MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL {
+                if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
+                    println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
+                }
+                closest_intersection.intersection_type = IntersectionType::TrafficSignal;
             }
         }
     }

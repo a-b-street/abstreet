@@ -380,27 +380,24 @@ impl Car {
             ));
         }
 
-        match self.intent {
-            Some(Intent::StopAt(lane, dist)) => {
-                if self.on == Traversable::Lane(lane) {
-                    if self.dist_along > dist {
-                        // But be generous, maybe.
-                        if self.dist_along - dist <= EPSILON_DIST && self.speed.is_zero(TIMESTEP) {
-                            error!(
-                                "{} overshot just a little bit on {}, so being generous.",
-                                self.id, lane
-                            );
-                            self.dist_along = dist;
-                        } else {
-                            panic!("{} overshot! Wanted to stop at {} along {}, but at {}. Speed is {}. This last step, they chose {}, with their max being {}, and consequently traveled {}", self.id, dist, lane, self.dist_along, self.speed, accel, self.vehicle.max_deaccel, dist_traveled);
-                        }
-                    }
-                    if self.dist_along == dist && !self.speed.is_zero(TIMESTEP) {
-                        panic!("{} stopped right where they want to, but with a final speed of {}. This last step, they chose {}, with their max being {}", self.id, self.speed, accel, self.vehicle.max_deaccel);
+        if let Some(Intent::StopAt(lane, dist)) = self.intent {
+            if self.on == Traversable::Lane(lane) {
+                if self.dist_along > dist {
+                    // But be generous, maybe.
+                    if self.dist_along - dist <= EPSILON_DIST && self.speed.is_zero(TIMESTEP) {
+                        error!(
+                            "{} overshot just a little bit on {}, so being generous.",
+                            self.id, lane
+                        );
+                        self.dist_along = dist;
+                    } else {
+                        panic!("{} overshot! Wanted to stop at {} along {}, but at {}. Speed is {}. This last step, they chose {}, with their max being {}, and consequently traveled {}", self.id, dist, lane, self.dist_along, self.speed, accel, self.vehicle.max_deaccel, dist_traveled);
                     }
                 }
+                if self.dist_along == dist && !self.speed.is_zero(TIMESTEP) {
+                    panic!("{} stopped right where they want to, but with a final speed of {}. This last step, they chose {}, with their max being {}", self.id, self.speed, accel, self.vehicle.max_deaccel);
+                }
             }
-            _ => {}
         }
 
         Ok(false)

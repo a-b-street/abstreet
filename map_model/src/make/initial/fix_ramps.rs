@@ -121,5 +121,5 @@ fn get_one_other<X: PartialEq + Clone>(set: &BTreeSet<X>, item: X) -> Option<X> 
     if items[0] == item {
         return Some(items[1].clone());
     }
-    return Some(items[0].clone());
+    Some(items[0].clone())
 }

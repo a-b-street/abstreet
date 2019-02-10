@@ -492,16 +492,13 @@ impl WalkingSimState {
                     // Note this is idempotent and does NOT grant the request.
                     intersections.submit_request(Request::for_ped(*id, turn));
 
-                    match (p.on, p.already_exited_turn) {
-                        (Traversable::Turn(t), None) => {
-                            assert!(t != turn);
-                            intersections.on_exit(Request::for_ped(*id, t));
-                            // TODO Publish the AgentLeavesTraversable event now?
-                            // TODO Could physically change their on to the beginning/end of the
-                            // lane -- that seems less hacky -- but it's confusing.
-                            p.already_exited_turn = Some(t);
-                        }
-                        _ => {}
+                    if let (Traversable::Turn(t), None) = (p.on, p.already_exited_turn) {
+                        assert!(t != turn);
+                        intersections.on_exit(Request::for_ped(*id, t));
+                        // TODO Publish the AgentLeavesTraversable event now?
+                        // TODO Could physically change their on to the beginning/end of the
+                        // lane -- that seems less hacky -- but it's confusing.
+                        p.already_exited_turn = Some(t);
                     }
                 }
                 Action::VanishAtBorder => {
