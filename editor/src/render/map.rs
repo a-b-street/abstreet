@@ -128,7 +128,7 @@ impl DrawMap {
 
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
-            bus_stops.insert(s.id, DrawBusStop::new(s, map));
+            bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, prerender));
         }
         let areas: Vec<DrawArea> = map
             .all_areas()
