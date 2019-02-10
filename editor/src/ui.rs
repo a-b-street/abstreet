@@ -365,11 +365,12 @@ impl<S: UIState> UI<S> {
         objects.reverse();
 
         for obj in objects {
-            // Don't mouseover parcels.
+            // Don't mouseover parcels or areas.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
             // in intersection editor mode, for example.
             match obj.get_id() {
                 ID::Parcel(_) => {}
+                ID::Area(_) => {}
                 _ => {
                     if obj.contains_pt(pt) {
                         return Some(obj.get_id());
