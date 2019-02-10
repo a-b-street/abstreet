@@ -94,10 +94,9 @@ pub fn osm_to_raw_roads(
                                         pts_per_way.push(pts.to_vec());
                                     } else {
                                         println!(
-                                            "Relation {} has unhandled member role {}",
+                                            "Relation {} has unhandled member role {}, ignoring it",
                                             rel.id, role
                                         );
-                                        ok = false;
                                     }
                                 }
                                 None => {
@@ -184,6 +183,9 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
         return Some(AreaType::Park);
     }
     if tags.get("natural") == Some(&"wood".to_string()) {
+        return Some(AreaType::Park);
+    }
+    if tags.get("landuse") == Some(&"cemetery".to_string()) {
         return Some(AreaType::Park);
     }
     if tags.get("natural") == Some(&"water".to_string()) {

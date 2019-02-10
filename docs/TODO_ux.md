@@ -82,3 +82,4 @@
 ## Performance
 
 - it's a pity we have to redo DrawCar work for all those parked cars every tick
+- areas like lakes are incredibly detailed
