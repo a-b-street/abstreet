@@ -78,6 +78,23 @@ impl DebugPolygon {
                     });
                 }
             }
+            Some(ID::Area(id)) => {
+                if ctx.input.contextual_action(Key::X, "debug area geometry") {
+                    let pts = &ctx.primary.map.get_a(id).points;
+                    let center = if pts[0] == *pts.last().unwrap() {
+                        // TODO The center looks really wrong for Volunteer Park and others, but I
+                        // think it's because they have many points along some edges.
+                        Pt2D::center(&pts.iter().skip(1).cloned().collect())
+                    } else {
+                        Pt2D::center(pts)
+                    };
+                    return Some(DebugPolygon {
+                        items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
+                        current: 0,
+                        center: Some(center),
+                    });
+                }
+            }
             _ => {}
         }
         None

@@ -8,7 +8,6 @@ use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Line, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
-#[derive(Debug)]
 pub struct DrawTurn {
     pub id: TurnID,
     icon_circle: Circle,

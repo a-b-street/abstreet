@@ -57,6 +57,7 @@ impl ToggleableLayers {
             &mut self.show_parcels,
             &mut self.show_extra_shapes,
             &mut self.show_all_turn_icons,
+            &mut self.show_areas,
             &mut self.debug_mode,
         ]
     }

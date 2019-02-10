@@ -39,6 +39,8 @@
 	- but theyre not marked everywhere
 	- and theyre hard to associate with roads (sometimes need to infer a planter strip)
 - draw ALL water and greenery areas
+	- cant mouseover areas created from polylines, seemingly
+	- multipolygons seem broken
 - draw benches, bike racks
 - render trees
 - look for current stop sign priorities
@@ -59,6 +61,11 @@
 - Disconnected map
 	- Some lane-changing model needed to determine this
 - Impossible turns (from a far bus lane to a crazy left)
+- Buildings intersecting roads, probably because bad lane inference
+	- when this happens, get rid of parking lanes first (one or both sides?)
+	- iterative process... have to redo affected roads and intersections
+	- we havent filtered buildings by proximity to sidewalk yet
+		- if we dont filter at all, we pick up some houseboats! :) should draw water...
 
 ## Release
 

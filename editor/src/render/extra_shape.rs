@@ -16,13 +16,11 @@ impl fmt::Display for ExtraShapeID {
     }
 }
 
-#[derive(Debug)]
 enum Shape {
     Polygon(Polygon),
     Circle(Circle),
 }
 
-#[derive(Debug)]
 pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,

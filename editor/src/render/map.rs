@@ -130,7 +130,11 @@ impl DrawMap {
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map));
         }
-        let areas: Vec<DrawArea> = map.all_areas().iter().map(|a| DrawArea::new(a)).collect();
+        let areas: Vec<DrawArea> = map
+            .all_areas()
+            .iter()
+            .map(|a| DrawArea::new(a, cs, prerender))
+            .collect();
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
