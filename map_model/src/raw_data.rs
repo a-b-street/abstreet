@@ -125,7 +125,7 @@ pub struct Area {
     // last point is always the same as the first
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
-    pub osm_way_id: i64,
+    pub osm_id: i64,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]

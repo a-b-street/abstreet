@@ -404,8 +404,8 @@ impl<S: UIState> UI<S> {
         let map = &state.primary.map;
         let draw_map = &state.primary.draw_map;
 
-        let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
+        let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
         let mut intersections: Vec<Box<&Renderable>> = Vec::new();
         let mut buildings: Vec<Box<&Renderable>> = Vec::new();
@@ -419,8 +419,8 @@ impl<S: UIState> UI<S> {
                 continue;
             }
             match id {
-                ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
+                ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     if !state.show_icons_for(map.get_l(id).dst_i) {
@@ -452,8 +452,8 @@ impl<S: UIState> UI<S> {
 
         // From background to foreground Z-order
         let mut borrows: Vec<Box<&Renderable>> = Vec::new();
-        borrows.extend(areas);
         borrows.extend(parcels);
+        borrows.extend(areas);
         borrows.extend(lanes);
         borrows.extend(intersections);
         borrows.extend(buildings);

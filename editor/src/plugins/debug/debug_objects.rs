@@ -146,7 +146,7 @@ fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &DrawCtx) -> Text {
         }
         ID::Area(id) => {
             let a = map.get_a(id);
-            txt.add_line(format!("{} (from OSM way {})", id, a.osm_way_id));
+            txt.add_line(format!("{} (from OSM {})", id, a.osm_id));
             styled_kv(&mut txt, &a.osm_tags);
         }
         ID::Trip(_) => {}

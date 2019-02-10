@@ -67,7 +67,7 @@ pub fn osm_to_raw_roads(
         } else if let Some(at) = get_area_type(&tags) {
             areas.push(raw_data::Area {
                 area_type: at,
-                osm_way_id: way.id,
+                osm_id: way.id,
                 points: pts,
                 osm_tags: tags,
             });
@@ -83,33 +83,43 @@ pub fn osm_to_raw_roads(
         let tags = tags_to_map(&rel.tags);
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {
+                let mut ok = true;
+                let mut pts_per_way: Vec<Vec<LonLat>> = Vec::new();
                 for member in &rel.members {
                     match *member {
                         osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
                             match id_to_way.get(&id) {
                                 Some(pts) => {
                                     if role == "outer" {
-                                        areas.push(raw_data::Area {
-                                            area_type: at,
-                                            osm_way_id: id,
-                                            points: pts.to_vec(),
-                                            osm_tags: tags.clone(),
-                                        });
+                                        pts_per_way.push(pts.to_vec());
                                     } else {
                                         println!(
                                             "Relation {} has unhandled member role {}",
                                             rel.id, role
                                         );
+                                        ok = false;
                                     }
                                 }
                                 None => {
                                     println!("Relation {} refers to unknown way {}", rel.id, id);
+                                    ok = false;
                                 }
                             }
                         }
                         _ => {
                             println!("Relation {} refers to {:?}", rel.id, member);
+                            ok = false;
                         }
+                    }
+                }
+                if ok {
+                    if let Some(polygon) = glue_multipolygon(pts_per_way) {
+                        areas.push(raw_data::Area {
+                            area_type: at,
+                            osm_id: rel.id,
+                            points: polygon,
+                            osm_tags: tags.clone(),
+                        });
                     }
                 }
             }
@@ -175,11 +185,29 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     if tags.get("natural") == Some(&"wood".to_string()) {
         return Some(AreaType::Park);
     }
-    if tags.get("natural") == Some(&"wetland".to_string()) {
-        return Some(AreaType::Swamp);
-    }
-    if tags.contains_key("waterway") {
+    if tags.contains_key("waterway") || tags.get("natural") == Some(&"water".to_string()) {
         return Some(AreaType::Water);
     }
     None
+}
+
+fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
+    let mut result = pts_per_way.pop().unwrap();
+    while !pts_per_way.is_empty() {
+        let glue_pt = *result.last().unwrap();
+        if let Some(idx) = pts_per_way
+            .iter()
+            .position(|pts| pts[0] == glue_pt || *pts.last().unwrap() == glue_pt)
+        {
+            let mut append = pts_per_way.remove(idx);
+            if append[0] != glue_pt {
+                append.reverse();
+            }
+            result.pop();
+            result.extend(append);
+        } else {
+            return None;
+        }
+    }
+    Some(result)
 }

@@ -18,7 +18,6 @@ impl fmt::Display for AreaID {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum AreaType {
     Park,
-    Swamp,
     Water,
 }
 
@@ -29,7 +28,7 @@ pub struct Area {
     // Might be a closed loop or not -- waterways can be linear.
     pub points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
-    pub osm_way_id: i64,
+    pub osm_id: i64,
 }
 
 impl Area {

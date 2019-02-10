@@ -26,7 +26,7 @@ impl ToggleableLayers {
             show_parcels: ToggleableLayer::new("parcels", Some(MIN_ZOOM_FOR_PARCELS)),
             show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_LANES)),
             show_all_turn_icons: ToggleableLayer::new("all turn icons", None),
-            show_areas: ToggleableLayer::new("areas", None),
+            show_areas: ToggleableLayer::new("areas", Some(0.0)),
             debug_mode: ToggleableLayer::new("geometry debug mode", None),
         }
     }

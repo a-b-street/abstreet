@@ -189,7 +189,7 @@ pub fn make_half_map(
                 .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
                 .collect(),
             osm_tags: a.osm_tags.clone(),
-            osm_way_id: a.osm_way_id,
+            osm_id: a.osm_id,
         });
     }
 

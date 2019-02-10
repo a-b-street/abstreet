@@ -17,9 +17,8 @@ impl DrawArea {
         let fill_polygon = area.get_polygon();
         let draw_default = prerender.upload_borrowed(vec![(
             match area.area_type {
-                AreaType::Park => cs.get_def("park area", Color::GREEN),
-                AreaType::Swamp => cs.get_def("swamp area", Color::rgb_f(0.0, 1.0, 0.6)),
-                AreaType::Water => cs.get_def("water area", Color::BLUE),
+                AreaType::Park => cs.get_def("park area", Color::rgb(200, 250, 204)),
+                AreaType::Water => cs.get_def("water area", Color::rgb(170, 211, 223)),
             },
             &fill_polygon,
         )]);
