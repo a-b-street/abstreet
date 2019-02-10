@@ -21,8 +21,7 @@ map_model = { path = "../map_model" }
 ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
 quick-xml = "0.13.1"
-rand = "0.6.4"
-serde = "1.0"
-serde_derive = "1.0"
+serde = "1.0.87"
+serde_derive = "1.0.87"
 sim = { path = "../sim" }
 structopt = "0.2"

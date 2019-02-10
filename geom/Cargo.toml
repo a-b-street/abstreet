@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 aabb-quadtree = "0.1.0"
 ordered-float = "1.0.1"
-serde = "1.0"
-serde_derive = "1.0"
+serde = "1.0.87"
+serde_derive = "1.0.87"

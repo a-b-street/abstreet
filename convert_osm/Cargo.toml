@@ -9,7 +9,7 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 byteorder = "1.2.1"
 geo = "0.11.0"
-geojson = "0.13.0"
+geojson = "0.14.0"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
 kml = { path = "../kml" }
