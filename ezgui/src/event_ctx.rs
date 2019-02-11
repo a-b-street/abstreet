@@ -13,7 +13,8 @@ pub struct Drawable {
 pub(crate) struct Vertex {
     position: [f32; 2],
     // TODO Maybe pass color as a uniform instead
-    color: [f32; 4],
+    // TODO Or have a fixed palette of colors and just index into it
+    color: [u8; 4],
 }
 
 implement_vertex!(Vertex, position, color);
@@ -40,7 +41,12 @@ impl<'a> Prerender<'a> {
             for pt in pts {
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],
-                    color: color.0,
+                    color: [
+                        f32_to_u8(color.0[0]),
+                        f32_to_u8(color.0[1]),
+                        f32_to_u8(color.0[2]),
+                        f32_to_u8(color.0[3]),
+                    ],
                 });
             }
             for idx in raw_indices {
@@ -81,4 +87,8 @@ pub struct EventCtx<'a> {
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender<'a>,
+}
+
+fn f32_to_u8(x: f32) -> u8 {
+    (x * 255.0) as u8
 }

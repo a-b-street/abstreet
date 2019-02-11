@@ -10,7 +10,7 @@ in vec4 color;
 out vec4 pass_color;
 
 void main() {
-    pass_color = color;
+    pass_color = color / 255.0;
 
     // This is map_to_screen
     float screen_x = (position[0] * transform[2]) - transform[0];
