@@ -4,6 +4,11 @@ use abstutil::Timer;
 use std::collections::{BTreeSet, HashSet};
 
 pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
+    if m.roads.len() > 15_000 {
+        error!("Skipping fix_ramps because map is too big! TODO: Optimize me!");
+        return;
+    }
+
     // Look for road center lines that hit an intersection polygon that isn't one of their
     // endpoints.
     timer.start_iter(

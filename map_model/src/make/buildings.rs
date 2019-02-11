@@ -43,6 +43,10 @@ pub fn make_all_buildings(
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
                 .dist_along(sidewalk_pos.dist_along())
                 .0;
+            if sidewalk_pt.epsilon_eq(bldg_center.into()) {
+                warn!("Skipping a building because front path has 0 length");
+                continue;
+            }
             let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
 
             let id = BuildingID(results.len());

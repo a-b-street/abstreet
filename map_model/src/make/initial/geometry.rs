@@ -139,10 +139,16 @@ fn generalized_trim_back(
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline? Also, find the hit closest to the intersection -- this matters for
                 // very curvy roads, like highway ramps.
-                let trim_to = road_center.reversed().intersection_infinite(&perp).unwrap();
-                let trimmed = road_center.get_slice_ending_at(trim_to).unwrap();
-                if trimmed.length() < shortest_center.length() {
-                    shortest_center = trimmed;
+                if let Some(trimmed) = road_center
+                    .reversed()
+                    .intersection_infinite(&perp)
+                    .and_then(|trim_to| road_center.get_slice_ending_at(trim_to))
+                {
+                    if trimmed.length() < shortest_center.length() {
+                        shortest_center = trimmed;
+                    }
+                } else {
+                    warn!("{} and {} hit, but the perpendicular never hit the original center line, or the trimmed thing is empty", r1, r2);
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
@@ -199,18 +205,25 @@ fn generalized_trim_back(
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.
         // It's apparently safe to always take the second_half here.
-        if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
-            endpoints.push(hit);
-        } else if r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
-            if false {
-                // TODO This cuts some corners nicely, but also causes lots of problems.
-                // If the original roads didn't end at the same intersection (due to intersection
-                // merging), then use infinite lines.
-                if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half())
-                {
-                    endpoints.push(hit);
+        if fwd_pl.length() >= geom::EPSILON_DIST * 3.0
+            && adj_fwd_pl.length() >= geom::EPSILON_DIST * 3.0
+        {
+            if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
+                endpoints.push(hit);
+            } else if r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
+                if false {
+                    // TODO This cuts some corners nicely, but also causes lots of problems.
+                    // If the original roads didn't end at the same intersection (due to intersection
+                    // merging), then use infinite lines.
+                    if let Some((hit, _)) =
+                        fwd_pl.second_half().intersection(&adj_fwd_pl.second_half())
+                    {
+                        endpoints.push(hit);
+                    }
                 }
             }
+        } else {
+            warn!("Excluding collision between original polylines of {} and something, because stuff's too short", id);
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -222,21 +235,27 @@ fn generalized_trim_back(
             endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).first_pt());
         }
 
-        if let Some((hit, _)) = back_pl
-            .second_half()
-            .intersection(&adj_back_pl.second_half())
+        if back_pl.length() >= geom::EPSILON_DIST * 3.0
+            && adj_back_pl.length() >= geom::EPSILON_DIST * 3.0
         {
-            endpoints.push(hit);
-        } else if r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
-            if false {
-                if let Some(hit) = back_pl
-                    .last_line()
-                    .infinite()
-                    .intersection(&adj_back_pl.last_line().infinite())
-                {
-                    endpoints.push(hit);
+            if let Some((hit, _)) = back_pl
+                .second_half()
+                .intersection(&adj_back_pl.second_half())
+            {
+                endpoints.push(hit);
+            } else if r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
+                if false {
+                    if let Some(hit) = back_pl
+                        .last_line()
+                        .infinite()
+                        .intersection(&adj_back_pl.last_line().infinite())
+                    {
+                        endpoints.push(hit);
+                    }
                 }
             }
+        } else {
+            warn!("Excluding collision between original polylines of {} and something, because stuff's too short", id);
         }
     }
     // TODO Caller will close off the polygon. Does that affect our dedupe?

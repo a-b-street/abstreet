@@ -85,7 +85,12 @@ impl ControlTrafficSignal {
         intersection: IntersectionID,
     ) -> Option<ControlTrafficSignal> {
         if map.get_turns_in_intersection(intersection).is_empty() {
-            panic!("{} has no turns", intersection);
+            error!("{} has no turns", intersection);
+            return Some(ControlTrafficSignal {
+                id: intersection,
+                cycles: Vec::new(),
+                changed: false,
+            });
         }
 
         let mut cycles = Vec::new();

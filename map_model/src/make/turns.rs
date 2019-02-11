@@ -8,6 +8,8 @@ use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
 use std::iter;
 
+// TODO Add proper warnings when the geometry is too small to handle.
+
 pub fn make_all_turns(i: &Intersection, roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
     if i.intersection_type == IntersectionType::Border {
         return Vec::new();
@@ -73,7 +75,7 @@ fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
     lane_types.remove(&LaneType::Parking);
     lane_types.remove(&LaneType::Sidewalk);
 
-    let mut result = Vec::new();
+    let mut result: Vec<Option<Turn>> = Vec::new();
 
     for lane_type in lane_types.into_iter() {
         if i.is_dead_end() {
@@ -139,7 +141,7 @@ fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
         }
     }
 
-    result
+    result.into_iter().filter_map(|x| x).collect()
 }
 
 fn match_up_lanes(
@@ -147,7 +149,7 @@ fn match_up_lanes(
     i: IntersectionID,
     incoming: &Vec<LaneID>,
     outgoing: &Vec<LaneID>,
-) -> Vec<Turn> {
+) -> Vec<Option<Turn>> {
     let mut result = Vec::new();
     if incoming.len() < outgoing.len() {
         // Arbitrarily use the leftmost incoming lane to handle the excess.
@@ -185,7 +187,7 @@ fn make_vehicle_turns_for_dead_end(
     roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     lane_type: LaneType,
-) -> Vec<Turn> {
+) -> Vec<Option<Turn>> {
     let road = &roads[i.roads.iter().next().unwrap().0];
     let incoming = filter_vehicle_lanes(road.incoming_lanes(i.id), lane_type);
     let outgoing = filter_vehicle_lanes(road.outgoing_lanes(i.id), lane_type);
@@ -219,18 +221,22 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
                     lanes,
                     wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
                 ) {
-                    result.push(Turn {
-                        id: turn_id(i.id, l1.id, l2.id),
-                        turn_type: TurnType::SharedSidewalkCorner,
-                        geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
-                        lookup_idx: 0,
-                    });
-                    result.push(Turn {
-                        id: turn_id(i.id, l2.id, l1.id),
-                        turn_type: TurnType::SharedSidewalkCorner,
-                        geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
-                        lookup_idx: 0,
-                    });
+                    if !l1.last_pt().epsilon_eq(l2.first_pt()) {
+                        result.push(Turn {
+                            id: turn_id(i.id, l1.id, l2.id),
+                            turn_type: TurnType::SharedSidewalkCorner,
+                            geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
+                            lookup_idx: 0,
+                        });
+                    }
+                    if !l2.first_pt().epsilon_eq(l1.last_pt()) {
+                        result.push(Turn {
+                            id: turn_id(i.id, l2.id, l1.id),
+                            turn_type: TurnType::SharedSidewalkCorner,
+                            geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
+                            lookup_idx: 0,
+                        });
+                    }
                 } else if roads.len() > 2 {
                     // See if we need to add a crosswalk over this adjacent road.
                     // TODO This is brittle; I could imagine having to cross two adjacent highway
@@ -249,6 +255,10 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
 }
 
 fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
+    if l1.last_pt().epsilon_eq(l2.first_pt()) {
+        return Vec::new();
+    }
+
     // Jut out a bit into the intersection, cross over, then jut back in.
     let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
     let geom_fwds = PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
@@ -297,10 +307,14 @@ fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID
         .collect()
 }
 
-fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneID) -> Turn {
+fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneID) -> Option<Turn> {
     let src = &lanes[l1.0];
     let dst = &lanes[l2.0];
     let turn_type = TurnType::from_angles(src.last_line().angle(), dst.first_line().angle());
+
+    if src.last_pt().epsilon_eq(dst.first_pt()) {
+        return None;
+    }
 
     let geom = if turn_type == TurnType::Straight {
         PolyLine::new(vec![src.last_pt(), dst.first_pt()])
@@ -332,12 +346,12 @@ fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneI
         ))
     };
 
-    Turn {
+    Some(Turn {
         id: turn_id(i, l1, l2),
         turn_type,
         geom,
         lookup_idx: 0,
-    }
+    })
 }
 
 fn to_pt(pt: Pt2D) -> Point2d<f64> {

@@ -51,21 +51,21 @@ pub fn run(t: &mut TestRunner) {
         }
     });
 
-    t.run_slow("bigger_maps", |_| {
+    t.run_slow("bigger_map_loads", |_| {
         map_model::Map::new(
             "../data/raw_maps/23rd.abst",
             map_model::MapEdits::new("23rd"),
             &mut abstutil::Timer::new("raw to map"),
         )
         .expect("23rd broke");
+    });
 
-        // TODO This one has lots more problems (turns with no geometry) and even when the map is
-        // made successfully, can't load it in the UI without OOMing.
-        /*map_model::Map::new(
+    t.run_slow("biggest_map_loads", |_| {
+        map_model::Map::new(
             "../data/raw_maps/small_seattle.abst",
             map_model::MapEdits::new("small_seattle"),
             &mut abstutil::Timer::new("raw to map"),
         )
-        .expect("small_seattle broke");*/
+        .expect("small_seattle broke");
     });
 }
