@@ -116,12 +116,12 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
-        let obj = self.prerender.upload_borrowed(vec![(color, poly)]);
+        let obj = self.prerender.upload_temporary(vec![(color, poly)]);
         self.redraw(&obj);
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
-        let obj = self.prerender.upload_borrowed(list);
+        let obj = self.prerender.upload_temporary(list);
         self.redraw(&obj);
     }
 

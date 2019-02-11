@@ -30,6 +30,23 @@ pub struct Prerender<'a> {
 
 impl<'a> Prerender<'a> {
     pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.actually_upload(true, list)
+    }
+
+    pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
+        let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
+        self.actually_upload(true, borrows)
+    }
+
+    pub fn get_total_bytes_uploaded(&self) -> usize {
+        self.total_bytes_uploaded.get()
+    }
+
+    pub(crate) fn upload_temporary(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.actually_upload(false, list)
+    }
+
+    fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
         self.num_uploads.set(self.num_uploads.get() + 1);
 
         let mut vertices: Vec<Vertex> = Vec::new();
@@ -54,31 +71,39 @@ impl<'a> Prerender<'a> {
             }
         }
 
-        let vertex_buffer = glium::VertexBuffer::new(self.display, &vertices).unwrap();
-        let index_buffer = glium::IndexBuffer::new(
-            self.display,
-            glium::index::PrimitiveType::TrianglesList,
-            &indices,
-        )
-        .unwrap();
+        let vertex_buffer = if permanent {
+            glium::VertexBuffer::immutable(self.display, &vertices).unwrap()
+        } else {
+            glium::VertexBuffer::new(self.display, &vertices).unwrap()
+        };
+        let index_buffer = if permanent {
+            glium::IndexBuffer::immutable(
+                self.display,
+                glium::index::PrimitiveType::TrianglesList,
+                &indices,
+            )
+            .unwrap()
+        } else {
+            glium::IndexBuffer::new(
+                self.display,
+                glium::index::PrimitiveType::TrianglesList,
+                &indices,
+            )
+            .unwrap()
+        };
 
-        self.total_bytes_uploaded.set(
-            self.total_bytes_uploaded.get() + vertex_buffer.get_size() + index_buffer.get_size(),
-        );
+        if permanent {
+            self.total_bytes_uploaded.set(
+                self.total_bytes_uploaded.get()
+                    + vertex_buffer.get_size()
+                    + index_buffer.get_size(),
+            );
+        }
 
         Drawable {
             vertex_buffer,
             index_buffer,
         }
-    }
-
-    pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
-        let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
-        self.upload_borrowed(borrows)
-    }
-
-    pub fn get_total_bytes_uploaded(&self) -> usize {
-        self.total_bytes_uploaded.get()
     }
 }
 
