@@ -1,4 +1,5 @@
 use crate::srtm;
+use abstutil::Timer;
 use geom::{Distance, HashablePt2D, LonLat};
 use map_model::{raw_data, IntersectionType};
 use std::collections::HashMap;
@@ -10,8 +11,9 @@ pub fn split_up_roads(
         Vec<raw_data::Area>,
     ),
     elevation: &srtm::Elevation,
+    timer: &mut Timer,
 ) -> raw_data::Map {
-    println!("splitting up {} roads", roads.len());
+    timer.start("splitting up roads");
 
     let mut next_intersection_id = 0;
 
@@ -86,7 +88,9 @@ pub fn split_up_roads(
     }
 
     // Now actually split up the roads based on the intersections
+    timer.start_iter("split roads", roads.len());
     for orig_road in &roads {
+        timer.next();
         let mut r = orig_road.clone();
         r.points.clear();
         r.i1 = pt_to_intersection[&orig_road.points[0].to_hashable()];
@@ -117,5 +121,6 @@ pub fn split_up_roads(
         assert!(r.points.len() == 1);
     }
 
+    timer.stop("splitting up roads");
     map
 }

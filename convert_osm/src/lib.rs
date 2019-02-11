@@ -62,9 +62,12 @@ pub struct Flags {
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-    let mut map = split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation);
+    let mut map =
+        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
+    timer.start("calculate GPS bounds");
     let gps_bounds = map.get_gps_bounds();
+    timer.stop("calculate GPS bounds");
 
     if flags.fast_dev {
         return map;
@@ -77,6 +80,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
 
     {
+        timer.start("convert neighborhood polygons");
         let map_name = Path::new(&flags.output)
             .file_stem()
             .unwrap()
@@ -84,6 +88,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
             .into_string()
             .unwrap();
         neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
+        timer.stop("convert neighborhood polygons");
     }
 
     map
@@ -95,6 +100,7 @@ fn use_parking_hints(
     path: &str,
     timer: &mut Timer,
 ) {
+    timer.start("apply parking hints");
     println!("Loading blockface shapes from {}", path);
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
 
@@ -141,9 +147,11 @@ fn use_parking_hints(
             }
         }
     }
+    timer.stop("apply parking hints");
 }
 
 fn handle_parcels(map: &mut raw_data::Map, gps_bounds: &GPSBounds, path: &str, timer: &mut Timer) {
+    timer.start("process parcels");
     println!("Loading parcels from {}", path);
     let parcels: ExtraShapes = abstutil::read_binary(path, timer).expect("loading parcels failed");
     println!(
@@ -164,6 +172,7 @@ fn handle_parcels(map: &mut raw_data::Map, gps_bounds: &GPSBounds, path: &str, t
         }
     }
     group_parcels::group_parcels(gps_bounds, &mut map.parcels);
+    timer.stop("process parcels");
 }
 
 fn handle_traffic_signals(
@@ -172,6 +181,7 @@ fn handle_traffic_signals(
     path: &str,
     timer: &mut Timer,
 ) {
+    timer.start("handle traffic signals");
     for shape in kml::load(path, gps_bounds, timer)
         .expect("loading traffic signals failed")
         .shapes
@@ -199,6 +209,7 @@ fn handle_traffic_signals(
             }
         }
     }
+    timer.stop("handle traffic signals");
 }
 
 fn handle_residences(
@@ -207,6 +218,7 @@ fn handle_residences(
     path: &str,
     timer: &mut Timer,
 ) {
+    timer.start("match residential permits with buildings");
     let bldg_centers: Vec<(usize, LonLat)> = map
         .buildings
         .iter()
@@ -214,11 +226,12 @@ fn handle_residences(
         .map(|(idx, b)| (idx, LonLat::center(&b.points)))
         .collect();
 
-    for shape in kml::load(path, gps_bounds, timer)
+    let shapes = kml::load(path, gps_bounds, timer)
         .expect("loading residential buildings failed")
-        .shapes
-        .into_iter()
-    {
+        .shapes;
+    timer.start_iter("handle residential permits", shapes.len());
+    for shape in shapes.into_iter() {
+        timer.next();
         if shape.points.len() > 1 {
             panic!(
                 "Residential building permit has multiple points: {:?}",
@@ -247,4 +260,5 @@ fn handle_residences(
             }
         }
     }
+    timer.stop("match residential permits with buildings");
 }
