@@ -1,3 +1,4 @@
+use crate::time::{prettyprint_time, prettyprint_usize};
 use crate::{elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
 use bincode;
 use multimap;
@@ -199,10 +200,10 @@ impl FileWithProgress {
                 timer.add_result(
                     elapsed,
                     format!(
-                        "Reading {} ({} MB)... {}s",
+                        "Reading {} ({} MB)... {}",
                         path_copy,
-                        total_bytes / 1024 / 1024,
-                        elapsed
+                        prettyprint_usize(total_bytes / 1024 / 1024),
+                        prettyprint_time(elapsed)
                     ),
                 );
             }),
@@ -217,7 +218,8 @@ impl Read for FileWithProgress {
         if self.processed_bytes > self.total_bytes {
             panic!(
                 "{} is too many bytes read from {}",
-                self.processed_bytes, self.path
+                prettyprint_usize(self.processed_bytes),
+                self.path
             );
         }
 
@@ -225,11 +227,11 @@ impl Read for FileWithProgress {
         if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
             self.last_printed_at = Instant::now();
             print!(
-                "\rReading {}: {}/{} MB... {:.1}s",
+                "\rReading {}: {}/{} MB... {}",
                 self.path,
-                self.processed_bytes / 1024 / 1024,
-                self.total_bytes / 1024 / 1024,
-                elapsed_seconds(self.started_at)
+                prettyprint_usize(self.processed_bytes / 1024 / 1024),
+                prettyprint_usize(self.total_bytes / 1024 / 1024),
+                prettyprint_time(elapsed_seconds(self.started_at))
             );
             if done {
                 println!();

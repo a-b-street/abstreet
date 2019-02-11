@@ -45,6 +45,7 @@
 - population
 	- http://seattlecitygis.maps.arcgis.com/apps/MapSeries/index.html?appid=3eb44a4fdf9a4fff9e1c105cd5e7fe27
 	- https://data.seattle.gov/Permitting/Rental-Property-Registration-Map/5a7u-vxx7
+- http://guides.lib.uw.edu/research/gis/uw-lib_data has cool stuff, but .lyr??
 
 ## Low-priority geometry issues
 

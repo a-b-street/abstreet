@@ -33,13 +33,19 @@ impl Progress {
         if self.processed_items > self.total_items {
             panic!(
                 "{} is too few items for {} progress",
-                self.total_items, self.label
+                prettyprint_usize(self.total_items),
+                self.label
             );
         }
 
         if self.processed_items == self.total_items {
             let elapsed = elapsed_seconds(self.started_at);
-            let line = format!("{} ({})... {}s", self.label, self.total_items, elapsed);
+            let line = format!(
+                "{} ({})... {}",
+                self.label,
+                prettyprint_usize(self.total_items),
+                prettyprint_time(elapsed)
+            );
             // TODO blank till end of current line
             println!("\r{}", line);
             return Some((elapsed, line));
@@ -47,11 +53,11 @@ impl Progress {
             self.last_printed_at = Instant::now();
             // TODO blank till end of current line
             print!(
-                "\r{}: {}/{}... {:.1}s",
+                "\r{}: {}/{}... {}",
                 self.label,
-                self.processed_items,
-                self.total_items,
-                elapsed_seconds(self.started_at)
+                prettyprint_usize(self.processed_items),
+                prettyprint_usize(self.total_items),
+                prettyprint_time(elapsed_seconds(self.started_at))
             );
             stdout().flush().unwrap();
         }
@@ -138,7 +144,7 @@ impl Timer {
         };
         assert_eq!(span.name, name);
         let elapsed = elapsed_seconds(span.started_at);
-        let line = format!("{} took {}s", name, elapsed);
+        let line = format!("{} took {}", name, prettyprint_time(elapsed));
 
         let padding = "  ".repeat(self.stack.len());
         match self.stack.last_mut() {
@@ -146,11 +152,15 @@ impl Timer {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    println!("{}... plus {}s", name, elapsed - span.nested_time);
+                    println!(
+                        "{}... plus {}",
+                        name,
+                        prettyprint_time(elapsed - span.nested_time)
+                    );
                     s.nested_results.push(format!(
-                        "  {}- ... plus {}s",
+                        "  {}- ... plus {}",
                         padding,
-                        elapsed - span.nested_time
+                        prettyprint_time(elapsed - span.nested_time)
                     ));
                 }
                 s.nested_time += elapsed;
@@ -163,9 +173,15 @@ impl Timer {
                 self.results.push(format!("{}- {}", padding, line));
                 self.results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    println!("{}... plus {}s", name, elapsed - span.nested_time);
-                    self.results
-                        .push(format!("  - ... plus {}s", elapsed - span.nested_time));
+                    println!(
+                        "{}... plus {}",
+                        name,
+                        prettyprint_time(elapsed - span.nested_time)
+                    );
+                    self.results.push(format!(
+                        "  - ... plus {}",
+                        prettyprint_time(elapsed - span.nested_time)
+                    ));
                 }
                 // Don't bother tracking excess time that the Timer has existed but had no spans
             }
@@ -291,9 +307,30 @@ impl Profiler {
             }
 
             println!(
-                "  - {}: {}s over {} rounds ({}s / round)",
-                entry.name, entry.total_seconds, entry.rounds, time_per_round,
+                "  - {}: {} over {} rounds ({} / round)",
+                entry.name,
+                prettyprint_time(entry.total_seconds),
+                prettyprint_usize(entry.rounds),
+                prettyprint_time(time_per_round),
             );
         }
     }
+}
+
+pub fn prettyprint_usize(x: usize) -> String {
+    let num = format!("{}", x);
+    let mut result = String::new();
+    let mut i = num.len();
+    for c in num.chars() {
+        result.push(c);
+        i -= 1;
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+    }
+    result
+}
+
+pub fn prettyprint_time(seconds: f64) -> String {
+    format!("{:.4}s", seconds)
 }

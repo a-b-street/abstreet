@@ -248,7 +248,10 @@ impl PolyLine {
         } else {
             result
         };
-        check_angles(self, &fixed);
+        // TODO The warning is very spammy. Known issue, silence for now.
+        if false {
+            check_angles(self, &fixed);
+        }
         fixed
     }
 
