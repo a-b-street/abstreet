@@ -22,6 +22,9 @@ implement_vertex!(Vertex, position, color);
 pub struct Prerender<'a> {
     pub(crate) display: &'a glium::Display,
     pub(crate) num_uploads: Cell<usize>,
+    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
+    // detailed (and use the corresponding persistent glium types).
+    pub(crate) total_bytes_uploaded: Cell<usize>,
 }
 
 impl<'a> Prerender<'a> {
@@ -53,6 +56,10 @@ impl<'a> Prerender<'a> {
         )
         .unwrap();
 
+        self.total_bytes_uploaded.set(
+            self.total_bytes_uploaded.get() + vertex_buffer.get_size() + index_buffer.get_size(),
+        );
+
         Drawable {
             vertex_buffer,
             index_buffer,
@@ -62,6 +69,10 @@ impl<'a> Prerender<'a> {
     pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
         let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
         self.upload_borrowed(borrows)
+    }
+
+    pub fn get_total_bytes_uploaded(&self) -> usize {
+        self.total_bytes_uploaded.get()
     }
 }
 

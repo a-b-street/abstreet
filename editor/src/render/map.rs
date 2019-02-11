@@ -171,6 +171,11 @@ impl DrawMap {
         }
         timer.stop("create quadtree");
 
+        info!(
+            "static DrawMap consumes {} MB",
+            abstutil::prettyprint_usize(prerender.get_total_bytes_uploaded() / 1024 / 1024)
+        );
+
         DrawMap {
             lanes,
             intersections,

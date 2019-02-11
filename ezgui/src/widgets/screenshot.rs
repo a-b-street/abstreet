@@ -29,7 +29,7 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
             state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
             state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
 
-            let naming_hint = state.draw(display, program, true, 0);
+            let naming_hint = state.draw(display, program, true, 0, 0);
             // TODO Is vsync or something else causing the above redraw to not actually show up in
             // time for scrot to see it? This is slow (30s total for Montlake), but stable.
             thread::sleep(time::Duration::from_millis(100));

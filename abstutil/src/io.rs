@@ -1,5 +1,5 @@
-use crate::time::{prettyprint_time, prettyprint_usize};
-use crate::{elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
+use crate::time::prettyprint_time;
+use crate::{elapsed_seconds, prettyprint_usize, Timer, PROGRESS_FREQUENCY_SECONDS};
 use bincode;
 use multimap;
 use serde::de::DeserializeOwned;

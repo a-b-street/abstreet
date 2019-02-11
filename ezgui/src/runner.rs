@@ -107,11 +107,13 @@ impl<T, G: GUI<T>> State<T, G> {
         program: &glium::Program,
         screenshot: bool,
         uploads_so_far: usize,
+        bytes_uploaded_so_far: usize,
     ) -> Option<String> {
         let mut target = display.draw();
         let prerender = Prerender {
             display,
             num_uploads: Cell::new(uploads_so_far),
+            total_bytes_uploaded: Cell::new(bytes_uploaded_so_far),
         };
         let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program);
         let mut naming_hint: Option<String> = None;
@@ -196,6 +198,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),
+        total_bytes_uploaded: Cell::new(0),
     };
     let gui = make_gui(&mut canvas, &prerender);
 
@@ -209,7 +212,15 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     };
 
     let num_uploads = prerender.num_uploads.get();
-    loop_forever(state, events_loop, display, program, num_uploads);
+    let total_bytes_uploaded = prerender.total_bytes_uploaded.get();
+    loop_forever(
+        state,
+        events_loop,
+        display,
+        program,
+        num_uploads,
+        total_bytes_uploaded,
+    );
 }
 
 fn loop_forever<T, G: GUI<T>>(
@@ -218,6 +229,7 @@ fn loop_forever<T, G: GUI<T>>(
     display: glium::Display,
     program: glium::Program,
     mut uploads_so_far: usize,
+    mut bytes_uploaded_so_far: usize,
 ) {
     let mut wait_for_events = false;
     loop {
@@ -245,11 +257,13 @@ fn loop_forever<T, G: GUI<T>>(
             let prerender = Prerender {
                 display: &display,
                 num_uploads: Cell::new(uploads_so_far),
+                total_bytes_uploaded: Cell::new(bytes_uploaded_so_far),
             };
             let (new_state, mode) = state.event(event, &prerender);
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
             uploads_so_far = prerender.num_uploads.get();
+            bytes_uploaded_so_far = prerender.total_bytes_uploaded.get();
             if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
                 state =
                     widgets::screenshot_everything(state, &display, &program, zoom, max_x, max_y);
@@ -260,7 +274,13 @@ fn loop_forever<T, G: GUI<T>>(
         // those events before drawing or somehow know that the release event was ignored and we
         // don't need to redraw.
         if any_new_events {
-            state.draw(&display, &program, false, uploads_so_far);
+            state.draw(
+                &display,
+                &program,
+                false,
+                uploads_so_far,
+                bytes_uploaded_so_far,
+            );
             uploads_so_far = 0;
         }
 
