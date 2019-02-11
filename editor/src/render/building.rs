@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
-use map_model::{Building, BuildingID, LANE_THICKNESS};
+use map_model::{Building, BuildingID, BuildingType, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
@@ -31,7 +31,17 @@ impl DrawBuilding {
 
         let default_draw = prerender.upload_borrowed(vec![
             (
-                cs.get_def("building", Color::rgba_f(0.7, 0.7, 0.7, 0.8)),
+                match bldg.building_type {
+                    BuildingType::Residence => {
+                        cs.get_def("residential building", Color::rgb(218, 165, 32))
+                    }
+                    BuildingType::Business => {
+                        cs.get_def("business building", Color::rgb(210, 105, 30))
+                    }
+                    BuildingType::Unknown => {
+                        cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
+                    }
+                },
                 &fill_polygon,
             ),
             (cs.get_def("building path", Color::grey(0.6)), &front_path),
@@ -52,9 +62,6 @@ impl Renderable for DrawBuilding {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        // Buildings look better without boundaries, actually
-        //g.draw_polygon(ctx.cs.get_def("building boundary", Color::rgb(0, 100, 0)), &self.boundary_polygon);
-
         if let Some(c) = opts.color {
             g.draw_polygon_batch(vec![
                 (c, &self.fill_polygon),

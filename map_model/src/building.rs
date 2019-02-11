@@ -23,9 +23,17 @@ pub struct FrontPath {
     pub line: Line,
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum BuildingType {
+    Residence,
+    Business,
+    Unknown,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Building {
     pub id: BuildingID,
+    pub building_type: BuildingType,
     pub points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
