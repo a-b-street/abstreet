@@ -1,8 +1,8 @@
 use crate::{elapsed_seconds, Timer, PROGRESS_FREQUENCY_SECONDS};
+use bincode;
 use multimap;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_cbor;
 use serde_json;
 use std;
 use std::collections::{BTreeMap, BTreeSet};
@@ -42,14 +42,14 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
-    let mut file = BufWriter::new(File::create(path)?);
-    serde_cbor::to_writer(&mut file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
+    let file = BufWriter::new(File::create(path)?);
+    bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     let (reader, done) = FileWithProgress::new(path)?;
     let obj: T =
-        serde_cbor::from_reader(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
+        bincode::deserialize_from(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
     done(timer);
     Ok(obj)
 }
