@@ -108,15 +108,18 @@ pub fn osm_to_raw_roads(
                     }
                 }
                 if ok {
-                    if let Some(polygon) = glue_multipolygon(pts_per_way) {
-                        areas.push(raw_data::Area {
-                            area_type: at,
-                            osm_id: rel.id,
-                            points: polygon,
-                            osm_tags: tags.clone(),
-                        });
-                    } else {
+                    let polygons = glue_multipolygon(pts_per_way);
+                    if polygons.is_empty() {
                         println!("Relation {} failed to glue multipolygon", rel.id);
+                    } else {
+                        for points in polygons {
+                            areas.push(raw_data::Area {
+                                area_type: at,
+                                osm_id: rel.id,
+                                points,
+                                osm_tags: tags.clone(),
+                            });
+                        }
                     }
                 }
             }
@@ -191,10 +194,23 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     None
 }
 
-fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
+// The result could be more than one disjoint polygon.
+fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
+    // First deal with all of the closed loops.
+    let mut polygons: Vec<Vec<LonLat>> = Vec::new();
+    pts_per_way.retain(|pts| {
+        if pts[0] == *pts.last().unwrap() {
+            polygons.push(pts.to_vec());
+            false
+        } else {
+            true
+        }
+    });
     if pts_per_way.is_empty() {
-        return None;
+        return polygons;
     }
+
+    // The main polygon
     let mut result = pts_per_way.pop().unwrap();
     let mut reversed = false;
     while !pts_per_way.is_empty() {
@@ -211,7 +227,8 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
             result.extend(append);
         } else {
             if reversed {
-                return None;
+                // Totally filter the thing out, since something clearly broke.
+                return Vec::new();
             } else {
                 reversed = true;
                 result.reverse();
@@ -224,5 +241,6 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Option<Vec<LonLat>> {
     if result[0] != *result.last().unwrap() {
         result.push(result[0]);
     }
-    Some(result)
+    polygons.push(result);
+    polygons
 }
