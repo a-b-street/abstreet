@@ -118,8 +118,7 @@ fn launch_test(
                 run_name: format!("{} with {}", test.test_name, test.edits1_name),
                 edits_name: test.edits1_name.clone(),
             },
-            kml: current_flags.kml.clone(),
-            draw_parcels: current_flags.draw_parcels,
+            ..current_flags.clone()
         },
         cs,
         prerender,
@@ -133,8 +132,7 @@ fn launch_test(
                 run_name: format!("{} with {}", test.test_name, test.edits2_name),
                 edits_name: test.edits2_name.clone(),
             },
-            kml: current_flags.kml.clone(),
-            draw_parcels: current_flags.draw_parcels,
+            ..current_flags.clone()
         },
         cs,
         prerender,

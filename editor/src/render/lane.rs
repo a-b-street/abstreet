@@ -20,34 +20,42 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &Lane, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawLane {
+    pub fn new(
+        lane: &Lane,
+        map: &Map,
+        draw_lane_markings: bool,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+    ) -> DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
         let mut markings: Vec<(Color, Polygon)> = Vec::new();
-        if road.is_canonical_lane(lane.id) {
-            markings.push((
-                cs.get_def("road center line", Color::YELLOW),
-                road.center_pts.make_polygons(BIG_ARROW_THICKNESS),
-            ));
-        }
-        match lane.lane_type {
-            LaneType::Sidewalk => {
-                markings.extend(calculate_sidewalk_lines(lane, cs));
+        if draw_lane_markings {
+            if road.is_canonical_lane(lane.id) {
+                markings.push((
+                    cs.get_def("road center line", Color::YELLOW),
+                    road.center_pts.make_polygons(BIG_ARROW_THICKNESS),
+                ));
             }
-            LaneType::Parking => {
-                markings.extend(calculate_parking_lines(lane, cs));
+            match lane.lane_type {
+                LaneType::Sidewalk => {
+                    markings.extend(calculate_sidewalk_lines(lane, cs));
+                }
+                LaneType::Parking => {
+                    markings.extend(calculate_parking_lines(lane, cs));
+                }
+                LaneType::Driving | LaneType::Bus => {
+                    markings.extend(calculate_driving_lines(lane, road, cs));
+                    markings.extend(calculate_turn_markings(map, lane, cs));
+                }
+                LaneType::Biking => {}
+            };
+            if lane.is_driving()
+                && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
+            {
+                markings.extend(calculate_stop_sign_line(road, lane, map, cs));
             }
-            LaneType::Driving | LaneType::Bus => {
-                markings.extend(calculate_driving_lines(lane, road, cs));
-                markings.extend(calculate_turn_markings(map, lane, cs));
-            }
-            LaneType::Biking => {}
-        };
-        if lane.is_driving()
-            && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
-        {
-            markings.extend(calculate_stop_sign_line(road, lane, map, cs));
         }
 
         let draw_default = prerender.upload_borrowed(vec![(

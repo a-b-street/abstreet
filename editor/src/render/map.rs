@@ -51,7 +51,13 @@ impl DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
             timer.next();
-            lanes.push(DrawLane::new(l, map, cs, prerender));
+            lanes.push(DrawLane::new(
+                l,
+                map,
+                !flags.dont_draw_lane_markings,
+                cs,
+                prerender,
+            ));
         }
 
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -77,15 +83,14 @@ impl DrawMap {
             })
             .collect();
 
-        timer.start_iter("make DrawBuildings", map.all_buildings().len());
-        let buildings: Vec<DrawBuilding> = map
-            .all_buildings()
-            .iter()
-            .map(|b| {
+        let mut buildings: Vec<DrawBuilding> = Vec::new();
+        if !flags.dont_draw_buildings {
+            timer.start_iter("make DrawBuildings", map.all_buildings().len());
+            for b in map.all_buildings() {
                 timer.next();
-                DrawBuilding::new(b, cs, prerender)
-            })
-            .collect();
+                buildings.push(DrawBuilding::new(b, cs, prerender));
+            }
+        }
 
         let mut parcels: Vec<DrawParcel> = Vec::new();
         if flags.draw_parcels {
@@ -130,11 +135,15 @@ impl DrawMap {
         for s in map.all_bus_stops().values() {
             bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, prerender));
         }
-        let areas: Vec<DrawArea> = map
-            .all_areas()
-            .iter()
-            .map(|a| DrawArea::new(a, cs, prerender))
-            .collect();
+
+        let mut areas: Vec<DrawArea> = Vec::new();
+        if !flags.dont_draw_areas {
+            timer.start_iter("make DrawAreas", map.all_areas().len());
+            for a in map.all_areas() {
+                timer.next();
+                areas.push(DrawArea::new(a, cs, prerender));
+            }
+        }
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
@@ -210,7 +219,8 @@ impl DrawMap {
         prerender: &Prerender,
     ) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
-        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, cs, prerender);
+        // TODO Preserve flags.dont_draw_lane_markings
+        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, true, cs, prerender);
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {

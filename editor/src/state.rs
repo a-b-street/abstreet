@@ -26,6 +26,19 @@ pub struct Flags {
     /// Should parcels be drawn? They're slow and not so useful.
     #[structopt(long = "draw_parcels")]
     pub draw_parcels: bool,
+
+    // TODO Ideally these'd be phrased positively, but can't easily make them default to true.
+    /// Should areas be drawn? Can sometimes be slow.
+    #[structopt(long = "dont_draw_areas")]
+    pub dont_draw_areas: bool,
+
+    /// Should buildings be drawn? Sometimes there's an awful lot of them.
+    #[structopt(long = "dont_draw_buildings")]
+    pub dont_draw_buildings: bool,
+
+    /// Should lane markings be drawn? Sometimes they eat too much GPU memory.
+    #[structopt(long = "dont_draw_lane_markings")]
+    pub dont_draw_lane_markings: bool,
 }
 
 pub trait UIState {
