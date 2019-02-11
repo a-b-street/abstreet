@@ -43,6 +43,13 @@ if [ ! -f data/input/neighborhoods.geojson ]; then
 		data/input/neighborhoods.geojson;
 fi
 
+if [ ! -f data/input/residential_buildings.kml ]; then
+	# From https://data-seattlecitygis.opendata.arcgis.com/datasets/residential-building-permits-issued-and-final
+	get_if_needed \
+		https://opendata.arcgis.com/datasets/cb8c492055a44f2f9de427e0518f9246_0.kml \
+		data/input/residential_buildings.kml;
+fi
+
 if [ ! -f data/input/Seattle.osm ]; then
 	get_if_needed \
 		http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz \
@@ -90,6 +97,7 @@ for poly in `ls ../data/polygons/`; do
 		--osm=../data/input/$name.osm \
 		--elevation=../data/input/N47W122.hgt \
 		--traffic_signals=../data/input/traffic_signals.kml \
+		--residential_buildings=../data/input/residential_buildings.kml \
 		--parcels=../data/shapes/parcels \
 		--parking_shapes=../data/shapes/blockface \
 		--gtfs=../data/input/google_transit_2018_18_08 \
@@ -97,4 +105,4 @@ for poly in `ls ../data/polygons/`; do
 		--output=../data/raw_maps/$name.abst
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --parcels=../data/shapes/parcels --parking_shapes=../data/shapes/blockface --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --output=../data/raw_maps/montlake.abst --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --residential_buildings=../data/input/residential_buildings.kml --parcels=../data/shapes/parcels --parking_shapes=../data/shapes/blockface --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --output=../data/raw_maps/montlake.abst --fast_dev

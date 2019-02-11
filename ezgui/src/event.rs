@@ -125,6 +125,7 @@ pub enum Key {
     Dot,
     Comma,
     Semicolon,
+    Equals,
     // Stuff without a straightforward single-character display
     Escape,
     Enter,
@@ -198,6 +199,7 @@ impl Key {
             Key::Dot => Some(if shift_pressed { '>' } else { '.' }),
             Key::Comma => Some(if shift_pressed { '<' } else { ',' }),
             Key::Semicolon => Some(if shift_pressed { ':' } else { ';' }),
+            Key::Equals => Some(if shift_pressed { '+' } else { '=' }),
             Key::Escape
             | Key::Enter
             | Key::Tab
@@ -302,6 +304,8 @@ impl Key {
             glutin::VirtualKeyCode::Slash => Key::Slash,
             glutin::VirtualKeyCode::Period => Key::Dot,
             glutin::VirtualKeyCode::Comma => Key::Comma,
+            glutin::VirtualKeyCode::Semicolon => Key::Semicolon,
+            glutin::VirtualKeyCode::Equals => Key::Equals,
             glutin::VirtualKeyCode::Escape => Key::Escape,
             glutin::VirtualKeyCode::Return => Key::Enter,
             glutin::VirtualKeyCode::Tab => Key::Tab,

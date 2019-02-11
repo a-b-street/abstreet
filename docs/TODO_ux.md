@@ -41,6 +41,7 @@
 
 ## Better rendering
 
+- depict residential bldg occupany size somehow
 - render overlapping peds reasonably
 - draw moving / blocked colors (gradually more red as they wait longer)
 - render cars with textures?

@@ -9,6 +9,7 @@ pub fn run(t: &mut TestRunner) {
             osm: "../data/input/montlake.osm".to_string(),
             elevation: "../data/input/N47W122.hgt".to_string(),
             traffic_signals: "../data/input/traffic_signals.kml".to_string(),
+            residential_buildings: "../data/input/residential_buildings.kml".to_string(),
             parcels: "../data/shapes/parcels".to_string(),
             parking_shapes: "../data/shapes/blockface".to_string(),
             gtfs: "../data/input/google_transit_2018_18_08".to_string(),

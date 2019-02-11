@@ -37,6 +37,7 @@ pub struct Building {
     pub points: Vec<Pt2D>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+    pub num_residential_units: Option<usize>,
 
     pub front_path: FrontPath,
 }

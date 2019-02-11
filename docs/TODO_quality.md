@@ -44,7 +44,7 @@
 	- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
 - population
 	- http://seattlecitygis.maps.arcgis.com/apps/MapSeries/index.html?appid=3eb44a4fdf9a4fff9e1c105cd5e7fe27
-	- https://data-seattlecitygis.opendata.arcgis.com/datasets/residential-building-permits-issued-and-final has NET_UNITS
+	- https://data.seattle.gov/Permitting/Rental-Property-Registration-Map/5a7u-vxx7
 
 ## Low-priority geometry issues
 

@@ -7,13 +7,14 @@ mod srtm;
 
 use crate::srtm::Elevation;
 use abstutil::Timer;
-use geom::{Distance, GPSBounds, PolyLine, Pt2D};
+use geom::{Distance, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
 use std::path::Path;
 use structopt::StructOpt;
 
 const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
+const MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG_CENTER: Distance = Distance::const_meters(10.0);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "convert_osm")]
@@ -29,6 +30,10 @@ pub struct Flags {
     /// KML with traffic signals
     #[structopt(long = "traffic_signals")]
     pub traffic_signals: String,
+
+    /// KML with residential building permits
+    #[structopt(long = "residential_buildings")]
+    pub residential_buildings: String,
 
     /// ExtraShapes file with parcels, produced using the kml crate
     #[structopt(long = "parcels")]
@@ -65,6 +70,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         return map;
     }
 
+    handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);
     use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
     handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
     handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
@@ -190,6 +196,54 @@ fn handle_traffic_signals(
                     println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
                 }
                 closest_intersection.intersection_type = IntersectionType::TrafficSignal;
+            }
+        }
+    }
+}
+
+fn handle_residences(
+    map: &mut raw_data::Map,
+    gps_bounds: &GPSBounds,
+    path: &str,
+    timer: &mut Timer,
+) {
+    let bldg_centers: Vec<(usize, LonLat)> = map
+        .buildings
+        .iter()
+        .enumerate()
+        .map(|(idx, b)| (idx, LonLat::center(&b.points)))
+        .collect();
+
+    for shape in kml::load(path, gps_bounds, timer)
+        .expect("loading residential buildings failed")
+        .shapes
+        .into_iter()
+    {
+        if shape.points.len() > 1 {
+            panic!(
+                "Residential building permit has multiple points: {:?}",
+                shape
+            );
+        }
+        let pt = shape.points[0];
+        if !gps_bounds.contains(pt) {
+            continue;
+        }
+        if let Some(num) = shape
+            .attributes
+            .get("net_units")
+            .and_then(|n| usize::from_str_radix(n, 10).ok())
+        {
+            // TODO use a quadtree
+            let closest_bldg = bldg_centers
+                .iter()
+                .min_by_key(|(_, c)| pt.gps_dist_meters(*c))
+                .unwrap();
+            let dist = pt.gps_dist_meters(closest_bldg.1);
+            if dist <= MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG_CENTER {
+                // Just blindly override with the latest point. The dataset says multiple permits
+                // per building might exist.
+                map.buildings[closest_bldg.0].num_residential_units = Some(num);
             }
         }
     }

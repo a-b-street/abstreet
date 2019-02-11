@@ -118,6 +118,9 @@ fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &DrawCtx) -> Text {
                 "Dist along sidewalk: {}",
                 b.front_path.sidewalk.dist_along()
             ));
+            if let Some(units) = b.num_residential_units {
+                txt.add_line(format!("{} residential units", units));
+            }
             styled_kv(&mut txt, &b.osm_tags);
         }
         ID::Car(id) => {
