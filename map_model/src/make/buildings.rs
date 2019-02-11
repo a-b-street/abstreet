@@ -110,5 +110,5 @@ fn classify(num_residential_units: Option<usize>, tags: &BTreeMap<String, String
         return BuildingType::Business;
     }
 
-    return BuildingType::Unknown;
+    BuildingType::Unknown
 }
