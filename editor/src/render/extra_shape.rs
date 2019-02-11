@@ -1,9 +1,9 @@
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
-use map_model::{FindClosest, RoadID, LANE_THICKNESS};
+use map_model::{RoadID, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::fmt;
 

@@ -292,8 +292,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             // TODO Only in some kind of debug mode
             osd.add_line(format!(
                 "{} things uploaded, {} things drawn",
-                g.get_num_uploads(),
-                g.num_draw_calls,
+                abstutil::prettyprint_usize(g.get_num_uploads()),
+                abstutil::prettyprint_usize(g.num_draw_calls),
             ));
             g.draw_blocking_text(osd, BOTTOM_LEFT);
         }

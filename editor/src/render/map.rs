@@ -13,10 +13,10 @@ use crate::state::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::Prerender;
-use geom::Bounds;
+use geom::{Bounds, FindClosest};
 use map_model::{
-    AreaID, BuildingID, BusStopID, FindClosest, IntersectionID, Lane, LaneID, Map, ParcelID,
-    RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, RoadID,
+    Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use sim::Tick;
 use std::borrow::Borrow;
@@ -114,8 +114,7 @@ impl DrawMap {
             };
 
             // Match shapes with the nearest road + direction (true for forwards)
-            let mut closest: FindClosest<(RoadID, bool)> =
-                map_model::FindClosest::new(&map.get_bounds());
+            let mut closest: FindClosest<(RoadID, bool)> = FindClosest::new(&map.get_bounds());
             for r in map.all_roads().iter() {
                 closest.add((r.id, true), &r.center_pts.shift_right(LANE_THICKNESS));
                 closest.add((r.id, false), &r.center_pts.shift_left(LANE_THICKNESS));

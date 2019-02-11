@@ -7,14 +7,14 @@ mod srtm;
 
 use crate::srtm::Elevation;
 use abstutil::Timer;
-use geom::{Distance, GPSBounds, LonLat, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, FindClosest, IntersectionType, LANE_THICKNESS};
+use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
 use std::path::Path;
 use structopt::StructOpt;
 
 const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
-const MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG_CENTER: Distance = Distance::const_meters(10.0);
+const MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG: Distance = Distance::const_meters(10.0);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "convert_osm")]
@@ -219,12 +219,12 @@ fn handle_residences(
     timer: &mut Timer,
 ) {
     timer.start("match residential permits with buildings");
-    let bldg_centers: Vec<(usize, LonLat)> = map
-        .buildings
-        .iter()
-        .enumerate()
-        .map(|(idx, b)| (idx, LonLat::center(&b.points)))
-        .collect();
+
+    let mut closest: FindClosest<usize> = FindClosest::new(&gps_bounds.to_bounds());
+    for (idx, b) in map.buildings.iter().enumerate() {
+        // TODO Ew, have to massage into Pt2D.
+        closest.add_gps(idx, &b.points, gps_bounds);
+    }
 
     let shapes = kml::load(path, gps_bounds, timer)
         .expect("loading residential buildings failed")
@@ -247,16 +247,13 @@ fn handle_residences(
             .get("net_units")
             .and_then(|n| usize::from_str_radix(n, 10).ok())
         {
-            // TODO use a quadtree
-            let closest_bldg = bldg_centers
-                .iter()
-                .min_by_key(|(_, c)| pt.gps_dist_meters(*c))
-                .unwrap();
-            let dist = pt.gps_dist_meters(closest_bldg.1);
-            if dist <= MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG_CENTER {
+            if let Some((idx, _)) = closest.closest_pt(
+                Pt2D::from_gps(pt, gps_bounds).unwrap(),
+                MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG,
+            ) {
                 // Just blindly override with the latest point. The dataset says multiple permits
                 // per building might exist.
-                map.buildings[closest_bldg.0].num_residential_units = Some(num);
+                map.buildings[idx].num_residential_units = Some(num);
             }
         }
     }

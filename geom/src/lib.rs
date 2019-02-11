@@ -1,5 +1,6 @@
 mod angle;
 mod circle;
+mod find_closest;
 mod gps;
 mod line;
 mod polygon;
@@ -9,6 +10,7 @@ mod units;
 
 pub use crate::angle::Angle;
 pub use crate::circle::Circle;
+pub use crate::find_closest::FindClosest;
 pub use crate::gps::{GPSBounds, LonLat};
 pub use crate::line::{InfiniteLine, Line};
 pub use crate::polygon::{Polygon, Triangle};
