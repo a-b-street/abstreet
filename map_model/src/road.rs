@@ -191,4 +191,8 @@ impl Road {
             .chain(self.children_backwards.iter().map(|(id, _)| *id))
             .collect()
     }
+
+    pub fn dump_debug(&self) {
+        println!("{}", abstutil::to_json(self));
+    }
 }

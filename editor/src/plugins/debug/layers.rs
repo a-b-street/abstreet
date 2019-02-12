@@ -33,7 +33,7 @@ impl ToggleableLayers {
 
     pub fn show(&self, id: ID) -> bool {
         match id {
-            ID::Lane(_) => self.show_lanes.is_enabled(),
+            ID::Road(_) | ID::Lane(_) => self.show_lanes.is_enabled(),
             ID::Building(_) => self.show_buildings.is_enabled(),
             ID::Intersection(_) => self.show_intersections.is_enabled(),
             ID::Parcel(_) => self.show_parcels.is_enabled(),

@@ -9,6 +9,7 @@ mod lane;
 mod map;
 mod parcel;
 mod pedestrian;
+mod road;
 mod turn;
 
 use crate::colors::ColorScheme;

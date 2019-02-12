@@ -7,6 +7,7 @@ use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::parcel::DrawParcel;
+use crate::render::road::DrawRoad;
 use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
 use crate::state::Flags;
@@ -24,6 +25,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 pub struct DrawMap {
+    pub roads: Vec<DrawRoad>,
     pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub turns: HashMap<TurnID, DrawTurn>,
@@ -49,6 +51,13 @@ impl DrawMap {
         prerender: &Prerender,
         timer: &mut Timer,
     ) -> DrawMap {
+        timer.start_iter("make DrawRoads", map.all_roads().len());
+        let mut roads: Vec<DrawRoad> = Vec::new();
+        for r in map.all_roads() {
+            timer.next();
+            roads.push(DrawRoad::new(r, cs, prerender));
+        }
+
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         let mut lanes: Vec<DrawLane> = Vec::new();
         for l in map.all_lanes() {
@@ -154,6 +163,9 @@ impl DrawMap {
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
         // TODO use iter chain if everything was boxed as a renderable...
+        for obj in &roads {
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+        }
         for obj in &lanes {
             quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
         }
@@ -183,6 +195,7 @@ impl DrawMap {
         );
 
         DrawMap {
+            roads,
             lanes,
             intersections,
             turns,
@@ -248,6 +261,10 @@ impl DrawMap {
     }
 
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
+    pub fn get_r(&self, id: RoadID) -> &DrawRoad {
+        &self.roads[id.0]
+    }
+
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
         &self.lanes[id.0]
     }

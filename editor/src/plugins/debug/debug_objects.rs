@@ -56,13 +56,25 @@ fn tooltip_lines(obj: ID, g: &mut GfxCtx, ctx: &DrawCtx) -> Text {
     let (map, sim, draw_map) = (&ctx.map, &ctx.sim, &ctx.draw_map);
     let mut txt = Text::new();
     match obj {
+        ID::Road(id) => {
+            let r = map.get_r(id);
+            txt.add_line(format!("{} (originally {}) is ", r.id, r.stable_id));
+            txt.append(
+                r.osm_tags
+                    .get("name")
+                    .unwrap_or(&"???".to_string())
+                    .to_string(),
+                Some(Color::CYAN),
+            );
+            txt.add_line(format!("From OSM way {}", r.osm_way_id));
+        }
         ID::Lane(id) => {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
             let i1 = map.get_source_intersection(id);
             let i2 = map.get_destination_intersection(id);
 
-            txt.add_line(format!("{} is ", l.id,));
+            txt.add_line(format!("{} is ", l.id));
             txt.append(
                 r.osm_tags
                     .get("name")

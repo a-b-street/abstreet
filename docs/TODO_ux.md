@@ -68,8 +68,6 @@
 	- show FPS or some kind of measure of lag
 	- sleep better in the event loop
 		- first make UserInput borrow state and not need to consume
-	- optimize zoomed-out experience... one polygon per road
-		- make sure the quadtree isn't the limiting factor though
 - quality
 	- need padding around text
 	- text entry needs to draw the cursor differently

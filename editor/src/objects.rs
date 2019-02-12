@@ -2,12 +2,15 @@ use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
 use ezgui::{EventLoopMode, Text};
 use geom::Pt2D;
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, TurnID};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, RoadID, TurnID,
+};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
 use std::collections::HashSet;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
+    Road(RoadID),
     Lane(LaneID),
     Intersection(IntersectionID),
     Turn(TurnID),
@@ -32,6 +35,9 @@ impl ID {
 
     pub fn debug(&self, map: &Map, sim: &mut Sim, draw_map: &DrawMap) {
         match *self {
+            ID::Road(id) => {
+                map.get_r(id).dump_debug();
+            }
             ID::Lane(id) => {
                 map.get_l(id).dump_debug();
             }
@@ -82,6 +88,9 @@ impl ID {
 
     pub fn canonical_point(&self, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<Pt2D> {
         match *self {
+            ID::Road(id) => map
+                .maybe_get_r(id)
+                .map(|r| r.original_center_pts.first_pt()),
             ID::Lane(id) => map.maybe_get_l(id).map(|l| l.first_pt()),
             ID::Intersection(id) => map.maybe_get_i(id).map(|i| i.point),
             ID::Turn(id) => map.maybe_get_i(id.parent).map(|i| i.point),

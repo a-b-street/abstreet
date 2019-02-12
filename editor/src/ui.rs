@@ -1,7 +1,9 @@
 use abstutil;
 //use cpuprofiler;
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::render::{draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
+use crate::render::{
+    draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
+};
 use crate::state::UIState;
 use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
@@ -257,8 +259,16 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         g.redraw(&state.primary.draw_map.boundary_polygon);
 
         let mut cache = state.primary.draw_map.agents.borrow_mut();
-        let objects =
-            self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
+        let objects = self.get_renderables_back_to_front(
+            g.get_screen_bounds(),
+            if screencap {
+                None
+            } else {
+                Some(g.canvas.cam_zoom)
+            },
+            &g.prerender,
+            &mut cache,
+        );
 
         let ctx = DrawCtx {
             cs: &state.cs,
@@ -361,6 +371,7 @@ impl<S: UIState> UI<S> {
         let mut cache = self.state.get_state().primary.draw_map.agents.borrow_mut();
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            Some(ctx.canvas.cam_zoom),
             ctx.prerender,
             &mut cache,
         );
@@ -373,6 +384,7 @@ impl<S: UIState> UI<S> {
             match obj.get_id() {
                 ID::Parcel(_) => {}
                 ID::Area(_) => {}
+                ID::Road(_) if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS => {}
                 _ => {
                     if obj.contains_pt(pt) {
                         return Some(obj.get_id());
@@ -400,6 +412,7 @@ impl<S: UIState> UI<S> {
     fn get_renderables_back_to_front<'a>(
         &'a self,
         bounds: Bounds,
+        zoom: Option<f64>,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
     ) -> Vec<Box<&'a Renderable>> {
@@ -407,9 +420,16 @@ impl<S: UIState> UI<S> {
         let map = &state.primary.map;
         let draw_map = &state.primary.draw_map;
 
+        let show_lanes_and_agents = if let Some(z) = zoom {
+            z >= MIN_ZOOM_FOR_MARKINGS
+        } else {
+            true
+        };
+
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
+        let mut roads: Vec<Box<&Renderable>> = Vec::new();
         let mut intersections: Vec<Box<&Renderable>> = Vec::new();
         let mut buildings: Vec<Box<&Renderable>> = Vec::new();
         let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
@@ -425,10 +445,15 @@ impl<S: UIState> UI<S> {
                 ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
                 ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Lane(id) => {
-                    lanes.push(Box::new(draw_map.get_l(id)));
-                    if !state.show_icons_for(map.get_l(id).dst_i) {
-                        agents_on.push(Traversable::Lane(id));
+                    if show_lanes_and_agents {
+                        lanes.push(Box::new(draw_map.get_l(id)));
+                        if !state.show_icons_for(map.get_l(id).dst_i) {
+                            agents_on.push(Traversable::Lane(id));
+                        }
                     }
+                }
+                ID::Road(id) => {
+                    roads.push(Box::new(draw_map.get_r(id)));
                 }
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
@@ -436,7 +461,10 @@ impl<S: UIState> UI<S> {
                         if state.show_icons_for(id) {
                             turn_icons.push(Box::new(draw_map.get_t(*t)));
                         } else {
-                            agents_on.push(Traversable::Turn(*t));
+                            // For consistency, don't draw agents doing a turn when zoomed out
+                            if show_lanes_and_agents {
+                                agents_on.push(Traversable::Turn(*t));
+                            }
                         }
                     }
                 }
@@ -458,6 +486,7 @@ impl<S: UIState> UI<S> {
         borrows.extend(parcels);
         borrows.extend(areas);
         borrows.extend(lanes);
+        borrows.extend(roads);
         borrows.extend(intersections);
         borrows.extend(buildings);
         borrows.extend(extra_shapes);

@@ -32,12 +32,6 @@ impl DrawLane {
 
         let mut markings: Vec<(Color, Polygon)> = Vec::new();
         if draw_lane_markings {
-            if road.is_canonical_lane(lane.id) {
-                markings.push((
-                    cs.get_def("road center line", Color::YELLOW),
-                    road.center_pts.make_polygons(BIG_ARROW_THICKNESS),
-                ));
-            }
             match lane.lane_type {
                 LaneType::Sidewalk => {
                     markings.extend(calculate_sidewalk_lines(lane, cs));
