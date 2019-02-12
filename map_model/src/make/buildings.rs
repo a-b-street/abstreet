@@ -1,7 +1,7 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Building, BuildingID, BuildingType, FrontPath, Lane};
 use abstutil::Timer;
-use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Line, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Line, Polygon, Pt2D};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
@@ -47,7 +47,7 @@ pub fn make_all_buildings(
             results.push(Building {
                 id,
                 building_type: classify(input[idx].num_residential_units, &input[idx].osm_tags),
-                points,
+                polygon: Polygon::new(&points),
                 osm_tags: input[idx].osm_tags.clone(),
                 osm_way_id: input[idx].osm_way_id,
                 front_path: FrontPath {

@@ -92,7 +92,7 @@ impl DrawBuilding {
     fn new(b: &Building) -> DrawBuilding {
         DrawBuilding {
             id: b.id,
-            polygon: Polygon::new(&b.points),
+            polygon: b.polygon.clone(),
             line: b.front_path.line.reverse(),
         }
     }

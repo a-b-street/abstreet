@@ -1,6 +1,6 @@
 use crate::{LaneID, Position};
 use abstutil;
-use geom::{Line, Pt2D};
+use geom::{Line, Polygon};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -34,7 +34,7 @@ pub enum BuildingType {
 pub struct Building {
     pub id: BuildingID,
     pub building_type: BuildingType,
-    pub points: Vec<Pt2D>,
+    pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
     pub num_residential_units: Option<usize>,

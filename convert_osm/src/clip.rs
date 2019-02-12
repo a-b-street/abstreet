@@ -50,7 +50,7 @@ pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBo
         if map
             .roads
             .values()
-            .filter(|r2| r2.i1 == move_i || r2.i1 == move_i)
+            .filter(|r2| r2.i1 == move_i || r2.i2 == move_i)
             .count()
             > 1
         {

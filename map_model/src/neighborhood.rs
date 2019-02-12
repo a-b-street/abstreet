@@ -83,7 +83,7 @@ impl Neighborhood {
     pub fn find_matching_buildings(&self, map: &Map) -> Vec<BuildingID> {
         let mut results: Vec<BuildingID> = Vec::new();
         for b in map.all_buildings() {
-            if self.polygon.contains_pt(Pt2D::center(&b.points)) {
+            if self.polygon.contains_pt(b.polygon.center()) {
                 results.push(b.id);
             }
         }

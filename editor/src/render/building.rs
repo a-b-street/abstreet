@@ -7,6 +7,7 @@ use map_model::{Building, BuildingID, BuildingType, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
+    // TODO Stop storing a copy here
     pub fill_polygon: Polygon,
     front_path: Polygon,
 
@@ -26,7 +27,6 @@ impl DrawBuilding {
                 front_path_line.dist_along(len - trim_back),
             );
         }
-        let fill_polygon = Polygon::new(&bldg.points);
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
         let default_draw = prerender.upload_borrowed(vec![
@@ -42,14 +42,14 @@ impl DrawBuilding {
                         cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
                     }
                 },
-                &fill_polygon,
+                &bldg.polygon,
             ),
             (cs.get_def("building path", Color::grey(0.6)), &front_path),
         ]);
 
         DrawBuilding {
             id: bldg.id,
-            fill_polygon,
+            fill_polygon: bldg.polygon.clone(),
             front_path,
             default_draw,
         }

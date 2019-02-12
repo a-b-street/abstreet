@@ -94,7 +94,7 @@ impl ID {
             ID::Lane(id) => map.maybe_get_l(id).map(|l| l.first_pt()),
             ID::Intersection(id) => map.maybe_get_i(id).map(|i| i.point),
             ID::Turn(id) => map.maybe_get_i(id.parent).map(|i| i.point),
-            ID::Building(id) => map.maybe_get_b(id).map(|b| Pt2D::center(&b.points)),
+            ID::Building(id) => map.maybe_get_b(id).map(|b| b.polygon.center()),
             ID::Car(id) => sim.get_draw_car(id, map).map(|c| c.body.last_pt()),
             ID::Pedestrian(id) => sim.get_draw_ped(id, map).map(|p| p.pos),
             // TODO maybe_get_es
