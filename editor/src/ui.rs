@@ -248,7 +248,12 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
         let state = self.state.get_state();
 
-        g.clear(state.cs.get_def("true background", Color::BLACK));
+        // TODO Not quite ready yet
+        if false {
+            g.clear(state.cs.get_def("true background", Color::BLACK));
+        } else {
+            g.clear(state.cs.get("map background"));
+        }
         g.redraw(&state.primary.draw_map.boundary_polygon);
 
         let mut cache = state.primary.draw_map.agents.borrow_mut();

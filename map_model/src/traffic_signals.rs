@@ -88,7 +88,7 @@ impl ControlTrafficSignal {
             error!("{} has no turns", intersection);
             return Some(ControlTrafficSignal {
                 id: intersection,
-                cycles: Vec::new(),
+                cycles: vec![Cycle::new(intersection, 0)],
                 changed: false,
             });
         }

@@ -11,9 +11,7 @@ use std::iter;
 // TODO Add proper warnings when the geometry is too small to handle.
 
 pub fn make_all_turns(i: &Intersection, roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
-    if i.intersection_type == IntersectionType::Border {
-        return Vec::new();
-    }
+    assert!(i.intersection_type != IntersectionType::Border);
 
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_vehicle_turns(i, roads, lanes));

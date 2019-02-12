@@ -64,6 +64,16 @@ impl DrawIntersection {
                     .into_iter()
                     .map(|p| (cs.get_def("border node arrow", Color::PURPLE), p)),
             );
+
+            // TODO Do this better.
+            if !i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
+                default_geom.extend(
+                    line.reverse()
+                        .make_arrow((r.all_lanes().len() as f64) * LANE_THICKNESS / 3.0)
+                        .into_iter()
+                        .map(|p| (cs.get("border node arrow"), p)),
+                );
+            }
         }
 
         DrawIntersection {

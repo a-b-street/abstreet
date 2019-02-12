@@ -111,7 +111,6 @@ impl Road {
 pub struct Intersection {
     pub point: LonLat,
     pub elevation: Distance,
-    // A raw Intersection can be forced into being a Border.
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
 }

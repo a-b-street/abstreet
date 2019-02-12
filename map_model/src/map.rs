@@ -32,10 +32,10 @@ pub struct Map {
     areas: Vec<Area>,
     boundary_polygon: Polygon,
 
+    // Note that border nodes belong in neither!
     stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
     traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
 
-    // Note that border nodes belong in neither!
     gps_bounds: GPSBounds,
     bounds: Bounds,
 
