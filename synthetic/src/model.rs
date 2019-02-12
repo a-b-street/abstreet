@@ -422,12 +422,7 @@ impl Model {
         /*for (idx, b) in data.buildings.iter().enumerate() {
             let b = Building {
                 label: None,
-                center: Pt2D::center(
-                    &b.points
-                        .iter()
-                        .map(|pt| Pt2D::from_gps(*pt, &gps_bounds).unwrap())
-                        .collect(),
-                ),
+                center: Pt2D::center(&gps_bounds.must_convert(&b.points)),
             };
             quadtree.insert_with_box(ID::Building(idx), b.polygon().get_bounds().as_bbox());
             m.buildings.insert(idx, b);

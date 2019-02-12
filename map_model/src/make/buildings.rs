@@ -19,13 +19,7 @@ pub fn make_all_buildings(
     timer.start_iter("get building center points", input.len());
     for b in input {
         timer.next();
-        let pts = Pt2D::approx_dedupe(
-            b.points
-                .iter()
-                .map(|coord| Pt2D::from_gps(*coord, gps_bounds).unwrap())
-                .collect(),
-            geom::EPSILON_DIST,
-        );
+        let pts = Pt2D::approx_dedupe(gps_bounds.must_convert(&b.points), geom::EPSILON_DIST);
         let center: HashablePt2D = Pt2D::center(&pts).into();
         pts_per_bldg.push(pts);
         center_per_bldg.push(center);

@@ -1,3 +1,4 @@
+mod clip;
 mod group_parcels;
 mod neighborhoods;
 mod osm;
@@ -51,6 +52,10 @@ pub struct Flags {
     #[structopt(long = "neighborhoods")]
     pub neighborhoods: String,
 
+    /// Osmosis clippiny polgon
+    #[structopt(long = "clip")]
+    pub clip: String,
+
     /// Output .abst path
     #[structopt(long = "output")]
     pub output: String,
@@ -64,10 +69,10 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
     let mut map =
         split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation, timer);
+    let gps_bounds = clip::clip_map(&mut map, &flags.clip, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
-    timer.start("calculate GPS bounds");
-    let gps_bounds = map.get_gps_bounds();
-    timer.stop("calculate GPS bounds");
+    // TODO Shouldn't we recalculate the gps_bounds after removing stuff? Or just base it off the
+    // boundary polygon?
 
     if flags.fast_dev {
         return map;
@@ -108,13 +113,7 @@ fn use_parking_hints(
     let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
         FindClosest::new(&gps_bounds.to_bounds());
     for (id, r) in &map.roads {
-        let pts = PolyLine::new(
-            r.points
-                .iter()
-                .map(|pt| Pt2D::from_gps(*pt, gps_bounds).unwrap())
-                .collect(),
-        );
-
+        let pts = PolyLine::new(gps_bounds.must_convert(&r.points));
         closest.add((*id, true), &pts.shift_right(LANE_THICKNESS));
         closest.add((*id, false), &pts.shift_left(LANE_THICKNESS));
     }

@@ -183,11 +183,7 @@ pub fn make_half_map(
         half_map.areas.push(Area {
             id: AreaID(idx),
             area_type: a.area_type,
-            points: a
-                .points
-                .iter()
-                .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
-                .collect(),
+            points: gps_bounds.must_convert(&a.points),
             osm_tags: a.osm_tags.clone(),
             osm_id: a.osm_id,
         });

@@ -100,12 +100,7 @@ impl InitialMap {
                 .roads
                 .insert(*stable_id);
 
-            let original_center_pts = PolyLine::new(
-                r.points
-                    .iter()
-                    .map(|coord| Pt2D::from_gps(*coord, &gps_bounds).unwrap())
-                    .collect(),
-            );
+            let original_center_pts = PolyLine::new(gps_bounds.must_convert(&r.points));
 
             let lane_specs = lane_specs::get_lane_specs(r, *stable_id, edits);
             let mut fwd_width = Distance::ZERO;

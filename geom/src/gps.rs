@@ -125,4 +125,14 @@ impl GPSBounds {
         b.update(self.get_max_world_pt());
         b
     }
+
+    pub fn must_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
+        pts.iter()
+            .map(|pt| Pt2D::from_gps(*pt, self).unwrap())
+            .collect()
+    }
+
+    pub fn must_convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
+        pts.iter().map(|pt| pt.to_gps(self).unwrap()).collect()
+    }
 }

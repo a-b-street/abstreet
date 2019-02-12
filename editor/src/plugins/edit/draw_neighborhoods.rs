@@ -119,10 +119,7 @@ impl BlockingPlugin for DrawNeighborhoodState {
             DrawNeighborhoodState::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
         };
         let gps_bounds = ctx.map.get_gps_bounds();
-        let pts: Vec<Pt2D> = raw_pts
-            .into_iter()
-            .map(|pt| Pt2D::from_gps(*pt, gps_bounds).unwrap())
-            .collect();
+        let pts: Vec<Pt2D> = gps_bounds.must_convert(&raw_pts);
 
         if pts.len() == 2 {
             g.draw_line(
