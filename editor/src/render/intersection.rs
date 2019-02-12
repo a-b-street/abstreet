@@ -46,6 +46,25 @@ impl DrawIntersection {
                 .into_iter()
                 .map(|p| (cs.get("sidewalk"), p)),
         );
+        if i.intersection_type == IntersectionType::Border {
+            let r = map.get_r(*i.roads.iter().next().unwrap());
+            let angle = if i.incoming_lanes.is_empty() {
+                r.center_pts.first_line().angle()
+            } else {
+                r.center_pts.last_line().angle()
+            };
+            let center = i.polygon.center();
+            // TODO < the DEGENERATE_INTERSECTION_HALF_LENGTH but still kinda related
+            let line = Line::new(
+                center.project_away(Distance::meters(4.0), angle.opposite()),
+                center.project_away(Distance::meters(4.0), angle),
+            );
+            default_geom.extend(
+                line.make_arrow((r.all_lanes().len() as f64) * LANE_THICKNESS / 3.0)
+                    .into_iter()
+                    .map(|p| (cs.get_def("border node arrow", Color::PURPLE), p)),
+            );
+        }
 
         DrawIntersection {
             id: i.id,
