@@ -6,13 +6,15 @@ use std::io::{BufRead, BufReader};
 
 pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBounds {
     timer.start("clipping map to boundary");
-    let raw_boundary_pts = read_osmosis_polygon(path);
-    let mut bounds = map.get_gps_bounds();
-    for pt in &raw_boundary_pts {
-        bounds.update(*pt);
+    map.boundary_polygon = read_osmosis_polygon(path);
+    let bounds = map.get_gps_bounds();
+
+    if true {
+        timer.stop("clipping map to boundary");
+        return bounds;
     }
 
-    let boundary_poly = Polygon::new(&bounds.must_convert(&raw_boundary_pts));
+    let boundary_poly = Polygon::new(&bounds.must_convert(&map.boundary_polygon));
     let boundary_lines: Vec<PolyLine> = boundary_poly
         .points()
         .windows(2)

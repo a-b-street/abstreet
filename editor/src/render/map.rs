@@ -12,7 +12,7 @@ use crate::render::Renderable;
 use crate::state::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
-use ezgui::Prerender;
+use ezgui::{Color, Drawable, Prerender};
 use geom::{Bounds, FindClosest};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, RoadID,
@@ -35,6 +35,8 @@ pub struct DrawMap {
 
     // TODO Move?
     pub agents: RefCell<AgentCache>,
+
+    pub boundary_polygon: Drawable,
 
     quadtree: QuadTree<ID>,
 }
@@ -144,6 +146,11 @@ impl DrawMap {
             }
         }
 
+        let boundary_polygon = prerender.upload_borrowed(vec![(
+            cs.get_def("map background", Color::rgb(242, 239, 233)),
+            map.get_boundary_polygon(),
+        )]);
+
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
         // TODO use iter chain if everything was boxed as a renderable...
@@ -184,6 +191,7 @@ impl DrawMap {
             extra_shapes,
             bus_stops,
             areas,
+            boundary_polygon,
 
             agents: RefCell::new(AgentCache {
                 tick: None,

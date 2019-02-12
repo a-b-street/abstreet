@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, GPSBounds};
+use geom::{Bounds, GPSBounds, Polygon};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -30,9 +30,11 @@ pub struct Map {
     bus_stops: BTreeMap<BusStopID, BusStop>,
     bus_routes: Vec<BusRoute>,
     areas: Vec<Area>,
+    boundary_polygon: Polygon,
 
     stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
     traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
+
     // Note that border nodes belong in neither!
     gps_bounds: GPSBounds,
     bounds: Bounds,
@@ -87,6 +89,7 @@ impl Map {
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: half_map.areas,
+            boundary_polygon: Polygon::new(&gps_bounds.must_convert(&data.boundary_polygon)),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
             gps_bounds,
@@ -557,5 +560,9 @@ impl Map {
                 }
             }
         }
+    }
+
+    pub fn get_boundary_polygon(&self) -> &Polygon {
+        &self.boundary_polygon
     }
 }

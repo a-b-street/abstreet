@@ -34,6 +34,7 @@ pub struct Map {
     pub bus_routes: Vec<Route>,
     pub areas: Vec<Area>,
 
+    pub boundary_polygon: Vec<LonLat>,
     pub coordinates_in_world_space: bool,
 }
 
@@ -46,6 +47,7 @@ impl Map {
             parcels: Vec::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
+            boundary_polygon: Vec::new(),
             coordinates_in_world_space: false,
         }
     }
@@ -75,6 +77,9 @@ impl Map {
             for pt in &p.points {
                 bounds.update(*pt);
             }
+        }
+        for pt in &self.boundary_polygon {
+            bounds.update(*pt);
         }
 
         bounds.represents_world_space = self.coordinates_in_world_space;

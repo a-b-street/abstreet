@@ -248,11 +248,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
         let state = self.state.get_state();
 
-        g.clear(
-            state
-                .cs
-                .get_def("map background", Color::rgb(242, 239, 233)),
-        );
+        g.clear(state.cs.get_def("true background", Color::BLACK));
+        g.redraw(&state.primary.draw_map.boundary_polygon);
 
         let mut cache = state.primary.draw_map.agents.borrow_mut();
         let objects =
