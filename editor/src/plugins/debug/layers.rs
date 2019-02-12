@@ -1,10 +1,7 @@
 use crate::objects::ID;
 use crate::plugins::{AmbientPlugin, PluginCtx};
+use crate::render::{MIN_ZOOM_FOR_BUILDINGS, MIN_ZOOM_FOR_PARCELS, MIN_ZOOM_FOR_ROADS};
 use ezgui::ToggleableLayer;
-
-// TODO ideally these would be tuned kind of dynamically based on rendering speed
-const MIN_ZOOM_FOR_LANES: f64 = 0.15;
-const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 
 pub struct ToggleableLayers {
     pub show_lanes: ToggleableLayer,
@@ -20,11 +17,11 @@ pub struct ToggleableLayers {
 impl ToggleableLayers {
     pub fn new() -> ToggleableLayers {
         ToggleableLayers {
-            show_lanes: ToggleableLayer::new("lanes", Some(MIN_ZOOM_FOR_LANES)),
-            show_buildings: ToggleableLayer::new("buildings", Some(0.0)),
-            show_intersections: ToggleableLayer::new("intersections", Some(MIN_ZOOM_FOR_LANES)),
+            show_lanes: ToggleableLayer::new("lanes", Some(MIN_ZOOM_FOR_ROADS)),
+            show_buildings: ToggleableLayer::new("buildings", Some(MIN_ZOOM_FOR_BUILDINGS)),
+            show_intersections: ToggleableLayer::new("intersections", Some(MIN_ZOOM_FOR_ROADS)),
             show_parcels: ToggleableLayer::new("parcels", Some(MIN_ZOOM_FOR_PARCELS)),
-            show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_LANES)),
+            show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_BUILDINGS)),
             show_all_turn_icons: ToggleableLayer::new("all turn icons", None),
             show_areas: ToggleableLayer::new("areas", Some(0.0)),
             debug_mode: ToggleableLayer::new("geometry debug mode", None),
