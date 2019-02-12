@@ -3,12 +3,10 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
-use map_model::{Building, BuildingID, BuildingType, LANE_THICKNESS};
+use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
-    // TODO Stop storing a copy here
-    pub fill_polygon: Polygon,
     front_path: Polygon,
 
     default_draw: Drawable,
@@ -49,7 +47,6 @@ impl DrawBuilding {
 
         DrawBuilding {
             id: bldg.id,
-            fill_polygon: bldg.polygon.clone(),
             front_path,
             default_draw,
         }
@@ -64,7 +61,7 @@ impl Renderable for DrawBuilding {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(c) = opts.color {
             g.draw_polygon_batch(vec![
-                (c, &self.fill_polygon),
+                (c, &ctx.map.get_b(self.id).polygon),
                 (ctx.cs.get("building path"), &self.front_path),
             ]);
         } else {
@@ -72,13 +69,13 @@ impl Renderable for DrawBuilding {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
-        let mut b = self.fill_polygon.get_bounds();
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        let mut b = map.get_b(self.id).polygon.get_bounds();
         b.union(self.front_path.get_bounds());
         b
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.fill_polygon.contains_pt(pt)
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        map.get_b(self.id).polygon.contains_pt(pt)
     }
 }

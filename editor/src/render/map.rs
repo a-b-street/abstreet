@@ -164,28 +164,28 @@ impl DrawMap {
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &roads {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &lanes {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &intersections {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &buildings {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &parcels {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &extra_shapes {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in bus_stops.values() {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         for obj in &areas {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds().as_bbox());
+            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
         timer.stop("create quadtree");
 

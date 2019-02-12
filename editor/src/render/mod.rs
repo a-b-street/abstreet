@@ -46,8 +46,8 @@ pub const MIN_ZOOM_FOR_MARKINGS: f64 = 5.0;
 pub trait Renderable {
     fn get_id(&self) -> ID;
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx);
-    fn get_bounds(&self) -> Bounds;
-    fn contains_pt(&self, pt: Pt2D) -> bool;
+    fn get_bounds(&self, map: &Map) -> Bounds;
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool;
     // Higher z-ordered objects are drawn later
     fn get_zorder(&self) -> isize {
         0

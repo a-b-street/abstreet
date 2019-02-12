@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{Area, AreaID, AreaType};
+use map_model::{Area, AreaID, AreaType, Map};
 
 pub struct DrawArea {
     pub id: AreaID,
@@ -44,11 +44,11 @@ impl Renderable for DrawArea {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         self.fill_polygon.get_bounds()
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.fill_polygon.contains_pt(pt)
     }
 }

@@ -386,7 +386,7 @@ impl<S: UIState> UI<S> {
                 ID::Area(_) => {}
                 ID::Road(_) if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS => {}
                 _ => {
-                    if obj.contains_pt(pt) {
+                    if obj.contains_pt(pt, &self.state.get_state().primary.map) {
                         return Some(obj.get_id());
                     }
                 }

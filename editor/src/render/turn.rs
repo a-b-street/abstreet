@@ -96,11 +96,11 @@ impl Renderable for DrawTurn {
         );
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         self.icon_circle.get_bounds()
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.icon_circle.contains_pt(pt)
     }
 }

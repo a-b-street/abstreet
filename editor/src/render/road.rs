@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Polygon, Pt2D};
-use map_model::{Road, RoadID, LANE_THICKNESS};
+use map_model::{Map, Road, RoadID, LANE_THICKNESS};
 
 pub struct DrawRoad {
     pub id: RoadID,
@@ -62,11 +62,11 @@ impl Renderable for DrawRoad {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         self.polygon.get_bounds()
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.polygon.contains_pt(pt)
     }
 

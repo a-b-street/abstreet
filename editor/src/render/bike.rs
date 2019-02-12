@@ -3,6 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Polygon, Pt2D};
+use map_model::Map;
 use sim::{CarID, CarState, DrawCarInput};
 
 const BIKE_WIDTH: Distance = Distance::const_meters(0.8);
@@ -65,11 +66,11 @@ impl Renderable for DrawBike {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         self.polygon.get_bounds()
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.polygon.contains_pt(pt)
     }
 }

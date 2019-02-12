@@ -3,7 +3,7 @@ use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_S
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
-use map_model::{RoadID, LANE_THICKNESS};
+use map_model::{Map, RoadID, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -89,14 +89,14 @@ impl Renderable for DrawExtraShape {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         match self.shape {
             Shape::Polygon(ref p) => p.get_bounds(),
             Shape::Circle(ref c) => c.get_bounds(),
         }
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         match self.shape {
             Shape::Polygon(ref p) => p.contains_pt(pt),
             Shape::Circle(ref c) => c.contains_pt(pt),

@@ -21,12 +21,12 @@ impl Validator {
         if ctx.input.action_chosen("validate map geometry") {
             // TODO Kinda temporarily stuck here for convenience
             list_problems(&ctx.primary.map);
-            return Some(Validator::start(&ctx.primary.draw_map));
+            return Some(Validator::start(&ctx.primary.map, &ctx.primary.draw_map));
         }
         None
     }
 
-    fn start(draw_map: &DrawMap) -> Validator {
+    fn start(map: &Map, draw_map: &DrawMap) -> Validator {
         let mut objects: Vec<(ID, Vec<geo::Polygon<f64>>)> = Vec::new();
         for l in &draw_map.lanes {
             objects.push((ID::Lane(l.id), make_polys(&l.polygon)));
@@ -34,8 +34,8 @@ impl Validator {
         for i in &draw_map.intersections {
             objects.push((ID::Intersection(i.id), make_polys(&i.polygon)));
         }
-        for b in &draw_map.buildings {
-            objects.push((ID::Building(b.id), make_polys(&b.fill_polygon)));
+        for b in map.all_buildings() {
+            objects.push((ID::Building(b.id), make_polys(&b.polygon)));
         }
         for p in &draw_map.parcels {
             objects.push((ID::Parcel(p.id), make_polys(&p.fill_polygon)));

@@ -203,11 +203,11 @@ impl Renderable for DrawCar {
         }
     }
 
-    fn get_bounds(&self) -> Bounds {
+    fn get_bounds(&self, _: &Map) -> Bounds {
         self.body_polygon.get_bounds()
     }
 
-    fn contains_pt(&self, pt: Pt2D) -> bool {
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.body_polygon.contains_pt(pt)
     }
 
