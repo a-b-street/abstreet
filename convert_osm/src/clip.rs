@@ -41,12 +41,12 @@ pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBo
             continue;
         }
 
-        let move_i = if first_in { r.i2 } else { r.i1 };
+        let mut move_i = if first_in { r.i2 } else { r.i1 };
 
-        // The road crosses the boundary. But if the intersection happens to have another connected
-        // road, then just allow this exception.
-        // TODO But what about a road slightly outside the bounds that'd otherwise connect two
-        // things in bounds? Really ought to flood outwards and see if we wind up back inside.
+        // The road crosses the boundary. If the intersection happens to have another connected
+        // road, then we need to copy the intersection before trimming it. This effectively
+        // disconnects too roads in the map that would be connected if we left in some
+        // partly-out-of-bounds road.
         if map
             .roads
             .values()
@@ -54,11 +54,13 @@ pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBo
             .count()
             > 1
         {
-            println!(
-                "{} crosses boundary, but briefly enough to not touch it",
-                id
-            );
-            continue;
+            let copy = map.intersections[&move_i].clone();
+            // Nothing deletes intersections yet, so this is safe.
+            move_i = raw_data::StableIntersectionID(map.intersections.len());
+            map.intersections.insert(move_i, copy);
+            println!("Disconnecting {} from some other stuff", id);
+            // We don't need to mark the existing intersection as a border and make sure to split
+            // all other roads up too. That'll happen later in this loop.
         }
 
         let i = map.intersections.get_mut(&move_i).unwrap();

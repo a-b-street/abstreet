@@ -107,7 +107,7 @@ impl Road {
     }
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Intersection {
     pub point: LonLat,
     pub elevation: Distance,

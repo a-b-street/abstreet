@@ -128,13 +128,14 @@ pub fn make_half_map(
     }
 
     for i in half_map.intersections.iter_mut() {
-        if i.intersection_type == IntersectionType::Border {
+        if is_border(i, &half_map.lanes) {
+            i.intersection_type = IntersectionType::Border;
             continue;
         }
 
-        // TODO Stronger to look for ||
-        if i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
-            panic!("{:?} is orphaned!", i);
+        if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
+            error!("{:?} is orphaned!", i);
+            continue;
         }
 
         for t in make::turns::make_all_turns(i, &half_map.roads, &half_map.lanes) {
@@ -190,4 +191,27 @@ pub fn make_half_map(
     }
 
     half_map
+}
+
+fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
+    // Raw data said it is.
+    if intersection.intersection_type == IntersectionType::Border {
+        return true;
+    }
+
+    // This only detects one-way borders! Two-way ones will just look like dead-ends.
+
+    // Bias for driving
+    if !intersection.is_dead_end() {
+        return false;
+    }
+    let has_driving_in = intersection
+        .incoming_lanes
+        .iter()
+        .any(|l| lanes[l.0].is_driving());
+    let has_driving_out = intersection
+        .outgoing_lanes
+        .iter()
+        .any(|l| lanes[l.0].is_driving());
+    has_driving_in != has_driving_out
 }
