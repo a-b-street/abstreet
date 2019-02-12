@@ -26,6 +26,7 @@ impl Color {
     pub const YELLOW: Color = Color::rgb_f(1.0, 1.0, 0.0);
     pub const PURPLE: Color = Color::rgb_f(0.5, 0.0, 0.5);
     pub const PINK: Color = Color::rgb_f(1.0, 0.41, 0.71);
+    pub const ORANGE: Color = Color::rgb_f(1.0, 0.55, 0.0);
 
     // TODO should assert stuff about the inputs
 

@@ -4,7 +4,7 @@ use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, TurnPriority, TurnType,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
     LANE_THICKNESS,
 };
 use ordered_float::NotNan;
@@ -47,33 +47,15 @@ impl DrawIntersection {
                 .map(|p| (cs.get("sidewalk"), p)),
         );
         if i.intersection_type == IntersectionType::Border {
-            let r = map.get_r(*i.roads.iter().next().unwrap());
-            let angle = if i.incoming_lanes.is_empty() {
-                r.center_pts.first_line().angle()
-            } else {
-                r.center_pts.last_line().angle()
-            };
-            let center = i.polygon.center();
-            // TODO < the DEGENERATE_INTERSECTION_HALF_LENGTH but still kinda related
-            let line = Line::new(
-                center.project_away(Distance::meters(4.0), angle.opposite()),
-                center.project_away(Distance::meters(4.0), angle),
-            );
-            default_geom.extend(
-                line.make_arrow((r.all_lanes().len() as f64) * LANE_THICKNESS / 3.0)
-                    .into_iter()
-                    .map(|p| (cs.get_def("border node arrow", Color::PURPLE), p)),
-            );
-
-            // TODO Do this better.
-            if !i.incoming_lanes.is_empty() && i.outgoing_lanes.is_empty() {
-                default_geom.extend(
-                    line.reverse()
-                        .make_arrow((r.all_lanes().len() as f64) * LANE_THICKNESS / 3.0)
-                        .into_iter()
-                        .map(|p| (cs.get("border node arrow"), p)),
-                );
+            if i.roads.len() != 1 {
+                panic!("Border {} has {} roads!", i.id, i.roads.len());
             }
+            let r = map.get_r(*i.roads.iter().next().unwrap());
+            default_geom.extend(
+                calculate_border_arrows(i, r)
+                    .into_iter()
+                    .map(|p| (cs.get_def("incoming border node arrow", Color::PURPLE), p)),
+            );
         }
 
         DrawIntersection {
@@ -432,4 +414,54 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
     }
     // Didn't find end
     None
+}
+
+fn calculate_border_arrows(i: &Intersection, r: &Road) -> Vec<Polygon> {
+    let mut result = Vec::new();
+
+    // These arrows should point from the void to the road
+    if !i.outgoing_lanes.is_empty() {
+        // The line starts at the border and points down the road
+        let (line, width) = if r.dst_i == i.id {
+            let width = (r.children_forwards.len() as f64) * LANE_THICKNESS;
+            (
+                r.center_pts.last_line().shift_left(width / 2.0).reverse(),
+                width,
+            )
+        } else {
+            let width = (r.children_forwards.len() as f64) * LANE_THICKNESS;
+            (r.center_pts.first_line().shift_right(width / 2.0), width)
+        };
+        result.extend(
+            // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
+            Line::new(
+                line.unbounded_dist_along(Distance::meters(-9.5)),
+                line.unbounded_dist_along(Distance::meters(-0.5)),
+            )
+            .make_arrow(width / 3.0),
+        );
+    }
+
+    // These arrows should point from the road to the void
+    if !i.incoming_lanes.is_empty() {
+        // The line starts at the border and points down the road
+        let (line, width) = if r.dst_i == i.id {
+            let width = (r.children_forwards.len() as f64) * LANE_THICKNESS;
+            (
+                r.center_pts.last_line().shift_right(width / 2.0).reverse(),
+                width,
+            )
+        } else {
+            let width = (r.children_backwards.len() as f64) * LANE_THICKNESS;
+            (r.center_pts.first_line().shift_left(width / 2.0), width)
+        };
+        result.extend(
+            Line::new(
+                line.unbounded_dist_along(Distance::meters(-0.5)),
+                line.unbounded_dist_along(Distance::meters(-9.5)),
+            )
+            .make_arrow(width / 3.0),
+        );
+    }
+    result
 }

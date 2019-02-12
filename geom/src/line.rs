@@ -167,13 +167,6 @@ impl Line {
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
         )
-        // TODO unit test
-        /*
-        let res_len = euclid_dist((pt1, &Pt2D::new(res[0], res[1])));
-        if res_len != dist_along {
-            println!("whats the delta btwn {} and {}?", res_len, dist_along);
-        }
-        */
     }
 
     pub fn unbounded_dist_along(&self, dist: Distance) -> Pt2D {
@@ -183,13 +176,6 @@ impl Line {
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
         )
-        // TODO unit test
-        /*
-        let res_len = euclid_dist((pt1, &Pt2D::new(res[0], res[1])));
-        if res_len != dist_along {
-            println!("whats the delta btwn {} and {}?", res_len, dist_along);
-        }
-        */
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
