@@ -6,7 +6,7 @@ use crate::plugins::{
     NonblockingPlugin, PluginCtx,
 };
 use crate::render::DrawMap;
-use abstutil::Timer;
+use abstutil::{MeasureMemory, Timer};
 use ezgui::EventCtx;
 use ezgui::{Canvas, Color, GfxCtx, Prerender};
 use map_model::{IntersectionID, Map};
@@ -474,15 +474,18 @@ impl PerMapUI {
         enable_debug_controls: bool,
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
+        let mut mem = MeasureMemory::new();
         let (map, sim) = sim::load(
             flags.sim_flags.clone(),
             Some(Tick::from_seconds(30)),
             &mut timer,
         );
+        mem.reset("Map and Sim", &mut timer);
 
         timer.start("draw_map");
         let draw_map = DrawMap::new(&map, &flags, cs, prerender, &mut timer);
         timer.stop("draw_map");
+        mem.reset("DrawMap", &mut timer);
 
         let state = PerMapUI {
             map,

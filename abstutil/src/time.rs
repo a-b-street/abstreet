@@ -1,4 +1,5 @@
 use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
+use procfs;
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 use std::time::Instant;
@@ -333,4 +334,39 @@ pub fn prettyprint_usize(x: usize) -> String {
 
 pub fn prettyprint_time(seconds: f64) -> String {
     format!("{:.4}s", seconds)
+}
+
+// TODO This is an awful way to measure memory usage, but I can't find anything else that works.
+pub struct MeasureMemory {
+    before_mb: usize,
+}
+
+impl MeasureMemory {
+    pub fn new() -> MeasureMemory {
+        MeasureMemory {
+            before_mb: process_used_memory_mb(),
+        }
+    }
+
+    pub fn reset(&mut self, section: &str, timer: &mut Timer) {
+        let now_mb = process_used_memory_mb();
+        if now_mb >= self.before_mb {
+            timer.note(format!(
+                "{} cost ~{} MB",
+                section,
+                prettyprint_usize(now_mb - self.before_mb)
+            ));
+        } else {
+            timer.note(format!(
+                "WEIRD! {} freed up ~{} MB",
+                section,
+                prettyprint_usize(self.before_mb - now_mb)
+            ));
+        }
+        self.before_mb = now_mb;
+    }
+}
+
+fn process_used_memory_mb() -> usize {
+    (procfs::Process::myself().unwrap().stat.vsize / 1024 / 1024) as usize
 }
