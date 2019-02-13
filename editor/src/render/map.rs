@@ -14,7 +14,7 @@ use crate::state::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};
-use geom::{Bounds, FindClosest};
+use geom::{Bounds, FindClosest, Polygon};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, RoadID,
     Traversable, Turn, TurnID, LANE_THICKNESS,
@@ -39,6 +39,10 @@ pub struct DrawMap {
     pub agents: RefCell<AgentCache>,
 
     pub boundary_polygon: Drawable,
+    pub draw_all_thick_roads: Drawable,
+    pub draw_all_unzoomed_intersections: Drawable,
+    pub draw_all_buildings: Drawable,
+    pub draw_all_areas: Drawable,
 
     quadtree: QuadTree<ID>,
 }
@@ -57,6 +61,12 @@ impl DrawMap {
             timer.next();
             roads.push(DrawRoad::new(r, cs, prerender));
         }
+        let draw_all_thick_roads = prerender.upload_borrowed(
+            roads
+                .iter()
+                .map(|r| (cs.get_def("unzoomed road band", Color::BLACK), &r.polygon))
+                .collect(),
+        );
 
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         let mut lanes: Vec<DrawLane> = Vec::new();
@@ -93,15 +103,30 @@ impl DrawMap {
                 DrawIntersection::new(i, map, cs, prerender)
             })
             .collect();
+        let draw_all_unzoomed_intersections = prerender.upload_borrowed(
+            intersections
+                .iter()
+                .map(|i| {
+                    (
+                        cs.get_def("unzoomed intersection", Color::BLACK),
+                        &i.polygon,
+                    )
+                })
+                .collect(),
+        );
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
+        let mut all_buildings: Vec<(Color, Polygon)> = Vec::new();
         if !flags.dont_draw_buildings {
             timer.start_iter("make DrawBuildings", map.all_buildings().len());
             for b in map.all_buildings() {
                 timer.next();
-                buildings.push(DrawBuilding::new(b, cs, prerender));
+                let (b, draw) = DrawBuilding::new(b, cs);
+                buildings.push(b);
+                all_buildings.extend(draw);
             }
         }
+        let draw_all_buildings = prerender.upload(all_buildings);
 
         let mut parcels: Vec<DrawParcel> = Vec::new();
         if flags.draw_parcels {
@@ -147,13 +172,17 @@ impl DrawMap {
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
+        let mut all_areas: Vec<(Color, Polygon)> = Vec::new();
         if !flags.dont_draw_areas {
             timer.start_iter("make DrawAreas", map.all_areas().len());
             for a in map.all_areas() {
                 timer.next();
-                areas.push(DrawArea::new(a, cs, prerender));
+                let (draw, color, poly) = DrawArea::new(a, cs);
+                areas.push(draw);
+                all_areas.push((color, poly));
             }
         }
+        let draw_all_areas = prerender.upload(all_areas);
 
         let boundary_polygon = prerender.upload_borrowed(vec![(
             cs.get_def("map background", Color::rgb(242, 239, 233)),
@@ -181,9 +210,7 @@ impl DrawMap {
         for obj in &extra_shapes {
             quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
-        for obj in bus_stops.values() {
-            quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
-        }
+        // Don't put BusStops in the quadtree
         for obj in &areas {
             quadtree.insert_with_box(obj.get_id(), obj.get_bounds(map).as_bbox());
         }
@@ -205,6 +232,10 @@ impl DrawMap {
             bus_stops,
             areas,
             boundary_polygon,
+            draw_all_thick_roads,
+            draw_all_unzoomed_intersections,
+            draw_all_buildings,
+            draw_all_areas,
 
             agents: RefCell::new(AgentCache {
                 tick: None,

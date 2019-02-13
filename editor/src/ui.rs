@@ -253,10 +253,10 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         // TODO Not quite ready yet
         if false {
             g.clear(state.cs.get_def("true background", Color::BLACK));
+            g.redraw(&state.primary.draw_map.boundary_polygon);
         } else {
             g.clear(state.cs.get("map background"));
         }
-        g.redraw(&state.primary.draw_map.boundary_polygon);
 
         let mut cache = state.primary.draw_map.agents.borrow_mut();
         let objects = self.get_renderables_back_to_front(
@@ -278,7 +278,44 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             hints: &hints,
         };
         let mut sample_intersection: Option<String> = None;
+
+        let mut drawn_all_thick_roads = false;
+        let mut drawn_all_unzoomed_intersections = false;
+        let mut drawn_all_buildings = false;
+        let mut drawn_all_areas = false;
+
         for obj in objects {
+            match obj.get_id() {
+                ID::Building(_) => {
+                    if !drawn_all_buildings {
+                        g.redraw(&state.primary.draw_map.draw_all_buildings);
+                        drawn_all_buildings = true;
+                    }
+                }
+                ID::Area(_) => {
+                    if !drawn_all_areas {
+                        g.redraw(&state.primary.draw_map.draw_all_areas);
+                        drawn_all_areas = true;
+                    }
+                }
+                ID::Road(_) => {
+                    if !drawn_all_thick_roads {
+                        if g.canvas.cam_zoom < MIN_ZOOM_FOR_MARKINGS {
+                            g.redraw(&state.primary.draw_map.draw_all_thick_roads);
+                        }
+                        drawn_all_thick_roads = true;
+                    }
+                }
+                ID::Intersection(_) => {
+                    if !drawn_all_unzoomed_intersections {
+                        if g.canvas.cam_zoom < MIN_ZOOM_FOR_MARKINGS {
+                            g.redraw(&state.primary.draw_map.draw_all_unzoomed_intersections);
+                        }
+                        drawn_all_unzoomed_intersections = true;
+                    }
+                }
+                _ => {}
+            };
             let opts = RenderOptions {
                 color: state.color_obj(obj.get_id(), &ctx),
                 debug_mode: state.layers.debug_mode.is_enabled(),
@@ -420,7 +457,7 @@ impl<S: UIState> UI<S> {
         let map = &state.primary.map;
         let draw_map = &state.primary.draw_map;
 
-        let show_lanes_and_agents = if let Some(z) = zoom {
+        let show_stuff_on_lanes = if let Some(z) = zoom {
             z >= MIN_ZOOM_FOR_MARKINGS
         } else {
             true
@@ -445,10 +482,14 @@ impl<S: UIState> UI<S> {
                 ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
                 ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Lane(id) => {
-                    if show_lanes_and_agents {
+                    if show_stuff_on_lanes {
                         lanes.push(Box::new(draw_map.get_l(id)));
-                        if !state.show_icons_for(map.get_l(id).dst_i) {
+                        let lane = map.get_l(id);
+                        if !state.show_icons_for(lane.dst_i) {
                             agents_on.push(Traversable::Lane(id));
+                        }
+                        for bs in &lane.bus_stops {
+                            bus_stops.push(Box::new(draw_map.get_bs(*bs)));
                         }
                     }
                 }
@@ -462,7 +503,7 @@ impl<S: UIState> UI<S> {
                             turn_icons.push(Box::new(draw_map.get_t(*t)));
                         } else {
                             // For consistency, don't draw agents doing a turn when zoomed out
-                            if show_lanes_and_agents {
+                            if show_stuff_on_lanes {
                                 agents_on.push(Traversable::Turn(*t));
                             }
                         }
@@ -473,9 +514,8 @@ impl<S: UIState> UI<S> {
                 // two passes through buildings.
                 ID::Building(id) => buildings.push(Box::new(draw_map.get_b(id))),
                 ID::ExtraShape(id) => extra_shapes.push(Box::new(draw_map.get_es(id))),
-                ID::BusStop(id) => bus_stops.push(Box::new(draw_map.get_bs(id))),
 
-                ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
+                ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }

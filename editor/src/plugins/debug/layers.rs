@@ -1,6 +1,6 @@
 use crate::objects::ID;
 use crate::plugins::{AmbientPlugin, PluginCtx};
-use crate::render::{MIN_ZOOM_FOR_BUILDINGS, MIN_ZOOM_FOR_PARCELS, MIN_ZOOM_FOR_ROADS};
+use crate::render::MIN_ZOOM_FOR_PARCELS;
 use ezgui::ToggleableLayer;
 
 pub struct ToggleableLayers {
@@ -17,11 +17,11 @@ pub struct ToggleableLayers {
 impl ToggleableLayers {
     pub fn new() -> ToggleableLayers {
         ToggleableLayers {
-            show_lanes: ToggleableLayer::new("lanes", Some(MIN_ZOOM_FOR_ROADS)),
-            show_buildings: ToggleableLayer::new("buildings", Some(MIN_ZOOM_FOR_BUILDINGS)),
-            show_intersections: ToggleableLayer::new("intersections", Some(MIN_ZOOM_FOR_ROADS)),
+            show_lanes: ToggleableLayer::new("lanes", Some(0.0)),
+            show_buildings: ToggleableLayer::new("buildings", Some(0.0)),
+            show_intersections: ToggleableLayer::new("intersections", Some(0.0)),
             show_parcels: ToggleableLayer::new("parcels", Some(MIN_ZOOM_FOR_PARCELS)),
-            show_extra_shapes: ToggleableLayer::new("extra shapes", Some(MIN_ZOOM_FOR_BUILDINGS)),
+            show_extra_shapes: ToggleableLayer::new("extra shapes", Some(0.0)),
             show_all_turn_icons: ToggleableLayer::new("all turn icons", None),
             show_areas: ToggleableLayer::new("areas", Some(0.0)),
             debug_mode: ToggleableLayer::new("geometry debug mode", None),

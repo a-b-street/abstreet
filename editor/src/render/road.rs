@@ -7,10 +7,9 @@ use map_model::{Map, Road, RoadID, LANE_THICKNESS};
 
 pub struct DrawRoad {
     pub id: RoadID,
-    polygon: Polygon,
+    pub polygon: Polygon,
     zorder: isize,
 
-    draw_unzoomed_band: Drawable,
     draw_center_line: Drawable,
 }
 
@@ -29,16 +28,11 @@ impl DrawRoad {
                 .shift_left((width_left - width_right) / 2.0)
                 .make_polygons(total_width)
         };
-        let draw_unzoomed_band = prerender.upload_borrowed(vec![(
-            cs.get_def("unzoomed road band", Color::BLACK),
-            &thick,
-        )]);
 
         DrawRoad {
             id: r.id,
             polygon: thick,
             zorder: r.get_zorder(),
-            draw_unzoomed_band,
             draw_center_line: prerender.upload(vec![(
                 cs.get_def("road center line", Color::YELLOW),
                 r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
@@ -57,8 +51,6 @@ impl Renderable for DrawRoad {
             g.redraw(&self.draw_center_line);
         } else if let Some(color) = opts.color {
             g.draw_polygon(color, &self.polygon);
-        } else {
-            g.redraw(&self.draw_unzoomed_band);
         }
     }
 

@@ -86,11 +86,9 @@ impl Renderable for DrawIntersection {
         if let Some(color) = opts.color {
             // Don't draw the sidewalk corners
             g.draw_polygon(color, &self.polygon);
-        } else {
+        } else if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             g.redraw(&self.draw_default);
-        }
 
-        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
             if self.intersection_type == IntersectionType::TrafficSignal {
                 if ctx.hints.suppress_traffic_signal_details != Some(self.id) {
                     self.draw_traffic_signal(g, ctx);

@@ -1,19 +1,17 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
     front_path: Polygon,
-
-    default_draw: Drawable,
 }
 
 impl DrawBuilding {
-    pub fn new(bldg: &Building, cs: &ColorScheme, prerender: &Prerender) -> DrawBuilding {
+    pub fn new(bldg: &Building, cs: &ColorScheme) -> (DrawBuilding, Vec<(Color, Polygon)>) {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
@@ -27,7 +25,7 @@ impl DrawBuilding {
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
-        let default_draw = prerender.upload_borrowed(vec![
+        let default_draw = vec![
             (
                 match bldg.building_type {
                     BuildingType::Residence => {
@@ -40,16 +38,21 @@ impl DrawBuilding {
                         cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
                     }
                 },
-                &bldg.polygon,
+                bldg.polygon.clone(),
             ),
-            (cs.get_def("building path", Color::grey(0.6)), &front_path),
-        ]);
+            (
+                cs.get_def("building path", Color::grey(0.6)),
+                front_path.clone(),
+            ),
+        ];
 
-        DrawBuilding {
-            id: bldg.id,
-            front_path,
+        (
+            DrawBuilding {
+                id: bldg.id,
+                front_path,
+            },
             default_draw,
-        }
+        )
     }
 }
 
@@ -64,8 +67,6 @@ impl Renderable for DrawBuilding {
                 (c, &ctx.map.get_b(self.id).polygon),
                 (ctx.cs.get("building path"), &self.front_path),
             ]);
-        } else {
-            g.redraw(&self.default_draw);
         }
     }
 

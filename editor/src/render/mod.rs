@@ -39,8 +39,6 @@ const TURN_ICON_ARROW_THICKNESS: Distance = Distance::const_meters(0.15);
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
 pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 
-pub const MIN_ZOOM_FOR_ROADS: f64 = 0.0;
-pub const MIN_ZOOM_FOR_BUILDINGS: f64 = 0.5;
 pub const MIN_ZOOM_FOR_MARKINGS: f64 = 1.0;
 pub const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 
@@ -51,9 +49,9 @@ pub trait Renderable {
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx);
     fn get_bounds(&self, map: &Map) -> Bounds;
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool;
-    // Higher z-ordered objects are drawn later
+    // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
-        0
+        -5
     }
 }
 

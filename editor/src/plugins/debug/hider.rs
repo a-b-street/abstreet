@@ -46,6 +46,8 @@ fn hide_something(ctx: &mut PluginCtx) -> Option<ID> {
     match ctx.primary.current_selection {
         // No real use case for hiding moving stuff
         Some(ID::Car(_)) | Some(ID::Pedestrian(_)) | None => None,
+        // Can't hide stuff drawn in a batch
+        Some(ID::Building(_)) | Some(ID::Road(_)) => None,
         Some(id) => {
             if ctx
                 .input
