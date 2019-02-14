@@ -13,11 +13,6 @@ use structopt::StructOpt;
 
 fn main() {
     let flags = state::Flags::from_args();
-    /*cpuprofiler::PROFILER
-    .lock()
-    .unwrap()
-    .start("./profile")
-    .unwrap();*/
 
     if flags.sim_flags.load == "../data/raw_maps/ban_left_turn.abst" {
         ezgui::run("A/B Street", 1024.0, 768.0, |mut canvas, prerender| {

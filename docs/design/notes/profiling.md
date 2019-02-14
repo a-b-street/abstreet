@@ -4,6 +4,8 @@ apt-get install google-perftools libgoogle-perftools-dev
 
 Follow Usage from https://crates.io/crates/cpuprofiler
 
-Uncomment the cpuprofiler lines
+Run editor with --enable-profiler
 google-pprof --web ../target/debug/editor profile
 google-pprof --web ../target/release/headless profile
+
+Or run without --web and do 'top30 --cum'

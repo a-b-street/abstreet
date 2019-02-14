@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
+cpuprofiler = "0.0.3"
 geom = { path = "../geom" }
 glium = "0.23.0"
 glium-glyph = "0.3.0"

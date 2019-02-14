@@ -39,6 +39,10 @@ pub struct Flags {
     /// Should lane markings be drawn? Sometimes they eat too much GPU memory.
     #[structopt(long = "dont_draw_lane_markings")]
     pub dont_draw_lane_markings: bool,
+
+    /// Enable cpuprofiler?
+    #[structopt(long = "enable_profiler")]
+    pub enable_profiler: bool,
 }
 
 pub trait UIState {

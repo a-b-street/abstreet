@@ -33,6 +33,10 @@ pub trait GUI<T> {
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
     fn before_quit(&self, _canvas: &Canvas) {}
+
+    fn profiling_enabled(&self) -> bool {
+        false
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -214,6 +218,14 @@ fn loop_forever<T, G: GUI<T>>(
     program: glium::Program,
     prerender: Prerender,
 ) {
+    if state.gui.profiling_enabled() {
+        cpuprofiler::PROFILER
+            .lock()
+            .unwrap()
+            .start("./profile")
+            .unwrap();
+    }
+
     let mut wait_for_events = false;
 
     loop {
@@ -223,6 +235,9 @@ fn loop_forever<T, G: GUI<T>>(
         events_loop.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
                 if event == glutin::WindowEvent::CloseRequested {
+                    if state.gui.profiling_enabled() {
+                        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                    }
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
                 }

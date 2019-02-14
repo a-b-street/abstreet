@@ -1,10 +1,9 @@
-use abstutil;
-//use cpuprofiler;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::render::{
     draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
 };
 use crate::state::UIState;
+use abstutil;
 use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
     TopMenu, BOTTOM_LEFT, GUI,
@@ -366,7 +365,10 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         self.save_editor_state(canvas);
         self.state.get_state().cs.save();
         info!("Saved color_scheme");
-        //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+    }
+
+    fn profiling_enabled(&self) -> bool {
+        self.state.get_state().primary.current_flags.enable_profiler
     }
 }
 

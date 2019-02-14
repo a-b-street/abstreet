@@ -8,7 +8,6 @@ edition = "2018"
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 counter = "0.4.3"
-cpuprofiler = "0.0.3"
 downcast = "0.9.2"
 ezgui = { path = "../ezgui" }
 generator = "0.6"
