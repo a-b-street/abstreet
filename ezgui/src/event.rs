@@ -3,8 +3,6 @@ use glium::glutin;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
-    // TODO Get rid of this after handling all cases.
-    Unknown,
     LeftMouseButtonDown,
     LeftMouseButtonUp,
     RightMouseButtonDown,
