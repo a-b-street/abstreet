@@ -1,7 +1,7 @@
 use crate::objects::{DrawCtx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
-use ezgui::{Canvas, EventCtx, GfxCtx, LogScroller, Prerender, Text};
+use ezgui::{EventCtx, GfxCtx, LogScroller, Prerender, Text};
 use map_model::Traversable;
 use sim::{Event, Tick};
 
@@ -22,9 +22,9 @@ enum State {
 const SPAWN_CARS_PER_BORDER: usize = 100 * 10;
 
 impl TutorialState {
-    pub fn new(flags: Flags, canvas: &mut Canvas, prerender: &Prerender) -> TutorialState {
+    pub fn new(flags: Flags, prerender: &Prerender) -> TutorialState {
         TutorialState {
-            main: DefaultUIState::new(flags, canvas, prerender, false),
+            main: DefaultUIState::new(flags, prerender, false),
             state: State::GiveInstructions(LogScroller::new_from_lines(vec![
                 "Welcome to the A/B Street tutorial!".to_string(),
                 "".to_string(),

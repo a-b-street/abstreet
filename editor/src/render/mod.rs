@@ -40,7 +40,6 @@ const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
 pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 
 pub const MIN_ZOOM_FOR_MARKINGS: f64 = 1.0;
-pub const MIN_ZOOM_FOR_PARCELS: f64 = 1.0;
 
 // Does something belong here or as a method on ID? If it ONLY applies to renderable things, then
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.

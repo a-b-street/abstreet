@@ -8,7 +8,7 @@ use crate::plugins::{
 use crate::render::DrawMap;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::EventCtx;
-use ezgui::{Canvas, Color, GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx, Prerender};
 use map_model::{IntersectionID, Map};
 use sim::{GetDrawAgents, Sim, SimFlags, Tick};
 use structopt::StructOpt;
@@ -84,12 +84,7 @@ pub struct DefaultUIState {
 }
 
 impl DefaultUIState {
-    pub fn new(
-        flags: Flags,
-        canvas: &Canvas,
-        prerender: &Prerender,
-        enable_debug_controls: bool,
-    ) -> DefaultUIState {
+    pub fn new(flags: Flags, prerender: &Prerender, enable_debug_controls: bool) -> DefaultUIState {
         let cs = ColorScheme::load().unwrap();
 
         // Do this first to trigger the log console initialization, so anything logged by sim::load
@@ -97,7 +92,7 @@ impl DefaultUIState {
         view::logs::DisplayLogs::initialize();
         let (primary, primary_plugins) =
             PerMapUI::new(flags, &cs, prerender, enable_debug_controls);
-        let mut state = DefaultUIState {
+        DefaultUIState {
             primary,
             primary_plugins,
             secondary: None,
@@ -109,9 +104,7 @@ impl DefaultUIState {
             layers: debug::layers::ToggleableLayers::new(),
             enable_debug_controls,
             cs,
-        };
-        state.layers.handle_zoom(-1.0, canvas.cam_zoom);
-        state
+        }
     }
 
     pub fn color_obj(&self, id: ID, ctx: &DrawCtx) -> Option<Color> {
@@ -156,7 +149,7 @@ impl DefaultUIState {
             }
         }
 
-        self.layers.show_all_turn_icons.is_enabled() || {
+        self.layers.show_all_turn_icons || {
             // TODO This sounds like some old hack, probably remove this?
             if let Some(ID::Turn(t)) = self.primary.current_selection {
                 t.parent == id

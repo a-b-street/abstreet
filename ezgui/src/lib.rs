@@ -22,51 +22,6 @@ pub use crate::widgets::{
     Folder, LogScroller, ScrollingMenu, TextBox, TopMenu, Wizard, WrappedWizard,
 };
 
-pub struct ToggleableLayer {
-    layer_name: String,
-    // If None, never automatically enable at a certain zoom level.
-    min_zoom: Option<f64>,
-
-    enabled: bool,
-}
-
-impl ToggleableLayer {
-    pub fn new(layer_name: &str, min_zoom: Option<f64>) -> ToggleableLayer {
-        ToggleableLayer {
-            min_zoom,
-            layer_name: layer_name.to_string(),
-            enabled: false,
-        }
-    }
-
-    pub fn is_enabled(&self) -> bool {
-        self.enabled
-    }
-
-    pub fn handle_zoom(&mut self, before_zoom: f64, after_zoom: f64) {
-        if let Some(threshold) = self.min_zoom {
-            let before_value = before_zoom >= threshold;
-            let after_value = after_zoom >= threshold;
-            if before_value != after_value {
-                self.enabled = after_value;
-            }
-        }
-    }
-
-    // True if there was a change
-    pub fn event(&mut self, input: &mut input::UserInput) -> bool {
-        if input.action_chosen(&format!("show/hide {}", self.layer_name)) {
-            self.enabled = !self.enabled;
-            return true;
-        }
-        false
-    }
-
-    pub fn disable(&mut self) {
-        self.enabled = false;
-    }
-}
-
 pub enum InputResult<T: Clone> {
     Canceled,
     StillActive,

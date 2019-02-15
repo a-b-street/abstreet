@@ -198,14 +198,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             hide_turn_icons: HashSet::new(),
         };
 
-        // First update the camera and handle zoom
-        let old_zoom = ctx.canvas.cam_zoom;
+        // First update the camera
         ctx.canvas.handle_event(ctx.input);
-        let new_zoom = ctx.canvas.cam_zoom;
-        self.state
-            .mut_state()
-            .layers
-            .handle_zoom(old_zoom, new_zoom);
 
         // Always handle mouseover
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
@@ -317,7 +311,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             };
             let opts = RenderOptions {
                 color: state.color_obj(obj.get_id(), &ctx),
-                debug_mode: state.layers.debug_mode.is_enabled(),
+                debug_mode: state.layers.debug_mode,
                 is_selected: state.primary.current_selection == Some(obj.get_id()),
                 // TODO If a ToggleableLayer is currently off, this won't affect it!
                 show_all_detail: screencap,
