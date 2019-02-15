@@ -13,7 +13,6 @@ pub struct DrawLane {
     zorder: isize,
 
     draw_default: Drawable,
-    draw_markings: Drawable,
 }
 
 impl DrawLane {
@@ -27,29 +26,7 @@ impl DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
-        let mut markings: Vec<(Color, Polygon)> = Vec::new();
-        if draw_lane_markings {
-            match lane.lane_type {
-                LaneType::Sidewalk => {
-                    markings.extend(calculate_sidewalk_lines(lane, cs));
-                }
-                LaneType::Parking => {
-                    markings.extend(calculate_parking_lines(lane, cs));
-                }
-                LaneType::Driving | LaneType::Bus => {
-                    markings.extend(calculate_driving_lines(lane, road, cs));
-                    markings.extend(calculate_turn_markings(map, lane, cs));
-                }
-                LaneType::Biking => {}
-            };
-            if lane.is_driving()
-                && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
-            {
-                markings.extend(calculate_stop_sign_line(road, lane, map, cs));
-            }
-        }
-
-        let draw_default = prerender.upload_borrowed(vec![(
+        let mut draw: Vec<(Color, Polygon)> = vec![(
             match lane.lane_type {
                 LaneType::Driving => cs.get_def("driving lane", Color::BLACK),
                 LaneType::Bus => cs.get_def("bus lane", Color::rgb(190, 74, 76)),
@@ -57,15 +34,34 @@ impl DrawLane {
                 LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
                 LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
             },
-            &polygon,
-        )]);
+            polygon.clone(),
+        )];
+        if draw_lane_markings {
+            match lane.lane_type {
+                LaneType::Sidewalk => {
+                    draw.extend(calculate_sidewalk_lines(lane, cs));
+                }
+                LaneType::Parking => {
+                    draw.extend(calculate_parking_lines(lane, cs));
+                }
+                LaneType::Driving | LaneType::Bus => {
+                    draw.extend(calculate_driving_lines(lane, road, cs));
+                    draw.extend(calculate_turn_markings(map, lane, cs));
+                }
+                LaneType::Biking => {}
+            };
+            if lane.is_driving()
+                && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
+            {
+                draw.extend(calculate_stop_sign_line(road, lane, map, cs));
+            }
+        }
 
         DrawLane {
             id: lane.id,
             polygon,
             zorder: road.get_zorder(),
-            draw_default,
-            draw_markings: prerender.upload(markings),
+            draw_default: prerender.upload(draw),
         }
     }
 
@@ -97,8 +93,6 @@ impl Renderable for DrawLane {
         } else {
             g.redraw(&self.draw_default);
         }
-
-        g.redraw(&self.draw_markings);
 
         if opts.debug_mode {
             self.draw_debug(g, ctx);
