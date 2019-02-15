@@ -181,10 +181,17 @@ pub fn make_half_map(
     );
 
     for (idx, a) in data.areas.iter().enumerate() {
+        let pts = gps_bounds.must_convert(&a.points);
+        if pts[0] != *pts.last().unwrap() {
+            panic!(
+                "Unclosed Area from OSM {} with tags {:?}",
+                a.osm_id, a.osm_tags
+            );
+        }
         half_map.areas.push(Area {
             id: AreaID(idx),
             area_type: a.area_type,
-            points: gps_bounds.must_convert(&a.points),
+            polygon: Polygon::new(&pts),
             osm_tags: a.osm_tags.clone(),
             osm_id: a.osm_id,
         });

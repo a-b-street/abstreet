@@ -101,7 +101,7 @@ impl ID {
             ID::ExtraShape(id) => Some(draw_map.get_es(id).center()),
             ID::Parcel(id) => map.maybe_get_p(id).map(|p| Pt2D::center(&p.points)),
             ID::BusStop(id) => map.maybe_get_bs(id).map(|bs| bs.sidewalk_pos.pt(map)),
-            ID::Area(id) => map.maybe_get_a(id).map(|a| Pt2D::center(&a.points)),
+            ID::Area(id) => map.maybe_get_a(id).map(|a| a.polygon.center()),
             ID::Trip(id) => sim.get_canonical_pt_per_trip(id, map),
         }
     }
