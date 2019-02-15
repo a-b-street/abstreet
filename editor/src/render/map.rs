@@ -121,14 +121,12 @@ impl DrawMap {
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings: Vec<(Color, Polygon)> = Vec::new();
-        if !flags.dont_draw_buildings {
-            timer.start_iter("make DrawBuildings", map.all_buildings().len());
-            for b in map.all_buildings() {
-                timer.next();
-                let (b, draw) = DrawBuilding::new(b, cs);
-                buildings.push(b);
-                all_buildings.extend(draw);
-            }
+        timer.start_iter("make DrawBuildings", map.all_buildings().len());
+        for b in map.all_buildings() {
+            timer.next();
+            let (b, draw) = DrawBuilding::new(b, cs);
+            buildings.push(b);
+            all_buildings.extend(draw);
         }
         let draw_all_buildings = prerender.upload(all_buildings);
 
@@ -181,14 +179,12 @@ impl DrawMap {
 
         let mut areas: Vec<DrawArea> = Vec::new();
         let mut all_areas: Vec<(Color, Polygon)> = Vec::new();
-        if !flags.dont_draw_areas {
-            timer.start_iter("make DrawAreas", map.all_areas().len());
-            for a in map.all_areas() {
-                timer.next();
-                let (draw, color, poly) = DrawArea::new(a, cs);
-                areas.push(draw);
-                all_areas.push((color, poly));
-            }
+        timer.start_iter("make DrawAreas", map.all_areas().len());
+        for a in map.all_areas() {
+            timer.next();
+            let (draw, color, poly) = DrawArea::new(a, cs);
+            areas.push(draw);
+            all_areas.push((color, poly));
         }
         let draw_all_areas = prerender.upload(all_areas);
 
