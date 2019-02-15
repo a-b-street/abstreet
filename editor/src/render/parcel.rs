@@ -25,7 +25,8 @@ const COLORS: [Color; 14] = [
 
 pub struct DrawParcel {
     pub id: ParcelID,
-    // TODO bit wasteful to keep both
+    // TODO could maybe get away with not storing these at all, since we can't select them. might
+    // totally get rid of parcels, since use case is low... keep for now
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
 }

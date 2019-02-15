@@ -7,14 +7,15 @@ use map_model::{Map, Road, RoadID, LANE_THICKNESS};
 
 pub struct DrawRoad {
     pub id: RoadID,
-    pub polygon: Polygon,
+    // TODO don't even store Bounds
+    bounds: Bounds,
     zorder: isize,
 
     draw_center_line: Drawable,
 }
 
 impl DrawRoad {
-    pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
+    pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> (DrawRoad, Polygon) {
         // TODO Should be a less tedious way to do this
         let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
         let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
@@ -29,15 +30,18 @@ impl DrawRoad {
                 .make_polygons(total_width)
         };
 
-        DrawRoad {
-            id: r.id,
-            polygon: thick,
-            zorder: r.get_zorder(),
-            draw_center_line: prerender.upload(vec![(
-                cs.get_def("road center line", Color::YELLOW),
-                r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
-            )]),
-        }
+        (
+            DrawRoad {
+                id: r.id,
+                bounds: thick.get_bounds(),
+                zorder: r.get_zorder(),
+                draw_center_line: prerender.upload(vec![(
+                    cs.get_def("road center line", Color::YELLOW),
+                    r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
+                )]),
+            },
+            thick,
+        )
     }
 }
 
@@ -46,20 +50,17 @@ impl Renderable for DrawRoad {
         ID::Road(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
-            g.draw_polygon(color, &self.polygon);
-        } else {
-            g.redraw(&self.draw_center_line);
-        }
+    fn draw(&self, g: &mut GfxCtx, _: RenderOptions, _: &DrawCtx) {
+        g.redraw(&self.draw_center_line);
     }
 
     fn get_bounds(&self, _: &Map) -> Bounds {
-        self.polygon.get_bounds()
+        self.bounds.clone()
     }
 
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+    // Can't select these
+    fn contains_pt(&self, _: Pt2D, _: &Map) -> bool {
+        false
     }
 
     fn get_zorder(&self) -> isize {

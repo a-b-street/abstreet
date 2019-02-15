@@ -58,14 +58,17 @@ impl DrawMap {
     ) -> DrawMap {
         timer.start_iter("make DrawRoads", map.all_roads().len());
         let mut roads: Vec<DrawRoad> = Vec::new();
+        let mut all_roads: Vec<Polygon> = Vec::new();
         for r in map.all_roads() {
             timer.next();
-            roads.push(DrawRoad::new(r, cs, prerender));
+            let (draw, poly) = DrawRoad::new(r, cs, prerender);
+            roads.push(draw);
+            all_roads.push(poly);
         }
-        let draw_all_thick_roads = prerender.upload_borrowed(
-            roads
-                .iter()
-                .map(|r| (cs.get_def("unzoomed road band", Color::BLACK), &r.polygon))
+        let draw_all_thick_roads = prerender.upload(
+            all_roads
+                .into_iter()
+                .map(|p| (cs.get_def("unzoomed road band", Color::BLACK), p))
                 .collect(),
         );
 

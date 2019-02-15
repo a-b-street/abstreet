@@ -7,7 +7,8 @@ use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
-    front_path: Polygon,
+    // TODO Return from new() and don't even store this.
+    bounds: Bounds,
 }
 
 impl DrawBuilding {
@@ -25,6 +26,9 @@ impl DrawBuilding {
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
+        let mut bounds = bldg.polygon.get_bounds();
+        bounds.union(front_path.get_bounds());
+
         let default_draw = vec![
             (
                 match bldg.building_type {
@@ -40,16 +44,13 @@ impl DrawBuilding {
                 },
                 bldg.polygon.clone(),
             ),
-            (
-                cs.get_def("building path", Color::grey(0.6)),
-                front_path.clone(),
-            ),
+            (cs.get_def("building path", Color::grey(0.6)), front_path),
         ];
 
         (
             DrawBuilding {
                 id: bldg.id,
-                front_path,
+                bounds,
             },
             default_draw,
         )
@@ -63,17 +64,12 @@ impl Renderable for DrawBuilding {
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
         if let Some(c) = opts.color {
-            g.draw_polygon_batch(vec![
-                (c, &ctx.map.get_b(self.id).polygon),
-                (ctx.cs.get("building path"), &self.front_path),
-            ]);
+            g.draw_polygon(c, &ctx.map.get_b(self.id).polygon);
         }
     }
 
-    fn get_bounds(&self, map: &Map) -> Bounds {
-        let mut b = map.get_b(self.id).polygon.get_bounds();
-        b.union(self.front_path.get_bounds());
-        b
+    fn get_bounds(&self, _: &Map) -> Bounds {
+        self.bounds.clone()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
