@@ -16,6 +16,8 @@ impl Ord for Distance {
 
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
+    // TODO Different than EPSILON_DIST... the true minimum representable difference.
+    pub const EPSILON: Distance = Distance::const_meters(0.0001);
 
     pub fn meters(value: f64) -> Distance {
         if !value.is_finite() {
@@ -155,6 +157,7 @@ pub struct Duration(f64);
 
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
+    pub const EPSILON: Duration = Duration::const_seconds(0.0001);
 
     pub fn seconds(value: f64) -> Duration {
         if !value.is_finite() {
@@ -273,6 +276,14 @@ impl Speed {
     // TODO Remove if possible.
     pub fn inner_meters_per_second(self) -> f64 {
         self.0
+    }
+
+    pub fn max(self, other: Speed) -> Speed {
+        if self >= other {
+            self
+        } else {
+            other
+        }
     }
 }
 

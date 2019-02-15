@@ -18,6 +18,7 @@ pub struct Car {
     pub start_dist: Distance,
     pub start_time: Duration,
 
+    // Distances represent the front of the car
     pub intervals: Vec<Interval>,
 }
 
@@ -88,10 +89,7 @@ impl Car {
 
     pub fn dump_intervals(&self) {
         for i in &self.intervals {
-            println!(
-                "- {}->{} during {}->{} ({}->{})",
-                i.start_dist, i.end_dist, i.start_time, i.end_time, i.start_speed, i.end_speed
-            );
+            println!("- {}", i);
         }
     }
 }
@@ -141,6 +139,7 @@ impl Car {
         // TODO A good unit test... Make sure find_hit is symmetric
         for (idx1, i1) in self.intervals.iter().enumerate() {
             for (idx2, i2) in other.intervals.iter().enumerate() {
+                // TODO Should bake in FOLLOWING_DISTANCE and car length!
                 if let Some((time, dist)) = i1.intersection(i2) {
                     return Some((time, dist, idx1, idx2));
                 }
@@ -199,14 +198,6 @@ impl Car {
         self.next_state(delta.dist, speed, delta.time);
     }
 
-    pub fn freeflow(&mut self, time: Duration) {
-        let speed = self.last_state().1;
-        // Should explicitly wait for some time
-        assert_ne!(speed, Speed::ZERO);
-
-        self.next_state(speed * time, speed, time);
-    }
-
     pub fn freeflow_to_cross(&mut self, dist: Distance) {
         let speed = self.last_state().1;
         assert_ne!(dist, Distance::ZERO);
@@ -258,7 +249,7 @@ impl Car {
     }
 
     pub fn maybe_follow(&mut self, leader: &mut Car) {
-        let (hit_time, hit_dist, idx1, idx2) = match self.find_earliest_hit(leader) {
+        let (hit_time, raw_hit_dist, idx1, idx2) = match self.find_earliest_hit(leader) {
             Some(hit) => hit,
             None => {
                 return;
@@ -266,8 +257,21 @@ impl Car {
         };
         println!(
             "Collision at {}, {}. follower interval {}, leader interval {}",
-            hit_time, hit_dist, idx1, idx2
+            hit_time, raw_hit_dist, idx1, idx2
         );
+        // TODO Make find_earliest_hit (and in fact intersection) do this adjustment.
+        let hit_dist = {
+            let them = &leader.intervals[idx2];
+            if raw_hit_dist > them.end_dist {
+                println!(
+                    "  Collision is slightly past the leader's end dist, by {}",
+                    raw_hit_dist - them.end_dist
+                );
+                them.end_dist
+            } else {
+                raw_hit_dist
+            }
+        };
 
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 

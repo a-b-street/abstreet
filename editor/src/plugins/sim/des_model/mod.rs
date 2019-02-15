@@ -51,10 +51,10 @@ impl World {
         follower.dump_intervals();
         println!();
 
-        /*follower.maybe_follow(&mut leader);
+        follower.maybe_follow(&mut leader);
         println!("\nAdjusted follower:\n");
         follower.dump_intervals();
-        println!();*/
+        println!();
 
         leader.validate(lane);
         follower.validate(lane);
