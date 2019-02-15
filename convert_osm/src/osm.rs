@@ -1,11 +1,12 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::LonLat;
+use geom::{Distance, LonLat};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap};
 
 pub fn osm_to_raw_roads(
     osm_path: &str,
+    boundary_polygon: &Vec<LonLat>,
     timer: &mut Timer,
 ) -> (
     Vec<raw_data::Road>,
@@ -108,7 +109,7 @@ pub fn osm_to_raw_roads(
                     }
                 }
                 if ok {
-                    let polygons = glue_multipolygon(pts_per_way);
+                    let polygons = glue_multipolygon(pts_per_way, boundary_polygon);
                     if polygons.is_empty() {
                         println!("Relation {} failed to glue multipolygon", rel.id);
                     } else {
@@ -198,7 +199,10 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 }
 
 // The result could be more than one disjoint polygon.
-fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
+fn glue_multipolygon(
+    mut pts_per_way: Vec<Vec<LonLat>>,
+    boundary_polygon: &Vec<LonLat>,
+) -> Vec<Vec<LonLat>> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Vec<LonLat>> = Vec::new();
     pts_per_way.retain(|pts| {
@@ -239,11 +243,80 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
             }
         }
     }
-    // Some ways of the multipolygon are clipped out. Just stitch together the missing data with a
-    // straight line.
-    if result[0] != *result.last().unwrap() {
-        result.push(result[0]);
-    }
+    extrude_to_boundary(boundary_polygon, &mut result);
     polygons.push(result);
     polygons
+}
+
+fn extrude_to_boundary(boundary_polygon: &Vec<LonLat>, result: &mut Vec<LonLat>) {
+    // Some ways of the multipolygon are clipped out. Connect the ends by traveling along the
+    // boundary polygon in the closest direction (clockwise or counter-clockwise).
+    let first_pt = result[0];
+    let last_pt = *result.last().unwrap();
+    if first_pt == last_pt {
+        return;
+    }
+
+    if true {
+        // Simple resolution:
+        result.push(first_pt);
+    } else {
+        // Proper resolution:
+        let closest_to_last = *boundary_polygon
+            .iter()
+            .min_by_key(|pt| pt.gps_dist_meters(last_pt))
+            .unwrap();
+        let closest_to_first = *boundary_polygon
+            .iter()
+            .min_by_key(|pt| pt.gps_dist_meters(first_pt))
+            .unwrap();
+
+        let slice1 = find_slice(boundary_polygon, closest_to_last, closest_to_first);
+        let mut backwards_boundary: Vec<LonLat> = boundary_polygon.iter().cloned().collect();
+        backwards_boundary.reverse();
+        let slice2 = find_slice(&backwards_boundary, closest_to_last, closest_to_first);
+        if slice_len(&slice1) <= slice_len(&slice2) {
+            result.extend(slice1);
+        } else {
+            result.extend(slice2);
+        }
+        result.push(first_pt);
+    }
+}
+
+fn slice_len(pts: &Vec<LonLat>) -> Distance {
+    let mut dist = Distance::ZERO;
+    for pair in pts.windows(2) {
+        dist += pair[0].gps_dist_meters(pair[1]);
+    }
+    dist
+}
+
+// TODO DrawIntersection has find_pts_between, basically a copy
+fn find_slice(pts: &Vec<LonLat>, start: LonLat, end: LonLat) -> Vec<LonLat> {
+    let mut result = Vec::new();
+    for pt in pts {
+        if result.is_empty() && *pt == start {
+            result.push(*pt);
+        } else if !result.is_empty() {
+            result.push(*pt);
+        }
+        // start and end might be the same.
+        if !result.is_empty() && *pt == end {
+            return result;
+        }
+    }
+
+    if result.is_empty() {
+        panic!("Couldn't find start");
+    }
+
+    // Go through again, looking for end
+    for pt in pts {
+        result.push(*pt);
+        if *pt == end {
+            return result;
+        }
+    }
+    panic!("Couldn't find end");
 }

@@ -148,3 +148,4 @@ source of truth.
 - intersection polygon calculations
 - polyline shifting
 - sidewalk corner and crosswalk rendering
+- clipping to a boundary polygon

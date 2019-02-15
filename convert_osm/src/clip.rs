@@ -1,12 +1,9 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{GPSBounds, LonLat, PolyLine, Polygon};
+use geom::{GPSBounds, PolyLine, Polygon};
 use map_model::{raw_data, IntersectionType};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 
-pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBounds {
+pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
     timer.start("clipping map to boundary");
-    map.boundary_polygon = read_osmosis_polygon(path);
     let bounds = map.get_gps_bounds();
 
     if true {
@@ -94,26 +91,4 @@ pub fn clip_map(map: &mut raw_data::Map, path: &str, timer: &mut Timer) -> GPSBo
 
     timer.stop("clipping map to boundary");
     bounds
-}
-
-fn read_osmosis_polygon(path: &str) -> Vec<LonLat> {
-    let mut pts: Vec<LonLat> = Vec::new();
-    for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
-        .lines()
-        .enumerate()
-    {
-        if idx == 0 || idx == 1 {
-            continue;
-        }
-        let line = maybe_line.unwrap();
-        if line == "END" {
-            break;
-        }
-        let parts: Vec<&str> = line.trim_start().split("    ").collect();
-        assert!(parts.len() == 2);
-        let lon = parts[0].parse::<f64>().unwrap();
-        let lat = parts[1].parse::<f64>().unwrap();
-        pts.push(LonLat::new(lon, lat));
-    }
-    pts
 }

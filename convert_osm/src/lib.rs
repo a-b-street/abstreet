@@ -8,9 +8,11 @@ mod srtm;
 
 use crate::srtm::Elevation;
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use structopt::StructOpt;
 
@@ -32,20 +34,20 @@ pub struct Flags {
     #[structopt(long = "traffic_signals")]
     pub traffic_signals: String,
 
-    /// KML with residential building permits
-    #[structopt(long = "residential_buildings")]
+    /// KML with residential building permits. Optional.
+    #[structopt(long = "residential_buildings", default_value = "")]
     pub residential_buildings: String,
 
     /// ExtraShapes file with parcels, produced using the kml crate. Optional.
     #[structopt(long = "parcels", default_value = "")]
     pub parcels: String,
 
-    /// ExtraShapes file with blockface, produced using the kml crate
-    #[structopt(long = "parking_shapes")]
+    /// ExtraShapes file with blockface, produced using the kml crate. Optional.
+    #[structopt(long = "parking_shapes", default_value = "")]
     pub parking_shapes: String,
 
-    /// GTFS directory
-    #[structopt(long = "gtfs")]
+    /// GTFS directory. Optional.
+    #[structopt(long = "gtfs", default_value = "")]
     pub gtfs: String,
 
     /// Neighborhood GeoJSON path
@@ -67,9 +69,15 @@ pub struct Flags {
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-    let mut map =
-        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation, timer);
-    let gps_bounds = clip::clip_map(&mut map, &flags.clip, timer);
+    let boundary_polygon = read_osmosis_polygon(&flags.clip);
+
+    let mut map = split_ways::split_up_roads(
+        osm::osm_to_raw_roads(&flags.osm, &boundary_polygon, timer),
+        boundary_polygon,
+        &elevation,
+        timer,
+    );
+    let gps_bounds = clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
     // TODO Shouldn't we recalculate the gps_bounds after removing stuff? Or just base it off the
     // boundary polygon?
@@ -78,13 +86,21 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         return map;
     }
 
-    handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);
-    use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
+    if !flags.residential_buildings.is_empty() {
+        handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);
+    }
+    if !flags.parking_shapes.is_empty() {
+        use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
+    }
     if !flags.parcels.is_empty() {
         handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
     }
     handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
-    map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
+    if !flags.gtfs.is_empty() {
+        timer.start("load GTFS");
+        map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
+        timer.stop("load GTFS");
+    }
 
     {
         timer.start("convert neighborhood polygons");
@@ -259,4 +275,26 @@ fn handle_residences(
         }
     }
     timer.stop("match residential permits with buildings");
+}
+
+fn read_osmosis_polygon(path: &str) -> Vec<LonLat> {
+    let mut pts: Vec<LonLat> = Vec::new();
+    for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
+        .lines()
+        .enumerate()
+    {
+        if idx == 0 || idx == 1 {
+            continue;
+        }
+        let line = maybe_line.unwrap();
+        if line == "END" {
+            break;
+        }
+        let parts: Vec<&str> = line.trim_start().split("    ").collect();
+        assert!(parts.len() == 2);
+        let lon = parts[0].parse::<f64>().unwrap();
+        let lat = parts[1].parse::<f64>().unwrap();
+        pts.push(LonLat::new(lon, lat));
+    }
+    pts
 }

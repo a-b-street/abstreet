@@ -108,8 +108,12 @@ impl BlockingPlugin for DebugPolygon {
             return false;
         } else if self.current != self.items.len() - 1 && ctx.input.modal_action("next item") {
             self.current += 1;
+        } else if self.current != self.items.len() - 1 && ctx.input.modal_action("last item") {
+            self.current = self.items.len() - 1;
         } else if self.current != 0 && ctx.input.modal_action("prev item") {
             self.current -= 1;
+        } else if self.current != 0 && ctx.input.modal_action("first item") {
+            self.current = 0;
         }
         true
     }
