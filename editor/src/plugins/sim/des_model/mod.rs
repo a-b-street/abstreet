@@ -32,7 +32,8 @@ impl World {
         leader.wait(Duration::seconds(5.0));
 
         let mut cars = vec![leader];
-        let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
+        //let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
+        let num_followers = 1;
         for i in 0..num_followers {
             let mut follower = Car {
                 id: CarID::tmp_new(cars.len(), VehicleType::Car),
@@ -58,10 +59,7 @@ impl World {
             println!();
         }
 
-        World {
-            lane: l,
-            cars,
-        }
+        World { lane: l, cars }
     }
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
@@ -87,6 +85,21 @@ impl World {
                         car.intervals[idx].speed(time)
                     )),
                     lane.lane_center_pts.dist_along(d - 0.5 * car.car_length).0,
+                );
+            }
+        }
+    }
+
+    pub fn dump_debug(&self, time: Duration) {
+        for car in &self.cars {
+            if let Some((d, idx)) = car.dist_at(time) {
+                println!(
+                    "- {} at {}, speed {}. interval {}/{}",
+                    car.id,
+                    d,
+                    car.intervals[idx].speed(time),
+                    idx + 1,
+                    car.intervals.len()
                 );
             }
         }

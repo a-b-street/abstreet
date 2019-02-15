@@ -51,9 +51,23 @@ impl Interval {
         }
     }
 
+    fn raw_accel(&self) -> f64 {
+        (self.end_speed - self.start_speed).inner_meters_per_second()
+            / (self.end_time - self.start_time).inner_seconds()
+    }
+
     pub fn dist(&self, t: Duration) -> Distance {
-        // Linearly interpolate
-        self.start_dist + self.percent(t) * (self.end_dist - self.start_dist)
+        if true {
+            // Linearly interpolate
+            self.start_dist + self.percent(t) * (self.end_dist - self.start_dist)
+        } else {
+            let relative_t = (t - self.start_time).inner_seconds();
+
+            let d = self.start_dist.inner_meters()
+                + self.start_speed.inner_meters_per_second() * relative_t
+                + 0.5 * self.raw_accel() * relative_t.powi(2);
+            Distance::meters(d)
+        }
     }
 
     pub fn speed(&self, t: Duration) -> Speed {
@@ -93,22 +107,54 @@ impl Interval {
         }
 
         // Set the two distance equations equal and solve for time. Long to type out here...
-        let x1 = self.start_dist.inner_meters();
-        let x2 = self.end_dist.inner_meters();
-        let a1 = self.start_time.inner_seconds();
-        let a2 = self.end_time.inner_seconds();
+        let t = if true {
+            let x1 = self.start_dist.inner_meters();
+            let x2 = self.end_dist.inner_meters();
+            let a1 = self.start_time.inner_seconds();
+            let a2 = self.end_time.inner_seconds();
 
-        let y1 = leader.start_dist.inner_meters();
-        let y2 = leader.end_dist.inner_meters();
-        let b1 = leader.start_time.inner_seconds();
-        let b2 = leader.end_time.inner_seconds();
+            let y1 = leader.start_dist.inner_meters();
+            let y2 = leader.end_dist.inner_meters();
+            let b1 = leader.start_time.inner_seconds();
+            let b2 = leader.end_time.inner_seconds();
 
-        let numer = a1 * (b2 * (y1 - x2) + b1 * (x2 - y2)) + a2 * (b2 * (x1 - y1) + b1 * (y2 - x1));
-        let denom = (a1 - a2) * (y1 - y2) + b2 * (x1 - x2) + b1 * (x2 - x1);
-        if denom == 0.0 {
-            return None;
-        }
-        let t = Duration::seconds(numer / denom);
+            let numer =
+                a1 * (b2 * (y1 - x2) + b1 * (x2 - y2)) + a2 * (b2 * (x1 - y1) + b1 * (y2 - x1));
+            let denom = (a1 - a2) * (y1 - y2) + b2 * (x1 - x2) + b1 * (x2 - x1);
+            if denom == 0.0 {
+                return None;
+            }
+            Duration::seconds(numer / denom)
+        } else {
+            let x_1 = self.start_dist.inner_meters();
+            let v_1 = self.start_speed.inner_meters_per_second();
+            let t_1 = self.start_time.inner_seconds();
+            let a_1 = self.raw_accel();
+
+            let x_3 = leader.start_dist.inner_meters();
+            let v_3 = leader.start_speed.inner_meters_per_second();
+            let t_3 = leader.start_time.inner_seconds();
+            let a_3 = leader.raw_accel();
+
+            let q = (-0.5
+                * ((2.0 * a_1 * t_1 - 2.0 * a_3 * t_3 - 2.0 * v_1 + 2.0 * v_3).powi(2)
+                    - 4.0
+                        * (a_3 - a_1)
+                        * (-a_1 * t_1.powi(2) + a_3 * t_3.powi(2) + 2.0 * t_1 * v_1
+                            - 2.0 * t_3 * v_3
+                            - 2.0 * x_1
+                            + 2.0 * x_3))
+                    .sqrt()
+                - a_1 * t_1
+                + a_3 * t_3
+                + v_1
+                - v_3)
+                / (a_3 - a_1);
+            if !q.is_finite() {
+                return None;
+            }
+            Duration::seconds(q)
+        };
 
         if !self.covers(t) || !leader.covers(t) {
             return None;
@@ -138,8 +184,12 @@ impl fmt::Display for Interval {
             "decelerate to rest"
         } else if self.start_speed == self.end_speed {
             "freeflow"
+        } else if self.start_speed < self.end_speed {
+            "speed up"
+        } else if self.start_speed > self.end_speed {
+            "slow down"
         } else {
-            "other"
+            panic!("How to describe {:?}", self);
         };
 
         write!(

@@ -87,6 +87,9 @@ impl BlockingPlugin for SimpleModelController {
         if ctx.input.modal_action("toggle tooltips") {
             self.show_tooltips = !self.show_tooltips;
         }
+        if ctx.input.modal_action("debug") {
+            self.world.dump_debug(self.current_tick.as_time());
+        }
         if ctx
             .input
             .modal_action("exhaustively test instantiation everywhere")

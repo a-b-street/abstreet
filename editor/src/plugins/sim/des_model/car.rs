@@ -61,11 +61,34 @@ impl Car {
                 );
             }
 
+            // Now that distance isn't linear, we actually never directly use end_dist -- so sanity
+            // check that the interval works at all!
+            let actual_end_dist = i.dist(i.end_time);
+            if !actual_end_dist.epsilon_eq(i.end_dist) {
+                println!(
+                    "{} has an interval where they want to end at {}, but they really end at {}",
+                    self.id, i.end_dist, actual_end_dist
+                );
+            }
+
             if i.end_dist > lane_len {
                 println!(
                     "{} ends {} past the lane end",
                     self.id,
                     i.end_dist - lane_len
+                );
+            }
+
+            if i.end_dist < i.start_dist {
+                println!(
+                    "{} goes backwards from {} to {}",
+                    self.id, i.start_dist, i.end_dist
+                );
+            }
+            if i.end_time < i.start_time {
+                println!(
+                    "{} goes backwards IN TIME from {} to {}",
+                    self.id, i.start_time, i.end_time
                 );
             }
         }
@@ -268,9 +291,21 @@ impl Car {
         if true {
             {
                 let mut our_adjusted_last = self.intervals.pop().unwrap();
+
+                // TODO why's this happen? I think because we don't do the intersection test
+                // including dist_behind!
+                if hit_dist - dist_behind < our_adjusted_last.start_dist {
+                    println!("WHOA! actually collide an interval earlier than expected");
+                    // Woops!
+                    our_adjusted_last = self.intervals.pop().unwrap();
+                }
+
+                println!("retain these:");
+                self.dump_intervals();
                 our_adjusted_last.end_speed = hit_speed;
                 our_adjusted_last.end_time = hit_time;
                 our_adjusted_last.end_dist = hit_dist - dist_behind;
+                println!("first adjusted: {}", our_adjusted_last);
                 self.intervals.push(our_adjusted_last);
             }
 
@@ -284,6 +319,7 @@ impl Car {
                     self.intervals.last().as_ref().unwrap().end_speed,
                     them.end_speed,
                 ));
+                println!("second adjusted: {}", self.intervals.last().unwrap());
             }
         } else {
             // TODO This still causes impossible deaccel
