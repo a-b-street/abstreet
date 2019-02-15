@@ -412,13 +412,14 @@ impl<S: UIState> UI<S> {
         );
         objects.reverse();
 
+        let debug_areas = self.state.get_state().primary.current_flags.debug_areas;
         for obj in objects {
             // Don't mouseover parcels or areas.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
             // in intersection editor mode, for example.
             match obj.get_id() {
                 ID::Parcel(_) => {}
-                ID::Area(_) => {}
+                ID::Area(_) if !debug_areas => {}
                 // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                 ID::Road(_) => {}
                 _ => {
