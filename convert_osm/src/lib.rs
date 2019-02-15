@@ -36,8 +36,8 @@ pub struct Flags {
     #[structopt(long = "residential_buildings")]
     pub residential_buildings: String,
 
-    /// ExtraShapes file with parcels, produced using the kml crate
-    #[structopt(long = "parcels")]
+    /// ExtraShapes file with parcels, produced using the kml crate. Optional.
+    #[structopt(long = "parcels", default_value = "")]
     pub parcels: String,
 
     /// ExtraShapes file with blockface, produced using the kml crate
@@ -80,7 +80,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);
     use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
-    handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
+    if !flags.parcels.is_empty() {
+        handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
+    }
     handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
     map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
 

@@ -182,6 +182,9 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     if tags.get("leisure") == Some(&"park".to_string()) {
         return Some(AreaType::Park);
     }
+    if tags.get("leisure") == Some(&"golf_course".to_string()) {
+        return Some(AreaType::Park);
+    }
     if tags.get("natural") == Some(&"wood".to_string()) {
         return Some(AreaType::Park);
     }
