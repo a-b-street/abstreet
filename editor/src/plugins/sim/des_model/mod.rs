@@ -10,8 +10,7 @@ use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
 pub struct World {
     lane: LaneID,
-    leader: Car,
-    follower: Car,
+    cars: Vec<Car>,
 }
 
 impl World {
@@ -32,39 +31,42 @@ impl World {
         leader.stop_at_end_of_lane(lane, 0.5 * speed_limit);
         leader.wait(Duration::seconds(5.0));
 
-        let mut follower = Car {
-            id: CarID::tmp_new(1, VehicleType::Car),
-            state: CarState::Stuck,
-            car_length: Distance::meters(5.0),
-            max_accel: Acceleration::meters_per_second_squared(4.5),
-            max_deaccel: Acceleration::meters_per_second_squared(-2.0),
-            intervals: Vec::new(),
-            start_dist: Distance::meters(5.0),
-            start_time: Duration::seconds(4.0),
-        };
-        follower.stop_at_end_of_lane(lane, speed_limit);
-        follower.maybe_follow(&mut leader);
-        follower.stop_at_end_of_lane(lane, speed_limit);
-        follower.wait(Duration::seconds(5.0));
+        let mut cars = vec![leader];
+        let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
+        for i in 0..num_followers {
+            let mut follower = Car {
+                id: CarID::tmp_new(cars.len(), VehicleType::Car),
+                state: CarState::Stuck,
+                car_length: Distance::meters(5.0),
+                max_accel: Acceleration::meters_per_second_squared(4.5),
+                max_deaccel: Acceleration::meters_per_second_squared(-2.0),
+                intervals: Vec::new(),
+                start_dist: Distance::meters(5.0),
+                start_time: ((i + 1) as f64) * Duration::seconds(4.0),
+            };
+            follower.stop_at_end_of_lane(lane, speed_limit);
+            follower.maybe_follow(cars.last().unwrap());
+            follower.stop_at_end_of_lane(lane, speed_limit);
+            follower.wait(Duration::seconds(5.0));
+            cars.push(follower);
+        }
 
-        println!("Leader:\n");
-        leader.dump_intervals();
-        println!("\nFollower:\n");
-        follower.dump_intervals();
-        println!();
+        for c in &cars {
+            c.validate(lane);
+            println!("{}:\n", c.id);
+            c.dump_intervals();
+            println!();
+        }
 
-        leader.validate(lane);
-        follower.validate(lane);
         World {
-            leader,
-            follower,
             lane: l,
+            cars,
         }
     }
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
-        for car in &[&self.leader, &self.follower] {
+        for car in &self.cars {
             if let Some((d, _)) = car.dist_at(time) {
                 draw.push(car.get_draw_car(d, map.get_l(self.lane)));
             }
@@ -75,7 +77,7 @@ impl World {
     pub fn draw_tooltips(&self, g: &mut GfxCtx, ctx: &DrawCtx, time: Duration) {
         let lane = ctx.map.get_l(self.lane);
 
-        for car in &[&self.leader, &self.follower] {
+        for car in &self.cars {
             if let Some((d, idx)) = car.dist_at(time) {
                 g.draw_text_at(
                     Text::from_line(format!(

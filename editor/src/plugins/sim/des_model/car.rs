@@ -248,7 +248,7 @@ impl Car {
         }
     }
 
-    pub fn maybe_follow(&mut self, leader: &mut Car) {
+    pub fn maybe_follow(&mut self, leader: &Car) {
         let (hit_time, hit_dist, hit_speed, idx1, idx2) = match self.find_earliest_hit(leader) {
             Some(hit) => hit,
             None => {
