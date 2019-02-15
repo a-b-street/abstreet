@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS};
+use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID, LANE_THICKNESS};
@@ -47,10 +47,10 @@ impl Renderable for DrawRoad {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _ctx: &DrawCtx) {
-        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
-            g.redraw(&self.draw_center_line);
-        } else if let Some(color) = opts.color {
+        if let Some(color) = opts.color {
             g.draw_polygon(color, &self.polygon);
+        } else {
+            g.redraw(&self.draw_center_line);
         }
     }
 

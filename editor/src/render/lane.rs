@@ -1,9 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{
-    RenderOptions, Renderable, BIG_ARROW_THICKNESS, MIN_ZOOM_FOR_MARKINGS,
-    PARCEL_BOUNDARY_THICKNESS,
-};
+use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{
@@ -101,9 +98,7 @@ impl Renderable for DrawLane {
             g.redraw(&self.draw_default);
         }
 
-        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
-            g.redraw(&self.draw_markings);
-        }
+        g.redraw(&self.draw_markings);
 
         if opts.debug_mode {
             self.draw_debug(g, ctx);

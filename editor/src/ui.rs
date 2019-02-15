@@ -1,7 +1,5 @@
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::render::{
-    draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS,
-};
+use crate::render::{draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
 use crate::state::UIState;
 use abstutil;
 use ezgui::{
@@ -14,6 +12,8 @@ use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::process;
+
+const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
 pub struct UI<S: UIState> {
     state: S,
@@ -243,26 +243,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
         let state = self.state.get_state();
 
-        // TODO Not quite ready yet
-        if false {
-            g.clear(state.cs.get_def("true background", Color::BLACK));
-            g.redraw(&state.primary.draw_map.boundary_polygon);
-        } else {
-            g.clear(state.cs.get("map background"));
-        }
-
-        let mut cache = state.primary.draw_map.agents.borrow_mut();
-        let objects = self.get_renderables_back_to_front(
-            g.get_screen_bounds(),
-            if screencap {
-                None
-            } else {
-                Some(g.canvas.cam_zoom)
-            },
-            &g.prerender,
-            &mut cache,
-        );
-
         let ctx = DrawCtx {
             cs: &state.cs,
             map: &state.primary.map,
@@ -272,62 +252,73 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         };
         let mut sample_intersection: Option<String> = None;
 
-        let mut drawn_all_thick_roads = false;
-        let mut drawn_all_unzoomed_intersections = false;
-        let mut drawn_all_buildings = false;
-        let mut drawn_all_areas = false;
-        let mut drawn_all_parcels = false;
+        // TODO Not quite ready yet
+        if false {
+            g.clear(state.cs.get_def("true background", Color::BLACK));
+            g.redraw(&state.primary.draw_map.boundary_polygon);
+        } else {
+            g.clear(state.cs.get("map background"));
+        }
 
-        for obj in objects {
-            match obj.get_id() {
-                ID::Building(_) => {
-                    if !drawn_all_buildings {
-                        g.redraw(&state.primary.draw_map.draw_all_buildings);
-                        drawn_all_buildings = true;
-                    }
-                }
-                ID::Area(_) => {
-                    if !drawn_all_areas {
-                        g.redraw(&state.primary.draw_map.draw_all_areas);
-                        drawn_all_areas = true;
-                    }
-                }
-                ID::Parcel(_) => {
-                    if !drawn_all_parcels {
-                        g.redraw(&state.primary.draw_map.draw_all_parcels);
-                        drawn_all_parcels = true;
-                    }
-                }
-                ID::Road(_) => {
-                    if !drawn_all_thick_roads {
-                        if g.canvas.cam_zoom < MIN_ZOOM_FOR_MARKINGS {
-                            g.redraw(&state.primary.draw_map.draw_all_thick_roads);
-                        }
-                        drawn_all_thick_roads = true;
-                    }
-                }
-                ID::Intersection(_) => {
-                    if !drawn_all_unzoomed_intersections {
-                        if g.canvas.cam_zoom < MIN_ZOOM_FOR_MARKINGS {
-                            g.redraw(&state.primary.draw_map.draw_all_unzoomed_intersections);
-                        }
-                        drawn_all_unzoomed_intersections = true;
-                    }
-                }
-                _ => {}
-            };
-            let opts = RenderOptions {
-                color: state.color_obj(obj.get_id(), &ctx),
-                debug_mode: state.layers.debug_mode,
-                is_selected: state.primary.current_selection == Some(obj.get_id()),
-                // TODO If a ToggleableLayer is currently off, this won't affect it!
-                show_all_detail: screencap,
-            };
-            obj.draw(g, opts, &ctx);
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
+            // Unzoomed mode
+            if state.layers.show_areas {
+                g.redraw(&state.primary.draw_map.draw_all_areas);
+            }
+            if state.layers.show_parcels {
+                g.redraw(&state.primary.draw_map.draw_all_parcels);
+            }
+            if state.layers.show_lanes {
+                g.redraw(&state.primary.draw_map.draw_all_thick_roads);
+            }
+            if state.layers.show_intersections {
+                g.redraw(&state.primary.draw_map.draw_all_unzoomed_intersections);
+            }
+            if state.layers.show_buildings {
+                g.redraw(&state.primary.draw_map.draw_all_buildings);
+            }
+        } else {
+            let mut cache = state.primary.draw_map.agents.borrow_mut();
+            let objects =
+                self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
 
-            if screencap && sample_intersection.is_none() {
-                if let ID::Intersection(id) = obj.get_id() {
-                    sample_intersection = Some(format!("_i{}", id.0));
+            let mut drawn_all_buildings = false;
+            let mut drawn_all_areas = false;
+            let mut drawn_all_parcels = false;
+
+            for obj in objects {
+                match obj.get_id() {
+                    ID::Building(_) => {
+                        if !drawn_all_buildings {
+                            g.redraw(&state.primary.draw_map.draw_all_buildings);
+                            drawn_all_buildings = true;
+                        }
+                    }
+                    ID::Area(_) => {
+                        if !drawn_all_areas {
+                            g.redraw(&state.primary.draw_map.draw_all_areas);
+                            drawn_all_areas = true;
+                        }
+                    }
+                    ID::Parcel(_) => {
+                        if !drawn_all_parcels {
+                            g.redraw(&state.primary.draw_map.draw_all_parcels);
+                            drawn_all_parcels = true;
+                        }
+                    }
+                    _ => {}
+                };
+                let opts = RenderOptions {
+                    color: state.color_obj(obj.get_id(), &ctx),
+                    debug_mode: state.layers.debug_mode,
+                    is_selected: state.primary.current_selection == Some(obj.get_id()),
+                };
+                obj.draw(g, opts, &ctx);
+
+                if screencap && sample_intersection.is_none() {
+                    if let ID::Intersection(id) = obj.get_id() {
+                        sample_intersection = Some(format!("_i{}", id.0));
+                    }
                 }
             }
         }
@@ -406,12 +397,16 @@ impl<S: UIState> UI<S> {
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+        // Unzoomed mode
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            return None;
+        }
+
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
         let mut cache = self.state.get_state().primary.draw_map.agents.borrow_mut();
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
-            Some(ctx.canvas.cam_zoom),
             ctx.prerender,
             &mut cache,
         );
@@ -424,7 +419,8 @@ impl<S: UIState> UI<S> {
             match obj.get_id() {
                 ID::Parcel(_) => {}
                 ID::Area(_) => {}
-                ID::Road(_) if ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS => {}
+                // Thick roads are only shown when unzoomed, when we don't mouseover at all.
+                ID::Road(_) => {}
                 _ => {
                     if obj.contains_pt(pt, &self.state.get_state().primary.map) {
                         return Some(obj.get_id());
@@ -452,19 +448,12 @@ impl<S: UIState> UI<S> {
     fn get_renderables_back_to_front<'a>(
         &'a self,
         bounds: Bounds,
-        zoom: Option<f64>,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
     ) -> Vec<Box<&'a Renderable>> {
         let state = self.state.get_state();
         let map = &state.primary.map;
         let draw_map = &state.primary.draw_map;
-
-        let show_stuff_on_lanes = if let Some(z) = zoom {
-            z >= MIN_ZOOM_FOR_MARKINGS
-        } else {
-            true
-        };
 
         let mut parcels: Vec<Box<&Renderable>> = Vec::new();
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
@@ -485,15 +474,13 @@ impl<S: UIState> UI<S> {
                 ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
                 ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Lane(id) => {
-                    if show_stuff_on_lanes {
-                        lanes.push(Box::new(draw_map.get_l(id)));
-                        let lane = map.get_l(id);
-                        if !state.show_icons_for(lane.dst_i) {
-                            agents_on.push(Traversable::Lane(id));
-                        }
-                        for bs in &lane.bus_stops {
-                            bus_stops.push(Box::new(draw_map.get_bs(*bs)));
-                        }
+                    lanes.push(Box::new(draw_map.get_l(id)));
+                    let lane = map.get_l(id);
+                    if !state.show_icons_for(lane.dst_i) {
+                        agents_on.push(Traversable::Lane(id));
+                    }
+                    for bs in &lane.bus_stops {
+                        bus_stops.push(Box::new(draw_map.get_bs(*bs)));
                     }
                 }
                 ID::Road(id) => {
@@ -505,10 +492,7 @@ impl<S: UIState> UI<S> {
                         if state.show_icons_for(id) {
                             turn_icons.push(Box::new(draw_map.get_t(*t)));
                         } else {
-                            // For consistency, don't draw agents doing a turn when zoomed out
-                            if show_stuff_on_lanes {
-                                agents_on.push(Traversable::Turn(*t));
-                            }
+                            agents_on.push(Traversable::Turn(*t));
                         }
                     }
                 }

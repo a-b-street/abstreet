@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_MARKINGS};
+use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
@@ -86,7 +86,7 @@ impl Renderable for DrawIntersection {
         if let Some(color) = opts.color {
             // Don't draw the sidewalk corners
             g.draw_polygon(color, &self.polygon);
-        } else if g.canvas.cam_zoom >= MIN_ZOOM_FOR_MARKINGS || opts.show_all_detail {
+        } else {
             g.redraw(&self.draw_default);
 
             if self.intersection_type == IntersectionType::TrafficSignal {
