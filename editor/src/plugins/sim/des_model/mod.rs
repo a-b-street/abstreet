@@ -43,16 +43,13 @@ impl World {
             start_time: Duration::seconds(4.0),
         };
         follower.stop_at_end_of_lane(lane, speed_limit);
+        follower.maybe_follow(&mut leader);
+        follower.stop_at_end_of_lane(lane, speed_limit);
         follower.wait(Duration::seconds(5.0));
 
         println!("Leader:\n");
         leader.dump_intervals();
-        println!("\nOriginal follower:\n");
-        follower.dump_intervals();
-        println!();
-
-        follower.maybe_follow(&mut leader);
-        println!("\nAdjusted follower:\n");
+        println!("\nFollower:\n");
         follower.dump_intervals();
         println!();
 

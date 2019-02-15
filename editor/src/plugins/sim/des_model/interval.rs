@@ -130,9 +130,22 @@ impl Interval {
 
 impl fmt::Display for Interval {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let kind = if self.start_speed == Speed::ZERO && self.end_speed == Speed::ZERO {
+            "wait"
+        } else if self.start_speed == Speed::ZERO {
+            "accelerate from rest"
+        } else if self.end_speed == Speed::ZERO {
+            "decelerate to rest"
+        } else if self.start_speed == self.end_speed {
+            "freeflow"
+        } else {
+            "other"
+        };
+
         write!(
             f,
-            "{}->{} during {}->{} ({}->{})",
+            "[{}] {}->{} during {}->{} ({}->{})",
+            kind,
             self.start_dist,
             self.end_dist,
             self.start_time,
