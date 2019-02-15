@@ -2,6 +2,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::sim::des_model;
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{EventLoopMode, GfxCtx, Key};
+use geom::Distance;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Tick};
 
@@ -85,6 +86,17 @@ impl BlockingPlugin for SimpleModelController {
         }
         if ctx.input.modal_action("toggle tooltips") {
             self.show_tooltips = !self.show_tooltips;
+        }
+        if ctx
+            .input
+            .modal_action("exhaustively test instantiation everywhere")
+        {
+            for l in ctx.primary.map.all_lanes() {
+                if l.is_driving() && l.length() >= Distance::meters(15.0) {
+                    println!("Testing {}...", l.id);
+                    des_model::World::new(l.id, &ctx.primary.map);
+                }
+            }
         }
         true
     }

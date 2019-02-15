@@ -148,6 +148,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::Space, "toggle forwards play"),
                     (Key::M, "toggle backwards play"),
                     (Key::T, "toggle tooltips"),
+                    (Key::E, "exhaustively test instantiation everywhere"),
                 ],
             ),
             ModalMenu::new(

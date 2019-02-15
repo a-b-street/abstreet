@@ -72,11 +72,12 @@ impl Interval {
         (t - self.start_time) / (self.end_time - self.start_time)
     }
 
-    // TODO Also the speed at that time. Adjust all of them if they're slightly OOB.
-    pub fn intersection(&self, other: &Interval) -> Option<(Duration, Distance)> {
+    // Also returns the speed of self at the time of collision. Adjustments already made for slight
+    // OOBness.
+    pub fn intersection(&self, leader: &Interval) -> Option<(Duration, Distance, Speed)> {
         if !overlap(
             (self.start_time, self.end_time),
-            (other.start_time, other.end_time),
+            (leader.start_time, leader.end_time),
         ) {
             return None;
         }
@@ -84,8 +85,8 @@ impl Interval {
         if !overlap(
             (self.start_dist - EPSILON_DIST, self.end_dist + EPSILON_DIST),
             (
-                other.start_dist - EPSILON_DIST,
-                other.end_dist + EPSILON_DIST,
+                leader.start_dist - EPSILON_DIST,
+                leader.end_dist + EPSILON_DIST,
             ),
         ) {
             return None;
@@ -97,10 +98,10 @@ impl Interval {
         let a1 = self.start_time.inner_seconds();
         let a2 = self.end_time.inner_seconds();
 
-        let y1 = other.start_dist.inner_meters();
-        let y2 = other.end_dist.inner_meters();
-        let b1 = other.start_time.inner_seconds();
-        let b2 = other.end_time.inner_seconds();
+        let y1 = leader.start_dist.inner_meters();
+        let y2 = leader.end_dist.inner_meters();
+        let b1 = leader.start_time.inner_seconds();
+        let b2 = leader.end_time.inner_seconds();
 
         let numer = a1 * (b2 * (y1 - x2) + b1 * (x2 - y2)) + a2 * (b2 * (x1 - y1) + b1 * (y2 - x1));
         let denom = (a1 - a2) * (y1 - y2) + b2 * (x1 - x2) + b1 * (x2 - x1);
@@ -109,19 +110,21 @@ impl Interval {
         }
         let t = Duration::seconds(numer / denom);
 
-        if !self.covers(t) || !other.covers(t) {
+        if !self.covers(t) || !leader.covers(t) {
             return None;
         }
 
         let dist1 = self.dist(t);
-        let dist2 = other.dist(t);
+        let dist2 = leader.dist(t);
         if !dist1.epsilon_eq(dist2) {
             panic!(
                 "{:?} and {:?} intersect at {}, but got dist {} and {}",
-                self, other, t, dist1, dist2
+                self, leader, t, dist1, dist2
             );
         }
-        Some((t, dist1))
+
+        // Adjust solved collision distance a bit.
+        Some((t, dist1.min(leader.end_dist), self.speed(t)))
     }
 }
 

@@ -133,15 +133,15 @@ impl Car {
     }
 
     // Returns interval indices too.
-    fn find_earliest_hit(&self, other: &Car) -> Option<(Duration, Distance, usize, usize)> {
+    fn find_earliest_hit(&self, leader: &Car) -> Option<(Duration, Distance, Speed, usize, usize)> {
         // TODO Do we ever have to worry about having the same intervals? I think this should
         // always find the earliest hit.
         // TODO A good unit test... Make sure find_hit is symmetric
         for (idx1, i1) in self.intervals.iter().enumerate() {
-            for (idx2, i2) in other.intervals.iter().enumerate() {
+            for (idx2, i2) in leader.intervals.iter().enumerate() {
                 // TODO Should bake in FOLLOWING_DISTANCE and car length!
-                if let Some((time, dist)) = i1.intersection(i2) {
-                    return Some((time, dist, idx1, idx2));
+                if let Some((time, dist, speed)) = i1.intersection(i2) {
+                    return Some((time, dist, speed, idx1, idx2));
                 }
             }
         }
@@ -249,29 +249,16 @@ impl Car {
     }
 
     pub fn maybe_follow(&mut self, leader: &mut Car) {
-        let (hit_time, raw_hit_dist, idx1, idx2) = match self.find_earliest_hit(leader) {
+        let (hit_time, hit_dist, hit_speed, idx1, idx2) = match self.find_earliest_hit(leader) {
             Some(hit) => hit,
             None => {
                 return;
             }
         };
         println!(
-            "Collision at {}, {}. follower interval {}, leader interval {}",
-            hit_time, raw_hit_dist, idx1, idx2
+            "Collision at {}, {}, {}. follower interval {}, leader interval {}",
+            hit_time, hit_dist, hit_speed, idx1, idx2
         );
-        // TODO Make find_earliest_hit (and in fact intersection) do this adjustment.
-        let hit_dist = {
-            let them = &leader.intervals[idx2];
-            if raw_hit_dist > them.end_dist {
-                println!(
-                    "  Collision is slightly past the leader's end dist, by {}",
-                    raw_hit_dist - them.end_dist
-                );
-                them.end_dist
-            } else {
-                raw_hit_dist
-            }
-        };
 
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
@@ -281,7 +268,7 @@ impl Car {
         if true {
             {
                 let mut our_adjusted_last = self.intervals.pop().unwrap();
-                our_adjusted_last.end_speed = our_adjusted_last.speed(hit_time);
+                our_adjusted_last.end_speed = hit_speed;
                 our_adjusted_last.end_time = hit_time;
                 our_adjusted_last.end_dist = hit_dist - dist_behind;
                 self.intervals.push(our_adjusted_last);
