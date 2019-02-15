@@ -30,9 +30,6 @@ impl World {
             start_time: Duration::ZERO,
         };
         leader.stop_at_end_of_lane(lane, 0.5 * speed_limit);
-        /*leader.accel_from_rest_to_speed_limit(0.5 * speed_limit);
-        leader.freeflow(Duration::seconds(10.0));
-        leader.deaccel_to_rest();*/
         leader.wait(Duration::seconds(5.0));
 
         let mut follower = Car {
@@ -45,9 +42,8 @@ impl World {
             start_dist: Distance::meters(5.0),
             start_time: Duration::seconds(4.0),
         };
-        follower.accel_from_rest_to_speed_limit(speed_limit);
-        follower.freeflow(Duration::seconds(10.0));
-        follower.deaccel_to_rest();
+        follower.stop_at_end_of_lane(lane, speed_limit);
+        follower.wait(Duration::seconds(5.0));
 
         println!("Leader:\n");
         leader.dump_intervals();
@@ -55,13 +51,13 @@ impl World {
         follower.dump_intervals();
         println!();
 
-        follower.maybe_follow(&mut leader);
+        /*follower.maybe_follow(&mut leader);
         println!("\nAdjusted follower:\n");
         follower.dump_intervals();
-        println!();
+        println!();*/
 
-        leader.validate();
-        follower.validate();
+        leader.validate(lane);
+        follower.validate(lane);
         World {
             leader,
             follower,
