@@ -43,6 +43,7 @@ pub struct DrawMap {
     pub draw_all_unzoomed_intersections: Drawable,
     pub draw_all_buildings: Drawable,
     pub draw_all_areas: Drawable,
+    pub draw_all_parcels: Drawable,
 
     quadtree: QuadTree<ID>,
 }
@@ -129,13 +130,17 @@ impl DrawMap {
         let draw_all_buildings = prerender.upload(all_buildings);
 
         let mut parcels: Vec<DrawParcel> = Vec::new();
+        let mut all_parcels: Vec<(Color, Polygon)> = Vec::new();
         if flags.draw_parcels {
             timer.start_iter("make DrawParcels", map.all_parcels().len());
             for p in map.all_parcels() {
                 timer.next();
-                parcels.push(DrawParcel::new(p, cs, prerender));
+                let (draw, geom) = DrawParcel::new(p, cs);
+                parcels.push(draw);
+                all_parcels.extend(geom);
             }
         }
+        let draw_all_parcels = prerender.upload(all_parcels);
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
         if let Some(ref path) = flags.kml {
@@ -236,6 +241,7 @@ impl DrawMap {
             draw_all_unzoomed_intersections,
             draw_all_buildings,
             draw_all_areas,
+            draw_all_parcels,
 
             agents: RefCell::new(AgentCache {
                 tick: None,

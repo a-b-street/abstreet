@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx};
 use geom::{Bounds, PolyLine, Polygon, Pt2D};
 use map_model::{Map, Parcel, ParcelID};
 
@@ -28,29 +28,29 @@ pub struct DrawParcel {
     // TODO bit wasteful to keep both
     boundary_polygon: Polygon,
     pub fill_polygon: Polygon,
-
-    default_draw: Drawable,
 }
 
 impl DrawParcel {
-    pub fn new(p: &Parcel, cs: &ColorScheme, prerender: &Prerender) -> DrawParcel {
+    pub fn new(p: &Parcel, cs: &ColorScheme) -> (DrawParcel, Vec<(Color, Polygon)>) {
         let boundary_polygon =
             PolyLine::make_polygons_for_boundary(p.points.clone(), PARCEL_BOUNDARY_THICKNESS);
         let fill_polygon = Polygon::new(&p.points);
-        let default_draw = prerender.upload_borrowed(vec![
-            (COLORS[p.block % COLORS.len()], &fill_polygon),
+        let default_draw = vec![
+            (COLORS[p.block % COLORS.len()], fill_polygon.clone()),
             (
                 cs.get_def("parcel boundary", Color::grey(0.3)),
-                &boundary_polygon,
+                boundary_polygon.clone(),
             ),
-        ]);
+        ];
 
-        DrawParcel {
-            id: p.id,
-            boundary_polygon,
-            fill_polygon,
+        (
+            DrawParcel {
+                id: p.id,
+                boundary_polygon,
+                fill_polygon,
+            },
             default_draw,
-        }
+        )
     }
 }
 
@@ -65,8 +65,6 @@ impl Renderable for DrawParcel {
                 (color, &self.fill_polygon),
                 (ctx.cs.get("parcel boundary"), &self.boundary_polygon),
             ]);
-        } else {
-            g.redraw(&self.default_draw);
         }
     }
 

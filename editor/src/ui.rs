@@ -276,6 +276,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let mut drawn_all_unzoomed_intersections = false;
         let mut drawn_all_buildings = false;
         let mut drawn_all_areas = false;
+        let mut drawn_all_parcels = false;
 
         for obj in objects {
             match obj.get_id() {
@@ -289,6 +290,12 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     if !drawn_all_areas {
                         g.redraw(&state.primary.draw_map.draw_all_areas);
                         drawn_all_areas = true;
+                    }
+                }
+                ID::Parcel(_) => {
+                    if !drawn_all_parcels {
+                        g.redraw(&state.primary.draw_map.draw_all_parcels);
+                        drawn_all_parcels = true;
                     }
                 }
                 ID::Road(_) => {
