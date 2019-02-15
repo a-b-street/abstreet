@@ -7,8 +7,6 @@ use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
-    // TODO Return from new() and don't even store this.
-    bounds: Bounds,
 }
 
 impl DrawBuilding {
@@ -25,9 +23,6 @@ impl DrawBuilding {
             );
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
-
-        let mut bounds = bldg.polygon.get_bounds();
-        bounds.union(front_path.get_bounds());
 
         let default_draw = vec![
             (
@@ -47,13 +42,7 @@ impl DrawBuilding {
             (cs.get_def("building path", Color::grey(0.6)), front_path),
         ];
 
-        (
-            DrawBuilding {
-                id: bldg.id,
-                bounds,
-            },
-            default_draw,
-        )
+        (DrawBuilding { id: bldg.id }, default_draw)
     }
 }
 
@@ -68,8 +57,10 @@ impl Renderable for DrawBuilding {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.bounds.clone()
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        // This is only used for mouseover, not rendering, now that buildings are drawn in a single
+        // batch. So don't include the front path.
+        map.get_b(self.id).polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
