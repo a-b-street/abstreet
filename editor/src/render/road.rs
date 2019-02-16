@@ -16,20 +16,7 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> (DrawRoad, Polygon) {
-        // TODO Should be a less tedious way to do this
-        let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
-        let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
-        let total_width = width_right + width_left;
-        let thick = if width_right >= width_left {
-            r.center_pts
-                .shift_right((width_right - width_left) / 2.0)
-                .make_polygons(total_width)
-        } else {
-            r.center_pts
-                .shift_left((width_left - width_right) / 2.0)
-                .make_polygons(total_width)
-        };
-
+        let thick = DrawRoad::get_thick(r);
         (
             DrawRoad {
                 id: r.id,
@@ -42,6 +29,22 @@ impl DrawRoad {
             },
             thick,
         )
+    }
+
+    pub fn get_thick(r: &Road) -> Polygon {
+        // TODO Should be a less tedious way to do this
+        let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
+        let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
+        let total_width = width_right + width_left;
+        if width_right >= width_left {
+            r.center_pts
+                .shift_right((width_right - width_left) / 2.0)
+                .make_polygons(total_width)
+        } else {
+            r.center_pts
+                .shift_left((width_left - width_right) / 2.0)
+                .make_polygons(total_width)
+        }
     }
 }
 

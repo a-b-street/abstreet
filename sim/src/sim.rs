@@ -16,7 +16,9 @@ use abstutil;
 use abstutil::{Error, Profiler};
 use derivative::Derivative;
 use geom::{Distance, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Turn};
+use map_model::{
+    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
+};
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
@@ -473,6 +475,19 @@ impl Sim {
                     .get_draw_ped(id, map, self.time)
                     .unwrap()
                     .pos
+            }
+        }
+    }
+
+    // TODO argh this is so inefficient
+    pub fn location_for_agent(&self, id: AgentID, map: &Map) -> Traversable {
+        match id {
+            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().on,
+            AgentID::Pedestrian(id) => {
+                self.walking_state
+                    .get_draw_ped(id, map, self.time)
+                    .unwrap()
+                    .on
             }
         }
     }

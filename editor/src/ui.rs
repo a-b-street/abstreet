@@ -1,5 +1,7 @@
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::render::{draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable};
+use crate::render::{
+    draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
+};
 use crate::state::UIState;
 use abstutil;
 use ezgui::{
@@ -12,8 +14,6 @@ use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::process;
-
-const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
 pub struct UI<S: UIState> {
     state: S,

@@ -1,12 +1,15 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
+use crate::render::{DrawRoad, MIN_ZOOM_FOR_DETAIL};
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
+use map_model::{RoadID, Traversable};
 use sim::Tick;
+use std::collections::HashMap;
 
 pub enum ShowActivityState {
     Inactive,
-    Active(Tick, Heatmap),
+    Active(Tick, Heatmap, RoadHeatmap),
 }
 
 impl ShowActivityState {
@@ -20,11 +23,14 @@ impl AmbientPlugin for ShowActivityState {
         match self {
             ShowActivityState::Inactive => {
                 if ctx.input.action_chosen("show lanes with active traffic") {
-                    *self =
-                        ShowActivityState::Active(ctx.primary.sim.time, active_agent_heatmap(ctx));
+                    *self = ShowActivityState::Active(
+                        ctx.primary.sim.time,
+                        active_agent_heatmap(ctx),
+                        RoadHeatmap::new(ctx),
+                    );
                 }
             }
-            ShowActivityState::Active(time, ref old_heatmap) => {
+            ShowActivityState::Active(time, ref old_heatmap, _) => {
                 ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
                 if ctx.input.modal_action("quit") {
                     *self = ShowActivityState::Inactive;
@@ -32,16 +38,23 @@ impl AmbientPlugin for ShowActivityState {
                 }
                 let bounds = ctx.canvas.get_screen_bounds();
                 if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
-                    *self =
-                        ShowActivityState::Active(ctx.primary.sim.time, active_agent_heatmap(ctx));
+                    *self = ShowActivityState::Active(
+                        ctx.primary.sim.time,
+                        active_agent_heatmap(ctx),
+                        RoadHeatmap::new(ctx),
+                    );
                 }
             }
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
-        if let ShowActivityState::Active(_, ref heatmap) = self {
-            heatmap.draw(g);
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+        if let ShowActivityState::Active(_, ref heatmap, ref road_heatmap) = self {
+            if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                road_heatmap.draw(g, ctx);
+            } else {
+                heatmap.draw(g);
+            }
         }
     }
 }
@@ -117,4 +130,48 @@ fn active_agent_heatmap(ctx: &mut PluginCtx) -> Heatmap {
         h.add(*pt);
     }
     h
+}
+
+pub struct RoadHeatmap {
+    // TODO Use the Counter type? Roll my own simple one?
+    count_per_road: HashMap<RoadID, usize>,
+    max_count: usize,
+}
+
+impl RoadHeatmap {
+    fn new(ctx: &mut PluginCtx) -> RoadHeatmap {
+        let mut h = RoadHeatmap {
+            count_per_road: HashMap::new(),
+            max_count: 0,
+        };
+        let map = &ctx.primary.map;
+        for a in ctx.primary.sim.active_agents() {
+            let r = match ctx.primary.sim.location_for_agent(a, map) {
+                Traversable::Lane(l) => map.get_l(l).parent,
+                // Count the destination
+                Traversable::Turn(t) => map.get_l(t.dst).parent,
+            };
+            h.count_per_road.entry(r).or_insert(0);
+            let count = h.count_per_road[&r] + 1;
+            h.count_per_road.insert(r, count);
+            h.max_count = h.max_count.max(count);
+        }
+        h
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+        for (r, count) in &self.count_per_road {
+            let percent = (*count as f32) / (self.max_count as f32);
+            // TODO Map percent to hot/cold colors. For now, just bucket into 3 categories.
+            let color = if percent <= 0.3 {
+                Color::rgb(255, 255, 0)
+            } else if percent <= 0.6 {
+                Color::rgb(255, 128, 0)
+            } else {
+                Color::RED
+            };
+            // TODO Inefficient!
+            g.draw_polygon(color, &DrawRoad::get_thick(ctx.map.get_r(*r)));
+        }
+    }
 }

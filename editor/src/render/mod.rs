@@ -22,11 +22,14 @@ pub use crate::render::intersection::{calculate_corners, draw_signal_cycle, draw
 pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, DrawMap};
 pub use crate::render::pedestrian::DrawPedestrian;
+pub use crate::render::road::DrawRoad;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Pt2D};
 use map_model::Map;
 use sim::{DrawCarInput, VehicleType};
+
+pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
 const PARCEL_BOUNDARY_THICKNESS: Distance = Distance::const_meters(0.5);
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
