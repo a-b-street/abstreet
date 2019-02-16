@@ -4,7 +4,7 @@ use crate::{
     BorderSpawnOverTime, CarID, Event, OriginDestination, PedestrianID, Scenario, SeedParkedCars,
     Sim, SpawnOverTime, Tick,
 };
-use abstutil::WeightedUsizeChoice;
+use abstutil::{Timer, WeightedUsizeChoice};
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position,
     RoadID,
@@ -148,6 +148,7 @@ impl Sim {
         neighborhoods_roads: &BTreeSet<RoadID>,
         cars_per_building: &WeightedUsizeChoice,
         map: &Map,
+        timer: &mut Timer,
     ) {
         self.spawner.seed_parked_cars(
             cars_per_building,
@@ -156,6 +157,7 @@ impl Sim {
             &mut self.parking_state,
             &mut self.rng,
             map,
+            timer,
         );
     }
 

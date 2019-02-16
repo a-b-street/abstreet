@@ -1,4 +1,5 @@
 use crate::driving::DrivingGoal;
+use crate::kinematics;
 use crate::walking::SidewalkSpot;
 use crate::{CarID, Sim, Tick};
 use abstutil;
@@ -82,12 +83,15 @@ impl Scenario {
         );
 
         let mut bldgs_per_neighborhood: HashMap<String, Vec<BuildingID>> = HashMap::new();
+        let mut roads_per_neighborhood: HashMap<String, BTreeSet<RoadID>> = HashMap::new();
+        timer.start_iter(
+            "find matching buildings and roads per neighborhood",
+            neighborhoods.len(),
+        );
         for (name, neighborhood) in &neighborhoods {
+            timer.next();
             bldgs_per_neighborhood
                 .insert(name.to_string(), neighborhood.find_matching_buildings(map));
-        }
-        let mut roads_per_neighborhood: HashMap<String, BTreeSet<RoadID>> = HashMap::new();
-        for (name, neighborhood) in &neighborhoods {
             roads_per_neighborhood.insert(name.to_string(), neighborhood.find_matching_roads(map));
         }
 
@@ -101,6 +105,7 @@ impl Scenario {
                 &roads_per_neighborhood[&s.neighborhood],
                 &s.cars_per_building,
                 map,
+                &mut timer,
             );
         }
 
@@ -256,21 +261,29 @@ impl Scenario {
                 .get_i(s.start_from_border)
                 .get_outgoing_lanes(map, LaneType::Driving);
             if !starting_driving_lanes.is_empty() {
-                for _ in 0..s.num_cars {
-                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
-                    if let Some(goal) =
-                        s.goal
-                            .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
-                    {
-                        sim.spawner.start_trip_with_car_appearing(
-                            spawn_time,
-                            map,
-                            // TODO could pretty easily pick any lane here
-                            Position::new(starting_driving_lanes[0], Distance::ZERO),
-                            goal,
-                            &mut sim.trips_state,
-                            &mut sim.rng,
-                        );
+                let lane_len = map.get_l(starting_driving_lanes[0]).length();
+                if lane_len < kinematics::MAX_CAR_LENGTH {
+                    warn!(
+                        "Skipping {:?} because {} is only {}, too short to spawn cars",
+                        s, starting_driving_lanes[0], lane_len
+                    );
+                } else {
+                    for _ in 0..s.num_cars {
+                        let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                        if let Some(goal) =
+                            s.goal
+                                .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                        {
+                            sim.spawner.start_trip_with_car_appearing(
+                                spawn_time,
+                                map,
+                                // TODO could pretty easily pick any lane here
+                                Position::new(starting_driving_lanes[0], Distance::ZERO),
+                                goal,
+                                &mut sim.trips_state,
+                                &mut sim.rng,
+                            );
+                        }
                     }
                 }
             } else if s.num_cars > 0 {

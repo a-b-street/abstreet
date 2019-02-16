@@ -1,6 +1,6 @@
 use crate::driving::{CreateCar, DrivingGoal, DrivingSimState};
 use crate::intersections::IntersectionSimState;
-use crate::kinematics::{Vehicle, MAX_BIKE_LENGTH};
+use crate::kinematics::{Vehicle, BUS_LENGTH, MAX_BIKE_LENGTH};
 use crate::parking::ParkingSimState;
 use crate::router::Router;
 use crate::scheduler;
@@ -10,7 +10,7 @@ use crate::walking::{CreatePedestrian, SidewalkSpot};
 use crate::{
     AgentID, CarID, Event, ParkedCar, ParkingSpot, PedestrianID, Tick, TripID, VehicleType,
 };
-use abstutil::{fork_rng, WeightedUsizeChoice};
+use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
 use geom::Distance;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, LaneID, LaneType, Map, Path, PathRequest,
@@ -307,13 +307,22 @@ impl Spawner {
         for (next_stop_idx, start_dist_along, path) in
             transit_sim.get_route_starts(route.id, map).into_iter()
         {
-            let id = CarID(self.car_id_counter, VehicleType::Bus);
-            self.car_id_counter += 1;
-            let vehicle = Vehicle::generate_bus(id, rng);
             let start = Position::new(
                 path.current_step().as_traversable().as_lane(),
                 start_dist_along,
             );
+
+            if start_dist_along < BUS_LENGTH {
+                warn!(
+                    "Stop at {:?} is too short to spawn a bus there; giving up on one bus for {}",
+                    start, route.id
+                );
+                continue;
+            }
+
+            let id = CarID(self.car_id_counter, VehicleType::Bus);
+            self.car_id_counter += 1;
+            let vehicle = Vehicle::generate_bus(id, rng);
 
             // TODO Aww, we create an orphan trip if the bus can't spawn.
             let trip = trips.new_trip(now, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
@@ -381,6 +390,7 @@ impl Spawner {
         parking_sim: &mut ParkingSimState,
         base_rng: &mut XorShiftRng,
         map: &Map,
+        timer: &mut Timer,
     ) {
         // Track the available parking spots per road, only for the roads in the appropriate
         // neighborhood.
@@ -404,7 +414,9 @@ impl Spawner {
         }
 
         let mut new_cars = 0;
+        timer.start_iter("seed parked cars for buildings", owner_buildings.len());
         for b in owner_buildings {
+            timer.next();
             for _ in 0..cars_per_building.sample(base_rng) {
                 let mut forked_rng = fork_rng(base_rng);
                 if let Some(spot) =
@@ -466,7 +478,14 @@ impl Spawner {
             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
         }
         let vehicle = Vehicle::generate_car(car_id, base_rng);
-        assert!(map.get_l(from.lane()).length() > vehicle.length);
+        if map.get_l(from.lane()).length() < vehicle.length {
+            panic!(
+                "Can't spawn a car at {}; it's only {}, but vehicle length is {}",
+                from.lane(),
+                map.get_l(from.lane()).length(),
+                vehicle.length
+            );
+        }
         // Fix up the position if the start was requested.
         if from.dist_along() == Distance::ZERO {
             from = Position::new(from.lane(), vehicle.length);

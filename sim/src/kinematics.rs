@@ -11,9 +11,9 @@ const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
 pub const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
 // These two must be < PARKING_SPOT_LENGTH
 const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
-const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
+pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
 // Note this is more than MAX_CAR_LENGTH
-const BUS_LENGTH: Distance = Distance::const_meters(12.5);
+pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 
 // At all speeds (including at rest), cars must be at least this far apart, measured from front of
 // one car to the back of the other.
