@@ -12,4 +12,6 @@ data/neighborhoods/*
 data/raw_maps/*
 data/save/*
 data/scenarios/*
+data/screenshots/*/*.png
+data/screenshots/*/combine.sh
 data/shapes/*

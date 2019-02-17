@@ -233,13 +233,17 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             let bounds = self.state.get_state().primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
+                dir: format!(
+                    "../data/screenshots/pending_{}",
+                    self.state.get_state().primary.map.get_name()
+                ),
                 zoom: 3.0,
                 max_x: bounds.max_x,
                 max_y: bounds.max_y,
             };
         }
 
-        (hints.mode, hints)
+        (hints.mode.clone(), hints)
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}

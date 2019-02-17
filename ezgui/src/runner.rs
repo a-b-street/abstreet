@@ -39,11 +39,16 @@ pub trait GUI<T> {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum EventLoopMode {
     Animation,
     InputOnly,
-    ScreenCaptureEverything { zoom: f64, max_x: f64, max_y: f64 },
+    ScreenCaptureEverything {
+        dir: String,
+        zoom: f64,
+        max_x: f64,
+        max_y: f64,
+    },
 }
 
 pub(crate) struct State<T, G: GUI<T>> {
@@ -256,8 +261,15 @@ fn loop_forever<T, G: GUI<T>>(
             let (new_state, mode) = state.event(event, &prerender);
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
-            if let EventLoopMode::ScreenCaptureEverything { zoom, max_x, max_y } = mode {
+            if let EventLoopMode::ScreenCaptureEverything {
+                dir,
+                zoom,
+                max_x,
+                max_y,
+            } = mode
+            {
                 state = widgets::screenshot_everything(
+                    &dir,
                     state,
                     &prerender.display,
                     &program,
