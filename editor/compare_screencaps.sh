@@ -6,7 +6,7 @@ after=$2;
 rm -rf diff
 mkdir diff
 
-for file in `ls $before | grep -v full.png | grep -v combine.sh`; do
+for file in `ls $before | grep -v full.png | grep -v combine.sh | grep -v MANIFEST`; do
 	# For whatever reason, the intersection annotation doesn't seem to
 	# always match up between two captures.
 	prefix=`echo $file | sed 's/_.*//' | sed 's/.png//'`;

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# If converting one map fails, keep converting other maps.
-#set -e
+set -e
 
 release_mode=""
 for arg in "$@"; do

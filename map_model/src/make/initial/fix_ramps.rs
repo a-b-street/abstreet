@@ -82,6 +82,7 @@ fn fix_ramp(m: &mut InitialMap, ramp: StableRoadID, new_src: StableIntersectionI
 
     let last_normal_intersection = {
         let mut current_road = ramp;
+        let mut counter = 0;
         loop {
             let src_i = &m.intersections[&m.roads[&current_road].src_i];
             if let Some(other_road) = get_one_other(&src_i.roads, current_road) {
@@ -90,6 +91,12 @@ fn fix_ramp(m: &mut InitialMap, ramp: StableRoadID, new_src: StableIntersectionI
                 delete_roads.push(current_road);
             } else {
                 break src_i.id;
+            }
+
+            counter += 1;
+            if counter > 10 {
+                warn!("Couldn't find last normal intersection from ramp {}", ramp);
+                return false;
             }
         }
     };

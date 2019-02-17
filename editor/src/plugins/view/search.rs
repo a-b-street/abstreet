@@ -59,6 +59,7 @@ impl BlockingPlugin for SearchState {
         }
     }
 
+    // TODO This became useless for unzoomed roads!
     fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
         if let SearchState::FilterOSM(filter) = self {
             let osm_tags = match obj {
@@ -69,7 +70,7 @@ impl BlockingPlugin for SearchState {
                 }
             };
             for (k, v) in osm_tags {
-                if format!("{}={}", k, v).contains(filter) {
+                if format!("{} = {}", k, v).contains(filter) {
                     return Some(ctx.cs.get_def("search result", Color::RED));
                 }
             }
