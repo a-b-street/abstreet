@@ -14,43 +14,6 @@ pub struct Interval {
 }
 
 impl Interval {
-    pub fn new(
-        start_dist: Distance,
-        end_dist: Distance,
-        start_time: Duration,
-        end_time: Duration,
-        start_speed: Speed,
-        end_speed: Speed,
-    ) -> Interval {
-        if start_dist < Distance::ZERO {
-            panic!("Interval start_dist: {}", start_dist);
-        }
-        if start_time < Duration::ZERO {
-            panic!("Interval start_time: {}", start_time);
-        }
-        // TODO And the epsilons creep in...
-        if start_dist > end_dist + Distance::EPSILON {
-            panic!("Interval {} .. {}", start_dist, end_dist);
-        }
-        if start_time >= end_time {
-            panic!("Interval {} .. {}", start_time, end_time);
-        }
-        if start_speed < Speed::ZERO {
-            panic!("Interval start_speed: {}", start_speed);
-        }
-        if end_speed < Speed::ZERO {
-            panic!("Interval end_speed: {}", end_speed);
-        }
-        Interval {
-            start_dist,
-            end_dist,
-            start_time,
-            end_time,
-            start_speed,
-            end_speed,
-        }
-    }
-
     fn raw_accel(&self) -> f64 {
         (self.end_speed - self.start_speed).inner_meters_per_second()
             / (self.end_time - self.start_time).inner_seconds()
@@ -81,9 +44,8 @@ impl Interval {
         (t - self.start_time) / (self.end_time - self.start_time)
     }
 
-    // Also returns the speed of self at the time of collision. Adjustments already made for slight
-    // OOBness.
-    pub fn intersection(&self, leader: &Interval) -> Option<(Duration, Distance, Speed)> {
+    // Adjustments already made for slight OOBness.
+    pub fn intersection(&self, leader: &Interval) -> Option<(Duration, Distance)> {
         if !overlap(
             (self.start_time, self.end_time),
             (leader.start_time, leader.end_time),
@@ -147,7 +109,7 @@ impl Interval {
         }
 
         // Adjust solved collision distance a bit.
-        Some((t, dist1.min(leader.end_dist), self.speed(t)))
+        Some((t, dist1.min(leader.end_dist)))
     }
 
     pub fn fix_end_time(&mut self) {
@@ -168,6 +130,41 @@ impl Interval {
         self.end_time = t;
         if self.end_time <= self.start_time {
             panic!("After fixing end time, got {}", self);
+        }
+    }
+
+    pub fn validate(&self, lane_len: Distance) {
+        if self.start_dist < Distance::ZERO {
+            panic!("Weird interval {}", self);
+        }
+        if self.start_time < Duration::ZERO {
+            panic!("Weird interval {}", self);
+        }
+        // TODO And the epsilons creep in...
+        if self.start_dist > self.end_dist + Distance::EPSILON {
+            panic!("Weird interval {}", self);
+        }
+        if self.start_time >= self.end_time {
+            panic!("Weird interval {}", self);
+        }
+        if self.start_speed < Speed::ZERO {
+            panic!("Weird interval {}", self);
+        }
+        if self.end_speed < Speed::ZERO {
+            panic!("Weird interval {}", self);
+        }
+
+        let actual_end_dist = self.dist(self.end_time);
+        if !actual_end_dist.epsilon_eq(self.end_dist) {
+            panic!("{} actually ends at {}", self, actual_end_dist);
+        }
+
+        if self.end_dist > lane_len + EPSILON_DIST {
+            panic!(
+                "{} ends {} past the lane end",
+                self,
+                self.end_dist - lane_len
+            );
         }
     }
 }

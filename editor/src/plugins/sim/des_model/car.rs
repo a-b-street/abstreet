@@ -10,8 +10,7 @@ pub struct Car {
     // Hack used for different colors
     pub state: CarState,
     pub car_length: Distance,
-    // TODO All of this looks jerky because we're accelerating and decelerating as fast as
-    // possible!
+    // Note that if we always used these, things would look quite jerky.
     pub max_accel: Acceleration,
     pub max_deaccel: Acceleration,
 
@@ -61,36 +60,7 @@ impl Car {
                 );
             }
 
-            // Now that distance isn't linear, we actually never directly use end_dist -- so sanity
-            // check that the interval works at all!
-            let actual_end_dist = i.dist(i.end_time);
-            if !actual_end_dist.epsilon_eq(i.end_dist) {
-                panic!(
-                    "{} has an interval where they want to end at {}, but they really end at {}",
-                    self.id, i.end_dist, actual_end_dist
-                );
-            }
-
-            if i.end_dist > lane_len + EPSILON_DIST {
-                panic!(
-                    "{} ends {} past the lane end",
-                    self.id,
-                    i.end_dist - lane_len
-                );
-            }
-
-            if i.end_dist < i.start_dist {
-                panic!(
-                    "{} goes backwards from {} to {}",
-                    self.id, i.start_dist, i.end_dist
-                );
-            }
-            if i.end_time < i.start_time {
-                panic!(
-                    "{} goes backwards IN TIME from {} to {}",
-                    self.id, i.start_time, i.end_time
-                );
-            }
+            i.validate(lane_len);
         }
     }
 
@@ -156,7 +126,7 @@ impl Car {
     }
 
     // Returns interval indices too.
-    fn find_earliest_hit(&self, leader: &Car) -> Option<(Duration, Distance, Speed, usize, usize)> {
+    fn find_earliest_hit(&self, leader: &Car) -> Option<(Duration, Distance, usize, usize)> {
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         // TODO Do we ever have to worry about having the same intervals? I think this should
@@ -168,8 +138,8 @@ impl Car {
                 shifted_i2.start_dist -= dist_behind;
                 shifted_i2.end_dist -= dist_behind;
 
-                if let Some((time, dist, speed)) = i1.intersection(&shifted_i2) {
-                    return Some((time, dist, speed, idx1, idx2));
+                if let Some((time, dist)) = i1.intersection(&shifted_i2) {
+                    return Some((time, dist, idx1, idx2));
                 }
             }
         }
@@ -209,14 +179,14 @@ impl Car {
 impl Car {
     fn next_state(&mut self, dist_covered: Distance, final_speed: Speed, time_needed: Duration) {
         let (dist1, speed1, time1) = self.last_state();
-        self.intervals.push(Interval::new(
-            dist1,
-            dist1 + dist_covered,
-            time1,
-            time1 + time_needed,
-            speed1,
-            final_speed,
-        ));
+        self.intervals.push(Interval {
+            start_dist: dist1,
+            end_dist: dist1 + dist_covered,
+            start_time: time1,
+            end_time: time1 + time_needed,
+            start_speed: speed1,
+            end_speed: final_speed,
+        });
     }
 
     pub fn accel_from_rest_to_speed_limit(&mut self, speed: Speed) {
@@ -257,19 +227,11 @@ impl Car {
         }
 
         let needed_speed = self.find_speed_to_accel_then_asap_deaccel(dist_to_cover);
-        /*println!(
-            "{} would need to do {} to accel then deaccel and cover lane",
-            self.id, needed_speed
-        );*/
         if needed_speed <= speed_limit {
             // Alright, do that then
             self.accel_from_rest_to_speed_limit(needed_speed);
             self.deaccel_to_rest();
         } else {
-            /*println!(
-                "  But speed limit is {}, so accel->freeflow->deaccel",
-                speed_limit
-            );*/
             self.accel_from_rest_to_speed_limit(speed_limit);
             let stopping_dist = self.whatif_stop_from_speed(speed_limit).dist;
             self.freeflow_to_cross(
@@ -280,15 +242,15 @@ impl Car {
     }
 
     pub fn maybe_follow(&mut self, leader: &Car) {
-        let (hit_time, hit_dist, hit_speed, idx1, idx2) = match self.find_earliest_hit(leader) {
+        let (hit_time, hit_dist, idx1, idx2) = match self.find_earliest_hit(leader) {
             Some(hit) => hit,
             None => {
                 return;
             }
         };
         println!(
-            "Collision at {}, {}, {}. follower interval {}, leader interval {}",
-            hit_time, hit_dist, hit_speed, idx1, idx2
+            "Collision at {}, {}. follower interval {}, leader interval {}",
+            hit_time, hit_dist, idx1, idx2
         );
 
         self.intervals.split_off(idx1 + 1);
@@ -298,7 +260,6 @@ impl Car {
         {
             let them = &leader.intervals[idx2];
             let mut fix1 = self.intervals.pop().unwrap();
-            // TODO hit speed is useless, we dont care about OUR speed at that time
             fix1.end_speed = them.speed(hit_time);
             fix1.end_dist = hit_dist;
             fix1.fix_end_time();
@@ -311,7 +272,7 @@ impl Car {
             fix2.fix_end_time();
 
             println!("adjusted interval 1: {}", fix1);
-            println!("adjusted interval 2: {}", fix2);
+            println!("adjusted interval 2: {}\n", fix2);
             self.intervals.push(fix1);
             self.intervals.push(fix2);
         }
