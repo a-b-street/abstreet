@@ -3,7 +3,7 @@ use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{Lane, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
-const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
+pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 pub struct Car {
     pub id: CarID,
@@ -258,7 +258,7 @@ impl Car {
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         {
-            println!("leader intervals:");
+            println!("Leader {} intervals:", leader.id);
             leader.dump_intervals();
             println!();
 

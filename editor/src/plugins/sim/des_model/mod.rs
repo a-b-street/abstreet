@@ -64,9 +64,16 @@ impl World {
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
+        let mut max_dist: Option<Distance> = None;
         for car in &self.cars {
             if let Some((d, _)) = car.dist_at(time) {
+                if let Some(max) = max_dist {
+                    if d > max {
+                        println!("{} is too close to their leader at {}", car.id, time);
+                    }
+                }
                 draw.push(car.get_draw_car(d, map.get_l(self.lane)));
+                max_dist = Some(d - car.car_length - car::FOLLOWING_DISTANCE);
             }
         }
         draw
