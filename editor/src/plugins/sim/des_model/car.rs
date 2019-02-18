@@ -80,6 +80,7 @@ impl Car {
         }
     }
 
+    #[allow(dead_code)]
     pub fn dump_intervals(&self) {
         for i in &self.intervals {
             println!("- {}", i);
@@ -221,11 +222,13 @@ impl Car {
 
 // Higher-level actions
 impl Car {
-    pub fn stop_at_end_of_lane(&mut self, lane: &Lane, speed_limit: Speed) {
-        let dist_to_cover = lane.length() - self.last_state().0;
+    pub fn start_then_stop(&mut self, want_end_dist: Distance, speed_limit: Speed) {
+        let dist_to_cover = want_end_dist - self.last_state().0;
         if dist_to_cover <= EPSILON_DIST {
             return;
         }
+        assert!(speed_limit > Speed::ZERO);
+        assert_eq!(self.last_state().1, Speed::ZERO);
 
         let needed_speed = self.find_speed_to_accel_then_asap_deaccel(dist_to_cover);
         if needed_speed <= speed_limit {
@@ -236,7 +239,7 @@ impl Car {
             self.accel_from_rest_to_speed_limit(speed_limit);
             let stopping_dist = self.whatif_stop_from_speed(speed_limit).dist;
             self.freeflow_to_cross(
-                lane.length() - self.intervals.last().as_ref().unwrap().end_dist - stopping_dist,
+                want_end_dist - self.intervals.last().as_ref().unwrap().end_dist - stopping_dist,
             );
             self.deaccel_to_rest();
         }
@@ -249,45 +252,60 @@ impl Car {
                 return;
             }
         };
-        println!(
+        /*println!(
             "Collision at {}, {}. follower interval {}, leader interval {}",
             hit_time, hit_dist, idx1, idx2
-        );
+        );*/
 
         self.intervals.split_off(idx1 + 1);
 
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         {
-            println!("Leader {} intervals:", leader.id);
+            /*println!("Leader {} intervals:", leader.id);
             leader.dump_intervals();
-            println!();
+            println!();*/
 
             let them = &leader.intervals[idx2];
-            let mut fix1 = self.intervals.pop().unwrap();
-            // TODO Why's this happening exactly?
-            if hit_dist == them.end_dist - dist_behind {
-                fix1.end_speed = them.end_speed;
-            } else {
-                fix1.end_speed = them.speed(hit_time);
-            }
-            fix1.end_dist = hit_dist;
-            fix1.fix_end_time();
-            println!("adjusted interval 1: {}", fix1);
-            self.intervals.push(fix1.clone());
+            {
+                let mut fix1 = self.intervals.pop().unwrap();
+                // TODO Kinda hack...
+                let orig_speed_limit = fix1.start_speed.max(fix1.end_speed);
 
-            let mut fix2 = them.clone();
-            fix2.start_speed = fix1.end_speed;
-            fix2.start_dist = fix1.end_dist;
-            fix2.start_time = fix1.end_time;
-            fix2.end_dist -= dist_behind;
-            // Don't touch end_time otherwise.
-            if !fix2.is_wait() {
-                fix2.fix_end_time();
+                // TODO Why's this happening exactly?
+                if hit_dist == them.end_dist - dist_behind {
+                    fix1.end_speed = them.end_speed;
+                } else {
+                    fix1.end_speed = them.speed(hit_time);
+                }
+                fix1.end_dist = hit_dist;
+
+                // Here's an interesting case...
+                if fix1.start_speed == Speed::ZERO
+                    && fix1.end_speed == Speed::ZERO
+                    && fix1.start_dist != fix1.end_dist
+                {
+                    self.start_then_stop(fix1.end_dist, orig_speed_limit);
+                } else {
+                    fix1.fix_end_time();
+                    self.intervals.push(fix1);
+                }
             }
-            if fix2.end_time > fix2.start_time {
-                println!("adjusted interval 2: {}\n", fix2);
-                self.intervals.push(fix2);
+
+            {
+                let mut fix2 = them.clone();
+                let last = self.intervals.last().unwrap();
+                fix2.start_speed = last.end_speed;
+                fix2.start_dist = last.end_dist;
+                fix2.start_time = last.end_time;
+                fix2.end_dist -= dist_behind;
+                // Don't touch end_time otherwise.
+                if !fix2.is_wait() {
+                    fix2.fix_end_time();
+                }
+                if fix2.end_time > fix2.start_time {
+                    self.intervals.push(fix2);
+                }
             }
         }
 

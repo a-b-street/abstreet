@@ -4,7 +4,7 @@ mod interval;
 use crate::objects::DrawCtx;
 use crate::plugins::sim::des_model::car::Car;
 use ezgui::{GfxCtx, Text};
-use geom::{Acceleration, Distance, Duration};
+use geom::{Acceleration, Distance, Duration, EPSILON_DIST};
 use map_model::{LaneID, Map};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
@@ -28,12 +28,11 @@ impl World {
             start_dist: Distance::meters(5.0),
             start_time: Duration::ZERO,
         };
-        leader.stop_at_end_of_lane(lane, 0.5 * speed_limit);
+        leader.start_then_stop(lane.length(), 0.5 * speed_limit);
         leader.wait(Duration::seconds(5.0));
 
         let mut cars = vec![leader];
         let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
-        //let num_followers = 4;
         for i in 0..num_followers {
             let mut follower = Car {
                 id: CarID::tmp_new(cars.len(), VehicleType::Car),
@@ -45,19 +44,19 @@ impl World {
                 start_dist: Distance::meters(5.0),
                 start_time: ((i + 1) as f64) * Duration::seconds(4.0),
             };
-            follower.stop_at_end_of_lane(lane, speed_limit);
+            follower.start_then_stop(lane.length(), speed_limit);
             follower.maybe_follow(cars.last().unwrap());
-            follower.stop_at_end_of_lane(lane, speed_limit);
+            follower.start_then_stop(lane.length(), speed_limit);
             follower.wait(Duration::seconds(5.0));
             cars.push(follower);
         }
 
         for c in &cars {
-            println!("{}:\n", c.id);
+            /*println!("{}:\n", c.id);
             c.dump_intervals();
-            println!();
+            println!();*/
             c.validate(lane);
-            println!();
+            //println!();
         }
 
         World { lane: l, cars }
@@ -69,7 +68,7 @@ impl World {
         for (car_idx, follower) in self.cars.iter().enumerate() {
             if let Some((d, follower_idx)) = follower.dist_at(time) {
                 if let Some(max) = max_dist {
-                    if d > max {
+                    if d > max + EPSILON_DIST {
                         let leader = &self.cars[car_idx - 1];
                         let leader_idx = leader.dist_at(time).unwrap().1;
                         println!("{} is too close to {} at {}", follower.id, leader.id, time);
