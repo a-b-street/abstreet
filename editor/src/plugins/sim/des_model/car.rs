@@ -288,7 +288,7 @@ impl Car {
         self.intervals.split_off(idx1 + 1);
 
         // Option 1: Might be too sharp.
-        if true {
+        if false {
             {
                 let mut our_adjusted_last = self.intervals.pop().unwrap();
 
@@ -326,8 +326,16 @@ impl Car {
             let them = &leader.intervals[idx2];
             let mut our_adjusted_last = self.intervals.pop().unwrap();
             our_adjusted_last.end_speed = them.end_speed;
-            our_adjusted_last.end_time = them.end_time;
             our_adjusted_last.end_dist = them.end_dist - dist_behind;
+            our_adjusted_last.end_time = them.end_time;
+            /*our_adjusted_last.end_time = find_end_time_for_interval(
+                our_adjusted_last.start_dist,
+                our_adjusted_last.end_dist,
+                our_adjusted_last.start_speed,
+                our_adjusted_last.end_speed,
+                our_adjusted_last.start_time,
+            );*/
+            println!("adjusted interval: {}", our_adjusted_last);
             self.intervals.push(our_adjusted_last);
         }
 
@@ -343,4 +351,25 @@ impl Car {
             ));
         }
     }
+}
+
+fn find_end_time_for_interval(
+    initial_dist: Distance,
+    final_dist: Distance,
+    initial_speed: Speed,
+    final_speed: Speed,
+    initial_time: Duration,
+) -> Duration {
+    let g = final_dist.inner_meters();
+    let d = initial_dist.inner_meters();
+    let v = initial_speed.inner_meters_per_second();
+    let f = final_speed.inner_meters_per_second();
+    let s = initial_time.inner_seconds();
+
+    let numer = -2.0 * d + s * (f + v) + 2.0 * g;
+    let denom = f + v;
+    let t = Duration::seconds(numer / denom);
+
+    assert!(t > initial_time);
+    t
 }

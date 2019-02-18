@@ -57,17 +57,12 @@ impl Interval {
     }
 
     pub fn dist(&self, t: Duration) -> Distance {
-        if true {
-            // Linearly interpolate
-            self.start_dist + self.percent(t) * (self.end_dist - self.start_dist)
-        } else {
-            let relative_t = (t - self.start_time).inner_seconds();
+        let relative_t = (t - self.start_time).inner_seconds();
 
-            let d = self.start_dist.inner_meters()
-                + self.start_speed.inner_meters_per_second() * relative_t
-                + 0.5 * self.raw_accel() * relative_t.powi(2);
-            Distance::meters(d)
-        }
+        let d = self.start_dist.inner_meters()
+            + self.start_speed.inner_meters_per_second() * relative_t
+            + 0.5 * self.raw_accel() * relative_t.powi(2);
+        Distance::meters(d)
     }
 
     pub fn speed(&self, t: Duration) -> Speed {
@@ -107,25 +102,7 @@ impl Interval {
         }
 
         // Set the two distance equations equal and solve for time. Long to type out here...
-        let t = if true {
-            let x1 = self.start_dist.inner_meters();
-            let x2 = self.end_dist.inner_meters();
-            let a1 = self.start_time.inner_seconds();
-            let a2 = self.end_time.inner_seconds();
-
-            let y1 = leader.start_dist.inner_meters();
-            let y2 = leader.end_dist.inner_meters();
-            let b1 = leader.start_time.inner_seconds();
-            let b2 = leader.end_time.inner_seconds();
-
-            let numer =
-                a1 * (b2 * (y1 - x2) + b1 * (x2 - y2)) + a2 * (b2 * (x1 - y1) + b1 * (y2 - x1));
-            let denom = (a1 - a2) * (y1 - y2) + b2 * (x1 - x2) + b1 * (x2 - x1);
-            if denom == 0.0 {
-                return None;
-            }
-            Duration::seconds(numer / denom)
-        } else {
+        let t = {
             let x_1 = self.start_dist.inner_meters();
             let v_1 = self.start_speed.inner_meters_per_second();
             let t_1 = self.start_time.inner_seconds();
