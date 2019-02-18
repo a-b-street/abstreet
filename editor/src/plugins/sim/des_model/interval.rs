@@ -82,6 +82,14 @@ impl Interval {
             let numer = t_1 * v_1 - t_3 * v_3 - x_1 + x_3;
             let denom = v_1 - v_3;
             Duration::seconds(numer / denom)
+        } else if a_1 == a_3 {
+            // Sometimes exactly the same acceleration happens.
+            let numer = a_3 * t_1.powi(2) - a_3 * t_3.powi(2) - 2.0 * t_1 * v_1
+                + 2.0 * t_3 * v_3
+                + 2.0 * x_1
+                - 2.0 * x_3;
+            let denom = 2.0 * (a_3 * t_1 - a_3 * t_3 - v_1 + v_3);
+            Duration::seconds(numer / denom)
         } else {
             // x_1 + v_1 * (q - t_1) + 0.5(a_1)(q - t_1)^2 = x_3 + v_3 * (q - t_3) + 0.5(a_3)(q -
             // t_3)^2
@@ -99,6 +107,7 @@ impl Interval {
                 + v_1
                 - v_3)
                 / (a_3 - a_1);
+            // TODO Can get rid of this one now?
             if !q.is_finite() {
                 return None;
             }
@@ -124,7 +133,9 @@ impl Interval {
 
     pub fn is_wait(&self) -> bool {
         if self.start_speed == Speed::ZERO && self.end_speed == Speed::ZERO {
-            assert!(self.start_dist.epsilon_eq(self.end_dist));
+            if !self.start_dist.epsilon_eq(self.end_dist) {
+                panic!("{} has 0 speed, but covers some distance", self);
+            }
             true
         } else {
             false
@@ -183,6 +194,37 @@ impl Interval {
                 self.end_dist - lane_len
             );
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn make(
+        start_dist: f64,
+        end_dist: f64,
+        start_time: f64,
+        end_time: f64,
+        start_speed: f64,
+        end_speed: f64,
+    ) -> Interval {
+        Interval {
+            start_dist: Distance::meters(start_dist),
+            end_dist: Distance::meters(end_dist),
+            start_time: Duration::seconds(start_time),
+            end_time: Duration::seconds(end_time),
+            start_speed: Speed::meters_per_second(start_speed),
+            end_speed: Speed::meters_per_second(end_speed),
+        }
+    }
+
+    pub fn repr(&self) -> String {
+        format!(
+            "Interval::make({}, {}, {}, {}, {}, {})",
+            self.start_dist.inner_meters(),
+            self.end_dist.inner_meters(),
+            self.start_time.inner_seconds(),
+            self.end_time.inner_seconds(),
+            self.start_speed.inner_meters_per_second(),
+            self.end_speed.inner_meters_per_second(),
+        )
     }
 }
 

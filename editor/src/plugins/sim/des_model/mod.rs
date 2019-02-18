@@ -9,7 +9,7 @@ use map_model::{LaneID, Map};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
 pub struct World {
-    lane: LaneID,
+    pub lane: LaneID,
     cars: Vec<Car>,
 }
 
@@ -32,8 +32,8 @@ impl World {
         leader.wait(Duration::seconds(5.0));
 
         let mut cars = vec![leader];
-        //let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
-        let num_followers = 1;
+        let num_followers = (lane.length() / Distance::meters(10.0)).floor() as usize;
+        //let num_followers = 4;
         for i in 0..num_followers {
             let mut follower = Car {
                 id: CarID::tmp_new(cars.len(), VehicleType::Car),
@@ -66,15 +66,24 @@ impl World {
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
         let mut max_dist: Option<Distance> = None;
-        for car in &self.cars {
-            if let Some((d, _)) = car.dist_at(time) {
+        for (car_idx, follower) in self.cars.iter().enumerate() {
+            if let Some((d, follower_idx)) = follower.dist_at(time) {
                 if let Some(max) = max_dist {
                     if d > max {
-                        println!("{} is too close to their leader at {}", car.id, time);
+                        let leader = &self.cars[car_idx - 1];
+                        let leader_idx = leader.dist_at(time).unwrap().1;
+                        println!("{} is too close to {} at {}", follower.id, leader.id, time);
+                        println!("leader doing: {}", leader.intervals[leader_idx]);
+                        println!("follower doing: {}", follower.intervals[follower_idx]);
+                        println!(
+                            "to repro:\n\n{}.intersection(&{})\n\n",
+                            follower.intervals[follower_idx].repr(),
+                            leader.intervals[leader_idx].repr()
+                        );
                     }
                 }
-                draw.push(car.get_draw_car(d, map.get_l(self.lane)));
-                max_dist = Some(d - car.car_length - car::FOLLOWING_DISTANCE);
+                draw.push(follower.get_draw_car(d, map.get_l(self.lane)));
+                max_dist = Some(d - follower.car_length - car::FOLLOWING_DISTANCE);
             }
         }
         draw

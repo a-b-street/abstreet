@@ -41,7 +41,7 @@ impl Car {
 
         for pair in self.intervals.windows(2) {
             assert_eq!(pair[0].end_time, pair[1].start_time);
-            assert_eq!(pair[0].end_dist, pair[1].start_dist);
+            assert!(pair[0].end_dist.epsilon_eq(pair[1].start_dist));
             assert_eq!(pair[0].end_speed, pair[1].start_speed);
         }
 
@@ -179,6 +179,7 @@ impl Car {
 impl Car {
     fn next_state(&mut self, dist_covered: Distance, final_speed: Speed, time_needed: Duration) {
         let (dist1, speed1, time1) = self.last_state();
+        assert!(time_needed > Duration::ZERO);
         self.intervals.push(Interval {
             start_dist: dist1,
             end_dist: dist1 + dist_covered,
@@ -304,7 +305,9 @@ impl Car {
             if !interval.is_wait() {
                 interval.fix_end_time();
             }
-            self.intervals.push(interval);
+            if interval.end_time > interval.start_time {
+                self.intervals.push(interval);
+            }
         }
     }
 }

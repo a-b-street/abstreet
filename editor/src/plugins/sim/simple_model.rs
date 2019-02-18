@@ -126,6 +126,10 @@ impl GetDrawAgents for SimpleModelController {
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+        if on != Traversable::Lane(self.world.lane) {
+            return Vec::new();
+        }
+
         self.get_cars(map)
             .into_iter()
             .filter(|x| x.on == on)
