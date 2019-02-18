@@ -112,10 +112,17 @@ impl Interval {
         Some((t, dist1.min(leader.end_dist)))
     }
 
-    pub fn fix_end_time(&mut self) {
+    pub fn is_wait(&self) -> bool {
         if self.start_speed == Speed::ZERO && self.end_speed == Speed::ZERO {
-            return;
+            assert!(self.start_dist.epsilon_eq(self.end_dist));
+            true
+        } else {
+            false
         }
+    }
+
+    pub fn fix_end_time(&mut self) {
+        assert!(!self.is_wait());
 
         let g = self.end_dist.inner_meters();
         let d = self.start_dist.inner_meters();

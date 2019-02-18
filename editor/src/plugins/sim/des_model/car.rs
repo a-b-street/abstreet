@@ -258,26 +258,40 @@ impl Car {
         let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         {
+            println!("leader intervals:");
+            leader.dump_intervals();
+            println!();
+
             let them = &leader.intervals[idx2];
             let mut fix1 = self.intervals.pop().unwrap();
-            fix1.end_speed = them.speed(hit_time);
+            // TODO Why's this happening exactly?
+            if hit_dist == them.end_dist - dist_behind {
+                fix1.end_speed = them.end_speed;
+            } else {
+                fix1.end_speed = them.speed(hit_time);
+            }
             fix1.end_dist = hit_dist;
             fix1.fix_end_time();
+            println!("adjusted interval 1: {}", fix1);
+            self.intervals.push(fix1.clone());
 
-            let mut fix2 = leader.intervals[idx2].clone();
+            let mut fix2 = them.clone();
             fix2.start_speed = fix1.end_speed;
             fix2.start_dist = fix1.end_dist;
             fix2.start_time = fix1.end_time;
             fix2.end_dist -= dist_behind;
-            fix2.fix_end_time();
-
-            println!("adjusted interval 1: {}", fix1);
-            println!("adjusted interval 2: {}\n", fix2);
-            self.intervals.push(fix1);
-            self.intervals.push(fix2);
+            // Don't touch end_time otherwise.
+            if !fix2.is_wait() {
+                fix2.fix_end_time();
+            }
+            if fix2.end_time > fix2.start_time {
+                println!("adjusted interval 2: {}\n", fix2);
+                self.intervals.push(fix2);
+            }
         }
 
-        // TODO What if we can't manage the same accel/deaccel/speeds?
+        // TODO What if we can't manage the same accel/deaccel/speeds? Need to change the previous
+        // interval to meet the constraint earlier...
         for i in &leader.intervals[idx2 + 1..] {
             let mut interval = Interval {
                 start_dist: i.start_dist - dist_behind,
@@ -287,7 +301,9 @@ impl Car {
                 start_speed: i.start_speed,
                 end_speed: i.end_speed,
             };
-            interval.fix_end_time();
+            if !interval.is_wait() {
+                interval.fix_end_time();
+            }
             self.intervals.push(interval);
         }
     }
