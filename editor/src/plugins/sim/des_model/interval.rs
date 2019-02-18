@@ -149,6 +149,25 @@ impl Interval {
         // Adjust solved collision distance a bit.
         Some((t, dist1.min(leader.end_dist), self.speed(t)))
     }
+
+    pub fn fix_end_time(&mut self) {
+        if self.start_speed == Speed::ZERO && self.end_speed == Speed::ZERO {
+            return;
+        }
+
+        let g = self.end_dist.inner_meters();
+        let d = self.start_dist.inner_meters();
+        let v = self.start_speed.inner_meters_per_second();
+        let f = self.end_speed.inner_meters_per_second();
+        let s = self.start_time.inner_seconds();
+
+        let numer = -2.0 * d + s * (f + v) + 2.0 * g;
+        let denom = f + v;
+        let t = Duration::seconds(numer / denom);
+
+        assert!(t > self.start_time);
+        self.end_time = t;
+    }
 }
 
 impl fmt::Display for Interval {

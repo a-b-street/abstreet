@@ -1,5 +1,5 @@
 use crate::plugins::sim::des_model::interval::{Delta, Interval};
-use geom::{Acceleration, Distance, Duration, Speed};
+use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{Lane, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
@@ -65,14 +65,14 @@ impl Car {
             // check that the interval works at all!
             let actual_end_dist = i.dist(i.end_time);
             if !actual_end_dist.epsilon_eq(i.end_dist) {
-                println!(
+                panic!(
                     "{} has an interval where they want to end at {}, but they really end at {}",
                     self.id, i.end_dist, actual_end_dist
                 );
             }
 
-            if i.end_dist > lane_len {
-                println!(
+            if i.end_dist > lane_len + EPSILON_DIST {
+                panic!(
                     "{} ends {} past the lane end",
                     self.id,
                     i.end_dist - lane_len
@@ -80,13 +80,13 @@ impl Car {
             }
 
             if i.end_dist < i.start_dist {
-                println!(
+                panic!(
                     "{} goes backwards from {} to {}",
                     self.id, i.start_dist, i.end_dist
                 );
             }
             if i.end_time < i.start_time {
-                println!(
+                panic!(
                     "{} goes backwards IN TIME from {} to {}",
                     self.id, i.start_time, i.end_time
                 );
@@ -247,6 +247,9 @@ impl Car {
 impl Car {
     pub fn stop_at_end_of_lane(&mut self, lane: &Lane, speed_limit: Speed) {
         let dist_to_cover = lane.length() - self.last_state().0;
+        if dist_to_cover <= EPSILON_DIST {
+            return;
+        }
 
         let needed_speed = self.find_speed_to_accel_then_asap_deaccel(dist_to_cover);
         /*println!(
@@ -287,89 +290,28 @@ impl Car {
 
         self.intervals.split_off(idx1 + 1);
 
-        // Option 1: Might be too sharp.
-        if false {
-            {
-                let mut our_adjusted_last = self.intervals.pop().unwrap();
-
-                // TODO why's this happen? I think because we don't do the intersection test
-                // including dist_behind!
-                if hit_dist - dist_behind < our_adjusted_last.start_dist {
-                    println!("WHOA! actually collide an interval earlier than expected");
-                    // Woops!
-                    our_adjusted_last = self.intervals.pop().unwrap();
-                }
-
-                println!("retain these:");
-                self.dump_intervals();
-                our_adjusted_last.end_speed = hit_speed;
-                our_adjusted_last.end_time = hit_time;
-                our_adjusted_last.end_dist = hit_dist - dist_behind;
-                println!("first adjusted: {}", our_adjusted_last);
-                self.intervals.push(our_adjusted_last);
-            }
-
-            {
-                let them = &leader.intervals[idx2];
-                self.intervals.push(Interval::new(
-                    hit_dist - dist_behind,
-                    them.end_dist - dist_behind,
-                    hit_time,
-                    them.end_time,
-                    self.intervals.last().as_ref().unwrap().end_speed,
-                    them.end_speed,
-                ));
-                println!("second adjusted: {}", self.intervals.last().unwrap());
-            }
-        } else {
-            // TODO This still causes impossible deaccel
+        {
             let them = &leader.intervals[idx2];
             let mut our_adjusted_last = self.intervals.pop().unwrap();
             our_adjusted_last.end_speed = them.end_speed;
             our_adjusted_last.end_dist = them.end_dist - dist_behind;
-            our_adjusted_last.end_time = them.end_time;
-            /*our_adjusted_last.end_time = find_end_time_for_interval(
-                our_adjusted_last.start_dist,
-                our_adjusted_last.end_dist,
-                our_adjusted_last.start_speed,
-                our_adjusted_last.end_speed,
-                our_adjusted_last.start_time,
-            );*/
+            our_adjusted_last.fix_end_time();
             println!("adjusted interval: {}", our_adjusted_last);
             self.intervals.push(our_adjusted_last);
         }
 
         // TODO What if we can't manage the same accel/deaccel/speeds?
         for i in &leader.intervals[idx2 + 1..] {
-            self.intervals.push(Interval::new(
-                i.start_dist - dist_behind,
-                i.end_dist - dist_behind,
-                i.start_time,
-                i.end_time,
-                i.start_speed,
-                i.end_speed,
-            ));
+            let mut interval = Interval {
+                start_dist: i.start_dist - dist_behind,
+                end_dist: i.end_dist - dist_behind,
+                start_time: self.intervals.last().unwrap().end_time,
+                end_time: i.end_time,
+                start_speed: i.start_speed,
+                end_speed: i.end_speed,
+            };
+            interval.fix_end_time();
+            self.intervals.push(interval);
         }
     }
-}
-
-fn find_end_time_for_interval(
-    initial_dist: Distance,
-    final_dist: Distance,
-    initial_speed: Speed,
-    final_speed: Speed,
-    initial_time: Duration,
-) -> Duration {
-    let g = final_dist.inner_meters();
-    let d = initial_dist.inner_meters();
-    let v = initial_speed.inner_meters_per_second();
-    let f = final_speed.inner_meters_per_second();
-    let s = initial_time.inner_seconds();
-
-    let numer = -2.0 * d + s * (f + v) + 2.0 * g;
-    let denom = f + v;
-    let t = Duration::seconds(numer / denom);
-
-    assert!(t > initial_time);
-    t
 }
