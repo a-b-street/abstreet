@@ -157,13 +157,18 @@ impl Car {
 
     // Returns interval indices too.
     fn find_earliest_hit(&self, leader: &Car) -> Option<(Duration, Distance, Speed, usize, usize)> {
+        let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
+
         // TODO Do we ever have to worry about having the same intervals? I think this should
         // always find the earliest hit.
         // TODO A good unit test... Make sure find_hit is symmetric
         for (idx1, i1) in self.intervals.iter().enumerate() {
             for (idx2, i2) in leader.intervals.iter().enumerate() {
-                // TODO Should bake in FOLLOWING_DISTANCE and car length!
-                if let Some((time, dist, speed)) = i1.intersection(i2) {
+                let mut shifted_i2 = i2.clone();
+                shifted_i2.start_dist -= dist_behind;
+                shifted_i2.end_dist -= dist_behind;
+
+                if let Some((time, dist, speed)) = i1.intersection(&shifted_i2) {
                     return Some((time, dist, speed, idx1, idx2));
                 }
             }
@@ -286,18 +291,29 @@ impl Car {
             hit_time, hit_dist, hit_speed, idx1, idx2
         );
 
-        let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
-
         self.intervals.split_off(idx1 + 1);
+
+        let dist_behind = leader.car_length + FOLLOWING_DISTANCE;
 
         {
             let them = &leader.intervals[idx2];
-            let mut our_adjusted_last = self.intervals.pop().unwrap();
-            our_adjusted_last.end_speed = them.end_speed;
-            our_adjusted_last.end_dist = them.end_dist - dist_behind;
-            our_adjusted_last.fix_end_time();
-            println!("adjusted interval: {}", our_adjusted_last);
-            self.intervals.push(our_adjusted_last);
+            let mut fix1 = self.intervals.pop().unwrap();
+            // TODO hit speed is useless, we dont care about OUR speed at that time
+            fix1.end_speed = them.speed(hit_time);
+            fix1.end_dist = hit_dist;
+            fix1.fix_end_time();
+
+            let mut fix2 = leader.intervals[idx2].clone();
+            fix2.start_speed = fix1.end_speed;
+            fix2.start_dist = fix1.end_dist;
+            fix2.start_time = fix1.end_time;
+            fix2.end_dist -= dist_behind;
+            fix2.fix_end_time();
+
+            println!("adjusted interval 1: {}", fix1);
+            println!("adjusted interval 2: {}", fix2);
+            self.intervals.push(fix1);
+            self.intervals.push(fix2);
         }
 
         // TODO What if we can't manage the same accel/deaccel/speeds?

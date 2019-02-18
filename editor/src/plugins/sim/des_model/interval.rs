@@ -2,7 +2,7 @@ use derive_new::new;
 use geom::{Distance, Duration, Speed, EPSILON_DIST};
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Interval {
     pub start_dist: Distance,
     pub end_dist: Distance,
@@ -165,8 +165,10 @@ impl Interval {
         let denom = f + v;
         let t = Duration::seconds(numer / denom);
 
-        assert!(t > self.start_time);
         self.end_time = t;
+        if self.end_time <= self.start_time {
+            panic!("After fixing end time, got {}", self);
+        }
     }
 }
 

@@ -53,10 +53,10 @@ impl World {
         }
 
         for c in &cars {
-            c.validate(lane);
             println!("{}:\n", c.id);
             c.dump_intervals();
             println!();
+            c.validate(lane);
         }
 
         World { lane: l, cars }
