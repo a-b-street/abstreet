@@ -57,6 +57,7 @@ impl World {
             c.dump_intervals();
             println!();
             c.validate(lane);
+            println!();
         }
 
         World { lane: l, cars }

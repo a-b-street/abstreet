@@ -63,18 +63,28 @@ impl Interval {
             return None;
         }
 
-        // Set the two distance equations equal and solve for time. Long to type out here...
-        let t = {
-            let x_1 = self.start_dist.inner_meters();
-            let v_1 = self.start_speed.inner_meters_per_second();
-            let t_1 = self.start_time.inner_seconds();
-            let a_1 = self.raw_accel();
+        let x_1 = self.start_dist.inner_meters();
+        let v_1 = self.start_speed.inner_meters_per_second();
+        let t_1 = self.start_time.inner_seconds();
+        let a_1 = self.raw_accel();
 
-            let x_3 = leader.start_dist.inner_meters();
-            let v_3 = leader.start_speed.inner_meters_per_second();
-            let t_3 = leader.start_time.inner_seconds();
-            let a_3 = leader.raw_accel();
+        let x_3 = leader.start_dist.inner_meters();
+        let v_3 = leader.start_speed.inner_meters_per_second();
+        let t_3 = leader.start_time.inner_seconds();
+        let a_3 = leader.raw_accel();
 
+        let t = if self.start_speed == self.end_speed && leader.start_speed == leader.end_speed {
+            // Freeflow case is easier
+            // x_1 + v_1(q - t_1) = x_3 + v_3(q - t_3)
+            if self.start_speed == leader.start_speed {
+                return None;
+            }
+            let numer = t_1 * v_1 - t_3 * v_3 - x_1 + x_3;
+            let denom = v_1 - v_3;
+            Duration::seconds(numer / denom)
+        } else {
+            // x_1 + v_1 * (q - t_1) + 0.5(a_1)(q - t_1)^2 = x_3 + v_3 * (q - t_3) + 0.5(a_3)(q -
+            // t_3)^2
             let q = (-0.5
                 * ((2.0 * a_1 * t_1 - 2.0 * a_3 * t_3 - 2.0 * v_1 + 2.0 * v_3).powi(2)
                     - 4.0
