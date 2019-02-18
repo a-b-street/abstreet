@@ -2,6 +2,7 @@ use crate::plugins::sim::des_model::interval::{Delta, Interval};
 use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{Lane, Traversable};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
+use std::cmp;
 
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
@@ -26,13 +27,19 @@ pub struct Car {
 impl Car {
     // None if they're not on the lane by then. Also returns the interval index for debugging.
     pub fn dist_at(&self, t: Duration) -> Option<(Distance, usize)> {
-        // TODO Binary search
-        for (idx, i) in self.intervals.iter().enumerate() {
-            if i.covers(t) {
-                return Some((i.dist(t), idx));
-            }
-        }
-        None
+        let idx = self
+            .intervals
+            .binary_search_by(|i| {
+                if i.covers(t) {
+                    cmp::Ordering::Equal
+                } else if t < i.start_time {
+                    cmp::Ordering::Greater
+                } else {
+                    cmp::Ordering::Less
+                }
+            })
+            .ok()?;
+        Some((self.intervals[idx].dist(t), idx))
     }
 
     pub fn validate(&self, lane: &Lane) {
