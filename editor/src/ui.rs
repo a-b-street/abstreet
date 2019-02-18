@@ -261,14 +261,17 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let mut sample_intersection: Option<String> = None;
 
         // TODO Not quite ready yet
-        if false {
+        if state.primary.current_flags.debug_areas {
             g.clear(state.cs.get_def("true background", Color::BLACK));
             g.redraw(&state.primary.draw_map.boundary_polygon);
         } else {
             g.clear(state.cs.get("map background"));
         }
 
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+            && !screencap
+            && !state.primary.current_flags.debug_areas
+        {
             // Unzoomed mode
             if state.layers.show_areas {
                 g.redraw(&state.primary.draw_map.draw_all_areas);
@@ -405,8 +408,10 @@ impl<S: UIState> UI<S> {
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
-        // Unzoomed mode
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+        // Unzoomed mode. Ignore when debugging areas.
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+            && !self.state.get_state().primary.current_flags.debug_areas
+        {
             return None;
         }
 

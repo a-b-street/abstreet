@@ -30,8 +30,8 @@ pub struct Flags {
     #[structopt(long = "elevation")]
     pub elevation: String,
 
-    /// KML with traffic signals
-    #[structopt(long = "traffic_signals")]
+    /// KML with traffic signals. Optional.
+    #[structopt(long = "traffic_signals", default_value = "")]
     pub traffic_signals: String,
 
     /// KML with residential building permits. Optional.
@@ -50,8 +50,8 @@ pub struct Flags {
     #[structopt(long = "gtfs", default_value = "")]
     pub gtfs: String,
 
-    /// Neighborhood GeoJSON path
-    #[structopt(long = "neighborhoods")]
+    /// Neighborhood GeoJSON path. Optional.
+    #[structopt(long = "neighborhoods", default_value = "")]
     pub neighborhoods: String,
 
     /// Osmosis clippiny polgon
@@ -95,14 +95,16 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     if !flags.parcels.is_empty() {
         handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
     }
-    handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
+    if !flags.traffic_signals.is_empty() {
+        handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
+    }
     if !flags.gtfs.is_empty() {
         timer.start("load GTFS");
         map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
         timer.stop("load GTFS");
     }
 
-    {
+    if !flags.neighborhoods.is_empty() {
         timer.start("convert neighborhood polygons");
         let map_name = Path::new(&flags.output)
             .file_stem()

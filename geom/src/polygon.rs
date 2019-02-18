@@ -83,6 +83,13 @@ impl Polygon {
         Polygon { points, indices }
     }
 
+    pub fn from_triangle(tri: &Triangle) -> Polygon {
+        Polygon {
+            points: vec![tri.pt1, tri.pt2, tri.pt3],
+            indices: vec![0, 1, 2],
+        }
+    }
+
     pub fn triangles(&self) -> Vec<Triangle> {
         let mut triangles: Vec<Triangle> = Vec::new();
         for slice in self.indices.chunks_exact(3) {

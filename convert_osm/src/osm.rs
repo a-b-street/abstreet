@@ -271,14 +271,21 @@ fn extrude_to_boundary(boundary_polygon: &Vec<LonLat>, result: &mut Vec<LonLat>)
             .iter()
             .min_by_key(|pt| pt.gps_dist_meters(first_pt))
             .unwrap();
+        println!("first pt is {}, last pt is {}", first_pt, last_pt);
+        println!(
+            "boundary closest... first pt is {}, last pt is {}",
+            closest_to_first, closest_to_last
+        );
 
         let slice1 = find_slice(boundary_polygon, closest_to_last, closest_to_first);
         let mut backwards_boundary: Vec<LonLat> = boundary_polygon.iter().cloned().collect();
         backwards_boundary.reverse();
         let slice2 = find_slice(&backwards_boundary, closest_to_last, closest_to_first);
         if slice_len(&slice1) <= slice_len(&slice2) {
+            println!("  fwd won. adding {:?}", slice1);
             result.extend(slice1);
         } else {
+            println!("  back won. adding {:?}", slice2);
             result.extend(slice2);
         }
         result.push(first_pt);

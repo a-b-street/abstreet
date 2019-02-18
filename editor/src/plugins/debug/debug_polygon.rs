@@ -93,6 +93,20 @@ impl DebugPolygon {
                         current: 0,
                         center: Some(center),
                     });
+                } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
+                    return Some(DebugPolygon {
+                        items: ctx
+                            .primary
+                            .map
+                            .get_a(id)
+                            .polygon
+                            .triangles()
+                            .into_iter()
+                            .map(Item::Triangle)
+                            .collect(),
+                        current: 0,
+                        center: None,
+                    });
                 }
             }
             _ => {}
@@ -127,6 +141,7 @@ impl BlockingPlugin for DebugPolygon {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     g.draw_text_at(Text::from_line(format!("{}", self.current)), *pt);
                 }
+                g.draw_polygon(ctx.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(ctx.cs.get("selected"), poly);
