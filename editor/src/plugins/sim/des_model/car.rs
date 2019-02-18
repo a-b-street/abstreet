@@ -16,6 +16,7 @@ pub struct Car {
 
     pub start_dist: Distance,
     pub start_time: Duration,
+    pub start_speed: Speed,
 
     // Distances represent the front of the car
     pub intervals: Vec<Interval>,
@@ -94,7 +95,7 @@ impl Car {
         if let Some(i) = self.intervals.last() {
             (i.end_dist, i.end_speed, i.end_time)
         } else {
-            (self.start_dist, Speed::ZERO, self.start_time)
+            (self.start_dist, self.start_speed, self.start_time)
         }
     }
 

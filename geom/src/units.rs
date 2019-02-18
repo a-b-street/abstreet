@@ -183,6 +183,10 @@ impl Duration {
     pub fn inner_seconds(self) -> f64 {
         self.0
     }
+
+    pub fn is_multiple_of(self, other: Duration) -> bool {
+        self.inner_seconds() % other.inner_seconds() == 0.0
+    }
 }
 
 impl fmt::Display for Duration {
@@ -196,6 +200,12 @@ impl ops::Add for Duration {
 
     fn add(self, other: Duration) -> Duration {
         Duration::seconds(self.0 + other.0)
+    }
+}
+
+impl ops::AddAssign for Duration {
+    fn add_assign(&mut self, other: Duration) {
+        *self = *self + other;
     }
 }
 

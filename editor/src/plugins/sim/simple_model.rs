@@ -97,7 +97,7 @@ impl BlockingPlugin for SimpleModelController {
             for l in ctx.primary.map.all_lanes() {
                 if l.is_driving() && l.length() >= Distance::meters(15.0) {
                     println!("Testing {}...", l.id);
-                    des_model::World::new(l.id, &ctx.primary.map);
+                    des_model::World::new(l.id, &ctx.primary.map).sample_for_proximity();
                 }
             }
         }

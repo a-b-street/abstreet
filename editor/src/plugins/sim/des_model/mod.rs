@@ -4,7 +4,7 @@ mod interval;
 use crate::objects::DrawCtx;
 use crate::plugins::sim::des_model::car::Car;
 use ezgui::{GfxCtx, Text};
-use geom::{Acceleration, Distance, Duration, EPSILON_DIST};
+use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{LaneID, Map};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 
@@ -27,6 +27,9 @@ impl World {
             intervals: Vec::new(),
             start_dist: Distance::meters(5.0),
             start_time: Duration::ZERO,
+            // TODO Enter with some speed
+            //start_speed: 0.2 * speed_limit,
+            start_speed: Speed::ZERO,
         };
         leader.start_then_stop(lane.length(), 0.5 * speed_limit);
         leader.wait(Duration::seconds(5.0));
@@ -43,6 +46,7 @@ impl World {
                 intervals: Vec::new(),
                 start_dist: Distance::meters(5.0),
                 start_time: ((i + 1) as f64) * Duration::seconds(4.0),
+                start_speed: Speed::ZERO,
             };
             follower.start_then_stop(lane.length(), speed_limit);
             follower.maybe_follow(cars.last().unwrap());
@@ -64,25 +68,9 @@ impl World {
 
     pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut draw = Vec::new();
-        let mut max_dist: Option<Distance> = None;
-        for (car_idx, follower) in self.cars.iter().enumerate() {
-            if let Some((d, follower_idx)) = follower.dist_at(time) {
-                if let Some(max) = max_dist {
-                    if d > max + EPSILON_DIST {
-                        let leader = &self.cars[car_idx - 1];
-                        let leader_idx = leader.dist_at(time).unwrap().1;
-                        println!("{} is too close to {} at {}", follower.id, leader.id, time);
-                        println!("leader doing: {}", leader.intervals[leader_idx]);
-                        println!("follower doing: {}", follower.intervals[follower_idx]);
-                        println!(
-                            "to repro:\n\n{}.intersection(&{})\n\n",
-                            follower.intervals[follower_idx].repr(),
-                            leader.intervals[leader_idx].repr()
-                        );
-                    }
-                }
+        for follower in &self.cars {
+            if let Some((d, _)) = follower.dist_at(time) {
                 draw.push(follower.get_draw_car(d, map.get_l(self.lane)));
-                max_dist = Some(d - follower.car_length - car::FOLLOWING_DISTANCE);
             }
         }
         draw
@@ -116,6 +104,45 @@ impl World {
                     car.intervals[idx].speed(time),
                     idx + 1,
                     car.intervals.len()
+                );
+            }
+        }
+    }
+
+    pub fn sample_for_proximity(&self) {
+        let mut time = Duration::ZERO;
+        loop {
+            let mut max_dist: Option<Distance> = None;
+            let mut active_cars = 0;
+            for (car_idx, follower) in self.cars.iter().enumerate() {
+                if let Some((d, follower_idx)) = follower.dist_at(time) {
+                    active_cars += 1;
+                    if let Some(max) = max_dist {
+                        if d > max + EPSILON_DIST {
+                            let leader = &self.cars[car_idx - 1];
+                            let leader_idx = leader.dist_at(time).unwrap().1;
+                            println!("{} is too close to {} at {}", follower.id, leader.id, time);
+                            println!("leader doing: {}", leader.intervals[leader_idx]);
+                            println!("follower doing: {}", follower.intervals[follower_idx]);
+                            panic!(
+                                "to repro:\n\n{}.intersection(&{})\n\n",
+                                follower.intervals[follower_idx].repr(),
+                                leader.intervals[leader_idx].repr()
+                            );
+                        }
+                    }
+                    max_dist = Some(d - follower.car_length - car::FOLLOWING_DISTANCE);
+                }
+            }
+            // All the cars are done
+            if max_dist.is_none() {
+                return;
+            }
+            time += Duration::seconds(0.1);
+            if time.is_multiple_of(Duration::seconds(10.0)) {
+                println!(
+                    "Checking {}. {} cars at {}...",
+                    self.lane, active_cars, time
                 );
             }
         }
