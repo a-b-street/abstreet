@@ -153,3 +153,49 @@ found a low speed that produced the same distance in the same time?
 
 When we "lookahead", now we just have to call maybe_follow against a single
 vehicle. Need an easy way to indicate relative distance behind them.
+
+## Event-based model, redux
+
+Key idea to this one: stop insisting on knowing where individual cars are at all times.
+
+A car's state machine:
+
+- they enter a lane
+- they cross it during some time... length / min(speed limit, their max speed)
+- now they're in the queue!
+	- if they're not first, then WAIT.
+- now they're at the front of the queue
+	- if the target lane is at capacity (queue + freeflowers == rest capacity), then WAIT.
+		- could detect gridlock by looking for dependency cycles here
+	- ask the intersection when they can go. tell it how long crossing will take (based on freeflow times again)
+		- intersections know when conflicting turns will finish
+		- stop sign will just give a little delay to some directions
+		- traffic signal bit more complex (ohhh but no more overtime!!!)
+		- probably want to add slight delay to avoid a packet of cars surging forward on a green light change
+- cross the turn
+- repeat!
+
+How could lane-changing work?
+
+- equivalent to existing: queue per lane, but no lanechanging
+- simple: capacity based on all lanes, but one queue for a road. any turn.
+	- bike/bus lanes don't help anything
+	- one (usually turn) lane backfilling affects all
+- later: queue per lane. turn becomes lane->road
+	- the LCing itself doesnt really happen, merging has to happen upstream
+- actual LCing during freeflow/queueing time could make sense
+
+Now the interesting part... drawing!
+
+- unzoomed
+	- draw red queue slice at the end of a road, and a blue freeflow slice at the start
+		- show some kind of movement in the blue?
+	- while turns are being executed, just draw blue slice of the entire turn?
+		- since they're individual, could animate by interpolating or something
+- zoomed
+	- hmm. can probably figure out exact car positions somehow, but not important.
+
+This model neglects:
+
+- speed, acceleration at some particular time
+- but delays to doing turns after queueing could include time to accelerate

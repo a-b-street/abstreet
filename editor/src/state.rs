@@ -255,6 +255,10 @@ impl UIState for DefaultUIState {
             } else if let Some(p) = plugins::sim::simple_model::SimpleModelController::new(&mut ctx)
             {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
+            } else if let Some(p) =
+                plugins::sim::even_simpler_model::EvenSimplerModelController::new(&mut ctx)
+            {
+                self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));

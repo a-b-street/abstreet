@@ -81,7 +81,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             Folder::new(
                 "View",
                 vec![
-                    (Some(Key::Z), "show neighborhood summaries"),
+                    (None, "show neighborhood summaries"),
                     (Some(Key::Slash), "search for something"),
                     (Some(Key::A), "show lanes with active traffic"),
                     (Some(Key::J), "warp to an object"),
@@ -153,6 +153,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 ],
             ),
             ModalMenu::new(
+                "Even Simpler Model",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::Dot, "forwards"),
+                    (Key::Space, "toggle forwards play"),
+                ],
+            ),
+            ModalMenu::new(
                 "Geometry Debugger",
                 vec![(Key::Enter, "quit"), (Key::N, "see next problem")],
             ),
@@ -171,7 +179,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Agent Follower", vec![(Key::F, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Neighborhood Summaries", vec![(Key::Z, "quit")]),
+            ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
             ModalMenu::new(
                 "Agent Route Debugger",
                 vec![(Key::R, "quit"), (Key::L, "show route for all agents")],

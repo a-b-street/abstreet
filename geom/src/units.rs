@@ -295,6 +295,14 @@ impl Speed {
             other
         }
     }
+
+    pub fn min(self, other: Speed) -> Speed {
+        if self <= other {
+            self
+        } else {
+            other
+        }
+    }
 }
 
 impl ops::Add for Speed {

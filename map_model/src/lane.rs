@@ -136,4 +136,13 @@ impl Lane {
     pub fn is_parking(&self) -> bool {
         self.lane_type == LaneType::Parking
     }
+
+    pub fn is_for_moving_vehicles(&self) -> bool {
+        match self.lane_type {
+            LaneType::Driving => true,
+            LaneType::Biking => true,
+            LaneType::Bus => true,
+            _ => false,
+        }
+    }
 }
