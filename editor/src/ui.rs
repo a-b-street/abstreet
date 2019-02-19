@@ -268,10 +268,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             g.clear(state.cs.get("map background"));
         }
 
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
-            && !screencap
-            && !state.primary.current_flags.debug_areas
-        {
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
             // Unzoomed mode
             if state.layers.show_areas {
                 g.redraw(&state.primary.draw_map.draw_all_areas);
@@ -287,6 +284,21 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             }
             if state.layers.show_buildings {
                 g.redraw(&state.primary.draw_map.draw_all_buildings);
+            }
+
+            // Still show area selection when zoomed out.
+            if state.primary.current_flags.debug_areas {
+                if let Some(ID::Area(id)) = state.primary.current_selection {
+                    state.primary.draw_map.get_a(id).draw(
+                        g,
+                        RenderOptions {
+                            color: state.color_obj(ID::Area(id), &ctx),
+                            debug_mode: state.layers.debug_mode,
+                            is_selected: true,
+                        },
+                        &ctx,
+                    );
+                }
             }
         } else {
             let mut cache = state.primary.draw_map.agents.borrow_mut();

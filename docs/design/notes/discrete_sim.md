@@ -148,3 +148,8 @@ offset by some amount...
 
 What if we measured distance over time of this using the current sim? And then
 found a low speed that produced the same distance in the same time?
+
+### Gluing together traversables
+
+When we "lookahead", now we just have to call maybe_follow against a single
+vehicle. Need an easy way to indicate relative distance behind them.
