@@ -66,24 +66,31 @@ impl BlockingPlugin for EvenSimplerModelController {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        self.world.draw_unzoomed(g, &ctx.map);
+        self.world.draw_unzoomed(self.current_time, g, &ctx.map);
     }
 }
 
 fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
     let mut world = new_des_model::World::new(map);
 
-    let mut path = vec![Traversable::Lane(start)];
-    let mut last_lane = start;
-    for _ in 0..5 {
-        let t = map.get_turns_from_lane(last_lane)[0];
-        path.push(Traversable::Turn(t.id));
-        path.push(Traversable::Lane(t.id.dst));
-        last_lane = t.id.dst;
-    }
+    for source in vec![start, LaneID(1622)] {
+        let mut path = vec![Traversable::Lane(source)];
+        let mut last_lane = source;
+        for _ in 0..5 {
+            let t = map.get_turns_from_lane(last_lane)[0];
+            path.push(Traversable::Turn(t.id));
+            path.push(Traversable::Lane(t.id.dst));
+            last_lane = t.id.dst;
+        }
 
-    for i in 0..10 {
-        world.spawn_car(CarID::tmp_new(i, VehicleType::Car), None, path.clone(), map);
+        for i in 0..10 {
+            world.spawn_car(
+                CarID::tmp_new(i, VehicleType::Car),
+                None,
+                path.clone(),
+                Duration::seconds(1.0) * (i as f64),
+            );
+        }
     }
 
     world

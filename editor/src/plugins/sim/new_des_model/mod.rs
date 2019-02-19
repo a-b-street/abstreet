@@ -11,6 +11,8 @@ const WAITING: Color = Color::RED;
 pub struct World {
     queues: BTreeMap<LaneID, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
+
+    spawn_later: Vec<(CarID, Option<Speed>, Vec<Traversable>, Duration)>,
 }
 
 impl World {
@@ -18,6 +20,7 @@ impl World {
         let mut world = World {
             queues: BTreeMap::new(),
             intersections: BTreeMap::new(),
+            spawn_later: Vec::new(),
         };
 
         for l in map.all_lanes() {
@@ -37,7 +40,7 @@ impl World {
             world.intersections.insert(
                 i.id,
                 IntersectionController {
-                    id: i.id,
+                    _id: i.id,
                     accepted: None,
                 },
             );
@@ -46,17 +49,21 @@ impl World {
         world
     }
 
-    pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
+    pub fn draw_unzoomed(&self, time: Duration, g: &mut GfxCtx, map: &Map) {
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
                 continue;
             }
-            let mut num_freeflow = 0;
+            let mut freeflow_head: Option<&TimeInterval> = None;
+            let mut freeflow_tail: Option<&TimeInterval> = None;
             let mut num_waiting = 0;
             for car in &queue.cars {
                 match car.state {
-                    CarState::CrossingLane(_) => {
-                        num_freeflow += 1;
+                    CarState::CrossingLane(ref i) => {
+                        if freeflow_head.is_none() {
+                            freeflow_head = Some(i);
+                        }
+                        freeflow_tail = Some(i);
                     }
                     CarState::Queued => {
                         num_waiting += 1;
@@ -66,11 +73,18 @@ impl World {
             }
 
             let l = map.get_l(queue.id);
-            if num_freeflow > 0 {
+            let end_of_waiting_queue = l.length() - (num_waiting as f64) * VEHICLE_LENGTH;
+
+            if freeflow_head.is_some() {
+                // The freeflow block can range from [0, end_of_waiting_queue].
+                let head = freeflow_head.unwrap().percent(time) * end_of_waiting_queue;
+                let tail = freeflow_tail.unwrap().percent(time) * end_of_waiting_queue;
+                // TODO The VEHICLE_LENGTH is confusing...
+
                 g.draw_polygon(
                     FREEFLOW,
                     &l.lane_center_pts
-                        .slice(Distance::ZERO, (num_freeflow as f64) * VEHICLE_LENGTH)
+                        .slice(tail, head + VEHICLE_LENGTH)
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
@@ -80,10 +94,7 @@ impl World {
                 g.draw_polygon(
                     WAITING,
                     &l.lane_center_pts
-                        .slice(
-                            l.length() - (num_waiting as f64) * VEHICLE_LENGTH,
-                            l.length(),
-                        )
+                        .slice(end_of_waiting_queue, l.length())
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
@@ -93,10 +104,20 @@ impl World {
 
         for i in self.intersections.values() {
             if let Some(ref car) = i.accepted {
+                let t = map.get_t(car.path[0].as_turn());
+                let percent = match car.state {
+                    CarState::CrossingTurn(ref int) => int.percent(time),
+                    _ => unreachable!(),
+                };
+
+                // TODO The VEHICLE_LENGTH is confusing...
+                let tail = percent * t.geom.length();
                 g.draw_polygon(
                     FREEFLOW,
-                    &map.get_t(car.path[0].as_turn())
-                        .geom
+                    &t.geom
+                        .slice(tail, tail + VEHICLE_LENGTH)
+                        .unwrap()
+                        .0
                         .make_polygons(LANE_THICKNESS),
                 );
             }
@@ -108,24 +129,37 @@ impl World {
         id: CarID,
         max_speed: Option<Speed>,
         path: Vec<Traversable>,
-        map: &Map,
+        start_time: Duration,
     ) {
-        let first_lane = path[0].as_lane();
-        let queue = self.queues.get_mut(&first_lane).unwrap();
-        assert!(!queue.is_full());
-
-        queue.cars.push_back(Car {
-            id,
-            max_speed,
-            path: VecDeque::from(path),
-            state: CarState::CrossingLane(TimeInterval {
-                start: Duration::ZERO,
-                end: time_to_cross(Traversable::Lane(first_lane), map, max_speed),
-            }),
-        });
+        self.spawn_later.push((id, max_speed, path, start_time));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
+        // Spawn cars.
+        let mut retain_spawn = Vec::new();
+        for (id, max_speed, path, start_time) in self.spawn_later.drain(..) {
+            let first_lane = path[0].as_lane();
+            if time >= start_time && !self.queues[&first_lane].is_full() {
+                self.queues
+                    .get_mut(&first_lane)
+                    .unwrap()
+                    .cars
+                    .push_back(Car {
+                        _id: id,
+                        max_speed,
+                        path: VecDeque::from(path.clone()),
+                        state: CarState::CrossingLane(TimeInterval {
+                            start: time,
+                            end: time
+                                + time_to_cross(Traversable::Lane(first_lane), map, max_speed),
+                        }),
+                    });
+            } else {
+                retain_spawn.push((id, max_speed, path, start_time));
+            }
+        }
+        self.spawn_later = retain_spawn;
+
         // Promote CrossingLane to Queued.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
@@ -227,6 +261,14 @@ struct TimeInterval {
     end: Duration,
 }
 
+impl TimeInterval {
+    fn percent(&self, t: Duration) -> f64 {
+        let x = (t - self.start) / (self.end - self.start);
+        assert!(x >= 0.0 && x <= 1.0);
+        x
+    }
+}
+
 struct Queue {
     id: LaneID,
     cars: VecDeque<Car>,
@@ -244,12 +286,12 @@ impl Queue {
 }
 
 struct IntersectionController {
-    id: IntersectionID,
+    _id: IntersectionID,
     accepted: Option<Car>,
 }
 
 struct Car {
-    id: CarID,
+    _id: CarID,
     max_speed: Option<Speed>,
     // Front is always the current step
     path: VecDeque<Traversable>,
