@@ -1,6 +1,6 @@
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration, Speed};
-use map_model::{IntersectionID, LaneID, Map, Traversable, Turn, LANE_THICKNESS};
+use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
 use sim::CarID;
 use std::collections::{BTreeMap, VecDeque};
 
@@ -58,9 +58,10 @@ impl World {
                     CarState::CrossingLane(_) => {
                         num_freeflow += 1;
                     }
-                    _ => {
+                    CarState::Queued => {
                         num_waiting += 1;
                     }
+                    CarState::CrossingTurn(_) => unreachable!(),
                 };
             }
 
@@ -90,7 +91,16 @@ impl World {
             }
         }
 
-        // TODO Something with the intersections too
+        for i in self.intersections.values() {
+            if let Some(ref car) = i.accepted {
+                g.draw_polygon(
+                    FREEFLOW,
+                    &map.get_t(car.path[0].as_turn())
+                        .geom
+                        .make_polygons(LANE_THICKNESS),
+                );
+            }
+        }
     }
 
     pub fn spawn_car(
@@ -110,15 +120,12 @@ impl World {
             path: VecDeque::from(path),
             state: CarState::CrossingLane(TimeInterval {
                 start: Duration::ZERO,
-                end: time_to_cross(first_lane, map, max_speed),
+                end: time_to_cross(Traversable::Lane(first_lane), map, max_speed),
             }),
         });
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
-        // TODO Alternate formulation... track CarID and time they'll do something interesting.
-        // Wake up dependencies.
-
         // Promote CrossingLane to Queued.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
@@ -149,8 +156,8 @@ impl World {
         }
 
         // Figure out where everybody wants to go next.
-        // (head of this lane ready to go, destination)
-        let mut cars_ready_to_move: Vec<(LaneID, LaneID)> = Vec::new();
+        // (head of this lane ready to go, what they want next)
+        let mut cars_ready_to_turn: Vec<(LaneID, TurnID)> = Vec::new();
         for queue in self.queues.values() {
             if queue.is_empty() {
                 continue;
@@ -158,39 +165,60 @@ impl World {
             let car = &queue.cars[0];
             match car.state {
                 CarState::Queued => {
-                    cars_ready_to_move.push((queue.id, car.path[2].as_lane()));
-                }
-                CarState::WaitingOnTargetLane(target) => {
-                    cars_ready_to_move.push((queue.id, target));
+                    cars_ready_to_turn.push((queue.id, car.path[1].as_turn()));
                 }
                 _ => {}
             };
         }
 
-        // Try to move people to next lane, or make them explicitly wait on it.
-        for (from, to) in cars_ready_to_move {
-            if self.queues[&to].is_full() {
-                self.queues.get_mut(&from).unwrap().cars[0].state =
-                    CarState::WaitingOnTargetLane(to);
-            } else {
-                let mut car = self
-                    .queues
-                    .get_mut(&from)
-                    .unwrap()
-                    .cars
-                    .pop_front()
-                    .unwrap();
-                car.path.pop_front();
-                car.path.pop_front();
-                car.state = CarState::CrossingLane(TimeInterval {
-                    start: time,
-                    end: time + time_to_cross(to, map, car.max_speed),
-                });
-                self.queues.get_mut(&to).unwrap().cars.push_back(car);
+        // Lane->Turn transitions
+        for (from, turn) in cars_ready_to_turn {
+            let i = turn.parent;
+            if self.intersections[&i].accepted.is_some() {
+                continue;
             }
+            if self.queues[&turn.dst].is_full() {
+                continue;
+            }
+
+            let mut car = self
+                .queues
+                .get_mut(&from)
+                .unwrap()
+                .cars
+                .pop_front()
+                .unwrap();
+            car.path.pop_front();
+            car.state = CarState::CrossingTurn(TimeInterval {
+                start: time,
+                end: time + time_to_cross(Traversable::Turn(turn), map, car.max_speed),
+            });
+            self.intersections.get_mut(&i).unwrap().accepted = Some(car);
         }
 
-        // TODO Intersections...
+        // Turn->Lane transitions
+        for i in self.intersections.values_mut() {
+            if i.accepted.is_none() {
+                continue;
+            }
+            let end_time = match i.accepted.as_ref().unwrap().state {
+                CarState::CrossingTurn(ref int) => int.end,
+                _ => unreachable!(),
+            };
+            if time < end_time {
+                continue;
+            }
+
+            let mut car = i.accepted.take().unwrap();
+            car.path.pop_front();
+            let lane = car.path[0].as_lane();
+            assert!(!self.queues[&lane].is_full());
+            car.state = CarState::CrossingLane(TimeInterval {
+                start: time,
+                end: end_time + time_to_cross(Traversable::Lane(lane), map, car.max_speed),
+            });
+            self.queues.get_mut(&lane).unwrap().cars.push_back(car);
+        }
     }
 }
 
@@ -231,15 +259,13 @@ struct Car {
 enum CarState {
     CrossingLane(TimeInterval),
     Queued,
-    WaitingOnTargetLane(LaneID),
-    WaitingOnIntersection(Turn),
-    CrossingTurn(Turn, TimeInterval),
+    CrossingTurn(TimeInterval),
 }
 
-fn time_to_cross(lane: LaneID, map: &Map, max_speed: Option<Speed>) -> Duration {
-    let mut speed = map.get_parent(lane).get_speed_limit();
+fn time_to_cross(on: Traversable, map: &Map, max_speed: Option<Speed>) -> Duration {
+    let mut speed = on.speed_limit(map);
     if let Some(s) = max_speed {
         speed = speed.min(s);
     }
-    map.get_l(lane).length() / speed
+    on.length(map) / speed
 }
