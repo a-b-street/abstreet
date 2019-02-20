@@ -1,9 +1,6 @@
-use abstutil::{LogAdapter, Timer};
-use log::LevelFilter;
+use abstutil::Timer;
 use map_model::{Map, MapEdits};
 use structopt::StructOpt;
-
-static LOG_ADAPTER: LogAdapter = LogAdapter;
 
 #[derive(StructOpt)]
 #[structopt(name = "precompute")]
@@ -18,9 +15,6 @@ struct Flags {
 }
 
 fn main() {
-    log::set_max_level(LevelFilter::Debug);
-    log::set_logger(&LOG_ADAPTER).unwrap();
-
     let flags = Flags::from_args();
     let mut timer = Timer::new(&format!(
         "precompute {} with {}",

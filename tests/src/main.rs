@@ -9,12 +9,7 @@ mod transit;
 
 use structopt::StructOpt;
 
-static LOG_ADAPTER: abstutil::LogAdapter = abstutil::LogAdapter;
-
 fn main() {
-    log::set_max_level(log::LevelFilter::Debug);
-    log::set_logger(&LOG_ADAPTER).unwrap();
-
     let mut t = runner::TestRunner::new(runner::Flags::from_args());
 
     geom::run(t.suite("geom"));

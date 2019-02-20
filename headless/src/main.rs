@@ -1,9 +1,6 @@
-use abstutil::{LogAdapter, Timer};
-use log::LevelFilter;
+use abstutil::Timer;
 use sim::SimFlags;
 use structopt::StructOpt;
-
-static LOG_ADAPTER: LogAdapter = LogAdapter;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "headless")]
@@ -18,9 +15,6 @@ struct Flags {
 
 fn main() {
     let flags = Flags::from_args();
-
-    log::set_max_level(LevelFilter::Debug);
-    log::set_logger(&LOG_ADAPTER).unwrap();
 
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();

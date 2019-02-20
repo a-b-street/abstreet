@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 cpuprofiler = "0.0.3"
-log = "0.4.5"
 map_model = { path = "../map_model" }
 pretty_assertions = "0.5.1"
 sim = { path = "../sim" }

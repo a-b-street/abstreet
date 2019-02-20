@@ -115,6 +115,9 @@ onto it. probably have to use lazy static. not even sure I'll use this implicit
 style long-term -- when two sims are running side-by-side, might be very
 necessary to plumb more log context anyway.
 
+Wound up using Warn<T> and Timer. Discuss how annoying it is to monadically
+plumb warnings and context.
+
 ## Code layers
 
 At some point, geometry was a separate layer from the graph base-layer of

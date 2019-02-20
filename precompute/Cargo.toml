@@ -6,6 +6,5 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-log = "0.4.5"
 map_model = { path = "../map_model" }
 structopt = "0.2"

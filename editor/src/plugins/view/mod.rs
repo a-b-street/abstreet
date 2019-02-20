@@ -1,6 +1,5 @@
 pub mod follow;
 pub mod legend;
-pub mod logs;
 pub mod neighborhood_summary;
 pub mod search;
 pub mod show_activity;

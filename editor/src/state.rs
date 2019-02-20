@@ -83,9 +83,6 @@ impl DefaultUIState {
     pub fn new(flags: Flags, prerender: &Prerender, enable_debug_controls: bool) -> DefaultUIState {
         let cs = ColorScheme::load().unwrap();
 
-        // Do this first to trigger the log console initialization, so anything logged by sim::load
-        // isn't lost.
-        view::logs::DisplayLogs::initialize();
         let (primary, primary_plugins) =
             PerMapUI::new(flags, &cs, prerender, enable_debug_controls);
         DefaultUIState {
@@ -249,10 +246,8 @@ impl UIState for DefaultUIState {
                 return;
             }
 
-            if let Some(p) = view::logs::DisplayLogs::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
             // TODO Don't reinstantiate if search is present but nonblocking!
-            } else if let Some(p) = view::search::SearchState::new(&mut ctx) {
+            if let Some(p) = view::search::SearchState::new(&mut ctx) {
                 self.primary_plugins.search = Some(p);
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));

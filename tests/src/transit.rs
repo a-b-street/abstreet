@@ -11,7 +11,7 @@ pub fn run(t: &mut TestRunner) {
             &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
-        let buses = sim.seed_bus_route(route, &map);
+        let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
         h.setup_done(&sim);
 
@@ -33,7 +33,7 @@ pub fn run(t: &mut TestRunner) {
             &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
-        let buses = sim.seed_bus_route(route, &map);
+        let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
         let ped_stop1 = route.stops[1];
         let ped_stop2 = route.stops[2];

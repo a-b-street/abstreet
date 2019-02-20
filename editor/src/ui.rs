@@ -24,11 +24,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
             "File",
-            vec![
-                (Some(Key::Comma), "show log console"),
-                (Some(Key::L), "show legend"),
-                (Some(Key::Escape), "quit"),
-            ],
+            vec![(Some(Key::L), "show legend"), (Some(Key::Escape), "quit")],
         ));
         if self.state.get_state().enable_debug_controls {
             folders.push(Folder::new(

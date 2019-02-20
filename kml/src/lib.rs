@@ -1,6 +1,5 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, LonLat};
-use log::info;
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde_derive::{Deserialize, Serialize};
@@ -36,7 +35,7 @@ pub fn load(
     gps_bounds: &GPSBounds,
     timer: &mut Timer,
 ) -> Result<ExtraShapes, io::Error> {
-    info!(target: "kml", "Opening {}", path);
+    println!("Opening {}", path);
     let (f, done) = FileWithProgress::new(path)?;
     // TODO FileWithProgress should implement BufRead, so we don't have to double wrap like this
     let mut reader = Reader::from_reader(io::BufReader::new(f));
@@ -107,8 +106,7 @@ pub fn load(
         buf.clear();
     }
 
-    info!(
-        target: "kml",
+    println!(
         "Got {} shapes from {} and skipped {} shapes",
         shapes.len(),
         path,
