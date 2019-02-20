@@ -7,7 +7,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             sim::SimFlags::for_test("serialization"),
             None,
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         sim.small_spawn(&map);
 
@@ -22,7 +22,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim1) = sim::load(
             sim::SimFlags::for_test("from_scratch_1"),
             None,
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(42), None);
         sim1.small_spawn(&map);
@@ -47,7 +47,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim1) = sim::load(
             sim::SimFlags::for_test("with_savestating_1"),
             None,
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(42), None);
         sim1.small_spawn(&map);

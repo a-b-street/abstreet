@@ -9,7 +9,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             sim::SimFlags::synthetic_test("parking_test", "park_on_goal_st"),
             None,
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let north_bldg = map.bldg("north").id;
         let south_bldg = map.bldg("south").id;
@@ -39,7 +39,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             sim::SimFlags::synthetic_test("parking_test", "wander_around_for_parking"),
             None,
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let north_bldg = map.bldg("north").id;
         let south_bldg = map.bldg("south").id;

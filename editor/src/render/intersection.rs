@@ -1,6 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
+use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
@@ -25,6 +26,7 @@ impl DrawIntersection {
         map: &Map,
         cs: &ColorScheme,
         prerender: &Prerender,
+        timer: &mut Timer,
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = vec![(
@@ -52,7 +54,7 @@ impl DrawIntersection {
             }
             let r = map.get_r(*i.roads.iter().next().unwrap());
             default_geom.extend(
-                calculate_border_arrows(i, r)
+                calculate_border_arrows(i, r, timer)
                     .into_iter()
                     .map(|p| (cs.get_def("incoming border node arrow", Color::PURPLE), p)),
             );
@@ -414,7 +416,7 @@ fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>
     None
 }
 
-fn calculate_border_arrows(i: &Intersection, r: &Road) -> Vec<Polygon> {
+fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec<Polygon> {
     let mut result = Vec::new();
 
     // These arrows should point from the void to the road
@@ -436,7 +438,8 @@ fn calculate_border_arrows(i: &Intersection, r: &Road) -> Vec<Polygon> {
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
             )
-            .make_arrow(width / 3.0),
+            .make_arrow(width / 3.0)
+            .with_context(timer, format!("outgoing border arrows for {}", r.id)),
         );
     }
 
@@ -458,7 +461,8 @@ fn calculate_border_arrows(i: &Intersection, r: &Road) -> Vec<Polygon> {
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
             )
-            .make_arrow(width / 3.0),
+            .make_arrow(width / 3.0)
+            .with_context(timer, format!("incoming border arrows for {}", r.id)),
         );
     }
     result

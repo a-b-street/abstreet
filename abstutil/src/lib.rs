@@ -15,7 +15,7 @@ pub use crate::io::{
     load_all_objects, read_binary, read_json, save_object, serialize_btreemap, serialize_multimap,
     to_json, write_binary, write_json, FileWithProgress,
 };
-pub use crate::logs::{format_log_record, LogAdapter};
+pub use crate::logs::{format_log_record, LogAdapter, Warn};
 pub use crate::notes::note;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer};

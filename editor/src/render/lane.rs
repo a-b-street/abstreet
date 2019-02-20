@@ -1,6 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
+use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{
@@ -22,6 +23,7 @@ impl DrawLane {
         draw_lane_markings: bool,
         cs: &ColorScheme,
         prerender: &Prerender,
+        timer: &mut Timer,
     ) -> DrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
@@ -46,7 +48,7 @@ impl DrawLane {
                 }
                 LaneType::Driving | LaneType::Bus => {
                     draw.extend(calculate_driving_lines(lane, road, cs));
-                    draw.extend(calculate_turn_markings(map, lane, cs));
+                    draw.extend(calculate_turn_markings(map, lane, cs, timer));
                 }
                 LaneType::Biking => {}
             };
@@ -236,7 +238,12 @@ fn calculate_stop_sign_line(
     ))
 }
 
-fn calculate_turn_markings(map: &Map, lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
+fn calculate_turn_markings(
+    map: &Map,
+    lane: &Lane,
+    cs: &ColorScheme,
+    timer: &mut Timer,
+) -> Vec<(Color, Polygon)> {
     let mut results: Vec<(Color, Polygon)> = Vec::new();
 
     // Are there multiple driving lanes on this side of the road?
@@ -248,12 +255,17 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, cs: &ColorScheme) -> Vec<(Col
     }
 
     for turn in map.get_turns_from_lane(lane.id) {
-        results.extend(turn_markings(turn, map, cs));
+        results.extend(turn_markings(turn, map, cs, timer));
     }
     results
 }
 
-fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
+fn turn_markings(
+    turn: &Turn,
+    map: &Map,
+    cs: &ColorScheme,
+    timer: &mut Timer,
+) -> Vec<(Color, Polygon)> {
     let lane = map.get_l(turn.id.src);
     let len = lane.length();
     if len < Distance::meters(7.0) {
@@ -278,6 +290,7 @@ fn turn_markings(turn: &Turn, map: &Map, cs: &ColorScheme) -> Vec<(Color, Polygo
     result.extend(
         turn_line
             .make_arrow(Distance::meters(0.05))
+            .with_context(timer, format!("turn_markings for {}", turn.id))
             .into_iter()
             .map(|p| (color, p)),
     );

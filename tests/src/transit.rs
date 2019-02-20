@@ -8,7 +8,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             SimFlags::for_test("bus_reaches_stops"),
             Some(Tick::from_seconds(30)),
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map);
@@ -30,7 +30,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             SimFlags::for_test("ped_uses_bus"),
             Some(Tick::from_seconds(30)),
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map);

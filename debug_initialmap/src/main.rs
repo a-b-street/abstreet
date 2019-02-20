@@ -111,7 +111,7 @@ impl viewer::ObjectID for ID {
 }
 
 fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) -> World<ID> {
-    let data: raw_data::InitialMap = read_binary(filename, &mut Timer::new("load data")).unwrap();
+    let data: raw_data::InitialMap = read_binary(filename, &mut Timer::throwaway()).unwrap();
 
     let mut w = World::new(&data.bounds);
 

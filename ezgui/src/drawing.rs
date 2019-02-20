@@ -107,7 +107,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
-        let polygons = line.make_arrow(thickness);
+        let polygons = line.make_arrow(thickness).unwrap();
         self.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
     }
 

@@ -79,6 +79,7 @@ pub struct Timer {
     outermost_name: String,
 
     notes: Vec<String>,
+    pub(crate) warnings: Vec<String>,
 }
 
 struct TimerSpan {
@@ -95,9 +96,15 @@ impl Timer {
             stack: Vec::new(),
             outermost_name: name.to_string(),
             notes: Vec::new(),
+            warnings: Vec::new(),
         };
         t.start(name);
         t
+    }
+
+    // TODO Shouldn't use this much.
+    pub fn throwaway() -> Timer {
+        Timer::new("throwaway")
     }
 
     // Log immediately, but also repeat at the end, to avoid having to scroll up and find
@@ -105,6 +112,10 @@ impl Timer {
     pub fn note(&mut self, line: String) {
         println!("{}", line);
         self.notes.push(line);
+    }
+
+    pub fn warn(&mut self, line: String) {
+        self.warnings.push(line);
     }
 
     pub fn done(mut self) {
@@ -116,6 +127,7 @@ impl Timer {
             println!("{}", line);
         }
         println!();
+
         if !self.notes.is_empty() {
             for line in self.notes {
                 println!("{}", line);
@@ -123,6 +135,14 @@ impl Timer {
             println!();
         }
         notes::dump_notes();
+
+        if !self.warnings.is_empty() {
+            println!("{} warnings:", self.warnings.len());
+            for line in self.warnings {
+                println!("{}", line);
+            }
+            println!();
+        }
     }
 
     pub fn start(&mut self, name: &str) {

@@ -7,7 +7,7 @@ pub fn run(t: &mut TestRunner) {
         let (map, mut sim) = sim::load(
             sim::SimFlags::for_test("aorta_model_completes"),
             Some(sim::Tick::from_seconds(30)),
-            &mut Timer::new("setup test"),
+            &mut Timer::throwaway(),
         );
         sim.small_spawn(&map);
         h.setup_done(&sim);

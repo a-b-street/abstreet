@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 aabb-quadtree = "0.1.0"
+abstutil = { path = "../abstutil" }
 geo = "0.11.0"
 ordered-float = "1.0.1"
 serde = "1.0.87"

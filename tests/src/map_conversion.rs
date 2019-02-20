@@ -19,8 +19,8 @@ pub fn run(t: &mut TestRunner) {
             fast_dev: false,
         };
 
-        let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::new("convert map"));
-        let map2 = convert_osm::convert(&flags, &mut abstutil::Timer::new("convert map"));
+        let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::throwaway());
+        let map2 = convert_osm::convert(&flags, &mut abstutil::Timer::throwaway());
 
         if map1 != map2 {
             // TODO tmp files
@@ -34,13 +34,13 @@ pub fn run(t: &mut TestRunner) {
         let map1 = map_model::Map::new(
             "../data/raw_maps/montlake.abst",
             map_model::MapEdits::new("montlake"),
-            &mut abstutil::Timer::new("raw to map"),
+            &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
         let map2 = map_model::Map::new(
             "../data/raw_maps/montlake.abst",
             map_model::MapEdits::new("montlake"),
-            &mut abstutil::Timer::new("raw to map"),
+            &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
 
@@ -56,7 +56,7 @@ pub fn run(t: &mut TestRunner) {
         map_model::Map::new(
             "../data/raw_maps/23rd.abst",
             map_model::MapEdits::new("23rd"),
-            &mut abstutil::Timer::new("raw to map"),
+            &mut abstutil::Timer::throwaway(),
         )
         .expect("23rd broke");
     });
@@ -65,7 +65,7 @@ pub fn run(t: &mut TestRunner) {
         map_model::Map::new(
             "../data/raw_maps/small_seattle.abst",
             map_model::MapEdits::new("small_seattle"),
-            &mut abstutil::Timer::new("raw to map"),
+            &mut abstutil::Timer::throwaway(),
         )
         .expect("small_seattle broke");
     });

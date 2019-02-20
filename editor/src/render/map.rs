@@ -82,6 +82,7 @@ impl DrawMap {
                 !flags.dont_draw_lane_markings,
                 cs,
                 prerender,
+                timer,
             ));
         }
 
@@ -104,7 +105,7 @@ impl DrawMap {
             .iter()
             .map(|i| {
                 timer.next();
-                DrawIntersection::new(i, map, cs, prerender)
+                DrawIntersection::new(i, map, cs, prerender, timer)
             })
             .collect();
         let draw_all_unzoomed_intersections = prerender.upload_borrowed(
@@ -281,7 +282,14 @@ impl DrawMap {
     ) {
         // No need to edit the quadtree; the bbox shouldn't depend on lane type.
         // TODO Preserve flags.dont_draw_lane_markings
-        self.lanes[id.0] = DrawLane::new(map.get_l(id), map, true, cs, prerender);
+        self.lanes[id.0] = DrawLane::new(
+            map.get_l(id),
+            map,
+            true,
+            cs,
+            prerender,
+            &mut Timer::throwaway(),
+        );
     }
 
     pub fn edit_remove_turn(&mut self, id: TurnID) {

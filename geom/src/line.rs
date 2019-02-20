@@ -1,4 +1,5 @@
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use abstutil::Warn;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -48,15 +49,17 @@ impl Line {
     }
 
     // TODO One polygon, please :)
-    pub fn make_arrow(&self, thickness: Distance) -> Vec<Polygon> {
+    pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
         let head_size = thickness * 2.0;
         let angle = self.angle();
         let triangle_height = (head_size / 2.0).sqrt();
         if self.length() < triangle_height {
-            println!("Can't make_arrow of thickness {} for {}", thickness, self);
-            return Vec::new();
+            return Warn::warn(
+                Vec::new(),
+                format!("Can't make_arrow of thickness {} for {}", thickness, self),
+            );
         }
-        vec![
+        Warn::ok(vec![
             Polygon::new(&vec![
                 //self.pt2(),
                 //self.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
@@ -78,7 +81,7 @@ impl Line {
                     .project_away(head_size, angle.rotate_degs(-135.0)),
                 self.pt2().project_away(head_size, angle.rotate_degs(135.0)),
             ]),
-        ]
+        ])
     }
 
     pub fn length(&self) -> Distance {
