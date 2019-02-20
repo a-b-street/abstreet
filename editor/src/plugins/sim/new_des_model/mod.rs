@@ -1,13 +1,20 @@
+mod car;
+mod intersection;
+mod queue;
+
+pub use self::car::{Car, CarState, TimeInterval};
+use self::intersection::IntersectionController;
+use self::queue::Queue;
 use ezgui::{Color, GfxCtx};
-use geom::{Distance, Duration, PolyLine, Speed};
+use geom::{Distance, Duration, Speed};
 use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
 use sim::{CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
-const VEHICLE_LENGTH: Distance = Distance::const_meters(4.0);
-const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
-const FREEFLOW: Color = Color::CYAN;
-const WAITING: Color = Color::RED;
+pub const VEHICLE_LENGTH: Distance = Distance::const_meters(4.0);
+pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
+pub const FREEFLOW: Color = Color::CYAN;
+pub const WAITING: Color = Color::RED;
 
 pub struct World {
     queues: BTreeMap<LaneID, Queue>,
@@ -300,185 +307,6 @@ impl World {
             self.queues.get_mut(&lane).unwrap().cars.push_back(car);
         }
     }
-}
-
-struct TimeInterval {
-    start: Duration,
-    end: Duration,
-}
-
-impl TimeInterval {
-    fn percent(&self, t: Duration) -> f64 {
-        let x = (t - self.start) / (self.end - self.start);
-        assert!(x >= 0.0 && x <= 1.0);
-        x
-    }
-}
-
-struct Queue {
-    id: LaneID,
-    cars: VecDeque<Car>,
-    max_capacity: usize,
-}
-
-impl Queue {
-    fn is_empty(&self) -> bool {
-        self.cars.is_empty()
-    }
-
-    fn is_full(&self) -> bool {
-        self.cars.len() == self.max_capacity
-    }
-
-    fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
-        if self.cars.is_empty() {
-            return Vec::new();
-        }
-        let l = map.get_l(self.id);
-
-        let mut result: Vec<DrawCarInput> = Vec::new();
-        let mut last_car_back: Option<Distance> = None;
-
-        for car in &self.cars {
-            let (front, color) = match car.state {
-                CarState::Queued => {
-                    if last_car_back.is_none() {
-                        (l.length(), WAITING)
-                    } else {
-                        // TODO If the last car is still CrossingLane, then kinda weird to draw
-                        // us as queued
-                        (last_car_back.unwrap() - FOLLOWING_DISTANCE, WAITING)
-                    }
-                }
-                CarState::CrossingLane(ref i) => {
-                    let bound = last_car_back
-                        .map(|b| b - FOLLOWING_DISTANCE)
-                        .unwrap_or(l.length());
-                    (i.percent(time) * bound, FREEFLOW)
-                }
-                CarState::CrossingTurn(_) => unreachable!(),
-            };
-
-            // There's backfill and a car shouldn't have been able to enter yet, but it's a
-            // temporary condition -- there's enough rest capacity.
-            if front < Distance::ZERO {
-                println!(
-                    "Queue temporarily backed up on {} -- can't draw {}",
-                    self.id, car.id
-                );
-                return result;
-            }
-
-            if let Some(d) = car.get_draw_car(front, color, map) {
-                result.push(d);
-            }
-            last_car_back = Some(front - VEHICLE_LENGTH);
-        }
-        result
-    }
-}
-
-struct IntersectionController {
-    id: IntersectionID,
-    accepted: Option<Car>,
-}
-
-impl IntersectionController {
-    fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
-        if let Some(ref car) = self.accepted {
-            let t = map.get_t(car.path[0].as_turn());
-            let percent = match car.state {
-                CarState::CrossingTurn(ref int) => int.percent(time),
-                _ => unreachable!(),
-            };
-            if let Some(d) = car.get_draw_car(percent * t.geom.length(), FREEFLOW, map) {
-                return vec![d];
-            }
-        }
-        Vec::new()
-    }
-}
-
-struct Car {
-    id: CarID,
-    max_speed: Option<Speed>,
-    // Front is always the current step
-    path: VecDeque<Traversable>,
-    state: CarState,
-
-    // In reverse order -- most recently left is first. The sum length of these must be >=
-    // VEHICLE_LENGTH.
-    last_steps: VecDeque<Traversable>,
-}
-
-impl Car {
-    fn trim_last_steps(&mut self, map: &Map) {
-        let mut keep = VecDeque::new();
-        let mut len = Distance::ZERO;
-        for on in self.last_steps.drain(..) {
-            len += on.length(map);
-            keep.push_back(on);
-            if len >= VEHICLE_LENGTH {
-                break;
-            }
-        }
-        self.last_steps = keep;
-    }
-
-    fn get_draw_car(&self, front: Distance, color: Color, map: &Map) -> Option<DrawCarInput> {
-        assert!(front >= Distance::ZERO);
-        let body = if front >= VEHICLE_LENGTH {
-            self.path[0]
-                .slice(front - VEHICLE_LENGTH, front, map)
-                .unwrap()
-                .0
-        } else {
-            // TODO This is redoing some of the Path::trace work...
-            let mut result = self.path[0]
-                .slice(Distance::ZERO, front, map)
-                .map(|(pl, _)| pl.points().clone())
-                .unwrap_or_else(Vec::new);
-            let mut leftover = VEHICLE_LENGTH - front;
-            let mut i = 0;
-            while leftover > Distance::ZERO {
-                if i == self.last_steps.len() {
-                    println!("{} spawned too close to short stuff", self.id);
-                    return None;
-                }
-                let len = self.last_steps[i].length(map);
-                let start = (len - leftover).max(Distance::ZERO);
-                let piece = self.last_steps[i]
-                    .slice(start, len, map)
-                    .map(|(pl, _)| pl.points().clone())
-                    .unwrap_or_else(Vec::new);
-                result = PolyLine::append(piece, result);
-                leftover -= len;
-                i += 1;
-            }
-
-            PolyLine::new(result)
-        };
-
-        Some(DrawCarInput {
-            id: self.id,
-            waiting_for_turn: None,
-            stopping_trace: None,
-            state: if color == FREEFLOW {
-                sim::CarState::Moving
-            } else {
-                sim::CarState::Stuck
-            },
-            vehicle_type: self.id.tmp_get_vehicle_type(),
-            on: self.path[0],
-            body,
-        })
-    }
-}
-
-enum CarState {
-    CrossingLane(TimeInterval),
-    Queued,
-    CrossingTurn(TimeInterval),
 }
 
 fn time_to_cross(on: Traversable, map: &Map, max_speed: Option<Speed>) -> Duration {
