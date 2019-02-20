@@ -4,6 +4,7 @@ use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput};
 use std::collections::VecDeque;
 
+#[derive(Debug)]
 pub struct Car {
     pub id: CarID,
     pub max_speed: Option<Speed>,
@@ -30,7 +31,7 @@ impl Car {
         self.last_steps = keep;
     }
 
-    pub fn get_draw_car(&self, front: Distance, map: &Map) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, front: Distance, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         let body = if front >= VEHICLE_LENGTH {
             self.path[0]
@@ -47,8 +48,7 @@ impl Car {
             let mut i = 0;
             while leftover > Distance::ZERO {
                 if i == self.last_steps.len() {
-                    println!("{} spawned too close to short stuff", self.id);
-                    return None;
+                    panic!("{} spawned too close to short stuff", self.id);
                 }
                 let len = self.last_steps[i].length(map);
                 let start = (len - leftover).max(Distance::ZERO);
@@ -64,29 +64,31 @@ impl Car {
             PolyLine::new(result)
         };
 
-        Some(DrawCarInput {
+        DrawCarInput {
             id: self.id,
             waiting_for_turn: None,
             stopping_trace: None,
             state: match self.state {
                 // TODO Cars can be Queued behind a slow CrossingLane. Looks kind of weird.
                 CarState::Queued => sim::CarState::Stuck,
-                CarState::CrossingLane(_) => sim::CarState::Moving,
+                CarState::CrossingLane(_, _) => sim::CarState::Moving,
                 CarState::CrossingTurn(_) => sim::CarState::Moving,
             },
             vehicle_type: self.id.tmp_get_vehicle_type(),
             on: self.path[0],
             body,
-        })
+        }
     }
 }
 
+#[derive(Debug)]
 pub enum CarState {
-    CrossingLane(TimeInterval),
+    CrossingLane(TimeInterval, DistanceInterval),
     Queued,
     CrossingTurn(TimeInterval),
 }
 
+#[derive(Debug)]
 pub struct TimeInterval {
     pub start: Duration,
     pub end: Duration,
@@ -97,5 +99,25 @@ impl TimeInterval {
         let x = (t - self.start) / (self.end - self.start);
         assert!(x >= 0.0 && x <= 1.0);
         x
+    }
+}
+
+#[derive(Debug)]
+pub struct DistanceInterval {
+    pub start: Distance,
+    pub end: Distance,
+}
+
+impl DistanceInterval {
+    pub fn lerp(&self, x: f64) -> Distance {
+        assert!(x >= 0.0 && x <= 1.0);
+        self.start + x * (self.end - self.start)
+    }
+
+    pub fn upper_bound(&self, bound: Distance) -> DistanceInterval {
+        DistanceInterval {
+            start: self.start,
+            end: self.end.min(bound),
+        }
     }
 }

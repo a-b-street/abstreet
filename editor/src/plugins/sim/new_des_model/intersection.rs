@@ -16,9 +16,7 @@ impl IntersectionController {
                 CarState::CrossingTurn(ref int) => int.percent(time),
                 _ => unreachable!(),
             };
-            if let Some(d) = car.get_draw_car(percent * t.geom.length(), map) {
-                return vec![d];
-            }
+            return vec![car.get_draw_car(percent * t.geom.length(), map)];
         }
         Vec::new()
     }

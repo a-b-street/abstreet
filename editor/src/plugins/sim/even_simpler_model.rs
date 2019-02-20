@@ -133,6 +133,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
         }
     }
 
+    let mut counter = 0;
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         let len = map.get_l(source).length();
@@ -152,7 +153,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
             };
 
             world.spawn_car(
-                CarID::tmp_new(i, VehicleType::Car),
+                CarID::tmp_new(counter, VehicleType::Car),
                 max_speed,
                 path.clone(),
                 Duration::seconds(1.0) * (i as f64),
@@ -162,6 +163,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                 )),
                 map,
             );
+            counter += 1;
         }
     }
 
@@ -171,8 +173,8 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
 fn densely_populate_world(map: &Map) -> new_des_model::World {
     let mut world = new_des_model::World::new(map);
     let mut rng = XorShiftRng::from_seed([42; 16]);
-
     let mut counter = 0;
+
     for l in map.all_lanes() {
         let len = l.length();
         if l.is_driving() && len >= new_des_model::VEHICLE_LENGTH {
