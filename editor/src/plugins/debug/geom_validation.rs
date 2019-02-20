@@ -41,7 +41,7 @@ impl Validator {
             objects.push((ID::Parcel(p.id), make_polys(&p.fill_polygon)));
         }
 
-        info!(
+        println!(
             "{} objects total. About {} possible overlaps",
             objects.len(),
             objects.len().pow(2)
@@ -94,14 +94,14 @@ impl BlockingPlugin for Validator {
             self.current_problem = self.gen.next();
 
             if let Some((id1, id2)) = self.current_problem {
-                info!("{:?} and {:?} intersect", id1, id2);
+                println!("{:?} and {:?} intersect", id1, id2);
                 ctx.canvas.center_on_map_pt(
                     id1.canonical_point(&ctx.primary.map, &ctx.primary.sim, &ctx.primary.draw_map)
                         .unwrap(),
                 );
             // TODO also modify selection state to highlight stuff?
             } else {
-                info!("No more problems!");
+                println!("No more problems!");
                 return false;
             }
         } else if ctx.input.modal_action("quit") {
@@ -161,7 +161,7 @@ fn list_problems(map: &Map) {
             continue;
         }
 
-        error!(
+        println!(
             "{} may be collapsible. OSM ways {} vs {}",
             i.id, r1.osm_way_id, r2.osm_way_id
         );
@@ -177,7 +177,7 @@ fn list_problems(map: &Map) {
             {
                 continue;
             }
-            error!("  only {} has: {} = {}", r1.id, k, v);
+            println!("  only {} has: {} = {}", r1.id, k, v);
         }
         for (k, v) in tags2.difference(&common) {
             if k.starts_with("tiger:")
@@ -187,7 +187,7 @@ fn list_problems(map: &Map) {
             {
                 continue;
             }
-            error!("  only {} has: {} = {}", r2.id, k, v);
+            println!("  only {} has: {} = {}", r2.id, k, v);
         }
     }
 }

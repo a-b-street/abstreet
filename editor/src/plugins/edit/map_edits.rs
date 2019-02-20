@@ -97,7 +97,7 @@ fn manage_edits(
             let mut flags = current_flags.clone();
             flags.sim_flags.edits_name = load_name;
 
-            info!("Reloading everything...");
+            println!("Reloading everything...");
             // TODO Properly retain enable_debug_plugins
             *new_primary = Some(PerMapUI::new(flags, cs, prerender, true));
             Some(())

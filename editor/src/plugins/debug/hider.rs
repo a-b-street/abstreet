@@ -29,7 +29,7 @@ impl NonblockingPlugin for Hider {
         ctx.input.set_mode("Object Hider", &ctx.canvas);
 
         if ctx.input.modal_action("unhide everything") {
-            info!("Unhiding {} things", self.items.len());
+            println!("Unhiding {} things", self.items.len());
             *ctx.recalculate_current_selection = true;
             ctx.primary.current_selection = None;
             return false;
@@ -53,7 +53,7 @@ fn hide_something(ctx: &mut PluginCtx) -> Option<ID> {
                 .input
                 .contextual_action(Key::H, &format!("hide {:?}", id))
             {
-                info!("Hiding {:?}", id);
+                println!("Hiding {:?}", id);
                 *ctx.recalculate_current_selection = true;
                 ctx.primary.current_selection = None;
                 Some(id)

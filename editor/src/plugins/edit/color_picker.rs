@@ -53,7 +53,7 @@ impl BlockingPlugin for ColorPicker {
                     ctx.cs.reset_modified(name, *orig);
                     return false;
                 } else if ctx.input.modal_action("finalize") {
-                    info!("Setting color for {}", name);
+                    println!("Setting color for {}", name);
                     return false;
                 }
 

@@ -44,7 +44,7 @@ impl DrawIntersection {
             i.polygon.clone(),
         )];
         default_geom.extend(
-            calculate_corners(i, map)
+            calculate_corners(i, map, timer)
                 .into_iter()
                 .map(|p| (cs.get("sidewalk"), p)),
         );
@@ -133,7 +133,7 @@ fn calculate_crosswalks(
 }
 
 // TODO Temporarily public for debugging.
-pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
+pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
     for turn in &map.get_turns_in_intersection(i.id) {
@@ -167,13 +167,13 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 pts_between.push(dst_line.pt1());
                 corners.push(Polygon::new(&pts_between));
             } else {
-                error!(
+                timer.warn(format!(
                     "Couldn't make geometry for {}. look for {} to {} in {:?}",
                     turn.id,
                     corner2,
                     corner1,
                     i.polygon.points()
-                );
+                ));
             }
         }
     }

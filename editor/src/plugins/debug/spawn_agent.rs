@@ -147,7 +147,7 @@ impl BlockingPlugin for SpawnAgent {
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
-                    info!(
+                    println!(
                         "Spawning {}",
                         ctx.primary
                             .sim
@@ -155,7 +155,7 @@ impl BlockingPlugin for SpawnAgent {
                     );
                 }
                 (Source::Walking(from), Goal::Border(to)) => {
-                    info!(
+                    println!(
                         "Spawning {}",
                         ctx.primary
                             .sim
@@ -163,7 +163,7 @@ impl BlockingPlugin for SpawnAgent {
                     );
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
-                    info!(
+                    println!(
                         "Spawning {}",
                         ctx.primary
                             .sim
@@ -171,7 +171,7 @@ impl BlockingPlugin for SpawnAgent {
                     );
                 }
                 (Source::Driving(from), Goal::Border(to)) => {
-                    info!(
+                    println!(
                         "Spawning {}",
                         ctx.primary
                             .sim

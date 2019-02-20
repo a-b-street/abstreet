@@ -69,7 +69,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
         }
 
         if ctx.secondary.is_some() && ctx.input.action_chosen("swap the primary/secondary sim") {
-            info!("Swapping primary/secondary sim");
+            println!("Swapping primary/secondary sim");
             // Check out this cool little trick. :D
             let (mut secondary, mut secondary_plugins) = ctx.secondary.take().unwrap();
             mem::swap(ctx.primary, &mut secondary);
@@ -110,7 +110,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                                 .unwrap();
                             }
                         }
-                        None => error!("Couldn't load previous savestate"),
+                        None => println!("Couldn't load previous savestate"),
                     };
                 }
                 if ctx.input.action_chosen("load next sim state") {
@@ -132,7 +132,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                                 .unwrap();
                             }
                         }
-                        None => error!("Couldn't load next savestate"),
+                        None => println!("Couldn't load next savestate"),
                     };
                 }
 

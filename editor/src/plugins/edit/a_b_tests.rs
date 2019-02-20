@@ -98,7 +98,7 @@ fn launch_test(
     cs: &ColorScheme,
     prerender: &Prerender,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
-    info!("Launching A/B test {}...", test.test_name);
+    println!("Launching A/B test {}...", test.test_name);
     let load = format!(
         "../data/scenarios/{}/{}.json",
         test.map_name, test.scenario_name

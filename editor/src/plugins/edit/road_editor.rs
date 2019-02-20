@@ -34,7 +34,7 @@ impl BlockingPlugin for RoadEditor {
             {
                 let mut edits = ctx.primary.map.get_edits().clone();
                 edits.delete_lane(road, lane);
-                warn!("Have to reload the map from scratch to pick up this change!");
+                println!("Have to reload the map from scratch to pick up this change!");
                 ctx.primary.map.store_new_edits(edits);
             } else if let Some(new_type) = next_valid_type(ctx.primary.map.get_edits(), road, lane)
             {

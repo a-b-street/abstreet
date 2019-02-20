@@ -374,11 +374,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
-        error!("********************************************************************************");
-        error!("UI broke! Primary sim:");
+        println!(
+            "********************************************************************************"
+        );
+        println!("UI broke! Primary sim:");
         self.state.get_state().primary.sim.dump_before_abort();
         if let Some((s, _)) = &self.state.get_state().secondary {
-            error!("Secondary sim:");
+            println!("Secondary sim:");
             s.sim.dump_before_abort();
         }
 
@@ -388,7 +390,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
     fn before_quit(&self, canvas: &Canvas) {
         self.save_editor_state(canvas);
         self.state.get_state().cs.save();
-        info!("Saved color_scheme");
+        println!("Saved color_scheme");
     }
 
     fn profiling_enabled(&self) -> bool {
@@ -400,13 +402,13 @@ impl<S: UIState> UI<S> {
     pub fn new(state: S, canvas: &mut Canvas) -> UI<S> {
         match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref loaded) if state.get_state().primary.map.get_name() == &loaded.map_name => {
-                info!("Loaded previous editor_state");
+                println!("Loaded previous editor_state");
                 canvas.cam_x = loaded.cam_x;
                 canvas.cam_y = loaded.cam_y;
                 canvas.cam_zoom = loaded.cam_zoom;
             }
             _ => {
-                warn!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
+                println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 let focus_pt = ID::Building(BuildingID(0))
                     .canonical_point(
                         &state.get_state().primary.map,
@@ -475,7 +477,7 @@ impl<S: UIState> UI<S> {
         };
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
         abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
-        info!("Saved editor_state");
+        println!("Saved editor_state");
     }
 
     // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that

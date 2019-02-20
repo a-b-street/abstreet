@@ -1,7 +1,6 @@
 use crate::widgets::{Menu, Position};
 use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, TextBox, UserInput};
 use abstutil::Cloneable;
-use log::warn;
 use std::collections::VecDeque;
 
 pub struct Wizard {
@@ -95,7 +94,7 @@ impl Wizard {
                 if let Some(result) = parser(line.clone()) {
                     Some(result)
                 } else {
-                    warn!(target: "UI", "Invalid input {}", line);
+                    println!("Invalid input {}", line);
                     None
                 }
             }

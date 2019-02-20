@@ -85,11 +85,11 @@ fn show_route(trip: TripID, ctx: &mut PluginCtx) -> ShowRouteState {
         if let Some(trace) = ctx.primary.sim.trace_route(agent, &ctx.primary.map, None) {
             ShowRouteState::Active(time, trip, Some(trace))
         } else {
-            warn!("{} has no trace right now", agent);
+            println!("{} has no trace right now", agent);
             ShowRouteState::Active(time, trip, None)
         }
     } else {
-        warn!(
+        println!(
             "{} has no agent associated right now; is the trip done?",
             trip
         );

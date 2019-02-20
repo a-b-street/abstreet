@@ -94,7 +94,7 @@ fn diff_trip(trip: TripID, ctx: &mut PluginCtx) -> DiffTripState {
         .and_then(|agent| secondary_sim.trace_route(agent, secondary_map, None));
 
     if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
-        warn!("{} isn't present in both sims", trip);
+        println!("{} isn't present in both sims", trip);
     }
     DiffTripState {
         time: primary_sim.time,

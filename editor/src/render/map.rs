@@ -227,10 +227,10 @@ impl DrawMap {
         }
         timer.stop("create quadtree");
 
-        info!(
+        timer.note(format!(
             "static DrawMap consumes {} MB on the GPU",
             abstutil::prettyprint_usize(prerender.get_total_bytes_uploaded() / 1024 / 1024)
-        );
+        ));
 
         DrawMap {
             roads,

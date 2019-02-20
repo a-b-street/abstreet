@@ -1,6 +1,7 @@
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::calculate_corners;
+use abstutil::Timer;
 use ezgui::{GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
@@ -38,7 +39,7 @@ impl DebugPolygon {
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
                     return Some(DebugPolygon {
-                        items: calculate_corners(i, &ctx.primary.map)
+                        items: calculate_corners(i, &ctx.primary.map, &mut Timer::throwaway())
                             .into_iter()
                             .map(Item::Polygon)
                             .collect(),

@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod colors;
 mod objects;
 mod plugins;

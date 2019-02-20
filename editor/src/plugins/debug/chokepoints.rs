@@ -48,7 +48,7 @@ fn find_chokepoints(sim: &Sim) -> ChokepointsFinder {
     let mut count_per_intersection: Counter<IntersectionID, usize> = Counter::new();
 
     let active = sim.active_agents();
-    info!("Finding chokepoints from {} active agents", active.len());
+    println!("Finding chokepoints from {} active agents", active.len());
     for a in active.into_iter() {
         // Why would an active agent not have a path? Pedestrian riding a bus.
         if let Some(path) = sim.get_path(a) {

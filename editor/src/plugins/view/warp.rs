@@ -91,7 +91,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                 if let Some(r) = map.maybe_get_r(id) {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
-                    warn!("{} doesn't exist", id);
+                    println!("{} doesn't exist", id);
                     return None;
                 }
             }
@@ -110,7 +110,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                 if let Some(id) = map.lookup_turn_by_idx(idx) {
                     ID::Turn(id)
                 } else {
-                    warn!("{} isn't a known TurnID", line);
+                    println!("{} isn't a known TurnID", line);
                     return None;
                 }
             }
@@ -123,7 +123,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                 {
                     ID::Intersection(i.id)
                 } else {
-                    warn!("{} isn't known", stable_id);
+                    println!("{} isn't known", stable_id);
                     return None;
                 }
             }
@@ -132,12 +132,12 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
                 if let Some(r) = map.all_roads().iter().find(|r| r.stable_id == stable_id) {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
-                    warn!("{} isn't known", stable_id);
+                    println!("{} isn't known", stable_id);
                     return None;
                 }
             }
             _ => {
-                warn!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
+                println!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
                 return None;
             }
         },
@@ -146,10 +146,10 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
         }
     };
     if let Some(pt) = id.canonical_point(map, sim, draw_map) {
-        info!("Warping to {:?}", id);
+        println!("Warping to {:?}", id);
         Some((id, pt))
     } else {
-        warn!("{:?} doesn't exist", id);
+        println!("{:?} doesn't exist", id);
         None
     }
 }

@@ -37,7 +37,7 @@ impl AmbientPlugin for FollowState {
             } else {
                 // TODO ideally they wouldnt vanish for so long according to
                 // get_canonical_point_for_trip
-                warn!("{} is gone... temporarily or not?", trip);
+                println!("{} is gone... temporarily or not?", trip);
             }
             ctx.input.set_mode_with_prompt(
                 "Agent Follower",
