@@ -4,6 +4,9 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::Duration;
 use map_model::{LaneID, Map, Traversable};
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
 use sim::{CarID, VehicleType};
 
 const TIMESTEP: Duration = Duration::const_seconds(0.1);
@@ -88,17 +91,18 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
         }
     }
 
+    let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
-        let mut path = vec![Traversable::Lane(source)];
-        let mut last_lane = source;
-        for _ in 0..5 {
-            let t = map.get_turns_from_lane(last_lane)[0];
-            path.push(Traversable::Turn(t.id));
-            path.push(Traversable::Lane(t.id.dst));
-            last_lane = t.id.dst;
-        }
-
         for i in 0..10 {
+            let mut path = vec![Traversable::Lane(source)];
+            let mut last_lane = source;
+            for _ in 0..5 {
+                let t = *map.get_turns_from_lane(last_lane).choose(&mut rng).unwrap();
+                path.push(Traversable::Turn(t.id));
+                path.push(Traversable::Lane(t.id.dst));
+                last_lane = t.id.dst;
+            }
+
             world.spawn_car(
                 CarID::tmp_new(i, VehicleType::Car),
                 None,

@@ -21,6 +21,9 @@ map_model = { path = "../map_model" }
 ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
 quick-xml = "0.13.1"
+# TODO Just for the DES model prototype
+rand = "0.6.5"
+rand_xorshift = "0.1.1"
 serde = "1.0.87"
 serde_derive = "1.0.87"
 sim = { path = "../sim" }
