@@ -122,6 +122,7 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
                 ID::HalfRoad(r.id, true),
                 r.trimmed_center_pts
                     .shift_right(r.fwd_width / 2.0)
+                    .unwrap()
                     .make_polygons(r.fwd_width),
                 Color::grey(0.8),
                 Text::from_line(format!(
@@ -137,6 +138,7 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
                 ID::HalfRoad(r.id, false),
                 r.trimmed_center_pts
                     .shift_left(r.back_width / 2.0)
+                    .unwrap()
                     .make_polygons(r.back_width),
                 Color::grey(0.6),
                 Text::from_line(format!(

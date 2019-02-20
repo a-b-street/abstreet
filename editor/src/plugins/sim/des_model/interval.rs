@@ -82,7 +82,7 @@ impl Interval {
             let numer = t_1 * v_1 - t_3 * v_3 - x_1 + x_3;
             let denom = v_1 - v_3;
             Duration::seconds(numer / denom)
-        } else if a_1 == a_3 {
+        } else if (a_1 - a_3).abs() < std::f64::EPSILON {
             // Sometimes exactly the same acceleration happens.
             let numer = a_3 * t_1.powi(2) - a_3 * t_3.powi(2) - 2.0 * t_1 * v_1
                 + 2.0 * t_3 * v_3

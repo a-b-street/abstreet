@@ -1,6 +1,6 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use abstutil::wraparound_get;
+use abstutil::{wraparound_get, Timer};
 use geom::{Distance, HashablePt2D, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
@@ -11,6 +11,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(5.0
 pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<StableRoadID, Road>,
+    timer: &mut Timer,
 ) -> Vec<Pt2D> {
     let mut road_endpts: Vec<Pt2D> = Vec::new();
 
@@ -35,8 +36,12 @@ pub fn intersection_polygon(
                 panic!("Incident road {} doesn't have an endpoint at {}", id, i.id);
             };
 
-            let pl_normal = line.shift_right(width_normal);
-            let pl_reverse = line.shift_left(width_reverse);
+            let pl_normal = line
+                .shift_right(width_normal)
+                .with_context(timer, format!("pl_normal {}", r.id));
+            let pl_reverse = line
+                .shift_left(width_reverse)
+                .with_context(timer, format!("pl_reverse {}", r.id));
             (*id, line.last_line(), pl_normal, pl_reverse)
         })
         .collect();
@@ -56,7 +61,7 @@ pub fn intersection_polygon(
     let mut endpoints = if lines.len() == 1 {
         deadend(roads, i.id, &lines)
     } else {
-        generalized_trim_back(roads, i.id, &lines)
+        generalized_trim_back(roads, i.id, &lines, timer)
     };
 
     // Close off the polygon
@@ -75,6 +80,7 @@ fn generalized_trim_back(
     roads: &mut BTreeMap<StableRoadID, Road>,
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
+    timer: &mut Timer,
 ) -> Vec<Pt2D> {
     let mut road_lines: Vec<(StableRoadID, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
@@ -228,11 +234,31 @@ fn generalized_trim_back(
 
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {
-            endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).last_pt());
-            endpoints.push(r.trimmed_center_pts.shift_left(r.back_width).last_pt());
+            endpoints.push(
+                r.trimmed_center_pts
+                    .shift_right(r.fwd_width)
+                    .get(timer)
+                    .last_pt(),
+            );
+            endpoints.push(
+                r.trimmed_center_pts
+                    .shift_left(r.back_width)
+                    .get(timer)
+                    .last_pt(),
+            );
         } else {
-            endpoints.push(r.trimmed_center_pts.shift_left(r.back_width).first_pt());
-            endpoints.push(r.trimmed_center_pts.shift_right(r.fwd_width).first_pt());
+            endpoints.push(
+                r.trimmed_center_pts
+                    .shift_left(r.back_width)
+                    .get(timer)
+                    .first_pt(),
+            );
+            endpoints.push(
+                r.trimmed_center_pts
+                    .shift_right(r.fwd_width)
+                    .get(timer)
+                    .first_pt(),
+            );
         }
 
         if back_pl.length() >= geom::EPSILON_DIST * 3.0

@@ -77,10 +77,10 @@ impl Road {
         ]);
         if direction {
             let width = LANE_THICKNESS * (self.lanes.fwd.len() as f64);
-            pl.shift_right(width / 2.0).make_polygons(width)
+            pl.shift_right(width / 2.0).unwrap().make_polygons(width)
         } else {
             let width = LANE_THICKNESS * (self.lanes.back.len() as f64);
-            pl.shift_left(width / 2.0).make_polygons(width)
+            pl.shift_left(width / 2.0).unwrap().make_polygons(width)
         }
     }
 
@@ -93,6 +93,7 @@ impl Road {
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             let polygon = base
                 .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
+                .unwrap()
                 .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_fwd {
@@ -106,6 +107,7 @@ impl Road {
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let polygon = base
                 .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
+                .unwrap()
                 .make_polygons(LANE_THICKNESS);
             g.draw_polygon(
                 if highlight_back {

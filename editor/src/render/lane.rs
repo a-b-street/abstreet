@@ -47,7 +47,7 @@ impl DrawLane {
                     draw.extend(calculate_parking_lines(lane, cs));
                 }
                 LaneType::Driving | LaneType::Bus => {
-                    draw.extend(calculate_driving_lines(lane, road, cs));
+                    draw.extend(calculate_driving_lines(lane, road, cs, timer));
                     draw.extend(calculate_turn_markings(map, lane, cs, timer));
                 }
                 LaneType::Biking => {}
@@ -182,7 +182,12 @@ fn calculate_parking_lines(lane: &Lane, cs: &ColorScheme) -> Vec<(Color, Polygon
     result
 }
 
-fn calculate_driving_lines(lane: &Lane, parent: &Road, cs: &ColorScheme) -> Vec<(Color, Polygon)> {
+fn calculate_driving_lines(
+    lane: &Lane,
+    parent: &Road,
+    cs: &ColorScheme,
+    timer: &mut Timer,
+) -> Vec<(Color, Polygon)> {
     // The leftmost lanes don't have dashed white lines.
     if parent.dir_and_offset(lane.id).1 == 0 {
         return Vec::new();
@@ -191,7 +196,10 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, cs: &ColorScheme) -> Vec<
     let dash_separation = Distance::meters(1.5);
     let dash_len = Distance::meters(1.0);
 
-    let lane_edge_pts = lane.lane_center_pts.shift_left(LANE_THICKNESS / 2.0);
+    let lane_edge_pts = lane
+        .lane_center_pts
+        .shift_left(LANE_THICKNESS / 2.0)
+        .get(timer);
     if lane_edge_pts.length() < dash_separation * 2.0 {
         return Vec::new();
     }

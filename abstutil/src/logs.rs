@@ -88,6 +88,13 @@ impl<T> Warn<T> {
         self.value
     }
 
+    pub fn map<O, F: Fn(T) -> O>(self, f: F) -> Warn<O> {
+        Warn {
+            value: f(self.value),
+            warnings: self.warnings,
+        }
+    }
+
     /*pub fn get_and_append<X>(self, other: &mut Warn<X>) -> T {
         other.warnings.extend(self.warnings);
         self.value
@@ -105,9 +112,9 @@ impl<T> Warn<T> {
 }
 
 impl Warn<()> {
-    pub fn empty() -> Warn<()> {
-        Warn::ok(())
-    }
+    /*pub fn empty_warnings(warnings: Vec<String>) -> Warn<()> {
+        Warn::warnings((), warnings)
+    }*/
 
     /*pub fn add_warning(&mut self, line: String) {
         self.warnings.push(line);

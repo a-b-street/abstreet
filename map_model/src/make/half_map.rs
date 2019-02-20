@@ -111,7 +111,9 @@ pub fn make_half_map(
             // TODO need to factor in yellow center lines (but what's the right thing to even do?
             // Reverse points for British-style driving on the left
             let width = LANE_THICKNESS * (0.5 + (offset as f64));
-            let lane_center_pts = unshifted_pts.shift_right(width);
+            let lane_center_pts = unshifted_pts
+                .shift_right(width)
+                .with_context(timer, format!("shift for {}", id));
 
             half_map.lanes.push(Lane {
                 id,

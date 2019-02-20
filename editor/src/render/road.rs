@@ -1,6 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
+use abstutil::{Timer, Warn};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID, LANE_THICKNESS};
@@ -15,8 +16,13 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> (DrawRoad, Polygon) {
-        let thick = DrawRoad::get_thick(r);
+    pub fn new(
+        r: &Road,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+        timer: &mut Timer,
+    ) -> (DrawRoad, Polygon) {
+        let thick = DrawRoad::get_thick(r).get(timer);
         (
             DrawRoad {
                 id: r.id,
@@ -31,7 +37,7 @@ impl DrawRoad {
         )
     }
 
-    pub fn get_thick(r: &Road) -> Polygon {
+    pub fn get_thick(r: &Road) -> Warn<Polygon> {
         // TODO Should be a less tedious way to do this
         let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
         let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
@@ -39,11 +45,11 @@ impl DrawRoad {
         if width_right >= width_left {
             r.center_pts
                 .shift_right((width_right - width_left) / 2.0)
-                .make_polygons(total_width)
+                .map(|pl| pl.make_polygons(total_width))
         } else {
             r.center_pts
                 .shift_left((width_left - width_right) / 2.0)
-                .make_polygons(total_width)
+                .map(|pl| pl.make_polygons(total_width))
         }
     }
 }

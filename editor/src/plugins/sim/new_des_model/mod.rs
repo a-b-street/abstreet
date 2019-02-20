@@ -83,7 +83,7 @@ impl World {
             if num_waiting > 0 {
                 // Short lanes exist
                 let start = (l.length()
-                    - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE))
+                    - f64::from(num_waiting) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE))
                     .max(Distance::ZERO);
                 g.draw_polygon(
                     WAITING,
@@ -100,7 +100,7 @@ impl World {
                     &l.lane_center_pts
                         .slice(
                             Distance::ZERO,
-                            (num_freeflow as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                            f64::from(num_freeflow) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
                         )
                         .unwrap()
                         .0
@@ -179,7 +179,7 @@ impl World {
                     .unwrap()
                     .cars
                     .push_back(Car {
-                        id: id,
+                        id,
                         max_speed,
                         path: VecDeque::from(path.clone()),
                         state: CarState::CrossingLane(TimeInterval {
@@ -198,31 +198,25 @@ impl World {
         // Promote CrossingLane to Queued.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
-                match car.state {
-                    CarState::CrossingLane(ref interval) => {
-                        if time > interval.end {
-                            car.state = CarState::Queued;
-                        }
+                if let CarState::CrossingLane(ref interval) = car.state {
+                    if time > interval.end {
+                        car.state = CarState::Queued;
                     }
-                    _ => {}
-                };
+                }
             }
         }
 
         // Delete head cars that're completely done.
         for queue in self.queues.values_mut() {
             while !queue.is_empty() {
-                match queue.cars[0].state {
-                    CarState::Queued => {
-                        if queue.cars[0].path.len() == 1 {
-                            queue.cars.pop_front();
-                            // TODO Should have some brief delay to creep forwards VEHICLE_LENGTH +
-                            // FOLLOWING_DISTANCE.
-                            continue;
-                        }
+                if let CarState::Queued = queue.cars[0].state {
+                    if queue.cars[0].path.len() == 1 {
+                        queue.cars.pop_front();
+                        // TODO Should have some brief delay to creep forwards VEHICLE_LENGTH +
+                        // FOLLOWING_DISTANCE.
+                        continue;
                     }
-                    _ => {}
-                };
+                }
                 break;
             }
         }
@@ -235,12 +229,9 @@ impl World {
                 continue;
             }
             let car = &queue.cars[0];
-            match car.state {
-                CarState::Queued => {
-                    cars_ready_to_turn.push((queue.id, car.path[1].as_turn()));
-                }
-                _ => {}
-            };
+            if let CarState::Queued = car.state {
+                cars_ready_to_turn.push((queue.id, car.path[1].as_turn()));
+            }
         }
 
         // Lane->Turn transitions

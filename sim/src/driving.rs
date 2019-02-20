@@ -920,7 +920,9 @@ impl DrivingSimState {
                 1.0 - progress
             };
             // TODO we're assuming the parking lane is to the right of us!
-            base_body.shift_right(LANE_THICKNESS * project_away_ratio)
+            base_body
+                .shift_right(LANE_THICKNESS * project_away_ratio)
+                .unwrap()
         } else {
             base_body
         };

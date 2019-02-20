@@ -144,12 +144,12 @@ impl InitialMap {
         for i in m.intersections.values_mut() {
             timer.next();
 
-            i.polygon = geometry::intersection_polygon(i, &mut m.roads);
+            i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
         }
 
         fix_ramps::fix_ramps(&mut m, timer);
 
-        merge::short_roads(&mut m);
+        merge::short_roads(&mut m, timer);
 
         m
     }

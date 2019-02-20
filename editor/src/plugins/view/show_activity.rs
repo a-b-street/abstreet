@@ -171,7 +171,7 @@ impl RoadHeatmap {
                 Color::RED
             };
             // TODO Inefficient!
-            g.draw_polygon(color, &DrawRoad::get_thick(ctx.map.get_r(*r)));
+            g.draw_polygon(color, &DrawRoad::get_thick(ctx.map.get_r(*r)).unwrap());
         }
     }
 }

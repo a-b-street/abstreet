@@ -41,7 +41,7 @@ pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
     }
 
     for (r, i) in fixme {
-        if fix_ramp(m, r, i) {
+        if fix_ramp(m, r, i, timer) {
             info!("Fixed ramp {} crossing {}", r, i);
         } else {
             info!("{} crosses {} strangely, but didn't change anything", r, i);
@@ -75,7 +75,12 @@ fn floodfill(m: &InitialMap, start: StableIntersectionID, steps: usize) -> HashS
     seen
 }
 
-fn fix_ramp(m: &mut InitialMap, ramp: StableRoadID, new_src: StableIntersectionID) -> bool {
+fn fix_ramp(
+    m: &mut InitialMap,
+    ramp: StableRoadID,
+    new_src: StableIntersectionID,
+    timer: &mut Timer,
+) -> bool {
     // Trace backwards...
     let mut delete_roads: Vec<StableRoadID> = Vec::new();
     let mut delete_intersections: Vec<StableIntersectionID> = Vec::new();
@@ -104,7 +109,7 @@ fn fix_ramp(m: &mut InitialMap, ramp: StableRoadID, new_src: StableIntersectionI
     if let Some(last_road) = delete_roads.last() {
         let mut i = m.intersections.get_mut(&last_normal_intersection).unwrap();
         i.roads.remove(&last_road);
-        i.polygon = geometry::intersection_polygon(i, &mut m.roads);
+        i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
     } else {
         // TODO Not really sure why, but when there's not a road in between, don't apply the fix.
         return false;
@@ -120,7 +125,7 @@ fn fix_ramp(m: &mut InitialMap, ramp: StableRoadID, new_src: StableIntersectionI
         m.roads.get_mut(&ramp).unwrap().src_i = new_src;
         let mut i = m.intersections.get_mut(&new_src).unwrap();
         i.roads.insert(ramp);
-        i.polygon = geometry::intersection_polygon(i, &mut m.roads);
+        i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
     }
     true
 }

@@ -44,7 +44,7 @@ impl Queue {
                 CarState::CrossingLane(ref i) => {
                     let bound = last_car_back
                         .map(|b| b - FOLLOWING_DISTANCE)
-                        .unwrap_or(l.length());
+                        .unwrap_or_else(|| l.length());
                     (i.percent(time) * bound, FREEFLOW)
                 }
                 CarState::CrossingTurn(_) => unreachable!(),

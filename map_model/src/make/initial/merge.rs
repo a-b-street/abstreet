@@ -1,26 +1,26 @@
 use crate::make::initial::{geometry, InitialMap};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use abstutil::note;
+use abstutil::Timer;
 use geom::Distance;
 use std::collections::HashSet;
 
-pub fn short_roads(map: &mut InitialMap) {
+pub fn short_roads(map: &mut InitialMap, timer: &mut Timer) {
     if false {
         // I228
-        merge(map, StableRoadID(311));
+        merge(map, StableRoadID(311), timer);
 
         // I201
-        merge(map, StableRoadID(240));
+        merge(map, StableRoadID(240), timer);
 
         // I37
-        merge(map, StableRoadID(91));
+        merge(map, StableRoadID(91), timer);
 
         // I40
-        merge(map, StableRoadID(59));
+        merge(map, StableRoadID(59), timer);
 
         // I25
-        merge(map, StableRoadID(389));
-        merge(map, StableRoadID(22));
+        merge(map, StableRoadID(389), timer);
+        merge(map, StableRoadID(22), timer);
     }
 
     if false {
@@ -36,30 +36,34 @@ pub fn short_roads(map: &mut InitialMap) {
                 .values()
                 .find(|r| r.trimmed_center_pts.length() < Distance::meters(5.0))
             {
-                look_at.insert(merge(map, r.id));
+                look_at.insert(merge(map, r.id, timer));
             } else {
                 break;
             }
         }
 
-        note(format!(
+        timer.note(format!(
             "Deleted {} tiny roads",
             orig_count - map.roads.len()
         ));
         for id in look_at {
             if map.intersections.contains_key(&id) {
-                note(format!("Check for merged roads near {}", id));
+                timer.note(format!("Check for merged roads near {}", id));
             }
         }
     }
 }
 
 // Returns the retained intersection.
-fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID {
+fn merge(
+    map: &mut InitialMap,
+    merge_road: StableRoadID,
+    timer: &mut Timer,
+) -> StableIntersectionID {
     // Arbitrarily kill off the first intersection and keep the second one.
     let (delete_i, keep_i) = {
         let r = &map.roads[&merge_road];
-        note(format!(
+        timer.note(format!(
             "Deleting {}, which has original length {} and trimmed length {}",
             merge_road,
             r.original_center_pts.length(),
@@ -139,7 +143,7 @@ fn merge(map: &mut InitialMap, merge_road: StableRoadID) -> StableIntersectionID
     map.save(None);
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
-    i.polygon = geometry::intersection_polygon(i, &mut map.roads);
+    i.polygon = geometry::intersection_polygon(i, &mut map.roads, timer);
     // Show the final results of fixing this area
     map.save(None);
 

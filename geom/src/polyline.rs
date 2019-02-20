@@ -1,6 +1,7 @@
 use crate::{
     Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST,
 };
+use abstutil::Warn;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
@@ -242,18 +243,18 @@ impl PolyLine {
         Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
     }
 
-    pub fn shift_right(&self, width: Distance) -> PolyLine {
+    pub fn shift_right(&self, width: Distance) -> Warn<PolyLine> {
         self.shift_with_corrections(width)
     }
 
-    pub fn shift_left(&self, width: Distance) -> PolyLine {
+    pub fn shift_left(&self, width: Distance) -> Warn<PolyLine> {
         self.shift_with_corrections(-width)
     }
 
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points will match
-    fn shift_with_corrections(&self, width: Distance) -> PolyLine {
+    fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
         let result = PolyLine::new(Pt2D::approx_dedupe(
             self.shift_with_sharp_angles(width),
             EPSILON_DIST,
@@ -263,11 +264,7 @@ impl PolyLine {
         } else {
             result
         };
-        // TODO The warning is very spammy. Known issue, silence for now.
-        if false {
-            check_angles(self, &fixed);
-        }
-        fixed
+        check_angles(self, fixed)
     }
 
     fn shift_with_sharp_angles(&self, width: Distance) -> Vec<Pt2D> {
@@ -529,16 +526,18 @@ fn fix_angles(orig: &PolyLine, result: PolyLine) -> PolyLine {
     PolyLine::new(pts)
 }
 
-fn check_angles(a: &PolyLine, b: &PolyLine) {
-    for (orig_l, shifted_l) in a.lines().iter().zip(b.lines().iter()) {
+fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {
+    let mut warnings = Vec::new();
+    for (orig_l, shifted_l) in orig.lines().iter().zip(fixed.lines().iter()) {
         let orig_angle = orig_l.angle();
         let shifted_angle = shifted_l.angle();
 
         if !orig_angle.approx_eq(shifted_angle, 1.0) {
-            println!(
-                "BAD! Points changed angles from {} to {}",
+            warnings.push(format!(
+                "Points changed angles from {} to {} during polyline shifting",
                 orig_angle, shifted_angle
-            );
+            ));
         }
     }
+    Warn::warnings(fixed, warnings)
 }

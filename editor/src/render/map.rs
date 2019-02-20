@@ -61,7 +61,7 @@ impl DrawMap {
         let mut all_roads: Vec<Polygon> = Vec::new();
         for r in map.all_roads() {
             timer.next();
-            let (draw, poly) = DrawRoad::new(r, cs, prerender);
+            let (draw, poly) = DrawRoad::new(r, cs, prerender, timer);
             roads.push(draw);
             all_roads.push(poly);
         }
@@ -159,8 +159,14 @@ impl DrawMap {
             // Match shapes with the nearest road + direction (true for forwards)
             let mut closest: FindClosest<(RoadID, bool)> = FindClosest::new(&map.get_bounds());
             for r in map.all_roads().iter() {
-                closest.add((r.id, true), &r.center_pts.shift_right(LANE_THICKNESS));
-                closest.add((r.id, false), &r.center_pts.shift_left(LANE_THICKNESS));
+                closest.add(
+                    (r.id, true),
+                    &r.center_pts.shift_right(LANE_THICKNESS).get(timer),
+                );
+                closest.add(
+                    (r.id, false),
+                    &r.center_pts.shift_left(LANE_THICKNESS).get(timer),
+                );
             }
 
             let gps_bounds = map.get_gps_bounds();

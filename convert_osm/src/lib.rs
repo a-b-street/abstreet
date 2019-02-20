@@ -134,8 +134,8 @@ fn use_parking_hints(
         FindClosest::new(&gps_bounds.to_bounds());
     for (id, r) in &map.roads {
         let pts = PolyLine::new(gps_bounds.must_convert(&r.points));
-        closest.add((*id, true), &pts.shift_right(LANE_THICKNESS));
-        closest.add((*id, false), &pts.shift_left(LANE_THICKNESS));
+        closest.add((*id, true), &pts.shift_right(LANE_THICKNESS).get(timer));
+        closest.add((*id, false), &pts.shift_left(LANE_THICKNESS).get(timer));
     }
 
     'SHAPE: for s in shapes.shapes.into_iter() {

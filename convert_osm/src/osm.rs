@@ -278,7 +278,7 @@ fn extrude_to_boundary(boundary_polygon: &Vec<LonLat>, result: &mut Vec<LonLat>)
         );
 
         let slice1 = find_slice(boundary_polygon, closest_to_last, closest_to_first);
-        let mut backwards_boundary: Vec<LonLat> = boundary_polygon.iter().cloned().collect();
+        let mut backwards_boundary: Vec<LonLat> = boundary_polygon.to_vec();
         backwards_boundary.reverse();
         let slice2 = find_slice(&backwards_boundary, closest_to_last, closest_to_first);
         if slice_len(&slice1) <= slice_len(&slice2) {

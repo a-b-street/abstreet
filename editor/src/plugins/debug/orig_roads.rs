@@ -46,6 +46,7 @@ impl NonblockingPlugin for ShowOriginalRoads {
                         .get_def("original road forwards", Color::RED.alpha(0.5)),
                     &r.original_center_pts
                         .shift_right(width_right / 2.0)
+                        .unwrap()
                         .make_polygons(width_right),
                 );
             }
@@ -55,6 +56,7 @@ impl NonblockingPlugin for ShowOriginalRoads {
                         .get_def("original road backwards", Color::BLUE.alpha(0.5)),
                     &r.original_center_pts
                         .shift_left(width_left / 2.0)
+                        .unwrap()
                         .make_polygons(width_left),
                 );
             }
