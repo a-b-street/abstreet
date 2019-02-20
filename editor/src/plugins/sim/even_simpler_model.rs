@@ -1,8 +1,9 @@
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::sim::new_des_model;
 use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
-use geom::Duration;
+use geom::{Duration, Speed};
 use map_model::{LaneID, Map, Traversable};
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -69,7 +70,11 @@ impl BlockingPlugin for EvenSimplerModelController {
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        self.world.draw_unzoomed(self.current_time, g, &ctx.map);
+        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+            self.world.draw_detailed(self.current_time, g, &ctx.map);
+        } else {
+            self.world.draw_unzoomed(self.current_time, g, &ctx.map);
+        }
     }
 }
 
@@ -103,9 +108,16 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                 last_lane = t.id.dst;
             }
 
+            // Throw a slow vehicle in the middle
+            let max_speed = if i == 4 {
+                Some(Speed::miles_per_hour(10.0))
+            } else {
+                None
+            };
+
             world.spawn_car(
                 CarID::tmp_new(i, VehicleType::Car),
-                None,
+                max_speed,
                 path.clone(),
                 Duration::seconds(1.0) * (i as f64),
             );

@@ -4,7 +4,8 @@ use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS
 use sim::CarID;
 use std::collections::{BTreeMap, VecDeque};
 
-const VEHICLE_LENGTH: Distance = Distance::const_meters(5.0);
+const VEHICLE_LENGTH: Distance = Distance::const_meters(4.0);
+const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 const FREEFLOW: Color = Color::CYAN;
 const WAITING: Color = Color::RED;
 
@@ -30,7 +31,9 @@ impl World {
                     Queue {
                         id: l.id,
                         cars: VecDeque::new(),
-                        max_capacity: ((l.length() / VEHICLE_LENGTH).floor() as usize).max(1),
+                        max_capacity: ((l.length() / (VEHICLE_LENGTH + FOLLOWING_DISTANCE)).floor()
+                            as usize)
+                            .max(1),
                     },
                 );
             }
@@ -73,7 +76,8 @@ impl World {
             }
 
             let l = map.get_l(queue.id);
-            let end_of_waiting_queue = l.length() - (num_waiting as f64) * VEHICLE_LENGTH;
+            let end_of_waiting_queue =
+                l.length() - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE);
 
             if freeflow_head.is_some() {
                 // The freeflow block can range from [0, end_of_waiting_queue].
@@ -99,6 +103,74 @@ impl World {
                         .0
                         .make_polygons(LANE_THICKNESS),
                 );
+            }
+        }
+
+        for i in self.intersections.values() {
+            if let Some(ref car) = i.accepted {
+                let t = map.get_t(car.path[0].as_turn());
+                let percent = match car.state {
+                    CarState::CrossingTurn(ref int) => int.percent(time),
+                    _ => unreachable!(),
+                };
+
+                // TODO The VEHICLE_LENGTH is confusing...
+                let tail = percent * t.geom.length();
+                g.draw_polygon(
+                    FREEFLOW,
+                    &t.geom
+                        .slice(tail, tail + VEHICLE_LENGTH)
+                        .unwrap()
+                        .0
+                        .make_polygons(LANE_THICKNESS),
+                );
+            }
+        }
+    }
+
+    pub fn draw_detailed(&self, time: Duration, g: &mut GfxCtx, map: &Map) {
+        for queue in self.queues.values() {
+            if queue.cars.is_empty() {
+                continue;
+            }
+            let l = map.get_l(queue.id);
+
+            let mut last_car_back: Option<Distance> = None;
+
+            for car in &queue.cars {
+                let (front, color) = match car.state {
+                    CarState::Queued => {
+                        if last_car_back.is_none() {
+                            (l.length(), WAITING)
+                        } else {
+                            // TODO If the last car is still CrossingLane, then kinda weird to draw
+                            // us as queued
+                            (last_car_back.unwrap() - FOLLOWING_DISTANCE, WAITING)
+                        }
+                    }
+                    CarState::CrossingLane(ref i) => {
+                        let bound = last_car_back
+                            .map(|b| b - FOLLOWING_DISTANCE)
+                            .unwrap_or(l.length());
+                        (i.percent(time) * bound, FREEFLOW)
+                    }
+                    CarState::CrossingTurn(_) => unreachable!(),
+                };
+                let back = front - VEHICLE_LENGTH;
+                if back < Distance::ZERO {
+                    println!("Messed up on {}", queue.id);
+                    break;
+                } else {
+                    last_car_back = Some(back);
+                    g.draw_polygon(
+                        color,
+                        &l.lane_center_pts
+                            .slice(back, front)
+                            .unwrap()
+                            .0
+                            .make_polygons(LANE_THICKNESS),
+                    );
+                }
             }
         }
 
