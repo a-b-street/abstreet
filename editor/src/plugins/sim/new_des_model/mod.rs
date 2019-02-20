@@ -52,21 +52,17 @@ impl World {
         world
     }
 
-    pub fn draw_unzoomed(&self, time: Duration, g: &mut GfxCtx, map: &Map) {
+    pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
                 continue;
             }
-            let mut freeflow_head: Option<&TimeInterval> = None;
-            let mut freeflow_tail: Option<&TimeInterval> = None;
             let mut num_waiting = 0;
+            let mut num_freeflow = 0;
             for car in &queue.cars {
                 match car.state {
-                    CarState::CrossingLane(ref i) => {
-                        if freeflow_head.is_none() {
-                            freeflow_head = Some(i);
-                        }
-                        freeflow_tail = Some(i);
+                    CarState::CrossingLane(_) => {
+                        num_freeflow += 1;
                     }
                     CarState::Queued => {
                         num_waiting += 1;
@@ -76,29 +72,29 @@ impl World {
             }
 
             let l = map.get_l(queue.id);
-            let end_of_waiting_queue =
-                l.length() - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE);
 
-            if freeflow_head.is_some() {
-                // The freeflow block can range from [0, end_of_waiting_queue].
-                let head = freeflow_head.unwrap().percent(time) * end_of_waiting_queue;
-                let tail = freeflow_tail.unwrap().percent(time) * end_of_waiting_queue;
-                // TODO The VEHICLE_LENGTH is confusing...
-
+            if num_waiting > 0 {
                 g.draw_polygon(
-                    FREEFLOW,
+                    WAITING,
                     &l.lane_center_pts
-                        .slice(tail, head + VEHICLE_LENGTH)
+                        .slice(
+                            l.length()
+                                - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                            l.length(),
+                        )
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
                 );
             }
-            if num_waiting > 0 {
+            if num_freeflow > 0 {
                 g.draw_polygon(
-                    WAITING,
+                    FREEFLOW,
                     &l.lane_center_pts
-                        .slice(end_of_waiting_queue, l.length())
+                        .slice(
+                            Distance::ZERO,
+                            (num_freeflow as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                        )
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
@@ -108,20 +104,10 @@ impl World {
 
         for i in self.intersections.values() {
             if let Some(ref car) = i.accepted {
-                let t = map.get_t(car.path[0].as_turn());
-                let percent = match car.state {
-                    CarState::CrossingTurn(ref int) => int.percent(time),
-                    _ => unreachable!(),
-                };
-
-                // TODO The VEHICLE_LENGTH is confusing...
-                let tail = percent * t.geom.length();
                 g.draw_polygon(
                     FREEFLOW,
-                    &t.geom
-                        .slice(tail, tail + VEHICLE_LENGTH)
-                        .unwrap()
-                        .0
+                    &map.get_t(car.path[0].as_turn())
+                        .geom
                         .make_polygons(LANE_THICKNESS),
                 );
             }
@@ -237,17 +223,20 @@ impl World {
 
         // Delete head cars that're completely done.
         for queue in self.queues.values_mut() {
-            if queue.is_empty() {
-                continue;
-            }
-            match queue.cars[0].state {
-                CarState::Queued => {
-                    if queue.cars[0].path.len() == 1 {
-                        queue.cars.pop_front();
+            while !queue.is_empty() {
+                match queue.cars[0].state {
+                    CarState::Queued => {
+                        if queue.cars[0].path.len() == 1 {
+                            queue.cars.pop_front();
+                            // TODO Should have some brief delay to creep forwards VEHICLE_LENGTH +
+                            // FOLLOWING_DISTANCE.
+                            continue;
+                        }
                     }
-                }
-                _ => {}
-            };
+                    _ => {}
+                };
+                break;
+            }
         }
 
         // Figure out where everybody wants to go next.

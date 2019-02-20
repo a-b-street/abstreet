@@ -102,10 +102,13 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
             let mut path = vec![Traversable::Lane(source)];
             let mut last_lane = source;
             for _ in 0..5 {
-                let t = *map.get_turns_from_lane(last_lane).choose(&mut rng).unwrap();
-                path.push(Traversable::Turn(t.id));
-                path.push(Traversable::Lane(t.id.dst));
-                last_lane = t.id.dst;
+                if let Some(t) = map.get_turns_from_lane(last_lane).choose(&mut rng) {
+                    path.push(Traversable::Turn(t.id));
+                    path.push(Traversable::Lane(t.id.dst));
+                    last_lane = t.id.dst;
+                } else {
+                    break;
+                }
             }
 
             // Throw a slow vehicle in the middle
