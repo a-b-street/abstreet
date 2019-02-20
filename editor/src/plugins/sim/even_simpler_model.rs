@@ -137,7 +137,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         let len = map.get_l(source).length();
-        if len < new_des_model::VEHICLE_LENGTH {
+        if len < new_des_model::MAX_VEHICLE_LENGTH {
             println!("Can't spawn cars on {}, it's only {} long", source, len);
             continue;
         }
@@ -152,22 +152,22 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                 None
             };
 
+            let vehicle_len = rand_dist(
+                &mut rng,
+                new_des_model::MIN_VEHICLE_LENGTH,
+                new_des_model::MAX_VEHICLE_LENGTH,
+            );
             world.spawn_car(
                 CarID::tmp_new(counter, VehicleType::Car),
+                vehicle_len,
                 max_speed,
                 path.clone(),
                 Duration::seconds(1.0) * (i as f64),
-                Distance::meters(rng.gen_range(
-                    new_des_model::VEHICLE_LENGTH.inner_meters(),
-                    len.inner_meters(),
-                )),
-                Distance::meters(
-                    rng.gen_range(
-                        0.0,
-                        map.get_l(path.last().unwrap().as_lane())
-                            .length()
-                            .inner_meters(),
-                    ),
+                rand_dist(&mut rng, vehicle_len, len),
+                rand_dist(
+                    &mut rng,
+                    Distance::ZERO,
+                    map.get_l(path.last().unwrap().as_lane()).length(),
                 ),
                 map,
             );
@@ -185,7 +185,7 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
 
     for l in map.all_lanes() {
         let len = l.length();
-        if l.is_driving() && len >= new_des_model::VEHICLE_LENGTH {
+        if l.is_driving() && len >= new_des_model::MAX_VEHICLE_LENGTH {
             for i in 0..rng.gen_range(0, 5) {
                 let path = random_path(l.id, &mut rng, map);
                 let max_speed = if rng.gen_bool(0.1) {
@@ -194,19 +194,20 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
                     None
                 };
                 let last_lane = path.last().unwrap().as_lane();
+                let vehicle_len = rand_dist(
+                    &mut rng,
+                    new_des_model::MIN_VEHICLE_LENGTH,
+                    new_des_model::MAX_VEHICLE_LENGTH,
+                );
 
                 world.spawn_car(
                     CarID::tmp_new(counter, VehicleType::Car),
+                    vehicle_len,
                     max_speed,
                     path,
                     Duration::seconds(1.0) * (i as f64),
-                    Distance::meters(rng.gen_range(
-                        new_des_model::VEHICLE_LENGTH.inner_meters(),
-                        len.inner_meters(),
-                    )),
-                    Distance::meters(
-                        rng.gen_range(0.0, map.get_l(last_lane).length().inner_meters()),
-                    ),
+                    rand_dist(&mut rng, vehicle_len, len),
+                    rand_dist(&mut rng, Distance::ZERO, map.get_l(last_lane).length()),
                     map,
                 );
                 counter += 1;
@@ -230,4 +231,8 @@ fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversab
         }
     }
     path
+}
+
+fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
+    Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
 }

@@ -11,10 +11,12 @@ use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS
 use sim::{CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
-pub const VEHICLE_LENGTH: Distance = Distance::const_meters(4.0);
+pub const MIN_VEHICLE_LENGTH: Distance = Distance::const_meters(2.0);
+pub const MAX_VEHICLE_LENGTH: Distance = Distance::const_meters(7.0);
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
-pub const FREEFLOW: Color = Color::CYAN;
-pub const WAITING: Color = Color::RED;
+
+const FREEFLOW: Color = Color::CYAN;
+const WAITING: Color = Color::RED;
 
 pub struct World {
     queues: BTreeMap<LaneID, Queue>,
@@ -22,6 +24,7 @@ pub struct World {
 
     spawn_later: Vec<(
         CarID,
+        Distance,
         Option<Speed>,
         Vec<Traversable>,
         Duration,
@@ -45,8 +48,8 @@ impl World {
                     Queue {
                         id: l.id,
                         cars: VecDeque::new(),
-                        max_capacity: ((l.length() / (VEHICLE_LENGTH + FOLLOWING_DISTANCE)).floor()
-                            as usize)
+                        max_capacity: ((l.length() / (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE))
+                            .floor() as usize)
                             .max(1),
                         lane_len: l.length(),
                     },
@@ -91,7 +94,7 @@ impl World {
             if num_waiting > 0 {
                 // Short lanes exist
                 let start = (l.length()
-                    - f64::from(num_waiting) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE))
+                    - f64::from(num_waiting) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE))
                     .max(Distance::ZERO);
                 g.draw_polygon(
                     WAITING,
@@ -108,7 +111,7 @@ impl World {
                     &l.lane_center_pts
                         .slice(
                             Distance::ZERO,
-                            f64::from(num_freeflow) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                            f64::from(num_freeflow) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE),
                         )
                         .unwrap()
                         .0
@@ -171,6 +174,7 @@ impl World {
     pub fn spawn_car(
         &mut self,
         id: CarID,
+        vehicle_len: Distance,
         max_speed: Option<Speed>,
         path: Vec<Traversable>,
         start_time: Duration,
@@ -178,7 +182,7 @@ impl World {
         end_dist: Distance,
         map: &Map,
     ) {
-        if start_dist < VEHICLE_LENGTH {
+        if start_dist < vehicle_len {
             panic!(
                 "Can't spawn a car at {}; too close to the start",
                 start_dist
@@ -198,8 +202,15 @@ impl World {
             );
         }
 
-        self.spawn_later
-            .push((id, max_speed, path, start_time, start_dist, end_dist));
+        self.spawn_later.push((
+            id,
+            vehicle_len,
+            max_speed,
+            path,
+            start_time,
+            start_dist,
+            end_dist,
+        ));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
@@ -326,7 +337,9 @@ impl World {
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
         let mut retain_spawn = Vec::new();
-        for (id, max_speed, path, start_time, start_dist, end_dist) in self.spawn_later.drain(..) {
+        for (id, vehicle_len, max_speed, path, start_time, start_dist, end_dist) in
+            self.spawn_later.drain(..)
+        {
             let mut spawned = false;
             let first_lane = path[0].as_lane();
 
@@ -352,6 +365,7 @@ impl World {
                         idx,
                         Car {
                             id,
+                            vehicle_len,
                             max_speed,
                             path: VecDeque::from(path.clone()),
                             end_dist,
@@ -370,7 +384,15 @@ impl World {
                 }
             }
             if !spawned {
-                retain_spawn.push((id, max_speed, path, start_time, start_dist, end_dist));
+                retain_spawn.push((
+                    id,
+                    vehicle_len,
+                    max_speed,
+                    path,
+                    start_time,
+                    start_dist,
+                    end_dist,
+                ));
             }
         }
         self.spawn_later = retain_spawn;

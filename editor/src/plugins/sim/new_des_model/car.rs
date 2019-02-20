@@ -1,4 +1,3 @@
-use crate::plugins::sim::new_des_model::VEHICLE_LENGTH;
 use geom::{Distance, Duration, PolyLine, Speed};
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput};
@@ -7,6 +6,7 @@ use std::collections::VecDeque;
 #[derive(Debug)]
 pub struct Car {
     pub id: CarID,
+    pub vehicle_len: Distance,
     pub max_speed: Option<Speed>,
     // Front is always the current step
     pub path: VecDeque<Traversable>,
@@ -14,7 +14,7 @@ pub struct Car {
     pub state: CarState,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
-    // VEHICLE_LENGTH.
+    // vehicle_len.
     pub last_steps: VecDeque<Traversable>,
 }
 
@@ -25,7 +25,7 @@ impl Car {
         for on in self.last_steps.drain(..) {
             len += on.length(map);
             keep.push_back(on);
-            if len >= VEHICLE_LENGTH {
+            if len >= self.vehicle_len {
                 break;
             }
         }
@@ -34,9 +34,9 @@ impl Car {
 
     pub fn get_draw_car(&self, front: Distance, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
-        let body = if front >= VEHICLE_LENGTH {
+        let body = if front >= self.vehicle_len {
             self.path[0]
-                .slice(front - VEHICLE_LENGTH, front, map)
+                .slice(front - self.vehicle_len, front, map)
                 .unwrap()
                 .0
         } else {
@@ -45,7 +45,7 @@ impl Car {
                 .slice(Distance::ZERO, front, map)
                 .map(|(pl, _)| pl.points().clone())
                 .unwrap_or_else(Vec::new);
-            let mut leftover = VEHICLE_LENGTH - front;
+            let mut leftover = self.vehicle_len - front;
             let mut i = 0;
             while leftover > Distance::ZERO {
                 if i == self.last_steps.len() {

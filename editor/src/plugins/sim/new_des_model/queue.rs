@@ -1,4 +1,4 @@
-use crate::plugins::sim::new_des_model::{Car, CarState, FOLLOWING_DISTANCE, VEHICLE_LENGTH};
+use crate::plugins::sim::new_des_model::{Car, CarState, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH};
 use geom::{Distance, Duration};
 use map_model::LaneID;
 use std::collections::VecDeque;
@@ -24,15 +24,16 @@ impl Queue {
 
         for car in &self.cars {
             let bound = match result.last() {
-                Some((_, last_dist)) => *last_dist - VEHICLE_LENGTH - FOLLOWING_DISTANCE,
+                Some((leader, last_dist)) => *last_dist - leader.vehicle_len - FOLLOWING_DISTANCE,
                 None => self.lane_len,
             };
 
             // There's spillover and a car shouldn't have been able to enter yet.
             if bound < Distance::ZERO {
+                dump_cars(&result, self.id, time);
                 panic!(
-                    "Queue has spillover on {} at {} -- can't draw {}",
-                    self.id, time, car.id
+                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}",
+                    self.id, time, car.id, bound
                 );
             }
 
@@ -65,11 +66,14 @@ impl Queue {
         };
 
         // Are we too close to the leader?
-        if idx != 0 && dists[idx - 1].1 - VEHICLE_LENGTH - FOLLOWING_DISTANCE < start_dist {
+        if idx != 0
+            && dists[idx - 1].1 - dists[idx - 1].0.vehicle_len - FOLLOWING_DISTANCE < start_dist
+        {
             return None;
         }
         // Or the follower?
-        if idx != dists.len() && start_dist - VEHICLE_LENGTH - FOLLOWING_DISTANCE < dists[idx].1 {
+        if idx != dists.len() && start_dist - MAX_VEHICLE_LENGTH - FOLLOWING_DISTANCE < dists[idx].1
+        {
             return None;
         }
 
@@ -78,7 +82,7 @@ impl Queue {
 
     pub fn room_at_end(&self, time: Duration) -> bool {
         match self.get_car_positions(time).last() {
-            Some((_, front)) => *front >= VEHICLE_LENGTH + FOLLOWING_DISTANCE,
+            Some((_, front)) => *front >= MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE,
             None => true,
         }
     }
@@ -90,24 +94,8 @@ fn validate_positions(
     id: LaneID,
 ) -> Vec<(&Car, Distance)> {
     for pair in cars.windows(2) {
-        if pair[0].1 - VEHICLE_LENGTH - FOLLOWING_DISTANCE < pair[1].1 {
-            println!("\nOn {} at {}...", id, time);
-            for (car, dist) in &cars {
-                println!("- {} @ {}", car.id, dist);
-                match car.state {
-                    CarState::CrossingLane(ref time_int, ref dist_int) => {
-                        println!(
-                            "  Going {} .. {} during {} .. {}",
-                            dist_int.start, dist_int.end, time_int.start, time_int.end
-                        );
-                    }
-                    CarState::Queued => {
-                        println!("  Queued currently");
-                    }
-                    CarState::CrossingTurn(_) => unreachable!(),
-                }
-            }
-            println!();
+        if pair[0].1 - pair[0].0.vehicle_len - FOLLOWING_DISTANCE < pair[1].1 {
+            dump_cars(&cars, id, time);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
                 pair[0].1, pair[1].1, cars
@@ -115,4 +103,24 @@ fn validate_positions(
         }
     }
     cars
+}
+
+fn dump_cars(cars: &Vec<(&Car, Distance)>, id: LaneID, time: Duration) {
+    println!("\nOn {} at {}...", id, time);
+    for (car, dist) in cars {
+        println!("- {} @ {} (length {})", car.id, dist, car.vehicle_len);
+        match car.state {
+            CarState::CrossingLane(ref time_int, ref dist_int) => {
+                println!(
+                    "  Going {} .. {} during {} .. {}",
+                    dist_int.start, dist_int.end, time_int.start, time_int.end
+                );
+            }
+            CarState::Queued => {
+                println!("  Queued currently");
+            }
+            CarState::CrossingTurn(_) => unreachable!(),
+        }
+    }
+    println!();
 }
