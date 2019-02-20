@@ -20,7 +20,7 @@ pub struct World {
     queues: BTreeMap<LaneID, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
-    spawn_later: Vec<(CarID, Option<Speed>, Vec<Traversable>, Duration)>,
+    spawn_later: Vec<(CarID, Option<Speed>, Vec<Traversable>, Duration, Distance)>,
 }
 
 impl World {
@@ -41,6 +41,7 @@ impl World {
                         max_capacity: ((l.length() / (VEHICLE_LENGTH + FOLLOWING_DISTANCE)).floor()
                             as usize)
                             .max(1),
+                        lane_len: l.length(),
                     },
                 );
             }
@@ -124,7 +125,12 @@ impl World {
     pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
         let mut result = Vec::new();
         for queue in self.queues.values() {
-            result.extend(queue.get_draw_cars(time, map));
+            result.extend(
+                queue
+                    .get_car_positions(time)
+                    .into_iter()
+                    .filter_map(|(car, dist)| car.get_draw_car(dist, map)),
+            );
         }
         for i in self.intersections.values() {
             result.extend(i.get_draw_cars(time, map));
@@ -140,7 +146,11 @@ impl World {
     ) -> Vec<DrawCarInput> {
         match on {
             Traversable::Lane(l) => match self.queues.get(&l) {
-                Some(q) => q.get_draw_cars(time, map),
+                Some(q) => q
+                    .get_car_positions(time)
+                    .into_iter()
+                    .filter_map(|(car, dist)| car.get_draw_car(dist, map))
+                    .collect(),
                 None => Vec::new(),
             },
             Traversable::Turn(t) => self.intersections[&t.parent]
@@ -157,14 +167,30 @@ impl World {
         max_speed: Option<Speed>,
         path: Vec<Traversable>,
         start_time: Duration,
+        start_dist: Distance,
+        map: &Map,
     ) {
-        self.spawn_later.push((id, max_speed, path, start_time));
+        if start_dist < VEHICLE_LENGTH {
+            panic!(
+                "Can't spawn a car at {}; too close to the start",
+                start_dist
+            );
+        }
+        if start_dist >= path[0].length(map) {
+            panic!(
+                "Can't spawn a car at {}; {:?} isn't that long",
+                start_dist, path[0]
+            );
+        }
+
+        self.spawn_later
+            .push((id, max_speed, path, start_time, start_dist));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
         // Spawn cars.
         let mut retain_spawn = Vec::new();
-        for (id, max_speed, path, start_time) in self.spawn_later.drain(..) {
+        for (id, max_speed, path, start_time, start_dist) in self.spawn_later.drain(..) {
             let first_lane = path[0].as_lane();
             if time >= start_time
                 && !self.queues[&first_lane].is_full()
@@ -190,7 +216,7 @@ impl World {
                         last_steps: VecDeque::new(),
                     });
             } else {
-                retain_spawn.push((id, max_speed, path, start_time));
+                retain_spawn.push((id, max_speed, path, start_time, start_dist));
             }
         }
         self.spawn_later = retain_spawn;

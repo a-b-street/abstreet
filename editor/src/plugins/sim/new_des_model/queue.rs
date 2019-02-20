@@ -1,15 +1,14 @@
-use crate::plugins::sim::new_des_model::{
-    Car, CarState, FOLLOWING_DISTANCE, FREEFLOW, VEHICLE_LENGTH, WAITING,
-};
+use crate::plugins::sim::new_des_model::{Car, CarState, FOLLOWING_DISTANCE, VEHICLE_LENGTH};
 use geom::{Distance, Duration};
-use map_model::{LaneID, Map};
-use sim::DrawCarInput;
+use map_model::LaneID;
 use std::collections::VecDeque;
 
 pub struct Queue {
     pub id: LaneID,
     pub cars: VecDeque<Car>,
     pub max_capacity: usize,
+
+    pub lane_len: Distance,
 }
 
 impl Queue {
@@ -21,32 +20,24 @@ impl Queue {
         self.cars.len() == self.max_capacity
     }
 
-    pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
+    // May not return all of the cars -- some might be temporarily unable to actually enter the end
+    // of the road.
+    pub fn get_car_positions(&self, time: Duration) -> Vec<(&Car, Distance)> {
         if self.cars.is_empty() {
             return Vec::new();
         }
-        let l = map.get_l(self.id);
 
-        let mut result: Vec<DrawCarInput> = Vec::new();
-        let mut last_car_back: Option<Distance> = None;
+        let mut result: Vec<(&Car, Distance)> = Vec::new();
 
         for car in &self.cars {
-            let (front, color) = match car.state {
-                CarState::Queued => {
-                    if last_car_back.is_none() {
-                        (l.length(), WAITING)
-                    } else {
-                        // TODO If the last car is still CrossingLane, then kinda weird to draw
-                        // us as queued
-                        (last_car_back.unwrap() - FOLLOWING_DISTANCE, WAITING)
-                    }
-                }
-                CarState::CrossingLane(ref i) => {
-                    let bound = last_car_back
-                        .map(|b| b - FOLLOWING_DISTANCE)
-                        .unwrap_or_else(|| l.length());
-                    (i.percent(time) * bound, FREEFLOW)
-                }
+            let bound = match result.last() {
+                Some((_, last_dist)) => *last_dist - VEHICLE_LENGTH - FOLLOWING_DISTANCE,
+                None => self.lane_len,
+            };
+
+            let front = match car.state {
+                CarState::Queued => bound,
+                CarState::CrossingLane(ref i) => i.percent(time) * bound,
                 CarState::CrossingTurn(_) => unreachable!(),
             };
 
@@ -59,11 +50,7 @@ impl Queue {
                 );
                 return result;
             }
-
-            if let Some(d) = car.get_draw_car(front, color, map) {
-                result.push(d);
-            }
-            last_car_back = Some(front - VEHICLE_LENGTH);
+            result.push((car, front));
         }
         result
     }

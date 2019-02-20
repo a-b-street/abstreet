@@ -3,7 +3,7 @@ use crate::plugins::sim::new_des_model;
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
-use geom::{Duration, Speed};
+use geom::{Distance, Duration, Speed};
 use map_model::{LaneID, Map, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
@@ -135,6 +135,12 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
 
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
+        let len = map.get_l(source).length();
+        if len < new_des_model::VEHICLE_LENGTH {
+            println!("Can't spawn cars on {}, it's only {} long", source, len);
+            continue;
+        }
+
         for i in 0..10 {
             let path = random_path(source, &mut rng, map);
 
@@ -150,6 +156,11 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                 max_speed,
                 path.clone(),
                 Duration::seconds(1.0) * (i as f64),
+                Distance::meters(rng.gen_range(
+                    new_des_model::VEHICLE_LENGTH.inner_meters(),
+                    len.inner_meters(),
+                )),
+                map,
             );
         }
     }
@@ -163,7 +174,8 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
 
     let mut counter = 0;
     for l in map.all_lanes() {
-        if l.is_driving() {
+        let len = l.length();
+        if l.is_driving() && len >= new_des_model::VEHICLE_LENGTH {
             for i in 0..rng.gen_range(0, 5) {
                 let path = random_path(l.id, &mut rng, map);
                 let max_speed = if rng.gen_bool(0.1) {
@@ -177,6 +189,11 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
                     max_speed,
                     path,
                     Duration::seconds(1.0) * (i as f64),
+                    Distance::meters(rng.gen_range(
+                        new_des_model::VEHICLE_LENGTH.inner_meters(),
+                        len.inner_meters(),
+                    )),
+                    map,
                 );
                 counter += 1;
             }

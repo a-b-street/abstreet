@@ -1,5 +1,4 @@
-use crate::plugins::sim::new_des_model::{FREEFLOW, VEHICLE_LENGTH};
-use ezgui::Color;
+use crate::plugins::sim::new_des_model::VEHICLE_LENGTH;
 use geom::{Distance, Duration, PolyLine, Speed};
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput};
@@ -31,7 +30,7 @@ impl Car {
         self.last_steps = keep;
     }
 
-    pub fn get_draw_car(&self, front: Distance, color: Color, map: &Map) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, front: Distance, map: &Map) -> Option<DrawCarInput> {
         assert!(front >= Distance::ZERO);
         let body = if front >= VEHICLE_LENGTH {
             self.path[0]
@@ -69,10 +68,11 @@ impl Car {
             id: self.id,
             waiting_for_turn: None,
             stopping_trace: None,
-            state: if color == FREEFLOW {
-                sim::CarState::Moving
-            } else {
-                sim::CarState::Stuck
+            state: match self.state {
+                // TODO Cars can be Queued behind a slow CrossingLane. Looks kind of weird.
+                CarState::Queued => sim::CarState::Stuck,
+                CarState::CrossingLane(_) => sim::CarState::Moving,
+                CarState::CrossingTurn(_) => sim::CarState::Moving,
             },
             vehicle_type: self.id.tmp_get_vehicle_type(),
             on: self.path[0],

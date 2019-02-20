@@ -1,4 +1,4 @@
-pub use crate::plugins::sim::new_des_model::{Car, CarState, TimeInterval, FREEFLOW};
+pub use crate::plugins::sim::new_des_model::{Car, CarState, TimeInterval};
 use geom::Duration;
 use map_model::{IntersectionID, Map};
 use sim::DrawCarInput;
@@ -16,7 +16,7 @@ impl IntersectionController {
                 CarState::CrossingTurn(ref int) => int.percent(time),
                 _ => unreachable!(),
             };
-            if let Some(d) = car.get_draw_car(percent * t.geom.length(), FREEFLOW, map) {
+            if let Some(d) = car.get_draw_car(percent * t.geom.length(), map) {
                 return vec![d];
             }
         }
