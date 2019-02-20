@@ -201,7 +201,7 @@ impl World {
 
         // Delete head cars that're completely done.
         for queue in self.queues.values_mut() {
-            while !queue.is_empty() {
+            while !queue.cars.is_empty() {
                 if let CarState::Queued = queue.cars[0].state {
                     if queue.cars[0].path.len() == 1 {
                         queue.cars.pop_front();
@@ -218,7 +218,7 @@ impl World {
         // (head of this lane ready to go, what they want next)
         let mut cars_ready_to_turn: Vec<(LaneID, TurnID)> = Vec::new();
         for queue in self.queues.values() {
-            if queue.is_empty() {
+            if queue.cars.is_empty() {
                 continue;
             }
             let car = &queue.cars[0];
@@ -233,7 +233,7 @@ impl World {
             if self.intersections[&i].accepted.is_some() {
                 continue;
             }
-            if self.queues[&turn.dst].is_full() {
+            if !self.queues[&turn.dst].room_at_end(time) {
                 continue;
             }
 
@@ -278,7 +278,7 @@ impl World {
             car.last_steps.push_front(car.path.pop_front().unwrap());
             car.trim_last_steps(map);
             let lane = car.path[0].as_lane();
-            if self.queues[&lane].is_full() {
+            if !self.queues[&lane].room_at_end(time) {
                 panic!(
                     "{} is full -- has {:?} at {} -- but {} just finished a turn at {}",
                     lane,

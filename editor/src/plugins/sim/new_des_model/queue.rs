@@ -12,14 +12,6 @@ pub struct Queue {
 }
 
 impl Queue {
-    pub fn is_empty(&self) -> bool {
-        self.cars.is_empty()
-    }
-
-    pub fn is_full(&self) -> bool {
-        self.cars.len() == self.max_capacity
-    }
-
     // May not return all of the cars -- some might be temporarily unable to actually enter the end
     // of the road.
     // Farthest along (greatest distance) is first.
@@ -36,14 +28,12 @@ impl Queue {
                 None => self.lane_len,
             };
 
-            // There's spillover and a car shouldn't have been able to enter yet, but it's a
-            // temporary condition -- there's enough rest capacity.
+            // There's spillover and a car shouldn't have been able to enter yet.
             if bound < Distance::ZERO {
-                println!(
-                    "Queue temporarily backed up on {} at {} -- can't draw {}",
+                panic!(
+                    "Queue has spillover on {} at {} -- can't draw {}",
                     self.id, time, car.id
                 );
-                return validate_positions(result, time, self.id);
             }
 
             let front = match car.state {
@@ -60,10 +50,10 @@ impl Queue {
     }
 
     pub fn get_idx_to_insert_car(&self, start_dist: Distance, time: Duration) -> Option<usize> {
-        if self.is_full() {
+        if self.cars.len() == self.max_capacity {
             return None;
         }
-        if self.is_empty() {
+        if self.cars.is_empty() {
             return Some(0);
         }
 
@@ -83,12 +73,14 @@ impl Queue {
             return None;
         }
 
-        // If there's temporary spillover, but we want to spawn in front of the mess, that's fine
-        if dists.len() < self.cars.len() && idx != 0 {
-            return None;
-        }
-
         Some(idx)
+    }
+
+    pub fn room_at_end(&self, time: Duration) -> bool {
+        match self.get_car_positions(time).last() {
+            Some((_, front)) => *front >= VEHICLE_LENGTH + FOLLOWING_DISTANCE,
+            None => true,
+        }
     }
 }
 
