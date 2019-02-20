@@ -20,7 +20,14 @@ pub struct World {
     queues: BTreeMap<LaneID, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
-    spawn_later: Vec<(CarID, Option<Speed>, Vec<Traversable>, Duration, Distance)>,
+    spawn_later: Vec<(
+        CarID,
+        Option<Speed>,
+        Vec<Traversable>,
+        Duration,
+        Distance,
+        Distance,
+    )>,
 }
 
 impl World {
@@ -168,6 +175,7 @@ impl World {
         path: Vec<Traversable>,
         start_time: Duration,
         start_dist: Distance,
+        end_dist: Distance,
         map: &Map,
     ) {
         if start_dist < VEHICLE_LENGTH {
@@ -182,9 +190,16 @@ impl World {
                 start_dist, path[0]
             );
         }
+        if end_dist >= path.last().unwrap().length(map) {
+            panic!(
+                "Can't end a car at {}; {:?} isn't that long",
+                end_dist,
+                path.last().unwrap()
+            );
+        }
 
         self.spawn_later
-            .push((id, max_speed, path, start_time, start_dist));
+            .push((id, max_speed, path, start_time, start_dist, end_dist));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
@@ -199,19 +214,13 @@ impl World {
             }
         }
 
-        // Delete head cars that're completely done.
+        // Delete cars that're completely done. These might not necessarily be the queue head,
+        // since cars can stop early.
         for queue in self.queues.values_mut() {
-            while !queue.cars.is_empty() {
-                if let CarState::Queued = queue.cars[0].state {
-                    if queue.cars[0].path.len() == 1 {
-                        queue.cars.pop_front();
-                        // TODO Should have some brief delay to creep forwards VEHICLE_LENGTH +
-                        // FOLLOWING_DISTANCE.
-                        continue;
-                    }
-                }
-                break;
-            }
+            queue.cars.retain(|car| match car.state {
+                CarState::Queued => car.path.len() > 1,
+                _ => true,
+            });
         }
 
         // Figure out where everybody wants to go next.
@@ -294,7 +303,11 @@ impl World {
             }
             let dist_int = DistanceInterval {
                 start: Distance::ZERO,
-                end: map.get_l(lane).length(),
+                end: if car.path.len() == 1 {
+                    car.end_dist
+                } else {
+                    map.get_l(lane).length()
+                },
             };
             let dt = time_to_cross(
                 &dist_int,
@@ -313,7 +326,7 @@ impl World {
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
         let mut retain_spawn = Vec::new();
-        for (id, max_speed, path, start_time, start_dist) in self.spawn_later.drain(..) {
+        for (id, max_speed, path, start_time, start_dist, end_dist) in self.spawn_later.drain(..) {
             let mut spawned = false;
             let first_lane = path[0].as_lane();
 
@@ -341,6 +354,7 @@ impl World {
                             id,
                             max_speed,
                             path: VecDeque::from(path.clone()),
+                            end_dist,
                             state: CarState::CrossingLane(
                                 TimeInterval {
                                     start: time,
@@ -356,7 +370,7 @@ impl World {
                 }
             }
             if !spawned {
-                retain_spawn.push((id, max_speed, path, start_time, start_dist));
+                retain_spawn.push((id, max_speed, path, start_time, start_dist, end_dist));
             }
         }
         self.spawn_later = retain_spawn;

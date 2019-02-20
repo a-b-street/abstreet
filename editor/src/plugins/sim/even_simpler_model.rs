@@ -161,6 +161,14 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                     new_des_model::VEHICLE_LENGTH.inner_meters(),
                     len.inner_meters(),
                 )),
+                Distance::meters(
+                    rng.gen_range(
+                        0.0,
+                        map.get_l(path.last().unwrap().as_lane())
+                            .length()
+                            .inner_meters(),
+                    ),
+                ),
                 map,
             );
             counter += 1;
@@ -185,6 +193,7 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
                 } else {
                     None
                 };
+                let last_lane = path.last().unwrap().as_lane();
 
                 world.spawn_car(
                     CarID::tmp_new(counter, VehicleType::Car),
@@ -195,6 +204,9 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
                         new_des_model::VEHICLE_LENGTH.inner_meters(),
                         len.inner_meters(),
                     )),
+                    Distance::meters(
+                        rng.gen_range(0.0, map.get_l(last_lane).length().inner_meters()),
+                    ),
                     map,
                 );
                 counter += 1;

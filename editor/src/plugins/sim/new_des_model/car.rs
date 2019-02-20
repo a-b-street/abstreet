@@ -10,6 +10,7 @@ pub struct Car {
     pub max_speed: Option<Speed>,
     // Front is always the current step
     pub path: VecDeque<Traversable>,
+    pub end_dist: Distance,
     pub state: CarState,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
