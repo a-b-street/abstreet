@@ -112,9 +112,9 @@ impl<T> Warn<T> {
 }
 
 impl Warn<()> {
-    /*pub fn empty_warnings(warnings: Vec<String>) -> Warn<()> {
+    pub fn empty_warnings(warnings: Vec<String>) -> Warn<()> {
         Warn::warnings((), warnings)
-    }*/
+    }
 
     /*pub fn add_warning(&mut self, line: String) {
         self.warnings.push(line);

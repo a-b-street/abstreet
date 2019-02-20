@@ -1,5 +1,6 @@
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::{BlockingPlugin, PluginCtx};
+use abstutil::Timer;
 use ezgui::{Color, Key};
 use map_model::{ControlStopSign, IntersectionID, TurnPriority};
 
@@ -59,7 +60,7 @@ impl BlockingPlugin for StopSignEditor {
         } else if input.modal_action("quit") {
             return false;
         } else if input.modal_action("reset to default") {
-            let sign = ControlStopSign::new(map, self.i);
+            let sign = ControlStopSign::new(map, self.i, &mut Timer::throwaway());
             map.edit_stop_sign(sign);
         }
         true

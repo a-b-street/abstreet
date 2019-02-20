@@ -2,7 +2,7 @@ use crate::{
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Road, Turn, TurnID,
     TurnType, LANE_THICKNESS,
 };
-use abstutil::wraparound_get;
+use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
@@ -10,11 +10,16 @@ use std::iter;
 
 // TODO Add proper warnings when the geometry is too small to handle.
 
-pub fn make_all_turns(i: &Intersection, roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
+pub fn make_all_turns(
+    i: &Intersection,
+    roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
+    timer: &mut Timer,
+) -> Vec<Turn> {
     assert!(i.intersection_type != IntersectionType::Border);
 
     let mut turns: Vec<Turn> = Vec::new();
-    turns.extend(make_vehicle_turns(i, roads, lanes));
+    turns.extend(make_vehicle_turns(i, roads, lanes, timer));
     turns.extend(make_walking_turns(i, roads, lanes));
     let turns = dedupe(turns);
 
@@ -38,10 +43,10 @@ pub fn make_all_turns(i: &Intersection, roads: &Vec<Road>, lanes: &Vec<Lane>) ->
     }
     if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
         // TODO Annoying, but this error is noisy for border nodes.
-        error!(
+        timer.warn(format!(
             "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
             i.id, incoming_missing, outgoing_missing
-        );
+        ));
     }
 
     turns
@@ -61,7 +66,12 @@ fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
     keep
 }
 
-fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
+fn make_vehicle_turns(
+    i: &Intersection,
+    all_roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
+    timer: &mut Timer,
+) -> Vec<Turn> {
     let roads: Vec<&Road> = i.roads.iter().map(|r| &all_roads[r.0]).collect();
     let mut lane_types: BTreeSet<LaneType> = BTreeSet::new();
     for r in &roads {
@@ -77,9 +87,8 @@ fn make_vehicle_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
 
     for lane_type in lane_types.into_iter() {
         if i.is_dead_end() {
-            result.extend(make_vehicle_turns_for_dead_end(
-                i, all_roads, lanes, lane_type,
-            ));
+            result
+                .extend(make_vehicle_turns_for_dead_end(i, all_roads, lanes, lane_type).get(timer));
             continue;
         }
 
@@ -185,16 +194,15 @@ fn make_vehicle_turns_for_dead_end(
     roads: &Vec<Road>,
     lanes: &Vec<Lane>,
     lane_type: LaneType,
-) -> Vec<Option<Turn>> {
+) -> Warn<Vec<Option<Turn>>> {
     let road = &roads[i.roads.iter().next().unwrap().0];
     let incoming = filter_vehicle_lanes(road.incoming_lanes(i.id), lane_type);
     let outgoing = filter_vehicle_lanes(road.outgoing_lanes(i.id), lane_type);
     if incoming.is_empty() || outgoing.is_empty() {
-        error!("{} needs to be a border node!", i.id);
-        return Vec::new();
+        return Warn::warn(Vec::new(), format!("{} needs to be a border node!", i.id));
     }
 
-    match_up_lanes(lanes, i.id, &incoming, &outgoing)
+    Warn::ok(match_up_lanes(lanes, i.id, &incoming, &outgoing))
 }
 
 fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {

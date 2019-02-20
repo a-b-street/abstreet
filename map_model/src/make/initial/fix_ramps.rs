@@ -5,7 +5,7 @@ use std::collections::{BTreeSet, HashSet};
 
 pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
     if m.roads.len() > 15_000 {
-        error!("Skipping fix_ramps because map is too big! TODO: Optimize me!");
+        timer.warn("Skipping fix_ramps because map is too big! TODO: Optimize me!".to_string());
         return;
     }
 
@@ -42,9 +42,12 @@ pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
 
     for (r, i) in fixme {
         if fix_ramp(m, r, i, timer) {
-            info!("Fixed ramp {} crossing {}", r, i);
+            timer.note(format!("Fixed ramp {} crossing {}", r, i));
         } else {
-            info!("{} crosses {} strangely, but didn't change anything", r, i);
+            timer.note(format!(
+                "{} crosses {} strangely, but didn't change anything",
+                r, i
+            ));
         }
     }
 }
@@ -100,7 +103,10 @@ fn fix_ramp(
 
             counter += 1;
             if counter > 10 {
-                warn!("Couldn't find last normal intersection from ramp {}", ramp);
+                timer.warn(format!(
+                    "Couldn't find last normal intersection from ramp {}",
+                    ramp
+                ));
                 return false;
             }
         }

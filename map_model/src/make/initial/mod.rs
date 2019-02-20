@@ -83,10 +83,10 @@ impl InitialMap {
 
         for (stable_id, r) in &data.roads {
             if r.i1 == r.i2 {
-                error!(
+                timer.warn(format!(
                     "OSM way {} is a loop on {}, skipping what would've been {}",
                     r.osm_way_id, r.i1, stable_id
-                );
+                ));
                 continue;
             }
             m.intersections
@@ -162,6 +162,6 @@ impl InitialMap {
         self.focus_on = focus_on;
         self.versions_saved += 1;
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
-        info!("Saved {}", path);
+        println!("Saved {}", path);
     }
 }

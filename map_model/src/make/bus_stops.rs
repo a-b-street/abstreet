@@ -66,10 +66,10 @@ pub fn make_bus_stops(
                 );
             }
         } else {
-            warn!(
+            timer.warn(format!(
                 "Can't find driving lane next to {}: {:?} and {:?}",
                 id, road.children_forwards, road.children_backwards
-            );
+            ));
         }
     }
 
@@ -83,11 +83,11 @@ pub fn make_bus_stops(
                 .cloned()
                 .collect();
             if stops.len() < 2 {
-                warn!(
+                timer.warn(format!(
                     "Skipping route {} since it only has {} stop in the slice of the map",
                     route_name,
                     stops.len()
-                );
+                ));
                 continue;
             }
             let id = BusRouteID(routes.len());
@@ -120,10 +120,10 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                 if bs1.driving_pos.lane() == bs2.driving_pos.lane() {
                     // This is coming up because the dist_along's are in a bad order. But why
                     // should this happen at all?
-                    warn!(
+                    timer.warn(format!(
                         "Removing route {} since {:?} and {:?} are on the same lane",
                         r.name, bs1, bs2
-                    );
+                    ));
                     ok = false;
                     break;
                 }
@@ -139,10 +139,10 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                 )
                 .is_none()
                 {
-                    warn!(
+                    timer.warn(format!(
                         "Removing route {} since {:?} and {:?} aren't connected",
                         r.name, bs1, bs2
-                    );
+                    ));
                     ok = false;
                     break;
                 }

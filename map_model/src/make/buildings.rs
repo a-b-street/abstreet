@@ -38,7 +38,7 @@ pub fn make_all_buildings(
                 .dist_along(sidewalk_pos.dist_along())
                 .0;
             if sidewalk_pt.epsilon_eq(bldg_center.into()) {
-                warn!("Skipping a building because front path has 0 length");
+                timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }
             let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
@@ -62,10 +62,10 @@ pub fn make_all_buildings(
 
     let discarded = input.len() - results.len();
     if discarded > 0 {
-        info!(
+        timer.note(format!(
             "Discarded {} buildings that weren't close enough to a sidewalk",
             discarded
-        );
+        ));
     }
     timer.stop("convert buildings");
 }

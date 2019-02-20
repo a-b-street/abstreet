@@ -107,10 +107,10 @@ impl Map {
             for i in &m.intersections {
                 match i.intersection_type {
                     IntersectionType::StopSign => {
-                        stop_signs.insert(i.id, ControlStopSign::new(&m, i.id));
+                        stop_signs.insert(i.id, ControlStopSign::new(&m, i.id, timer));
                     }
                     IntersectionType::TrafficSignal => {
-                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id));
+                        traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id, timer));
                     }
                     IntersectionType::Border => {}
                 };
@@ -428,9 +428,9 @@ impl Map {
 
     pub fn save(&self) {
         let path = format!("../data/maps/{}_{}.abst", self.name, self.edits.edits_name);
-        info!("Saving {}...", path);
+        println!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
-        info!("Saved {}", path);
+        println!("Saved {}", path);
     }
 
     pub fn find_closest_lane(&self, from: LaneID, types: Vec<LaneType>) -> Result<LaneID, Error> {

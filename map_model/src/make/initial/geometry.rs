@@ -1,6 +1,6 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use abstutil::{wraparound_get, Timer};
+use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, HashablePt2D, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
@@ -59,7 +59,7 @@ pub fn intersection_polygon(
     });
 
     let mut endpoints = if lines.len() == 1 {
-        deadend(roads, i.id, &lines)
+        deadend(roads, i.id, &lines).get(timer)
     } else {
         generalized_trim_back(roads, i.id, &lines, timer)
     };
@@ -154,7 +154,7 @@ fn generalized_trim_back(
                         shortest_center = trimmed;
                     }
                 } else {
-                    warn!("{} and {} hit, but the perpendicular never hit the original center line, or the trimmed thing is empty", r1, r2);
+                    timer.warn(format!("{} and {} hit, but the perpendicular never hit the original center line, or the trimmed thing is empty", r1, r2));
                 }
 
                 // We could also do the update for r2, but we'll just get to it later.
@@ -229,7 +229,7 @@ fn generalized_trim_back(
                 }
             }
         } else {
-            warn!("Excluding collision between original polylines of {} and something, because stuff's too short", id);
+            timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
         }
 
         // Shift those final centers out again to find the main endpoints for the polygon.
@@ -281,7 +281,7 @@ fn generalized_trim_back(
                 }
             }
         } else {
-            warn!("Excluding collision between original polylines of {} and something, because stuff's too short", id);
+            timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
         }
     }
     // TODO Caller will close off the polygon. Does that affect our dedupe?
@@ -292,7 +292,7 @@ fn deadend(
     roads: &mut BTreeMap<StableRoadID, Road>,
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
-) -> Vec<Pt2D> {
+) -> Warn<Vec<Pt2D>> {
     let (id, _, pl_a, pl_b) = &lines[0];
     let pt1 = pl_a
         .reversed()
@@ -324,12 +324,19 @@ fn deadend(
                 .0;
         }
 
-        vec![pt1.unwrap(), pt2.unwrap(), pl_b.last_pt(), pl_a.last_pt()]
+        Warn::ok(vec![
+            pt1.unwrap(),
+            pt2.unwrap(),
+            pl_b.last_pt(),
+            pl_a.last_pt(),
+        ])
     } else {
-        error!(
+        Warn::warn(
+            vec![pl_a.last_pt(), pl_b.last_pt()],
+            format!(
             "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
             i, id
-        );
-        vec![pl_a.last_pt(), pl_b.last_pt()]
+        ),
+        )
     }
 }

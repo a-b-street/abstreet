@@ -1,6 +1,6 @@
 use crate::raw_data::StableRoadID;
 use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, Lane, LaneType, Road};
-use abstutil;
+use abstutil::Error;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -94,7 +94,8 @@ impl RoadEdit {
                 panic!("{} is already {:?}", lane.id, new_type);
             }
             forwards[idx] = new_type;
-            if !are_lanes_valid(&forwards) {
+            if let Err(err) = are_lanes_valid(&forwards) {
+                println!("{}", err);
                 return None;
             }
         } else {
@@ -102,7 +103,8 @@ impl RoadEdit {
                 panic!("{} is already {:?}", lane.id, new_type);
             }
             backwards[idx] = new_type;
-            if !are_lanes_valid(&backwards) {
+            if let Err(err) = are_lanes_valid(&backwards) {
+                println!("{}", err);
                 return None;
             }
         }
@@ -137,22 +139,24 @@ impl RoadEdit {
     }
 }
 
-fn are_lanes_valid(lanes: &Vec<LaneType>) -> bool {
+fn are_lanes_valid(lanes: &Vec<LaneType>) -> Result<(), Error> {
     // TODO this check doesn't seem to be working
     for pair in lanes.windows(2) {
         if pair[0] == LaneType::Parking && pair[1] == LaneType::Parking {
-            error!("Can't have two adjacent parking lanes");
-            return false;
+            return Err(Error::new(
+                "Can't have two adjacent parking lanes".to_string(),
+            ));
         }
     }
 
     // Can't have two sidewalks on one side of a road
     if lanes.iter().filter(|&&lt| lt == LaneType::Sidewalk).count() > 1 {
-        error!("Can't have two sidewalks on one side of a road");
-        return false;
+        return Err(Error::new(
+            "Can't have two sidewalks on one side of a road".to_string(),
+        ));
     }
 
     // I'm sure other ideas will come up. :)
 
-    true
+    Ok(())
 }

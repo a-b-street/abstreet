@@ -1,5 +1,5 @@
 use crate::{IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
-use abstutil::Error;
+use abstutil::{Error, Timer, Warn};
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -14,13 +14,13 @@ pub struct ControlTrafficSignal {
 }
 
 impl ControlTrafficSignal {
-    pub fn new(map: &Map, id: IntersectionID) -> ControlTrafficSignal {
+    pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlTrafficSignal {
         if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
             ts
         } else if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
             ts
         } else {
-            ControlTrafficSignal::greedy_assignment(map, id).unwrap()
+            ControlTrafficSignal::greedy_assignment(map, id).get(timer)
         }
     }
 
@@ -83,14 +83,16 @@ impl ControlTrafficSignal {
     pub fn greedy_assignment(
         map: &Map,
         intersection: IntersectionID,
-    ) -> Option<ControlTrafficSignal> {
+    ) -> Warn<ControlTrafficSignal> {
         if map.get_turns_in_intersection(intersection).is_empty() {
-            error!("{} has no turns", intersection);
-            return Some(ControlTrafficSignal {
-                id: intersection,
-                cycles: vec![Cycle::new(intersection, 0)],
-                changed: false,
-            });
+            return Warn::warn(
+                ControlTrafficSignal {
+                    id: intersection,
+                    cycles: vec![Cycle::new(intersection, 0)],
+                    changed: false,
+                },
+                format!("{} has no turns", intersection),
+            );
         }
 
         let mut cycles = Vec::new();
@@ -129,11 +131,9 @@ impl ControlTrafficSignal {
             cycles,
             changed: false,
         };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        // This must succeed
+        ts.validate(map).unwrap();
+        Warn::ok(ts)
     }
 
     pub fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {

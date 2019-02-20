@@ -117,7 +117,7 @@ pub fn get_lane_specs(
     edits: &MapEdits,
 ) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = if let Some(e) = edits.roads.get(&id) {
-        info!("Using edits for {}", id);
+        println!("Using edits for {}", id);
         (e.forwards_lanes.clone(), e.backwards_lanes.clone())
     } else {
         get_lane_types(r)

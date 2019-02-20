@@ -136,11 +136,11 @@ pub fn make_half_map(
         }
 
         if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
-            error!("{:?} is orphaned!", i);
+            timer.warn(format!("{:?} is orphaned!", i));
             continue;
         }
 
-        for t in make::turns::make_all_turns(i, &half_map.roads, &half_map.lanes) {
+        for t in make::turns::make_all_turns(i, &half_map.roads, &half_map.lanes, timer) {
             assert!(!half_map.turns.contains_key(&t.id));
             i.turns.push(t.id);
             half_map.turns.insert(t.id, t);
@@ -151,7 +151,7 @@ pub fn make_half_map(
         t.lookup_idx = half_map.turn_lookup.len();
         half_map.turn_lookup.push(t.id);
         if t.geom.length() < geom::EPSILON_DIST {
-            warn!("u{} is a very short turn", t.lookup_idx);
+            timer.warn(format!("u{} is a very short turn", t.lookup_idx));
         }
     }
 

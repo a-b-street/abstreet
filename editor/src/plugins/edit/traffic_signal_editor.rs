@@ -285,9 +285,10 @@ fn choose_preset(
     if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
         choices.push(("three-phase".to_string(), ts));
     }
-    if let Some(ts) = ControlTrafficSignal::greedy_assignment(map, id) {
-        choices.push(("arbitrary assignment".to_string(), ts));
-    }
+    choices.push((
+        "arbitrary assignment".to_string(),
+        ControlTrafficSignal::greedy_assignment(map, id).unwrap(),
+    ));
 
     wizard
         .choose_something::<ControlTrafficSignal>(

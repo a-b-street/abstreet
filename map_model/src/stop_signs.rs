@@ -1,5 +1,5 @@
 use crate::{IntersectionID, LaneID, Map, TurnID, TurnPriority, TurnType};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Error};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -16,9 +16,9 @@ pub struct ControlStopSign {
 }
 
 impl ControlStopSign {
-    pub fn new(map: &Map, id: IntersectionID) -> ControlStopSign {
-        let ss = smart_assignment(map, id);
-        ss.validate(map).unwrap();
+    pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlStopSign {
+        let ss = smart_assignment(map, id).get(timer);
+        ss.validate(map).unwrap().get(timer);
         ss
     }
 
@@ -59,21 +59,24 @@ impl ControlStopSign {
             .is_none()
     }
 
-    fn validate(&self, map: &Map) -> Result<(), Error> {
+    // Returns both errors and warnings.
+    fn validate(&self, map: &Map) -> Result<Warn<()>, Error> {
+        let mut warnings = Vec::new();
+
         // Does the assignment cover the correct set of turns?
         let all_turns = &map.get_i(self.id).turns;
         // TODO Panic after stabilizing merged intersection issues.
         if self.turns.len() != all_turns.len() {
-            error!(
+            warnings.push(format!(
                 "Stop sign for {} has {} turns but should have {}",
                 self.id,
                 self.turns.len(),
                 all_turns.len()
-            );
+            ));
         }
         for t in all_turns {
             if !self.turns.contains_key(t) {
-                error!("Stop sign for {} is missing {}", self.id, t);
+                warnings.push(format!("Stop sign for {} is missing {}", self.id, t));
             }
         }
 
@@ -100,11 +103,11 @@ impl ControlStopSign {
             }
         }
 
-        Ok(())
+        Ok(Warn::empty_warnings(warnings))
     }
 }
 
-fn smart_assignment(map: &Map, id: IntersectionID) -> ControlStopSign {
+fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
     if map.get_i(id).roads.len() <= 2 {
         return for_degenerate_and_deadend(map, id);
     }
@@ -154,7 +157,7 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> ControlStopSign {
         ranks.insert(rank);
     }
     if ranks.len() == 1 {
-        return all_way_stop(map, id);
+        return Warn::ok(all_way_stop(map, id));
     }
 
     let mut ss = ControlStopSign {
@@ -176,7 +179,7 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> ControlStopSign {
             ss.turns.insert(*t, TurnPriority::Stop);
         }
     }
-    ss
+    Warn::ok(ss)
 }
 
 fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
@@ -191,7 +194,7 @@ fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
     ss
 }
 
-fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> ControlStopSign {
+fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
     let mut ss = ControlStopSign {
         id,
         turns: BTreeMap::new(),
@@ -210,9 +213,11 @@ fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> ControlStopSign 
     // intersection geometry), sometimes more turns conflict than really should. For now, just
     // detect and fallback to an all-way stop.
     if let Err(err) = ss.validate(map) {
-        warn!("Giving up on for_degenerate_and_deadend({}): {}", id, err);
-        return all_way_stop(map, id);
+        return Warn::warn(
+            all_way_stop(map, id),
+            format!("Giving up on for_degenerate_and_deadend({}): {}", id, err),
+        );
     }
 
-    ss
+    Warn::ok(ss)
 }

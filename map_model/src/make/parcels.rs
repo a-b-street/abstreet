@@ -39,10 +39,10 @@ pub fn make_all_parcels(
     }
     let discarded = input.len() - results.len();
     if discarded > 0 {
-        info!(
+        timer.note(format!(
             "Discarded {} parcels that weren't close enough to a sidewalk",
             discarded
-        );
+        ));
     }
     timer.stop("convert parcels");
 }

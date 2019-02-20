@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod area;
 mod building;
 mod bus_stop;

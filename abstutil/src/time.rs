@@ -129,6 +129,7 @@ impl Timer {
         println!();
 
         if !self.notes.is_empty() {
+            println!("{} notes:", self.notes.len());
             for line in self.notes {
                 println!("{}", line);
             }
