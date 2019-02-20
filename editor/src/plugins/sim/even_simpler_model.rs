@@ -73,7 +73,22 @@ impl BlockingPlugin for EvenSimplerModelController {
 fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
     let mut world = new_des_model::World::new(map);
 
-    for source in vec![start, LaneID(1622)] {
+    let mut sources = vec![start];
+    // Try to find a lane likely to have conflicts
+    {
+        for t in map.get_turns_from_lane(start) {
+            if t.turn_type == map_model::TurnType::Straight {
+                if let Some(l) = map
+                    .get_parent(t.id.dst)
+                    .any_on_other_side(t.id.dst, map_model::LaneType::Driving)
+                {
+                    sources.push(l);
+                }
+            }
+        }
+    }
+
+    for source in sources {
         let mut path = vec![Traversable::Lane(source)];
         let mut last_lane = source;
         for _ in 0..5 {

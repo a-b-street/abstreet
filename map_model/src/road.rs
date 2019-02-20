@@ -195,4 +195,13 @@ impl Road {
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
     }
+
+    pub fn any_on_other_side(&self, l: LaneID, lt: LaneType) -> Option<LaneID> {
+        let search = if self.is_forwards(l) {
+            &self.children_backwards
+        } else {
+            &self.children_forwards
+        };
+        search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
+    }
 }
