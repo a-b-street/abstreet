@@ -43,7 +43,7 @@ impl World {
             world.intersections.insert(
                 i.id,
                 IntersectionController {
-                    _id: i.id,
+                    id: i.id,
                     accepted: None,
                 },
             );
@@ -74,14 +74,14 @@ impl World {
             let l = map.get_l(queue.id);
 
             if num_waiting > 0 {
+                // Short lanes exist
+                let start = (l.length()
+                    - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE))
+                    .max(Distance::ZERO);
                 g.draw_polygon(
                     WAITING,
                     &l.lane_center_pts
-                        .slice(
-                            l.length()
-                                - (num_waiting as f64) * (VEHICLE_LENGTH + FOLLOWING_DISTANCE),
-                            l.length(),
-                        )
+                        .slice(start, l.length())
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
@@ -185,7 +185,14 @@ impl World {
         let mut retain_spawn = Vec::new();
         for (id, max_speed, path, start_time) in self.spawn_later.drain(..) {
             let first_lane = path[0].as_lane();
-            if time >= start_time && !self.queues[&first_lane].is_full() {
+            if time >= start_time
+                && !self.queues[&first_lane].is_full()
+                && self.intersections[&map.get_l(first_lane).src_i]
+                    .accepted
+                    .as_ref()
+                    .map(|car| car.path[1].as_lane() != first_lane)
+                    .unwrap_or(true)
+            {
                 self.queues
                     .get_mut(&first_lane)
                     .unwrap()
@@ -298,7 +305,20 @@ impl World {
             car.last_steps.push_front(car.path.pop_front().unwrap());
             car.trim_last_steps(map);
             let lane = car.path[0].as_lane();
-            assert!(!self.queues[&lane].is_full());
+            if self.queues[&lane].is_full() {
+                panic!(
+                    "{} is full -- has {:?} at {} -- but {} just finished a turn at {}",
+                    lane,
+                    self.queues[&lane]
+                        .cars
+                        .iter()
+                        .map(|car| car.id)
+                        .collect::<Vec<CarID>>(),
+                    time,
+                    car.id,
+                    i.id
+                );
+            }
             car.state = CarState::CrossingLane(TimeInterval {
                 start: time,
                 end: end_time + time_to_cross(Traversable::Lane(lane), map, car.max_speed),
@@ -338,7 +358,7 @@ impl Queue {
 }
 
 struct IntersectionController {
-    _id: IntersectionID,
+    id: IntersectionID,
     accepted: Option<Car>,
 }
 
@@ -379,9 +399,6 @@ impl Car {
                     .0
                     .make_polygons(LANE_THICKNESS),
             );
-        } else if self.last_steps.is_empty() {
-            println!("{} spawned too close", self.id);
-        // TODO spawned too close
         } else {
             // TODO This is redoing some of the Path::trace work...
             let mut result = self.path[0]
@@ -391,7 +408,7 @@ impl Car {
             let mut leftover = VEHICLE_LENGTH - front;
             let mut i = 0;
             while leftover > Distance::ZERO {
-                if i == self.last_steps() {
+                if i == self.last_steps.len() {
                     println!("{} spawned too close to short stuff", self.id);
                     return;
                 }
