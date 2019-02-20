@@ -1,5 +1,5 @@
 use ezgui::{Color, GfxCtx};
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration, PolyLine, Speed};
 use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
 use sim::CarID;
 use std::collections::{BTreeMap, VecDeque};
@@ -156,21 +156,19 @@ impl World {
                     }
                     CarState::CrossingTurn(_) => unreachable!(),
                 };
-                let back = front - VEHICLE_LENGTH;
-                if back < Distance::ZERO {
-                    println!("Messed up on {}", queue.id);
-                    break;
-                } else {
-                    last_car_back = Some(back);
-                    g.draw_polygon(
-                        color,
-                        &l.lane_center_pts
-                            .slice(back, front)
-                            .unwrap()
-                            .0
-                            .make_polygons(LANE_THICKNESS),
+
+                // There's backfill and a car shouldn't have been able to enter yet, but it's a
+                // temporary condition -- there's enough rest capacity.
+                if front < Distance::ZERO {
+                    println!(
+                        "Queue temporarily backed up on {} -- can't draw {}",
+                        queue.id, car.id
                     );
+                    break;
                 }
+
+                car.draw(front, color, g, map);
+                last_car_back = Some(front - VEHICLE_LENGTH);
             }
         }
 
@@ -181,17 +179,7 @@ impl World {
                     CarState::CrossingTurn(ref int) => int.percent(time),
                     _ => unreachable!(),
                 };
-
-                // TODO The VEHICLE_LENGTH is confusing...
-                let tail = percent * t.geom.length();
-                g.draw_polygon(
-                    FREEFLOW,
-                    &t.geom
-                        .slice(tail, tail + VEHICLE_LENGTH)
-                        .unwrap()
-                        .0
-                        .make_polygons(LANE_THICKNESS),
-                );
+                car.draw(percent * t.geom.length(), FREEFLOW, g, map);
             }
         }
     }
@@ -217,7 +205,7 @@ impl World {
                     .unwrap()
                     .cars
                     .push_back(Car {
-                        _id: id,
+                        id: id,
                         max_speed,
                         path: VecDeque::from(path.clone()),
                         state: CarState::CrossingLane(TimeInterval {
@@ -225,6 +213,7 @@ impl World {
                             end: time
                                 + time_to_cross(Traversable::Lane(first_lane), map, max_speed),
                         }),
+                        last_steps: VecDeque::new(),
                     });
             } else {
                 retain_spawn.push((id, max_speed, path, start_time));
@@ -294,7 +283,8 @@ impl World {
                 .cars
                 .pop_front()
                 .unwrap();
-            car.path.pop_front();
+            car.last_steps.push_front(car.path.pop_front().unwrap());
+            car.trim_last_steps(map);
             car.state = CarState::CrossingTurn(TimeInterval {
                 start: time,
                 end: time + time_to_cross(Traversable::Turn(turn), map, car.max_speed),
@@ -316,7 +306,8 @@ impl World {
             }
 
             let mut car = i.accepted.take().unwrap();
-            car.path.pop_front();
+            car.last_steps.push_front(car.path.pop_front().unwrap());
+            car.trim_last_steps(map);
             let lane = car.path[0].as_lane();
             assert!(!self.queues[&lane].is_full());
             car.state = CarState::CrossingLane(TimeInterval {
@@ -363,11 +354,68 @@ struct IntersectionController {
 }
 
 struct Car {
-    _id: CarID,
+    id: CarID,
     max_speed: Option<Speed>,
     // Front is always the current step
     path: VecDeque<Traversable>,
     state: CarState,
+
+    // In reverse order -- most recently left is first. The sum length of these must be >=
+    // VEHICLE_LENGTH.
+    last_steps: VecDeque<Traversable>,
+}
+
+impl Car {
+    fn trim_last_steps(&mut self, map: &Map) {
+        let mut keep = VecDeque::new();
+        let mut len = Distance::ZERO;
+        for on in self.last_steps.drain(..) {
+            len += on.length(map);
+            keep.push_back(on);
+            if len >= VEHICLE_LENGTH {
+                break;
+            }
+        }
+        self.last_steps = keep;
+    }
+
+    fn draw(&self, front: Distance, color: Color, g: &mut GfxCtx, map: &Map) {
+        assert!(front >= Distance::ZERO);
+        if front >= VEHICLE_LENGTH {
+            g.draw_polygon(
+                color,
+                &self.path[0]
+                    .slice(front - VEHICLE_LENGTH, front, map)
+                    .unwrap()
+                    .0
+                    .make_polygons(LANE_THICKNESS),
+            );
+        } else if self.last_steps.is_empty() {
+            println!("{} spawned too close", self.id);
+        // TODO spawned too close
+        } else {
+            // TODO This is redoing some of the Path::trace work...
+            let mut result = self.path[0]
+                .slice(Distance::ZERO, front, map)
+                .map(|(pl, _)| pl.points().clone())
+                .unwrap_or_else(Vec::new);
+            let mut leftover = VEHICLE_LENGTH - front;
+            let mut i = 0;
+            while leftover > Distance::ZERO {
+                let len = self.last_steps[i].length(map);
+                let start = (len - leftover).max(Distance::ZERO);
+                let piece = self.last_steps[i]
+                    .slice(start, len, map)
+                    .map(|(pl, _)| pl.points().clone())
+                    .unwrap_or_else(Vec::new);
+                result = PolyLine::append(piece, result);
+                leftover -= len;
+                i += 1;
+            }
+
+            g.draw_polygon(color, &PolyLine::new(result).make_polygons(LANE_THICKNESS));
+        }
+    }
 }
 
 enum CarState {

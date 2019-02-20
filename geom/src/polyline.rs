@@ -76,6 +76,21 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
+    // One or both args might be empty.
+    pub fn append(first: Vec<Pt2D>, second: Vec<Pt2D>) -> Vec<Pt2D> {
+        if second.is_empty() {
+            return first;
+        }
+        if first.is_empty() {
+            return second;
+        }
+
+        PolyLine::new(first)
+            .extend(&PolyLine::new(second))
+            .points()
+            .clone()
+    }
+
     pub fn points(&self) -> &Vec<Pt2D> {
         &self.pts
     }
