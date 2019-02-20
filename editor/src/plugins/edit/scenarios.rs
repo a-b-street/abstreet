@@ -3,6 +3,7 @@ use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
     input_weighted_usize, load_scenario, BlockingPlugin, PluginCtx,
 };
+use abstutil::Timer;
 use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::{Map, Neighborhood};
 use sim::{BorderSpawnOverTime, Scenario, SeedParkedCars, SpawnOverTime};
@@ -46,7 +47,9 @@ impl BlockingPlugin for ScenarioManager {
                 } else if ctx.input.modal_action("edit") {
                     *self = ScenarioManager::EditScenario(scenario.clone(), Wizard::new());
                 } else if ctx.input.modal_action("instantiate") {
-                    scenario.instantiate(&mut ctx.primary.sim, &ctx.primary.map);
+                    let mut timer = Timer::new("instantiate scenario");
+                    scenario.instantiate(&mut ctx.primary.sim, &ctx.primary.map, &mut timer);
+                    timer.done();
                     return false;
                 } else if scroller.event(&mut ctx.input) {
                     return false;

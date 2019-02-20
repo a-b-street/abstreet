@@ -68,8 +68,8 @@ impl Scenario {
     }
 
     // TODO may need to fork the RNG a bit more
-    pub fn instantiate(&self, sim: &mut Sim, map: &Map) {
-        let mut timer = Timer::new(&format!("Instantiating {}", self.scenario_name));
+    pub fn instantiate(&self, sim: &mut Sim, map: &Map, timer: &mut Timer) {
+        timer.start(&format!("Instantiating {}", self.scenario_name));
         assert!(sim.time == Tick::zero());
 
         let gps_bounds = map.get_gps_bounds();
@@ -105,7 +105,7 @@ impl Scenario {
                 &roads_per_neighborhood[&s.neighborhood],
                 &s.cars_per_building,
                 map,
-                &mut timer,
+                timer,
             );
         }
 
@@ -135,7 +135,7 @@ impl Scenario {
                 {
                     if let Some(goal) =
                         s.goal
-                            .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                            .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng, timer)
                     {
                         reserved_cars.insert(parked_car.car);
                         sim.spawner.start_trip_using_parked_car(
@@ -151,7 +151,7 @@ impl Scenario {
                 } else if sim.rng.gen_bool(s.percent_biking) {
                     if let Some(goal) =
                         s.goal
-                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng, timer)
                     {
                         let skip = if let DrivingGoal::ParkNear(to_bldg) = goal {
                             map.get_b(to_bldg).sidewalk() == map.get_b(from_bldg).sidewalk()
@@ -174,7 +174,7 @@ impl Scenario {
                     }
                 } else if let Some(goal) =
                     s.goal
-                        .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                        .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng, timer)
                 {
                     let start_spot = SidewalkSpot::building(from_bldg, map);
 
@@ -218,7 +218,7 @@ impl Scenario {
                     let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
-                            .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                            .pick_walking_goal(map, &bldgs_per_neighborhood, &mut sim.rng, timer)
                     {
                         if sim.rng.gen_bool(s.percent_use_transit) {
                             // TODO This throws away some work. It also sequentially does expensive
@@ -251,10 +251,10 @@ impl Scenario {
                     }
                 }
             } else if s.num_peds > 0 {
-                warn!(
+                timer.warn(format!(
                     "Can't start_at_border for {} without sidewalk",
                     s.start_from_border
-                );
+                ));
             }
 
             let starting_driving_lanes = map
@@ -263,17 +263,19 @@ impl Scenario {
             if !starting_driving_lanes.is_empty() {
                 let lane_len = map.get_l(starting_driving_lanes[0]).length();
                 if lane_len < kinematics::MAX_CAR_LENGTH {
-                    warn!(
+                    timer.warn(format!(
                         "Skipping {:?} because {} is only {}, too short to spawn cars",
                         s, starting_driving_lanes[0], lane_len
-                    );
+                    ));
                 } else {
                     for _ in 0..s.num_cars {
                         let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
-                        if let Some(goal) =
-                            s.goal
-                                .pick_driving_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
-                        {
+                        if let Some(goal) = s.goal.pick_driving_goal(
+                            map,
+                            &bldgs_per_neighborhood,
+                            &mut sim.rng,
+                            timer,
+                        ) {
                             sim.spawner.start_trip_with_car_appearing(
                                 spawn_time,
                                 map,
@@ -287,7 +289,10 @@ impl Scenario {
                     }
                 }
             } else if s.num_cars > 0 {
-                warn!("Can't start car at border for {}", s.start_from_border);
+                timer.warn(format!(
+                    "Can't start car at border for {}",
+                    s.start_from_border
+                ));
             }
 
             let mut starting_biking_lanes = map
@@ -303,7 +308,7 @@ impl Scenario {
                     let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
-                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng)
+                            .pick_biking_goal(map, &bldgs_per_neighborhood, &mut sim.rng, timer)
                     {
                         sim.spawner.start_trip_with_bike_at_border(
                             spawn_time,
@@ -316,11 +321,14 @@ impl Scenario {
                     }
                 }
             } else if s.num_bikes > 0 {
-                warn!("Can't start bike at border for {}", s.start_from_border);
+                timer.warn(format!(
+                    "Can't start bike at border for {}",
+                    s.start_from_border
+                ));
             }
         }
 
-        timer.done();
+        timer.stop(&format!("Instantiating {}", self.scenario_name));
     }
 
     pub fn save(&self) {
@@ -341,6 +349,7 @@ impl OriginDestination {
         map: &Map,
         bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
         rng: &mut XorShiftRng,
+        timer: &mut Timer,
     ) -> Option<DrivingGoal> {
         match self {
             OriginDestination::Neighborhood(ref n) => {
@@ -353,10 +362,10 @@ impl OriginDestination {
             OriginDestination::Border(i) => {
                 let lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Driving);
                 if lanes.is_empty() {
-                    warn!(
+                    timer.warn(format!(
                         "Can't spawn a car ending at border {}; no driving lane there",
                         i
-                    );
+                    ));
                     None
                 } else {
                     // TODO ideally could use any
@@ -372,6 +381,7 @@ impl OriginDestination {
         map: &Map,
         bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
         rng: &mut XorShiftRng,
+        timer: &mut Timer,
     ) -> Option<DrivingGoal> {
         match self {
             OriginDestination::Neighborhood(ref n) => {
@@ -385,10 +395,10 @@ impl OriginDestination {
                 let mut lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Biking);
                 lanes.extend(map.get_i(*i).get_incoming_lanes(map, LaneType::Driving));
                 if lanes.is_empty() {
-                    warn!(
+                    timer.warn(format!(
                         "Can't spawn a bike ending at border {}; no biking or driving lane there",
                         i
-                    );
+                    ));
                     None
                 } else {
                     Some(DrivingGoal::Border(*i, lanes[0]))
@@ -402,6 +412,7 @@ impl OriginDestination {
         map: &Map,
         bldgs_per_neighborhood: &HashMap<String, Vec<BuildingID>>,
         rng: &mut XorShiftRng,
+        timer: &mut Timer,
     ) -> Option<SidewalkSpot> {
         match self {
             OriginDestination::Neighborhood(ref n) => {
@@ -414,7 +425,7 @@ impl OriginDestination {
             OriginDestination::Border(i) => {
                 let goal = SidewalkSpot::end_at_border(*i, map);
                 if goal.is_none() {
-                    warn!("Can't end_at_border for {} without a sidewalk", i);
+                    timer.warn(format!("Can't end_at_border for {} without a sidewalk", i));
                 }
                 goal
             }

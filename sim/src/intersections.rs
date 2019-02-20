@@ -103,7 +103,7 @@ impl IntersectionSimState {
         let i = &self.intersections[id.0];
         if i.is_accepted(&req) {
             if self.debug == Some(id) {
-                debug!("{:?} just entered", req);
+                println!("{:?} just entered", req);
             }
             Ok(())
         } else {
@@ -120,7 +120,7 @@ impl IntersectionSimState {
         assert!(i.is_accepted(&req));
         i.on_exit(&req);
         if self.debug == Some(id) {
-            debug!("{:?} just exited", req);
+            println!("{:?} just exited", req);
         }
     }
 
@@ -276,7 +276,7 @@ impl StopSign {
                 self.started_waiting_at.insert(req.clone(), time);
                 newly_stopped.push(req.clone());
                 if self.debug {
-                    debug!("{:?} is promoted from approaching to waiting", req);
+                    println!("{:?} is promoted from approaching to waiting", req);
                 }
             }
         }
@@ -305,7 +305,7 @@ impl StopSign {
             newly_accepted.push(req.clone());
             self.accepted.insert(req.clone());
             if self.debug {
-                debug!("{:?} has been approved", req);
+                println!("{:?} has been approved", req);
             }
         }
 
@@ -345,7 +345,7 @@ impl TrafficSignal {
         for req in self.accepted.iter() {
             if cycle.get_priority(req.turn) < TurnPriority::Yield {
                 if self.debug {
-                    debug!(
+                    println!(
                         "{:?} is still doing {:?} after the cycle is over",
                         req.agent, req.turn
                     );
@@ -405,7 +405,7 @@ impl TrafficSignal {
             events.push(Event::IntersectionAcceptsRequest(req.clone()));
 
             if self.debug {
-                debug!("{:?} has been accepted for this cycle", req);
+                println!("{:?} has been accepted for this cycle", req);
             }
         }
 

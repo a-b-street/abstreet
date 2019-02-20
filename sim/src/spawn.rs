@@ -280,7 +280,7 @@ impl Spawner {
                     }
                 };
             } else {
-                error!(
+                println!(
                     "Couldn't find path at {} from {} to {} for {:?}",
                     now, req.start, req.end, cmd
                 );
@@ -300,6 +300,7 @@ impl Spawner {
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
         now: Tick,
+        timer: &mut Timer,
     ) -> Vec<CarID> {
         transit_sim.create_empty_route(route, map);
         let mut results: Vec<CarID> = Vec::new();
@@ -313,10 +314,10 @@ impl Spawner {
             );
 
             if start_dist_along < BUS_LENGTH {
-                warn!(
+                timer.warn(format!(
                     "Stop at {:?} is too short to spawn a bus there; giving up on one bus for {}",
                     start, route.id
-                );
+                ));
                 continue;
             }
 
@@ -343,13 +344,16 @@ impl Spawner {
             ) {
                 trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                 transit_sim.bus_created(id, route.id, next_stop_idx);
-                info!("Spawned bus {} for route {} ({})", id, route.name, route.id);
+                timer.note(format!(
+                    "Spawned bus {} for route {} ({})",
+                    id, route.name, route.id
+                ));
                 results.push(id);
             } else {
-                warn!(
+                timer.warn(format!(
                     "No room for a bus headed towards stop {} of {} ({}), giving up",
                     next_stop_idx, route.name, route.id
-                );
+                ));
             }
         }
         results
@@ -419,9 +423,13 @@ impl Spawner {
             timer.next();
             for _ in 0..cars_per_building.sample(base_rng) {
                 let mut forked_rng = fork_rng(base_rng);
-                if let Some(spot) =
-                    find_spot_near_building(*b, &mut open_spots_per_road, neighborhoods_roads, map)
-                {
+                if let Some(spot) = find_spot_near_building(
+                    *b,
+                    &mut open_spots_per_road,
+                    neighborhoods_roads,
+                    map,
+                    timer,
+                ) {
                     new_cars += 1;
                     let car = CarID(self.car_id_counter, VehicleType::Car);
                     // TODO since spawning applies during the next step, lots of stuff breaks without
@@ -436,24 +444,24 @@ impl Spawner {
                 } else {
                     // TODO This should be more critical, but neighborhoods can currently contain a
                     // building, but not even its road, so this is inevitable.
-                    error!(
+                    timer.warn(format!(
                         "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, {} new cars so far. Searched from {}",
                         total_spots,
                         cars_per_building,
                         owner_buildings.len(),
                         new_cars,
                         b
-                    );
+                    ));
                 }
             }
         }
 
-        info!(
+        timer.note(format!(
             "Seeded {} of {} parking spots with cars, leaving {} buildings without cars",
             new_cars,
             total_spots,
             owner_buildings.len() - new_cars
-        );
+        ));
     }
 
     // Usually first_lane is a border, but could also be anywhere else for interactive debugging.
@@ -513,7 +521,7 @@ impl Spawner {
     ) {
         // Don't add duplicate commands.
         if let Some(trip) = trips.get_trip_using_car(parked.car) {
-            warn!(
+            println!(
                 "{} is already a part of {}, ignoring new request",
                 parked.car, trip
             );
@@ -787,7 +795,7 @@ fn calculate_paths(map: &Map, requests: &Vec<PathRequest>) -> Vec<Option<Path>> 
         .map(|req| Pathfinder::shortest_distance(map, req.clone()))
         .collect();
 
-    /*debug!(
+    /*println!(
         "Calculating {} paths took {}s",
         paths.len(),
         elapsed_seconds(timer)
@@ -803,6 +811,7 @@ fn find_spot_near_building(
     open_spots_per_road: &mut HashMap<RoadID, Vec<ParkingSpot>>,
     neighborhoods_roads: &BTreeSet<RoadID>,
     map: &Map,
+    timer: &mut Timer,
 ) -> Option<ParkingSpot> {
     let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
     let mut visited: HashSet<RoadID> = HashSet::new();
@@ -814,12 +823,12 @@ fn find_spot_near_building(
 
     loop {
         if roads_queue.is_empty() {
-            warn!(
+            timer.warn(format!(
                 "Giving up looking for a free parking spot, searched {} roads of {}: {:?}",
                 visited.len(),
                 open_spots_per_road.len(),
                 visited
-            );
+            ));
         }
         let r = roads_queue.pop_front()?;
         if let Some(spots) = open_spots_per_road.get_mut(&r) {

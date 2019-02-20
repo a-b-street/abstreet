@@ -48,7 +48,7 @@ pub fn load(
     if flags.load.contains("data/save/") {
         assert_eq!(flags.edits_name, "no_edits");
 
-        info!("Resuming from {}", flags.load);
+        timer.note(format!("Resuming from {}", flags.load));
         timer.start("read sim savestate");
         let sim: Sim = abstutil::read_json(&flags.load).expect("loading sim state failed");
         timer.stop("read sim savestate");
@@ -76,7 +76,10 @@ pub fn load(
 
         (map, sim)
     } else if flags.load.contains("data/scenarios/") {
-        info!("Seeding the simulation from scenario {}", flags.load);
+        timer.note(format!(
+            "Seeding the simulation from scenario {}",
+            flags.load
+        ));
         let scenario: Scenario = abstutil::read_json(&flags.load).expect("loading scenario failed");
         let edits = load_edits(&scenario.map_name, &flags);
 
@@ -100,7 +103,7 @@ pub fn load(
             flags.rng_seed,
             savestate_every,
         );
-        scenario.instantiate(&mut sim, &map);
+        scenario.instantiate(&mut sim, &map, timer);
         (map, sim)
     } else if flags.load.contains("data/raw_maps/") {
         // TODO relative dir is brittle; match more cautiously
@@ -109,7 +112,7 @@ pub fn load(
             .trim_left_matches("../data/raw_maps/")
             .trim_right_matches(".abst")
             .to_string();
-        info!("Loading map {}", flags.load);
+        timer.note(format!("Loading map {}", flags.load));
         let edits = load_edits(&map_name, &flags);
         let map = Map::new(&flags.load, edits, timer)
             .expect(&format!("Couldn't load map from {}", flags.load));
@@ -120,7 +123,7 @@ pub fn load(
     } else if flags.load.contains("data/maps/") {
         assert_eq!(flags.edits_name, "no_edits");
 
-        info!("Loading map {}", flags.load);
+        timer.note(format!("Loading map {}", flags.load));
         let map: Map = abstutil::read_binary(&flags.load, timer)
             .expect(&format!("Couldn't load map from {}", flags.load));
         timer.start("create sim");

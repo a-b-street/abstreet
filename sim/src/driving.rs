@@ -134,14 +134,14 @@ impl Car {
         let mut dist_scanned_ahead = Distance::ZERO;
 
         if self.debug {
-            debug!(
+            println!(
                 "-- At {}, {} looking ahead. Starting {} along {:?}, with speed {}",
                 time, self.id, self.dist_along, self.on, self.speed
             );
         }
         loop {
             if self.debug {
-                debug!(
+                println!(
                     "  Looking ahead to {:?} with {} left to scan",
                     current_on, dist_to_lookahead
                 );
@@ -155,7 +155,7 @@ impl Car {
                     vehicle.accel_to_achieve_speed_in_one_tick(self.speed, current_speed_limit);
                 constraints.push((accel, Intent::ObeySpeedLimit(current_speed_limit)));
                 if self.debug {
-                    debug!(
+                    println!(
                         "  {} needs {} to match speed limit of {}",
                         self.id, accel, current_speed_limit
                     );
@@ -186,7 +186,7 @@ impl Car {
                     )?;
 
                     if self.debug {
-                        debug!(
+                        println!(
                             "  {} needs {} to not hit {}. Currently {} behind their back",
                             self.id, accel, other.id, dist_behind_others_back
                         );
@@ -194,7 +194,7 @@ impl Car {
 
                     constraints.push((accel, Intent::FollowCar(other.id.as_car())));
                 } else if self.debug {
-                    debug!("  {} is {} behind {}'s back. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_others_back, other.id, dist_scanned_ahead, dist_to_lookahead, kinematics::FOLLOWING_DISTANCE, total_scanning_dist);
+                    println!("  {} is {} behind {}'s back. Scanned ahead so far {} + lookahead dist {} + following dist {} = {} is less than that, so ignore them", self.id, dist_behind_others_back, other.id, dist_scanned_ahead, dist_to_lookahead, kinematics::FOLLOWING_DISTANCE, total_scanning_dist);
                 }
             }
             profiler.stop("    follow vehicle");
@@ -245,7 +245,7 @@ impl Car {
                             dist_scanned_ahead + dist_from_stop,
                         )?;
                         if self.debug {
-                            debug!(
+                            println!(
                                 "  {} needs {} to stop for something that's currently {} away",
                                 self.id,
                                 accel,
@@ -288,7 +288,7 @@ impl Car {
             } else {
                 format!("{}", self.speed)
             };
-            debug!(
+            println!(
                 "  ... At {}, {} chose {}, with current speed {}, to achieve {:?}",
                 time, self.id, describe_accel, describe_speed, intent
             );
@@ -385,7 +385,7 @@ impl Car {
                 if self.dist_along > dist {
                     // But be generous, maybe.
                     if self.dist_along - dist <= EPSILON_DIST && self.speed.is_zero(TIMESTEP) {
-                        error!(
+                        println!(
                             "{} overshot just a little bit on {}, so being generous.",
                             self.id, lane
                         );
@@ -787,7 +787,7 @@ impl DrivingSimState {
         {
             let other_dist = self.cars[&other].dist_along;
             if other_dist >= start_dist {
-                /*debug!(
+                /*println!(
                     "{} can't spawn, because they'd wind up too close ({}) behind {}",
                     params.car,
                     other_dist - params.dist_along,
@@ -807,7 +807,7 @@ impl DrivingSimState {
                 )
                 .unwrap();
             if accel_for_other_to_stop <= other_vehicle.max_deaccel {
-                //debug!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
+                //println!("{} can't spawn {} in front of {}, because {} would have to do {} to not hit {}", params.car, params.dist_along - other_dist, other, other, accel_for_other_to_stop, params.car);
                 return false;
             }
         }
@@ -819,7 +819,7 @@ impl DrivingSimState {
         // TODO Pedestrians becoming bikes will just vanish for a while. :\
         if intersections.anybody_accepted_with_destination(map.get_l(start_lane).src_i, start_lane)
         {
-            //debug!("{} can't spawn {} on {}, because somebody's doing a turn and headed this way", params.car, start_dist, start_lane);
+            //println!("{} can't spawn {} on {}, because somebody's doing a turn and headed this way", params.car, start_dist, start_lane);
             return false;
         }
 

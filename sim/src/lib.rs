@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod driving;
 mod events;
 //mod fsm;

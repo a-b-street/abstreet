@@ -202,12 +202,12 @@ impl Router {
         let choices = map.get_next_turns_and_lanes(last_lane, map.get_l(last_lane).dst_i);
         if choices.is_empty() {
             // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
-            error!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", view.id, last_lane);
+            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", view.id, last_lane);
             return Some(Action::TmpVanish);
         }
         let (turn, new_lane) = choices.choose(rng).unwrap();
         if view.debug {
-            debug!(
+            println!(
                 "{} can't find parking on {}, so wandering over to {}",
                 view.id, last_lane, new_lane.id
             );

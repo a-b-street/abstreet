@@ -94,36 +94,10 @@ impl<T> Warn<T> {
             warnings: self.warnings,
         }
     }
-
-    /*pub fn get_and_append<X>(self, other: &mut Warn<X>) -> T {
-        other.warnings.extend(self.warnings);
-        self.value
-    }
-
-    pub fn get_with_context<X>(self, other: &mut Warn<X>, context: String) -> T {
-        if !self.warnings.is_empty() {
-            other.warnings.extend(self.warnings);
-            // TODO Just apply to the last; no explicit nesting structure...
-            let last_line = format!("{}:\n  {}", context, other.warnings.pop().unwrap());
-            other.warnings.push(last_line);
-        }
-        self.value
-    }*/
 }
 
 impl Warn<()> {
     pub fn empty_warnings(warnings: Vec<String>) -> Warn<()> {
         Warn::warnings((), warnings)
     }
-
-    /*pub fn add_warning(&mut self, line: String) {
-        self.warnings.push(line);
-    }
-
-    pub fn wrap<T>(self, value: T) -> Warn<T> {
-        Warn {
-            value,
-            warnings: self.warnings,
-        }
-    }*/
 }

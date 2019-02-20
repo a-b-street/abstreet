@@ -29,8 +29,8 @@ impl Sim {
             })) {
                 Ok(()) => {}
                 Err(err) => {
-                    error!("********************************************************************************");
-                    error!("Sim broke:");
+                    println!("********************************************************************************");
+                    println!("Sim broke:");
                     self.dump_before_abort();
                     panic::resume_unwind(err);
                 }
@@ -38,7 +38,7 @@ impl Sim {
 
             if self.time.is_multiple_of(Tick::from_minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
-                info!("{0}, speed = {1:.2}x", self.summary(), speed);
+                println!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             callback(self);
             if Some(self.time) == time_limit {
@@ -64,7 +64,7 @@ impl Sim {
             }
             for ev in self.step(&map).into_iter() {
                 if ev == *expectations.front().unwrap() {
-                    info!("At {}, met expectation {:?}", self.time, ev);
+                    println!("At {}, met expectation {:?}", self.time, ev);
                     expectations.pop_front();
                     if expectations.is_empty() {
                         return;
@@ -73,7 +73,7 @@ impl Sim {
             }
             if self.time.is_multiple_of(Tick::from_minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
-                info!("{0}, speed = {1:.2}x", self.summary(), speed);
+                println!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             if self.time == time_limit {
                 panic!(
@@ -88,9 +88,11 @@ impl Sim {
 // Spawning helpers
 impl Sim {
     pub fn small_spawn(&mut self, map: &Map) {
+        let mut timer = Timer::new("small_spawn");
+
         // TODO This really ought to be part of the scenario
         for route in map.get_all_bus_routes() {
-            self.seed_bus_route(route, map);
+            self.seed_bus_route(route, map, &mut timer);
         }
 
         let mut s = Scenario {
@@ -139,7 +141,8 @@ impl Sim {
                 percent_use_transit: 0.5,
             });
         }
-        s.instantiate(self, map);
+        s.instantiate(self, map, &mut timer);
+        timer.done();
     }
 
     pub fn seed_parked_cars(
@@ -283,7 +286,7 @@ impl Sim {
         )
     }
 
-    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map) -> Vec<CarID> {
+    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
         // TODO throw away the events? :(
         let mut events: Vec<Event> = Vec::new();
         self.spawner.seed_bus_route(
@@ -296,6 +299,7 @@ impl Sim {
             &self.intersection_state,
             &mut self.trips_state,
             self.time,
+            timer,
         )
     }
 }

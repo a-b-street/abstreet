@@ -170,7 +170,7 @@ impl Vehicle {
             -1.0 * speed.inner_meters_per_second() / normal_case.inner_meters_per_second_squared();
 
         if self.debug {
-            debug!(
+            println!(
                 "   accel_to_stop_in_dist({}, {}) would normally recommend {} and take {}s to finish",
                 speed, dist, normal_case, required_time
             );

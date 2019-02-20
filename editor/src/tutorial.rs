@@ -1,6 +1,7 @@
 use crate::objects::{DrawCtx, RenderingHints};
 use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
+use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, LogScroller, Prerender, Text};
 use map_model::Traversable;
 use sim::{Event, Tick};
@@ -154,5 +155,5 @@ fn setup_scenario(primary: &mut PerMapUI) {
             border_spawn(primary, "north", "south"),
         ],
     }
-    .instantiate(&mut primary.sim, map);
+    .instantiate(&mut primary.sim, map, &mut Timer::throwaway());
 }

@@ -104,7 +104,7 @@ impl Sim {
         path: String,
         new_run_name: Option<String>,
     ) -> Result<Sim, std::io::Error> {
-        info!("Loading {}", path);
+        println!("Loading {}", path);
         abstutil::read_json(&path).map(|mut s: Sim| {
             if let Some(name) = new_run_name {
                 s.run_name = name;
@@ -148,13 +148,15 @@ impl Sim {
     }
 
     pub fn dump_before_abort(&self) {
-        error!("********************************************************************************");
-        error!(
+        println!(
+            "********************************************************************************"
+        );
+        println!(
             "At {} while processing {:?}",
             self.time, self.current_agent_for_debugging
         );
         if let Some(path) = self.find_previous_savestate(self.time) {
-            error!("Debug from {}", path);
+            println!("Debug from {}", path);
         }
     }
 
@@ -339,7 +341,7 @@ impl Sim {
             self.time.as_filename()
         );
         abstutil::write_json(&path, &self).expect("Writing sim state failed");
-        info!("Saved to {}", path);
+        println!("Saved to {}", path);
         path
     }
 
