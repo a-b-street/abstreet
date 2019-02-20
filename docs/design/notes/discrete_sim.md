@@ -199,3 +199,13 @@ This model neglects:
 
 - speed, acceleration at some particular time
 - but delays to doing turns after queueing could include time to accelerate
+
+## Article on traffic simulation
+
+- introduce problem, macroscopic out of scope
+- discrete time... AORTA model
+	- drawbacks
+- time-space intervals
+	- retrospective
+- simpler discrete-event system
+	- essence of scarcity

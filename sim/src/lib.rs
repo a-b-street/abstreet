@@ -48,6 +48,11 @@ impl CarID {
     pub fn tmp_new(idx: usize, vt: VehicleType) -> CarID {
         CarID(idx, vt)
     }
+
+    // TODO Not sure if the new DES model should do this
+    pub fn tmp_get_vehicle_type(self) -> VehicleType {
+        self.1
+    }
 }
 
 impl fmt::Display for CarID {

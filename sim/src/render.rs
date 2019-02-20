@@ -18,6 +18,7 @@ pub struct DrawCarInput {
     pub waiting_for_turn: Option<TurnID>,
     pub stopping_trace: Option<Trace>,
     pub state: CarState,
+    // TODO This is definitely redundant
     pub vehicle_type: VehicleType,
     pub on: Traversable,
 

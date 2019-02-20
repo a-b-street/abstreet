@@ -77,21 +77,17 @@ impl DrawCar {
 
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
 
+        // TODO if it's a bus, color it differently -- but how? :\
+        let color = match input.state {
+            CarState::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
+            CarState::Moving => cs.get_def("moving car", Color::CYAN),
+            CarState::Stuck => cs.get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0)),
+            CarState::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+        };
         let draw_default = prerender.upload_borrowed(vec![
             (
-                // TODO if it's a bus, color it differently -- but how? :\
-                match input.state {
-                    CarState::Debug => cs
-                        .get_def("debug car", Color::BLUE.alpha(0.8))
-                        .shift(input.id.0),
-                    CarState::Moving => cs.get_def("moving car", Color::CYAN).shift(input.id.0),
-                    CarState::Stuck => cs
-                        .get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0))
-                        .shift(input.id.0),
-                    CarState::Parked => cs
-                        .get_def("parked car", Color::rgb(180, 233, 76))
-                        .shift(input.id.0),
-                },
+                color,
+                // TODO color.shift(input.id.0) actually looks pretty bad still
                 &body_polygon,
             ),
             (cs.get_def("car window", Color::BLACK), &front_window),
