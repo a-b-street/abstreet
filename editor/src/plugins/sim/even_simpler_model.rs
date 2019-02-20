@@ -6,7 +6,7 @@ use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Duration, Speed};
 use map_model::{LaneID, Map, Traversable};
 use rand::seq::SliceRandom;
-use rand::SeedableRng;
+use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use sim::{CarID, VehicleType};
 
@@ -61,6 +61,9 @@ impl BlockingPlugin for EvenSimplerModelController {
             } else if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = true;
                 ctx.hints.mode = EventLoopMode::Animation;
+            } else if ctx.input.modal_action("spawn tons of cars everywhere") {
+                self.current_time = Duration::ZERO;
+                self.world = densely_populate_world(&ctx.primary.map);
             }
         }
         if ctx.input.modal_action("quit") {
@@ -99,17 +102,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         for i in 0..10 {
-            let mut path = vec![Traversable::Lane(source)];
-            let mut last_lane = source;
-            for _ in 0..5 {
-                if let Some(t) = map.get_turns_from_lane(last_lane).choose(&mut rng) {
-                    path.push(Traversable::Turn(t.id));
-                    path.push(Traversable::Lane(t.id.dst));
-                    last_lane = t.id.dst;
-                } else {
-                    break;
-                }
-            }
+            let path = random_path(source, &mut rng, map);
 
             // Throw a slow vehicle in the middle
             let max_speed = if i == 4 {
@@ -128,4 +121,48 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
     }
 
     world
+}
+
+fn densely_populate_world(map: &Map) -> new_des_model::World {
+    let mut world = new_des_model::World::new(map);
+    let mut rng = XorShiftRng::from_seed([42; 16]);
+
+    let mut counter = 0;
+    for l in map.all_lanes() {
+        if l.is_driving() {
+            for i in 0..rng.gen_range(0, 5) {
+                let path = random_path(l.id, &mut rng, map);
+                let max_speed = if rng.gen_bool(0.1) {
+                    Some(Speed::miles_per_hour(10.0))
+                } else {
+                    None
+                };
+
+                world.spawn_car(
+                    CarID::tmp_new(counter, VehicleType::Car),
+                    max_speed,
+                    path,
+                    Duration::seconds(1.0) * (i as f64),
+                );
+                counter += 1;
+            }
+        }
+    }
+
+    world
+}
+
+fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversable> {
+    let mut path = vec![Traversable::Lane(start)];
+    let mut last_lane = start;
+    for _ in 0..5 {
+        if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
+            path.push(Traversable::Turn(t.id));
+            path.push(Traversable::Lane(t.id.dst));
+            last_lane = t.id.dst;
+        } else {
+            break;
+        }
+    }
+    path
 }

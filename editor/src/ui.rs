@@ -158,6 +158,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Key::Enter, "quit"),
                     (Key::Dot, "forwards"),
                     (Key::Space, "toggle forwards play"),
+                    (Key::E, "spawn tons of cars everywhere"),
                 ],
             ),
             ModalMenu::new(

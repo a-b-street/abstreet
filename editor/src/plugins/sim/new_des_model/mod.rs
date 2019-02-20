@@ -391,6 +391,10 @@ impl Car {
             let mut leftover = VEHICLE_LENGTH - front;
             let mut i = 0;
             while leftover > Distance::ZERO {
+                if i == self.last_steps() {
+                    println!("{} spawned too close to short stuff", self.id);
+                    return;
+                }
                 let len = self.last_steps[i].length(map);
                 let start = (len - leftover).max(Distance::ZERO);
                 let piece = self.last_steps[i]
