@@ -39,7 +39,7 @@ impl Queue {
             let front = match car.state {
                 CarState::Queued => bound,
                 CarState::CrossingLane(ref time_int, ref dist_int) => {
-                    dist_int.upper_bound(bound).lerp(time_int.percent(time))
+                    dist_int.lerp(time_int.percent(time)).min(bound)
                 }
                 CarState::CrossingTurn(_) => unreachable!(),
             };

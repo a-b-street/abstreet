@@ -113,11 +113,4 @@ impl DistanceInterval {
         assert!(x >= 0.0 && x <= 1.0);
         self.start + x * (self.end - self.start)
     }
-
-    pub fn upper_bound(&self, bound: Distance) -> DistanceInterval {
-        DistanceInterval {
-            start: self.start,
-            end: self.end.min(bound),
-        }
-    }
 }
