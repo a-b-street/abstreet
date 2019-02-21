@@ -1,10 +1,9 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
-use abstutil::{Timer, Warn};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Polygon, Pt2D};
-use map_model::{Map, Road, RoadID, LANE_THICKNESS};
+use geom::{Bounds, Pt2D};
+use map_model::{Map, Road, RoadID};
 
 pub struct DrawRoad {
     pub id: RoadID,
@@ -16,40 +15,16 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(
-        r: &Road,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-        timer: &mut Timer,
-    ) -> (DrawRoad, Polygon) {
-        let thick = DrawRoad::get_thick(r).get(timer);
-        (
-            DrawRoad {
-                id: r.id,
-                bounds: thick.get_bounds(),
-                zorder: r.get_zorder(),
-                draw_center_line: prerender.upload(vec![(
-                    cs.get_def("road center line", Color::YELLOW),
-                    r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
-                )]),
-            },
-            thick,
-        )
-    }
-
-    pub fn get_thick(r: &Road) -> Warn<Polygon> {
-        // TODO Should be a less tedious way to do this
-        let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
-        let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
-        let total_width = width_right + width_left;
-        if width_right >= width_left {
-            r.center_pts
-                .shift_right((width_right - width_left) / 2.0)
-                .map(|pl| pl.make_polygons(total_width))
-        } else {
-            r.center_pts
-                .shift_left((width_left - width_right) / 2.0)
-                .map(|pl| pl.make_polygons(total_width))
+    pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
+        DrawRoad {
+            id: r.id,
+            // TODO Urgh, gotta pass timer in
+            bounds: r.get_thick_polygon().unwrap().get_bounds(),
+            zorder: r.get_zorder(),
+            draw_center_line: prerender.upload(vec![(
+                cs.get_def("road center line", Color::YELLOW),
+                r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
+            )]),
         }
     }
 }

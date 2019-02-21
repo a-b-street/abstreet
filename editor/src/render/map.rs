@@ -61,9 +61,8 @@ impl DrawMap {
         let mut all_roads: Vec<Polygon> = Vec::new();
         for r in map.all_roads() {
             timer.next();
-            let (draw, poly) = DrawRoad::new(r, cs, prerender, timer);
-            roads.push(draw);
-            all_roads.push(poly);
+            roads.push(DrawRoad::new(r, cs, prerender));
+            all_roads.push(r.get_thick_polygon().get(timer));
         }
         let draw_all_thick_roads = prerender.upload(
             all_roads

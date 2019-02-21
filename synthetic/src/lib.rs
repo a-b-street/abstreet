@@ -372,7 +372,7 @@ impl Model {
 
         map.boundary_polygon = map.get_gps_bounds().get_corners();
         // Close off the polygon
-        map.boundary_polygon.push(map.boundary_polygon[3]);
+        map.boundary_polygon.push(map.boundary_polygon[0]);
 
         let path = format!(
             "../data/raw_maps/{}.abst",

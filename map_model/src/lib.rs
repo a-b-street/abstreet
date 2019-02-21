@@ -24,7 +24,7 @@ pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;
 pub use crate::map::Map;
-pub use crate::neighborhood::{Neighborhood, NeighborhoodBuilder};
+pub use crate::neighborhood::{FullNeighborhoodInfo, Neighborhood, NeighborhoodBuilder};
 pub use crate::parcel::{Parcel, ParcelID};
 pub use crate::pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
 pub use crate::road::{DirectedRoadID, Road, RoadID};

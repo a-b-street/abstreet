@@ -25,6 +25,7 @@ pub enum IntersectionType {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
+    // TODO Describe what this represents.
     pub point: Pt2D,
     // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,

@@ -1,6 +1,6 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
-use crate::render::{DrawRoad, MIN_ZOOM_FOR_DETAIL};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
@@ -171,7 +171,7 @@ impl RoadHeatmap {
                 Color::RED
             };
             // TODO Inefficient!
-            g.draw_polygon(color, &DrawRoad::get_thick(ctx.map.get_r(*r)).unwrap());
+            g.draw_polygon(color, &ctx.map.get_r(*r).get_thick_polygon().unwrap());
         }
     }
 }

@@ -1,8 +1,9 @@
 use crate::{BuildingID, Map, RoadID};
+use aabb_quadtree::QuadTree;
 use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::fs::File;
 use std::io::{Error, Write};
 
@@ -79,41 +80,69 @@ impl Neighborhood {
             .collect()
     }
 
-    // TODO This should use quadtrees and/or not just match the center of each building.
-    pub fn find_matching_buildings(&self, map: &Map) -> Vec<BuildingID> {
-        let mut results: Vec<BuildingID> = Vec::new();
-        for b in map.all_buildings() {
-            if self.polygon.contains_pt(b.polygon.center()) {
-                results.push(b.id);
-            }
-        }
-        results
-    }
-
-    // TODO This should use quadtrees and/or not just match one point of each road.
-    pub fn find_matching_roads(&self, map: &Map) -> BTreeSet<RoadID> {
-        let mut results: BTreeSet<RoadID> = BTreeSet::new();
-        for r in map.all_roads() {
-            if self.polygon.contains_pt(r.center_pts.first_pt()) {
-                results.insert(r.id);
-            }
-        }
-        results
-    }
-
-    pub fn make_everywhere(map: &Map) -> Neighborhood {
-        let bounds = map.get_bounds();
-
+    fn make_everywhere(map: &Map) -> Neighborhood {
+        let mut pts = map.get_bounds().get_corners();
+        pts.push(pts[0]);
         Neighborhood {
             map_name: map.get_name().to_string(),
             name: "_everywhere_".to_string(),
-            polygon: Polygon::new(&vec![
-                Pt2D::new(0.0, 0.0),
-                Pt2D::new(bounds.max_x, 0.0),
-                Pt2D::new(bounds.max_x, bounds.max_y),
-                Pt2D::new(0.0, bounds.max_y),
-                Pt2D::new(0.0, 0.0),
-            ]),
+            polygon: Polygon::new(&pts),
         }
+    }
+}
+
+pub struct FullNeighborhoodInfo {
+    pub name: String,
+    pub buildings: Vec<BuildingID>,
+    pub roads: BTreeSet<RoadID>,
+}
+
+impl FullNeighborhoodInfo {
+    pub fn load_all(map: &Map) -> HashMap<String, FullNeighborhoodInfo> {
+        let mut neighborhoods = Neighborhood::load_all(map.get_name(), map.get_gps_bounds());
+        neighborhoods.push((
+            "_everywhere_".to_string(),
+            Neighborhood::make_everywhere(map),
+        ));
+
+        let mut bldg_quadtree = QuadTree::default(map.get_bounds().as_bbox());
+        for b in map.all_buildings() {
+            bldg_quadtree.insert_with_box(b.id, b.polygon.get_bounds().as_bbox());
+        }
+        let mut road_quadtree = QuadTree::default(map.get_bounds().as_bbox());
+        for r in map.all_roads() {
+            road_quadtree
+                .insert_with_box(r.id, r.get_thick_polygon().unwrap().get_bounds().as_bbox());
+        }
+
+        let mut full_info = HashMap::new();
+        for (name, n) in &neighborhoods {
+            let mut info = FullNeighborhoodInfo {
+                name: name.to_string(),
+                buildings: Vec::new(),
+                roads: BTreeSet::new(),
+            };
+
+            for &(id, _, _) in &bldg_quadtree.query(n.polygon.get_bounds().as_bbox()) {
+                // TODO Polygon containment is hard; just see if the center is inside.
+                if n.polygon.contains_pt(map.get_b(*id).polygon.center()) {
+                    info.buildings.push(*id);
+                }
+            }
+
+            for &(id, _, _) in &road_quadtree.query(n.polygon.get_bounds().as_bbox()) {
+                // TODO Polygon containment is hard; just see if the "center" of each endpoint is
+                // inside.
+                let r = map.get_r(*id);
+                let pt1 = map.get_i(r.src_i).point;
+                let pt2 = map.get_i(r.dst_i).point;
+                if n.polygon.contains_pt(pt1) && n.polygon.contains_pt(pt2) {
+                    info.roads.insert(*id);
+                }
+            }
+
+            full_info.insert(name.to_string(), info);
+        }
+        full_info
     }
 }

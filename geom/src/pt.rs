@@ -232,4 +232,13 @@ impl Bounds {
             },
         }
     }
+
+    pub fn get_corners(&self) -> Vec<Pt2D> {
+        vec![
+            Pt2D::new(self.min_x, self.min_y),
+            Pt2D::new(self.max_x, self.min_y),
+            Pt2D::new(self.max_x, self.max_y),
+            Pt2D::new(self.min_x, self.max_y),
+        ]
+    }
 }

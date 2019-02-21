@@ -1,6 +1,6 @@
-use crate::{raw_data, IntersectionID, LaneID, LaneType};
-use abstutil::Error;
-use geom::{PolyLine, Speed};
+use crate::{raw_data, IntersectionID, LaneID, LaneType, LANE_THICKNESS};
+use abstutil::{Error, Warn};
+use geom::{PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
@@ -240,5 +240,20 @@ impl Road {
             &self.children_forwards
         };
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
+    }
+
+    pub fn get_thick_polygon(&self) -> Warn<Polygon> {
+        let width_right = (self.children_forwards.len() as f64) * LANE_THICKNESS;
+        let width_left = (self.children_backwards.len() as f64) * LANE_THICKNESS;
+        let total_width = width_right + width_left;
+        if width_right >= width_left {
+            self.center_pts
+                .shift_right((width_right - width_left) / 2.0)
+                .map(|pl| pl.make_polygons(total_width))
+        } else {
+            self.center_pts
+                .shift_left((width_left - width_right) / 2.0)
+                .map(|pl| pl.make_polygons(total_width))
+        }
     }
 }
