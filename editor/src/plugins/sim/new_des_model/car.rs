@@ -70,10 +70,9 @@ impl Car {
             waiting_for_turn: None,
             stopping_trace: None,
             state: match self.state {
-                // TODO Cars can be Queued behind a slow CrossingLane. Looks kind of weird.
+                // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
                 CarState::Queued => sim::CarState::Stuck,
-                CarState::CrossingLane(_, _) => sim::CarState::Moving,
-                CarState::CrossingTurn(_) => sim::CarState::Moving,
+                CarState::Crossing(_, _) => sim::CarState::Moving,
             },
             vehicle_type: self.id.tmp_get_vehicle_type(),
             on: self.path[0],
@@ -82,11 +81,11 @@ impl Car {
     }
 }
 
+// TODO These should perhaps be collapsed to (TimeInterval, DistanceInterval, Traversable).
 #[derive(Debug)]
 pub enum CarState {
-    CrossingLane(TimeInterval, DistanceInterval),
+    Crossing(TimeInterval, DistanceInterval),
     Queued,
-    CrossingTurn(TimeInterval),
 }
 
 #[derive(Debug)]

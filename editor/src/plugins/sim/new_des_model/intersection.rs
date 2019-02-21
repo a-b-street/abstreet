@@ -1,23 +1,37 @@
-pub use crate::plugins::sim::new_des_model::{Car, CarState, TimeInterval};
+use crate::plugins::sim::new_des_model::Queue;
 use geom::Duration;
-use map_model::{IntersectionID, Map};
-use sim::DrawCarInput;
+use map_model::{IntersectionID, LaneID, Traversable, TurnID};
+use sim::CarID;
+use std::collections::BTreeMap;
 
 pub struct IntersectionController {
     pub id: IntersectionID,
-    pub accepted: Option<Car>,
+    pub accepted: Option<(CarID, TurnID)>,
 }
 
 impl IntersectionController {
-    pub fn get_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
-        if let Some(ref car) = self.accepted {
-            let t = map.get_t(car.path[0].as_turn());
-            let percent = match car.state {
-                CarState::CrossingTurn(ref int) => int.percent(time),
-                _ => unreachable!(),
-            };
-            return vec![car.get_draw_car(percent * t.geom.length(), map)];
+    // The head car calls this when they're at the end of the lane Queued.
+    pub fn can_start_turn(
+        &self,
+        _car: CarID,
+        turn: TurnID,
+        queues: &BTreeMap<Traversable, Queue>,
+        time: Duration,
+    ) -> bool {
+        if self.accepted.is_some() {
+            return false;
         }
-        Vec::new()
+        if !queues[&Traversable::Lane(turn.dst)].room_at_end(time) {
+            return false;
+        }
+        true
+    }
+
+    pub fn nobody_headed_towards(&self, dst_lane: LaneID) -> bool {
+        if let Some((_, turn)) = self.accepted {
+            turn.dst != dst_lane
+        } else {
+            true
+        }
     }
 }

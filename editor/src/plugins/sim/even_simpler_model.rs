@@ -127,7 +127,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                     .get_parent(t.id.dst)
                     .any_on_other_side(t.id.dst, map_model::LaneType::Driving)
                 {
-                    sources.push(l);
+                    //sources.push(l);
                 }
             }
         }
@@ -222,7 +222,8 @@ fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversab
     let mut path = vec![Traversable::Lane(start)];
     let mut last_lane = start;
     for _ in 0..5 {
-        if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
+        //if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
+        if let Some(t) = map.get_turns_from_lane(last_lane).get(0) {
             path.push(Traversable::Turn(t.id));
             path.push(Traversable::Lane(t.id.dst));
             last_lane = t.id.dst;

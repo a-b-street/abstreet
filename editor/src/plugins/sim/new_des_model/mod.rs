@@ -7,7 +7,7 @@ use self::intersection::IntersectionController;
 use self::queue::Queue;
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration, Speed};
-use map_model::{IntersectionID, LaneID, Map, Traversable, TurnID, LANE_THICKNESS};
+use map_model::{IntersectionID, Map, Traversable, LANE_THICKNESS};
 use sim::{CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -19,7 +19,7 @@ const FREEFLOW: Color = Color::CYAN;
 const WAITING: Color = Color::RED;
 
 pub struct World {
-    queues: BTreeMap<LaneID, Queue>,
+    queues: BTreeMap<Traversable, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
     spawn_later: Vec<(
@@ -43,17 +43,14 @@ impl World {
 
         for l in map.all_lanes() {
             if l.is_for_moving_vehicles() {
-                world.queues.insert(
-                    l.id,
-                    Queue {
-                        id: l.id,
-                        cars: VecDeque::new(),
-                        max_capacity: ((l.length() / (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE))
-                            .floor() as usize)
-                            .max(1),
-                        lane_len: l.length(),
-                    },
-                );
+                let q = Queue::new(Traversable::Lane(l.id), map);
+                world.queues.insert(q.id, q);
+            }
+        }
+        for t in map.all_turns().values() {
+            if !t.between_sidewalks() {
+                let q = Queue::new(Traversable::Turn(t.id), map);
+                world.queues.insert(q.id, q);
             }
         }
 
@@ -79,27 +76,25 @@ impl World {
             let mut num_freeflow = 0;
             for car in &queue.cars {
                 match car.state {
-                    CarState::CrossingLane(_, _) => {
+                    CarState::Crossing(_, _) => {
                         num_freeflow += 1;
                     }
                     CarState::Queued => {
                         num_waiting += 1;
                     }
-                    CarState::CrossingTurn(_) => unreachable!(),
                 };
             }
 
-            let l = map.get_l(queue.id);
-
             if num_waiting > 0 {
-                // Short lanes exist
-                let start = (l.length()
+                // Short lanes/turns exist
+                let start = (queue.geom_len
                     - f64::from(num_waiting) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE))
                     .max(Distance::ZERO);
                 g.draw_polygon(
                     WAITING,
-                    &l.lane_center_pts
-                        .slice(start, l.length())
+                    &queue
+                        .id
+                        .slice(start, queue.geom_len, map)
                         .unwrap()
                         .0
                         .make_polygons(LANE_THICKNESS),
@@ -108,24 +103,15 @@ impl World {
             if num_freeflow > 0 {
                 g.draw_polygon(
                     FREEFLOW,
-                    &l.lane_center_pts
+                    &queue
+                        .id
                         .slice(
                             Distance::ZERO,
                             f64::from(num_freeflow) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                            map,
                         )
                         .unwrap()
                         .0
-                        .make_polygons(LANE_THICKNESS),
-                );
-            }
-        }
-
-        for i in self.intersections.values() {
-            if let Some(ref car) = i.accepted {
-                g.draw_polygon(
-                    FREEFLOW,
-                    &map.get_t(car.path[0].as_turn())
-                        .geom
                         .make_polygons(LANE_THICKNESS),
                 );
             }
@@ -142,9 +128,6 @@ impl World {
                     .map(|(car, dist)| car.get_draw_car(dist, map)),
             );
         }
-        for i in self.intersections.values() {
-            result.extend(i.get_draw_cars(time, map));
-        }
         result
     }
 
@@ -154,20 +137,13 @@ impl World {
         on: Traversable,
         map: &Map,
     ) -> Vec<DrawCarInput> {
-        match on {
-            Traversable::Lane(l) => match self.queues.get(&l) {
-                Some(q) => q
-                    .get_car_positions(time)
-                    .into_iter()
-                    .map(|(car, dist)| car.get_draw_car(dist, map))
-                    .collect(),
-                None => Vec::new(),
-            },
-            Traversable::Turn(t) => self.intersections[&t.parent]
-                .get_draw_cars(time, map)
+        match self.queues.get(&on) {
+            Some(q) => q
+                .get_car_positions(time)
                 .into_iter()
-                .filter(|d| d.on == Traversable::Turn(t))
+                .map(|(car, dist)| car.get_draw_car(dist, map))
                 .collect(),
+            None => Vec::new(),
         }
     }
 
@@ -214,10 +190,10 @@ impl World {
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
-        // Promote CrossingLane to Queued.
+        // Promote Crossing to Queued.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
-                if let CarState::CrossingLane(ref time_int, _) = car.state {
+                if let CarState::Crossing(ref time_int, _) = car.state {
                     if time > time_int.end {
                         car.state = CarState::Queued;
                     }
@@ -235,27 +211,34 @@ impl World {
         }
 
         // Figure out where everybody wants to go next.
-        // (head of this lane ready to go, what they want next)
-        let mut cars_ready_to_turn: Vec<(LaneID, TurnID)> = Vec::new();
+        let mut head_cars_ready_to_advance: Vec<Traversable> = Vec::new();
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
                 continue;
             }
             let car = &queue.cars[0];
             if let CarState::Queued = car.state {
-                cars_ready_to_turn.push((queue.id, car.path[1].as_turn()));
+                head_cars_ready_to_advance.push(queue.id);
             }
         }
 
-        // Lane->Turn transitions
-        for (from, turn) in cars_ready_to_turn {
-            let i = turn.parent;
-            if self.intersections[&i].accepted.is_some() {
-                continue;
-            }
-            if !self.queues[&turn.dst].room_at_end(time) {
-                continue;
-            }
+        // Carry out the transitions.
+        for from in head_cars_ready_to_advance {
+            let car_id = self.queues[&from].cars[0].id;
+            match self.queues[&from].cars[0].path[1] {
+                Traversable::Turn(t) => {
+                    if !self.intersections[&t.parent].can_start_turn(car_id, t, &self.queues, time)
+                    {
+                        continue;
+                    }
+                }
+                // Depending on gridlock avoidance, this could happen or not.
+                Traversable::Lane(l) => {
+                    if !self.queues[&Traversable::Lane(l)].room_at_end(time) {
+                        continue;
+                    }
+                }
+            };
 
             let mut car = self
                 .queues
@@ -264,75 +247,44 @@ impl World {
                 .cars
                 .pop_front()
                 .unwrap();
-            car.last_steps.push_front(car.path.pop_front().unwrap());
+            let last_step = car.path.pop_front().unwrap();
+            car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
-            car.state = CarState::CrossingTurn(TimeInterval {
-                start: time,
-                end: time
-                    + time_to_cross(
-                        &DistanceInterval {
-                            start: Distance::ZERO,
-                            end: map.get_t(turn).geom.length(),
-                        },
-                        Traversable::Turn(turn).speed_limit(map),
-                        car.max_speed,
-                    ),
-            });
-            self.intersections.get_mut(&i).unwrap().accepted = Some(car);
-        }
 
-        // Turn->Lane transitions
-        for i in self.intersections.values_mut() {
-            if i.accepted.is_none() {
-                continue;
-            }
-            let end_time = match i.accepted.as_ref().unwrap().state {
-                CarState::CrossingTurn(ref int) => int.end,
-                _ => unreachable!(),
-            };
-            if time < end_time {
-                continue;
-            }
+            let goto = car.path[0];
 
-            let mut car = i.accepted.take().unwrap();
-            car.last_steps.push_front(car.path.pop_front().unwrap());
-            car.trim_last_steps(map);
-            let lane = car.path[0].as_lane();
-            if !self.queues[&lane].room_at_end(time) {
-                panic!(
-                    "{} is full -- has {:?} at {} -- but {} just finished a turn at {}",
-                    lane,
-                    self.queues[&lane]
-                        .cars
-                        .iter()
-                        .map(|car| car.id)
-                        .collect::<Vec<CarID>>(),
-                    time,
-                    car.id,
-                    i.id
-                );
-            }
             let dist_int = DistanceInterval {
                 start: Distance::ZERO,
                 end: if car.path.len() == 1 {
                     car.end_dist
                 } else {
-                    map.get_l(lane).length()
+                    goto.length(map)
                 },
             };
-            let dt = time_to_cross(
-                &dist_int,
-                map.get_parent(lane).get_speed_limit(),
-                car.max_speed,
-            );
-            car.state = CarState::CrossingLane(
+            let dt = time_to_cross(&dist_int, goto.speed_limit(map), car.max_speed);
+
+            car.state = CarState::Crossing(
                 TimeInterval {
                     start: time,
                     end: time + dt,
                 },
                 dist_int,
             );
-            self.queues.get_mut(&lane).unwrap().cars.push_back(car);
+
+            match goto {
+                Traversable::Turn(t) => {
+                    self.intersections.get_mut(&t.parent).unwrap().accepted =
+                        Some((car.id, goto.as_turn()));
+                }
+                Traversable::Lane(_) => {
+                    self.intersections
+                        .get_mut(&last_step.as_turn().parent)
+                        .unwrap()
+                        .accepted = None;
+                }
+            }
+
+            self.queues.get_mut(&goto).unwrap().cars.push_back(car);
         }
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
@@ -345,12 +297,10 @@ impl World {
 
             if time >= start_time
                 && self.intersections[&map.get_l(first_lane).src_i]
-                    .accepted
-                    .as_ref()
-                    .map(|car| car.path[1].as_lane() != first_lane)
-                    .unwrap_or(true)
+                    .nobody_headed_towards(first_lane)
             {
-                if let Some(idx) = self.queues[&first_lane].get_idx_to_insert_car(start_dist, time)
+                if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
+                    .get_idx_to_insert_car(start_dist, time)
                 {
                     let dist_int = DistanceInterval {
                         start: start_dist,
@@ -361,24 +311,28 @@ impl World {
                         map.get_parent(first_lane).get_speed_limit(),
                         max_speed,
                     );
-                    self.queues.get_mut(&first_lane).unwrap().cars.insert(
-                        idx,
-                        Car {
-                            id,
-                            vehicle_len,
-                            max_speed,
-                            path: VecDeque::from(path.clone()),
-                            end_dist,
-                            state: CarState::CrossingLane(
-                                TimeInterval {
-                                    start: time,
-                                    end: time + dt,
-                                },
-                                dist_int,
-                            ),
-                            last_steps: VecDeque::new(),
-                        },
-                    );
+                    self.queues
+                        .get_mut(&Traversable::Lane(first_lane))
+                        .unwrap()
+                        .cars
+                        .insert(
+                            idx,
+                            Car {
+                                id,
+                                vehicle_len,
+                                max_speed,
+                                path: VecDeque::from(path.clone()),
+                                end_dist,
+                                state: CarState::Crossing(
+                                    TimeInterval {
+                                        start: time,
+                                        end: time + dt,
+                                    },
+                                    dist_int,
+                                ),
+                                last_steps: VecDeque::new(),
+                            },
+                        );
                     spawned = true;
                     //println!("{} spawned at {}", id, time);
                 }
