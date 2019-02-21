@@ -183,6 +183,8 @@ How could lane-changing work?
 	- one (usually turn) lane backfilling affects all
 - later: queue per lane. turn becomes lane->road
 	- the LCing itself doesnt really happen, merging has to happen upstream
+	- the only place this is really weird is when there are multiple turn lanes from src to dst
+	- or when two incoming roads could turn into different lanes of a road
 - actual LCing during freeflow/queueing time could make sense
 
 Now the interesting part... drawing!

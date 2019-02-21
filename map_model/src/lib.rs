@@ -27,7 +27,7 @@ pub use crate::map::Map;
 pub use crate::neighborhood::{Neighborhood, NeighborhoodBuilder};
 pub use crate::parcel::{Parcel, ParcelID};
 pub use crate::pathfind::{Path, PathRequest, PathStep, Pathfinder, Trace};
-pub use crate::road::{Road, RoadID};
+pub use crate::road::{DirectedRoadID, Road, RoadID};
 pub use crate::stop_signs::ControlStopSign;
 pub use crate::traffic_signals::{ControlTrafficSignal, Cycle};
 pub use crate::traversable::{Position, Traversable};

@@ -16,8 +16,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};
 use geom::{Bounds, FindClosest, Polygon};
 use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, Lane, LaneID, Map, ParcelID, RoadID,
-    Traversable, Turn, TurnID, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, ParcelID,
+    RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use sim::Tick;
 use std::borrow::Borrow;
@@ -156,15 +156,14 @@ impl DrawMap {
                 shapes.shapes
             };
 
-            // Match shapes with the nearest road + direction (true for forwards)
-            let mut closest: FindClosest<(RoadID, bool)> = FindClosest::new(&map.get_bounds());
+            let mut closest: FindClosest<DirectedRoadID> = FindClosest::new(&map.get_bounds());
             for r in map.all_roads().iter() {
                 closest.add(
-                    (r.id, true),
+                    r.id.forwards(),
                     &r.center_pts.shift_right(LANE_THICKNESS).get(timer),
                 );
                 closest.add(
-                    (r.id, false),
+                    r.id.backwards(),
                     &r.center_pts.shift_left(LANE_THICKNESS).get(timer),
                 );
             }

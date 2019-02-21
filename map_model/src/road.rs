@@ -15,6 +15,43 @@ impl fmt::Display for RoadID {
     }
 }
 
+impl RoadID {
+    pub fn forwards(self) -> DirectedRoadID {
+        DirectedRoadID {
+            id: self,
+            forwards: true,
+        }
+    }
+
+    pub fn backwards(self) -> DirectedRoadID {
+        DirectedRoadID {
+            id: self,
+            forwards: false,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct DirectedRoadID {
+    pub id: RoadID,
+    pub forwards: bool,
+}
+
+impl fmt::Display for DirectedRoadID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "DirectedRoadID({}, {})",
+            self.id.0,
+            if self.forwards {
+                "forwards"
+            } else {
+                "backwards"
+            }
+        )
+    }
+}
+
 // These're bidirectional (possibly)
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Road {

@@ -3,7 +3,7 @@ use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_S
 use ezgui::{Color, GfxCtx};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
-use map_model::{Map, RoadID, LANE_THICKNESS};
+use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -25,7 +25,7 @@ pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     shape: Shape,
     pub attributes: BTreeMap<String, String>,
-    pub road: Option<(RoadID, bool)>,
+    pub road: Option<DirectedRoadID>,
 }
 
 impl DrawExtraShape {
@@ -33,7 +33,7 @@ impl DrawExtraShape {
         id: ExtraShapeID,
         s: ExtraShape,
         gps_bounds: &GPSBounds,
-        closest: &FindClosest<(RoadID, bool)>,
+        closest: &FindClosest<DirectedRoadID>,
     ) -> Option<DrawExtraShape> {
         let mut pts: Vec<Pt2D> = Vec::new();
         for pt in s.points.into_iter() {

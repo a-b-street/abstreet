@@ -2,7 +2,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::ExtraShapeID;
 use ezgui::Color;
-use map_model::{BuildingID, IntersectionID, RoadID};
+use map_model::{BuildingID, DirectedRoadID, IntersectionID};
 use sim::{AgentID, CarID};
 use std::collections::HashSet;
 
@@ -10,7 +10,7 @@ pub enum ShowAssociatedState {
     Inactive,
     BuildingSelected(BuildingID, HashSet<CarID>),
     CarSelected(CarID, Option<BuildingID>),
-    ShapeSelected(ExtraShapeID, Option<(RoadID, bool)>),
+    ShapeSelected(ExtraShapeID, Option<DirectedRoadID>),
     IntersectionSelected(IntersectionID, HashSet<AgentID>),
 }
 
