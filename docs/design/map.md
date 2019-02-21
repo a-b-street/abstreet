@@ -49,6 +49,7 @@ editing, but it likely has other uses.
 - connectivity
         - from any sidewalk to any other
         - from any driving lane to any other
+	- no lanechanging needed, because of the turns that exist
 - no loop lanes (same src and dst endpt)... but what about cul-de-sacs then?
 - associated lanes
         - parking lane or bus stop without driving lane

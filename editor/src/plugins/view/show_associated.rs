@@ -91,10 +91,11 @@ impl AmbientPlugin for ShowAssociatedState {
                     return Some(color);
                 }
             }
-            (ShowAssociatedState::ShapeSelected(_, Some((r, fwds))), ID::Lane(l)) => {
+            (ShowAssociatedState::ShapeSelected(_, Some(r)), ID::Lane(l)) => {
                 let parent = ctx.map.get_parent(l);
-                if parent.id == *r
-                    && ((*fwds && parent.is_forwards(l)) || (!fwds && parent.is_backwards(l)))
+                if parent.id == r.id
+                    && ((r.forwards && parent.is_forwards(l))
+                        || (!r.forwards && parent.is_backwards(l)))
                 {
                     return Some(color);
                 }

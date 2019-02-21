@@ -6,7 +6,6 @@ use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
-use std::iter;
 
 // TODO Add proper warnings when the geometry is too small to handle.
 
@@ -21,7 +20,7 @@ pub fn make_all_turns(
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_vehicle_turns(i, roads, lanes, timer));
     turns.extend(make_walking_turns(i, roads, lanes));
-    let turns = dedupe(turns);
+    let turns = ensure_unique(turns);
 
     // Make sure every incoming lane has a turn originating from it, and every outgoing lane has a
     // turn leading to it. Except for parking lanes, of course.
@@ -52,7 +51,7 @@ pub fn make_all_turns(
     turns
 }
 
-fn dedupe(turns: Vec<Turn>) -> Vec<Turn> {
+fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
     let mut ids = HashSet::new();
     let mut keep: Vec<Turn> = Vec::new();
     for t in turns.into_iter() {
@@ -122,24 +121,26 @@ fn make_vehicle_turns(
                 let angle2 = lanes[outgoing[0].0].first_line().angle();
                 match TurnType::from_angles(angle1, angle2) {
                     TurnType::Straight => {
-                        // Match up based on the relative number of lanes.
-                        result.extend(match_up_lanes(lanes, i.id, &incoming, &outgoing));
+                        // Cartesian product
+                        for l1 in &incoming {
+                            for l2 in &outgoing {
+                                result.push(make_vehicle_turn(lanes, i.id, *l1, *l2));
+                            }
+                        }
                     }
                     TurnType::Right => {
-                        result.push(make_vehicle_turn(
-                            lanes,
-                            i.id,
-                            *incoming.last().unwrap(),
-                            *outgoing.last().unwrap(),
-                        ));
+                        for l2 in &outgoing {
+                            result.push(make_vehicle_turn(
+                                lanes,
+                                i.id,
+                                *incoming.last().unwrap(),
+                                *l2,
+                            ));
+                        }
                     }
                     TurnType::Left => {
-                        if incoming.len() == 1 {
-                            for out in outgoing {
-                                result.push(make_vehicle_turn(lanes, i.id, incoming[0], out));
-                            }
-                        } else {
-                            result.push(make_vehicle_turn(lanes, i.id, incoming[0], outgoing[0]));
+                        for l2 in outgoing {
+                            result.push(make_vehicle_turn(lanes, i.id, incoming[0], l2));
                         }
                     }
                     _ => unreachable!(),
@@ -149,44 +150,6 @@ fn make_vehicle_turns(
     }
 
     result.into_iter().filter_map(|x| x).collect()
-}
-
-fn match_up_lanes(
-    lanes: &Vec<Lane>,
-    i: IntersectionID,
-    incoming: &Vec<LaneID>,
-    outgoing: &Vec<LaneID>,
-) -> Vec<Option<Turn>> {
-    let mut result = Vec::new();
-    if incoming.len() < outgoing.len() {
-        // Arbitrarily use the leftmost incoming lane to handle the excess.
-        let padded_incoming: Vec<&LaneID> = iter::repeat(&incoming[0])
-            .take(outgoing.len() - incoming.len())
-            .chain(incoming.iter())
-            .collect();
-        assert_eq!(padded_incoming.len(), outgoing.len());
-        for (l1, l2) in padded_incoming.iter().zip(outgoing.iter()) {
-            result.push(make_vehicle_turn(lanes, i, **l1, *l2));
-        }
-    } else if incoming.len() > outgoing.len() {
-        // TODO For non-dead-ends: Ideally if the left/rightmost lanes are for turning, use the
-        // unused one to go straight.
-        // But for now, arbitrarily use the leftmost outgoing road to handle the excess.
-        let padded_outgoing: Vec<&LaneID> = iter::repeat(&outgoing[0])
-            .take(incoming.len() - outgoing.len())
-            .chain(outgoing.iter())
-            .collect();
-        assert_eq!(padded_outgoing.len(), incoming.len());
-        for (l1, l2) in incoming.iter().zip(&padded_outgoing) {
-            result.push(make_vehicle_turn(lanes, i, *l1, **l2));
-        }
-    } else {
-        // The easy case!
-        for (l1, l2) in incoming.iter().zip(outgoing.iter()) {
-            result.push(make_vehicle_turn(lanes, i, *l1, *l2));
-        }
-    }
-    result
 }
 
 fn make_vehicle_turns_for_dead_end(
@@ -202,7 +165,14 @@ fn make_vehicle_turns_for_dead_end(
         return Warn::warn(Vec::new(), format!("{} needs to be a border node!", i.id));
     }
 
-    Warn::ok(match_up_lanes(lanes, i.id, &incoming, &outgoing))
+    let mut result = Vec::new();
+    for l1 in incoming {
+        for l2 in &outgoing {
+            result.push(make_vehicle_turn(lanes, i.id, l1, *l2));
+        }
+    }
+
+    Warn::ok(result)
 }
 
 fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
