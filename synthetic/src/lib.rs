@@ -309,7 +309,8 @@ impl Model {
         println!("Saved {}", path);
     }
 
-    pub fn export(&self) {
+    // Returns path to raw map
+    pub fn export(&self) -> String {
         let mut map = raw_data::Map::blank();
         map.coordinates_in_world_space = true;
 
@@ -369,12 +370,17 @@ impl Model {
             });
         }
 
+        map.boundary_polygon = map.get_gps_bounds().get_corners();
+        // Close off the polygon
+        map.boundary_polygon.push(map.boundary_polygon[3]);
+
         let path = format!(
             "../data/raw_maps/{}.abst",
             self.name.as_ref().expect("Model hasn't been named yet")
         );
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
         println!("Exported {}", path);
+        path
     }
 
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.

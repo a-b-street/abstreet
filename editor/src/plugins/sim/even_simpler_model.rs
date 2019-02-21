@@ -162,7 +162,7 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
                 vehicle_len,
                 max_speed,
                 path.clone(),
-                Duration::seconds(1.0) * (i as f64),
+                Duration::seconds(1.0) * f64::from(i),
                 rand_dist(&mut rng, vehicle_len, len),
                 rand_dist(
                     &mut rng,
@@ -205,7 +205,7 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
                     vehicle_len,
                     max_speed,
                     path,
-                    Duration::seconds(1.0) * (i as f64),
+                    Duration::seconds(1.0) * f64::from(i),
                     rand_dist(&mut rng, vehicle_len, len),
                     rand_dist(&mut rng, Distance::ZERO, map.get_l(last_lane).length()),
                     map,

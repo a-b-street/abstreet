@@ -33,3 +33,9 @@ for map_path in `ls data/raw_maps/`; do
 		done
 	fi
 done
+
+# Re-export all synthetic maps from scratch.
+cd precompute;
+for path in `ls ../data/synthetic_maps/*`; do
+	RUST_BACKTRACE=1 cargo run $release_mode $path --edits_name=no_edits;
+done

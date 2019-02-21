@@ -110,6 +110,15 @@ impl GPSBounds {
         }
     }
 
+    pub fn get_corners(&self) -> Vec<LonLat> {
+        vec![
+            LonLat::new(self.min_lon, self.min_lat),
+            LonLat::new(self.max_lon, self.min_lat),
+            LonLat::new(self.max_lon, self.max_lat),
+            LonLat::new(self.min_lon, self.max_lat),
+        ]
+    }
+
     // TODO cache this
     pub fn get_max_world_pt(&self) -> Pt2D {
         let width = LonLat::new(self.min_lon, self.min_lat)

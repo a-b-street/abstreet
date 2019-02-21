@@ -1,11 +1,9 @@
-mod model;
-
-use crate::model::{BuildingID, Direction, Model, ID};
 use aabb_quadtree::QuadTree;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, GUI};
 use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
+use synthetic::{BuildingID, Direction, Model, ID};
 
 struct UI {
     model: Model,

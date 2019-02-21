@@ -31,7 +31,15 @@ fn main() {
         .unwrap()
     };
 
-    let map = Map::new(&flags.load, edits, &mut timer).unwrap();
+    let raw_map_path = if flags.load.contains("synthetic") {
+        let model: synthetic::Model =
+            abstutil::read_json(&flags.load).expect(&format!("Couldn't load {}", &flags.load));
+        model.export()
+    } else {
+        flags.load
+    };
+
+    let map = Map::new(&raw_map_path, edits, &mut timer).unwrap();
     timer.start("save map");
     map.save();
     timer.stop("save map");

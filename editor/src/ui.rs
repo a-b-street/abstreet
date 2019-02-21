@@ -234,7 +234,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ctx.input.populate_osd(&mut hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
-        if ctx.input.action_chosen("screenshot everything") {
+        if self.state.get_state().enable_debug_controls
+            && ctx.input.action_chosen("screenshot everything")
+        {
             let bounds = self.state.get_state().primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             hints.mode = EventLoopMode::ScreenCaptureEverything {
