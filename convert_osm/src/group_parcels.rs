@@ -107,9 +107,5 @@ fn polygons_intersect(pts1: &Vec<LonLat>, pts2: &Vec<LonLat>) -> bool {
 }
 
 fn get_bbox(pts: &Vec<LonLat>) -> Rect {
-    let mut b = GPSBounds::new();
-    for pt in pts.iter() {
-        b.update(*pt)
-    }
-    b.as_bbox()
+    GPSBounds::from(pts).as_bbox()
 }

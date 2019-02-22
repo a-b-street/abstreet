@@ -33,12 +33,8 @@ where
         let pts: Vec<Pt2D> = gps_bounds.must_convert(raw_pts);
         self.geometries
             .insert(key.clone(), pts_to_line_string(&pts));
-
-        let mut b = Bounds::new();
-        for pt in pts {
-            b.update(pt);
-        }
-        self.quadtree.insert_with_box(key, b.as_bbox());
+        self.quadtree
+            .insert_with_box(key, Bounds::from(&pts).as_bbox());
     }
 
     // Finds the closest point on the existing geometry to the query pt.

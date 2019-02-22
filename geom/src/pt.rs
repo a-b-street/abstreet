@@ -1,5 +1,4 @@
 use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
-use aabb_quadtree::geom::{Point, Rect};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -183,62 +182,5 @@ impl HashablePt2D {
 impl From<Pt2D> for HashablePt2D {
     fn from(pt: Pt2D) -> Self {
         HashablePt2D::new(pt.x(), pt.y())
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct Bounds {
-    pub min_x: f64,
-    pub min_y: f64,
-    pub max_x: f64,
-    pub max_y: f64,
-}
-
-impl Bounds {
-    pub fn new() -> Bounds {
-        Bounds {
-            min_x: f64::MAX,
-            min_y: f64::MAX,
-            max_x: f64::MIN,
-            max_y: f64::MIN,
-        }
-    }
-
-    pub fn update(&mut self, pt: Pt2D) {
-        self.min_x = self.min_x.min(pt.x());
-        self.max_x = self.max_x.max(pt.x());
-        self.min_y = self.min_y.min(pt.y());
-        self.max_y = self.max_y.max(pt.y());
-    }
-
-    pub fn union(&mut self, other: Bounds) {
-        self.update(Pt2D::new(other.min_x, other.min_y));
-        self.update(Pt2D::new(other.max_x, other.max_y));
-    }
-
-    pub fn contains(&self, pt: Pt2D) -> bool {
-        pt.x() >= self.min_x && pt.x() <= self.max_x && pt.y() >= self.min_y && pt.y() <= self.max_y
-    }
-
-    pub fn as_bbox(&self) -> Rect {
-        Rect {
-            top_left: Point {
-                x: self.min_x as f32,
-                y: self.min_y as f32,
-            },
-            bottom_right: Point {
-                x: self.max_x as f32,
-                y: self.max_y as f32,
-            },
-        }
-    }
-
-    pub fn get_corners(&self) -> Vec<Pt2D> {
-        vec![
-            Pt2D::new(self.min_x, self.min_y),
-            Pt2D::new(self.max_x, self.min_y),
-            Pt2D::new(self.max_x, self.max_y),
-            Pt2D::new(self.min_x, self.max_y),
-        ]
     }
 }

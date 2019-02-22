@@ -452,11 +452,7 @@ impl PolyLine {
     }
 
     pub fn get_bounds(&self) -> Bounds {
-        let mut b = Bounds::new();
-        for pt in &self.pts {
-            b.update(*pt);
-        }
-        b
+        Bounds::from(&self.pts)
     }
 
     // In one side and out another.

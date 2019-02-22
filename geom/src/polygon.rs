@@ -111,11 +111,7 @@ impl Polygon {
     }
 
     pub fn get_bounds(&self) -> Bounds {
-        let mut b = Bounds::new();
-        for pt in &self.points {
-            b.update(*pt);
-        }
-        b
+        Bounds::from(&self.points)
     }
 
     pub fn translate(&self, dx: f64, dy: f64) -> Polygon {

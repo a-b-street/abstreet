@@ -1,12 +1,22 @@
 use crate::make::initial::{geometry, InitialMap};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
+use aabb_quadtree::QuadTree;
 use abstutil::Timer;
+use geom::Bounds;
 use std::collections::{BTreeSet, HashSet};
 
 pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
-    if m.roads.len() > 15_000 {
-        timer.warn("Skipping fix_ramps because map is too big! TODO: Optimize me!".to_string());
+    if m.name == "small_seattle" {
+        timer.warn(
+            "fix_ramps still disabled for small_seattle; crosses_polygon seeing strange results"
+                .to_string(),
+        );
         return;
+    }
+
+    let mut quadtree = QuadTree::default(m.bounds.as_bbox());
+    for i in m.intersections.values() {
+        quadtree.insert_with_box(i.id, Bounds::from(&i.polygon).as_bbox());
     }
 
     // Look for road center lines that hit an intersection polygon that isn't one of their
@@ -18,8 +28,8 @@ pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
     let mut fixme: Vec<(StableRoadID, StableIntersectionID)> = Vec::new();
     for r in m.roads.values() {
         timer.next();
-        // TODO Prune search.
-        for i in m.intersections.values() {
+        for &(id, _, _) in &quadtree.query(r.trimmed_center_pts.get_bounds().as_bbox()) {
+            let i = &m.intersections[&id];
             if r.src_i == i.id || r.dst_i == i.id {
                 continue;
             }

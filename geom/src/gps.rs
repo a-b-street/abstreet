@@ -1,5 +1,4 @@
-use crate::{Bounds, Distance, HashablePt2D, Pt2D};
-use aabb_quadtree::geom::{Point, Rect};
+use crate::{Distance, HashablePt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
@@ -58,90 +57,5 @@ impl LonLat {
 impl fmt::Display for LonLat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "LonLat({0}, {1})", self.longitude, self.latitude)
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GPSBounds {
-    pub(crate) min_lon: f64,
-    pub(crate) min_lat: f64,
-    pub(crate) max_lon: f64,
-    pub(crate) max_lat: f64,
-
-    // TODO hack to easily construct test maps
-    pub represents_world_space: bool,
-}
-
-impl GPSBounds {
-    pub fn new() -> GPSBounds {
-        GPSBounds {
-            min_lon: f64::MAX,
-            min_lat: f64::MAX,
-            max_lon: f64::MIN,
-            max_lat: f64::MIN,
-            represents_world_space: false,
-        }
-    }
-
-    pub fn update(&mut self, pt: LonLat) {
-        self.min_lon = self.min_lon.min(pt.longitude);
-        self.max_lon = self.max_lon.max(pt.longitude);
-        self.min_lat = self.min_lat.min(pt.latitude);
-        self.max_lat = self.max_lat.max(pt.latitude);
-    }
-
-    pub fn contains(&self, pt: LonLat) -> bool {
-        pt.longitude >= self.min_lon
-            && pt.longitude <= self.max_lon
-            && pt.latitude >= self.min_lat
-            && pt.latitude <= self.max_lat
-    }
-
-    pub fn as_bbox(&self) -> Rect {
-        Rect {
-            top_left: Point {
-                x: self.min_lon as f32,
-                y: self.min_lat as f32,
-            },
-            bottom_right: Point {
-                x: self.max_lon as f32,
-                y: self.max_lat as f32,
-            },
-        }
-    }
-
-    pub fn get_corners(&self) -> Vec<LonLat> {
-        vec![
-            LonLat::new(self.min_lon, self.min_lat),
-            LonLat::new(self.max_lon, self.min_lat),
-            LonLat::new(self.max_lon, self.max_lat),
-            LonLat::new(self.min_lon, self.max_lat),
-        ]
-    }
-
-    // TODO cache this
-    pub fn get_max_world_pt(&self) -> Pt2D {
-        let width = LonLat::new(self.min_lon, self.min_lat)
-            .gps_dist_meters(LonLat::new(self.max_lon, self.min_lat));
-        let height = LonLat::new(self.min_lon, self.min_lat)
-            .gps_dist_meters(LonLat::new(self.min_lon, self.max_lat));
-        Pt2D::new(width.inner_meters(), height.inner_meters())
-    }
-
-    pub fn to_bounds(&self) -> Bounds {
-        let mut b = Bounds::new();
-        b.update(Pt2D::new(0.0, 0.0));
-        b.update(self.get_max_world_pt());
-        b
-    }
-
-    pub fn must_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
-        pts.iter()
-            .map(|pt| Pt2D::from_gps(*pt, self).unwrap())
-            .collect()
-    }
-
-    pub fn must_convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
-        pts.iter().map(|pt| pt.to_gps(self).unwrap()).collect()
     }
 }
