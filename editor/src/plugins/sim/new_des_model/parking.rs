@@ -61,15 +61,15 @@ impl ParkingSimState {
     }
 
     pub fn remove_parked_car(&mut self, p: ParkedCar) {
-        self.cars.remove(&p.car);
-        self.lanes[p.spot.lane.0].remove_parked_car(p.car);
+        self.cars.remove(&p.vehicle.id);
+        self.lanes[p.spot.lane.0].remove_parked_car(p.vehicle.id);
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
         assert_eq!(self.lanes[spot.lane.0].occupants[spot.idx], None);
-        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p.car);
-        self.cars.insert(p.car, p);
+        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p.vehicle.id);
+        self.cars.insert(p.vehicle.id, p);
     }
 
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
@@ -92,7 +92,7 @@ impl ParkingSimState {
 
         let front_dist = self.lanes[lane.0].spots[p.spot.idx].dist_along_for_car(&p.vehicle);
         Some(DrawCarInput {
-            id: p.car,
+            id: p.vehicle.id,
             waiting_for_turn: None,
             stopping_trace: None,
             state: CarState::Parked,
@@ -157,7 +157,10 @@ impl ParkingSimState {
 
     pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
         let c = self.lookup_car(id).unwrap();
-        vec![format!("{} is parked, owned by {:?}", c.car, c.owner)]
+        vec![format!(
+            "{} is parked, owned by {:?}",
+            c.vehicle.id, c.owner
+        )]
     }
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {

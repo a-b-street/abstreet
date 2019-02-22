@@ -14,7 +14,7 @@ use sim::{
 
 pub struct EvenSimplerModelController {
     current_tick: Tick,
-    sim: new_des_model::DrivingSimState,
+    sim: new_des_model::Sim,
     auto_mode: bool,
 }
 
@@ -114,8 +114,8 @@ impl GetDrawAgents for EvenSimplerModelController {
     }
 }
 
-fn populate_sim(start: LaneID, map: &Map) -> new_des_model::DrivingSimState {
-    let mut sim = new_des_model::DrivingSimState::new(map);
+fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
+    let mut sim = new_des_model::Sim::new(map);
 
     let mut sources = vec![start];
     // Try to find a lane likely to have conflicts
@@ -146,13 +146,15 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::DrivingSimState {
                 counter += 1;
             }
         }
+
+        seed_parked_cars_near(source, &mut rng, &mut sim, map, &mut counter);
     }
 
     sim
 }
 
-fn densely_populate_sim(map: &Map) -> new_des_model::DrivingSimState {
-    let mut sim = new_des_model::DrivingSimState::new(map);
+fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
+    let mut sim = new_des_model::Sim::new(map);
     let mut rng = XorShiftRng::from_seed([42; 16]);
     let mut counter = 0;
 
@@ -164,6 +166,7 @@ fn densely_populate_sim(map: &Map) -> new_des_model::DrivingSimState {
                     counter += 1;
                 }
             }
+            seed_parked_cars_near(l.id, &mut rng, &mut sim, map, &mut counter);
         }
     }
 
@@ -171,45 +174,47 @@ fn densely_populate_sim(map: &Map) -> new_des_model::DrivingSimState {
 }
 
 fn spawn_car(
-    sim: &mut new_des_model::DrivingSimState,
+    sim: &mut new_des_model::Sim,
     rng: &mut XorShiftRng,
     map: &Map,
     id: usize,
     start_lane: LaneID,
 ) -> bool {
     let path = random_path(start_lane, rng, map);
-    let max_speed = if rng.gen_bool(0.1) {
-        Some(Speed::miles_per_hour(10.0))
-    } else {
-        None
-    };
     let last_lane = path.last().unwrap().as_lane();
-    let vehicle_len = rand_dist(
-        rng,
-        new_des_model::MIN_VEHICLE_LENGTH,
-        new_des_model::MAX_VEHICLE_LENGTH,
-    );
-    let start_dist = rand_dist(rng, vehicle_len, map.get_l(start_lane).length());
+    let vehicle = rand_vehicle(rng, id);
+    let start_dist = rand_dist(rng, vehicle.length, map.get_l(start_lane).length());
     let end_dist = rand_dist(rng, Distance::ZERO, map.get_l(last_lane).length());
     if path.len() == 1 && start_dist >= end_dist {
         return false;
     }
     let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
 
-    sim.spawn_car(
-        new_des_model::Vehicle {
-            id: CarID::tmp_new(id, VehicleType::Car),
-            vehicle_type: VehicleType::Car,
-            length: vehicle_len,
-            max_speed,
-        },
-        path,
-        spawn_time,
-        start_dist,
-        end_dist,
-        map,
-    );
+    sim.spawn_car(vehicle, path, spawn_time, start_dist, end_dist, map);
     true
+}
+
+fn seed_parked_cars_near(
+    driving_lane: LaneID,
+    rng: &mut XorShiftRng,
+    sim: &mut new_des_model::Sim,
+    map: &Map,
+    id_counter: &mut usize,
+) {
+    for l in map.get_parent(driving_lane).all_lanes() {
+        if map.get_l(l).is_parking() {
+            for spot in sim.parking.get_free_spots(l) {
+                if rng.gen_bool(0.2) {
+                    sim.parking.add_parked_car(new_des_model::ParkedCar::new(
+                        rand_vehicle(rng, *id_counter),
+                        spot,
+                        None,
+                    ));
+                    *id_counter += 1;
+                }
+            }
+        }
+    }
 }
 
 fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversable> {
@@ -229,4 +234,23 @@ fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversab
 
 fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
     Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
+}
+
+fn rand_vehicle(rng: &mut XorShiftRng, id: usize) -> new_des_model::Vehicle {
+    let vehicle_len = rand_dist(
+        rng,
+        new_des_model::MIN_VEHICLE_LENGTH,
+        new_des_model::MAX_VEHICLE_LENGTH,
+    );
+    let max_speed = if rng.gen_bool(0.1) {
+        Some(Speed::miles_per_hour(10.0))
+    } else {
+        None
+    };
+    new_des_model::Vehicle {
+        id: CarID::tmp_new(id, VehicleType::Car),
+        vehicle_type: VehicleType::Car,
+        length: vehicle_len,
+        max_speed,
+    }
 }
