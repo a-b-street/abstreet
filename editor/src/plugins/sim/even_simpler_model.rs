@@ -14,7 +14,7 @@ use sim::{
 
 pub struct EvenSimplerModelController {
     current_tick: Tick,
-    world: new_des_model::World,
+    sim: new_des_model::DrivingSimState,
     auto_mode: bool,
 }
 
@@ -28,7 +28,7 @@ impl EvenSimplerModelController {
             {
                 return Some(EvenSimplerModelController {
                     current_tick: Tick::zero(),
-                    world: populate_world(id, &ctx.primary.map),
+                    sim: populate_sim(id, &ctx.primary.map),
                     auto_mode: false,
                 });
             }
@@ -50,20 +50,20 @@ impl BlockingPlugin for EvenSimplerModelController {
                 self.auto_mode = false;
             } else if ctx.input.is_update_event() {
                 self.current_tick = self.current_tick.next();
-                self.world
+                self.sim
                     .step_if_needed(self.current_tick.as_time(), &ctx.primary.map);
             }
         } else {
             if ctx.input.modal_action("forwards") {
                 self.current_tick = self.current_tick.next();
-                self.world
+                self.sim
                     .step_if_needed(self.current_tick.as_time(), &ctx.primary.map);
             } else if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = true;
                 ctx.hints.mode = EventLoopMode::Animation;
             } else if ctx.input.modal_action("spawn tons of cars everywhere") {
                 self.current_tick = Tick::zero();
-                self.world = densely_populate_world(&ctx.primary.map);
+                self.sim = densely_populate_sim(&ctx.primary.map);
             }
         }
         if ctx.input.modal_action("quit") {
@@ -74,7 +74,7 @@ impl BlockingPlugin for EvenSimplerModelController {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            self.world
+            self.sim
                 .draw_unzoomed(self.current_tick.as_time(), g, &ctx.map);
         }
     }
@@ -86,7 +86,7 @@ impl GetDrawAgents for EvenSimplerModelController {
     }
 
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.world
+        self.sim
             .get_all_draw_cars(self.current_tick.as_time(), map)
             .into_iter()
             .find(|x| x.id == id)
@@ -97,7 +97,7 @@ impl GetDrawAgents for EvenSimplerModelController {
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
-        self.world
+        self.sim
             .get_draw_cars_on(self.current_tick.as_time(), on, map)
     }
 
@@ -106,8 +106,7 @@ impl GetDrawAgents for EvenSimplerModelController {
     }
 
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        self.world
-            .get_all_draw_cars(self.current_tick.as_time(), map)
+        self.sim.get_all_draw_cars(self.current_tick.as_time(), map)
     }
 
     fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {
@@ -115,8 +114,8 @@ impl GetDrawAgents for EvenSimplerModelController {
     }
 }
 
-fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
-    let mut world = new_des_model::World::new(map);
+fn populate_sim(start: LaneID, map: &Map) -> new_des_model::DrivingSimState {
+    let mut sim = new_des_model::DrivingSimState::new(map);
 
     let mut sources = vec![start];
     // Try to find a lane likely to have conflicts
@@ -143,17 +142,17 @@ fn populate_world(start: LaneID, map: &Map) -> new_des_model::World {
         }
 
         for _ in 0..10 {
-            if spawn_car(&mut world, &mut rng, map, counter, source) {
+            if spawn_car(&mut sim, &mut rng, map, counter, source) {
                 counter += 1;
             }
         }
     }
 
-    world
+    sim
 }
 
-fn densely_populate_world(map: &Map) -> new_des_model::World {
-    let mut world = new_des_model::World::new(map);
+fn densely_populate_sim(map: &Map) -> new_des_model::DrivingSimState {
+    let mut sim = new_des_model::DrivingSimState::new(map);
     let mut rng = XorShiftRng::from_seed([42; 16]);
     let mut counter = 0;
 
@@ -161,18 +160,18 @@ fn densely_populate_world(map: &Map) -> new_des_model::World {
         let len = l.length();
         if l.is_driving() && len >= new_des_model::MAX_VEHICLE_LENGTH {
             for _ in 0..rng.gen_range(0, 5) {
-                if spawn_car(&mut world, &mut rng, map, counter, l.id) {
+                if spawn_car(&mut sim, &mut rng, map, counter, l.id) {
                     counter += 1;
                 }
             }
         }
     }
 
-    world
+    sim
 }
 
 fn spawn_car(
-    world: &mut new_des_model::World,
+    sim: &mut new_des_model::DrivingSimState,
     rng: &mut XorShiftRng,
     map: &Map,
     id: usize,
@@ -197,7 +196,7 @@ fn spawn_car(
     }
     let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
 
-    world.spawn_car(
+    sim.spawn_car(
         CarID::tmp_new(id, VehicleType::Car),
         vehicle_len,
         max_speed,
