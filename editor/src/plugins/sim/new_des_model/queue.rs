@@ -73,9 +73,9 @@ impl Queue {
 
         let dists = self.get_car_positions(time);
         // TODO Binary search
-        let idx = match dists.iter().position(|(_, dist)| start_dist <= *dist) {
-            Some(i) => i + 1,
-            None => 0,
+        let idx = match dists.iter().position(|(_, dist)| start_dist >= *dist) {
+            Some(i) => i,
+            None => dists.len(),
         };
 
         // Are we too close to the leader?
@@ -93,6 +93,8 @@ impl Queue {
     }
 
     pub fn room_at_end(&self, time: Duration) -> bool {
+        // This could also be implemented by calling get_idx_to_insert_car with start_dist =
+        // self.geom_len
         match self.get_car_positions(time).last() {
             Some((car, front)) => *front >= car.vehicle_len + FOLLOWING_DISTANCE,
             None => true,

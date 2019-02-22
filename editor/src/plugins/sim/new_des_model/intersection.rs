@@ -22,8 +22,8 @@ impl IntersectionController {
         &self,
         _car: CarID,
         turn: TurnID,
-        queues: &BTreeMap<Traversable, Queue>,
-        time: Duration,
+        _queues: &BTreeMap<Traversable, Queue>,
+        _time: Duration,
         map: &Map,
     ) -> bool {
         // Policy: only one turn at a time, can't go until the target lane has room.

@@ -19,6 +19,30 @@ pub struct Car {
 }
 
 impl Car {
+    pub fn crossing_state(
+        &self,
+        start_dist: Distance,
+        start_time: Duration,
+        on: Traversable,
+        map: &Map,
+    ) -> CarState {
+        let dist_int = DistanceInterval::new(
+            start_dist,
+            if self.path.len() == 1 {
+                self.end_dist
+            } else {
+                on.length(map)
+            },
+        );
+
+        let mut speed = on.speed_limit(map);
+        if let Some(s) = self.max_speed {
+            speed = speed.min(s);
+        }
+        let dt = (dist_int.end - dist_int.start) / speed;
+        CarState::Crossing(TimeInterval::new(start_time, start_time + dt), dist_int)
+    }
+
     pub fn trim_last_steps(&mut self, map: &Map) {
         let mut keep = VecDeque::new();
         let mut len = Distance::ZERO;
@@ -90,12 +114,24 @@ pub enum CarState {
 
 #[derive(Debug)]
 pub struct TimeInterval {
+    // TODO Private fields
     pub start: Duration,
     pub end: Duration,
 }
 
 impl TimeInterval {
+    fn new(start: Duration, end: Duration) -> TimeInterval {
+        if end < start {
+            panic!("Bad TimeInterval {} .. {}", start, end);
+        }
+        TimeInterval { start, end }
+    }
+
     pub fn percent(&self, t: Duration) -> f64 {
+        if self.start == self.end {
+            return 1.0;
+        }
+
         let x = (t - self.start) / (self.end - self.start);
         assert!(x >= 0.0 && x <= 1.0);
         x
@@ -104,11 +140,19 @@ impl TimeInterval {
 
 #[derive(Debug)]
 pub struct DistanceInterval {
+    // TODO Private fields
     pub start: Distance,
     pub end: Distance,
 }
 
 impl DistanceInterval {
+    fn new(start: Distance, end: Distance) -> DistanceInterval {
+        if end < start {
+            panic!("Bad DistanceInterval {} .. {}", start, end);
+        }
+        DistanceInterval { start, end }
+    }
+
     pub fn lerp(&self, x: f64) -> Distance {
         assert!(x >= 0.0 && x <= 1.0);
         self.start + x * (self.end - self.start)

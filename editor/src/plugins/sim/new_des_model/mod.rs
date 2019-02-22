@@ -2,7 +2,7 @@ mod car;
 mod intersection;
 mod queue;
 
-pub use self::car::{Car, CarState, DistanceInterval, TimeInterval};
+pub use self::car::{Car, CarState};
 use self::intersection::IntersectionController;
 use self::queue::Queue;
 use ezgui::{Color, GfxCtx};
@@ -173,6 +173,9 @@ impl World {
                 path.last().unwrap()
             );
         }
+        if path.len() == 1 && start_dist >= end_dist {
+            panic!("Can't start a car with one path in its step and go from {} to {}", start_dist, end_dist);
+        }
 
         self.spawn_later.push((
             id,
@@ -205,6 +208,8 @@ impl World {
                 _ => true,
             });
         }
+        // TODO Need to update the Queued followers behind those that just vanished, to avoid
+        // jumps.
 
         // Figure out where everybody wants to go next.
         let mut head_cars_ready_to_advance: Vec<Traversable> = Vec::new();
@@ -242,27 +247,30 @@ impl World {
                 .cars
                 .pop_front()
                 .unwrap();
+
+            // Update the follower so that they don't suddenly jump forwards.
+            if let Some(ref mut follower) = self.queues.get_mut(&from).unwrap().cars.front_mut() {
+                // TODO This still jumps a bit -- the lead car's back is still sticking out. Need
+                // to still be bound by them.
+                match follower.state {
+                    CarState::Queued => {
+                        follower.state = follower.crossing_state(
+                            // Since the follower was Queued, this must be where they are
+                            from.length(map) - car.vehicle_len - FOLLOWING_DISTANCE,
+                            time,
+                            from,
+                            map,
+                        );
+                    }
+                    // They weren't blocked
+                    CarState::Crossing(_, _) => {}
+                }
+            }
+
             let last_step = car.path.pop_front().unwrap();
             car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
-
-            let dist_int = DistanceInterval {
-                start: Distance::ZERO,
-                end: if car.path.len() == 1 {
-                    car.end_dist
-                } else {
-                    goto.length(map)
-                },
-            };
-            let dt = time_to_cross(&dist_int, goto.speed_limit(map), car.max_speed);
-
-            car.state = CarState::Crossing(
-                TimeInterval {
-                    start: time,
-                    end: time + dt,
-                },
-                dist_int,
-            );
+            car.state = car.crossing_state(Distance::ZERO, time, goto, map);
 
             match goto {
                 Traversable::Turn(t) => {
@@ -299,37 +307,22 @@ impl World {
                 if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
                     .get_idx_to_insert_car(start_dist, vehicle_len, time)
                 {
-                    let dist_int = DistanceInterval {
-                        start: start_dist,
-                        end: map.get_l(first_lane).length(),
-                    };
-                    let dt = time_to_cross(
-                        &dist_int,
-                        map.get_parent(first_lane).get_speed_limit(),
+                    let mut car = Car {
+                        id,
+                        vehicle_len,
                         max_speed,
-                    );
+                        path: VecDeque::from(path.clone()),
+                        end_dist,
+                        state: CarState::Queued,
+                        last_steps: VecDeque::new(),
+                    };
+                    car.state =
+                        car.crossing_state(start_dist, time, Traversable::Lane(first_lane), map);
                     self.queues
                         .get_mut(&Traversable::Lane(first_lane))
                         .unwrap()
                         .cars
-                        .insert(
-                            idx,
-                            Car {
-                                id,
-                                vehicle_len,
-                                max_speed,
-                                path: VecDeque::from(path.clone()),
-                                end_dist,
-                                state: CarState::Crossing(
-                                    TimeInterval {
-                                        start: time,
-                                        end: time + dt,
-                                    },
-                                    dist_int,
-                                ),
-                                last_steps: VecDeque::new(),
-                            },
-                        );
+                        .insert(idx, car);
                     spawned = true;
                     //println!("{} spawned at {}", id, time);
                 }
@@ -348,16 +341,4 @@ impl World {
         }
         self.spawn_later = retain_spawn;
     }
-}
-
-fn time_to_cross(
-    dist_int: &DistanceInterval,
-    speed_limit: Speed,
-    max_speed: Option<Speed>,
-) -> Duration {
-    let mut speed = speed_limit;
-    if let Some(s) = max_speed {
-        speed = speed.min(s);
-    }
-    (dist_int.end - dist_int.start) / speed
 }
