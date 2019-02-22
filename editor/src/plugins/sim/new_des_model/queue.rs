@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<Car>,
-    pub max_capacity: usize,
+    max_capacity: usize,
 
     pub geom_len: Distance,
 }
@@ -58,7 +58,12 @@ impl Queue {
         validate_positions(result, time, self.id)
     }
 
-    pub fn get_idx_to_insert_car(&self, start_dist: Distance, time: Duration) -> Option<usize> {
+    pub fn get_idx_to_insert_car(
+        &self,
+        start_dist: Distance,
+        vehicle_len: Distance,
+        time: Duration,
+    ) -> Option<usize> {
         if self.cars.len() == self.max_capacity {
             return None;
         }
@@ -80,8 +85,7 @@ impl Queue {
             return None;
         }
         // Or the follower?
-        if idx != dists.len() && start_dist - MAX_VEHICLE_LENGTH - FOLLOWING_DISTANCE < dists[idx].1
-        {
+        if idx != dists.len() && start_dist - vehicle_len - FOLLOWING_DISTANCE < dists[idx].1 {
             return None;
         }
 
@@ -90,7 +94,7 @@ impl Queue {
 
     pub fn room_at_end(&self, time: Duration) -> bool {
         match self.get_car_positions(time).last() {
-            Some((_, front)) => *front >= MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE,
+            Some((car, front)) => *front >= car.vehicle_len + FOLLOWING_DISTANCE,
             None => true,
         }
     }

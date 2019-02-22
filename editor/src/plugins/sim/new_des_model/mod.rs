@@ -55,13 +55,9 @@ impl World {
         }
 
         for i in map.all_intersections() {
-            world.intersections.insert(
-                i.id,
-                IntersectionController {
-                    id: i.id,
-                    accepted: None,
-                },
-            );
+            world
+                .intersections
+                .insert(i.id, IntersectionController::new(i.id));
         }
 
         world
@@ -225,20 +221,19 @@ impl World {
         // Carry out the transitions.
         for from in head_cars_ready_to_advance {
             let car_id = self.queues[&from].cars[0].id;
-            match self.queues[&from].cars[0].path[1] {
-                Traversable::Turn(t) => {
-                    if !self.intersections[&t.parent].can_start_turn(car_id, t, &self.queues, time)
-                    {
-                        continue;
-                    }
+            let goto = self.queues[&from].cars[0].path[1];
+
+            // Always need to do this check.
+            if !self.queues[&goto].room_at_end(time) {
+                continue;
+            }
+
+            if let Traversable::Turn(t) = goto {
+                if !self.intersections[&t.parent].can_start_turn(car_id, t, &self.queues, time, map)
+                {
+                    continue;
                 }
-                // Depending on gridlock avoidance, this could happen or not.
-                Traversable::Lane(l) => {
-                    if !self.queues[&Traversable::Lane(l)].room_at_end(time) {
-                        continue;
-                    }
-                }
-            };
+            }
 
             let mut car = self
                 .queues
@@ -250,8 +245,6 @@ impl World {
             let last_step = car.path.pop_front().unwrap();
             car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
-
-            let goto = car.path[0];
 
             let dist_int = DistanceInterval {
                 start: Distance::ZERO,
@@ -273,15 +266,19 @@ impl World {
 
             match goto {
                 Traversable::Turn(t) => {
-                    self.intersections.get_mut(&t.parent).unwrap().accepted =
-                        Some((car.id, goto.as_turn()));
-                }
-                Traversable::Lane(_) => {
                     self.intersections
-                        .get_mut(&last_step.as_turn().parent)
+                        .get_mut(&t.parent)
                         .unwrap()
-                        .accepted = None;
+                        .turn_started(car.id, goto.as_turn());
                 }
+                // TODO Actually, don't call turn_finished until the car is at least vehicle_len +
+                // FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
+                // event-based, so hold off on this bit of realism.
+                Traversable::Lane(_) => self
+                    .intersections
+                    .get_mut(&last_step.as_turn().parent)
+                    .unwrap()
+                    .turn_finished(car.id, last_step.as_turn()),
             }
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
@@ -300,7 +297,7 @@ impl World {
                     .nobody_headed_towards(first_lane)
             {
                 if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
-                    .get_idx_to_insert_car(start_dist, time)
+                    .get_idx_to_insert_car(start_dist, vehicle_len, time)
                 {
                     let dist_int = DistanceInterval {
                         start: start_dist,
