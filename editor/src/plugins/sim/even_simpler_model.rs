@@ -190,7 +190,14 @@ fn spawn_car(
     }
     let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
 
-    sim.spawn_car(vehicle, path, spawn_time, start_dist, end_dist, None, map);
+    sim.spawn_car(
+        vehicle,
+        new_des_model::Router::stop_suddenly(path, end_dist, map),
+        spawn_time,
+        start_dist,
+        None,
+        map,
+    );
     true
 }
 
@@ -229,10 +236,9 @@ fn seed_parked_cars_near(
                             if path.len() > 1 || start_dist < end_dist {
                                 sim.spawn_car(
                                     parked_car.vehicle.clone(),
-                                    path,
+                                    new_des_model::Router::stop_suddenly(path, end_dist, map),
                                     Duration::seconds(5.0),
                                     start_dist,
-                                    end_dist,
                                     Some(parked_car),
                                     map,
                                 );

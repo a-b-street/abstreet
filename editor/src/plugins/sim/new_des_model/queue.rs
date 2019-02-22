@@ -49,7 +49,13 @@ impl Queue {
             }
 
             let front = match car.state {
-                CarState::Queued => bound,
+                CarState::Queued => {
+                    if car.router.last_step() {
+                        car.router.get_end_dist().min(bound)
+                    } else {
+                        bound
+                    }
+                }
                 CarState::Crossing(ref time_int, ref dist_int) => {
                     dist_int.lerp(time_int.percent(time)).min(bound)
                 }

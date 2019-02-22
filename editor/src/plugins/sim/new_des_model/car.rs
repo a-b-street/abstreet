@@ -1,4 +1,4 @@
-use crate::plugins::sim::new_des_model::Vehicle;
+use crate::plugins::sim::new_des_model::{Router, Vehicle};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use sim::DrawCarInput;
@@ -7,10 +7,8 @@ use std::collections::VecDeque;
 #[derive(Debug)]
 pub struct Car {
     pub vehicle: Vehicle,
-    // Front is always the current step
-    pub path: VecDeque<Traversable>,
-    pub end_dist: Distance,
     pub state: CarState,
+    pub router: Router,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.
@@ -25,16 +23,15 @@ impl Car {
         start_time: Duration,
         map: &Map,
     ) -> CarState {
-        let on = self.path[0];
+        let on = self.router.head();
         let dist_int = DistanceInterval::new(
             start_dist,
-            if self.path.len() == 1 {
-                self.end_dist
+            if self.router.last_step() {
+                self.router.get_end_dist()
             } else {
                 on.length(map)
             },
         );
-
         let mut speed = on.speed_limit(map);
         if let Some(s) = self.vehicle.max_speed {
             speed = speed.min(s);
@@ -59,13 +56,16 @@ impl Car {
     pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         let raw_body = if front >= self.vehicle.length {
-            self.path[0]
+            self.router
+                .head()
                 .slice(front - self.vehicle.length, front, map)
                 .unwrap()
                 .0
         } else {
             // TODO This is redoing some of the Path::trace work...
-            let mut result = self.path[0]
+            let mut result = self
+                .router
+                .head()
                 .slice(Distance::ZERO, front, map)
                 .map(|(pl, _)| pl.points().clone())
                 .unwrap_or_else(Vec::new);
@@ -109,8 +109,15 @@ impl Car {
                 CarState::Unparking(_, _) => sim::CarState::Parked,
             },
             vehicle_type: self.vehicle.vehicle_type,
-            on: self.path[0],
+            on: self.router.head(),
             body,
+        }
+    }
+
+    pub fn is_queued(&self) -> bool {
+        match self.state {
+            CarState::Queued => true,
+            _ => false,
         }
     }
 }

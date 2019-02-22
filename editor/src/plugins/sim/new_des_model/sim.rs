@@ -1,4 +1,6 @@
-use crate::plugins::sim::new_des_model::{DrivingSimState, ParkedCar, ParkingSimState, Vehicle};
+use crate::plugins::sim::new_des_model::{
+    DrivingSimState, ParkedCar, ParkingSimState, Router, Vehicle,
+};
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
@@ -45,19 +47,17 @@ impl Sim {
     pub fn spawn_car(
         &mut self,
         vehicle: Vehicle,
-        path: Vec<Traversable>,
+        router: Router,
         start_time: Duration,
         start_dist: Distance,
-        end_dist: Distance,
         maybe_parked_car: Option<ParkedCar>,
         map: &Map,
     ) {
         self.driving.spawn_car(
             vehicle,
-            path,
+            router,
             start_time,
             start_dist,
-            end_dist,
             maybe_parked_car,
             map,
             &self.parking,

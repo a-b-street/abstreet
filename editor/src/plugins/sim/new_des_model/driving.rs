@@ -1,5 +1,5 @@
 use crate::plugins::sim::new_des_model::{
-    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, TimeInterval,
+    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Router, TimeInterval,
     Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
@@ -17,14 +17,7 @@ pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
-    spawn_later: Vec<(
-        Vehicle,
-        Vec<Traversable>,
-        Duration,
-        Distance,
-        Distance,
-        Option<ParkedCar>,
-    )>,
+    spawn_later: Vec<(Vehicle, Router, Duration, Distance, Option<ParkedCar>)>,
 }
 
 impl DrivingSimState {
@@ -139,10 +132,9 @@ impl DrivingSimState {
     pub fn spawn_car(
         &mut self,
         vehicle: Vehicle,
-        path: Vec<Traversable>,
+        router: Router,
         start_time: Duration,
         start_dist: Distance,
-        end_dist: Distance,
         maybe_parked_car: Option<ParkedCar>,
         map: &Map,
         parking: &ParkingSimState,
@@ -152,7 +144,7 @@ impl DrivingSimState {
             assert_eq!(
                 start_dist,
                 parking
-                    .spot_to_driving_pos(parked_car.spot, &vehicle, path[0].as_lane(), map,)
+                    .spot_to_driving_pos(parked_car.spot, &vehicle, router.head().as_lane(), map)
                     .dist_along()
             );
         }
@@ -163,34 +155,17 @@ impl DrivingSimState {
                 start_dist
             );
         }
-        if start_dist >= path[0].length(map) {
+        if start_dist >= router.head().length(map) {
             panic!(
                 "Can't spawn a car at {}; {:?} isn't that long",
-                start_dist, path[0]
+                start_dist,
+                router.head()
             );
         }
-        if end_dist >= path.last().unwrap().length(map) {
-            panic!(
-                "Can't end a car at {}; {:?} isn't that long",
-                end_dist,
-                path.last().unwrap()
-            );
-        }
-        if path.len() == 1 && start_dist >= end_dist {
-            panic!(
-                "Can't start a car with one path in its step and go from {} to {}",
-                start_dist, end_dist
-            );
-        }
+        router.validate_start_dist(start_dist);
 
-        self.spawn_later.push((
-            vehicle,
-            path,
-            start_time,
-            start_dist,
-            end_dist,
-            maybe_parked_car,
-        ));
+        self.spawn_later
+            .push((vehicle, router, start_time, start_dist, maybe_parked_car));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map, parking: &mut ParkingSimState) {
@@ -212,13 +187,61 @@ impl DrivingSimState {
         // Delete cars that're completely done. These might not necessarily be the queue head,
         // since cars can stop early.
         for queue in self.queues.values_mut() {
-            queue.cars.retain(|car| match car.state {
-                CarState::Queued => car.path.len() > 1,
-                _ => true,
-            });
+            if queue
+                .cars
+                .iter()
+                .any(|car| car.is_queued() && car.router.last_step())
+            {
+                // This car might have reached the router's end distance, but maybe not -- might
+                // actually be stuck behind other cars. We have to calculate the distances right
+                // now to be sure.
+                let mut delete_indices = Vec::new();
+                // Intermediate collect() to end the borrow of &Car from get_car_positions.
+                for (idx, dist) in queue
+                    .get_car_positions(time)
+                    .into_iter()
+                    .map(|(_, dist)| dist)
+                    .collect::<Vec<Distance>>()
+                    .into_iter()
+                    .enumerate()
+                {
+                    let car = &mut queue.cars[idx];
+                    if car.router.last_step() && car.is_queued() {
+                        if car.router.maybe_handle_end(dist) {
+                            delete_indices.push((idx, dist));
+                        }
+                    }
+                }
+
+                // Remove the finished cars starting from the end of the queue, so indices aren't
+                // messed up.
+                delete_indices.reverse();
+                for (idx, leader_dist) in delete_indices {
+                    let leader = queue.cars.remove(idx).unwrap();
+
+                    // Update the follower so that they don't suddenly jump forwards.
+                    if idx != queue.cars.len() {
+                        let mut follower = &mut queue.cars[idx];
+                        // TODO If the leader vanished at a border node, this still jumps a bit --
+                        // the lead car's back is still sticking out. Need to still be bound by
+                        // them, even though they don't exist! If the leader just parked, then
+                        // we're fine.
+                        match follower.state {
+                            CarState::Queued => {
+                                follower.state = follower.crossing_state(
+                                    // Since the follower was Queued, this must be where they are
+                                    leader_dist - leader.vehicle.length - FOLLOWING_DISTANCE,
+                                    time,
+                                    map,
+                                );
+                            }
+                            // They weren't blocked
+                            CarState::Crossing(_, _) | CarState::Unparking(_, _) => {}
+                        }
+                    }
+                }
+            }
         }
-        // TODO Need to update the Queued followers behind those that just vanished, to avoid
-        // jumps.
 
         // Figure out where everybody wants to go next.
         let mut head_cars_ready_to_advance: Vec<Traversable> = Vec::new();
@@ -227,7 +250,7 @@ impl DrivingSimState {
                 continue;
             }
             let car = &queue.cars[0];
-            if let CarState::Queued = car.state {
+            if car.is_queued() && !car.router.last_step() {
                 head_cars_ready_to_advance.push(queue.id);
             }
         }
@@ -235,7 +258,7 @@ impl DrivingSimState {
         // Carry out the transitions.
         for from in head_cars_ready_to_advance {
             let car_id = self.queues[&from].cars[0].vehicle.id;
-            let goto = self.queues[&from].cars[0].path[1];
+            let goto = self.queues[&from].cars[0].router.next();
 
             // Always need to do this check.
             if !self.queues[&goto].room_at_end(time) {
@@ -279,7 +302,7 @@ impl DrivingSimState {
                 }
             }
 
-            let last_step = car.path.pop_front().unwrap();
+            let last_step = car.router.advance();
             car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
             car.state = car.crossing_state(Distance::ZERO, time, map);
@@ -299,11 +322,11 @@ impl DrivingSimState {
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
         let mut retain_spawn = Vec::new();
-        for (vehicle, path, start_time, start_dist, end_dist, maybe_parked_car) in
+        for (vehicle, router, start_time, start_dist, maybe_parked_car) in
             self.spawn_later.drain(..)
         {
             let mut spawned = false;
-            let first_lane = path[0].as_lane();
+            let first_lane = router.head().as_lane();
 
             if time >= start_time
                 && self.intersections[&map.get_l(first_lane).src_i]
@@ -314,8 +337,7 @@ impl DrivingSimState {
                 {
                     let mut car = Car {
                         vehicle: vehicle.clone(),
-                        path: VecDeque::from(path.clone()),
-                        end_dist,
+                        router: router.clone(),
                         state: CarState::Queued,
                         last_steps: VecDeque::new(),
                     };
@@ -341,14 +363,7 @@ impl DrivingSimState {
                     parking.remove_parked_car(parked_car);
                 }
             } else {
-                retain_spawn.push((
-                    vehicle,
-                    path,
-                    start_time,
-                    start_dist,
-                    end_dist,
-                    maybe_parked_car,
-                ));
+                retain_spawn.push((vehicle, router, start_time, start_dist, maybe_parked_car));
             }
         }
         self.spawn_later = retain_spawn;
