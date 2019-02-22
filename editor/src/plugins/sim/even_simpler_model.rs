@@ -4,7 +4,7 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
-use map_model::{LaneID, LaneType, Map, Traversable};
+use map_model::{BuildingID, LaneID, LaneType, Map, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -236,7 +236,8 @@ fn seed_parked_cars_near(
                             if path.len() > 1 || start_dist < end_dist {
                                 sim.spawn_car(
                                     parked_car.vehicle.clone(),
-                                    new_des_model::Router::stop_suddenly(path, end_dist, map),
+                                    // TODO The building isn't used yet
+                                    new_des_model::Router::park_near(path, BuildingID(0)),
                                     Duration::seconds(5.0),
                                     start_dist,
                                     Some(parked_car),

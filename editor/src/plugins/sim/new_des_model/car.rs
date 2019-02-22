@@ -1,4 +1,4 @@
-use crate::plugins::sim::new_des_model::{Router, Vehicle};
+use crate::plugins::sim::new_des_model::{ParkingSpot, Router, Vehicle};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use sim::DrawCarInput;
@@ -94,6 +94,9 @@ impl Car {
             CarState::Unparking(_, ref time_int) => raw_body
                 .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(time)))
                 .unwrap(),
+            CarState::Parking(_, _, ref time_int) => raw_body
+                .shift_right(LANE_THICKNESS * time_int.percent(time))
+                .unwrap(),
             _ => raw_body,
         };
 
@@ -107,6 +110,7 @@ impl Car {
                 CarState::Crossing(_, _) => sim::CarState::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
                 CarState::Unparking(_, _) => sim::CarState::Parked,
+                CarState::Parking(_, _, _) => sim::CarState::Parked,
             },
             vehicle_type: self.vehicle.vehicle_type,
             on: self.router.head(),
@@ -129,7 +133,10 @@ pub enum CarState {
     Queued,
     // Where's the front of the car while this is happening?
     Unparking(Distance, TimeInterval),
+    Parking(Distance, ParkingSpot, TimeInterval),
 }
+
+// TODO Walking will use these too -- lift up
 
 #[derive(Debug)]
 pub struct TimeInterval {

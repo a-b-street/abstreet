@@ -60,6 +60,7 @@ impl Queue {
                     dist_int.lerp(time_int.percent(time)).min(bound)
                 }
                 CarState::Unparking(front, _) => front,
+                CarState::Parking(front, _, _) => front,
             };
 
             result.push((car, front));
@@ -147,6 +148,9 @@ fn dump_cars(cars: &Vec<(&Car, Distance)>, id: Traversable, time: Duration) {
             }
             CarState::Unparking(_, ref time_int) => {
                 println!("  Unparking during {} .. {}", time_int.start, time_int.end);
+            }
+            CarState::Parking(_, _, ref time_int) => {
+                println!("  Parking during {} .. {}", time_int.start, time_int.end);
             }
         }
     }

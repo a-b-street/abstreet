@@ -117,6 +117,10 @@ impl ParkingSimState {
 
     /*pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
         self.cars.get(&id)
+    }*/
+
+    pub fn is_free(&self, spot: ParkingSpot) -> bool {
+        self.lanes[spot.lane.0].occupants[spot.idx].is_none()
     }
 
     pub fn get_first_free_spot(
@@ -131,7 +135,7 @@ impl ParkingSimState {
         Some(ParkingSpot::new(parking_pos.lane(), idx))
     }
 
-    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
+    /*pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
         let car = self.lanes[spot.lane.0].occupants[spot.idx]?;
         Some(self.cars[&car].clone())
     }*/

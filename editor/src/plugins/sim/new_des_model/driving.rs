@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Router, TimeInterval,
-    Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    ActionAtEnd, Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Router,
+    TimeInterval, Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -12,6 +12,7 @@ const FREEFLOW: Color = Color::CYAN;
 const WAITING: Color = Color::RED;
 
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
+const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 
 pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
@@ -58,7 +59,9 @@ impl DrivingSimState {
             let mut num_freeflow = 0;
             for car in &queue.cars {
                 match car.state {
-                    CarState::Crossing(_, _) | CarState::Unparking(_, _) => {
+                    CarState::Crossing(_, _)
+                    | CarState::Unparking(_, _)
+                    | CarState::Parking(_, _, _) => {
                         num_freeflow += 1;
                     }
                     CarState::Queued => {
@@ -178,23 +181,23 @@ impl DrivingSimState {
                     }
                 } else if let CarState::Unparking(front, ref time_int) = car.state {
                     if time > time_int.end {
+                        // TODO If this is already the last step, gotta do that planning here
+                        // before we decide to cross.
                         car.state = car.crossing_state(front, time, map);
                     }
                 }
             }
         }
 
-        // Delete cars that're completely done. These might not necessarily be the queue head,
-        // since cars can stop early.
+        // Handle cars on their last step. Some of them will vanish or finish parking; others will
+        // start.
         for queue in self.queues.values_mut() {
-            if queue
-                .cars
-                .iter()
-                .any(|car| car.is_queued() && car.router.last_step())
-            {
+            if queue.cars.iter().any(|car| car.router.last_step()) {
                 // This car might have reached the router's end distance, but maybe not -- might
                 // actually be stuck behind other cars. We have to calculate the distances right
                 // now to be sure.
+                // TODO This calculates distances a little unnecessarily -- might just be a car
+                // parking.
                 let mut delete_indices = Vec::new();
                 // Intermediate collect() to end the borrow of &Car from get_car_positions.
                 for (idx, dist) in queue
@@ -206,10 +209,42 @@ impl DrivingSimState {
                     .enumerate()
                 {
                     let car = &mut queue.cars[idx];
-                    if car.router.last_step() && car.is_queued() {
-                        if car.router.maybe_handle_end(dist) {
-                            delete_indices.push((idx, dist));
+                    if !car.router.last_step() {
+                        continue;
+                    }
+                    match car.state {
+                        CarState::Queued => {
+                            match car
+                                .router
+                                .maybe_handle_end(dist, &car.vehicle, parking, map)
+                            {
+                                Some(ActionAtEnd::Vanish) => {
+                                    delete_indices.push((idx, dist));
+                                }
+                                Some(ActionAtEnd::StartParking(spot)) => {
+                                    car.state = CarState::Parking(
+                                        dist,
+                                        spot,
+                                        TimeInterval::new(time, time + TIME_TO_PARK),
+                                    );
+                                }
+                                Some(ActionAtEnd::GotoLaneEnd) => {
+                                    car.state = car.crossing_state(dist, time, map);
+                                }
+                                None => {}
+                            }
                         }
+                        CarState::Parking(_, spot, ref time_int) => {
+                            if time > time_int.end {
+                                delete_indices.push((idx, dist));
+                                parking.add_parked_car(ParkedCar::new(
+                                    car.vehicle.clone(),
+                                    spot,
+                                    None,
+                                ));
+                            }
+                        }
+                        _ => {}
                     }
                 }
 
@@ -236,7 +271,9 @@ impl DrivingSimState {
                                 );
                             }
                             // They weren't blocked
-                            CarState::Crossing(_, _) | CarState::Unparking(_, _) => {}
+                            CarState::Crossing(_, _)
+                            | CarState::Unparking(_, _)
+                            | CarState::Parking(_, _, _) => {}
                         }
                     }
                 }
@@ -298,11 +335,13 @@ impl DrivingSimState {
                         );
                     }
                     // They weren't blocked
-                    CarState::Crossing(_, _) | CarState::Unparking(_, _) => {}
+                    CarState::Crossing(_, _)
+                    | CarState::Unparking(_, _)
+                    | CarState::Parking(_, _, _) => {}
                 }
             }
 
-            let last_step = car.router.advance();
+            let last_step = car.router.advance(&car.vehicle, parking, map);
             car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
             car.state = car.crossing_state(Distance::ZERO, time, map);

@@ -11,7 +11,7 @@ pub use self::driving::DrivingSimState;
 pub use self::intersection::IntersectionController;
 pub use self::parking::ParkingSimState;
 pub use self::queue::Queue;
-pub use self::router::Router;
+pub use self::router::{ActionAtEnd, Router};
 pub use self::sim::Sim;
 use ::sim::{CarID, VehicleType};
 use geom::{Distance, Speed};

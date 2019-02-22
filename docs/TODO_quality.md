@@ -48,6 +48,8 @@
 	- https://www.seattle.gov/transportation/document-library/reports-and-studies
 	- https://commuteseattle.com/wp-content/uploads/2017/02/2016-Mode-Split-Report-FINAL.pdf
 	- https://www.soundtransit.org/get-to-know-us/documents-reports/service-planning-ridership
+	- https://gis-kingcounty.opendata.arcgis.com/datasets/parcels-for-king-county-with-address-with-property-information--parcel-address-area
+		- PREUSE_DESC reveals landuse
 - http://guides.lib.uw.edu/research/gis/uw-lib_data has cool stuff, but .lyr??
 
 ## Low-priority geometry issues
