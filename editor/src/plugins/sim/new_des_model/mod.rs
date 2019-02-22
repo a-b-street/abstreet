@@ -174,7 +174,10 @@ impl World {
             );
         }
         if path.len() == 1 && start_dist >= end_dist {
-            panic!("Can't start a car with one path in its step and go from {} to {}", start_dist, end_dist);
+            panic!(
+                "Can't start a car with one path in its step and go from {} to {}",
+                start_dist, end_dist
+            );
         }
 
         self.spawn_later.push((
