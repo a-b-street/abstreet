@@ -53,6 +53,7 @@ impl Queue {
                 CarState::Crossing(ref time_int, ref dist_int) => {
                     dist_int.lerp(time_int.percent(time)).min(bound)
                 }
+                CarState::Unparking(front, _) => front,
             };
 
             result.push((car, front));
@@ -137,6 +138,9 @@ fn dump_cars(cars: &Vec<(&Car, Distance)>, id: Traversable, time: Duration) {
             }
             CarState::Queued => {
                 println!("  Queued currently");
+            }
+            CarState::Unparking(_, ref time_int) => {
+                println!("  Unparking during {} .. {}", time_int.start, time_int.end);
             }
         }
     }

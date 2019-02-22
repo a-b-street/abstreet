@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::Vehicle;
 use geom::{Distance, Duration, PolyLine};
-use map_model::{Map, Traversable};
+use map_model::{Map, Traversable, LANE_THICKNESS};
 use sim::DrawCarInput;
 use std::collections::VecDeque;
 
@@ -18,13 +18,14 @@ pub struct Car {
 }
 
 impl Car {
+    // Assumes the current head of the path is the thing to cross.
     pub fn crossing_state(
         &self,
         start_dist: Distance,
         start_time: Duration,
-        on: Traversable,
         map: &Map,
     ) -> CarState {
+        let on = self.path[0];
         let dist_int = DistanceInterval::new(
             start_dist,
             if self.path.len() == 1 {
@@ -55,9 +56,9 @@ impl Car {
         self.last_steps = keep;
     }
 
-    pub fn get_draw_car(&self, front: Distance, map: &Map) -> DrawCarInput {
+    pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
-        let body = if front >= self.vehicle.length {
+        let raw_body = if front >= self.vehicle.length {
             self.path[0]
                 .slice(front - self.vehicle.length, front, map)
                 .unwrap()
@@ -88,6 +89,14 @@ impl Car {
             PolyLine::new(result)
         };
 
+        let body = match self.state {
+            // Assume the parking lane is to the right of us!
+            CarState::Unparking(_, ref time_int) => raw_body
+                .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(time)))
+                .unwrap(),
+            _ => raw_body,
+        };
+
         DrawCarInput {
             id: self.vehicle.id,
             waiting_for_turn: None,
@@ -96,6 +105,8 @@ impl Car {
                 // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
                 CarState::Queued => sim::CarState::Stuck,
                 CarState::Crossing(_, _) => sim::CarState::Moving,
+                // Eh they're technically moving, but this is a bit easier to spot
+                CarState::Unparking(_, _) => sim::CarState::Parked,
             },
             vehicle_type: self.vehicle.vehicle_type,
             on: self.path[0],
@@ -104,11 +115,13 @@ impl Car {
     }
 }
 
-// TODO These should perhaps be collapsed to (TimeInterval, DistanceInterval, Traversable).
 #[derive(Debug)]
 pub enum CarState {
+    // TODO These two should perhaps be collapsed to (TimeInterval, DistanceInterval, Traversable).
     Crossing(TimeInterval, DistanceInterval),
     Queued,
+    // Where's the front of the car while this is happening?
+    Unparking(Distance, TimeInterval),
 }
 
 #[derive(Debug)]
@@ -119,7 +132,7 @@ pub struct TimeInterval {
 }
 
 impl TimeInterval {
-    fn new(start: Duration, end: Duration) -> TimeInterval {
+    pub fn new(start: Duration, end: Duration) -> TimeInterval {
         if end < start {
             panic!("Bad TimeInterval {} .. {}", start, end);
         }

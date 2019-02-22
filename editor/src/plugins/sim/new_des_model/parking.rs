@@ -60,10 +60,10 @@ impl ParkingSimState {
         spots
     }
 
-    /*pub fn remove_parked_car(&mut self, p: ParkedCar) {
+    pub fn remove_parked_car(&mut self, p: ParkedCar) {
         self.cars.remove(&p.vehicle.id);
         self.lanes[p.spot.lane.0].remove_parked_car(p.vehicle.id);
-    }*/
+    }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
@@ -230,12 +230,12 @@ impl ParkingLane {
         }
     }
 
-    /*fn remove_parked_car(&mut self, car: CarID) {
+    fn remove_parked_car(&mut self, car: CarID) {
         let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
         self.occupants[idx] = None;
     }
 
-    fn is_empty(&self) -> bool {
+    /*fn is_empty(&self) -> bool {
         !self.occupants.iter().any(|x| x.is_some())
     }*/
 }

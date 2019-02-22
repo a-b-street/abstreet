@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Vehicle,
-    FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, TimeInterval,
+    Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -11,11 +11,20 @@ use std::collections::{BTreeMap, VecDeque};
 const FREEFLOW: Color = Color::CYAN;
 const WAITING: Color = Color::RED;
 
+const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
+
 pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
-    spawn_later: Vec<(Vehicle, Vec<Traversable>, Duration, Distance, Distance)>,
+    spawn_later: Vec<(
+        Vehicle,
+        Vec<Traversable>,
+        Duration,
+        Distance,
+        Distance,
+        Option<ParkedCar>,
+    )>,
 }
 
 impl DrivingSimState {
@@ -56,7 +65,7 @@ impl DrivingSimState {
             let mut num_freeflow = 0;
             for car in &queue.cars {
                 match car.state {
-                    CarState::Crossing(_, _) => {
+                    CarState::Crossing(_, _) | CarState::Unparking(_, _) => {
                         num_freeflow += 1;
                     }
                     CarState::Queued => {
@@ -105,7 +114,7 @@ impl DrivingSimState {
                 queue
                     .get_car_positions(time)
                     .into_iter()
-                    .map(|(car, dist)| car.get_draw_car(dist, map)),
+                    .map(|(car, dist)| car.get_draw_car(dist, time, map)),
             );
         }
         result
@@ -121,7 +130,7 @@ impl DrivingSimState {
             Some(q) => q
                 .get_car_positions(time)
                 .into_iter()
-                .map(|(car, dist)| car.get_draw_car(dist, map))
+                .map(|(car, dist)| car.get_draw_car(dist, time, map))
                 .collect(),
             None => Vec::new(),
         }
@@ -174,17 +183,27 @@ impl DrivingSimState {
             );
         }
 
-        self.spawn_later
-            .push((vehicle, path, start_time, start_dist, end_dist));
+        self.spawn_later.push((
+            vehicle,
+            path,
+            start_time,
+            start_dist,
+            end_dist,
+            maybe_parked_car,
+        ));
     }
 
-    pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
-        // Promote Crossing to Queued.
+    pub fn step_if_needed(&mut self, time: Duration, map: &Map, parking: &mut ParkingSimState) {
+        // Promote Crossing to Queued and Unparking to Crossing.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
                 if let CarState::Crossing(ref time_int, _) = car.state {
                     if time > time_int.end {
                         car.state = CarState::Queued;
+                    }
+                } else if let CarState::Unparking(front, ref time_int) = car.state {
+                    if time > time_int.end {
+                        car.state = car.crossing_state(front, time, map);
                     }
                 }
             }
@@ -252,19 +271,18 @@ impl DrivingSimState {
                             // Since the follower was Queued, this must be where they are
                             from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
                             time,
-                            from,
                             map,
                         );
                     }
                     // They weren't blocked
-                    CarState::Crossing(_, _) => {}
+                    CarState::Crossing(_, _) | CarState::Unparking(_, _) => {}
                 }
             }
 
             let last_step = car.path.pop_front().unwrap();
             car.last_steps.push_front(last_step);
             car.trim_last_steps(map);
-            car.state = car.crossing_state(Distance::ZERO, time, goto, map);
+            car.state = car.crossing_state(Distance::ZERO, time, map);
 
             if goto.maybe_lane().is_some() {
                 // TODO Actually, don't call turn_finished until the car is at least vehicle.length
@@ -281,7 +299,9 @@ impl DrivingSimState {
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
         let mut retain_spawn = Vec::new();
-        for (vehicle, path, start_time, start_dist, end_dist) in self.spawn_later.drain(..) {
+        for (vehicle, path, start_time, start_dist, end_dist, maybe_parked_car) in
+            self.spawn_later.drain(..)
+        {
             let mut spawned = false;
             let first_lane = path[0].as_lane();
 
@@ -299,8 +319,14 @@ impl DrivingSimState {
                         state: CarState::Queued,
                         last_steps: VecDeque::new(),
                     };
-                    car.state =
-                        car.crossing_state(start_dist, time, Traversable::Lane(first_lane), map);
+                    if maybe_parked_car.is_some() {
+                        car.state = CarState::Unparking(
+                            start_dist,
+                            TimeInterval::new(time, time + TIME_TO_UNPARK),
+                        );
+                    } else {
+                        car.state = car.crossing_state(start_dist, time, map);
+                    }
                     self.queues
                         .get_mut(&Traversable::Lane(first_lane))
                         .unwrap()
@@ -310,8 +336,19 @@ impl DrivingSimState {
                     //println!("{} spawned at {}", vehicle.id, time);
                 }
             }
-            if !spawned {
-                retain_spawn.push((vehicle, path, start_time, start_dist, end_dist));
+            if spawned {
+                if let Some(parked_car) = maybe_parked_car {
+                    parking.remove_parked_car(parked_car);
+                }
+            } else {
+                retain_spawn.push((
+                    vehicle,
+                    path,
+                    start_time,
+                    start_dist,
+                    end_dist,
+                    maybe_parked_car,
+                ));
             }
         }
         self.spawn_later = retain_spawn;

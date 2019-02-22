@@ -5,7 +5,7 @@ mod parking;
 mod queue;
 mod sim;
 
-pub use self::car::{Car, CarState};
+pub use self::car::{Car, CarState, TimeInterval};
 pub use self::driving::DrivingSimState;
 pub use self::intersection::IntersectionController;
 pub use self::parking::ParkingSimState;
