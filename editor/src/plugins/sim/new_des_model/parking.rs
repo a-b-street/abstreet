@@ -2,10 +2,10 @@ use crate::plugins::sim::new_des_model::{ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Pt2D};
 use map_model;
-use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
+use map_model::{Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::iter;
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -31,7 +31,7 @@ impl ParkingSimState {
         }
     }
 
-    pub fn edit_remove_lane(&mut self, id: LaneID) {
+    /*pub fn edit_remove_lane(&mut self, id: LaneID) {
         assert!(self.lanes[id.0].is_empty());
         self.lanes[id.0] = ParkingLane {
             id,
@@ -47,7 +47,7 @@ impl ParkingSimState {
     // TODO bad name
     pub fn total_count(&self) -> usize {
         self.cars.len()
-    }
+    }*/
 
     pub fn get_free_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
         let l = &self.lanes[lane.0];
@@ -60,10 +60,10 @@ impl ParkingSimState {
         spots
     }
 
-    pub fn remove_parked_car(&mut self, p: ParkedCar) {
+    /*pub fn remove_parked_car(&mut self, p: ParkedCar) {
         self.cars.remove(&p.vehicle.id);
         self.lanes[p.spot.lane.0].remove_parked_car(p.vehicle.id);
-    }
+    }*/
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
@@ -115,7 +115,7 @@ impl ParkingSimState {
             .collect()
     }
 
-    pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
+    /*pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
         self.cars.get(&id)
     }
 
@@ -134,7 +134,7 @@ impl ParkingSimState {
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
         let car = self.lanes[spot.lane.0].occupants[spot.idx]?;
         Some(self.cars[&car].clone())
-    }
+    }*/
 
     pub fn spot_to_driving_pos(
         &self,
@@ -147,15 +147,15 @@ impl ParkingSimState {
             .equiv_pos(driving_lane, map)
     }
 
-    pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
+    /*pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
         Position::new(spot.lane, self.get_spot(spot).dist_along_for_ped()).equiv_pos(sidewalk, map)
-    }
+    }*/
 
     fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
         &self.lanes[spot.lane.0].spots[spot.idx]
     }
 
-    pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
+    /*pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
         let c = self.lookup_car(id).unwrap();
         vec![format!(
             "{} is parked, owned by {:?}",
@@ -193,7 +193,7 @@ impl ParkingSimState {
         }
 
         (cars_parked, open_parking_spots)
-    }
+    }*/
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -230,14 +230,14 @@ impl ParkingLane {
         }
     }
 
-    fn remove_parked_car(&mut self, car: CarID) {
+    /*fn remove_parked_car(&mut self, car: CarID) {
         let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
         self.occupants[idx] = None;
     }
 
     fn is_empty(&self) -> bool {
         !self.occupants.iter().any(|x| x.is_some())
-    }
+    }*/
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -249,10 +249,10 @@ struct ParkingSpotGeometry {
 }
 
 impl ParkingSpotGeometry {
-    fn dist_along_for_ped(&self) -> Distance {
+    /*fn dist_along_for_ped(&self) -> Distance {
         // Always centered in the entire parking spot
         self.dist_along - (map_model::PARKING_SPOT_LENGTH / 2.0)
-    }
+    }*/
 
     fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot

@@ -1,5 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    Car, CarState, IntersectionController, Queue, Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Vehicle,
+    FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -133,8 +134,20 @@ impl DrivingSimState {
         start_time: Duration,
         start_dist: Distance,
         end_dist: Distance,
+        maybe_parked_car: Option<ParkedCar>,
         map: &Map,
+        parking: &ParkingSimState,
     ) {
+        if let Some(ref parked_car) = maybe_parked_car {
+            assert_eq!(parked_car.vehicle, vehicle);
+            assert_eq!(
+                start_dist,
+                parking
+                    .spot_to_driving_pos(parked_car.spot, &vehicle, path[0].as_lane(), map,)
+                    .dist_along()
+            );
+        }
+
         if start_dist < vehicle.length {
             panic!(
                 "Can't spawn a car at {}; too close to the start",

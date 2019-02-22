@@ -34,7 +34,10 @@ impl Position {
     }
 
     pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
-        // TODO Assert lane is in the same road / side of the road
+        let r = map.get_parent(lane);
+        assert_eq!(map.get_l(self.lane).parent, r.id);
+        assert_eq!(r.is_forwards(lane), r.is_forwards(self.lane));
+
         let len = map.get_l(lane).length();
         // TODO Project perpendicular
         if self.dist_along < len {

@@ -4,7 +4,7 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
-use map_model::{LaneID, Map, Traversable};
+use map_model::{LaneID, LaneType, Map, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -190,10 +190,11 @@ fn spawn_car(
     }
     let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
 
-    sim.spawn_car(vehicle, path, spawn_time, start_dist, end_dist, map);
+    sim.spawn_car(vehicle, path, spawn_time, start_dist, end_dist, None, map);
     true
 }
 
+// And start some of them after a bit
 fn seed_parked_cars_near(
     driving_lane: LaneID,
     rng: &mut XorShiftRng,
@@ -205,12 +206,39 @@ fn seed_parked_cars_near(
         if map.get_l(l).is_parking() {
             for spot in sim.parking.get_free_spots(l) {
                 if rng.gen_bool(0.2) {
-                    sim.parking.add_parked_car(new_des_model::ParkedCar::new(
-                        rand_vehicle(rng, *id_counter),
-                        spot,
-                        None,
-                    ));
+                    let parked_car =
+                        new_des_model::ParkedCar::new(rand_vehicle(rng, *id_counter), spot, None);
                     *id_counter += 1;
+                    sim.parking.add_parked_car(parked_car.clone());
+
+                    if rng.gen_bool(0.3) {
+                        if let Ok(start_lane) = map.find_closest_lane(l, vec![LaneType::Driving]) {
+                            let path = random_path(start_lane, rng, map);
+                            let last_lane = path.last().unwrap().as_lane();
+                            let start_dist = sim
+                                .parking
+                                .spot_to_driving_pos(
+                                    parked_car.spot,
+                                    &parked_car.vehicle,
+                                    start_lane,
+                                    map,
+                                )
+                                .dist_along();
+                            let end_dist =
+                                rand_dist(rng, Distance::ZERO, map.get_l(last_lane).length());
+                            if path.len() > 1 || start_dist < end_dist {
+                                sim.spawn_car(
+                                    parked_car.vehicle.clone(),
+                                    path,
+                                    Duration::seconds(5.0),
+                                    start_dist,
+                                    end_dist,
+                                    Some(parked_car),
+                                    map,
+                                );
+                            }
+                        }
+                    }
                 }
             }
         }
