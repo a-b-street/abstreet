@@ -33,7 +33,9 @@ impl Queue {
 
         for car in &self.cars {
             let bound = match result.last() {
-                Some((leader, last_dist)) => *last_dist - leader.vehicle_len - FOLLOWING_DISTANCE,
+                Some((leader, last_dist)) => {
+                    *last_dist - leader.vehicle.length - FOLLOWING_DISTANCE
+                }
                 None => self.geom_len,
             };
 
@@ -42,7 +44,7 @@ impl Queue {
                 dump_cars(&result, self.id, time);
                 panic!(
                     "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}",
-                    self.id, time, car.id, bound
+                    self.id, time, car.vehicle.id, bound
                 );
             }
 
@@ -80,7 +82,7 @@ impl Queue {
 
         // Are we too close to the leader?
         if idx != 0
-            && dists[idx - 1].1 - dists[idx - 1].0.vehicle_len - FOLLOWING_DISTANCE < start_dist
+            && dists[idx - 1].1 - dists[idx - 1].0.vehicle.length - FOLLOWING_DISTANCE < start_dist
         {
             return None;
         }
@@ -96,7 +98,7 @@ impl Queue {
         // This could also be implemented by calling get_idx_to_insert_car with start_dist =
         // self.geom_len
         match self.get_car_positions(time).last() {
-            Some((car, front)) => *front >= car.vehicle_len + FOLLOWING_DISTANCE,
+            Some((car, front)) => *front >= car.vehicle.length + FOLLOWING_DISTANCE,
             None => true,
         }
     }
@@ -108,7 +110,7 @@ fn validate_positions(
     id: Traversable,
 ) -> Vec<(&Car, Distance)> {
     for pair in cars.windows(2) {
-        if pair[0].1 - pair[0].0.vehicle_len - FOLLOWING_DISTANCE < pair[1].1 {
+        if pair[0].1 - pair[0].0.vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
             dump_cars(&cars, id, time);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
@@ -122,7 +124,10 @@ fn validate_positions(
 fn dump_cars(cars: &Vec<(&Car, Distance)>, id: Traversable, time: Duration) {
     println!("\nOn {:?} at {}...", id, time);
     for (car, dist) in cars {
-        println!("- {} @ {} (length {})", car.id, dist, car.vehicle_len);
+        println!(
+            "- {} @ {} (length {})",
+            car.vehicle.id, dist, car.vehicle.length
+        );
         match car.state {
             CarState::Crossing(ref time_int, ref dist_int) => {
                 println!(

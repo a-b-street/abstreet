@@ -1,20 +1,19 @@
-use geom::{Distance, Duration, PolyLine, Speed};
+use crate::plugins::sim::new_des_model::Vehicle;
+use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput};
+use sim::DrawCarInput;
 use std::collections::VecDeque;
 
 #[derive(Debug)]
 pub struct Car {
-    pub id: CarID,
-    pub vehicle_len: Distance,
-    pub max_speed: Option<Speed>,
+    pub vehicle: Vehicle,
     // Front is always the current step
     pub path: VecDeque<Traversable>,
     pub end_dist: Distance,
     pub state: CarState,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
-    // vehicle_len.
+    // vehicle.length.
     pub last_steps: VecDeque<Traversable>,
 }
 
@@ -36,7 +35,7 @@ impl Car {
         );
 
         let mut speed = on.speed_limit(map);
-        if let Some(s) = self.max_speed {
+        if let Some(s) = self.vehicle.max_speed {
             speed = speed.min(s);
         }
         let dt = (dist_int.end - dist_int.start) / speed;
@@ -49,7 +48,7 @@ impl Car {
         for on in self.last_steps.drain(..) {
             len += on.length(map);
             keep.push_back(on);
-            if len >= self.vehicle_len {
+            if len >= self.vehicle.length {
                 break;
             }
         }
@@ -58,9 +57,9 @@ impl Car {
 
     pub fn get_draw_car(&self, front: Distance, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
-        let body = if front >= self.vehicle_len {
+        let body = if front >= self.vehicle.length {
             self.path[0]
-                .slice(front - self.vehicle_len, front, map)
+                .slice(front - self.vehicle.length, front, map)
                 .unwrap()
                 .0
         } else {
@@ -69,11 +68,11 @@ impl Car {
                 .slice(Distance::ZERO, front, map)
                 .map(|(pl, _)| pl.points().clone())
                 .unwrap_or_else(Vec::new);
-            let mut leftover = self.vehicle_len - front;
+            let mut leftover = self.vehicle.length - front;
             let mut i = 0;
             while leftover > Distance::ZERO {
                 if i == self.last_steps.len() {
-                    panic!("{} spawned too close to short stuff", self.id);
+                    panic!("{} spawned too close to short stuff", self.vehicle.id);
                 }
                 let len = self.last_steps[i].length(map);
                 let start = (len - leftover).max(Distance::ZERO);
@@ -90,7 +89,7 @@ impl Car {
         };
 
         DrawCarInput {
-            id: self.id,
+            id: self.vehicle.id,
             waiting_for_turn: None,
             stopping_trace: None,
             state: match self.state {
@@ -98,7 +97,7 @@ impl Car {
                 CarState::Queued => sim::CarState::Stuck,
                 CarState::Crossing(_, _) => sim::CarState::Moving,
             },
-            vehicle_type: self.id.tmp_get_vehicle_type(),
+            vehicle_type: self.vehicle.vehicle_type,
             on: self.path[0],
             body,
         }

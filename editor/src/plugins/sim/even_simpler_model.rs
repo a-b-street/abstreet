@@ -197,9 +197,12 @@ fn spawn_car(
     let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
 
     sim.spawn_car(
-        CarID::tmp_new(id, VehicleType::Car),
-        vehicle_len,
-        max_speed,
+        new_des_model::Vehicle {
+            id: CarID::tmp_new(id, VehicleType::Car),
+            vehicle_type: VehicleType::Car,
+            length: vehicle_len,
+            max_speed,
+        },
         path,
         spawn_time,
         start_dist,

@@ -1,10 +1,10 @@
 use crate::plugins::sim::new_des_model::{
-    Car, CarState, IntersectionController, Queue, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    Car, CarState, IntersectionController, Queue, Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration};
 use map_model::{IntersectionID, Map, Traversable, LANE_THICKNESS};
-use sim::{CarID, DrawCarInput};
+use sim::DrawCarInput;
 use std::collections::{BTreeMap, VecDeque};
 
 const FREEFLOW: Color = Color::CYAN;
@@ -14,15 +14,7 @@ pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
     intersections: BTreeMap<IntersectionID, IntersectionController>,
 
-    spawn_later: Vec<(
-        CarID,
-        Distance,
-        Option<Speed>,
-        Vec<Traversable>,
-        Duration,
-        Distance,
-        Distance,
-    )>,
+    spawn_later: Vec<(Vehicle, Vec<Traversable>, Duration, Distance, Distance)>,
 }
 
 impl DrivingSimState {
@@ -136,16 +128,14 @@ impl DrivingSimState {
 
     pub fn spawn_car(
         &mut self,
-        id: CarID,
-        vehicle_len: Distance,
-        max_speed: Option<Speed>,
+        vehicle: Vehicle,
         path: Vec<Traversable>,
         start_time: Duration,
         start_dist: Distance,
         end_dist: Distance,
         map: &Map,
     ) {
-        if start_dist < vehicle_len {
+        if start_dist < vehicle.length {
             panic!(
                 "Can't spawn a car at {}; too close to the start",
                 start_dist
@@ -171,15 +161,8 @@ impl DrivingSimState {
             );
         }
 
-        self.spawn_later.push((
-            id,
-            vehicle_len,
-            max_speed,
-            path,
-            start_time,
-            start_dist,
-            end_dist,
-        ));
+        self.spawn_later
+            .push((vehicle, path, start_time, start_dist, end_dist));
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
@@ -219,7 +202,7 @@ impl DrivingSimState {
 
         // Carry out the transitions.
         for from in head_cars_ready_to_advance {
-            let car_id = self.queues[&from].cars[0].id;
+            let car_id = self.queues[&from].cars[0].vehicle.id;
             let goto = self.queues[&from].cars[0].path[1];
 
             // Always need to do this check.
@@ -254,7 +237,7 @@ impl DrivingSimState {
                     CarState::Queued => {
                         follower.state = follower.crossing_state(
                             // Since the follower was Queued, this must be where they are
-                            from.length(map) - car.vehicle_len - FOLLOWING_DISTANCE,
+                            from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
                             time,
                             from,
                             map,
@@ -271,13 +254,13 @@ impl DrivingSimState {
             car.state = car.crossing_state(Distance::ZERO, time, goto, map);
 
             if goto.maybe_lane().is_some() {
-                // TODO Actually, don't call turn_finished until the car is at least vehicle_len +
-                // FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
+                // TODO Actually, don't call turn_finished until the car is at least vehicle.length
+                // + FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
                 // event-based, so hold off on this bit of realism.
                 self.intersections
                     .get_mut(&last_step.as_turn().parent)
                     .unwrap()
-                    .turn_finished(car.id, last_step.as_turn());
+                    .turn_finished(car.vehicle.id, last_step.as_turn());
             }
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
@@ -285,9 +268,7 @@ impl DrivingSimState {
 
         // Spawn cars at the end, so we can see the correct state of everything else at this time.
         let mut retain_spawn = Vec::new();
-        for (id, vehicle_len, max_speed, path, start_time, start_dist, end_dist) in
-            self.spawn_later.drain(..)
-        {
+        for (vehicle, path, start_time, start_dist, end_dist) in self.spawn_later.drain(..) {
             let mut spawned = false;
             let first_lane = path[0].as_lane();
 
@@ -296,12 +277,10 @@ impl DrivingSimState {
                     .nobody_headed_towards(first_lane)
             {
                 if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
-                    .get_idx_to_insert_car(start_dist, vehicle_len, time)
+                    .get_idx_to_insert_car(start_dist, vehicle.length, time)
                 {
                     let mut car = Car {
-                        id,
-                        vehicle_len,
-                        max_speed,
+                        vehicle: vehicle.clone(),
                         path: VecDeque::from(path.clone()),
                         end_dist,
                         state: CarState::Queued,
@@ -315,19 +294,11 @@ impl DrivingSimState {
                         .cars
                         .insert(idx, car);
                     spawned = true;
-                    //println!("{} spawned at {}", id, time);
+                    //println!("{} spawned at {}", vehicle.id, time);
                 }
             }
             if !spawned {
-                retain_spawn.push((
-                    id,
-                    vehicle_len,
-                    max_speed,
-                    path,
-                    start_time,
-                    start_dist,
-                    end_dist,
-                ));
+                retain_spawn.push((vehicle, path, start_time, start_dist, end_dist));
             }
         }
         self.spawn_later = retain_spawn;
