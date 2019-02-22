@@ -237,7 +237,11 @@ impl World {
             }
 
             if let Traversable::Turn(t) = goto {
-                if !self.intersections[&t.parent].can_start_turn(car_id, t, &self.queues, time, map)
+                if !self
+                    .intersections
+                    .get_mut(&t.parent)
+                    .unwrap()
+                    .maybe_start_turn(car_id, t, &self.queues, time, map)
                 {
                     continue;
                 }
@@ -275,21 +279,14 @@ impl World {
             car.trim_last_steps(map);
             car.state = car.crossing_state(Distance::ZERO, time, goto, map);
 
-            match goto {
-                Traversable::Turn(t) => {
-                    self.intersections
-                        .get_mut(&t.parent)
-                        .unwrap()
-                        .turn_started(car.id, goto.as_turn());
-                }
+            if goto.maybe_lane().is_some() {
                 // TODO Actually, don't call turn_finished until the car is at least vehicle_len +
                 // FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
                 // event-based, so hold off on this bit of realism.
-                Traversable::Lane(_) => self
-                    .intersections
+                self.intersections
                     .get_mut(&last_step.as_turn().parent)
                     .unwrap()
-                    .turn_finished(car.id, last_step.as_turn()),
+                    .turn_finished(car.id, last_step.as_turn());
             }
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
