@@ -94,8 +94,11 @@ impl GetDrawAgents for EvenSimplerModelController {
             .find(|x| x.id == id)
     }
 
-    fn get_draw_ped(&self, _id: PedestrianID, _map: &Map) -> Option<DrawPedestrianInput> {
-        None
+    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
+        self.sim
+            .get_all_draw_peds(self.current_tick.as_time(), map)
+            .into_iter()
+            .find(|x| x.id == id)
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
@@ -103,16 +106,17 @@ impl GetDrawAgents for EvenSimplerModelController {
             .get_draw_cars_on(self.current_tick.as_time(), on, map)
     }
 
-    fn get_draw_peds(&self, _on: Traversable, _map: &Map) -> Vec<DrawPedestrianInput> {
-        Vec::new()
+    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.sim
+            .get_draw_peds_on(self.current_tick.as_time(), on, map)
     }
 
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
         self.sim.get_all_draw_cars(self.current_tick.as_time(), map)
     }
 
-    fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {
-        Vec::new()
+    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.sim.get_all_draw_peds(self.current_tick.as_time(), map)
     }
 }
 
@@ -339,6 +343,7 @@ fn random_ped_near(
         new_des_model::SidewalkSpot::bike_rack(pos1, map),
         new_des_model::SidewalkSpot::bike_rack(pos2, map),
         path,
+        map,
     );
     *counter += 1
 }

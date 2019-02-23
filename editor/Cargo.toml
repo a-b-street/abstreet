@@ -16,6 +16,7 @@ geo = "0.11.0"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
+multimap = "0.4.0"
 ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"
 quick-xml = "0.13.1"

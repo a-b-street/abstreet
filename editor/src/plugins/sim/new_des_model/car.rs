@@ -26,7 +26,7 @@ impl Car {
         map: &Map,
     ) -> CarState {
         let on = self.router.head();
-        let dist_int = DistanceInterval::new(
+        let dist_int = DistanceInterval::new_driving(
             start_dist,
             if self.router.last_step() {
                 self.router.get_end_dist()

@@ -5,6 +5,7 @@ mod parking;
 mod queue;
 mod router;
 mod sim;
+mod walking;
 
 pub use self::car::{Car, CarState};
 pub use self::driving::DrivingSimState;
@@ -13,6 +14,7 @@ pub use self::parking::ParkingSimState;
 pub use self::queue::Queue;
 pub use self::router::{ActionAtEnd, Router};
 pub use self::sim::Sim;
+pub use self::walking::WalkingSimState;
 use ::sim::{CarID, VehicleType};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position};
@@ -63,7 +65,7 @@ impl ParkedCar {
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct SidewalkSpot {
-    connection: SidewalkPOI,
+    pub connection: SidewalkPOI,
     pub sidewalk_pos: Position,
 }
 
@@ -137,7 +139,7 @@ impl SidewalkSpot {
 
 // Point of interest, that is
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-enum SidewalkPOI {
+pub enum SidewalkPOI {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
     BusStop(BusStopID),
@@ -145,7 +147,7 @@ enum SidewalkPOI {
     BikeRack,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Duration,
@@ -171,7 +173,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,
@@ -179,15 +181,24 @@ pub struct DistanceInterval {
 }
 
 impl DistanceInterval {
-    fn new(start: Distance, end: Distance) -> DistanceInterval {
+    pub fn new_driving(start: Distance, end: Distance) -> DistanceInterval {
         if end < start {
             panic!("Bad DistanceInterval {} .. {}", start, end);
         }
         DistanceInterval { start, end }
     }
 
+    pub fn new_walking(start: Distance, end: Distance) -> DistanceInterval {
+        // start > end is fine, might be contraflow.
+        DistanceInterval { start, end }
+    }
+
     pub fn lerp(&self, x: f64) -> Distance {
         assert!(x >= 0.0 && x <= 1.0);
         self.start + x * (self.end - self.start)
+    }
+
+    pub fn length(&self) -> Distance {
+        (self.end - self.start).abs()
     }
 }

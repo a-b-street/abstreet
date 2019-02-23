@@ -1,15 +1,16 @@
 use crate::plugins::sim::new_des_model::{
-    DrivingSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot, Vehicle,
+    DrivingSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot, Vehicle, WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
 use map_model::{Map, Path, Traversable};
-use sim::{DrawCarInput, PedestrianID};
+use sim::{DrawCarInput, DrawPedestrianInput, PedestrianID};
 
 pub struct Sim {
     driving: DrivingSimState,
     // TODO pub just for lazy spawning
     pub parking: ParkingSimState,
+    walking: WalkingSimState,
 }
 
 impl Sim {
@@ -17,6 +18,7 @@ impl Sim {
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
+            walking: WalkingSimState::new(),
         }
     }
 
@@ -42,6 +44,19 @@ impl Sim {
             }
         }
         self.driving.get_draw_cars_on(time, on, map)
+    }
+
+    pub fn get_all_draw_peds(&self, time: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_all_draw_peds(time, map)
+    }
+
+    pub fn get_draw_peds_on(
+        &self,
+        time: Duration,
+        on: Traversable,
+        map: &Map,
+    ) -> Vec<DrawPedestrianInput> {
+        self.walking.get_draw_peds(time, on, map)
     }
 
     pub fn spawn_car(
@@ -70,8 +85,11 @@ impl Sim {
         start: SidewalkSpot,
         goal: SidewalkSpot,
         path: Path,
+        map: &Map,
     ) {
-        // TODO Assert valid
+        let start_time = Duration::ZERO;
+        self.walking
+            .spawn_ped(id, start_time, start, goal, path, map);
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
