@@ -216,6 +216,7 @@ fn seed_parked_cars_near(
                     let parked_car =
                         new_des_model::ParkedCar::new(rand_vehicle(rng, *id_counter), spot, None);
                     *id_counter += 1;
+                    sim.parking.reserve_spot(spot);
                     sim.parking.add_parked_car(parked_car.clone());
 
                     if rng.gen_bool(0.3) {
@@ -255,7 +256,7 @@ fn seed_parked_cars_near(
 fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversable> {
     let mut path = vec![Traversable::Lane(start)];
     let mut last_lane = start;
-    for _ in 0..1 {
+    for _ in 0..5 {
         if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
             path.push(Traversable::Turn(t.id));
             path.push(Traversable::Lane(t.id.dst));

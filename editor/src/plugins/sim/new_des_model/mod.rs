@@ -31,7 +31,7 @@ pub struct Vehicle {
     pub max_speed: Option<Speed>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ParkingSpot {
     pub lane: LaneID,
     pub idx: usize,

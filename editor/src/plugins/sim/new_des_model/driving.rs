@@ -233,6 +233,10 @@ impl DrivingSimState {
                                         spot,
                                         TimeInterval::new(time, time + TIME_TO_PARK),
                                     );
+                                    // If we don't do this, then we might have another car creep up
+                                    // behind, see the spot free, and start parking too. This can
+                                    // happen with multiple lanes and certain vehicle lengths.
+                                    parking.reserve_spot(spot);
                                 }
                                 Some(ActionAtEnd::GotoLaneEnd) => {
                                     car.state = car.crossing_state(dist, time, map);

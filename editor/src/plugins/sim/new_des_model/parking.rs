@@ -5,7 +5,7 @@ use map_model;
 use map_model::{Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::iter;
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -17,6 +17,7 @@ pub struct ParkingSimState {
     cars: BTreeMap<CarID, ParkedCar>,
     // TODO hacky, but other types of lanes just mark 0 spots. :\
     lanes: Vec<ParkingLane>,
+    reserved_spots: BTreeSet<ParkingSpot>,
 }
 
 impl ParkingSimState {
@@ -28,6 +29,7 @@ impl ParkingSimState {
                 .iter()
                 .map(|l| ParkingLane::new(l))
                 .collect(),
+            reserved_spots: BTreeSet::new(),
         }
     }
 
@@ -67,9 +69,14 @@ impl ParkingSimState {
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
+        assert!(self.reserved_spots.remove(&p.spot));
         assert_eq!(self.lanes[spot.lane.0].occupants[spot.idx], None);
         self.lanes[spot.lane.0].occupants[spot.idx] = Some(p.vehicle.id);
         self.cars.insert(p.vehicle.id, p);
+    }
+
+    pub fn reserve_spot(&mut self, spot: ParkingSpot) {
+        self.reserved_spots.insert(spot);
     }
 
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
@@ -121,6 +128,7 @@ impl ParkingSimState {
 
     pub fn is_free(&self, spot: ParkingSpot) -> bool {
         self.lanes[spot.lane.0].occupants[spot.idx].is_none()
+            && !self.reserved_spots.contains(&spot)
     }
 
     pub fn get_first_free_spot(
@@ -128,11 +136,14 @@ impl ParkingSimState {
         parking_pos: Position,
         vehicle: &Vehicle,
     ) -> Option<ParkingSpot> {
-        let l = &self.lanes[parking_pos.lane().0];
+        let lane = parking_pos.lane();
+        let l = &self.lanes[lane.0];
         let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
-            x.is_none() && parking_pos.dist_along() <= l.spots[idx].dist_along_for_car(vehicle)
+            x.is_none()
+                && !self.reserved_spots.contains(&ParkingSpot::new(lane, idx))
+                && parking_pos.dist_along() <= l.spots[idx].dist_along_for_car(vehicle)
         })?;
-        Some(ParkingSpot::new(parking_pos.lane(), idx))
+        Some(ParkingSpot::new(lane, idx))
     }
 
     /*pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
