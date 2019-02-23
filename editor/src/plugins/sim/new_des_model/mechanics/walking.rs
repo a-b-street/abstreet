@@ -1,5 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    DistanceInterval, IntersectionSimState, SidewalkPOI, SidewalkSpot, TimeInterval,
+    CreatePedestrian, DistanceInterval, IntersectionSimState, SidewalkPOI, SidewalkSpot,
+    TimeInterval,
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
 use geom::{Distance, Duration, Speed};
@@ -31,46 +32,40 @@ impl WalkingSimState {
         }
     }
 
-    pub fn spawn_ped(
-        &mut self,
-        id: PedestrianID,
-        start_time: Duration,
-        start: SidewalkSpot,
-        goal: SidewalkSpot,
-        path: Path,
-        map: &Map,
-    ) {
-        let start_lane = start.sidewalk_pos.lane();
+    pub fn spawn_ped(&mut self, time: Duration, params: CreatePedestrian, map: &Map) {
+        let start_lane = params.start.sidewalk_pos.lane();
         assert_eq!(
-            path.current_step().as_traversable(),
+            params.path.current_step().as_traversable(),
             Traversable::Lane(start_lane)
         );
         assert_eq!(
-            path.last_step().as_traversable(),
-            Traversable::Lane(goal.sidewalk_pos.lane())
+            params.path.last_step().as_traversable(),
+            Traversable::Lane(params.goal.sidewalk_pos.lane())
         );
 
         let mut ped = Pedestrian {
-            id,
+            id: params.id,
             // Temporary bogus thing
             state: PedState::Crossing(
                 DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
                 TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
                 true,
             ),
-            path,
-            goal,
+            path: params.path,
+            goal: params.goal,
         };
-        ped.state = match start.connection {
+        ped.state = match params.start.connection {
             SidewalkPOI::BikeRack => {
-                ped.crossing_state(start.sidewalk_pos.dist_along(), start_time, map)
+                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
             }
-            _ => panic!("Don't support {:?} yet", start.connection),
+            _ => panic!("Don't support {:?} yet", params.start.connection),
         };
 
-        self.peds.insert(id, ped);
-        self.peds_per_traversable
-            .insert(Traversable::Lane(start.sidewalk_pos.lane()), id);
+        self.peds.insert(params.id, ped);
+        self.peds_per_traversable.insert(
+            Traversable::Lane(params.start.sidewalk_pos.lane()),
+            params.id,
+        );
     }
 
     pub fn get_all_draw_peds(&self, time: Duration, map: &Map) -> Vec<DrawPedestrianInput> {

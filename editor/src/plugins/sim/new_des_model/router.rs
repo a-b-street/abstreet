@@ -1,9 +1,10 @@
 use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, Vehicle};
 use geom::Distance;
 use map_model::{BuildingID, LaneType, Map, Position, Traversable};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
     // Front is always the current step
     path: VecDeque<Traversable>,
@@ -16,7 +17,7 @@ pub enum ActionAtEnd {
     GotoLaneEnd,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 enum Goal {
     // Spot and distance along the last driving lane
     // TODO Right now, the building is ignored.

@@ -1,8 +1,8 @@
 use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
 use crate::plugins::sim::new_des_model::mechanics::queue::Queue;
 use crate::plugins::sim::new_des_model::{
-    ActionAtEnd, IntersectionSimState, ParkedCar, ParkingSimState, Router, TimeInterval, Vehicle,
-    FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Router, TimeInterval,
+    Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -125,6 +125,16 @@ impl DrivingSimState {
                 .collect(),
             None => Vec::new(),
         }
+    }
+
+    pub fn start_car_on_lane(
+        &mut self,
+        time: Duration,
+        map: &Map,
+        params: CreateCar,
+        intersections: &IntersectionSimState,
+    ) -> bool {
+        false
     }
 
     pub fn spawn_car(

@@ -341,7 +341,6 @@ fn random_ped_near(
         new_des_model::SidewalkSpot::bike_rack(pos1, map),
         new_des_model::SidewalkSpot::bike_rack(pos2, map),
         path,
-        map,
     );
     *counter += 1
 }

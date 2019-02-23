@@ -1,11 +1,11 @@
 use crate::plugins::sim::new_des_model::{
-    DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Router,
-    SidewalkSpot, TripManager, Vehicle, WalkingSimState,
+    Command, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState,
+    ParkingSpot, Router, Scheduler, SidewalkSpot, TripManager, Vehicle, WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
 use map_model::{LaneID, Map, Path, Position, Traversable};
-use sim::{DrawCarInput, DrawPedestrianInput, PedestrianID};
+use sim::{DrawCarInput, DrawPedestrianInput, PedestrianID, TripID};
 
 pub struct Sim {
     driving: DrivingSimState,
@@ -13,6 +13,7 @@ pub struct Sim {
     walking: WalkingSimState,
     intersections: IntersectionSimState,
     trips: TripManager,
+    scheduler: Scheduler,
 }
 
 impl Sim {
@@ -23,6 +24,7 @@ impl Sim {
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map),
             trips: TripManager::new(),
+            scheduler: Scheduler::new(),
         }
     }
 
@@ -63,6 +65,7 @@ impl Sim {
         self.walking.get_draw_peds(time, on, map)
     }
 
+    // TODO Many of these should go away
     pub fn spawn_car(
         &mut self,
         vehicle: Vehicle,
@@ -89,11 +92,17 @@ impl Sim {
         start: SidewalkSpot,
         goal: SidewalkSpot,
         path: Path,
-        map: &Map,
     ) {
-        let start_time = Duration::ZERO;
-        self.walking
-            .spawn_ped(id, start_time, start, goal, path, map);
+        self.scheduler.enqueue_command(Command::SpawnPed(
+            Duration::ZERO,
+            CreatePedestrian {
+                id,
+                start,
+                goal,
+                path,
+                trip: TripID(0),
+            },
+        ));
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
@@ -122,5 +131,16 @@ impl Sim {
             .step_if_needed(time, map, &mut self.parking, &mut self.intersections);
         self.walking
             .step_if_needed(time, map, &mut self.intersections);
+
+        // Spawn stuff at the end, so we can see the correct state of everything else at this time.
+        self.scheduler.step_if_needed(
+            time,
+            map,
+            &mut self.parking,
+            &mut self.walking,
+            &mut self.driving,
+            &self.intersections,
+            &mut self.trips,
+        );
     }
 }

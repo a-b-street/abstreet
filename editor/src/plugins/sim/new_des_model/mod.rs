@@ -1,5 +1,6 @@
 mod mechanics;
 mod router;
+mod scheduler;
 mod sim;
 mod trips;
 
@@ -7,11 +8,12 @@ pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
 pub use self::router::{ActionAtEnd, Router};
+pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
 pub use self::trips::TripManager;
-use ::sim::{CarID, VehicleType};
+use ::sim::{CarID, PedestrianID, TripID, VehicleType};
 use geom::{Distance, Duration, Speed};
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position};
+use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};
 use serde_derive::{Deserialize, Serialize};
 
 pub const MIN_VEHICLE_LENGTH: Distance = Distance::const_meters(2.0);
@@ -201,4 +203,23 @@ impl DistanceInterval {
     pub fn length(&self) -> Distance {
         (self.end - self.start).abs()
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+pub struct CreatePedestrian {
+    pub id: PedestrianID,
+    pub start: SidewalkSpot,
+    pub goal: SidewalkSpot,
+    pub path: Path,
+    pub trip: TripID,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+pub struct CreateCar {
+    pub vehicle: Vehicle,
+    pub router: Router,
+    pub start_time: Duration,
+    pub start_dist: Distance,
+    pub maybe_parked_car: Option<ParkedCar>,
+    pub trip: TripID,
 }

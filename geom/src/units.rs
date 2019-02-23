@@ -155,6 +155,14 @@ impl ops::Div<Speed> for Distance {
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Duration(f64);
 
+// By construction, Duration is a finite f64 with trimmed precision.
+impl Eq for Duration {}
+impl Ord for Duration {
+    fn cmp(&self, other: &Duration) -> cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
     pub const EPSILON: Duration = Duration::const_seconds(0.0001);
