@@ -181,8 +181,14 @@ impl DrivingSimState {
                     }
                 } else if let CarState::Unparking(front, ref time_int) = car.state {
                     if time > time_int.end {
-                        // TODO If this is already the last step, gotta do that planning here
-                        // before we decide to cross.
+                        if car.router.last_step() {
+                            // Actually, we need to do this first. Ignore the answer -- if we're
+                            // doing something weird like vanishing or re-parking immediately
+                            // (quite unlikely), the next loop will pick that up. Just trigger the
+                            // side effect of choosing an end_dist.
+                            car.router
+                                .maybe_handle_end(front, &car.vehicle, parking, map);
+                        }
                         car.state = car.crossing_state(front, time, map);
                     }
                 }
