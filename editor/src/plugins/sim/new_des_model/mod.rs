@@ -9,7 +9,7 @@ mod walking;
 
 pub use self::car::{Car, CarState};
 pub use self::driving::DrivingSimState;
-pub use self::intersection::IntersectionController;
+pub use self::intersection::IntersectionSimState;
 pub use self::parking::ParkingSimState;
 pub use self::queue::Queue;
 pub use self::router::{ActionAtEnd, Router};

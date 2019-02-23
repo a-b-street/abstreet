@@ -1,11 +1,11 @@
 use crate::plugins::sim::new_des_model::{
-    ActionAtEnd, Car, CarState, IntersectionController, ParkedCar, ParkingSimState, Queue, Router,
+    ActionAtEnd, Car, CarState, IntersectionSimState, ParkedCar, ParkingSimState, Queue, Router,
     TimeInterval, Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
-use map_model::{IntersectionID, Map, Traversable, LANE_THICKNESS};
-use sim::DrawCarInput;
+use map_model::{Map, Traversable, LANE_THICKNESS};
+use sim::{AgentID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
 const FREEFLOW: Color = Color::CYAN;
@@ -16,7 +16,6 @@ const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 
 pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
-    intersections: BTreeMap<IntersectionID, IntersectionController>,
 
     spawn_later: Vec<(Vehicle, Router, Duration, Distance, Option<ParkedCar>)>,
 }
@@ -25,7 +24,6 @@ impl DrivingSimState {
     pub fn new(map: &Map) -> DrivingSimState {
         let mut sim = DrivingSimState {
             queues: BTreeMap::new(),
-            intersections: BTreeMap::new(),
             spawn_later: Vec::new(),
         };
 
@@ -40,11 +38,6 @@ impl DrivingSimState {
                 let q = Queue::new(Traversable::Turn(t.id), map);
                 sim.queues.insert(q.id, q);
             }
-        }
-
-        for i in map.all_intersections() {
-            sim.intersections
-                .insert(i.id, IntersectionController::new(i.id));
         }
 
         sim
@@ -171,7 +164,13 @@ impl DrivingSimState {
             .push((vehicle, router, start_time, start_dist, maybe_parked_car));
     }
 
-    pub fn step_if_needed(&mut self, time: Duration, map: &Map, parking: &mut ParkingSimState) {
+    pub fn step_if_needed(
+        &mut self,
+        time: Duration,
+        map: &Map,
+        parking: &mut ParkingSimState,
+        intersections: &mut IntersectionSimState,
+    ) {
         // Promote Crossing to Queued and Unparking to Crossing.
         for queue in self.queues.values_mut() {
             for car in queue.cars.iter_mut() {
@@ -313,11 +312,7 @@ impl DrivingSimState {
             }
 
             if let Traversable::Turn(t) = goto {
-                if !self
-                    .intersections
-                    .get_mut(&t.parent)
-                    .unwrap()
-                    .maybe_start_turn(car_id, t, &self.queues, time, map)
+                if !intersections.maybe_start_turn(AgentID::Car(car_id), t, &self.queues, time, map)
                 {
                     continue;
                 }
@@ -360,10 +355,7 @@ impl DrivingSimState {
                 // TODO Actually, don't call turn_finished until the car is at least vehicle.length
                 // + FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
                 // event-based, so hold off on this bit of realism.
-                self.intersections
-                    .get_mut(&last_step.as_turn().parent)
-                    .unwrap()
-                    .turn_finished(car.vehicle.id, last_step.as_turn());
+                intersections.turn_finished(AgentID::Car(car.vehicle.id), last_step.as_turn());
             }
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
@@ -378,8 +370,7 @@ impl DrivingSimState {
             let first_lane = router.head().as_lane();
 
             if time >= start_time
-                && self.intersections[&map.get_l(first_lane).src_i]
-                    .nobody_headed_towards(first_lane)
+                && intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i)
             {
                 if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
                     .get_idx_to_insert_car(start_dist, vehicle.length, time)

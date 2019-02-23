@@ -1,5 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    DrivingSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot, Vehicle, WalkingSimState,
+    DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot,
+    Vehicle, WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
@@ -11,6 +12,7 @@ pub struct Sim {
     // TODO pub just for lazy spawning
     pub parking: ParkingSimState,
     walking: WalkingSimState,
+    intersections: IntersectionSimState,
 }
 
 impl Sim {
@@ -19,6 +21,7 @@ impl Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
             walking: WalkingSimState::new(),
+            intersections: IntersectionSimState::new(map),
         }
     }
 
@@ -93,7 +96,8 @@ impl Sim {
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
-        self.driving.step_if_needed(time, map, &mut self.parking);
+        self.driving
+            .step_if_needed(time, map, &mut self.parking, &mut self.intersections);
         self.walking.step_if_needed(time, map);
     }
 }

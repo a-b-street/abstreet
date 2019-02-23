@@ -3,22 +3,58 @@ use geom::Duration;
 use map_model::{
     ControlTrafficSignal, IntersectionID, LaneID, Map, Traversable, TurnID, TurnPriority,
 };
-use sim::CarID;
+use sim::AgentID;
 use std::collections::{BTreeMap, HashSet};
 
-#[derive(Hash, PartialEq, Eq)]
-struct Request {
-    car: CarID,
-    turn: TurnID,
+pub struct IntersectionSimState {
+    controllers: BTreeMap<IntersectionID, IntersectionController>,
 }
 
-pub struct IntersectionController {
+impl IntersectionSimState {
+    pub fn new(map: &Map) -> IntersectionSimState {
+        let mut sim = IntersectionSimState {
+            controllers: BTreeMap::new(),
+        };
+        for i in map.all_intersections() {
+            sim.controllers
+                .insert(i.id, IntersectionController::new(i.id));
+        }
+        sim
+    }
+
+    pub fn nobody_headed_towards(&self, lane: LaneID, i: IntersectionID) -> bool {
+        self.controllers[&i].nobody_headed_towards(lane)
+    }
+
+    pub fn turn_finished(&mut self, agent: AgentID, turn: TurnID) {
+        self.controllers
+            .get_mut(&turn.parent)
+            .unwrap()
+            .turn_finished(agent, turn);
+    }
+
+    pub fn maybe_start_turn(
+        &mut self,
+        agent: AgentID,
+        turn: TurnID,
+        queues: &BTreeMap<Traversable, Queue>,
+        time: Duration,
+        map: &Map,
+    ) -> bool {
+        self.controllers
+            .get_mut(&turn.parent)
+            .unwrap()
+            .maybe_start_turn(agent, turn, queues, time, map)
+    }
+}
+
+struct IntersectionController {
     id: IntersectionID,
     accepted: HashSet<Request>,
 }
 
 impl IntersectionController {
-    pub fn new(id: IntersectionID) -> IntersectionController {
+    fn new(id: IntersectionID) -> IntersectionController {
         IntersectionController {
             id,
             accepted: HashSet::new(),
@@ -27,9 +63,10 @@ impl IntersectionController {
 
     // The head car calls this when they're at the end of the lane Queued. If this returns true,
     // then the head car MUST actually start this turn.
-    pub fn maybe_start_turn(
+    // TODO And how bout for peds?
+    fn maybe_start_turn(
         &mut self,
-        car: CarID,
+        agent: AgentID,
         turn: TurnID,
         queues: &BTreeMap<Traversable, Queue>,
         time: Duration,
@@ -46,23 +83,23 @@ impl IntersectionController {
         }*/
 
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(self.id) {
-            self.traffic_signal_policy(signal, car, turn, queues, time, map)
+            self.traffic_signal_policy(signal, agent, turn, queues, time, map)
         } else {
-            self.freeform_policy(car, turn, queues, time, map)
+            self.freeform_policy(agent, turn, queues, time, map)
         };
         if allowed {
             assert!(!self.any_accepted_conflict_with(turn, map));
-            self.accepted.insert(Request { car, turn });
+            self.accepted.insert(Request { agent, turn });
         }
         allowed
     }
 
-    pub fn nobody_headed_towards(&self, dst_lane: LaneID) -> bool {
+    fn nobody_headed_towards(&self, dst_lane: LaneID) -> bool {
         !self.accepted.iter().any(|req| req.turn.dst == dst_lane)
     }
 
-    pub fn turn_finished(&mut self, car: CarID, turn: TurnID) {
-        assert!(self.accepted.remove(&Request { car, turn }));
+    fn turn_finished(&mut self, agent: AgentID, turn: TurnID) {
+        assert!(self.accepted.remove(&Request { agent, turn }));
     }
 
     fn any_accepted_conflict_with(&self, t: TurnID, map: &Map) -> bool {
@@ -74,7 +111,7 @@ impl IntersectionController {
 
     fn freeform_policy(
         &self,
-        _car: CarID,
+        _agent: AgentID,
         t: TurnID,
         _queues: &BTreeMap<Traversable, Queue>,
         _time: Duration,
@@ -91,7 +128,7 @@ impl IntersectionController {
     fn traffic_signal_policy(
         &self,
         signal: &ControlTrafficSignal,
-        _car: CarID,
+        _agent: AgentID,
         turn: TurnID,
         _queues: &BTreeMap<Traversable, Queue>,
         time: Duration,
@@ -104,7 +141,7 @@ impl IntersectionController {
             if cycle.get_priority(req.turn) < TurnPriority::Yield {
                 println!(
                     "{:?} is still doing {:?} after the cycle is over",
-                    req.car, req.turn
+                    req.agent, req.turn
                 );
                 return false;
             }
@@ -123,9 +160,16 @@ impl IntersectionController {
         // TODO If there's a choice between a Priority and Yield request, choose Priority. Need
         // batched requests to know -- that'll come later, once the walking sim is integrated.
 
-        // TODO Don't accept the car if they won't finish the turn in time. If the turn and target
-        // lane were clear, we could calculate the time, but it gets hard. For now, allow overtime.
+        // TODO Don't accept the agent if they won't finish the turn in time. If the turn and
+        // target lane were clear, we could calculate the time, but it gets hard. For now, allow
+        // overtime. This is trivial for peds.
 
         true
     }
+}
+
+#[derive(Hash, PartialEq, Eq)]
+struct Request {
+    agent: AgentID,
+    turn: TurnID,
 }
