@@ -1,12 +1,12 @@
 use crate::plugins::sim::new_des_model::{
-    DistanceInterval, SidewalkPOI, SidewalkSpot, TimeInterval,
+    DistanceInterval, IntersectionSimState, SidewalkPOI, SidewalkSpot, TimeInterval,
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
 use geom::{Distance, Duration, Speed};
 use map_model::{Map, Path, PathStep, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
-use sim::{DrawPedestrianInput, PedestrianID};
+use sim::{AgentID, DrawPedestrianInput, PedestrianID};
 use std::collections::BTreeMap;
 
 // TODO This is comically fast.
@@ -52,7 +52,12 @@ impl WalkingSimState {
 
         let mut ped = Pedestrian {
             id,
-            state: PedState::WaitingToTurn,
+            // Temporary bogus thing
+            state: PedState::Crossing(
+                DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
+                TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
+                true,
+            ),
             path,
             goal,
         };
@@ -89,24 +94,52 @@ impl WalkingSimState {
             .collect()
     }
 
-    pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
+    pub fn step_if_needed(
+        &mut self,
+        time: Duration,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+    ) {
         let mut delete = Vec::new();
         for ped in self.peds.values_mut() {
-            match &ped.state {
-                PedState::Crossing(_, ref time_int) => {
+            match ped.state {
+                PedState::Crossing(_, ref time_int, ref mut turn_finished) => {
                     if time > time_int.end {
-                        // TODO Ew O_O
-                        self.peds_per_traversable
-                            .get_vec_mut(&ped.path.current_step().as_traversable())
-                            .unwrap()
-                            .retain(|&p| p != ped.id);
-
                         if ped.path.is_last_step() {
                             // TODO Use goal
                             delete.push(ped.id);
+
+                            // TODO Ew O_O
+                            self.peds_per_traversable
+                                .get_vec_mut(&ped.path.current_step().as_traversable())
+                                .unwrap()
+                                .retain(|&p| p != ped.id);
                         } else {
+                            if !*turn_finished {
+                                if let PathStep::Turn(t) = ped.path.current_step() {
+                                    intersections.turn_finished(AgentID::Pedestrian(ped.id), t);
+                                    *turn_finished = true;
+                                }
+                            }
+
+                            if let PathStep::Turn(t) = ped.path.next_step() {
+                                if !intersections.maybe_start_turn(
+                                    AgentID::Pedestrian(ped.id),
+                                    t,
+                                    time,
+                                    map,
+                                ) {
+                                    continue;
+                                }
+                            }
+
+                            // TODO Ew O_O
+                            self.peds_per_traversable
+                                .get_vec_mut(&ped.path.current_step().as_traversable())
+                                .unwrap()
+                                .retain(|&p| p != ped.id);
+
                             ped.path.shift();
-                            // TODO Wait for turns
                             let start_dist = match ped.path.current_step() {
                                 PathStep::Lane(_) => Distance::ZERO,
                                 PathStep::ContraflowLane(l) => map.get_l(l).length(),
@@ -118,7 +151,6 @@ impl WalkingSimState {
                         }
                     }
                 }
-                PedState::WaitingToTurn => {}
             };
         }
         for id in delete {
@@ -150,20 +182,22 @@ impl Pedestrian {
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
         let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / SPEED);
-        PedState::Crossing(dist_int, time_int)
+        PedState::Crossing(dist_int, time_int, false)
     }
 
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
         let (on, dist) = match self.state {
-            PedState::Crossing(ref dist_int, ref time_int) => (
-                self.path.current_step().as_traversable(),
-                dist_int.lerp(time_int.percent(time)),
-            ),
-            PedState::WaitingToTurn => match self.path.current_step() {
-                PathStep::Lane(l) => (Traversable::Lane(l), map.get_l(l).length()),
-                PathStep::ContraflowLane(l) => (Traversable::Lane(l), Distance::ZERO),
-                PathStep::Turn(t) => (Traversable::Turn(t), map.get_t(t).geom.length()),
-            },
+            PedState::Crossing(ref dist_int, ref time_int, _) => {
+                let percent = if time > time_int.end {
+                    1.0
+                } else {
+                    time_int.percent(time)
+                };
+                (
+                    self.path.current_step().as_traversable(),
+                    dist_int.lerp(percent),
+                )
+            }
         };
 
         DrawPedestrianInput {
@@ -176,9 +210,12 @@ impl Pedestrian {
     }
 }
 
+// crossing front path, bike parking, waiting at bus stop, etc
 #[derive(Serialize, Deserialize)]
 enum PedState {
-    // crossing front path, bike parking, waiting at bus stop,
-    Crossing(DistanceInterval, TimeInterval),
-    WaitingToTurn,
+    // If we're past the TimeInterval, then blocked on a turn.
+    // The bool is true when we've marked the turn finished. We might experience two turn sequences
+    // and the second turn isn't accepted. Don't block the intersection by waiting. Turns always
+    // end at little sidewalk corners, so the ped is actually out of the way.
+    Crossing(DistanceInterval, TimeInterval, bool),
 }

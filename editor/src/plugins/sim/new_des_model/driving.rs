@@ -312,8 +312,7 @@ impl DrivingSimState {
             }
 
             if let Traversable::Turn(t) = goto {
-                if !intersections.maybe_start_turn(AgentID::Car(car_id), t, &self.queues, time, map)
-                {
+                if !intersections.maybe_start_turn(AgentID::Car(car_id), t, time, map) {
                     continue;
                 }
             }

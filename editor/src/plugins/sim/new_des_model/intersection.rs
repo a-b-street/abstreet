@@ -1,8 +1,5 @@
-use crate::plugins::sim::new_des_model::Queue;
 use geom::Duration;
-use map_model::{
-    ControlTrafficSignal, IntersectionID, LaneID, Map, Traversable, TurnID, TurnPriority,
-};
+use map_model::{ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority};
 use sim::AgentID;
 use std::collections::{BTreeMap, HashSet};
 
@@ -33,18 +30,18 @@ impl IntersectionSimState {
             .turn_finished(agent, turn);
     }
 
+    // TODO This API is bad. Need to gather all of the requests at a time before making a decision.
     pub fn maybe_start_turn(
         &mut self,
         agent: AgentID,
         turn: TurnID,
-        queues: &BTreeMap<Traversable, Queue>,
         time: Duration,
         map: &Map,
     ) -> bool {
         self.controllers
             .get_mut(&turn.parent)
             .unwrap()
-            .maybe_start_turn(agent, turn, queues, time, map)
+            .maybe_start_turn(agent, turn, time, map)
     }
 }
 
@@ -61,31 +58,21 @@ impl IntersectionController {
         }
     }
 
-    // The head car calls this when they're at the end of the lane Queued. If this returns true,
+    // For cars: The head car calls this when they're at the end of the lane Queued. If this returns true,
     // then the head car MUST actually start this turn.
-    // TODO And how bout for peds?
+    // For peds: Likewise -- only called when the ped is at the start of the turn. They must
+    // actually do the turn if this returns true.
     fn maybe_start_turn(
         &mut self,
         agent: AgentID,
         turn: TurnID,
-        queues: &BTreeMap<Traversable, Queue>,
         time: Duration,
         map: &Map,
     ) -> bool {
-        // Policy: only one turn at a time, can't go until the target lane has room.
-        /*if !self.accepted.is_empty() {
-            return false;
-        }
-        // TODO This isn't strong enough -- make sure there's room for the car to immediately
-        // complete the turn and get out of the intersection completely.
-        if !queues[&Traversable::Lane(turn.dst)].room_at_end(time) {
-            return false;
-        }*/
-
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(self.id) {
-            self.traffic_signal_policy(signal, agent, turn, queues, time, map)
+            self.traffic_signal_policy(signal, agent, turn, time, map)
         } else {
-            self.freeform_policy(agent, turn, queues, time, map)
+            self.freeform_policy(agent, turn, time, map)
         };
         if allowed {
             assert!(!self.any_accepted_conflict_with(turn, map));
@@ -109,14 +96,7 @@ impl IntersectionController {
             .any(|req| map.get_t(req.turn).conflicts_with(turn))
     }
 
-    fn freeform_policy(
-        &self,
-        _agent: AgentID,
-        t: TurnID,
-        _queues: &BTreeMap<Traversable, Queue>,
-        _time: Duration,
-        map: &Map,
-    ) -> bool {
+    fn freeform_policy(&self, _agent: AgentID, t: TurnID, _time: Duration, map: &Map) -> bool {
         // Allow concurrent turns that don't conflict, don't prevent target lane from spilling
         // over.
         if self.any_accepted_conflict_with(t, map) {
@@ -130,7 +110,6 @@ impl IntersectionController {
         signal: &ControlTrafficSignal,
         _agent: AgentID,
         turn: TurnID,
-        _queues: &BTreeMap<Traversable, Queue>,
         time: Duration,
         map: &Map,
     ) -> bool {
