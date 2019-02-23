@@ -218,7 +218,6 @@ pub struct CreatePedestrian {
 pub struct CreateCar {
     pub vehicle: Vehicle,
     pub router: Router,
-    pub start_time: Duration,
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
     pub trip: TripID,

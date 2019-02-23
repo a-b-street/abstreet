@@ -39,9 +39,9 @@ impl Scheduler {
         &mut self,
         now: Duration,
         map: &Map,
-        parking_sim: &mut ParkingSimState,
-        walking_sim: &mut WalkingSimState,
-        driving_sim: &mut DrivingSimState,
+        parking: &mut ParkingSimState,
+        walking: &mut WalkingSimState,
+        driving: &mut DrivingSimState,
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
@@ -66,13 +66,19 @@ impl Scheduler {
         for cmd in this_tick_commands.into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
-                    if driving_sim.start_car_on_lane(now, map, create_car.clone(), intersections) {
+                    if driving.start_car_on_lane(
+                        now,
+                        create_car.clone(),
+                        map,
+                        parking,
+                        intersections,
+                    ) {
                         trips.agent_starting_trip_leg(
                             AgentID::Car(create_car.vehicle.id),
                             create_car.trip,
                         );
                         if let Some(parked_car) = create_car.maybe_parked_car {
-                            parking_sim.remove_parked_car(parked_car);
+                            parking.remove_parked_car(parked_car);
                         }
                     } else {
                         self.enqueue_command(Command::SpawnCar(
@@ -88,7 +94,7 @@ impl Scheduler {
                         AgentID::Pedestrian(create_ped.id),
                         create_ped.trip,
                     );
-                    walking_sim.spawn_ped(now, create_ped, map);
+                    walking.spawn_ped(now, create_ped, map);
                 }
             };
         }

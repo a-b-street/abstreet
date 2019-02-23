@@ -1,8 +1,8 @@
 use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
 use crate::plugins::sim::new_des_model::mechanics::queue::Queue;
 use crate::plugins::sim::new_des_model::{
-    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Router, TimeInterval,
-    Vehicle, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, TimeInterval,
+    FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -18,15 +18,12 @@ const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 
 pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
-
-    spawn_later: Vec<(Vehicle, Router, Duration, Distance, Option<ParkedCar>)>,
 }
 
 impl DrivingSimState {
     pub fn new(map: &Map) -> DrivingSimState {
         let mut sim = DrivingSimState {
             queues: BTreeMap::new(),
-            spawn_later: Vec::new(),
         };
 
         for l in map.all_lanes() {
@@ -127,53 +124,79 @@ impl DrivingSimState {
         }
     }
 
+    // True if it worked
     pub fn start_car_on_lane(
         &mut self,
         time: Duration,
-        map: &Map,
         params: CreateCar,
-        intersections: &IntersectionSimState,
-    ) -> bool {
-        false
-    }
-
-    pub fn spawn_car(
-        &mut self,
-        vehicle: Vehicle,
-        router: Router,
-        start_time: Duration,
-        start_dist: Distance,
-        maybe_parked_car: Option<ParkedCar>,
         map: &Map,
         parking: &ParkingSimState,
-    ) {
-        if let Some(ref parked_car) = maybe_parked_car {
-            assert_eq!(parked_car.vehicle, vehicle);
+        intersections: &IntersectionSimState,
+    ) -> bool {
+        // TODO only do validation once
+        if let Some(ref parked_car) = params.maybe_parked_car {
+            assert_eq!(parked_car.vehicle, params.vehicle);
             assert_eq!(
-                start_dist,
+                params.start_dist,
                 parking
-                    .spot_to_driving_pos(parked_car.spot, &vehicle, router.head().as_lane(), map)
+                    .spot_to_driving_pos(
+                        parked_car.spot,
+                        &params.vehicle,
+                        params.router.head().as_lane(),
+                        map
+                    )
                     .dist_along()
             );
         }
 
-        if start_dist < vehicle.length {
+        if params.start_dist < params.vehicle.length {
             panic!(
                 "Can't spawn a car at {}; too close to the start",
-                start_dist
+                params.start_dist
             );
         }
-        if start_dist >= router.head().length(map) {
+        if params.start_dist >= params.router.head().length(map) {
             panic!(
                 "Can't spawn a car at {}; {:?} isn't that long",
-                start_dist,
-                router.head()
+                params.start_dist,
+                params.router.head()
             );
         }
-        router.validate_start_dist(start_dist);
+        params.router.validate_start_dist(params.start_dist);
 
-        self.spawn_later
-            .push((vehicle, router, start_time, start_dist, maybe_parked_car));
+        let first_lane = params.router.head().as_lane();
+
+        if !intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i) {
+            return false;
+        }
+        if let Some(idx) = self.queues[&Traversable::Lane(first_lane)].get_idx_to_insert_car(
+            params.start_dist,
+            params.vehicle.length,
+            time,
+        ) {
+            let mut car = Car {
+                vehicle: params.vehicle,
+                router: params.router,
+                state: CarState::Queued,
+                last_steps: VecDeque::new(),
+            };
+            if let Some(parked_car) = params.maybe_parked_car {
+                car.state = CarState::Unparking(
+                    params.start_dist,
+                    TimeInterval::new(time, time + TIME_TO_UNPARK),
+                );
+            } else {
+                car.state = car.crossing_state(params.start_dist, time, map);
+            }
+            self.queues
+                .get_mut(&Traversable::Lane(first_lane))
+                .unwrap()
+                .cars
+                .insert(idx, car);
+            //println!("{} spawned at {}", vehicle.id, time);
+            return true;
+        }
+        false
     }
 
     pub fn step_if_needed(
@@ -371,52 +394,5 @@ impl DrivingSimState {
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
         }
-
-        // Spawn cars at the end, so we can see the correct state of everything else at this time.
-        let mut retain_spawn = Vec::new();
-        for (vehicle, router, start_time, start_dist, maybe_parked_car) in
-            self.spawn_later.drain(..)
-        {
-            let mut spawned = false;
-            let first_lane = router.head().as_lane();
-
-            if time >= start_time
-                && intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i)
-            {
-                if let Some(idx) = self.queues[&Traversable::Lane(first_lane)]
-                    .get_idx_to_insert_car(start_dist, vehicle.length, time)
-                {
-                    let mut car = Car {
-                        vehicle: vehicle.clone(),
-                        router: router.clone(),
-                        state: CarState::Queued,
-                        last_steps: VecDeque::new(),
-                    };
-                    if maybe_parked_car.is_some() {
-                        car.state = CarState::Unparking(
-                            start_dist,
-                            TimeInterval::new(time, time + TIME_TO_UNPARK),
-                        );
-                    } else {
-                        car.state = car.crossing_state(start_dist, time, map);
-                    }
-                    self.queues
-                        .get_mut(&Traversable::Lane(first_lane))
-                        .unwrap()
-                        .cars
-                        .insert(idx, car);
-                    spawned = true;
-                    //println!("{} spawned at {}", vehicle.id, time);
-                }
-            }
-            if spawned {
-                if let Some(parked_car) = maybe_parked_car {
-                    parking.remove_parked_car(parked_car);
-                }
-            } else {
-                retain_spawn.push((vehicle, router, start_time, start_dist, maybe_parked_car));
-            }
-        }
-        self.spawn_later = retain_spawn;
     }
 }

@@ -129,6 +129,15 @@ map_model was supposed to just be unbiased representation of the world, no
 semantics on top. Except bus stops and routes crept it, and map edits lived
 there. Separate control layer is just awkward.
 
+Sim layering is bit tricky...
+
+- mechanics/ layer handles implementing individual trip legs
+- trips should be invoked by mechanics/ and spawning to handle transitions and cause effects in mechanics layer
+- scheduler will ultimately become the generic DES driver probably. right now, it spawns peds and cars and handles retrying.
+- spawn layer will feed commands to scheduler at the right time. only purpose is to avoid doing all the pathfinding upfront -- maybe we have things spawning from borders over a very long period of time.
+- something above this layer takes some constraints to spawn things, uses RNG to populate unfilled things, and then calls spawn layer.
+- this is called by interactive UI and tests and scenario (which is a more succinct description of lots of these commands)
+
 ## IDs
 
 Should LaneID have LaneType bundled in for convenience? CarID and VehicleType?

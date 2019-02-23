@@ -1,6 +1,7 @@
 use crate::plugins::sim::new_des_model::{
-    Command, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, Router, Scheduler, SidewalkSpot, TripManager, Vehicle, WalkingSimState,
+    Command, CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkedCar,
+    ParkingSimState, ParkingSpot, Router, Scheduler, SidewalkSpot, TripManager, Vehicle,
+    WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
@@ -73,17 +74,17 @@ impl Sim {
         start_time: Duration,
         start_dist: Distance,
         maybe_parked_car: Option<ParkedCar>,
-        map: &Map,
     ) {
-        self.driving.spawn_car(
-            vehicle,
-            router,
+        self.scheduler.enqueue_command(Command::SpawnCar(
             start_time,
-            start_dist,
-            maybe_parked_car,
-            map,
-            &self.parking,
-        );
+            CreateCar {
+                vehicle,
+                router,
+                start_dist,
+                maybe_parked_car,
+                trip: TripID(0),
+            },
+        ));
     }
 
     pub fn spawn_ped(

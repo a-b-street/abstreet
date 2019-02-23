@@ -208,7 +208,6 @@ fn spawn_car(
         spawn_time,
         start_dist,
         None,
-        map,
     );
     true
 }
@@ -252,7 +251,6 @@ fn seed_parked_cars_near(
                                     Duration::seconds(5.0),
                                     start_dist,
                                     Some(parked_car),
-                                    map,
                                 );
                             }
                         }
