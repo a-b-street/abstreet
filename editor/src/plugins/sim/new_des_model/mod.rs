@@ -6,7 +6,7 @@ mod queue;
 mod router;
 mod sim;
 
-pub use self::car::{Car, CarState, TimeInterval};
+pub use self::car::{Car, CarState};
 pub use self::driving::DrivingSimState;
 pub use self::intersection::IntersectionController;
 pub use self::parking::ParkingSimState;
@@ -14,8 +14,8 @@ pub use self::queue::Queue;
 pub use self::router::{ActionAtEnd, Router};
 pub use self::sim::Sim;
 use ::sim::{CarID, VehicleType};
-use geom::{Distance, Speed};
-use map_model::{BuildingID, LaneID};
+use geom::{Distance, Duration, Speed};
+use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position};
 use serde_derive::{Deserialize, Serialize};
 
 pub const MIN_VEHICLE_LENGTH: Distance = Distance::const_meters(2.0);
@@ -58,5 +58,136 @@ impl ParkedCar {
             spot,
             owner,
         }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct SidewalkSpot {
+    connection: SidewalkPOI,
+    pub sidewalk_pos: Position,
+}
+
+impl SidewalkSpot {
+    #[allow(dead_code)]
+    pub fn parking_spot(
+        spot: ParkingSpot,
+        map: &Map,
+        parking_sim: &ParkingSimState,
+    ) -> SidewalkSpot {
+        let sidewalk = map
+            .find_closest_lane(spot.lane, vec![LaneType::Sidewalk])
+            .unwrap();
+        SidewalkSpot {
+            connection: SidewalkPOI::ParkingSpot(spot),
+            sidewalk_pos: parking_sim.spot_to_sidewalk_pos(spot, sidewalk, map),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn building(bldg: BuildingID, map: &Map) -> SidewalkSpot {
+        let front_path = &map.get_b(bldg).front_path;
+        SidewalkSpot {
+            connection: SidewalkPOI::Building(bldg),
+            sidewalk_pos: front_path.sidewalk,
+        }
+    }
+
+    pub fn bike_rack(sidewalk_pos: Position, map: &Map) -> SidewalkSpot {
+        assert!(map.get_l(sidewalk_pos.lane()).is_sidewalk());
+        SidewalkSpot {
+            connection: SidewalkPOI::BikeRack,
+            sidewalk_pos,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
+        SidewalkSpot {
+            sidewalk_pos: map.get_bs(stop).sidewalk_pos,
+            connection: SidewalkPOI::BusStop(stop),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
+        let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
+        if lanes.is_empty() {
+            None
+        } else {
+            Some(SidewalkSpot {
+                sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
+                connection: SidewalkPOI::Border(i),
+            })
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
+        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
+        if lanes.is_empty() {
+            None
+        } else {
+            Some(SidewalkSpot {
+                sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
+                connection: SidewalkPOI::Border(i),
+            })
+        }
+    }
+}
+
+// Point of interest, that is
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+enum SidewalkPOI {
+    ParkingSpot(ParkingSpot),
+    Building(BuildingID),
+    BusStop(BusStopID),
+    Border(IntersectionID),
+    BikeRack,
+}
+
+#[derive(Debug)]
+pub struct TimeInterval {
+    // TODO Private fields
+    pub start: Duration,
+    pub end: Duration,
+}
+
+impl TimeInterval {
+    pub fn new(start: Duration, end: Duration) -> TimeInterval {
+        if end < start {
+            panic!("Bad TimeInterval {} .. {}", start, end);
+        }
+        TimeInterval { start, end }
+    }
+
+    pub fn percent(&self, t: Duration) -> f64 {
+        if self.start == self.end {
+            return 1.0;
+        }
+
+        let x = (t - self.start) / (self.end - self.start);
+        assert!(x >= 0.0 && x <= 1.0);
+        x
+    }
+}
+
+#[derive(Debug)]
+pub struct DistanceInterval {
+    // TODO Private fields
+    pub start: Distance,
+    pub end: Distance,
+}
+
+impl DistanceInterval {
+    fn new(start: Distance, end: Distance) -> DistanceInterval {
+        if end < start {
+            panic!("Bad DistanceInterval {} .. {}", start, end);
+        }
+        DistanceInterval { start, end }
+    }
+
+    pub fn lerp(&self, x: f64) -> Distance {
+        assert!(x >= 0.0 && x <= 1.0);
+        self.start + x * (self.end - self.start)
     }
 }

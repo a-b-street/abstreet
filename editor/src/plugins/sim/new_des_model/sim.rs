@@ -1,10 +1,10 @@
 use crate::plugins::sim::new_des_model::{
-    DrivingSimState, ParkedCar, ParkingSimState, Router, Vehicle,
+    DrivingSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot, Vehicle,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
-use map_model::{Map, Traversable};
-use sim::DrawCarInput;
+use map_model::{Map, Path, Traversable};
+use sim::{DrawCarInput, PedestrianID};
 
 pub struct Sim {
     driving: DrivingSimState,
@@ -62,6 +62,16 @@ impl Sim {
             map,
             &self.parking,
         );
+    }
+
+    pub fn spawn_ped(
+        &mut self,
+        id: PedestrianID,
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
+        path: Path,
+    ) {
+        // TODO Assert valid
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {

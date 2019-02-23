@@ -162,9 +162,9 @@ impl ParkingSimState {
             .equiv_pos(driving_lane, map)
     }
 
-    /*pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
+    pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
         Position::new(spot.lane, self.get_spot(spot).dist_along_for_ped()).equiv_pos(sidewalk, map)
-    }*/
+    }
 
     fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
         &self.lanes[spot.lane.0].spots[spot.idx]
@@ -264,10 +264,10 @@ struct ParkingSpotGeometry {
 }
 
 impl ParkingSpotGeometry {
-    /*fn dist_along_for_ped(&self) -> Distance {
+    fn dist_along_for_ped(&self) -> Distance {
         // Always centered in the entire parking spot
         self.dist_along - (map_model::PARKING_SPOT_LENGTH / 2.0)
-    }*/
+    }
 
     fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot

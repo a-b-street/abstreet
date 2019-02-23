@@ -1,4 +1,6 @@
-use crate::plugins::sim::new_des_model::{ParkingSpot, Router, Vehicle};
+use crate::plugins::sim::new_des_model::{
+    DistanceInterval, ParkingSpot, Router, TimeInterval, Vehicle,
+};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use sim::DrawCarInput;
@@ -134,53 +136,4 @@ pub enum CarState {
     // Where's the front of the car while this is happening?
     Unparking(Distance, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
-}
-
-// TODO Walking will use these too -- lift up
-
-#[derive(Debug)]
-pub struct TimeInterval {
-    // TODO Private fields
-    pub start: Duration,
-    pub end: Duration,
-}
-
-impl TimeInterval {
-    pub fn new(start: Duration, end: Duration) -> TimeInterval {
-        if end < start {
-            panic!("Bad TimeInterval {} .. {}", start, end);
-        }
-        TimeInterval { start, end }
-    }
-
-    pub fn percent(&self, t: Duration) -> f64 {
-        if self.start == self.end {
-            return 1.0;
-        }
-
-        let x = (t - self.start) / (self.end - self.start);
-        assert!(x >= 0.0 && x <= 1.0);
-        x
-    }
-}
-
-#[derive(Debug)]
-pub struct DistanceInterval {
-    // TODO Private fields
-    pub start: Distance,
-    pub end: Distance,
-}
-
-impl DistanceInterval {
-    fn new(start: Distance, end: Distance) -> DistanceInterval {
-        if end < start {
-            panic!("Bad DistanceInterval {} .. {}", start, end);
-        }
-        DistanceInterval { start, end }
-    }
-
-    pub fn lerp(&self, x: f64) -> Distance {
-        assert!(x >= 0.0 && x <= 1.0);
-        self.start + x * (self.end - self.start)
-    }
 }
