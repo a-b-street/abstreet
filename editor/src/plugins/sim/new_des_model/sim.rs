@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
     DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Router,
-    SidewalkSpot, Vehicle, WalkingSimState,
+    SidewalkSpot, TripManager, Vehicle, WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
@@ -12,6 +12,7 @@ pub struct Sim {
     parking: ParkingSimState,
     walking: WalkingSimState,
     intersections: IntersectionSimState,
+    trips: TripManager,
 }
 
 impl Sim {
@@ -21,6 +22,7 @@ impl Sim {
             parking: ParkingSimState::new(map),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map),
+            trips: TripManager::new(),
         }
     }
 

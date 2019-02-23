@@ -1,12 +1,14 @@
 mod mechanics;
 mod router;
 mod sim;
+mod trips;
 
 pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
 pub use self::router::{ActionAtEnd, Router};
 pub use self::sim::Sim;
+pub use self::trips::TripManager;
 use ::sim::{CarID, VehicleType};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position};
@@ -53,6 +55,12 @@ impl ParkedCar {
             owner,
         }
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DrivingGoal {
+    ParkNear(BuildingID),
+    Border(IntersectionID, LaneID),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
