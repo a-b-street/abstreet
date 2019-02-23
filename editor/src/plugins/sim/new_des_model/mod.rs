@@ -1,20 +1,12 @@
-mod car;
-mod driving;
-mod intersection;
-mod parking;
-mod queue;
+mod mechanics;
 mod router;
 mod sim;
-mod walking;
 
-pub use self::car::{Car, CarState};
-pub use self::driving::DrivingSimState;
-pub use self::intersection::IntersectionSimState;
-pub use self::parking::ParkingSimState;
-pub use self::queue::Queue;
+pub use self::mechanics::{
+    DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
+};
 pub use self::router::{ActionAtEnd, Router};
 pub use self::sim::Sim;
-pub use self::walking::WalkingSimState;
 use ::sim::{CarID, VehicleType};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position};

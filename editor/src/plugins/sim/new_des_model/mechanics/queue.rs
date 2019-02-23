@@ -1,4 +1,5 @@
-use crate::plugins::sim::new_des_model::{Car, CarState, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH};
+use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
+use crate::plugins::sim::new_des_model::{FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
 use std::collections::VecDeque;
