@@ -137,12 +137,8 @@ impl Router {
                     ) {
                         *spot = Some(new_spot);
                     } else {
-                        // TODO
-                        println!(
-                            "Argh, no parking spots left for {}, gotta roam!",
-                            vehicle.id
-                        );
-                        return Some(ActionAtEnd::Vanish);
+                        self.roam_around_for_parking(vehicle, map);
+                        return Some(ActionAtEnd::GotoLaneEnd);
                     }
                 }
 
@@ -153,6 +149,26 @@ impl Router {
                 }
             }
         }
+    }
+
+    fn roam_around_for_parking(
+        &mut self,
+        vehicle: &Vehicle,
+        map: &Map,
+    ) {
+        let choices = map.get_turns_from_lane(self.head().as_lane());
+        if choices.is_empty() {
+            // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
+            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, self.head().as_lane());
+            self.goal = Goal::StopSuddenly { end_dist: self.head().length(map) };
+            return;
+        }
+        // TODO Better strategies than this: look for lanes with free spots (if it'd be feasible to
+        // physically see the spots), stay close to the original goal building, avoid lanes we've
+        // visited, prefer easier turns...
+        let turn = choices[0];
+        self.path.push_back(Traversable::Turn(turn.id));
+        self.path.push_back(Traversable::Lane(turn.id.dst));
     }
 }
 

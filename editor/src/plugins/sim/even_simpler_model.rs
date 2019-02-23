@@ -255,7 +255,7 @@ fn seed_parked_cars_near(
 fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversable> {
     let mut path = vec![Traversable::Lane(start)];
     let mut last_lane = start;
-    for _ in 0..5 {
+    for _ in 0..1 {
         if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
             path.push(Traversable::Turn(t.id));
             path.push(Traversable::Lane(t.id.dst));
