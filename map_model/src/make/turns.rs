@@ -99,6 +99,9 @@ fn make_vehicle_turns(
                 continue;
             }
 
+            let mut maybe_add_turns = Vec::new();
+            let mut all_incoming_lanes_covered = false;
+
             for r2 in &roads {
                 if r1.id == r2.id {
                     continue;
@@ -119,6 +122,7 @@ fn make_vehicle_turns(
                 // Use an arbitrary lane from each road to get the angle between r1 and r2.
                 let angle1 = lanes[incoming[0].0].last_line().angle();
                 let angle2 = lanes[outgoing[0].0].first_line().angle();
+
                 match TurnType::from_angles(angle1, angle2) {
                     TurnType::Straight => {
                         // Cartesian product
@@ -127,24 +131,38 @@ fn make_vehicle_turns(
                                 result.push(make_vehicle_turn(lanes, i.id, *l1, *l2));
                             }
                         }
+                        all_incoming_lanes_covered = true;
                     }
                     TurnType::Right => {
-                        for l2 in &outgoing {
-                            result.push(make_vehicle_turn(
-                                lanes,
-                                i.id,
-                                *incoming.last().unwrap(),
-                                *l2,
-                            ));
+                        for (idx, l1) in incoming.iter().enumerate() {
+                            for l2 in &outgoing {
+                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2);
+                                if idx == incoming.len() - 1 {
+                                    result.push(turn);
+                                } else {
+                                    maybe_add_turns.push(turn);
+                                }
+                            }
                         }
                     }
                     TurnType::Left => {
-                        for l2 in outgoing {
-                            result.push(make_vehicle_turn(lanes, i.id, incoming[0], l2));
+                        for (idx, l1) in incoming.iter().enumerate() {
+                            for l2 in &outgoing {
+                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2);
+                                if idx == 0 {
+                                    result.push(turn);
+                                } else {
+                                    maybe_add_turns.push(turn);
+                                }
+                            }
                         }
                     }
                     _ => unreachable!(),
                 };
+            }
+
+            if !all_incoming_lanes_covered {
+                result.extend(maybe_add_turns);
             }
         }
     }
