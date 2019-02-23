@@ -94,5 +94,6 @@ impl Sim {
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
         self.driving.step_if_needed(time, map, &mut self.parking);
+        self.walking.step_if_needed(time, map);
     }
 }

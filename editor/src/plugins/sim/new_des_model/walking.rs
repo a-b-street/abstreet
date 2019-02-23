@@ -88,6 +88,43 @@ impl WalkingSimState {
             .map(|id| self.peds[id].get_draw_ped(time, map))
             .collect()
     }
+
+    pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
+        let mut delete = Vec::new();
+        for ped in self.peds.values_mut() {
+            match &ped.state {
+                PedState::Crossing(_, ref time_int) => {
+                    if time > time_int.end {
+                        // TODO Ew O_O
+                        self.peds_per_traversable
+                            .get_vec_mut(&ped.path.current_step().as_traversable())
+                            .unwrap()
+                            .retain(|&p| p != ped.id);
+
+                        if ped.path.is_last_step() {
+                            // TODO Use goal
+                            delete.push(ped.id);
+                        } else {
+                            ped.path.shift();
+                            // TODO Wait for turns
+                            let start_dist = match ped.path.current_step() {
+                                PathStep::Lane(_) => Distance::ZERO,
+                                PathStep::ContraflowLane(l) => map.get_l(l).length(),
+                                PathStep::Turn(_) => Distance::ZERO,
+                            };
+                            ped.state = ped.crossing_state(start_dist, time, map);
+                            self.peds_per_traversable
+                                .insert(ped.path.current_step().as_traversable(), ped.id);
+                        }
+                    }
+                }
+                PedState::WaitingToTurn => {}
+            };
+        }
+        for id in delete {
+            self.peds.remove(&id);
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
