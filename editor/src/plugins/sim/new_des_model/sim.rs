@@ -1,16 +1,15 @@
 use crate::plugins::sim::new_des_model::{
-    DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, Router, SidewalkSpot,
-    Vehicle, WalkingSimState,
+    DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Router,
+    SidewalkSpot, Vehicle, WalkingSimState,
 };
 use ezgui::GfxCtx;
 use geom::{Distance, Duration};
-use map_model::{Map, Path, Traversable};
+use map_model::{LaneID, Map, Path, Position, Traversable};
 use sim::{DrawCarInput, DrawPedestrianInput, PedestrianID};
 
 pub struct Sim {
     driving: DrivingSimState,
-    // TODO pub just for lazy spawning
-    pub parking: ParkingSimState,
+    parking: ParkingSimState,
     walking: WalkingSimState,
     intersections: IntersectionSimState,
 }
@@ -93,6 +92,27 @@ impl Sim {
         let start_time = Duration::ZERO;
         self.walking
             .spawn_ped(id, start_time, start, goal, path, map);
+    }
+
+    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+        self.parking.get_free_spots(l)
+    }
+
+    // TODO Ew...
+    pub fn spot_to_driving_pos(
+        &self,
+        spot: ParkingSpot,
+        vehicle: &Vehicle,
+        driving_lane: LaneID,
+        map: &Map,
+    ) -> Position {
+        self.parking
+            .spot_to_driving_pos(spot, vehicle, driving_lane, map)
+    }
+
+    pub fn seed_parked_car(&mut self, parked_car: ParkedCar) {
+        self.parking.reserve_spot(parked_car.spot);
+        self.parking.add_parked_car(parked_car);
     }
 
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {

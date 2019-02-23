@@ -223,20 +223,18 @@ fn seed_parked_cars_near(
 ) {
     for l in map.get_parent(driving_lane).all_lanes() {
         if map.get_l(l).is_parking() {
-            for spot in sim.parking.get_free_spots(l) {
+            for spot in sim.get_free_spots(l) {
                 if rng.gen_bool(0.2) {
                     let parked_car =
                         new_des_model::ParkedCar::new(rand_vehicle(rng, *id_counter), spot, None);
                     *id_counter += 1;
-                    sim.parking.reserve_spot(spot);
-                    sim.parking.add_parked_car(parked_car.clone());
+                    sim.seed_parked_car(parked_car.clone());
 
                     if rng.gen_bool(0.3) {
                         if let Ok(start_lane) = map.find_closest_lane(l, vec![LaneType::Driving]) {
                             let path = random_path(start_lane, rng, map);
                             let last_lane = path.last().unwrap().as_lane();
                             let start_dist = sim
-                                .parking
                                 .spot_to_driving_pos(
                                     parked_car.spot,
                                     &parked_car.vehicle,
