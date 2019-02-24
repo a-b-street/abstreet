@@ -11,6 +11,7 @@ pub use self::mechanics::{
 pub use self::router::{ActionAtEnd, Router};
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
+pub use self::spawn::{TripSpawner, TripSpec};
 pub use self::trips::{TripLeg, TripManager};
 use ::sim::{CarID, PedestrianID, TripID, VehicleType};
 use geom::{Distance, Duration, Speed};

@@ -21,9 +21,11 @@ pub enum TripSpec {
 }
 
 pub struct TripSpawner {
-    car_id_counter: usize,
+    // TODO tmp pub
+    pub(crate) car_id_counter: usize,
     ped_id_counter: usize,
     parked_cars_claimed: BTreeSet<CarID>,
+    trips: Vec<(Duration, TripSpec)>,
 }
 
 impl TripSpawner {
@@ -32,108 +34,126 @@ impl TripSpawner {
             car_id_counter: 0,
             ped_id_counter: 0,
             parked_cars_claimed: BTreeSet::new(),
+            trips: Vec::new(),
         }
     }
 
-    pub fn schedule_trip(
+    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec) {
+        self.trips.push((start_time, spec));
+    }
+
+    pub fn spawn_all(
         &mut self,
-        start_time: Duration,
-        spec: TripSpec,
-        path: Path,
         map: &Map,
         parking: &ParkingSimState,
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
+        timer: &mut Timer,
     ) {
-        match spec {
-            TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
-                let car_id = CarID::tmp_new(self.car_id_counter, VehicleType::Car);
-                self.car_id_counter += 1;
-                let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
-                self.ped_id_counter += 1;
-
-                let mut legs = vec![TripLeg::Drive(car_id, goal.clone())];
-                let router = match goal {
-                    DrivingGoal::ParkNear(b) => {
-                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                        Router::park_near(path.convert_to_traversable_list(), b)
-                    }
-                    DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
-                        path.convert_to_traversable_list(),
-                        map.get_l(last_lane).length(),
-                        map,
-                    ),
-                };
-                let trip = trips.new_trip(start_time, Some(ped_id), legs);
-
-                scheduler.enqueue_command(Command::SpawnCar(
-                    start_time,
-                    CreateCar {
-                        vehicle: vehicle_spec.make(car_id),
-                        router,
-                        start_dist: start_pos.dist_along(),
-                        maybe_parked_car: None,
-                        trip,
-                    },
-                ));
+        let paths = calculate_paths(
+            map,
+            self.trips
+                .iter()
+                .map(|(_, spec)| spec.get_pathfinding_request(map, parking))
+                .collect(),
+            timer,
+        );
+        for ((start_time, spec), maybe_path) in self.trips.drain(..).zip(paths) {
+            if maybe_path.is_none() {
+                timer.warn(format!("{:?} couldn't find the first path", spec));
+                continue;
             }
-            TripSpec::UsingParkedCar(start, spot, goal) => {
-                let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
-                self.ped_id_counter += 1;
-                let car_id = parking.get_car_at_spot(spot);
+            let path = maybe_path.unwrap();
+            match spec {
+                TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
+                    let car_id = CarID::tmp_new(self.car_id_counter, VehicleType::Car);
+                    self.car_id_counter += 1;
+                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    self.ped_id_counter += 1;
 
-                if self.parked_cars_claimed.contains(&car_id) {
-                    panic!(
-                        "A TripSpec wants to use {}, which is already claimed",
-                        car_id
-                    );
+                    let mut legs = vec![TripLeg::Drive(car_id, goal.clone())];
+                    let router = match goal {
+                        DrivingGoal::ParkNear(b) => {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                            Router::park_near(path.convert_to_traversable_list(), b)
+                        }
+                        DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
+                            path.convert_to_traversable_list(),
+                            map.get_l(last_lane).length(),
+                            map,
+                        ),
+                    };
+                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+
+                    scheduler.enqueue_command(Command::SpawnCar(
+                        start_time,
+                        CreateCar {
+                            vehicle: vehicle_spec.make(car_id),
+                            router,
+                            start_dist: start_pos.dist_along(),
+                            maybe_parked_car: None,
+                            trip,
+                        },
+                    ));
                 }
-                self.parked_cars_claimed.insert(car_id);
+                TripSpec::UsingParkedCar(start, spot, goal) => {
+                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    self.ped_id_counter += 1;
+                    let car_id = parking.get_car_at_spot(spot);
 
-                //assert_eq!(parked.owner, Some(start_bldg));
-
-                let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
-
-                let mut legs = vec![
-                    TripLeg::Walk(parking_spot.clone()),
-                    TripLeg::Drive(car_id, goal.clone()),
-                ];
-                match goal {
-                    DrivingGoal::ParkNear(b) => {
-                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                    if self.parked_cars_claimed.contains(&car_id) {
+                        panic!(
+                            "A TripSpec wants to use {}, which is already claimed",
+                            car_id
+                        );
                     }
-                    DrivingGoal::Border(_, _) => {}
+                    self.parked_cars_claimed.insert(car_id);
+
+                    //assert_eq!(parked.owner, Some(start_bldg));
+
+                    let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
+
+                    let mut legs = vec![
+                        TripLeg::Walk(parking_spot.clone()),
+                        TripLeg::Drive(car_id, goal.clone()),
+                    ];
+                    match goal {
+                        DrivingGoal::ParkNear(b) => {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                        }
+                        DrivingGoal::Border(_, _) => {}
+                    }
+                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+
+                    scheduler.enqueue_command(Command::SpawnPed(
+                        start_time,
+                        CreatePedestrian {
+                            id: ped_id,
+                            start,
+                            goal: parking_spot,
+                            path,
+                            trip,
+                        },
+                    ));
                 }
-                let trip = trips.new_trip(start_time, Some(ped_id), legs);
+                TripSpec::JustWalking(start, goal) => {
+                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    self.ped_id_counter += 1;
 
-                scheduler.enqueue_command(Command::SpawnPed(
-                    start_time,
-                    CreatePedestrian {
-                        id: ped_id,
-                        start,
-                        goal: parking_spot,
-                        path,
-                        trip,
-                    },
-                ));
-            }
-            TripSpec::JustWalking(start, goal) => {
-                let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
-                self.ped_id_counter += 1;
+                    let trip =
+                        trips.new_trip(start_time, Some(ped_id), vec![TripLeg::Walk(goal.clone())]);
 
-                let trip =
-                    trips.new_trip(start_time, Some(ped_id), vec![TripLeg::Walk(goal.clone())]);
-
-                scheduler.enqueue_command(Command::SpawnPed(
-                    start_time,
-                    CreatePedestrian {
-                        id: ped_id,
-                        start,
-                        goal,
-                        path,
-                        trip,
-                    },
-                ));
+                    scheduler.enqueue_command(Command::SpawnPed(
+                        start_time,
+                        CreatePedestrian {
+                            id: ped_id,
+                            start,
+                            goal,
+                            path,
+                            trip,
+                        },
+                    ));
+                }
             }
         }
     }

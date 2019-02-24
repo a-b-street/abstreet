@@ -4,9 +4,7 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
-use map_model::{
-    BuildingID, LaneID, LaneType, Map, PathRequest, Pathfinder, Position, Traversable,
-};
+use map_model::{LaneID, LaneType, Map, Position, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -138,8 +136,6 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
         }
     }
 
-    let mut car_counter = 0;
-    let mut ped_counter = 0;
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         let len = map.get_l(source).length();
@@ -149,67 +145,53 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
         }
 
         for _ in 0..10 {
-            if spawn_car(&mut sim, &mut rng, map, car_counter, source) {
-                car_counter += 1;
-            }
+            spawn_car(&mut sim, &mut rng, map, source);
         }
 
-        seed_parked_cars_near(source, &mut rng, &mut sim, map, &mut car_counter);
+        seed_parked_cars_near(source, &mut rng, &mut sim, map);
 
-        random_ped_near(source, &mut sim, map, &mut rng, &mut ped_counter);
+        random_ped_near(source, &mut sim, map, &mut rng);
     }
 
+    sim.spawn_all_trips(map);
     sim
 }
 
 fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
     let mut sim = new_des_model::Sim::new(map);
     let mut rng = XorShiftRng::from_seed([42; 16]);
-    let mut car_counter = 0;
-    let mut ped_counter = 0;
 
     for l in map.all_lanes() {
         let len = l.length();
         if l.is_driving() && len >= new_des_model::MAX_VEHICLE_LENGTH {
             for _ in 0..rng.gen_range(0, 5) {
-                if spawn_car(&mut sim, &mut rng, map, car_counter, l.id) {
-                    car_counter += 1;
-                }
+                spawn_car(&mut sim, &mut rng, map, l.id);
             }
-            seed_parked_cars_near(l.id, &mut rng, &mut sim, map, &mut car_counter);
+            seed_parked_cars_near(l.id, &mut rng, &mut sim, map);
 
-            random_ped_near(l.id, &mut sim, map, &mut rng, &mut ped_counter);
+            random_ped_near(l.id, &mut sim, map, &mut rng);
         }
     }
 
+    sim.spawn_all_trips(map);
     sim
 }
 
-fn spawn_car(
-    sim: &mut new_des_model::Sim,
-    rng: &mut XorShiftRng,
-    map: &Map,
-    id: usize,
-    start_lane: LaneID,
-) -> bool {
+fn spawn_car(sim: &mut new_des_model::Sim, rng: &mut XorShiftRng, map: &Map, start_lane: LaneID) {
     let path = random_path(start_lane, rng, map);
     let last_lane = path.last().unwrap().as_lane();
-    let vehicle = rand_vehicle(rng, id);
+    let vehicle = rand_vehicle(rng);
     let start_dist = rand_dist(rng, vehicle.length, map.get_l(start_lane).length());
-    let end_dist = rand_dist(rng, Distance::ZERO, map.get_l(last_lane).length());
-    if path.len() == 1 && start_dist >= end_dist {
-        return false;
-    }
-    let spawn_time = Duration::seconds(0.2) * (id % 5) as f64;
+    let spawn_time = Duration::seconds(0.2) * rng.gen_range(0, 5) as f64;
 
-    sim.spawn_car(
-        vehicle,
-        new_des_model::Router::stop_suddenly(path, end_dist, map),
+    sim.schedule_trip(
         spawn_time,
-        start_dist,
-        None,
+        new_des_model::TripSpec::CarAppearing(
+            Position::new(start_lane, start_dist),
+            vehicle,
+            new_des_model::DrivingGoal::Border(map.get_l(last_lane).dst_i, last_lane),
+        ),
     );
-    true
 }
 
 // And start some of them after a bit
@@ -218,41 +200,43 @@ fn seed_parked_cars_near(
     rng: &mut XorShiftRng,
     sim: &mut new_des_model::Sim,
     map: &Map,
-    id_counter: &mut usize,
 ) {
     for l in map.get_parent(driving_lane).all_lanes() {
         if map.get_l(l).is_parking() {
             for spot in sim.get_free_spots(l) {
                 if rng.gen_bool(0.2) {
-                    let parked_car =
-                        new_des_model::ParkedCar::new(rand_vehicle(rng, *id_counter), spot, None);
-                    *id_counter += 1;
+                    // TODO tmp ID hack
+                    let parked_car = new_des_model::ParkedCar::new(
+                        rand_vehicle(rng).make(CarID::tmp_new(0, VehicleType::Car)),
+                        spot,
+                        None,
+                    );
                     sim.seed_parked_car(parked_car.clone());
 
                     if rng.gen_bool(0.3) {
-                        if let Ok(start_lane) = map.find_closest_lane(l, vec![LaneType::Driving]) {
-                            let path = random_path(start_lane, rng, map);
-                            let last_lane = path.last().unwrap().as_lane();
-                            let start_dist = sim
-                                .spot_to_driving_pos(
-                                    parked_car.spot,
-                                    &parked_car.vehicle,
-                                    start_lane,
-                                    map,
-                                )
-                                .dist_along();
-                            let end_dist =
-                                rand_dist(rng, Distance::ZERO, map.get_l(last_lane).length());
-                            if path.len() > 1 || start_dist < end_dist {
-                                sim.spawn_car(
-                                    parked_car.vehicle.clone(),
-                                    // TODO The building isn't used yet
-                                    new_des_model::Router::park_near(path, BuildingID(0)),
-                                    Duration::seconds(5.0),
-                                    start_dist,
-                                    Some(parked_car),
-                                );
-                            }
+                        if let Ok(start_sidewalk) =
+                            map.find_closest_lane(l, vec![LaneType::Sidewalk])
+                        {
+                            sim.schedule_trip(
+                                Duration::seconds(5.0),
+                                new_des_model::TripSpec::UsingParkedCar(
+                                    new_des_model::SidewalkSpot::bike_rack(
+                                        Position::new(
+                                            start_sidewalk,
+                                            rand_dist(
+                                                rng,
+                                                Distance::ZERO,
+                                                map.get_l(start_sidewalk).length(),
+                                            ),
+                                        ),
+                                        map,
+                                    ),
+                                    spot,
+                                    new_des_model::DrivingGoal::ParkNear(
+                                        map.all_buildings().choose(rng).unwrap().id,
+                                    ),
+                                ),
+                            );
                         }
                     }
                 }
@@ -280,7 +264,7 @@ fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
     Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
 }
 
-fn rand_vehicle(rng: &mut XorShiftRng, id: usize) -> new_des_model::Vehicle {
+fn rand_vehicle(rng: &mut XorShiftRng) -> new_des_model::VehicleSpec {
     let vehicle_len = rand_dist(
         rng,
         new_des_model::MIN_VEHICLE_LENGTH,
@@ -291,8 +275,7 @@ fn rand_vehicle(rng: &mut XorShiftRng, id: usize) -> new_des_model::Vehicle {
     } else {
         None
     };
-    new_des_model::Vehicle {
-        id: CarID::tmp_new(id, VehicleType::Car),
+    new_des_model::VehicleSpec {
         vehicle_type: VehicleType::Car,
         length: vehicle_len,
         max_speed,
@@ -304,8 +287,8 @@ fn random_ped_near(
     sim: &mut new_des_model::Sim,
     map: &Map,
     rng: &mut XorShiftRng,
-    counter: &mut usize,
 ) {
+    let spawn_time = Duration::seconds(0.2) * rng.gen_range(0, 5) as f64;
     let end_near = random_path(start_near, rng, map).last().unwrap().as_lane();
     let (start, end) = match (
         map.find_closest_lane(start_near, vec![LaneType::Sidewalk]),
@@ -319,26 +302,11 @@ fn random_ped_near(
 
     let pos1 = Position::new(start, map.get_l(start).length() / 2.0);
     let pos2 = Position::new(end, map.get_l(end).length() / 2.0);
-    let path = match Pathfinder::shortest_distance(
-        map,
-        PathRequest {
-            start: pos1,
-            end: pos2,
-            can_use_bike_lanes: false,
-            can_use_bus_lanes: false,
-        },
-    ) {
-        Some(p) => p,
-        None => {
-            return;
-        }
-    };
-
-    sim.spawn_ped(
-        PedestrianID::tmp_new(*counter),
-        new_des_model::SidewalkSpot::bike_rack(pos1, map),
-        new_des_model::SidewalkSpot::bike_rack(pos2, map),
-        path,
+    sim.schedule_trip(
+        spawn_time,
+        new_des_model::TripSpec::JustWalking(
+            new_des_model::SidewalkSpot::bike_rack(pos1, map),
+            new_des_model::SidewalkSpot::bike_rack(pos2, map),
+        ),
     );
-    *counter += 1
 }

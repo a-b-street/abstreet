@@ -1,12 +1,12 @@
 use crate::plugins::sim::new_des_model::{
-    Command, CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkedCar,
-    ParkingSimState, ParkingSpot, Router, Scheduler, SidewalkSpot, TripManager, Vehicle,
-    WalkingSimState,
+    DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Scheduler,
+    TripManager, TripSpawner, TripSpec, Vehicle, WalkingSimState,
 };
+use abstutil::Timer;
 use ezgui::GfxCtx;
-use geom::{Distance, Duration};
-use map_model::{LaneID, Map, Path, Position, Traversable};
-use sim::{DrawCarInput, DrawPedestrianInput, PedestrianID, TripID};
+use geom::Duration;
+use map_model::{LaneID, Map, Position, Traversable};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput};
 
 pub struct Sim {
     driving: DrivingSimState,
@@ -15,6 +15,7 @@ pub struct Sim {
     intersections: IntersectionSimState,
     trips: TripManager,
     scheduler: Scheduler,
+    spawner: TripSpawner,
 }
 
 impl Sim {
@@ -26,6 +27,7 @@ impl Sim {
             intersections: IntersectionSimState::new(map),
             trips: TripManager::new(),
             scheduler: Scheduler::new(),
+            spawner: TripSpawner::new(),
         }
     }
 
@@ -66,44 +68,20 @@ impl Sim {
         self.walking.get_draw_peds(time, on, map)
     }
 
-    // TODO Many of these should go away
-    pub fn spawn_car(
-        &mut self,
-        vehicle: Vehicle,
-        router: Router,
-        start_time: Duration,
-        start_dist: Distance,
-        maybe_parked_car: Option<ParkedCar>,
-    ) {
-        self.scheduler.enqueue_command(Command::SpawnCar(
-            start_time,
-            CreateCar {
-                vehicle,
-                router,
-                start_dist,
-                maybe_parked_car,
-                trip: TripID(0),
-            },
-        ));
+    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec) {
+        self.spawner.schedule_trip(start_time, spec);
     }
 
-    pub fn spawn_ped(
-        &mut self,
-        id: PedestrianID,
-        start: SidewalkSpot,
-        goal: SidewalkSpot,
-        path: Path,
-    ) {
-        self.scheduler.enqueue_command(Command::SpawnPed(
-            Duration::ZERO,
-            CreatePedestrian {
-                id,
-                start,
-                goal,
-                path,
-                trip: TripID(0),
-            },
-        ));
+    pub fn spawn_all_trips(&mut self, map: &Map) {
+        let mut timer = Timer::new("spawn all trips");
+        self.spawner.spawn_all(
+            map,
+            &self.parking,
+            &mut self.trips,
+            &mut self.scheduler,
+            &mut timer,
+        );
+        timer.done();
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
@@ -122,7 +100,12 @@ impl Sim {
             .spot_to_driving_pos(spot, vehicle, driving_lane, map)
     }
 
-    pub fn seed_parked_car(&mut self, parked_car: ParkedCar) {
+    pub fn seed_parked_car(&mut self, mut parked_car: ParkedCar) {
+        // TODO tmp hack.
+        parked_car.vehicle.id =
+            CarID::tmp_new(self.spawner.car_id_counter, parked_car.vehicle.vehicle_type);
+        self.spawner.car_id_counter += 1;
+
         self.parking.reserve_spot(parked_car.spot);
         self.parking.add_parked_car(parked_car);
     }
