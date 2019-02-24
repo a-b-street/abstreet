@@ -2,6 +2,7 @@ mod mechanics;
 mod router;
 mod scheduler;
 mod sim;
+mod spawn;
 mod trips;
 
 pub use self::mechanics::{
@@ -10,7 +11,7 @@ pub use self::mechanics::{
 pub use self::router::{ActionAtEnd, Router};
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
-pub use self::trips::TripManager;
+pub use self::trips::{TripLeg, TripManager};
 use ::sim::{CarID, PedestrianID, TripID, VehicleType};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};
@@ -24,9 +25,27 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 pub struct Vehicle {
     pub id: CarID,
     pub vehicle_type: VehicleType,
-
     pub length: Distance,
     pub max_speed: Option<Speed>,
+}
+
+// TODO Dedupe...
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct VehicleSpec {
+    pub vehicle_type: VehicleType,
+    pub length: Distance,
+    pub max_speed: Option<Speed>,
+}
+
+impl VehicleSpec {
+    pub fn make(self, id: CarID) -> Vehicle {
+        Vehicle {
+            id,
+            vehicle_type: self.vehicle_type,
+            length: self.length,
+            max_speed: self.max_speed,
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

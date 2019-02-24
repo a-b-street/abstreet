@@ -1,8 +1,9 @@
-use crate::plugins::sim::new_des_model::{DrivingGoal, ParkedCar, SidewalkSpot, Vehicle};
+use crate::plugins::sim::new_des_model::{DrivingGoal, SidewalkSpot, Vehicle};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
+use geom::Duration;
 use map_model::{BusRouteID, BusStopID};
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, CarID, PedestrianID, ScoreSummary, Tick, TripID};
+use sim::{AgentID, CarID, PedestrianID, TripID};
 use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -37,8 +38,7 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
         match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(parked, _) => assert_eq!(car, parked.vehicle.id),
-            TripLeg::DriveFromBorder(id, _) => assert_eq!(car, id),
+            TripLeg::Drive(id, _) => assert_eq!(car, id),
             x => panic!(
                 "First trip leg {:?} doesn't match car_reached_parking_spot",
                 x
@@ -107,7 +107,7 @@ impl TripManager {
         (trip.id, trip.ped.unwrap(), walk_to.clone())
     }
 
-    pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
+    pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Duration) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -126,11 +126,10 @@ impl TripManager {
     }
 
     // Or bike
-    pub fn car_reached_border(&mut self, car: CarID, now: Tick) {
+    pub fn car_reached_border(&mut self, car: CarID, now: Duration) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, _) => {}
-            TripLeg::DriveFromBorder(_, _) => {}
             TripLeg::Bike(_, _) => {}
             x => panic!("Last trip leg {:?} doesn't match car_reached_border", x),
         };
@@ -193,7 +192,7 @@ impl TripManager {
     // Creation from the interactive part of spawner
     pub fn new_trip(
         &mut self,
-        spawned_at: Tick,
+        spawned_at: Duration,
         ped: Option<PedestrianID>,
         legs: Vec<TripLeg>,
     ) -> TripID {
@@ -208,64 +207,12 @@ impl TripManager {
             ped,
             uses_car: legs.iter().any(|l| match l {
                 TripLeg::Drive(_, _) => true,
-                TripLeg::DriveFromBorder(_, _) => true,
                 TripLeg::ServeBusRoute(_, _) => true,
                 _ => false,
             }),
             legs: VecDeque::from(legs),
         });
         id
-    }
-
-    // Query from spawner
-    pub fn get_trip_using_car(&self, car: CarID) -> Option<TripID> {
-        self.trips
-            .iter()
-            .find(|t| t.legs.iter().any(|l| l.uses_car(car)))
-            .map(|t| t.id)
-    }
-
-    pub fn get_score(&self, now: Tick) -> ScoreSummary {
-        let mut summary = ScoreSummary {
-            pending_walking_trips: 0,
-            total_walking_trips: 0,
-            total_walking_trip_time: Tick::zero(),
-
-            pending_driving_trips: 0,
-            total_driving_trips: 0,
-            total_driving_trip_time: Tick::zero(),
-
-            completion_time: None,
-        };
-        // TODO or would it make more sense to aggregate events as they happen?
-        for t in &self.trips {
-            // Don't count transit
-            if t.ped.is_none() {
-                continue;
-            }
-            if t.uses_car {
-                if let Some(at) = t.finished_at {
-                    summary.total_driving_trip_time += at - t.spawned_at;
-                } else {
-                    summary.pending_driving_trips += 1;
-                    if now >= t.spawned_at {
-                        summary.total_driving_trip_time += now - t.spawned_at;
-                    }
-                }
-                summary.total_driving_trips += 1;
-            } else {
-                if let Some(at) = t.finished_at {
-                    summary.total_walking_trip_time += at - t.spawned_at;
-                } else {
-                    summary.pending_walking_trips += 1;
-                    if now >= t.spawned_at {
-                        summary.total_walking_trip_time += now - t.spawned_at;
-                    }
-                }
-                summary.total_walking_trips += 1;
-            }
-        }
-        summary
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -276,8 +223,7 @@ impl TripManager {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
             TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
-            TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.vehicle.id)),
-            TripLeg::DriveFromBorder(id, _) => Some(AgentID::Car(*id)),
+            TripLeg::Drive(id, _) => Some(AgentID::Car(*id)),
             TripLeg::Bike(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
@@ -308,8 +254,8 @@ impl TripManager {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Trip {
     id: TripID,
-    spawned_at: Tick,
-    finished_at: Option<Tick>,
+    spawned_at: Duration,
+    finished_at: Option<Duration>,
     // TODO also uses_bike, so we can track those stats differently too
     uses_car: bool,
     // If none, then this is a bus. The trip will never end.
@@ -317,29 +263,13 @@ struct Trip {
     legs: VecDeque<TripLeg>,
 }
 
-// Except for Drive (which has to say what car to drive), these don't say where the leg starts.
-// That's because it might be unknown -- like when we drive and don't know where we'll wind up
-// parking.
+// These don't specify where the leg starts, since it might be unknown -- like when we drive and
+// don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
-    // TODO Can maybe collapse Drive and DriveFromBorder by acting like Bike and doing Vehicle,
-    // which has CarID
-    Drive(ParkedCar, DrivingGoal),
-    DriveFromBorder(CarID, DrivingGoal),
+    Drive(CarID, DrivingGoal),
     Bike(Vehicle, DrivingGoal),
     RideBus(BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),
-}
-
-impl TripLeg {
-    fn uses_car(&self, id: CarID) -> bool {
-        match self {
-            TripLeg::Drive(parked, _) => parked.vehicle.id == id,
-            TripLeg::DriveFromBorder(car, _) => *car == id,
-            TripLeg::Bike(vehicle, _) => vehicle.id == id,
-            TripLeg::ServeBusRoute(car, _) => *car == id,
-            _ => false,
-        }
-    }
 }

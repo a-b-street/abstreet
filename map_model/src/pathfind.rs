@@ -261,6 +261,20 @@ impl Path {
     pub fn get_steps(&self) -> &VecDeque<PathStep> {
         &self.steps
     }
+
+    // Only valid for driving paths
+    pub fn convert_to_traversable_list(self) -> Vec<Traversable> {
+        self.steps
+            .into_iter()
+            .map(|step| match step {
+                PathStep::Lane(l) => Traversable::Lane(l),
+                PathStep::ContraflowLane(_) => {
+                    panic!("Can't convert_to_traversable_list with ContraflowLane")
+                }
+                PathStep::Turn(t) => Traversable::Turn(t),
+            })
+            .collect()
+    }
 }
 
 #[derive(Clone)]

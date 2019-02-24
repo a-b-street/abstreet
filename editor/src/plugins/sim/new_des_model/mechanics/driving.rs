@@ -180,7 +180,7 @@ impl DrivingSimState {
                 state: CarState::Queued,
                 last_steps: VecDeque::new(),
             };
-            if let Some(parked_car) = params.maybe_parked_car {
+            if params.maybe_parked_car.is_some() {
                 car.state = CarState::Unparking(
                     params.start_dist,
                     TimeInterval::new(time, time + TIME_TO_UNPARK),

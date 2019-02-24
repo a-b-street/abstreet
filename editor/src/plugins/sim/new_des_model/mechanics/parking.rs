@@ -131,6 +131,10 @@ impl ParkingSimState {
             && !self.reserved_spots.contains(&spot)
     }
 
+    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> CarID {
+        self.lanes[spot.lane.0].occupants[spot.idx].unwrap()
+    }
+
     pub fn get_first_free_spot(
         &self,
         parking_pos: Position,

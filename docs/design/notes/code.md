@@ -138,6 +138,8 @@ Sim layering is bit tricky...
 - something above this layer takes some constraints to spawn things, uses RNG to populate unfilled things, and then calls spawn layer.
 - this is called by interactive UI and tests and scenario (which is a more succinct description of lots of these commands)
 
+Actually, get rid of the deferred nature of the spawn layer for now. pass it (almost) fully-specified stuff to do and let it parallelize. Trip layer can't precompute paths because start is unknown. Could be hard to batch there.
+
 ## IDs
 
 Should LaneID have LaneType bundled in for convenience? CarID and VehicleType?
