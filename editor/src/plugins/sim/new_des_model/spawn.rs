@@ -38,7 +38,53 @@ impl TripSpawner {
         }
     }
 
-    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec) {
+    pub fn schedule_trip(
+        &mut self,
+        start_time: Duration,
+        spec: TripSpec,
+        map: &Map,
+        parking: &ParkingSimState,
+    ) {
+        // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
+        match &spec {
+            TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
+                if start_pos.dist_along() < vehicle_spec.length {
+                    panic!(
+                        "Can't spawn a car at {}; too close to the start",
+                        start_pos.dist_along()
+                    );
+                }
+                if start_pos.dist_along() >= map.get_l(start_pos.lane()).length() {
+                    panic!(
+                        "Can't spawn a car at {}; {} isn't that long",
+                        start_pos.dist_along(),
+                        start_pos.lane()
+                    );
+                }
+                match goal {
+                    DrivingGoal::Border(_, end_lane) => {
+                        if start_pos.lane() == *end_lane
+                            && start_pos.dist_along() == map.get_l(*end_lane).length()
+                        {
+                            panic!("Can't start a car at the edge of a border already");
+                        }
+                    }
+                    DrivingGoal::ParkNear(_) => {}
+                }
+            }
+            TripSpec::UsingParkedCar(_, spot, _) => {
+                let car_id = parking.get_car_at_spot(*spot);
+                if self.parked_cars_claimed.contains(&car_id) {
+                    panic!(
+                        "A TripSpec wants to use {}, which is already claimed",
+                        car_id
+                    );
+                }
+                self.parked_cars_claimed.insert(car_id);
+            }
+            TripSpec::JustWalking(_, _) => {}
+        };
+
         self.trips.push((start_time, spec));
     }
 
@@ -100,15 +146,6 @@ impl TripSpawner {
                     let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
                     self.ped_id_counter += 1;
                     let car_id = parking.get_car_at_spot(spot);
-
-                    if self.parked_cars_claimed.contains(&car_id) {
-                        panic!(
-                            "A TripSpec wants to use {}, which is already claimed",
-                            car_id
-                        );
-                    }
-                    self.parked_cars_claimed.insert(car_id);
-
                     //assert_eq!(parked.owner, Some(start_bldg));
 
                     let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);

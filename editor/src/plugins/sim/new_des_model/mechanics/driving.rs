@@ -149,21 +149,6 @@ impl DrivingSimState {
             );
         }
 
-        if params.start_dist < params.vehicle.length {
-            panic!(
-                "Can't spawn a car at {}; too close to the start",
-                params.start_dist
-            );
-        }
-        if params.start_dist >= params.router.head().length(map) {
-            panic!(
-                "Can't spawn a car at {}; {:?} isn't that long",
-                params.start_dist,
-                params.router.head()
-            );
-        }
-        params.router.validate_start_dist(params.start_dist);
-
         let first_lane = params.router.head().as_lane();
 
         if !intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i) {

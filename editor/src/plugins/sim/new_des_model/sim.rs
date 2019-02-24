@@ -68,8 +68,9 @@ impl Sim {
         self.walking.get_draw_peds(time, on, map)
     }
 
-    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec) {
-        self.spawner.schedule_trip(start_time, spec);
+    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec, map: &Map) {
+        self.spawner
+            .schedule_trip(start_time, spec, map, &self.parking);
     }
 
     pub fn spawn_all_trips(&mut self, map: &Map) {

@@ -191,6 +191,7 @@ fn spawn_car(sim: &mut new_des_model::Sim, rng: &mut XorShiftRng, map: &Map, sta
             vehicle,
             new_des_model::DrivingGoal::Border(map.get_l(last_lane).dst_i, last_lane),
         ),
+        map,
     );
 }
 
@@ -236,6 +237,7 @@ fn seed_parked_cars_near(
                                         map.all_buildings().choose(rng).unwrap().id,
                                     ),
                                 ),
+                                map,
                             );
                         }
                     }
@@ -308,5 +310,6 @@ fn random_ped_near(
             new_des_model::SidewalkSpot::bike_rack(pos1, map),
             new_des_model::SidewalkSpot::bike_rack(pos2, map),
         ),
+        map,
     );
 }

@@ -33,14 +33,6 @@ enum Goal {
 
 impl Router {
     pub fn stop_suddenly(path: Vec<Traversable>, end_dist: Distance, map: &Map) -> Router {
-        if end_dist >= path.last().unwrap().length(map) {
-            panic!(
-                "Can't end a car at {}; {:?} isn't that long",
-                end_dist,
-                path.last().unwrap()
-            );
-        }
-
         Router {
             path: VecDeque::from(path),
             goal: Goal::StopSuddenly { end_dist },
@@ -54,20 +46,6 @@ impl Router {
                 target: bldg,
                 spot: None,
             },
-        }
-    }
-
-    pub fn validate_start_dist(&self, start_dist: Distance) {
-        match self.goal {
-            Goal::StopSuddenly { end_dist } => {
-                if self.path.len() == 1 && start_dist >= end_dist {
-                    panic!(
-                        "Can't start a car with one path in its step and go from {} to {}",
-                        start_dist, end_dist
-                    );
-                }
-            }
-            Goal::ParkNearBuilding { .. } => {}
         }
     }
 
