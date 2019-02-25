@@ -55,22 +55,11 @@ impl WalkingSimState {
             goal: params.goal,
         };
         ped.state = match params.start.connection {
-            SidewalkPOI::ParkingSpot(spot) => {
-                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
-            }
             SidewalkPOI::Building(b) => PedState::LeavingBuilding(
                 b,
                 TimeInterval::new(time, time + map.get_b(b).front_path.line.length() / SPEED),
             ),
-            SidewalkPOI::BusStop(stop) => {
-                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
-            }
-            SidewalkPOI::Border(i) => {
-                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
-            }
-            SidewalkPOI::BikeRack => {
-                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
-            }
+            _ => ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map),
         };
 
         self.peds.insert(params.id, ped);

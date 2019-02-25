@@ -1,11 +1,11 @@
 use crate::plugins::sim::new_des_model::{
     DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Scheduler,
-    TripManager, TripSpawner, TripSpec, Vehicle, WalkingSimState,
+    TripManager, TripSpawner, TripSpec, WalkingSimState,
 };
 use abstutil::Timer;
 use ezgui::GfxCtx;
 use geom::Duration;
-use map_model::{LaneID, Map, Position, Traversable};
+use map_model::{LaneID, Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput};
 
 pub struct Sim {
@@ -87,18 +87,6 @@ impl Sim {
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         self.parking.get_free_spots(l)
-    }
-
-    // TODO Ew...
-    pub fn spot_to_driving_pos(
-        &self,
-        spot: ParkingSpot,
-        vehicle: &Vehicle,
-        driving_lane: LaneID,
-        map: &Map,
-    ) -> Position {
-        self.parking
-            .spot_to_driving_pos(spot, vehicle, driving_lane, map)
     }
 
     pub fn seed_parked_car(&mut self, mut parked_car: ParkedCar) {

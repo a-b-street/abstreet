@@ -15,22 +15,28 @@ pub struct ParkingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     cars: BTreeMap<CarID, ParkedCar>,
-    // TODO hacky, but other types of lanes just mark 0 spots. :\
-    lanes: Vec<ParkingLane>,
+    lanes: BTreeMap<LaneID, ParkingLane>,
     reserved_spots: BTreeSet<ParkingSpot>,
+
+    driving_to_parking_lane: BTreeMap<LaneID, LaneID>,
 }
 
 impl ParkingSimState {
     pub fn new(map: &Map) -> ParkingSimState {
-        ParkingSimState {
+        let mut sim = ParkingSimState {
             cars: BTreeMap::new(),
-            lanes: map
-                .all_lanes()
-                .iter()
-                .map(|l| ParkingLane::new(l))
-                .collect(),
+            lanes: BTreeMap::new(),
             reserved_spots: BTreeSet::new(),
+            driving_to_parking_lane: BTreeMap::new(),
+        };
+        for l in map.all_lanes() {
+            if let Some(lane) = ParkingLane::new(l, map) {
+                assert!(!sim.driving_to_parking_lane.contains_key(&lane.driving_lane));
+                sim.driving_to_parking_lane.insert(lane.driving_lane, l.id);
+                sim.lanes.insert(lane.id, lane);
+            }
         }
+        sim
     }
 
     /*pub fn edit_remove_lane(&mut self, id: LaneID) {
@@ -51,12 +57,12 @@ impl ParkingSimState {
         self.cars.len()
     }*/
 
-    pub fn get_free_spots(&self, lane: LaneID) -> Vec<ParkingSpot> {
-        let l = &self.lanes[lane.0];
+    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+        let lane = &self.lanes[&l];
         let mut spots: Vec<ParkingSpot> = Vec::new();
-        for (idx, maybe_occupant) in l.occupants.iter().enumerate() {
+        for (idx, maybe_occupant) in lane.occupants.iter().enumerate() {
             if maybe_occupant.is_none() {
-                spots.push(ParkingSpot::new(l.id, idx));
+                spots.push(ParkingSpot::new(lane.id, idx));
             }
         }
         spots
@@ -64,14 +70,17 @@ impl ParkingSimState {
 
     pub fn remove_parked_car(&mut self, p: ParkedCar) {
         self.cars.remove(&p.vehicle.id);
-        self.lanes[p.spot.lane.0].remove_parked_car(p.vehicle.id);
+        self.lanes
+            .get_mut(&p.spot.lane)
+            .unwrap()
+            .remove_parked_car(p.vehicle.id);
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
         let spot = p.spot;
         assert!(self.reserved_spots.remove(&p.spot));
-        assert_eq!(self.lanes[spot.lane.0].occupants[spot.idx], None);
-        self.lanes[spot.lane.0].occupants[spot.idx] = Some(p.vehicle.id);
+        assert_eq!(self.lanes[&spot.lane].occupants[spot.idx], None);
+        self.lanes.get_mut(&spot.lane).unwrap().occupants[spot.idx] = Some(p.vehicle.id);
         self.cars.insert(p.vehicle.id, p);
     }
 
@@ -80,24 +89,27 @@ impl ParkingSimState {
     }
 
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
-        self.lanes[id.0]
-            .occupants
-            .iter()
-            .filter_map(|maybe_occupant| {
-                if let Some(car) = maybe_occupant {
-                    Some(self.get_draw_car(*car, map).unwrap())
-                } else {
-                    None
-                }
-            })
-            .collect()
+        if let Some(ref lane) = self.lanes.get(&id) {
+            lane.occupants
+                .iter()
+                .filter_map(|maybe_occupant| {
+                    if let Some(car) = maybe_occupant {
+                        Some(self.get_draw_car(*car, map).unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        } else {
+            Vec::new()
+        }
     }
 
     pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         let p = self.cars.get(&id)?;
         let lane = p.spot.lane;
 
-        let front_dist = self.lanes[lane.0].spots[p.spot.idx].dist_along_for_car(&p.vehicle);
+        let front_dist = self.lanes[&lane].spots[p.spot.idx].dist_along_for_car(&p.vehicle);
         Some(DrawCarInput {
             id: p.vehicle.id,
             waiting_for_turn: None,
@@ -127,39 +139,36 @@ impl ParkingSimState {
     }*/
 
     pub fn is_free(&self, spot: ParkingSpot) -> bool {
-        self.lanes[spot.lane.0].occupants[spot.idx].is_none()
-            && !self.reserved_spots.contains(&spot)
-    }
-
-    pub fn get_first_free_spot(
-        &self,
-        parking_pos: Position,
-        vehicle: &Vehicle,
-    ) -> Option<ParkingSpot> {
-        let lane = parking_pos.lane();
-        let l = &self.lanes[lane.0];
-        let idx = l.occupants.iter().enumerate().position(|(idx, x)| {
-            x.is_none()
-                && !self.reserved_spots.contains(&ParkingSpot::new(lane, idx))
-                && parking_pos.dist_along() <= l.spots[idx].dist_along_for_car(vehicle)
-        })?;
-        Some(ParkingSpot::new(lane, idx))
+        self.lanes[&spot.lane].occupants[spot.idx].is_none() && !self.reserved_spots.contains(&spot)
     }
 
     pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
-        let car = self.lanes[spot.lane.0].occupants[spot.idx]?;
+        let car = self.lanes[&spot.lane].occupants[spot.idx]?;
         Some(self.cars[&car].clone())
     }
 
-    pub fn spot_to_driving_pos(
+    // And the driving position
+    pub fn get_first_free_spot(
         &self,
-        spot: ParkingSpot,
+        driving_pos: Position,
         vehicle: &Vehicle,
-        driving_lane: LaneID,
         map: &Map,
-    ) -> Position {
+    ) -> Option<(ParkingSpot, Position)> {
+        let l = *self.driving_to_parking_lane.get(&driving_pos.lane())?;
+        let parking_dist = driving_pos.equiv_pos(l, map).dist_along();
+        let lane = &self.lanes[&l];
+        let idx = lane.occupants.iter().enumerate().position(|(idx, x)| {
+            x.is_none()
+                && !self.reserved_spots.contains(&ParkingSpot::new(l, idx))
+                && parking_dist <= lane.spots[idx].dist_along_for_car(vehicle)
+        })?;
+        let spot = ParkingSpot::new(l, idx);
+        Some((spot, self.spot_to_driving_pos(spot, vehicle, map)))
+    }
+
+    pub fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position {
         Position::new(spot.lane, self.get_spot(spot).dist_along_for_car(vehicle))
-            .equiv_pos(driving_lane, map)
+            .equiv_pos(self.lanes[&spot.lane].driving_lane, map)
     }
 
     pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
@@ -167,7 +176,7 @@ impl ParkingSimState {
     }
 
     fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
-        &self.lanes[spot.lane.0].spots[spot.idx]
+        &self.lanes[&spot.lane].spots[spot.idx]
     }
 
     /*pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
@@ -214,22 +223,28 @@ impl ParkingSimState {
 #[derive(Serialize, Deserialize, PartialEq)]
 struct ParkingLane {
     id: LaneID,
+    driving_lane: LaneID,
     spots: Vec<ParkingSpotGeometry>,
     occupants: Vec<Option<CarID>>,
 }
 
 impl ParkingLane {
-    fn new(l: &Lane) -> ParkingLane {
+    fn new(l: &Lane, map: &Map) -> Option<ParkingLane> {
         if l.lane_type != LaneType::Parking {
-            return ParkingLane {
-                id: l.id,
-                spots: Vec::new(),
-                occupants: Vec::new(),
-            };
+            return None;
         }
 
-        ParkingLane {
+        let driving_lane = if let Some(l) = map.get_parent(l.id).parking_to_driving(l.id) {
+            l
+        } else {
+            // TODO Should be a warning
+            println!("Parking lane {} has no driving lane!", l.id);
+            return None;
+        };
+
+        Some(ParkingLane {
             id: l.id,
+            driving_lane,
             occupants: iter::repeat(None).take(l.number_parking_spots()).collect(),
             spots: (0..l.number_parking_spots())
                 .map(|idx| {
@@ -242,7 +257,7 @@ impl ParkingLane {
                     }
                 })
                 .collect(),
-        }
+        })
     }
 
     fn remove_parked_car(&mut self, car: CarID) {

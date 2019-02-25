@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, Vehicle};
 use geom::Distance;
-use map_model::{BuildingID, LaneType, Map, Position, Traversable};
+use map_model::{BuildingID, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
@@ -19,7 +19,7 @@ pub enum ActionAtEnd {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 enum Goal {
-    // Spot and distance along the last driving lane
+    // Spot and cached distance along the last driving lane
     // TODO Right now, the building is ignored.
     ParkNearBuilding {
         target: BuildingID,
@@ -108,13 +108,12 @@ impl Router {
                     None => true,
                 };
                 if need_new_spot {
-                    if let Some(new_spot) = find_parking_spot(
+                    if let Some((new_spot, new_pos)) = parking.get_first_free_spot(
                         Position::new(self.path[0].as_lane(), front),
                         vehicle,
                         map,
-                        parking,
                     ) {
-                        *spot = Some(new_spot);
+                        *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         self.roam_around_for_parking(vehicle, map);
                         return Some(ActionAtEnd::GotoLaneEnd);
@@ -147,23 +146,4 @@ impl Router {
         self.path.push_back(Traversable::Turn(turn.id));
         self.path.push_back(Traversable::Lane(turn.id.dst));
     }
-}
-
-// Returns the spot and the driving distance along it for the vehicle to line up to.
-fn find_parking_spot(
-    driving_pos: Position,
-    vehicle: &Vehicle,
-    map: &Map,
-    parking: &ParkingSimState,
-) -> Option<(ParkingSpot, Distance)> {
-    let parking_lane = map
-        .find_closest_lane(driving_pos.lane(), vec![LaneType::Parking])
-        .ok()?;
-    let spot = parking.get_first_free_spot(driving_pos.equiv_pos(parking_lane, map), vehicle)?;
-    Some((
-        spot,
-        parking
-            .spot_to_driving_pos(spot, vehicle, driving_pos.lane(), map)
-            .dist_along(),
-    ))
 }

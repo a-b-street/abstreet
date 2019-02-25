@@ -130,25 +130,8 @@ impl DrivingSimState {
         time: Duration,
         params: CreateCar,
         map: &Map,
-        parking: &ParkingSimState,
         intersections: &IntersectionSimState,
     ) -> bool {
-        // TODO only do validation once
-        if let Some(ref parked_car) = params.maybe_parked_car {
-            assert_eq!(parked_car.vehicle, params.vehicle);
-            assert_eq!(
-                params.start_dist,
-                parking
-                    .spot_to_driving_pos(
-                        parked_car.spot,
-                        &params.vehicle,
-                        params.router.head().as_lane(),
-                        map
-                    )
-                    .dist_along()
-            );
-        }
-
         let first_lane = params.router.head().as_lane();
 
         if !intersections.nobody_headed_towards(first_lane, map.get_l(first_lane).src_i) {

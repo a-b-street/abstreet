@@ -66,13 +66,7 @@ impl Scheduler {
         for cmd in this_tick_commands.into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
-                    if driving.start_car_on_lane(
-                        now,
-                        create_car.clone(),
-                        map,
-                        parking,
-                        intersections,
-                    ) {
+                    if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {
                         trips.agent_starting_trip_leg(
                             AgentID::Car(create_car.vehicle.id),
                             create_car.trip,
@@ -100,9 +94,9 @@ impl Scheduler {
         }
     }
 
-    pub fn is_done(&self) -> bool {
+    /*pub fn is_done(&self) -> bool {
         self.commands.is_empty()
-    }
+    }*/
 
     pub fn enqueue_command(&mut self, cmd: Command) {
         // TODO Use some kind of priority queue that's serializable

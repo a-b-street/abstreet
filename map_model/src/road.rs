@@ -61,6 +61,7 @@ pub struct Road {
     pub stable_id: raw_data::StableRoadID,
 
     // Invariant: A road must contain at least one child
+    // These are ordered from left-most lane (closest to center lane) to rightmost (sidewalk)
     pub children_forwards: Vec<(LaneID, LaneType)>,
     pub children_backwards: Vec<(LaneID, LaneType)>,
     // TODO should consider having a redundant lookup from LaneID
@@ -117,6 +118,25 @@ impl Road {
             return (false, idx);
         }
         panic!("{} doesn't contain {}", self.id, lane);
+    }
+
+    pub fn parking_to_driving(&self, parking: LaneID) -> Option<LaneID> {
+        // TODO Crossing bike/bus lanes means higher layers of sim should know to block these off
+        // when parking/unparking
+        let (fwds, idx) = self.dir_and_offset(parking);
+        if fwds {
+            self.children_forwards[0..idx]
+                .iter()
+                .rev()
+                .find(|(_, lt)| *lt == LaneType::Driving)
+                .map(|(id, _)| *id)
+        } else {
+            self.children_backwards[0..idx]
+                .iter()
+                .rev()
+                .find(|(_, lt)| *lt == LaneType::Driving)
+                .map(|(id, _)| *id)
+        }
     }
 
     // Is this lane the arbitrary canonical lane of this road? Used for deciding who should draw

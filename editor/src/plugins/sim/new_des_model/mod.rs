@@ -78,8 +78,8 @@ impl ParkedCar {
         }
     }
 
-    pub fn get_position(&self, parking: &ParkingSimState, map: &Map) -> Position {
-        panic!("impl me");
+    pub fn get_driving_pos(&self, parking: &ParkingSimState, map: &Map) -> Position {
+        parking.spot_to_driving_pos(self.spot, &self.vehicle, map)
     }
 }
 
@@ -106,7 +106,6 @@ pub struct SidewalkSpot {
 }
 
 impl SidewalkSpot {
-    #[allow(dead_code)]
     pub fn parking_spot(
         spot: ParkingSpot,
         map: &Map,
@@ -121,7 +120,6 @@ impl SidewalkSpot {
         }
     }
 
-    #[allow(dead_code)]
     pub fn building(bldg: BuildingID, map: &Map) -> SidewalkSpot {
         let front_path = &map.get_b(bldg).front_path;
         SidewalkSpot {
@@ -138,7 +136,6 @@ impl SidewalkSpot {
         }
     }
 
-    #[allow(dead_code)]
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
             sidewalk_pos: map.get_bs(stop).sidewalk_pos,
@@ -146,7 +143,6 @@ impl SidewalkSpot {
         }
     }
 
-    #[allow(dead_code)]
     pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
         if lanes.is_empty() {
@@ -159,7 +155,6 @@ impl SidewalkSpot {
         }
     }
 
-    #[allow(dead_code)]
     pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
         if lanes.is_empty() {
@@ -280,19 +275,10 @@ impl CreateCar {
         parking: &ParkingSimState,
         map: &Map,
     ) -> CreateCar {
-        let start_dist = parking
-            .spot_to_driving_pos(
-                parked_car.spot,
-                &parked_car.vehicle,
-                router.head().as_lane(),
-                map,
-            )
-            .dist_along();
-
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
             router,
-            start_dist,
+            start_dist: parked_car.get_driving_pos(parking, map).dist_along(),
             maybe_parked_car: Some(parked_car),
             trip,
         }

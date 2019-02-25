@@ -88,7 +88,7 @@ impl TripManager {
         let path = if let Some(p) = Pathfinder::shortest_distance(
             map,
             PathRequest {
-                start: parked_car.get_position(parking, map),
+                start: parked_car.get_driving_pos(parking, map),
                 end: drive_to.goal_pos(map),
                 can_use_bus_lanes: false,
                 can_use_bike_lanes: false,
