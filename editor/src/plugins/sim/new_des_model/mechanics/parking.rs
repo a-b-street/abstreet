@@ -131,10 +131,6 @@ impl ParkingSimState {
             && !self.reserved_spots.contains(&spot)
     }
 
-    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> CarID {
-        self.lanes[spot.lane.0].occupants[spot.idx].unwrap()
-    }
-
     pub fn get_first_free_spot(
         &self,
         parking_pos: Position,
@@ -150,10 +146,10 @@ impl ParkingSimState {
         Some(ParkingSpot::new(lane, idx))
     }
 
-    /*pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
+    pub fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<ParkedCar> {
         let car = self.lanes[spot.lane.0].occupants[spot.idx]?;
         Some(self.cars[&car].clone())
-    }*/
+    }
 
     pub fn spot_to_driving_pos(
         &self,

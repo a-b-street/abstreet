@@ -114,8 +114,14 @@ impl Sim {
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
         self.driving
             .step_if_needed(time, map, &mut self.parking, &mut self.intersections);
-        self.walking
-            .step_if_needed(time, map, &mut self.intersections);
+        self.walking.step_if_needed(
+            time,
+            map,
+            &mut self.intersections,
+            &self.parking,
+            &mut self.scheduler,
+            &mut self.trips,
+        );
 
         // Spawn stuff at the end, so we can see the correct state of everything else at this time.
         self.scheduler.step_if_needed(

@@ -77,12 +77,26 @@ impl ParkedCar {
             owner,
         }
     }
+
+    pub fn get_position(&self, parking: &ParkingSimState, map: &Map) -> Position {
+        panic!("impl me");
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrivingGoal {
     ParkNear(BuildingID),
     Border(IntersectionID, LaneID),
+}
+
+impl DrivingGoal {
+    pub fn goal_pos(&self, map: &Map) -> Position {
+        let lane = match self {
+            DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
+            DrivingGoal::Border(_, l) => *l,
+        };
+        Position::new(lane, map.get_l(lane).length())
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
@@ -241,4 +255,46 @@ pub struct CreateCar {
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
     pub trip: TripID,
+}
+
+impl CreateCar {
+    pub fn for_appearing(
+        vehicle: Vehicle,
+        start_pos: Position,
+        router: Router,
+        trip: TripID,
+    ) -> CreateCar {
+        CreateCar {
+            vehicle,
+            router,
+            start_dist: start_pos.dist_along(),
+            maybe_parked_car: None,
+            trip,
+        }
+    }
+
+    pub fn for_parked_car(
+        parked_car: ParkedCar,
+        router: Router,
+        trip: TripID,
+        parking: &ParkingSimState,
+        map: &Map,
+    ) -> CreateCar {
+        let start_dist = parking
+            .spot_to_driving_pos(
+                parked_car.spot,
+                &parked_car.vehicle,
+                router.head().as_lane(),
+                map,
+            )
+            .dist_along();
+
+        CreateCar {
+            vehicle: parked_car.vehicle.clone(),
+            router,
+            start_dist,
+            maybe_parked_car: Some(parked_car),
+            trip,
+        }
+    }
 }

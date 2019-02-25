@@ -4,7 +4,7 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
-use map_model::{LaneID, LaneType, Map, Position, Traversable};
+use map_model::{BuildingID, LaneID, Map, Position, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
@@ -215,23 +215,11 @@ fn seed_parked_cars_near(
                     sim.seed_parked_car(parked_car.clone());
 
                     if rng.gen_bool(0.3) {
-                        if let Ok(start_sidewalk) =
-                            map.find_closest_lane(l, vec![LaneType::Sidewalk])
-                        {
+                        if let Some(start_bldg) = random_bldg_near(l, map, rng) {
                             sim.schedule_trip(
                                 Duration::seconds(5.0),
                                 new_des_model::TripSpec::UsingParkedCar(
-                                    new_des_model::SidewalkSpot::bike_rack(
-                                        Position::new(
-                                            start_sidewalk,
-                                            rand_dist(
-                                                rng,
-                                                Distance::ZERO,
-                                                map.get_l(start_sidewalk).length(),
-                                            ),
-                                        ),
-                                        map,
-                                    ),
+                                    new_des_model::SidewalkSpot::building(start_bldg, map),
                                     spot,
                                     new_des_model::DrivingGoal::ParkNear(
                                         map.all_buildings().choose(rng).unwrap().id,
@@ -250,7 +238,7 @@ fn seed_parked_cars_near(
 fn random_path(start: LaneID, rng: &mut XorShiftRng, map: &Map) -> Vec<Traversable> {
     let mut path = vec![Traversable::Lane(start)];
     let mut last_lane = start;
-    for _ in 0..5 {
+    for _ in 0..1 {
         if let Some(t) = map.get_turns_from_lane(last_lane).choose(rng) {
             path.push(Traversable::Turn(t.id));
             path.push(Traversable::Lane(t.id.dst));
@@ -292,24 +280,30 @@ fn random_ped_near(
 ) {
     let spawn_time = Duration::seconds(0.2) * rng.gen_range(0, 5) as f64;
     let end_near = random_path(start_near, rng, map).last().unwrap().as_lane();
-    let (start, end) = match (
-        map.find_closest_lane(start_near, vec![LaneType::Sidewalk]),
-        map.find_closest_lane(end_near, vec![LaneType::Sidewalk]),
+    let (spot1, spot2) = match (
+        random_bldg_near(start_near, map, rng),
+        random_bldg_near(end_near, map, rng),
     ) {
-        (Ok(l1), Ok(l2)) => (l1, l2),
+        (Some(b1), Some(b2)) => (
+            new_des_model::SidewalkSpot::building(b1, map),
+            new_des_model::SidewalkSpot::building(b2, map),
+        ),
         _ => {
             return;
         }
     };
 
-    let pos1 = Position::new(start, map.get_l(start).length() / 2.0);
-    let pos2 = Position::new(end, map.get_l(end).length() / 2.0);
     sim.schedule_trip(
         spawn_time,
-        new_des_model::TripSpec::JustWalking(
-            new_des_model::SidewalkSpot::bike_rack(pos1, map),
-            new_des_model::SidewalkSpot::bike_rack(pos2, map),
-        ),
+        new_des_model::TripSpec::JustWalking(spot1, spot2),
         map,
     );
+}
+
+fn random_bldg_near(lane: LaneID, map: &Map, rng: &mut XorShiftRng) -> Option<BuildingID> {
+    let mut candidates = Vec::new();
+    for id in map.get_parent(lane).all_lanes() {
+        candidates.extend(map.get_l(id).building_paths.clone());
+    }
+    candidates.choose(rng).cloned()
 }

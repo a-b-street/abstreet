@@ -73,7 +73,7 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingParkedCar(_, spot, _) => {
-                let car_id = parking.get_car_at_spot(*spot);
+                let car_id = parking.get_car_at_spot(*spot).unwrap().vehicle.id;
                 if self.parked_cars_claimed.contains(&car_id) {
                     panic!(
                         "A TripSpec wants to use {}, which is already claimed",
@@ -126,26 +126,24 @@ impl TripSpawner {
                         DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
                             path.convert_to_traversable_list(),
                             map.get_l(last_lane).length(),
-                            map,
                         ),
                     };
                     let trip = trips.new_trip(start_time, Some(ped_id), legs);
 
                     scheduler.enqueue_command(Command::SpawnCar(
                         start_time,
-                        CreateCar {
-                            vehicle: vehicle_spec.make(car_id),
+                        CreateCar::for_appearing(
+                            vehicle_spec.make(car_id),
+                            start_pos,
                             router,
-                            start_dist: start_pos.dist_along(),
-                            maybe_parked_car: None,
                             trip,
-                        },
+                        ),
                     ));
                 }
                 TripSpec::UsingParkedCar(start, spot, goal) => {
                     let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
                     self.ped_id_counter += 1;
-                    let car_id = parking.get_car_at_spot(spot);
+                    let car_id = parking.get_car_at_spot(spot).unwrap().vehicle.id;
                     //assert_eq!(parked.owner, Some(start_bldg));
 
                     let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
@@ -199,18 +197,12 @@ impl TripSpawner {
 impl TripSpec {
     fn get_pathfinding_request(&self, map: &Map, parking: &ParkingSimState) -> PathRequest {
         match self {
-            TripSpec::CarAppearing(start, vehicle_spec, goal) => {
-                let goal_lane = match goal {
-                    DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
-                    DrivingGoal::Border(_, l) => *l,
-                };
-                PathRequest {
-                    start: *start,
-                    end: Position::new(goal_lane, map.get_l(goal_lane).length()),
-                    can_use_bus_lanes: vehicle_spec.vehicle_type == VehicleType::Bus,
-                    can_use_bike_lanes: vehicle_spec.vehicle_type == VehicleType::Bike,
-                }
-            }
+            TripSpec::CarAppearing(start, vehicle_spec, goal) => PathRequest {
+                start: *start,
+                end: goal.goal_pos(map),
+                can_use_bus_lanes: vehicle_spec.vehicle_type == VehicleType::Bus,
+                can_use_bike_lanes: vehicle_spec.vehicle_type == VehicleType::Bike,
+            },
             TripSpec::UsingParkedCar(start, spot, _) => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::parking_spot(*spot, map, parking).sidewalk_pos,

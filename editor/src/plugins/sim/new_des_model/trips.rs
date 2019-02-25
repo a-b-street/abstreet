@@ -1,7 +1,10 @@
-use crate::plugins::sim::new_des_model::{DrivingGoal, SidewalkSpot, Vehicle};
+use crate::plugins::sim::new_des_model::{
+    Command, CreateCar, DrivingGoal, ParkingSimState, ParkingSpot, Router, Scheduler, SidewalkSpot,
+    Vehicle,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
-use map_model::{BusRouteID, BusStopID};
+use map_model::{BusRouteID, BusStopID, Map, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID, TripID};
 use std::collections::{BTreeMap, VecDeque};
@@ -33,6 +36,7 @@ impl TripManager {
         self.active_trip_mode.insert(agent, trip);
     }
 
+    /*
     // Where are we walking next?
     pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -51,31 +55,66 @@ impl TripManager {
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
         (trip.id, trip.ped.unwrap(), walk_to.clone())
-    }
+    }*/
 
-    // Where are we driving next?
-    pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, DrivingGoal) {
+    pub fn ped_reached_parking_spot(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        spot: ParkingSpot,
+        map: &Map,
+        parking: &ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Walk(_) => {}
-            x => panic!(
-                "First trip leg {:?} doesn't match ped_reached_parking_spot",
-                x
+        assert_eq!(
+            trip.legs.pop_front(),
+            Some(TripLeg::Walk(SidewalkSpot::parking_spot(
+                spot, map, parking
+            )))
+        );
+        let (car, drive_to) = match trip.legs[0] {
+            TripLeg::Drive(car, ref to) => (car, to.clone()),
+            _ => unreachable!(),
+        };
+        let parked_car = parking.get_car_at_spot(spot).unwrap();
+        assert_eq!(parked_car.vehicle.id, car);
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: parked_car.get_position(parking, map),
+                end: drive_to.goal_pos(map),
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the car portion!");
+            return;
+        };
+
+        let router = match drive_to {
+            DrivingGoal::ParkNear(b) => Router::park_near(path.convert_to_traversable_list(), b),
+            DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
+                path.convert_to_traversable_list(),
+                map.get_l(last_lane).length(),
             ),
         };
-        let drive_to = match trip.legs[0] {
-            TripLeg::Drive(_, ref to) => to.clone(),
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
-        };
-        (trip.id, drive_to)
+
+        scheduler.enqueue_command(Command::SpawnCar(
+            time,
+            CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
+        ));
     }
 
-    pub fn ped_ready_to_bike(&mut self, ped: PedestrianID) -> (TripID, Vehicle, DrivingGoal) {
+    /*pub fn ped_ready_to_bike(&mut self, ped: PedestrianID) -> (TripID, Vehicle, DrivingGoal) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -187,7 +226,7 @@ impl TripManager {
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
         (trip.id, walk_to.clone())
-    }
+    }*/
 
     // Creation from the interactive part of spawner
     pub fn new_trip(
@@ -215,6 +254,7 @@ impl TripManager {
         id
     }
 
+    /*
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
@@ -248,7 +288,7 @@ impl TripManager {
             trip.id,
             trip.legs.back().unwrap()
         )]
-    }
+    }*/
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

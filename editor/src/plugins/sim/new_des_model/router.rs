@@ -32,7 +32,7 @@ enum Goal {
 }
 
 impl Router {
-    pub fn stop_suddenly(path: Vec<Traversable>, end_dist: Distance, map: &Map) -> Router {
+    pub fn stop_suddenly(path: Vec<Traversable>, end_dist: Distance) -> Router {
         Router {
             path: VecDeque::from(path),
             goal: Goal::StopSuddenly { end_dist },

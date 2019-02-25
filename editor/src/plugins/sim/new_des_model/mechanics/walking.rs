@@ -1,10 +1,10 @@
 use crate::plugins::sim::new_des_model::{
-    CreatePedestrian, DistanceInterval, IntersectionSimState, SidewalkPOI, SidewalkSpot,
-    TimeInterval,
+    CreatePedestrian, DistanceInterval, IntersectionSimState, ParkingSimState, Scheduler,
+    SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
 use geom::{Distance, Duration, Speed};
-use map_model::{Map, Path, PathStep, Traversable};
+use map_model::{BuildingID, Map, Path, PathStep, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, DrawPedestrianInput, PedestrianID};
@@ -55,10 +55,22 @@ impl WalkingSimState {
             goal: params.goal,
         };
         ped.state = match params.start.connection {
+            SidewalkPOI::ParkingSpot(spot) => {
+                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
+            }
+            SidewalkPOI::Building(b) => PedState::LeavingBuilding(
+                b,
+                TimeInterval::new(time, time + map.get_b(b).front_path.line.length() / SPEED),
+            ),
+            SidewalkPOI::BusStop(stop) => {
+                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
+            }
+            SidewalkPOI::Border(i) => {
+                ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
+            }
             SidewalkPOI::BikeRack => {
                 ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map)
             }
-            _ => panic!("Don't support {:?} yet", params.start.connection),
         };
 
         self.peds.insert(params.id, ped);
@@ -94,6 +106,9 @@ impl WalkingSimState {
         time: Duration,
         map: &Map,
         intersections: &mut IntersectionSimState,
+        parking: &ParkingSimState,
+        scheduler: &mut Scheduler,
+        trips: &mut TripManager,
     ) {
         let mut delete = Vec::new();
         for ped in self.peds.values_mut() {
@@ -101,14 +116,40 @@ impl WalkingSimState {
                 PedState::Crossing(_, ref time_int, ref mut turn_finished) => {
                     if time > time_int.end {
                         if ped.path.is_last_step() {
-                            // TODO Use goal
-                            delete.push(ped.id);
-
-                            // TODO Ew O_O
-                            self.peds_per_traversable
-                                .get_vec_mut(&ped.path.current_step().as_traversable())
-                                .unwrap()
-                                .retain(|&p| p != ped.id);
+                            match ped.goal.connection {
+                                SidewalkPOI::ParkingSpot(spot) => {
+                                    delete.push(ped.id);
+                                    delete_ped_from_current_step(
+                                        &mut self.peds_per_traversable,
+                                        ped,
+                                    );
+                                    trips.ped_reached_parking_spot(
+                                        time, ped.id, spot, map, parking, scheduler,
+                                    );
+                                }
+                                SidewalkPOI::Building(b) => {
+                                    ped.state = PedState::EnteringBuilding(
+                                        b,
+                                        TimeInterval::new(
+                                            time,
+                                            time + map.get_b(b).front_path.line.length() / SPEED,
+                                        ),
+                                    );
+                                }
+                                SidewalkPOI::BusStop(stop) => {
+                                    panic!("implement");
+                                }
+                                SidewalkPOI::Border(_) => {
+                                    delete.push(ped.id);
+                                    delete_ped_from_current_step(
+                                        &mut self.peds_per_traversable,
+                                        ped,
+                                    );
+                                }
+                                SidewalkPOI::BikeRack => {
+                                    panic!("implement");
+                                }
+                            }
                         } else {
                             if !*turn_finished {
                                 if let PathStep::Turn(t) = ped.path.current_step() {
@@ -128,12 +169,7 @@ impl WalkingSimState {
                                 }
                             }
 
-                            // TODO Ew O_O
-                            self.peds_per_traversable
-                                .get_vec_mut(&ped.path.current_step().as_traversable())
-                                .unwrap()
-                                .retain(|&p| p != ped.id);
-
+                            delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
                             ped.path.shift();
                             let start_dist = match ped.path.current_step() {
                                 PathStep::Lane(_) => Distance::ZERO,
@@ -146,12 +182,34 @@ impl WalkingSimState {
                         }
                     }
                 }
+                PedState::LeavingBuilding(b, ref time_int) => {
+                    if time > time_int.end {
+                        ped.state = ped.crossing_state(
+                            map.get_b(b).front_path.sidewalk.dist_along(),
+                            time,
+                            map,
+                        );
+                    }
+                }
+                PedState::EnteringBuilding(_, ref time_int) => {
+                    if time > time_int.end {
+                        delete.push(ped.id);
+                        delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                    }
+                }
             };
         }
         for id in delete {
             self.peds.remove(&id);
         }
     }
+}
+
+fn delete_ped_from_current_step(map: &mut MultiMap<Traversable, PedestrianID>, ped: &Pedestrian) {
+    // API is so bad that we have this helper!
+    map.get_vec_mut(&ped.path.current_step().as_traversable())
+        .unwrap()
+        .retain(|&p| p != ped.id);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -181,23 +239,36 @@ impl Pedestrian {
     }
 
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
-        let (on, dist) = match self.state {
+        let (on, pos) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int, _) => {
                 let percent = if time > time_int.end {
                     1.0
                 } else {
                     time_int.percent(time)
                 };
-                (
-                    self.path.current_step().as_traversable(),
-                    dist_int.lerp(percent),
-                )
+                let on = self.path.current_step().as_traversable();
+                (on, on.dist_along(dist_int.lerp(percent), map).0)
+            }
+            PedState::LeavingBuilding(b, ref time_int) => {
+                let front_path = &map.get_b(b).front_path;
+                let pt = front_path
+                    .line
+                    .dist_along(time_int.percent(time) * front_path.line.length());
+                (self.path.current_step().as_traversable(), pt)
+            }
+            PedState::EnteringBuilding(b, ref time_int) => {
+                let front_path = &map.get_b(b).front_path;
+                let pt = front_path
+                    .line
+                    .reverse()
+                    .dist_along(time_int.percent(time) * front_path.line.length());
+                (self.path.current_step().as_traversable(), pt)
             }
         };
 
         DrawPedestrianInput {
             id: self.id,
-            pos: on.dist_along(dist, map).0,
+            pos,
             waiting_for_turn: None,
             preparing_bike: false,
             on,
@@ -213,4 +284,6 @@ enum PedState {
     // and the second turn isn't accepted. Don't block the intersection by waiting. Turns always
     // end at little sidewalk corners, so the ped is actually out of the way.
     Crossing(DistanceInterval, TimeInterval, bool),
+    LeavingBuilding(BuildingID, TimeInterval),
+    EnteringBuilding(BuildingID, TimeInterval),
 }
