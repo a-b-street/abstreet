@@ -1,8 +1,11 @@
 use crate::plugins::sim::new_des_model::{ParkedCar, ParkingSpot, Vehicle};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap,
+};
 use geom::{Angle, Distance, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
+use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 use std::collections::{BTreeMap, BTreeSet};
@@ -19,6 +22,11 @@ pub struct ParkingSimState {
     reserved_spots: BTreeSet<ParkingSpot>,
 
     driving_to_parking_lane: BTreeMap<LaneID, LaneID>,
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
+    cars_per_building: MultiMap<BuildingID, CarID>,
 }
 
 impl ParkingSimState {
@@ -28,6 +36,7 @@ impl ParkingSimState {
             lanes: BTreeMap::new(),
             reserved_spots: BTreeSet::new(),
             driving_to_parking_lane: BTreeMap::new(),
+            cars_per_building: MultiMap::new(),
         };
         for l in map.all_lanes() {
             if let Some(lane) = ParkingLane::new(l, map) {
@@ -81,6 +90,9 @@ impl ParkingSimState {
         assert!(self.reserved_spots.remove(&p.spot));
         assert_eq!(self.lanes[&spot.lane].occupants[spot.idx], None);
         self.lanes.get_mut(&spot.lane).unwrap().occupants[spot.idx] = Some(p.vehicle.id);
+        if let Some(b) = p.owner {
+            self.cars_per_building.insert(b, p.vehicle.id);
+        }
         self.cars.insert(p.vehicle.id, p);
     }
 
@@ -188,13 +200,12 @@ impl ParkingSimState {
     }*/
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
-        let mut result: Vec<&ParkedCar> = Vec::new();
-        for p in self.cars.values() {
-            if p.owner == Some(id) {
-                result.push(p);
-            }
-        }
-        result
+        self.cars_per_building
+            .get_vec(&id)
+            .unwrap_or(&Vec::new())
+            .iter()
+            .map(|id| &self.cars[id])
+            .collect()
     }
 
     /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
