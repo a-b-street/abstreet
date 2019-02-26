@@ -2,17 +2,18 @@ use crate::plugins::{AmbientPluginWithPrimaryPlugins, PluginCtx};
 use crate::state::PluginsPerMap;
 use abstutil::elapsed_seconds;
 use ezgui::EventLoopMode;
-use sim::{Benchmark, Event, Sim, Tick, TIMESTEP};
+use geom::Duration;
+use sim::{Benchmark, Event, Sim, TIMESTEP};
 use std::mem;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
 
 pub struct SimControls {
     desired_speed: f64, // sim seconds per real second
     state: State,
-    // Optional because the 0th tick actually happens, and callers comparing wouldn't see that.
-    primary_events: Option<(Tick, Vec<Event>)>,
+    // Optional because Duration::ZERO actually happens, and callers comparing wouldn't see that.
+    primary_events: Option<(Duration, Vec<Event>)>,
 }
 
 enum State {
@@ -43,11 +44,11 @@ impl SimControls {
 
     pub fn get_new_primary_events(
         &self,
-        last_seen_tick: Option<Tick>,
-    ) -> Option<(Tick, &Vec<Event>)> {
-        let (tick, events) = self.primary_events.as_ref()?;
-        if last_seen_tick.is_none() || last_seen_tick != Some(*tick) {
-            Some((*tick, events))
+        last_seen_time: Option<Duration>,
+    ) -> Option<(Duration, &Vec<Event>)> {
+        let (time, events) = self.primary_events.as_ref()?;
+        if last_seen_time.is_none() || last_seen_time != Some(*time) {
+            Some((*time, events))
         } else {
             None
         }
@@ -146,9 +147,9 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                 if ctx.input.action_chosen("run/pause sim") {
                     self.run_sim(&mut ctx.primary.sim);
                 } else if ctx.input.action_chosen("run one step of sim") {
-                    let tick = ctx.primary.sim.time;
+                    let time = ctx.primary.sim.time();
                     let events = ctx.primary.sim.step(&ctx.primary.map);
-                    self.primary_events = Some((tick, events));
+                    self.primary_events = Some((time, events));
 
                     *ctx.recalculate_current_selection = true;
                     if let Some((s, _)) = ctx.secondary {
@@ -174,9 +175,9 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                         // the speed says we should.
                         let dt_s = elapsed_seconds(*last_step);
                         if dt_s >= TIMESTEP.inner_seconds() / self.desired_speed {
-                            let tick = ctx.primary.sim.time;
+                            let time = ctx.primary.sim.time();
                             let events = ctx.primary.sim.step(&ctx.primary.map);
-                            self.primary_events = Some((tick, events));
+                            self.primary_events = Some((time, events));
 
                             *ctx.recalculate_current_selection = true;
                             if let Some((s, _)) = ctx.secondary {
@@ -185,7 +186,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                             *last_step = Instant::now();
                         }
 
-                        if benchmark.has_real_time_passed(Duration::from_secs(1)) {
+                        if benchmark.has_real_time_passed(std::time::Duration::from_secs(1)) {
                             // I think the benchmark should naturally account for the delay of the
                             // secondary sim.
                             *speed = format!("{0:.2}x", ctx.primary.sim.measure_speed(benchmark));

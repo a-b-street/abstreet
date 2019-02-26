@@ -4,7 +4,7 @@ use crate::walking::SidewalkSpot;
 use crate::{CarID, Sim, Tick};
 use abstutil;
 use abstutil::{Timer, WeightedUsizeChoice};
-use geom::Distance;
+use geom::{Distance, Duration};
 use map_model::{FullNeighborhoodInfo, IntersectionID, LaneType, Map, Pathfinder, Position};
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -29,8 +29,8 @@ pub struct Scenario {
 pub struct SpawnOverTime {
     pub num_agents: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
-    pub start_tick: Tick,
-    pub stop_tick: Tick,
+    pub start_time: Duration,
+    pub stop_time: Duration,
     pub start_from_neighborhood: String,
     pub goal: OriginDestination,
     pub percent_biking: f64,
@@ -43,8 +43,8 @@ pub struct BorderSpawnOverTime {
     pub num_cars: usize,
     pub num_bikes: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
-    pub start_tick: Tick,
-    pub stop_tick: Tick,
+    pub start_time: Duration,
+    pub stop_time: Duration,
     // TODO A serialized Scenario won't last well as the map changes...
     pub start_from_border: IntersectionID,
     pub goal: OriginDestination,
@@ -98,7 +98,7 @@ impl Scenario {
             timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
                 timer.next();
-                let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
                 // Note that it's fine for agents to start/end at the same building. Later we might
                 // want a better assignment of people per household, or workers per office building.
                 let from_bldg = *neighborhoods[&s.start_from_neighborhood]
@@ -195,7 +195,7 @@ impl Scenario {
             timer.next();
             if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
                 for _ in 0..s.num_peds {
-                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                    let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
                             .pick_walking_goal(map, &neighborhoods, &mut sim.rng, timer)
@@ -249,7 +249,7 @@ impl Scenario {
                     ));
                 } else {
                     for _ in 0..s.num_cars {
-                        let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                        let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
                         if let Some(goal) =
                             s.goal
                                 .pick_driving_goal(map, &neighborhoods, &mut sim.rng, timer)
@@ -283,7 +283,7 @@ impl Scenario {
             }
             if !starting_biking_lanes.is_empty() {
                 for _ in 0..s.num_bikes {
-                    let spawn_time = Tick::uniform(s.start_tick, s.stop_tick, &mut sim.rng);
+                    let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
                     if let Some(goal) =
                         s.goal
                             .pick_biking_goal(map, &neighborhoods, &mut sim.rng, timer)

@@ -161,7 +161,7 @@ impl TripManager {
             _ => unreachable!(),
         };
         let driving_pos = match spot.connection {
-            SidewalkPOI::BikeRack(ref p) => p.clone(),
+            SidewalkPOI::BikeRack(p) => p,
             _ => unreachable!(),
         };
 

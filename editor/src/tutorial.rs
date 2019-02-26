@@ -3,8 +3,9 @@ use crate::plugins::view::legend::Legend;
 use crate::state::{DefaultUIState, Flags, PerMapUI, UIState};
 use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, LogScroller, Prerender, Text};
+use geom::Duration;
 use map_model::Traversable;
-use sim::{Event, Tick};
+use sim::Event;
 
 pub struct TutorialState {
     main: DefaultUIState,
@@ -14,7 +15,7 @@ pub struct TutorialState {
 enum State {
     GiveInstructions(LogScroller),
     Play {
-        last_tick_observed: Option<Tick>,
+        last_time_observed: Option<Duration>,
         spawned_from_south: usize,
         spawned_from_north: usize,
     },
@@ -60,25 +61,25 @@ impl UIState for TutorialState {
                     self.main.sim_controls.run_sim(&mut self.main.primary.sim);
                     self.main.legend = Some(Legend::start(ctx.input, ctx.canvas));
                     self.state = State::Play {
-                        last_tick_observed: None,
+                        last_time_observed: None,
                         spawned_from_north: 0,
                         spawned_from_south: 0,
                     };
                 }
             }
             State::Play {
-                ref mut last_tick_observed,
+                ref mut last_time_observed,
                 ref mut spawned_from_north,
                 ref mut spawned_from_south,
             } => {
                 self.main.event(ctx, hints, recalculate_current_selection);
 
-                if let Some((tick, events)) = self
+                if let Some((time, events)) = self
                     .main
                     .sim_controls
-                    .get_new_primary_events(*last_tick_observed)
+                    .get_new_primary_events(*last_time_observed)
                 {
-                    *last_tick_observed = Some(tick);
+                    *last_time_observed = Some(time);
                     for ev in events {
                         if let Event::AgentEntersTraversable(_, Traversable::Lane(lane)) = ev {
                             if *lane == self.main.primary.map.driving_lane("north entrance").id {
@@ -126,7 +127,7 @@ impl UIState for TutorialState {
 }
 
 fn setup_scenario(primary: &mut PerMapUI) {
-    use sim::{BorderSpawnOverTime, OriginDestination, Scenario, Tick};
+    use sim::{BorderSpawnOverTime, OriginDestination, Scenario};
     let map = &primary.map;
 
     fn border_spawn(primary: &PerMapUI, from: &str, to: &str) -> BorderSpawnOverTime {
@@ -136,8 +137,8 @@ fn setup_scenario(primary: &mut PerMapUI) {
             num_cars: SPAWN_CARS_PER_BORDER,
             num_bikes: 0,
             percent_use_transit: 0.0,
-            start_tick: Tick::zero(),
-            stop_tick: Tick::from_minutes(10),
+            start_time: Duration::ZERO,
+            stop_time: Duration::minutes(10),
             start_from_border: primary.map.intersection(from).id,
             goal: OriginDestination::Border(primary.map.intersection(to).id),
         }

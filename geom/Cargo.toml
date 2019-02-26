@@ -9,5 +9,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 geo = "0.11.0"
 ordered-float = "1.0.1"
+regex = "1.0.6"
 serde = "1.0.87"
 serde_derive = "1.0.87"

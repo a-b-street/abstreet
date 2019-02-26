@@ -6,13 +6,14 @@ pub mod view;
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::state::{PerMapUI, PluginsPerMap};
-use ::sim::{ABTest, OriginDestination, Scenario, Tick};
+use ::sim::{ABTest, OriginDestination, Scenario};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
 use downcast::{
     downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
 };
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
+use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
 
 // TODO Split into two types, but then State needs two possible types in its exclusive blocking
@@ -143,8 +144,8 @@ pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
         .map(|(_, t)| t)
 }
 
-pub fn input_tick(wizard: &mut WrappedWizard, query: &str) -> Option<Tick> {
-    wizard.input_something(query, None, Box::new(|line| Tick::parse(&line)))
+pub fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
+    wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
 }
 
 pub fn input_weighted_usize(

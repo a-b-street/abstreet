@@ -1,5 +1,5 @@
 use crate::runner::TestRunner;
-use geom::{Line, PolyLine, Pt2D};
+use geom::{Duration, Line, PolyLine, Pt2D};
 //use rand;
 
 #[allow(clippy::unreadable_literal)]
@@ -86,6 +86,21 @@ pub fn run(t: &mut TestRunner) {
         let pt = Pt2D::new(1721.9540106813197, 1420.2372293808348);
 
         pl.get_slice_ending_at(pt);
+    });
+
+    t.run_fast("time_parsing", |_| {
+        assert_eq!(Duration::parse("2.3"), Some(Duration::seconds(2.3)));
+        assert_eq!(Duration::parse("02.3"), Some(Duration::seconds(2.3)));
+        assert_eq!(Duration::parse("00:00:02.3"), Some(Duration::seconds(2.3)));
+
+        assert_eq!(
+            Duration::parse("00:02:03.5"),
+            Some(Duration::seconds(123.5))
+        );
+        assert_eq!(
+            Duration::parse("01:02:03.5"),
+            Some(Duration::seconds(3723.5))
+        );
     });
 }
 

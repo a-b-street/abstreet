@@ -5,6 +5,7 @@ use crate::{
     Sim, SpawnOverTime, Tick,
 };
 use abstutil::{Timer, WeightedUsizeChoice};
+use geom::Duration;
 use map_model::{
     BuildingID, BusRoute, BusRouteID, BusStopID, IntersectionID, LaneID, LaneType, Map, Position,
     RoadID,
@@ -106,8 +107,8 @@ impl Sim {
             }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: 100,
-                start_tick: Tick::zero(),
-                stop_tick: Tick::from_seconds(5),
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 percent_biking: 0.5,
@@ -122,8 +123,8 @@ impl Sim {
                     num_peds: 10,
                     num_cars: 10,
                     num_bikes: 10,
-                    start_tick: Tick::zero(),
-                    stop_tick: Tick::from_seconds(5),
+                    start_time: Duration::ZERO,
+                    stop_time: Duration::seconds(5.0),
                     start_from_border: i.id,
                     goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                     percent_use_transit: 0.5,
@@ -133,8 +134,8 @@ impl Sim {
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
                 num_agents: 10,
-                start_tick: Tick::zero(),
-                stop_tick: Tick::from_seconds(5),
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Border(i.id),
                 percent_biking: 0.5,

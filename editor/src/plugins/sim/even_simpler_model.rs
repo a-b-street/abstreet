@@ -162,7 +162,7 @@ fn spawn_car(sim: &mut new_des_model::Sim, rng: &mut XorShiftRng, map: &Map, sta
     let last_lane = path.last().unwrap().as_lane();
     let vehicle = rand_vehicle(rng);
     let start_dist = rand_dist(rng, vehicle.length, map.get_l(start_lane).length());
-    let spawn_time = Duration::seconds(0.2) * rng.gen_range(0, 5) as f64;
+    let spawn_time = Duration::seconds(0.2) * f64::from(rng.gen_range(0, 5));
 
     sim.schedule_trip(
         spawn_time,
@@ -252,7 +252,7 @@ fn random_ped_near(
     map: &Map,
     rng: &mut XorShiftRng,
 ) {
-    let spawn_time = Duration::seconds(0.2) * rng.gen_range(0, 5) as f64;
+    let spawn_time = Duration::seconds(0.2) * f64::from(rng.gen_range(0, 5));
     let end_near = random_path(start_near, rng, map).last().unwrap().as_lane();
     let (spot1, spot2) = match (
         random_bldg_near(start_near, map, rng),

@@ -15,7 +15,7 @@ use crate::{
 use abstutil;
 use abstutil::{Error, Profiler};
 use derivative::Derivative;
-use geom::{Distance, Pt2D};
+use geom::{Distance, Duration, Pt2D};
 use map_model::{
     BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
 };
@@ -492,5 +492,10 @@ impl Sim {
                     .on
             }
         }
+    }
+
+    // TODO Confusing to clash with the GetDrawAgents definition?
+    pub fn time(&self) -> Duration {
+        self.time.as_time()
     }
 }

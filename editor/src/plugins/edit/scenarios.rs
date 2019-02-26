@@ -1,6 +1,6 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{
-    choose_intersection, choose_neighborhood, choose_origin_destination, input_tick,
+    choose_intersection, choose_neighborhood, choose_origin_destination, input_time,
     input_weighted_usize, load_scenario, BlockingPlugin, PluginCtx,
 };
 use abstutil::Timer;
@@ -134,9 +134,9 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
         x if x == spawn => {
             scenario.spawn_over_time.push(SpawnOverTime {
                 num_agents: wizard.input_usize("Spawn how many agents?")?,
-                start_tick: input_tick(&mut wizard, "Start spawning when?")?,
-                // TODO input interval, or otherwise enforce stop_tick > start_tick
-                stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
+                start_time: input_time(&mut wizard, "Start spawning when?")?,
+                // TODO input interval, or otherwise enforce stop_time > start_time
+                stop_time: input_time(&mut wizard, "Stop spawning when?")?,
                 start_from_neighborhood: choose_neighborhood(
                     map,
                     &mut wizard,
@@ -155,9 +155,9 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
                 num_cars: wizard.input_usize("Spawn how many cars?")?,
                 num_bikes: wizard.input_usize("Spawn how many bikes?")?,
-                start_tick: input_tick(&mut wizard, "Start spawning when?")?,
-                // TODO input interval, or otherwise enforce stop_tick > start_tick
-                stop_tick: input_tick(&mut wizard, "Stop spawning when?")?,
+                start_time: input_time(&mut wizard, "Start spawning when?")?,
+                // TODO input interval, or otherwise enforce stop_time > start_time
+                stop_time: input_time(&mut wizard, "Stop spawning when?")?,
                 // TODO validate it's a border!
                 start_from_border: choose_intersection(
                     &mut wizard,

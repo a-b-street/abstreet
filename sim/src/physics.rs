@@ -1,8 +1,6 @@
 use geom::Duration;
-use lazy_static::lazy_static;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use regex::Regex;
 use serde_derive::{Deserialize, Serialize};
 
 pub const TIMESTEP: Duration = Duration::const_seconds(0.1);
@@ -30,54 +28,6 @@ impl Tick {
 
     pub fn testonly_from_raw(t: u32) -> Tick {
         Tick(t)
-    }
-
-    // TODO Why have these two forms? Consolidate
-    pub fn parse(string: &str) -> Option<Tick> {
-        let parts: Vec<&str> = string.split(':').collect();
-        if parts.is_empty() {
-            return None;
-        }
-
-        let mut ticks: u32 = 0;
-        if parts.last().unwrap().contains('.') {
-            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
-            if last_parts.len() != 2 {
-                return None;
-            }
-            ticks += u32::from_str_radix(last_parts[1], 10).ok()?;
-            ticks += 10 * u32::from_str_radix(last_parts[0], 10).ok()?;
-        } else {
-            ticks += 10 * u32::from_str_radix(parts.last().unwrap(), 10).ok()?;
-        }
-
-        match parts.len() {
-            1 => Some(Tick(ticks)),
-            2 => {
-                ticks += 60 * 10 * u32::from_str_radix(parts[0], 10).ok()?;
-                Some(Tick(ticks))
-            }
-            3 => {
-                ticks += 60 * 10 * u32::from_str_radix(parts[1], 10).ok()?;
-                ticks += 60 * 60 * 10 * u32::from_str_radix(parts[0], 10).ok()?;
-                Some(Tick(ticks))
-            }
-            _ => None,
-        }
-    }
-
-    // TODO Unused right now.
-    pub fn parse_filename(string: &str) -> Option<Tick> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
-        }
-        let caps = RE.captures(string)?;
-        let hours = 60 * 60 * 10 * u32::from_str_radix(&caps[1], 10).ok()?;
-        let minutes = 60 * 10 * u32::from_str_radix(&caps[2], 10).ok()?;
-        let seconds = 10 * u32::from_str_radix(&caps[3], 10).ok()?;
-        let ms = u32::from_str_radix(&caps[4], 10).ok()?;
-
-        Some(Tick(hours + minutes + seconds + ms))
     }
 
     // TODO as_duration?
@@ -122,9 +72,9 @@ impl Tick {
     }
 
     // TODO options for sampling normal distribution
-    pub fn uniform(start: Tick, stop: Tick, rng: &mut XorShiftRng) -> Tick {
+    pub fn uniform(start: Duration, stop: Duration, rng: &mut XorShiftRng) -> Tick {
         assert!(start < stop);
-        Tick(rng.gen_range(start.0, stop.0))
+        Tick(rng.gen_range((start / TIMESTEP) as u32, (stop / TIMESTEP) as u32))
     }
 }
 

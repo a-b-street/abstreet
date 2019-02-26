@@ -265,18 +265,16 @@ impl Pedestrian {
             }
             PedState::LeavingBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
-                let pt = front_path
+                front_path
                     .line
-                    .dist_along(time_int.percent(time) * front_path.line.length());
-                pt
+                    .dist_along(time_int.percent(time) * front_path.line.length())
             }
             PedState::EnteringBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
-                let pt = front_path
+                front_path
                     .line
                     .reverse()
-                    .dist_along(time_int.percent(time) * front_path.line.length());
-                pt
+                    .dist_along(time_int.percent(time) * front_path.line.length())
             }
             PedState::StartingToBike(_, ref line, ref time_int) => {
                 line.percent_along(time_int.percent(time))

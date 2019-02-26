@@ -1,4 +1,5 @@
 use crate::{trim_f64, EPSILON_DIST};
+use regex::Regex;
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, fmt, ops};
 
@@ -175,6 +176,10 @@ impl Duration {
         Duration(trim_f64(value))
     }
 
+    pub fn minutes(mins: usize) -> Duration {
+        Duration::seconds((mins as f64) * 60.0)
+    }
+
     pub const fn const_seconds(value: f64) -> Duration {
         Duration(value)
     }
@@ -195,11 +200,83 @@ impl Duration {
     pub fn is_multiple_of(self, other: Duration) -> bool {
         self.inner_seconds() % other.inner_seconds() == 0.0
     }
+
+    // TODO Why have these two forms? Consolidate
+    pub fn parse(string: &str) -> Option<Duration> {
+        let parts: Vec<&str> = string.split(':').collect();
+        if parts.is_empty() {
+            return None;
+        }
+
+        let mut seconds: f64 = 0.0;
+        if parts.last().unwrap().contains('.') {
+            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
+            if last_parts.len() != 2 {
+                return None;
+            }
+            seconds += last_parts[1].parse::<f64>().ok()? / 10.0;
+            seconds += last_parts[0].parse::<f64>().ok()?;
+        } else {
+            seconds += parts.last().unwrap().parse::<f64>().ok()?;
+        }
+
+        match parts.len() {
+            1 => Some(Duration::seconds(seconds)),
+            2 => {
+                seconds += 60.0 * parts[0].parse::<f64>().ok()?;
+                Some(Duration(seconds))
+            }
+            3 => {
+                seconds += 60.0 * parts[1].parse::<f64>().ok()?;
+                seconds += 3600.0 * parts[0].parse::<f64>().ok()?;
+                Some(Duration(seconds))
+            }
+            _ => None,
+        }
+    }
+
+    // TODO Unused right now.
+    pub fn parse_filename(string: &str) -> Option<Duration> {
+        // TODO lazy_static! {
+        let regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
+
+        let caps = regex.captures(string)?;
+        let hours = 3600.0 * caps[1].parse::<f64>().ok()?;
+        let minutes = 60.0 * caps[2].parse::<f64>().ok()?;
+        let seconds = caps[3].parse::<f64>().ok()?;
+        let ms = caps[4].parse::<f64>().ok()? / 10.0;
+
+        Some(Duration::seconds(hours + minutes + seconds + ms))
+    }
+
+    fn get_parts(self) -> (f64, f64, f64, f64) {
+        let hours = self.inner_seconds() / 3600.0;
+        let mut remainder = self.inner_seconds() % 3600.0;
+        let minutes = remainder / 60.0;
+        remainder %= 60.0;
+        let seconds = remainder.floor();
+        remainder -= seconds;
+
+        (hours, minutes, seconds, remainder)
+    }
+
+    pub fn as_filename(self) -> String {
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        format!(
+            "{0:02}h{1:02}m{2:02}.{3}s",
+            hours, minutes, seconds, remainder
+        )
+    }
 }
 
-impl fmt::Display for Duration {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}s", self.0)
+impl std::fmt::Display for Duration {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        write!(
+            f,
+            "{0:02}:{1:02}:{2:02}.{3}",
+            hours, minutes, seconds, remainder
+        )
     }
 }
 
