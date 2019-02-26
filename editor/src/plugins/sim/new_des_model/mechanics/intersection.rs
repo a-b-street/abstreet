@@ -1,8 +1,10 @@
 use geom::Duration;
 use map_model::{ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority};
+use serde_derive::{Deserialize, Serialize};
 use sim::AgentID;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
+#[derive(Serialize, Deserialize)]
 pub struct IntersectionSimState {
     controllers: BTreeMap<IntersectionID, IntersectionController>,
 }
@@ -45,16 +47,17 @@ impl IntersectionSimState {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 struct IntersectionController {
     id: IntersectionID,
-    accepted: HashSet<Request>,
+    accepted: BTreeSet<Request>,
 }
 
 impl IntersectionController {
     fn new(id: IntersectionID) -> IntersectionController {
         IntersectionController {
             id,
-            accepted: HashSet::new(),
+            accepted: BTreeSet::new(),
         }
     }
 
@@ -147,7 +150,7 @@ impl IntersectionController {
     }
 }
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 struct Request {
     agent: AgentID,
     turn: TurnID,

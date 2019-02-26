@@ -3,10 +3,11 @@ use crate::plugins::sim::new_des_model::{
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
+use serde_derive::{Deserialize, Serialize};
 use sim::DrawCarInput;
 use std::collections::VecDeque;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
@@ -128,7 +129,7 @@ impl Car {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum CarState {
     // TODO These two should perhaps be collapsed to (TimeInterval, DistanceInterval, Traversable).
     Crossing(TimeInterval, DistanceInterval),

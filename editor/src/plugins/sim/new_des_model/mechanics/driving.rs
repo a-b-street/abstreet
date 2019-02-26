@@ -7,6 +7,7 @@ use crate::plugins::sim::new_des_model::{
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable, LANE_THICKNESS};
+use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -16,6 +17,7 @@ const WAITING: Color = Color::RED;
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 
+#[derive(Serialize, Deserialize)]
 pub struct DrivingSimState {
     queues: BTreeMap<Traversable, Queue>,
 }

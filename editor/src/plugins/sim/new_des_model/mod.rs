@@ -1,19 +1,20 @@
+mod make;
 mod mechanics;
 mod router;
-mod scenario;
 mod scheduler;
 mod sim;
-mod spawn;
 mod trips;
 
+pub use self::make::{
+    load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
+    SimFlags, SpawnOverTime, TripSpawner, TripSpec,
+};
 pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
 pub use self::router::{ActionAtEnd, Router};
-pub use self::scenario::Scenario;
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
-pub use self::spawn::{TripSpawner, TripSpec};
 pub use self::trips::{TripLeg, TripManager};
 use ::sim::{CarID, PedestrianID, TripID, VehicleType};
 use geom::{Distance, Duration, Speed};

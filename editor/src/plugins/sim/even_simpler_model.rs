@@ -109,7 +109,7 @@ impl GetDrawAgents for EvenSimplerModelController {
 
 fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
     let mut timer = Timer::new("populate_sim");
-    let mut sim = new_des_model::Sim::new(map);
+    let mut sim = new_des_model::Sim::new(map, "run".to_string(), None);
 
     let mut sources = vec![start];
     // Try to find a lane likely to have conflicts
@@ -150,7 +150,7 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
 
 fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
     let mut timer = Timer::new("densely_populate_sim");
-    let mut sim = new_des_model::Sim::new(map);
+    let mut sim = new_des_model::Sim::new(map, "run".to_string(), None);
     let mut rng = XorShiftRng::from_seed([42; 16]);
     new_des_model::Scenario::small_run(map).instantiate(&mut sim, map, &mut rng, &mut timer);
     timer.done();

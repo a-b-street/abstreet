@@ -2,8 +2,10 @@ use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
 use crate::plugins::sim::new_des_model::{BUS_LENGTH, FOLLOWING_DISTANCE};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
+#[derive(Serialize, Deserialize)]
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<Car>,

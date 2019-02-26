@@ -6,8 +6,10 @@ use abstutil::Timer;
 use ezgui::GfxCtx;
 use geom::Duration;
 use map_model::{BuildingID, LaneID, Map, Traversable};
+use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, VehicleType};
 
+#[derive(Serialize, Deserialize)]
 pub struct Sim {
     driving: DrivingSimState,
     parking: ParkingSimState,
@@ -17,10 +19,14 @@ pub struct Sim {
     scheduler: Scheduler,
     spawner: TripSpawner,
     time: Duration,
+
+    // TODO Reconsider these
+    pub(crate) map_name: String,
+    pub(crate) edits_name: String,
 }
 
 impl Sim {
-    pub fn new(map: &Map) -> Sim {
+    pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
@@ -30,6 +36,9 @@ impl Sim {
             scheduler: Scheduler::new(),
             spawner: TripSpawner::new(),
             time: Duration::ZERO,
+
+            map_name: map.get_name().to_string(),
+            edits_name: map.get_edits().edits_name.to_string(),
         }
     }
 
