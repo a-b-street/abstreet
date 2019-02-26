@@ -45,7 +45,7 @@ impl Scheduler {
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
-        let mut this_tick_commands: Vec<Command> = Vec::new();
+        let mut this_step_commands: Vec<Command> = Vec::new();
         loop {
             if self
                 .commands
@@ -54,16 +54,13 @@ impl Scheduler {
                 .and_then(|cmd| Some(now >= cmd.at()))
                 .unwrap_or(false)
             {
-                this_tick_commands.push(self.commands.pop().unwrap());
+                this_step_commands.push(self.commands.pop().unwrap());
             } else {
                 break;
             }
         }
-        if this_tick_commands.is_empty() {
-            return;
-        }
 
-        for cmd in this_tick_commands.into_iter() {
+        for cmd in this_step_commands.into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
                     if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {

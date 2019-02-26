@@ -558,10 +558,10 @@ impl<S: UIState> UI<S> {
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
             let source = state.get_draw_agents();
-            let tick = source.tick();
+            let time = source.time();
 
             for on in &agents_on {
-                if !agents.has(tick, *on) {
+                if !agents.has(time, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
                         list.push(draw_vehicle(c, map, prerender, &state.cs));
@@ -569,7 +569,7 @@ impl<S: UIState> UI<S> {
                     for p in source.get_draw_peds(*on, map).into_iter() {
                         list.push(Box::new(DrawPedestrian::new(p, map, prerender, &state.cs)));
                     }
-                    agents.put(tick, *on, list);
+                    agents.put(time, *on, list);
                 }
             }
         }

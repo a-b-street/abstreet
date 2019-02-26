@@ -9,12 +9,9 @@ use map_model::{BuildingID, LaneID, Map, Position, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use sim::{
-    CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Tick, VehicleType,
-};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, VehicleType};
 
 pub struct EvenSimplerModelController {
-    current_tick: Tick,
     sim: new_des_model::Sim,
     auto_mode: bool,
 }
@@ -28,7 +25,6 @@ impl EvenSimplerModelController {
                     .contextual_action(Key::Z, "start even simpler model")
             {
                 return Some(EvenSimplerModelController {
-                    current_tick: Tick::zero(),
                     sim: populate_sim(id, &ctx.primary.map),
                     auto_mode: false,
                 });
@@ -42,7 +38,7 @@ impl BlockingPlugin for EvenSimplerModelController {
     fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
         ctx.input.set_mode_with_prompt(
             "Even Simpler Model",
-            format!("Even Simpler Model at {}", self.current_tick.as_time()),
+            format!("Even Simpler Model at {}", self.sim.time()),
             &ctx.canvas,
         );
         if self.auto_mode {
@@ -50,20 +46,15 @@ impl BlockingPlugin for EvenSimplerModelController {
             if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = false;
             } else if ctx.input.is_update_event() {
-                self.current_tick = self.current_tick.next();
-                self.sim
-                    .step_if_needed(self.current_tick.as_time(), &ctx.primary.map);
+                self.sim.step_if_needed(&ctx.primary.map);
             }
         } else {
             if ctx.input.modal_action("forwards") {
-                self.current_tick = self.current_tick.next();
-                self.sim
-                    .step_if_needed(self.current_tick.as_time(), &ctx.primary.map);
+                self.sim.step_if_needed(&ctx.primary.map);
             } else if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = true;
                 ctx.hints.mode = EventLoopMode::Animation;
             } else if ctx.input.modal_action("spawn tons of cars everywhere") {
-                self.current_tick = Tick::zero();
                 self.sim = densely_populate_sim(&ctx.primary.map);
             }
         }
@@ -75,47 +66,44 @@ impl BlockingPlugin for EvenSimplerModelController {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            self.sim
-                .draw_unzoomed(self.current_tick.as_time(), g, &ctx.map);
+            self.sim.draw_unzoomed(g, &ctx.map);
         }
     }
 }
 
 impl GetDrawAgents for EvenSimplerModelController {
-    fn tick(&self) -> Tick {
-        self.current_tick
+    fn time(&self) -> Duration {
+        self.sim.time()
     }
 
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         self.sim
-            .get_all_draw_cars(self.current_tick.as_time(), map)
+            .get_all_draw_cars(map)
             .into_iter()
             .find(|x| x.id == id)
     }
 
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
         self.sim
-            .get_all_draw_peds(self.current_tick.as_time(), map)
+            .get_all_draw_peds(map)
             .into_iter()
             .find(|x| x.id == id)
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
-        self.sim
-            .get_draw_cars_on(self.current_tick.as_time(), on, map)
+        self.sim.get_draw_cars_on(on, map)
     }
 
     fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.sim
-            .get_draw_peds_on(self.current_tick.as_time(), on, map)
+        self.sim.get_draw_peds_on(on, map)
     }
 
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        self.sim.get_all_draw_cars(self.current_tick.as_time(), map)
+        self.sim.get_all_draw_cars(map)
     }
 
     fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.sim.get_all_draw_peds(self.current_tick.as_time(), map)
+        self.sim.get_all_draw_peds(map)
     }
 }
 

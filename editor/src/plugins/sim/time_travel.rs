@@ -1,14 +1,18 @@
 use crate::plugins::PluginCtx;
 use abstutil::MultiMap;
+use geom::Duration;
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, Tick};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim};
 use std::collections::BTreeMap;
 
+const TIMESTEP: Duration = Duration::const_seconds(0.1);
+
 pub struct TimeTravel {
-    state_per_tick: Vec<StateAtTime>,
-    current_tick: Option<Tick>,
-    // Determines the tick of state_per_tick[0]
-    first_tick: Tick,
+    // TODO Could be more efficient
+    state_per_time: BTreeMap<Duration, StateAtTime>,
+    current_time: Option<Duration>,
+    first_time: Duration,
+    last_time: Duration,
     should_record: bool,
 }
 
@@ -22,28 +26,34 @@ struct StateAtTime {
 impl TimeTravel {
     pub fn new() -> TimeTravel {
         TimeTravel {
-            state_per_tick: Vec::new(),
-            current_tick: None,
-            first_tick: Tick::zero(),
+            state_per_time: BTreeMap::new(),
+            current_time: None,
+            // TODO Good ol' off-by-ones...
+            first_time: Duration::ZERO,
+            last_time: Duration::ZERO,
             should_record: false,
         }
     }
 
     pub fn is_active(&self) -> bool {
-        self.current_tick.is_some()
+        self.current_time.is_some()
     }
 
     fn record_state(&mut self, sim: &Sim, map: &Map) {
-        // Record state for this tick, if needed.
-        let tick = sim.time.as_usize();
-        if tick + 1 == self.first_tick.as_usize() + self.state_per_tick.len() {
+        let now = sim.time();
+
+        // Record state for this timestep, if needed.
+        if now == self.last_time {
             return;
         }
-        if tick != self.first_tick.as_usize() + self.state_per_tick.len() {
+
+        if now != self.last_time + TIMESTEP {
             // We just loaded a new savestate or something. Clear out our memory.
-            self.state_per_tick.clear();
-            self.first_tick = sim.time;
+            self.state_per_time.clear();
+            self.first_time = now;
+            self.last_time = now;
         }
+        self.last_time = now;
 
         let mut state = StateAtTime {
             cars: BTreeMap::new(),
@@ -59,11 +69,11 @@ impl TimeTravel {
             state.peds_per_traversable.insert(draw.on, draw.id);
             state.peds.insert(draw.id, draw);
         }
-        self.state_per_tick.push(state);
+        self.state_per_time.insert(now, state);
     }
 
     fn get_current_state(&self) -> &StateAtTime {
-        &self.state_per_tick[self.current_tick.unwrap().as_usize() - self.first_tick.as_usize()]
+        &self.state_per_time[&self.current_time.unwrap()]
     }
 
     // Don't really need to indicate activeness here.
@@ -72,34 +82,32 @@ impl TimeTravel {
             self.record_state(&ctx.primary.sim, &ctx.primary.map);
         }
 
-        if let Some(tick) = self.current_tick {
+        if let Some(time) = self.current_time {
             ctx.input.set_mode_with_prompt(
                 "Time Traveler",
-                format!("Time Traveler at {}", tick),
+                format!("Time Traveler at {}", time),
                 &ctx.canvas,
             );
-            if tick > self.first_tick && ctx.input.modal_action("rewind") {
-                self.current_tick = Some(tick.prev());
-            } else if tick.as_usize() + 1 < self.first_tick.as_usize() + self.state_per_tick.len()
-                && ctx.input.modal_action("forwards")
-            {
-                self.current_tick = Some(tick.next());
+            if time > self.first_time && ctx.input.modal_action("rewind") {
+                self.current_time = Some(time - TIMESTEP);
+            } else if time < self.last_time && ctx.input.modal_action("forwards") {
+                self.current_time = Some(time + TIMESTEP);
             } else if ctx.input.modal_action("quit") {
-                self.current_tick = None;
+                self.current_time = None;
             }
         } else if ctx.input.action_chosen("start time traveling") {
             if !self.should_record {
                 self.should_record = true;
                 self.record_state(&ctx.primary.sim, &ctx.primary.map);
             }
-            self.current_tick = Some(ctx.primary.sim.time);
+            self.current_time = Some(ctx.primary.sim.time());
         }
     }
 }
 
 impl GetDrawAgents for TimeTravel {
-    fn tick(&self) -> Tick {
-        self.current_tick.unwrap()
+    fn time(&self) -> Duration {
+        self.current_time.unwrap()
     }
 
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {

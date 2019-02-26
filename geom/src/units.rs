@@ -217,6 +217,12 @@ impl ops::AddAssign for Duration {
     }
 }
 
+impl ops::SubAssign for Duration {
+    fn sub_assign(&mut self, other: Duration) {
+        *self = *self - other;
+    }
+}
+
 impl ops::Sub for Duration {
     type Output = Duration;
 

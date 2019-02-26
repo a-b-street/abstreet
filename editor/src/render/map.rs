@@ -14,12 +14,11 @@ use crate::state::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};
-use geom::{Bounds, FindClosest, Polygon};
+use geom::{Bounds, Duration, FindClosest, Polygon};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, ParcelID,
     RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
 };
-use sim::Tick;
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -248,7 +247,7 @@ impl DrawMap {
             draw_all_parcels,
 
             agents: RefCell::new(AgentCache {
-                tick: None,
+                time: None,
                 agents_per_on: HashMap::new(),
             }),
 
@@ -368,13 +367,13 @@ impl DrawMap {
 
 // TODO Invalidate when we interactively spawn stuff elsewhere?
 pub struct AgentCache {
-    tick: Option<Tick>,
+    time: Option<Duration>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
 }
 
 impl AgentCache {
-    pub fn has(&self, tick: Tick, on: Traversable) -> bool {
-        if Some(tick) != self.tick {
+    pub fn has(&self, time: Duration, on: Traversable) -> bool {
+        if Some(time) != self.time {
             return false;
         }
         self.agents_per_on.contains_key(&on)
@@ -388,10 +387,10 @@ impl AgentCache {
             .collect()
     }
 
-    pub fn put(&mut self, tick: Tick, on: Traversable, agents: Vec<Box<Renderable>>) {
-        if Some(tick) != self.tick {
+    pub fn put(&mut self, time: Duration, on: Traversable, agents: Vec<Box<Renderable>>) {
+        if Some(time) != self.time {
             self.agents_per_on.clear();
-            self.tick = Some(tick);
+            self.time = Some(time);
         }
 
         assert!(!self.agents_per_on.contains_key(&on));

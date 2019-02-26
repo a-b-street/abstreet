@@ -16,6 +16,7 @@ pub struct Sim {
     trips: TripManager,
     scheduler: Scheduler,
     spawner: TripSpawner,
+    time: Duration,
 }
 
 impl Sim {
@@ -28,6 +29,7 @@ impl Sim {
             trips: TripManager::new(),
             scheduler: Scheduler::new(),
             spawner: TripSpawner::new(),
+            time: Duration::ZERO,
         }
     }
 
@@ -74,48 +76,40 @@ impl Sim {
 }
 
 impl Sim {
-    pub fn draw_unzoomed(&self, time: Duration, g: &mut GfxCtx, map: &Map) {
-        self.driving.draw_unzoomed(time, g, map);
+    pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
+        self.driving.draw_unzoomed(self.time, g, map);
     }
 
-    pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
-        let mut result = self.driving.get_all_draw_cars(time, map);
+    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+        let mut result = self.driving.get_all_draw_cars(self.time, map);
         result.extend(self.parking.get_all_draw_cars(map));
         result
     }
 
-    pub fn get_draw_cars_on(
-        &self,
-        time: Duration,
-        on: Traversable,
-        map: &Map,
-    ) -> Vec<DrawCarInput> {
+    pub fn get_draw_cars_on(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
         if let Traversable::Lane(l) = on {
             if map.get_l(l).is_parking() {
                 return self.parking.get_draw_cars(l, map);
             }
         }
-        self.driving.get_draw_cars_on(time, on, map)
+        self.driving.get_draw_cars_on(self.time, on, map)
     }
 
-    pub fn get_all_draw_peds(&self, time: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking.get_all_draw_peds(time, map)
+    pub fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_all_draw_peds(self.time, map)
     }
 
-    pub fn get_draw_peds_on(
-        &self,
-        time: Duration,
-        on: Traversable,
-        map: &Map,
-    ) -> Vec<DrawPedestrianInput> {
-        self.walking.get_draw_peds(time, on, map)
+    pub fn get_draw_peds_on(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_draw_peds(self.time, on, map)
     }
 }
 
 impl Sim {
-    pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
+    pub fn step_if_needed(&mut self, map: &Map) {
+        self.time += Duration::seconds(0.1);
+
         self.driving.step_if_needed(
-            time,
+            self.time,
             map,
             &mut self.parking,
             &mut self.intersections,
@@ -123,7 +117,7 @@ impl Sim {
             &mut self.scheduler,
         );
         self.walking.step_if_needed(
-            time,
+            self.time,
             map,
             &mut self.intersections,
             &self.parking,
@@ -133,7 +127,7 @@ impl Sim {
 
         // Spawn stuff at the end, so we can see the correct state of everything else at this time.
         self.scheduler.step_if_needed(
-            time,
+            self.time,
             map,
             &mut self.parking,
             &mut self.walking,
@@ -141,5 +135,11 @@ impl Sim {
             &self.intersections,
             &mut self.trips,
         );
+    }
+}
+
+impl Sim {
+    pub fn time(&self) -> Duration {
+        self.time
     }
 }
