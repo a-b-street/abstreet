@@ -73,7 +73,7 @@ impl DrawIntersection {
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let signal = ctx.map.get_traffic_signal(self.id);
         if !ctx.sim.is_in_overtime(self.id) {
-            let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+            let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time());
             draw_signal_cycle(cycle, g, ctx);
         }
     }

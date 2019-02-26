@@ -92,7 +92,7 @@ impl AmbientPlugin for TurnCyclerState {
                 if self.shift_key_held {
                     if let Some(signal) = ctx.map.maybe_get_traffic_signal(i) {
                         let (cycle, mut time_left) =
-                            signal.current_cycle_and_remaining_time(ctx.sim.time.as_time());
+                            signal.current_cycle_and_remaining_time(ctx.sim.time());
                         if ctx.sim.is_in_overtime(i) {
                             // TODO Hacky way of indicating overtime. Should make a 3-case enum.
                             time_left = Duration::seconds(-1.0);

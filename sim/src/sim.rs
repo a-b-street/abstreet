@@ -34,7 +34,7 @@ pub struct Sim {
     // captures the RNG), this should be OK for now.
     #[derivative(PartialEq = "ignore")]
     pub(crate) rng: XorShiftRng,
-    pub time: Tick,
+    pub(crate) time: Tick,
     pub(crate) map_name: String,
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
