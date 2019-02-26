@@ -111,6 +111,7 @@ impl SidewalkSpot {
         map: &Map,
         parking_sim: &ParkingSimState,
     ) -> SidewalkSpot {
+        // TODO Consider precomputing this.
         let sidewalk = map
             .find_closest_lane(spot.lane, vec![LaneType::Sidewalk])
             .unwrap();

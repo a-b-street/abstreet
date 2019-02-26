@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
-    Command, CreateCar, DrivingGoal, ParkingSimState, ParkingSpot, Router, Scheduler, SidewalkSpot,
-    Vehicle,
+    Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
+    Scheduler, SidewalkSpot, Vehicle,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -36,26 +36,53 @@ impl TripManager {
         self.active_trip_mode.insert(agent, trip);
     }
 
-    /*
-    // Where are we walking next?
-    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    pub fn car_reached_parking_spot(
+        &mut self,
+        time: Duration,
+        car: CarID,
+        spot: ParkingSpot,
+        map: &Map,
+        parking: &ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(id, _) => assert_eq!(car, id),
-            x => panic!(
-                "First trip leg {:?} doesn't match car_reached_parking_spot",
-                x
-            ),
+        match trip.legs.pop_front() {
+            Some(TripLeg::Drive(id, DrivingGoal::ParkNear(_))) => assert_eq!(car, id),
+            _ => unreachable!(),
         };
-        // TODO there are only some valid sequences of trips. it'd be neat to guarantee these are
-        // valid by construction with a fluent API.
         let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to,
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
+            TripLeg::Walk(ref to) => to.clone(),
+            _ => unreachable!(),
         };
-        (trip.id, trip.ped.unwrap(), walk_to.clone())
-    }*/
+
+        let start = SidewalkSpot::parking_spot(spot, map, parking);
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: start.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: trip.ped.unwrap(),
+                start,
+                goal: walk_to,
+                path,
+                trip: trip.id,
+            },
+        ));
+    }
 
     pub fn ped_reached_parking_spot(
         &mut self,

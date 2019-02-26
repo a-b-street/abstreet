@@ -1,8 +1,8 @@
 use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
 use crate::plugins::sim::new_des_model::mechanics::queue::Queue;
 use crate::plugins::sim::new_des_model::{
-    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, TimeInterval,
-    FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler,
+    TimeInterval, TripManager, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -173,6 +173,8 @@ impl DrivingSimState {
         map: &Map,
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
+        trips: &mut TripManager,
+        scheduler: &mut Scheduler,
     ) {
         // Promote Crossing to Queued and Unparking to Crossing.
         for queue in self.queues.values_mut() {
@@ -254,6 +256,14 @@ impl DrivingSimState {
                                     spot,
                                     None,
                                 ));
+                                trips.car_reached_parking_spot(
+                                    time,
+                                    car.vehicle.id,
+                                    spot,
+                                    map,
+                                    parking,
+                                    scheduler,
+                                );
                             }
                         }
                         _ => {}
