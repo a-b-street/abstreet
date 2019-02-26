@@ -13,6 +13,7 @@ use std::collections::BTreeMap;
 // TODO These are comically fast.
 const SPEED: Speed = Speed::const_meters_per_second(3.9);
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
+const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
 #[derive(Serialize, Deserialize)]
 pub struct WalkingSimState {
@@ -59,6 +60,11 @@ impl WalkingSimState {
             SidewalkPOI::Building(b) => PedState::LeavingBuilding(
                 b,
                 TimeInterval::new(time, time + map.get_b(b).front_path.line.length() / SPEED),
+            ),
+            SidewalkPOI::BikeRack(driving_pos) => PedState::FinishingBiking(
+                params.start.clone(),
+                Line::new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),
+                TimeInterval::new(time, time + TIME_TO_FINISH_BIKING),
             ),
             _ => ped.crossing_state(params.start.sidewalk_pos.dist_along(), time, map),
         };
@@ -200,6 +206,11 @@ impl WalkingSimState {
                         trips.ped_ready_to_bike(time, ped.id, spot.clone(), map, scheduler);
                     }
                 }
+                PedState::FinishingBiking(ref spot, _, ref time_int) => {
+                    if time > time_int.end {
+                        ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), time, map);
+                    }
+                }
             };
         }
         for id in delete {
@@ -270,6 +281,9 @@ impl Pedestrian {
             PedState::StartingToBike(_, ref line, ref time_int) => {
                 line.percent_along(time_int.percent(time))
             }
+            PedState::FinishingBiking(_, ref line, ref time_int) => {
+                line.percent_along(time_int.percent(time))
+            }
         };
 
         DrawPedestrianInput {
@@ -293,4 +307,5 @@ enum PedState {
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
+    FinishingBiking(SidewalkSpot, Line, TimeInterval),
 }

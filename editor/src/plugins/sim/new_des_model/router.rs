@@ -1,4 +1,4 @@
-use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, Vehicle};
+use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
 use map_model::{BuildingID, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -15,6 +15,7 @@ pub enum ActionAtEnd {
     Vanish,
     StartParking(ParkingSpot),
     GotoLaneEnd,
+    StopBiking(SidewalkSpot),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -27,6 +28,9 @@ enum Goal {
     },
     // Stop at this distance along the last lane in the path
     StopSuddenly {
+        end_dist: Distance,
+    },
+    BikeThenStop {
         end_dist: Distance,
     },
 }
@@ -49,6 +53,13 @@ impl Router {
         }
     }
 
+    pub fn bike_then_stop(path: Vec<Traversable>, end_dist: Distance) -> Router {
+        Router {
+            path: VecDeque::from(path),
+            goal: Goal::BikeThenStop { end_dist },
+        }
+    }
+
     pub fn head(&self) -> Traversable {
         self.path[0]
     }
@@ -67,6 +78,7 @@ impl Router {
         match self.goal {
             Goal::StopSuddenly { end_dist } => end_dist,
             Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
+            Goal::BikeThenStop { end_dist } => end_dist,
         }
     }
 
@@ -122,6 +134,22 @@ impl Router {
 
                 if spot.unwrap().1 == front {
                     Some(ActionAtEnd::StartParking(spot.unwrap().0))
+                } else {
+                    None
+                }
+            }
+            Goal::BikeThenStop { end_dist } => {
+                if end_dist == front {
+                    let last_lane = self.path[0].as_lane();
+                    Some(ActionAtEnd::StopBiking(
+                        SidewalkSpot::bike_rack(
+                            map.get_parent(last_lane)
+                                .bike_to_sidewalk(last_lane)
+                                .unwrap(),
+                            map,
+                        )
+                        .unwrap(),
+                    ))
                 } else {
                     None
                 }

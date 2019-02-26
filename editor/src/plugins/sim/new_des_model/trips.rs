@@ -183,7 +183,7 @@ impl TripManager {
 
         let router = match drive_to {
             // TODO Stop closer to the building?
-            DrivingGoal::ParkNear(_) => Router::stop_suddenly(
+            DrivingGoal::ParkNear(_) => Router::bike_then_stop(
                 path.convert_to_traversable_list(),
                 map.get_l(end.lane()).length() / 2.0,
             ),
@@ -199,21 +199,53 @@ impl TripManager {
         ));
     }
 
-    /*pub fn bike_reached_end(&mut self, bike: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    pub fn bike_reached_end(
+        &mut self,
+        time: Duration,
+        bike: CarID,
+        bike_rack: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Bike { .. } => {}
-            x => panic!("First trip leg {:?} doesn't match bike_reached_end", x),
+        match trip.legs.pop_front() {
+            Some(TripLeg::Bike(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
+            _ => unreachable!(),
         };
         let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to,
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
+            TripLeg::Walk(ref to) => to.clone(),
+            _ => unreachable!(),
         };
-        (trip.id, trip.ped.unwrap(), walk_to.clone())
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: bike_rack.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: trip.ped.unwrap(),
+                start: bike_rack,
+                goal: walk_to,
+                path,
+                trip: trip.id,
+            },
+        ));
     }
 
-    pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Duration) {
+    /*pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Duration) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))

@@ -245,6 +245,16 @@ impl DrivingSimState {
                                 Some(ActionAtEnd::GotoLaneEnd) => {
                                     car.state = car.crossing_state(dist, time, map);
                                 }
+                                Some(ActionAtEnd::StopBiking(bike_rack)) => {
+                                    delete_indices.push((idx, dist));
+                                    trips.bike_reached_end(
+                                        time,
+                                        car.vehicle.id,
+                                        bike_rack,
+                                        map,
+                                        scheduler,
+                                    );
+                                }
                                 None => {}
                             }
                         }
