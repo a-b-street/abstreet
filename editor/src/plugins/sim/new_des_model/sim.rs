@@ -36,16 +36,14 @@ impl Sim {
             .schedule_trip(start_time, spec, map, &self.parking);
     }
 
-    pub fn spawn_all_trips(&mut self, map: &Map) {
-        let mut timer = Timer::new("spawn all trips");
+    pub fn spawn_all_trips(&mut self, map: &Map, timer: &mut Timer) {
         self.spawner.spawn_all(
             map,
             &self.parking,
             &mut self.trips,
             &mut self.scheduler,
-            &mut timer,
+            timer,
         );
-        timer.done();
     }
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {

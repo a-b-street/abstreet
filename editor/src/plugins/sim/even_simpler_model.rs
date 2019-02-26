@@ -2,6 +2,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::sim::new_des_model;
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
+use abstutil::Timer;
 use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, LaneID, Map, Position, Traversable};
@@ -119,6 +120,7 @@ impl GetDrawAgents for EvenSimplerModelController {
 }
 
 fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
+    let mut timer = Timer::new("populate_sim");
     let mut sim = new_des_model::Sim::new(map);
 
     let mut sources = vec![start];
@@ -153,27 +155,17 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
         random_ped_near(source, &mut sim, map, &mut rng);
     }
 
-    sim.spawn_all_trips(map);
+    sim.spawn_all_trips(map, &mut timer);
+    timer.done();
     sim
 }
 
 fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
+    let mut timer = Timer::new("densely_populate_sim");
     let mut sim = new_des_model::Sim::new(map);
     let mut rng = XorShiftRng::from_seed([42; 16]);
-
-    for l in map.all_lanes() {
-        let len = l.length();
-        if l.is_driving() && len >= new_des_model::MAX_CAR_LENGTH {
-            for _ in 0..rng.gen_range(0, 5) {
-                spawn_car(&mut sim, &mut rng, map, l.id);
-            }
-            seed_parked_cars_near(l.id, &mut rng, &mut sim, map);
-
-            random_ped_near(l.id, &mut sim, map, &mut rng);
-        }
-    }
-
-    sim.spawn_all_trips(map);
+    new_des_model::Scenario::small_run(map).instantiate(&mut sim, map, &mut rng, &mut timer);
+    timer.done();
     sim
 }
 

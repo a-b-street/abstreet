@@ -61,12 +61,12 @@ pub struct SeedParkedCars {
 }
 
 impl Scenario {
-    pub fn describe(&self) -> Vec<String> {
+    /*pub fn describe(&self) -> Vec<String> {
         abstutil::to_json(self)
             .split('\n')
             .map(|s| s.to_string())
             .collect()
-    }
+    }*/
 
     // TODO may need to fork the RNG a bit more
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
@@ -234,13 +234,13 @@ impl Scenario {
                         if let Some(goal) =
                             s.goal.pick_driving_goal(map, &neighborhoods, rng, timer)
                         {
-                            // TODO Do the distance correction here
+                            let vehicle = rand_car(rng);
                             sim.schedule_trip(
                                 spawn_time,
                                 TripSpec::CarAppearing(
                                     // TODO could pretty easily pick any lane here
-                                    Position::new(starting_driving_lanes[0], Distance::ZERO),
-                                    rand_car(rng),
+                                    Position::new(starting_driving_lanes[0], vehicle.length),
+                                    vehicle,
                                     goal,
                                 ),
                                 map,
@@ -287,12 +287,62 @@ impl Scenario {
             }
         }
 
-        sim.spawn_all_trips(map);
+        sim.spawn_all_trips(map, timer);
         timer.stop(&format!("Instantiating {}", self.scenario_name));
     }
 
-    pub fn save(&self) {
+    /*pub fn save(&self) {
         abstutil::save_object("scenarios", &self.map_name, &self.scenario_name, self);
+    }*/
+
+    pub fn small_run(map: &Map) -> Scenario {
+        let mut s = Scenario {
+            scenario_name: "small_spawn".to_string(),
+            map_name: map.get_name().to_string(),
+            seed_parked_cars: vec![SeedParkedCars {
+                neighborhood: "_everywhere_".to_string(),
+                cars_per_building: WeightedUsizeChoice {
+                    weights: vec![5, 5],
+                },
+            }],
+            spawn_over_time: vec![SpawnOverTime {
+                num_agents: 100,
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                percent_biking: 0.5,
+                percent_use_transit: 0.5,
+            }],
+            // If there are no sidewalks/driving lanes at a border, scenario instantiation will
+            // just warn and skip them.
+            border_spawn_over_time: map
+                .all_incoming_borders()
+                .into_iter()
+                .map(|i| BorderSpawnOverTime {
+                    num_peds: 10,
+                    num_cars: 10,
+                    num_bikes: 10,
+                    start_time: Duration::ZERO,
+                    stop_time: Duration::seconds(5.0),
+                    start_from_border: i.id,
+                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                    percent_use_transit: 0.5,
+                })
+                .collect(),
+        };
+        for i in map.all_outgoing_borders() {
+            s.spawn_over_time.push(SpawnOverTime {
+                num_agents: 10,
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Border(i.id),
+                percent_biking: 0.5,
+                percent_use_transit: 0.5,
+            });
+        }
+        s
     }
 }
 

@@ -10,6 +10,7 @@ pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
 pub use self::router::{ActionAtEnd, Router};
+pub use self::scenario::Scenario;
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
 pub use self::spawn::{TripSpawner, TripSpec};
