@@ -46,11 +46,11 @@ impl BlockingPlugin for EvenSimplerModelController {
             if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = false;
             } else if ctx.input.is_update_event() {
-                self.sim.step_if_needed(&ctx.primary.map);
+                self.sim.step(&ctx.primary.map);
             }
         } else {
             if ctx.input.modal_action("forwards") {
-                self.sim.step_if_needed(&ctx.primary.map);
+                self.sim.step(&ctx.primary.map);
             } else if ctx.input.modal_action("toggle forwards play") {
                 self.auto_mode = true;
                 ctx.hints.mode = EventLoopMode::Animation;

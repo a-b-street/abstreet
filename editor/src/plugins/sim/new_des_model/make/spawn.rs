@@ -234,6 +234,10 @@ impl TripSpawner {
             }
         }
     }
+
+    pub fn is_done(&self) -> bool {
+        self.trips.is_empty()
+    }
 }
 
 impl TripSpec {

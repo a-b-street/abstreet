@@ -388,6 +388,11 @@ impl TripManager {
             trip.legs.back().unwrap()
         )]
     }*/
+
+    pub fn is_done(&self) -> bool {
+        // TODO Buses?
+        self.active_trip_mode.is_empty()
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

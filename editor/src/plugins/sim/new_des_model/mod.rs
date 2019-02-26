@@ -1,10 +1,13 @@
+mod events;
 mod make;
 mod mechanics;
+mod query;
 mod router;
 mod scheduler;
 mod sim;
 mod trips;
 
+pub use self::events::Event;
 pub use self::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
     SimFlags, SpawnOverTime, TripSpawner, TripSpec,
@@ -12,6 +15,7 @@ pub use self::make::{
 pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
+pub use self::query::{Benchmark, ScoreSummary, Summary};
 pub use self::router::{ActionAtEnd, Router};
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
