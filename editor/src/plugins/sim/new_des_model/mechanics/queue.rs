@@ -1,5 +1,5 @@
 use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
-use crate::plugins::sim::new_des_model::{FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH};
+use crate::plugins::sim::new_des_model::{BUS_LENGTH, FOLLOWING_DISTANCE};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
 use std::collections::VecDeque;
@@ -18,8 +18,7 @@ impl Queue {
         Queue {
             id,
             cars: VecDeque::new(),
-            max_capacity: ((len / (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE)).floor() as usize)
-                .max(1),
+            max_capacity: ((len / (BUS_LENGTH + FOLLOWING_DISTANCE)).floor() as usize).max(1),
             geom_len: len,
         }
     }

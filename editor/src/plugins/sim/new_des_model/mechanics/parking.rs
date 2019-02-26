@@ -2,7 +2,7 @@ use crate::plugins::sim::new_des_model::{ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Pt2D};
 use map_model;
-use map_model::{Lane, LaneID, LaneType, Map, Position, Traversable};
+use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, CarState, DrawCarInput, VehicleType};
 use std::collections::{BTreeMap, BTreeSet};
@@ -185,7 +185,7 @@ impl ParkingSimState {
             "{} is parked, owned by {:?}",
             c.vehicle.id, c.owner
         )]
-    }
+    }*/
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
         let mut result: Vec<&ParkedCar> = Vec::new();
@@ -197,7 +197,7 @@ impl ParkingSimState {
         result
     }
 
-    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+    /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         self.lookup_car(id).and_then(|p| p.owner)
     }
 

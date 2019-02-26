@@ -4,7 +4,7 @@ use crate::plugins::sim::new_des_model::{
 };
 use abstutil::Timer;
 use geom::Duration;
-use map_model::{Map, Path, PathRequest, Pathfinder, Position};
+use map_model::{BusRouteID, BusStopID, Map, Path, PathRequest, Pathfinder, Position};
 use sim::{CarID, PedestrianID, VehicleType};
 use std::collections::BTreeSet;
 
@@ -12,12 +12,10 @@ use std::collections::BTreeSet;
 pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
     CarAppearing(Position, VehicleSpec, DrivingGoal),
-    // TODO The only starts that really make sense are building or border...
     UsingParkedCar(SidewalkSpot, ParkingSpot, DrivingGoal),
-    // TODO The only starts that really make sense are building or border...
-    //UsingBike(SidewalkSpot, VehicleSpec, DrivingGoal),
     JustWalking(SidewalkSpot, SidewalkSpot),
-    // TODO Transit
+    UsingBike(SidewalkSpot, VehicleSpec, DrivingGoal),
+    UsingTransit(SidewalkSpot, BusRouteID, BusStopID, BusStopID, SidewalkSpot),
 }
 
 pub struct TripSpawner {
@@ -83,6 +81,8 @@ impl TripSpawner {
                 self.parked_cars_claimed.insert(car_id);
             }
             TripSpec::JustWalking(_, _) => {}
+            TripSpec::UsingBike(_, _, _) => {}
+            TripSpec::UsingTransit(_, _, _, _, _) => {}
         };
 
         self.trips.push((start_time, spec));
@@ -189,6 +189,12 @@ impl TripSpawner {
                         },
                     ));
                 }
+                TripSpec::UsingBike(_, _, _) => {
+                    panic!("implement");
+                }
+                TripSpec::UsingTransit(_, _, _, _, _) => {
+                    panic!("implement");
+                }
             }
         }
     }
@@ -215,6 +221,12 @@ impl TripSpec {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
+            TripSpec::UsingBike(_, _, _) => {
+                panic!("implement");
+            }
+            TripSpec::UsingTransit(_, _, _, _, _) => {
+                panic!("implement");
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
 use crate::plugins::sim::new_des_model::mechanics::queue::Queue;
 use crate::plugins::sim::new_des_model::{
     ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler,
-    TimeInterval, TripManager, FOLLOWING_DISTANCE, MAX_VEHICLE_LENGTH,
+    TimeInterval, TripManager, BUS_LENGTH, FOLLOWING_DISTANCE,
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
@@ -65,7 +65,7 @@ impl DrivingSimState {
             if num_waiting > 0 {
                 // Short lanes/turns exist
                 let start = (queue.geom_len
-                    - f64::from(num_waiting) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE))
+                    - f64::from(num_waiting) * (BUS_LENGTH + FOLLOWING_DISTANCE))
                     .max(Distance::ZERO);
                 g.draw_polygon(
                     WAITING,
@@ -84,7 +84,7 @@ impl DrivingSimState {
                         .id
                         .slice(
                             Distance::ZERO,
-                            f64::from(num_freeflow) * (MAX_VEHICLE_LENGTH + FOLLOWING_DISTANCE),
+                            f64::from(num_freeflow) * (BUS_LENGTH + FOLLOWING_DISTANCE),
                             map,
                         )
                         .unwrap()

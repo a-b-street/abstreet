@@ -139,7 +139,7 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
     let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         let len = map.get_l(source).length();
-        if len < new_des_model::MAX_VEHICLE_LENGTH {
+        if len < new_des_model::MAX_CAR_LENGTH {
             println!("Can't spawn cars on {}, it's only {} long", source, len);
             continue;
         }
@@ -163,7 +163,7 @@ fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
 
     for l in map.all_lanes() {
         let len = l.length();
-        if l.is_driving() && len >= new_des_model::MAX_VEHICLE_LENGTH {
+        if l.is_driving() && len >= new_des_model::MAX_CAR_LENGTH {
             for _ in 0..rng.gen_range(0, 5) {
                 spawn_car(&mut sim, &mut rng, map, l.id);
             }
@@ -206,13 +206,7 @@ fn seed_parked_cars_near(
         if map.get_l(l).is_parking() {
             for spot in sim.get_free_spots(l) {
                 if rng.gen_bool(0.2) {
-                    // TODO tmp ID hack
-                    let parked_car = new_des_model::ParkedCar::new(
-                        rand_vehicle(rng).make(CarID::tmp_new(0, VehicleType::Car)),
-                        spot,
-                        None,
-                    );
-                    sim.seed_parked_car(parked_car.clone());
+                    sim.seed_parked_car(rand_vehicle(rng), spot, None);
 
                     if rng.gen_bool(0.3) {
                         if let Some(start_bldg) = random_bldg_near(l, map, rng) {
@@ -257,8 +251,8 @@ fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
 fn rand_vehicle(rng: &mut XorShiftRng) -> new_des_model::VehicleSpec {
     let vehicle_len = rand_dist(
         rng,
-        new_des_model::MIN_VEHICLE_LENGTH,
-        new_des_model::MAX_VEHICLE_LENGTH,
+        new_des_model::MIN_CAR_LENGTH,
+        new_des_model::MAX_CAR_LENGTH,
     );
     let max_speed = if rng.gen_bool(0.1) {
         Some(Speed::miles_per_hour(10.0))

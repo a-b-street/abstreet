@@ -1,5 +1,6 @@
 mod mechanics;
 mod router;
+mod scenario;
 mod scheduler;
 mod sim;
 mod spawn;
@@ -18,8 +19,17 @@ use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};
 use serde_derive::{Deserialize, Serialize};
 
-pub const MIN_VEHICLE_LENGTH: Distance = Distance::const_meters(2.0);
-pub const MAX_VEHICLE_LENGTH: Distance = Distance::const_meters(7.0);
+// http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
+pub const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
+pub const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
+// These two must be < PARKING_SPOT_LENGTH
+pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
+pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);
+// Note this is more than MAX_CAR_LENGTH
+pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
+
+// At all speeds (including at rest), cars must be at least this far apart, measured from front of
+// one car to the back of the other.
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

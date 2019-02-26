@@ -1,12 +1,12 @@
 use crate::plugins::sim::new_des_model::{
     DrivingSimState, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, Scheduler,
-    TripManager, TripSpawner, TripSpec, WalkingSimState,
+    TripManager, TripSpawner, TripSpec, VehicleSpec, WalkingSimState,
 };
 use abstutil::Timer;
 use ezgui::GfxCtx;
 use geom::Duration;
-use map_model::{LaneID, Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput};
+use map_model::{BuildingID, LaneID, Map, Traversable};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, VehicleType};
 
 pub struct Sim {
     driving: DrivingSimState,
@@ -31,6 +31,51 @@ impl Sim {
         }
     }
 
+    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec, map: &Map) {
+        self.spawner
+            .schedule_trip(start_time, spec, map, &self.parking);
+    }
+
+    pub fn spawn_all_trips(&mut self, map: &Map) {
+        let mut timer = Timer::new("spawn all trips");
+        self.spawner.spawn_all(
+            map,
+            &self.parking,
+            &mut self.trips,
+            &mut self.scheduler,
+            &mut timer,
+        );
+        timer.done();
+    }
+
+    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
+        self.parking.get_free_spots(l)
+    }
+
+    pub fn seed_parked_car(
+        &mut self,
+        vehicle: VehicleSpec,
+        spot: ParkingSpot,
+        owner: Option<BuildingID>,
+    ) {
+        self.parking.reserve_spot(spot);
+        self.parking.add_parked_car(ParkedCar::new(
+            vehicle.make(CarID::tmp_new(
+                self.spawner.car_id_counter,
+                VehicleType::Car,
+            )),
+            spot,
+            owner,
+        ));
+        self.spawner.car_id_counter += 1;
+    }
+
+    pub fn get_parked_cars_by_owner(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
+        self.parking.get_parked_cars_by_owner(bldg)
+    }
+}
+
+impl Sim {
     pub fn draw_unzoomed(&self, time: Duration, g: &mut GfxCtx, map: &Map) {
         self.driving.draw_unzoomed(time, g, map);
     }
@@ -67,38 +112,9 @@ impl Sim {
     ) -> Vec<DrawPedestrianInput> {
         self.walking.get_draw_peds(time, on, map)
     }
+}
 
-    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec, map: &Map) {
-        self.spawner
-            .schedule_trip(start_time, spec, map, &self.parking);
-    }
-
-    pub fn spawn_all_trips(&mut self, map: &Map) {
-        let mut timer = Timer::new("spawn all trips");
-        self.spawner.spawn_all(
-            map,
-            &self.parking,
-            &mut self.trips,
-            &mut self.scheduler,
-            &mut timer,
-        );
-        timer.done();
-    }
-
-    pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
-        self.parking.get_free_spots(l)
-    }
-
-    pub fn seed_parked_car(&mut self, mut parked_car: ParkedCar) {
-        // TODO tmp hack.
-        parked_car.vehicle.id =
-            CarID::tmp_new(self.spawner.car_id_counter, parked_car.vehicle.vehicle_type);
-        self.spawner.car_id_counter += 1;
-
-        self.parking.reserve_spot(parked_car.spot);
-        self.parking.add_parked_car(parked_car);
-    }
-
+impl Sim {
     pub fn step_if_needed(&mut self, time: Duration, map: &Map) {
         self.driving.step_if_needed(
             time,
