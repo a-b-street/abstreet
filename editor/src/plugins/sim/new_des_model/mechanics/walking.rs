@@ -3,15 +3,16 @@ use crate::plugins::sim::new_des_model::{
     SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration, Line, Speed};
 use map_model::{BuildingID, Map, Path, PathStep, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, DrawPedestrianInput, PedestrianID};
 use std::collections::BTreeMap;
 
-// TODO This is comically fast.
+// TODO These are comically fast.
 const SPEED: Speed = Speed::const_meters_per_second(3.9);
+const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 
 #[derive(Serialize, Deserialize)]
 pub struct WalkingSimState {
@@ -135,8 +136,14 @@ impl WalkingSimState {
                                         ped,
                                     );
                                 }
-                                SidewalkPOI::BikeRack => {
-                                    panic!("implement");
+                                SidewalkPOI::BikeRack(driving_pos) => {
+                                    let pt1 = ped.goal.sidewalk_pos.pt(map);
+                                    let pt2 = driving_pos.pt(map);
+                                    ped.state = PedState::StartingToBike(
+                                        ped.goal.clone(),
+                                        Line::new(pt1, pt2),
+                                        TimeInterval::new(time, time + TIME_TO_START_BIKING),
+                                    );
                                 }
                             }
                         } else {
@@ -186,6 +193,13 @@ impl WalkingSimState {
                         delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
                     }
                 }
+                PedState::StartingToBike(ref spot, _, ref time_int) => {
+                    if time > time_int.end {
+                        delete.push(ped.id);
+                        delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                        trips.ped_ready_to_bike(time, ped.id, spot.clone(), map, scheduler);
+                    }
+                }
             };
         }
         for id in delete {
@@ -228,22 +242,22 @@ impl Pedestrian {
     }
 
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
-        let (on, pos) = match self.state {
+        let on = self.path.current_step().as_traversable();
+        let pos = match self.state {
             PedState::Crossing(ref dist_int, ref time_int, _) => {
                 let percent = if time > time_int.end {
                     1.0
                 } else {
                     time_int.percent(time)
                 };
-                let on = self.path.current_step().as_traversable();
-                (on, on.dist_along(dist_int.lerp(percent), map).0)
+                on.dist_along(dist_int.lerp(percent), map).0
             }
             PedState::LeavingBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
                 let pt = front_path
                     .line
                     .dist_along(time_int.percent(time) * front_path.line.length());
-                (self.path.current_step().as_traversable(), pt)
+                pt
             }
             PedState::EnteringBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
@@ -251,7 +265,10 @@ impl Pedestrian {
                     .line
                     .reverse()
                     .dist_along(time_int.percent(time) * front_path.line.length());
-                (self.path.current_step().as_traversable(), pt)
+                pt
+            }
+            PedState::StartingToBike(_, ref line, ref time_int) => {
+                line.percent_along(time_int.percent(time))
             }
         };
 
@@ -275,4 +292,5 @@ enum PedState {
     Crossing(DistanceInterval, TimeInterval, bool),
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),
+    StartingToBike(SidewalkSpot, Line, TimeInterval),
 }

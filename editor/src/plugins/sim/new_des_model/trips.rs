@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
     Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
-    Scheduler, SidewalkSpot, Vehicle,
+    Scheduler, SidewalkPOI, SidewalkSpot, Vehicle,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -141,25 +141,65 @@ impl TripManager {
         ));
     }
 
-    /*pub fn ped_ready_to_bike(&mut self, ped: PedestrianID) -> (TripID, Vehicle, DrivingGoal) {
+    pub fn ped_ready_to_bike(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        spot: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Walk(_) => {}
-            x => panic!("First trip leg {:?} doesn't match ped_ready_to_bike", x),
+        assert_eq!(trip.legs.pop_front(), Some(TripLeg::Walk(spot.clone())));
+        let (vehicle, drive_to) = match trip.legs[0] {
+            TripLeg::Bike(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
+            _ => unreachable!(),
         };
-        let (vehicle, bike_to) = match trip.legs[0] {
-            TripLeg::Bike(ref vehicle, ref to) => (vehicle, to),
-            ref x => panic!("Next trip leg is {:?}, not biking", x),
+        let driving_pos = match spot.connection {
+            SidewalkPOI::BikeRack(ref p) => p.clone(),
+            _ => unreachable!(),
         };
-        (trip.id, vehicle.clone(), bike_to.clone())
+
+        let end = drive_to.goal_pos(map);
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: driving_pos,
+                end,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the car portion!");
+            return;
+        };
+
+        let router = match drive_to {
+            // TODO Stop closer to the building?
+            DrivingGoal::ParkNear(_) => Router::stop_suddenly(
+                path.convert_to_traversable_list(),
+                map.get_l(end.lane()).length() / 2.0,
+            ),
+            DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
+                path.convert_to_traversable_list(),
+                map.get_l(last_lane).length(),
+            ),
+        };
+
+        scheduler.enqueue_command(Command::SpawnCar(
+            time,
+            CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
+        ));
     }
 
-    pub fn bike_reached_end(&mut self, bike: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    /*pub fn bike_reached_end(&mut self, bike: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
 
         match trip.legs.pop_front().unwrap() {

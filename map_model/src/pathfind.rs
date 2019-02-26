@@ -345,7 +345,8 @@ impl Pathfinder {
         .pathfind(map, start, goal)?;
         for s in internal_steps.into_iter() {
             if let InternalPathStep::RideBus(stop1, stop2, route) = s {
-                return Some((stop1, stop2, route));
+                //return Some((stop1, stop2, route));
+                return None;
             }
         }
         None

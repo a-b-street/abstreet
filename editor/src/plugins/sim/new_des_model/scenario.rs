@@ -130,22 +130,32 @@ impl Scenario {
                     }
                 } else if rng.gen_bool(s.percent_biking) {
                     if let Some(goal) = s.goal.pick_biking_goal(map, &neighborhoods, rng, timer) {
-                        let skip = if let DrivingGoal::ParkNear(to_bldg) = goal {
-                            map.get_b(to_bldg).sidewalk() == map.get_b(from_bldg).sidewalk()
-                        } else {
-                            false
-                        };
-
-                        if !skip {
-                            sim.schedule_trip(
-                                spawn_time,
-                                TripSpec::UsingBike(
-                                    SidewalkSpot::building(from_bldg, map),
-                                    rand_bike(rng),
-                                    goal,
-                                ),
-                                map,
-                            );
+                        let start_at = map.get_b(from_bldg).sidewalk();
+                        // TODO Just start biking on the other side of the street if the sidewalk
+                        // is on a one-way. Or at least warn.
+                        if map
+                            .get_parent(start_at)
+                            .sidewalk_to_bike(start_at)
+                            .is_some()
+                        {
+                            let ok = if let DrivingGoal::ParkNear(to_bldg) = goal {
+                                let end_at = map.get_b(to_bldg).sidewalk();
+                                map.get_parent(end_at).sidewalk_to_bike(end_at).is_some()
+                                    && start_at != end_at
+                            } else {
+                                true
+                            };
+                            if ok {
+                                sim.schedule_trip(
+                                    spawn_time,
+                                    TripSpec::UsingBike(
+                                        SidewalkSpot::building(from_bldg, map),
+                                        rand_bike(rng),
+                                        goal,
+                                    ),
+                                    map,
+                                );
+                            }
                         }
                     }
                 } else if let Some(goal) = s.goal.pick_walking_goal(map, &neighborhoods, rng, timer)

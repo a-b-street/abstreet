@@ -81,7 +81,14 @@ impl TripSpawner {
                 self.parked_cars_claimed.insert(car_id);
             }
             TripSpec::JustWalking(_, _) => {}
-            TripSpec::UsingBike(_, _, _) => {}
+            TripSpec::UsingBike(start, _, _) => {
+                if SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).is_none() {
+                    panic!(
+                        "Can't start biking from {}; no biking or driving lane nearby?",
+                        start.sidewalk_pos.lane()
+                    );
+                }
+            }
             TripSpec::UsingTransit(_, _, _, _, _) => {}
         };
 
@@ -189,8 +196,35 @@ impl TripSpawner {
                         },
                     ));
                 }
-                TripSpec::UsingBike(_, _, _) => {
-                    panic!("implement");
+                TripSpec::UsingBike(start, vehicle, goal) => {
+                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    self.ped_id_counter += 1;
+                    let bike_id = CarID::tmp_new(self.car_id_counter, VehicleType::Bike);
+                    self.car_id_counter += 1;
+
+                    let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
+                    let mut legs = vec![
+                        TripLeg::Walk(walk_to.clone()),
+                        TripLeg::Bike(vehicle.make(bike_id), goal.clone()),
+                    ];
+                    match goal {
+                        DrivingGoal::ParkNear(b) => {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                        }
+                        DrivingGoal::Border(_, _) => {}
+                    }
+                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+
+                    scheduler.enqueue_command(Command::SpawnPed(
+                        start_time,
+                        CreatePedestrian {
+                            id: ped_id,
+                            start,
+                            goal: walk_to,
+                            path,
+                            trip,
+                        },
+                    ));
                 }
                 TripSpec::UsingTransit(_, _, _, _, _) => {
                     panic!("implement");
@@ -221,9 +255,14 @@ impl TripSpec {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            TripSpec::UsingBike(_, _, _) => {
-                panic!("implement");
-            }
+            TripSpec::UsingBike(start, _, _) => PathRequest {
+                start: start.sidewalk_pos,
+                end: SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map)
+                    .unwrap()
+                    .sidewalk_pos,
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            },
             TripSpec::UsingTransit(_, _, _, _, _) => {
                 panic!("implement");
             }

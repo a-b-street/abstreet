@@ -165,7 +165,11 @@ impl Line {
             return self.pt1();
         }
 
-        let percent = dist / len;
+        self.percent_along(dist / len)
+    }
+
+    pub fn percent_along(&self, percent: f64) -> Pt2D {
+        assert!(percent >= 0.0 && percent <= 1.0);
         Pt2D::new(
             self.pt1().x() + percent * (self.pt2().x() - self.pt1().x()),
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),

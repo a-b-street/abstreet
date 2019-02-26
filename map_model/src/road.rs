@@ -139,6 +139,24 @@ impl Road {
         }
     }
 
+    pub fn sidewalk_to_bike(&self, sidewalk: LaneID) -> Option<LaneID> {
+        // TODO Crossing bus lanes means higher layers of sim should know to block these off
+        let (fwds, idx) = self.dir_and_offset(sidewalk);
+        if fwds {
+            self.children_forwards[0..idx]
+                .iter()
+                .rev()
+                .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
+                .map(|(id, _)| *id)
+        } else {
+            self.children_backwards[0..idx]
+                .iter()
+                .rev()
+                .find(|(_, lt)| *lt == LaneType::Driving || *lt == LaneType::Biking)
+                .map(|(id, _)| *id)
+        }
+    }
+
     // Is this lane the arbitrary canonical lane of this road? Used for deciding who should draw
     // yellow center lines.
     pub fn is_canonical_lane(&self, lane: LaneID) -> bool {

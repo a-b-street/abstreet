@@ -140,12 +140,16 @@ impl SidewalkSpot {
         }
     }
 
-    pub fn bike_rack(sidewalk_pos: Position, map: &Map) -> SidewalkSpot {
-        assert!(map.get_l(sidewalk_pos.lane()).is_sidewalk());
-        SidewalkSpot {
-            connection: SidewalkPOI::BikeRack,
+    pub fn bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
+        assert!(map.get_l(sidewalk).is_sidewalk());
+        let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
+        // TODO Arbitrary, but safe
+        let sidewalk_pos = Position::new(sidewalk, map.get_l(sidewalk).length() / 2.0);
+        let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
+        Some(SidewalkSpot {
+            connection: SidewalkPOI::BikeRack(driving_pos),
             sidewalk_pos,
-        }
+        })
     }
 
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
@@ -181,13 +185,14 @@ impl SidewalkSpot {
 }
 
 // Point of interest, that is
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum SidewalkPOI {
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
     BusStop(BusStopID),
     Border(IntersectionID),
-    BikeRack,
+    // The equivalent position on the nearest driving/bike lane
+    BikeRack(Position),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
