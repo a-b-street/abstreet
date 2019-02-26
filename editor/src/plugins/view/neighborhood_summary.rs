@@ -3,15 +3,15 @@ use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
 use ezgui::{Color, GfxCtx, Text};
-use geom::{Polygon, Pt2D};
+use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
-use sim::{Sim, Tick};
+use sim::Sim;
 use std::collections::HashSet;
 
 pub struct NeighborhoodSummary {
     regions: Vec<Region>,
     active: bool,
-    last_summary: Option<Tick>,
+    last_summary: Option<Duration>,
 }
 
 impl NeighborhoodSummary {
@@ -45,8 +45,8 @@ impl AmbientPlugin for NeighborhoodSummary {
                 && ctx.input.action_chosen("show neighborhood summaries");
         }
 
-        if self.active && Some(ctx.primary.sim.time) != self.last_summary {
-            self.last_summary = Some(ctx.primary.sim.time);
+        if self.active && Some(ctx.primary.sim.time()) != self.last_summary {
+            self.last_summary = Some(ctx.primary.sim.time());
             for r in self.regions.iter_mut() {
                 r.update_summary(
                     &ctx.primary.sim,

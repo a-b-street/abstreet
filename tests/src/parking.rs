@@ -1,5 +1,6 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
+use geom::Duration;
 use sim;
 
 pub fn run(t: &mut TestRunner) {
@@ -30,9 +31,9 @@ pub fn run(t: &mut TestRunner) {
                 car,
                 sim::ParkingSpot::new(north_parking, 4),
             )],
-            sim::Tick::from_minutes(2),
+            Duration::minutes(2),
         );
-        sim.run_until_done(&map, |_| {}, Some(sim::Tick::from_minutes(4)));
+        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(4)));
     });
 
     t.run_slow("wander_around_for_parking", |h| {
@@ -60,8 +61,8 @@ pub fn run(t: &mut TestRunner) {
                 car,
                 sim::ParkingSpot::new(south_parking, 0),
             )],
-            sim::Tick::from_minutes(2),
+            Duration::minutes(2),
         );
-        sim.run_until_done(&map, |_| {}, Some(sim::Tick::from_minutes(4)));
+        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(4)));
     });
 }

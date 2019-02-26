@@ -1,5 +1,6 @@
-use crate::{Scenario, Sim, Tick};
+use crate::{Scenario, Sim};
 use abstutil;
+use geom::Duration;
 use map_model::{Map, MapEdits};
 use structopt::StructOpt;
 
@@ -42,7 +43,7 @@ impl SimFlags {
 // Convenience method to setup everything.
 pub fn load(
     flags: SimFlags,
-    savestate_every: Option<Tick>,
+    savestate_every: Option<Duration>,
     timer: &mut abstutil::Timer,
 ) -> (Map, Sim) {
     if flags.load.contains("data/save/") {

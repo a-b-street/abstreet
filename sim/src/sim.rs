@@ -40,8 +40,7 @@ pub struct Sim {
     // Some tests deliberately set different scenario names for comparisons.
     #[derivative(PartialEq = "ignore")]
     run_name: String,
-    // TODO not quite the right type to represent durations
-    savestate_every: Option<Tick>,
+    savestate_every: Option<Duration>,
 
     // Lazily computed.
     #[derivative(PartialEq = "ignore")]
@@ -72,7 +71,7 @@ impl Sim {
         map: &Map,
         run_name: String,
         rng_seed: Option<u8>,
-        savestate_every: Option<Tick>,
+        savestate_every: Option<Duration>,
     ) -> Sim {
         let mut rng = XorShiftRng::from_entropy();
         if let Some(seed) = rng_seed {
@@ -155,7 +154,7 @@ impl Sim {
             "At {} while processing {:?}",
             self.time, self.current_agent_for_debugging
         );
-        if let Some(path) = self.find_previous_savestate(self.time) {
+        if let Some(path) = self.find_previous_savestate(self.time()) {
             println!("Debug from {}", path);
         }
     }
@@ -284,7 +283,7 @@ impl Sim {
         // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
         // savestate, run a step, and invalidly save over it.
         if let Some(t) = self.savestate_every {
-            if self.time.is_multiple_of(t) {
+            if self.time().is_multiple_of(t) {
                 self.save();
             }
         }
@@ -345,7 +344,7 @@ impl Sim {
         path
     }
 
-    pub fn find_previous_savestate(&self, base_time: Tick) -> Option<String> {
+    pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_prev_file(&format!(
             "../data/save/{}_{}/{}/{}",
             self.map_name,
@@ -355,7 +354,7 @@ impl Sim {
         ))
     }
 
-    pub fn find_next_savestate(&self, base_time: Tick) -> Option<String> {
+    pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_next_file(&format!(
             "../data/save/{}_{}/{}/{}",
             self.map_name,

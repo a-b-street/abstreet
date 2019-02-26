@@ -1,12 +1,11 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::GfxCtx;
-use geom::Line;
+use geom::{Duration, Line};
 use map_model::LANE_THICKNESS;
-use sim::Tick;
 
 pub struct DiffAllState {
-    time: Tick,
+    time: Duration,
     same_trips: usize,
     // TODO Or do we want to augment DrawCars and DrawPeds, so we get automatic quadtree support?
     lines: Vec<Line>,
@@ -24,7 +23,7 @@ impl DiffAllState {
 
 impl NonblockingPlugin for DiffAllState {
     fn nonblocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        if self.time != ctx.primary.sim.time {
+        if self.time != ctx.primary.sim.time() {
             *self = diff_all(ctx);
         }
 
@@ -69,7 +68,7 @@ fn diff_all(ctx: &mut PluginCtx) -> DiffAllState {
         }
     }
     DiffAllState {
-        time: ctx.primary.sim.time,
+        time: ctx.primary.sim.time(),
         same_trips,
         lines,
     }

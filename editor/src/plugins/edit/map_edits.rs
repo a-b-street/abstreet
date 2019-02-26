@@ -71,8 +71,8 @@ fn manage_edits(
         vec![save_existing, load]
     };
 
-    // Slow to create this every tick just to get the description? It's actually frozen once the
-    // wizard is started...
+    // Slow to create this every timestep just to get the description? It's actually frozen once
+    // the wizard is started...
     let mut edits = map.get_edits().clone();
     edits.edits_name = edits.edits_name.clone();
 

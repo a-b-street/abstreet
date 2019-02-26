@@ -39,7 +39,7 @@ impl AmbientPlugin for ShowAssociatedState {
             }
             ShowAssociatedState::IntersectionSelected(_, _) => {
                 // Always recalculate.
-                // TODO Only if the tick has changed, actually.
+                // TODO Only if the time has changed, actually.
                 reset = true;
             }
         }

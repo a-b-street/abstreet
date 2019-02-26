@@ -1,10 +1,11 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, HorizontalAlignment, Text, VerticalAlignment};
-use sim::{ScoreSummary, Tick};
+use geom::Duration;
+use sim::ScoreSummary;
 
 pub struct ShowScoreState {
-    last_tick: Tick,
+    last_time: Duration,
     txt: Text,
 }
 
@@ -22,7 +23,7 @@ impl NonblockingPlugin for ShowScoreState {
         if ctx.input.action_chosen("show/hide sim info sidepanel") {
             return false;
         }
-        if self.last_tick != ctx.primary.sim.time {
+        if self.last_time != ctx.primary.sim.time() {
             *self = panel(ctx);
         }
         true
@@ -49,7 +50,7 @@ fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
         summarize(&mut txt, ctx.primary.sim.get_score());
     }
     ShowScoreState {
-        last_tick: ctx.primary.sim.time,
+        last_time: ctx.primary.sim.time(),
         txt,
     }
 }

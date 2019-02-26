@@ -2,14 +2,13 @@ use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Duration, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
-use sim::Tick;
 use std::collections::HashMap;
 
 pub enum ShowActivityState {
     Inactive,
-    Active(Tick, Heatmap, RoadHeatmap),
+    Active(Duration, Heatmap, RoadHeatmap),
 }
 
 impl ShowActivityState {
@@ -24,7 +23,7 @@ impl AmbientPlugin for ShowActivityState {
             ShowActivityState::Inactive => {
                 if ctx.input.action_chosen("show lanes with active traffic") {
                     *self = ShowActivityState::Active(
-                        ctx.primary.sim.time,
+                        ctx.primary.sim.time(),
                         active_agent_heatmap(ctx),
                         RoadHeatmap::new(ctx),
                     );
@@ -37,9 +36,9 @@ impl AmbientPlugin for ShowActivityState {
                     return;
                 }
                 let bounds = ctx.canvas.get_screen_bounds();
-                if *time != ctx.primary.sim.time || bounds != old_heatmap.bounds {
+                if *time != ctx.primary.sim.time() || bounds != old_heatmap.bounds {
                     *self = ShowActivityState::Active(
-                        ctx.primary.sim.time,
+                        ctx.primary.sim.time(),
                         active_agent_heatmap(ctx),
                         RoadHeatmap::new(ctx),
                     );

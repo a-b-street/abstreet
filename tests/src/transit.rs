@@ -1,13 +1,14 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
+use geom::Duration;
 use sim;
-use sim::{Event, SimFlags, Tick};
+use sim::{Event, SimFlags};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("bus_reaches_stops", |h| {
         let (map, mut sim) = sim::load(
             SimFlags::for_test("bus_reaches_stops"),
-            Some(Tick::from_seconds(30)),
+            Some(Duration::seconds(30.0)),
             &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
@@ -22,14 +23,14 @@ pub fn run(t: &mut TestRunner) {
             expectations.push(Event::BusDepartedFromStop(bus, *stop));
         }
 
-        sim.run_until_expectations_met(&map, expectations, Tick::from_minutes(10));
-        sim.run_until_done(&map, |_| {}, Some(sim::Tick::from_minutes(20)));
+        sim.run_until_expectations_met(&map, expectations, Duration::minutes(10));
+        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(20)));
     });
 
     t.run_slow("ped_uses_bus", |h| {
         let (map, mut sim) = sim::load(
             SimFlags::for_test("ped_uses_bus"),
-            Some(Tick::from_seconds(30)),
+            Some(Duration::seconds(30.0)),
             &mut Timer::throwaway(),
         );
         let route = map.get_bus_route("49").unwrap();
@@ -65,7 +66,7 @@ pub fn run(t: &mut TestRunner) {
                 sim::Event::BusDepartedFromStop(bus, ped_stop2),
                 sim::Event::BusArrivedAtStop(bus, route.stops[3]),
             ],
-            sim::Tick::from_minutes(8),
+            Duration::minutes(8),
         );
     });
 }

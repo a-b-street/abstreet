@@ -1,12 +1,12 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
-use geom::Line;
+use geom::{Duration, Line};
 use map_model::{Trace, LANE_THICKNESS};
-use sim::{Tick, TripID};
+use sim::TripID;
 
 pub struct DiffTripState {
-    time: Tick,
+    time: Duration,
     trip: TripID,
     // These are all optional because mode-changes might cause temporary interruptions.
     // Just point from primary world agent to secondary world agent.
@@ -40,7 +40,7 @@ impl NonblockingPlugin for DiffTripState {
         );
         if ctx.input.modal_action("auit") {
             return false;
-        } else if self.time != ctx.primary.sim.time {
+        } else if self.time != ctx.primary.sim.time() {
             *self = diff_trip(self.trip, ctx);
         }
         true
@@ -97,7 +97,7 @@ fn diff_trip(trip: TripID, ctx: &mut PluginCtx) -> DiffTripState {
         println!("{} isn't present in both sims", trip);
     }
     DiffTripState {
-        time: primary_sim.time,
+        time: primary_sim.time(),
         trip,
         line,
         primary_route,

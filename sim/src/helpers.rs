@@ -21,7 +21,7 @@ impl Sim {
         &mut self,
         map: &Map,
         callback: F,
-        time_limit: Option<Tick>,
+        time_limit: Option<Duration>,
     ) {
         let mut benchmark = self.start_benchmark();
         loop {
@@ -37,12 +37,12 @@ impl Sim {
                 }
             }
 
-            if self.time.is_multiple_of(Tick::from_minutes(1)) {
+            if self.time().is_multiple_of(Duration::minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
                 println!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
             callback(self);
-            if Some(self.time) == time_limit {
+            if Some(self.time()) == time_limit {
                 panic!("Time limit {} hit", self.time);
             }
             if self.is_done() {
@@ -55,7 +55,7 @@ impl Sim {
         &mut self,
         map: &Map,
         all_expectations: Vec<Event>,
-        time_limit: Tick,
+        time_limit: Duration,
     ) {
         let mut benchmark = self.start_benchmark();
         let mut expectations = VecDeque::from(all_expectations);
@@ -72,11 +72,11 @@ impl Sim {
                     }
                 }
             }
-            if self.time.is_multiple_of(Tick::from_minutes(1)) {
+            if self.time().is_multiple_of(Duration::minutes(1)) {
                 let speed = self.measure_speed(&mut benchmark);
                 println!("{0}, speed = {1:.2}x", self.summary(), speed);
             }
-            if self.time == time_limit {
+            if self.time() == time_limit {
                 panic!(
                     "Time limit {} hit, but some expectations never met: {:?}",
                     self.time, expectations

@@ -94,7 +94,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                     match ctx
                         .primary
                         .sim
-                        .find_previous_savestate(ctx.primary.sim.time)
+                        .find_previous_savestate(ctx.primary.sim.time())
                         .and_then(|path| Sim::load_savestate(path, None).ok())
                     {
                         Some(new_sim) => {
@@ -105,7 +105,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
 
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim = Sim::load_savestate(
-                                    s.sim.find_previous_savestate(s.sim.time).unwrap(),
+                                    s.sim.find_previous_savestate(s.sim.time()).unwrap(),
                                     None,
                                 )
                                 .unwrap();
@@ -118,7 +118,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                     match ctx
                         .primary
                         .sim
-                        .find_next_savestate(ctx.primary.sim.time)
+                        .find_next_savestate(ctx.primary.sim.time())
                         .and_then(|path| Sim::load_savestate(path, None).ok())
                     {
                         Some(new_sim) => {
@@ -127,7 +127,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
 
                             if let Some((s, _)) = ctx.secondary {
                                 s.sim = Sim::load_savestate(
-                                    s.sim.find_next_savestate(s.sim.time).unwrap(),
+                                    s.sim.find_next_savestate(s.sim.time()).unwrap(),
                                     None,
                                 )
                                 .unwrap();

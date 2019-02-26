@@ -1,4 +1,5 @@
 use abstutil::Timer;
+use geom::Duration;
 use sim::SimFlags;
 use structopt::StructOpt;
 
@@ -19,11 +20,7 @@ fn main() {
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
-    let (map, mut sim) = sim::load(
-        flags.sim_flags,
-        Some(sim::Tick::from_seconds(30)),
-        &mut timer,
-    );
+    let (map, mut sim) = sim::load(flags.sim_flags, Some(Duration::seconds(30.0)), &mut timer);
     timer.done();
 
     if load.contains("data/raw_maps/") || load.contains("data/maps/") {
@@ -31,7 +28,7 @@ fn main() {
     }
 
     let save_at = if let Some(ref time_str) = flags.save_at {
-        if let Some(t) = sim::Tick::parse(time_str) {
+        if let Some(t) = Duration::parse(time_str) {
             Some(t)
         } else {
             panic!("Couldn't parse time {}", time_str);
@@ -48,7 +45,7 @@ fn main() {
     sim.run_until_done(
         &map,
         move |sim| {
-            if Some(sim.time) == save_at {
+            if Some(sim.time()) == save_at {
                 sim.save();
                 // Some simulatiosn run for a really long time, just do this.
                 //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();

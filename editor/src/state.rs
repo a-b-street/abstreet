@@ -9,8 +9,9 @@ use crate::render::DrawMap;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::EventCtx;
 use ezgui::{Color, GfxCtx, Prerender};
+use geom::Duration;
 use map_model::{IntersectionID, Map};
-use sim::{GetDrawAgents, Sim, SimFlags, Tick};
+use sim::{GetDrawAgents, Sim, SimFlags};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
@@ -473,7 +474,7 @@ impl PerMapUI {
         let mut mem = MeasureMemory::new();
         let (map, sim) = sim::load(
             flags.sim_flags.clone(),
-            Some(Tick::from_seconds(30)),
+            Some(Duration::seconds(30.0)),
             &mut timer,
         );
         mem.reset("Map and Sim", &mut timer);

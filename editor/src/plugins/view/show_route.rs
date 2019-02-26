@@ -1,13 +1,14 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
+use geom::Duration;
 use map_model::{Trace, LANE_THICKNESS};
-use sim::{Tick, TripID};
+use sim::TripID;
 
 pub enum ShowRouteState {
     Inactive,
-    Active(Tick, TripID, Option<Trace>),
-    DebugAllRoutes(Tick, Vec<Trace>),
+    Active(Duration, TripID, Option<Trace>),
+    DebugAllRoutes(Duration, Vec<Trace>),
 }
 
 impl ShowRouteState {
@@ -41,7 +42,7 @@ impl AmbientPlugin for ShowRouteState {
                     *self = ShowRouteState::Inactive;
                 } else if ctx.input.modal_action("show route for all agents") {
                     *self = debug_all_routes(ctx);
-                } else if *time != ctx.primary.sim.time {
+                } else if *time != ctx.primary.sim.time() {
                     *self = show_route(*trip, ctx);
                 }
             }
@@ -53,7 +54,7 @@ impl AmbientPlugin for ShowRouteState {
                 );
                 if ctx.input.modal_action("quit") {
                     *self = ShowRouteState::Inactive;
-                } else if *time != ctx.primary.sim.time {
+                } else if *time != ctx.primary.sim.time() {
                     *self = debug_all_routes(ctx);
                 }
             }
@@ -79,7 +80,7 @@ impl AmbientPlugin for ShowRouteState {
 }
 
 fn show_route(trip: TripID, ctx: &mut PluginCtx) -> ShowRouteState {
-    let time = ctx.primary.sim.time;
+    let time = ctx.primary.sim.time();
     if let Some(agent) = ctx.primary.sim.trip_to_agent(trip) {
         // Trace along the entire route by passing in max distance
         if let Some(trace) = ctx.primary.sim.trace_route(agent, &ctx.primary.map, None) {
@@ -114,5 +115,5 @@ fn debug_all_routes(ctx: &mut PluginCtx) -> ShowRouteState {
             }
         }
     }
-    ShowRouteState::DebugAllRoutes(ctx.primary.sim.time, traces)
+    ShowRouteState::DebugAllRoutes(ctx.primary.sim.time(), traces)
 }
