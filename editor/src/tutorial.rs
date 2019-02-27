@@ -156,5 +156,10 @@ fn setup_scenario(primary: &mut PerMapUI) {
             border_spawn(primary, "north", "south"),
         ],
     }
-    .instantiate(&mut primary.sim, map, &mut Timer::throwaway());
+    .instantiate(
+        &mut primary.sim,
+        map,
+        &mut primary.current_flags.sim_flags.make_rng(),
+        &mut Timer::throwaway(),
+    );
 }

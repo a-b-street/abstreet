@@ -1,16 +1,19 @@
-use crate::driving::DrivingGoal;
-use crate::kinematics;
-use crate::walking::SidewalkSpot;
-use crate::{CarID, Sim, Tick};
+use crate::{CarID, VehicleType};
+use crate::{
+    DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, MAX_BIKE_LENGTH,
+    MAX_CAR_LENGTH, MIN_BIKE_LENGTH, MIN_CAR_LENGTH,
+};
 use abstutil;
-use abstutil::{Timer, WeightedUsizeChoice};
-use geom::{Distance, Duration};
-use map_model::{FullNeighborhoodInfo, IntersectionID, LaneType, Map, Pathfinder, Position};
+use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
+use geom::{Distance, Duration, Speed};
+use map_model::{
+    BuildingID, FullNeighborhoodInfo, IntersectionID, LaneType, Map, Pathfinder, Position, RoadID,
+};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
@@ -66,9 +69,8 @@ impl Scenario {
     }
 
     // TODO may need to fork the RNG a bit more
-    pub fn instantiate(&self, sim: &mut Sim, map: &Map, timer: &mut Timer) {
+    pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         timer.start(&format!("Instantiating {}", self.scenario_name));
-        assert!(sim.time == Tick::zero());
 
         timer.start("load full neighborhood info");
         let neighborhoods = FullNeighborhoodInfo::load_all(map);
@@ -79,10 +81,12 @@ impl Scenario {
                 panic!("Neighborhood {} isn't defined", s.neighborhood);
             }
 
-            sim.seed_parked_cars(
+            seed_parked_cars(
+                sim,
+                &s.cars_per_building,
                 &neighborhoods[&s.neighborhood].buildings,
                 &neighborhoods[&s.neighborhood].roads,
-                &s.cars_per_building,
+                rng,
                 map,
                 timer,
             );
@@ -90,6 +94,7 @@ impl Scenario {
 
         // Don't let two pedestrians starting from one building use the same car.
         let mut reserved_cars: HashSet<CarID> = HashSet::new();
+
         for s in &self.spawn_over_time {
             if !neighborhoods.contains_key(&s.start_from_neighborhood) {
                 panic!("Neighborhood {} isn't defined", s.start_from_neighborhood);
@@ -98,219 +103,347 @@ impl Scenario {
             timer.start_iter("SpawnOverTime each agent", s.num_agents);
             for _ in 0..s.num_agents {
                 timer.next();
-                let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
-                // Note that it's fine for agents to start/end at the same building. Later we might
-                // want a better assignment of people per household, or workers per office building.
-                let from_bldg = *neighborhoods[&s.start_from_neighborhood]
-                    .buildings
-                    .choose(&mut sim.rng)
-                    .unwrap();
-
-                // What mode?
-                if let Some(parked_car) = sim
-                    .parking_state
-                    .get_parked_cars_by_owner(from_bldg)
-                    .into_iter()
-                    .find(|p| !reserved_cars.contains(&p.car))
-                {
-                    if let Some(goal) =
-                        s.goal
-                            .pick_driving_goal(map, &neighborhoods, &mut sim.rng, timer)
-                    {
-                        reserved_cars.insert(parked_car.car);
-                        sim.spawner.start_trip_using_parked_car(
-                            spawn_time,
-                            map,
-                            parked_car.clone(),
-                            &sim.parking_state,
-                            from_bldg,
-                            goal,
-                            &mut sim.trips_state,
-                        );
-                    }
-                } else if sim.rng.gen_bool(s.percent_biking) {
-                    if let Some(goal) =
-                        s.goal
-                            .pick_biking_goal(map, &neighborhoods, &mut sim.rng, timer)
-                    {
-                        let skip = if let DrivingGoal::ParkNear(to_bldg) = goal {
-                            map.get_b(to_bldg).sidewalk() == map.get_b(from_bldg).sidewalk()
-                        } else {
-                            false
-                        };
-
-                        if !skip {
-                            sim.spawner.start_trip_using_bike(
-                                spawn_time,
-                                map,
-                                from_bldg,
-                                goal,
-                                &mut sim.trips_state,
-                                // TODO, like the biking goal could exist here or not based on border
-                                // map edits. so fork before this choice is made?
-                                &mut sim.rng,
-                            );
-                        }
-                    }
-                } else if let Some(goal) =
-                    s.goal
-                        .pick_walking_goal(map, &neighborhoods, &mut sim.rng, timer)
-                {
-                    let start_spot = SidewalkSpot::building(from_bldg, map);
-
-                    if sim.rng.gen_bool(s.percent_use_transit) {
-                        // TODO This throws away some work. It also sequentially does expensive
-                        // work right here.
-                        if let Some((stop1, stop2, route)) = Pathfinder::should_use_transit(
-                            map,
-                            start_spot.sidewalk_pos,
-                            goal.sidewalk_pos,
-                        ) {
-                            sim.spawner.start_trip_using_bus(
-                                spawn_time,
-                                map,
-                                start_spot,
-                                goal,
-                                route,
-                                stop1,
-                                stop2,
-                                &mut sim.trips_state,
-                            );
-                            continue;
-                        }
-                    }
-
-                    sim.spawner.start_trip_just_walking(
-                        spawn_time,
-                        start_spot,
-                        goal,
-                        &mut sim.trips_state,
-                    );
-                }
+                s.spawn_agent(rng, sim, &mut reserved_cars, &neighborhoods, map, timer);
             }
         }
 
         timer.start_iter("BorderSpawnOverTime", self.border_spawn_over_time.len());
         for s in &self.border_spawn_over_time {
             timer.next();
-            if let Some(start) = SidewalkSpot::start_at_border(s.start_from_border, map) {
-                for _ in 0..s.num_peds {
-                    let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
-                    if let Some(goal) =
-                        s.goal
-                            .pick_walking_goal(map, &neighborhoods, &mut sim.rng, timer)
-                    {
-                        if sim.rng.gen_bool(s.percent_use_transit) {
-                            // TODO This throws away some work. It also sequentially does expensive
-                            // work right here.
-                            if let Some((stop1, stop2, route)) = Pathfinder::should_use_transit(
-                                map,
-                                start.sidewalk_pos,
-                                goal.sidewalk_pos,
-                            ) {
-                                sim.spawner.start_trip_using_bus(
-                                    spawn_time,
-                                    map,
-                                    start.clone(),
-                                    goal,
-                                    route,
-                                    stop1,
-                                    stop2,
-                                    &mut sim.trips_state,
-                                );
-                                continue;
-                            }
-                        }
-
-                        sim.spawner.start_trip_just_walking(
-                            spawn_time,
-                            start.clone(),
-                            goal,
-                            &mut sim.trips_state,
-                        );
-                    }
-                }
-            } else if s.num_peds > 0 {
-                timer.warn(format!(
-                    "Can't start_at_border for {} without sidewalk",
-                    s.start_from_border
-                ));
-            }
-
-            let starting_driving_lanes = map
-                .get_i(s.start_from_border)
-                .get_outgoing_lanes(map, LaneType::Driving);
-            if !starting_driving_lanes.is_empty() {
-                let lane_len = map.get_l(starting_driving_lanes[0]).length();
-                if lane_len < kinematics::MAX_CAR_LENGTH {
-                    timer.warn(format!(
-                        "Skipping {:?} because {} is only {}, too short to spawn cars",
-                        s, starting_driving_lanes[0], lane_len
-                    ));
-                } else {
-                    for _ in 0..s.num_cars {
-                        let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
-                        if let Some(goal) =
-                            s.goal
-                                .pick_driving_goal(map, &neighborhoods, &mut sim.rng, timer)
-                        {
-                            sim.spawner.start_trip_with_car_appearing(
-                                spawn_time,
-                                map,
-                                // TODO could pretty easily pick any lane here
-                                Position::new(starting_driving_lanes[0], Distance::ZERO),
-                                goal,
-                                &mut sim.trips_state,
-                                &mut sim.rng,
-                            );
-                        }
-                    }
-                }
-            } else if s.num_cars > 0 {
-                timer.warn(format!(
-                    "Can't start car at border for {}",
-                    s.start_from_border
-                ));
-            }
-
-            let mut starting_biking_lanes = map
-                .get_i(s.start_from_border)
-                .get_outgoing_lanes(map, LaneType::Biking);
-            for l in starting_driving_lanes {
-                if map.get_parent(l).supports_bikes() {
-                    starting_biking_lanes.push(l);
-                }
-            }
-            if !starting_biking_lanes.is_empty() {
-                for _ in 0..s.num_bikes {
-                    let spawn_time = Tick::uniform(s.start_time, s.stop_time, &mut sim.rng);
-                    if let Some(goal) =
-                        s.goal
-                            .pick_biking_goal(map, &neighborhoods, &mut sim.rng, timer)
-                    {
-                        sim.spawner.start_trip_with_bike_at_border(
-                            spawn_time,
-                            map,
-                            starting_biking_lanes[0],
-                            goal,
-                            &mut sim.trips_state,
-                            &mut sim.rng,
-                        );
-                    }
-                }
-            } else if s.num_bikes > 0 {
-                timer.warn(format!(
-                    "Can't start bike at border for {}",
-                    s.start_from_border
-                ));
-            }
+            s.spawn_peds(rng, sim, &neighborhoods, map, timer);
+            s.spawn_cars(rng, sim, &neighborhoods, map, timer);
+            s.spawn_bikes(rng, sim, &neighborhoods, map, timer);
         }
 
+        sim.spawn_all_trips(map, timer);
         timer.stop(&format!("Instantiating {}", self.scenario_name));
     }
 
     pub fn save(&self) {
         abstutil::save_object("scenarios", &self.map_name, &self.scenario_name, self);
+    }
+
+    pub fn small_run(map: &Map) -> Scenario {
+        let mut s = Scenario {
+            scenario_name: "small_spawn".to_string(),
+            map_name: map.get_name().to_string(),
+            seed_parked_cars: vec![SeedParkedCars {
+                neighborhood: "_everywhere_".to_string(),
+                cars_per_building: WeightedUsizeChoice {
+                    weights: vec![5, 5],
+                },
+            }],
+            spawn_over_time: vec![SpawnOverTime {
+                num_agents: 100,
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                percent_biking: 0.5,
+                percent_use_transit: 0.5,
+            }],
+            // If there are no sidewalks/driving lanes at a border, scenario instantiation will
+            // just warn and skip them.
+            border_spawn_over_time: map
+                .all_incoming_borders()
+                .into_iter()
+                .map(|i| BorderSpawnOverTime {
+                    num_peds: 10,
+                    num_cars: 10,
+                    num_bikes: 10,
+                    start_time: Duration::ZERO,
+                    stop_time: Duration::seconds(5.0),
+                    start_from_border: i.id,
+                    goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                    percent_use_transit: 0.5,
+                })
+                .collect(),
+        };
+        for i in map.all_outgoing_borders() {
+            s.spawn_over_time.push(SpawnOverTime {
+                num_agents: 10,
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Border(i.id),
+                percent_biking: 0.5,
+                percent_use_transit: 0.5,
+            });
+        }
+        s
+    }
+
+    pub fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
+        let length = rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
+        VehicleSpec {
+            vehicle_type: VehicleType::Car,
+            length,
+            max_speed: None,
+        }
+    }
+}
+
+impl SpawnOverTime {
+    fn spawn_agent(
+        &self,
+        rng: &mut XorShiftRng,
+        sim: &mut Sim,
+        reserved_cars: &mut HashSet<CarID>,
+        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
+        map: &Map,
+        timer: &mut Timer,
+    ) {
+        let spawn_time = rand_time(rng, self.start_time, self.stop_time);
+        // Note that it's fine for agents to start/end at the same building. Later we might
+        // want a better assignment of people per household, or workers per office building.
+        let from_bldg = *neighborhoods[&self.start_from_neighborhood]
+            .buildings
+            .choose(rng)
+            .unwrap();
+
+        // What mode?
+        if let Some(parked_car) = sim
+            .get_parked_cars_by_owner(from_bldg)
+            .into_iter()
+            .find(|p| !reserved_cars.contains(&p.vehicle.id))
+        {
+            if let Some(goal) = self.goal.pick_driving_goal(
+                vec![LaneType::Driving],
+                map,
+                &neighborhoods,
+                rng,
+                timer,
+            ) {
+                reserved_cars.insert(parked_car.vehicle.id);
+                sim.schedule_trip(
+                    spawn_time,
+                    TripSpec::UsingParkedCar(
+                        SidewalkSpot::building(from_bldg, map),
+                        parked_car.spot,
+                        goal,
+                    ),
+                    map,
+                );
+                return;
+            }
+        }
+
+        if rng.gen_bool(self.percent_biking) {
+            if let Some(goal) = self.goal.pick_driving_goal(
+                vec![LaneType::Driving, LaneType::Biking],
+                map,
+                &neighborhoods,
+                rng,
+                timer,
+            ) {
+                let start_at = map.get_b(from_bldg).sidewalk();
+                // TODO Just start biking on the other side of the street if the sidewalk
+                // is on a one-way. Or at least warn.
+                if map
+                    .get_parent(start_at)
+                    .sidewalk_to_bike(start_at)
+                    .is_some()
+                {
+                    let ok = if let DrivingGoal::ParkNear(to_bldg) = goal {
+                        let end_at = map.get_b(to_bldg).sidewalk();
+                        map.get_parent(end_at).sidewalk_to_bike(end_at).is_some()
+                            && start_at != end_at
+                    } else {
+                        true
+                    };
+                    if ok {
+                        sim.schedule_trip(
+                            spawn_time,
+                            TripSpec::UsingBike(
+                                SidewalkSpot::building(from_bldg, map),
+                                rand_bike(rng),
+                                goal,
+                            ),
+                            map,
+                        );
+                        return;
+                    }
+                }
+            }
+        }
+
+        if let Some(goal) = self.goal.pick_walking_goal(map, &neighborhoods, rng, timer) {
+            let start_spot = SidewalkSpot::building(from_bldg, map);
+
+            if rng.gen_bool(self.percent_use_transit) {
+                // TODO This throws away some work. It also sequentially does expensive
+                // work right here.
+                if let Some((stop1, stop2, route)) =
+                    Pathfinder::should_use_transit(map, start_spot.sidewalk_pos, goal.sidewalk_pos)
+                {
+                    sim.schedule_trip(
+                        spawn_time,
+                        TripSpec::UsingTransit(start_spot, route, stop1, stop2, goal),
+                        map,
+                    );
+                    return;
+                }
+            }
+
+            sim.schedule_trip(spawn_time, TripSpec::JustWalking(start_spot, goal), map);
+            return;
+        }
+
+        timer.warn(format!("Couldn't fulfill {:?} at all", self));
+    }
+}
+
+impl BorderSpawnOverTime {
+    fn spawn_peds(
+        &self,
+        rng: &mut XorShiftRng,
+        sim: &mut Sim,
+        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
+        map: &Map,
+        timer: &mut Timer,
+    ) {
+        if self.num_peds == 0 {
+            return;
+        }
+
+        let start = if let Some(s) = SidewalkSpot::start_at_border(self.start_from_border, map) {
+            s
+        } else {
+            timer.warn(format!(
+                "Can't start_at_border for {} without sidewalk",
+                self.start_from_border
+            ));
+            return;
+        };
+
+        for _ in 0..self.num_peds {
+            let spawn_time = rand_time(rng, self.start_time, self.stop_time);
+            if let Some(goal) = self.goal.pick_walking_goal(map, &neighborhoods, rng, timer) {
+                if rng.gen_bool(self.percent_use_transit) {
+                    // TODO This throws away some work. It also sequentially does expensive
+                    // work right here.
+                    if let Some((stop1, stop2, route)) =
+                        Pathfinder::should_use_transit(map, start.sidewalk_pos, goal.sidewalk_pos)
+                    {
+                        sim.schedule_trip(
+                            spawn_time,
+                            TripSpec::UsingTransit(start.clone(), route, stop1, stop2, goal),
+                            map,
+                        );
+                        continue;
+                    }
+                }
+
+                sim.schedule_trip(spawn_time, TripSpec::JustWalking(start.clone(), goal), map);
+            }
+        }
+    }
+
+    fn spawn_cars(
+        &self,
+        rng: &mut XorShiftRng,
+        sim: &mut Sim,
+        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
+        map: &Map,
+        timer: &mut Timer,
+    ) {
+        if self.num_cars == 0 {
+            return;
+        }
+        let starting_driving_lanes = map
+            .get_i(self.start_from_border)
+            .get_outgoing_lanes(map, LaneType::Driving);
+        if starting_driving_lanes.is_empty() {
+            timer.warn(format!(
+                "Can't start car at border for {}",
+                self.start_from_border
+            ));
+            return;
+        }
+
+        let lane_len = map.get_l(starting_driving_lanes[0]).length();
+        if lane_len < MAX_CAR_LENGTH {
+            timer.warn(format!(
+                "Skipping {:?} because {} is only {}, too short to spawn cars",
+                self, starting_driving_lanes[0], lane_len
+            ));
+            return;
+        }
+        for _ in 0..self.num_cars {
+            let spawn_time = rand_time(rng, self.start_time, self.stop_time);
+            if let Some(goal) = self.goal.pick_driving_goal(
+                vec![LaneType::Driving],
+                map,
+                &neighborhoods,
+                rng,
+                timer,
+            ) {
+                let vehicle = Scenario::rand_car(rng);
+                sim.schedule_trip(
+                    spawn_time,
+                    TripSpec::CarAppearing(
+                        // TODO could pretty easily pick any lane here
+                        Position::new(starting_driving_lanes[0], vehicle.length),
+                        vehicle,
+                        goal,
+                    ),
+                    map,
+                );
+            }
+        }
+    }
+
+    fn spawn_bikes(
+        &self,
+        rng: &mut XorShiftRng,
+        sim: &mut Sim,
+        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
+        map: &Map,
+        timer: &mut Timer,
+    ) {
+        if self.num_bikes == 0 {
+            return;
+        }
+        let mut starting_biking_lanes = map
+            .get_i(self.start_from_border)
+            .get_outgoing_lanes(map, LaneType::Biking);
+        for l in map
+            .get_i(self.start_from_border)
+            .get_outgoing_lanes(map, LaneType::Driving)
+        {
+            if map.get_parent(l).supports_bikes() {
+                starting_biking_lanes.push(l);
+            }
+        }
+        if starting_biking_lanes.is_empty() {
+            timer.warn(format!(
+                "Can't start bike at border for {}",
+                self.start_from_border
+            ));
+            return;
+        }
+
+        for _ in 0..self.num_bikes {
+            let spawn_time = rand_time(rng, self.start_time, self.stop_time);
+            if let Some(goal) = self.goal.pick_driving_goal(
+                vec![LaneType::Driving, LaneType::Biking],
+                map,
+                &neighborhoods,
+                rng,
+                timer,
+            ) {
+                let bike = rand_bike(rng);
+                sim.schedule_trip(
+                    spawn_time,
+                    TripSpec::CarAppearing(
+                        Position::new(starting_biking_lanes[0], bike.length),
+                        bike,
+                        goal,
+                    ),
+                    map,
+                );
+            }
+        }
     }
 }
 
@@ -324,6 +457,7 @@ pub enum OriginDestination {
 impl OriginDestination {
     fn pick_driving_goal(
         &self,
+        lane_types: Vec<LaneType>,
         map: &Map,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         rng: &mut XorShiftRng,
@@ -334,45 +468,14 @@ impl OriginDestination {
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
             )),
             OriginDestination::Border(i) => {
-                let lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Driving);
-                if lanes.is_empty() {
+                let goal = DrivingGoal::end_at_border(*i, lane_types, map);
+                if goal.is_none() {
                     timer.warn(format!(
-                        "Can't spawn a car ending at border {}; no driving lane there",
+                        "Can't spawn a car ending at border {}; no appropriate lanes there",
                         i
                     ));
-                    None
-                } else {
-                    // TODO ideally could use any
-                    Some(DrivingGoal::Border(*i, lanes[0]))
                 }
-            }
-        }
-    }
-
-    // TODO nearly a copy of pick_driving_goal! Ew
-    fn pick_biking_goal(
-        &self,
-        map: &Map,
-        neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
-        rng: &mut XorShiftRng,
-        timer: &mut Timer,
-    ) -> Option<DrivingGoal> {
-        match self {
-            OriginDestination::Neighborhood(ref n) => Some(DrivingGoal::ParkNear(
-                *neighborhoods[n].buildings.choose(rng).unwrap(),
-            )),
-            OriginDestination::Border(i) => {
-                let mut lanes = map.get_i(*i).get_incoming_lanes(map, LaneType::Biking);
-                lanes.extend(map.get_i(*i).get_incoming_lanes(map, LaneType::Driving));
-                if lanes.is_empty() {
-                    timer.warn(format!(
-                        "Can't spawn a bike ending at border {}; no biking or driving lane there",
-                        i
-                    ));
-                    None
-                } else {
-                    Some(DrivingGoal::Border(*i, lanes[0]))
-                }
+                goal
             }
         }
     }
@@ -397,5 +500,136 @@ impl OriginDestination {
                 goal
             }
         }
+    }
+}
+
+fn seed_parked_cars(
+    sim: &mut Sim,
+    cars_per_building: &WeightedUsizeChoice,
+    owner_buildings: &Vec<BuildingID>,
+    neighborhoods_roads: &BTreeSet<RoadID>,
+    base_rng: &mut XorShiftRng,
+    map: &Map,
+    timer: &mut Timer,
+) {
+    // Track the available parking spots per road, only for the roads in the appropriate
+    // neighborhood.
+    let mut total_spots = 0;
+    let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
+    for id in neighborhoods_roads {
+        let r = map.get_r(*id);
+        let mut spots: Vec<ParkingSpot> = Vec::new();
+        for (lane, lane_type) in r
+            .children_forwards
+            .iter()
+            .chain(r.children_backwards.iter())
+        {
+            if *lane_type == LaneType::Parking {
+                spots.extend(sim.get_free_spots(*lane));
+            }
+        }
+        total_spots += spots.len();
+        spots.shuffle(&mut fork_rng(base_rng));
+        open_spots_per_road.insert(r.id, spots);
+    }
+
+    let mut new_cars = 0;
+    timer.start_iter("seed parked cars for buildings", owner_buildings.len());
+    for b in owner_buildings {
+        timer.next();
+        for _ in 0..cars_per_building.sample(base_rng) {
+            let mut forked_rng = fork_rng(base_rng);
+            if let Some(spot) = find_spot_near_building(
+                *b,
+                &mut open_spots_per_road,
+                neighborhoods_roads,
+                map,
+                timer,
+            ) {
+                sim.seed_parked_car(Scenario::rand_car(&mut forked_rng), spot, Some(*b));
+                new_cars += 1;
+            } else {
+                // TODO This should be more critical, but neighborhoods can currently contain a
+                // building, but not even its road, so this is inevitable.
+                timer.warn(format!(
+                    "No room to seed parked cars. {} total spots, {:?} of {} buildings requested, {} new cars so far. Searched from {}",
+                    total_spots,
+                    cars_per_building,
+                    owner_buildings.len(),
+                    new_cars,
+                    b
+                ));
+            }
+        }
+    }
+
+    timer.note(format!(
+        "Seeded {} of {} parking spots with cars, leaving {} buildings without cars",
+        new_cars,
+        total_spots,
+        owner_buildings.len() - new_cars
+    ));
+}
+
+// Pick a parking spot for this building. If the building's road has a free spot, use it. If not,
+// start BFSing out from the road in a deterministic way until finding a nearby road with an open
+// spot.
+fn find_spot_near_building(
+    b: BuildingID,
+    open_spots_per_road: &mut HashMap<RoadID, Vec<ParkingSpot>>,
+    neighborhoods_roads: &BTreeSet<RoadID>,
+    map: &Map,
+    timer: &mut Timer,
+) -> Option<ParkingSpot> {
+    let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
+    let mut visited: HashSet<RoadID> = HashSet::new();
+    {
+        let start = map.building_to_road(b).id;
+        roads_queue.push_back(start);
+        visited.insert(start);
+    }
+
+    loop {
+        if roads_queue.is_empty() {
+            timer.warn(format!(
+                "Giving up looking for a free parking spot, searched {} roads of {}: {:?}",
+                visited.len(),
+                open_spots_per_road.len(),
+                visited
+            ));
+        }
+        let r = roads_queue.pop_front()?;
+        if let Some(spots) = open_spots_per_road.get_mut(&r) {
+            // TODO With some probability, skip this available spot and park farther away
+            if !spots.is_empty() {
+                return spots.pop();
+            }
+        }
+
+        for next_r in map.get_next_roads(r).into_iter() {
+            // Don't floodfill out of the neighborhood
+            if !visited.contains(&next_r) && neighborhoods_roads.contains(&next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
+            }
+        }
+    }
+}
+
+fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
+    Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
+}
+
+fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
+    Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+}
+
+fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
+    let length = rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
+    let max_speed = Some(Speed::miles_per_hour(10.0));
+    VehicleSpec {
+        vehicle_type: VehicleType::Bike,
+        length,
+        max_speed,
     }
 }

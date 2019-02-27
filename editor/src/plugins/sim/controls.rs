@@ -1,9 +1,9 @@
 use crate::plugins::{AmbientPluginWithPrimaryPlugins, PluginCtx};
 use crate::state::PluginsPerMap;
-use abstutil::elapsed_seconds;
+use abstutil::{elapsed_seconds, Timer};
 use ezgui::EventLoopMode;
 use geom::Duration;
-use sim::{Benchmark, Event, Sim, TIMESTEP};
+use sim::{Benchmark, Event, Scenario, Sim, TIMESTEP};
 use std::mem;
 use std::time::Instant;
 
@@ -140,7 +140,12 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                 // Interactively spawning stuff would ruin an A/B test, don't allow it
                 if ctx.primary.sim.is_empty() && ctx.input.action_chosen("seed the sim with agents")
                 {
-                    ctx.primary.sim.small_spawn(&ctx.primary.map);
+                    Scenario::small_run(&ctx.primary.map).instantiate(
+                        &mut ctx.primary.sim,
+                        &ctx.primary.map,
+                        &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                        &mut Timer::throwaway(),
+                    );
                     *ctx.recalculate_current_selection = true;
                 }
 

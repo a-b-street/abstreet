@@ -1,4 +1,5 @@
-use crate::plugins::sim::new_des_model::{
+use crate::{AgentID, DrawPedestrianInput, PedestrianID};
+use crate::{
     CreatePedestrian, DistanceInterval, IntersectionSimState, ParkingSimState, Scheduler,
     SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
 };
@@ -7,7 +8,6 @@ use geom::{Distance, Duration, Line, Speed};
 use map_model::{BuildingID, Map, Path, PathStep, Trace, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, DrawPedestrianInput, PedestrianID};
 use std::collections::BTreeMap;
 
 // TODO These are comically fast.

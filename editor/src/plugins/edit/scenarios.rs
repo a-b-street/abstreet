@@ -48,7 +48,12 @@ impl BlockingPlugin for ScenarioManager {
                     *self = ScenarioManager::EditScenario(scenario.clone(), Wizard::new());
                 } else if ctx.input.modal_action("instantiate") {
                     let mut timer = Timer::new("instantiate scenario");
-                    scenario.instantiate(&mut ctx.primary.sim, &ctx.primary.map, &mut timer);
+                    scenario.instantiate(
+                        &mut ctx.primary.sim,
+                        &ctx.primary.map,
+                        &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                        &mut timer,
+                    );
                     timer.done();
                     return false;
                 } else if scroller.event(&mut ctx.input) {

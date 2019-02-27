@@ -1,4 +1,5 @@
-use crate::plugins::sim::new_des_model::{
+use crate::{CarID, PedestrianID, VehicleType};
+use crate::{
     Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
     Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
 };
@@ -6,7 +7,6 @@ use abstutil::Timer;
 use geom::Duration;
 use map_model::{BusRouteID, BusStopID, Map, Path, PathRequest, Pathfinder, Position};
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, PedestrianID, VehicleType};
 use std::collections::BTreeSet;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

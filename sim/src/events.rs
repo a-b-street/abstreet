@@ -1,6 +1,6 @@
-use crate::intersections::Request;
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
-use map_model::{BuildingID, BusStopID, Traversable};
+use crate::ParkingSpot;
+use crate::{AgentID, CarID, PedestrianID};
+use map_model::{BuildingID, BusStopID, Traversable, TurnID};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
@@ -23,5 +23,5 @@ pub enum Event {
     AgentLeavesTraversable(AgentID, Traversable),
 
     // TODO maybe AgentRequestsTurn?
-    IntersectionAcceptsRequest(Request),
+    IntersectionAcceptsRequest(AgentID, TurnID),
 }

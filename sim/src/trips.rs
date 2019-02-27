@@ -1,9 +1,11 @@
-use crate::driving::DrivingGoal;
-use crate::kinematics::Vehicle;
-use crate::walking::SidewalkSpot;
-use crate::{AgentID, CarID, ParkedCar, PedestrianID, ScoreSummary, Tick, TripID};
+use crate::{AgentID, CarID, PedestrianID, TripID};
+use crate::{
+    Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
+    Scheduler, SidewalkPOI, SidewalkSpot, Vehicle,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use map_model::{BusRouteID, BusStopID};
+use geom::Duration;
+use map_model::{BusRouteID, BusStopID, Map, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -34,82 +36,213 @@ impl TripManager {
         self.active_trip_mode.insert(agent, trip);
     }
 
-    // Where are we walking next?
-    pub fn car_reached_parking_spot(&mut self, car: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    pub fn car_reached_parking_spot(
+        &mut self,
+        time: Duration,
+        car: CarID,
+        spot: ParkingSpot,
+        map: &Map,
+        parking: &ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(parked, _) => assert_eq!(car, parked.car),
-            TripLeg::DriveFromBorder(id, _) => assert_eq!(car, id),
-            x => panic!(
-                "First trip leg {:?} doesn't match car_reached_parking_spot",
-                x
-            ),
+        match trip.legs.pop_front() {
+            Some(TripLeg::Drive(id, DrivingGoal::ParkNear(_))) => assert_eq!(car, id),
+            _ => unreachable!(),
         };
-        // TODO there are only some valid sequences of trips. it'd be neat to guarantee these are
-        // valid by construction with a fluent API.
         let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to,
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
+            TripLeg::Walk(ref to) => to.clone(),
+            _ => unreachable!(),
         };
-        (trip.id, trip.ped.unwrap(), walk_to.clone())
+
+        let start = SidewalkSpot::parking_spot(spot, map, parking);
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: start.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: trip.ped.unwrap(),
+                start,
+                goal: walk_to,
+                path,
+                trip: trip.id,
+            },
+        ));
     }
 
-    // Where are we driving next?
-    pub fn ped_reached_parking_spot(&mut self, ped: PedestrianID) -> (TripID, DrivingGoal) {
+    pub fn ped_reached_parking_spot(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        spot: ParkingSpot,
+        map: &Map,
+        parking: &ParkingSimState,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Walk(_) => {}
-            x => panic!(
-                "First trip leg {:?} doesn't match ped_reached_parking_spot",
-                x
-            ),
+        assert_eq!(
+            trip.legs.pop_front(),
+            Some(TripLeg::Walk(SidewalkSpot::parking_spot(
+                spot, map, parking
+            )))
+        );
+        let (car, drive_to) = match trip.legs[0] {
+            TripLeg::Drive(car, ref to) => (car, to.clone()),
+            _ => unreachable!(),
         };
-        let drive_to = match trip.legs[0] {
-            TripLeg::Drive(_, ref to) => to.clone(),
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
+        let parked_car = parking.get_car_at_spot(spot).unwrap();
+        assert_eq!(parked_car.vehicle.id, car);
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: parked_car.get_driving_pos(parking, map),
+                end: drive_to.goal_pos(map),
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the car portion!");
+            return;
         };
-        (trip.id, drive_to)
+
+        let router = match drive_to {
+            DrivingGoal::ParkNear(b) => Router::park_near(path, b),
+            DrivingGoal::Border(_, last_lane) => {
+                Router::stop_suddenly(path, map.get_l(last_lane).length())
+            }
+        };
+
+        scheduler.enqueue_command(Command::SpawnCar(
+            time,
+            CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
+        ));
     }
 
-    pub fn ped_ready_to_bike(&mut self, ped: PedestrianID) -> (TripID, Vehicle, DrivingGoal) {
+    pub fn ped_ready_to_bike(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        spot: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Walk(_) => {}
-            x => panic!("First trip leg {:?} doesn't match ped_ready_to_bike", x),
+        assert_eq!(trip.legs.pop_front(), Some(TripLeg::Walk(spot.clone())));
+        let (vehicle, drive_to) = match trip.legs[0] {
+            TripLeg::Bike(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
+            _ => unreachable!(),
         };
-        let (vehicle, bike_to) = match trip.legs[0] {
-            TripLeg::Bike(ref vehicle, ref to) => (vehicle, to),
-            ref x => panic!("Next trip leg is {:?}, not biking", x),
+        let driving_pos = match spot.connection {
+            SidewalkPOI::BikeRack(p) => p,
+            _ => unreachable!(),
         };
-        (trip.id, vehicle.clone(), bike_to.clone())
+
+        let end = drive_to.goal_pos(map);
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: driving_pos,
+                end,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the car portion!");
+            return;
+        };
+
+        let router = match drive_to {
+            // TODO Stop closer to the building?
+            DrivingGoal::ParkNear(_) => {
+                Router::bike_then_stop(path, map.get_l(end.lane()).length() / 2.0)
+            }
+            DrivingGoal::Border(_, last_lane) => {
+                Router::stop_suddenly(path, map.get_l(last_lane).length())
+            }
+        };
+
+        scheduler.enqueue_command(Command::SpawnCar(
+            time,
+            CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
+        ));
     }
 
-    pub fn bike_reached_end(&mut self, bike: CarID) -> (TripID, PedestrianID, SidewalkSpot) {
+    pub fn bike_reached_end(
+        &mut self,
+        time: Duration,
+        bike: CarID,
+        bike_rack: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
 
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Bike { .. } => {}
-            x => panic!("First trip leg {:?} doesn't match bike_reached_end", x),
+        match trip.legs.pop_front() {
+            Some(TripLeg::Bike(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
+            _ => unreachable!(),
         };
         let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to,
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
+            TripLeg::Walk(ref to) => to.clone(),
+            _ => unreachable!(),
         };
-        (trip.id, trip.ped.unwrap(), walk_to.clone())
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: bike_rack.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: trip.ped.unwrap(),
+                start: bike_rack,
+                goal: walk_to,
+                path,
+                trip: trip.id,
+            },
+        ));
     }
 
-    pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Tick) {
+    /*pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Duration) {
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -128,11 +261,10 @@ impl TripManager {
     }
 
     // Or bike
-    pub fn car_reached_border(&mut self, car: CarID, now: Tick) {
+    pub fn car_reached_border(&mut self, car: CarID, now: Duration) {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, _) => {}
-            TripLeg::DriveFromBorder(_, _) => {}
             TripLeg::Bike(_, _) => {}
             x => panic!("Last trip leg {:?} doesn't match car_reached_border", x),
         };
@@ -190,12 +322,12 @@ impl TripManager {
             ref x => panic!("Next trip leg is {:?}, not walking", x),
         };
         (trip.id, walk_to.clone())
-    }
+    }*/
 
     // Creation from the interactive part of spawner
     pub fn new_trip(
         &mut self,
-        spawned_at: Tick,
+        spawned_at: Duration,
         ped: Option<PedestrianID>,
         legs: Vec<TripLeg>,
     ) -> TripID {
@@ -210,7 +342,6 @@ impl TripManager {
             ped,
             uses_car: legs.iter().any(|l| match l {
                 TripLeg::Drive(_, _) => true,
-                TripLeg::DriveFromBorder(_, _) => true,
                 TripLeg::ServeBusRoute(_, _) => true,
                 _ => false,
             }),
@@ -219,67 +350,19 @@ impl TripManager {
         id
     }
 
-    // Query from spawner
-    pub fn get_trip_using_car(&self, car: CarID) -> Option<TripID> {
-        self.trips
-            .iter()
-            .find(|t| t.legs.iter().any(|l| l.uses_car(car)))
-            .map(|t| t.id)
-    }
-
-    pub fn get_score(&self, now: Tick) -> ScoreSummary {
-        let mut summary = ScoreSummary {
-            pending_walking_trips: 0,
-            total_walking_trips: 0,
-            total_walking_trip_time: Tick::zero(),
-
-            pending_driving_trips: 0,
-            total_driving_trips: 0,
-            total_driving_trip_time: Tick::zero(),
-
-            completion_time: None,
-        };
-        // TODO or would it make more sense to aggregate events as they happen?
-        for t in &self.trips {
-            // Don't count transit
-            if t.ped.is_none() {
-                continue;
-            }
-            if t.uses_car {
-                if let Some(at) = t.finished_at {
-                    summary.total_driving_trip_time += at - t.spawned_at;
-                } else {
-                    summary.pending_driving_trips += 1;
-                    if now >= t.spawned_at {
-                        summary.total_driving_trip_time += now - t.spawned_at;
-                    }
-                }
-                summary.total_driving_trips += 1;
-            } else {
-                if let Some(at) = t.finished_at {
-                    summary.total_walking_trip_time += at - t.spawned_at;
-                } else {
-                    summary.pending_walking_trips += 1;
-                    if now >= t.spawned_at {
-                        summary.total_walking_trip_time += now - t.spawned_at;
-                    }
-                }
-                summary.total_walking_trips += 1;
-            }
-        }
-        summary
-    }
-
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
+    }
+
+    pub fn get_active_trips(&self) -> Vec<TripID> {
+        self.active_trip_mode.values().cloned().collect()
     }
 
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
             TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
-            TripLeg::Drive(ref parked, _) => Some(AgentID::Car(parked.car)),
-            TripLeg::DriveFromBorder(id, _) => Some(AgentID::Car(*id)),
+            TripLeg::Drive(id, _) => Some(AgentID::Car(*id)),
             TripLeg::Bike(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
@@ -292,10 +375,6 @@ impl TripManager {
         self.active_trip_mode.get(&id).cloned()
     }
 
-    pub fn get_active_trips(&self) -> Vec<TripID> {
-        self.active_trip_mode.values().cloned().collect()
-    }
-
     pub fn tooltip_lines(&self, id: AgentID) -> Vec<String> {
         // Only called for agents that _should_ have trips
         let trip = &self.trips[self.active_trip_mode[&id].0];
@@ -305,13 +384,18 @@ impl TripManager {
             trip.legs.back().unwrap()
         )]
     }
+
+    pub fn is_done(&self) -> bool {
+        // TODO Buses?
+        self.active_trip_mode.is_empty()
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Trip {
     id: TripID,
-    spawned_at: Tick,
-    finished_at: Option<Tick>,
+    spawned_at: Duration,
+    finished_at: Option<Duration>,
     // TODO also uses_bike, so we can track those stats differently too
     uses_car: bool,
     // If none, then this is a bus. The trip will never end.
@@ -319,29 +403,13 @@ struct Trip {
     legs: VecDeque<TripLeg>,
 }
 
-// Except for Drive (which has to say what car to drive), these don't say where the leg starts.
-// That's because it might be unknown -- like when we drive and don't know where we'll wind up
-// parking.
+// These don't specify where the leg starts, since it might be unknown -- like when we drive and
+// don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
     Walk(SidewalkSpot),
-    // TODO Can maybe collapse Drive and DriveFromBorder by acting like Bike and doing Vehicle,
-    // which has CarID
-    Drive(ParkedCar, DrivingGoal),
-    DriveFromBorder(CarID, DrivingGoal),
+    Drive(CarID, DrivingGoal),
     Bike(Vehicle, DrivingGoal),
     RideBus(BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),
-}
-
-impl TripLeg {
-    fn uses_car(&self, id: CarID) -> bool {
-        match self {
-            TripLeg::Drive(parked, _) => parked.car == id,
-            TripLeg::DriveFromBorder(car, _) => *car == id,
-            TripLeg::Bike(vehicle, _) => vehicle.id == id,
-            TripLeg::ServeBusRoute(car, _) => *car == id,
-            _ => false,
-        }
-    }
 }

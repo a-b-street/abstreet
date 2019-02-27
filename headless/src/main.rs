@@ -1,6 +1,6 @@
 use abstutil::Timer;
 use geom::Duration;
-use sim::SimFlags;
+use sim::{Scenario, SimFlags};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -20,12 +20,13 @@ fn main() {
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
+    let mut rng = flags.sim_flags.make_rng();
     let (map, mut sim) = sim::load(flags.sim_flags, Some(Duration::seconds(30.0)), &mut timer);
-    timer.done();
 
     if load.contains("data/raw_maps/") || load.contains("data/maps/") {
-        sim.small_spawn(&map);
+        Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut timer);
     }
+    timer.done();
 
     let save_at = if let Some(ref time_str) = flags.save_at {
         if let Some(t) = Duration::parse(time_str) {

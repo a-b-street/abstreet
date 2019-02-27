@@ -54,7 +54,7 @@ impl AmbientPlugin for ShowAssociatedState {
                         id,
                         sim.get_parked_cars_by_owner(id)
                             .iter()
-                            .map(|p| p.car)
+                            .map(|p| p.vehicle.id)
                             .collect(),
                     );
                 }

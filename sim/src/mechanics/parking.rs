@@ -1,4 +1,5 @@
-use crate::plugins::sim::new_des_model::{ParkedCar, ParkingSpot, Vehicle};
+use crate::{CarID, CarStatus, DrawCarInput, VehicleType};
+use crate::{ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap,
 };
@@ -7,7 +8,6 @@ use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use std::collections::{BTreeMap, BTreeSet};
 use std::iter;
 

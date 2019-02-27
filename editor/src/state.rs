@@ -171,10 +171,6 @@ impl DefaultUIState {
                 plugin.downcast_ref::<plugins::sim::simple_model::SimpleModelController>()
             {
                 return p;
-            } else if let Ok(p) = plugin
-                .downcast_ref::<plugins::sim::even_simpler_model::EvenSimplerModelController>()
-            {
-                return &p.sim;
             }
         }
         &self.primary.sim
@@ -253,10 +249,6 @@ impl UIState for DefaultUIState {
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if let Some(p) = plugins::sim::simple_model::SimpleModelController::new(&mut ctx)
-            {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
-            } else if let Some(p) =
-                plugins::sim::even_simpler_model::EvenSimplerModelController::new(&mut ctx)
             {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {

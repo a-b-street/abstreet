@@ -1,11 +1,13 @@
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::{BlockingPlugin, PluginCtx};
+use abstutil::Timer;
 use ezgui::{Color, GfxCtx, Key};
 use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Pathfinder, Position,
     Trace, LANE_THICKNESS,
 };
+use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec, TIMESTEP};
 
 #[derive(Clone)]
 enum Source {
@@ -149,65 +151,51 @@ impl BlockingPlugin for SpawnAgent {
             let sim = &mut ctx.primary.sim;
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
-                    /*sim.schedule_trip(
-                        sim.time + TIMESTEP,
+                    sim.schedule_trip(
+                        sim.time() + TIMESTEP,
                         TripSpec::JustWalking(
                             SidewalkSpot::building(from, map),
                             SidewalkSpot::building(to, map),
                         ),
                         map,
-                    );*/
-                    println!(
-                        "Spawning {}",
-                        sim.seed_trip_just_walking_to_bldg(from, to, map)
                     );
                 }
                 (Source::Walking(from), Goal::Border(to)) => {
-                    /*sim.schedule_trip(
-                        sim.time + TIMESTEP,
-                        TripSpec::JustWalking(
-                            SidewalkSpot::building(from, map),
-                            SidewalkSpot::end_at_border(to, map),
-                        ),
-                        map,
-                    );*/
-                    println!(
-                        "Spawning {}",
-                        sim.seed_trip_just_walking_to_border(from, to, map)
-                    );
+                    if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
+                        sim.schedule_trip(
+                            sim.time() + TIMESTEP,
+                            TripSpec::JustWalking(SidewalkSpot::building(from, map), goal),
+                            map,
+                        );
+                    } else {
+                        println!("Can't end a walking trip at {}; no sidewalks", to);
+                    }
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
-                    /*sim.schedule_trip(
-                        sim.time + TIMESTEP,
+                    sim.schedule_trip(
+                        sim.time() + TIMESTEP,
                         TripSpec::CarAppearing(
                             from,
                             Scenario::rand_car(&mut rng),
                             DrivingGoal::ParkNear(to),
                         ),
                         map,
-                    );*/
-                    println!(
-                        "Spawning {}",
-                        sim.seed_trip_with_car_appearing_to_bldg(from, to, map)
                     );
                 }
                 (Source::Driving(from), Goal::Border(to)) => {
-                    /*if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)
+                    if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)
                     {
                         sim.schedule_trip(
-                            sim.time + TIMESTEP,
-                            TripSpec::CarAppearing(from, Scenario::rand_car(&mut rng), goal, map),
+                            sim.time() + TIMESTEP,
+                            TripSpec::CarAppearing(from, Scenario::rand_car(&mut rng), goal),
                             map,
                         );
                     } else {
                         println!("Can't end a car trip at {}; no driving lanes", to);
-                    }*/
-                    println!(
-                        "Spawning {}",
-                        sim.seed_trip_with_car_appearing_to_border(from, to, map)
-                    );
+                    }
                 }
             };
+            sim.spawn_all_trips(map, &mut Timer::throwaway());
             return false;
         }
 

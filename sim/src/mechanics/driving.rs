@@ -1,14 +1,15 @@
-use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
-use crate::plugins::sim::new_des_model::mechanics::queue::Queue;
-use crate::plugins::sim::new_des_model::{
+use crate::mechanics::car::{Car, CarState};
+use crate::mechanics::queue::Queue;
+use crate::{
     ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler,
     TimeInterval, TripManager, BUS_LENGTH, FOLLOWING_DISTANCE,
 };
+use crate::{AgentID, CarID, DrawCarInput};
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
 use map_model::{BuildingID, Map, Path, Trace, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
 const FREEFLOW: Color = Color::CYAN;
@@ -19,6 +20,10 @@ const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct DrivingSimState {
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     queues: BTreeMap<Traversable, Queue>,
 }
 

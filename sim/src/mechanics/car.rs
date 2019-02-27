@@ -1,10 +1,8 @@
-use crate::plugins::sim::new_des_model::{
-    DistanceInterval, ParkingSpot, Router, TimeInterval, Vehicle,
-};
+use crate::{CarStatus, DrawCarInput};
+use crate::{DistanceInterval, ParkingSpot, Router, TimeInterval, Vehicle};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarStatus, DrawCarInput};
 use std::collections::VecDeque;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

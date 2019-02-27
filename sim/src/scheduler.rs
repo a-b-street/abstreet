@@ -1,21 +1,20 @@
-use crate::driving::{CreateCar, DrivingSimState};
-use crate::events::Event;
-use crate::intersections::IntersectionSimState;
-use crate::parking::ParkingSimState;
-use crate::trips::TripManager;
-use crate::walking::{CreatePedestrian, WalkingSimState};
-use crate::{AgentID, Tick};
+use crate::AgentID;
+use crate::{
+    CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkingSimState,
+    TripManager, WalkingSimState,
+};
+use geom::Duration;
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum Command {
-    SpawnCar(Tick, CreateCar),
-    SpawnPed(Tick, CreatePedestrian),
+    SpawnCar(Duration, CreateCar),
+    SpawnPed(Duration, CreatePedestrian),
 }
 
 impl Command {
-    fn at(&self) -> Tick {
+    fn at(&self) -> Duration {
         match self {
             Command::SpawnCar(at, _) => *at,
             Command::SpawnPed(at, _) => *at,
@@ -36,74 +35,70 @@ impl Scheduler {
         }
     }
 
-    pub fn step(
+    pub fn step_if_needed(
         &mut self,
-        events: &mut Vec<Event>,
-        now: Tick,
+        now: Duration,
         map: &Map,
-        parking_sim: &mut ParkingSimState,
-        walking_sim: &mut WalkingSimState,
-        driving_sim: &mut DrivingSimState,
+        parking: &mut ParkingSimState,
+        walking: &mut WalkingSimState,
+        driving: &mut DrivingSimState,
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
-        let mut this_tick_commands: Vec<Command> = Vec::new();
+        let mut this_step_commands: Vec<Command> = Vec::new();
         loop {
             if self
                 .commands
                 .last()
-                .and_then(|cmd| Some(now == cmd.at()))
+                // TODO >= just to handle the fact that we dont step on 0
+                .and_then(|cmd| Some(now >= cmd.at()))
                 .unwrap_or(false)
             {
-                this_tick_commands.push(self.commands.pop().unwrap());
+                this_step_commands.push(self.commands.pop().unwrap());
             } else {
                 break;
             }
         }
-        if this_tick_commands.is_empty() {
-            return;
-        }
 
-        for cmd in this_tick_commands.into_iter() {
+        for cmd in this_step_commands.into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
-                    if driving_sim.start_car_on_lane(
-                        events,
-                        now,
-                        map,
-                        create_car.clone(),
-                        intersections,
-                    ) {
-                        trips
-                            .agent_starting_trip_leg(AgentID::Car(create_car.car), create_car.trip);
+                    if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {
+                        trips.agent_starting_trip_leg(
+                            AgentID::Car(create_car.vehicle.id),
+                            create_car.trip,
+                        );
                         if let Some(parked_car) = create_car.maybe_parked_car {
-                            parking_sim.remove_parked_car(parked_car);
+                            parking.remove_parked_car(parked_car);
                         }
                     } else {
-                        self.enqueue_command(Command::SpawnCar(now.next(), create_car));
+                        self.enqueue_command(Command::SpawnCar(
+                            now + Duration::EPSILON,
+                            create_car,
+                        ));
                     }
                 }
                 Command::SpawnPed(_, create_ped) => {
                     // Do the order a bit backwards so we don't have to clone the CreatePedestrian.
-                    // seed_pedestrian can't fail.
+                    // spawn_ped can't fail.
                     trips.agent_starting_trip_leg(
                         AgentID::Pedestrian(create_ped.id),
                         create_ped.trip,
                     );
-                    walking_sim.seed_pedestrian(events, now, create_ped);
+                    walking.spawn_ped(now, create_ped, map);
                 }
             };
         }
     }
 
-    pub fn is_done(&self) -> bool {
+    /*pub fn is_done(&self) -> bool {
         self.commands.is_empty()
-    }
+    }*/
 
     pub fn enqueue_command(&mut self, cmd: Command) {
         // TODO Use some kind of priority queue that's serializable
         self.commands.push(cmd);
-        // Note the reverse sorting
-        self.commands.sort_by(|a, b| b.at().cmp(&a.at()));
+        self.commands.sort_by_key(|cmd| cmd.at());
+        self.commands.reverse();
     }
 }

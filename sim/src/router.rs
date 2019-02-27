@@ -1,250 +1,180 @@
-use crate::driving::{Action, Intent};
-use crate::kinematics::Vehicle;
-use crate::parking::ParkingSimState;
-use crate::transit::TransitSimState;
-use crate::view::AgentView;
-use crate::TIMESTEP;
-use crate::{Event, ParkingSpot, Tick};
-use geom::{Acceleration, Distance, EPSILON_DIST};
-use map_model::{
-    BuildingID, LaneID, LaneType, Map, Path, PathStep, Position, Trace, Traversable, TurnID,
-};
-use rand::seq::SliceRandom;
-use rand_xorshift::XorShiftRng;
+use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
+use geom::Distance;
+use map_model::{BuildingID, Map, Path, PathStep, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
-enum Goal {
-    ParkNearBuilding(BuildingID),
-    // Stop at this distance along the last lane in the path
-    BikeThenStop(Distance),
-    FollowBusRoute,
-    EndAtBorder,
-}
-
-// Gives higher-level instructions to a car.
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
-    // The head of the path is the current lane or turn.
+    // Front is always the current step
     path: Path,
     goal: Goal,
 }
 
+pub enum ActionAtEnd {
+    Vanish,
+    StartParking(ParkingSpot),
+    GotoLaneEnd,
+    StopBiking(SidewalkSpot),
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+enum Goal {
+    // Spot and cached distance along the last driving lane
+    // TODO Right now, the building is ignored.
+    ParkNearBuilding {
+        target: BuildingID,
+        spot: Option<(ParkingSpot, Distance)>,
+    },
+    // Stop at this distance along the last lane in the path
+    StopSuddenly {
+        end_dist: Distance,
+    },
+    BikeThenStop {
+        end_dist: Distance,
+    },
+}
+
 impl Router {
-    pub fn make_router_to_park(path: Path, goal: BuildingID) -> Router {
+    pub fn stop_suddenly(path: Path, end_dist: Distance) -> Router {
         Router {
             path,
-            goal: Goal::ParkNearBuilding(goal),
+            goal: Goal::StopSuddenly { end_dist },
         }
     }
 
-    pub fn make_bike_router(path: Path, dist: Distance) -> Router {
+    pub fn park_near(path: Path, bldg: BuildingID) -> Router {
         Router {
             path,
-            goal: Goal::BikeThenStop(dist),
+            goal: Goal::ParkNearBuilding {
+                target: bldg,
+                spot: None,
+            },
         }
     }
 
-    pub fn make_router_for_bus(first_path: Path) -> Router {
-        Router {
-            path: first_path,
-            goal: Goal::FollowBusRoute,
-        }
-    }
-
-    pub fn make_router_to_border(path: Path) -> Router {
+    pub fn bike_then_stop(path: Path, end_dist: Distance) -> Router {
         Router {
             path,
-            goal: Goal::EndAtBorder,
+            goal: Goal::BikeThenStop { end_dist },
         }
     }
 
-    pub fn tooltip_line(&self) -> String {
-        format!("{} lanes left in path", self.path.num_lanes())
+    pub fn head(&self) -> Traversable {
+        self.path.current_step().as_traversable()
     }
 
-    // Mutable so we can roam around and try another road to park if the last one is unavailable.
-    // It's safe to mutate in a react() phase, because we're observing a fixed state of the world
-    // and augmenting the plan, but not the car's actual state.
-    pub fn react_before_lookahead(
-        &mut self,
-        events: &mut Vec<Event>,
-        view: &AgentView,
-        vehicle: &Vehicle,
-        time: Tick,
-        map: &Map,
-        parking_sim: &ParkingSimState,
-        // Mutable so we can indicate state transitions
-        transit_sim: &mut TransitSimState,
-        rng: &mut XorShiftRng,
-    ) -> Option<Action> {
-        if self.path.isnt_last_step() || !view.speed.is_zero(TIMESTEP) {
-            return None;
-        }
+    pub fn next(&self) -> Traversable {
+        self.path.next_step().as_traversable()
+    }
 
+    pub fn last_step(&self) -> bool {
+        self.path.is_last_step()
+    }
+
+    pub fn get_end_dist(&self) -> Distance {
+        // Shouldn't ask earlier!
+        assert!(self.last_step());
         match self.goal {
-            Goal::ParkNearBuilding(_) => {
-                let last_lane = view.on.as_lane();
-                if let Some((spot, needed_driving_pos)) = find_parking_spot(
-                    Position::new(last_lane, view.dist_along),
-                    vehicle,
-                    map,
-                    parking_sim,
-                ) {
-                    if needed_driving_pos.dist_along() == view.dist_along {
-                        return Some(Action::StartParking(spot));
-                    }
-                // Being stopped before the parking spot is normal if the final road is
-                // clogged with other drivers.
-                } else {
-                    return self.look_for_parking(last_lane, view, map, rng);
-                }
-            }
-            Goal::BikeThenStop(dist) => {
-                // Do an epsilon check here, to avoid a bug observed before (and because all
-                // distance checks really ought to be epsilon checks...)
-                if view.dist_along - dist < EPSILON_DIST {
-                    return Some(Action::StartParkingBike);
-                }
-            }
-            Goal::FollowBusRoute => {
-                let (should_idle, new_path) =
-                    transit_sim.get_action_when_stopped_at_end(events, view, time, map);
-                if let Some(p) = new_path {
-                    self.path = p;
-                }
-                if should_idle {
-                    return Some(Action::Continue(
-                        Intent::WaitAtBusStop,
-                        Acceleration::ZERO,
-                        Vec::new(),
-                    ));
-                }
-            }
-            // Don't stop at the border node; plow through
-            Goal::EndAtBorder => {}
+            Goal::StopSuddenly { end_dist } => end_dist,
+            Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
+            Goal::BikeThenStop { end_dist } => end_dist,
         }
-        None
-    }
-
-    // If we return None, then the caller will immediately ask what turn to do.
-    pub fn stop_early_at_dist(
-        &self,
-        // TODO urgh, we cant reuse AgentView here, because lookahead doesn't advance the view :(
-        on: LaneID,
-        dist_along: Distance,
-        vehicle: &Vehicle,
-        map: &Map,
-        parking_sim: &ParkingSimState,
-        transit_sim: &TransitSimState,
-    ) -> Option<Distance> {
-        if self.path.is_last_step() {
-            match self.goal {
-                Goal::ParkNearBuilding(_) => {
-                    if let Some((_, needed_driving_pos)) =
-                        find_parking_spot(Position::new(on, dist_along), vehicle, map, parking_sim)
-                    {
-                        return Some(needed_driving_pos.dist_along());
-                    } else {
-                        // If lookahead runs out of path, then just stop at the end of that lane,
-                        // and then reroute when react_before_lookahead is called later.
-                        return Some(map.get_l(on).length());
-                    }
-                }
-                Goal::BikeThenStop(dist) => {
-                    return Some(dist);
-                }
-                Goal::FollowBusRoute => {
-                    return Some(transit_sim.get_dist_to_stop_at(vehicle.id, on));
-                }
-                // The car shouldn't stop early!
-                Goal::EndAtBorder => {}
-            }
-        }
-        None
-    }
-
-    // Returns the next step
-    pub fn finished_step(&mut self, on: Traversable) -> PathStep {
-        let expected = match on {
-            Traversable::Lane(id) => PathStep::Lane(id),
-            Traversable::Turn(id) => PathStep::Turn(id),
-        };
-        assert_eq!(expected, self.path.shift());
-        self.path.current_step()
-    }
-
-    // Called when lookahead reaches an intersection
-    pub fn should_vanish_at_border(&self) -> bool {
-        self.path.is_last_step() && self.goal == Goal::EndAtBorder
-    }
-
-    pub fn next_step_as_turn(&self) -> Option<TurnID> {
-        if self.path.is_last_step() {
-            return None;
-        }
-        if let PathStep::Turn(id) = self.path.next_step() {
-            return Some(id);
-        }
-        None
-    }
-
-    fn look_for_parking(
-        &mut self,
-        last_lane: LaneID,
-        view: &AgentView,
-        map: &Map,
-        rng: &mut XorShiftRng,
-    ) -> Option<Action> {
-        // TODO Better strategies than random: look for lanes with free spots (if it'd be feasible
-        // to physically see the spots), stay close to the original goal building, avoid lanes
-        // we've visited, prefer easier turns...
-        let choices = map.get_next_turns_and_lanes(last_lane, map.get_l(last_lane).dst_i);
-        if choices.is_empty() {
-            // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
-            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", view.id, last_lane);
-            return Some(Action::TmpVanish);
-        }
-        let (turn, new_lane) = choices.choose(rng).unwrap();
-        if view.debug {
-            println!(
-                "{} can't find parking on {}, so wandering over to {}",
-                view.id, last_lane, new_lane.id
-            );
-        }
-        self.path.add(PathStep::Turn(turn.id));
-        self.path.add(PathStep::Lane(new_lane.id));
-        None
-    }
-
-    pub fn trace_route(
-        &self,
-        start_dist: Distance,
-        map: &Map,
-        dist_ahead: Option<Distance>,
-    ) -> Option<Trace> {
-        self.path.trace(map, start_dist, dist_ahead)
     }
 
     pub fn get_path(&self) -> &Path {
         &self.path
     }
-}
 
-// Returns the spot and the driving position aligned to it, given an input position.
-fn find_parking_spot(
-    driving_pos: Position,
-    vehicle: &Vehicle,
-    map: &Map,
-    parking_sim: &ParkingSimState,
-) -> Option<(ParkingSpot, Position)> {
-    let parking_lane = map
-        .find_closest_lane(driving_pos.lane(), vec![LaneType::Parking])
-        .ok()?;
-    let spot =
-        parking_sim.get_first_free_spot(driving_pos.equiv_pos(parking_lane, map), vehicle)?;
-    Some((
-        spot,
-        parking_sim.spot_to_driving_pos(spot, vehicle, driving_pos.lane(), map),
-    ))
+    // Returns the step just finished
+    pub fn advance(
+        &mut self,
+        vehicle: &Vehicle,
+        parking: &ParkingSimState,
+        map: &Map,
+    ) -> Traversable {
+        let prev = self.path.shift().as_traversable();
+        if self.last_step() {
+            // Do this to trigger the side-effect of looking for parking.
+            self.maybe_handle_end(Distance::ZERO, vehicle, parking, map);
+        }
+        prev
+    }
+
+    // Called when the car is Queued at the last step, or when they initially advance to the last
+    // step.
+    pub fn maybe_handle_end(
+        &mut self,
+        front: Distance,
+        vehicle: &Vehicle,
+        parking: &ParkingSimState,
+        map: &Map,
+    ) -> Option<ActionAtEnd> {
+        match self.goal {
+            Goal::StopSuddenly { end_dist } => {
+                if end_dist == front {
+                    Some(ActionAtEnd::Vanish)
+                } else {
+                    None
+                }
+            }
+            Goal::ParkNearBuilding { ref mut spot, .. } => {
+                let need_new_spot = match spot {
+                    Some((s, _)) => !parking.is_free(*s),
+                    None => true,
+                };
+                if need_new_spot {
+                    if let Some((new_spot, new_pos)) = parking.get_first_free_spot(
+                        Position::new(self.path.current_step().as_traversable().as_lane(), front),
+                        vehicle,
+                        map,
+                    ) {
+                        *spot = Some((new_spot, new_pos.dist_along()));
+                    } else {
+                        self.roam_around_for_parking(vehicle, map);
+                        return Some(ActionAtEnd::GotoLaneEnd);
+                    }
+                }
+
+                if spot.unwrap().1 == front {
+                    Some(ActionAtEnd::StartParking(spot.unwrap().0))
+                } else {
+                    None
+                }
+            }
+            Goal::BikeThenStop { end_dist } => {
+                if end_dist == front {
+                    let last_lane = self.head().as_lane();
+                    Some(ActionAtEnd::StopBiking(
+                        SidewalkSpot::bike_rack(
+                            map.get_parent(last_lane)
+                                .bike_to_sidewalk(last_lane)
+                                .unwrap(),
+                            map,
+                        )
+                        .unwrap(),
+                    ))
+                } else {
+                    None
+                }
+            }
+        }
+    }
+
+    fn roam_around_for_parking(&mut self, vehicle: &Vehicle, map: &Map) {
+        let choices = map.get_turns_from_lane(self.head().as_lane());
+        if choices.is_empty() {
+            // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
+            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, self.head().as_lane());
+            self.goal = Goal::StopSuddenly {
+                end_dist: self.head().length(map),
+            };
+            return;
+        }
+        // TODO Better strategies than this: look for lanes with free spots (if it'd be feasible to
+        // physically see the spots), stay close to the original goal building, avoid lanes we've
+        // visited, prefer easier turns...
+        let turn = choices[0];
+        self.path.add(PathStep::Turn(turn.id));
+        self.path.add(PathStep::Lane(turn.id.dst));
+    }
 }

@@ -56,6 +56,8 @@ pub fn load(
     savestate_every: Option<Duration>,
     timer: &mut abstutil::Timer,
 ) -> (Map, Sim) {
+    let mut rng = flags.make_rng();
+
     if flags.load.contains("data/save/") {
         assert_eq!(flags.edits_name, "no_edits");
 
@@ -111,10 +113,9 @@ pub fn load(
             &map,
             // TODO or the scenario name if no run name
             flags.run_name,
-            flags.rng_seed,
             savestate_every,
         );
-        scenario.instantiate(&mut sim, &map, timer);
+        scenario.instantiate(&mut sim, &map, &mut rng, timer);
         (map, sim)
     } else if flags.load.contains("data/raw_maps/") {
         // TODO relative dir is brittle; match more cautiously
@@ -128,7 +129,7 @@ pub fn load(
         let map = Map::new(&flags.load, edits, timer)
             .expect(&format!("Couldn't load map from {}", flags.load));
         timer.start("create sim");
-        let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
+        let sim = Sim::new(&map, flags.run_name, savestate_every);
         timer.stop("create sim");
         (map, sim)
     } else if flags.load.contains("data/maps/") {
@@ -138,7 +139,7 @@ pub fn load(
         let map: Map = abstutil::read_binary(&flags.load, timer)
             .expect(&format!("Couldn't load map from {}", flags.load));
         timer.start("create sim");
-        let sim = Sim::new(&map, flags.run_name, flags.rng_seed, savestate_every);
+        let sim = Sim::new(&map, flags.run_name, savestate_every);
         timer.stop("create sim");
         (map, sim)
     } else {

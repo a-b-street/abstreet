@@ -1,7 +1,7 @@
+use crate::AgentID;
 use geom::Duration;
 use map_model::{ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority};
 use serde_derive::{Deserialize, Serialize};
-use sim::AgentID;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 #[derive(Serialize, Deserialize, PartialEq)]

@@ -55,7 +55,10 @@ impl ID {
                     "{} parked cars are owned by {}: {:?}",
                     parked_cars.len(),
                     id,
-                    parked_cars.iter().map(|p| p.car).collect::<Vec<CarID>>()
+                    parked_cars
+                        .iter()
+                        .map(|p| p.vehicle.id)
+                        .collect::<Vec<CarID>>()
                 );
             }
             ID::Car(id) => {

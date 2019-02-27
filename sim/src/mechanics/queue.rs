@@ -1,5 +1,5 @@
-use crate::plugins::sim::new_des_model::mechanics::car::{Car, CarState};
-use crate::plugins::sim::new_des_model::{BUS_LENGTH, FOLLOWING_DISTANCE};
+use crate::mechanics::car::{Car, CarState};
+use crate::{BUS_LENGTH, FOLLOWING_DISTANCE};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
