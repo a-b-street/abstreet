@@ -1,4 +1,4 @@
-use crate::{trim_f64, Acceleration, Distance, Duration, EPSILON_DIST};
+use crate::{trim_f64, Distance, Duration, EPSILON_DIST};
 use serde_derive::{Deserialize, Serialize};
 use std::{f64, fmt, ops};
 
@@ -98,28 +98,6 @@ impl ops::Mul<Duration> for Speed {
 
     fn mul(self, other: Duration) -> Distance {
         Distance::meters(self.0 * other.inner_seconds())
-    }
-}
-
-impl ops::Div<Duration> for Speed {
-    type Output = Acceleration;
-
-    fn div(self, other: Duration) -> Acceleration {
-        if other == Duration::ZERO {
-            panic!("Can't divide {} / {}", self, other);
-        }
-        Acceleration::meters_per_second_squared(self.0 / other.inner_seconds())
-    }
-}
-
-impl ops::Div<Acceleration> for Speed {
-    type Output = Duration;
-
-    fn div(self, other: Acceleration) -> Duration {
-        if other == Acceleration::ZERO {
-            panic!("Can't divide {} / {}", self, other);
-        }
-        Duration::seconds(self.0 / other.inner_meters_per_second_squared())
     }
 }
 

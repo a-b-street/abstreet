@@ -1,4 +1,3 @@
-mod acceleration;
 mod angle;
 mod bounds;
 mod circle;
@@ -12,7 +11,6 @@ mod polyline;
 mod pt;
 mod speed;
 
-pub use crate::acceleration::Acceleration;
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;
