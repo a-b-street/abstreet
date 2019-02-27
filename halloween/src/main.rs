@@ -31,11 +31,11 @@ impl UI {
             Map::new(
                 &flags.load_map,
                 MapEdits::new("map name"),
-                &mut Timer::throwaway(),
+                &mut Timer::new("load map"),
             )
             .unwrap()
         } else {
-            abstutil::read_binary(&flags.load_map, &mut Timer::throwaway()).unwrap()
+            abstutil::read_binary(&flags.load_map, &mut Timer::new("load map")).unwrap()
         };
 
         UI {

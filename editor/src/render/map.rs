@@ -291,7 +291,7 @@ impl DrawMap {
             true,
             cs,
             prerender,
-            &mut Timer::throwaway(),
+            &mut Timer::new("recalculate DrawLane"),
         );
     }
 

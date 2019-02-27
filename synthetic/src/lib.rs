@@ -385,7 +385,7 @@ impl Model {
 
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
     pub fn import(path: &str) -> (Model, QuadTree<ID>) {
-        let data: raw_data::Map = read_binary(path, &mut Timer::throwaway()).unwrap();
+        let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
         let gps_bounds = data.get_gps_bounds();
 
         let mut m = Model::new();

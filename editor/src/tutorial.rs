@@ -160,6 +160,6 @@ fn setup_scenario(primary: &mut PerMapUI) {
         &mut primary.sim,
         map,
         &mut primary.current_flags.sim_flags.make_rng(),
-        &mut Timer::throwaway(),
+        &mut Timer::new("setup tutorial"),
     );
 }

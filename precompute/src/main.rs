@@ -43,5 +43,4 @@ fn main() {
     timer.start("save map");
     map.save();
     timer.stop("save map");
-    timer.done();
 }

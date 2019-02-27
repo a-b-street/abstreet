@@ -60,7 +60,7 @@ impl BlockingPlugin for StopSignEditor {
         } else if input.modal_action("quit") {
             return false;
         } else if input.modal_action("reset to default") {
-            let sign = ControlStopSign::new(map, self.i, &mut Timer::throwaway());
+            let sign = ControlStopSign::new(map, self.i, &mut Timer::new("reset ControlStopSign"));
             map.edit_stop_sign(sign);
         }
         true

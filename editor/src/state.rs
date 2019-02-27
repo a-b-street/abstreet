@@ -484,7 +484,6 @@ impl PerMapUI {
             current_flags: flags.clone(),
         };
         let plugins = PluginsPerMap::new(&state, &mut timer, enable_debug_controls);
-        timer.done();
         (state, plugins)
     }
 }

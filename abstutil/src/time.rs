@@ -118,33 +118,8 @@ impl Timer {
         self.warnings.push(line);
     }
 
-    pub fn done(mut self) {
-        let stop_name = self.outermost_name.clone();
-        self.stop(&stop_name);
-        assert!(self.stack.is_empty());
-        println!();
-        for line in self.results {
-            println!("{}", line);
-        }
-        println!();
-
-        if !self.notes.is_empty() {
-            println!("{} notes:", self.notes.len());
-            for line in self.notes {
-                println!("{}", line);
-            }
-            println!();
-        }
-        notes::dump_notes();
-
-        if !self.warnings.is_empty() {
-            println!("{} warnings:", self.warnings.len());
-            for line in self.warnings {
-                println!("{}", line);
-            }
-            println!();
-        }
-    }
+    // Used to end the scope of a timer early.
+    pub fn done(self) {}
 
     pub fn start(&mut self, name: &str) {
         println!("{}...", name);
@@ -254,6 +229,36 @@ impl Timer {
                 self.results.push(format!("{}- {}", padding, line));
                 // Don't bother tracking excess time that the Timer has existed but had no spans
             }
+        }
+    }
+}
+
+impl std::ops::Drop for Timer {
+    fn drop(&mut self) {
+        let stop_name = self.outermost_name.clone();
+        self.stop(&stop_name);
+        assert!(self.stack.is_empty());
+        println!();
+        for line in &self.results {
+            println!("{}", line);
+        }
+        println!();
+
+        if !self.notes.is_empty() {
+            println!("{} notes:", self.notes.len());
+            for line in &self.notes {
+                println!("{}", line);
+            }
+            println!();
+        }
+        notes::dump_notes();
+
+        if !self.warnings.is_empty() {
+            println!("{} warnings:", self.warnings.len());
+            for line in &self.warnings {
+                println!("{}", line);
+            }
+            println!();
         }
     }
 }

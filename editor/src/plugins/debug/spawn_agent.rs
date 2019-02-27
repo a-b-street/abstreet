@@ -194,7 +194,7 @@ impl BlockingPlugin for SpawnAgent {
                     }
                 }
             };
-            sim.spawn_all_trips(map, &mut Timer::throwaway());
+            sim.spawn_all_trips(map, &mut Timer::new("spawn trip"));
             return false;
         }
 

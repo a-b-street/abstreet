@@ -144,7 +144,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                         &mut ctx.primary.sim,
                         &ctx.primary.map,
                         &mut ctx.primary.current_flags.sim_flags.make_rng(),
-                        &mut Timer::throwaway(),
+                        &mut Timer::new("seed sim"),
                     );
                     *ctx.recalculate_current_selection = true;
                 }

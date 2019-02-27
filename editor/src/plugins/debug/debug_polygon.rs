@@ -39,10 +39,14 @@ impl DebugPolygon {
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
                     return Some(DebugPolygon {
-                        items: calculate_corners(i, &ctx.primary.map, &mut Timer::throwaway())
-                            .into_iter()
-                            .map(Item::Polygon)
-                            .collect(),
+                        items: calculate_corners(
+                            i,
+                            &ctx.primary.map,
+                            &mut Timer::new("calculate corners"),
+                        )
+                        .into_iter()
+                        .map(Item::Polygon)
+                        .collect(),
                         current: 0,
                         center: None,
                     });

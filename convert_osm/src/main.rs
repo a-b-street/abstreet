@@ -9,5 +9,4 @@ fn main() {
     timer.start("saving map");
     abstutil::write_binary(&flags.output, &map).expect("serializing map failed");
     timer.stop("saving map");
-    timer.done();
 }
