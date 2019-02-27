@@ -9,10 +9,10 @@ use map_model::{BuildingID, LaneID, Map, Position, Traversable};
 use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, VehicleType};
+use sim::VehicleType;
 
 pub struct EvenSimplerModelController {
-    sim: new_des_model::Sim,
+    pub sim: new_des_model::Sim,
     auto_mode: bool,
 }
 
@@ -68,42 +68,6 @@ impl BlockingPlugin for EvenSimplerModelController {
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             self.sim.draw_unzoomed(g, &ctx.map);
         }
-    }
-}
-
-impl GetDrawAgents for EvenSimplerModelController {
-    fn time(&self) -> Duration {
-        self.sim.time()
-    }
-
-    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.sim
-            .get_all_draw_cars(map)
-            .into_iter()
-            .find(|x| x.id == id)
-    }
-
-    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        self.sim
-            .get_all_draw_peds(map)
-            .into_iter()
-            .find(|x| x.id == id)
-    }
-
-    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
-        self.sim.get_draw_cars_on(on, map)
-    }
-
-    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.sim.get_draw_peds_on(on, map)
-    }
-
-    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        self.sim.get_all_draw_cars(map)
-    }
-
-    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.sim.get_all_draw_peds(map)
     }
 }
 

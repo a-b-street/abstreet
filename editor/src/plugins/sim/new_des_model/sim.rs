@@ -8,7 +8,7 @@ use ezgui::GfxCtx;
 use geom::Duration;
 use map_model::{BuildingID, LaneID, Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, VehicleType};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, VehicleType};
 use std::collections::{HashSet, VecDeque};
 use std::panic;
 use std::time::Instant;
@@ -96,18 +96,22 @@ impl Sim {
     }
 }
 
-impl Sim {
-    pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
-        self.driving.draw_unzoomed(self.time, g, map);
+impl GetDrawAgents for Sim {
+    fn time(&self) -> Duration {
+        self.time
     }
 
-    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        let mut result = self.driving.get_all_draw_cars(self.time, map);
-        result.extend(self.parking.get_all_draw_cars(map));
-        result
+    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
+        // TODO Faster
+        self.get_all_draw_cars(map).into_iter().find(|d| d.id == id)
     }
 
-    pub fn get_draw_cars_on(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
+        // TODO Faster
+        self.get_all_draw_peds(map).into_iter().find(|d| d.id == id)
+    }
+
+    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
         if let Traversable::Lane(l) = on {
             if map.get_l(l).is_parking() {
                 return self.parking.get_draw_cars(l, map);
@@ -116,12 +120,24 @@ impl Sim {
         self.driving.get_draw_cars_on(self.time, on, map)
     }
 
-    pub fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking.get_all_draw_peds(self.time, map)
+    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_draw_peds(self.time, on, map)
     }
 
-    pub fn get_draw_peds_on(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking.get_draw_peds(self.time, on, map)
+    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+        let mut result = self.driving.get_all_draw_cars(self.time, map);
+        result.extend(self.parking.get_all_draw_cars(map));
+        result
+    }
+
+    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking.get_all_draw_peds(self.time, map)
+    }
+}
+
+impl Sim {
+    pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
+        self.driving.draw_unzoomed(self.time, g, map);
     }
 }
 

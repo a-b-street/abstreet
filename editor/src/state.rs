@@ -174,7 +174,7 @@ impl DefaultUIState {
             } else if let Ok(p) = plugin
                 .downcast_ref::<plugins::sim::even_simpler_model::EvenSimplerModelController>()
             {
-                return p;
+                return &p.sim;
             }
         }
         &self.primary.sim
