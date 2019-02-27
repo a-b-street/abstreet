@@ -2,7 +2,6 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use abstutil::Timer;
 use ezgui::{Color, GfxCtx, Key};
-use geom::Distance;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Pathfinder, Position,
     Trace, LANE_THICKNESS,
@@ -65,7 +64,7 @@ impl SpawnAgent {
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
                     return Some(SpawnAgent {
-                        from: Source::Driving(Position::new(id, Distance::ZERO)),
+                        from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     });
                 }

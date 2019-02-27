@@ -428,7 +428,7 @@ impl Sim {
         self.driving.debug_car(id);
     }
 
-    pub fn debug_intersection(&mut self, id: IntersectionID, map: &Map) {
+    pub fn debug_intersection(&self, id: IntersectionID, map: &Map) {
         self.intersections.debug(id, map);
     }
 

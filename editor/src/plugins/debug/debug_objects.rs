@@ -42,11 +42,7 @@ impl AmbientPlugin for DebugObjectsState {
 
         if let Some(id) = self.selected {
             if ctx.input.contextual_action(Key::D, "debug") {
-                id.debug(
-                    &ctx.primary.map,
-                    &mut ctx.primary.sim,
-                    &ctx.primary.draw_map,
-                );
+                id.debug(&ctx.primary.map, &ctx.primary.sim, &ctx.primary.draw_map);
             }
         }
     }

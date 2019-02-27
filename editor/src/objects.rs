@@ -33,7 +33,7 @@ impl ID {
         }
     }
 
-    pub fn debug(&self, map: &Map, sim: &mut Sim, draw_map: &DrawMap) {
+    pub fn debug(&self, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         match *self {
             ID::Road(id) => {
                 map.get_r(id).dump_debug();
