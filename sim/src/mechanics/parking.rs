@@ -47,24 +47,6 @@ impl ParkingSimState {
         sim
     }
 
-    /*pub fn edit_remove_lane(&mut self, id: LaneID) {
-        assert!(self.lanes[id.0].is_empty());
-        self.lanes[id.0] = ParkingLane {
-            id,
-            spots: Vec::new(),
-            occupants: Vec::new(),
-        };
-    }
-
-    pub fn edit_add_lane(&mut self, l: &Lane) {
-        self.lanes[l.id.0] = ParkingLane::new(l);
-    }
-
-    // TODO bad name
-    pub fn total_count(&self) -> usize {
-        self.cars.len()
-    }*/
-
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         let lane = &self.lanes[&l];
         let mut spots: Vec<ParkingSpot> = Vec::new();
@@ -252,10 +234,6 @@ impl ParkingLane {
         let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
         self.occupants[idx] = None;
     }
-
-    /*fn is_empty(&self) -> bool {
-        !self.occupants.iter().any(|x| x.is_some())
-    }*/
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

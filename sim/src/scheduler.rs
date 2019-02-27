@@ -90,10 +90,6 @@ impl Scheduler {
         }
     }
 
-    /*pub fn is_done(&self) -> bool {
-        self.commands.is_empty()
-    }*/
-
     pub fn enqueue_command(&mut self, cmd: Command) {
         // TODO Use some kind of priority queue that's serializable
         self.commands.push(cmd);
