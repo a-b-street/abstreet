@@ -7,7 +7,7 @@ use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, CarState, DrawCarInput, VehicleType};
+use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use std::collections::{BTreeMap, BTreeSet};
 use std::iter;
 
@@ -126,7 +126,7 @@ impl ParkingSimState {
             id: p.vehicle.id,
             waiting_for_turn: None,
             stopping_trace: None,
-            state: CarState::Parked,
+            status: CarStatus::Parked,
             vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane),
 

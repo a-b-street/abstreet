@@ -4,7 +4,7 @@ use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarState, DrawCarInput};
+use sim::{CarID, CarStatus, DrawCarInput};
 use std;
 
 const CAR_WIDTH: Distance = Distance::const_meters(2.0);
@@ -78,11 +78,11 @@ impl DrawCar {
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
 
         // TODO if it's a bus, color it differently -- but how? :\
-        let color = match input.state {
-            CarState::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
-            CarState::Moving => cs.get_def("moving car", Color::CYAN),
-            CarState::Stuck => cs.get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0)),
-            CarState::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+        let color = match input.status {
+            CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
+            CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
+            CarStatus::Stuck => cs.get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0)),
+            CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
         };
         let draw_default = prerender.upload_borrowed(vec![
             (

@@ -29,7 +29,7 @@ pub use crate::make::{
 };
 pub use crate::physics::{Tick, TIMESTEP};
 pub use crate::query::{Benchmark, ScoreSummary, SimStats, Summary};
-pub use crate::render::{CarState, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
+pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 pub use crate::sim::Sim;
 use abstutil::Cloneable;
 use map_model::{BuildingID, LaneID};

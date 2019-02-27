@@ -6,7 +6,7 @@ use crate::plugins::sim::des_model::car::Car;
 use ezgui::{GfxCtx, Text};
 use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{LaneID, Map};
-use sim::{CarID, CarState, DrawCarInput, VehicleType};
+use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 
 pub struct World {
     pub lane: LaneID,
@@ -20,7 +20,7 @@ impl World {
 
         let mut leader = Car {
             id: CarID::tmp_new(0, VehicleType::Car),
-            state: CarState::Moving,
+            state: CarStatus::Moving,
             car_length: Distance::meters(5.0),
             max_accel: Acceleration::meters_per_second_squared(2.5),
             max_deaccel: Acceleration::meters_per_second_squared(-3.0),
@@ -39,7 +39,7 @@ impl World {
         for i in 0..num_followers {
             let mut follower = Car {
                 id: CarID::tmp_new(cars.len(), VehicleType::Car),
-                state: CarState::Stuck,
+                state: CarStatus::Stuck,
                 car_length: Distance::meters(5.0),
                 max_accel: Acceleration::meters_per_second_squared(4.5),
                 max_deaccel: Acceleration::meters_per_second_squared(-2.0),

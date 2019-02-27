@@ -4,7 +4,7 @@ use crate::plugins::sim::new_des_model::{
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::DrawCarInput;
+use sim::{CarStatus, DrawCarInput};
 use std::collections::VecDeque;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -107,13 +107,13 @@ impl Car {
             id: self.vehicle.id,
             waiting_for_turn: None,
             stopping_trace: None,
-            state: match self.state {
+            status: match self.state {
                 // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
-                CarState::Queued => sim::CarState::Stuck,
-                CarState::Crossing(_, _) => sim::CarState::Moving,
+                CarState::Queued => CarStatus::Stuck,
+                CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
-                CarState::Unparking(_, _) => sim::CarState::Parked,
-                CarState::Parking(_, _, _) => sim::CarState::Parked,
+                CarState::Unparking(_, _) => CarStatus::Parked,
+                CarState::Parking(_, _, _) => CarStatus::Parked,
             },
             vehicle_type: self.vehicle.vehicle_type,
             on: self.router.head(),

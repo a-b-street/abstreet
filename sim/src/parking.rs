@@ -1,5 +1,5 @@
 use crate::kinematics::Vehicle;
-use crate::{CarID, CarState, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
+use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, VehicleType};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Pt2D};
 use map_model;
@@ -95,7 +95,7 @@ impl ParkingSimState {
             id: p.car,
             waiting_for_turn: None,
             stopping_trace: None,
-            state: CarState::Parked,
+            status: CarStatus::Parked,
             vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane),
 

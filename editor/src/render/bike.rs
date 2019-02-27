@@ -4,7 +4,7 @@ use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Bounds, Distance, Polygon, Pt2D};
 use map_model::Map;
-use sim::{CarID, CarState, DrawCarInput};
+use sim::{CarID, CarStatus, DrawCarInput};
 
 const BIKE_WIDTH: Distance = Distance::const_meters(0.8);
 
@@ -24,14 +24,14 @@ impl DrawBike {
         let polygon = input.body.make_polygons(BIKE_WIDTH);
 
         let draw_default = prerender.upload_borrowed(vec![(
-            match input.state {
-                CarState::Debug => cs
+            match input.status {
+                CarStatus::Debug => cs
                     .get_def("debug bike", Color::BLUE.alpha(0.8))
                     .shift(input.id.0),
                 // TODO Hard to see on the greenish bike lanes? :P
-                CarState::Moving => cs.get_def("moving bike", Color::GREEN).shift(input.id.0),
-                CarState::Stuck => cs.get_def("stuck bike", Color::RED).shift(input.id.0),
-                CarState::Parked => panic!("Can't have a parked bike"),
+                CarStatus::Moving => cs.get_def("moving bike", Color::GREEN).shift(input.id.0),
+                CarStatus::Stuck => cs.get_def("stuck bike", Color::RED).shift(input.id.0),
+                CarStatus::Parked => panic!("Can't have a parked bike"),
             },
             &polygon,
         )]);

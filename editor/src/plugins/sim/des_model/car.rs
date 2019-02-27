@@ -1,7 +1,7 @@
 use crate::plugins::sim::des_model::interval::{Delta, Interval};
 use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use map_model::{Lane, Traversable};
-use sim::{CarID, CarState, DrawCarInput, VehicleType};
+use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 use std::cmp;
 
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
@@ -9,7 +9,7 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 pub struct Car {
     pub id: CarID,
     // Hack used for different colors
-    pub state: CarState,
+    pub state: CarStatus,
     pub car_length: Distance,
     // Note that if we always used these, things would look quite jerky.
     pub max_accel: Acceleration,
@@ -77,7 +77,7 @@ impl Car {
             id: self.id,
             waiting_for_turn: None,
             stopping_trace: None,
-            state: self.state,
+            status: self.state,
             vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane.id),
             body: lane

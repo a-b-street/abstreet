@@ -6,7 +6,7 @@ use crate::router::Router;
 use crate::transit::TransitSimState;
 use crate::view::{AgentView, WorldView};
 use crate::{
-    AgentID, CarID, CarState, DrawCarInput, Event, ParkedCar, ParkingSpot, Tick, TripID,
+    AgentID, CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, Tick, TripID,
     VehicleType, TIMESTEP,
 };
 use abstutil;
@@ -935,12 +935,12 @@ impl DrivingSimState {
                 map,
                 Some(c.vehicle.stopping_distance(c.speed).unwrap()),
             ),
-            state: if c.debug {
-                CarState::Debug
+            status: if c.debug {
+                CarStatus::Debug
             } else if c.speed.is_zero(TIMESTEP) {
-                CarState::Stuck
+                CarStatus::Stuck
             } else {
-                CarState::Moving
+                CarStatus::Moving
             },
             vehicle_type: c.vehicle.vehicle_type,
             on: c.on,
