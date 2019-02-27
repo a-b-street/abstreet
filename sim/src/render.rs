@@ -1,6 +1,6 @@
-use crate::{CarID, PedestrianID, Sim, VehicleType};
+use crate::{CarID, PedestrianID, VehicleType};
 use geom::{Duration, PolyLine, Pt2D};
-use map_model::{LaneType, Map, Trace, Traversable, TurnID};
+use map_model::{Map, Trace, Traversable, TurnID};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
 #[derive(Clone)]
@@ -45,47 +45,4 @@ pub trait GetDrawAgents {
     fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput>;
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
     fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput>;
-}
-
-impl GetDrawAgents for Sim {
-    fn time(&self) -> Duration {
-        self.time.as_time()
-    }
-
-    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.driving_state
-            .get_draw_car(id, self.time, map)
-            .or_else(|| self.parking_state.get_draw_car(id, map))
-    }
-
-    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        self.walking_state.get_draw_ped(id, map, self.time)
-    }
-
-    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
-        match on {
-            Traversable::Lane(l) => match map.get_l(l).lane_type {
-                LaneType::Driving | LaneType::Bus | LaneType::Biking => {
-                    self.driving_state.get_draw_cars(on, self.time, map)
-                }
-                LaneType::Parking => self.parking_state.get_draw_cars(l, map),
-                LaneType::Sidewalk => Vec::new(),
-            },
-            Traversable::Turn(_) => self.driving_state.get_draw_cars(on, self.time, map),
-        }
-    }
-
-    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_draw_peds(on, map, self.time)
-    }
-
-    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        let mut cars = self.driving_state.get_all_draw_cars(self.time, map);
-        cars.extend(self.parking_state.get_all_draw_cars(map));
-        cars
-    }
-
-    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking_state.get_all_draw_peds(self.time, map)
-    }
 }

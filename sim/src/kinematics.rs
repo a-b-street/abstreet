@@ -1,4 +1,4 @@
-use crate::{CarID, TIMESTEP};
+use crate::{CarID, VehicleType, TIMESTEP};
 use abstutil::Error;
 use geom::{Acceleration, Distance, Duration, Speed, EPSILON_DIST};
 use more_asserts::assert_ge;
@@ -35,13 +35,6 @@ pub struct Vehicle {
 
     pub length: Distance,
     pub max_speed: Option<Speed>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
-pub enum VehicleType {
-    Car,
-    Bus,
-    Bike,
 }
 
 impl Vehicle {

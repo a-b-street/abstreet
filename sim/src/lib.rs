@@ -22,7 +22,6 @@ mod walking;
 
 pub use crate::events::Event;
 pub use crate::instrument::save_backtraces;
-pub use crate::kinematics::VehicleType;
 pub use crate::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
     SimFlags, SpawnOverTime,
@@ -108,6 +107,13 @@ impl fmt::Display for TripID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "TripID({0})", self.0)
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
+pub enum VehicleType {
+    Car,
+    Bus,
+    Bike,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]

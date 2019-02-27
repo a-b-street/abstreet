@@ -2,7 +2,6 @@ use crate::driving::DrivingSimState;
 use crate::instrument::capture_backtrace;
 use crate::intersections::IntersectionSimState;
 use crate::parking::ParkingSimState;
-use crate::render::GetDrawAgents;
 use crate::scheduler::Scheduler;
 use crate::spawn::Spawner;
 use crate::transit::TransitSimState;
@@ -10,7 +9,8 @@ use crate::trips::TripManager;
 use crate::view::WorldView;
 use crate::walking::WalkingSimState;
 use crate::{
-    AgentID, CarID, Event, ParkedCar, PedestrianID, SimStats, Tick, TripID, VehicleType, TIMESTEP,
+    AgentID, CarID, DrawCarInput, DrawPedestrianInput, Event, GetDrawAgents, ParkedCar,
+    PedestrianID, SimStats, Tick, TripID, VehicleType, TIMESTEP,
 };
 use abstutil;
 use abstutil::{Error, Profiler};
@@ -496,5 +496,48 @@ impl Sim {
     // TODO Confusing to clash with the GetDrawAgents definition?
     pub fn time(&self) -> Duration {
         self.time.as_time()
+    }
+}
+
+impl GetDrawAgents for Sim {
+    fn time(&self) -> Duration {
+        self.time.as_time()
+    }
+
+    fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
+        self.driving_state
+            .get_draw_car(id, self.time, map)
+            .or_else(|| self.parking_state.get_draw_car(id, map))
+    }
+
+    fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
+        self.walking_state.get_draw_ped(id, map, self.time)
+    }
+
+    fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+        match on {
+            Traversable::Lane(l) => match map.get_l(l).lane_type {
+                LaneType::Driving | LaneType::Bus | LaneType::Biking => {
+                    self.driving_state.get_draw_cars(on, self.time, map)
+                }
+                LaneType::Parking => self.parking_state.get_draw_cars(l, map),
+                LaneType::Sidewalk => Vec::new(),
+            },
+            Traversable::Turn(_) => self.driving_state.get_draw_cars(on, self.time, map),
+        }
+    }
+
+    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking_state.get_draw_peds(on, map, self.time)
+    }
+
+    fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+        let mut cars = self.driving_state.get_all_draw_cars(self.time, map);
+        cars.extend(self.parking_state.get_all_draw_cars(map));
+        cars
+    }
+
+    fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
+        self.walking_state.get_all_draw_peds(self.time, map)
     }
 }
