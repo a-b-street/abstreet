@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
-use map_model::{BuildingID, Map, Position, Traversable};
+use map_model::{BuildingID, Map, Path, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
@@ -80,6 +80,10 @@ impl Router {
             Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
             Goal::BikeThenStop { end_dist } => end_dist,
         }
+    }
+
+    pub fn get_path(&self) -> &Path {
+        panic!("implement")
     }
 
     // Returns the step just finished

@@ -4,7 +4,7 @@ use crate::plugins::sim::new_des_model::{
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
 use geom::{Distance, Duration, Line, Speed};
-use map_model::{BuildingID, Map, Path, PathStep, Traversable};
+use map_model::{BuildingID, Map, Path, PathStep, Trace, Traversable};
 use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, DrawPedestrianInput, PedestrianID};
@@ -225,6 +225,30 @@ impl WalkingSimState {
             println!("{} doesn't exist", id);
         }
     }
+
+    pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
+        let p = &self.peds[&id];
+        vec![
+            format!("{}", p.id),
+            format!("{} lanes left in path", p.path.num_lanes()),
+        ]
+    }
+
+    pub fn trace_route(
+        &self,
+        time: Duration,
+        id: PedestrianID,
+        map: &Map,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
+        let p = self.peds.get(&id)?;
+        p.path.trace(map, p.get_dist_along(time, map), dist_ahead)
+    }
+
+    pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {
+        let p = self.peds.get(&id)?;
+        Some(&p.path)
+    }
 }
 
 fn delete_ped_from_current_step(map: &mut MultiMap<Traversable, PedestrianID>, ped: &Pedestrian) {
@@ -258,6 +282,23 @@ impl Pedestrian {
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
         let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / SPEED);
         PedState::Crossing(dist_int, time_int, false)
+    }
+
+    fn get_dist_along(&self, time: Duration, map: &Map) -> Distance {
+        match self.state {
+            PedState::Crossing(ref dist_int, ref time_int, _) => {
+                let percent = if time > time_int.end {
+                    1.0
+                } else {
+                    time_int.percent(time)
+                };
+                dist_int.lerp(percent)
+            }
+            PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
+            PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
+            PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
+            PedState::FinishingBiking(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
+        }
     }
 
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {

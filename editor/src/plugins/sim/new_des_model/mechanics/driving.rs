@@ -6,7 +6,7 @@ use crate::plugins::sim::new_des_model::{
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
-use map_model::{Map, Traversable, LANE_THICKNESS};
+use map_model::{Map, Path, Trace, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
@@ -386,16 +386,53 @@ impl DrivingSimState {
         }
     }
 
-    pub fn debug_car(&self, id: CarID) {
+    fn get_car(&self, id: CarID) -> Option<&Car> {
         // TODO Faster
         for q in self.queues.values() {
             for car in &q.cars {
                 if car.vehicle.id == id {
-                    println!("{}", abstutil::to_json(car));
-                    return;
+                    return Some(&car);
                 }
             }
         }
-        println!("{} is parked somewhere", id);
+        None
+    }
+
+    pub fn debug_car(&self, id: CarID) {
+        if let Some(car) = self.get_car(id) {
+            println!("{}", abstutil::to_json(car));
+        } else {
+            println!("{} is parked somewhere", id);
+        }
+    }
+
+    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
+        let car = self.get_car(id)?;
+        Some(vec![
+            // TODO Owner, path left...
+            format!("Car {:?}", id),
+        ])
+    }
+
+    pub fn get_path(&self, id: CarID) -> Option<&Path> {
+        let car = self.get_car(id)?;
+        Some(car.router.get_path())
+    }
+
+    pub fn trace_route(
+        &self,
+        time: Duration,
+        id: CarID,
+        map: &Map,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
+        let car = self.get_car(id)?;
+        let front = self.queues[&car.router.head()]
+            .get_car_positions(time)
+            .into_iter()
+            .find(|(c, _)| c.vehicle.id == id)
+            .unwrap()
+            .1;
+        car.router.get_path().trace(map, front, dist_ahead)
     }
 }

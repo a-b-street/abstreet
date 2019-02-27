@@ -6,10 +6,15 @@ use crate::plugins::sim::new_des_model::{
 use abstutil::Timer;
 use derivative::Derivative;
 use ezgui::GfxCtx;
-use geom::Duration;
-use map_model::{BuildingID, LaneID, LaneType, Map, Traversable, Turn};
+use geom::{Distance, Duration};
+use map_model::{
+    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
+};
 use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, VehicleType};
+use sim::{
+    AgentID, CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TripID,
+    VehicleType,
+};
 use std::collections::{HashSet, VecDeque};
 use std::panic;
 use std::time::Instant;
@@ -361,6 +366,10 @@ impl Sim {
         self.time
     }
 
+    pub fn get_name(&self) -> &str {
+        &self.run_name
+    }
+
     pub fn is_done(&self) -> bool {
         self.spawner.is_done() && self.trips.is_done()
     }
@@ -408,29 +417,67 @@ impl Sim {
         self.driving.debug_car(id);
     }
 
-    /////////////////// TODO Port properly
+    pub fn debug_intersection(&mut self, id: IntersectionID, map: &Map) {
+        self.intersections.debug(id, map);
+    }
 
-    /*pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
-        let mut lines = self.walking_state.ped_tooltip(p);
-        lines.extend(self.trips_state.tooltip_lines(AgentID::Pedestrian(p)));
+    pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
+        let mut lines = self.walking.ped_tooltip(p);
+        lines.extend(self.trips.tooltip_lines(AgentID::Pedestrian(p)));
         lines
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        if let Some(mut lines) = self.driving_state.tooltip_lines(car) {
-            lines.extend(self.trips_state.tooltip_lines(AgentID::Car(car)));
+        if let Some(mut lines) = self.driving.tooltip_lines(car) {
+            lines.extend(self.trips.tooltip_lines(AgentID::Car(car)));
             lines
         } else {
-            self.parking_state.tooltip_lines(car)
+            self.parking.tooltip_lines(car).unwrap()
         }
     }
 
-    pub fn debug_intersection(&mut self, id: IntersectionID, map: &Map) {
-        self.intersection_state.debug(id, map);
+    pub fn active_agents(&self) -> Vec<AgentID> {
+        self.trips.active_agents()
     }
 
-    pub fn active_agents(&self) -> Vec<AgentID> {
-        self.trips_state.active_agents()
+    pub fn debug_trip(&self, id: TripID) {
+        match self.trips.trip_to_agent(id) {
+            Some(AgentID::Car(id)) => self.debug_car(id),
+            Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
+            None => println!("{} doesn't exist", id),
+        }
+    }
+
+    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
+        self.trips.agent_to_trip(id)
+    }
+
+    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
+        self.trips.trip_to_agent(id)
+    }
+
+    pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
+        for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
+            let id = CarID::tmp_new(idx, *vt);
+            if self.driving.tooltip_lines(id).is_some() {
+                return Some(id);
+            }
+        }
+
+        let id = CarID::tmp_new(idx, VehicleType::Car);
+        // Only cars can be parked.
+        if self.parking.tooltip_lines(id).is_some() {
+            return Some(id);
+        }
+
+        None
+    }
+
+    pub fn get_path(&self, id: AgentID) -> Option<&Path> {
+        match id {
+            AgentID::Car(car) => self.driving.get_path(car),
+            AgentID::Pedestrian(ped) => self.walking.get_path(ped),
+        }
     }
 
     pub fn trace_route(
@@ -440,64 +487,17 @@ impl Sim {
         dist_ahead: Option<Distance>,
     ) -> Option<Trace> {
         match id {
-            AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
-            AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),
+            AgentID::Car(car) => self.driving.trace_route(self.time, car, map, dist_ahead),
+            AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map, dist_ahead),
         }
     }
 
-    pub fn get_path(&self, id: AgentID) -> Option<&Path> {
-        match id {
-            AgentID::Car(car) => self.driving_state.get_path(car),
-            AgentID::Pedestrian(ped) => self.walking_state.get_path(ped),
-        }
-    }
+    /////////////////// TODO Port properly
 
-    pub fn get_name(&self) -> &str {
-        &self.run_name
-    }
-
-    // TODO dont toggle state in debug_car
-    pub fn debug_trip(&mut self, id: TripID) {
-        match self.trips_state.trip_to_agent(id) {
-            Some(AgentID::Car(id)) => self.debug_car(id),
-            Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
-            None => println!("{} doesn't exist", id),
-        }
-    }
-
-    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
-        self.trips_state.agent_to_trip(id)
-    }
-
-    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
-        self.trips_state.trip_to_agent(id)
-    }
-
-    pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
-        self.parking_state.get_parked_cars_by_owner(id)
-    }
-
-    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+    /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         self.driving_state
             .get_owner_of_car(id)
             .or_else(|| self.parking_state.get_owner_of_car(id))
-    }
-
-    pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
-        for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
-            let id = CarID(idx, *vt);
-            if self.driving_state.get_path(id).is_some() {
-                return Some(id);
-            }
-        }
-
-        let id = CarID(idx, VehicleType::Car);
-        // Only cars can be parked.
-        if self.parking_state.lookup_car(id).is_some() {
-            return Some(id);
-        }
-
-        None
     }
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {

@@ -45,6 +45,17 @@ impl IntersectionSimState {
             .unwrap()
             .maybe_start_turn(agent, turn, time, map)
     }
+
+    pub fn debug(&self, id: IntersectionID, map: &Map) {
+        println!("{}", abstutil::to_json(&self.controllers[&id]));
+        if let Some(ref sign) = map.maybe_get_stop_sign(id) {
+            println!("{}", abstutil::to_json(sign));
+        } else if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
+            println!("{}", abstutil::to_json(signal));
+        } else {
+            println!("Border");
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]

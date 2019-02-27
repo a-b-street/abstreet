@@ -191,13 +191,13 @@ impl ParkingSimState {
         &self.lanes[&spot.lane].spots[spot.idx]
     }
 
-    /*pub fn tooltip_lines(&self, id: CarID) -> Vec<String> {
-        let c = self.lookup_car(id).unwrap();
-        vec![format!(
+    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
+        let c = self.cars.get(&id)?;
+        Some(vec![format!(
             "{} is parked, owned by {:?}",
             c.vehicle.id, c.owner
-        )]
-    }*/
+        )])
+    }
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
         self.cars_per_building
@@ -210,24 +210,6 @@ impl ParkingSimState {
 
     /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         self.lookup_car(id).and_then(|p| p.owner)
-    }
-
-    pub fn count(&self, lanes: &HashSet<LaneID>) -> (usize, usize) {
-        // TODO self.cars.len() works for cars_parked; we could maintain the other value easily too
-        let mut cars_parked = 0;
-        let mut open_parking_spots = 0;
-
-        for id in lanes {
-            for maybe_car in &self.lanes[id.0].occupants {
-                if maybe_car.is_some() {
-                    cars_parked += 1;
-                } else {
-                    open_parking_spots += 1;
-                }
-            }
-        }
-
-        (cars_parked, open_parking_spots)
     }*/
 }
 
