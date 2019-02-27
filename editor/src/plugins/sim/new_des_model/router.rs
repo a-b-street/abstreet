@@ -1,13 +1,12 @@
 use crate::plugins::sim::new_des_model::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
-use map_model::{BuildingID, Map, Path, Position, Traversable};
+use map_model::{BuildingID, Map, Path, PathStep, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::VecDeque;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
     // Front is always the current step
-    path: VecDeque<Traversable>,
+    path: Path,
     goal: Goal,
 }
 
@@ -36,16 +35,16 @@ enum Goal {
 }
 
 impl Router {
-    pub fn stop_suddenly(path: Vec<Traversable>, end_dist: Distance) -> Router {
+    pub fn stop_suddenly(path: Path, end_dist: Distance) -> Router {
         Router {
-            path: VecDeque::from(path),
+            path,
             goal: Goal::StopSuddenly { end_dist },
         }
     }
 
-    pub fn park_near(path: Vec<Traversable>, bldg: BuildingID) -> Router {
+    pub fn park_near(path: Path, bldg: BuildingID) -> Router {
         Router {
-            path: VecDeque::from(path),
+            path,
             goal: Goal::ParkNearBuilding {
                 target: bldg,
                 spot: None,
@@ -53,23 +52,23 @@ impl Router {
         }
     }
 
-    pub fn bike_then_stop(path: Vec<Traversable>, end_dist: Distance) -> Router {
+    pub fn bike_then_stop(path: Path, end_dist: Distance) -> Router {
         Router {
-            path: VecDeque::from(path),
+            path,
             goal: Goal::BikeThenStop { end_dist },
         }
     }
 
     pub fn head(&self) -> Traversable {
-        self.path[0]
+        self.path.current_step().as_traversable()
     }
 
     pub fn next(&self) -> Traversable {
-        self.path[1]
+        self.path.next_step().as_traversable()
     }
 
     pub fn last_step(&self) -> bool {
-        self.path.len() == 1
+        self.path.is_last_step()
     }
 
     pub fn get_end_dist(&self) -> Distance {
@@ -83,7 +82,7 @@ impl Router {
     }
 
     pub fn get_path(&self) -> &Path {
-        panic!("implement")
+        &self.path
     }
 
     // Returns the step just finished
@@ -93,7 +92,7 @@ impl Router {
         parking: &ParkingSimState,
         map: &Map,
     ) -> Traversable {
-        let prev = self.path.pop_front().unwrap();
+        let prev = self.path.shift().as_traversable();
         if self.last_step() {
             // Do this to trigger the side-effect of looking for parking.
             self.maybe_handle_end(Distance::ZERO, vehicle, parking, map);
@@ -125,7 +124,7 @@ impl Router {
                 };
                 if need_new_spot {
                     if let Some((new_spot, new_pos)) = parking.get_first_free_spot(
-                        Position::new(self.path[0].as_lane(), front),
+                        Position::new(self.path.current_step().as_traversable().as_lane(), front),
                         vehicle,
                         map,
                     ) {
@@ -144,7 +143,7 @@ impl Router {
             }
             Goal::BikeThenStop { end_dist } => {
                 if end_dist == front {
-                    let last_lane = self.path[0].as_lane();
+                    let last_lane = self.head().as_lane();
                     Some(ActionAtEnd::StopBiking(
                         SidewalkSpot::bike_rack(
                             map.get_parent(last_lane)
@@ -175,7 +174,7 @@ impl Router {
         // physically see the spots), stay close to the original goal building, avoid lanes we've
         // visited, prefer easier turns...
         let turn = choices[0];
-        self.path.push_back(Traversable::Turn(turn.id));
-        self.path.push_back(Traversable::Lane(turn.id.dst));
+        self.path.add(PathStep::Turn(turn.id));
+        self.path.add(PathStep::Lane(turn.id.dst));
     }
 }

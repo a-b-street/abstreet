@@ -375,7 +375,7 @@ impl Sim {
     }
 
     // TODO Rethink this
-    pub fn summarize(&self, lanes: &HashSet<LaneID>) -> Summary {
+    pub fn summarize(&self, _lanes: &HashSet<LaneID>) -> Summary {
         Summary {
             cars_parked: 0,
             open_parking_spots: 0,

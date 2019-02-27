@@ -130,12 +130,11 @@ impl TripSpawner {
                     let router = match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                            Router::park_near(path.convert_to_traversable_list(), b)
+                            Router::park_near(path, b)
                         }
-                        DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
-                            path.convert_to_traversable_list(),
-                            map.get_l(last_lane).length(),
-                        ),
+                        DrivingGoal::Border(_, last_lane) => {
+                            Router::stop_suddenly(path, map.get_l(last_lane).length())
+                        }
                     };
                     let trip = trips.new_trip(start_time, Some(ped_id), legs);
 

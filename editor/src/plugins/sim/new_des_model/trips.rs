@@ -128,11 +128,10 @@ impl TripManager {
         };
 
         let router = match drive_to {
-            DrivingGoal::ParkNear(b) => Router::park_near(path.convert_to_traversable_list(), b),
-            DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
-                path.convert_to_traversable_list(),
-                map.get_l(last_lane).length(),
-            ),
+            DrivingGoal::ParkNear(b) => Router::park_near(path, b),
+            DrivingGoal::Border(_, last_lane) => {
+                Router::stop_suddenly(path, map.get_l(last_lane).length())
+            }
         };
 
         scheduler.enqueue_command(Command::SpawnCar(
@@ -183,14 +182,12 @@ impl TripManager {
 
         let router = match drive_to {
             // TODO Stop closer to the building?
-            DrivingGoal::ParkNear(_) => Router::bike_then_stop(
-                path.convert_to_traversable_list(),
-                map.get_l(end.lane()).length() / 2.0,
-            ),
-            DrivingGoal::Border(_, last_lane) => Router::stop_suddenly(
-                path.convert_to_traversable_list(),
-                map.get_l(last_lane).length(),
-            ),
+            DrivingGoal::ParkNear(_) => {
+                Router::bike_then_stop(path, map.get_l(end.lane()).length() / 2.0)
+            }
+            DrivingGoal::Border(_, last_lane) => {
+                Router::stop_suddenly(path, map.get_l(last_lane).length())
+            }
         };
 
         scheduler.enqueue_command(Command::SpawnCar(
