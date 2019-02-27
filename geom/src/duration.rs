@@ -1,5 +1,4 @@
 use crate::{trim_f64, Distance, Speed};
-use regex::Regex;
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, ops};
 
@@ -87,8 +86,7 @@ impl Duration {
         }
     }
 
-    // TODO Unused right now.
-    pub fn parse_filename(string: &str) -> Option<Duration> {
+    /*pub fn parse_filename(string: &str) -> Option<Duration> {
         // TODO lazy_static! {
         let regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
 
@@ -99,23 +97,31 @@ impl Duration {
         let ms = caps[4].parse::<f64>().ok()? / 10.0;
 
         Some(Duration::seconds(hours + minutes + seconds + ms))
-    }
+    }*/
 
-    fn get_parts(self) -> (f64, f64, f64, f64) {
-        let hours = self.inner_seconds() / 3600.0;
-        let mut remainder = self.inner_seconds() % 3600.0;
-        let minutes = remainder / 60.0;
-        remainder %= 60.0;
+    // (hours, minutes, seconds, centiseconds)
+    fn get_parts(self) -> (usize, usize, usize, usize) {
+        let mut remainder = self.inner_seconds();
+        let hours = (remainder / 3600.0).floor();
+        remainder -= hours * 3600.0;
+        let minutes = (remainder / 60.0).floor();
+        remainder -= minutes * 60.0;
         let seconds = remainder.floor();
         remainder -= seconds;
+        let centis = (remainder / 0.1).round();
 
-        (hours, minutes, seconds, remainder)
+        (
+            hours as usize,
+            minutes as usize,
+            seconds as usize,
+            centis as usize,
+        )
     }
 
     pub fn as_filename(self) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         format!(
-            "{0:02}h{1:02}m{2:02}.{3}s",
+            "{0:02}h{1:02}m{2:02}.{3:01}s",
             hours, minutes, seconds, remainder
         )
     }
@@ -126,7 +132,7 @@ impl std::fmt::Display for Duration {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         write!(
             f,
-            "{0:02}:{1:02}:{2:02}.{3}",
+            "{0:02}:{1:02}:{2:02}.{3:01}",
             hours, minutes, seconds, remainder
         )
     }
