@@ -88,16 +88,15 @@ impl Sim {
         vehicle: VehicleSpec,
         spot: ParkingSpot,
         owner: Option<BuildingID>,
-    ) {
+    ) -> CarID {
+        let id = CarID(self.spawner.car_id_counter, VehicleType::Car);
+        self.spawner.car_id_counter += 1;
         self.parking.reserve_spot(spot);
         self.parking.add_parked_car(ParkedCar {
-            vehicle: vehicle.make(
-                CarID::tmp_new(self.spawner.car_id_counter, VehicleType::Car),
-                owner,
-            ),
+            vehicle: vehicle.make(id, owner),
             spot,
         });
-        self.spawner.car_id_counter += 1;
+        id
     }
 
     pub fn get_parked_cars_by_owner(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
@@ -471,13 +470,13 @@ impl Sim {
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
         for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
-            let id = CarID::tmp_new(idx, *vt);
+            let id = CarID(idx, *vt);
             if self.driving.tooltip_lines(id).is_some() {
                 return Some(id);
             }
         }
 
-        let id = CarID::tmp_new(idx, VehicleType::Car);
+        let id = CarID(idx, VehicleType::Car);
         // Only cars can be parked.
         if self.parking.tooltip_lines(id).is_some() {
             return Some(id);

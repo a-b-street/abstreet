@@ -135,9 +135,9 @@ impl TripSpawner {
             let path = maybe_path.unwrap();
             match spec {
                 TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
-                    let car_id = CarID::tmp_new(self.car_id_counter, VehicleType::Car);
+                    let car_id = CarID(self.car_id_counter, VehicleType::Car);
                     self.car_id_counter += 1;
-                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    let ped_id = PedestrianID(self.ped_id_counter);
                     self.ped_id_counter += 1;
 
                     let mut legs = vec![TripLeg::Drive(car_id, goal.clone())];
@@ -163,7 +163,7 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::UsingParkedCar(start, spot, goal) => {
-                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    let ped_id = PedestrianID(self.ped_id_counter);
                     self.ped_id_counter += 1;
                     let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
                     match start.connection {
@@ -197,7 +197,7 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::JustWalking(start, goal) => {
-                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    let ped_id = PedestrianID(self.ped_id_counter);
                     self.ped_id_counter += 1;
 
                     let trip =
@@ -215,9 +215,9 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::UsingBike(start, vehicle, goal) => {
-                    let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
+                    let ped_id = PedestrianID(self.ped_id_counter);
                     self.ped_id_counter += 1;
-                    let bike_id = CarID::tmp_new(self.car_id_counter, VehicleType::Bike);
+                    let bike_id = CarID(self.car_id_counter, VehicleType::Bike);
                     self.car_id_counter += 1;
 
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();

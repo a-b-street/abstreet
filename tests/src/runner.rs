@@ -5,7 +5,7 @@ use abstutil::Error;
 use gag::Redirect;
 use map_model::{BuildingID, LaneID};
 use rand_xorshift::XorShiftRng;
-use sim::{CarID, ParkingSpot, Sim};
+use sim::{CarID, ParkingSpot, Scenario, Sim};
 use std;
 use std::io::Write;
 use structopt::StructOpt;
@@ -276,7 +276,13 @@ impl TestHelper {
         owner: Option<BuildingID>,
         spots: Vec<usize>,
     ) -> Vec<(ParkingSpot, CarID)> {
-        Vec::new()
+        let mut results: Vec<(ParkingSpot, CarID)> = Vec::new();
+        for idx in spots.into_iter() {
+            let spot = ParkingSpot::new(lane, idx);
+            let car = sim.seed_parked_car(Scenario::rand_car(rng), spot, owner);
+            results.push((spot, car));
+        }
+        results
     }
 }
 
