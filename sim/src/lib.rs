@@ -66,12 +66,6 @@ impl fmt::Display for CarID {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct PedestrianID(pub usize);
 
-impl PedestrianID {
-    pub fn tmp_new(idx: usize) -> PedestrianID {
-        PedestrianID(idx)
-    }
-}
-
 impl fmt::Display for PedestrianID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "PedestrianID({0})", self.0)

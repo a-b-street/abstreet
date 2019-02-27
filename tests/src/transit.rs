@@ -42,19 +42,20 @@ pub fn run(t: &mut TestRunner) {
         let goal_bldg = map
             .get_l(map.get_bs(ped_stop2).sidewalk_pos.lane())
             .building_paths[0];
-        sim.schedule_trip(
-            Duration::ZERO,
-            TripSpec::UsingTransit(
-                SidewalkSpot::building(start_bldg, &map),
-                route.id,
-                ped_stop1,
-                ped_stop2,
-                SidewalkSpot::building(goal_bldg, &map),
-            ),
-            &map,
-        );
-        // TODO ew
-        let ped = sim::PedestrianID::tmp_new(0);
+        let ped = sim
+            .schedule_trip(
+                Duration::ZERO,
+                TripSpec::UsingTransit(
+                    SidewalkSpot::building(start_bldg, &map),
+                    route.id,
+                    ped_stop1,
+                    ped_stop2,
+                    SidewalkSpot::building(goal_bldg, &map),
+                ),
+                &map,
+            )
+            .0
+            .unwrap();
         h.setup_done(&sim);
 
         sim.run_until_expectations_met(

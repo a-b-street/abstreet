@@ -21,18 +21,13 @@ pub enum TripSpec {
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct TripSpawner {
-    // TODO tmp pub
-    pub(crate) car_id_counter: usize,
-    ped_id_counter: usize,
     parked_cars_claimed: BTreeSet<CarID>,
-    trips: Vec<(Duration, TripSpec)>,
+    trips: Vec<(Duration, Option<PedestrianID>, Option<CarID>, TripSpec)>,
 }
 
 impl TripSpawner {
     pub fn new() -> TripSpawner {
         TripSpawner {
-            car_id_counter: 0,
-            ped_id_counter: 0,
             parked_cars_claimed: BTreeSet::new(),
             trips: Vec::new(),
         }
@@ -41,6 +36,8 @@ impl TripSpawner {
     pub fn schedule_trip(
         &mut self,
         start_time: Duration,
+        ped_id: Option<PedestrianID>,
+        car_id: Option<CarID>,
         spec: TripSpec,
         map: &Map,
         parking: &ParkingSimState,
@@ -108,7 +105,7 @@ impl TripSpawner {
             TripSpec::UsingTransit(_, _, _, _, _) => {}
         };
 
-        self.trips.push((start_time, spec));
+        self.trips.push((start_time, ped_id, car_id, spec));
     }
 
     pub fn spawn_all(
@@ -123,11 +120,11 @@ impl TripSpawner {
             map,
             self.trips
                 .iter()
-                .map(|(_, spec)| spec.get_pathfinding_request(map, parking))
+                .map(|(_, _, _, spec)| spec.get_pathfinding_request(map, parking))
                 .collect(),
             timer,
         );
-        for ((start_time, spec), maybe_path) in self.trips.drain(..).zip(paths) {
+        for ((start_time, ped_id, car_id, spec), maybe_path) in self.trips.drain(..).zip(paths) {
             if maybe_path.is_none() {
                 timer.warn(format!("{:?} couldn't find the first path", spec));
                 continue;
@@ -135,12 +132,7 @@ impl TripSpawner {
             let path = maybe_path.unwrap();
             match spec {
                 TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
-                    let car_id = CarID(self.car_id_counter, VehicleType::Car);
-                    self.car_id_counter += 1;
-                    let ped_id = PedestrianID(self.ped_id_counter);
-                    self.ped_id_counter += 1;
-
-                    let mut legs = vec![TripLeg::Drive(car_id, goal.clone())];
+                    let mut legs = vec![TripLeg::Drive(car_id.unwrap(), goal.clone())];
                     let router = match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
@@ -150,12 +142,12 @@ impl TripSpawner {
                             Router::stop_suddenly(path, map.get_l(last_lane).length())
                         }
                     };
-                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+                    let trip = trips.new_trip(start_time, ped_id, legs);
 
                     scheduler.enqueue_command(Command::SpawnCar(
                         start_time,
                         CreateCar::for_appearing(
-                            vehicle_spec.make(car_id, None),
+                            vehicle_spec.make(car_id.unwrap(), None),
                             start_pos,
                             router,
                             trip,
@@ -163,8 +155,6 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::UsingParkedCar(start, spot, goal) => {
-                    let ped_id = PedestrianID(self.ped_id_counter);
-                    self.ped_id_counter += 1;
                     let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
                     match start.connection {
                         SidewalkPOI::Building(b) => assert_eq!(vehicle.owner, Some(b)),
@@ -183,12 +173,12 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+                    let trip = trips.new_trip(start_time, ped_id, legs);
 
                     scheduler.enqueue_command(Command::SpawnPed(
                         start_time,
                         CreatePedestrian {
-                            id: ped_id,
+                            id: ped_id.unwrap(),
                             start,
                             goal: parking_spot,
                             path,
@@ -197,16 +187,13 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::JustWalking(start, goal) => {
-                    let ped_id = PedestrianID(self.ped_id_counter);
-                    self.ped_id_counter += 1;
-
                     let trip =
-                        trips.new_trip(start_time, Some(ped_id), vec![TripLeg::Walk(goal.clone())]);
+                        trips.new_trip(start_time, ped_id, vec![TripLeg::Walk(goal.clone())]);
 
                     scheduler.enqueue_command(Command::SpawnPed(
                         start_time,
                         CreatePedestrian {
-                            id: ped_id,
+                            id: ped_id.unwrap(),
                             start,
                             goal,
                             path,
@@ -215,15 +202,10 @@ impl TripSpawner {
                     ));
                 }
                 TripSpec::UsingBike(start, vehicle, goal) => {
-                    let ped_id = PedestrianID(self.ped_id_counter);
-                    self.ped_id_counter += 1;
-                    let bike_id = CarID(self.car_id_counter, VehicleType::Bike);
-                    self.car_id_counter += 1;
-
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
                         TripLeg::Walk(walk_to.clone()),
-                        TripLeg::Bike(vehicle.make(bike_id, None), goal.clone()),
+                        TripLeg::Bike(vehicle.make(car_id.unwrap(), None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
@@ -231,12 +213,12 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    let trip = trips.new_trip(start_time, Some(ped_id), legs);
+                    let trip = trips.new_trip(start_time, ped_id, legs);
 
                     scheduler.enqueue_command(Command::SpawnPed(
                         start_time,
                         CreatePedestrian {
-                            id: ped_id,
+                            id: ped_id.unwrap(),
                             start,
                             goal: walk_to,
                             path,

@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, Benchmark, CarID, DrawCarInput, DrawPedestrianInput, DrivingSimState, Event,
-    GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID,
-    Scheduler, ScoreSummary, SimStats, Summary, TripID, TripManager, TripSpawner, TripSpec,
-    VehicleSpec, VehicleType, WalkingSimState, TIMESTEP,
+    AgentID, Benchmark, CarID, DrawCarInput, DrawPedestrianInput, DrivingGoal, DrivingSimState,
+    Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot,
+    PedestrianID, Scheduler, ScoreSummary, SimStats, Summary, TripID, TripManager, TripSpawner,
+    TripSpec, VehicleSpec, VehicleType, WalkingSimState, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -27,6 +27,8 @@ pub struct Sim {
     scheduler: Scheduler,
     spawner: TripSpawner,
     time: Duration,
+    car_id_counter: usize,
+    ped_id_counter: usize,
 
     // TODO Reconsider these
     pub(crate) map_name: String,
@@ -55,6 +57,8 @@ impl Sim {
             scheduler: Scheduler::new(),
             spawner: TripSpawner::new(),
             time: Duration::ZERO,
+            car_id_counter: 0,
+            ped_id_counter: 0,
 
             map_name: map.get_name().to_string(),
             edits_name: map.get_edits().edits_name.to_string(),
@@ -64,9 +68,45 @@ impl Sim {
         }
     }
 
-    pub fn schedule_trip(&mut self, start_time: Duration, spec: TripSpec, map: &Map) {
+    pub fn schedule_trip(
+        &mut self,
+        start_time: Duration,
+        spec: TripSpec,
+        map: &Map,
+    ) -> (Option<PedestrianID>, Option<CarID>) {
+        let (ped_id, car_id) = match spec {
+            TripSpec::CarAppearing(_, ref spec, ref goal) => {
+                let car = CarID(self.car_id_counter, spec.vehicle_type);
+                self.car_id_counter += 1;
+                let ped = match goal {
+                    DrivingGoal::ParkNear(_) => {
+                        let id = PedestrianID(self.ped_id_counter);
+                        self.ped_id_counter += 1;
+                        Some(id)
+                    }
+                    _ => None,
+                };
+                (ped, Some(car))
+            }
+            TripSpec::UsingParkedCar(_, _, _)
+            | TripSpec::JustWalking(_, _)
+            | TripSpec::UsingTransit(_, _, _, _, _) => {
+                let id = PedestrianID(self.ped_id_counter);
+                self.ped_id_counter += 1;
+                (Some(id), None)
+            }
+            TripSpec::UsingBike(_, _, ref goal) => {
+                let ped = PedestrianID(self.ped_id_counter);
+                self.ped_id_counter += 1;
+                let car = CarID(self.car_id_counter, VehicleType::Bike);
+                self.car_id_counter += 1;
+                (Some(ped), Some(car))
+            }
+        };
+
         self.spawner
-            .schedule_trip(start_time, spec, map, &self.parking);
+            .schedule_trip(start_time, ped_id, car_id, spec, map, &self.parking);
+        (ped_id, car_id)
     }
 
     pub fn spawn_all_trips(&mut self, map: &Map, timer: &mut Timer) {
@@ -89,8 +129,9 @@ impl Sim {
         spot: ParkingSpot,
         owner: Option<BuildingID>,
     ) -> CarID {
-        let id = CarID(self.spawner.car_id_counter, VehicleType::Car);
-        self.spawner.car_id_counter += 1;
+        let id = CarID(self.car_id_counter, VehicleType::Car);
+        self.car_id_counter += 1;
+
         self.parking.reserve_spot(spot);
         self.parking.add_parked_car(ParkedCar {
             vehicle: vehicle.make(id, owner),
