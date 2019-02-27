@@ -307,6 +307,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     );
                 }
             }
+
+            state.primary.sim.draw_unzoomed(g, &state.primary.map);
         } else {
             let mut cache = state.primary.draw_map.agents.borrow_mut();
             let objects =

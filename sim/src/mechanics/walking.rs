@@ -336,7 +336,10 @@ impl Pedestrian {
             id: self.id,
             pos,
             waiting_for_turn: None,
-            preparing_bike: false,
+            preparing_bike: match self.state {
+                PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _) => true,
+                _ => false,
+            },
             on,
         }
     }
