@@ -1,7 +1,7 @@
-use crate::{CarID, PedestrianID, VehicleType};
 use crate::{
-    Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
-    Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
+    PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    VehicleType,
 };
 use abstutil::Timer;
 use geom::Duration;

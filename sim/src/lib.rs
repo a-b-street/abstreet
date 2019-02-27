@@ -13,14 +13,14 @@ pub use self::make::{
     load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
     SimFlags, SpawnOverTime, TripSpawner, TripSpec,
 };
-pub use self::mechanics::{
+pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
 pub use self::query::{Benchmark, ScoreSummary, SimStats, Summary};
-pub use self::router::{ActionAtEnd, Router};
-pub use self::scheduler::{Command, Scheduler};
+pub(crate) use self::router::{ActionAtEnd, Router};
+pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
-pub use self::trips::{TripLeg, TripManager};
+pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Speed};

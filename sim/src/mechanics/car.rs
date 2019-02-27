@@ -1,5 +1,6 @@
-use crate::{CarStatus, DrawCarInput};
-use crate::{DistanceInterval, ParkingSpot, Router, TimeInterval, Vehicle};
+use crate::{
+    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, Vehicle,
+};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};

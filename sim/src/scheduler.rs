@@ -1,6 +1,5 @@
-use crate::AgentID;
 use crate::{
-    CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkingSimState,
+    AgentID, CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkingSimState,
     TripManager, WalkingSimState,
 };
 use geom::Duration;

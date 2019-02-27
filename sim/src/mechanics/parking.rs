@@ -1,5 +1,4 @@
-use crate::{CarID, CarStatus, DrawCarInput, VehicleType};
-use crate::{ParkedCar, ParkingSpot, Vehicle};
+use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle, VehicleType};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap,
 };

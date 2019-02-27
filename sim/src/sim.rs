@@ -1,11 +1,8 @@
 use crate::{
-    AgentID, CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TripID,
-    VehicleType,
-};
-use crate::{
-    Benchmark, DrivingSimState, Event, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, Scheduler, ScoreSummary, SimStats, Summary, TripManager, TripSpawner, TripSpec,
-    VehicleSpec, WalkingSimState, TIMESTEP,
+    AgentID, Benchmark, CarID, DrawCarInput, DrawPedestrianInput, DrivingSimState, Event,
+    GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID,
+    Scheduler, ScoreSummary, SimStats, Summary, TripID, TripManager, TripSpawner, TripSpec,
+    VehicleSpec, VehicleType, WalkingSimState, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;

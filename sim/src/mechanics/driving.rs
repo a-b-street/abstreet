@@ -1,10 +1,9 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
-    ActionAtEnd, CreateCar, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler,
-    TimeInterval, TripManager, BUS_LENGTH, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, CarID, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
+    ParkingSimState, Scheduler, TimeInterval, TripManager, BUS_LENGTH, FOLLOWING_DISTANCE,
 };
-use crate::{AgentID, CarID, DrawCarInput};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};

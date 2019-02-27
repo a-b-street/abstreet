@@ -1,7 +1,6 @@
-use crate::{AgentID, CarID, PedestrianID, TripID};
 use crate::{
-    Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
-    Scheduler, SidewalkPOI, SidewalkSpot, Vehicle,
+    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState,
+    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TripID, Vehicle,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;

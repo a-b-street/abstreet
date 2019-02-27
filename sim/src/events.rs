@@ -1,5 +1,4 @@
-use crate::ParkingSpot;
-use crate::{AgentID, CarID, PedestrianID};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
 use map_model::{BuildingID, BusStopID, Traversable, TurnID};
 
 #[derive(Debug, PartialEq, Eq)]

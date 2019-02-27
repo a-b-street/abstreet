@@ -1,7 +1,6 @@
-use crate::{AgentID, DrawPedestrianInput, PedestrianID};
 use crate::{
-    CreatePedestrian, DistanceInterval, IntersectionSimState, ParkingSimState, Scheduler,
-    SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
+    AgentID, CreatePedestrian, DistanceInterval, DrawPedestrianInput, IntersectionSimState,
+    ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap};
 use geom::{Distance, Duration, Line, Speed};

@@ -1,7 +1,6 @@
-use crate::{CarID, VehicleType};
 use crate::{
-    DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, MAX_BIKE_LENGTH,
-    MAX_CAR_LENGTH, MIN_BIKE_LENGTH, MIN_CAR_LENGTH,
+    CarID, DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
+    MAX_BIKE_LENGTH, MAX_CAR_LENGTH, MIN_BIKE_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil;
 use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
